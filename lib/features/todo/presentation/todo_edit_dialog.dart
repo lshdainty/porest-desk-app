@@ -8,6 +8,7 @@ import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../shared/widgets/markdown_preview.dart';
 import '../application/todo_providers.dart';
 import '../domain/todo.dart';
 
@@ -40,6 +41,7 @@ class _Body extends ConsumerStatefulWidget {
 class _BodyState extends ConsumerState<_Body> {
   late final TextEditingController _titleCtrl;
   late final TextEditingController _contentCtrl;
+  bool _previewContent = false;
   late final TextEditingController _categoryCtrl;
   late String _priority;
   DateTime? _due;
@@ -236,14 +238,61 @@ class _BodyState extends ConsumerState<_Body> {
           ),
           const SizedBox(height: PSpace.x12),
 
-          Text('상세 내용 (선택)',
-              style: PTypo.caption.copyWith(color: t.fgSecondary)),
-          const SizedBox(height: PSpace.x4),
-          TextField(
-            controller: _contentCtrl,
-            maxLines: 4,
-            decoration: const InputDecoration(hintText: '추가 내용'),
+          Row(
+            children: [
+              Text('상세 내용 (선택)',
+                  style: PTypo.caption.copyWith(color: t.fgSecondary)),
+              const Spacer(),
+              GestureDetector(
+                onTap: () =>
+                    setState(() => _previewContent = !_previewContent),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 6, vertical: 4),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                          _previewContent
+                              ? LucideIcons.pencil
+                              : LucideIcons.eye,
+                          size: 12,
+                          color: t.fgSecondary),
+                      const SizedBox(width: 4),
+                      Text(_previewContent ? '편집' : '미리보기',
+                          style: PTypo.caption.copyWith(
+                              color: t.fgSecondary,
+                              fontWeight: FontWeight.w600)),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
+          const SizedBox(height: PSpace.x4),
+          if (_previewContent)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              constraints: const BoxConstraints(minHeight: 80),
+              decoration: BoxDecoration(
+                color: t.bgMuted,
+                borderRadius: PRadius.brSm,
+                border: Border.all(color: t.borderSubtle),
+              ),
+              child: _contentCtrl.text.trim().isEmpty
+                  ? Text('내용 없음',
+                      style: PTypo.caption.copyWith(color: t.fgTertiary))
+                  : MarkdownPreview(_contentCtrl.text),
+            )
+          else
+            TextField(
+              controller: _contentCtrl,
+              maxLines: 6,
+              decoration: const InputDecoration(
+                hintText: '예: # 제목 / **굵게** / - 항목 / - [ ] 체크',
+              ),
+            ),
 
           if (_isEdit) ...[
             const SizedBox(height: PSpace.x16),
