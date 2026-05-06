@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../core/auth/auth_notifier.dart';
 import '../features/asset/presentation/asset_screen.dart';
 import '../features/budget/presentation/budget_screen.dart';
+import '../features/category/presentation/category_screen.dart';
 import '../features/auth/presentation/login_screen.dart';
 import '../features/auth/presentation/splash_screen.dart';
 import '../features/dashboard/presentation/dashboard_screen.dart';
@@ -49,6 +50,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/assets', builder: (_, _) => const AssetScreen()),
       GoRoute(path: '/budget', builder: (_, _) => const BudgetScreen()),
       GoRoute(path: '/recurring', builder: (_, _) => const RecurringScreen()),
+      GoRoute(path: '/categories', builder: (_, _) => const CategoryScreen()),
 
       // 모바일 셸 (홈/가계부/통계/전체 4개 분기)
       StatefulShellRoute.indexedStack(

@@ -24,6 +24,8 @@ class MoreScreen extends ConsumerWidget {
       _MoreItem(LucideIcons.calendarDays, '캘린더'),
       _MoreItem(LucideIcons.repeat, '반복 거래',
           onTap: (ctx, _) => ctx.push('/recurring')),
+      _MoreItem(LucideIcons.tag, '카테고리',
+          onTap: (ctx, _) => ctx.push('/categories')),
       _MoreItem(LucideIcons.creditCard, '카드 관리'),
       _MoreItem(LucideIcons.users, '그룹'),
       _MoreItem(LucideIcons.divide, '더치페이'),

@@ -120,6 +120,61 @@ class ExpenseRepository {
     }
   }
 
+  Future<ExpenseCategory> createCategory({
+    required String categoryName,
+    String? icon,
+    String? color,
+    required String expenseType, // 'EXPENSE' | 'INCOME' | 'TRANSFER'
+    int? parentRowId,
+  }) async {
+    try {
+      final res = await _dio.post<Map<String, dynamic>>(
+        '/expense/category',
+        data: {
+          'categoryName': categoryName,
+          'icon': ?icon,
+          'color': ?color,
+          'expenseType': expenseType,
+          'parentRowId': ?parentRowId,
+        },
+      );
+      return _unwrap(res, ExpenseCategory.fromJson);
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  Future<ExpenseCategory> updateCategory({
+    required int id,
+    required String categoryName,
+    String? icon,
+    String? color,
+    int? sortOrder,
+  }) async {
+    try {
+      final res = await _dio.put<Map<String, dynamic>>(
+        '/expense/category/$id',
+        data: {
+          'categoryName': categoryName,
+          'icon': ?icon,
+          'color': ?color,
+          'sortOrder': ?sortOrder,
+        },
+      );
+      return _unwrap(res, ExpenseCategory.fromJson);
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  Future<void> deleteCategory(int id) async {
+    try {
+      await _dio.delete<void>('/expense/category/$id');
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
   // ─────────────────────────────────────────────
   // Helpers
   // ─────────────────────────────────────────────
