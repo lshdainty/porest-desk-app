@@ -159,7 +159,7 @@
 - [x] **#202 i18n: layout.arb** (commit `5171f9d`) — nav* 24키 ARB + MobileTabBar/MoreScreen 마이그레이션. mobile_header 는 후속
 - [ ] **#203 i18n: dashboard.arb** (M) — front `dashboard.json` (166 키, 가장 큼)
 - [ ] **#204 i18n: expense.arb** (M) — front `expense.json` (158 키). ExpenseScreen/AddTxSheet/ExportDialog
-- [ ] **#205 i18n: asset.arb** (M) — front `asset.json` (43 키, assetType.* 7종). AssetScreen/AssetTransferDialog/CardScreen
+- [x] **#205 i18n: asset.arb 추가** (commit `c7d3f9c`) — 21키 ARB (assetTitle/totalBalance/empty/types/groups). 화면 측 호출부 마이그레이션은 후속
 - [ ] **#206 i18n: calendar.arb** (M) — front `calendar.json` (103 키). CalendarScreen/EventDialog
 - [ ] **#207 i18n: todo.arb** (S) — front `todo.json` (81 키)
 - [ ] **#208 i18n: memo.arb** (S) — front `memo.json` (41 키)
@@ -186,7 +186,7 @@
 - [x] **#242 자산 단건 GET** (commit `90f51a6`) — `getById` + `assetByIdProvider`
 - [x] **#243 자산 순서 변경 PATCH** (commit `90f51a6`) — `reorder(items)` 추가, UI 드래그는 추후
 - [x] **#244 자산 이체 내역 리스트** (commit `90f51a6`) — `listTransfers(startDate, endDate)` + `assetTransfersProvider`. UI 화면은 추후
-- [ ] **#245 카드/투자 카탈로그 풀 폼** (L) — front `CardAddDialog` 323줄, `InvestmentAddDialog` 241줄. Flutter 는 chip 노출만 분기 (#134 partial)
+- [x] **#245 CardAddDialog 카드 카탈로그 연결** (commit `ff38c92`) — `card_catalog_picker.dart` 재사용 picker, AssetEditBody 카드 모드에서 검색 → 자동 입력. 투자 카탈로그(증권사 검색)는 후속
 
 ## E. 거래 / 카테고리 / 예산
 
@@ -240,7 +240,7 @@
 
 - [x] **#320 TodoProject CRUD + 관리 다이얼로그** (commit `4f03082`) — domain/repo/provider + `todo_project_management_dialog.dart` (이름/설명/색 + 인라인 편집). 칸반/그룹 뷰는 #322 별도
 - [x] **#321 TodoTag CRUD + 관리 다이얼로그** (commit `4f03082`) — domain/repo/provider + `todo_tag_management_dialog.dart`. `updateTags(id, tagIds)` API 는 #62c381d 에서 추가 완료
-- [ ] **#322 Todo 칸반 보드 뷰** (L) — front `KanbanBoard/Column/Card` + dnd. Flutter 단일 list 뷰만
+- [x] **#322 Todo 칸반 보드 뷰** (commit `bac848e`) — `todo_kanban_view.dart` 3컬럼 (대기/진행중/완료), DragTarget+LongPressDraggable, AppBar 토글
 - [x] **#323 Todo 서브태스크 UI** (commit `53f9909`) — todo_edit_dialog 에 _SubtaskSection (편집 모드 전용), 추가/체크 토글/삭제
 - [x] **#324 Todo reorder API** (commit `62c381d`) — `reorder(items)` + `getById` + `getSubtasks` + `updateTags`
 - [x] **#325 Todo 통계 (TodoStats)** (commit `62c381d`) — `domain/todo_stats.dart` + `stats()` + `todoStatsProvider`
@@ -271,7 +271,7 @@
 - [x] **#370 카드 사용 가능 혜택(availableBenefits) API** (commit `93a04ff`) — `availableBenefits(cardRowId, expenseCategoryRowId?)` 추가. UI 자동 추천은 후속
 - [x] **#371 CardPerformance 도메인 + 진척 바** (commit `de447c1`) — `domain/card_performance.dart` + repo + provider + `card_performance_bar.dart` 위젯 + AssetDetailDialog 카드 자산일 때 노출
 - [x] **#372 CardBenefitMapping 도메인 + 매핑 다이얼로그** (commit `3dee797`) — domain/repo/provider + 매핑 관리 dialog (혜택→카테고리 매핑, 시스템/커스텀 구분), CardScreen AppBar 진입점
-- [ ] **#373 CardCatalogCombobox (자산 등록 시 카드 자동완성)** (M) — front. Flutter 없음
+- [x] **#373 CardCatalogCombobox** (commit `ff38c92`) — `showCardCatalogPicker` BottomSheet (검색+신용/체크 칩+페이지) → CardCatalogSummary 반환
 - [x] **#374 카드 검색 benefitType / includeDiscontinued 필터** (commit `93a04ff`) — 칩 + 단종 토글 추가
 - [x] **#375 카드 카탈로그 페이지네이션** (commit `93a04ff`) — `CardCatalogPage` + paginator (이전/다음, 총 N건)
 
@@ -307,7 +307,7 @@
 
 ## V. 라우팅 / 테마
 
-- [ ] **#430 카드 상세 paramized 라우트 (deep link)** (S) — front `/desk/card/:assetRowId`. Flutter `Navigator.push` 직접 — go_router 외부, deep link 불가
+- [x] **#430 카드 상세 paramized 라우트** (commit `ff38c92`) — `/cards/:id` 라우트 추가, card_screen 의 직접 push → context.push('/cards/N')
 - [ ] **#431 card-settings 라우트** (M) — #372 와 묶임
 - [ ] **#432 PDensity.cozy 키 정렬** (S) — front `cozy` ↔ Flutter `comfortable` 직렬화 키 mismatch. front prefs 동기화 시 깨짐
 
