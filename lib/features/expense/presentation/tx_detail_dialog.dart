@@ -13,6 +13,7 @@ import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
+import '../../dutch_pay/presentation/dutch_pay_create_dialog.dart';
 import '../../expense_split/presentation/split_tx_dialog.dart';
 import '../../recurring/presentation/recurring_edit_dialog.dart';
 import '../application/expense_providers.dart';
@@ -220,6 +221,20 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                 ),
               ),
             ],
+          ),
+          const SizedBox(height: PSpace.x8),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: _deleting
+                  ? null
+                  : () {
+                      Navigator.of(context).pop();
+                      showDutchPayCreateDialog(context, fromExpense: e);
+                    },
+              icon: const Icon(LucideIcons.divide, size: 16),
+              label: const Text('더치페이로'),
+            ),
           ),
         ],
       ),

@@ -9,14 +9,20 @@ import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
+import '../../expense/domain/expense.dart' show Expense;
 import '../application/dutch_pay_providers.dart';
 
-void showDutchPayCreateDialog(BuildContext context) {
+/// 더치페이 만들기 시트.
+///
+/// [fromExpense] 가 주어지면 해당 거래를 기반으로 (title=가맹점/메모, totalAmount=금액,
+/// date=expenseDate) 미리 채워지며 sourceExpenseRowId 로 연결된다 — front
+/// `DutchPayFromTxDialog` 미러.
+void showDutchPayCreateDialog(BuildContext context, {Expense? fromExpense}) {
   WoltModalSheet.show<void>(
     context: context,
     pageListBuilder: (modalCtx) => [
       WoltModalSheetPage(
-        topBarTitle: const Text('더치페이 만들기'),
+        topBarTitle: Text(fromExpense == null ? '더치페이 만들기' : '거래에서 더치페이'),
         isTopBarLayerAlwaysVisible: true,
         backgroundColor:
             Theme.of(modalCtx).extension<PorestTokens>()?.bgSurface,
@@ -24,7 +30,7 @@ void showDutchPayCreateDialog(BuildContext context) {
           icon: const Icon(LucideIcons.x),
           onPressed: Navigator.of(modalCtx).pop,
         ),
-        child: const _Body(),
+        child: _Body(fromExpense: fromExpense),
       ),
     ],
   );
@@ -37,21 +43,45 @@ class _Pname {
 }
 
 class _Body extends ConsumerStatefulWidget {
-  const _Body();
+  const _Body({this.fromExpense});
+  final Expense? fromExpense;
   @override
   ConsumerState<_Body> createState() => _BodyState();
 }
 
 class _BodyState extends ConsumerState<_Body> {
-  final _titleCtrl = TextEditingController();
-  final _amountCtrl = TextEditingController();
+  late final TextEditingController _titleCtrl;
+  late final TextEditingController _amountCtrl;
   String _split = 'EQUAL';
-  DateTime _date = DateTime.now();
+  late DateTime _date;
   final List<_Pname> _participants = [
     _Pname(name: ''),
     _Pname(name: ''),
   ];
   bool _submitting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final fe = widget.fromExpense;
+    _titleCtrl = TextEditingController(
+      text: fe?.merchant?.isNotEmpty == true
+          ? fe!.merchant
+          : (fe?.description ?? ''),
+    );
+    _amountCtrl = TextEditingController(
+      text: fe == null ? '' : fe.amount.abs().toString(),
+    );
+    if (fe?.expenseDate != null) {
+      try {
+        _date = DateTime.parse(fe!.expenseDate!.substring(0, 10));
+      } catch (_) {
+        _date = DateTime.now();
+      }
+    } else {
+      _date = DateTime.now();
+    }
+  }
 
   @override
   void dispose() {
@@ -109,6 +139,7 @@ class _BodyState extends ConsumerState<_Body> {
         totalAmount: _total,
         splitMethod: _split,
         dutchPayDate: _fmtDate(_date),
+        sourceExpenseRowId: widget.fromExpense?.rowId,
         participants: payload,
       );
       ref.invalidate(dutchPayListProvider);

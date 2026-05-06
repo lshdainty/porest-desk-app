@@ -23,6 +23,7 @@ class DutchPayRepository {
     required int totalAmount,
     String? splitMethod,
     String? dutchPayDate, // YYYY-MM-DD
+    int? sourceExpenseRowId,
     required List<({String? name, int? userRowId, int amount})> participants,
   }) async {
     try {
@@ -34,6 +35,7 @@ class DutchPayRepository {
           'totalAmount': totalAmount,
           'splitMethod': splitMethod ?? 'EQUAL',
           'dutchPayDate': ?dutchPayDate,
+          'sourceExpenseRowId': ?sourceExpenseRowId,
           'participants': [
             for (final p in participants)
               {
