@@ -11,6 +11,7 @@ import '../../../core/network/api_exception.dart';
 import '../application/todo_providers.dart';
 import '../domain/todo.dart';
 import 'todo_edit_dialog.dart';
+import 'todo_kanban_view.dart';
 import 'todo_project_management_dialog.dart';
 import 'todo_tag_management_dialog.dart';
 
@@ -22,6 +23,7 @@ class TodoScreen extends ConsumerStatefulWidget {
 
 class _TodoScreenState extends ConsumerState<TodoScreen> {
   String? _statusFilter; // null = 전체, PENDING, IN_PROGRESS, COMPLETED
+  bool _kanban = false;
 
   TodoFilter get _filter => (status: _statusFilter, priority: null);
 
@@ -68,6 +70,12 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
         foregroundColor: t.fgPrimary,
         elevation: 0,
         actions: [
+          IconButton(
+            tooltip: _kanban ? '리스트 보기' : '칸반 보기',
+            icon: Icon(_kanban ? LucideIcons.list : LucideIcons.layoutGrid,
+                size: 20, color: t.fgSecondary),
+            onPressed: () => setState(() => _kanban = !_kanban),
+          ),
           PopupMenuButton<String>(
             icon: Icon(LucideIcons.moreVertical, color: t.fgSecondary),
             onSelected: (v) {
@@ -133,7 +141,9 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
         onPressed: () => showTodoEditDialog(context),
         child: const Icon(LucideIcons.plus),
       ),
-      body: RefreshIndicator(
+      body: _kanban
+          ? const TodoKanbanView(priority: null)
+          : RefreshIndicator(
         color: t.bgBrand,
         onRefresh: () async {
           ref.invalidate(todoListProvider(_filter));
