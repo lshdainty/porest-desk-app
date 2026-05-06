@@ -2,8 +2,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/network/dio_provider.dart';
 import '../data/calendar_repository.dart';
+import '../data/event_comment_repository.dart';
 import '../domain/calendar_aggregate.dart';
 import '../domain/calendar_event.dart';
+import '../domain/event_comment.dart';
 import '../domain/event_label.dart';
 
 final calendarRepositoryProvider =
@@ -39,4 +41,18 @@ final calendarAggregateProvider =
     FutureProvider.family<CalendarAggregate, AggregateRange>((ref, key) async {
   final repo = await ref.watch(calendarRepositoryProvider.future);
   return repo.aggregate(startDate: key.startDate, endDate: key.endDate);
+});
+
+/// 이벤트 코멘트 repository.
+final eventCommentRepositoryProvider =
+    FutureProvider<EventCommentRepository>((ref) async {
+  final dio = await ref.watch(dioProvider.future);
+  return EventCommentRepository(dio);
+});
+
+/// 특정 이벤트의 코멘트 목록.
+final eventCommentsProvider =
+    FutureProvider.family<List<EventComment>, int>((ref, eventId) async {
+  final repo = await ref.watch(eventCommentRepositoryProvider.future);
+  return repo.list(eventId);
 });
