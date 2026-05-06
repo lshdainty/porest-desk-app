@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
@@ -10,6 +11,7 @@ import '../../../core/format/krw.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../application/expense_providers.dart';
 import '../domain/expense.dart';
+import 'filter_dialog.dart';
 import 'widgets/expense_row.dart';
 import 'widgets/month_picker.dart';
 
@@ -26,8 +28,14 @@ enum _Filter { all, expense, income }
 class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
   late DateTime _month = monthStart(DateTime.now());
   _Filter _filter = _Filter.all;
+  ExpenseFilter _advFilter = const ExpenseFilter();
 
   MonthKey get _key => (year: _month.year, month: _month.month);
+
+  Future<void> _openFilter() async {
+    final result = await showFilterDialog(context, _advFilter);
+    if (result != null && mounted) setState(() => _advFilter = result);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,12 +54,23 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
         padding: const EdgeInsets.symmetric(
             horizontal: PSpace.x16, vertical: PSpace.x16),
         children: [
-          MonthPicker(
-            month: _month,
-            onPrev: () => setState(() =>
-                _month = DateTime(_month.year, _month.month - 1, 1)),
-            onNext: () => setState(() =>
-                _month = DateTime(_month.year, _month.month + 1, 1)),
+          Row(
+            children: [
+              Expanded(
+                child: MonthPicker(
+                  month: _month,
+                  onPrev: () => setState(() =>
+                      _month = DateTime(_month.year, _month.month - 1, 1)),
+                  onNext: () => setState(() =>
+                      _month = DateTime(_month.year, _month.month + 1, 1)),
+                ),
+              ),
+              _FilterButton(
+                active: !_advFilter.isEmpty,
+                count: _advFilter.categoryIds.length + _advFilter.assetIds.length,
+                onTap: _openFilter,
+              ),
+            ],
           ),
           const SizedBox(height: PSpace.x12),
 
@@ -75,6 +94,16 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                   case _Filter.income:
                     return e.expenseType == 'INCOME';
                 }
+              }).where((e) {
+                if (_advFilter.categoryIds.isNotEmpty &&
+                    !_advFilter.categoryIds.contains(e.categoryRowId)) {
+                  return false;
+                }
+                if (_advFilter.assetIds.isNotEmpty &&
+                    !_advFilter.assetIds.contains(e.assetRowId)) {
+                  return false;
+                }
+                return true;
               }).toList()
                 ..sort((a, b) =>
                     (b.expenseDate ?? '').compareTo(a.expenseDate ?? ''));
@@ -334,6 +363,56 @@ class _ErrorBox extends StatelessWidget {
           const SizedBox(height: PSpace.x8),
           OutlinedButton(onPressed: onRetry, child: const Text('다시 시도')),
         ],
+      ),
+    );
+  }
+}
+
+class _FilterButton extends StatelessWidget {
+  const _FilterButton({
+    required this.active,
+    required this.count,
+    required this.onTap,
+  });
+  final bool active;
+  final int count;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: PRadius.brMd,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: PSpace.x12, vertical: 8),
+        decoration: BoxDecoration(
+          color: active ? t.bgBrandSubtle : Colors.transparent,
+          border: Border.all(
+            color: active ? t.borderBrand : t.borderDefault,
+          ),
+          borderRadius: PRadius.brMd,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(LucideIcons.filter,
+                size: 16, color: active ? t.fgBrand : t.fgSecondary),
+            if (active) ...[
+              const SizedBox(width: 4),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                decoration: BoxDecoration(
+                  color: t.bgBrand,
+                  borderRadius: PRadius.brPill,
+                ),
+                child: Text('$count',
+                    style: PTypo.micro.copyWith(
+                        color: t.fgOnBrand, fontWeight: FontWeight.w700)),
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }
