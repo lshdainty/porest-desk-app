@@ -221,7 +221,7 @@
 ## I. 더치페이 / 정산
 
 - [ ] **#290 더치페이 단건 GET + 수정** (M) — front `useDutchPay(id)` / `useUpdateDutchPay`. Flutter repo `get`/`update` 없음, 수정 UI 없음
-- [ ] **#291 DutchPayFromTxDialog 풀 폼** (M) — front 610줄, 분배 방식(EQUAL/CUSTOM) 토글, 그룹 멤버 picker. Flutter 의 `showDutchPayCreateDialog(fromExpense:)` 는 얕은 폼 (#132 partial)
+- [x] **#291 DutchPayFromTxDialog 그룹 멤버 picker + 1인당 자동계산** (commit `980330c`) — siblingMembersProvider 기반 다중선택 BottomSheet, EQUAL 시 1인당 표시
 
 ## J. 캘린더
 
@@ -251,7 +251,7 @@
 ## M. 메모
 
 - [ ] **#340 MemoFolder 도메인 (트리 + reorder)** (L) — front `memoFolderApi` + `MemoFolderTree`. Flutter `folderId` 파라미터만, 폴더 도메인 자체 0
-- [ ] **#341 메모 검색 (search 파라미터)** (S) — front `getMemos({folderId, search})` + `MemoSearch`. Flutter `list()` 무파라미터
+- [x] **#341 메모 검색 (search 파라미터)** (commit `2445776`) — `list({folderId, search})` + `memoSearchProvider` + AppBar bottom 검색 입력
 - [ ] **#342 3패널 메모 에디터 (트리/리스트/프리뷰)** (L) — front `MemoEditorWidget` + `MemoFolderTree` + `MemoList` + `MemoPreview`. Flutter 단일 ListView
 
 ## N. 저금 목표
@@ -261,19 +261,19 @@
 
 ## O. 그룹
 
-- [ ] **#360 GroupType CRUD + 관리 다이얼로그** (M) — front `groupTypeApi` + `GroupTypeManagementDialog`. Flutter 표시만 가능, CRUD 0
+- [x] **#360 GroupType CRUD + 관리 다이얼로그** (commit `bc832d9`) — domain/repo/provider + `group_type_management_dialog.dart` (이름/색 + 인라인 편집)
 - [x] **#361 그룹 형제 멤버 조회 (getSiblingMembers)** (commit `9807705`) — `SiblingMember` plain class + `getSiblingMembers` + `siblingMembersProvider`
 - [ ] **#362 그룹 일정 탭 + 지출 탭** (L) — front `GroupScheduleTab/GroupExpenseTab` + `getGroupEvents/getGroupExpenses`. Flutter `group_detail_screen` 멤버 패널만
-- [ ] **#363 그룹 수정/삭제 UI 진입점** (M) — front `GroupForm` 수정 모드. Flutter repo update/delete 있으나 UI 호출 없음
+- [x] **#363 그룹 수정/삭제 UI 진입점** (commit `b98e2c7`) — GroupDetailScreen AppBar PopupMenu (OWNER 만), 수정/삭제 다이얼로그
 
 ## P. 카드
 
-- [ ] **#370 카드 사용 가능 혜택(availableBenefits) API** (S) — front `getAvailableBenefits(cardRowId, expenseCategoryRowId)`. Flutter 0 → 지출 입력 시 카드별 혜택 자동 추천 불가
+- [x] **#370 카드 사용 가능 혜택(availableBenefits) API** (commit `93a04ff`) — `availableBenefits(cardRowId, expenseCategoryRowId?)` 추가. UI 자동 추천은 후속
 - [ ] **#371 CardPerformance 도메인 + 진척 바** (M) — front `cardPerformanceApi` + `CardPerformanceSection`. Flutter 0
 - [ ] **#372 CardBenefitMapping 도메인 + 설정 페이지** (L) — front `cardBenefitMappingApi` + `CardSettingsPage` + 매핑 에디터 (라우트 `/desk/card-settings`). Flutter 라우트·기능 0
 - [ ] **#373 CardCatalogCombobox (자산 등록 시 카드 자동완성)** (M) — front. Flutter 없음
-- [ ] **#374 카드 검색 benefitType / includeDiscontinued 필터** (S) — front 4 필터, Flutter 2 필터만 (`card_screen`)
-- [ ] **#375 카드 카탈로그 페이지네이션** (M) — front `PageResponse` (totalPages/totalElements). Flutter 첫 30개만, 무한 스크롤 없음
+- [x] **#374 카드 검색 benefitType / includeDiscontinued 필터** (commit `93a04ff`) — 칩 + 단종 토글 추가
+- [x] **#375 카드 카탈로그 페이지네이션** (commit `93a04ff`) — `CardCatalogPage` + paginator (이전/다음, 총 N건)
 
 ## Q. 알림
 
