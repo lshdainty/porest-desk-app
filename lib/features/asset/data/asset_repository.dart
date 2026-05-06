@@ -4,6 +4,7 @@ import '../../../core/network/api_exception.dart';
 import '../../../core/network/api_response.dart';
 import '../domain/asset.dart';
 import '../domain/asset_summary.dart';
+import '../domain/asset_transfer.dart';
 import '../domain/net_worth_point.dart';
 
 class AssetRepository {
@@ -18,6 +19,47 @@ class AssetRepository {
     try {
       final res = await _dio.get<Map<String, dynamic>>('/assets');
       return _unwrapList(res, 'assets', Asset.fromJson);
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  /// 단건 조회. GET /asset/{id}.
+  Future<Asset> getById(int id) async {
+    try {
+      final res = await _dio.get<Map<String, dynamic>>('/asset/$id');
+      return _unwrap(res, Asset.fromJson);
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  /// 자산 정렬 순서 변경. PATCH /assets/reorder.
+  /// [items] = (assetRowId, sortOrder) pair 목록.
+  Future<void> reorder(List<({int assetId, int sortOrder})> items) async {
+    try {
+      await _dio.patch<dynamic>(
+        '/assets/reorder',
+        data: {
+          'items': [
+            for (final i in items)
+              {'assetId': i.assetId, 'sortOrder': i.sortOrder},
+          ],
+        },
+      );
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  /// 자산 잔액 추이 (주별). GET /asset/{id}/balance-trend?weeks=N.
+  Future<List<AssetBalancePoint>> balanceTrend(int id, {int weeks = 12}) async {
+    try {
+      final res = await _dio.get<Map<String, dynamic>>(
+        '/asset/$id/balance-trend',
+        queryParameters: {'weeks': weeks},
+      );
+      return _unwrapList(res, 'trend', AssetBalancePoint.fromJson);
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }
@@ -161,6 +203,25 @@ class AssetRepository {
   Future<void> deleteTransfer(int id) async {
     try {
       await _dio.delete<void>('/asset-transfer/$id');
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  /// 자산 이체 내역 조회. GET /asset-transfers?startDate&endDate.
+  Future<List<AssetTransfer>> listTransfers({
+    String? startDate,
+    String? endDate,
+  }) async {
+    try {
+      final res = await _dio.get<Map<String, dynamic>>(
+        '/asset-transfers',
+        queryParameters: {
+          'startDate': ?startDate,
+          'endDate': ?endDate,
+        },
+      );
+      return _unwrapList(res, 'transfers', AssetTransfer.fromJson);
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }
