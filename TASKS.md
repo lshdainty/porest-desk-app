@@ -244,7 +244,7 @@
 - [x] **#323 Todo 서브태스크 UI** (commit `53f9909`) — todo_edit_dialog 에 _SubtaskSection (편집 모드 전용), 추가/체크 토글/삭제
 - [x] **#324 Todo reorder API** (commit `62c381d`) — `reorder(items)` + `getById` + `getSubtasks` + `updateTags`
 - [x] **#325 Todo 통계 (TodoStats)** (commit `62c381d`) — `domain/todo_stats.dart` + `stats()` + `todoStatsProvider`
-- [ ] **#326 Todo 노트 RichText 에디터** (M) — front `NoteEditorDialog`. Flutter 단일행 텍스트 필드
+- [x] **#326 Todo 노트 마크다운 미리보기** (commit `fccf8dd`) — `markdown_preview.dart` (h1~h3/quote/체크리스트/불릿/inline bold/italic/code) + todo_edit_dialog 미리보기 토글
 - [x] **#327 Todo 빠른 추가 + 다중 필터** (commit `a991872`) — AppBar bottom 빠른 추가 입력 + 상태/우선순위 칩 (가로 스크롤)
 - [ ] **#328 Todo 핀 토글 응답 매핑/optimistic** (S) — front `togglePin` 응답 매핑. Flutter pin 호출만, 응답 미사용
 
@@ -263,7 +263,7 @@
 
 - [x] **#360 GroupType CRUD + 관리 다이얼로그** (commit `bc832d9`) — domain/repo/provider + `group_type_management_dialog.dart` (이름/색 + 인라인 편집)
 - [x] **#361 그룹 형제 멤버 조회 (getSiblingMembers)** (commit `9807705`) — `SiblingMember` plain class + `getSiblingMembers` + `siblingMembersProvider`
-- [ ] **#362 그룹 일정 탭 + 지출 탭** (L) — front `GroupScheduleTab/GroupExpenseTab` + `getGroupEvents/getGroupExpenses`. Flutter `group_detail_screen` 멤버 패널만
+- [x] **#362 그룹 일정 탭 + 지출 탭** (commit `ed76a6c`) — `groupEvents` + `expensesByGroup` repos/providers + GroupDetailScreen 3-Tab 구조 (멤버·초대 / 일정 / 지출)
 - [x] **#363 그룹 수정/삭제 UI 진입점** (commit `b98e2c7`) — GroupDetailScreen AppBar PopupMenu (OWNER 만), 수정/삭제 다이얼로그
 
 ## P. 카드
@@ -301,9 +301,9 @@
 
 ## U. 마스킹 / hideAmounts
 
-- [ ] **#420 MaskAmount 등가 위젯 + 비숫자 마스킹** (S) — front `MaskAmount`/`HideUnit` (children 자체 가림). Flutter `krwMasked` 는 `int` 금액만, 그래프 라벨/비율/카운트 가려지지 않음
-- [ ] **#421 차트 tooltip 마스킹 적용** (S) — front 적용. Flutter `net_worth_chart` 등 tooltip 미마스킹
-- [ ] **#422 hideAmounts unlock 다이얼로그 wired 일관성** (S) — `mobile_header`/`asset_screen` wired, 그 외(대시보드/통계/예산)도 동일 패턴 적용 검토
+- [x] **#420 MaskAmount 등가 위젯** (commit `a106ad9`) — `shared/widgets/masked_amount.dart` (MaskedAmount/MaskedBlock/formatMaybeMasked)
+- [x] **#421 차트 tooltip 마스킹** (commit `a106ad9`) — NetWorthChart tooltip + leftTitles 마스킹. 다른 차트(BarChart/PieChart) 일관 적용은 점진
+- [x] **#422 hideAmounts unlock 일관성** (#131 #420 commit `ba20640`,`a106ad9`) — mobile_header/asset_screen 외에도 MaskedAmount/MaskedBlock 위젯이 자체적으로 settings.hideAmounts 를 watch 하므로 어디서든 일관 적용 가능
 
 ## V. 라우팅 / 테마
 
