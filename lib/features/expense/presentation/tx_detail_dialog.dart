@@ -15,6 +15,7 @@ import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../dutch_pay/presentation/dutch_pay_create_dialog.dart';
 import '../../expense_split/presentation/split_tx_dialog.dart';
+import '../../file/presentation/file_attachment_section.dart';
 import '../../recurring/presentation/recurring_edit_dialog.dart';
 import '../application/expense_providers.dart';
 import '../domain/expense.dart';
@@ -157,6 +158,12 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
             _DetailRow(label: '결제 수단', value: e.paymentMethod!, tokens: t),
           if (e.description != null && e.description!.isNotEmpty)
             _DetailRow(label: '메모', value: e.description!, tokens: t),
+
+          const SizedBox(height: PSpace.x16),
+          FileAttachmentSection(
+            referenceType: 'EXPENSE',
+            referenceRowId: e.rowId,
+          ),
 
           const SizedBox(height: PSpace.x24),
 
