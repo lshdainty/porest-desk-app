@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Expense {
 
- int get rowId; int? get userRowId; int get categoryRowId; String? get categoryName; String? get categoryIcon; String? get categoryColor; int get assetRowId; String? get assetName; String get expenseType;// 'EXPENSE' | 'INCOME' | 'TRANSFER'
+ int get rowId; int? get userRowId; int? get categoryRowId; String? get categoryName; String? get categoryIcon; String? get categoryColor; int? get assetRowId; String? get assetName; String get expenseType;// 'EXPENSE' | 'INCOME'
  int get amount; String? get description; String? get expenseDate;// ISO LocalDateTime ('YYYY-MM-DDTHH:mm:ss')
  String? get merchant; String? get paymentMethod; int? get calendarEventRowId; int? get todoRowId; int? get groupRowId; String? get groupName; String? get createAt; String? get modifyAt;
 /// Create a copy of Expense
@@ -50,7 +50,7 @@ abstract mixin class $ExpenseCopyWith<$Res>  {
   factory $ExpenseCopyWith(Expense value, $Res Function(Expense) _then) = _$ExpenseCopyWithImpl;
 @useResult
 $Res call({
- int rowId, int? userRowId, int categoryRowId, String? categoryName, String? categoryIcon, String? categoryColor, int assetRowId, String? assetName, String expenseType, int amount, String? description, String? expenseDate, String? merchant, String? paymentMethod, int? calendarEventRowId, int? todoRowId, int? groupRowId, String? groupName, String? createAt, String? modifyAt
+ int rowId, int? userRowId, int? categoryRowId, String? categoryName, String? categoryIcon, String? categoryColor, int? assetRowId, String? assetName, String expenseType, int amount, String? description, String? expenseDate, String? merchant, String? paymentMethod, int? calendarEventRowId, int? todoRowId, int? groupRowId, String? groupName, String? createAt, String? modifyAt
 });
 
 
@@ -67,16 +67,16 @@ class _$ExpenseCopyWithImpl<$Res>
 
 /// Create a copy of Expense
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? rowId = null,Object? userRowId = freezed,Object? categoryRowId = null,Object? categoryName = freezed,Object? categoryIcon = freezed,Object? categoryColor = freezed,Object? assetRowId = null,Object? assetName = freezed,Object? expenseType = null,Object? amount = null,Object? description = freezed,Object? expenseDate = freezed,Object? merchant = freezed,Object? paymentMethod = freezed,Object? calendarEventRowId = freezed,Object? todoRowId = freezed,Object? groupRowId = freezed,Object? groupName = freezed,Object? createAt = freezed,Object? modifyAt = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? rowId = null,Object? userRowId = freezed,Object? categoryRowId = freezed,Object? categoryName = freezed,Object? categoryIcon = freezed,Object? categoryColor = freezed,Object? assetRowId = freezed,Object? assetName = freezed,Object? expenseType = null,Object? amount = null,Object? description = freezed,Object? expenseDate = freezed,Object? merchant = freezed,Object? paymentMethod = freezed,Object? calendarEventRowId = freezed,Object? todoRowId = freezed,Object? groupRowId = freezed,Object? groupName = freezed,Object? createAt = freezed,Object? modifyAt = freezed,}) {
   return _then(_self.copyWith(
 rowId: null == rowId ? _self.rowId : rowId // ignore: cast_nullable_to_non_nullable
 as int,userRowId: freezed == userRowId ? _self.userRowId : userRowId // ignore: cast_nullable_to_non_nullable
-as int?,categoryRowId: null == categoryRowId ? _self.categoryRowId : categoryRowId // ignore: cast_nullable_to_non_nullable
-as int,categoryName: freezed == categoryName ? _self.categoryName : categoryName // ignore: cast_nullable_to_non_nullable
+as int?,categoryRowId: freezed == categoryRowId ? _self.categoryRowId : categoryRowId // ignore: cast_nullable_to_non_nullable
+as int?,categoryName: freezed == categoryName ? _self.categoryName : categoryName // ignore: cast_nullable_to_non_nullable
 as String?,categoryIcon: freezed == categoryIcon ? _self.categoryIcon : categoryIcon // ignore: cast_nullable_to_non_nullable
 as String?,categoryColor: freezed == categoryColor ? _self.categoryColor : categoryColor // ignore: cast_nullable_to_non_nullable
-as String?,assetRowId: null == assetRowId ? _self.assetRowId : assetRowId // ignore: cast_nullable_to_non_nullable
-as int,assetName: freezed == assetName ? _self.assetName : assetName // ignore: cast_nullable_to_non_nullable
+as String?,assetRowId: freezed == assetRowId ? _self.assetRowId : assetRowId // ignore: cast_nullable_to_non_nullable
+as int?,assetName: freezed == assetName ? _self.assetName : assetName // ignore: cast_nullable_to_non_nullable
 as String?,expenseType: null == expenseType ? _self.expenseType : expenseType // ignore: cast_nullable_to_non_nullable
 as String,amount: null == amount ? _self.amount : amount // ignore: cast_nullable_to_non_nullable
 as int,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
@@ -174,7 +174,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int rowId,  int? userRowId,  int categoryRowId,  String? categoryName,  String? categoryIcon,  String? categoryColor,  int assetRowId,  String? assetName,  String expenseType,  int amount,  String? description,  String? expenseDate,  String? merchant,  String? paymentMethod,  int? calendarEventRowId,  int? todoRowId,  int? groupRowId,  String? groupName,  String? createAt,  String? modifyAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int rowId,  int? userRowId,  int? categoryRowId,  String? categoryName,  String? categoryIcon,  String? categoryColor,  int? assetRowId,  String? assetName,  String expenseType,  int amount,  String? description,  String? expenseDate,  String? merchant,  String? paymentMethod,  int? calendarEventRowId,  int? todoRowId,  int? groupRowId,  String? groupName,  String? createAt,  String? modifyAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Expense() when $default != null:
 return $default(_that.rowId,_that.userRowId,_that.categoryRowId,_that.categoryName,_that.categoryIcon,_that.categoryColor,_that.assetRowId,_that.assetName,_that.expenseType,_that.amount,_that.description,_that.expenseDate,_that.merchant,_that.paymentMethod,_that.calendarEventRowId,_that.todoRowId,_that.groupRowId,_that.groupName,_that.createAt,_that.modifyAt);case _:
@@ -195,7 +195,7 @@ return $default(_that.rowId,_that.userRowId,_that.categoryRowId,_that.categoryNa
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int rowId,  int? userRowId,  int categoryRowId,  String? categoryName,  String? categoryIcon,  String? categoryColor,  int assetRowId,  String? assetName,  String expenseType,  int amount,  String? description,  String? expenseDate,  String? merchant,  String? paymentMethod,  int? calendarEventRowId,  int? todoRowId,  int? groupRowId,  String? groupName,  String? createAt,  String? modifyAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int rowId,  int? userRowId,  int? categoryRowId,  String? categoryName,  String? categoryIcon,  String? categoryColor,  int? assetRowId,  String? assetName,  String expenseType,  int amount,  String? description,  String? expenseDate,  String? merchant,  String? paymentMethod,  int? calendarEventRowId,  int? todoRowId,  int? groupRowId,  String? groupName,  String? createAt,  String? modifyAt)  $default,) {final _that = this;
 switch (_that) {
 case _Expense():
 return $default(_that.rowId,_that.userRowId,_that.categoryRowId,_that.categoryName,_that.categoryIcon,_that.categoryColor,_that.assetRowId,_that.assetName,_that.expenseType,_that.amount,_that.description,_that.expenseDate,_that.merchant,_that.paymentMethod,_that.calendarEventRowId,_that.todoRowId,_that.groupRowId,_that.groupName,_that.createAt,_that.modifyAt);case _:
@@ -215,7 +215,7 @@ return $default(_that.rowId,_that.userRowId,_that.categoryRowId,_that.categoryNa
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int rowId,  int? userRowId,  int categoryRowId,  String? categoryName,  String? categoryIcon,  String? categoryColor,  int assetRowId,  String? assetName,  String expenseType,  int amount,  String? description,  String? expenseDate,  String? merchant,  String? paymentMethod,  int? calendarEventRowId,  int? todoRowId,  int? groupRowId,  String? groupName,  String? createAt,  String? modifyAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int rowId,  int? userRowId,  int? categoryRowId,  String? categoryName,  String? categoryIcon,  String? categoryColor,  int? assetRowId,  String? assetName,  String expenseType,  int amount,  String? description,  String? expenseDate,  String? merchant,  String? paymentMethod,  int? calendarEventRowId,  int? todoRowId,  int? groupRowId,  String? groupName,  String? createAt,  String? modifyAt)?  $default,) {final _that = this;
 switch (_that) {
 case _Expense() when $default != null:
 return $default(_that.rowId,_that.userRowId,_that.categoryRowId,_that.categoryName,_that.categoryIcon,_that.categoryColor,_that.assetRowId,_that.assetName,_that.expenseType,_that.amount,_that.description,_that.expenseDate,_that.merchant,_that.paymentMethod,_that.calendarEventRowId,_that.todoRowId,_that.groupRowId,_that.groupName,_that.createAt,_that.modifyAt);case _:
@@ -230,19 +230,19 @@ return $default(_that.rowId,_that.userRowId,_that.categoryRowId,_that.categoryNa
 @JsonSerializable()
 
 class _Expense implements Expense {
-  const _Expense({required this.rowId, this.userRowId, required this.categoryRowId, this.categoryName, this.categoryIcon, this.categoryColor, required this.assetRowId, this.assetName, required this.expenseType, required this.amount, this.description, this.expenseDate, this.merchant, this.paymentMethod, this.calendarEventRowId, this.todoRowId, this.groupRowId, this.groupName, this.createAt, this.modifyAt});
+  const _Expense({required this.rowId, this.userRowId, this.categoryRowId, this.categoryName, this.categoryIcon, this.categoryColor, this.assetRowId, this.assetName, required this.expenseType, required this.amount, this.description, this.expenseDate, this.merchant, this.paymentMethod, this.calendarEventRowId, this.todoRowId, this.groupRowId, this.groupName, this.createAt, this.modifyAt});
   factory _Expense.fromJson(Map<String, dynamic> json) => _$ExpenseFromJson(json);
 
 @override final  int rowId;
 @override final  int? userRowId;
-@override final  int categoryRowId;
+@override final  int? categoryRowId;
 @override final  String? categoryName;
 @override final  String? categoryIcon;
 @override final  String? categoryColor;
-@override final  int assetRowId;
+@override final  int? assetRowId;
 @override final  String? assetName;
 @override final  String expenseType;
-// 'EXPENSE' | 'INCOME' | 'TRANSFER'
+// 'EXPENSE' | 'INCOME'
 @override final  int amount;
 @override final  String? description;
 @override final  String? expenseDate;
@@ -289,7 +289,7 @@ abstract mixin class _$ExpenseCopyWith<$Res> implements $ExpenseCopyWith<$Res> {
   factory _$ExpenseCopyWith(_Expense value, $Res Function(_Expense) _then) = __$ExpenseCopyWithImpl;
 @override @useResult
 $Res call({
- int rowId, int? userRowId, int categoryRowId, String? categoryName, String? categoryIcon, String? categoryColor, int assetRowId, String? assetName, String expenseType, int amount, String? description, String? expenseDate, String? merchant, String? paymentMethod, int? calendarEventRowId, int? todoRowId, int? groupRowId, String? groupName, String? createAt, String? modifyAt
+ int rowId, int? userRowId, int? categoryRowId, String? categoryName, String? categoryIcon, String? categoryColor, int? assetRowId, String? assetName, String expenseType, int amount, String? description, String? expenseDate, String? merchant, String? paymentMethod, int? calendarEventRowId, int? todoRowId, int? groupRowId, String? groupName, String? createAt, String? modifyAt
 });
 
 
@@ -306,16 +306,16 @@ class __$ExpenseCopyWithImpl<$Res>
 
 /// Create a copy of Expense
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? rowId = null,Object? userRowId = freezed,Object? categoryRowId = null,Object? categoryName = freezed,Object? categoryIcon = freezed,Object? categoryColor = freezed,Object? assetRowId = null,Object? assetName = freezed,Object? expenseType = null,Object? amount = null,Object? description = freezed,Object? expenseDate = freezed,Object? merchant = freezed,Object? paymentMethod = freezed,Object? calendarEventRowId = freezed,Object? todoRowId = freezed,Object? groupRowId = freezed,Object? groupName = freezed,Object? createAt = freezed,Object? modifyAt = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? rowId = null,Object? userRowId = freezed,Object? categoryRowId = freezed,Object? categoryName = freezed,Object? categoryIcon = freezed,Object? categoryColor = freezed,Object? assetRowId = freezed,Object? assetName = freezed,Object? expenseType = null,Object? amount = null,Object? description = freezed,Object? expenseDate = freezed,Object? merchant = freezed,Object? paymentMethod = freezed,Object? calendarEventRowId = freezed,Object? todoRowId = freezed,Object? groupRowId = freezed,Object? groupName = freezed,Object? createAt = freezed,Object? modifyAt = freezed,}) {
   return _then(_Expense(
 rowId: null == rowId ? _self.rowId : rowId // ignore: cast_nullable_to_non_nullable
 as int,userRowId: freezed == userRowId ? _self.userRowId : userRowId // ignore: cast_nullable_to_non_nullable
-as int?,categoryRowId: null == categoryRowId ? _self.categoryRowId : categoryRowId // ignore: cast_nullable_to_non_nullable
-as int,categoryName: freezed == categoryName ? _self.categoryName : categoryName // ignore: cast_nullable_to_non_nullable
+as int?,categoryRowId: freezed == categoryRowId ? _self.categoryRowId : categoryRowId // ignore: cast_nullable_to_non_nullable
+as int?,categoryName: freezed == categoryName ? _self.categoryName : categoryName // ignore: cast_nullable_to_non_nullable
 as String?,categoryIcon: freezed == categoryIcon ? _self.categoryIcon : categoryIcon // ignore: cast_nullable_to_non_nullable
 as String?,categoryColor: freezed == categoryColor ? _self.categoryColor : categoryColor // ignore: cast_nullable_to_non_nullable
-as String?,assetRowId: null == assetRowId ? _self.assetRowId : assetRowId // ignore: cast_nullable_to_non_nullable
-as int,assetName: freezed == assetName ? _self.assetName : assetName // ignore: cast_nullable_to_non_nullable
+as String?,assetRowId: freezed == assetRowId ? _self.assetRowId : assetRowId // ignore: cast_nullable_to_non_nullable
+as int?,assetName: freezed == assetName ? _self.assetName : assetName // ignore: cast_nullable_to_non_nullable
 as String?,expenseType: null == expenseType ? _self.expenseType : expenseType // ignore: cast_nullable_to_non_nullable
 as String,amount: null == amount ? _self.amount : amount // ignore: cast_nullable_to_non_nullable
 as int,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable

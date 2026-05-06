@@ -119,8 +119,9 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                 final spentByCat = <int, int>{};
                 for (final e in expenses) {
                   if (e.expenseType != 'EXPENSE') continue;
-                  spentByCat.update(
-                      e.categoryRowId, (v) => v + e.amount,
+                  final cid = e.categoryRowId;
+                  if (cid == null) continue;
+                  spentByCat.update(cid, (v) => v + e.amount,
                       ifAbsent: () => e.amount);
                 }
                 final totalLimit =

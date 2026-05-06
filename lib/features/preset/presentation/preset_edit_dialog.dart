@@ -198,7 +198,6 @@ class _BodyState extends ConsumerState<_Body> {
             options: const [
               ('EXPENSE', '지출'),
               ('INCOME', '수입'),
-              ('TRANSFER', '이체'),
             ],
             value: _expenseType,
             onChanged: (v) => setState(() => _expenseType = v),

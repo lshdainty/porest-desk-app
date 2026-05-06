@@ -319,7 +319,7 @@ class _TypeSeg extends StatelessWidget {
   final PorestTokens tokens;
   @override
   Widget build(BuildContext context) {
-    const opts = [('EXPENSE', '지출'), ('INCOME', '수입'), ('TRANSFER', '이체')];
+    const opts = [('EXPENSE', '지출'), ('INCOME', '수입')];
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(

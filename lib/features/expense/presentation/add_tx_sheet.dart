@@ -423,7 +423,6 @@ class _TypeSegment extends StatelessWidget {
   static const _opts = [
     ('EXPENSE', '지출'),
     ('INCOME', '수입'),
-    ('TRANSFER', '이체'),
   ];
 
   @override

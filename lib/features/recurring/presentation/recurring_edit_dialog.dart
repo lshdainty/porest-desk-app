@@ -235,7 +235,6 @@ class _RecurringEditBodyState extends ConsumerState<_RecurringEditBody> {
             options: const [
               ('EXPENSE', '지출'),
               ('INCOME', '수입'),
-              ('TRANSFER', '이체'),
             ],
             value: _type,
             onChanged: (v) => setState(() => _type = v),

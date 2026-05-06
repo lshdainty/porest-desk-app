@@ -9,11 +9,11 @@ part of 'expense.dart';
 _Expense _$ExpenseFromJson(Map<String, dynamic> json) => _Expense(
   rowId: (json['rowId'] as num).toInt(),
   userRowId: (json['userRowId'] as num?)?.toInt(),
-  categoryRowId: (json['categoryRowId'] as num).toInt(),
+  categoryRowId: (json['categoryRowId'] as num?)?.toInt(),
   categoryName: json['categoryName'] as String?,
   categoryIcon: json['categoryIcon'] as String?,
   categoryColor: json['categoryColor'] as String?,
-  assetRowId: (json['assetRowId'] as num).toInt(),
+  assetRowId: (json['assetRowId'] as num?)?.toInt(),
   assetName: json['assetName'] as String?,
   expenseType: json['expenseType'] as String,
   amount: (json['amount'] as num).toInt(),

@@ -9,13 +9,13 @@ abstract class Expense with _$Expense {
   const factory Expense({
     required int rowId,
     int? userRowId,
-    required int categoryRowId,
+    int? categoryRowId,
     String? categoryName,
     String? categoryIcon,
     String? categoryColor,
-    required int assetRowId,
+    int? assetRowId,
     String? assetName,
-    required String expenseType, // 'EXPENSE' | 'INCOME' | 'TRANSFER'
+    required String expenseType, // 'EXPENSE' | 'INCOME'
     required int amount,
     String? description,
     String? expenseDate, // ISO LocalDateTime ('YYYY-MM-DDTHH:mm:ss')

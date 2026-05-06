@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/network/api_response.dart';
 import '../domain/asset.dart';
+import '../domain/asset_summary.dart';
 
 class AssetRepository {
   AssetRepository(this._dio);
@@ -16,6 +17,22 @@ class AssetRepository {
     try {
       final res = await _dio.get<Map<String, dynamic>>('/assets');
       return _unwrapList(res, 'assets', Asset.fromJson);
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  /// 순자산/자산/부채/지난달 대비 변화 등.
+  Future<AssetSummary> summary({int? year, int? month}) async {
+    try {
+      final res = await _dio.get<Map<String, dynamic>>(
+        '/assets/summary',
+        queryParameters: {
+          'year': ?year,
+          'month': ?month,
+        },
+      );
+      return _unwrap(res, AssetSummary.fromJson);
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }

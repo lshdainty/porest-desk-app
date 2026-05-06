@@ -329,7 +329,9 @@ class _DayGroup extends ConsumerWidget {
                 for (int i = 0; i < items.length; i++) ...[
                   ExpenseRow(
                     expense: items[i],
-                    category: categories.byRowId(items[i].categoryRowId),
+                    category: items[i].categoryRowId == null
+                        ? null
+                        : categories.byRowId(items[i].categoryRowId!),
                     masked: masked,
                   ),
                   if (i < items.length - 1)
