@@ -49,6 +49,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
     final trendAsync = ref.watch(monthlyTrendProvider(6));
     final merchantAsync = ref.watch(merchantSummaryProvider(_range));
     final heatmapAsync = ref.watch(heatmapProvider(_ym));
+    final byAssetAsync = ref.watch(assetExpenseSummaryProvider(_range));
 
     return RefreshIndicator(
       color: t.bgBrand,
@@ -57,6 +58,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
         ref.invalidate(monthlyTrendProvider(6));
         ref.invalidate(merchantSummaryProvider(_range));
         ref.invalidate(heatmapProvider(_ym));
+        ref.invalidate(assetExpenseSummaryProvider(_range));
       },
       child: ListView(
         padding: const EdgeInsets.fromLTRB(
@@ -100,6 +102,15 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
             tokens: t,
             child: _MerchantTop(
                 async: merchantAsync, masked: settings.hideAmounts, tokens: t),
+          ),
+          const SizedBox(height: PSpace.x12),
+
+          // 5. 자산별 지출 분포
+          _SectionCard(
+            title: '${_month.month}월 자산별 지출',
+            tokens: t,
+            child: _AssetUsageList(
+                async: byAssetAsync, masked: settings.hideAmounts, tokens: t),
           ),
           const SizedBox(height: PSpace.x12),
 
@@ -536,6 +547,77 @@ class _MerchantTop extends StatelessWidget {
                   borderRadius: PRadius.brXs,
                   child: LinearProgressIndicator(
                     value: maxAmt > 0 ? top5[i].totalAmount / maxAmt : 0,
+                    minHeight: 6,
+                    backgroundColor: tokens.bgTrack,
+                    color: tokens.fgBrand,
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+// ─── 자산별 지출 ───────────────────────────────────────────
+
+class _AssetUsageList extends StatelessWidget {
+  const _AssetUsageList(
+      {required this.async, required this.masked, required this.tokens});
+  final AsyncValue<List<AssetExpenseSummary>> async;
+  final bool masked;
+  final PorestTokens tokens;
+  @override
+  Widget build(BuildContext context) {
+    final list = async.value ?? const <AssetExpenseSummary>[];
+    if (async.isLoading && list.isEmpty) {
+      return const SizedBox(
+          height: 100, child: Center(child: CircularProgressIndicator()));
+    }
+    if (async.hasError && list.isEmpty) {
+      return _ErrorMini(text: '자산 로드 실패', tokens: tokens);
+    }
+    if (list.isEmpty) return _EmptyMini(text: '데이터 없음', tokens: tokens);
+
+    final sorted = (List.of(list)
+      ..sort((a, b) => b.totalAmount.compareTo(a.totalAmount)));
+    final maxAmt = sorted.first.totalAmount;
+    final total = sorted.fold<int>(0, (s, a) => s + a.totalAmount);
+
+    return Column(
+      children: [
+        for (final a in sorted)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 6),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(a.assetName ?? '(이름 없음)',
+                          style: PTypo.bodySm
+                              .copyWith(color: tokens.fgPrimary)),
+                    ),
+                    Text(
+                        total > 0
+                            ? '${(a.totalAmount * 100 / total).toStringAsFixed(1)}%'
+                            : '-',
+                        style:
+                            PTypo.caption.copyWith(color: tokens.fgTertiary)),
+                    const SizedBox(width: 8),
+                    Text(krwMasked(a.totalAmount, masked),
+                        style: PTypo.bodySm.copyWith(
+                            color: tokens.fgPrimary,
+                            fontWeight: FontWeight.w700)),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                ClipRRect(
+                  borderRadius: PRadius.brXs,
+                  child: LinearProgressIndicator(
+                    value: maxAmt > 0 ? a.totalAmount / maxAmt : 0,
                     minHeight: 6,
                     backgroundColor: tokens.bgTrack,
                     color: tokens.fgBrand,

@@ -1,3 +1,4 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -5,6 +6,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../../app/theme/colors.dart';
 import '../../../app/theme/radius.dart';
+import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/format/color_parse.dart';
@@ -17,6 +19,8 @@ import '../../asset/application/asset_providers.dart';
 import '../../expense/application/expense_providers.dart';
 import '../../expense/domain/expense.dart';
 import '../../expense/presentation/tx_detail_dialog.dart';
+import '../../stats/application/stats_providers.dart';
+import '../../stats/domain/stats_models.dart';
 
 /// 홈 / 대시보드 — porest-desk-front HomeMobile 정확 미러.
 class DashboardScreen extends ConsumerWidget {
@@ -33,6 +37,7 @@ class DashboardScreen extends ConsumerWidget {
         assetSummaryProvider((year: now.year, month: now.month)));
     final expensesAsync = ref.watch(monthExpensesProvider(monthKey));
     final categoriesAsync = ref.watch(categoriesProvider);
+    final trendAsync = ref.watch(monthlyTrendProvider(6));
 
     return RefreshIndicator(
       color: t.bgBrand,
@@ -40,6 +45,7 @@ class DashboardScreen extends ConsumerWidget {
         ref.invalidate(
             assetSummaryProvider((year: now.year, month: now.month)));
         ref.invalidate(monthExpensesProvider(monthKey));
+        ref.invalidate(monthlyTrendProvider(6));
       },
       child: ListView(
         // .m-scroll : padding: 0 → child 가 직접 padding
@@ -57,11 +63,130 @@ class DashboardScreen extends ConsumerWidget {
             masked: settings.hideAmounts,
           ),
           const SizedBox(height: 16),
+          _MonthlyTrendCard(async: trendAsync),
+          const SizedBox(height: 16),
           _RecentTxCard(
             expensesAsync: expensesAsync,
             categoriesAsync: categoriesAsync,
             masked: settings.hideAmounts,
           ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 최근 6개월 수입/지출 BarChart — front HomeDesktop `IncomeExpenseBarChart` 의 모바일 카드 버전.
+class _MonthlyTrendCard extends StatelessWidget {
+  const _MonthlyTrendCard({required this.async});
+  final AsyncValue<List<MonthlyTrend>> async;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return PCard(
+      padding: const EdgeInsets.fromLTRB(18, 18, 18, 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(LucideIcons.barChart3, size: 16, color: t.fgSecondary),
+              const SizedBox(width: 6),
+              Text('최근 6개월',
+                  style: PTypo.bodySm.copyWith(
+                      color: t.fgPrimary, fontWeight: FontWeight.w700)),
+              const Spacer(),
+              GestureDetector(
+                onTap: () => context.go('/stats'),
+                child: Row(
+                  children: [
+                    Text('자세히',
+                        style:
+                            PTypo.caption.copyWith(color: t.fgTertiary)),
+                    const SizedBox(width: 2),
+                    Icon(LucideIcons.chevronRight, size: 12, color: t.fgTertiary),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: PSpace.x12),
+          SizedBox(height: 140, child: _MiniBars(async: async, tokens: t)),
+        ],
+      ),
+    );
+  }
+}
+
+class _MiniBars extends StatelessWidget {
+  const _MiniBars({required this.async, required this.tokens});
+  final AsyncValue<List<MonthlyTrend>> async;
+  final PorestTokens tokens;
+
+  @override
+  Widget build(BuildContext context) {
+    final list = async.value ?? const <MonthlyTrend>[];
+    if (async.isLoading && list.isEmpty) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (list.isEmpty) {
+      return Center(
+        child: Text('데이터 없음',
+            style: PTypo.caption.copyWith(color: tokens.fgTertiary)),
+      );
+    }
+    final maxY = list
+        .fold<int>(0, (m, t) =>
+            [m, t.totalIncome, t.totalExpense].reduce((a, b) => a > b ? a : b))
+        .toDouble();
+    return BarChart(
+      BarChartData(
+        maxY: maxY > 0 ? maxY * 1.15 : 100,
+        minY: 0,
+        alignment: BarChartAlignment.spaceAround,
+        barTouchData: BarTouchData(enabled: true),
+        gridData: const FlGridData(show: false),
+        titlesData: FlTitlesData(
+          leftTitles: const AxisTitles(),
+          rightTitles: const AxisTitles(),
+          topTitles: const AxisTitles(),
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 18,
+              getTitlesWidget: (v, _) {
+                final i = v.toInt();
+                if (i < 0 || i >= list.length) return const SizedBox();
+                return Text('${list[i].month}월',
+                    style: PTypo.micro.copyWith(color: tokens.fgTertiary));
+              },
+            ),
+          ),
+        ),
+        borderData: FlBorderData(show: false),
+        barGroups: [
+          for (int i = 0; i < list.length; i++)
+            BarChartGroupData(
+              x: i,
+              barsSpace: 3,
+              barRods: [
+                BarChartRodData(
+                  toY: list[i].totalIncome.toDouble(),
+                  color: tokens.statusSuccess,
+                  width: 6,
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(2)),
+                ),
+                BarChartRodData(
+                  toY: list[i].totalExpense.toDouble(),
+                  color: tokens.statusDanger,
+                  width: 6,
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(2)),
+                ),
+              ],
+            ),
         ],
       ),
     );
