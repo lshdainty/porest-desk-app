@@ -12,6 +12,7 @@ import '../../../app/theme/typography.dart';
 import '../../../core/format/krw.dart';
 import '../application/card_providers.dart';
 import '../domain/card_catalog.dart';
+import 'card_benefit_mapping_dialog.dart';
 import 'card_detail_screen.dart';
 
 class CardScreen extends ConsumerStatefulWidget {
@@ -88,6 +89,14 @@ class _CardScreenState extends ConsumerState<CardScreen> {
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,
         elevation: 0,
+        actions: [
+          IconButton(
+            tooltip: '혜택 매핑',
+            icon: Icon(LucideIcons.settings,
+                size: 20, color: t.fgSecondary),
+            onPressed: () => showCardBenefitMappingDialog(context),
+          ),
+        ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(140),
           child: Padding(

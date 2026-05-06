@@ -1,7 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/network/dio_provider.dart';
+import '../data/card_benefit_mapping_repository.dart';
 import '../data/card_repository.dart';
+import '../domain/card_benefit_mapping.dart';
 import '../domain/card_catalog.dart';
 import '../domain/card_catalog_page.dart';
 import '../domain/card_performance.dart';
@@ -73,4 +75,19 @@ final cardPerformanceProvider =
   final repo = await ref.watch(cardRepositoryProvider.future);
   return repo.performance(
       assetRowId: key.assetRowId, yearMonth: key.yearMonth);
+});
+
+// ─── CardBenefitMapping (#372) ──────────────────────────────
+
+final cardBenefitMappingRepositoryProvider =
+    FutureProvider<CardBenefitMappingRepository>((ref) async {
+  final dio = await ref.watch(dioProvider.future);
+  return CardBenefitMappingRepository(dio);
+});
+
+final cardBenefitMappingsProvider =
+    FutureProvider<List<CardBenefitMapping>>((ref) async {
+  ref.keepAlive();
+  final repo = await ref.watch(cardBenefitMappingRepositoryProvider.future);
+  return repo.list();
 });
