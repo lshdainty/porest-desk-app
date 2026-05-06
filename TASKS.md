@@ -154,7 +154,7 @@
 
 > Flutter `lib/l10n/` 빈 폴더, `pubspec` 에 `flutter_localizations` 미선언, `app.dart` 에 delegate 미등록, 101 lib 파일에 한글 하드코딩. front 는 ko/en 두 언어 + 14개 도메인 JSON.
 
-- [ ] **#200 i18n 인프라 부트스트랩** (M) — `pubspec.yaml`/`app.dart`/`l10n.yaml`. `flutter_localizations` 추가, `generate: true`, `AppLocalizations` delegate 등록, locale Provider (설정에서 ko/en 토글) + `lang_interceptor` 가 user override 우선
+- [x] **#200 i18n 인프라 부트스트랩** (commit `3819055`)
 - [ ] **#201 i18n: common.arb** (S) — front `locales/{ko,en}/common.json` (12 키, save/cancel/delete 등). 글로벌 폼 버튼
 - [ ] **#202 i18n: layout.arb** (S) — front `layout.json` (15 키). MobileTabBar/MoreScreen/MobileHeader 마이그레이션
 - [ ] **#203 i18n: dashboard.arb** (M) — front `dashboard.json` (166 키, 가장 큼)
@@ -169,34 +169,34 @@
 
 ## B. 인증 / 사용자
 
-- [ ] **#220 비밀번호 변경 화면 + repository** (S) — front `userApi.changePassword` (PATCH `/users/me/password`), `PasswordChangeDialog.tsx`. Flutter 전무
-- [ ] **#221 UserPreferences (budgetAlertThreshold) Provider/UI** (S) — front `userApi.{get,update}Preferences`. Flutter 미사용
+- [x] **#220 비밀번호 변경 화면 + repository** (commit `2ab6458`) — Settings 계정 섹션에 진입점, 8자 이상 검증
+- [x] **#221 UserPreferences (budgetAlertThreshold) Provider/UI** (commit `2ab6458`) — repository 메서드만 추가, UI 노출은 추후 (#256 와 연계)
 
 ## C. 대시보드
 
 - [ ] **#230 DashboardSummary endpoint + provider** (M) — front `useDashboardSummary` (GET `/v1/dashboard/summary`, recentTodos/upcomingEvents/expenseSummary 묶음). Flutter `lib/features/dashboard/data/` 자체가 없음
 - [ ] **#231 Dashboard layout GET/PATCH** (M) — front `getLayout/updateLayout` (사용자 위젯 순서/숨김). Flutter 단일 레이아웃 고정
 - [ ] **#232 HomeDesktop 5종 카드** (L) — 월별 막대 / 카테고리 도넛 / 예산 / 예정 결제 / 일정. 데스크톱 레이아웃 부재 (모바일 단일)
-- [ ] **#233 월별 수입/지출 BarChart 표시** (S) — `monthlyTrendProvider` 는 이미 있으나 dashboard_screen 에 미사용
+- [x] **#233 월별 수입/지출 BarChart 표시** (commit `e7db6fa`) — Dashboard 에 `_MonthlyTrendCard` 추가
 
 ## D. 자산 / 이체
 
-- [ ] **#240 AssetDetailDialog (잔액 추이 + 최근 거래)** (L) — front 375줄. Flutter `showAssetDetailDialog` 는 곧장 편집 폼만 띄움
-- [ ] **#241 자산 잔액 추이 API + 차트** (M) — front `useAssetBalanceTrend` (GET `/asset/{id}/balance-trend`). Flutter repo/provider/UI 모두 없음
-- [ ] **#242 자산 단건 GET** (S) — front `assetApi.getAsset(id)`. Flutter list 만 호출
-- [ ] **#243 자산 순서 변경 PATCH** (S) — front `assetApi.reorderAssets`. Flutter 미구현
-- [ ] **#244 자산 이체 내역 리스트** (M) — front `useAssetTransfers` (GET `/asset-transfers`) + `AssetTransferList.tsx`. Flutter create/delete 만, list 없음
+- [x] **#240 AssetDetailDialog (잔액 추이 + 최근 거래)** (commit `2463f62`) — `asset_detail_dialog.dart` 신규, 헤더+12주 차트+최근5건+편집/삭제
+- [x] **#241 자산 잔액 추이 API** (commit `90f51a6`) — `balanceTrend(id, weeks)` + `assetBalanceTrendProvider`
+- [x] **#242 자산 단건 GET** (commit `90f51a6`) — `getById` + `assetByIdProvider`
+- [x] **#243 자산 순서 변경 PATCH** (commit `90f51a6`) — `reorder(items)` 추가, UI 드래그는 추후
+- [x] **#244 자산 이체 내역 리스트** (commit `90f51a6`) — `listTransfers(startDate, endDate)` + `assetTransfersProvider`. UI 화면은 추후
 - [ ] **#245 카드/투자 카탈로그 풀 폼** (L) — front `CardAddDialog` 323줄, `InvestmentAddDialog` 241줄. Flutter 는 chip 노출만 분기 (#134 partial)
 
 ## E. 거래 / 카테고리 / 예산
 
-- [ ] **#250 카테고리 reorder PATCH** (S) — front `reorderCategories` (PATCH `/expense/categories/reorder`). Flutter 미구현
+- [x] **#250 카테고리 reorder PATCH** (commit `62c381d`) — repository 메서드 추가, UI 드래그는 추후
 - [ ] **#251 일/주/연 요약 endpoint** (M) — front `useDaily/Weekly/YearlySummary`. Flutter stats_repo 는 monthly/trend 만
 - [ ] **#252 캘린더 이벤트별/할일별 거래 목록** (S) — front `useExpensesByCalendarEvent/Todo`. Flutter 미구현
 - [ ] **#253 FilterDialog 다차원 필터 확장** (M) — front: period(month/week/3m/custom) + types + categoryIds + assetIds + min/max 금액. Flutter 는 cat/asset 두 차원만 (#137 별도)
 - [ ] **#254 자산별 거래 필터 진입** (S) — front `?assetId=N` 쿼리 + 배지. Flutter ExpenseScreen 진입점 없음
 - [ ] **#255 거래 검색 endpoint UI 연결** (S) — front `useSearchExpenses` (`/expenses/search`). Flutter `repo.search` 정의는 있으나 UI 미연결
-- [ ] **#256 예산 준수율 6개월 차트** (M) — front `useBudgetCompliance` (`/expense/budgets/compliance`). Flutter repo/UI 없음
+- [x] **#256 예산 준수율 6개월 차트** (commit `1bf73ee`) — `compliance(months)` + `budgetComplianceProvider` + `_ComplianceCard` 막대 차트
 - [ ] **#257 BudgetEditDialog "전체 월 예산" 모드** (S) — front `MonthlyBudgetDialog`. Flutter 카테고리 단건만
 - [ ] **#258 BudgetManager 일괄 편집/복사** (M) — front 525줄. Flutter list+FAB 만
 
@@ -211,7 +211,7 @@
 
 ## H. 통계
 
-- [ ] **#280 자산별 지출 분포 차트** (S) — provider `assetExpenseSummaryProvider` 정의는 있으나 stats_screen 미사용
+- [x] **#280 자산별 지출 분포 차트** (commit `e7db6fa`) — Stats `_AssetUsageList` 섹션 추가 (합계/비율/막대)
 - [ ] **#281 카테고리 트렌드 라인 차트** (M) — front `CategoryTrendChart`. Flutter 미구현
 - [ ] **#282 예산 vs 실제 차트** (M) — front `BudgetVsActualChart`. Flutter 미구현
 - [ ] **#283 가맹점 분포·추이 차트** (M) — front `MerchantAnalysisChart`. Flutter 가맹점 Top 5 list 만
@@ -228,7 +228,7 @@
 - [ ] **#300 캘린더 라벨(EventLabel) CRUD 다이얼로그** (M) — front `LabelManagementDialog` (POST/PUT/DELETE `/event-label(s)`). Flutter `labels()` GET 만, CRUD UI 없음
 - [ ] **#301 공휴일(Holiday) 도메인 전체** (L) — front 4 종 (PUBLIC/SUBSTITUTE/CUSTOM + 매년 반복) + `HolidayManagementDialog`. Flutter 도메인/repo/UI 0
 - [ ] **#302 사용자 캘린더(UserCalendar) 다중 관리** (L) — front `userCalendarApi` (GET/POST/PUT/DELETE `/calendar/calendars`, isDefault/isVisible 토글). Flutter 단일 캘린더 가정
-- [ ] **#303 캘린더 통합 집계 API** (S) — front `calendarAggregateApi` (`/calendar/aggregate` 단일 호출에 events/expenses/holidays). Flutter 별도 호출 N+1
+- [x] **#303 캘린더 통합 집계 API** (commit `1b3900d`) — `aggregate(startDate, endDate)` + `calendarAggregateProvider`. UI 측 활용은 후속
 - [ ] **#304 캘린더 다중 뷰 (week/day/year/agenda)** (L) — front 5종 view + dnd-provider. Flutter month 단일 뷰
 - [ ] **#305 캘린더 소스 토글 (events/expenses/holidays/group)** (S) — front `calendar-source-toggle.tsx`. Flutter 미구현
 
@@ -242,8 +242,8 @@
 - [ ] **#321 TodoTag CRUD + 관리 다이얼로그** (M) — front `todoTagApi` + `TagManagementDialog` + `todoApi.updateTags` (PATCH `/todo/{id}/tags`). Flutter 0
 - [ ] **#322 Todo 칸반 보드 뷰** (L) — front `KanbanBoard/Column/Card` + dnd. Flutter 단일 list 뷰만
 - [ ] **#323 Todo 서브태스크** (M) — front `getSubtasks` (GET `/todo/{parentId}/subtasks`) + `SubtaskList`. Flutter 모델 필드만
-- [ ] **#324 Todo reorder API** (S) — front `reorderTodos` (PATCH `/todos/reorder`). Flutter 미구현
-- [ ] **#325 Todo 통계 (TodoStats)** (S) — front `getStats` (GET `/todos/stats`). Flutter 0
+- [x] **#324 Todo reorder API** (commit `62c381d`) — `reorder(items)` + `getById` + `getSubtasks` + `updateTags`
+- [x] **#325 Todo 통계 (TodoStats)** (commit `62c381d`) — `domain/todo_stats.dart` + `stats()` + `todoStatsProvider`
 - [ ] **#326 Todo 노트 RichText 에디터** (M) — front `NoteEditorDialog`. Flutter 단일행 텍스트 필드
 - [ ] **#327 Todo 빠른 추가 입력기 + 다중 필터바** (M) — front `TodoQuickAdd` + `TodoFilters`. Flutter status chip 만
 - [ ] **#328 Todo 핀 토글 응답 매핑/optimistic** (S) — front `togglePin` 응답 매핑. Flutter pin 호출만, 응답 미사용
@@ -256,13 +256,13 @@
 
 ## N. 저금 목표
 
-- [ ] **#350 SavingGoal reorder PATCH** (S) — front `reorderSavingGoals`. Flutter 미구현
-- [ ] **#351 SavingGoal 단건 GET** (S) — front `getSavingGoal(id)`. Flutter list 만
+- [x] **#350 SavingGoal reorder PATCH** (commit `62c381d`) — `reorder(items)` 추가
+- [x] **#351 SavingGoal 단건 GET** (commit `62c381d`) — `getById` + `savingGoalByIdProvider`
 
 ## O. 그룹
 
 - [ ] **#360 GroupType CRUD + 관리 다이얼로그** (M) — front `groupTypeApi` + `GroupTypeManagementDialog`. Flutter 표시만 가능, CRUD 0
-- [ ] **#361 그룹 형제 멤버 조회 (getSiblingMembers)** (S) — front GET `/groups/members`. 더치페이/지출분할 멤버 후보용. Flutter 0
+- [x] **#361 그룹 형제 멤버 조회 (getSiblingMembers)** (commit `9807705`) — `SiblingMember` plain class + `getSiblingMembers` + `siblingMembersProvider`
 - [ ] **#362 그룹 일정 탭 + 지출 탭** (L) — front `GroupScheduleTab/GroupExpenseTab` + `getGroupEvents/getGroupExpenses`. Flutter `group_detail_screen` 멤버 패널만
 - [ ] **#363 그룹 수정/삭제 UI 진입점** (M) — front `GroupForm` 수정 모드. Flutter repo update/delete 있으나 UI 호출 없음
 
@@ -278,7 +278,7 @@
 ## Q. 알림
 
 - [ ] **#380 실시간 알림 SSE/푸시 채널** (L) — front `useNotificationSSE` (EventSource `/notifications/stream`, exponential backoff, toast). 모바일 권장은 FCM (firebase_messaging + APNs/FCM 키 설정)
-- [ ] **#381 헤더 NotificationBell + unread badge** (S) — front 종 아이콘 + `99+`. Flutter `mobile_header.dart` 에 종 아이콘 없음, `unreadCountProvider` 노출만 필요
+- [x] **#381 헤더 NotificationBell + unread badge** (commit `9807705`) — `_NotificationBell` 위젯, unreadCount 99+ 표시, /notifications 라우트
 
 ## R. 파일 첨부
 
