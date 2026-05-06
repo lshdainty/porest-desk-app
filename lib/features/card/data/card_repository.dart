@@ -4,6 +4,7 @@ import '../../../core/network/api_exception.dart';
 import '../../../core/network/api_response.dart';
 import '../domain/card_catalog.dart';
 import '../domain/card_catalog_page.dart';
+import '../domain/card_performance.dart';
 
 class CardRepository {
   CardRepository(this._dio);
@@ -96,6 +97,32 @@ class CardRepository {
       final body = ApiResponse<CardCatalogDetail>.fromJson(
         res.data ?? const {},
         (raw) => CardCatalogDetail.fromJson(raw! as Map<String, dynamic>),
+      );
+      if (!body.success || body.data == null) {
+        throw ApiException(code: body.code, message: body.message);
+      }
+      return body.data!;
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  /// 카드(자산) 실적 조회. GET /card-performance?assetRowId&yearMonth=YYYY-MM.
+  Future<CardPerformance> performance({
+    required int assetRowId,
+    required String yearMonth,
+  }) async {
+    try {
+      final res = await _dio.get<Map<String, dynamic>>(
+        '/card-performance',
+        queryParameters: {
+          'assetRowId': assetRowId,
+          'yearMonth': yearMonth,
+        },
+      );
+      final body = ApiResponse<CardPerformance>.fromJson(
+        res.data ?? const {},
+        (raw) => CardPerformance.fromJson(raw! as Map<String, dynamic>),
       );
       if (!body.success || body.data == null) {
         throw ApiException(code: body.code, message: body.message);

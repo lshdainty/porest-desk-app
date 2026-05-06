@@ -13,6 +13,7 @@ import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
+import '../../card/presentation/card_performance_bar.dart';
 import '../../expense/application/expense_providers.dart';
 import '../../expense/domain/expense.dart';
 import '../../expense/presentation/tx_detail_dialog.dart';
@@ -156,6 +157,17 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
               _InfoRow('금융사', asset.institution!, tokens: t),
             if ((asset.memo ?? '').isNotEmpty)
               _InfoRow('메모', asset.memo!, tokens: t),
+            const SizedBox(height: PSpace.x16),
+          ],
+
+          // 카드 실적 바 (CARD 타입에 한해)
+          if (asset.assetType == 'CREDIT_CARD' ||
+              asset.assetType == 'CHECK_CARD') ...[
+            CardPerformanceBar(
+              assetRowId: asset.rowId,
+              yearMonth: _currentYearMonth(),
+              masked: masked,
+            ),
             const SizedBox(height: PSpace.x16),
           ],
 
@@ -410,4 +422,9 @@ class _ExpenseRow extends StatelessWidget {
       ),
     );
   }
+}
+
+String _currentYearMonth() {
+  final n = DateTime.now();
+  return '${n.year.toString().padLeft(4, '0')}-${n.month.toString().padLeft(2, '0')}';
 }

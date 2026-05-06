@@ -4,6 +4,7 @@ import '../../../core/network/dio_provider.dart';
 import '../data/card_repository.dart';
 import '../domain/card_catalog.dart';
 import '../domain/card_catalog_page.dart';
+import '../domain/card_performance.dart';
 
 final cardRepositoryProvider = FutureProvider<CardRepository>((ref) async {
   final dio = await ref.watch(dioProvider.future);
@@ -62,4 +63,14 @@ final cardCatalogDetailProvider =
     FutureProvider.family<CardCatalogDetail, int>((ref, id) async {
   final repo = await ref.watch(cardRepositoryProvider.future);
   return repo.detail(id);
+});
+
+/// 카드 월 실적 조회 (#371).
+typedef CardPerformanceKey = ({int assetRowId, String yearMonth});
+
+final cardPerformanceProvider =
+    FutureProvider.family<CardPerformance, CardPerformanceKey>((ref, key) async {
+  final repo = await ref.watch(cardRepositoryProvider.future);
+  return repo.performance(
+      assetRowId: key.assetRowId, yearMonth: key.yearMonth);
 });
