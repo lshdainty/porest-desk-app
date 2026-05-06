@@ -10,6 +10,7 @@ import '../../../../core/format/krw.dart';
 import '../../../../shared/icons/lucide_icon_map.dart';
 import '../../domain/expense.dart';
 import '../../domain/expense_category.dart';
+import '../tx_detail_dialog.dart';
 
 class ExpenseRow extends StatelessWidget {
   const ExpenseRow({
@@ -38,7 +39,7 @@ class ExpenseRow extends StatelessWidget {
     final icon = lucideByName(iconRaw, fallback: LucideIcons.tag);
 
     return InkWell(
-      onTap: () {}, // Phase 후속: TxDetailDialog
+      onTap: () => showTxDetailDialog(context, expense),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: PSpace.x16, vertical: PSpace.x12),
         child: Row(

@@ -68,6 +68,45 @@ class ExpenseRepository {
     }
   }
 
+  Future<Expense> update({
+    required int id,
+    required int categoryRowId,
+    required int assetRowId,
+    required String expenseType,
+    required int amount,
+    required String expenseDate,
+    String? description,
+    String? merchant,
+    String? paymentMethod,
+  }) async {
+    try {
+      final res = await _dio.put<Map<String, dynamic>>(
+        '/expense/$id',
+        data: {
+          'categoryRowId': categoryRowId,
+          'assetRowId': assetRowId,
+          'expenseType': expenseType,
+          'amount': amount,
+          'expenseDate': expenseDate,
+          'description': ?description,
+          'merchant': ?merchant,
+          'paymentMethod': ?paymentMethod,
+        },
+      );
+      return _unwrap(res, Expense.fromJson);
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  Future<void> delete(int id) async {
+    try {
+      await _dio.delete<void>('/expense/$id');
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
   // ─────────────────────────────────────────────
   // ExpenseCategory
   // ─────────────────────────────────────────────

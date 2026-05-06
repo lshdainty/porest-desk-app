@@ -14,51 +14,66 @@ import '../../../core/network/api_exception.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../asset/application/asset_providers.dart';
 import '../application/expense_providers.dart';
+import '../domain/expense.dart';
 
-/// 거래 추가 시트.
+/// 거래 추가/수정 시트.
 ///
-/// 백엔드 `POST /api/v1/expense` 직접 호출. 성공 시 현재 월 expensesProvider invalidate.
-void showAddTxSheet(BuildContext context, {String? defaultDate}) {
+/// [edit] 가 주어지면 수정 모드 (PUT /expense/{id}), 아니면 신규 (POST /expense).
+/// 성공 시 현재 월 expensesProvider invalidate.
+void showAddTxSheet(BuildContext context, {String? defaultDate, Expense? edit}) {
   WoltModalSheet.show<void>(
     context: context,
     pageListBuilder: (modalCtx) => [
       WoltModalSheetPage(
-        topBarTitle: const Text('거래 추가'),
+        topBarTitle: Text(edit == null ? '거래 추가' : '거래 수정'),
         isTopBarLayerAlwaysVisible: true,
         backgroundColor: Theme.of(modalCtx).extension<PorestTokens>()?.bgSurface,
         trailingNavBarWidget: IconButton(
           icon: const Icon(LucideIcons.x),
           onPressed: Navigator.of(modalCtx).pop,
         ),
-        child: _AddTxBody(defaultDate: defaultDate),
+        child: _AddTxBody(defaultDate: defaultDate, edit: edit),
       ),
     ],
   );
 }
 
 class _AddTxBody extends ConsumerStatefulWidget {
-  const _AddTxBody({this.defaultDate});
+  const _AddTxBody({this.defaultDate, this.edit});
   final String? defaultDate;
+  final Expense? edit;
 
   @override
   ConsumerState<_AddTxBody> createState() => _AddTxBodyState();
 }
 
 class _AddTxBodyState extends ConsumerState<_AddTxBody> {
-  String _type = 'EXPENSE'; // 'EXPENSE' | 'INCOME' | 'TRANSFER'
-  final _amountCtrl = TextEditingController();
-  final _descCtrl = TextEditingController();
+  late String _type;
+  late final TextEditingController _amountCtrl;
+  late final TextEditingController _descCtrl;
   int? _categoryRowId;
   int? _assetRowId;
   late DateTime _date;
   bool _submitting = false;
 
+  bool get _isEdit => widget.edit != null;
+
   @override
   void initState() {
     super.initState();
-    _date = widget.defaultDate != null
-        ? parseIsoDate(widget.defaultDate!)
-        : DateTime.now();
+    final e = widget.edit;
+    _type = e?.expenseType ?? 'EXPENSE';
+    _amountCtrl = TextEditingController(text: e == null ? '' : e.amount.toString());
+    _descCtrl = TextEditingController(text: e?.description ?? '');
+    _categoryRowId = e?.categoryRowId;
+    _assetRowId = e?.assetRowId;
+    if (e?.expenseDate != null) {
+      _date = parseIsoDate(e!.expenseDate!.substring(0, 10));
+    } else if (widget.defaultDate != null) {
+      _date = parseIsoDate(widget.defaultDate!);
+    } else {
+      _date = DateTime.now();
+    }
   }
 
   @override
@@ -79,25 +94,47 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
 
   Future<void> _submit() async {
     final amount = int.parse(_amountCtrl.text.replaceAll(',', ''));
+    final dateStr =
+        '${_date.year.toString().padLeft(4, '0')}-${_date.month.toString().padLeft(2, '0')}-${_date.day.toString().padLeft(2, '0')}T00:00:00';
+    final desc = _descCtrl.text.trim().isEmpty ? null : _descCtrl.text.trim();
+
     setState(() => _submitting = true);
     try {
       final repo = await ref.read(expenseRepositoryProvider.future);
-      await repo.create(
-        categoryRowId: _categoryRowId!,
-        assetRowId: _assetRowId!,
-        expenseType: _type,
-        amount: amount,
-        expenseDate:
-            '${_date.year.toString().padLeft(4, '0')}-${_date.month.toString().padLeft(2, '0')}-${_date.day.toString().padLeft(2, '0')}T00:00:00',
-        description: _descCtrl.text.trim().isEmpty ? null : _descCtrl.text.trim(),
-      );
-      // 현재 월 캐시 무효화
+      if (_isEdit) {
+        await repo.update(
+          id: widget.edit!.rowId,
+          categoryRowId: _categoryRowId!,
+          assetRowId: _assetRowId!,
+          expenseType: _type,
+          amount: amount,
+          expenseDate: dateStr,
+          description: desc,
+        );
+      } else {
+        await repo.create(
+          categoryRowId: _categoryRowId!,
+          assetRowId: _assetRowId!,
+          expenseType: _type,
+          amount: amount,
+          expenseDate: dateStr,
+          description: desc,
+        );
+      }
+      // 원래 거래의 월 + 새 월 모두 invalidate (날짜 변경 가능성)
+      if (_isEdit && widget.edit!.expenseDate != null) {
+        final orig = parseIsoDate(widget.edit!.expenseDate!.substring(0, 10));
+        if (orig.year != _date.year || orig.month != _date.month) {
+          ref.invalidate(monthExpensesProvider(
+              (year: orig.year, month: orig.month)));
+        }
+      }
       ref.invalidate(monthExpensesProvider(
           (year: _date.year, month: _date.month)));
       if (!mounted) return;
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('거래가 추가되었습니다')),
+        SnackBar(content: Text(_isEdit ? '거래가 수정되었습니다' : '거래가 추가되었습니다')),
       );
     } on ApiException catch (e) {
       if (!mounted) return;
@@ -269,7 +306,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
               child: _submitting
                   ? const SizedBox(width: 18, height: 18,
                       child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Text('저장'),
+                  : Text(_isEdit ? '수정' : '저장'),
             ),
           ),
         ],
