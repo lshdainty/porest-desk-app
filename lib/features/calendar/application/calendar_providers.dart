@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/network/dio_provider.dart';
 import '../data/calendar_repository.dart';
+import '../domain/calendar_aggregate.dart';
 import '../domain/calendar_event.dart';
 import '../domain/event_label.dart';
 
@@ -29,4 +30,13 @@ final eventLabelsProvider =
   ref.keepAlive();
   final repo = await ref.watch(calendarRepositoryProvider.future);
   return repo.labels();
+});
+
+/// 캘린더 통합 집계 — 단일 호출에 events/todos/expenses 묶음.
+typedef AggregateRange = ({String startDate, String endDate});
+
+final calendarAggregateProvider =
+    FutureProvider.family<CalendarAggregate, AggregateRange>((ref, key) async {
+  final repo = await ref.watch(calendarRepositoryProvider.future);
+  return repo.aggregate(startDate: key.startDate, endDate: key.endDate);
 });
