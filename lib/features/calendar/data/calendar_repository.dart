@@ -114,6 +114,54 @@ class CalendarRepository {
     }
   }
 
+  /// 라벨 생성. POST /calendar/label.
+  Future<EventLabel> createLabel({
+    required String labelName,
+    String? color,
+  }) async {
+    try {
+      final res = await _dio.post<Map<String, dynamic>>(
+        '/calendar/label',
+        data: {
+          'labelName': labelName,
+          'color': ?color,
+        },
+      );
+      return _unwrap(res, EventLabel.fromJson);
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  /// 라벨 수정. PUT /calendar/label/{id}.
+  Future<EventLabel> updateLabel({
+    required int id,
+    required String labelName,
+    String? color,
+  }) async {
+    try {
+      final res = await _dio.put<Map<String, dynamic>>(
+        '/calendar/label/$id',
+        data: {
+          'labelName': labelName,
+          'color': ?color,
+        },
+      );
+      return _unwrap(res, EventLabel.fromJson);
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  /// 라벨 삭제. DELETE /calendar/label/{id}.
+  Future<void> deleteLabel(int id) async {
+    try {
+      await _dio.delete<void>('/calendar/label/$id');
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
   // ─── Aggregate ─────────────────────────────────
 
   /// 캘린더 통합 집계 — events/todos/expenses 단일 호출.

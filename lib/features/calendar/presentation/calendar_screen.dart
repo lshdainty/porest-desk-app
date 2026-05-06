@@ -12,6 +12,7 @@ import '../../../core/format/color_parse.dart';
 import '../application/calendar_providers.dart';
 import '../domain/calendar_event.dart';
 import 'calendar_event_dialog.dart';
+import 'event_label_management_dialog.dart';
 
 class CalendarScreen extends ConsumerStatefulWidget {
   const CalendarScreen({super.key});
@@ -44,6 +45,13 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,
         elevation: 0,
+        actions: [
+          IconButton(
+            tooltip: '라벨 관리',
+            icon: Icon(LucideIcons.tag, size: 20, color: t.fgSecondary),
+            onPressed: () => showEventLabelManagementDialog(context),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: t.bgBrand,
