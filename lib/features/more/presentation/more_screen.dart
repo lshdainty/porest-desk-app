@@ -8,6 +8,7 @@ import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/auth/auth_notifier.dart';
+import '../../expense/presentation/export_dialog.dart';
 
 /// 모바일 전용 "전체" 탭 — 잘 안 쓰는 메뉴를 한 화면에 모음.
 class MoreScreen extends ConsumerWidget {
@@ -45,6 +46,8 @@ class MoreScreen extends ConsumerWidget {
           onTap: (ctx, _) => ctx.push('/notifications')),
       _MoreItem(LucideIcons.piggyBank, '저금 목표',
           onTap: (ctx, _) => ctx.push('/saving-goals')),
+      _MoreItem(LucideIcons.download, '내보내기',
+          onTap: (ctx, _) => showExportDialog(ctx)),
       _MoreItem(LucideIcons.settings, '설정', onTap: (ctx, _) => ctx.push('/settings')),
       _MoreItem(LucideIcons.logOut, '로그아웃',
           onTap: (_, ref) => ref.read(authProvider.notifier).logout()),

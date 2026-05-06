@@ -42,6 +42,7 @@ dependencies:
   # 기타
   connectivity_plus: ^7.1.1
   logger: ^2.7.0
+  share_plus: ^10.1.4
 
 dev_dependencies:
   flutter_test:
