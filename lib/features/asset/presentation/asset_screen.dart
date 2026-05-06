@@ -84,7 +84,7 @@ class AssetScreen extends ConsumerWidget {
       floatingActionButton: FloatingActionButton(
         backgroundColor: t.bgBrand,
         foregroundColor: t.fgOnBrand,
-        onPressed: () => showAssetEditDialog(context),
+        onPressed: () => showAssetAddDialog(context),
         child: const Icon(LucideIcons.plus),
       ),
       body: RefreshIndicator(
@@ -148,7 +148,7 @@ class _AssetBody extends StatelessWidget {
                         fontWeight: FontWeight.w500)),
                 const SizedBox(height: PSpace.x12),
                 FilledButton.icon(
-                  onPressed: () => showAssetEditDialog(context),
+                  onPressed: () => showAssetAddDialog(context),
                   icon: const Icon(LucideIcons.plus, size: 14),
                   label: const Text('첫 자산 추가하기'),
                 ),
@@ -200,6 +200,7 @@ class _AssetBody extends StatelessWidget {
           total: accountsTotal,
           masked: masked,
           tokens: tokens,
+          kind: _GroupKind.account,
         ),
         if (investments.isNotEmpty) ...[
           const SizedBox(height: PSpace.x16),
@@ -209,6 +210,7 @@ class _AssetBody extends StatelessWidget {
             total: investmentsTotal,
             masked: masked,
             tokens: tokens,
+            kind: _GroupKind.investment,
           ),
         ],
         const SizedBox(height: PSpace.x16),
@@ -220,6 +222,7 @@ class _AssetBody extends StatelessWidget {
           negativeTotal: true,
           masked: masked,
           tokens: tokens,
+          kind: _GroupKind.card,
         ),
         if (loans.isNotEmpty) ...[
           const SizedBox(height: PSpace.x16),
@@ -231,6 +234,7 @@ class _AssetBody extends StatelessWidget {
             negativeTotal: true,
             masked: masked,
             tokens: tokens,
+            kind: _GroupKind.loan,
           ),
         ],
       ],
@@ -424,6 +428,8 @@ class _SummaryCol extends StatelessWidget {
   }
 }
 
+enum _GroupKind { account, investment, card, loan }
+
 class _TypeGroup extends StatelessWidget {
   const _TypeGroup({
     required this.title,
@@ -431,6 +437,7 @@ class _TypeGroup extends StatelessWidget {
     required this.total,
     required this.masked,
     required this.tokens,
+    required this.kind,
     this.totalColor,
     this.negativeTotal = false,
   });
@@ -439,8 +446,26 @@ class _TypeGroup extends StatelessWidget {
   final int total;
   final bool masked;
   final PorestTokens tokens;
+  final _GroupKind kind;
   final Color? totalColor;
   final bool negativeTotal;
+
+  void _onAdd(BuildContext context) {
+    switch (kind) {
+      case _GroupKind.account:
+        showAssetAddDialog(context);
+        break;
+      case _GroupKind.investment:
+        showInvestmentAddDialog(context);
+        break;
+      case _GroupKind.card:
+        showCardAddDialog(context);
+        break;
+      case _GroupKind.loan:
+        showAssetAddDialog(context, presetType: 'LOAN');
+        break;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -473,7 +498,7 @@ class _TypeGroup extends StatelessWidget {
               const SizedBox(width: 6),
               InkWell(
                 borderRadius: BorderRadius.circular(8),
-                onTap: () => showAssetEditDialog(context),
+                onTap: () => _onAdd(context),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
                       horizontal: 6, vertical: 4),
@@ -538,7 +563,7 @@ class _AssetCard extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         borderRadius: PRadius.brLg,
-        onTap: () => showAssetEditDialog(context, edit: asset),
+        onTap: () => showAssetDetailDialog(context, asset),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
           decoration: BoxDecoration(

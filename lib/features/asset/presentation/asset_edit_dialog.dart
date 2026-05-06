@@ -13,12 +13,66 @@ import '../application/asset_providers.dart';
 import '../domain/asset.dart';
 import '../domain/asset_type_meta.dart';
 
+/// 자산 추가/수정 통합 시트 (구). 신규 코드는 아래 4종 진입점 사용 권장:
+///   [showAssetAddDialog] / [showCardAddDialog] /
+///   [showInvestmentAddDialog] / [showAssetDetailDialog]
 void showAssetEditDialog(BuildContext context, {Asset? edit}) {
+  if (edit != null) {
+    showAssetDetailDialog(context, edit);
+  } else {
+    showAssetAddDialog(context);
+  }
+}
+
+/// 일반 자산 추가 — 계좌·예적금·현금·대출 등.
+void showAssetAddDialog(BuildContext context, {String? presetType}) {
+  _open(
+    context: context,
+    title: '자산 추가',
+    body: _AssetEditBody(presetType: presetType),
+  );
+}
+
+/// 카드 추가 — assetType 을 CREDIT_CARD 로 미리 지정.
+/// 카드 카탈로그 매핑은 추후 구현 (현재 v0.1 은 일반 폼).
+void showCardAddDialog(BuildContext context) {
+  _open(
+    context: context,
+    title: '카드 추가',
+    body: const _AssetEditBody(presetType: 'CREDIT_CARD', kindHint: AssetKind.card),
+  );
+}
+
+/// 투자 자산 추가 — assetType 을 INVESTMENT 로 미리 지정.
+/// 증권사·상품 카탈로그 매핑은 추후 구현.
+void showInvestmentAddDialog(BuildContext context) {
+  _open(
+    context: context,
+    title: '투자 추가',
+    body: const _AssetEditBody(
+        presetType: 'INVESTMENT', kindHint: AssetKind.investment),
+  );
+}
+
+/// 자산 상세 (수정/삭제 포함).
+void showAssetDetailDialog(BuildContext context, Asset asset) {
+  _open(
+    context: context,
+    title: '자산 수정',
+    body: _AssetEditBody(edit: asset),
+  );
+}
+
+void _open({
+  required BuildContext context,
+  required String title,
+  required Widget body,
+}) {
   WoltModalSheet.show<void>(
     context: context,
     pageListBuilder: (modalCtx) => [
       WoltModalSheetPage(
-        topBarTitle: Text(edit == null ? '자산 추가' : '자산 수정'),
+        topBarTitle: Text(title),
         isTopBarLayerAlwaysVisible: true,
         backgroundColor:
             Theme.of(modalCtx).extension<PorestTokens>()?.bgSurface,
@@ -26,15 +80,24 @@ void showAssetEditDialog(BuildContext context, {Asset? edit}) {
           icon: const Icon(LucideIcons.x),
           onPressed: Navigator.of(modalCtx).pop,
         ),
-        child: _AssetEditBody(edit: edit),
+        child: body,
       ),
     ],
   );
 }
 
+/// 진입점별 폼 힌트 — 카드/투자 는 자산 종류 chip 을 일부만 노출.
+enum AssetKind { generic, card, investment }
+
 class _AssetEditBody extends ConsumerStatefulWidget {
-  const _AssetEditBody({this.edit});
+  const _AssetEditBody({
+    this.edit,
+    this.presetType,
+    this.kindHint = AssetKind.generic,
+  });
   final Asset? edit;
+  final String? presetType;
+  final AssetKind kindHint;
 
   @override
   ConsumerState<_AssetEditBody> createState() => _AssetEditBodyState();
@@ -61,8 +124,19 @@ class _AssetEditBodyState extends ConsumerState<_AssetEditBody> {
     );
     _institutionCtrl = TextEditingController(text: e?.institution ?? '');
     _memoCtrl = TextEditingController(text: e?.memo ?? '');
-    _type = e?.assetType ?? 'BANK_ACCOUNT';
+    _type = e?.assetType ?? widget.presetType ?? 'BANK_ACCOUNT';
     _includedInTotal = e?.isIncludedInTotal != 'N';
+  }
+
+  /// kindHint 별 노출할 자산 종류 chip 들.
+  Iterable<AssetTypeMeta> _availableTypes() {
+    return switch (widget.kindHint) {
+      AssetKind.card => AssetTypeMeta.all
+          .where((m) => m.code == 'CREDIT_CARD' || m.code == 'CHECK_CARD'),
+      AssetKind.investment =>
+        AssetTypeMeta.all.where((m) => m.code == 'INVESTMENT'),
+      AssetKind.generic => AssetTypeMeta.all,
+    };
   }
 
   @override
@@ -175,7 +249,7 @@ class _AssetEditBodyState extends ConsumerState<_AssetEditBody> {
             spacing: PSpace.x8,
             runSpacing: PSpace.x8,
             children: [
-              for (final m in AssetTypeMeta.all)
+              for (final m in _availableTypes())
                 _TypeChip(
                   label: m.label,
                   icon: m.icon,
