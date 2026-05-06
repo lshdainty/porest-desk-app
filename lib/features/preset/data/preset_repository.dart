@@ -105,6 +105,16 @@ class PresetRepository {
     }
   }
 
+  /// 프리셋을 불러왔지만 사용자가 폼을 수정해 일반 거래로 저장한 경우 호출.
+  /// useCount/lastUsedAt 만 갱신.
+  Future<void> touch(int id) async {
+    try {
+      await _dio.post<dynamic>('/expense-template/$id/touch');
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
   T _unwrap<T>(
     Response<Map<String, dynamic>> res,
     T Function(Map<String, dynamic>) fromJson,
