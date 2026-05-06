@@ -1,0 +1,331 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lucide_icons/lucide_icons.dart';
+import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
+
+import '../../../app/theme/radius.dart';
+import '../../../app/theme/spacing.dart';
+import '../../../app/theme/tokens.dart';
+import '../../../app/theme/typography.dart';
+import '../../../core/network/api_exception.dart';
+import '../application/todo_providers.dart';
+import '../domain/todo.dart';
+
+void showTodoEditDialog(BuildContext context, {Todo? edit}) {
+  WoltModalSheet.show<void>(
+    context: context,
+    pageListBuilder: (modalCtx) => [
+      WoltModalSheetPage(
+        topBarTitle: Text(edit == null ? '할 일 추가' : '할 일 수정'),
+        isTopBarLayerAlwaysVisible: true,
+        backgroundColor:
+            Theme.of(modalCtx).extension<PorestTokens>()?.bgSurface,
+        trailingNavBarWidget: IconButton(
+          icon: const Icon(LucideIcons.x),
+          onPressed: Navigator.of(modalCtx).pop,
+        ),
+        child: _Body(edit: edit),
+      ),
+    ],
+  );
+}
+
+class _Body extends ConsumerStatefulWidget {
+  const _Body({this.edit});
+  final Todo? edit;
+  @override
+  ConsumerState<_Body> createState() => _BodyState();
+}
+
+class _BodyState extends ConsumerState<_Body> {
+  late final TextEditingController _titleCtrl;
+  late final TextEditingController _contentCtrl;
+  late final TextEditingController _categoryCtrl;
+  late String _priority;
+  DateTime? _due;
+  bool _submitting = false;
+  bool get _isEdit => widget.edit != null;
+
+  @override
+  void initState() {
+    super.initState();
+    _titleCtrl = TextEditingController(text: widget.edit?.title ?? '');
+    _contentCtrl = TextEditingController(text: widget.edit?.content ?? '');
+    _categoryCtrl = TextEditingController(text: widget.edit?.category ?? '');
+    _priority = widget.edit?.priority ?? 'MEDIUM';
+    _due = widget.edit?.due;
+  }
+
+  @override
+  void dispose() {
+    _titleCtrl.dispose();
+    _contentCtrl.dispose();
+    _categoryCtrl.dispose();
+    super.dispose();
+  }
+
+  String _fmtDate(DateTime d) =>
+      '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+
+  Future<void> _submit() async {
+    if (_submitting) return;
+    final title = _titleCtrl.text.trim();
+    if (title.isEmpty) return;
+    setState(() => _submitting = true);
+    try {
+      final repo = await ref.read(todoRepositoryProvider.future);
+      if (_isEdit) {
+        await repo.update(
+          id: widget.edit!.rowId,
+          title: title,
+          content:
+              _contentCtrl.text.trim().isEmpty ? null : _contentCtrl.text.trim(),
+          priority: _priority,
+          category: _categoryCtrl.text.trim().isEmpty
+              ? null
+              : _categoryCtrl.text.trim(),
+          dueDate: _due == null ? null : _fmtDate(_due!),
+        );
+      } else {
+        await repo.create(
+          title: title,
+          content:
+              _contentCtrl.text.trim().isEmpty ? null : _contentCtrl.text.trim(),
+          priority: _priority,
+          category: _categoryCtrl.text.trim().isEmpty
+              ? null
+              : _categoryCtrl.text.trim(),
+          dueDate: _due == null ? null : _fmtDate(_due!),
+        );
+      }
+      // invalidate every TodoFilter currently active is hard;
+      // safest: invalidate the unfiltered one and let consumers refetch.
+      ref.invalidate(todoListProvider);
+      if (!mounted) return;
+      Navigator.of(context).pop();
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('실패: ${e.message}')),
+      );
+    } finally {
+      if (mounted) setState(() => _submitting = false);
+    }
+  }
+
+  Future<void> _delete() async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('할 일 삭제'),
+        content: Text('"${widget.edit!.title}" 을(를) 삭제할까요?'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('취소')),
+          FilledButton(
+            style: FilledButton.styleFrom(
+                backgroundColor: context.tokens.statusDanger),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('삭제'),
+          ),
+        ],
+      ),
+    );
+    if (ok != true || !mounted) return;
+    setState(() => _submitting = true);
+    try {
+      final repo = await ref.read(todoRepositoryProvider.future);
+      await repo.delete(widget.edit!.rowId);
+      ref.invalidate(todoListProvider);
+      if (!mounted) return;
+      Navigator.of(context).pop();
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('삭제 실패: ${e.message}')),
+      );
+    } finally {
+      if (mounted) setState(() => _submitting = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+          PSpace.x16, PSpace.x8, PSpace.x16, PSpace.x16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('제목', style: PTypo.caption.copyWith(color: t.fgSecondary)),
+          const SizedBox(height: PSpace.x4),
+          TextField(
+            controller: _titleCtrl,
+            decoration: const InputDecoration(hintText: '예: 보고서 작성'),
+            onChanged: (_) => setState(() {}),
+          ),
+          const SizedBox(height: PSpace.x12),
+
+          Text('우선순위',
+              style: PTypo.caption.copyWith(color: t.fgSecondary)),
+          const SizedBox(height: PSpace.x8),
+          _PriSeg(
+              value: _priority,
+              onChanged: (v) => setState(() => _priority = v),
+              tokens: t),
+          const SizedBox(height: PSpace.x12),
+
+          Text('마감일 (선택)',
+              style: PTypo.caption.copyWith(color: t.fgSecondary)),
+          const SizedBox(height: PSpace.x4),
+          Row(
+            children: [
+              Expanded(
+                child: InkWell(
+                  onTap: () async {
+                    final d = await showDatePicker(
+                      context: context,
+                      initialDate: _due ?? DateTime.now(),
+                      firstDate: DateTime(2020),
+                      lastDate: DateTime(2030),
+                    );
+                    if (d != null) setState(() => _due = d);
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: t.bgMuted,
+                      borderRadius: PRadius.brMd,
+                      border: Border.all(color: t.borderDefault),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(LucideIcons.calendar,
+                            size: 16, color: t.fgSecondary),
+                        const SizedBox(width: 6),
+                        Text(_due == null ? '미설정' : _fmtDate(_due!),
+                            style: PTypo.bodySm.copyWith(
+                                color: _due == null
+                                    ? t.fgPlaceholder
+                                    : t.fgPrimary)),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              if (_due != null)
+                IconButton(
+                  onPressed: () => setState(() => _due = null),
+                  icon: Icon(LucideIcons.x,
+                      size: 16, color: t.fgTertiary),
+                  tooltip: '마감일 제거',
+                ),
+            ],
+          ),
+          const SizedBox(height: PSpace.x12),
+
+          Text('카테고리 (선택)',
+              style: PTypo.caption.copyWith(color: t.fgSecondary)),
+          const SizedBox(height: PSpace.x4),
+          TextField(
+            controller: _categoryCtrl,
+            decoration: const InputDecoration(hintText: '예: 업무, 개인'),
+          ),
+          const SizedBox(height: PSpace.x12),
+
+          Text('상세 내용 (선택)',
+              style: PTypo.caption.copyWith(color: t.fgSecondary)),
+          const SizedBox(height: PSpace.x4),
+          TextField(
+            controller: _contentCtrl,
+            maxLines: 4,
+            decoration: const InputDecoration(hintText: '추가 내용'),
+          ),
+          const SizedBox(height: PSpace.x24),
+
+          Row(
+            children: [
+              if (_isEdit) ...[
+                Expanded(
+                  child: OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: t.statusDanger,
+                      side: BorderSide(
+                          color: t.statusDanger.withValues(alpha: 0.5)),
+                    ),
+                    onPressed: _submitting ? null : _delete,
+                    icon: const Icon(LucideIcons.trash2, size: 16),
+                    label: const Text('삭제'),
+                  ),
+                ),
+                const SizedBox(width: PSpace.x8),
+              ],
+              Expanded(
+                flex: _isEdit ? 1 : 2,
+                child: FilledButton(
+                  onPressed: _titleCtrl.text.trim().isEmpty || _submitting
+                      ? null
+                      : _submit,
+                  child: _submitting
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2))
+                      : Text(_isEdit ? '수정' : '추가'),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PriSeg extends StatelessWidget {
+  const _PriSeg(
+      {required this.value, required this.onChanged, required this.tokens});
+  final String value;
+  final ValueChanged<String> onChanged;
+  final PorestTokens tokens;
+  @override
+  Widget build(BuildContext context) {
+    const opts = [('HIGH', '높음'), ('MEDIUM', '보통'), ('LOW', '낮음')];
+    return Container(
+      padding: const EdgeInsets.all(4),
+      decoration:
+          BoxDecoration(color: tokens.bgMuted, borderRadius: PRadius.brMd),
+      child: Row(
+        children: [
+          for (final o in opts)
+            Expanded(
+              child: GestureDetector(
+                onTap: () => onChanged(o.$1),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  decoration: BoxDecoration(
+                    color: o.$1 == value
+                        ? tokens.bgSurface
+                        : Colors.transparent,
+                    borderRadius: PRadius.brSm,
+                  ),
+                  child: Text(o.$2,
+                      textAlign: TextAlign.center,
+                      style: PTypo.bodySm.copyWith(
+                          color: o.$1 == value
+                              ? tokens.fgPrimary
+                              : tokens.fgTertiary,
+                          fontWeight: o.$1 == value
+                              ? FontWeight.w700
+                              : FontWeight.w500)),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
