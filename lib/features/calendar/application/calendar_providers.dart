@@ -3,10 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/network/dio_provider.dart';
 import '../data/calendar_repository.dart';
 import '../data/event_comment_repository.dart';
+import '../data/holiday_repository.dart';
 import '../domain/calendar_aggregate.dart';
 import '../domain/calendar_event.dart';
 import '../domain/event_comment.dart';
 import '../domain/event_label.dart';
+import '../domain/holiday.dart';
 
 final calendarRepositoryProvider =
     FutureProvider<CalendarRepository>((ref) async {
@@ -55,4 +57,21 @@ final eventCommentsProvider =
     FutureProvider.family<List<EventComment>, int>((ref, eventId) async {
   final repo = await ref.watch(eventCommentRepositoryProvider.future);
   return repo.list(eventId);
+});
+
+// ─── Holiday (#301) ─────────────────────────────────────────
+
+final holidayRepositoryProvider =
+    FutureProvider<HolidayRepository>((ref) async {
+  final dio = await ref.watch(dioProvider.future);
+  return HolidayRepository(dio);
+});
+
+/// 기간 별 공휴일 (캘린더 화면 진입 시 활용).
+typedef HolidayRange = ({String startDate, String endDate});
+
+final holidayListProvider =
+    FutureProvider.family<List<Holiday>, HolidayRange>((ref, key) async {
+  final repo = await ref.watch(holidayRepositoryProvider.future);
+  return repo.list(startDate: key.startDate, endDate: key.endDate);
 });

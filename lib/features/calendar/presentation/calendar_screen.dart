@@ -13,6 +13,7 @@ import '../application/calendar_providers.dart';
 import '../domain/calendar_event.dart';
 import 'calendar_event_dialog.dart';
 import 'event_label_management_dialog.dart';
+import 'holiday_management_dialog.dart';
 
 class CalendarScreen extends ConsumerStatefulWidget {
   const CalendarScreen({super.key});
@@ -46,6 +47,11 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         foregroundColor: t.fgPrimary,
         elevation: 0,
         actions: [
+          IconButton(
+            tooltip: '공휴일 관리',
+            icon: Icon(LucideIcons.gift, size: 20, color: t.fgSecondary),
+            onPressed: () => showHolidayManagementDialog(context),
+          ),
           IconButton(
             tooltip: '라벨 관리',
             icon: Icon(LucideIcons.tag, size: 20, color: t.fgSecondary),
