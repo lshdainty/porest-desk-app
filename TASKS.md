@@ -174,8 +174,8 @@
 
 ## C. 대시보드
 
-- [ ] **#230 DashboardSummary endpoint + provider** (M) — front `useDashboardSummary` (GET `/v1/dashboard/summary`, recentTodos/upcomingEvents/expenseSummary 묶음). Flutter `lib/features/dashboard/data/` 자체가 없음
-- [ ] **#231 Dashboard layout GET/PATCH** (M) — front `getLayout/updateLayout` (사용자 위젯 순서/숨김). Flutter 단일 레이아웃 고정
+- [x] **#230 DashboardSummary endpoint + provider** (commit `7cae516`) — `domain/dashboard_summary.dart` + `dashboard_repository.dart` + `dashboardSummaryProvider` + `_UpcomingCard` 위젯
+- [x] **#231 Dashboard layout GET/PATCH** (commit `7cae516`) — repo `getLayout/updateLayout` + provider. UI 측 위젯 재배치 화면은 후속
 - [ ] **#232 HomeDesktop 5종 카드** (L) — 월별 막대 / 카테고리 도넛 / 예산 / 예정 결제 / 일정. 데스크톱 레이아웃 부재 (모바일 단일)
 - [x] **#233 월별 수입/지출 BarChart 표시** (commit `e7db6fa`) — Dashboard 에 `_MonthlyTrendCard` 추가
 
@@ -198,7 +198,7 @@
 - [x] **#255 거래 검색 고급 필터 UI** (commit `ff8de9b`) — SearchScreen 에 minAmount/maxAmount/startDate/endDate + BottomSheet
 - [x] **#256 예산 준수율 6개월 차트** (commit `1bf73ee`) — `compliance(months)` + `budgetComplianceProvider` + `_ComplianceCard` 막대 차트
 - [ ] **#257 BudgetEditDialog "전체 월 예산" 모드** (S) — front `MonthlyBudgetDialog`. Flutter 카테고리 단건만
-- [ ] **#258 BudgetManager 일괄 편집/복사** (M) — front 525줄. Flutter list+FAB 만
+- [x] **#258 BudgetManager 일괄 액션** (commit `294375c`) — AppBar PopupMenu: 전월 복사 / 전체 삭제 (확인 다이얼로그)
 
 ## F. 프리셋
 
@@ -212,9 +212,9 @@
 ## H. 통계
 
 - [x] **#280 자산별 지출 분포 차트** (commit `e7db6fa`) — Stats `_AssetUsageList` 섹션 추가 (합계/비율/막대)
-- [ ] **#281 카테고리 트렌드 라인 차트** (M) — front `CategoryTrendChart`. Flutter 미구현
-- [ ] **#282 예산 vs 실제 차트** (M) — front `BudgetVsActualChart`. Flutter 미구현
-- [ ] **#283 가맹점 분포·추이 차트** (M) — front `MerchantAnalysisChart`. Flutter 가맹점 Top 5 list 만
+- [x] **#281 카테고리 트렌드 라인 차트** (commit `c42e099`) — yearlySummary.monthlyAmounts 활용, 카테고리 chip strip + 12개월 LineChart
+- [x] **#282 예산 vs 실제 차트** (commit `66a08a6`) — `_BudgetVsActual` 카테고리별 spent/budget bar (over=danger)
+- [x] **#283 가맹점 분포·추이 차트** (commit `aefb778`) — `_MerchantTop` 확장: 펼치기, 1회 평균, % 점유율 표시
 - [x] **#284 전년 대비 차트 + yearlySummary 연동** (commit `5b822f6`) — Stats `_YearOverYearChart`. 12개월 BarChart, 전년 vs 올해 totalExpense 비교 + delta% 배지
 - [x] **#285 카테고리 부모-자식 드릴다운** (commit `152cbfa`) — `_CategoryDonut` 을 ConsumerStatefulWidget 으로 변환, `_activeParentId` 상태로 드릴다운, fallback 평면 응답 처리
 
