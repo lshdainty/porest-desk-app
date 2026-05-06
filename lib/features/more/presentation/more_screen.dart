@@ -17,7 +17,8 @@ class MoreScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = context.tokens;
     final items = <_MoreItem>[
-      _MoreItem(LucideIcons.wallet, '자산'),
+      _MoreItem(LucideIcons.wallet, '자산',
+          onTap: (ctx, _) => ctx.push('/assets')),
       _MoreItem(LucideIcons.target, '예산'),
       _MoreItem(LucideIcons.calendarDays, '캘린더'),
       _MoreItem(LucideIcons.repeat, '반복 거래'),
