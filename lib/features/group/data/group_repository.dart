@@ -97,6 +97,17 @@ class GroupRepository {
     }
   }
 
+  /// 같은 그룹 다른 멤버 목록 — 더치페이/지출분할 멤버 후보용.
+  /// GET /groups/members.
+  Future<List<SiblingMember>> getSiblingMembers() async {
+    try {
+      final res = await _dio.get<Map<String, dynamic>>('/groups/members');
+      return _unwrapList(res, 'members', SiblingMember.fromJson);
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
   /// 그룹 멤버 제거. DELETE /group/{groupId}/member/{memberId}.
   Future<void> removeMember(int groupId, int memberId) async {
     try {

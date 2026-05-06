@@ -34,6 +34,32 @@ class GroupMember {
   }
 }
 
+/// 같은 그룹에 속한 다른 사용자 — `getSiblingMembers` 응답.
+class SiblingMember {
+  const SiblingMember({
+    required this.userRowId,
+    required this.userName,
+    this.userEmail,
+    this.sharedGroupRowIds = const [],
+  });
+
+  final int userRowId;
+  final String userName;
+  final String? userEmail;
+  final List<int> sharedGroupRowIds;
+
+  factory SiblingMember.fromJson(Map<String, dynamic> json) {
+    final ids = (json['sharedGroupRowIds'] as List?) ?? const [];
+    return SiblingMember(
+      userRowId: (json['userRowId'] as num).toInt(),
+      userName: (json['userName'] as String?) ?? '',
+      userEmail: json['userEmail'] as String?,
+      sharedGroupRowIds:
+          ids.map((e) => (e as num).toInt()).toList(growable: false),
+    );
+  }
+}
+
 /// 그룹 상세 — 그룹 메타 + 멤버 리스트.
 class GroupDetail {
   const GroupDetail({

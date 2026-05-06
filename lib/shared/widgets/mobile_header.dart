@@ -6,6 +6,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 import '../../app/theme/tokens.dart';
 import '../../core/settings/hide_amounts_unlock_dialog.dart';
 import '../../core/settings/settings_notifier.dart';
+import '../../features/notification/application/notification_providers.dart';
 
 /// 모바일 셸 상단 바 — front `.m-header` 미러.
 ///
@@ -72,12 +73,68 @@ class MobileHeader extends ConsumerWidget implements PreferredSizeWidget {
                 tokens: t,
                 tooltip: settings.hideAmounts ? '금액 표시' : '금액 숨김',
               ),
+              _NotificationBell(tokens: t),
               _IcoBtn(
                 trailingIcon,
                 onPressed: onTrailingTap ?? () => context.push('/search'),
                 tokens: t,
                 tooltip: trailingIcon == LucideIcons.bell ? '알림' : '검색',
               ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// 헤더 종 아이콘 + unread 배지 — front `NotificationBell` 미러.
+/// 탭 시 /notifications 라우트로 이동.
+class _NotificationBell extends ConsumerWidget {
+  const _NotificationBell({required this.tokens});
+  final PorestTokens tokens;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final unread = ref.watch(unreadCountProvider).value ?? 0;
+    return Tooltip(
+      message: '알림',
+      child: InkWell(
+        onTap: () => context.push('/notifications'),
+        borderRadius: BorderRadius.circular(999),
+        child: SizedBox(
+          width: 36,
+          height: 36,
+          child: Stack(
+            clipBehavior: Clip.none,
+            alignment: Alignment.center,
+            children: [
+              Icon(LucideIcons.bell, size: 20, color: tokens.fgPrimary),
+              if (unread > 0)
+                Positioned(
+                  top: 6,
+                  right: 6,
+                  child: Container(
+                    constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    decoration: BoxDecoration(
+                      color: tokens.statusDanger,
+                      borderRadius: BorderRadius.circular(999),
+                      border: Border.all(color: tokens.bgSurface, width: 1.5),
+                    ),
+                    child: Center(
+                      child: Text(
+                        unread > 99 ? '99+' : '$unread',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 9,
+                          fontWeight: FontWeight.w700,
+                          height: 1.0,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
             ],
           ),
         ),

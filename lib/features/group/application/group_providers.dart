@@ -20,3 +20,10 @@ final groupDetailProvider =
   final repo = await ref.watch(groupRepositoryProvider.future);
   return repo.getDetail(id);
 });
+
+/// 같은 그룹 다른 멤버 (더치페이 멤버 picker / 멘션 후보 등에서 활용).
+final siblingMembersProvider =
+    FutureProvider<List<SiblingMember>>((ref) async {
+  final repo = await ref.watch(groupRepositoryProvider.future);
+  return repo.getSiblingMembers();
+});
