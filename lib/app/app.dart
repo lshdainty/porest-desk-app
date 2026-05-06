@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'router.dart';
+import 'theme/theme_data.dart';
 
 class PorestDeskApp extends ConsumerWidget {
   const PorestDeskApp({super.key});
@@ -12,7 +13,9 @@ class PorestDeskApp extends ConsumerWidget {
     return MaterialApp.router(
       title: 'Porest Desk',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(useMaterial3: true), // Phase 3 에서 PorestTheme 으로 교체
+      theme: PorestTheme.light(),
+      darkTheme: PorestTheme.dark(),
+      themeMode: ThemeMode.system, // Phase 7: SettingsProvider 로 교체
       routerConfig: router,
     );
   }
