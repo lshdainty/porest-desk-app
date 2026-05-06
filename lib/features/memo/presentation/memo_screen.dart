@@ -11,6 +11,7 @@ import '../../../core/network/api_exception.dart';
 import '../application/memo_providers.dart';
 import '../domain/memo.dart';
 import 'memo_edit_dialog.dart';
+import 'memo_folder_management_dialog.dart';
 
 class MemoScreen extends ConsumerStatefulWidget {
   const MemoScreen({super.key});
@@ -47,6 +48,14 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,
         elevation: 0,
+        actions: [
+          IconButton(
+            tooltip: '폴더 관리',
+            icon: Icon(LucideIcons.folderTree,
+                size: 20, color: t.fgSecondary),
+            onPressed: () => showMemoFolderManagementDialog(context),
+          ),
+        ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(56),
           child: Padding(
