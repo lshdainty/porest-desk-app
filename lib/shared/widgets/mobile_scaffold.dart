@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/theme/tokens.dart';
+import '../../features/expense/presentation/add_tx_sheet.dart';
 import 'mobile_header.dart';
 import 'mobile_tab_bar.dart';
 
@@ -27,12 +28,7 @@ class MobileScaffold extends StatelessWidget {
           branch,
           initialLocation: branch == idx,
         ),
-        onAddTx: () {
-          // Phase 7 에서 AddTxSheet 호출
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('거래 추가 (Phase 7 에서 시트 연결)')),
-          );
-        },
+        onAddTx: () => showAddTxSheet(context),
       ),
     );
   }

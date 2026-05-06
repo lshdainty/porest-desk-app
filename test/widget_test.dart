@@ -21,7 +21,9 @@ void main() {
     expect(find.text('가계부'), findsOneWidget);
     expect(find.text('통계'), findsOneWidget);
     expect(find.text('전체'), findsOneWidget);
-    expect(find.text('홈 / Dashboard'), findsOneWidget);
+    // Dashboard hero
+    expect(find.text('순자산'), findsOneWidget);
+    expect(find.textContaining('Tester'), findsOneWidget);
   });
 }
 
