@@ -61,5 +61,26 @@
   "notiTypeSystem": "시스템 알림",
   "notiConnectionLost": "알림 연결이 끊어졌습니다",
   "notiConnectionRestored": "알림 연결이 복구되었습니다",
-  "notiNew": "새 알림"
+  "notiNew": "새 알림",
+
+  "assetTitle": "자산 관리",
+  "assetSummaryTotalBalance": "총 자산",
+  "assetEmpty": "등록된 자산이 없습니다",
+  "assetCreateFirst": "첫 번째 자산을 등록해 보세요",
+  "assetAdd": "자산 추가",
+  "assetEdit": "자산 수정",
+  "assetTransferAdd": "이체 추가",
+  "assetTransferEmpty": "이체 내역이 없습니다",
+  "assetFee": "수수료",
+  "assetTypeBankAccount": "입출금",
+  "assetTypeSavings": "예적금",
+  "assetTypeCash": "현금",
+  "assetTypeCreditCard": "신용카드",
+  "assetTypeCheckCard": "체크카드",
+  "assetTypeInvestment": "투자",
+  "assetTypeLoan": "대출",
+  "assetGroupAccount": "계좌 · 예금",
+  "assetGroupCard": "카드",
+  "assetGroupInvestment": "투자",
+  "assetGroupDebt": "대출"
 }

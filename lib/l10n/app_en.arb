@@ -60,5 +60,26 @@
   "notiTypeSystem": "System",
   "notiConnectionLost": "Notification connection lost",
   "notiConnectionRestored": "Notification connection restored",
-  "notiNew": "New notification"
+  "notiNew": "New notification",
+
+  "assetTitle": "Assets",
+  "assetSummaryTotalBalance": "Total Balance",
+  "assetEmpty": "No assets registered",
+  "assetCreateFirst": "Register your first asset",
+  "assetAdd": "Add Asset",
+  "assetEdit": "Edit Asset",
+  "assetTransferAdd": "Add Transfer",
+  "assetTransferEmpty": "No transfers yet",
+  "assetFee": "Fee",
+  "assetTypeBankAccount": "Bank Account",
+  "assetTypeSavings": "Savings",
+  "assetTypeCash": "Cash",
+  "assetTypeCreditCard": "Credit Card",
+  "assetTypeCheckCard": "Check Card",
+  "assetTypeInvestment": "Investment",
+  "assetTypeLoan": "Loan",
+  "assetGroupAccount": "Accounts",
+  "assetGroupCard": "Cards",
+  "assetGroupInvestment": "Investments",
+  "assetGroupDebt": "Loans"
 }
