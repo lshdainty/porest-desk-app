@@ -403,9 +403,9 @@ class _TrendChart extends StatelessWidget {
   }
 }
 
-// ─── 카테고리 분포 도넛 ─────────────────────────────────
+// ─── 카테고리 분포 도넛 (드릴다운 #285) ─────────────────────
 
-class _CategoryDonut extends ConsumerWidget {
+class _CategoryDonut extends ConsumerStatefulWidget {
   const _CategoryDonut(
       {required this.async, required this.masked, required this.tokens});
   final AsyncValue<MonthlySummary> async;
@@ -413,7 +413,18 @@ class _CategoryDonut extends ConsumerWidget {
   final PorestTokens tokens;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_CategoryDonut> createState() => _CategoryDonutState();
+}
+
+class _CategoryDonutState extends ConsumerState<_CategoryDonut> {
+  /// 활성 부모 카테고리 ID — null 이면 최상위, set 시 해당 부모의 자식만 표시.
+  int? _activeParentId;
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = widget.tokens;
+    final masked = widget.masked;
+    final async = widget.async;
     final s = async.value;
     if (async.isLoading && s == null) {
       return const SizedBox(
@@ -423,12 +434,42 @@ class _CategoryDonut extends ConsumerWidget {
       return _ErrorMini(text: '카테고리 로드 실패', tokens: tokens);
     }
     final all = s?.categoryBreakdown ?? const <CategoryBreakdown>[];
-    final exp = all.where((c) => c.expenseType == 'EXPENSE').toList()
+    final expensesAll = all.where((c) => c.expenseType == 'EXPENSE').toList();
+    if (expensesAll.isEmpty) {
+      return _EmptyMini(text: '데이터 없음', tokens: tokens);
+    }
+
+    // 드릴다운: 부모가 선택되면 해당 부모의 직접 자식 만, 아니면 최상위(parent==null) 만.
+    final exp = (_activeParentId == null
+            ? expensesAll
+                .where((c) => c.parentCategoryRowId == null)
+                .toList()
+            : expensesAll
+                .where((c) => c.parentCategoryRowId == _activeParentId)
+                .toList())
       ..sort((a, b) => b.totalAmount.compareTo(a.totalAmount));
-    if (exp.isEmpty) return _EmptyMini(text: '데이터 없음', tokens: tokens);
+    // fallback: 최상위 0건이면 전체 보여주기 (백엔드가 평면 응답일 때).
+    final view = exp.isEmpty
+        ? (List.of(expensesAll)
+          ..sort((a, b) => b.totalAmount.compareTo(a.totalAmount)))
+        : exp;
 
     final categories = ref.watch(categoriesProvider).value ?? const [];
-    final total = exp.fold<int>(0, (s, c) => s + c.totalAmount);
+    final total = view.fold<int>(0, (s, c) => s + c.totalAmount);
+
+    // 자식 카테고리 수가 1 이상인 부모 ID 집합 — 드릴다운 가능 표시
+    final hasChildrenIds = <int>{
+      for (final c in expensesAll)
+        if (c.parentCategoryRowId != null) c.parentCategoryRowId!
+    };
+
+    String? activeName() {
+      if (_activeParentId == null) return null;
+      final p = expensesAll
+          .firstWhere((c) => c.categoryRowId == _activeParentId,
+              orElse: () => expensesAll.first);
+      return p.categoryName;
+    }
 
     Color colorFor(CategoryBreakdown c) {
       for (final cat in categories) {
@@ -443,6 +484,38 @@ class _CategoryDonut extends ConsumerWidget {
 
     return Column(
       children: [
+        if (_activeParentId != null)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Row(
+              children: [
+                InkWell(
+                  onTap: () => setState(() => _activeParentId = null),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 6, vertical: 4),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(LucideIcons.arrowLeft,
+                            size: 13, color: tokens.fgSecondary),
+                        const SizedBox(width: 4),
+                        Text('전체로',
+                            style: PTypo.caption.copyWith(
+                                color: tokens.fgSecondary,
+                                fontWeight: FontWeight.w600)),
+                      ],
+                    ),
+                  ),
+                ),
+                const Spacer(),
+                Text(activeName() ?? '',
+                    style: PTypo.caption.copyWith(
+                        color: tokens.fgPrimary,
+                        fontWeight: FontWeight.w700)),
+              ],
+            ),
+          ),
         SizedBox(
           height: 180,
           child: PieChart(
@@ -450,7 +523,7 @@ class _CategoryDonut extends ConsumerWidget {
               sectionsSpace: 2,
               centerSpaceRadius: 50,
               sections: [
-                for (final c in exp.take(8))
+                for (final c in view.take(8))
                   PieChartSectionData(
                     value: c.totalAmount.toDouble(),
                     color: colorFor(c),
@@ -462,33 +535,61 @@ class _CategoryDonut extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: PSpace.x8),
-        for (final c in exp.take(5))
+        for (final c in view.take(5))
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 4),
-            child: Row(
-              children: [
-                Container(
-                  width: 10,
-                  height: 10,
-                  decoration: BoxDecoration(
-                      color: colorFor(c), shape: BoxShape.circle),
+            child: InkWell(
+              onTap: c.categoryRowId == null
+                  ? null
+                  : (_activeParentId == null &&
+                          hasChildrenIds.contains(c.categoryRowId)
+                      ? () => setState(() => _activeParentId = c.categoryRowId)
+                      : null),
+              borderRadius: PRadius.brSm,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 4, vertical: 2),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 10,
+                      height: 10,
+                      decoration: BoxDecoration(
+                          color: colorFor(c), shape: BoxShape.circle),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Row(
+                        children: [
+                          Flexible(
+                            child: Text(c.categoryName ?? '미지정',
+                                overflow: TextOverflow.ellipsis,
+                                style: PTypo.bodySm
+                                    .copyWith(color: tokens.fgPrimary)),
+                          ),
+                          if (_activeParentId == null &&
+                              c.categoryRowId != null &&
+                              hasChildrenIds.contains(c.categoryRowId)) ...[
+                            const SizedBox(width: 4),
+                            Icon(LucideIcons.chevronRight,
+                                size: 12, color: tokens.fgTertiary),
+                          ],
+                        ],
+                      ),
+                    ),
+                    Text(
+                      '${total > 0 ? ((c.totalAmount / total) * 100).round() : 0}%',
+                      style:
+                          PTypo.caption.copyWith(color: tokens.fgTertiary),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(krwMasked(c.totalAmount, masked),
+                        style: PTypo.bodySm.copyWith(
+                            color: tokens.fgPrimary,
+                            fontWeight: FontWeight.w600)),
+                  ],
                 ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(c.categoryName ?? '미지정',
-                      style: PTypo.bodySm
-                          .copyWith(color: tokens.fgPrimary)),
-                ),
-                Text(
-                  '${total > 0 ? ((c.totalAmount / total) * 100).round() : 0}%',
-                  style: PTypo.caption.copyWith(color: tokens.fgTertiary),
-                ),
-                const SizedBox(width: 8),
-                Text(krwMasked(c.totalAmount, masked),
-                    style: PTypo.bodySm.copyWith(
-                        color: tokens.fgPrimary,
-                        fontWeight: FontWeight.w600)),
-              ],
+              ),
             ),
           ),
       ],
