@@ -139,7 +139,19 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
           ),
           const SizedBox(height: PSpace.x12),
 
-          // 7. 전년 대비
+          // 7. 카테고리 추이 (#281)
+          _SectionCard(
+            title: '카테고리 추이 (${_month.year})',
+            tokens: t,
+            child: _CategoryTrendChart(
+              yearlyAsync: yearAsync,
+              categoriesAsync: categoriesAsync,
+              tokens: t,
+            ),
+          ),
+          const SizedBox(height: PSpace.x12),
+
+          // 8. 전년 대비
           _SectionCard(
             title: '전년 대비 (${_month.year} vs ${_month.year - 1})',
             tokens: t,
@@ -1186,6 +1198,193 @@ class _BudgetVsActual extends StatelessWidget {
               ],
             ),
           ),
+      ],
+    );
+  }
+}
+
+/// 카테고리별 12개월 지출 추이 (#281).
+class _CategoryTrendChart extends StatefulWidget {
+  const _CategoryTrendChart({
+    required this.yearlyAsync,
+    required this.categoriesAsync,
+    required this.tokens,
+  });
+  final AsyncValue<YearlySummary> yearlyAsync;
+  final AsyncValue<List<ExpenseCategory>> categoriesAsync;
+  final PorestTokens tokens;
+
+  @override
+  State<_CategoryTrendChart> createState() => _CategoryTrendChartState();
+}
+
+class _CategoryTrendChartState extends State<_CategoryTrendChart> {
+  int? _selectedCategoryId;
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = widget.tokens;
+    final summary = widget.yearlyAsync.value;
+    if (widget.yearlyAsync.isLoading && summary == null) {
+      return const SizedBox(
+          height: 180, child: Center(child: CircularProgressIndicator()));
+    }
+    if (summary == null || summary.monthlyAmounts.isEmpty) {
+      return _EmptyMini(text: '데이터 없음', tokens: tokens);
+    }
+
+    final candidateIds = <int, String>{};
+    for (final m in summary.monthlyAmounts) {
+      for (final c in m.categoryBreakdown) {
+        if (c.expenseType != 'EXPENSE' || c.categoryRowId == null) continue;
+        candidateIds.putIfAbsent(c.categoryRowId!,
+            () => c.categoryName ?? '#${c.categoryRowId}');
+      }
+    }
+    if (candidateIds.isEmpty) {
+      return _EmptyMini(text: '카테고리 데이터 없음', tokens: tokens);
+    }
+    final byTotal = <int, int>{};
+    for (final m in summary.monthlyAmounts) {
+      for (final c in m.categoryBreakdown) {
+        if (c.expenseType != 'EXPENSE' || c.categoryRowId == null) continue;
+        byTotal.update(c.categoryRowId!, (v) => v + c.totalAmount,
+            ifAbsent: () => c.totalAmount);
+      }
+    }
+    final ids = candidateIds.keys.toList()
+      ..sort((a, b) => (byTotal[b] ?? 0).compareTo(byTotal[a] ?? 0));
+    _selectedCategoryId ??= ids.first;
+    final selId = _selectedCategoryId!;
+
+    final categories =
+        widget.categoriesAsync.value ?? const <ExpenseCategory>[];
+    Color colorOf(int id) {
+      try {
+        final c = categories.firstWhere((c) => c.rowId == id);
+        return parseColor(c.color, fallback: tokens.fgBrand);
+      } catch (_) {
+        return tokens.fgBrand;
+      }
+    }
+
+    int amountFor(int month) {
+      for (final m in summary.monthlyAmounts) {
+        if (m.month != month) continue;
+        for (final c in m.categoryBreakdown) {
+          if (c.categoryRowId == selId) return c.totalAmount;
+        }
+        return 0;
+      }
+      return 0;
+    }
+
+    final spots = <FlSpot>[
+      for (var m = 1; m <= 12; m++)
+        FlSpot(m.toDouble(), amountFor(m).toDouble()),
+    ];
+    final maxY =
+        spots.map((s) => s.y).fold<double>(0, (m, v) => v > m ? v : m);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          height: 38,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            children: [
+              for (final id in ids.take(15))
+                Padding(
+                  padding: const EdgeInsets.only(right: 6),
+                  child: GestureDetector(
+                    onTap: () => setState(() => _selectedCategoryId = id),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: id == selId
+                            ? tokens.bgBrandSubtle
+                            : tokens.bgMuted,
+                        borderRadius: PRadius.brPill,
+                        border: Border.all(
+                          color: id == selId
+                              ? tokens.borderBrand
+                              : tokens.borderSubtle,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 8,
+                            height: 8,
+                            decoration: BoxDecoration(
+                                color: colorOf(id), shape: BoxShape.circle),
+                          ),
+                          const SizedBox(width: 6),
+                          Text(candidateIds[id] ?? '',
+                              style: PTypo.caption.copyWith(
+                                color: id == selId
+                                    ? tokens.fgPrimary
+                                    : tokens.fgSecondary,
+                                fontWeight: id == selId
+                                    ? FontWeight.w700
+                                    : FontWeight.w500,
+                              )),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+        const SizedBox(height: PSpace.x12),
+        SizedBox(
+          height: 160,
+          child: LineChart(
+            LineChartData(
+              minY: 0,
+              maxY: maxY > 0 ? maxY * 1.15 : 100,
+              gridData: const FlGridData(show: false),
+              titlesData: FlTitlesData(
+                leftTitles: const AxisTitles(),
+                rightTitles: const AxisTitles(),
+                topTitles: const AxisTitles(),
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    reservedSize: 18,
+                    interval: 1,
+                    getTitlesWidget: (v, _) {
+                      final m = v.toInt();
+                      if (m < 1 || m > 12) return const SizedBox();
+                      return Text('$m',
+                          style: PTypo.micro
+                              .copyWith(color: tokens.fgTertiary));
+                    },
+                  ),
+                ),
+              ),
+              borderData: FlBorderData(show: false),
+              lineBarsData: [
+                LineChartBarData(
+                  spots: spots,
+                  isCurved: true,
+                  color: colorOf(selId),
+                  barWidth: 2.5,
+                  dotData: const FlDotData(show: true),
+                  belowBarData: BarAreaData(
+                    show: true,
+                    color: colorOf(selId).withValues(alpha: 0.12),
+                  ),
+                ),
+              ],
+              lineTouchData: LineTouchData(enabled: true),
+            ),
+          ),
+        ),
       ],
     );
   }
