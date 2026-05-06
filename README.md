@@ -14,8 +14,16 @@ Porest Desk 모바일 앱 (Flutter, iOS + Android).
 4. 실행: `fvm flutter run --dart-define=API_BASE=http://localhost:8002 --dart-define=SSO_URL=http://localhost:8000`
 
 ## 환경변수
-- `API_BASE` — Desk 백엔드 base URL (기본 local: `http://localhost:8002`)
-- `SSO_URL` — SSO 백엔드 base URL (기본 local: `http://localhost:8000`)
+- `API_BASE` — Desk 백엔드 (Spring Boot) base URL — 기본 `http://localhost:8002`
+- `SSO_URL` — SSO **프론트** (React 로그인 페이지) base URL — 기본 `http://localhost:3000`
+  - SSO 백엔드 API(:8000) 아님. WebView 가 띄우는 건 ID/PW 폼 페이지다.
+
+Android 에뮬레이터는 `localhost` 대신 `10.0.2.2` 사용:
+```sh
+fvm flutter run \
+  --dart-define=API_BASE=http://10.0.2.2:8002 \
+  --dart-define=SSO_URL=http://10.0.2.2:3000
+```
 
 ## 백엔드 의존
 - [porest-desk-back](https://github.com/lshdainty/porest-desk-back) — REST API
