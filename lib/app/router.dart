@@ -10,7 +10,9 @@ import '../features/category/presentation/category_screen.dart';
 import '../features/dutch_pay/presentation/dutch_pay_screen.dart';
 import '../features/group/presentation/group_screen.dart';
 import '../features/memo/presentation/memo_screen.dart';
+import '../features/notification/presentation/notification_screen.dart';
 import '../features/preset/presentation/preset_screen.dart';
+import '../features/saving_goal/presentation/saving_goal_screen.dart';
 import '../features/search/presentation/search_screen.dart';
 import '../features/todo/presentation/todo_screen.dart';
 import '../features/auth/presentation/login_screen.dart';
@@ -65,6 +67,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/todos', builder: (_, _) => const TodoScreen()),
       GoRoute(path: '/groups', builder: (_, _) => const GroupScreen()),
       GoRoute(path: '/dutch-pay', builder: (_, _) => const DutchPayScreen()),
+      GoRoute(path: '/notifications', builder: (_, _) => const NotificationScreen()),
+      GoRoute(path: '/saving-goals', builder: (_, _) => const SavingGoalScreen()),
 
       // 모바일 셸 (홈/가계부/통계/전체 4개 분기)
       StatefulShellRoute.indexedStack(
