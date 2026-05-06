@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../core/settings/settings_notifier.dart';
 import 'router.dart';
 import 'theme/theme_data.dart';
 
@@ -10,12 +11,13 @@ class PorestDeskApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
+    final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
     return MaterialApp.router(
       title: 'Porest Desk',
       debugShowCheckedModeBanner: false,
       theme: PorestTheme.light(),
       darkTheme: PorestTheme.dark(),
-      themeMode: ThemeMode.system, // Phase 7: SettingsProvider 로 교체
+      themeMode: settings.themeMode,
       routerConfig: router,
     );
   }

@@ -1,0 +1,17 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+/// SharedPreferences 단일 인스턴스 Provider.
+///
+/// `await ref.read(prefsProvider.future)` 로 접근. 첫 호출 후엔 동기 캐시 사용.
+final prefsProvider = FutureProvider<SharedPreferences>((ref) {
+  return SharedPreferences.getInstance();
+});
+
+/// porest-desk-front 와 동일한 키를 그대로 사용 — 추후 동기화 정책 변경 쉽게.
+abstract final class PrefsKeys {
+  static const themeMode = 'vite-ui-theme';   // 'light' | 'dark' | 'system'
+  static const density = 'pd-density';        // 'compact' | 'comfortable' | 'spacious'
+  static const currency = 'pd-currency';      // 'KRW' | 'USD' | 'EUR' | 'JPY'
+  static const hideAmounts = 'pd-hide';       // bool
+}

@@ -8,6 +8,7 @@ import '../features/auth/presentation/splash_screen.dart';
 import '../features/dashboard/presentation/dashboard_screen.dart';
 import '../features/expense/presentation/expense_screen.dart';
 import '../features/more/presentation/more_screen.dart';
+import '../features/settings/presentation/settings_screen.dart';
 import '../features/stats/presentation/stats_screen.dart';
 import '../shared/widgets/mobile_scaffold.dart';
 
@@ -41,6 +42,7 @@ final routerProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(path: '/', builder: (_, _) => const SplashScreen()),
       GoRoute(path: '/login', builder: (_, _) => const LoginScreen()),
+      GoRoute(path: '/settings', builder: (_, _) => const SettingsScreen()),
 
       // 모바일 셸 (홈/가계부/통계/전체 4개 분기)
       StatefulShellRoute.indexedStack(

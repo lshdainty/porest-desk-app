@@ -1,34 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
+import '../../../core/auth/auth_notifier.dart';
 
 /// 모바일 전용 "전체" 탭 — 잘 안 쓰는 메뉴를 한 화면에 모음.
-/// Phase 7+ 에서 각 항목이 자체 화면으로 push 라우팅.
-class MoreScreen extends StatelessWidget {
+class MoreScreen extends ConsumerWidget {
   const MoreScreen({super.key});
 
-  static const _items = <(IconData, String)>[
-    (LucideIcons.wallet, '자산'),
-    (LucideIcons.target, '예산'),
-    (LucideIcons.calendarDays, '캘린더'),
-    (LucideIcons.repeat, '반복 거래'),
-    (LucideIcons.creditCard, '카드 관리'),
-    (LucideIcons.users, '그룹'),
-    (LucideIcons.divide, '더치페이'),
-    (LucideIcons.fileText, '메모'),
-    (LucideIcons.checkSquare, '할 일'),
-    (LucideIcons.bell, '알림'),
-    (LucideIcons.settings, '설정'),
-    (LucideIcons.logOut, '로그아웃'),
-  ];
-
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final t = context.tokens;
+    final items = <_MoreItem>[
+      _MoreItem(LucideIcons.wallet, '자산'),
+      _MoreItem(LucideIcons.target, '예산'),
+      _MoreItem(LucideIcons.calendarDays, '캘린더'),
+      _MoreItem(LucideIcons.repeat, '반복 거래'),
+      _MoreItem(LucideIcons.creditCard, '카드 관리'),
+      _MoreItem(LucideIcons.users, '그룹'),
+      _MoreItem(LucideIcons.divide, '더치페이'),
+      _MoreItem(LucideIcons.fileText, '메모'),
+      _MoreItem(LucideIcons.checkSquare, '할 일'),
+      _MoreItem(LucideIcons.bell, '알림'),
+      _MoreItem(LucideIcons.settings, '설정', onTap: (ctx, _) => ctx.push('/settings')),
+      _MoreItem(LucideIcons.logOut, '로그아웃',
+          onTap: (_, ref) => ref.read(authProvider.notifier).logout()),
+    ];
+
     return ListView(
       padding: const EdgeInsets.all(PSpace.x20),
       children: [
@@ -42,9 +45,11 @@ class MoreScreen extends StatelessWidget {
           ),
           child: Column(
             children: [
-              for (int i = 0; i < _items.length; i++) ...[
-                _MoreRow(icon: _items[i].$1, label: _items[i].$2),
-                if (i < _items.length - 1)
+              for (int i = 0; i < items.length; i++) ...[
+                _MoreRow(item: items[i], onTap: items[i].onTap == null
+                    ? null
+                    : () => items[i].onTap!(context, ref)),
+                if (i < items.length - 1)
                   Divider(height: 1, color: t.borderSubtle, indent: 52),
               ],
             ],
@@ -55,24 +60,37 @@ class MoreScreen extends StatelessWidget {
   }
 }
 
-class _MoreRow extends StatelessWidget {
-  const _MoreRow({required this.icon, required this.label});
+class _MoreItem {
+  const _MoreItem(this.icon, this.label, {this.onTap});
   final IconData icon;
   final String label;
+  final void Function(BuildContext, WidgetRef)? onTap;
+}
+
+class _MoreRow extends StatelessWidget {
+  const _MoreRow({required this.item, required this.onTap});
+  final _MoreItem item;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final enabled = onTap != null;
     return InkWell(
-      onTap: () {}, // Phase 7+ 라우팅
+      onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: PSpace.x16, vertical: PSpace.x12),
         child: Row(
           children: [
-            Icon(icon, size: 20, color: t.fgSecondary),
+            Icon(item.icon, size: 20, color: enabled ? t.fgSecondary : t.fgDisabled),
             const SizedBox(width: PSpace.x12),
-            Expanded(child: Text(label, style: PTypo.body.copyWith(color: t.fgPrimary))),
-            Icon(LucideIcons.chevronRight, size: 16, color: t.fgTertiary),
+            Expanded(
+              child: Text(item.label,
+                  style: PTypo.body.copyWith(
+                      color: enabled ? t.fgPrimary : t.fgDisabled)),
+            ),
+            Icon(LucideIcons.chevronRight, size: 16,
+                color: enabled ? t.fgTertiary : t.fgDisabled),
           ],
         ),
       ),
