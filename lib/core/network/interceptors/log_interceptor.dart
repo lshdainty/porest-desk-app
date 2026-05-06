@@ -20,7 +20,14 @@ class AppLogInterceptor extends Interceptor {
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    _log.w('✗ ${err.response?.statusCode} ${err.requestOptions.uri} — ${err.message}');
+    final code = err.response?.statusCode;
+    final path = err.requestOptions.path;
+    // /auth/check 의 401 은 부팅 시 미로그인 상태 — 정상 흐름이라 silent
+    if (code == 401 && path.endsWith('/auth/check')) {
+      handler.next(err);
+      return;
+    }
+    _log.w('✗ $code ${err.requestOptions.uri} — ${err.message}');
     handler.next(err);
   }
 }

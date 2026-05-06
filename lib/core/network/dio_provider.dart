@@ -8,6 +8,8 @@ import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../../app/env.dart';
+import '../auth/auth_notifier.dart';
+import 'interceptors/auth_interceptor.dart';
 import 'interceptors/lang_interceptor.dart';
 import 'interceptors/log_interceptor.dart';
 
@@ -36,6 +38,14 @@ final dioProvider = FutureProvider<Dio>((ref) async {
     ),
   )
     ..interceptors.add(CookieManager(jar))
+    ..interceptors.add(AuthInterceptor(
+      onUnauthorized: () {
+        // 다음 microtask 에서 처리해 onError 콜체인이 끝난 뒤 logout 실행
+        Future.microtask(() {
+          ref.read(authProvider.notifier).logout();
+        });
+      },
+    ))
     ..interceptors.add(LangInterceptor())
     ..interceptors.add(AppLogInterceptor(Logger(printer: SimplePrinter(printTime: true))));
 
