@@ -55,8 +55,10 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
   late final TextEditingController _descCtrl;
   late final TextEditingController _merchantCtrl;
   late final TextEditingController _paymentCtrl;
+  late final TextEditingController _feeCtrl;
   int? _categoryRowId;
-  int? _assetRowId;
+  int? _assetRowId; // EXPENSE/INCOME 자산, TRANSFER 의 출금 자산
+  int? _toAssetRowId; // TRANSFER 입금 자산
   late DateTime _date;
   bool _submitting = false;
 
@@ -75,6 +77,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
     _descCtrl = TextEditingController(text: e?.description ?? '');
     _merchantCtrl = TextEditingController(text: e?.merchant ?? '');
     _paymentCtrl = TextEditingController(text: e?.paymentMethod ?? '');
+    _feeCtrl = TextEditingController();
     _categoryRowId = e?.categoryRowId;
     _assetRowId = e?.assetRowId;
     if (e?.expenseDate != null) {
@@ -92,6 +95,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
     _descCtrl.dispose();
     _merchantCtrl.dispose();
     _paymentCtrl.dispose();
+    _feeCtrl.dispose();
     super.dispose();
   }
 
@@ -111,20 +115,55 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
 
   bool get _canSubmit {
     final amount = int.tryParse(_amountCtrl.text.replaceAll(',', ''));
-    return !_submitting &&
-        amount != null &&
-        amount > 0 &&
-        _categoryRowId != null &&
-        _assetRowId != null;
+    if (_submitting || amount == null || amount <= 0) return false;
+    if (_type == 'TRANSFER') {
+      return _assetRowId != null &&
+          _toAssetRowId != null &&
+          _assetRowId != _toAssetRowId;
+    }
+    return _categoryRowId != null && _assetRowId != null;
   }
 
   Future<void> _submit() async {
     final amount = int.parse(_amountCtrl.text.replaceAll(',', ''));
-    final dateStr =
-        '${_date.year.toString().padLeft(4, '0')}-${_date.month.toString().padLeft(2, '0')}-${_date.day.toString().padLeft(2, '0')}T00:00:00';
+    final isoDate =
+        '${_date.year.toString().padLeft(4, '0')}-${_date.month.toString().padLeft(2, '0')}-${_date.day.toString().padLeft(2, '0')}';
+    final dateStr = '${isoDate}T00:00:00';
     final desc = _descCtrl.text.trim().isEmpty ? null : _descCtrl.text.trim();
     final merchant = _merchantCtrl.text.trim().isEmpty ? null : _merchantCtrl.text.trim();
     final payment = _paymentCtrl.text.trim().isEmpty ? null : _paymentCtrl.text.trim();
+
+    if (_type == 'TRANSFER') {
+      setState(() => _submitting = true);
+      try {
+        final fee = int.tryParse(_feeCtrl.text.replaceAll(',', ''));
+        final aRepo = await ref.read(assetRepositoryProvider.future);
+        await aRepo.createTransfer(
+          fromAssetRowId: _assetRowId!,
+          toAssetRowId: _toAssetRowId!,
+          amount: amount,
+          fee: fee,
+          description: desc,
+          transferDate: isoDate,
+        );
+        ref.invalidate(assetsProvider);
+        ref.invalidate(monthExpensesProvider(
+            (year: _date.year, month: _date.month)));
+        if (!mounted) return;
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('이체가 완료되었습니다')),
+        );
+      } on ApiException catch (e) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('실패: ${e.message}')),
+        );
+      } finally {
+        if (mounted) setState(() => _submitting = false);
+      }
+      return;
+    }
 
     setState(() => _submitting = true);
     try {
@@ -216,7 +255,12 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
             ),
           if (!_isEdit && (presetsAsync.value?.isNotEmpty ?? false))
             const SizedBox(height: PSpace.x12),
-          _TypeSegment(value: _type, onChanged: (v) => setState(() => _type = v), tokens: t),
+          _TypeSegment(
+            value: _type,
+            onChanged: (v) => setState(() => _type = v),
+            tokens: t,
+            allowTransfer: !_isEdit,
+          ),
           const SizedBox(height: PSpace.x16),
 
           Row(
@@ -245,6 +289,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
           ),
           const SizedBox(height: PSpace.x16),
 
+          if (_type != 'TRANSFER') ...[
           _Label('카테고리'),
           const SizedBox(height: PSpace.x8),
           SizedBox(
@@ -307,8 +352,9 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
             ),
           ),
           const SizedBox(height: PSpace.x16),
+          ],
 
-          _Label('자산'),
+          _Label(_type == 'TRANSFER' ? '보낼 자산' : '자산'),
           const SizedBox(height: PSpace.x8),
           assetsAsync.when(
             loading: () => const Center(child: CircularProgressIndicator()),
@@ -329,6 +375,45 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
             ),
           ),
           const SizedBox(height: PSpace.x16),
+
+          if (_type == 'TRANSFER') ...[
+            _Label('받을 자산'),
+            const SizedBox(height: PSpace.x8),
+            assetsAsync.when(
+              loading: () => const SizedBox.shrink(),
+              error: (_, _) => const SizedBox.shrink(),
+              data: (assets) => Wrap(
+                spacing: PSpace.x8,
+                runSpacing: PSpace.x8,
+                children: [
+                  for (final a in assets)
+                    _Chip(
+                      label: a.assetName,
+                      selected: _toAssetRowId == a.rowId,
+                      onTap: () => setState(() => _toAssetRowId = a.rowId),
+                      tokens: t,
+                    ),
+                ],
+              ),
+            ),
+            if (_assetRowId != null && _assetRowId == _toAssetRowId)
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text('보낼/받을 자산은 달라야 합니다',
+                    style: PTypo.caption.copyWith(color: t.statusDanger)),
+              ),
+            const SizedBox(height: PSpace.x16),
+
+            _Label('수수료 (선택)'),
+            const SizedBox(height: PSpace.x4),
+            TextField(
+              controller: _feeCtrl,
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              decoration: const InputDecoration(hintText: '0'),
+            ),
+            const SizedBox(height: PSpace.x16),
+          ],
 
           _Label('날짜'),
           const SizedBox(height: PSpace.x4),
@@ -362,21 +447,23 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
           ),
           const SizedBox(height: PSpace.x16),
 
-          _Label('가맹점 (선택)'),
-          const SizedBox(height: PSpace.x4),
-          TextField(
-            controller: _merchantCtrl,
-            decoration: const InputDecoration(hintText: '예: 스타벅스'),
-          ),
-          const SizedBox(height: PSpace.x12),
+          if (_type != 'TRANSFER') ...[
+            _Label('가맹점 (선택)'),
+            const SizedBox(height: PSpace.x4),
+            TextField(
+              controller: _merchantCtrl,
+              decoration: const InputDecoration(hintText: '예: 스타벅스'),
+            ),
+            const SizedBox(height: PSpace.x12),
 
-          _Label('결제 수단 (선택)'),
-          const SizedBox(height: PSpace.x4),
-          TextField(
-            controller: _paymentCtrl,
-            decoration: const InputDecoration(hintText: '예: 신용카드, 현금'),
-          ),
-          const SizedBox(height: PSpace.x12),
+            _Label('결제 수단 (선택)'),
+            const SizedBox(height: PSpace.x4),
+            TextField(
+              controller: _paymentCtrl,
+              decoration: const InputDecoration(hintText: '예: 신용카드, 현금'),
+            ),
+            const SizedBox(height: PSpace.x12),
+          ],
 
           _Label('메모 (선택)'),
           const SizedBox(height: PSpace.x4),
@@ -415,24 +502,32 @@ class _Label extends StatelessWidget {
 
 class _TypeSegment extends StatelessWidget {
   const _TypeSegment(
-      {required this.value, required this.onChanged, required this.tokens});
+      {required this.value,
+      required this.onChanged,
+      required this.tokens,
+      this.allowTransfer = true});
   final String value;
   final ValueChanged<String> onChanged;
   final PorestTokens tokens;
+  final bool allowTransfer;
 
-  static const _opts = [
+  static const _baseOpts = [
     ('EXPENSE', '지출'),
     ('INCOME', '수입'),
+    ('TRANSFER', '이체'),
   ];
 
   @override
   Widget build(BuildContext context) {
+    final opts = allowTransfer
+        ? _baseOpts
+        : _baseOpts.where((o) => o.$1 != 'TRANSFER').toList();
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(color: tokens.bgMuted, borderRadius: PRadius.brMd),
       child: Row(
         children: [
-          for (final o in _opts)
+          for (final o in opts)
             Expanded(
               child: GestureDetector(
                 onTap: () => onChanged(o.$1),
