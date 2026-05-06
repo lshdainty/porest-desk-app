@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -13,6 +12,7 @@ import '../../../core/format/color_parse.dart';
 import '../../../core/network/api_exception.dart';
 import '../application/group_providers.dart';
 import '../domain/group.dart';
+import 'group_type_management_dialog.dart';
 
 class GroupScreen extends ConsumerWidget {
   const GroupScreen({super.key});
@@ -34,6 +34,11 @@ class GroupScreen extends ConsumerWidget {
         foregroundColor: t.fgPrimary,
         elevation: 0,
         actions: [
+          IconButton(
+            icon: const Icon(LucideIcons.tag),
+            tooltip: '그룹 타입 관리',
+            onPressed: () => showGroupTypeManagementDialog(context),
+          ),
           IconButton(
             icon: const Icon(LucideIcons.userPlus),
             tooltip: '초대 코드로 참여',
@@ -297,74 +302,7 @@ class _GroupRow extends StatelessWidget {
         parseColor(group.groupTypeColor, fallback: tokens.fgBrand);
     final bg = softBg(color);
     return InkWell(
-      onTap: () {
-        // 그룹 상세는 v0.5+ 에서 추가 (현재는 invite code 표시)
-        showDialog(
-          context: context,
-          builder: (ctx) => AlertDialog(
-            title: Text(group.groupName),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if ((group.description ?? '').isNotEmpty) ...[
-                  Text(group.description!,
-                      style: PTypo.bodySm
-                          .copyWith(color: tokens.fgSecondary)),
-                  const SizedBox(height: PSpace.x12),
-                ],
-                Row(
-                  children: [
-                    Icon(LucideIcons.users,
-                        size: 14, color: tokens.fgTertiary),
-                    const SizedBox(width: 6),
-                    Text('${group.memberCount}명',
-                        style: PTypo.caption
-                            .copyWith(color: tokens.fgSecondary)),
-                  ],
-                ),
-                const SizedBox(height: PSpace.x12),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 12, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: tokens.bgMuted,
-                    borderRadius: PRadius.brSm,
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(group.inviteCode ?? '-',
-                            style: PTypo.body.copyWith(
-                                color: tokens.fgPrimary,
-                                fontFamily: 'JetBrainsMono',
-                                letterSpacing: 1.5)),
-                      ),
-                      IconButton(
-                        icon: Icon(LucideIcons.copy,
-                            size: 14, color: tokens.fgSecondary),
-                        onPressed: () {
-                          Clipboard.setData(
-                              ClipboardData(text: group.inviteCode ?? ''));
-                          ScaffoldMessenger.of(ctx).showSnackBar(
-                            const SnackBar(
-                                content: Text('초대 코드가 복사되었습니다')),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                  onPressed: () => Navigator.pop(ctx),
-                  child: const Text('닫기')),
-            ],
-          ),
-        );
-      },
+      onTap: () => context.push('/groups/${group.rowId}'),
       child: Padding(
         padding: const EdgeInsets.symmetric(
             horizontal: PSpace.x16, vertical: PSpace.x12),

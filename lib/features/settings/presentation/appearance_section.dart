@@ -74,6 +74,32 @@ class AppearanceSection extends ConsumerWidget {
         ),
 
         const SizedBox(height: PSpace.x24),
+        _SectionLabel('언어'),
+        const SizedBox(height: PSpace.x8),
+        _Segment<String>(
+          options: const [
+            ('system', '시스템'),
+            ('ko', '한국어'),
+            ('en', 'English'),
+          ],
+          selected: settings.locale?.languageCode ?? 'system',
+          onChanged: (v) {
+            final notifier = ref.read(settingsProvider.notifier);
+            switch (v) {
+              case 'ko':
+                notifier.setLocale(const Locale('ko'));
+                break;
+              case 'en':
+                notifier.setLocale(const Locale('en'));
+                break;
+              default:
+                notifier.setLocale(null);
+            }
+          },
+          tokens: t,
+        ),
+
+        const SizedBox(height: PSpace.x24),
         _SectionLabel('통화'),
         const SizedBox(height: PSpace.x8),
         _CurrencyList(

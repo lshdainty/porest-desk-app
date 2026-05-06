@@ -12,6 +12,9 @@ import '../../../core/format/color_parse.dart';
 import '../application/calendar_providers.dart';
 import '../domain/calendar_event.dart';
 import 'calendar_event_dialog.dart';
+import 'event_label_management_dialog.dart';
+import 'holiday_management_dialog.dart';
+import 'user_calendar_management_dialog.dart';
 
 class CalendarScreen extends ConsumerStatefulWidget {
   const CalendarScreen({super.key});
@@ -44,6 +47,29 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,
         elevation: 0,
+        actions: [
+          PopupMenuButton<String>(
+            icon: Icon(LucideIcons.moreVertical, color: t.fgSecondary),
+            onSelected: (v) {
+              switch (v) {
+                case 'calendars':
+                  showUserCalendarManagementDialog(context);
+                  break;
+                case 'labels':
+                  showEventLabelManagementDialog(context);
+                  break;
+                case 'holidays':
+                  showHolidayManagementDialog(context);
+                  break;
+              }
+            },
+            itemBuilder: (_) => const [
+              PopupMenuItem(value: 'calendars', child: Text('내 캘린더')),
+              PopupMenuItem(value: 'labels', child: Text('라벨 관리')),
+              PopupMenuItem(value: 'holidays', child: Text('공휴일 관리')),
+            ],
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: t.bgBrand,

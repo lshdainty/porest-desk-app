@@ -364,6 +364,60 @@ class _RecurringEditBodyState extends ConsumerState<_RecurringEditBody> {
                 ),
             ],
           ),
+          const SizedBox(height: PSpace.x12),
+
+          // 다음 발생일 3건 미리보기 — front previewNextDates 미러
+          Builder(builder: (_) {
+            final preview = _previewNextDates(
+                _startDate, _frequency, _dayOfWeek, _dayOfMonth, 3);
+            if (preview.isEmpty) return const SizedBox.shrink();
+            return Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: t.bgSurface,
+                borderRadius: PRadius.brMd,
+                border: Border.all(color: t.borderSubtle),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(LucideIcons.calendar,
+                          size: 13, color: t.fgSecondary),
+                      const SizedBox(width: 6),
+                      Text('다음 예정일',
+                          style: PTypo.caption.copyWith(
+                              color: t.fgPrimary,
+                              fontWeight: FontWeight.w700)),
+                    ],
+                  ),
+                  const SizedBox(height: PSpace.x8),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: [
+                      for (final d in preview)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: t.bgMuted,
+                            borderRadius: PRadius.brPill,
+                            border: Border.all(color: t.borderSubtle),
+                          ),
+                          child: Text(
+                              '${d.month.toString().padLeft(2, '0')}월 ${d.day.toString().padLeft(2, '0')}일',
+                              style: PTypo.caption.copyWith(
+                                  color: t.fgPrimary,
+                                  fontWeight: FontWeight.w600)),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          }),
           const SizedBox(height: PSpace.x16),
 
           SwitchListTile.adaptive(
@@ -703,4 +757,58 @@ class _PlainChip extends StatelessWidget {
       ),
     );
   }
+}
+
+// ─── helpers ────────────────────────────────────────────────
+
+/// front `previewNextDates` 미러.
+///
+/// [start] 시작 날짜에서 [count] 개의 다음 발생일을 계산.
+/// - DAILY: +1일
+/// - WEEKLY: 시작일을 [dayOfWeekIso] 요일로 정규화 후 +7일씩
+/// - MONTHLY: [dayOfMonth] 일자, 해당 일이 없는 달은 말일
+/// - YEARLY: +1년 (월/일 동일)
+List<DateTime> _previewNextDates(
+  DateTime start,
+  String frequency,
+  int dayOfWeekIso, // 1=월~7=일
+  int dayOfMonth,
+  int count,
+) {
+  final out = <DateTime>[];
+  var cursor = DateTime(start.year, start.month, start.day);
+
+  if (frequency == 'WEEKLY') {
+    // ISO 1=월 7=일, DateTime.weekday 도 1~7 (Mon=1, Sun=7) — 일치.
+    final diff = (dayOfWeekIso - cursor.weekday + 7) % 7;
+    cursor = cursor.add(Duration(days: diff));
+  } else if (frequency == 'MONTHLY') {
+    final last = DateTime(cursor.year, cursor.month + 1, 0).day;
+    final d = dayOfMonth.clamp(1, last);
+    cursor = DateTime(cursor.year, cursor.month, d);
+  }
+
+  for (var i = 0; i < count; i++) {
+    out.add(cursor);
+    switch (frequency) {
+      case 'DAILY':
+        cursor = cursor.add(const Duration(days: 1));
+        break;
+      case 'WEEKLY':
+        cursor = cursor.add(const Duration(days: 7));
+        break;
+      case 'MONTHLY':
+        final ny = cursor.year;
+        final nm = cursor.month + 1;
+        final last = DateTime(ny, nm + 1, 0).day;
+        cursor = DateTime(ny, nm, dayOfMonth.clamp(1, last));
+        break;
+      case 'YEARLY':
+        cursor = DateTime(cursor.year + 1, cursor.month, cursor.day);
+        break;
+      default:
+        return out;
+    }
+  }
+  return out;
 }

@@ -30,10 +30,20 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   final _ctrl = TextEditingController();
   final _focus = FocusNode();
   String? _typeFilter; // null = 전체, 'EXPENSE', 'INCOME'
+  int? _minAmount;
+  int? _maxAmount;
+  DateTime? _startDate;
+  DateTime? _endDate;
   Timer? _debounce;
   bool _loading = false;
   String? _error;
   List<Expense> _results = [];
+
+  bool get _hasAdvanced =>
+      _minAmount != null ||
+      _maxAmount != null ||
+      _startDate != null ||
+      _endDate != null;
 
   @override
   void initState() {
@@ -54,9 +64,157 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     _debounce = Timer(const Duration(milliseconds: 350), _runSearch);
   }
 
+  String _fmtDate(DateTime d) =>
+      '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+
+  Future<void> _showAdvancedSheet() async {
+    final t = context.tokens;
+    var min = _minAmount;
+    var max = _maxAmount;
+    var start = _startDate;
+    var end = _endDate;
+    final minCtrl = TextEditingController(text: min?.toString() ?? '');
+    final maxCtrl = TextEditingController(text: max?.toString() ?? '');
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: t.bgSurface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (sheetCtx) {
+        return StatefulBuilder(builder: (ctx, setSheet) {
+          return SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('고급 필터',
+                      style: PTypo.h3.copyWith(color: t.fgPrimary)),
+                  const SizedBox(height: 12),
+                  Text('금액 범위',
+                      style: PTypo.caption.copyWith(color: t.fgSecondary)),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: minCtrl,
+                          keyboardType: TextInputType.number,
+                          decoration: const InputDecoration(
+                            hintText: '최소',
+                            suffixText: '원',
+                          ),
+                          onChanged: (v) => min = int.tryParse(v),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      const Text('~'),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: TextField(
+                          controller: maxCtrl,
+                          keyboardType: TextInputType.number,
+                          decoration: const InputDecoration(
+                            hintText: '최대',
+                            suffixText: '원',
+                          ),
+                          onChanged: (v) => max = int.tryParse(v),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Text('기간',
+                      style: PTypo.caption.copyWith(color: t.fgSecondary)),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          icon: const Icon(LucideIcons.calendar, size: 14),
+                          label: Text(start == null
+                              ? '시작'
+                              : _fmtDate(start!)),
+                          onPressed: () async {
+                            final p = await showDatePicker(
+                              context: ctx,
+                              initialDate: start ?? DateTime.now(),
+                              firstDate: DateTime(2020),
+                              lastDate: DateTime(2030, 12, 31),
+                            );
+                            if (p != null) setSheet(() => start = p);
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          icon: const Icon(LucideIcons.calendar, size: 14),
+                          label: Text(end == null ? '종료' : _fmtDate(end!)),
+                          onPressed: () async {
+                            final p = await showDatePicker(
+                              context: ctx,
+                              initialDate: end ?? DateTime.now(),
+                              firstDate: DateTime(2020),
+                              lastDate: DateTime(2030, 12, 31),
+                            );
+                            if (p != null) setSheet(() => end = p);
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () {
+                            setSheet(() {
+                              min = null;
+                              max = null;
+                              start = null;
+                              end = null;
+                              minCtrl.clear();
+                              maxCtrl.clear();
+                            });
+                          },
+                          child: const Text('초기화'),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: FilledButton(
+                          onPressed: () {
+                            Navigator.pop(sheetCtx);
+                            setState(() {
+                              _minAmount = min;
+                              _maxAmount = max;
+                              _startDate = start;
+                              _endDate = end;
+                            });
+                            _runSearch();
+                          },
+                          child: const Text('적용'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
+      },
+    );
+  }
+
   Future<void> _runSearch() async {
     final q = _ctrl.text.trim();
-    if (q.isEmpty && _typeFilter == null) {
+    if (q.isEmpty && _typeFilter == null && !_hasAdvanced) {
       setState(() {
         _results = [];
         _error = null;
@@ -73,6 +231,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       final list = await repo.search(
         keyword: q.isEmpty ? null : q,
         expenseType: _typeFilter,
+        minAmount: _minAmount,
+        maxAmount: _maxAmount,
+        startDate: _startDate == null ? null : _fmtDate(_startDate!),
+        endDate: _endDate == null ? null : _fmtDate(_endDate!),
       );
       if (!mounted) return;
       setState(() {
@@ -132,6 +294,33 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,
         elevation: 0,
+        actions: [
+          IconButton(
+            icon: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Icon(LucideIcons.slidersHorizontal,
+                    size: 20, color: t.fgSecondary),
+                if (_hasAdvanced)
+                  Positioned(
+                    top: -2,
+                    right: -2,
+                    child: Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: t.fgBrand,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: t.bgSurface, width: 1),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            tooltip: '고급 필터',
+            onPressed: _showAdvancedSheet,
+          ),
+        ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(40),
           child: Padding(

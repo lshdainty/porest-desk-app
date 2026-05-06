@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 
 import '../../../core/network/api_exception.dart';
 import '../../../core/network/api_response.dart';
+import '../domain/calendar_aggregate.dart';
 import '../domain/calendar_event.dart';
 import '../domain/event_label.dart';
 
@@ -102,12 +103,99 @@ class CalendarRepository {
     }
   }
 
+  /// 그룹 일정 조회. GET /group/{groupId}/calendar/events?startDate&endDate.
+  Future<List<CalendarEvent>> groupEvents({
+    required int groupId,
+    required String startDate, // ISO LocalDateTime
+    required String endDate,
+  }) async {
+    try {
+      final res = await _dio.get<Map<String, dynamic>>(
+        '/group/$groupId/calendar/events',
+        queryParameters: {'startDate': startDate, 'endDate': endDate},
+      );
+      return _unwrapList(res, 'events', CalendarEvent.fromJson);
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
   // ─── Labels ────────────────────────────────────
 
   Future<List<EventLabel>> labels() async {
     try {
       final res = await _dio.get<Map<String, dynamic>>('/calendar/labels');
       return _unwrapList(res, 'labels', EventLabel.fromJson);
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  /// 라벨 생성. POST /calendar/label.
+  Future<EventLabel> createLabel({
+    required String labelName,
+    String? color,
+  }) async {
+    try {
+      final res = await _dio.post<Map<String, dynamic>>(
+        '/calendar/label',
+        data: {
+          'labelName': labelName,
+          'color': ?color,
+        },
+      );
+      return _unwrap(res, EventLabel.fromJson);
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  /// 라벨 수정. PUT /calendar/label/{id}.
+  Future<EventLabel> updateLabel({
+    required int id,
+    required String labelName,
+    String? color,
+  }) async {
+    try {
+      final res = await _dio.put<Map<String, dynamic>>(
+        '/calendar/label/$id',
+        data: {
+          'labelName': labelName,
+          'color': ?color,
+        },
+      );
+      return _unwrap(res, EventLabel.fromJson);
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  /// 라벨 삭제. DELETE /calendar/label/{id}.
+  Future<void> deleteLabel(int id) async {
+    try {
+      await _dio.delete<void>('/calendar/label/$id');
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  // ─── Aggregate ─────────────────────────────────
+
+  /// 캘린더 통합 집계 — events/todos/expenses 단일 호출.
+  /// GET /calendar/aggregate?startDate&endDate (YYYY-MM-DD).
+  Future<CalendarAggregate> aggregate({
+    required String startDate,
+    required String endDate,
+  }) async {
+    try {
+      final res = await _dio.get<Map<String, dynamic>>(
+        '/calendar/aggregate',
+        queryParameters: {
+          'startDate': startDate,
+          'endDate': endDate,
+        },
+      );
+      return _unwrap(res, CalendarAggregate.fromJson);
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }

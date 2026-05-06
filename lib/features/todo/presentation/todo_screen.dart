@@ -11,6 +11,9 @@ import '../../../core/network/api_exception.dart';
 import '../application/todo_providers.dart';
 import '../domain/todo.dart';
 import 'todo_edit_dialog.dart';
+import 'todo_kanban_view.dart';
+import 'todo_project_management_dialog.dart';
+import 'todo_tag_management_dialog.dart';
 
 class TodoScreen extends ConsumerStatefulWidget {
   const TodoScreen({super.key});
@@ -20,8 +23,38 @@ class TodoScreen extends ConsumerStatefulWidget {
 
 class _TodoScreenState extends ConsumerState<TodoScreen> {
   String? _statusFilter; // null = 전체, PENDING, IN_PROGRESS, COMPLETED
+  String? _priorityFilter; // null = 전체, HIGH, MEDIUM, LOW
+  bool _kanban = false;
+  final _quickAddCtrl = TextEditingController();
+  bool _quickAdding = false;
 
-  TodoFilter get _filter => (status: _statusFilter, priority: null);
+  TodoFilter get _filter =>
+      (status: _statusFilter, priority: _priorityFilter);
+
+  @override
+  void dispose() {
+    _quickAddCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _quickAdd() async {
+    final title = _quickAddCtrl.text.trim();
+    if (title.isEmpty || _quickAdding) return;
+    setState(() => _quickAdding = true);
+    try {
+      final repo = await ref.read(todoRepositoryProvider.future);
+      await repo.create(title: title, priority: _priorityFilter);
+      _quickAddCtrl.clear();
+      ref.invalidate(todoListProvider);
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('추가 실패: ${e.message}')),
+      );
+    } finally {
+      if (mounted) setState(() => _quickAdding = false);
+    }
+  }
 
   Future<void> _toggleDone(Todo t) async {
     try {
@@ -65,41 +98,152 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,
         elevation: 0,
+        actions: [
+          IconButton(
+            tooltip: _kanban ? '리스트 보기' : '칸반 보기',
+            icon: Icon(_kanban ? LucideIcons.list : LucideIcons.layoutGrid,
+                size: 20, color: t.fgSecondary),
+            onPressed: () => setState(() => _kanban = !_kanban),
+          ),
+          PopupMenuButton<String>(
+            icon: Icon(LucideIcons.moreVertical, color: t.fgSecondary),
+            onSelected: (v) {
+              switch (v) {
+                case 'projects':
+                  showTodoProjectManagementDialog(context);
+                  break;
+                case 'tags':
+                  showTodoTagManagementDialog(context);
+                  break;
+              }
+            },
+            itemBuilder: (_) => const [
+              PopupMenuItem(value: 'projects', child: Text('프로젝트 관리')),
+              PopupMenuItem(value: 'tags', child: Text('태그 관리')),
+            ],
+          ),
+        ],
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(40),
+          preferredSize: const Size.fromHeight(120),
           child: Padding(
             padding: const EdgeInsets.fromLTRB(
                 PSpace.x16, 0, PSpace.x16, PSpace.x8),
-            child: Row(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                _Chip(
-                  label: '전체',
-                  selected: _statusFilter == null,
-                  onTap: () => setState(() => _statusFilter = null),
-                  tokens: t,
+                // 빠른 추가 (#327)
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _quickAddCtrl,
+                        enabled: !_quickAdding,
+                        decoration: InputDecoration(
+                          hintText: '+ 빠른 할 일 추가',
+                          isDense: true,
+                          prefixIcon: Icon(LucideIcons.plus,
+                              size: 16, color: t.fgTertiary),
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 8),
+                          fillColor: t.bgMuted,
+                          filled: true,
+                          border: OutlineInputBorder(
+                            borderRadius: PRadius.brMd,
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                        onSubmitted: (_) => _quickAdd(),
+                        onChanged: (_) => setState(() {}),
+                      ),
+                    ),
+                    if (_quickAddCtrl.text.trim().isNotEmpty || _quickAdding) ...[
+                      const SizedBox(width: 6),
+                      FilledButton(
+                        onPressed: _quickAdding ? null : _quickAdd,
+                        style: FilledButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 10),
+                        ),
+                        child: _quickAdding
+                            ? const SizedBox(
+                                width: 14,
+                                height: 14,
+                                child: CircularProgressIndicator(
+                                    strokeWidth: 2))
+                            : const Text('추가'),
+                      ),
+                    ],
+                  ],
                 ),
-                const SizedBox(width: 6),
-                _Chip(
-                  label: '진행중',
-                  selected: _statusFilter == 'IN_PROGRESS',
-                  onTap: () =>
-                      setState(() => _statusFilter = 'IN_PROGRESS'),
-                  tokens: t,
-                ),
-                const SizedBox(width: 6),
-                _Chip(
-                  label: '대기',
-                  selected: _statusFilter == 'PENDING',
-                  onTap: () => setState(() => _statusFilter = 'PENDING'),
-                  tokens: t,
-                ),
-                const SizedBox(width: 6),
-                _Chip(
-                  label: '완료',
-                  selected: _statusFilter == 'COMPLETED',
-                  onTap: () =>
-                      setState(() => _statusFilter = 'COMPLETED'),
-                  tokens: t,
+                const SizedBox(height: PSpace.x8),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      _Chip(
+                        label: '전체',
+                        selected: _statusFilter == null,
+                        onTap: () => setState(() => _statusFilter = null),
+                        tokens: t,
+                      ),
+                      const SizedBox(width: 6),
+                      _Chip(
+                        label: '진행중',
+                        selected: _statusFilter == 'IN_PROGRESS',
+                        onTap: () => setState(
+                            () => _statusFilter = 'IN_PROGRESS'),
+                        tokens: t,
+                      ),
+                      const SizedBox(width: 6),
+                      _Chip(
+                        label: '대기',
+                        selected: _statusFilter == 'PENDING',
+                        onTap: () =>
+                            setState(() => _statusFilter = 'PENDING'),
+                        tokens: t,
+                      ),
+                      const SizedBox(width: 6),
+                      _Chip(
+                        label: '완료',
+                        selected: _statusFilter == 'COMPLETED',
+                        onTap: () =>
+                            setState(() => _statusFilter = 'COMPLETED'),
+                        tokens: t,
+                      ),
+                      const SizedBox(width: 14),
+                      _Chip(
+                        label: '우선순위',
+                        selected: _priorityFilter == null,
+                        onTap: () =>
+                            setState(() => _priorityFilter = null),
+                        tokens: t,
+                      ),
+                      const SizedBox(width: 6),
+                      _Chip(
+                        label: 'HIGH',
+                        selected: _priorityFilter == 'HIGH',
+                        onTap: () =>
+                            setState(() => _priorityFilter = 'HIGH'),
+                        tokens: t,
+                      ),
+                      const SizedBox(width: 6),
+                      _Chip(
+                        label: 'MEDIUM',
+                        selected: _priorityFilter == 'MEDIUM',
+                        onTap: () =>
+                            setState(() => _priorityFilter = 'MEDIUM'),
+                        tokens: t,
+                      ),
+                      const SizedBox(width: 6),
+                      _Chip(
+                        label: 'LOW',
+                        selected: _priorityFilter == 'LOW',
+                        onTap: () =>
+                            setState(() => _priorityFilter = 'LOW'),
+                        tokens: t,
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -112,7 +256,9 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
         onPressed: () => showTodoEditDialog(context),
         child: const Icon(LucideIcons.plus),
       ),
-      body: RefreshIndicator(
+      body: _kanban
+          ? const TodoKanbanView(priority: null)
+          : RefreshIndicator(
         color: t.bgBrand,
         onRefresh: () async {
           ref.invalidate(todoListProvider(_filter));

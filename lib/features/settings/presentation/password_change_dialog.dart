@@ -1,0 +1,177 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lucide_icons/lucide_icons.dart';
+
+import '../../../app/theme/spacing.dart';
+import '../../../app/theme/tokens.dart';
+import '../../../app/theme/typography.dart';
+import '../../../core/auth/auth_notifier.dart';
+import '../../../core/network/api_exception.dart';
+
+/// 비밀번호 변경 다이얼로그 — front `PasswordChangeDialog` 미러.
+///
+/// PATCH /users/me/password (currentPassword, newPassword, confirmPassword)
+Future<void> showPasswordChangeDialog(BuildContext context) async {
+  await showDialog<void>(
+    context: context,
+    barrierDismissible: false,
+    builder: (_) => const _PasswordChangeDialog(),
+  );
+}
+
+class _PasswordChangeDialog extends ConsumerStatefulWidget {
+  const _PasswordChangeDialog();
+
+  @override
+  ConsumerState<_PasswordChangeDialog> createState() =>
+      _PasswordChangeDialogState();
+}
+
+class _PasswordChangeDialogState extends ConsumerState<_PasswordChangeDialog> {
+  final _currentCtrl = TextEditingController();
+  final _newCtrl = TextEditingController();
+  final _confirmCtrl = TextEditingController();
+  String? _error;
+  bool _submitting = false;
+
+  @override
+  void dispose() {
+    _currentCtrl.dispose();
+    _newCtrl.dispose();
+    _confirmCtrl.dispose();
+    super.dispose();
+  }
+
+  bool get _canSubmit {
+    if (_submitting) return false;
+    final c = _currentCtrl.text;
+    final n = _newCtrl.text;
+    final f = _confirmCtrl.text;
+    return c.isNotEmpty && n.length >= 8 && n == f;
+  }
+
+  Future<void> _submit() async {
+    setState(() {
+      _submitting = true;
+      _error = null;
+    });
+    try {
+      final repo = await ref.read(authRepositoryProvider.future);
+      await repo.changePassword(
+        currentPassword: _currentCtrl.text,
+        newPassword: _newCtrl.text,
+        confirmPassword: _confirmCtrl.text,
+      );
+      if (!mounted) return;
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('비밀번호가 변경되었습니다')),
+      );
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _error = e.message.isEmpty ? '비밀번호 변경에 실패했습니다.' : e.message;
+        _submitting = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return AlertDialog(
+      backgroundColor: t.bgSurface,
+      title: Row(
+        children: [
+          Icon(LucideIcons.key, size: 18, color: t.fgBrand),
+          const SizedBox(width: PSpace.x8),
+          const Text('비밀번호 변경'),
+        ],
+      ),
+      content: SizedBox(
+        width: 400,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _Label('현재 비밀번호', tokens: t),
+            const SizedBox(height: PSpace.x4),
+            TextField(
+              controller: _currentCtrl,
+              obscureText: true,
+              enabled: !_submitting,
+              decoration: const InputDecoration(hintText: '현재 비밀번호'),
+              onChanged: (_) => setState(() {}),
+            ),
+            const SizedBox(height: PSpace.x12),
+            _Label('새 비밀번호', tokens: t),
+            const SizedBox(height: PSpace.x4),
+            TextField(
+              controller: _newCtrl,
+              obscureText: true,
+              enabled: !_submitting,
+              decoration: const InputDecoration(
+                hintText: '8자 이상',
+              ),
+              onChanged: (_) => setState(() {}),
+            ),
+            const SizedBox(height: PSpace.x12),
+            _Label('새 비밀번호 확인', tokens: t),
+            const SizedBox(height: PSpace.x4),
+            TextField(
+              controller: _confirmCtrl,
+              obscureText: true,
+              enabled: !_submitting,
+              decoration: const InputDecoration(hintText: '한 번 더 입력'),
+              onChanged: (_) => setState(() {}),
+            ),
+            if (_newCtrl.text.isNotEmpty &&
+                _confirmCtrl.text.isNotEmpty &&
+                _newCtrl.text != _confirmCtrl.text)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Text('새 비밀번호가 일치하지 않습니다',
+                    style:
+                        PTypo.caption.copyWith(color: t.statusDanger)),
+              ),
+            if (_error != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Text(_error!,
+                    style:
+                        PTypo.caption.copyWith(color: t.statusDanger)),
+              ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed:
+              _submitting ? null : () => Navigator.of(context).pop(),
+          child: const Text('취소'),
+        ),
+        FilledButton(
+          onPressed: _canSubmit ? _submit : null,
+          child: _submitting
+              ? const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2))
+              : const Text('변경'),
+        ),
+      ],
+    );
+  }
+}
+
+class _Label extends StatelessWidget {
+  const _Label(this.text, {required this.tokens});
+  final String text;
+  final PorestTokens tokens;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(text,
+        style: PTypo.caption.copyWith(color: tokens.fgSecondary));
+  }
+}

@@ -4,6 +4,7 @@ import '../../../core/network/dio_provider.dart';
 import '../data/asset_repository.dart';
 import '../domain/asset.dart';
 import '../domain/asset_summary.dart';
+import '../domain/asset_transfer.dart';
 import '../domain/net_worth_point.dart';
 
 final assetRepositoryProvider = FutureProvider<AssetRepository>((ref) async {
@@ -31,6 +32,31 @@ final netWorthTrendProvider =
   ref.keepAlive();
   final repo = await ref.watch(assetRepositoryProvider.future);
   return repo.netWorthTrend(months: months);
+});
+
+/// 단건 자산 (상세 화면 진입용).
+final assetByIdProvider =
+    FutureProvider.family<Asset, int>((ref, id) async {
+  final repo = await ref.watch(assetRepositoryProvider.future);
+  return repo.getById(id);
+});
+
+/// 자산 잔액 추이 (주별, 기본 12주).
+typedef AssetBalanceTrendKey = ({int assetId, int weeks});
+
+final assetBalanceTrendProvider = FutureProvider.family<
+    List<AssetBalancePoint>, AssetBalanceTrendKey>((ref, key) async {
+  final repo = await ref.watch(assetRepositoryProvider.future);
+  return repo.balanceTrend(key.assetId, weeks: key.weeks);
+});
+
+/// 자산 이체 내역 (옵션 startDate/endDate).
+typedef AssetTransfersKey = ({String? startDate, String? endDate});
+
+final assetTransfersProvider = FutureProvider.family<List<AssetTransfer>,
+    AssetTransfersKey>((ref, key) async {
+  final repo = await ref.watch(assetRepositoryProvider.future);
+  return repo.listTransfers(startDate: key.startDate, endDate: key.endDate);
 });
 
 extension AssetListX on List<Asset> {

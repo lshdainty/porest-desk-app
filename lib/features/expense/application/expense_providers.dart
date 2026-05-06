@@ -29,6 +29,57 @@ final monthExpensesProvider =
   return repo.list(startDate: start, endDate: end);
 });
 
+/// 자산 별 최근 거래 N건 — front `useSearchExpenses({assetId})` 미러.
+/// AssetDetailDialog 등에서 활용.
+typedef AssetExpensesKey = ({int assetId, int limit});
+
+final expensesByAssetProvider =
+    FutureProvider.family<List<Expense>, AssetExpensesKey>((ref, key) async {
+  final repo = await ref.watch(expenseRepositoryProvider.future);
+  final all = await repo.search(assetId: key.assetId);
+  all.sort((a, b) =>
+      (b.expenseDate ?? '').compareTo(a.expenseDate ?? ''));
+  return all.take(key.limit).toList();
+});
+
+/// 캘린더 이벤트별 연결 거래 (#252).
+final expensesByCalendarEventProvider =
+    FutureProvider.family<List<Expense>, int>((ref, eventId) async {
+  final repo = await ref.watch(expenseRepositoryProvider.future);
+  return repo.listByCalendarEvent(eventId);
+});
+
+/// 할 일별 연결 거래 (#252).
+final expensesByTodoProvider =
+    FutureProvider.family<List<Expense>, int>((ref, todoId) async {
+  final repo = await ref.watch(expenseRepositoryProvider.future);
+  return repo.listByTodo(todoId);
+});
+
+/// 그룹별 거래 (#362).
+typedef GroupExpensesKey = ({int groupId, String? startDate, String? endDate});
+
+final expensesByGroupProvider =
+    FutureProvider.family<List<Expense>, GroupExpensesKey>((ref, key) async {
+  final repo = await ref.watch(expenseRepositoryProvider.future);
+  return repo.listByGroup(
+    groupId: key.groupId,
+    startDate: key.startDate,
+    endDate: key.endDate,
+  );
+});
+
+/// 자산 ID 로만 필터링한 거래 목록 (#254 — ExpenseScreen 자산 필터 배지용).
+/// front `?assetId=N` 쿼리 미러: 빈 list 일 수 있음.
+final expensesByAssetIdProvider =
+    FutureProvider.family<List<Expense>, int>((ref, assetId) async {
+  final repo = await ref.watch(expenseRepositoryProvider.future);
+  final all = await repo.search(assetId: assetId);
+  all.sort((a, b) =>
+      (b.expenseDate ?? '').compareTo(a.expenseDate ?? ''));
+  return all;
+});
+
 String _firstDay(int y, int m) =>
     '${y.toString().padLeft(4, '0')}-${m.toString().padLeft(2, '0')}-01';
 String _lastDay(int y, int m) {

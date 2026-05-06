@@ -8,15 +8,24 @@ import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
+import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
+import '../../expense/domain/expense.dart' show Expense;
+import '../../group/application/group_providers.dart';
+import '../../group/domain/group_member.dart';
 import '../application/dutch_pay_providers.dart';
 
-void showDutchPayCreateDialog(BuildContext context) {
+/// 더치페이 만들기 시트.
+///
+/// [fromExpense] 가 주어지면 해당 거래를 기반으로 (title=가맹점/메모, totalAmount=금액,
+/// date=expenseDate) 미리 채워지며 sourceExpenseRowId 로 연결된다 — front
+/// `DutchPayFromTxDialog` 미러.
+void showDutchPayCreateDialog(BuildContext context, {Expense? fromExpense}) {
   WoltModalSheet.show<void>(
     context: context,
     pageListBuilder: (modalCtx) => [
       WoltModalSheetPage(
-        topBarTitle: const Text('더치페이 만들기'),
+        topBarTitle: Text(fromExpense == null ? '더치페이 만들기' : '거래에서 더치페이'),
         isTopBarLayerAlwaysVisible: true,
         backgroundColor:
             Theme.of(modalCtx).extension<PorestTokens>()?.bgSurface,
@@ -24,7 +33,7 @@ void showDutchPayCreateDialog(BuildContext context) {
           icon: const Icon(LucideIcons.x),
           onPressed: Navigator.of(modalCtx).pop,
         ),
-        child: const _Body(),
+        child: _Body(fromExpense: fromExpense),
       ),
     ],
   );
@@ -37,21 +46,45 @@ class _Pname {
 }
 
 class _Body extends ConsumerStatefulWidget {
-  const _Body();
+  const _Body({this.fromExpense});
+  final Expense? fromExpense;
   @override
   ConsumerState<_Body> createState() => _BodyState();
 }
 
 class _BodyState extends ConsumerState<_Body> {
-  final _titleCtrl = TextEditingController();
-  final _amountCtrl = TextEditingController();
+  late final TextEditingController _titleCtrl;
+  late final TextEditingController _amountCtrl;
   String _split = 'EQUAL';
-  DateTime _date = DateTime.now();
+  late DateTime _date;
   final List<_Pname> _participants = [
     _Pname(name: ''),
     _Pname(name: ''),
   ];
   bool _submitting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final fe = widget.fromExpense;
+    _titleCtrl = TextEditingController(
+      text: fe?.merchant?.isNotEmpty == true
+          ? fe!.merchant
+          : (fe?.description ?? ''),
+    );
+    _amountCtrl = TextEditingController(
+      text: fe == null ? '' : fe.amount.abs().toString(),
+    );
+    if (fe?.expenseDate != null) {
+      try {
+        _date = DateTime.parse(fe!.expenseDate!.substring(0, 10));
+      } catch (_) {
+        _date = DateTime.now();
+      }
+    } else {
+      _date = DateTime.now();
+    }
+  }
 
   @override
   void dispose() {
@@ -78,6 +111,135 @@ class _BodyState extends ConsumerState<_Body> {
 
   String _fmtDate(DateTime d) =>
       '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+
+  /// 같은 그룹 멤버에서 다중 선택해 참여자 추가 (#291).
+  Future<void> _showSiblingPicker(BuildContext context) async {
+    final selected = <int>{};
+    final picked = await showModalBottomSheet<List<SiblingMember>>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: context.tokens.bgSurface,
+      shape: const RoundedRectangleBorder(
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (sheetCtx) {
+        final t = sheetCtx.tokens;
+        return Consumer(builder: (ctx, ref, _) {
+          final async = ref.watch(siblingMembersProvider);
+          return StatefulBuilder(builder: (ctx, setSheetState) {
+            return SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('그룹 멤버에서 추가',
+                        style: PTypo.h4.copyWith(color: t.fgPrimary)),
+                    const SizedBox(height: 12),
+                    Flexible(
+                      child: async.when(
+                        loading: () => const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 32),
+                          child: Center(child: CircularProgressIndicator()),
+                        ),
+                        error: (e, _) => Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 32),
+                          child: Text('멤버 로드 실패: $e',
+                              style: PTypo.caption
+                                  .copyWith(color: t.statusDanger)),
+                        ),
+                        data: (members) {
+                          if (members.isEmpty) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 32),
+                              child: Text('같은 그룹의 다른 멤버가 없습니다',
+                                  style: PTypo.caption
+                                      .copyWith(color: t.fgTertiary)),
+                            );
+                          }
+                          return ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: members.length,
+                            itemBuilder: (_, i) {
+                              final m = members[i];
+                              final isSel = selected.contains(m.userRowId);
+                              return CheckboxListTile(
+                                value: isSel,
+                                title: Text(m.userName),
+                                subtitle: m.userEmail == null
+                                    ? null
+                                    : Text(m.userEmail!,
+                                        style: PTypo.caption
+                                            .copyWith(color: t.fgTertiary)),
+                                contentPadding: EdgeInsets.zero,
+                                onChanged: (v) => setSheetState(() {
+                                  if (v == true) {
+                                    selected.add(m.userRowId);
+                                  } else {
+                                    selected.remove(m.userRowId);
+                                  }
+                                }),
+                              );
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () => Navigator.pop(sheetCtx),
+                            child: const Text('취소'),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: FilledButton(
+                            onPressed: selected.isEmpty
+                                ? null
+                                : () {
+                                    final all =
+                                        async.value ?? <SiblingMember>[];
+                                    Navigator.pop(
+                                        sheetCtx,
+                                        all
+                                            .where((m) =>
+                                                selected.contains(m.userRowId))
+                                            .toList());
+                                  },
+                            child: Text('${selected.length}명 추가'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          });
+        });
+      },
+    );
+    if (picked == null || !mounted) return;
+    setState(() {
+      // 빈 슬롯부터 채우고 부족하면 새 슬롯 추가.
+      for (final m in picked) {
+        final empty = _participants.firstWhere(
+          (p) => p.name.trim().isEmpty,
+          orElse: () {
+            final p = _Pname(name: '');
+            _participants.add(p);
+            return p;
+          },
+        );
+        empty.name = m.userName;
+      }
+    });
+  }
 
   Future<void> _submit() async {
     setState(() => _submitting = true);
@@ -109,6 +271,7 @@ class _BodyState extends ConsumerState<_Body> {
         totalAmount: _total,
         splitMethod: _split,
         dutchPayDate: _fmtDate(_date),
+        sourceExpenseRowId: widget.fromExpense?.rowId,
         participants: payload,
       );
       ref.invalidate(dutchPayListProvider);
@@ -212,6 +375,11 @@ class _BodyState extends ConsumerState<_Body> {
                       fontWeight: FontWeight.w700)),
               const Spacer(),
               TextButton.icon(
+                onPressed: () => _showSiblingPicker(context),
+                icon: const Icon(LucideIcons.users, size: 14),
+                label: const Text('멤버에서'),
+              ),
+              TextButton.icon(
                 onPressed: () =>
                     setState(() => _participants.add(_Pname(name: ''))),
                 icon: const Icon(LucideIcons.plus, size: 14),
@@ -219,6 +387,23 @@ class _BodyState extends ConsumerState<_Body> {
               ),
             ],
           ),
+          if (_split == 'EQUAL' && _total > 0)
+            Builder(builder: (_) {
+              final n =
+                  _participants.where((p) => p.name.trim().isNotEmpty).length;
+              if (n < 2) return const SizedBox.shrink();
+              final each = _total ~/ n;
+              final rest = _total - each * n;
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Text(
+                  rest == 0
+                      ? '1인당 ${krw(each)}원'
+                      : '1인당 ${krw(each)}원 (첫 사람 +${krw(rest)}원)',
+                  style: PTypo.caption.copyWith(color: t.fgSecondary),
+                ),
+              );
+            }),
           for (int i = 0; i < _participants.length; i++)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 4),

@@ -8,6 +8,7 @@ import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../shared/widgets/markdown_preview.dart';
 import '../application/todo_providers.dart';
 import '../domain/todo.dart';
 
@@ -40,6 +41,7 @@ class _Body extends ConsumerStatefulWidget {
 class _BodyState extends ConsumerState<_Body> {
   late final TextEditingController _titleCtrl;
   late final TextEditingController _contentCtrl;
+  bool _previewContent = false;
   late final TextEditingController _categoryCtrl;
   late String _priority;
   DateTime? _due;
@@ -236,14 +238,67 @@ class _BodyState extends ConsumerState<_Body> {
           ),
           const SizedBox(height: PSpace.x12),
 
-          Text('상세 내용 (선택)',
-              style: PTypo.caption.copyWith(color: t.fgSecondary)),
-          const SizedBox(height: PSpace.x4),
-          TextField(
-            controller: _contentCtrl,
-            maxLines: 4,
-            decoration: const InputDecoration(hintText: '추가 내용'),
+          Row(
+            children: [
+              Text('상세 내용 (선택)',
+                  style: PTypo.caption.copyWith(color: t.fgSecondary)),
+              const Spacer(),
+              GestureDetector(
+                onTap: () =>
+                    setState(() => _previewContent = !_previewContent),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 6, vertical: 4),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                          _previewContent
+                              ? LucideIcons.pencil
+                              : LucideIcons.eye,
+                          size: 12,
+                          color: t.fgSecondary),
+                      const SizedBox(width: 4),
+                      Text(_previewContent ? '편집' : '미리보기',
+                          style: PTypo.caption.copyWith(
+                              color: t.fgSecondary,
+                              fontWeight: FontWeight.w600)),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
+          const SizedBox(height: PSpace.x4),
+          if (_previewContent)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              constraints: const BoxConstraints(minHeight: 80),
+              decoration: BoxDecoration(
+                color: t.bgMuted,
+                borderRadius: PRadius.brSm,
+                border: Border.all(color: t.borderSubtle),
+              ),
+              child: _contentCtrl.text.trim().isEmpty
+                  ? Text('내용 없음',
+                      style: PTypo.caption.copyWith(color: t.fgTertiary))
+                  : MarkdownPreview(_contentCtrl.text),
+            )
+          else
+            TextField(
+              controller: _contentCtrl,
+              maxLines: 6,
+              decoration: const InputDecoration(
+                hintText: '예: # 제목 / **굵게** / - 항목 / - [ ] 체크',
+              ),
+            ),
+
+          if (_isEdit) ...[
+            const SizedBox(height: PSpace.x16),
+            _SubtaskSection(parentId: widget.edit!.rowId, tokens: t),
+          ],
+
           const SizedBox(height: PSpace.x24),
 
           Row(
@@ -326,6 +381,165 @@ class _PriSeg extends StatelessWidget {
             ),
         ],
       ),
+    );
+  }
+}
+
+/// Todo 서브태스크 섹션 (#323).
+class _SubtaskSection extends ConsumerStatefulWidget {
+  const _SubtaskSection({required this.parentId, required this.tokens});
+  final int parentId;
+  final PorestTokens tokens;
+  @override
+  ConsumerState<_SubtaskSection> createState() => _SubtaskSectionState();
+}
+
+class _SubtaskSectionState extends ConsumerState<_SubtaskSection> {
+  final _ctrl = TextEditingController();
+  bool _adding = false;
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _addSubtask() async {
+    final title = _ctrl.text.trim();
+    if (title.isEmpty || _adding) return;
+    setState(() => _adding = true);
+    try {
+      final repo = await ref.read(todoRepositoryProvider.future);
+      await repo.create(title: title);
+      ref.invalidate(todoSubtasksProvider(widget.parentId));
+      _ctrl.clear();
+      setState(() => _adding = false);
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      setState(() => _adding = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('추가 실패: ${e.message}')),
+      );
+    }
+  }
+
+  Future<void> _toggleStatus(Todo sub) async {
+    final next =
+        sub.status == 'COMPLETED' ? 'PENDING' : 'COMPLETED';
+    try {
+      final repo = await ref.read(todoRepositoryProvider.future);
+      await repo.setStatus(sub.rowId, next);
+      ref.invalidate(todoSubtasksProvider(widget.parentId));
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('상태 변경 실패: ${e.message}')),
+      );
+    }
+  }
+
+  Future<void> _deleteSubtask(int id) async {
+    try {
+      final repo = await ref.read(todoRepositoryProvider.future);
+      await repo.delete(id);
+      ref.invalidate(todoSubtasksProvider(widget.parentId));
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('삭제 실패: ${e.message}')),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = widget.tokens;
+    final async = ref.watch(todoSubtasksProvider(widget.parentId));
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('하위 작업',
+            style: PTypo.caption.copyWith(color: t.fgSecondary)),
+        const SizedBox(height: PSpace.x4),
+        async.when(
+          loading: () => const Padding(
+            padding: EdgeInsets.symmetric(vertical: 8),
+            child: Center(child: CircularProgressIndicator()),
+          ),
+          error: (e, _) => Text('하위 작업 로드 실패',
+              style: PTypo.caption.copyWith(color: t.statusDanger)),
+          data: (subs) {
+            if (subs.isEmpty) return const SizedBox.shrink();
+            return Column(
+              children: [
+                for (final s in subs)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 2),
+                    child: Row(
+                      children: [
+                        IconButton(
+                          icon: Icon(
+                            s.status == 'COMPLETED'
+                                ? LucideIcons.checkCircle
+                                : LucideIcons.circle,
+                            size: 16,
+                            color: s.status == 'COMPLETED'
+                                ? t.statusSuccess
+                                : t.fgTertiary,
+                          ),
+                          onPressed: () => _toggleStatus(s),
+                          visualDensity: VisualDensity.compact,
+                        ),
+                        Expanded(
+                          child: Text(
+                            s.title,
+                            style: PTypo.bodySm.copyWith(
+                              color: t.fgPrimary,
+                              decoration: s.status == 'COMPLETED'
+                                  ? TextDecoration.lineThrough
+                                  : null,
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(LucideIcons.x,
+                              size: 14, color: t.fgTertiary),
+                          onPressed: () => _deleteSubtask(s.rowId),
+                          visualDensity: VisualDensity.compact,
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
+            );
+          },
+        ),
+        const SizedBox(height: 4),
+        Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _ctrl,
+                enabled: !_adding,
+                decoration: const InputDecoration(
+                    hintText: '+ 하위 작업 추가', isDense: true),
+                onSubmitted: (_) => _addSubtask(),
+                onChanged: (_) => setState(() {}),
+              ),
+            ),
+            const SizedBox(width: 6),
+            FilledButton(
+              onPressed:
+                  (_ctrl.text.trim().isEmpty || _adding) ? null : _addSubtask,
+              child: _adding
+                  ? const SizedBox(
+                      width: 14, height: 14,
+                      child: CircularProgressIndicator(strokeWidth: 2))
+                  : const Text('추가'),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

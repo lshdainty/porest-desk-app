@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/theme/density.dart';
 import '../storage/prefs_provider.dart';
+import 'user_locale.dart';
 
 /// 사용자 표시 설정 모음.
 class AppSettings {
@@ -11,6 +12,7 @@ class AppSettings {
     required this.density,
     required this.currency,
     required this.hideAmounts,
+    required this.locale,
   });
 
   final ThemeMode themeMode;
@@ -18,11 +20,15 @@ class AppSettings {
   final String currency; // 'KRW' | 'USD' | 'EUR' | 'JPY'
   final bool hideAmounts;
 
+  /// `null` = 시스템 로케일 따름. 그 외 'ko'/'en'.
+  final Locale? locale;
+
   static const defaults = AppSettings(
     themeMode: ThemeMode.system,
     density: PDensity.comfortable,
     currency: 'KRW',
     hideAmounts: false,
+    locale: null,
   );
 
   AppSettings copyWith({
@@ -30,15 +36,19 @@ class AppSettings {
     PDensity? density,
     String? currency,
     bool? hideAmounts,
+    Object? locale = _sentinel,
   }) {
     return AppSettings(
       themeMode: themeMode ?? this.themeMode,
       density: density ?? this.density,
       currency: currency ?? this.currency,
       hideAmounts: hideAmounts ?? this.hideAmounts,
+      locale: identical(locale, _sentinel) ? this.locale : locale as Locale?,
     );
   }
 }
+
+const _sentinel = Object();
 
 /// SharedPreferences 와 양방향 sync 되는 표시 설정 Notifier.
 final settingsProvider =
@@ -48,11 +58,14 @@ class SettingsNotifier extends AsyncNotifier<AppSettings> {
   @override
   Future<AppSettings> build() async {
     final prefs = await ref.watch(prefsProvider.future);
+    final loc = _parseLocale(prefs.getString(PrefsKeys.locale));
+    UserLocale.current = loc;
     return AppSettings(
       themeMode: _parseTheme(prefs.getString(PrefsKeys.themeMode)),
       density: _parseDensity(prefs.getString(PrefsKeys.density)),
       currency: prefs.getString(PrefsKeys.currency) ?? AppSettings.defaults.currency,
       hideAmounts: prefs.getBool(PrefsKeys.hideAmounts) ?? false,
+      locale: loc,
     );
   }
 
@@ -75,10 +88,25 @@ class SettingsNotifier extends AsyncNotifier<AppSettings> {
   }
 
   Future<void> toggleHideAmounts() async {
+    await setHideAmounts(!_current.hideAmounts);
+  }
+
+  Future<void> setHideAmounts(bool value) async {
     final prefs = await ref.read(prefsProvider.future);
-    final next = !_current.hideAmounts;
-    await prefs.setBool(PrefsKeys.hideAmounts, next);
-    state = AsyncData(_current.copyWith(hideAmounts: next));
+    await prefs.setBool(PrefsKeys.hideAmounts, value);
+    state = AsyncData(_current.copyWith(hideAmounts: value));
+  }
+
+  /// [locale] = `null` 이면 시스템 로케일을 따른다.
+  Future<void> setLocale(Locale? locale) async {
+    final prefs = await ref.read(prefsProvider.future);
+    if (locale == null) {
+      await prefs.remove(PrefsKeys.locale);
+    } else {
+      await prefs.setString(PrefsKeys.locale, locale.languageCode);
+    }
+    UserLocale.current = locale;
+    state = AsyncData(_current.copyWith(locale: locale));
   }
 
   AppSettings get _current => state.value ?? AppSettings.defaults;
@@ -97,5 +125,10 @@ class SettingsNotifier extends AsyncNotifier<AppSettings> {
         'compact' => PDensity.compact,
         'spacious' => PDensity.spacious,
         _ => PDensity.comfortable,
+      };
+  static Locale? _parseLocale(String? raw) => switch (raw) {
+        'ko' => const Locale('ko'),
+        'en' => const Locale('en'),
+        _ => null,
       };
 }

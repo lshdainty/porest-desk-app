@@ -12,7 +12,7 @@ import '../../../app/theme/typography.dart';
 import '../../../core/format/krw.dart';
 import '../application/card_providers.dart';
 import '../domain/card_catalog.dart';
-import 'card_detail_screen.dart';
+import 'card_benefit_mapping_dialog.dart';
 
 class CardScreen extends ConsumerStatefulWidget {
   const CardScreen({super.key});
@@ -23,26 +23,45 @@ class CardScreen extends ConsumerStatefulWidget {
 class _CardScreenState extends ConsumerState<CardScreen> {
   final _kwCtrl = TextEditingController();
   String? _typeFilter;
+  String? _benefitFilter;
+  bool _includeDiscontinued = false;
   Timer? _debounce;
-  CardSearchKey _searchKey = (keyword: null, cardType: null);
+  CardSearchKey _searchKey = defaultCardSearchKey();
+
+  void _rebuildKey() {
+    _searchKey = defaultCardSearchKey(
+      keyword: _kwCtrl.text.trim().isEmpty ? null : _kwCtrl.text.trim(),
+      cardType: _typeFilter,
+      benefitType: _benefitFilter,
+      includeDiscontinued: _includeDiscontinued ? true : null,
+    );
+  }
 
   void _onChange(String _) {
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 350), () {
-      setState(() => _searchKey = (
-            keyword: _kwCtrl.text.trim().isEmpty ? null : _kwCtrl.text.trim(),
-            cardType: _typeFilter,
-          ));
+      setState(_rebuildKey);
     });
   }
 
   void _setType(String? t) {
     setState(() {
       _typeFilter = t;
-      _searchKey = (
-        keyword: _kwCtrl.text.trim().isEmpty ? null : _kwCtrl.text.trim(),
-        cardType: t,
-      );
+      _rebuildKey();
+    });
+  }
+
+  void _setBenefit(String? b) {
+    setState(() {
+      _benefitFilter = b;
+      _rebuildKey();
+    });
+  }
+
+  void _toggleDiscontinued() {
+    setState(() {
+      _includeDiscontinued = !_includeDiscontinued;
+      _rebuildKey();
     });
   }
 
@@ -56,7 +75,7 @@ class _CardScreenState extends ConsumerState<CardScreen> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final listAsync = ref.watch(cardCatalogSearchProvider(_searchKey));
+    final pageAsync = ref.watch(cardCatalogPageProvider(_searchKey));
 
     return Scaffold(
       backgroundColor: t.bgCanvas,
@@ -69,12 +88,21 @@ class _CardScreenState extends ConsumerState<CardScreen> {
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,
         elevation: 0,
+        actions: [
+          IconButton(
+            tooltip: '혜택 매핑',
+            icon: Icon(LucideIcons.settings,
+                size: 20, color: t.fgSecondary),
+            onPressed: () => showCardBenefitMappingDialog(context),
+          ),
+        ],
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(96),
+          preferredSize: const Size.fromHeight(140),
           child: Padding(
             padding: const EdgeInsets.fromLTRB(
                 PSpace.x16, 0, PSpace.x16, PSpace.x12),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 TextField(
                   controller: _kwCtrl,
@@ -95,26 +123,78 @@ class _CardScreenState extends ConsumerState<CardScreen> {
                   ),
                 ),
                 const SizedBox(height: PSpace.x8),
-                Row(
-                  children: [
-                    _Chip(
-                        label: '전체',
-                        selected: _typeFilter == null,
-                        onTap: () => _setType(null),
-                        tokens: t),
-                    const SizedBox(width: 6),
-                    _Chip(
-                        label: '신용',
-                        selected: _typeFilter == 'CREDIT',
-                        onTap: () => _setType('CREDIT'),
-                        tokens: t),
-                    const SizedBox(width: 6),
-                    _Chip(
-                        label: '체크',
-                        selected: _typeFilter == 'CHECK',
-                        onTap: () => _setType('CHECK'),
-                        tokens: t),
-                  ],
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      _Chip(
+                          label: '전체',
+                          selected: _typeFilter == null,
+                          onTap: () => _setType(null),
+                          tokens: t),
+                      const SizedBox(width: 6),
+                      _Chip(
+                          label: '신용',
+                          selected: _typeFilter == 'CREDIT',
+                          onTap: () => _setType('CREDIT'),
+                          tokens: t),
+                      const SizedBox(width: 6),
+                      _Chip(
+                          label: '체크',
+                          selected: _typeFilter == 'CHECK',
+                          onTap: () => _setType('CHECK'),
+                          tokens: t),
+                      const SizedBox(width: 14),
+                      _Chip(
+                          label: '혜택 전체',
+                          selected: _benefitFilter == null,
+                          onTap: () => _setBenefit(null),
+                          tokens: t),
+                      const SizedBox(width: 6),
+                      _Chip(
+                          label: '할인',
+                          selected: _benefitFilter == 'DISCOUNT',
+                          onTap: () => _setBenefit('DISCOUNT'),
+                          tokens: t),
+                      const SizedBox(width: 6),
+                      _Chip(
+                          label: '적립',
+                          selected: _benefitFilter == 'POINT',
+                          onTap: () => _setBenefit('POINT'),
+                          tokens: t),
+                      const SizedBox(width: 6),
+                      _Chip(
+                          label: '캐시백',
+                          selected: _benefitFilter == 'CASHBACK',
+                          onTap: () => _setBenefit('CASHBACK'),
+                          tokens: t),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 4),
+                InkWell(
+                  onTap: _toggleDiscontinued,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                            _includeDiscontinued
+                                ? LucideIcons.checkSquare
+                                : LucideIcons.square,
+                            size: 14,
+                            color: _includeDiscontinued
+                                ? t.fgBrand
+                                : t.fgTertiary),
+                        const SizedBox(width: 6),
+                        Text('단종 카드 포함',
+                            style: PTypo.caption.copyWith(
+                                color: t.fgSecondary,
+                                fontWeight: FontWeight.w500)),
+                      ],
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -124,17 +204,18 @@ class _CardScreenState extends ConsumerState<CardScreen> {
       body: RefreshIndicator(
         color: t.bgBrand,
         onRefresh: () async {
-          ref.invalidate(cardCatalogSearchProvider(_searchKey));
-          await ref.read(cardCatalogSearchProvider(_searchKey).future);
+          ref.invalidate(cardCatalogPageProvider(_searchKey));
+          await ref.read(cardCatalogPageProvider(_searchKey).future);
         },
-        child: listAsync.when(
+        child: pageAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (e, _) => Padding(
             padding: const EdgeInsets.all(PSpace.x16),
             child: Text('카드 로드 실패\n$e',
                 style: PTypo.bodySm.copyWith(color: t.statusDanger)),
           ),
-          data: (cards) {
+          data: (page) {
+            final cards = page.content;
             if (cards.isEmpty) {
               return ListView(children: [
                 Padding(
@@ -149,16 +230,99 @@ class _CardScreenState extends ConsumerState<CardScreen> {
                 ),
               ]);
             }
-            return ListView.separated(
+            return ListView(
               padding: const EdgeInsets.fromLTRB(
                   PSpace.x16, PSpace.x12, PSpace.x16, PSpace.x40),
-              itemCount: cards.length,
-              separatorBuilder: (_, _) => const SizedBox(height: PSpace.x8),
-              itemBuilder: (_, i) => _CardRow(card: cards[i], tokens: t),
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(bottom: PSpace.x8),
+                  child: Text(
+                    '총 ${page.totalElements}건',
+                    style:
+                        PTypo.caption.copyWith(color: t.fgTertiary),
+                  ),
+                ),
+                for (int i = 0; i < cards.length; i++) ...[
+                  if (i > 0) const SizedBox(height: PSpace.x8),
+                  _CardRow(card: cards[i], tokens: t),
+                ],
+                const SizedBox(height: PSpace.x16),
+                _Paginator(
+                  page: page,
+                  onPrev: page.first
+                      ? null
+                      : () => setState(() {
+                            _searchKey = (
+                              keyword: _searchKey.keyword,
+                              cardType: _searchKey.cardType,
+                              benefitType: _searchKey.benefitType,
+                              includeDiscontinued:
+                                  _searchKey.includeDiscontinued,
+                              page: _searchKey.page - 1,
+                              size: _searchKey.size,
+                            );
+                          }),
+                  onNext: page.last
+                      ? null
+                      : () => setState(() {
+                            _searchKey = (
+                              keyword: _searchKey.keyword,
+                              cardType: _searchKey.cardType,
+                              benefitType: _searchKey.benefitType,
+                              includeDiscontinued:
+                                  _searchKey.includeDiscontinued,
+                              page: _searchKey.page + 1,
+                              size: _searchKey.size,
+                            );
+                          }),
+                  tokens: t,
+                ),
+              ],
             );
           },
         ),
       ),
+    );
+  }
+}
+
+class _Paginator extends StatelessWidget {
+  const _Paginator({
+    required this.page,
+    required this.onPrev,
+    required this.onNext,
+    required this.tokens,
+  });
+  final dynamic page;
+  final VoidCallback? onPrev;
+  final VoidCallback? onNext;
+  final PorestTokens tokens;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        IconButton(
+          onPressed: onPrev,
+          icon: const Icon(LucideIcons.chevronLeft, size: 18),
+          color: tokens.fgSecondary,
+          disabledColor: tokens.fgDisabled,
+        ),
+        const SizedBox(width: 8),
+        Text(
+          '${(page.number as int) + 1} / ${page.totalPages == 0 ? 1 : page.totalPages}',
+          style: PTypo.bodySm.copyWith(
+              color: tokens.fgPrimary, fontWeight: FontWeight.w600),
+        ),
+        const SizedBox(width: 8),
+        IconButton(
+          onPressed: onNext,
+          icon: const Icon(LucideIcons.chevronRight, size: 18),
+          color: tokens.fgSecondary,
+          disabledColor: tokens.fgDisabled,
+        ),
+      ],
     );
   }
 }
@@ -205,8 +369,7 @@ class _CardRow extends StatelessWidget {
       color: tokens.bgSurface,
       borderRadius: PRadius.brLg,
       child: InkWell(
-        onTap: () => Navigator.of(context).push(MaterialPageRoute(
-            builder: (_) => CardDetailScreen(catalogId: card.rowId))),
+        onTap: () => context.push('/cards/${card.rowId}'),
         borderRadius: PRadius.brLg,
         child: Container(
           padding: const EdgeInsets.all(PSpace.x12),

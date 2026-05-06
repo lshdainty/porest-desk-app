@@ -9,16 +9,78 @@ import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
+import '../../card/presentation/card_catalog_picker.dart';
 import '../application/asset_providers.dart';
 import '../domain/asset.dart';
 import '../domain/asset_type_meta.dart';
+import 'asset_detail_dialog.dart';
 
+/// 자산 추가/수정 통합 시트 (구). 신규 코드는 아래 4종 진입점 사용 권장:
+///   [showAssetAddDialog] / [showCardAddDialog] /
+///   [showInvestmentAddDialog] / [showAssetDetailDialog]
 void showAssetEditDialog(BuildContext context, {Asset? edit}) {
+  if (edit != null) {
+    showAssetDetailDialog(context, edit);
+  } else {
+    showAssetAddDialog(context);
+  }
+}
+
+/// 일반 자산 추가 — 계좌·예적금·현금·대출 등.
+void showAssetAddDialog(BuildContext context, {String? presetType}) {
+  _open(
+    context: context,
+    title: '자산 추가',
+    body: _AssetEditBody(presetType: presetType),
+  );
+}
+
+/// 카드 추가 — assetType 을 CREDIT_CARD 로 미리 지정.
+/// 카드 카탈로그 매핑은 추후 구현 (현재 v0.1 은 일반 폼).
+void showCardAddDialog(BuildContext context) {
+  _open(
+    context: context,
+    title: '카드 추가',
+    body: const _AssetEditBody(presetType: 'CREDIT_CARD', kindHint: AssetKind.card),
+  );
+}
+
+/// 투자 자산 추가 — assetType 을 INVESTMENT 로 미리 지정.
+/// 증권사·상품 카탈로그 매핑은 추후 구현.
+void showInvestmentAddDialog(BuildContext context) {
+  _open(
+    context: context,
+    title: '투자 추가',
+    body: const _AssetEditBody(
+        presetType: 'INVESTMENT', kindHint: AssetKind.investment),
+  );
+}
+
+/// 자산 상세 — 잔액 추이 차트 + 최근 거래 + 편집/삭제 진입.
+/// front `AssetDetailDialog` 미러.
+void showAssetDetailDialog(BuildContext context, Asset asset) {
+  showAssetDetailRich(context, asset);
+}
+
+/// 자산 편집 폼 진입 (상세 다이얼로그 내부에서 직접 호출용).
+void showAssetEditForm(BuildContext context, Asset asset) {
+  _open(
+    context: context,
+    title: '자산 수정',
+    body: _AssetEditBody(edit: asset),
+  );
+}
+
+void _open({
+  required BuildContext context,
+  required String title,
+  required Widget body,
+}) {
   WoltModalSheet.show<void>(
     context: context,
     pageListBuilder: (modalCtx) => [
       WoltModalSheetPage(
-        topBarTitle: Text(edit == null ? '자산 추가' : '자산 수정'),
+        topBarTitle: Text(title),
         isTopBarLayerAlwaysVisible: true,
         backgroundColor:
             Theme.of(modalCtx).extension<PorestTokens>()?.bgSurface,
@@ -26,15 +88,24 @@ void showAssetEditDialog(BuildContext context, {Asset? edit}) {
           icon: const Icon(LucideIcons.x),
           onPressed: Navigator.of(modalCtx).pop,
         ),
-        child: _AssetEditBody(edit: edit),
+        child: body,
       ),
     ],
   );
 }
 
+/// 진입점별 폼 힌트 — 카드/투자 는 자산 종류 chip 을 일부만 노출.
+enum AssetKind { generic, card, investment }
+
 class _AssetEditBody extends ConsumerStatefulWidget {
-  const _AssetEditBody({this.edit});
+  const _AssetEditBody({
+    this.edit,
+    this.presetType,
+    this.kindHint = AssetKind.generic,
+  });
   final Asset? edit;
+  final String? presetType;
+  final AssetKind kindHint;
 
   @override
   ConsumerState<_AssetEditBody> createState() => _AssetEditBodyState();
@@ -61,8 +132,19 @@ class _AssetEditBodyState extends ConsumerState<_AssetEditBody> {
     );
     _institutionCtrl = TextEditingController(text: e?.institution ?? '');
     _memoCtrl = TextEditingController(text: e?.memo ?? '');
-    _type = e?.assetType ?? 'BANK_ACCOUNT';
+    _type = e?.assetType ?? widget.presetType ?? 'BANK_ACCOUNT';
     _includedInTotal = e?.isIncludedInTotal != 'N';
+  }
+
+  /// kindHint 별 노출할 자산 종류 chip 들.
+  Iterable<AssetTypeMeta> _availableTypes() {
+    return switch (widget.kindHint) {
+      AssetKind.card => AssetTypeMeta.all
+          .where((m) => m.code == 'CREDIT_CARD' || m.code == 'CHECK_CARD'),
+      AssetKind.investment =>
+        AssetTypeMeta.all.where((m) => m.code == 'INVESTMENT'),
+      AssetKind.generic => AssetTypeMeta.all,
+    };
   }
 
   @override
@@ -169,13 +251,38 @@ class _AssetEditBodyState extends ConsumerState<_AssetEditBody> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (widget.kindHint == AssetKind.card && !_isEdit) ...[
+            OutlinedButton.icon(
+              onPressed: () async {
+                final selected = await showCardCatalogPicker(
+                  context,
+                  cardType: _type == 'CHECK_CARD' ? 'CHECK' : 'CREDIT',
+                );
+                if (selected == null || !mounted) return;
+                setState(() {
+                  _nameCtrl.text = selected.cardName;
+                  if ((selected.company?.name ?? '').isNotEmpty) {
+                    _institutionCtrl.text = selected.company!.name;
+                  }
+                  if (selected.cardType == 'CHECK') {
+                    _type = 'CHECK_CARD';
+                  } else if (selected.cardType == 'CREDIT') {
+                    _type = 'CREDIT_CARD';
+                  }
+                });
+              },
+              icon: const Icon(LucideIcons.search, size: 14),
+              label: const Text('카드 카탈로그에서 선택'),
+            ),
+            const SizedBox(height: PSpace.x12),
+          ],
           _Label('자산 종류'),
           const SizedBox(height: PSpace.x8),
           Wrap(
             spacing: PSpace.x8,
             runSpacing: PSpace.x8,
             children: [
-              for (final m in AssetTypeMeta.all)
+              for (final m in _availableTypes())
                 _TypeChip(
                   label: m.label,
                   icon: m.icon,

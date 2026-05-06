@@ -38,6 +38,54 @@ class ExpenseRepository {
     }
   }
 
+  /// 그룹별 거래 목록. GET /group/{groupId}/expenses.
+  Future<List<Expense>> listByGroup({
+    required int groupId,
+    int? categoryId,
+    String? expenseType,
+    String? startDate,
+    String? endDate,
+  }) async {
+    try {
+      final res = await _dio.get<Map<String, dynamic>>(
+        '/group/$groupId/expenses',
+        queryParameters: {
+          'categoryId': ?categoryId,
+          'expenseType': ?expenseType,
+          'startDate': ?startDate,
+          'endDate': ?endDate,
+        },
+      );
+      return _unwrapList(res, 'expenses', Expense.fromJson);
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  /// 캘린더 이벤트에 연결된 거래 목록. GET /calendar/event/{id}/expenses.
+  Future<List<Expense>> listByCalendarEvent(int eventId) async {
+    try {
+      final res = await _dio.get<Map<String, dynamic>>(
+        '/calendar/event/$eventId/expenses',
+      );
+      return _unwrapList(res, 'expenses', Expense.fromJson);
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  /// 할 일에 연결된 거래 목록. GET /todo/{id}/expenses.
+  Future<List<Expense>> listByTodo(int todoId) async {
+    try {
+      final res = await _dio.get<Map<String, dynamic>>(
+        '/todo/$todoId/expenses',
+      );
+      return _unwrapList(res, 'expenses', Expense.fromJson);
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
   Future<Expense> create({
     required int categoryRowId,
     required int assetRowId,
@@ -203,6 +251,30 @@ class ExpenseRepository {
   Future<void> deleteCategory(int id) async {
     try {
       await _dio.delete<void>('/expense/category/$id');
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  /// 카테고리 정렬 순서 + 부모 변경. PATCH /expense/categories/reorder.
+  /// [items] = (categoryRowId, sortOrder, parentRowId?) tuple 목록.
+  Future<void> reorderCategories(
+    List<({int categoryRowId, int sortOrder, int? parentRowId})> items,
+  ) async {
+    try {
+      await _dio.patch<dynamic>(
+        '/expense/categories/reorder',
+        data: {
+          'items': [
+            for (final i in items)
+              {
+                'categoryRowId': i.categoryRowId,
+                'sortOrder': i.sortOrder,
+                'parentRowId': ?i.parentRowId,
+              },
+          ],
+        },
+      );
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }

@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/network/api_response.dart';
 import '../domain/stats_models.dart';
+import '../domain/stats_summaries.dart';
 
 class StatsRepository {
   StatsRepository(this._dio);
@@ -69,6 +70,48 @@ class StatsRepository {
         queryParameters: {'year': year, 'month': month},
       );
       return _unwrapList(res, 'cells', HeatmapCell.fromJson);
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  /// 일별 요약. GET /expenses/summary/daily?date=YYYY-MM-DD.
+  Future<DailySummary> daily(String date) async {
+    try {
+      final res = await _dio.get<Map<String, dynamic>>(
+        '/expenses/summary/daily',
+        queryParameters: {'date': date},
+      );
+      return _unwrap(res, DailySummary.fromJson);
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  /// 주별 요약. GET /expenses/summary/weekly?weekStart&weekEnd.
+  Future<WeeklySummary> weekly({
+    required String weekStart,
+    required String weekEnd,
+  }) async {
+    try {
+      final res = await _dio.get<Map<String, dynamic>>(
+        '/expenses/summary/weekly',
+        queryParameters: {'weekStart': weekStart, 'weekEnd': weekEnd},
+      );
+      return _unwrap(res, WeeklySummary.fromJson);
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  /// 연간 요약 (월별 분해 포함). GET /expenses/summary/yearly?year=N.
+  Future<YearlySummary> yearly(int year) async {
+    try {
+      final res = await _dio.get<Map<String, dynamic>>(
+        '/expenses/summary/yearly',
+        queryParameters: {'year': year},
+      );
+      return _unwrap(res, YearlySummary.fromJson);
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }

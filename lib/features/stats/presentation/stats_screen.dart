@@ -11,9 +11,14 @@ import '../../../core/format/color_parse.dart';
 import '../../../core/format/date.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/settings/settings_notifier.dart';
+import '../../budget/application/budget_providers.dart';
+import '../../budget/domain/budget.dart';
 import '../../expense/application/expense_providers.dart';
+import '../../expense/domain/expense.dart';
+import '../../expense/domain/expense_category.dart';
 import '../application/stats_providers.dart';
 import '../domain/stats_models.dart';
+import '../domain/stats_summaries.dart';
 
 /// 통계 탭. 월 선택 + 5종 차트.
 ///
@@ -49,6 +54,13 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
     final trendAsync = ref.watch(monthlyTrendProvider(6));
     final merchantAsync = ref.watch(merchantSummaryProvider(_range));
     final heatmapAsync = ref.watch(heatmapProvider(_ym));
+    final byAssetAsync = ref.watch(assetExpenseSummaryProvider(_range));
+    final yearAsync = ref.watch(yearlySummaryProvider(_month.year));
+    final prevYearAsync =
+        ref.watch(yearlySummaryProvider(_month.year - 1));
+    final budgetsAsync = ref.watch(monthBudgetsProvider(_ym));
+    final monthExpAsync = ref.watch(monthExpensesProvider(_ym));
+    final categoriesAsync = ref.watch(categoriesProvider);
 
     return RefreshIndicator(
       color: t.bgBrand,
@@ -57,6 +69,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
         ref.invalidate(monthlyTrendProvider(6));
         ref.invalidate(merchantSummaryProvider(_range));
         ref.invalidate(heatmapProvider(_ym));
+        ref.invalidate(assetExpenseSummaryProvider(_range));
       },
       child: ListView(
         padding: const EdgeInsets.fromLTRB(
@@ -96,14 +109,62 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
 
           // 4. 가맹점 Top
           _SectionCard(
-            title: '${_month.month}월 가맹점 Top 5',
+            title: '${_month.month}월 가맹점 분석',
             tokens: t,
             child: _MerchantTop(
                 async: merchantAsync, masked: settings.hideAmounts, tokens: t),
           ),
           const SizedBox(height: PSpace.x12),
 
-          // 5. 시간대 히트맵
+          // 5. 자산별 지출 분포
+          _SectionCard(
+            title: '${_month.month}월 자산별 지출',
+            tokens: t,
+            child: _AssetUsageList(
+                async: byAssetAsync, masked: settings.hideAmounts, tokens: t),
+          ),
+          const SizedBox(height: PSpace.x12),
+
+          // 6. 예산 vs 실제 (#282)
+          _SectionCard(
+            title: '${_month.month}월 예산 vs 실제',
+            tokens: t,
+            child: _BudgetVsActual(
+              budgetsAsync: budgetsAsync,
+              monthExpAsync: monthExpAsync,
+              categoriesAsync: categoriesAsync,
+              masked: settings.hideAmounts,
+              tokens: t,
+            ),
+          ),
+          const SizedBox(height: PSpace.x12),
+
+          // 7. 카테고리 추이 (#281)
+          _SectionCard(
+            title: '카테고리 추이 (${_month.year})',
+            tokens: t,
+            child: _CategoryTrendChart(
+              yearlyAsync: yearAsync,
+              categoriesAsync: categoriesAsync,
+              tokens: t,
+            ),
+          ),
+          const SizedBox(height: PSpace.x12),
+
+          // 8. 전년 대비
+          _SectionCard(
+            title: '전년 대비 (${_month.year} vs ${_month.year - 1})',
+            tokens: t,
+            child: _YearOverYearChart(
+              thisYear: yearAsync,
+              prevYear: prevYearAsync,
+              masked: settings.hideAmounts,
+              tokens: t,
+            ),
+          ),
+          const SizedBox(height: PSpace.x12),
+
+          // 7. 시간대 히트맵
           _SectionCard(
             title: '${_month.month}월 시간대 히트맵',
             tokens: t,
@@ -375,9 +436,9 @@ class _TrendChart extends StatelessWidget {
   }
 }
 
-// ─── 카테고리 분포 도넛 ─────────────────────────────────
+// ─── 카테고리 분포 도넛 (드릴다운 #285) ─────────────────────
 
-class _CategoryDonut extends ConsumerWidget {
+class _CategoryDonut extends ConsumerStatefulWidget {
   const _CategoryDonut(
       {required this.async, required this.masked, required this.tokens});
   final AsyncValue<MonthlySummary> async;
@@ -385,7 +446,18 @@ class _CategoryDonut extends ConsumerWidget {
   final PorestTokens tokens;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_CategoryDonut> createState() => _CategoryDonutState();
+}
+
+class _CategoryDonutState extends ConsumerState<_CategoryDonut> {
+  /// 활성 부모 카테고리 ID — null 이면 최상위, set 시 해당 부모의 자식만 표시.
+  int? _activeParentId;
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = widget.tokens;
+    final masked = widget.masked;
+    final async = widget.async;
     final s = async.value;
     if (async.isLoading && s == null) {
       return const SizedBox(
@@ -395,12 +467,42 @@ class _CategoryDonut extends ConsumerWidget {
       return _ErrorMini(text: '카테고리 로드 실패', tokens: tokens);
     }
     final all = s?.categoryBreakdown ?? const <CategoryBreakdown>[];
-    final exp = all.where((c) => c.expenseType == 'EXPENSE').toList()
+    final expensesAll = all.where((c) => c.expenseType == 'EXPENSE').toList();
+    if (expensesAll.isEmpty) {
+      return _EmptyMini(text: '데이터 없음', tokens: tokens);
+    }
+
+    // 드릴다운: 부모가 선택되면 해당 부모의 직접 자식 만, 아니면 최상위(parent==null) 만.
+    final exp = (_activeParentId == null
+            ? expensesAll
+                .where((c) => c.parentCategoryRowId == null)
+                .toList()
+            : expensesAll
+                .where((c) => c.parentCategoryRowId == _activeParentId)
+                .toList())
       ..sort((a, b) => b.totalAmount.compareTo(a.totalAmount));
-    if (exp.isEmpty) return _EmptyMini(text: '데이터 없음', tokens: tokens);
+    // fallback: 최상위 0건이면 전체 보여주기 (백엔드가 평면 응답일 때).
+    final view = exp.isEmpty
+        ? (List.of(expensesAll)
+          ..sort((a, b) => b.totalAmount.compareTo(a.totalAmount)))
+        : exp;
 
     final categories = ref.watch(categoriesProvider).value ?? const [];
-    final total = exp.fold<int>(0, (s, c) => s + c.totalAmount);
+    final total = view.fold<int>(0, (s, c) => s + c.totalAmount);
+
+    // 자식 카테고리 수가 1 이상인 부모 ID 집합 — 드릴다운 가능 표시
+    final hasChildrenIds = <int>{
+      for (final c in expensesAll)
+        if (c.parentCategoryRowId != null) c.parentCategoryRowId!
+    };
+
+    String? activeName() {
+      if (_activeParentId == null) return null;
+      final p = expensesAll
+          .firstWhere((c) => c.categoryRowId == _activeParentId,
+              orElse: () => expensesAll.first);
+      return p.categoryName;
+    }
 
     Color colorFor(CategoryBreakdown c) {
       for (final cat in categories) {
@@ -415,6 +517,38 @@ class _CategoryDonut extends ConsumerWidget {
 
     return Column(
       children: [
+        if (_activeParentId != null)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Row(
+              children: [
+                InkWell(
+                  onTap: () => setState(() => _activeParentId = null),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 6, vertical: 4),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(LucideIcons.arrowLeft,
+                            size: 13, color: tokens.fgSecondary),
+                        const SizedBox(width: 4),
+                        Text('전체로',
+                            style: PTypo.caption.copyWith(
+                                color: tokens.fgSecondary,
+                                fontWeight: FontWeight.w600)),
+                      ],
+                    ),
+                  ),
+                ),
+                const Spacer(),
+                Text(activeName() ?? '',
+                    style: PTypo.caption.copyWith(
+                        color: tokens.fgPrimary,
+                        fontWeight: FontWeight.w700)),
+              ],
+            ),
+          ),
         SizedBox(
           height: 180,
           child: PieChart(
@@ -422,7 +556,7 @@ class _CategoryDonut extends ConsumerWidget {
               sectionsSpace: 2,
               centerSpaceRadius: 50,
               sections: [
-                for (final c in exp.take(8))
+                for (final c in view.take(8))
                   PieChartSectionData(
                     value: c.totalAmount.toDouble(),
                     color: colorFor(c),
@@ -434,33 +568,61 @@ class _CategoryDonut extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: PSpace.x8),
-        for (final c in exp.take(5))
+        for (final c in view.take(5))
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 4),
-            child: Row(
-              children: [
-                Container(
-                  width: 10,
-                  height: 10,
-                  decoration: BoxDecoration(
-                      color: colorFor(c), shape: BoxShape.circle),
+            child: InkWell(
+              onTap: c.categoryRowId == null
+                  ? null
+                  : (_activeParentId == null &&
+                          hasChildrenIds.contains(c.categoryRowId)
+                      ? () => setState(() => _activeParentId = c.categoryRowId)
+                      : null),
+              borderRadius: PRadius.brSm,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 4, vertical: 2),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 10,
+                      height: 10,
+                      decoration: BoxDecoration(
+                          color: colorFor(c), shape: BoxShape.circle),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Row(
+                        children: [
+                          Flexible(
+                            child: Text(c.categoryName ?? '미지정',
+                                overflow: TextOverflow.ellipsis,
+                                style: PTypo.bodySm
+                                    .copyWith(color: tokens.fgPrimary)),
+                          ),
+                          if (_activeParentId == null &&
+                              c.categoryRowId != null &&
+                              hasChildrenIds.contains(c.categoryRowId)) ...[
+                            const SizedBox(width: 4),
+                            Icon(LucideIcons.chevronRight,
+                                size: 12, color: tokens.fgTertiary),
+                          ],
+                        ],
+                      ),
+                    ),
+                    Text(
+                      '${total > 0 ? ((c.totalAmount / total) * 100).round() : 0}%',
+                      style:
+                          PTypo.caption.copyWith(color: tokens.fgTertiary),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(krwMasked(c.totalAmount, masked),
+                        style: PTypo.bodySm.copyWith(
+                            color: tokens.fgPrimary,
+                            fontWeight: FontWeight.w600)),
+                  ],
                 ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(c.categoryName ?? '미지정',
-                      style: PTypo.bodySm
-                          .copyWith(color: tokens.fgPrimary)),
-                ),
-                Text(
-                  '${total > 0 ? ((c.totalAmount / total) * 100).round() : 0}%',
-                  style: PTypo.caption.copyWith(color: tokens.fgTertiary),
-                ),
-                const SizedBox(width: 8),
-                Text(krwMasked(c.totalAmount, masked),
-                    style: PTypo.bodySm.copyWith(
-                        color: tokens.fgPrimary,
-                        fontWeight: FontWeight.w600)),
-              ],
+              ),
             ),
           ),
       ],
@@ -470,14 +632,24 @@ class _CategoryDonut extends ConsumerWidget {
 
 // ─── 가맹점 Top ──────────────────────────────────────────
 
-class _MerchantTop extends StatelessWidget {
+class _MerchantTop extends StatefulWidget {
   const _MerchantTop(
       {required this.async, required this.masked, required this.tokens});
   final AsyncValue<List<MerchantSummary>> async;
   final bool masked;
   final PorestTokens tokens;
   @override
+  State<_MerchantTop> createState() => _MerchantTopState();
+}
+
+class _MerchantTopState extends State<_MerchantTop> {
+  bool _expanded = false;
+
+  @override
   Widget build(BuildContext context) {
+    final tokens = widget.tokens;
+    final masked = widget.masked;
+    final async = widget.async;
     final list = async.value ?? const <MerchantSummary>[];
     if (async.isLoading && list.isEmpty) {
       return const SizedBox(
@@ -488,14 +660,15 @@ class _MerchantTop extends StatelessWidget {
     }
     if (list.isEmpty) return _EmptyMini(text: '데이터 없음', tokens: tokens);
 
-    final top5 = (List.of(list)..sort((a, b) => b.totalAmount.compareTo(a.totalAmount)))
-        .take(5)
-        .toList();
-    final maxAmt = top5.first.totalAmount;
+    final sorted = (List.of(list)
+      ..sort((a, b) => b.totalAmount.compareTo(a.totalAmount)));
+    final maxAmt = sorted.first.totalAmount;
+    final total = sorted.fold<int>(0, (s, m) => s + m.totalAmount);
+    final visible = _expanded ? sorted.take(15).toList() : sorted.take(5).toList();
 
     return Column(
       children: [
-        for (int i = 0; i < top5.length; i++)
+        for (int i = 0; i < visible.length; i++)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 6),
             child: Column(
@@ -518,14 +691,117 @@ class _MerchantTop extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Expanded(
-                        child: Text(top5[i].merchant ?? '(이름 없음)',
-                            style: PTypo.bodySm
-                                .copyWith(color: tokens.fgPrimary))),
-                    Text('${top5[i].count}건',
-                        style: PTypo.caption
-                            .copyWith(color: tokens.fgTertiary)),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(visible[i].merchant ?? '(이름 없음)',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: PTypo.bodySm
+                                  .copyWith(color: tokens.fgPrimary)),
+                          Text(
+                              '${visible[i].count}건 · 1회 평균 ${masked ? '•••' : krw(visible[i].totalAmount ~/ (visible[i].count == 0 ? 1 : visible[i].count))}원',
+                              style: PTypo.micro
+                                  .copyWith(color: tokens.fgTertiary)),
+                        ],
+                      ),
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(krwMasked(visible[i].totalAmount, masked),
+                            style: PTypo.bodySm.copyWith(
+                                color: tokens.fgPrimary,
+                                fontWeight: FontWeight.w700)),
+                        Text(
+                            total > 0
+                                ? '${(visible[i].totalAmount * 100 / total).toStringAsFixed(1)}%'
+                                : '-',
+                            style: PTypo.micro
+                                .copyWith(color: tokens.fgTertiary)),
+                      ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                ClipRRect(
+                  borderRadius: PRadius.brXs,
+                  child: LinearProgressIndicator(
+                    value: maxAmt > 0 ? visible[i].totalAmount / maxAmt : 0,
+                    minHeight: 6,
+                    backgroundColor: tokens.bgTrack,
+                    color: tokens.fgBrand,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        if (sorted.length > 5)
+          Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: TextButton.icon(
+              onPressed: () => setState(() => _expanded = !_expanded),
+              icon: Icon(
+                  _expanded
+                      ? LucideIcons.chevronUp
+                      : LucideIcons.chevronDown,
+                  size: 14),
+              label: Text(_expanded ? '접기' : '더 보기 (${sorted.length - 5})'),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+// ─── 자산별 지출 ───────────────────────────────────────────
+
+class _AssetUsageList extends StatelessWidget {
+  const _AssetUsageList(
+      {required this.async, required this.masked, required this.tokens});
+  final AsyncValue<List<AssetExpenseSummary>> async;
+  final bool masked;
+  final PorestTokens tokens;
+  @override
+  Widget build(BuildContext context) {
+    final list = async.value ?? const <AssetExpenseSummary>[];
+    if (async.isLoading && list.isEmpty) {
+      return const SizedBox(
+          height: 100, child: Center(child: CircularProgressIndicator()));
+    }
+    if (async.hasError && list.isEmpty) {
+      return _ErrorMini(text: '자산 로드 실패', tokens: tokens);
+    }
+    if (list.isEmpty) return _EmptyMini(text: '데이터 없음', tokens: tokens);
+
+    final sorted = (List.of(list)
+      ..sort((a, b) => b.totalAmount.compareTo(a.totalAmount)));
+    final maxAmt = sorted.first.totalAmount;
+    final total = sorted.fold<int>(0, (s, a) => s + a.totalAmount);
+
+    return Column(
+      children: [
+        for (final a in sorted)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 6),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(a.assetName ?? '(이름 없음)',
+                          style: PTypo.bodySm
+                              .copyWith(color: tokens.fgPrimary)),
+                    ),
+                    Text(
+                        total > 0
+                            ? '${(a.totalAmount * 100 / total).toStringAsFixed(1)}%'
+                            : '-',
+                        style:
+                            PTypo.caption.copyWith(color: tokens.fgTertiary)),
                     const SizedBox(width: 8),
-                    Text(krwMasked(top5[i].totalAmount, masked),
+                    Text(krwMasked(a.totalAmount, masked),
                         style: PTypo.bodySm.copyWith(
                             color: tokens.fgPrimary,
                             fontWeight: FontWeight.w700)),
@@ -535,7 +811,7 @@ class _MerchantTop extends StatelessWidget {
                 ClipRRect(
                   borderRadius: PRadius.brXs,
                   child: LinearProgressIndicator(
-                    value: maxAmt > 0 ? top5[i].totalAmount / maxAmt : 0,
+                    value: maxAmt > 0 ? a.totalAmount / maxAmt : 0,
                     minHeight: 6,
                     backgroundColor: tokens.bgTrack,
                     color: tokens.fgBrand,
@@ -665,6 +941,451 @@ class _EmptyMini extends StatelessWidget {
         child: Text(text,
             style: PTypo.bodySm.copyWith(color: tokens.fgTertiary)),
       ),
+    );
+  }
+}
+
+/// 전년 대비 12개월 BarChart (#284). 두 yearlySummary 의 monthlyAmounts 비교.
+class _YearOverYearChart extends StatelessWidget {
+  const _YearOverYearChart({
+    required this.thisYear,
+    required this.prevYear,
+    required this.masked,
+    required this.tokens,
+  });
+  final AsyncValue<YearlySummary> thisYear;
+  final AsyncValue<YearlySummary> prevYear;
+  final bool masked;
+  final PorestTokens tokens;
+
+  @override
+  Widget build(BuildContext context) {
+    final loading =
+        (thisYear.isLoading && !thisYear.hasValue) ||
+            (prevYear.isLoading && !prevYear.hasValue);
+    if (loading) {
+      return const SizedBox(
+          height: 220, child: Center(child: CircularProgressIndicator()));
+    }
+    final cur = thisYear.value;
+    final prev = prevYear.value;
+    if (cur == null) {
+      return _EmptyMini(text: '데이터 없음', tokens: tokens);
+    }
+
+    int amountFor(YearlySummary? y, int month) {
+      if (y == null) return 0;
+      for (final m in y.monthlyAmounts) {
+        if (m.month == month) return m.totalExpense;
+      }
+      return 0;
+    }
+
+    final maxY = [
+      for (var i = 1; i <= 12; i++)
+        amountFor(cur, i) > amountFor(prev, i)
+            ? amountFor(cur, i)
+            : amountFor(prev, i),
+    ].fold<int>(0, (m, v) => v > m ? v : m).toDouble();
+
+    final curTotal = cur.totalExpense;
+    final prevTotal = prev?.totalExpense ?? 0;
+    final delta = curTotal - prevTotal;
+    final deltaPct = prevTotal == 0
+        ? 0.0
+        : (delta * 100 / prevTotal);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              masked
+                  ? '••• 원'
+                  : '${krw(curTotal)}원',
+              style: PTypo.h3.copyWith(
+                  color: tokens.fgPrimary, fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(width: 8),
+            Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: delta > 0
+                    ? tokens.statusDangerSubtle
+                    : tokens.statusSuccessSubtle,
+                borderRadius: PRadius.brSm,
+              ),
+              child: Text(
+                  '${delta > 0 ? '+' : ''}${deltaPct.toStringAsFixed(1)}%',
+                  style: PTypo.caption.copyWith(
+                      color: delta > 0
+                          ? tokens.statusDangerFg
+                          : tokens.statusSuccessFg,
+                      fontWeight: FontWeight.w700)),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Text(
+            '전년 ${masked ? '•••' : krw(prevTotal)}원',
+            style: PTypo.caption.copyWith(color: tokens.fgTertiary)),
+        const SizedBox(height: PSpace.x12),
+        SizedBox(
+          height: 180,
+          child: BarChart(
+            BarChartData(
+              maxY: maxY > 0 ? maxY * 1.15 : 100,
+              minY: 0,
+              alignment: BarChartAlignment.spaceAround,
+              barTouchData: BarTouchData(enabled: true),
+              gridData: const FlGridData(show: false),
+              titlesData: FlTitlesData(
+                leftTitles: const AxisTitles(),
+                rightTitles: const AxisTitles(),
+                topTitles: const AxisTitles(),
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    reservedSize: 18,
+                    interval: 1,
+                    getTitlesWidget: (v, _) {
+                      final i = v.toInt();
+                      if (i < 0 || i > 11) return const SizedBox();
+                      return Text('${i + 1}',
+                          style: PTypo.micro
+                              .copyWith(color: tokens.fgTertiary));
+                    },
+                  ),
+                ),
+              ),
+              borderData: FlBorderData(show: false),
+              barGroups: [
+                for (int i = 0; i < 12; i++)
+                  BarChartGroupData(
+                    x: i,
+                    barsSpace: 2,
+                    barRods: [
+                      BarChartRodData(
+                        toY: amountFor(prev, i + 1).toDouble(),
+                        color: tokens.fgTertiary.withValues(alpha: 0.5),
+                        width: 5,
+                        borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(2)),
+                      ),
+                      BarChartRodData(
+                        toY: amountFor(cur, i + 1).toDouble(),
+                        color: tokens.fgBrand,
+                        width: 5,
+                        borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(2)),
+                      ),
+                    ],
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// 예산 vs 실제 카테고리별 비교 (#282).
+class _BudgetVsActual extends StatelessWidget {
+  const _BudgetVsActual({
+    required this.budgetsAsync,
+    required this.monthExpAsync,
+    required this.categoriesAsync,
+    required this.masked,
+    required this.tokens,
+  });
+  final AsyncValue<List<Budget>> budgetsAsync;
+  final AsyncValue<List<Expense>> monthExpAsync;
+  final AsyncValue<List<ExpenseCategory>> categoriesAsync;
+  final bool masked;
+  final PorestTokens tokens;
+
+  @override
+  Widget build(BuildContext context) {
+    final loading = (budgetsAsync.isLoading && !budgetsAsync.hasValue) ||
+        (monthExpAsync.isLoading && !monthExpAsync.hasValue);
+    if (loading) {
+      return const SizedBox(
+          height: 120, child: Center(child: CircularProgressIndicator()));
+    }
+    final budgets = budgetsAsync.value ?? const <Budget>[];
+    final expenses = monthExpAsync.value ?? const <Expense>[];
+    if (budgets.isEmpty) return _EmptyMini(text: '등록된 예산 없음', tokens: tokens);
+
+    final spentByCat = <int, int>{};
+    for (final e in expenses) {
+      if (e.expenseType != 'EXPENSE') continue;
+      final cid = e.categoryRowId;
+      if (cid == null) continue;
+      spentByCat.update(cid, (v) => v + e.amount, ifAbsent: () => e.amount);
+    }
+    final cats = categoriesAsync.value ?? const <ExpenseCategory>[];
+    String catName(int id) => cats
+        .firstWhere((c) => c.rowId == id,
+            orElse: () => const ExpenseCategory(
+                rowId: 0, categoryName: '', expenseType: 'EXPENSE'))
+        .categoryName;
+    Color catColor(int id) {
+      try {
+        final c = cats.firstWhere((c) => c.rowId == id);
+        return parseColor(c.color, fallback: tokens.fgBrand);
+      } catch (_) {
+        return tokens.fgBrand;
+      }
+    }
+
+    final sorted = [...budgets]
+      ..sort((a, b) {
+        final pa = (spentByCat[a.categoryRowId] ?? 0) /
+            (a.budgetAmount == 0 ? 1 : a.budgetAmount);
+        final pb = (spentByCat[b.categoryRowId] ?? 0) /
+            (b.budgetAmount == 0 ? 1 : b.budgetAmount);
+        return pb.compareTo(pa);
+      });
+
+    return Column(
+      children: [
+        for (final b in sorted)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 6),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 8, height: 8,
+                      decoration: BoxDecoration(
+                          color: catColor(b.categoryRowId),
+                          shape: BoxShape.circle),
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(catName(b.categoryRowId),
+                          style: PTypo.bodySm
+                              .copyWith(color: tokens.fgPrimary)),
+                    ),
+                    Text(
+                      '${krwMasked(spentByCat[b.categoryRowId] ?? 0, masked)} / ${krwMasked(b.budgetAmount, masked)}',
+                      style: PTypo.caption.copyWith(color: tokens.fgTertiary),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Builder(builder: (_) {
+                  final spent = spentByCat[b.categoryRowId] ?? 0;
+                  final pct = b.budgetAmount == 0
+                      ? 0.0
+                      : (spent / b.budgetAmount).clamp(0.0, 1.5);
+                  final over = pct > 1.0;
+                  return ClipRRect(
+                    borderRadius: PRadius.brXs,
+                    child: LinearProgressIndicator(
+                      value: pct.clamp(0.0, 1.0),
+                      minHeight: 6,
+                      backgroundColor: tokens.bgTrack,
+                      color: over ? tokens.statusDanger : tokens.fgBrand,
+                    ),
+                  );
+                }),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+/// 카테고리별 12개월 지출 추이 (#281).
+class _CategoryTrendChart extends StatefulWidget {
+  const _CategoryTrendChart({
+    required this.yearlyAsync,
+    required this.categoriesAsync,
+    required this.tokens,
+  });
+  final AsyncValue<YearlySummary> yearlyAsync;
+  final AsyncValue<List<ExpenseCategory>> categoriesAsync;
+  final PorestTokens tokens;
+
+  @override
+  State<_CategoryTrendChart> createState() => _CategoryTrendChartState();
+}
+
+class _CategoryTrendChartState extends State<_CategoryTrendChart> {
+  int? _selectedCategoryId;
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = widget.tokens;
+    final summary = widget.yearlyAsync.value;
+    if (widget.yearlyAsync.isLoading && summary == null) {
+      return const SizedBox(
+          height: 180, child: Center(child: CircularProgressIndicator()));
+    }
+    if (summary == null || summary.monthlyAmounts.isEmpty) {
+      return _EmptyMini(text: '데이터 없음', tokens: tokens);
+    }
+
+    final candidateIds = <int, String>{};
+    for (final m in summary.monthlyAmounts) {
+      for (final c in m.categoryBreakdown) {
+        if (c.expenseType != 'EXPENSE' || c.categoryRowId == null) continue;
+        candidateIds.putIfAbsent(c.categoryRowId!,
+            () => c.categoryName ?? '#${c.categoryRowId}');
+      }
+    }
+    if (candidateIds.isEmpty) {
+      return _EmptyMini(text: '카테고리 데이터 없음', tokens: tokens);
+    }
+    final byTotal = <int, int>{};
+    for (final m in summary.monthlyAmounts) {
+      for (final c in m.categoryBreakdown) {
+        if (c.expenseType != 'EXPENSE' || c.categoryRowId == null) continue;
+        byTotal.update(c.categoryRowId!, (v) => v + c.totalAmount,
+            ifAbsent: () => c.totalAmount);
+      }
+    }
+    final ids = candidateIds.keys.toList()
+      ..sort((a, b) => (byTotal[b] ?? 0).compareTo(byTotal[a] ?? 0));
+    _selectedCategoryId ??= ids.first;
+    final selId = _selectedCategoryId!;
+
+    final categories =
+        widget.categoriesAsync.value ?? const <ExpenseCategory>[];
+    Color colorOf(int id) {
+      try {
+        final c = categories.firstWhere((c) => c.rowId == id);
+        return parseColor(c.color, fallback: tokens.fgBrand);
+      } catch (_) {
+        return tokens.fgBrand;
+      }
+    }
+
+    int amountFor(int month) {
+      for (final m in summary.monthlyAmounts) {
+        if (m.month != month) continue;
+        for (final c in m.categoryBreakdown) {
+          if (c.categoryRowId == selId) return c.totalAmount;
+        }
+        return 0;
+      }
+      return 0;
+    }
+
+    final spots = <FlSpot>[
+      for (var m = 1; m <= 12; m++)
+        FlSpot(m.toDouble(), amountFor(m).toDouble()),
+    ];
+    final maxY =
+        spots.map((s) => s.y).fold<double>(0, (m, v) => v > m ? v : m);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          height: 38,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            children: [
+              for (final id in ids.take(15))
+                Padding(
+                  padding: const EdgeInsets.only(right: 6),
+                  child: GestureDetector(
+                    onTap: () => setState(() => _selectedCategoryId = id),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: id == selId
+                            ? tokens.bgBrandSubtle
+                            : tokens.bgMuted,
+                        borderRadius: PRadius.brPill,
+                        border: Border.all(
+                          color: id == selId
+                              ? tokens.borderBrand
+                              : tokens.borderSubtle,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 8,
+                            height: 8,
+                            decoration: BoxDecoration(
+                                color: colorOf(id), shape: BoxShape.circle),
+                          ),
+                          const SizedBox(width: 6),
+                          Text(candidateIds[id] ?? '',
+                              style: PTypo.caption.copyWith(
+                                color: id == selId
+                                    ? tokens.fgPrimary
+                                    : tokens.fgSecondary,
+                                fontWeight: id == selId
+                                    ? FontWeight.w700
+                                    : FontWeight.w500,
+                              )),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+        const SizedBox(height: PSpace.x12),
+        SizedBox(
+          height: 160,
+          child: LineChart(
+            LineChartData(
+              minY: 0,
+              maxY: maxY > 0 ? maxY * 1.15 : 100,
+              gridData: const FlGridData(show: false),
+              titlesData: FlTitlesData(
+                leftTitles: const AxisTitles(),
+                rightTitles: const AxisTitles(),
+                topTitles: const AxisTitles(),
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    reservedSize: 18,
+                    interval: 1,
+                    getTitlesWidget: (v, _) {
+                      final m = v.toInt();
+                      if (m < 1 || m > 12) return const SizedBox();
+                      return Text('$m',
+                          style: PTypo.micro
+                              .copyWith(color: tokens.fgTertiary));
+                    },
+                  ),
+                ),
+              ),
+              borderData: FlBorderData(show: false),
+              lineBarsData: [
+                LineChartBarData(
+                  spots: spots,
+                  isCurved: true,
+                  color: colorOf(selId),
+                  barWidth: 2.5,
+                  dotData: const FlDotData(show: true),
+                  belowBarData: BarAreaData(
+                    show: true,
+                    color: colorOf(selId).withValues(alpha: 0.12),
+                  ),
+                ),
+              ],
+              lineTouchData: LineTouchData(enabled: true),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

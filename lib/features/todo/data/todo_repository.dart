@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/network/api_response.dart';
 import '../domain/todo.dart';
+import '../domain/todo_stats.dart';
 
 class TodoRepository {
   TodoRepository(this._dio);
@@ -97,6 +98,65 @@ class TodoRepository {
   Future<void> delete(int id) async {
     try {
       await _dio.delete<void>('/todo/$id');
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  /// 단건 조회. GET /todo/{id}.
+  Future<Todo> getById(int id) async {
+    try {
+      final res = await _dio.get<Map<String, dynamic>>('/todo/$id');
+      return _unwrap(res, Todo.fromJson);
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  /// 정렬 순서 변경. PATCH /todos/reorder.
+  Future<void> reorder(List<({int todoId, int sortOrder})> items) async {
+    try {
+      await _dio.patch<dynamic>(
+        '/todos/reorder',
+        data: {
+          'items': [
+            for (final i in items)
+              {'todoId': i.todoId, 'sortOrder': i.sortOrder},
+          ],
+        },
+      );
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  /// 서브태스크 목록. GET /todo/{id}/subtasks.
+  Future<List<Todo>> getSubtasks(int parentId) async {
+    try {
+      final res = await _dio.get<Map<String, dynamic>>('/todo/$parentId/subtasks');
+      return _unwrapList(res, 'todos', Todo.fromJson);
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  /// 태그 일괄 변경. PATCH /todo/{id}/tags.
+  Future<void> updateTags(int id, List<int> tagIds) async {
+    try {
+      await _dio.patch<dynamic>(
+        '/todo/$id/tags',
+        data: {'tagIds': tagIds},
+      );
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  /// 통계 (카운트 묶음). GET /todos/stats.
+  Future<TodoStats> stats() async {
+    try {
+      final res = await _dio.get<Map<String, dynamic>>('/todos/stats');
+      return _unwrap(res, TodoStats.fromJson);
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }

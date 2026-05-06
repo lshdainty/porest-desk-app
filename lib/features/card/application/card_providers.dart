@@ -1,24 +1,93 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/network/dio_provider.dart';
+import '../data/card_benefit_mapping_repository.dart';
 import '../data/card_repository.dart';
+import '../domain/card_benefit_mapping.dart';
 import '../domain/card_catalog.dart';
+import '../domain/card_catalog_page.dart';
+import '../domain/card_performance.dart';
 
 final cardRepositoryProvider = FutureProvider<CardRepository>((ref) async {
   final dio = await ref.watch(dioProvider.future);
   return CardRepository(dio);
 });
 
-typedef CardSearchKey = ({String? keyword, String? cardType});
+/// 카드 검색 키 — front 4개 필터 + 페이지네이션 모두 지원.
+typedef CardSearchKey = ({
+  String? keyword,
+  String? cardType, // CREDIT/CHECK
+  String? benefitType,
+  bool? includeDiscontinued,
+  int page,
+  int size,
+});
 
+CardSearchKey defaultCardSearchKey({
+  String? keyword,
+  String? cardType,
+  String? benefitType,
+  bool? includeDiscontinued,
+  int page = 0,
+  int size = 30,
+}) =>
+    (
+      keyword: keyword,
+      cardType: cardType,
+      benefitType: benefitType,
+      includeDiscontinued: includeDiscontinued,
+      page: page,
+      size: size,
+    );
+
+/// 한 페이지 검색 결과 (메타 포함).
+final cardCatalogPageProvider =
+    FutureProvider.family<CardCatalogPage, CardSearchKey>((ref, key) async {
+  final repo = await ref.watch(cardRepositoryProvider.future);
+  return repo.searchPage(
+    keyword: key.keyword,
+    cardType: key.cardType,
+    benefitType: key.benefitType,
+    includeDiscontinued: key.includeDiscontinued,
+    page: key.page,
+    size: key.size,
+  );
+});
+
+/// 호환용 — content 만 반환.
 final cardCatalogSearchProvider = FutureProvider.family<
     List<CardCatalogSummary>, CardSearchKey>((ref, key) async {
-  final repo = await ref.watch(cardRepositoryProvider.future);
-  return repo.search(keyword: key.keyword, cardType: key.cardType);
+  final p = await ref.watch(cardCatalogPageProvider(key).future);
+  return p.content;
 });
 
 final cardCatalogDetailProvider =
     FutureProvider.family<CardCatalogDetail, int>((ref, id) async {
   final repo = await ref.watch(cardRepositoryProvider.future);
   return repo.detail(id);
+});
+
+/// 카드 월 실적 조회 (#371).
+typedef CardPerformanceKey = ({int assetRowId, String yearMonth});
+
+final cardPerformanceProvider =
+    FutureProvider.family<CardPerformance, CardPerformanceKey>((ref, key) async {
+  final repo = await ref.watch(cardRepositoryProvider.future);
+  return repo.performance(
+      assetRowId: key.assetRowId, yearMonth: key.yearMonth);
+});
+
+// ─── CardBenefitMapping (#372) ──────────────────────────────
+
+final cardBenefitMappingRepositoryProvider =
+    FutureProvider<CardBenefitMappingRepository>((ref) async {
+  final dio = await ref.watch(dioProvider.future);
+  return CardBenefitMappingRepository(dio);
+});
+
+final cardBenefitMappingsProvider =
+    FutureProvider<List<CardBenefitMapping>>((ref) async {
+  ref.keepAlive();
+  final repo = await ref.watch(cardBenefitMappingRepositoryProvider.future);
+  return repo.list();
 });

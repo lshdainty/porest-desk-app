@@ -14,3 +14,9 @@ final savingGoalListProvider = FutureProvider<List<SavingGoal>>((ref) async {
   final repo = await ref.watch(savingGoalRepositoryProvider.future);
   return repo.list();
 });
+
+final savingGoalByIdProvider =
+    FutureProvider.family<SavingGoal, int>((ref, id) async {
+  final repo = await ref.watch(savingGoalRepositoryProvider.future);
+  return repo.getById(id);
+});

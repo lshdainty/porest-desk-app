@@ -13,8 +13,10 @@ import '../../../core/format/krw.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../expense/application/expense_providers.dart';
+import '../../../core/network/api_exception.dart';
 import '../application/budget_providers.dart';
 import '../domain/budget.dart';
+import '../domain/budget_compliance.dart';
 import 'budget_edit_dialog.dart';
 
 /// 예산 화면 (More → 예산 push).
@@ -35,6 +37,113 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
 
   BudgetMonthKey get _key => (year: _month.year, month: _month.month);
 
+  /// 전월 예산을 모두 복사. 이미 등록된 카테고리는 건너뛴다 (#258).
+  Future<void> _copyFromPreviousMonth(
+      BuildContext context, WidgetRef ref) async {
+    final prevMonth = DateTime(_month.year, _month.month - 1, 1);
+    final prevKey = (year: prevMonth.year, month: prevMonth.month);
+    final repo = await ref.read(budgetRepositoryProvider.future);
+    try {
+      final prev = await repo.list(year: prevKey.year, month: prevKey.month);
+      if (prev.isEmpty) {
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${prevKey.month}월에 등록된 예산이 없습니다')),
+        );
+        return;
+      }
+      final cur = await repo.list(year: _key.year, month: _key.month);
+      final existingCats = cur.map((b) => b.categoryRowId).toSet();
+      final toCreate = prev
+          .where((b) => !existingCats.contains(b.categoryRowId))
+          .toList();
+      if (toCreate.isEmpty) {
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('이미 모든 카테고리가 복사되어 있습니다')),
+        );
+        return;
+      }
+      final ok = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('전월 예산 복사'),
+          content: Text(
+              '${prevKey.month}월의 ${toCreate.length}개 카테고리를 ${_key.month}월로 복사할까요?'),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: const Text('취소')),
+            FilledButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                child: const Text('복사')),
+          ],
+        ),
+      );
+      if (ok != true || !context.mounted) return;
+      for (final b in toCreate) {
+        await repo.create(
+          categoryRowId: b.categoryRowId,
+          budgetAmount: b.budgetAmount,
+          budgetYear: _key.year,
+          budgetMonth: _key.month,
+        );
+      }
+      ref.invalidate(monthBudgetsProvider(_key));
+      ref.invalidate(budgetComplianceProvider(6));
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${toCreate.length}개 예산을 복사했습니다')),
+      );
+    } on ApiException catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('복사 실패: ${e.message}')),
+      );
+    }
+  }
+
+  /// 이번 달 모든 예산 삭제 (#258).
+  Future<void> _clearMonth(BuildContext context, WidgetRef ref) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('이번 달 전체 삭제'),
+        content: Text('${_key.month}월에 등록된 예산을 모두 삭제할까요?'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('취소')),
+          FilledButton(
+            style: FilledButton.styleFrom(
+                backgroundColor: context.tokens.statusDanger),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('삭제'),
+          ),
+        ],
+      ),
+    );
+    if (ok != true || !context.mounted) return;
+    try {
+      final repo = await ref.read(budgetRepositoryProvider.future);
+      final list = await repo.list(year: _key.year, month: _key.month);
+      for (final b in list) {
+        await repo.delete(b.rowId);
+      }
+      ref.invalidate(monthBudgetsProvider(_key));
+      ref.invalidate(budgetComplianceProvider(6));
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${list.length}개 예산을 삭제했습니다')),
+      );
+    } on ApiException catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('삭제 실패: ${e.message}')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
@@ -43,6 +152,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
     final expensesAsync = ref.watch(monthExpensesProvider(
         (year: _month.year, month: _month.month)));
     final categoriesAsync = ref.watch(categoriesProvider);
+    final complianceAsync = ref.watch(budgetComplianceProvider(6));
 
     return Scaffold(
       backgroundColor: t.bgCanvas,
@@ -55,6 +165,26 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,
         elevation: 0,
+        actions: [
+          PopupMenuButton<String>(
+            icon: Icon(LucideIcons.moreVertical, color: t.fgSecondary),
+            onSelected: (v) async {
+              if (v == 'copyFromPrev') {
+                await _copyFromPreviousMonth(context, ref);
+              } else if (v == 'clearMonth') {
+                await _clearMonth(context, ref);
+              }
+            },
+            itemBuilder: (_) => const [
+              PopupMenuItem(value: 'copyFromPrev', child: Text('전월 예산 복사')),
+              PopupMenuItem(
+                value: 'clearMonth',
+                child: Text('이번 달 전체 삭제',
+                    style: TextStyle(color: Colors.red)),
+              ),
+            ],
+          ),
+        ],
       ),
       floatingActionButton: budgetsAsync.maybeWhen(
         data: (budgets) => FloatingActionButton(
@@ -137,6 +267,8 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                       masked: settings.hideAmounts,
                       tokens: t,
                     ),
+                    const SizedBox(height: PSpace.x16),
+                    _ComplianceCard(async: complianceAsync, tokens: t),
                     const SizedBox(height: PSpace.x16),
                     Container(
                       decoration: BoxDecoration(
@@ -374,6 +506,111 @@ class _ErrorBox extends StatelessWidget {
           Text(message, style: PTypo.bodySm.copyWith(color: t.statusDangerFg)),
           const SizedBox(height: PSpace.x8),
           OutlinedButton(onPressed: onRetry, child: const Text('다시 시도')),
+        ],
+      ),
+    );
+  }
+}
+
+/// 최근 N개월 예산 준수율 카드 — front `BudgetPage` `ComplianceTooltip` 미러.
+/// 막대 1개 = 1개월. compliancePercent 100 미만(아래) = 한도 내(success),
+/// 100 초과 = 초과(danger). 막대 높이는 percent / 150 비율.
+class _ComplianceCard extends StatelessWidget {
+  const _ComplianceCard({required this.async, required this.tokens});
+  final AsyncValue<List<BudgetComplianceMonth>> async;
+  final PorestTokens tokens;
+
+  @override
+  Widget build(BuildContext context) {
+    final list = async.value ?? const <BudgetComplianceMonth>[];
+    return Container(
+      padding: const EdgeInsets.all(PSpace.x16),
+      decoration: BoxDecoration(
+        color: tokens.bgSurface,
+        borderRadius: PRadius.brLg,
+        border: Border.all(color: tokens.borderSubtle),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(LucideIcons.activity, size: 16, color: tokens.fgSecondary),
+              const SizedBox(width: 6),
+              Text('최근 6개월 예산 준수율',
+                  style: PTypo.bodySm.copyWith(
+                      color: tokens.fgPrimary, fontWeight: FontWeight.w700)),
+            ],
+          ),
+          const SizedBox(height: PSpace.x12),
+          if (async.isLoading && list.isEmpty)
+            const SizedBox(
+                height: 120, child: Center(child: CircularProgressIndicator()))
+          else if (list.isEmpty)
+            SizedBox(
+              height: 80,
+              child: Center(
+                child: Text('데이터 없음',
+                    style: PTypo.caption.copyWith(color: tokens.fgTertiary)),
+              ),
+            )
+          else
+            SizedBox(
+              height: 110,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  for (final m in list)
+                    Expanded(
+                      child: _ComplianceBar(month: m, tokens: tokens),
+                    ),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ComplianceBar extends StatelessWidget {
+  const _ComplianceBar({required this.month, required this.tokens});
+  final BudgetComplianceMonth month;
+  final PorestTokens tokens;
+
+  @override
+  Widget build(BuildContext context) {
+    // 한도 100% 까지는 success, 그 이상은 danger.
+    final p = month.compliancePercent.clamp(0, 200).toDouble();
+    final overLimit = p > 100;
+    final h = (p / 150).clamp(0.05, 1.0); // 시각 비율 (max 150%)
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 3),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: Container(
+                width: double.infinity,
+                height: 80 * h,
+                decoration: BoxDecoration(
+                  color: overLimit ? tokens.statusDanger : tokens.fgBrand,
+                  borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(3)),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text('${p.toStringAsFixed(0)}%',
+              style: PTypo.micro.copyWith(
+                color: overLimit ? tokens.statusDanger : tokens.fgSecondary,
+                fontWeight: FontWeight.w700,
+              )),
+          Text('${month.month}월',
+              style: PTypo.micro.copyWith(color: tokens.fgTertiary)),
         ],
       ),
     );
