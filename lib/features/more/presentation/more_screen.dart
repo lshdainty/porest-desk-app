@@ -19,7 +19,8 @@ class MoreScreen extends ConsumerWidget {
     final items = <_MoreItem>[
       _MoreItem(LucideIcons.wallet, '자산',
           onTap: (ctx, _) => ctx.push('/assets')),
-      _MoreItem(LucideIcons.target, '예산'),
+      _MoreItem(LucideIcons.target, '예산',
+          onTap: (ctx, _) => ctx.push('/budget')),
       _MoreItem(LucideIcons.calendarDays, '캘린더'),
       _MoreItem(LucideIcons.repeat, '반복 거래'),
       _MoreItem(LucideIcons.creditCard, '카드 관리'),
