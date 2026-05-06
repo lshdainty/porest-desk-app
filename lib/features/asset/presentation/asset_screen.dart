@@ -3,25 +3,26 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
+import '../../../app/theme/colors.dart';
 import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
-import '../../../app/theme/typography.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/settings/settings_notifier.dart';
+import '../../../shared/widgets/p_card.dart';
 import '../application/asset_providers.dart';
 import '../domain/asset.dart';
-import '../domain/asset_type_meta.dart';
+import '../domain/asset_summary.dart';
 import 'asset_edit_dialog.dart';
 import 'asset_transfer_dialog.dart';
+import 'widgets/asset_logo.dart';
+import 'widgets/net_worth_chart.dart';
 
-/// 자산 관리 화면 (More → 자산 push 라우트).
-///
-/// - 타입별 그룹 (계좌 / 카드 / 투자 / 부채)
-/// - 각 자산: 아이콘 + 이름·기관 + 잔액
-/// - 탭 → AssetEditDialog (수정·삭제)
-/// - + FAB → AssetEditDialog (신규)
-/// - 우상단 ⇄ 버튼 → AssetTransferDialog
+const _accountTypes = {'BANK_ACCOUNT', 'SAVINGS', 'CASH'};
+const _cardTypes = {'CREDIT_CARD', 'CHECK_CARD'};
+const _investmentTypes = {'INVESTMENT'};
+const _loanTypes = {'LOAN'};
+
 class AssetScreen extends ConsumerWidget {
   const AssetScreen({super.key});
 
@@ -30,6 +31,8 @@ class AssetScreen extends ConsumerWidget {
     final t = context.tokens;
     final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
     final assetsAsync = ref.watch(assetsProvider);
+    final summaryAsync =
+        ref.watch(assetSummaryProvider((year: null, month: null)));
 
     return Scaffold(
       backgroundColor: t.bgCanvas,
@@ -38,16 +41,44 @@ class AssetScreen extends ConsumerWidget {
           icon: const Icon(LucideIcons.arrowLeft),
           onPressed: () => context.pop(),
         ),
-        title: const Text('자산'),
+        title: Text('자산',
+            style: TextStyle(
+              color: t.fgPrimary,
+              fontSize: 22,
+              fontWeight: FontWeight.w700,
+              letterSpacing: -0.44,
+            )),
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,
         elevation: 0,
+        scrolledUnderElevation: 0,
         actions: [
+          _IcoBtn(
+            isDark: Theme.of(context).brightness == Brightness.dark,
+            onTap: () {
+              final isDark = Theme.of(context).brightness == Brightness.dark;
+              ref
+                  .read(settingsProvider.notifier)
+                  .setThemeMode(isDark ? ThemeMode.light : ThemeMode.dark);
+            },
+            tokens: t,
+          ),
+          IconButton(
+            tooltip: settings.hideAmounts ? '금액 표시' : '금액 숨김',
+            icon: Icon(
+              settings.hideAmounts ? LucideIcons.eyeOff : LucideIcons.eye,
+              size: 20,
+              color: t.fgPrimary,
+            ),
+            onPressed: () =>
+                ref.read(settingsProvider.notifier).toggleHideAmounts(),
+          ),
           IconButton(
             tooltip: '자산 간 이체',
-            icon: const Icon(LucideIcons.arrowRightLeft),
+            icon: Icon(LucideIcons.arrowRightLeft, size: 20, color: t.fgPrimary),
             onPressed: () => showAssetTransferDialog(context),
           ),
+          const SizedBox(width: 4),
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -60,6 +91,8 @@ class AssetScreen extends ConsumerWidget {
         color: t.bgBrand,
         onRefresh: () async {
           ref.invalidate(assetsProvider);
+          ref.invalidate(assetSummaryProvider);
+          ref.invalidate(netWorthTrendProvider);
           await ref.read(assetsProvider.future);
         },
         child: assetsAsync.when(
@@ -68,18 +101,32 @@ class AssetScreen extends ConsumerWidget {
             message: '자산을 불러오지 못했습니다\n$e',
             onRetry: () => ref.invalidate(assetsProvider),
           ),
-          data: (assets) => _AssetList(
-              assets: assets, masked: settings.hideAmounts, tokens: t),
+          data: (assets) {
+            final summary =
+                summaryAsync.hasValue ? summaryAsync.value : null;
+            return _AssetBody(
+              assets: assets,
+              summary: summary,
+              masked: settings.hideAmounts,
+              tokens: t,
+            );
+          },
         ),
       ),
     );
   }
 }
 
-class _AssetList extends StatelessWidget {
-  const _AssetList(
-      {required this.assets, required this.masked, required this.tokens});
+class _AssetBody extends StatelessWidget {
+  const _AssetBody({
+    required this.assets,
+    required this.summary,
+    required this.masked,
+    required this.tokens,
+  });
+
   final List<Asset> assets;
+  final AssetSummary? summary;
   final bool masked;
   final PorestTokens tokens;
 
@@ -87,184 +134,510 @@ class _AssetList extends StatelessWidget {
   Widget build(BuildContext context) {
     if (assets.isEmpty) {
       return ListView(
-        padding: const EdgeInsets.all(PSpace.x24),
+        padding: const EdgeInsets.all(PSpace.x20),
         children: [
           const SizedBox(height: PSpace.x32),
-          Icon(LucideIcons.wallet, size: 48, color: tokens.fgDisabled),
-          const SizedBox(height: PSpace.x12),
-          Text('등록된 자산이 없습니다',
-              textAlign: TextAlign.center,
-              style: PTypo.body.copyWith(color: tokens.fgTertiary)),
-          const SizedBox(height: PSpace.x4),
-          Text('우하단 + 버튼으로 첫 자산을 추가해보세요',
-              textAlign: TextAlign.center,
-              style: PTypo.caption.copyWith(color: tokens.fgTertiary)),
+          PCard(
+            padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 20),
+            child: Column(
+              children: [
+                Text('아직 등록된 자산이 없어요',
+                    style: TextStyle(
+                        color: tokens.fgTertiary,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500)),
+                const SizedBox(height: PSpace.x12),
+                FilledButton.icon(
+                  onPressed: () => showAssetEditDialog(context),
+                  icon: const Icon(LucideIcons.plus, size: 14),
+                  label: const Text('첫 자산 추가하기'),
+                ),
+              ],
+            ),
+          ),
         ],
       );
     }
 
-    // 그룹 구성
-    final byGroup = <String, List<Asset>>{};
-    for (final a in assets) {
-      final g = AssetTypeMeta.of(a.assetType).group;
-      byGroup.putIfAbsent(g, () => []).add(a);
-    }
+    final accounts = assets.where((a) => _accountTypes.contains(a.assetType)).toList();
+    final cards = assets.where((a) => _cardTypes.contains(a.assetType)).toList();
+    final investments =
+        assets.where((a) => _investmentTypes.contains(a.assetType)).toList();
+    final loans = assets.where((a) => _loanTypes.contains(a.assetType)).toList();
 
-    final orderedGroups = [
-      for (final g in assetGroupOrder)
-        if (byGroup.containsKey(g)) g,
-      for (final g in byGroup.keys)
-        if (!assetGroupOrder.contains(g)) g,
-    ];
-
-    final totalAssets = assets
-        .where((a) => a.isIncludedInTotal != 'N')
+    int sumIncluded(List<Asset> arr) => arr
+        .where((a) => a.isIncludedInTotal == 'Y')
         .fold<int>(0, (s, a) => s + (a.balance ?? 0));
+
+    final accountsTotal = sumIncluded(accounts);
+    final cardsTotal = sumIncluded(cards).abs();
+    final investmentsTotal = sumIncluded(investments);
+    final loansTotal = sumIncluded(loans).abs();
+
+    final netWorth = summary?.netWorth ??
+        (accountsTotal + investmentsTotal - cardsTotal - loansTotal);
+    final changeAmount = summary?.changeAmount ?? 0;
+    final changePercent = summary?.changePercent ?? 0.0;
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(
-          PSpace.x16, PSpace.x16, PSpace.x16, PSpace.x80),
+          PSpace.x20, PSpace.x4, PSpace.x20, PSpace.x80),
       children: [
-        // 합계 카드
-        Container(
-          padding: const EdgeInsets.all(PSpace.x16),
-          decoration: BoxDecoration(
-            color: tokens.surfaceHero,
-            borderRadius: PRadius.brXl,
-            border: Border.all(
-                color: tokens.borderBrand.withValues(alpha: 0.3)),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('전체 합계',
-                  style: PTypo.caption.copyWith(color: tokens.fgTertiary)),
-              const SizedBox(height: 4),
-              Text(krwMasked(totalAssets, masked),
-                  style: PTypo.displayMd.copyWith(
-                      color: tokens.fgPrimary, fontWeight: FontWeight.w800)),
-            ],
-          ),
+        _SummaryCard(
+          netWorth: netWorth,
+          changeAmount: changeAmount,
+          changePercent: changePercent,
+          accountsTotal: accountsTotal,
+          investmentsTotal: investmentsTotal,
+          cardsTotal: cardsTotal,
+          masked: masked,
+          tokens: tokens,
         ),
         const SizedBox(height: PSpace.x16),
-
-        for (final group in orderedGroups) ...[
-          Padding(
-            padding: const EdgeInsets.symmetric(
-                horizontal: PSpace.x4, vertical: PSpace.x8),
-            child: Row(
-              children: [
-                Text(group,
-                    style: PTypo.caption.copyWith(
-                        color: tokens.fgSecondary, fontWeight: FontWeight.w600)),
-                const SizedBox(width: PSpace.x8),
-                Text('${byGroup[group]!.length}',
-                    style: PTypo.caption.copyWith(color: tokens.fgTertiary)),
-              ],
-            ),
+        _TypeGroup(
+          title: '계좌 · 예금',
+          assets: accounts,
+          total: accountsTotal,
+          masked: masked,
+          tokens: tokens,
+        ),
+        if (investments.isNotEmpty) ...[
+          const SizedBox(height: PSpace.x16),
+          _TypeGroup(
+            title: '투자',
+            assets: investments,
+            total: investmentsTotal,
+            masked: masked,
+            tokens: tokens,
           ),
-          Container(
-            decoration: BoxDecoration(
-              color: tokens.bgSurface,
-              borderRadius: PRadius.brLg,
-              border: Border.all(color: tokens.borderSubtle),
-            ),
-            child: Column(
-              children: [
-                for (int i = 0; i < byGroup[group]!.length; i++) ...[
-                  _AssetRow(
-                      asset: byGroup[group]![i],
-                      masked: masked,
-                      tokens: tokens),
-                  if (i < byGroup[group]!.length - 1)
-                    Divider(height: 1, color: tokens.borderSubtle, indent: 52),
-                ],
-              ],
-            ),
+        ],
+        const SizedBox(height: PSpace.x16),
+        _TypeGroup(
+          title: '카드',
+          assets: cards,
+          total: cardsTotal,
+          totalColor: PorestPalette.berry700,
+          negativeTotal: true,
+          masked: masked,
+          tokens: tokens,
+        ),
+        if (loans.isNotEmpty) ...[
+          const SizedBox(height: PSpace.x16),
+          _TypeGroup(
+            title: '대출',
+            assets: loans,
+            total: loansTotal,
+            totalColor: PorestPalette.berry700,
+            negativeTotal: true,
+            masked: masked,
+            tokens: tokens,
           ),
-          const SizedBox(height: PSpace.x12),
         ],
       ],
     );
   }
 }
 
-class _AssetRow extends StatelessWidget {
-  const _AssetRow({
-    required this.asset,
+class _SummaryCard extends StatelessWidget {
+  const _SummaryCard({
+    required this.netWorth,
+    required this.changeAmount,
+    required this.changePercent,
+    required this.accountsTotal,
+    required this.investmentsTotal,
+    required this.cardsTotal,
     required this.masked,
     required this.tokens,
   });
-  final Asset asset;
+
+  final int netWorth;
+  final int changeAmount;
+  final double changePercent;
+  final int accountsTotal;
+  final int investmentsTotal;
+  final int cardsTotal;
   final bool masked;
   final PorestTokens tokens;
 
   @override
   Widget build(BuildContext context) {
-    final meta = AssetTypeMeta.of(asset.assetType);
-    final excluded = asset.isIncludedInTotal == 'N';
-    return InkWell(
-      onTap: () => showAssetEditDialog(context, edit: asset),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-            horizontal: PSpace.x16, vertical: PSpace.x12),
-        child: Row(
-          children: [
-            Icon(meta.icon, size: 20, color: tokens.fgSecondary),
-            const SizedBox(width: PSpace.x12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+    final isUp = changeAmount >= 0;
+    final trendColor =
+        isUp ? PorestPalette.mossy700 : PorestPalette.berry500;
+    final t = tokens;
+    return PCard(
+      padding: const EdgeInsets.all(18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text('총 순자산',
+                  style: TextStyle(
+                      color: t.fgTertiary,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500)),
+              const SizedBox(width: 6),
+              Icon(masked ? LucideIcons.eyeOff : LucideIcons.eye,
+                  size: 14, color: t.fgTertiary),
+            ],
+          ),
+          const SizedBox(height: 6),
+          // Big amount
+          RichText(
+            text: TextSpan(
+              text: masked ? '•••' : krw(netWorth),
+              style: TextStyle(
+                color: t.fgPrimary,
+                fontSize: 28,
+                fontWeight: FontWeight.w800,
+                letterSpacing: -0.84, // -0.03em × 28
+                height: 1.1,
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
+              children: [
+                if (!masked)
+                  TextSpan(
+                    text: ' 원',
+                    style: TextStyle(
+                      color: t.fgPrimary,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 6),
+          Row(
+            children: [
+              Icon(
+                  isUp ? LucideIcons.trendingUp : LucideIcons.trendingDown,
+                  size: 14,
+                  color: trendColor),
+              const SizedBox(width: 2),
+              Text(
+                '${isUp ? '+' : ''}${changePercent.toStringAsFixed(1)}%',
+                style: TextStyle(
+                    color: trendColor,
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w600,
+                    fontFeatures: const [FontFeature.tabularFigures()]),
+              ),
+              if (!masked && changeAmount != 0) ...[
+                const SizedBox(width: 4),
+                Text(
+                  '(${isUp ? '+' : '−'}${krw(changeAmount.abs())}원)',
+                  style: TextStyle(
+                      color: t.fgTertiary,
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w500),
+                ),
+              ],
+              const SizedBox(width: 10),
+              Text('지난달 대비',
+                  style: TextStyle(color: t.fgTertiary, fontSize: 12.5)),
+            ],
+          ),
+          const SizedBox(height: 14),
+          const NetWorthChart(height: 140),
+          const SizedBox(height: 14),
+          Container(
+            padding: const EdgeInsets.only(top: 14),
+            decoration: BoxDecoration(
+              border: Border(top: BorderSide(color: t.borderSubtle)),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                    child: _SummaryCol(
+                        label: '계좌·예금',
+                        amount: accountsTotal,
+                        masked: masked,
+                        tokens: t)),
+                Expanded(
+                    child: _SummaryCol(
+                        label: '투자',
+                        amount: investmentsTotal,
+                        masked: masked,
+                        tokens: t)),
+                Expanded(
+                    child: _SummaryCol(
+                        label: '카드값',
+                        amount: cardsTotal,
+                        valueColor: PorestPalette.berry700,
+                        negative: true,
+                        masked: masked,
+                        tokens: t)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SummaryCol extends StatelessWidget {
+  const _SummaryCol({
+    required this.label,
+    required this.amount,
+    required this.masked,
+    required this.tokens,
+    this.valueColor,
+    this.negative = false,
+  });
+  final String label;
+  final int amount;
+  final bool masked;
+  final PorestTokens tokens;
+  final Color? valueColor;
+  final bool negative;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label,
+            style: TextStyle(
+                color: tokens.fgTertiary,
+                fontSize: 11,
+                fontWeight: FontWeight.w500)),
+        const SizedBox(height: 2),
+        Text(
+          masked
+              ? '•••'
+              : negative
+                  ? '−${krw(amount.abs())}'
+                  : krw(amount),
+          style: TextStyle(
+            color: valueColor ?? tokens.fgPrimary,
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+            fontFeatures: const [FontFeature.tabularFigures()],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _TypeGroup extends StatelessWidget {
+  const _TypeGroup({
+    required this.title,
+    required this.assets,
+    required this.total,
+    required this.masked,
+    required this.tokens,
+    this.totalColor,
+    this.negativeTotal = false,
+  });
+  final String title;
+  final List<Asset> assets;
+  final int total;
+  final bool masked;
+  final PorestTokens tokens;
+  final Color? totalColor;
+  final bool negativeTotal;
+
+  @override
+  Widget build(BuildContext context) {
+    return PCard(
+      padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Text(title,
+                  style: TextStyle(
+                      color: tokens.fgPrimary,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700)),
+              const Spacer(),
+              Text(
+                masked
+                    ? '•••'
+                    : negativeTotal
+                        ? '−${krw(total.abs())}원'
+                        : '${krw(total)}원',
+                style: TextStyle(
+                  color: totalColor ?? tokens.fgPrimary,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
+              ),
+              const SizedBox(width: 6),
+              InkWell(
+                borderRadius: BorderRadius.circular(8),
+                onTap: () => showAssetEditDialog(context),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 6, vertical: 4),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Flexible(
-                        child: Text(asset.assetName,
-                            style: PTypo.body.copyWith(
-                                color: tokens.fgPrimary,
-                                fontWeight: FontWeight.w500),
-                            overflow: TextOverflow.ellipsis),
-                      ),
-                      if (excluded)
-                        Padding(
-                          padding: const EdgeInsets.only(left: 6),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 6, vertical: 1),
-                            decoration: BoxDecoration(
-                              color: tokens.bgMuted,
-                              borderRadius: PRadius.brSm,
-                            ),
-                            child: Text('합계 제외',
-                                style: PTypo.micro
-                                    .copyWith(color: tokens.fgTertiary)),
-                          ),
-                        ),
+                      Icon(LucideIcons.plus, size: 13, color: tokens.fgSecondary),
+                      const SizedBox(width: 2),
+                      Text('추가',
+                          style: TextStyle(
+                              color: tokens.fgSecondary,
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w600)),
                     ],
                   ),
-                  if (asset.institution != null && asset.institution!.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 2),
-                      child: Text('${meta.label} · ${asset.institution}',
-                          style: PTypo.caption.copyWith(color: tokens.fgTertiary),
-                          overflow: TextOverflow.ellipsis),
-                    )
-                  else
-                    Padding(
-                      padding: const EdgeInsets.only(top: 2),
-                      child: Text(meta.label,
-                          style: PTypo.caption.copyWith(color: tokens.fgTertiary)),
-                    ),
-                ],
+                ),
               ),
-            ),
-            Text(
-              asset.balance == null ? '—' : krwMasked(asset.balance!, masked),
-              style: PTypo.money.copyWith(color: tokens.fgPrimary),
-            ),
-          ],
+            ],
+          ),
+          const SizedBox(height: 12),
+          if (assets.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 24),
+              child: Center(
+                child: Text('등록된 항목이 없어요',
+                    style: TextStyle(color: tokens.fgTertiary, fontSize: 13)),
+              ),
+            )
+          else
+            for (int i = 0; i < assets.length; i++) ...[
+              if (i > 0) const SizedBox(height: 8),
+              _AssetCard(
+                asset: assets[i],
+                masked: masked,
+                negativeAmount: negativeTotal,
+                tokens: tokens,
+              ),
+            ],
+        ],
+      ),
+    );
+  }
+}
+
+class _AssetCard extends StatelessWidget {
+  const _AssetCard({
+    required this.asset,
+    required this.masked,
+    required this.negativeAmount,
+    required this.tokens,
+  });
+  final Asset asset;
+  final bool masked;
+  final bool negativeAmount;
+  final PorestTokens tokens;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = tokens;
+    final balance = asset.balance ?? 0;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: PRadius.brLg,
+        onTap: () => showAssetEditDialog(context, edit: asset),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+          decoration: BoxDecoration(
+            color: t.bgSurface,
+            borderRadius: PRadius.brLg,
+            border: Border.all(color: t.borderSubtle),
+          ),
+          child: Row(
+            children: [
+              AssetLogo(asset: asset),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            asset.assetName,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: t.fgPrimary,
+                              fontSize: 13.5,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        if (asset.institution != null && asset.institution!.isNotEmpty) ...[
+                          const SizedBox(width: 6),
+                          Flexible(
+                            child: Text(
+                              asset.institution!,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: t.fgTertiary,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                    if (asset.memo != null && asset.memo!.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 1),
+                        child: Text(
+                          asset.memo!,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                              color: t.fgTertiary,
+                              fontSize: 11.5,
+                              fontFeatures: const [FontFeature.tabularFigures()]),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                masked
+                    ? '•••'
+                    : negativeAmount
+                        ? '−${krw(balance.abs())}원'
+                        : '${krw(balance)}원',
+                style: TextStyle(
+                  color: t.fgPrimary,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: -0.32,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
+    );
+  }
+}
+
+class _IcoBtn extends StatelessWidget {
+  const _IcoBtn({
+    required this.isDark,
+    required this.onTap,
+    required this.tokens,
+  });
+  final bool isDark;
+  final VoidCallback onTap;
+  final PorestTokens tokens;
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      tooltip: '테마 전환',
+      icon: Icon(isDark ? LucideIcons.sun : LucideIcons.moon,
+          size: 20, color: tokens.fgPrimary),
+      onPressed: onTap,
     );
   }
 }
@@ -287,7 +660,7 @@ class _ErrorBox extends StatelessWidget {
           ),
           child: Column(
             children: [
-              Text(message, style: PTypo.bodySm.copyWith(color: t.statusDangerFg)),
+              Text(message, style: TextStyle(color: t.statusDangerFg, fontSize: 13)),
               const SizedBox(height: PSpace.x8),
               OutlinedButton(onPressed: onRetry, child: const Text('다시 시도')),
             ],

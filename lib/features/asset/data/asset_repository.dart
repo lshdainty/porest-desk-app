@@ -4,6 +4,7 @@ import '../../../core/network/api_exception.dart';
 import '../../../core/network/api_response.dart';
 import '../domain/asset.dart';
 import '../domain/asset_summary.dart';
+import '../domain/net_worth_point.dart';
 
 class AssetRepository {
   AssetRepository(this._dio);
@@ -17,6 +18,19 @@ class AssetRepository {
     try {
       final res = await _dio.get<Map<String, dynamic>>('/assets');
       return _unwrapList(res, 'assets', Asset.fromJson);
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  /// 최근 N개월 순자산 추이.
+  Future<List<NetWorthPoint>> netWorthTrend({int months = 12}) async {
+    try {
+      final res = await _dio.get<Map<String, dynamic>>(
+        '/assets/net-worth-trend',
+        queryParameters: {'months': months},
+      );
+      return _unwrapList(res, 'trend', NetWorthPoint.fromJson);
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }
