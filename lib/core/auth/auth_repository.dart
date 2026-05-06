@@ -14,20 +14,16 @@ class AuthRepository {
 
   /// SSO 토큰을 desk 토큰으로 교환.
   /// 성공 시 응답 쿠키(`desk_access_token`)가 cookie_jar 에 저장된다.
-  Future<User> exchangeToken(String ssoToken) async {
+  ///
+  /// 백엔드 응답(`TokenExchangeDto.Response`)은 `(accessToken, userId, userName, userEmail)` 만
+  /// 포함 — `rowId` 가 없어 [User] 디코딩 불가. 따라서 본 메서드는 쿠키 저장만 하고,
+  /// 사용자 정보는 별도 [check] 호출로 가져온다.
+  Future<void> exchangeToken(String ssoToken) async {
     try {
-      final res = await _dio.post<Map<String, dynamic>>(
+      await _dio.post<dynamic>(
         '/auth/exchange',
         data: {'ssoToken': ssoToken},
       );
-      final body = ApiResponse<User>.fromJson(
-        res.data ?? const {},
-        (raw) => User.fromJson(raw! as Map<String, dynamic>),
-      );
-      if (!body.success || body.data == null) {
-        throw ApiException(code: body.code, message: body.message);
-      }
-      return body.data!;
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }

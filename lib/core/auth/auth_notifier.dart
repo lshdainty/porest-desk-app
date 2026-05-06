@@ -31,10 +31,23 @@ class AuthNotifier extends AsyncNotifier<User?> {
   }
 
   /// SSO 토큰을 받아 desk 토큰으로 교환 후 인증 상태 갱신.
+  ///
+  /// 1. `/auth/exchange` 로 desk_access_token 쿠키 발급
+  /// 2. `/auth/check` 로 진짜 사용자 정보 (rowId 포함) 조회
+  /// 3. AsyncData(user) 로 상태 전환 — router redirect 가 /home 으로 이동
+  ///
+  /// 실패 시 [ApiException] 을 그대로 throw — LoginScreen 의 catch 가 사용자에게 표시.
   Future<void> exchangeAndLogin(String ssoToken) async {
     final repo = await ref.read(authRepositoryProvider.future);
     state = const AsyncLoading();
-    state = await AsyncValue.guard(() => repo.exchangeToken(ssoToken));
+    try {
+      await repo.exchangeToken(ssoToken);
+      final user = await repo.check();
+      state = AsyncData(user);
+    } catch (e, st) {
+      state = AsyncError(e, st);
+      rethrow;
+    }
   }
 
   /// 로그아웃: 서버 호출 + 쿠키 정리 + 상태 초기화.
