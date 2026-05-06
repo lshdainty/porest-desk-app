@@ -7,6 +7,8 @@ import '../features/asset/presentation/asset_screen.dart';
 import '../features/budget/presentation/budget_screen.dart';
 import '../features/calendar/presentation/calendar_screen.dart';
 import '../features/category/presentation/category_screen.dart';
+import '../features/dutch_pay/presentation/dutch_pay_screen.dart';
+import '../features/group/presentation/group_screen.dart';
 import '../features/memo/presentation/memo_screen.dart';
 import '../features/preset/presentation/preset_screen.dart';
 import '../features/search/presentation/search_screen.dart';
@@ -61,6 +63,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/calendar', builder: (_, _) => const CalendarScreen()),
       GoRoute(path: '/memos', builder: (_, _) => const MemoScreen()),
       GoRoute(path: '/todos', builder: (_, _) => const TodoScreen()),
+      GoRoute(path: '/groups', builder: (_, _) => const GroupScreen()),
+      GoRoute(path: '/dutch-pay', builder: (_, _) => const DutchPayScreen()),
 
       // 모바일 셸 (홈/가계부/통계/전체 4개 분기)
       StatefulShellRoute.indexedStack(
