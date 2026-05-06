@@ -13,6 +13,7 @@ import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
+import '../../expense_split/presentation/split_tx_dialog.dart';
 import '../../recurring/presentation/recurring_edit_dialog.dart';
 import '../application/expense_providers.dart';
 import '../domain/expense.dart';
@@ -191,15 +192,34 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
             ],
           ),
           const SizedBox(height: PSpace.x8),
-          OutlinedButton.icon(
-            onPressed: _deleting
-                ? null
-                : () {
-                    Navigator.of(context).pop();
-                    showRecurringEditDialog(context, fromExpense: e);
-                  },
-            icon: const Icon(LucideIcons.repeat, size: 16),
-            label: const Text('반복 설정으로 만들기'),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: _deleting
+                      ? null
+                      : () {
+                          Navigator.of(context).pop();
+                          showRecurringEditDialog(context, fromExpense: e);
+                        },
+                  icon: const Icon(LucideIcons.repeat, size: 16),
+                  label: const Text('반복 설정'),
+                ),
+              ),
+              const SizedBox(width: PSpace.x8),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: _deleting
+                      ? null
+                      : () {
+                          Navigator.of(context).pop();
+                          showSplitTxDialog(context, e);
+                        },
+                  icon: const Icon(LucideIcons.scissors, size: 16),
+                  label: const Text('내역 분할'),
+                ),
+              ),
+            ],
           ),
         ],
       ),
