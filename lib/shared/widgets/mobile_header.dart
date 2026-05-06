@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../app/theme/tokens.dart';
+import '../../core/settings/hide_amounts_unlock_dialog.dart';
 import '../../core/settings/settings_notifier.dart';
 
 /// 모바일 셸 상단 바 — front `.m-header` 미러.
@@ -67,8 +68,7 @@ class MobileHeader extends ConsumerWidget implements PreferredSizeWidget {
               ),
               _IcoBtn(
                 settings.hideAmounts ? LucideIcons.eyeOff : LucideIcons.eye,
-                onPressed: () =>
-                    ref.read(settingsProvider.notifier).toggleHideAmounts(),
+                onPressed: () => toggleHideAmountsWithUnlock(context, ref),
                 tokens: t,
                 tooltip: settings.hideAmounts ? '금액 표시' : '금액 숨김',
               ),

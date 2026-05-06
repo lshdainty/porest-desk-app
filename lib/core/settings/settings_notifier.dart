@@ -75,10 +75,13 @@ class SettingsNotifier extends AsyncNotifier<AppSettings> {
   }
 
   Future<void> toggleHideAmounts() async {
+    await setHideAmounts(!_current.hideAmounts);
+  }
+
+  Future<void> setHideAmounts(bool value) async {
     final prefs = await ref.read(prefsProvider.future);
-    final next = !_current.hideAmounts;
-    await prefs.setBool(PrefsKeys.hideAmounts, next);
-    state = AsyncData(_current.copyWith(hideAmounts: next));
+    await prefs.setBool(PrefsKeys.hideAmounts, value);
+    state = AsyncData(_current.copyWith(hideAmounts: value));
   }
 
   AppSettings get _current => state.value ?? AppSettings.defaults;

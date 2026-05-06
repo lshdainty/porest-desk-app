@@ -54,4 +54,16 @@ class AuthRepository {
       throw ApiException.fromDio(e);
     }
   }
+
+  /// 현재 사용자 비밀번호 검증. 일치하면 정상 반환, 불일치 시 [ApiException] throw.
+  Future<void> verifyPassword(String password) async {
+    try {
+      await _dio.post<dynamic>(
+        '/users/me/verify-password',
+        data: {'password': password},
+      );
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
 }

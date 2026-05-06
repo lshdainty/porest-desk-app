@@ -8,6 +8,7 @@ import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../core/format/krw.dart';
+import '../../../core/settings/hide_amounts_unlock_dialog.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/widgets/p_card.dart';
 import '../application/asset_providers.dart';
@@ -70,8 +71,7 @@ class AssetScreen extends ConsumerWidget {
               size: 20,
               color: t.fgPrimary,
             ),
-            onPressed: () =>
-                ref.read(settingsProvider.notifier).toggleHideAmounts(),
+            onPressed: () => toggleHideAmountsWithUnlock(context, ref),
           ),
           IconButton(
             tooltip: '자산 간 이체',
