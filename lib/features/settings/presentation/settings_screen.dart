@@ -10,6 +10,7 @@ import '../../../app/theme/typography.dart';
 import '../../../core/auth/auth_notifier.dart';
 import '../../expense/presentation/export_dialog.dart';
 import 'appearance_section.dart';
+import 'password_change_dialog.dart';
 
 /// 설정 화면 — front `SettingsPage` 9개 섹션 미러.
 ///
@@ -160,6 +161,29 @@ class SettingsScreen extends ConsumerWidget {
                   ),
                 if (user != null)
                   Divider(height: 1, color: t.borderSubtle, indent: 56),
+                InkWell(
+                  onTap: () => showPasswordChangeDialog(context),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: PSpace.x16, vertical: PSpace.x12),
+                    child: Row(
+                      children: [
+                        Icon(LucideIcons.key,
+                            size: 20, color: t.fgSecondary),
+                        const SizedBox(width: PSpace.x12),
+                        Expanded(
+                          child: Text('비밀번호 변경',
+                              style: PTypo.body.copyWith(
+                                  color: t.fgPrimary,
+                                  fontWeight: FontWeight.w600)),
+                        ),
+                        Icon(LucideIcons.chevronRight,
+                            size: 16, color: t.fgTertiary),
+                      ],
+                    ),
+                  ),
+                ),
+                Divider(height: 1, color: t.borderSubtle, indent: 56),
                 InkWell(
                   onTap: () => ref.read(authProvider.notifier).logout(),
                   child: Padding(

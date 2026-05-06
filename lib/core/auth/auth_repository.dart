@@ -66,4 +66,62 @@ class AuthRepository {
       throw ApiException.fromDio(e);
     }
   }
+
+  /// 비밀번호 변경. PATCH /users/me/password.
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+    required String confirmPassword,
+  }) async {
+    try {
+      await _dio.patch<dynamic>(
+        '/users/me/password',
+        data: {
+          'currentPassword': currentPassword,
+          'newPassword': newPassword,
+          'confirmPassword': confirmPassword,
+        },
+      );
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  /// 사용자 환경설정 조회. GET /users/me/preferences.
+  /// 응답: `{ budgetAlertThreshold: int }` (예: 80 = 80%).
+  Future<int?> getBudgetAlertThreshold() async {
+    try {
+      final res = await _dio.get<Map<String, dynamic>>('/users/me/preferences');
+      final body = ApiResponse<Map<String, dynamic>>.fromJson(
+        res.data ?? const {},
+        (raw) => raw! as Map<String, dynamic>,
+      );
+      if (!body.success || body.data == null) {
+        throw ApiException(code: body.code, message: body.message);
+      }
+      return (body.data!['budgetAlertThreshold'] as num?)?.toInt();
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  /// 사용자 환경설정 갱신. PATCH /users/me/preferences.
+  Future<int?> updateBudgetAlertThreshold(int threshold) async {
+    try {
+      final res = await _dio.patch<Map<String, dynamic>>(
+        '/users/me/preferences',
+        data: {'budgetAlertThreshold': threshold},
+      );
+      final body = ApiResponse<Map<String, dynamic>>.fromJson(
+        res.data ?? const {},
+        (raw) => raw! as Map<String, dynamic>,
+      );
+      if (!body.success || body.data == null) {
+        throw ApiException(code: body.code, message: body.message);
+      }
+      return (body.data!['budgetAlertThreshold'] as num?)?.toInt();
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
 }
