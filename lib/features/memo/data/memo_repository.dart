@@ -8,9 +8,15 @@ class MemoRepository {
   MemoRepository(this._dio);
   final Dio _dio;
 
-  Future<List<Memo>> list() async {
+  Future<List<Memo>> list({int? folderId, String? search}) async {
     try {
-      final res = await _dio.get<Map<String, dynamic>>('/memos');
+      final res = await _dio.get<Map<String, dynamic>>(
+        '/memos',
+        queryParameters: {
+          'folderId': ?folderId,
+          'search': ?search,
+        },
+      );
       return _unwrapList(res, 'memos', Memo.fromJson);
     } on DioException catch (e) {
       throw ApiException.fromDio(e);

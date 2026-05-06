@@ -12,13 +12,29 @@ import '../application/memo_providers.dart';
 import '../domain/memo.dart';
 import 'memo_edit_dialog.dart';
 
-class MemoScreen extends ConsumerWidget {
+class MemoScreen extends ConsumerStatefulWidget {
   const MemoScreen({super.key});
+  @override
+  ConsumerState<MemoScreen> createState() => _MemoScreenState();
+}
+
+class _MemoScreenState extends ConsumerState<MemoScreen> {
+  final _searchCtrl = TextEditingController();
+  String _query = '';
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final t = context.tokens;
-    final listAsync = ref.watch(memoListProvider);
+    final hasQuery = _query.trim().isNotEmpty;
+    final searchAsync = ref.watch(memoSearchProvider(
+        (folderId: null, search: hasQuery ? _query.trim() : null)));
+    final listAsync = hasQuery ? searchAsync : ref.watch(memoListProvider);
 
     return Scaffold(
       backgroundColor: t.bgCanvas,
@@ -31,6 +47,41 @@ class MemoScreen extends ConsumerWidget {
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,
         elevation: 0,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(56),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(
+                PSpace.x16, 0, PSpace.x16, PSpace.x12),
+            child: TextField(
+              controller: _searchCtrl,
+              decoration: InputDecoration(
+                hintText: '메모 검색',
+                prefixIcon: Icon(LucideIcons.search,
+                    size: 16, color: t.fgTertiary),
+                suffixIcon: hasQuery
+                    ? IconButton(
+                        icon: Icon(LucideIcons.x,
+                            size: 16, color: t.fgTertiary),
+                        onPressed: () {
+                          _searchCtrl.clear();
+                          setState(() => _query = '');
+                        },
+                      )
+                    : null,
+                isDense: true,
+                contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 14, vertical: 10),
+                fillColor: t.bgMuted,
+                filled: true,
+                border: OutlineInputBorder(
+                  borderRadius: PRadius.brMd,
+                  borderSide: BorderSide.none,
+                ),
+              ),
+              onChanged: (v) => setState(() => _query = v),
+            ),
+          ),
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: t.bgBrand,
@@ -41,8 +92,12 @@ class MemoScreen extends ConsumerWidget {
       body: RefreshIndicator(
         color: t.bgBrand,
         onRefresh: () async {
-          ref.invalidate(memoListProvider);
-          await ref.read(memoListProvider.future);
+          if (hasQuery) {
+            ref.invalidate(memoSearchProvider(
+                (folderId: null, search: _query.trim())));
+          } else {
+            ref.invalidate(memoListProvider);
+          }
         },
         child: listAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),
@@ -61,7 +116,7 @@ class MemoScreen extends ConsumerWidget {
                       Icon(LucideIcons.fileText,
                           size: 48, color: t.fgDisabled),
                       const SizedBox(height: PSpace.x12),
-                      Text('등록된 메모가 없습니다',
+                      Text(hasQuery ? '검색 결과가 없습니다' : '등록된 메모가 없습니다',
                           style: PTypo.body.copyWith(color: t.fgTertiary)),
                     ],
                   ),
@@ -87,6 +142,10 @@ class MemoScreen extends ConsumerWidget {
                     final repo = await ref.read(memoRepositoryProvider.future);
                     await repo.pin(sorted[i].rowId);
                     ref.invalidate(memoListProvider);
+                    if (hasQuery) {
+                      ref.invalidate(memoSearchProvider(
+                          (folderId: null, search: _query.trim())));
+                    }
                   } on ApiException catch (e) {
                     if (!context.mounted) return;
                     ScaffoldMessenger.of(context).showSnackBar(

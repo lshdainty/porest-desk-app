@@ -13,3 +13,12 @@ final memoListProvider = FutureProvider<List<Memo>>((ref) async {
   final repo = await ref.watch(memoRepositoryProvider.future);
   return repo.list();
 });
+
+/// 검색/폴더 필터 적용된 메모 목록.
+typedef MemoQuery = ({int? folderId, String? search});
+
+final memoSearchProvider =
+    FutureProvider.family<List<Memo>, MemoQuery>((ref, q) async {
+  final repo = await ref.watch(memoRepositoryProvider.future);
+  return repo.list(folderId: q.folderId, search: q.search);
+});
