@@ -179,16 +179,16 @@ class _BalanceHero extends StatelessWidget {
                     isUp ? LucideIcons.trendingUp : LucideIcons.trendingDown,
                     size: 13,
                     color: isUp
-                        ? const Color(0xFFB8E0A0) // chg.up
-                        : const Color(0xFFF0B6A8), // chg.down
+                        ? PorestPalette.heroChgUp
+                        : PorestPalette.heroChgDown,
                   ),
                   const SizedBox(width: 2),
                   Text(
                     '${isUp ? '+' : ''}${changePct.toStringAsFixed(1)}%',
                     style: TextStyle(
                       color: isUp
-                          ? const Color(0xFFB8E0A0)
-                          : const Color(0xFFF0B6A8),
+                          ? PorestPalette.heroChgUp
+                          : PorestPalette.heroChgDown,
                       fontSize: 12.5,
                       fontWeight: FontWeight.w600,
                     ),
@@ -246,7 +246,7 @@ class _BalanceHero extends StatelessWidget {
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    const Color(0xFFC8C480).withValues(alpha: 0.25),
+                    PorestPalette.heroSpot.withValues(alpha: 0.25),
                     Colors.transparent,
                   ],
                   stops: const [0.0, 0.7],
@@ -415,7 +415,7 @@ class _MonthExpenseCard extends StatelessWidget {
               ),
               const Spacer(),
               Icon(LucideIcons.trendingUp,
-                  size: 14, color: const Color(0xFF54743A)),
+                  size: 14, color: t.statusSuccessFg),
             ],
           ),
           const SizedBox(height: 14),
@@ -431,14 +431,14 @@ class _MonthExpenseCard extends StatelessWidget {
                   child: _IncomeExpenseCol(
                     label: '수입',
                     value: '+${krwMasked(income, masked)}',
-                    color: const Color(0xFF54743A), // mossy-700 변종 (success)
+                    color: t.statusSuccessFg,
                   ),
                 ),
                 Expanded(
                   child: _IncomeExpenseCol(
                     label: '지출',
                     value: '-${krwMasked(expense, masked)}',
-                    color: const Color(0xFF903C3A), // berry-700
+                    color: t.statusDangerFg,
                   ),
                 ),
               ],
@@ -652,8 +652,8 @@ class _ExpenseRow extends StatelessWidget {
               '${isExpense ? '-' : '+'}${krwMasked(expense.amount, masked)}원',
               style: TextStyle(
                 color: isExpense
-                    ? const Color(0xFF903C3A)
-                    : const Color(0xFF54743A),
+                    ? tokens.statusDangerFg
+                    : tokens.statusSuccessFg,
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
                 fontFeatures: const [FontFeature.tabularFigures()],

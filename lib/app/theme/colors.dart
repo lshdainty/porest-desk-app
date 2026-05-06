@@ -76,4 +76,10 @@ abstract final class PorestPalette {
   static const Color darkMuted = Color(0xFF19190E);
   static const Color darkSectionWarm = Color(0xFF261A0F);
   static const Color darkBrandMuted = Color(0xFF1F200B);
+
+  // Hero(.balance-hero) 내부 always-on-dark 색 — 그라데이션 mossy700→mossy900 위에 사용.
+  // 라이트/다크 분기 없음 (hero 는 항상 어둡기 때문).
+  static const Color heroChgUp = Color(0xFFB8E0A0);
+  static const Color heroChgDown = Color(0xFFF0B6A8);
+  static const Color heroSpot = Color(0xFFC8C480);
 }
