@@ -8,6 +8,7 @@ import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/auth/auth_notifier.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../../expense/presentation/export_dialog.dart';
 import 'appearance_section.dart';
 import 'password_change_dialog.dart';
@@ -22,6 +23,7 @@ class SettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final user = ref.watch(authProvider).value;
 
     final sections = <_SettingsSection>[
@@ -76,7 +78,7 @@ class SettingsScreen extends ConsumerWidget {
           icon: const Icon(LucideIcons.arrowLeft),
           onPressed: () => context.pop(),
         ),
-        title: const Text('설정'),
+        title: Text(l.navSettings),
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,
         elevation: 0,
@@ -172,7 +174,7 @@ class SettingsScreen extends ConsumerWidget {
                             size: 20, color: t.fgSecondary),
                         const SizedBox(width: PSpace.x12),
                         Expanded(
-                          child: Text('비밀번호 변경',
+                          child: Text(l.navChangePassword,
                               style: PTypo.body.copyWith(
                                   color: t.fgPrimary,
                                   fontWeight: FontWeight.w600)),
@@ -194,7 +196,7 @@ class SettingsScreen extends ConsumerWidget {
                         Icon(LucideIcons.logOut,
                             size: 20, color: t.statusDanger),
                         const SizedBox(width: PSpace.x12),
-                        Text('로그아웃',
+                        Text(l.navLogout,
                             style: PTypo.body.copyWith(
                                 color: t.statusDanger,
                                 fontWeight: FontWeight.w600)),
