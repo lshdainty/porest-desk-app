@@ -14,6 +14,7 @@ import '../../../core/settings/settings_notifier.dart';
 import '../../expense/application/expense_providers.dart';
 import '../application/stats_providers.dart';
 import '../domain/stats_models.dart';
+import '../domain/stats_summaries.dart';
 
 /// 통계 탭. 월 선택 + 5종 차트.
 ///
@@ -50,6 +51,9 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
     final merchantAsync = ref.watch(merchantSummaryProvider(_range));
     final heatmapAsync = ref.watch(heatmapProvider(_ym));
     final byAssetAsync = ref.watch(assetExpenseSummaryProvider(_range));
+    final yearAsync = ref.watch(yearlySummaryProvider(_month.year));
+    final prevYearAsync =
+        ref.watch(yearlySummaryProvider(_month.year - 1));
 
     return RefreshIndicator(
       color: t.bgBrand,
@@ -114,7 +118,20 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
           ),
           const SizedBox(height: PSpace.x12),
 
-          // 5. 시간대 히트맵
+          // 6. 전년 대비
+          _SectionCard(
+            title: '전년 대비 (${_month.year} vs ${_month.year - 1})',
+            tokens: t,
+            child: _YearOverYearChart(
+              thisYear: yearAsync,
+              prevYear: prevYearAsync,
+              masked: settings.hideAmounts,
+              tokens: t,
+            ),
+          ),
+          const SizedBox(height: PSpace.x12),
+
+          // 7. 시간대 히트맵
           _SectionCard(
             title: '${_month.month}월 시간대 히트맵',
             tokens: t,
@@ -747,6 +764,153 @@ class _EmptyMini extends StatelessWidget {
         child: Text(text,
             style: PTypo.bodySm.copyWith(color: tokens.fgTertiary)),
       ),
+    );
+  }
+}
+
+/// 전년 대비 12개월 BarChart (#284). 두 yearlySummary 의 monthlyAmounts 비교.
+class _YearOverYearChart extends StatelessWidget {
+  const _YearOverYearChart({
+    required this.thisYear,
+    required this.prevYear,
+    required this.masked,
+    required this.tokens,
+  });
+  final AsyncValue<YearlySummary> thisYear;
+  final AsyncValue<YearlySummary> prevYear;
+  final bool masked;
+  final PorestTokens tokens;
+
+  @override
+  Widget build(BuildContext context) {
+    final loading =
+        (thisYear.isLoading && !thisYear.hasValue) ||
+            (prevYear.isLoading && !prevYear.hasValue);
+    if (loading) {
+      return const SizedBox(
+          height: 220, child: Center(child: CircularProgressIndicator()));
+    }
+    final cur = thisYear.value;
+    final prev = prevYear.value;
+    if (cur == null) {
+      return _EmptyMini(text: '데이터 없음', tokens: tokens);
+    }
+
+    int amountFor(YearlySummary? y, int month) {
+      if (y == null) return 0;
+      for (final m in y.monthlyAmounts) {
+        if (m.month == month) return m.totalExpense;
+      }
+      return 0;
+    }
+
+    final maxY = [
+      for (var i = 1; i <= 12; i++)
+        amountFor(cur, i) > amountFor(prev, i)
+            ? amountFor(cur, i)
+            : amountFor(prev, i),
+    ].fold<int>(0, (m, v) => v > m ? v : m).toDouble();
+
+    final curTotal = cur.totalExpense;
+    final prevTotal = prev?.totalExpense ?? 0;
+    final delta = curTotal - prevTotal;
+    final deltaPct = prevTotal == 0
+        ? 0.0
+        : (delta * 100 / prevTotal);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              masked
+                  ? '••• 원'
+                  : '${krw(curTotal)}원',
+              style: PTypo.h3.copyWith(
+                  color: tokens.fgPrimary, fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(width: 8),
+            Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: delta > 0
+                    ? tokens.statusDangerSubtle
+                    : tokens.statusSuccessSubtle,
+                borderRadius: PRadius.brSm,
+              ),
+              child: Text(
+                  '${delta > 0 ? '+' : ''}${deltaPct.toStringAsFixed(1)}%',
+                  style: PTypo.caption.copyWith(
+                      color: delta > 0
+                          ? tokens.statusDangerFg
+                          : tokens.statusSuccessFg,
+                      fontWeight: FontWeight.w700)),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Text(
+            '전년 ${masked ? '•••' : krw(prevTotal)}원',
+            style: PTypo.caption.copyWith(color: tokens.fgTertiary)),
+        const SizedBox(height: PSpace.x12),
+        SizedBox(
+          height: 180,
+          child: BarChart(
+            BarChartData(
+              maxY: maxY > 0 ? maxY * 1.15 : 100,
+              minY: 0,
+              alignment: BarChartAlignment.spaceAround,
+              barTouchData: BarTouchData(enabled: true),
+              gridData: const FlGridData(show: false),
+              titlesData: FlTitlesData(
+                leftTitles: const AxisTitles(),
+                rightTitles: const AxisTitles(),
+                topTitles: const AxisTitles(),
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    reservedSize: 18,
+                    interval: 1,
+                    getTitlesWidget: (v, _) {
+                      final i = v.toInt();
+                      if (i < 0 || i > 11) return const SizedBox();
+                      return Text('${i + 1}',
+                          style: PTypo.micro
+                              .copyWith(color: tokens.fgTertiary));
+                    },
+                  ),
+                ),
+              ),
+              borderData: FlBorderData(show: false),
+              barGroups: [
+                for (int i = 0; i < 12; i++)
+                  BarChartGroupData(
+                    x: i,
+                    barsSpace: 2,
+                    barRods: [
+                      BarChartRodData(
+                        toY: amountFor(prev, i + 1).toDouble(),
+                        color: tokens.fgTertiary.withValues(alpha: 0.5),
+                        width: 5,
+                        borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(2)),
+                      ),
+                      BarChartRodData(
+                        toY: amountFor(cur, i + 1).toDouble(),
+                        color: tokens.fgBrand,
+                        width: 5,
+                        borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(2)),
+                      ),
+                    ],
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
