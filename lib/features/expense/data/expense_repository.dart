@@ -107,6 +107,39 @@ class ExpenseRepository {
     }
   }
 
+  /// /expenses/search — 키워드/카테고리/자산/기간/금액 범위 등 멀티 조건 검색.
+  Future<List<Expense>> search({
+    int? categoryId,
+    int? assetId,
+    String? expenseType,
+    String? keyword,
+    String? merchant,
+    int? minAmount,
+    int? maxAmount,
+    String? startDate,
+    String? endDate,
+  }) async {
+    try {
+      final res = await _dio.get<Map<String, dynamic>>(
+        '/expenses/search',
+        queryParameters: {
+          'categoryId': ?categoryId,
+          'assetId': ?assetId,
+          'expenseType': ?expenseType,
+          'keyword': ?keyword,
+          'merchant': ?merchant,
+          'minAmount': ?minAmount,
+          'maxAmount': ?maxAmount,
+          'startDate': ?startDate,
+          'endDate': ?endDate,
+        },
+      );
+      return _unwrapList(res, 'expenses', Expense.fromJson);
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
   // ─────────────────────────────────────────────
   // ExpenseCategory
   // ─────────────────────────────────────────────

@@ -28,6 +28,8 @@ class MoreScreen extends ConsumerWidget {
           onTap: (ctx, _) => ctx.push('/categories')),
       _MoreItem(LucideIcons.zap, '프리셋',
           onTap: (ctx, _) => ctx.push('/presets')),
+      _MoreItem(LucideIcons.search, '검색',
+          onTap: (ctx, _) => ctx.push('/search')),
       _MoreItem(LucideIcons.creditCard, '카드 관리'),
       _MoreItem(LucideIcons.users, '그룹'),
       _MoreItem(LucideIcons.divide, '더치페이'),
