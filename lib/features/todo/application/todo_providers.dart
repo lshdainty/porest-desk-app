@@ -1,9 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/network/dio_provider.dart';
+import '../data/todo_project_repository.dart';
 import '../data/todo_repository.dart';
+import '../data/todo_tag_repository.dart';
 import '../domain/todo.dart';
+import '../domain/todo_project.dart';
 import '../domain/todo_stats.dart';
+import '../domain/todo_tag.dart';
 
 final todoRepositoryProvider = FutureProvider<TodoRepository>((ref) async {
   final dio = await ref.watch(dioProvider.future);
@@ -36,4 +40,33 @@ final todoSubtasksProvider =
 final todoStatsProvider = FutureProvider<TodoStats>((ref) async {
   final repo = await ref.watch(todoRepositoryProvider.future);
   return repo.stats();
+});
+
+// ─── TodoProject ────────────────────────────────────────────
+
+final todoProjectRepositoryProvider =
+    FutureProvider<TodoProjectRepository>((ref) async {
+  final dio = await ref.watch(dioProvider.future);
+  return TodoProjectRepository(dio);
+});
+
+final todoProjectListProvider =
+    FutureProvider<List<TodoProject>>((ref) async {
+  ref.keepAlive();
+  final repo = await ref.watch(todoProjectRepositoryProvider.future);
+  return repo.list();
+});
+
+// ─── TodoTag ────────────────────────────────────────────────
+
+final todoTagRepositoryProvider =
+    FutureProvider<TodoTagRepository>((ref) async {
+  final dio = await ref.watch(dioProvider.future);
+  return TodoTagRepository(dio);
+});
+
+final todoTagListProvider = FutureProvider<List<TodoTag>>((ref) async {
+  ref.keepAlive();
+  final repo = await ref.watch(todoTagRepositoryProvider.future);
+  return repo.list();
 });

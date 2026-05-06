@@ -11,6 +11,8 @@ import '../../../core/network/api_exception.dart';
 import '../application/todo_providers.dart';
 import '../domain/todo.dart';
 import 'todo_edit_dialog.dart';
+import 'todo_project_management_dialog.dart';
+import 'todo_tag_management_dialog.dart';
 
 class TodoScreen extends ConsumerStatefulWidget {
   const TodoScreen({super.key});
@@ -65,6 +67,25 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,
         elevation: 0,
+        actions: [
+          PopupMenuButton<String>(
+            icon: Icon(LucideIcons.moreVertical, color: t.fgSecondary),
+            onSelected: (v) {
+              switch (v) {
+                case 'projects':
+                  showTodoProjectManagementDialog(context);
+                  break;
+                case 'tags':
+                  showTodoTagManagementDialog(context);
+                  break;
+              }
+            },
+            itemBuilder: (_) => const [
+              PopupMenuItem(value: 'projects', child: Text('프로젝트 관리')),
+              PopupMenuItem(value: 'tags', child: Text('태그 관리')),
+            ],
+          ),
+        ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(40),
           child: Padding(
