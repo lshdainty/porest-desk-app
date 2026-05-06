@@ -103,6 +103,23 @@ class CalendarRepository {
     }
   }
 
+  /// 그룹 일정 조회. GET /group/{groupId}/calendar/events?startDate&endDate.
+  Future<List<CalendarEvent>> groupEvents({
+    required int groupId,
+    required String startDate, // ISO LocalDateTime
+    required String endDate,
+  }) async {
+    try {
+      final res = await _dio.get<Map<String, dynamic>>(
+        '/group/$groupId/calendar/events',
+        queryParameters: {'startDate': startDate, 'endDate': endDate},
+      );
+      return _unwrapList(res, 'events', CalendarEvent.fromJson);
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
   // ─── Labels ────────────────────────────────────
 
   Future<List<EventLabel>> labels() async {

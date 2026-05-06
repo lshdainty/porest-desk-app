@@ -9,7 +9,12 @@ import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/auth/auth_notifier.dart';
+import '../../../core/format/color_parse.dart';
+import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../core/settings/settings_notifier.dart';
+import '../../calendar/application/calendar_providers.dart';
+import '../../expense/application/expense_providers.dart';
 import '../application/group_providers.dart';
 import '../domain/group_member.dart';
 
@@ -90,34 +95,325 @@ class GroupDetailScreen extends ConsumerWidget {
                 : const GroupMember(rowId: 0, userName: '', role: 'MEMBER'),
           );
           final canManage = me.isOwner || me.isAdmin;
-          return RefreshIndicator(
-            color: t.bgBrand,
-            onRefresh: () async {
-              ref.invalidate(groupDetailProvider(groupId));
-              await ref.read(groupDetailProvider(groupId).future);
-            },
-            child: ListView(
-              padding: const EdgeInsets.all(PSpace.x20),
+          return DefaultTabController(
+            length: 3,
+            child: Column(
               children: [
-                _GroupHeaderCard(detail: detail, tokens: t),
-                const SizedBox(height: PSpace.x16),
-                _InviteCodeCard(
-                  detail: detail,
-                  canManage: canManage,
-                  tokens: t,
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+                  child: _GroupHeaderCard(detail: detail, tokens: t),
                 ),
-                const SizedBox(height: PSpace.x16),
-                _MembersCard(
-                  detail: detail,
-                  myUserRowId: myUser?.rowId,
-                  canManage: canManage,
-                  tokens: t,
+                TabBar(
+                  labelColor: t.fgPrimary,
+                  unselectedLabelColor: t.fgTertiary,
+                  indicatorColor: t.fgBrand,
+                  tabs: const [
+                    Tab(text: '멤버 · 초대'),
+                    Tab(text: '일정'),
+                    Tab(text: '지출'),
+                  ],
                 ),
-                const SizedBox(height: PSpace.x32),
+                Expanded(
+                  child: TabBarView(
+                    children: [
+                      // Tab 1: 기존 멤버 + 초대코드 패널
+                      RefreshIndicator(
+                        color: t.bgBrand,
+                        onRefresh: () async {
+                          ref.invalidate(groupDetailProvider(groupId));
+                          await ref.read(groupDetailProvider(groupId).future);
+                        },
+                        child: ListView(
+                          padding: const EdgeInsets.all(PSpace.x20),
+                          children: [
+                            _InviteCodeCard(
+                              detail: detail,
+                              canManage: canManage,
+                              tokens: t,
+                            ),
+                            const SizedBox(height: PSpace.x16),
+                            _MembersCard(
+                              detail: detail,
+                              myUserRowId: myUser?.rowId,
+                              canManage: canManage,
+                              tokens: t,
+                            ),
+                          ],
+                        ),
+                      ),
+                      // Tab 2: 일정
+                      _GroupEventsTab(groupId: groupId, tokens: t),
+                      // Tab 3: 지출
+                      _GroupExpensesTab(groupId: groupId, tokens: t),
+                    ],
+                  ),
+                ),
               ],
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+class _GroupEventsTab extends ConsumerWidget {
+  const _GroupEventsTab({required this.groupId, required this.tokens});
+  final int groupId;
+  final PorestTokens tokens;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final now = DateTime.now();
+    final start = DateTime(now.year, now.month - 1, 1);
+    final end = DateTime(now.year, now.month + 2, 0);
+    final fmt = (DateTime d) =>
+        '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}T00:00:00';
+    final async = ref.watch(groupEventsProvider((
+      groupId: groupId,
+      startDate: fmt(start),
+      endDate: fmt(end),
+    )));
+    return RefreshIndicator(
+      color: tokens.bgBrand,
+      onRefresh: () async {
+        ref.invalidate(groupEventsProvider);
+      },
+      child: async.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, _) => Padding(
+          padding: const EdgeInsets.all(PSpace.x20),
+          child: Text('일정 로드 실패\n$e',
+              style: PTypo.bodySm.copyWith(color: tokens.statusDanger)),
+        ),
+        data: (list) {
+          if (list.isEmpty) {
+            return ListView(children: [
+              Padding(
+                padding: const EdgeInsets.all(PSpace.x32),
+                child: Center(
+                  child: Text('등록된 일정이 없습니다',
+                      style:
+                          PTypo.body.copyWith(color: tokens.fgTertiary)),
+                ),
+              ),
+            ]);
+          }
+          final sorted = [...list]
+            ..sort((a, b) =>
+                (a.startDate ?? '').compareTo(b.startDate ?? ''));
+          return ListView.separated(
+            padding: const EdgeInsets.all(PSpace.x16),
+            itemCount: sorted.length,
+            separatorBuilder: (_, _) => const SizedBox(height: PSpace.x8),
+            itemBuilder: (_, i) {
+              final e = sorted[i];
+              final color = parseColor(e.color, fallback: tokens.fgBrand);
+              return Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: tokens.bgSurface,
+                  borderRadius: PRadius.brMd,
+                  border: Border.all(color: tokens.borderSubtle),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 8,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: color,
+                        borderRadius: PRadius.brXs,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(e.title,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: PTypo.bodySm.copyWith(
+                                  color: tokens.fgPrimary,
+                                  fontWeight: FontWeight.w700)),
+                          if ((e.startDate ?? '').isNotEmpty)
+                            Text(
+                              (e.startDate!).substring(0, 16).replaceAll('T', ' '),
+                              style: PTypo.caption
+                                  .copyWith(color: tokens.fgTertiary),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _GroupExpensesTab extends ConsumerWidget {
+  const _GroupExpensesTab({required this.groupId, required this.tokens});
+  final int groupId;
+  final PorestTokens tokens;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
+    final async = ref.watch(expensesByGroupProvider(
+        (groupId: groupId, startDate: null, endDate: null)));
+    return RefreshIndicator(
+      color: tokens.bgBrand,
+      onRefresh: () async {
+        ref.invalidate(expensesByGroupProvider);
+      },
+      child: async.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, _) => Padding(
+          padding: const EdgeInsets.all(PSpace.x20),
+          child: Text('지출 로드 실패\n$e',
+              style: PTypo.bodySm.copyWith(color: tokens.statusDanger)),
+        ),
+        data: (list) {
+          if (list.isEmpty) {
+            return ListView(children: [
+              Padding(
+                padding: const EdgeInsets.all(PSpace.x32),
+                child: Center(
+                  child: Text('등록된 지출이 없습니다',
+                      style:
+                          PTypo.body.copyWith(color: tokens.fgTertiary)),
+                ),
+              ),
+            ]);
+          }
+          final sorted = [...list]
+            ..sort((a, b) =>
+                (b.expenseDate ?? '').compareTo(a.expenseDate ?? ''));
+          final totalExp = sorted
+              .where((e) => e.expenseType == 'EXPENSE')
+              .fold<int>(0, (s, e) => s + e.amount);
+          final totalInc = sorted
+              .where((e) => e.expenseType == 'INCOME')
+              .fold<int>(0, (s, e) => s + e.amount);
+          return ListView(
+            padding: const EdgeInsets.all(PSpace.x16),
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: tokens.bgSurface,
+                  borderRadius: PRadius.brMd,
+                  border: Border.all(color: tokens.borderSubtle),
+                ),
+                child: Row(
+                  children: [
+                    _SummaryCell(
+                        label: '지출',
+                        value: krwMasked(totalExp, settings.hideAmounts),
+                        color: tokens.statusDanger,
+                        tokens: tokens),
+                    const SizedBox(width: 12),
+                    _SummaryCell(
+                        label: '수입',
+                        value: krwMasked(totalInc, settings.hideAmounts),
+                        color: tokens.statusSuccess,
+                        tokens: tokens),
+                    const SizedBox(width: 12),
+                    _SummaryCell(
+                        label: '건수',
+                        value: '${sorted.length}',
+                        color: tokens.fgPrimary,
+                        tokens: tokens),
+                  ],
+                ),
+              ),
+              const SizedBox(height: PSpace.x12),
+              for (final e in sorted)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 6),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: tokens.bgSurface,
+                      borderRadius: PRadius.brSm,
+                      border: Border.all(color: tokens.borderSubtle),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                  e.merchant ??
+                                      e.description ??
+                                      e.categoryName ??
+                                      '거래',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: PTypo.bodySm.copyWith(
+                                      color: tokens.fgPrimary,
+                                      fontWeight: FontWeight.w600)),
+                              if ((e.expenseDateOnly ?? '').isNotEmpty)
+                                Text(e.expenseDateOnly!,
+                                    style: PTypo.caption.copyWith(
+                                        color: tokens.fgTertiary)),
+                            ],
+                          ),
+                        ),
+                        Text(
+                          krwMasked(e.signedAmount, settings.hideAmounts,
+                              sign: true),
+                          style: PTypo.bodySm.copyWith(
+                              color: e.expenseType == 'EXPENSE'
+                                  ? tokens.fgPrimary
+                                  : tokens.statusSuccess,
+                              fontWeight: FontWeight.w700),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _SummaryCell extends StatelessWidget {
+  const _SummaryCell({
+    required this.label,
+    required this.value,
+    required this.color,
+    required this.tokens,
+  });
+  final String label;
+  final String value;
+  final Color color;
+  final PorestTokens tokens;
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label,
+              style:
+                  PTypo.micro.copyWith(color: tokens.fgTertiary)),
+          const SizedBox(height: 2),
+          Text(value,
+              style: PTypo.bodySm.copyWith(
+                  color: color, fontWeight: FontWeight.w700)),
+        ],
       ),
     );
   }

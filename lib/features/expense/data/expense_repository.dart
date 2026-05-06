@@ -38,6 +38,30 @@ class ExpenseRepository {
     }
   }
 
+  /// 그룹별 거래 목록. GET /group/{groupId}/expenses.
+  Future<List<Expense>> listByGroup({
+    required int groupId,
+    int? categoryId,
+    String? expenseType,
+    String? startDate,
+    String? endDate,
+  }) async {
+    try {
+      final res = await _dio.get<Map<String, dynamic>>(
+        '/group/$groupId/expenses',
+        queryParameters: {
+          'categoryId': ?categoryId,
+          'expenseType': ?expenseType,
+          'startDate': ?startDate,
+          'endDate': ?endDate,
+        },
+      );
+      return _unwrapList(res, 'expenses', Expense.fromJson);
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
   /// 캘린더 이벤트에 연결된 거래 목록. GET /calendar/event/{id}/expenses.
   Future<List<Expense>> listByCalendarEvent(int eventId) async {
     try {
