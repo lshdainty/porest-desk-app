@@ -13,6 +13,7 @@ import '../../../core/format/krw.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../expense/application/expense_providers.dart';
+import '../../../core/network/api_exception.dart';
 import '../application/budget_providers.dart';
 import '../domain/budget.dart';
 import '../domain/budget_compliance.dart';
@@ -36,6 +37,113 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
 
   BudgetMonthKey get _key => (year: _month.year, month: _month.month);
 
+  /// 전월 예산을 모두 복사. 이미 등록된 카테고리는 건너뛴다 (#258).
+  Future<void> _copyFromPreviousMonth(
+      BuildContext context, WidgetRef ref) async {
+    final prevMonth = DateTime(_month.year, _month.month - 1, 1);
+    final prevKey = (year: prevMonth.year, month: prevMonth.month);
+    final repo = await ref.read(budgetRepositoryProvider.future);
+    try {
+      final prev = await repo.list(year: prevKey.year, month: prevKey.month);
+      if (prev.isEmpty) {
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${prevKey.month}월에 등록된 예산이 없습니다')),
+        );
+        return;
+      }
+      final cur = await repo.list(year: _key.year, month: _key.month);
+      final existingCats = cur.map((b) => b.categoryRowId).toSet();
+      final toCreate = prev
+          .where((b) => !existingCats.contains(b.categoryRowId))
+          .toList();
+      if (toCreate.isEmpty) {
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('이미 모든 카테고리가 복사되어 있습니다')),
+        );
+        return;
+      }
+      final ok = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('전월 예산 복사'),
+          content: Text(
+              '${prevKey.month}월의 ${toCreate.length}개 카테고리를 ${_key.month}월로 복사할까요?'),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: const Text('취소')),
+            FilledButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                child: const Text('복사')),
+          ],
+        ),
+      );
+      if (ok != true || !context.mounted) return;
+      for (final b in toCreate) {
+        await repo.create(
+          categoryRowId: b.categoryRowId,
+          budgetAmount: b.budgetAmount,
+          budgetYear: _key.year,
+          budgetMonth: _key.month,
+        );
+      }
+      ref.invalidate(monthBudgetsProvider(_key));
+      ref.invalidate(budgetComplianceProvider(6));
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${toCreate.length}개 예산을 복사했습니다')),
+      );
+    } on ApiException catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('복사 실패: ${e.message}')),
+      );
+    }
+  }
+
+  /// 이번 달 모든 예산 삭제 (#258).
+  Future<void> _clearMonth(BuildContext context, WidgetRef ref) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('이번 달 전체 삭제'),
+        content: Text('${_key.month}월에 등록된 예산을 모두 삭제할까요?'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('취소')),
+          FilledButton(
+            style: FilledButton.styleFrom(
+                backgroundColor: context.tokens.statusDanger),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('삭제'),
+          ),
+        ],
+      ),
+    );
+    if (ok != true || !context.mounted) return;
+    try {
+      final repo = await ref.read(budgetRepositoryProvider.future);
+      final list = await repo.list(year: _key.year, month: _key.month);
+      for (final b in list) {
+        await repo.delete(b.rowId);
+      }
+      ref.invalidate(monthBudgetsProvider(_key));
+      ref.invalidate(budgetComplianceProvider(6));
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${list.length}개 예산을 삭제했습니다')),
+      );
+    } on ApiException catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('삭제 실패: ${e.message}')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
@@ -57,6 +165,26 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,
         elevation: 0,
+        actions: [
+          PopupMenuButton<String>(
+            icon: Icon(LucideIcons.moreVertical, color: t.fgSecondary),
+            onSelected: (v) async {
+              if (v == 'copyFromPrev') {
+                await _copyFromPreviousMonth(context, ref);
+              } else if (v == 'clearMonth') {
+                await _clearMonth(context, ref);
+              }
+            },
+            itemBuilder: (_) => const [
+              PopupMenuItem(value: 'copyFromPrev', child: Text('전월 예산 복사')),
+              PopupMenuItem(
+                value: 'clearMonth',
+                child: Text('이번 달 전체 삭제',
+                    style: TextStyle(color: Colors.red)),
+              ),
+            ],
+          ),
+        ],
       ),
       floatingActionButton: budgetsAsync.maybeWhen(
         data: (budgets) => FloatingActionButton(
