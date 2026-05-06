@@ -29,6 +29,19 @@ final monthExpensesProvider =
   return repo.list(startDate: start, endDate: end);
 });
 
+/// 자산 별 최근 거래 N건 — front `useSearchExpenses({assetId})` 미러.
+/// AssetDetailDialog 등에서 활용.
+typedef AssetExpensesKey = ({int assetId, int limit});
+
+final expensesByAssetProvider =
+    FutureProvider.family<List<Expense>, AssetExpensesKey>((ref, key) async {
+  final repo = await ref.watch(expenseRepositoryProvider.future);
+  final all = await repo.search(assetId: key.assetId);
+  all.sort((a, b) =>
+      (b.expenseDate ?? '').compareTo(a.expenseDate ?? ''));
+  return all.take(key.limit).toList();
+});
+
 String _firstDay(int y, int m) =>
     '${y.toString().padLeft(4, '0')}-${m.toString().padLeft(2, '0')}-01';
 String _lastDay(int y, int m) {

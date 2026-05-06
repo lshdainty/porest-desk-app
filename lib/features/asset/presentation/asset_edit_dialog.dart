@@ -12,6 +12,7 @@ import '../../../core/network/api_exception.dart';
 import '../application/asset_providers.dart';
 import '../domain/asset.dart';
 import '../domain/asset_type_meta.dart';
+import 'asset_detail_dialog.dart';
 
 /// 자산 추가/수정 통합 시트 (구). 신규 코드는 아래 4종 진입점 사용 권장:
 ///   [showAssetAddDialog] / [showCardAddDialog] /
@@ -54,8 +55,14 @@ void showInvestmentAddDialog(BuildContext context) {
   );
 }
 
-/// 자산 상세 (수정/삭제 포함).
+/// 자산 상세 — 잔액 추이 차트 + 최근 거래 + 편집/삭제 진입.
+/// front `AssetDetailDialog` 미러.
 void showAssetDetailDialog(BuildContext context, Asset asset) {
+  showAssetDetailRich(context, asset);
+}
+
+/// 자산 편집 폼 진입 (상세 다이얼로그 내부에서 직접 호출용).
+void showAssetEditForm(BuildContext context, Asset asset) {
   _open(
     context: context,
     title: '자산 수정',
