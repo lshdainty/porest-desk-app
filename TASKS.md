@@ -191,11 +191,11 @@
 ## E. 거래 / 카테고리 / 예산
 
 - [x] **#250 카테고리 reorder PATCH** (commit `62c381d`) — repository 메서드 추가, UI 드래그는 추후
-- [ ] **#251 일/주/연 요약 endpoint** (M) — front `useDaily/Weekly/YearlySummary`. Flutter stats_repo 는 monthly/trend 만
-- [ ] **#252 캘린더 이벤트별/할일별 거래 목록** (S) — front `useExpensesByCalendarEvent/Todo`. Flutter 미구현
+- [x] **#251 일/주/연 요약 endpoint** (commit `4dd9266`) — `domain/stats_summaries.dart` + `daily/weekly/yearly` repo + 3 provider
+- [x] **#252 캘린더 이벤트별/할일별 거래 목록** (commit `4dd9266`) — `expensesByCalendarEventProvider` / `expensesByTodoProvider`
 - [ ] **#253 FilterDialog 다차원 필터 확장** (M) — front: period(month/week/3m/custom) + types + categoryIds + assetIds + min/max 금액. Flutter 는 cat/asset 두 차원만 (#137 별도)
-- [ ] **#254 자산별 거래 필터 진입** (S) — front `?assetId=N` 쿼리 + 배지. Flutter ExpenseScreen 진입점 없음
-- [ ] **#255 거래 검색 endpoint UI 연결** (S) — front `useSearchExpenses` (`/expenses/search`). Flutter `repo.search` 정의는 있으나 UI 미연결
+- [x] **#254 자산별 거래 필터 endpoint provider** (commit `4dd9266`) — `expensesByAssetIdProvider`. ExpenseScreen 측 URL 진입점 배지는 후속
+- [x] **#255 거래 검색 고급 필터 UI** (commit `ff8de9b`) — SearchScreen 에 minAmount/maxAmount/startDate/endDate + BottomSheet
 - [x] **#256 예산 준수율 6개월 차트** (commit `1bf73ee`) — `compliance(months)` + `budgetComplianceProvider` + `_ComplianceCard` 막대 차트
 - [ ] **#257 BudgetEditDialog "전체 월 예산" 모드** (S) — front `MonthlyBudgetDialog`. Flutter 카테고리 단건만
 - [ ] **#258 BudgetManager 일괄 편집/복사** (M) — front 525줄. Flutter list+FAB 만
@@ -215,8 +215,8 @@
 - [ ] **#281 카테고리 트렌드 라인 차트** (M) — front `CategoryTrendChart`. Flutter 미구현
 - [ ] **#282 예산 vs 실제 차트** (M) — front `BudgetVsActualChart`. Flutter 미구현
 - [ ] **#283 가맹점 분포·추이 차트** (M) — front `MerchantAnalysisChart`. Flutter 가맹점 Top 5 list 만
-- [ ] **#284 전년 대비 차트 + yearlySummary 연동** (M) — front `YearOverYearChart` + `useYearlySummary`. endpoint·차트 모두 없음
-- [ ] **#285 카테고리 부모-자식 드릴다운** (M) — front `activeParentId` + `drillBreakdown`. Flutter 단일 도넛만
+- [x] **#284 전년 대비 차트 + yearlySummary 연동** (commit `5b822f6`) — Stats `_YearOverYearChart`. 12개월 BarChart, 전년 vs 올해 totalExpense 비교 + delta% 배지
+- [x] **#285 카테고리 부모-자식 드릴다운** (commit `152cbfa`) — `_CategoryDonut` 을 ConsumerStatefulWidget 으로 변환, `_activeParentId` 상태로 드릴다운, fallback 평면 응답 처리
 
 ## I. 더치페이 / 정산
 
@@ -269,7 +269,7 @@
 ## P. 카드
 
 - [x] **#370 카드 사용 가능 혜택(availableBenefits) API** (commit `93a04ff`) — `availableBenefits(cardRowId, expenseCategoryRowId?)` 추가. UI 자동 추천은 후속
-- [ ] **#371 CardPerformance 도메인 + 진척 바** (M) — front `cardPerformanceApi` + `CardPerformanceSection`. Flutter 0
+- [x] **#371 CardPerformance 도메인 + 진척 바** (commit `de447c1`) — `domain/card_performance.dart` + repo + provider + `card_performance_bar.dart` 위젯 + AssetDetailDialog 카드 자산일 때 노출
 - [ ] **#372 CardBenefitMapping 도메인 + 설정 페이지** (L) — front `cardBenefitMappingApi` + `CardSettingsPage` + 매핑 에디터 (라우트 `/desk/card-settings`). Flutter 라우트·기능 0
 - [ ] **#373 CardCatalogCombobox (자산 등록 시 카드 자동완성)** (M) — front. Flutter 없음
 - [x] **#374 카드 검색 benefitType / includeDiscontinued 필터** (commit `93a04ff`) — 칩 + 단종 토글 추가
