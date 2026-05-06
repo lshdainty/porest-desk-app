@@ -8,6 +8,7 @@ import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/auth/auth_notifier.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../../expense/presentation/export_dialog.dart';
 
 /// 모바일 전용 "전체" 탭 — 잘 안 쓰는 메뉴를 한 화면에 모음.
@@ -17,46 +18,48 @@ class MoreScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final items = <_MoreItem>[
-      _MoreItem(LucideIcons.wallet, '자산',
+      _MoreItem(LucideIcons.wallet, l.navAsset,
           onTap: (ctx, _) => ctx.push('/assets')),
-      _MoreItem(LucideIcons.target, '예산',
+      _MoreItem(LucideIcons.target, l.navBudget,
           onTap: (ctx, _) => ctx.push('/budget')),
-      _MoreItem(LucideIcons.calendarDays, '캘린더',
+      _MoreItem(LucideIcons.calendarDays, l.navCalendar,
           onTap: (ctx, _) => ctx.push('/calendar')),
-      _MoreItem(LucideIcons.repeat, '반복 거래',
+      _MoreItem(LucideIcons.repeat, l.navRecurring,
           onTap: (ctx, _) => ctx.push('/recurring')),
-      _MoreItem(LucideIcons.tag, '카테고리',
+      _MoreItem(LucideIcons.tag, l.navCategories,
           onTap: (ctx, _) => ctx.push('/categories')),
-      _MoreItem(LucideIcons.zap, '프리셋',
+      _MoreItem(LucideIcons.zap, l.navPresets,
           onTap: (ctx, _) => ctx.push('/presets')),
-      _MoreItem(LucideIcons.search, '검색',
+      _MoreItem(LucideIcons.search, l.navSearch,
           onTap: (ctx, _) => ctx.push('/search')),
-      _MoreItem(LucideIcons.creditCard, '카드 관리',
+      _MoreItem(LucideIcons.creditCard, l.navCards,
           onTap: (ctx, _) => ctx.push('/cards')),
-      _MoreItem(LucideIcons.users, '그룹',
+      _MoreItem(LucideIcons.users, l.navGroup,
           onTap: (ctx, _) => ctx.push('/groups')),
-      _MoreItem(LucideIcons.divide, '더치페이',
+      _MoreItem(LucideIcons.divide, l.navDutchPay,
           onTap: (ctx, _) => ctx.push('/dutch-pay')),
-      _MoreItem(LucideIcons.fileText, '메모',
+      _MoreItem(LucideIcons.fileText, l.navMemo,
           onTap: (ctx, _) => ctx.push('/memos')),
-      _MoreItem(LucideIcons.checkSquare, '할 일',
+      _MoreItem(LucideIcons.checkSquare, l.navTodo,
           onTap: (ctx, _) => ctx.push('/todos')),
-      _MoreItem(LucideIcons.bell, '알림',
+      _MoreItem(LucideIcons.bell, l.navNotifications,
           onTap: (ctx, _) => ctx.push('/notifications')),
-      _MoreItem(LucideIcons.piggyBank, '저금 목표',
+      _MoreItem(LucideIcons.piggyBank, l.navSavingGoals,
           onTap: (ctx, _) => ctx.push('/saving-goals')),
-      _MoreItem(LucideIcons.download, '내보내기',
+      _MoreItem(LucideIcons.download, l.navExport,
           onTap: (ctx, _) => showExportDialog(ctx)),
-      _MoreItem(LucideIcons.settings, '설정', onTap: (ctx, _) => ctx.push('/settings')),
-      _MoreItem(LucideIcons.logOut, '로그아웃',
+      _MoreItem(LucideIcons.settings, l.navSettings,
+          onTap: (ctx, _) => ctx.push('/settings')),
+      _MoreItem(LucideIcons.logOut, l.navLogout,
           onTap: (_, ref) => ref.read(authProvider.notifier).logout()),
     ];
 
     return ListView(
       padding: const EdgeInsets.all(PSpace.x20),
       children: [
-        Text('전체 / More', style: PTypo.h2.copyWith(color: t.fgPrimary)),
+        Text(l.navMore, style: PTypo.h2.copyWith(color: t.fgPrimary)),
         const SizedBox(height: PSpace.x16),
         Container(
           decoration: BoxDecoration(

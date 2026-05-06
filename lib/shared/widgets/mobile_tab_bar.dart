@@ -4,6 +4,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 import '../../app/theme/spacing.dart';
 import '../../app/theme/tokens.dart';
 import '../../app/theme/typography.dart';
+import '../../l10n/generated/app_localizations.dart';
 
 /// 5칸 탭바 (홈 / 가계부 / [중앙 FAB +] / 통계 / 전체).
 ///
@@ -23,18 +24,18 @@ class MobileTabBar extends StatelessWidget {
   final void Function(int branchIndex) onTapBranch;
   final VoidCallback onAddTx;
 
-  static const _slots = <_Slot>[
-    _Slot(icon: LucideIcons.home, label: '홈', branch: 0),
-    _Slot(icon: LucideIcons.receipt, label: '가계부', branch: 1),
-    _Slot.fab(),
-    _Slot(icon: LucideIcons.pieChart, label: '통계', branch: 2),
-    _Slot(icon: LucideIcons.menu, label: '전체', branch: 3),
-  ];
-
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final mq = MediaQuery.of(context);
+    final slots = <_Slot>[
+      _Slot(icon: LucideIcons.home, label: l.navHome, branch: 0),
+      _Slot(icon: LucideIcons.receipt, label: l.navExpense, branch: 1),
+      const _Slot.fab(),
+      _Slot(icon: LucideIcons.pieChart, label: l.navStats, branch: 2),
+      _Slot(icon: LucideIcons.menu, label: l.navMore, branch: 3),
+    ];
     return Material(
       color: t.bgSurface,
       child: Container(
@@ -53,7 +54,7 @@ class MobileTabBar extends StatelessWidget {
             height: 54, // 본문 높이; 안전영역은 padding 으로 추가됨
             child: Row(
               children: [
-                for (final s in _slots)
+                for (final s in slots)
                   Expanded(
                     child: s.isFab
                         ? _CenterFab(onTap: onAddTx, tokens: t)

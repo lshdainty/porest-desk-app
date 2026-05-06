@@ -1,15 +1,13 @@
 {
   "@@locale": "ko",
-  "appTitle": "Porest Desk",
-  "@appTitle": {
-    "description": "앱 이름"
-  },
+  "appTitle": "POREST Desk",
+  "@appTitle": {"description": "앱 이름"},
 
   "actionSave": "저장",
   "actionCancel": "취소",
   "actionDelete": "삭제",
   "actionEdit": "수정",
-  "actionCreate": "추가",
+  "actionCreate": "생성",
   "actionConfirm": "확인",
   "actionClose": "닫기",
   "actionRetry": "다시 시도",
@@ -25,5 +23,32 @@
   "languageKorean": "한국어",
   "languageEnglish": "English",
   "languageSystem": "시스템",
-  "settingsLanguage": "언어"
+  "settingsLanguage": "언어",
+
+  "navDashboard": "대시보드",
+  "navTodo": "할 일",
+  "navCalendar": "캘린더",
+  "navMemo": "메모",
+  "navTimer": "타이머",
+  "navExpense": "가계부",
+  "navAsset": "자산",
+  "navDutchPay": "더치페이",
+  "navPostit": "포스트잇",
+  "navGroup": "그룹",
+  "navSettings": "설정",
+  "navMore": "더보기",
+  "navMenu": "메뉴",
+  "navHome": "홈",
+  "navStats": "통계",
+  "navSearch": "검색",
+  "navNotifications": "알림",
+  "navBudget": "예산",
+  "navRecurring": "반복 거래",
+  "navCategories": "카테고리",
+  "navPresets": "프리셋",
+  "navCards": "카드 관리",
+  "navSavingGoals": "저금 목표",
+  "navExport": "내보내기",
+  "navLogout": "로그아웃",
+  "navChangePassword": "비밀번호 변경"
 }
