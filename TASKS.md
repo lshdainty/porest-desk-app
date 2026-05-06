@@ -155,8 +155,8 @@
 > Flutter `lib/l10n/` 빈 폴더, `pubspec` 에 `flutter_localizations` 미선언, `app.dart` 에 delegate 미등록, 101 lib 파일에 한글 하드코딩. front 는 ko/en 두 언어 + 14개 도메인 JSON.
 
 - [x] **#200 i18n 인프라 부트스트랩** (commit `3819055`)
-- [ ] **#201 i18n: common.arb** (S) — front `locales/{ko,en}/common.json` (12 키, save/cancel/delete 등). 글로벌 폼 버튼
-- [ ] **#202 i18n: layout.arb** (S) — front `layout.json` (15 키). MobileTabBar/MoreScreen/MobileHeader 마이그레이션
+- [x] **#201 i18n: common.arb** (commit `5171f9d` 부분) — action* 14키 + state* 3키 ARB. 도메인 화면 호출부 마이그레이션은 후속
+- [x] **#202 i18n: layout.arb** (commit `5171f9d`) — nav* 24키 ARB + MobileTabBar/MoreScreen 마이그레이션. mobile_header 는 후속
 - [ ] **#203 i18n: dashboard.arb** (M) — front `dashboard.json` (166 키, 가장 큼)
 - [ ] **#204 i18n: expense.arb** (M) — front `expense.json` (158 키). ExpenseScreen/AddTxSheet/ExportDialog
 - [ ] **#205 i18n: asset.arb** (M) — front `asset.json` (43 키, assetType.* 7종). AssetScreen/AssetTransferDialog/CardScreen
@@ -206,7 +206,7 @@
 
 ## G. 반복 거래
 
-- [ ] **#270 RecurringFromTxDialog 풀 폼** (M) — front 539줄. frequency / dayOfWeek/Month / end mode COUNT|DATE / autoLog / notify / next-3 preview. Flutter 는 일반 RecurringEditDialog 재사용 (#132 partial)
+- [x] **#270 RecurringFromTxDialog 풀 폼 (next-3 preview)** (commit `c018ba8`) — `_previewNextDates` 헬퍼 + 다음 예정일 칩 strip 추가. 종료 mode COUNT 는 백엔드 미지원이므로 단일 endDate 유지
 - [ ] **#271 RecurringManager 일괄 액션** (S) — front 547줄, 일부는 이미 미러됨. 나머지 minor
 
 ## H. 통계
@@ -225,7 +225,7 @@
 
 ## J. 캘린더
 
-- [ ] **#300 캘린더 라벨(EventLabel) CRUD 다이얼로그** (M) — front `LabelManagementDialog` (POST/PUT/DELETE `/event-label(s)`). Flutter `labels()` GET 만, CRUD UI 없음
+- [x] **#300 캘린더 라벨(EventLabel) CRUD 다이얼로그** (commit `3c2c16a`) — `event_label_management_dialog.dart` + 신규/편집/삭제, 8색 팔레트, AppBar 우측 액션
 - [ ] **#301 공휴일(Holiday) 도메인 전체** (L) — front 4 종 (PUBLIC/SUBSTITUTE/CUSTOM + 매년 반복) + `HolidayManagementDialog`. Flutter 도메인/repo/UI 0
 - [ ] **#302 사용자 캘린더(UserCalendar) 다중 관리** (L) — front `userCalendarApi` (GET/POST/PUT/DELETE `/calendar/calendars`, isDefault/isVisible 토글). Flutter 단일 캘린더 가정
 - [x] **#303 캘린더 통합 집계 API** (commit `1b3900d`) — `aggregate(startDate, endDate)` + `calendarAggregateProvider`. UI 측 활용은 후속
@@ -234,12 +234,12 @@
 
 ## K. 이벤트 코멘트
 
-- [ ] **#310 EventComment 도메인** (M) — front `eventCommentApi` (POST/GET/PUT/DELETE `/calendar/event/{id}/comment(s)`). Flutter 0
+- [x] **#310 EventComment 도메인 + repository** (commit `2cfc0de`) — list/create/update/delete + `eventCommentsProvider` family<int>. UI 패널은 후속
 
 ## L. Todo
 
-- [ ] **#320 TodoProject CRUD + 관리 다이얼로그** (L) — front 도메인 + `ProjectManagementDialog` + project-grouped 뷰. Flutter `projectRowId` 필드만, UI 없음
-- [ ] **#321 TodoTag CRUD + 관리 다이얼로그** (M) — front `todoTagApi` + `TagManagementDialog` + `todoApi.updateTags` (PATCH `/todo/{id}/tags`). Flutter 0
+- [x] **#320 TodoProject CRUD + 관리 다이얼로그** (commit `4f03082`) — domain/repo/provider + `todo_project_management_dialog.dart` (이름/설명/색 + 인라인 편집). 칸반/그룹 뷰는 #322 별도
+- [x] **#321 TodoTag CRUD + 관리 다이얼로그** (commit `4f03082`) — domain/repo/provider + `todo_tag_management_dialog.dart`. `updateTags(id, tagIds)` API 는 #62c381d 에서 추가 완료
 - [ ] **#322 Todo 칸반 보드 뷰** (L) — front `KanbanBoard/Column/Card` + dnd. Flutter 단일 list 뷰만
 - [ ] **#323 Todo 서브태스크** (M) — front `getSubtasks` (GET `/todo/{parentId}/subtasks`) + `SubtaskList`. Flutter 모델 필드만
 - [x] **#324 Todo reorder API** (commit `62c381d`) — `reorder(items)` + `getById` + `getSubtasks` + `updateTags`
