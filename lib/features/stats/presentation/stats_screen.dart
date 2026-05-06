@@ -109,7 +109,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
 
           // 4. 가맹점 Top
           _SectionCard(
-            title: '${_month.month}월 가맹점 Top 5',
+            title: '${_month.month}월 가맹점 분석',
             tokens: t,
             child: _MerchantTop(
                 async: merchantAsync, masked: settings.hideAmounts, tokens: t),
@@ -620,14 +620,24 @@ class _CategoryDonutState extends ConsumerState<_CategoryDonut> {
 
 // ─── 가맹점 Top ──────────────────────────────────────────
 
-class _MerchantTop extends StatelessWidget {
+class _MerchantTop extends StatefulWidget {
   const _MerchantTop(
       {required this.async, required this.masked, required this.tokens});
   final AsyncValue<List<MerchantSummary>> async;
   final bool masked;
   final PorestTokens tokens;
   @override
+  State<_MerchantTop> createState() => _MerchantTopState();
+}
+
+class _MerchantTopState extends State<_MerchantTop> {
+  bool _expanded = false;
+
+  @override
   Widget build(BuildContext context) {
+    final tokens = widget.tokens;
+    final masked = widget.masked;
+    final async = widget.async;
     final list = async.value ?? const <MerchantSummary>[];
     if (async.isLoading && list.isEmpty) {
       return const SizedBox(
@@ -638,14 +648,15 @@ class _MerchantTop extends StatelessWidget {
     }
     if (list.isEmpty) return _EmptyMini(text: '데이터 없음', tokens: tokens);
 
-    final top5 = (List.of(list)..sort((a, b) => b.totalAmount.compareTo(a.totalAmount)))
-        .take(5)
-        .toList();
-    final maxAmt = top5.first.totalAmount;
+    final sorted = (List.of(list)
+      ..sort((a, b) => b.totalAmount.compareTo(a.totalAmount)));
+    final maxAmt = sorted.first.totalAmount;
+    final total = sorted.fold<int>(0, (s, m) => s + m.totalAmount);
+    final visible = _expanded ? sorted.take(15).toList() : sorted.take(5).toList();
 
     return Column(
       children: [
-        for (int i = 0; i < top5.length; i++)
+        for (int i = 0; i < visible.length; i++)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 6),
             child: Column(
@@ -668,30 +679,62 @@ class _MerchantTop extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Expanded(
-                        child: Text(top5[i].merchant ?? '(이름 없음)',
-                            style: PTypo.bodySm
-                                .copyWith(color: tokens.fgPrimary))),
-                    Text('${top5[i].count}건',
-                        style: PTypo.caption
-                            .copyWith(color: tokens.fgTertiary)),
-                    const SizedBox(width: 8),
-                    Text(krwMasked(top5[i].totalAmount, masked),
-                        style: PTypo.bodySm.copyWith(
-                            color: tokens.fgPrimary,
-                            fontWeight: FontWeight.w700)),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(visible[i].merchant ?? '(이름 없음)',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: PTypo.bodySm
+                                  .copyWith(color: tokens.fgPrimary)),
+                          Text(
+                              '${visible[i].count}건 · 1회 평균 ${masked ? '•••' : krw(visible[i].totalAmount ~/ (visible[i].count == 0 ? 1 : visible[i].count))}원',
+                              style: PTypo.micro
+                                  .copyWith(color: tokens.fgTertiary)),
+                        ],
+                      ),
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(krwMasked(visible[i].totalAmount, masked),
+                            style: PTypo.bodySm.copyWith(
+                                color: tokens.fgPrimary,
+                                fontWeight: FontWeight.w700)),
+                        Text(
+                            total > 0
+                                ? '${(visible[i].totalAmount * 100 / total).toStringAsFixed(1)}%'
+                                : '-',
+                            style: PTypo.micro
+                                .copyWith(color: tokens.fgTertiary)),
+                      ],
+                    ),
                   ],
                 ),
                 const SizedBox(height: 4),
                 ClipRRect(
                   borderRadius: PRadius.brXs,
                   child: LinearProgressIndicator(
-                    value: maxAmt > 0 ? top5[i].totalAmount / maxAmt : 0,
+                    value: maxAmt > 0 ? visible[i].totalAmount / maxAmt : 0,
                     minHeight: 6,
                     backgroundColor: tokens.bgTrack,
                     color: tokens.fgBrand,
                   ),
                 ),
               ],
+            ),
+          ),
+        if (sorted.length > 5)
+          Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: TextButton.icon(
+              onPressed: () => setState(() => _expanded = !_expanded),
+              icon: Icon(
+                  _expanded
+                      ? LucideIcons.chevronUp
+                      : LucideIcons.chevronDown,
+                  size: 14),
+              label: Text(_expanded ? '접기' : '더 보기 (${sorted.length - 5})'),
             ),
           ),
       ],
