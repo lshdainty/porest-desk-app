@@ -1,59 +1,69 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../../../app/theme/radius.dart';
 import '../../../../app/theme/spacing.dart';
 import '../../../../app/theme/tokens.dart';
 import '../../../../app/theme/typography.dart';
+import '../../../../core/format/color_parse.dart';
 import '../../../../core/format/krw.dart';
+import '../../../../shared/icons/lucide_icon_map.dart';
 import '../../domain/expense.dart';
+import '../../domain/expense_category.dart';
 
 class ExpenseRow extends StatelessWidget {
   const ExpenseRow({
     required this.expense,
     required this.category,
-    required this.asset,
     required this.masked,
     super.key,
   });
 
   final Expense expense;
-  final Category category;
-  final Asset asset;
+  final ExpenseCategory? category;
   final bool masked;
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
     final positive = expense.signedAmount > 0;
+
+    // 카테고리 색은 백엔드 카테고리 우선, 없으면 거래에 임베드된 categoryColor, 없으면 토큰
+    final colorRaw = category?.color ?? expense.categoryColor;
+    final iconRaw = category?.icon ?? expense.categoryIcon;
+    final cName = category?.categoryName ?? expense.categoryName ?? '미지정';
+
+    final fg = parseColor(colorRaw, fallback: t.fgBrand);
+    final bg = softBg(fg);
+    final icon = lucideByName(iconRaw, fallback: LucideIcons.tag);
+
     return InkWell(
       onTap: () {}, // Phase 후속: TxDetailDialog
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: PSpace.x16, vertical: PSpace.x12),
         child: Row(
           children: [
-            // 카테고리 아이콘 타일
             Container(
               width: 36,
               height: 36,
-              decoration: BoxDecoration(color: category.bg, borderRadius: PRadius.brSm),
+              decoration: BoxDecoration(color: bg, borderRadius: PRadius.brSm),
               alignment: Alignment.center,
-              child: Icon(category.icon, size: 18, color: category.color),
+              child: Icon(icon, size: 18, color: fg),
             ),
             const SizedBox(width: PSpace.x12),
-            // 가운데: merchant + 카테고리·자산
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    expense.merchant ?? expense.description ?? category.name,
+                    expense.merchant ?? expense.description ?? cName,
                     style: PTypo.body.copyWith(
                         color: t.fgPrimary, fontWeight: FontWeight.w500),
                     maxLines: 1, overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    '${category.name} · ${asset.name}',
+                    '$cName · ${expense.assetName ?? '-'}',
                     style: PTypo.caption.copyWith(color: t.fgTertiary),
                     maxLines: 1, overflow: TextOverflow.ellipsis,
                   ),

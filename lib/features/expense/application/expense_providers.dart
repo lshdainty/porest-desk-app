@@ -1,30 +1,48 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../data/mock_data.dart';
+import '../../../core/network/dio_provider.dart';
+import '../data/expense_repository.dart';
 import '../domain/expense.dart';
+import '../domain/expense_category.dart';
 
-/// v0.1: 메모리 기반 mock. Phase 7+ 에서 백엔드 연결로 교체될 예정.
-final categoriesProvider = Provider<List<Category>>((_) => mockCategories);
-final assetsProvider = Provider<List<Asset>>((_) => mockAssets);
+/// Repository provider — Dio 가 준비되면 ExpenseRepository 반환.
+final expenseRepositoryProvider = FutureProvider<ExpenseRepository>((ref) async {
+  final dio = await ref.watch(dioProvider.future);
+  return ExpenseRepository(dio);
+});
 
-final expensesProvider =
-    NotifierProvider<ExpensesNotifier, List<Expense>>(ExpensesNotifier.new);
+/// 카테고리 전체 목록 — 거의 변하지 않으므로 keepAlive.
+final categoriesProvider = FutureProvider<List<ExpenseCategory>>((ref) async {
+  ref.keepAlive();
+  final repo = await ref.watch(expenseRepositoryProvider.future);
+  return repo.categories();
+});
 
-class ExpensesNotifier extends Notifier<List<Expense>> {
-  @override
-  List<Expense> build() => mockExpensesForCurrentMonth();
+/// 월간 거래 목록 — `(year, month)` 키로 family.
+typedef MonthKey = ({int year, int month});
 
-  void add(Expense e) => state = [...state, e];
-  void remove(String id) => state = state.where((x) => x.id != id).toList();
+final monthExpensesProvider =
+    FutureProvider.family<List<Expense>, MonthKey>((ref, key) async {
+  final repo = await ref.watch(expenseRepositoryProvider.future);
+  final start = _firstDay(key.year, key.month);
+  final end = _lastDay(key.year, key.month);
+  return repo.list(startDate: start, endDate: end);
+});
+
+String _firstDay(int y, int m) =>
+    '${y.toString().padLeft(4, '0')}-${m.toString().padLeft(2, '0')}-01';
+String _lastDay(int y, int m) {
+  final last = DateTime(y, m + 1, 0).day;
+  return '${y.toString().padLeft(4, '0')}-${m.toString().padLeft(2, '0')}-'
+      '${last.toString().padLeft(2, '0')}';
 }
 
-/// 카테고리 lookup 헬퍼.
-extension CategoryListX on List<Category> {
-  Category byId(String id) =>
-      firstWhere((c) => c.id == id, orElse: () => first);
-}
-
-extension AssetListX on List<Asset> {
-  Asset byId(String id) =>
-      firstWhere((a) => a.id == id, orElse: () => first);
+/// 카테고리 lookup by rowId.
+extension CategoryListX on List<ExpenseCategory> {
+  ExpenseCategory? byRowId(int rowId) {
+    for (final c in this) {
+      if (c.rowId == rowId) return c;
+    }
+    return null;
+  }
 }

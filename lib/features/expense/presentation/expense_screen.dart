@@ -13,12 +13,7 @@ import '../domain/expense.dart';
 import 'widgets/expense_row.dart';
 import 'widgets/month_picker.dart';
 
-/// 가계부 화면.
-///
-/// porest-desk-front `ExpensePage` 모바일 모드 매핑:
-/// 1) 월 선택기
-/// 2) 필터 (전체/지출/수입)
-/// 3) 일일 그룹 헤더 + 거래 행
+/// 가계부 화면 — 백엔드 `/expenses` 직접 호출.
 class ExpenseScreen extends ConsumerStatefulWidget {
   const ExpenseScreen({super.key});
 
@@ -32,147 +27,141 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
   late DateTime _month = monthStart(DateTime.now());
   _Filter _filter = _Filter.all;
 
+  MonthKey get _key => (year: _month.year, month: _month.month);
+
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
     final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
-    final categories = ref.watch(categoriesProvider);
-    final assets = ref.watch(assetsProvider);
-    final allExpenses = ref.watch(expensesProvider);
+    final categoriesAsync = ref.watch(categoriesProvider);
+    final expensesAsync = ref.watch(monthExpensesProvider(_key));
 
-    final inMonth = allExpenses.where((e) {
-      final d = parseIsoDate(e.date);
-      return d.year == _month.year && d.month == _month.month;
-    }).where((e) {
-      switch (_filter) {
-        case _Filter.all:
-          return true;
-        case _Filter.expense:
-          return e.type == TxType.expense;
-        case _Filter.income:
-          return e.type == TxType.income;
-      }
-    }).toList()
-      ..sort((a, b) => b.date.compareTo(a.date));
-
-    final groups = <String, List<Expense>>{};
-    for (final e in inMonth) {
-      groups.putIfAbsent(e.date, () => []).add(e);
-    }
-    final groupKeys = groups.keys.toList();
-
-    final monthIncome = inMonth
-        .where((e) => e.type == TxType.income)
-        .fold<int>(0, (s, e) => s + e.amount);
-    final monthExpense = inMonth
-        .where((e) => e.type == TxType.expense)
-        .fold<int>(0, (s, e) => s + e.amount);
-
-    return ListView(
-      padding: EdgeInsets.symmetric(
-          horizontal: PSpace.x16, vertical: settings.density.cardPad),
-      children: [
-        MonthPicker(
-          month: _month,
-          onPrev: () => setState(() =>
-              _month = DateTime(_month.year, _month.month - 1, 1)),
-          onNext: () => setState(() =>
-              _month = DateTime(_month.year, _month.month + 1, 1)),
-        ),
-        const SizedBox(height: PSpace.x12),
-
-        // 월 합계 카드
-        Container(
-          padding: EdgeInsets.all(settings.density.cardPad),
-          decoration: BoxDecoration(
-            color: t.bgSurface,
-            borderRadius: PRadius.brLg,
-            border: Border.all(color: t.borderSubtle),
+    return RefreshIndicator(
+      color: t.bgBrand,
+      onRefresh: () async {
+        ref.invalidate(monthExpensesProvider(_key));
+        await ref.read(monthExpensesProvider(_key).future);
+      },
+      child: ListView(
+        padding: const EdgeInsets.symmetric(
+            horizontal: PSpace.x16, vertical: PSpace.x16),
+        children: [
+          MonthPicker(
+            month: _month,
+            onPrev: () => setState(() =>
+                _month = DateTime(_month.year, _month.month - 1, 1)),
+            onNext: () => setState(() =>
+                _month = DateTime(_month.year, _month.month + 1, 1)),
           ),
-          child: Row(
-            children: [
-              _Stat(
-                label: '수입',
-                value: krwMasked(monthIncome, settings.hideAmounts),
-                color: t.statusSuccess,
-              ),
-              const _StatDivider(),
-              _Stat(
-                label: '지출',
-                value: krwMasked(monthExpense, settings.hideAmounts),
-                color: t.fgPrimary,
-              ),
-              const _StatDivider(),
-              _Stat(
-                label: '잔액',
-                value: krwMasked(monthIncome - monthExpense, settings.hideAmounts, sign: true),
-                color: monthIncome - monthExpense >= 0
-                    ? t.statusSuccess
-                    : t.statusDanger,
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: PSpace.x16),
+          const SizedBox(height: PSpace.x12),
 
-        // 필터 세그먼트
-        Container(
-          padding: const EdgeInsets.all(4),
-          decoration: BoxDecoration(
-            color: t.bgMuted,
-            borderRadius: PRadius.brMd,
-          ),
-          child: Row(
-            children: [
-              for (final f in _Filter.values)
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => setState(() => _filter = f),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      decoration: BoxDecoration(
-                        color: f == _filter ? t.bgSurface : Colors.transparent,
-                        borderRadius: PRadius.brSm,
-                      ),
-                      child: Text(
-                        switch (f) {
-                          _Filter.all => '전체',
-                          _Filter.expense => '지출',
-                          _Filter.income => '수입',
-                        },
-                        textAlign: TextAlign.center,
-                        style: PTypo.bodySm.copyWith(
-                          color: f == _filter ? t.fgPrimary : t.fgTertiary,
-                          fontWeight:
-                              f == _filter ? FontWeight.w600 : FontWeight.w500,
-                        ),
+          // 본문 — 비동기 상태에 따라 분기
+          expensesAsync.when(
+            loading: () => const Padding(
+              padding: EdgeInsets.symmetric(vertical: PSpace.x32),
+              child: Center(child: CircularProgressIndicator()),
+            ),
+            error: (e, _) => _ErrorBox(
+              message: '거래를 불러오지 못했습니다\n$e',
+              onRetry: () => ref.invalidate(monthExpensesProvider(_key)),
+            ),
+            data: (raw) {
+              final filtered = raw.where((e) {
+                switch (_filter) {
+                  case _Filter.all:
+                    return true;
+                  case _Filter.expense:
+                    return e.expenseType == 'EXPENSE';
+                  case _Filter.income:
+                    return e.expenseType == 'INCOME';
+                }
+              }).toList()
+                ..sort((a, b) =>
+                    (b.expenseDate ?? '').compareTo(a.expenseDate ?? ''));
+
+              final monthIncome = raw
+                  .where((e) => e.expenseType == 'INCOME')
+                  .fold<int>(0, (s, e) => s + e.amount);
+              final monthExpense = raw
+                  .where((e) => e.expenseType == 'EXPENSE')
+                  .fold<int>(0, (s, e) => s + e.amount);
+
+              final groups = <String, List<Expense>>{};
+              for (final e in filtered) {
+                final d = e.expenseDateOnly ?? '';
+                groups.putIfAbsent(d, () => []).add(e);
+              }
+              final groupKeys = groups.keys.toList();
+
+              return Column(
+                children: [
+                  _SummaryCard(
+                    income: monthIncome,
+                    expense: monthExpense,
+                    masked: settings.hideAmounts,
+                  ),
+                  const SizedBox(height: PSpace.x16),
+                  _FilterSeg(
+                    value: _filter,
+                    onChanged: (v) => setState(() => _filter = v),
+                  ),
+                  const SizedBox(height: PSpace.x16),
+                  if (groupKeys.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: PSpace.x32),
+                      child: Center(
+                        child: Text('이 달에는 거래가 없습니다',
+                            style: PTypo.bodySm.copyWith(color: t.fgTertiary)),
                       ),
                     ),
-                  ),
-                ),
-            ],
+                  for (final key in groupKeys)
+                    _DayGroup(
+                      date: parseIsoDate(key),
+                      items: groups[key]!,
+                      categoriesAsync: categoriesAsync,
+                      masked: settings.hideAmounts,
+                    ),
+                ],
+              );
+            },
           ),
-        ),
-        const SizedBox(height: PSpace.x16),
+        ],
+      ),
+    );
+  }
+}
 
-        if (groupKeys.isEmpty)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: PSpace.x32),
-            child: Center(
-              child: Text('이 달에는 거래가 없습니다',
-                  style: PTypo.bodySm.copyWith(color: t.fgTertiary)),
-            ),
-          ),
+class _SummaryCard extends StatelessWidget {
+  const _SummaryCard(
+      {required this.income, required this.expense, required this.masked});
+  final int income;
+  final int expense;
+  final bool masked;
 
-        for (final key in groupKeys)
-          _DayGroup(
-            date: parseIsoDate(key),
-            items: groups[key]!,
-            categories: categories,
-            assets: assets,
-            masked: settings.hideAmounts,
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final balance = income - expense;
+    return Container(
+      padding: const EdgeInsets.all(PSpace.x16),
+      decoration: BoxDecoration(
+        color: t.bgSurface,
+        borderRadius: PRadius.brLg,
+        border: Border.all(color: t.borderSubtle),
+      ),
+      child: Row(
+        children: [
+          _Stat(label: '수입', value: krwMasked(income, masked), color: t.statusSuccess),
+          _StatDivider(t: t),
+          _Stat(label: '지출', value: krwMasked(expense, masked), color: t.fgPrimary),
+          _StatDivider(t: t),
+          _Stat(
+            label: '잔액',
+            value: krwMasked(balance, masked, sign: true),
+            color: balance >= 0 ? t.statusSuccess : t.statusDanger,
           ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -199,33 +188,75 @@ class _Stat extends StatelessWidget {
 }
 
 class _StatDivider extends StatelessWidget {
-  const _StatDivider();
+  const _StatDivider({required this.t});
+  final PorestTokens t;
+  @override
+  Widget build(BuildContext context) =>
+      Container(width: 1, height: 28, color: t.borderSubtle);
+}
+
+class _FilterSeg extends StatelessWidget {
+  const _FilterSeg({required this.value, required this.onChanged});
+  final _Filter value;
+  final ValueChanged<_Filter> onChanged;
+
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    return Container(width: 1, height: 28, color: t.borderSubtle);
+    return Container(
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(color: t.bgMuted, borderRadius: PRadius.brMd),
+      child: Row(
+        children: [
+          for (final f in _Filter.values)
+            Expanded(
+              child: GestureDetector(
+                onTap: () => onChanged(f),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  decoration: BoxDecoration(
+                    color: f == value ? t.bgSurface : Colors.transparent,
+                    borderRadius: PRadius.brSm,
+                  ),
+                  child: Text(
+                    switch (f) {
+                      _Filter.all => '전체',
+                      _Filter.expense => '지출',
+                      _Filter.income => '수입',
+                    },
+                    textAlign: TextAlign.center,
+                    style: PTypo.bodySm.copyWith(
+                      color: f == value ? t.fgPrimary : t.fgTertiary,
+                      fontWeight: f == value ? FontWeight.w600 : FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
   }
 }
 
-class _DayGroup extends StatelessWidget {
+class _DayGroup extends ConsumerWidget {
   const _DayGroup({
     required this.date,
     required this.items,
-    required this.categories,
-    required this.assets,
+    required this.categoriesAsync,
     required this.masked,
   });
   final DateTime date;
   final List<Expense> items;
-  final List<Category> categories;
-  final List<Asset> assets;
+  final AsyncValue<dynamic> categoriesAsync;
   final bool masked;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final t = context.tokens;
     final label = formatDay(date);
     final daySum = items.fold<int>(0, (s, e) => s + e.signedAmount);
+    final categories = ref.watch(categoriesProvider).value ?? const [];
 
     return Padding(
       padding: const EdgeInsets.only(bottom: PSpace.x12),
@@ -233,19 +264,25 @@ class _DayGroup extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: PSpace.x4, vertical: PSpace.x8),
+            padding: const EdgeInsets.symmetric(
+                horizontal: PSpace.x4, vertical: PSpace.x8),
             child: Row(
               children: [
-                Text(label.md, style: PTypo.bodySm.copyWith(
-                    color: t.fgPrimary, fontWeight: FontWeight.w600)),
+                Text(label.md,
+                    style: PTypo.bodySm.copyWith(
+                        color: t.fgPrimary, fontWeight: FontWeight.w600)),
                 const SizedBox(width: PSpace.x8),
-                Text(label.dow, style: PTypo.caption.copyWith(color: t.fgTertiary)),
+                Text(label.dow,
+                    style: PTypo.caption.copyWith(color: t.fgTertiary)),
                 const Spacer(),
                 Text(
                   krwMasked(daySum, masked, sign: true),
                   style: PTypo.caption.copyWith(
-                    color: daySum > 0 ? t.statusSuccess :
-                           daySum < 0 ? t.fgPrimary : t.fgTertiary,
+                    color: daySum > 0
+                        ? t.statusSuccess
+                        : daySum < 0
+                            ? t.fgPrimary
+                            : t.fgTertiary,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -263,8 +300,7 @@ class _DayGroup extends StatelessWidget {
                 for (int i = 0; i < items.length; i++) ...[
                   ExpenseRow(
                     expense: items[i],
-                    category: categories.byId(items[i].categoryId),
-                    asset: assets.byId(items[i].assetId),
+                    category: categories.byRowId(items[i].categoryRowId),
                     masked: masked,
                   ),
                   if (i < items.length - 1)
@@ -273,6 +309,30 @@ class _DayGroup extends StatelessWidget {
               ],
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ErrorBox extends StatelessWidget {
+  const _ErrorBox({required this.message, required this.onRetry});
+  final String message;
+  final VoidCallback onRetry;
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return Container(
+      padding: const EdgeInsets.all(PSpace.x16),
+      decoration: BoxDecoration(
+        color: t.statusDangerSubtle,
+        borderRadius: PRadius.brLg,
+      ),
+      child: Column(
+        children: [
+          Text(message, style: PTypo.bodySm.copyWith(color: t.statusDangerFg)),
+          const SizedBox(height: PSpace.x8),
+          OutlinedButton(onPressed: onRetry, child: const Text('다시 시도')),
         ],
       ),
     );

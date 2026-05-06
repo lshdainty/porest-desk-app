@@ -8,21 +8,16 @@ import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
+import '../../../core/format/color_parse.dart';
 import '../../../core/format/date.dart';
+import '../../../core/network/api_exception.dart';
+import '../../../shared/icons/lucide_icon_map.dart';
+import '../../asset/application/asset_providers.dart';
 import '../application/expense_providers.dart';
-import '../domain/expense.dart';
 
 /// 거래 추가 시트.
 ///
-/// porest-desk-front `AddTxSheet` 모바일 모드 매핑:
-/// - 거래 유형 세그먼트 (지출/수입/이체)
-/// - 금액
-/// - 카테고리 선택
-/// - 자산 선택
-/// - 날짜
-/// - 메모 (선택)
-///
-/// v0.1: 저장 시 in-memory mock 에 push (백엔드 연결은 Phase 7+).
+/// 백엔드 `POST /api/v1/expense` 직접 호출. 성공 시 현재 월 expensesProvider invalidate.
 void showAddTxSheet(BuildContext context, {String? defaultDate}) {
   WoltModalSheet.show<void>(
     context: context,
@@ -50,12 +45,13 @@ class _AddTxBody extends ConsumerStatefulWidget {
 }
 
 class _AddTxBodyState extends ConsumerState<_AddTxBody> {
-  TxType _type = TxType.expense;
+  String _type = 'EXPENSE'; // 'EXPENSE' | 'INCOME' | 'TRANSFER'
   final _amountCtrl = TextEditingController();
   final _descCtrl = TextEditingController();
-  String? _categoryId;
-  String? _assetId;
+  int? _categoryRowId;
+  int? _assetRowId;
   late DateTime _date;
+  bool _submitting = false;
 
   @override
   void initState() {
@@ -74,46 +70,60 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
 
   bool get _canSubmit {
     final amount = int.tryParse(_amountCtrl.text.replaceAll(',', ''));
-    return amount != null &&
+    return !_submitting &&
+        amount != null &&
         amount > 0 &&
-        _categoryId != null &&
-        _assetId != null;
+        _categoryRowId != null &&
+        _assetRowId != null;
   }
 
-  void _submit() {
+  Future<void> _submit() async {
     final amount = int.parse(_amountCtrl.text.replaceAll(',', ''));
-    ref.read(expensesProvider.notifier).add(Expense(
-          id: 'm${DateTime.now().millisecondsSinceEpoch}',
-          date:
-              '${_date.year.toString().padLeft(4, '0')}-${_date.month.toString().padLeft(2, '0')}-${_date.day.toString().padLeft(2, '0')}',
-          amount: amount,
-          type: _type,
-          categoryId: _categoryId!,
-          assetId: _assetId!,
-          description: _descCtrl.text.trim().isEmpty ? null : _descCtrl.text.trim(),
-        ));
-    Navigator.of(context).pop();
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('거래가 추가되었습니다 (메모리)')),
-    );
+    setState(() => _submitting = true);
+    try {
+      final repo = await ref.read(expenseRepositoryProvider.future);
+      await repo.create(
+        categoryRowId: _categoryRowId!,
+        assetRowId: _assetRowId!,
+        expenseType: _type,
+        amount: amount,
+        expenseDate:
+            '${_date.year.toString().padLeft(4, '0')}-${_date.month.toString().padLeft(2, '0')}-${_date.day.toString().padLeft(2, '0')}T00:00:00',
+        description: _descCtrl.text.trim().isEmpty ? null : _descCtrl.text.trim(),
+      );
+      // 현재 월 캐시 무효화
+      ref.invalidate(monthExpensesProvider(
+          (year: _date.year, month: _date.month)));
+      if (!mounted) return;
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('거래가 추가되었습니다')),
+      );
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('실패: ${e.message}')),
+      );
+    } finally {
+      if (mounted) setState(() => _submitting = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final categories = ref.watch(categoriesProvider);
-    final assets = ref.watch(assetsProvider);
+    final categoriesAsync = ref.watch(categoriesProvider);
+    final assetsAsync = ref.watch(assetsProvider);
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(PSpace.x16, PSpace.x8, PSpace.x16, PSpace.x16),
+      padding: const EdgeInsets.fromLTRB(
+          PSpace.x16, PSpace.x8, PSpace.x16, PSpace.x16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 거래 유형 세그먼트
           _TypeSegment(value: _type, onChanged: (v) => setState(() => _type = v), tokens: t),
           const SizedBox(height: PSpace.x16),
 
-          // 금액
           _Label('금액'),
           const SizedBox(height: PSpace.x4),
           TextField(
@@ -126,71 +136,91 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
           ),
           const SizedBox(height: PSpace.x16),
 
-          // 카테고리
           _Label('카테고리'),
           const SizedBox(height: PSpace.x8),
           SizedBox(
-            height: 76,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: categories.length,
-              separatorBuilder: (_, _) => const SizedBox(width: PSpace.x8),
-              itemBuilder: (_, i) {
-                final c = categories[i];
-                final selected = _categoryId == c.id;
-                return GestureDetector(
-                  onTap: () => setState(() => _categoryId = c.id),
-                  child: Container(
-                    width: 72,
-                    decoration: BoxDecoration(
-                      color: selected ? t.bgBrandSubtle : t.bgSurface,
-                      border: Border.all(
-                        color: selected ? t.borderBrand : t.borderSubtle,
-                        width: selected ? 1.5 : 1,
-                      ),
-                      borderRadius: PRadius.brMd,
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          width: 32,
-                          height: 32,
-                          decoration: BoxDecoration(color: c.bg, shape: BoxShape.circle),
-                          child: Icon(c.icon, size: 16, color: c.color),
+            height: 80,
+            child: categoriesAsync.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (e, _) => Text('카테고리 로드 실패: $e',
+                  style: PTypo.caption.copyWith(color: t.statusDanger)),
+              data: (categories) {
+                if (categories.isEmpty) {
+                  return Text('등록된 카테고리가 없습니다',
+                      style: PTypo.caption.copyWith(color: t.fgTertiary));
+                }
+                return ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: categories.length,
+                  separatorBuilder: (_, _) => const SizedBox(width: PSpace.x8),
+                  itemBuilder: (_, i) {
+                    final c = categories[i];
+                    final selected = _categoryRowId == c.rowId;
+                    final fg = parseColor(c.color, fallback: t.fgBrand);
+                    final bg = softBg(fg);
+                    return GestureDetector(
+                      onTap: () => setState(() => _categoryRowId = c.rowId),
+                      child: Container(
+                        width: 76,
+                        decoration: BoxDecoration(
+                          color: selected ? t.bgBrandSubtle : t.bgSurface,
+                          border: Border.all(
+                            color: selected ? t.borderBrand : t.borderSubtle,
+                            width: selected ? 1.5 : 1,
+                          ),
+                          borderRadius: PRadius.brMd,
                         ),
-                        const SizedBox(height: 4),
-                        Text(c.name,
-                            style: PTypo.micro.copyWith(
-                                color: selected ? t.fgPrimary : t.fgSecondary)),
-                      ],
-                    ),
-                  ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              width: 32, height: 32,
+                              decoration: BoxDecoration(color: bg, shape: BoxShape.circle),
+                              child: Icon(lucideByName(c.icon), size: 16, color: fg),
+                            ),
+                            const SizedBox(height: 4),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 4),
+                              child: Text(c.categoryName,
+                                  textAlign: TextAlign.center,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: PTypo.micro.copyWith(
+                                      color: selected ? t.fgPrimary : t.fgSecondary)),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
                 );
               },
             ),
           ),
           const SizedBox(height: PSpace.x16),
 
-          // 자산
           _Label('자산'),
           const SizedBox(height: PSpace.x8),
-          Wrap(
-            spacing: PSpace.x8,
-            runSpacing: PSpace.x8,
-            children: [
-              for (final a in assets)
-                _Chip(
-                  label: a.name,
-                  selected: _assetId == a.id,
-                  onTap: () => setState(() => _assetId = a.id),
-                  tokens: t,
-                ),
-            ],
+          assetsAsync.when(
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (e, _) => Text('자산 로드 실패: $e',
+                style: PTypo.caption.copyWith(color: t.statusDanger)),
+            data: (assets) => Wrap(
+              spacing: PSpace.x8,
+              runSpacing: PSpace.x8,
+              children: [
+                for (final a in assets)
+                  _Chip(
+                    label: a.assetName,
+                    selected: _assetRowId == a.rowId,
+                    onTap: () => setState(() => _assetRowId = a.rowId),
+                    tokens: t,
+                  ),
+              ],
+            ),
           ),
           const SizedBox(height: PSpace.x16),
 
-          // 날짜
           _Label('날짜'),
           const SizedBox(height: PSpace.x4),
           InkWell(
@@ -214,7 +244,8 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
                 children: [
                   Icon(LucideIcons.calendar, size: 18, color: t.fgSecondary),
                   const SizedBox(width: PSpace.x8),
-                  Text('${_date.year}-${_date.month.toString().padLeft(2, '0')}-${_date.day.toString().padLeft(2, '0')}',
+                  Text(
+                      '${_date.year}-${_date.month.toString().padLeft(2, '0')}-${_date.day.toString().padLeft(2, '0')}',
                       style: PTypo.body.copyWith(color: t.fgPrimary)),
                 ],
               ),
@@ -222,7 +253,6 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
           ),
           const SizedBox(height: PSpace.x16),
 
-          // 메모
           _Label('메모 (선택)'),
           const SizedBox(height: PSpace.x4),
           TextField(
@@ -232,12 +262,14 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
           ),
           const SizedBox(height: PSpace.x24),
 
-          // 저장 버튼
           SizedBox(
             width: double.infinity,
             child: FilledButton(
               onPressed: _canSubmit ? _submit : null,
-              child: const Text('저장'),
+              child: _submitting
+                  ? const SizedBox(width: 18, height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2))
+                  : const Text('저장'),
             ),
           ),
         ],
@@ -259,14 +291,14 @@ class _Label extends StatelessWidget {
 class _TypeSegment extends StatelessWidget {
   const _TypeSegment(
       {required this.value, required this.onChanged, required this.tokens});
-  final TxType value;
-  final ValueChanged<TxType> onChanged;
+  final String value;
+  final ValueChanged<String> onChanged;
   final PorestTokens tokens;
 
   static const _opts = [
-    (TxType.expense, '지출'),
-    (TxType.income, '수입'),
-    (TxType.transfer, '이체'),
+    ('EXPENSE', '지출'),
+    ('INCOME', '수입'),
+    ('TRANSFER', '이체'),
   ];
 
   @override

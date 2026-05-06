@@ -1,60 +1,41 @@
-import 'package:flutter/widgets.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-/// 거래 유형. front 의 `expense_type` 컬럼 (EXPENSE/INCOME/TRANSFER) 매핑.
-enum TxType { expense, income, transfer }
+part 'expense.freezed.dart';
+part 'expense.g.dart';
 
-/// 카테고리 (mock 모델 — 백엔드 연결 시 DTO 매핑 레이어 추가 예정).
-class Category {
-  const Category({
-    required this.id,
-    required this.name,
-    required this.icon,
-    required this.color,
-    required this.bg,
-  });
+/// 백엔드 `ExpenseApiDto.Response` 1:1 매핑.
+@freezed
+abstract class Expense with _$Expense {
+  const factory Expense({
+    required int rowId,
+    int? userRowId,
+    required int categoryRowId,
+    String? categoryName,
+    String? categoryIcon,
+    String? categoryColor,
+    required int assetRowId,
+    String? assetName,
+    required String expenseType, // 'EXPENSE' | 'INCOME' | 'TRANSFER'
+    required int amount,
+    String? description,
+    String? expenseDate, // ISO LocalDateTime ('YYYY-MM-DDTHH:mm:ss')
+    String? merchant,
+    String? paymentMethod,
+    int? calendarEventRowId,
+    int? todoRowId,
+    int? groupRowId,
+    String? groupName,
+    String? createAt,
+    String? modifyAt,
+  }) = _Expense;
 
-  final String id;
-  final String name;
-  final IconData icon;
-  final Color color;
-  final Color bg;
+  factory Expense.fromJson(Map<String, dynamic> json) => _$ExpenseFromJson(json);
 }
 
-class Asset {
-  const Asset({
-    required this.id,
-    required this.name,
-    required this.type, // 'cash' | 'card' | 'account' | 'investment'
-    this.balance,
-  });
+extension ExpenseX on Expense {
+  /// 표시용 부호 적용 (지출=음수, 수입/이체=양수).
+  int get signedAmount => expenseType == 'EXPENSE' ? -amount : amount;
 
-  final String id;
-  final String name;
-  final String type;
-  final int? balance;
-}
-
-class Expense {
-  const Expense({
-    required this.id,
-    required this.date, // 'YYYY-MM-DD'
-    required this.amount, // 항상 양수, 부호는 [type] 으로 결정
-    required this.type,
-    required this.categoryId,
-    required this.assetId,
-    this.description,
-    this.merchant,
-  });
-
-  final String id;
-  final String date;
-  final int amount;
-  final TxType type;
-  final String categoryId;
-  final String assetId;
-  final String? description;
-  final String? merchant;
-
-  /// 표시용 부호 적용 금액 (지출=음수, 수입/이체=양수).
-  int get signedAmount => type == TxType.expense ? -amount : amount;
+  /// 'YYYY-MM-DD' 부분만 (그룹화·필터용).
+  String? get expenseDateOnly => expenseDate?.substring(0, 10);
 }
