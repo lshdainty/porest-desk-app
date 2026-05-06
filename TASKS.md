@@ -161,8 +161,8 @@
 - [ ] **#204 i18n: expense.arb** (M) — front `expense.json` (158 키). ExpenseScreen/AddTxSheet/ExportDialog
 - [x] **#205 i18n: asset.arb 추가** (commit `c7d3f9c`) — 21키 ARB (assetTitle/totalBalance/empty/types/groups). 화면 측 호출부 마이그레이션은 후속
 - [ ] **#206 i18n: calendar.arb** (M) — front `calendar.json` (103 키). CalendarScreen/EventDialog
-- [ ] **#207 i18n: todo.arb** (S) — front `todo.json` (81 키)
-- [ ] **#208 i18n: memo.arb** (S) — front `memo.json` (41 키)
+- [x] **#207 i18n: todo.arb 추가** (commit `3de50bf`) — 19키 (status/priority/subtask/view 등). 화면 호출부 마이그레이션은 후속
+- [x] **#208 i18n: memo.arb 추가** (commit `3de50bf`) — 9키. 화면 호출부 마이그레이션은 후속
 - [ ] **#209 i18n: dutchPay.arb + group.arb** (S) — front `dutchPay.json` (30) + `group.json` (57)
 - [x] **#210 i18n: notification.arb** (commit `4ae6f81`) — 11키 ARB + NotificationScreen 마이그레이션
 - [ ] **#211 i18n: login.arb + user.arb** (S) — front `login.json` (5) + `user.json` (15)
@@ -226,8 +226,8 @@
 ## J. 캘린더
 
 - [x] **#300 캘린더 라벨(EventLabel) CRUD 다이얼로그** (commit `3c2c16a`) — `event_label_management_dialog.dart` + 신규/편집/삭제, 8색 팔레트, AppBar 우측 액션
-- [ ] **#301 공휴일(Holiday) 도메인 전체** (L) — front 4 종 (PUBLIC/SUBSTITUTE/CUSTOM + 매년 반복) + `HolidayManagementDialog`. Flutter 도메인/repo/UI 0
-- [ ] **#302 사용자 캘린더(UserCalendar) 다중 관리** (L) — front `userCalendarApi` (GET/POST/PUT/DELETE `/calendar/calendars`, isDefault/isVisible 토글). Flutter 단일 캘린더 가정
+- [x] **#301 공휴일(Holiday) 도메인 + 관리 다이얼로그** (commit `302c6e5`) — domain/repo/provider + 연도 기반 조회 + 사용자 정의(CUSTOM) 추가/삭제, 매년 반복 토글. CalendarScreen 메뉴 진입점
+- [x] **#302 사용자 캘린더(UserCalendar) 다중 관리** (commit `d5b6ea4`) — domain/repo/provider + 관리 다이얼로그 (이름/색/visibility 토글/삭제). CalendarScreen 메뉴 진입점
 - [x] **#303 캘린더 통합 집계 API** (commit `1b3900d`) — `aggregate(startDate, endDate)` + `calendarAggregateProvider`. UI 측 활용은 후속
 - [ ] **#304 캘린더 다중 뷰 (week/day/year/agenda)** (L) — front 5종 view + dnd-provider. Flutter month 단일 뷰
 - [ ] **#305 캘린더 소스 토글 (events/expenses/holidays/group)** (S) — front `calendar-source-toggle.tsx`. Flutter 미구현
@@ -245,7 +245,7 @@
 - [x] **#324 Todo reorder API** (commit `62c381d`) — `reorder(items)` + `getById` + `getSubtasks` + `updateTags`
 - [x] **#325 Todo 통계 (TodoStats)** (commit `62c381d`) — `domain/todo_stats.dart` + `stats()` + `todoStatsProvider`
 - [ ] **#326 Todo 노트 RichText 에디터** (M) — front `NoteEditorDialog`. Flutter 단일행 텍스트 필드
-- [ ] **#327 Todo 빠른 추가 입력기 + 다중 필터바** (M) — front `TodoQuickAdd` + `TodoFilters`. Flutter status chip 만
+- [x] **#327 Todo 빠른 추가 + 다중 필터** (commit `a991872`) — AppBar bottom 빠른 추가 입력 + 상태/우선순위 칩 (가로 스크롤)
 - [ ] **#328 Todo 핀 토글 응답 매핑/optimistic** (S) — front `togglePin` 응답 매핑. Flutter pin 호출만, 응답 미사용
 
 ## M. 메모
