@@ -15,6 +15,7 @@ import '../../../shared/icons/lucide_icon_map.dart';
 import '../../expense/application/expense_providers.dart';
 import '../application/budget_providers.dart';
 import '../domain/budget.dart';
+import '../domain/budget_compliance.dart';
 import 'budget_edit_dialog.dart';
 
 /// 예산 화면 (More → 예산 push).
@@ -43,6 +44,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
     final expensesAsync = ref.watch(monthExpensesProvider(
         (year: _month.year, month: _month.month)));
     final categoriesAsync = ref.watch(categoriesProvider);
+    final complianceAsync = ref.watch(budgetComplianceProvider(6));
 
     return Scaffold(
       backgroundColor: t.bgCanvas,
@@ -137,6 +139,8 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                       masked: settings.hideAmounts,
                       tokens: t,
                     ),
+                    const SizedBox(height: PSpace.x16),
+                    _ComplianceCard(async: complianceAsync, tokens: t),
                     const SizedBox(height: PSpace.x16),
                     Container(
                       decoration: BoxDecoration(
@@ -374,6 +378,111 @@ class _ErrorBox extends StatelessWidget {
           Text(message, style: PTypo.bodySm.copyWith(color: t.statusDangerFg)),
           const SizedBox(height: PSpace.x8),
           OutlinedButton(onPressed: onRetry, child: const Text('다시 시도')),
+        ],
+      ),
+    );
+  }
+}
+
+/// 최근 N개월 예산 준수율 카드 — front `BudgetPage` `ComplianceTooltip` 미러.
+/// 막대 1개 = 1개월. compliancePercent 100 미만(아래) = 한도 내(success),
+/// 100 초과 = 초과(danger). 막대 높이는 percent / 150 비율.
+class _ComplianceCard extends StatelessWidget {
+  const _ComplianceCard({required this.async, required this.tokens});
+  final AsyncValue<List<BudgetComplianceMonth>> async;
+  final PorestTokens tokens;
+
+  @override
+  Widget build(BuildContext context) {
+    final list = async.value ?? const <BudgetComplianceMonth>[];
+    return Container(
+      padding: const EdgeInsets.all(PSpace.x16),
+      decoration: BoxDecoration(
+        color: tokens.bgSurface,
+        borderRadius: PRadius.brLg,
+        border: Border.all(color: tokens.borderSubtle),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(LucideIcons.activity, size: 16, color: tokens.fgSecondary),
+              const SizedBox(width: 6),
+              Text('최근 6개월 예산 준수율',
+                  style: PTypo.bodySm.copyWith(
+                      color: tokens.fgPrimary, fontWeight: FontWeight.w700)),
+            ],
+          ),
+          const SizedBox(height: PSpace.x12),
+          if (async.isLoading && list.isEmpty)
+            const SizedBox(
+                height: 120, child: Center(child: CircularProgressIndicator()))
+          else if (list.isEmpty)
+            SizedBox(
+              height: 80,
+              child: Center(
+                child: Text('데이터 없음',
+                    style: PTypo.caption.copyWith(color: tokens.fgTertiary)),
+              ),
+            )
+          else
+            SizedBox(
+              height: 110,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  for (final m in list)
+                    Expanded(
+                      child: _ComplianceBar(month: m, tokens: tokens),
+                    ),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ComplianceBar extends StatelessWidget {
+  const _ComplianceBar({required this.month, required this.tokens});
+  final BudgetComplianceMonth month;
+  final PorestTokens tokens;
+
+  @override
+  Widget build(BuildContext context) {
+    // 한도 100% 까지는 success, 그 이상은 danger.
+    final p = month.compliancePercent.clamp(0, 200).toDouble();
+    final overLimit = p > 100;
+    final h = (p / 150).clamp(0.05, 1.0); // 시각 비율 (max 150%)
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 3),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: Container(
+                width: double.infinity,
+                height: 80 * h,
+                decoration: BoxDecoration(
+                  color: overLimit ? tokens.statusDanger : tokens.fgBrand,
+                  borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(3)),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text('${p.toStringAsFixed(0)}%',
+              style: PTypo.micro.copyWith(
+                color: overLimit ? tokens.statusDanger : tokens.fgSecondary,
+                fontWeight: FontWeight.w700,
+              )),
+          Text('${month.month}월',
+              style: PTypo.micro.copyWith(color: tokens.fgTertiary)),
         ],
       ),
     );

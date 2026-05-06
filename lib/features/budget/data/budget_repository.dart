@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/network/api_response.dart';
 import '../domain/budget.dart';
+import '../domain/budget_compliance.dart';
 
 class BudgetRepository {
   BudgetRepository(this._dio);
@@ -68,6 +69,30 @@ class BudgetRepository {
   Future<void> delete(int id) async {
     try {
       await _dio.delete<void>('/expense/budget/$id');
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  /// N개월 예산 준수율. GET /expense/budgets/compliance?months=N (기본 6).
+  Future<List<BudgetComplianceMonth>> compliance({int months = 6}) async {
+    try {
+      final res = await _dio.get<Map<String, dynamic>>(
+        '/expense/budgets/compliance',
+        queryParameters: {'months': months},
+      );
+      final body = ApiResponse<Map<String, dynamic>>.fromJson(
+        res.data ?? const {},
+        (raw) => raw! as Map<String, dynamic>,
+      );
+      if (!body.success || body.data == null) {
+        throw ApiException(code: body.code, message: body.message);
+      }
+      final list = (body.data!['months'] as List<dynamic>?) ?? const [];
+      return list
+          .map((e) =>
+              BudgetComplianceMonth.fromJson(e as Map<String, dynamic>))
+          .toList(growable: false);
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }
