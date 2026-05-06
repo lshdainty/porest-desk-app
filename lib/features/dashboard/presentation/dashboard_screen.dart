@@ -21,6 +21,8 @@ import '../../expense/domain/expense.dart';
 import '../../expense/presentation/tx_detail_dialog.dart';
 import '../../stats/application/stats_providers.dart';
 import '../../stats/domain/stats_models.dart';
+import '../application/dashboard_providers.dart';
+import '../domain/dashboard_summary.dart';
 
 /// 홈 / 대시보드 — porest-desk-front HomeMobile 정확 미러.
 class DashboardScreen extends ConsumerWidget {
@@ -38,6 +40,7 @@ class DashboardScreen extends ConsumerWidget {
     final expensesAsync = ref.watch(monthExpensesProvider(monthKey));
     final categoriesAsync = ref.watch(categoriesProvider);
     final trendAsync = ref.watch(monthlyTrendProvider(6));
+    final dashboardAsync = ref.watch(dashboardSummaryProvider);
 
     return RefreshIndicator(
       color: t.bgBrand,
@@ -46,6 +49,7 @@ class DashboardScreen extends ConsumerWidget {
             assetSummaryProvider((year: now.year, month: now.month)));
         ref.invalidate(monthExpensesProvider(monthKey));
         ref.invalidate(monthlyTrendProvider(6));
+        ref.invalidate(dashboardSummaryProvider);
       },
       child: ListView(
         // .m-scroll : padding: 0 → child 가 직접 padding
@@ -65,11 +69,148 @@ class DashboardScreen extends ConsumerWidget {
           const SizedBox(height: 16),
           _MonthlyTrendCard(async: trendAsync),
           const SizedBox(height: 16),
+          _UpcomingCard(async: dashboardAsync),
+          const SizedBox(height: 16),
           _RecentTxCard(
             expensesAsync: expensesAsync,
             categoriesAsync: categoriesAsync,
             masked: settings.hideAmounts,
           ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 다가오는 일정 + 최근 할 일 카드 (#230 활용).
+class _UpcomingCard extends StatelessWidget {
+  const _UpcomingCard({required this.async});
+  final AsyncValue<DashboardSummary> async;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    if (async.isLoading && !async.hasValue) {
+      return PCard(
+        padding: const EdgeInsets.all(18),
+        child: const SizedBox(
+            height: 80, child: Center(child: CircularProgressIndicator())),
+      );
+    }
+    final s = async.value;
+    if (s == null) return const SizedBox.shrink();
+    final events = s.upcomingEvents.take(3).toList();
+    final todos = s.recentTodos.take(3).toList();
+    if (events.isEmpty && todos.isEmpty) return const SizedBox.shrink();
+
+    return PCard(
+      padding: const EdgeInsets.fromLTRB(18, 18, 18, 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (events.isNotEmpty) ...[
+            Row(
+              children: [
+                Icon(LucideIcons.calendarClock,
+                    size: 16, color: t.fgSecondary),
+                const SizedBox(width: 6),
+                Text('다가오는 일정',
+                    style: PTypo.bodySm.copyWith(
+                        color: t.fgPrimary, fontWeight: FontWeight.w700)),
+                const Spacer(),
+                GestureDetector(
+                  onTap: () => context.push('/calendar'),
+                  child: Icon(LucideIcons.chevronRight,
+                      size: 14, color: t.fgTertiary),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            for (final e in events)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                          color: parseColor(e.color, fallback: t.fgBrand),
+                          shape: BoxShape.circle),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(e.title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: PTypo.bodySm
+                              .copyWith(color: t.fgPrimary)),
+                    ),
+                    Text(
+                        e.daysUntil == 0
+                            ? '오늘'
+                            : (e.daysUntil == 1
+                                ? '내일'
+                                : 'D-${e.daysUntil}'),
+                        style: PTypo.caption
+                            .copyWith(color: t.fgTertiary)),
+                  ],
+                ),
+              ),
+            if (todos.isNotEmpty) const SizedBox(height: 12),
+          ],
+          if (todos.isNotEmpty) ...[
+            Row(
+              children: [
+                Icon(LucideIcons.checkSquare,
+                    size: 16, color: t.fgSecondary),
+                const SizedBox(width: 6),
+                Text('최근 할 일',
+                    style: PTypo.bodySm.copyWith(
+                        color: t.fgPrimary, fontWeight: FontWeight.w700)),
+                const Spacer(),
+                GestureDetector(
+                  onTap: () => context.push('/todos'),
+                  child: Icon(LucideIcons.chevronRight,
+                      size: 14, color: t.fgTertiary),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            for (final tdo in todos)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Row(
+                  children: [
+                    Icon(
+                      tdo.status == 'COMPLETED'
+                          ? LucideIcons.checkCircle
+                          : LucideIcons.circle,
+                      size: 14,
+                      color: tdo.status == 'COMPLETED'
+                          ? t.statusSuccess
+                          : t.fgTertiary,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(tdo.title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: PTypo.bodySm.copyWith(
+                            color: t.fgPrimary,
+                            decoration: tdo.status == 'COMPLETED'
+                                ? TextDecoration.lineThrough
+                                : null,
+                          )),
+                    ),
+                    if (tdo.dueDate != null)
+                      Text(tdo.dueDate!.substring(5),
+                          style: PTypo.caption
+                              .copyWith(color: t.fgTertiary)),
+                  ],
+                ),
+              ),
+          ],
         ],
       ),
     );
