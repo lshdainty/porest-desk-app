@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/network/api_response.dart';
 import '../domain/group.dart';
+import '../domain/group_member.dart';
 
 class GroupRepository {
   GroupRepository(this._dio);
@@ -81,6 +82,37 @@ class GroupRepository {
   Future<void> regenerateInviteCode(int id) async {
     try {
       await _dio.patch<dynamic>('/group/$id/regenerate-invite-code');
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  /// 그룹 상세 (멤버 포함). GET /group/{id}.
+  Future<GroupDetail> getDetail(int id) async {
+    try {
+      final res = await _dio.get<Map<String, dynamic>>('/group/$id');
+      return _unwrap(res, GroupDetail.fromJson);
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  /// 그룹 멤버 제거. DELETE /group/{groupId}/member/{memberId}.
+  Future<void> removeMember(int groupId, int memberId) async {
+    try {
+      await _dio.delete<void>('/group/$groupId/member/$memberId');
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  /// 멤버 권한 변경 (OWNER/ADMIN/MEMBER).
+  Future<void> changeMemberRole(int groupId, int memberId, String role) async {
+    try {
+      await _dio.patch<dynamic>(
+        '/group/$groupId/member/$memberId/role',
+        data: {'role': role},
+      );
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }
