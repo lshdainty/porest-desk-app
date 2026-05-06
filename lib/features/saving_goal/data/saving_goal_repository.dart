@@ -97,6 +97,33 @@ class SavingGoalRepository {
     }
   }
 
+  /// 단건 조회. GET /saving-goal/{id}.
+  Future<SavingGoal> getById(int id) async {
+    try {
+      final res = await _dio.get<Map<String, dynamic>>('/saving-goal/$id');
+      return _unwrap(res, SavingGoal.fromJson);
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  /// 정렬 순서 변경. PATCH /saving-goals/reorder.
+  Future<void> reorder(List<({int id, int sortOrder})> items) async {
+    try {
+      await _dio.patch<dynamic>(
+        '/saving-goals/reorder',
+        data: {
+          'items': [
+            for (final i in items)
+              {'id': i.id, 'sortOrder': i.sortOrder},
+          ],
+        },
+      );
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
   T _unwrap<T>(
     Response<Map<String, dynamic>> res,
     T Function(Map<String, dynamic>) fromJson,

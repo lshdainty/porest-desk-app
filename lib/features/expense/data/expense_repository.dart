@@ -208,6 +208,30 @@ class ExpenseRepository {
     }
   }
 
+  /// 카테고리 정렬 순서 + 부모 변경. PATCH /expense/categories/reorder.
+  /// [items] = (categoryRowId, sortOrder, parentRowId?) tuple 목록.
+  Future<void> reorderCategories(
+    List<({int categoryRowId, int sortOrder, int? parentRowId})> items,
+  ) async {
+    try {
+      await _dio.patch<dynamic>(
+        '/expense/categories/reorder',
+        data: {
+          'items': [
+            for (final i in items)
+              {
+                'categoryRowId': i.categoryRowId,
+                'sortOrder': i.sortOrder,
+                'parentRowId': ?i.parentRowId,
+              },
+          ],
+        },
+      );
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
   // ─────────────────────────────────────────────
   // Helpers
   // ─────────────────────────────────────────────
