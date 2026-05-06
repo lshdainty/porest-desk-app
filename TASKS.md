@@ -142,3 +142,218 @@
 - `flutter pub get` — `share_plus` 패키지 다운로드 필요 (#133)
 - 컨테이너 GitHub App 권한 풀린 뒤 `git push -u origin claude/review-pending-work-4btvY`
 - iOS 빌드 시 `share_plus` 의 Info.plist `LSApplicationQueriesSchemes` 자동 처리됨 (변경 없음 예상)
+
+---
+
+# 신규 발견 항목 — front 전수 비교 결과 (2026-05-06)
+
+> 3개 분석 agent (core / auxiliary / cross-cutting) 가 front `porest-desk-front` 와 Flutter app 을 전수 비교해 도출. 누락 기능 / 미러 안 된 다이얼로그 / 미사용 endpoint 위주, 픽셀 폴리시는 제외.
+> ID 체계: #200~ 신규 부여. 작업량 S(<1h) / M(1~3h) / L(>3h).
+
+## A. 다국어 / i18n (인프라 0%)
+
+> Flutter `lib/l10n/` 빈 폴더, `pubspec` 에 `flutter_localizations` 미선언, `app.dart` 에 delegate 미등록, 101 lib 파일에 한글 하드코딩. front 는 ko/en 두 언어 + 14개 도메인 JSON.
+
+- [ ] **#200 i18n 인프라 부트스트랩** (M) — `pubspec.yaml`/`app.dart`/`l10n.yaml`. `flutter_localizations` 추가, `generate: true`, `AppLocalizations` delegate 등록, locale Provider (설정에서 ko/en 토글) + `lang_interceptor` 가 user override 우선
+- [ ] **#201 i18n: common.arb** (S) — front `locales/{ko,en}/common.json` (12 키, save/cancel/delete 등). 글로벌 폼 버튼
+- [ ] **#202 i18n: layout.arb** (S) — front `layout.json` (15 키). MobileTabBar/MoreScreen/MobileHeader 마이그레이션
+- [ ] **#203 i18n: dashboard.arb** (M) — front `dashboard.json` (166 키, 가장 큼)
+- [ ] **#204 i18n: expense.arb** (M) — front `expense.json` (158 키). ExpenseScreen/AddTxSheet/ExportDialog
+- [ ] **#205 i18n: asset.arb** (M) — front `asset.json` (43 키, assetType.* 7종). AssetScreen/AssetTransferDialog/CardScreen
+- [ ] **#206 i18n: calendar.arb** (M) — front `calendar.json` (103 키). CalendarScreen/EventDialog
+- [ ] **#207 i18n: todo.arb** (S) — front `todo.json` (81 키)
+- [ ] **#208 i18n: memo.arb** (S) — front `memo.json` (41 키)
+- [ ] **#209 i18n: dutchPay.arb + group.arb** (S) — front `dutchPay.json` (30) + `group.json` (57)
+- [ ] **#210 i18n: notification.arb** (S) — front `notification.json` (14 키)
+- [ ] **#211 i18n: login.arb + user.arb** (S) — front `login.json` (5) + `user.json` (15)
+
+## B. 인증 / 사용자
+
+- [ ] **#220 비밀번호 변경 화면 + repository** (S) — front `userApi.changePassword` (PATCH `/users/me/password`), `PasswordChangeDialog.tsx`. Flutter 전무
+- [ ] **#221 UserPreferences (budgetAlertThreshold) Provider/UI** (S) — front `userApi.{get,update}Preferences`. Flutter 미사용
+
+## C. 대시보드
+
+- [ ] **#230 DashboardSummary endpoint + provider** (M) — front `useDashboardSummary` (GET `/v1/dashboard/summary`, recentTodos/upcomingEvents/expenseSummary 묶음). Flutter `lib/features/dashboard/data/` 자체가 없음
+- [ ] **#231 Dashboard layout GET/PATCH** (M) — front `getLayout/updateLayout` (사용자 위젯 순서/숨김). Flutter 단일 레이아웃 고정
+- [ ] **#232 HomeDesktop 5종 카드** (L) — 월별 막대 / 카테고리 도넛 / 예산 / 예정 결제 / 일정. 데스크톱 레이아웃 부재 (모바일 단일)
+- [ ] **#233 월별 수입/지출 BarChart 표시** (S) — `monthlyTrendProvider` 는 이미 있으나 dashboard_screen 에 미사용
+
+## D. 자산 / 이체
+
+- [ ] **#240 AssetDetailDialog (잔액 추이 + 최근 거래)** (L) — front 375줄. Flutter `showAssetDetailDialog` 는 곧장 편집 폼만 띄움
+- [ ] **#241 자산 잔액 추이 API + 차트** (M) — front `useAssetBalanceTrend` (GET `/asset/{id}/balance-trend`). Flutter repo/provider/UI 모두 없음
+- [ ] **#242 자산 단건 GET** (S) — front `assetApi.getAsset(id)`. Flutter list 만 호출
+- [ ] **#243 자산 순서 변경 PATCH** (S) — front `assetApi.reorderAssets`. Flutter 미구현
+- [ ] **#244 자산 이체 내역 리스트** (M) — front `useAssetTransfers` (GET `/asset-transfers`) + `AssetTransferList.tsx`. Flutter create/delete 만, list 없음
+- [ ] **#245 카드/투자 카탈로그 풀 폼** (L) — front `CardAddDialog` 323줄, `InvestmentAddDialog` 241줄. Flutter 는 chip 노출만 분기 (#134 partial)
+
+## E. 거래 / 카테고리 / 예산
+
+- [ ] **#250 카테고리 reorder PATCH** (S) — front `reorderCategories` (PATCH `/expense/categories/reorder`). Flutter 미구현
+- [ ] **#251 일/주/연 요약 endpoint** (M) — front `useDaily/Weekly/YearlySummary`. Flutter stats_repo 는 monthly/trend 만
+- [ ] **#252 캘린더 이벤트별/할일별 거래 목록** (S) — front `useExpensesByCalendarEvent/Todo`. Flutter 미구현
+- [ ] **#253 FilterDialog 다차원 필터 확장** (M) — front: period(month/week/3m/custom) + types + categoryIds + assetIds + min/max 금액. Flutter 는 cat/asset 두 차원만 (#137 별도)
+- [ ] **#254 자산별 거래 필터 진입** (S) — front `?assetId=N` 쿼리 + 배지. Flutter ExpenseScreen 진입점 없음
+- [ ] **#255 거래 검색 endpoint UI 연결** (S) — front `useSearchExpenses` (`/expenses/search`). Flutter `repo.search` 정의는 있으나 UI 미연결
+- [ ] **#256 예산 준수율 6개월 차트** (M) — front `useBudgetCompliance` (`/expense/budgets/compliance`). Flutter repo/UI 없음
+- [ ] **#257 BudgetEditDialog "전체 월 예산" 모드** (S) — front `MonthlyBudgetDialog`. Flutter 카테고리 단건만
+- [ ] **#258 BudgetManager 일괄 편집/복사** (M) — front 525줄. Flutter list+FAB 만
+
+## F. 프리셋
+
+- [ ] **#260 PresetManager 드래그 reorder** (S) — front 408줄. Flutter sortOrder 필드는 백엔드 있으나 UI 미사용
+
+## G. 반복 거래
+
+- [ ] **#270 RecurringFromTxDialog 풀 폼** (M) — front 539줄. frequency / dayOfWeek/Month / end mode COUNT|DATE / autoLog / notify / next-3 preview. Flutter 는 일반 RecurringEditDialog 재사용 (#132 partial)
+- [ ] **#271 RecurringManager 일괄 액션** (S) — front 547줄, 일부는 이미 미러됨. 나머지 minor
+
+## H. 통계
+
+- [ ] **#280 자산별 지출 분포 차트** (S) — provider `assetExpenseSummaryProvider` 정의는 있으나 stats_screen 미사용
+- [ ] **#281 카테고리 트렌드 라인 차트** (M) — front `CategoryTrendChart`. Flutter 미구현
+- [ ] **#282 예산 vs 실제 차트** (M) — front `BudgetVsActualChart`. Flutter 미구현
+- [ ] **#283 가맹점 분포·추이 차트** (M) — front `MerchantAnalysisChart`. Flutter 가맹점 Top 5 list 만
+- [ ] **#284 전년 대비 차트 + yearlySummary 연동** (M) — front `YearOverYearChart` + `useYearlySummary`. endpoint·차트 모두 없음
+- [ ] **#285 카테고리 부모-자식 드릴다운** (M) — front `activeParentId` + `drillBreakdown`. Flutter 단일 도넛만
+
+## I. 더치페이 / 정산
+
+- [ ] **#290 더치페이 단건 GET + 수정** (M) — front `useDutchPay(id)` / `useUpdateDutchPay`. Flutter repo `get`/`update` 없음, 수정 UI 없음
+- [ ] **#291 DutchPayFromTxDialog 풀 폼** (M) — front 610줄, 분배 방식(EQUAL/CUSTOM) 토글, 그룹 멤버 picker. Flutter 의 `showDutchPayCreateDialog(fromExpense:)` 는 얕은 폼 (#132 partial)
+
+## J. 캘린더
+
+- [ ] **#300 캘린더 라벨(EventLabel) CRUD 다이얼로그** (M) — front `LabelManagementDialog` (POST/PUT/DELETE `/event-label(s)`). Flutter `labels()` GET 만, CRUD UI 없음
+- [ ] **#301 공휴일(Holiday) 도메인 전체** (L) — front 4 종 (PUBLIC/SUBSTITUTE/CUSTOM + 매년 반복) + `HolidayManagementDialog`. Flutter 도메인/repo/UI 0
+- [ ] **#302 사용자 캘린더(UserCalendar) 다중 관리** (L) — front `userCalendarApi` (GET/POST/PUT/DELETE `/calendar/calendars`, isDefault/isVisible 토글). Flutter 단일 캘린더 가정
+- [ ] **#303 캘린더 통합 집계 API** (S) — front `calendarAggregateApi` (`/calendar/aggregate` 단일 호출에 events/expenses/holidays). Flutter 별도 호출 N+1
+- [ ] **#304 캘린더 다중 뷰 (week/day/year/agenda)** (L) — front 5종 view + dnd-provider. Flutter month 단일 뷰
+- [ ] **#305 캘린더 소스 토글 (events/expenses/holidays/group)** (S) — front `calendar-source-toggle.tsx`. Flutter 미구현
+
+## K. 이벤트 코멘트
+
+- [ ] **#310 EventComment 도메인** (M) — front `eventCommentApi` (POST/GET/PUT/DELETE `/calendar/event/{id}/comment(s)`). Flutter 0
+
+## L. Todo
+
+- [ ] **#320 TodoProject CRUD + 관리 다이얼로그** (L) — front 도메인 + `ProjectManagementDialog` + project-grouped 뷰. Flutter `projectRowId` 필드만, UI 없음
+- [ ] **#321 TodoTag CRUD + 관리 다이얼로그** (M) — front `todoTagApi` + `TagManagementDialog` + `todoApi.updateTags` (PATCH `/todo/{id}/tags`). Flutter 0
+- [ ] **#322 Todo 칸반 보드 뷰** (L) — front `KanbanBoard/Column/Card` + dnd. Flutter 단일 list 뷰만
+- [ ] **#323 Todo 서브태스크** (M) — front `getSubtasks` (GET `/todo/{parentId}/subtasks`) + `SubtaskList`. Flutter 모델 필드만
+- [ ] **#324 Todo reorder API** (S) — front `reorderTodos` (PATCH `/todos/reorder`). Flutter 미구현
+- [ ] **#325 Todo 통계 (TodoStats)** (S) — front `getStats` (GET `/todos/stats`). Flutter 0
+- [ ] **#326 Todo 노트 RichText 에디터** (M) — front `NoteEditorDialog`. Flutter 단일행 텍스트 필드
+- [ ] **#327 Todo 빠른 추가 입력기 + 다중 필터바** (M) — front `TodoQuickAdd` + `TodoFilters`. Flutter status chip 만
+- [ ] **#328 Todo 핀 토글 응답 매핑/optimistic** (S) — front `togglePin` 응답 매핑. Flutter pin 호출만, 응답 미사용
+
+## M. 메모
+
+- [ ] **#340 MemoFolder 도메인 (트리 + reorder)** (L) — front `memoFolderApi` + `MemoFolderTree`. Flutter `folderId` 파라미터만, 폴더 도메인 자체 0
+- [ ] **#341 메모 검색 (search 파라미터)** (S) — front `getMemos({folderId, search})` + `MemoSearch`. Flutter `list()` 무파라미터
+- [ ] **#342 3패널 메모 에디터 (트리/리스트/프리뷰)** (L) — front `MemoEditorWidget` + `MemoFolderTree` + `MemoList` + `MemoPreview`. Flutter 단일 ListView
+
+## N. 저금 목표
+
+- [ ] **#350 SavingGoal reorder PATCH** (S) — front `reorderSavingGoals`. Flutter 미구현
+- [ ] **#351 SavingGoal 단건 GET** (S) — front `getSavingGoal(id)`. Flutter list 만
+
+## O. 그룹
+
+- [ ] **#360 GroupType CRUD + 관리 다이얼로그** (M) — front `groupTypeApi` + `GroupTypeManagementDialog`. Flutter 표시만 가능, CRUD 0
+- [ ] **#361 그룹 형제 멤버 조회 (getSiblingMembers)** (S) — front GET `/groups/members`. 더치페이/지출분할 멤버 후보용. Flutter 0
+- [ ] **#362 그룹 일정 탭 + 지출 탭** (L) — front `GroupScheduleTab/GroupExpenseTab` + `getGroupEvents/getGroupExpenses`. Flutter `group_detail_screen` 멤버 패널만
+- [ ] **#363 그룹 수정/삭제 UI 진입점** (M) — front `GroupForm` 수정 모드. Flutter repo update/delete 있으나 UI 호출 없음
+
+## P. 카드
+
+- [ ] **#370 카드 사용 가능 혜택(availableBenefits) API** (S) — front `getAvailableBenefits(cardRowId, expenseCategoryRowId)`. Flutter 0 → 지출 입력 시 카드별 혜택 자동 추천 불가
+- [ ] **#371 CardPerformance 도메인 + 진척 바** (M) — front `cardPerformanceApi` + `CardPerformanceSection`. Flutter 0
+- [ ] **#372 CardBenefitMapping 도메인 + 설정 페이지** (L) — front `cardBenefitMappingApi` + `CardSettingsPage` + 매핑 에디터 (라우트 `/desk/card-settings`). Flutter 라우트·기능 0
+- [ ] **#373 CardCatalogCombobox (자산 등록 시 카드 자동완성)** (M) — front. Flutter 없음
+- [ ] **#374 카드 검색 benefitType / includeDiscontinued 필터** (S) — front 4 필터, Flutter 2 필터만 (`card_screen`)
+- [ ] **#375 카드 카탈로그 페이지네이션** (M) — front `PageResponse` (totalPages/totalElements). Flutter 첫 30개만, 무한 스크롤 없음
+
+## Q. 알림
+
+- [ ] **#380 실시간 알림 SSE/푸시 채널** (L) — front `useNotificationSSE` (EventSource `/notifications/stream`, exponential backoff, toast). 모바일 권장은 FCM (firebase_messaging + APNs/FCM 키 설정)
+- [ ] **#381 헤더 NotificationBell + unread badge** (S) — front 종 아이콘 + `99+`. Flutter `mobile_header.dart` 에 종 아이콘 없음, `unreadCountProvider` 노출만 필요
+
+## R. 파일 첨부
+
+- [ ] **#390 File 업로드/조회/삭제 인프라** (L) — front `fileApi` (POST `/files/upload` multipart, GET/DELETE). Flutter 0, dependency 에 image_picker/file_picker 없음. 거래/메모/할일 영수증 첨부 불가
+
+## S. 타이머 (defer 결정 필요)
+
+- [ ] **#395 Timer (POMODORO/COUNTDOWN/STOPWATCH)** (L 또는 N/A) — front `timerEngine.ts` + `timer.json` 14 키. 가계부 모바일 비핵심 → defer 권장. dashboard 마이그레이션 시 timer 카드 섹션 처리 결정 필요
+
+## T. 공유 UI / 디자인 시스템
+
+- [ ] **#400 PorestButton/PInput/PField/PLabel 등 토큰 위젯 셋** (M) — front shadcn 기반. Flutter `lib/shared/widgets/` 4종(`p_card`/`mobile_*`)뿐, Material 직접 사용 → 디자인 일관성 약화
+- [ ] **#401 PDialog/PBottomSheet/ModalShell 통일** (M) — front `ModalShell` (mobile=Drawer, desktop=Dialog). Flutter 는 `wolt_modal_sheet`/`AlertDialog`/`showModalBottomSheet` 산재
+- [ ] **#402 PToast (sonner 등가)** (S) — front 다중 토스트/액션. Flutter `ScaffoldMessenger.showSnackBar` 산발
+- [ ] **#403 PInputDatePicker / PInputTimePicker** (S) — front input 안 popover. Flutter `showDatePicker`/`showTimePicker` 7+ 화면 직접 호출
+- [ ] **#404 ColorPicker / IconPicker** (S) — front. Flutter 카테고리/그룹 색상 raw 입력
+- [ ] **#405 SpeedDial (FAB-with-children)** (S) — front. Flutter 단일 FAB
+- [ ] **#406 RichTextEditor (메모/노트 본문)** (L) — front. Flutter 0 → 마크다운 미리보기 정도로 축소 권장
+- [ ] **#407 PCommandPalette (Cmd/Ctrl+K)** (M, defer) — 모바일 비핵심
+
+## U. 마스킹 / hideAmounts
+
+- [ ] **#420 MaskAmount 등가 위젯 + 비숫자 마스킹** (S) — front `MaskAmount`/`HideUnit` (children 자체 가림). Flutter `krwMasked` 는 `int` 금액만, 그래프 라벨/비율/카운트 가려지지 않음
+- [ ] **#421 차트 tooltip 마스킹 적용** (S) — front 적용. Flutter `net_worth_chart` 등 tooltip 미마스킹
+- [ ] **#422 hideAmounts unlock 다이얼로그 wired 일관성** (S) — `mobile_header`/`asset_screen` wired, 그 외(대시보드/통계/예산)도 동일 패턴 적용 검토
+
+## V. 라우팅 / 테마
+
+- [ ] **#430 카드 상세 paramized 라우트 (deep link)** (S) — front `/desk/card/:assetRowId`. Flutter `Navigator.push` 직접 — go_router 외부, deep link 불가
+- [ ] **#431 card-settings 라우트** (M) — #372 와 묶임
+- [ ] **#432 PDensity.cozy 키 정렬** (S) — front `cozy` ↔ Flutter `comfortable` 직렬화 키 mismatch. front prefs 동기화 시 깨짐
+
+## W. 카테고리 색 팔레트
+
+- [ ] **#440 카테고리 아이콘 팔레트(CAT_ICO_PALETTE) 이식** (S) — front `primitives.tsx`. Flutter `colors.dart` 는 mist/mossy/bark/sunlit/berry/sky 만, 카테고리별 색 매핑 미이식
+
+---
+
+## 카운트 요약
+
+| 영역 | 신규 항목 | 작업량 분포 |
+|---|---|---|
+| A. i18n | 12 | M 5, S 7 |
+| B. 인증/사용자 | 2 | S 2 |
+| C. 대시보드 | 4 | L 1, M 2, S 1 |
+| D. 자산 | 6 | L 2, M 2, S 2 |
+| E. 거래/카테고리/예산 | 9 | M 4, S 5 |
+| F. 프리셋 | 1 | S 1 |
+| G. 반복 | 2 | M 1, S 1 |
+| H. 통계 | 6 | M 5, S 1 |
+| I. 더치페이 | 2 | M 2 |
+| J. 캘린더 | 6 | L 3, M 1, S 2 |
+| K. 이벤트 코멘트 | 1 | M 1 |
+| L. Todo | 9 | L 2, M 3, S 4 |
+| M. 메모 | 3 | L 2, S 1 |
+| N. 저금 목표 | 2 | S 2 |
+| O. 그룹 | 4 | L 1, M 2, S 1 |
+| P. 카드 | 6 | L 1, M 3, S 2 |
+| Q. 알림 | 2 | L 1, S 1 |
+| R. 파일 | 1 | L 1 |
+| S. 타이머 | 1 | defer |
+| T. 공유 UI | 8 | L 1, M 2, S 5 |
+| U. 마스킹 | 3 | S 3 |
+| V. 라우팅/테마 | 3 | M 1, S 2 |
+| W. 팔레트 | 1 | S 1 |
+| **합계** | **94** | **L 15, M 34, S 44, defer 1** |
+
+대략 코어 30 + 보조 31 + 횡단 33. 
+
+## 권장 진행 순서 (의견)
+
+1. **#200 i18n 인프라** — 모든 후속 화면 작업의 기반. 한 번에 인프라만 깔고 후속 #201-#211 도메인별 ARB 는 다른 기능 작업과 병행
+2. **#240 AssetDetailDialog**, **#270 RecurringFromTxDialog 풀 폼**, **#291 DutchPayFromTxDialog 풀 폼** — 이미 진입점은 있지만 UX 깊이가 얕은 항목
+3. **#230-#233 대시보드** — 홈 화면이 약함. summary endpoint + 5종 카드
+4. **#380-#381 알림 채널** — UX 핵심 (FCM 도입은 권한 풀린 뒤)
+5. **#390 파일 첨부**, **#372 CardBenefitMapping** — 큰 도메인이라 별도 스프린트
+6. **#400-#407 디자인 시스템** — 디자인 일관성. i18n 직후 또는 병행
+7. 나머지는 우선순위 낮게 분산
