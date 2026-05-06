@@ -11,7 +11,11 @@ import '../../../core/format/color_parse.dart';
 import '../../../core/format/date.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/settings/settings_notifier.dart';
+import '../../budget/application/budget_providers.dart';
+import '../../budget/domain/budget.dart';
 import '../../expense/application/expense_providers.dart';
+import '../../expense/domain/expense.dart';
+import '../../expense/domain/expense_category.dart';
 import '../application/stats_providers.dart';
 import '../domain/stats_models.dart';
 import '../domain/stats_summaries.dart';
@@ -54,6 +58,9 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
     final yearAsync = ref.watch(yearlySummaryProvider(_month.year));
     final prevYearAsync =
         ref.watch(yearlySummaryProvider(_month.year - 1));
+    final budgetsAsync = ref.watch(monthBudgetsProvider(_ym));
+    final monthExpAsync = ref.watch(monthExpensesProvider(_ym));
+    final categoriesAsync = ref.watch(categoriesProvider);
 
     return RefreshIndicator(
       color: t.bgBrand,
@@ -118,7 +125,21 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
           ),
           const SizedBox(height: PSpace.x12),
 
-          // 6. 전년 대비
+          // 6. 예산 vs 실제 (#282)
+          _SectionCard(
+            title: '${_month.month}월 예산 vs 실제',
+            tokens: t,
+            child: _BudgetVsActual(
+              budgetsAsync: budgetsAsync,
+              monthExpAsync: monthExpAsync,
+              categoriesAsync: categoriesAsync,
+              masked: settings.hideAmounts,
+              tokens: t,
+            ),
+          ),
+          const SizedBox(height: PSpace.x12),
+
+          // 7. 전년 대비
           _SectionCard(
             title: '전년 대비 (${_month.year} vs ${_month.year - 1})',
             tokens: t,
@@ -1011,6 +1032,117 @@ class _YearOverYearChart extends StatelessWidget {
             ),
           ),
         ),
+      ],
+    );
+  }
+}
+
+/// 예산 vs 실제 카테고리별 비교 (#282).
+class _BudgetVsActual extends StatelessWidget {
+  const _BudgetVsActual({
+    required this.budgetsAsync,
+    required this.monthExpAsync,
+    required this.categoriesAsync,
+    required this.masked,
+    required this.tokens,
+  });
+  final AsyncValue<List<Budget>> budgetsAsync;
+  final AsyncValue<List<Expense>> monthExpAsync;
+  final AsyncValue<List<ExpenseCategory>> categoriesAsync;
+  final bool masked;
+  final PorestTokens tokens;
+
+  @override
+  Widget build(BuildContext context) {
+    final loading = (budgetsAsync.isLoading && !budgetsAsync.hasValue) ||
+        (monthExpAsync.isLoading && !monthExpAsync.hasValue);
+    if (loading) {
+      return const SizedBox(
+          height: 120, child: Center(child: CircularProgressIndicator()));
+    }
+    final budgets = budgetsAsync.value ?? const <Budget>[];
+    final expenses = monthExpAsync.value ?? const <Expense>[];
+    if (budgets.isEmpty) return _EmptyMini(text: '등록된 예산 없음', tokens: tokens);
+
+    final spentByCat = <int, int>{};
+    for (final e in expenses) {
+      if (e.expenseType != 'EXPENSE') continue;
+      final cid = e.categoryRowId;
+      if (cid == null) continue;
+      spentByCat.update(cid, (v) => v + e.amount, ifAbsent: () => e.amount);
+    }
+    final cats = categoriesAsync.value ?? const <ExpenseCategory>[];
+    String catName(int id) => cats
+        .firstWhere((c) => c.rowId == id,
+            orElse: () => const ExpenseCategory(
+                rowId: 0, categoryName: '', expenseType: 'EXPENSE'))
+        .categoryName;
+    Color catColor(int id) {
+      try {
+        final c = cats.firstWhere((c) => c.rowId == id);
+        return parseColor(c.color, fallback: tokens.fgBrand);
+      } catch (_) {
+        return tokens.fgBrand;
+      }
+    }
+
+    final sorted = [...budgets]
+      ..sort((a, b) {
+        final pa = (spentByCat[a.categoryRowId] ?? 0) /
+            (a.budgetAmount == 0 ? 1 : a.budgetAmount);
+        final pb = (spentByCat[b.categoryRowId] ?? 0) /
+            (b.budgetAmount == 0 ? 1 : b.budgetAmount);
+        return pb.compareTo(pa);
+      });
+
+    return Column(
+      children: [
+        for (final b in sorted)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 6),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 8, height: 8,
+                      decoration: BoxDecoration(
+                          color: catColor(b.categoryRowId),
+                          shape: BoxShape.circle),
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(catName(b.categoryRowId),
+                          style: PTypo.bodySm
+                              .copyWith(color: tokens.fgPrimary)),
+                    ),
+                    Text(
+                      '${krwMasked(spentByCat[b.categoryRowId] ?? 0, masked)} / ${krwMasked(b.budgetAmount, masked)}',
+                      style: PTypo.caption.copyWith(color: tokens.fgTertiary),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Builder(builder: (_) {
+                  final spent = spentByCat[b.categoryRowId] ?? 0;
+                  final pct = b.budgetAmount == 0
+                      ? 0.0
+                      : (spent / b.budgetAmount).clamp(0.0, 1.5);
+                  final over = pct > 1.0;
+                  return ClipRRect(
+                    borderRadius: PRadius.brXs,
+                    child: LinearProgressIndicator(
+                      value: pct.clamp(0.0, 1.0),
+                      minHeight: 6,
+                      backgroundColor: tokens.bgTrack,
+                      color: over ? tokens.statusDanger : tokens.fgBrand,
+                    ),
+                  );
+                }),
+              ],
+            ),
+          ),
       ],
     );
   }
