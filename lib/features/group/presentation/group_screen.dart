@@ -12,6 +12,7 @@ import '../../../core/format/color_parse.dart';
 import '../../../core/network/api_exception.dart';
 import '../application/group_providers.dart';
 import '../domain/group.dart';
+import 'group_type_management_dialog.dart';
 
 class GroupScreen extends ConsumerWidget {
   const GroupScreen({super.key});
@@ -33,6 +34,11 @@ class GroupScreen extends ConsumerWidget {
         foregroundColor: t.fgPrimary,
         elevation: 0,
         actions: [
+          IconButton(
+            icon: const Icon(LucideIcons.tag),
+            tooltip: '그룹 타입 관리',
+            onPressed: () => showGroupTypeManagementDialog(context),
+          ),
           IconButton(
             icon: const Icon(LucideIcons.userPlus),
             tooltip: '초대 코드로 참여',
