@@ -40,6 +40,37 @@ class GroupDetailScreen extends ConsumerWidget {
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,
         elevation: 0,
+        actions: detailAsync.maybeWhen(
+          data: (detail) {
+            final me = detail.members.firstWhere(
+              (m) => m.userRowId == myUser?.rowId,
+              orElse: () => const GroupMember(
+                  rowId: 0, userName: '', role: 'MEMBER'),
+            );
+            if (!me.isOwner) return null;
+            return [
+              PopupMenuButton<String>(
+                icon: Icon(LucideIcons.moreVertical, color: t.fgSecondary),
+                onSelected: (v) async {
+                  if (v == 'edit') {
+                    await _showEditDialog(context, ref, detail);
+                  } else if (v == 'delete') {
+                    await _confirmDelete(context, ref, detail);
+                  }
+                },
+                itemBuilder: (_) => const [
+                  PopupMenuItem(value: 'edit', child: Text('그룹 수정')),
+                  PopupMenuItem(
+                    value: 'delete',
+                    child: Text('그룹 삭제',
+                        style: TextStyle(color: Colors.red)),
+                  ),
+                ],
+              ),
+            ];
+          },
+          orElse: () => null,
+        ),
       ),
       body: detailAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -473,6 +504,118 @@ class _RoleBadge extends StatelessWidget {
       child: Text(label,
           style: PTypo.micro.copyWith(
               color: color, fontWeight: FontWeight.w700)),
+    );
+  }
+}
+
+// ─── 그룹 수정/삭제 ──────────────────────────────────────────
+
+Future<void> _showEditDialog(
+    BuildContext context, WidgetRef ref, GroupDetail detail) async {
+  final nameCtrl = TextEditingController(text: detail.groupName);
+  final descCtrl = TextEditingController(text: detail.description ?? '');
+  final ok = await showDialog<bool>(
+    context: context,
+    builder: (ctx) {
+      final t = ctx.tokens;
+      return AlertDialog(
+        backgroundColor: t.bgSurface,
+        title: const Text('그룹 수정'),
+        content: SizedBox(
+          width: 400,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('이름',
+                  style: PTypo.caption.copyWith(color: t.fgSecondary)),
+              const SizedBox(height: 4),
+              TextField(
+                controller: nameCtrl,
+                decoration: const InputDecoration(hintText: '그룹 이름'),
+              ),
+              const SizedBox(height: 12),
+              Text('설명 (선택)',
+                  style: PTypo.caption.copyWith(color: t.fgSecondary)),
+              const SizedBox(height: 4),
+              TextField(
+                controller: descCtrl,
+                maxLines: 2,
+                decoration: const InputDecoration(hintText: '설명'),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('취소')),
+          FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('저장')),
+        ],
+      );
+    },
+  );
+  if (ok != true) return;
+  final name = nameCtrl.text.trim();
+  if (name.isEmpty) return;
+  try {
+    final repo = await ref.read(groupRepositoryProvider.future);
+    await repo.update(
+      id: detail.rowId,
+      groupName: name,
+      description: descCtrl.text.trim().isEmpty ? null : descCtrl.text.trim(),
+    );
+    ref.invalidate(groupDetailProvider(detail.rowId));
+    ref.invalidate(groupListProvider);
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('그룹이 수정되었습니다')),
+    );
+  } on ApiException catch (e) {
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('수정 실패: ${e.message}')),
+    );
+  }
+}
+
+Future<void> _confirmDelete(
+    BuildContext context, WidgetRef ref, GroupDetail detail) async {
+  final ok = await showDialog<bool>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: const Text('그룹 삭제'),
+      content: Text(
+          '"${detail.groupName}" 그룹을 삭제하시겠어요? 멤버 모두가 그룹에서 제외되며 되돌릴 수 없습니다.'),
+      actions: [
+        TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('취소')),
+        FilledButton(
+          style: FilledButton.styleFrom(
+              backgroundColor: ctx.tokens.statusDanger),
+          onPressed: () => Navigator.pop(ctx, true),
+          child: const Text('삭제'),
+        ),
+      ],
+    ),
+  );
+  if (ok != true) return;
+  try {
+    final repo = await ref.read(groupRepositoryProvider.future);
+    await repo.delete(detail.rowId);
+    ref.invalidate(groupListProvider);
+    if (!context.mounted) return;
+    Navigator.of(context).pop();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('그룹이 삭제되었습니다')),
+    );
+  } on ApiException catch (e) {
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('삭제 실패: ${e.message}')),
     );
   }
 }
