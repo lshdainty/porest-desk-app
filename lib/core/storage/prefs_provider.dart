@@ -14,4 +14,5 @@ abstract final class PrefsKeys {
   static const density = 'pd-density';        // 'compact' | 'comfortable' | 'spacious'
   static const currency = 'pd-currency';      // 'KRW' | 'USD' | 'EUR' | 'JPY'
   static const hideAmounts = 'pd-hide';       // bool
+  static const locale = 'pd-locale';          // 'ko' | 'en' | null(=system)
 }

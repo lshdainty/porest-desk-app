@@ -1,0 +1,26 @@
+{
+  "@@locale": "en",
+  "appTitle": "Porest Desk",
+
+  "actionSave": "Save",
+  "actionCancel": "Cancel",
+  "actionDelete": "Delete",
+  "actionEdit": "Edit",
+  "actionCreate": "Add",
+  "actionConfirm": "Confirm",
+  "actionClose": "Close",
+  "actionRetry": "Retry",
+  "actionApply": "Apply",
+  "actionReset": "Reset",
+  "actionSearch": "Search",
+  "actionLoading": "Loading...",
+  "actionDone": "Done",
+  "stateNoData": "No data",
+  "stateError": "Something went wrong",
+  "stateEmpty": "Nothing to show",
+
+  "languageKorean": "한국어",
+  "languageEnglish": "English",
+  "languageSystem": "System",
+  "settingsLanguage": "Language"
+}
