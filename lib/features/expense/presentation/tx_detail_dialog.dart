@@ -13,6 +13,7 @@ import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
+import '../../recurring/presentation/recurring_edit_dialog.dart';
 import '../application/expense_providers.dart';
 import '../domain/expense.dart';
 import 'add_tx_sheet.dart';
@@ -188,6 +189,17 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                 ),
               ),
             ],
+          ),
+          const SizedBox(height: PSpace.x8),
+          OutlinedButton.icon(
+            onPressed: _deleting
+                ? null
+                : () {
+                    Navigator.of(context).pop();
+                    showRecurringEditDialog(context, fromExpense: e);
+                  },
+            icon: const Icon(LucideIcons.repeat, size: 16),
+            label: const Text('반복 설정으로 만들기'),
           ),
         ],
       ),
