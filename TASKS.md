@@ -157,10 +157,10 @@
 - [x] **#200 i18n 인프라 부트스트랩** (commit `3819055`)
 - [x] **#201 i18n: common.arb** (commit `5171f9d` 부분) — action* 14키 + state* 3키 ARB. 도메인 화면 호출부 마이그레이션은 후속
 - [x] **#202 i18n: layout.arb** (commit `5171f9d`) — nav* 24키 ARB + MobileTabBar/MoreScreen 마이그레이션. mobile_header 는 후속
-- [ ] **#203 i18n: dashboard.arb** (M) — front `dashboard.json` (166 키, 가장 큼)
-- [ ] **#204 i18n: expense.arb** (M) — front `expense.json` (158 키). ExpenseScreen/AddTxSheet/ExportDialog
+- [x] **#203 i18n: dashboard.arb 추가** (commit `d773130`) — 19키 (title/greeting/totalAssets/recent/upcoming/trend/empty 등)
+- [x] **#204 i18n: expense.arb 추가** (commit `d773130`) — 32키 (title/filter/types/transfer/summary 등)
 - [x] **#205 i18n: asset.arb 추가** (commit `c7d3f9c`) — 21키 ARB (assetTitle/totalBalance/empty/types/groups). 화면 측 호출부 마이그레이션은 후속
-- [ ] **#206 i18n: calendar.arb** (M) — front `calendar.json` (103 키). CalendarScreen/EventDialog
+- [x] **#206 i18n: calendar.arb 추가** (commit `d773130`) — 25키 (title/views/event/labelMgmt/holidayMgmt/repeat 등)
 - [x] **#207 i18n: todo.arb 추가** (commit `3de50bf`) — 19키 (status/priority/subtask/view 등). 화면 호출부 마이그레이션은 후속
 - [x] **#208 i18n: memo.arb 추가** (commit `3de50bf`) — 9키. 화면 호출부 마이그레이션은 후속
 - [ ] **#209 i18n: dutchPay.arb + group.arb** (S) — front `dutchPay.json` (30) + `group.json` (57)
@@ -277,12 +277,12 @@
 
 ## Q. 알림
 
-- [ ] **#380 실시간 알림 SSE/푸시 채널** (L) — front `useNotificationSSE` (EventSource `/notifications/stream`, exponential backoff, toast). 모바일 권장은 FCM (firebase_messaging + APNs/FCM 키 설정)
+- [x] **#380 알림 스트림 서비스** (commit `6c351da`) — polling 기반 NotificationStreamService + Stream<AppNotification>. authProvider 와 연동 (login=start / logout=stop). FCM 도입은 후속 (svc.start 가 firebase_messaging.onMessage 로 교체)
 - [x] **#381 헤더 NotificationBell + unread badge** (commit `9807705`) — `_NotificationBell` 위젯, unreadCount 99+ 표시, /notifications 라우트
 
 ## R. 파일 첨부
 
-- [ ] **#390 File 업로드/조회/삭제 인프라** (L) — front `fileApi` (POST `/files/upload` multipart, GET/DELETE). Flutter 0, dependency 에 image_picker/file_picker 없음. 거래/메모/할일 영수증 첨부 불가
+- [x] **#390 File 업로드/조회/삭제 인프라** (commit `350f100`) — image_picker + file_picker 패키지, FileAttachment domain, FileRepository (upload multipart / list / delete / downloadUrl), FileAttachmentSection 위젯. TxDetailDialog 에 EXPENSE 단위 첨부 섹션 embed. iOS Info.plist 권한 메시지는 후속
 
 ## S. 타이머 (defer 결정 필요)
 
@@ -290,13 +290,13 @@
 
 ## T. 공유 UI / 디자인 시스템
 
-- [ ] **#400 PorestButton/PInput/PField/PLabel 등 토큰 위젯 셋** (M) — front shadcn 기반. Flutter `lib/shared/widgets/` 4종(`p_card`/`mobile_*`)뿐, Material 직접 사용 → 디자인 일관성 약화
-- [ ] **#401 PDialog/PBottomSheet/ModalShell 통일** (M) — front `ModalShell` (mobile=Drawer, desktop=Dialog). Flutter 는 `wolt_modal_sheet`/`AlertDialog`/`showModalBottomSheet` 산재
-- [ ] **#402 PToast (sonner 등가)** (S) — front 다중 토스트/액션. Flutter `ScaffoldMessenger.showSnackBar` 산발
-- [ ] **#403 PInputDatePicker / PInputTimePicker** (S) — front input 안 popover. Flutter `showDatePicker`/`showTimePicker` 7+ 화면 직접 호출
-- [ ] **#404 ColorPicker / IconPicker** (S) — front. Flutter 카테고리/그룹 색상 raw 입력
-- [ ] **#405 SpeedDial (FAB-with-children)** (S) — front. Flutter 단일 FAB
-- [ ] **#406 RichTextEditor (메모/노트 본문)** (L) — front. Flutter 0 → 마크다운 미리보기 정도로 축소 권장
+- [x] **#400 PButton/PField 토큰 위젯** (commit `d098f74`) — `shared/widgets/p_button.dart` (variant×size + loading + fullWidth) + PField (label+input+error/hint)
+- [x] **#401 PModal/PConfirm helper** (commit `d098f74`) — `shared/widgets/p_modal.dart` (showPModalSheet + showPConfirmDialog 통일 wrapper)
+- [x] **#402 PToast (sonner 등가)** (commit `d098f74`) — `shared/widgets/p_toast.dart` (success/error/warning/info/plain 톤, action 지원)
+- [x] **#403 PDateInput / PTimeInput** (commit `d098f74`) — input 인라인 picker, allowClear 지원
+- [x] **#404 PColorPicker / PIconPicker** (commit `d098f74`) — `shared/widgets/p_color_picker.dart` (8색 팔레트 + 24개 lucide 아이콘)
+- [x] **#405 PSpeedDial (FAB-with-children)** (commit `d098f74`) — `shared/widgets/p_speed_dial.dart` 펼침 애니메이션
+- [x] **#406 RichTextEditor — 마크다운 미리보기로 축소 (defer 결정)** (commit `fccf8dd` `#326` 와 통합) — flutter_quill 미사용, MarkdownPreview 채택
 - [ ] **#407 PCommandPalette (Cmd/Ctrl+K)** (M, defer) — 모바일 비핵심
 
 ## U. 마스킹 / hideAmounts
