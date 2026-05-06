@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/theme/colors.dart';
 import '../../../../app/theme/tokens.dart';
+import '../../../../core/settings/settings_notifier.dart';
 import '../../application/asset_providers.dart';
 
 /// 12개월 순자산 추이 area chart. front `NetWorthChart` 미러.
@@ -17,6 +18,8 @@ class NetWorthChart extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = context.tokens;
     final trendAsync = ref.watch(netWorthTrendProvider(months));
+    final masked =
+        ref.watch(settingsProvider).value?.hideAmounts ?? false;
     return SizedBox(
       height: height,
       child: trendAsync.when(
@@ -79,7 +82,7 @@ class NetWorthChart extends ConsumerWidget {
                     getTitlesWidget: (v, _) => Padding(
                       padding: const EdgeInsets.only(right: 4),
                       child: Text(
-                        _fmtAxis(v),
+                        masked ? '•••' : _fmtAxis(v),
                         style: TextStyle(color: t.fgTertiary, fontSize: 10),
                       ),
                     ),
@@ -117,7 +120,7 @@ class NetWorthChart extends ConsumerWidget {
                   getTooltipItems: (spots) => [
                     for (final s in spots)
                       LineTooltipItem(
-                        '${points[s.x.toInt()].month}\n${_fmtFull(s.y)}',
+                        '${points[s.x.toInt()].month}\n${masked ? '•••' : _fmtFull(s.y)}',
                         TextStyle(color: t.fgPrimary, fontSize: 11.5, fontWeight: FontWeight.w700),
                       ),
                   ],
