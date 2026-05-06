@@ -4,11 +4,13 @@ import '../../../core/network/dio_provider.dart';
 import '../data/calendar_repository.dart';
 import '../data/event_comment_repository.dart';
 import '../data/holiday_repository.dart';
+import '../data/user_calendar_repository.dart';
 import '../domain/calendar_aggregate.dart';
 import '../domain/calendar_event.dart';
 import '../domain/event_comment.dart';
 import '../domain/event_label.dart';
 import '../domain/holiday.dart';
+import '../domain/user_calendar.dart';
 
 final calendarRepositoryProvider =
     FutureProvider<CalendarRepository>((ref) async {
@@ -74,4 +76,19 @@ final holidayListProvider =
     FutureProvider.family<List<Holiday>, HolidayRange>((ref, key) async {
   final repo = await ref.watch(holidayRepositoryProvider.future);
   return repo.list(startDate: key.startDate, endDate: key.endDate);
+});
+
+// ─── UserCalendar (#302) ────────────────────────────────────
+
+final userCalendarRepositoryProvider =
+    FutureProvider<UserCalendarRepository>((ref) async {
+  final dio = await ref.watch(dioProvider.future);
+  return UserCalendarRepository(dio);
+});
+
+final userCalendarListProvider =
+    FutureProvider<List<UserCalendar>>((ref) async {
+  ref.keepAlive();
+  final repo = await ref.watch(userCalendarRepositoryProvider.future);
+  return repo.list();
 });
