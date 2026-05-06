@@ -9,6 +9,7 @@ import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
+import '../../card/presentation/card_catalog_picker.dart';
 import '../application/asset_providers.dart';
 import '../domain/asset.dart';
 import '../domain/asset_type_meta.dart';
@@ -250,6 +251,31 @@ class _AssetEditBodyState extends ConsumerState<_AssetEditBody> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (widget.kindHint == AssetKind.card && !_isEdit) ...[
+            OutlinedButton.icon(
+              onPressed: () async {
+                final selected = await showCardCatalogPicker(
+                  context,
+                  cardType: _type == 'CHECK_CARD' ? 'CHECK' : 'CREDIT',
+                );
+                if (selected == null || !mounted) return;
+                setState(() {
+                  _nameCtrl.text = selected.cardName;
+                  if ((selected.company?.name ?? '').isNotEmpty) {
+                    _institutionCtrl.text = selected.company!.name;
+                  }
+                  if (selected.cardType == 'CHECK') {
+                    _type = 'CHECK_CARD';
+                  } else if (selected.cardType == 'CREDIT') {
+                    _type = 'CREDIT_CARD';
+                  }
+                });
+              },
+              icon: const Icon(LucideIcons.search, size: 14),
+              label: const Text('카드 카탈로그에서 선택'),
+            ),
+            const SizedBox(height: PSpace.x12),
+          ],
           _Label('자산 종류'),
           const SizedBox(height: PSpace.x8),
           Wrap(

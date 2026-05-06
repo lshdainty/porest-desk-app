@@ -13,7 +13,6 @@ import '../../../core/format/krw.dart';
 import '../application/card_providers.dart';
 import '../domain/card_catalog.dart';
 import 'card_benefit_mapping_dialog.dart';
-import 'card_detail_screen.dart';
 
 class CardScreen extends ConsumerStatefulWidget {
   const CardScreen({super.key});
@@ -370,8 +369,7 @@ class _CardRow extends StatelessWidget {
       color: tokens.bgSurface,
       borderRadius: PRadius.brLg,
       child: InkWell(
-        onTap: () => Navigator.of(context).push(MaterialPageRoute(
-            builder: (_) => CardDetailScreen(catalogId: card.rowId))),
+        onTap: () => context.push('/cards/${card.rowId}'),
         borderRadius: PRadius.brLg,
         child: Container(
           padding: const EdgeInsets.all(PSpace.x12),
