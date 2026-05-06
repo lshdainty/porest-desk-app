@@ -50,5 +50,16 @@
   "navSavingGoals": "저금 목표",
   "navExport": "내보내기",
   "navLogout": "로그아웃",
-  "navChangePassword": "비밀번호 변경"
+  "navChangePassword": "비밀번호 변경",
+
+  "notiTitle": "알림",
+  "notiEmpty": "알림이 없습니다",
+  "notiMarkAllRead": "모두 읽음",
+  "notiTypeEventReminder": "일정 알림",
+  "notiTypeBudgetAlert": "예산 알림",
+  "notiTypeTodoReminder": "할 일 알림",
+  "notiTypeSystem": "시스템 알림",
+  "notiConnectionLost": "알림 연결이 끊어졌습니다",
+  "notiConnectionRestored": "알림 연결이 복구되었습니다",
+  "notiNew": "새 알림"
 }

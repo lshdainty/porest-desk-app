@@ -8,6 +8,7 @@ import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../application/notification_providers.dart';
 import '../domain/notification.dart';
 
@@ -17,6 +18,7 @@ class NotificationScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final listAsync = ref.watch(notificationListProvider);
 
     return Scaffold(
@@ -26,7 +28,7 @@ class NotificationScreen extends ConsumerWidget {
           icon: const Icon(LucideIcons.arrowLeft),
           onPressed: () => context.pop(),
         ),
-        title: const Text('알림'),
+        title: Text(l.notiTitle),
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,
         elevation: 0,
@@ -42,11 +44,11 @@ class NotificationScreen extends ConsumerWidget {
               } on ApiException catch (e) {
                 if (!context.mounted) return;
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('실패: ${e.message}')),
+                  SnackBar(content: Text('${l.stateError}: ${e.message}')),
                 );
               }
             },
-            child: const Text('모두 읽음'),
+            child: Text(l.notiMarkAllRead),
           ),
         ],
       ),
@@ -61,7 +63,7 @@ class NotificationScreen extends ConsumerWidget {
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (e, _) => Padding(
             padding: const EdgeInsets.all(PSpace.x16),
-            child: Text('알림 로드 실패\n$e',
+            child: Text('${l.stateError}\n$e',
                 style: PTypo.bodySm.copyWith(color: t.statusDanger)),
           ),
           data: (items) {
@@ -72,7 +74,7 @@ class NotificationScreen extends ConsumerWidget {
                   child: Column(children: [
                     Icon(LucideIcons.bell, size: 48, color: t.fgDisabled),
                     const SizedBox(height: PSpace.x12),
-                    Text('알림이 없습니다',
+                    Text(l.notiEmpty,
                         style: PTypo.body.copyWith(color: t.fgTertiary)),
                   ]),
                 ),

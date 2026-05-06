@@ -49,5 +49,16 @@
   "navSavingGoals": "Saving Goals",
   "navExport": "Export",
   "navLogout": "Log out",
-  "navChangePassword": "Change Password"
+  "navChangePassword": "Change Password",
+
+  "notiTitle": "Notifications",
+  "notiEmpty": "No notifications",
+  "notiMarkAllRead": "Mark all read",
+  "notiTypeEventReminder": "Event Reminder",
+  "notiTypeBudgetAlert": "Budget Alert",
+  "notiTypeTodoReminder": "Todo Reminder",
+  "notiTypeSystem": "System",
+  "notiConnectionLost": "Notification connection lost",
+  "notiConnectionRestored": "Notification connection restored",
+  "notiNew": "New notification"
 }
