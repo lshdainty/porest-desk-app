@@ -164,7 +164,7 @@
 - [ ] **#207 i18n: todo.arb** (S) — front `todo.json` (81 키)
 - [ ] **#208 i18n: memo.arb** (S) — front `memo.json` (41 키)
 - [ ] **#209 i18n: dutchPay.arb + group.arb** (S) — front `dutchPay.json` (30) + `group.json` (57)
-- [ ] **#210 i18n: notification.arb** (S) — front `notification.json` (14 키)
+- [x] **#210 i18n: notification.arb** (commit `4ae6f81`) — 11키 ARB + NotificationScreen 마이그레이션
 - [ ] **#211 i18n: login.arb + user.arb** (S) — front `login.json` (5) + `user.json` (15)
 
 ## B. 인증 / 사용자
@@ -241,7 +241,7 @@
 - [x] **#320 TodoProject CRUD + 관리 다이얼로그** (commit `4f03082`) — domain/repo/provider + `todo_project_management_dialog.dart` (이름/설명/색 + 인라인 편집). 칸반/그룹 뷰는 #322 별도
 - [x] **#321 TodoTag CRUD + 관리 다이얼로그** (commit `4f03082`) — domain/repo/provider + `todo_tag_management_dialog.dart`. `updateTags(id, tagIds)` API 는 #62c381d 에서 추가 완료
 - [ ] **#322 Todo 칸반 보드 뷰** (L) — front `KanbanBoard/Column/Card` + dnd. Flutter 단일 list 뷰만
-- [ ] **#323 Todo 서브태스크** (M) — front `getSubtasks` (GET `/todo/{parentId}/subtasks`) + `SubtaskList`. Flutter 모델 필드만
+- [x] **#323 Todo 서브태스크 UI** (commit `53f9909`) — todo_edit_dialog 에 _SubtaskSection (편집 모드 전용), 추가/체크 토글/삭제
 - [x] **#324 Todo reorder API** (commit `62c381d`) — `reorder(items)` + `getById` + `getSubtasks` + `updateTags`
 - [x] **#325 Todo 통계 (TodoStats)** (commit `62c381d`) — `domain/todo_stats.dart` + `stats()` + `todoStatsProvider`
 - [ ] **#326 Todo 노트 RichText 에디터** (M) — front `NoteEditorDialog`. Flutter 단일행 텍스트 필드
@@ -250,7 +250,7 @@
 
 ## M. 메모
 
-- [ ] **#340 MemoFolder 도메인 (트리 + reorder)** (L) — front `memoFolderApi` + `MemoFolderTree`. Flutter `folderId` 파라미터만, 폴더 도메인 자체 0
+- [x] **#340 MemoFolder 도메인 + 트리 관리 다이얼로그** (commit `b5bbb92`) — domain/repo/provider + tree builder + 폴더 관리 다이얼로그 (이름/부모/CRUD)
 - [x] **#341 메모 검색 (search 파라미터)** (commit `2445776`) — `list({folderId, search})` + `memoSearchProvider` + AppBar bottom 검색 입력
 - [ ] **#342 3패널 메모 에디터 (트리/리스트/프리뷰)** (L) — front `MemoEditorWidget` + `MemoFolderTree` + `MemoList` + `MemoPreview`. Flutter 단일 ListView
 
@@ -270,7 +270,7 @@
 
 - [x] **#370 카드 사용 가능 혜택(availableBenefits) API** (commit `93a04ff`) — `availableBenefits(cardRowId, expenseCategoryRowId?)` 추가. UI 자동 추천은 후속
 - [x] **#371 CardPerformance 도메인 + 진척 바** (commit `de447c1`) — `domain/card_performance.dart` + repo + provider + `card_performance_bar.dart` 위젯 + AssetDetailDialog 카드 자산일 때 노출
-- [ ] **#372 CardBenefitMapping 도메인 + 설정 페이지** (L) — front `cardBenefitMappingApi` + `CardSettingsPage` + 매핑 에디터 (라우트 `/desk/card-settings`). Flutter 라우트·기능 0
+- [x] **#372 CardBenefitMapping 도메인 + 매핑 다이얼로그** (commit `3dee797`) — domain/repo/provider + 매핑 관리 dialog (혜택→카테고리 매핑, 시스템/커스텀 구분), CardScreen AppBar 진입점
 - [ ] **#373 CardCatalogCombobox (자산 등록 시 카드 자동완성)** (M) — front. Flutter 없음
 - [x] **#374 카드 검색 benefitType / includeDiscontinued 필터** (commit `93a04ff`) — 칩 + 단종 토글 추가
 - [x] **#375 카드 카탈로그 페이지네이션** (commit `93a04ff`) — `CardCatalogPage` + paginator (이전/다음, 총 N건)
