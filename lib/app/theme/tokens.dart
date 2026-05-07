@@ -69,6 +69,20 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     required this.bgExpenseSubtle,
     required this.bgIncomeSubtle,
     required this.bgTransferSubtle,
+    required this.bgBrandTint,
+    required this.bgBrandTintStrong,
+    required this.bgTableHead,
+    required this.bgWarmTint,
+    required this.bgWarmTintStrong,
+    required this.bgWarmPress,
+    required this.fgOnWarmStrong,
+    required this.borderBrandSoft,
+    required this.borderBrandMid,
+    required this.statusSuccessBorder,
+    required this.statusWarningBorder,
+    required this.statusDangerBorder,
+    required this.statusDangerPress,
+    required this.statusInfoBorder,
     required this.surfaceHero,
   });
 
@@ -137,6 +151,26 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
   final Color bgIncomeSubtle;
   final Color bgTransferSubtle;
 
+  // Interaction tints — brand/warm 변형
+  final Color bgBrandTint;        // brand 약한 톤
+  final Color bgBrandTintStrong;  // brand 진한 톤
+  final Color bgTableHead;        // 테이블 헤더 행 배경
+  final Color bgWarmTint;         // warm 약한 톤
+  final Color bgWarmTintStrong;   // warm 진한 톤
+  final Color bgWarmPress;        // warm press 상태
+  final Color fgOnWarmStrong;     // warm bg 위 강한 텍스트
+
+  // Border 변형
+  final Color borderBrandSoft;    // brand 보더 약한 톤
+  final Color borderBrandMid;     // brand 보더 중간 톤
+
+  // Status 변형
+  final Color statusSuccessBorder;
+  final Color statusWarningBorder;
+  final Color statusDangerBorder;
+  final Color statusDangerPress;
+  final Color statusInfoBorder;
+
   // Hero
   final Color surfaceHero;
 
@@ -197,6 +231,23 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     bgExpenseSubtle: PorestPalette.berry100,
     bgIncomeSubtle: PorestPalette.mossy50,
     bgTransferSubtle: PorestPalette.sky100,
+    // Interaction tints
+    bgBrandTint: PorestPalette.mossy50,
+    bgBrandTintStrong: PorestPalette.mossy100,
+    bgTableHead: PorestPalette.mist100,
+    bgWarmTint: PorestPalette.bark100,
+    bgWarmTintStrong: PorestPalette.bark200,
+    bgWarmPress: PorestPalette.bark300,
+    fgOnWarmStrong: PorestPalette.bark900,
+    // Border 변형
+    borderBrandSoft: PorestPalette.mossy200,
+    borderBrandMid: PorestPalette.mossy300,
+    // Status 변형
+    statusSuccessBorder: PorestPalette.mossy300,
+    statusWarningBorder: PorestPalette.sunlit500,
+    statusDangerBorder: PorestPalette.berry500,
+    statusDangerPress: PorestPalette.berry700,
+    statusInfoBorder: PorestPalette.sky500,
     surfaceHero: PorestPalette.mossy50,
   );
 
@@ -257,6 +308,23 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     bgExpenseSubtle: Color(0x595A2926),
     bgIncomeSubtle: Color(0x80453F1A),
     bgTransferSubtle: Color(0x59243C5C),
+    // Interaction tints — oklch 근사 hex+alpha
+    bgBrandTint: Color(0x4D453F1A),       // oklch(0.28 0.045 110 / 0.30)
+    bgBrandTintStrong: Color(0x80453F1A), // oklch(0.28 0.045 110 / 0.50)
+    bgTableHead: Color(0x0AFFFFFF),       // oklch(1 0 0 / 0.04)
+    bgWarmTint: Color(0x8C483C23),        // oklch(0.260 0.030 65 / 0.55)
+    bgWarmTintStrong: Color(0xA6534629),  // oklch(0.300 0.035 60 / 0.65)
+    bgWarmPress: Color(0xBF635433),       // oklch(0.350 0.038 55 / 0.75)
+    fgOnWarmStrong: PorestPalette.bark100,
+    // Border 변형
+    borderBrandSoft: Color(0x666A7A49),   // oklch(0.45 0.05 110 / 0.4)
+    borderBrandMid: Color(0x8084995F),    // oklch(0.55 0.06 110 / 0.5)
+    // Status 변형
+    statusSuccessBorder: PorestPalette.mossy400,
+    statusWarningBorder: PorestPalette.sunlit500,
+    statusDangerBorder: PorestPalette.berry500,
+    statusDangerPress: PorestPalette.berry300,
+    statusInfoBorder: PorestPalette.sky500,
     surfaceHero: Color(0x80453F1A),
   );
 
@@ -316,6 +384,20 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     Color? bgExpenseSubtle,
     Color? bgIncomeSubtle,
     Color? bgTransferSubtle,
+    Color? bgBrandTint,
+    Color? bgBrandTintStrong,
+    Color? bgTableHead,
+    Color? bgWarmTint,
+    Color? bgWarmTintStrong,
+    Color? bgWarmPress,
+    Color? fgOnWarmStrong,
+    Color? borderBrandSoft,
+    Color? borderBrandMid,
+    Color? statusSuccessBorder,
+    Color? statusWarningBorder,
+    Color? statusDangerBorder,
+    Color? statusDangerPress,
+    Color? statusInfoBorder,
     Color? surfaceHero,
   }) {
     return PorestTokens(
@@ -373,6 +455,20 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
       bgExpenseSubtle: bgExpenseSubtle ?? this.bgExpenseSubtle,
       bgIncomeSubtle: bgIncomeSubtle ?? this.bgIncomeSubtle,
       bgTransferSubtle: bgTransferSubtle ?? this.bgTransferSubtle,
+      bgBrandTint: bgBrandTint ?? this.bgBrandTint,
+      bgBrandTintStrong: bgBrandTintStrong ?? this.bgBrandTintStrong,
+      bgTableHead: bgTableHead ?? this.bgTableHead,
+      bgWarmTint: bgWarmTint ?? this.bgWarmTint,
+      bgWarmTintStrong: bgWarmTintStrong ?? this.bgWarmTintStrong,
+      bgWarmPress: bgWarmPress ?? this.bgWarmPress,
+      fgOnWarmStrong: fgOnWarmStrong ?? this.fgOnWarmStrong,
+      borderBrandSoft: borderBrandSoft ?? this.borderBrandSoft,
+      borderBrandMid: borderBrandMid ?? this.borderBrandMid,
+      statusSuccessBorder: statusSuccessBorder ?? this.statusSuccessBorder,
+      statusWarningBorder: statusWarningBorder ?? this.statusWarningBorder,
+      statusDangerBorder: statusDangerBorder ?? this.statusDangerBorder,
+      statusDangerPress: statusDangerPress ?? this.statusDangerPress,
+      statusInfoBorder: statusInfoBorder ?? this.statusInfoBorder,
       surfaceHero: surfaceHero ?? this.surfaceHero,
     );
   }
@@ -436,6 +532,20 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
       bgExpenseSubtle: l(bgExpenseSubtle, other.bgExpenseSubtle),
       bgIncomeSubtle: l(bgIncomeSubtle, other.bgIncomeSubtle),
       bgTransferSubtle: l(bgTransferSubtle, other.bgTransferSubtle),
+      bgBrandTint: l(bgBrandTint, other.bgBrandTint),
+      bgBrandTintStrong: l(bgBrandTintStrong, other.bgBrandTintStrong),
+      bgTableHead: l(bgTableHead, other.bgTableHead),
+      bgWarmTint: l(bgWarmTint, other.bgWarmTint),
+      bgWarmTintStrong: l(bgWarmTintStrong, other.bgWarmTintStrong),
+      bgWarmPress: l(bgWarmPress, other.bgWarmPress),
+      fgOnWarmStrong: l(fgOnWarmStrong, other.fgOnWarmStrong),
+      borderBrandSoft: l(borderBrandSoft, other.borderBrandSoft),
+      borderBrandMid: l(borderBrandMid, other.borderBrandMid),
+      statusSuccessBorder: l(statusSuccessBorder, other.statusSuccessBorder),
+      statusWarningBorder: l(statusWarningBorder, other.statusWarningBorder),
+      statusDangerBorder: l(statusDangerBorder, other.statusDangerBorder),
+      statusDangerPress: l(statusDangerPress, other.statusDangerPress),
+      statusInfoBorder: l(statusInfoBorder, other.statusInfoBorder),
       surfaceHero: l(surfaceHero, other.surfaceHero),
     );
   }

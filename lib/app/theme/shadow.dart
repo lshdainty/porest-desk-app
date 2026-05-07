@@ -23,6 +23,15 @@ abstract final class PShadow {
     BoxShadow(color: Color(0x2E1C2414), offset: Offset(0, 24), blurRadius: 48, spreadRadius: -12),
   ];
 
+  // Brand-tinted shadow — oklch(0.52 0.06 110 / 0.35) ≈ #7C9054 + 35% alpha
+  static const List<BoxShadow> brand = [
+    BoxShadow(color: Color(0x597C9054), offset: Offset(0, 6), blurRadius: 16, spreadRadius: -4),
+  ];
+  // Focus ring — oklch(0.52 0.06 110 / 0.2)
+  static const List<BoxShadow> focus = [
+    BoxShadow(color: Color(0x337C9054), spreadRadius: 3),
+  ];
+
   // Dark — 단순한 검은 톤
   static const List<BoxShadow> xsDark = [
     BoxShadow(color: Color(0x4D000000), offset: Offset(0, 1), blurRadius: 2),
@@ -38,5 +47,14 @@ abstract final class PShadow {
   ];
   static const List<BoxShadow> xlDark = [
     BoxShadow(color: Color(0xA6000000), offset: Offset(0, 32), blurRadius: 64),
+  ];
+
+  // Brand-tinted shadow (dark) — oklch(0.66 0.06 110 / 0.5) ≈ #A8BD7E + 50% alpha
+  static const List<BoxShadow> brandDark = [
+    BoxShadow(color: Color(0x80A8BD7E), offset: Offset(0, 6), blurRadius: 16, spreadRadius: -4),
+  ];
+  // Focus ring (dark) — oklch(0.66 0.06 110 / 0.35)
+  static const List<BoxShadow> focusDark = [
+    BoxShadow(color: Color(0x59A8BD7E), spreadRadius: 3),
   ];
 }
