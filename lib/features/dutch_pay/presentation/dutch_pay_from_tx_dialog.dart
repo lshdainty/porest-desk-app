@@ -587,15 +587,22 @@ class _BodyState extends ConsumerState<_Body> {
                 Row(
                   children: [
                     Expanded(
-                      child: TextField(
-                        controller: _manualNameCtrl,
-                        textInputAction: TextInputAction.done,
-                        onSubmitted: (_) => _addManual(),
-                        decoration: const InputDecoration(
-                          hintText: '이름 입력 후 추가',
-                          isDense: true,
+                      child: SizedBox(
+                        height: 36,
+                        child: TextField(
+                          controller: _manualNameCtrl,
+                          textInputAction: TextInputAction.done,
+                          onSubmitted: (_) => _addManual(),
+                          decoration: InputDecoration(
+                            hintText: '이름 입력 후 추가',
+                            isDense: true,
+                            filled: true,
+                            fillColor: t.bgSurface,
+                            contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 8),
+                          ),
+                          enabled: !_submitting,
                         ),
-                        enabled: !_submitting,
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -636,8 +643,10 @@ class _BodyState extends ConsumerState<_Body> {
                     controller: _msgCtrl,
                     maxLines: 3,
                     minLines: 3,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       hintText: '참여자에게 함께 보낼 한마디를 적어주세요',
+                      filled: true,
+                      fillColor: t.bgSurface,
                     ),
                     enabled: !_submitting,
                   ),
