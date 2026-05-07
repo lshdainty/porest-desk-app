@@ -147,8 +147,8 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
 
     final paymentLabel = _paymentMethodLabel(e.paymentMethod);
     final displayMerchant = e.merchant ?? e.description ?? e.categoryName ?? '거래';
-    final amountColor =
-        isIncome ? t.statusSuccessFg : t.statusDangerFg;
+    // 웹 TxDetailDialog 매칭: 수입=fg-brand (초록), 지출=fg-primary (검정)
+    final amountColor = isIncome ? t.fgIncome : t.fgPrimary;
     final amountText = masked
         ? '••••'
         : '${isIncome ? '+' : '−'}${krw(e.amount, abs: true)}';
