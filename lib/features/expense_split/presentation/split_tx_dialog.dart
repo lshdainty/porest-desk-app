@@ -406,12 +406,6 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
               const SizedBox(width: PSpace.x8),
               FilledButton(
                 onPressed: (_matched && !_submitting) ? _save : null,
-                style: FilledButton.styleFrom(
-                  backgroundColor: t.bgBrand,
-                  foregroundColor: t.fgOnBrand,
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: PSpace.x16, vertical: PSpace.x12),
-                ),
                 child: _submitting
                     ? const SizedBox(
                         width: 18,

@@ -448,12 +448,6 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                 onPressed: _deleting
                     ? null
                     : () => Navigator.of(context).pop(),
-                style: FilledButton.styleFrom(
-                  backgroundColor: t.bgBrand,
-                  foregroundColor: t.fgOnBrand,
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: PSpace.x16, vertical: PSpace.x12),
-                ),
                 child: const Text('확인'),
               ),
             ],
