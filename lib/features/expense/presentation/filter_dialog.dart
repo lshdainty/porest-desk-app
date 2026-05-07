@@ -250,8 +250,6 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
                 style: FilledButton.styleFrom(
                   backgroundColor: t.bgBrand,
                   foregroundColor: t.fgOnBrand,
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: PSpace.x16, vertical: PSpace.x12),
                 ),
                 child: const Text('필터 적용'),
               ),
@@ -368,10 +366,10 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
       },
       borderRadius: PRadius.brSm,
       child: Container(
-        padding:
-            const EdgeInsets.symmetric(horizontal: PSpace.x12, vertical: 10),
+        height: 36,
+        padding: const EdgeInsets.symmetric(horizontal: PSpace.x12),
         decoration: BoxDecoration(
-          color: t.bgMuted,
+          color: t.bgSurface,
           borderRadius: PRadius.brSm,
           border: Border.all(color: t.borderSubtle),
         ),
@@ -566,30 +564,34 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
 
   Widget _amountInput(
       PorestTokens t, TextEditingController ctrl, String hint) {
-    return TextField(
-      controller: ctrl,
-      keyboardType: TextInputType.number,
-      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-      style: PTypo.bodySm
-          .copyWith(color: t.fgPrimary, fontFamily: 'monospace'),
-      decoration: InputDecoration(
-        hintText: hint,
-        hintStyle: PTypo.bodySm.copyWith(color: t.fgTertiary),
-        filled: true,
-        fillColor: t.bgMuted,
-        contentPadding: const EdgeInsets.symmetric(
-            horizontal: PSpace.x12, vertical: 10),
-        border: OutlineInputBorder(
-          borderRadius: PRadius.brSm,
-          borderSide: BorderSide(color: t.borderSubtle),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: PRadius.brSm,
-          borderSide: BorderSide(color: t.borderSubtle),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: PRadius.brSm,
-          borderSide: BorderSide(color: t.borderBrand),
+    return SizedBox(
+      height: 36,
+      child: TextField(
+        controller: ctrl,
+        keyboardType: TextInputType.number,
+        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+        style: PTypo.bodySm
+            .copyWith(color: t.fgPrimary, fontFamily: 'monospace'),
+        decoration: InputDecoration(
+          hintText: hint,
+          hintStyle: PTypo.bodySm.copyWith(color: t.fgTertiary),
+          filled: true,
+          fillColor: t.bgSurface,
+          isDense: true,
+          contentPadding: const EdgeInsets.symmetric(
+              horizontal: PSpace.x12, vertical: 8),
+          border: OutlineInputBorder(
+            borderRadius: PRadius.brSm,
+            borderSide: BorderSide(color: t.borderSubtle),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: PRadius.brSm,
+            borderSide: BorderSide(color: t.borderSubtle),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: PRadius.brSm,
+            borderSide: BorderSide(color: t.borderBrand),
+          ),
         ),
       ),
     );
