@@ -4,7 +4,7 @@ import '../../../core/network/dio_provider.dart';
 import '../data/card_benefit_mapping_repository.dart';
 import '../data/card_repository.dart';
 import '../domain/card_benefit_mapping.dart';
-import '../domain/card_catalog.dart';
+import '../domain/card_catalog.dart' hide CardPerformance;
 import '../domain/card_catalog_page.dart';
 import '../domain/card_performance.dart';
 

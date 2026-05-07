@@ -198,7 +198,7 @@ class _CardPickerSheetState extends ConsumerState<_CardPickerSheet> {
                                             color: t.fgPrimary,
                                             fontWeight: FontWeight.w600)),
                                     if (c.company?.name != null)
-                                      Text(c.company!.name,
+                                      Text(c.company!.name!,
                                           style: PTypo.caption.copyWith(
                                               color: t.fgTertiary)),
                                   ],

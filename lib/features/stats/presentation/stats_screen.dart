@@ -18,7 +18,7 @@ import '../../expense/domain/expense.dart';
 import '../../expense/domain/expense_category.dart';
 import '../application/stats_providers.dart';
 import '../domain/stats_models.dart';
-import '../domain/stats_summaries.dart';
+import '../domain/stats_summaries.dart' hide CategoryBreakdown;
 
 /// 통계 탭. 월 선택 + 5종 차트.
 ///
@@ -498,9 +498,9 @@ class _CategoryDonutState extends ConsumerState<_CategoryDonut> {
 
     String? activeName() {
       if (_activeParentId == null) return null;
-      final p = expensesAll
-          .firstWhere((c) => c.categoryRowId == _activeParentId,
-              orElse: () => expensesAll.first);
+      final p = expensesAll.firstWhere(
+          (CategoryBreakdown c) => c.categoryRowId == _activeParentId,
+          orElse: () => expensesAll.first);
       return p.categoryName;
     }
 

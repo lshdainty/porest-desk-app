@@ -15,6 +15,7 @@ import '../../../core/network/api_exception.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../../calendar/application/calendar_providers.dart';
 import '../../expense/application/expense_providers.dart';
+import '../../expense/domain/expense.dart';
 import '../application/group_providers.dart';
 import '../domain/group_member.dart';
 

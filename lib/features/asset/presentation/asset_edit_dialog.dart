@@ -261,8 +261,9 @@ class _AssetEditBodyState extends ConsumerState<_AssetEditBody> {
                 if (selected == null || !mounted) return;
                 setState(() {
                   _nameCtrl.text = selected.cardName;
-                  if ((selected.company?.name ?? '').isNotEmpty) {
-                    _institutionCtrl.text = selected.company!.name;
+                  final cn = selected.company?.name;
+                  if (cn != null && cn.isNotEmpty) {
+                    _institutionCtrl.text = cn;
                   }
                   if (selected.cardType == 'CHECK') {
                     _type = 'CHECK_CARD';
