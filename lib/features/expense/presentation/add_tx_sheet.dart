@@ -9,7 +9,6 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/format/color_parse.dart';
 import '../../../core/format/date.dart';
-import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../asset/application/asset_providers.dart';
@@ -394,87 +393,42 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
                 ),
                 const SizedBox(height: PSpace.x20),
 
-                // 큰 금액 디스플레이 (front 와 동일)
-                Container(
-                  padding: const EdgeInsets.fromLTRB(
-                      PSpace.x4, PSpace.x16, PSpace.x4, PSpace.x16),
-                  decoration: BoxDecoration(
-                    border: Border(
-                      bottom: BorderSide(color: t.borderSubtle),
-                    ),
-                  ),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text('금액',
-                              style: PTypo.caption.copyWith(
-                                  color: t.fgTertiary,
-                                  fontWeight: FontWeight.w600,
-                                  letterSpacing: 0.6)),
-                          if (_amountLocked) ...[
-                            const SizedBox(width: 6),
-                            Icon(LucideIcons.lock,
-                                size: 11, color: t.fgTertiary),
-                            const SizedBox(width: 3),
-                            Text('프리셋 잠금',
-                                style: PTypo.caption
-                                    .copyWith(color: t.fgTertiary)),
-                          ],
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      RichText(
-                        text: TextSpan(children: [
-                          TextSpan(
-                            text:
-                                '$amountPrefix${krw(amountInt)}',
-                            style: TextStyle(
-                              color: amountColor,
-                              fontSize: 36,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: -1.08,
-                              fontFamily: 'monospace',
-                            ),
-                          ),
-                          TextSpan(
-                            text: '원',
-                            style: TextStyle(
-                              color: t.fgTertiary,
-                              fontSize: 20,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ]),
-                      ),
-                      const SizedBox(height: 10),
-                      TextField(
-                        controller: _amountCtrl,
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly
-                        ],
-                        enabled: !_amountLocked,
-                        textAlign: TextAlign.center,
-                        style: PTypo.body.copyWith(
-                            color: t.fgPrimary,
-                            fontWeight: FontWeight.w600,
-                            fontFamily: 'monospace'),
-                        decoration: InputDecoration(
-                          hintText: '0',
-                          isDense: true,
-                          filled: true,
-                          fillColor: t.bgSurface,
-                          contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 10),
-                        ),
-                        onChanged: (_) => setState(() {}),
-                      ),
+                // 금액 — 다른 필드와 동일한 단순 label + input
+                Row(
+                  children: [
+                    Expanded(child: _Label('금액')),
+                    if (_amountLocked) ...[
+                      Icon(LucideIcons.lock, size: 11, color: t.fgTertiary),
+                      const SizedBox(width: 3),
+                      Text('프리셋 잠금',
+                          style:
+                              PTypo.caption.copyWith(color: t.fgTertiary)),
                     ],
-                  ),
+                  ],
                 ),
-                const SizedBox(height: PSpace.x20),
+                const SizedBox(height: PSpace.x4),
+                TextField(
+                  controller: _amountCtrl,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  enabled: !_amountLocked,
+                  style: PTypo.h4.copyWith(
+                      color: amountColor,
+                      fontWeight: FontWeight.w700,
+                      fontFamily: 'monospace'),
+                  decoration: InputDecoration(
+                    hintText: '0',
+                    filled: true,
+                    fillColor: t.bgSurface,
+                    prefixText:
+                        amountInt > 0 ? amountPrefix : null,
+                    suffixText: '원',
+                    suffixStyle:
+                        PTypo.bodySm.copyWith(color: t.fgTertiary),
+                  ),
+                  onChanged: (_) => setState(() {}),
+                ),
+                const SizedBox(height: PSpace.x16),
 
                 if (_type != 'TRANSFER') ...[
                   _SectionLabel('카테고리'),
