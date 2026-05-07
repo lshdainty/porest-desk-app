@@ -505,11 +505,21 @@ class _MerchantHistorySection extends ConsumerWidget {
                         color: t.fgPrimary,
                         fontWeight: FontWeight.w700)),
                 const Spacer(),
-                Text(
-                  masked
-                      ? '이번 달 $monthCount회 · ••••원'
-                      : '이번 달 $monthCount회 · ${krw(monthTotal)}원',
-                  style: PTypo.caption.copyWith(color: t.fgTertiary),
+                RichText(
+                  text: TextSpan(
+                    style: PTypo.caption.copyWith(color: t.fgTertiary),
+                    children: [
+                      const TextSpan(text: '이번 달 '),
+                      TextSpan(
+                        text: masked
+                            ? '$monthCount회 · ••••원'
+                            : '$monthCount회 · ${krw(monthTotal)}원',
+                        style: PTypo.caption.copyWith(
+                            color: t.fgSecondary,
+                            fontWeight: FontWeight.w700),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
