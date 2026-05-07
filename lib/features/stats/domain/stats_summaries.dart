@@ -1,3 +1,5 @@
+import 'stats_models.dart' show CategoryBreakdown;
+
 /// 백엔드 일/주/연 요약 응답 매핑 (plain class — freezed 회피).
 
 class DailySummary {
@@ -83,30 +85,3 @@ class YearlySummary {
   }
 }
 
-/// MonthlySummary 의 categoryBreakdown 항목 — 부모/자식 카테고리 합계.
-/// `parentCategoryRowId` null 이면 최상위 카테고리.
-class CategoryBreakdown {
-  const CategoryBreakdown({
-    this.categoryRowId,
-    this.categoryName,
-    this.parentCategoryRowId,
-    this.parentCategoryName,
-    required this.expenseType,
-    required this.totalAmount,
-  });
-  final int? categoryRowId;
-  final String? categoryName;
-  final int? parentCategoryRowId;
-  final String? parentCategoryName;
-  final String expenseType; // EXPENSE/INCOME
-  final int totalAmount;
-  factory CategoryBreakdown.fromJson(Map<String, dynamic> j) =>
-      CategoryBreakdown(
-        categoryRowId: (j['categoryRowId'] as num?)?.toInt(),
-        categoryName: j['categoryName'] as String?,
-        parentCategoryRowId: (j['parentCategoryRowId'] as num?)?.toInt(),
-        parentCategoryName: j['parentCategoryName'] as String?,
-        expenseType: (j['expenseType'] as String?) ?? 'EXPENSE',
-        totalAmount: (j['totalAmount'] as num?)?.toInt() ?? 0,
-      );
-}

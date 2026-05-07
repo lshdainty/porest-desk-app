@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
-import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
@@ -11,164 +10,213 @@ import '../../../core/format/color_parse.dart';
 import '../../../core/format/date.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/settings/settings_notifier.dart';
-import '../../budget/application/budget_providers.dart';
-import '../../budget/domain/budget.dart';
+import '../../../shared/icons/lucide_icon_map.dart';
 import '../../expense/application/expense_providers.dart';
 import '../../expense/domain/expense.dart';
-import '../../expense/domain/expense_category.dart';
 import '../application/stats_providers.dart';
 import '../domain/stats_models.dart';
-import '../domain/stats_summaries.dart' hide CategoryBreakdown;
+import '../domain/stats_summaries.dart';
 
-/// 통계 탭. 월 선택 + 5종 차트.
+/// 통계·분석 화면 (front `StatsPage` 미러).
 ///
-/// 1. 월간 수입/지출 + 잔액 카드
-/// 2. 6개월 추이 (BarChart 수입/지출)
-/// 3. 카테고리 분포 (PieChart, EXPENSE 만)
-/// 4. 가맹점 Top 5 (가로 막대 리스트)
-/// 5. 시간대 히트맵 (요일 x 시간)
+/// 3 탭: 카테고리 / 추이 / 비교 — 페이지 상단 underline TabBar 로 전환.
 class StatsScreen extends ConsumerStatefulWidget {
   const StatsScreen({super.key});
   @override
   ConsumerState<StatsScreen> createState() => _StatsScreenState();
 }
 
-class _StatsScreenState extends ConsumerState<StatsScreen> {
+enum _PeriodKey { m1, m3, y1 }
+
+class _StatsScreenState extends ConsumerState<StatsScreen>
+    with SingleTickerProviderStateMixin {
+  late final TabController _tab;
   late DateTime _month = monthStart(DateTime.now());
+  _PeriodKey _period = _PeriodKey.m1;
+
+  @override
+  void initState() {
+    super.initState();
+    _tab = TabController(length: 3, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tab.dispose();
+    super.dispose();
+  }
 
   YM get _ym => (year: _month.year, month: _month.month);
-  DateRange get _range => (
-        startDate: _fmtDate(_month),
-        endDate: _fmtDate(DateTime(_month.year, _month.month + 1, 0)),
-      );
+  YM get _prevYm {
+    if (_month.month == 1) return (year: _month.year - 1, month: 12);
+    return (year: _month.year, month: _month.month - 1);
+  }
 
-  String _fmtDate(DateTime d) =>
-      '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+  /// 기간 모드에 해당하는 month 번호 list.
+  List<int> get _periodMonths {
+    if (_period == _PeriodKey.m1) return [_month.month];
+    if (_period == _PeriodKey.m3) {
+      final q = ((_month.month - 1) ~/ 3) + 1;
+      return [q * 3 - 2, q * 3 - 1, q * 3];
+    }
+    return List.generate(12, (i) => i + 1);
+  }
+
+  /// 이전 기간 (year, months).
+  ({int year, List<int> months}) get _prevPeriod {
+    if (_period == _PeriodKey.m1) {
+      return (year: _prevYm.year, months: [_prevYm.month]);
+    }
+    if (_period == _PeriodKey.m3) {
+      final q = ((_month.month - 1) ~/ 3) + 1;
+      if (q == 1) return (year: _month.year - 1, months: [10, 11, 12]);
+      final pq = q - 1;
+      return (year: _month.year, months: [pq * 3 - 2, pq * 3 - 1, pq * 3]);
+    }
+    return (year: _month.year - 1, months: List.generate(12, (i) => i + 1));
+  }
+
+  String get _periodLabel {
+    if (_period == _PeriodKey.m1) return '${_month.month}월';
+    if (_period == _PeriodKey.m3) {
+      final q = ((_month.month - 1) ~/ 3) + 1;
+      return '${_month.year}년 $q분기';
+    }
+    return '${_month.year}년';
+  }
+
+  String get _periodNow => switch (_period) {
+        _PeriodKey.m1 => '이번 달',
+        _PeriodKey.m3 => '이번 분기',
+        _PeriodKey.y1 => '이번 해',
+      };
+  String get _periodPrev => switch (_period) {
+        _PeriodKey.m1 => '지난 달',
+        _PeriodKey.m3 => '지난 분기',
+        _PeriodKey.y1 => '지난 해',
+      };
+  String get _momLabel => switch (_period) {
+        _PeriodKey.m1 => '전월 대비',
+        _PeriodKey.m3 => '전분기 대비',
+        _PeriodKey.y1 => '전년 대비',
+      };
+
+  void setPeriod(_PeriodKey p) {
+    setState(() => _period = p);
+  }
+
+  Future<void> _pickMonth() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _month,
+      firstDate: DateTime(2020),
+      lastDate: DateTime(_month.year + 5, 12, 31),
+    );
+    if (picked != null) {
+      setState(() => _month = DateTime(picked.year, picked.month, 1));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
+    return Column(
+      children: [
+        Container(
+          color: t.bgSurface,
+          child: TabBar(
+            controller: _tab,
+            isScrollable: false,
+            indicatorColor: t.bgBrand,
+            indicatorWeight: 2.4,
+            labelColor: t.fgPrimary,
+            unselectedLabelColor: t.fgTertiary,
+            labelStyle: PTypo.bodySm
+                .copyWith(fontWeight: FontWeight.w700, color: t.fgPrimary),
+            unselectedLabelStyle: PTypo.bodySm
+                .copyWith(fontWeight: FontWeight.w500, color: t.fgTertiary),
+            dividerColor: t.borderSubtle,
+            tabs: const [
+              Tab(text: '카테고리'),
+              Tab(text: '추이'),
+              Tab(text: '비교'),
+            ],
+          ),
+        ),
+        Expanded(
+          child: TabBarView(
+            controller: _tab,
+            children: [
+              _CategoryTab(state: this),
+              _TrendTab(state: this),
+              _CompareTab(state: this),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
 
-    final monthlyAsync = ref.watch(monthlySummaryProvider(_ym));
-    final trendAsync = ref.watch(monthlyTrendProvider(6));
-    final merchantAsync = ref.watch(merchantSummaryProvider(_range));
-    final heatmapAsync = ref.watch(heatmapProvider(_ym));
-    final byAssetAsync = ref.watch(assetExpenseSummaryProvider(_range));
-    final yearAsync = ref.watch(yearlySummaryProvider(_month.year));
-    final prevYearAsync =
-        ref.watch(yearlySummaryProvider(_month.year - 1));
-    final budgetsAsync = ref.watch(monthBudgetsProvider(_ym));
-    final monthExpAsync = ref.watch(monthExpensesProvider(_ym));
+// ─── 카테고리 탭 ────────────────────────────────────────────
+
+class _CategoryTab extends ConsumerWidget {
+  const _CategoryTab({required this.state});
+  final _StatsScreenState state;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = context.tokens;
+    final settings =
+        ref.watch(settingsProvider).value ?? AppSettings.defaults;
+    final monthlyAsync = ref.watch(monthlySummaryProvider(state._ym));
+    final prevMonthlyAsync =
+        ref.watch(monthlySummaryProvider(state._prevYm));
+    final yearlyAsync = ref.watch(yearlySummaryProvider(state._month.year));
     final categoriesAsync = ref.watch(categoriesProvider);
+    final start = _fmt(state._month);
+    final end =
+        _fmt(DateTime(state._month.year, state._month.month + 1, 0));
+    final merchantAsync =
+        ref.watch(merchantSummaryProvider((startDate: start, endDate: end)));
+    final heatmapAsync = ref.watch(heatmapProvider(state._ym));
 
     return RefreshIndicator(
       color: t.bgBrand,
       onRefresh: () async {
-        ref.invalidate(monthlySummaryProvider(_ym));
-        ref.invalidate(monthlyTrendProvider(6));
-        ref.invalidate(merchantSummaryProvider(_range));
-        ref.invalidate(heatmapProvider(_ym));
-        ref.invalidate(assetExpenseSummaryProvider(_range));
+        ref.invalidate(monthlySummaryProvider(state._ym));
+        ref.invalidate(merchantSummaryProvider(
+            (startDate: start, endDate: end)));
+        ref.invalidate(heatmapProvider(state._ym));
+        ref.invalidate(yearlySummaryProvider(state._month.year));
       },
       child: ListView(
         padding: const EdgeInsets.fromLTRB(
-            PSpace.x16, PSpace.x16, PSpace.x16, PSpace.x40),
+            PSpace.x16, PSpace.x12, PSpace.x16, PSpace.x32),
         children: [
-          _MonthHeader(
-            month: _month,
-            onPrev: () => setState(() => _month =
-                DateTime(_month.year, _month.month - 1, 1)),
-            onNext: () => setState(() => _month =
-                DateTime(_month.year, _month.month + 1, 1)),
-            tokens: t,
+          _DonutCard(
+            state: state,
+            monthlyAsync: monthlyAsync,
+            yearlyAsync: yearlyAsync,
+            categoriesAsync: categoriesAsync,
+            masked: settings.hideAmounts,
           ),
           const SizedBox(height: PSpace.x12),
-
-          // 1. 월간 요약
-          _MonthSummaryCard(
-              async: monthlyAsync, masked: settings.hideAmounts, tokens: t),
-          const SizedBox(height: PSpace.x12),
-
-          // 2. 6개월 추이 (BarChart)
-          _SectionCard(
-            title: '최근 6개월 수입/지출',
-            tokens: t,
-            child: _TrendChart(async: trendAsync, tokens: t),
+          _TopMerchantsCard(
+            async: merchantAsync,
+            masked: settings.hideAmounts,
           ),
           const SizedBox(height: PSpace.x12),
-
-          // 3. 카테고리 분포
-          _SectionCard(
-            title: '${_month.month}월 카테고리 분포',
-            tokens: t,
-            child: _CategoryDonut(
-                async: monthlyAsync, masked: settings.hideAmounts, tokens: t),
-          ),
+          _HeatmapCard(async: heatmapAsync),
           const SizedBox(height: PSpace.x12),
-
-          // 4. 가맹점 Top
-          _SectionCard(
-            title: '${_month.month}월 가맹점 분석',
-            tokens: t,
-            child: _MerchantTop(
-                async: merchantAsync, masked: settings.hideAmounts, tokens: t),
-          ),
-          const SizedBox(height: PSpace.x12),
-
-          // 5. 자산별 지출 분포
-          _SectionCard(
-            title: '${_month.month}월 자산별 지출',
-            tokens: t,
-            child: _AssetUsageList(
-                async: byAssetAsync, masked: settings.hideAmounts, tokens: t),
-          ),
-          const SizedBox(height: PSpace.x12),
-
-          // 6. 예산 vs 실제 (#282)
-          _SectionCard(
-            title: '${_month.month}월 예산 vs 실제',
-            tokens: t,
-            child: _BudgetVsActual(
-              budgetsAsync: budgetsAsync,
-              monthExpAsync: monthExpAsync,
-              categoriesAsync: categoriesAsync,
-              masked: settings.hideAmounts,
-              tokens: t,
-            ),
-          ),
-          const SizedBox(height: PSpace.x12),
-
-          // 7. 카테고리 추이 (#281)
-          _SectionCard(
-            title: '카테고리 추이 (${_month.year})',
-            tokens: t,
-            child: _CategoryTrendChart(
-              yearlyAsync: yearAsync,
-              categoriesAsync: categoriesAsync,
-              tokens: t,
-            ),
-          ),
-          const SizedBox(height: PSpace.x12),
-
-          // 8. 전년 대비
-          _SectionCard(
-            title: '전년 대비 (${_month.year} vs ${_month.year - 1})',
-            tokens: t,
-            child: _YearOverYearChart(
-              thisYear: yearAsync,
-              prevYear: prevYearAsync,
-              masked: settings.hideAmounts,
-              tokens: t,
-            ),
-          ),
-          const SizedBox(height: PSpace.x12),
-
-          // 7. 시간대 히트맵
-          _SectionCard(
-            title: '${_month.month}월 시간대 히트맵',
-            tokens: t,
-            child: _Heatmap(async: heatmapAsync, tokens: t),
+          _HighlightsGrid(
+            state: state,
+            monthlyAsync: monthlyAsync,
+            prevMonthlyAsync: prevMonthlyAsync,
+            yearlyAsync: yearlyAsync,
+            categoriesAsync: categoriesAsync,
+            merchantAsync: merchantAsync,
+            masked: settings.hideAmounts,
           ),
         ],
       ),
@@ -176,915 +224,1577 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
   }
 }
 
-// ─── Month picker header ───────────────────────────────────
+// ─── 추이 탭 ────────────────────────────────────────────────
 
-class _MonthHeader extends StatelessWidget {
-  const _MonthHeader({
-    required this.month,
-    required this.onPrev,
-    required this.onNext,
-    required this.tokens,
-  });
-  final DateTime month;
-  final VoidCallback onPrev;
-  final VoidCallback onNext;
-  final PorestTokens tokens;
+class _TrendTab extends ConsumerWidget {
+  const _TrendTab({required this.state});
+  final _StatsScreenState state;
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = context.tokens;
+    final settings =
+        ref.watch(settingsProvider).value ?? AppSettings.defaults;
+    final yearlyAsync = ref.watch(yearlySummaryProvider(state._month.year));
+    final monthExpAsync = ref.watch(monthExpensesProvider(state._ym));
+    return RefreshIndicator(
+      color: t.bgBrand,
+      onRefresh: () async {
+        ref.invalidate(yearlySummaryProvider(state._month.year));
+        ref.invalidate(monthExpensesProvider(state._ym));
+      },
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(
+            PSpace.x16, PSpace.x12, PSpace.x16, PSpace.x32),
+        children: [
+          _TrendBigCard(
+            state: state,
+            yearlyAsync: yearlyAsync,
+            monthExpAsync: monthExpAsync,
+          ),
+          const SizedBox(height: PSpace.x12),
+          _TrendStatsGrid(
+            state: state,
+            yearlyAsync: yearlyAsync,
+            masked: settings.hideAmounts,
+          ),
+          const SizedBox(height: PSpace.x12),
+          _SavingsBarsCard(
+            state: state,
+            yearlyAsync: yearlyAsync,
+            monthExpAsync: monthExpAsync,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── 비교 탭 ────────────────────────────────────────────────
+
+class _CompareTab extends ConsumerWidget {
+  const _CompareTab({required this.state});
+  final _StatsScreenState state;
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = context.tokens;
+    final settings =
+        ref.watch(settingsProvider).value ?? AppSettings.defaults;
+    final monthlyAsync = ref.watch(monthlySummaryProvider(state._ym));
+    final prevMonthlyAsync =
+        ref.watch(monthlySummaryProvider(state._prevYm));
+    final yearlyAsync = ref.watch(yearlySummaryProvider(state._month.year));
+    final prevYearlyAsync =
+        ref.watch(yearlySummaryProvider(state._month.year - 1));
+    final categoriesAsync = ref.watch(categoriesProvider);
+    return RefreshIndicator(
+      color: t.bgBrand,
+      onRefresh: () async {
+        ref.invalidate(monthlySummaryProvider(state._ym));
+        ref.invalidate(monthlySummaryProvider(state._prevYm));
+        ref.invalidate(yearlySummaryProvider(state._month.year));
+        ref.invalidate(yearlySummaryProvider(state._month.year - 1));
+      },
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(
+            PSpace.x16, PSpace.x12, PSpace.x16, PSpace.x32),
+        children: [
+          _CompareSummaryGrid(
+            state: state,
+            monthlyAsync: monthlyAsync,
+            prevMonthlyAsync: prevMonthlyAsync,
+            yearlyAsync: yearlyAsync,
+            prevYearlyAsync: prevYearlyAsync,
+            masked: settings.hideAmounts,
+          ),
+          const SizedBox(height: PSpace.x12),
+          _CompareCategoryCard(
+            state: state,
+            monthlyAsync: monthlyAsync,
+            prevMonthlyAsync: prevMonthlyAsync,
+            yearlyAsync: yearlyAsync,
+            prevYearlyAsync: prevYearlyAsync,
+            categoriesAsync: categoriesAsync,
+            masked: settings.hideAmounts,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── 공용 위젯 ─────────────────────────────────────────────
+
+/// 카드 컨테이너.
+class _Card extends StatelessWidget {
+  const _Card({required this.child, this.padding});
+  final Widget child;
+  final EdgeInsets? padding;
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return Container(
+      padding: padding ?? const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: t.bgSurface,
+        border: Border.all(color: t.borderSubtle),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: child,
+    );
+  }
+}
+
+class _PeriodSeg extends StatelessWidget {
+  const _PeriodSeg({required this.value, required this.onChanged});
+  final _PeriodKey value;
+  final ValueChanged<_PeriodKey> onChanged;
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    Widget pill(_PeriodKey v, String label) {
+      final active = v == value;
+      return GestureDetector(
+        onTap: () => onChanged(v),
+        child: Container(
+          padding:
+              const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(
+            color: active ? t.bgSurface : Colors.transparent,
+            borderRadius: BorderRadius.circular(7),
+            boxShadow: active
+                ? [
+                    BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.05),
+                        blurRadius: 2,
+                        offset: const Offset(0, 1)),
+                  ]
+                : null,
+          ),
+          child: Text(label,
+              style: PTypo.caption.copyWith(
+                  color: active ? t.fgPrimary : t.fgTertiary,
+                  fontWeight:
+                      active ? FontWeight.w700 : FontWeight.w500)),
+        ),
+      );
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(3),
+      decoration: BoxDecoration(
+        color: t.bgMuted,
+        borderRadius: BorderRadius.circular(9),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          pill(_PeriodKey.m1, '월'),
+          pill(_PeriodKey.m3, '분기'),
+          pill(_PeriodKey.y1, '년'),
+        ],
+      ),
+    );
+  }
+}
+
+class _MonthPickerButton extends StatelessWidget {
+  const _MonthPickerButton({required this.label, required this.onTap});
+  final String label;
+  final VoidCallback onTap;
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(9),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+        decoration: BoxDecoration(
+          border: Border.all(color: t.borderSubtle),
+          borderRadius: BorderRadius.circular(9),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(LucideIcons.calendar, size: 13, color: t.fgSecondary),
+            const SizedBox(width: 6),
+            Text(label,
+                style: PTypo.caption.copyWith(
+                    color: t.fgPrimary, fontWeight: FontWeight.w600)),
+            const SizedBox(width: 4),
+            Icon(LucideIcons.chevronDown, size: 12, color: t.fgTertiary),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PeriodSelectorRow extends StatelessWidget {
+  const _PeriodSelectorRow({required this.state});
+  final _StatsScreenState state;
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        IconButton(
-            onPressed: onPrev,
-            icon: Icon(LucideIcons.chevronLeft, color: tokens.fgSecondary)),
-        Text(yearMonth(month),
-            style: PTypo.h4.copyWith(color: tokens.fgPrimary)),
-        IconButton(
-            onPressed: onNext,
-            icon: Icon(LucideIcons.chevronRight, color: tokens.fgSecondary)),
-      ],
-    );
-  }
-}
-
-// ─── Month summary card ────────────────────────────────────
-
-class _MonthSummaryCard extends StatelessWidget {
-  const _MonthSummaryCard(
-      {required this.async, required this.masked, required this.tokens});
-  final AsyncValue<MonthlySummary> async;
-  final bool masked;
-  final PorestTokens tokens;
-  @override
-  Widget build(BuildContext context) {
-    final s = async.value;
-    final loading = async.isLoading && !async.hasValue;
-    final income = s?.totalIncome ?? 0;
-    final expense = s?.totalExpense ?? 0;
-    final balance = income - expense;
-
-    return Container(
-      padding: const EdgeInsets.all(PSpace.x16),
-      decoration: BoxDecoration(
-        color: tokens.bgSurface,
-        borderRadius: PRadius.brLg,
-        border: Border.all(color: tokens.borderSubtle),
-      ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: _SummaryCol(
-                  label: '수입',
-                  value: loading ? '—' : '+${krwMasked(income, masked)}',
-                  color: tokens.statusSuccess,
-                  tokens: tokens,
-                ),
-              ),
-              Expanded(
-                child: _SummaryCol(
-                  label: '지출',
-                  value: loading ? '—' : '-${krwMasked(expense, masked)}',
-                  color: tokens.statusDanger,
-                  tokens: tokens,
-                ),
-              ),
-            ],
+        Flexible(
+          child: _MonthPickerButton(
+            label: '${state._month.year}년 ${state._month.month}월',
+            onTap: state._pickMonth,
           ),
-          const SizedBox(height: PSpace.x12),
-          Divider(height: 1, color: tokens.borderSubtle),
-          const SizedBox(height: PSpace.x12),
-          Row(
-            children: [
-              Text('잔액',
-                  style: PTypo.bodySm.copyWith(
-                      color: tokens.fgSecondary,
-                      fontWeight: FontWeight.w600)),
-              const Spacer(),
-              Text(
-                  loading
-                      ? '—'
-                      : krwMasked(balance, masked, sign: true),
-                  style: PTypo.body.copyWith(
-                      color: balance >= 0
-                          ? tokens.statusSuccess
-                          : tokens.statusDanger,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 17)),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SummaryCol extends StatelessWidget {
-  const _SummaryCol(
-      {required this.label,
-      required this.value,
-      required this.color,
-      required this.tokens});
-  final String label;
-  final String value;
-  final Color color;
-  final PorestTokens tokens;
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label,
-            style: PTypo.caption.copyWith(color: tokens.fgTertiary)),
-        const SizedBox(height: 2),
-        Text(value,
-            style: PTypo.body.copyWith(
-                color: color, fontWeight: FontWeight.w700, fontSize: 17)),
-      ],
-    );
-  }
-}
-
-// ─── Section card wrapper ─────────────────────────────────
-
-class _SectionCard extends StatelessWidget {
-  const _SectionCard(
-      {required this.title, required this.child, required this.tokens});
-  final String title;
-  final Widget child;
-  final PorestTokens tokens;
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(PSpace.x16),
-      decoration: BoxDecoration(
-        color: tokens.bgSurface,
-        borderRadius: PRadius.brLg,
-        border: Border.all(color: tokens.borderSubtle),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title,
-              style: PTypo.body.copyWith(
-                  color: tokens.fgPrimary, fontWeight: FontWeight.w700)),
-          const SizedBox(height: PSpace.x12),
-          child,
-        ],
-      ),
-    );
-  }
-}
-
-// ─── 6개월 추이 BarChart ──────────────────────────────────
-
-class _TrendChart extends StatelessWidget {
-  const _TrendChart({required this.async, required this.tokens});
-  final AsyncValue<List<MonthlyTrend>> async;
-  final PorestTokens tokens;
-  @override
-  Widget build(BuildContext context) {
-    final list = async.value ?? const <MonthlyTrend>[];
-    if (async.isLoading && list.isEmpty) {
-      return const SizedBox(
-          height: 200, child: Center(child: CircularProgressIndicator()));
-    }
-    if (async.hasError && list.isEmpty) {
-      return _ErrorMini(text: '추이 로드 실패', tokens: tokens);
-    }
-    if (list.isEmpty) {
-      return _EmptyMini(text: '데이터 없음', tokens: tokens);
-    }
-
-    final maxY = list
-        .fold<int>(0,
-            (m, t) => [m, t.totalIncome, t.totalExpense].reduce((a, b) => a > b ? a : b))
-        .toDouble();
-
-    return SizedBox(
-      height: 200,
-      child: BarChart(
-        BarChartData(
-          maxY: maxY > 0 ? maxY * 1.15 : 100,
-          minY: 0,
-          alignment: BarChartAlignment.spaceAround,
-          barTouchData: BarTouchData(enabled: true),
-          gridData: FlGridData(
-              show: true,
-              drawVerticalLine: false,
-              horizontalInterval: maxY > 0 ? maxY / 4 : 25,
-              getDrawingHorizontalLine: (_) => FlLine(
-                  color: tokens.borderSubtle, strokeWidth: 1, dashArray: [3, 3])),
-          titlesData: FlTitlesData(
-            leftTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                reservedSize: 36,
-                getTitlesWidget: (v, _) => Text(_axisFmt(v.toInt()),
-                    style: PTypo.caption
-                        .copyWith(color: tokens.fgTertiary, fontSize: 10)),
-              ),
-            ),
-            bottomTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                reservedSize: 22,
-                getTitlesWidget: (v, _) {
-                  final i = v.toInt();
-                  if (i < 0 || i >= list.length) return const SizedBox();
-                  return Text('${list[i].month}월',
-                      style: PTypo.caption.copyWith(
-                          color: tokens.fgSecondary, fontSize: 10));
-                },
-              ),
-            ),
-            rightTitles: const AxisTitles(),
-            topTitles: const AxisTitles(),
-          ),
-          borderData: FlBorderData(show: false),
-          barGroups: [
-            for (int i = 0; i < list.length; i++)
-              BarChartGroupData(
-                x: i,
-                barsSpace: 4,
-                barRods: [
-                  BarChartRodData(
-                      toY: list[i].totalIncome.toDouble(),
-                      color: tokens.statusSuccess,
-                      width: 8,
-                      borderRadius: const BorderRadius.vertical(
-                          top: Radius.circular(2))),
-                  BarChartRodData(
-                      toY: list[i].totalExpense.toDouble(),
-                      color: tokens.statusDanger,
-                      width: 8,
-                      borderRadius: const BorderRadius.vertical(
-                          top: Radius.circular(2))),
-                ],
-              ),
-          ],
         ),
+        const SizedBox(width: 8),
+        _PeriodSeg(
+          value: state._period,
+          onChanged: state.setPeriod,
+        ),
+      ],
+    );
+  }
+}
+
+class _CardHeader extends StatelessWidget {
+  const _CardHeader({required this.title, this.trailing});
+  final Widget title;
+  final Widget? trailing;
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(child: title),
+          if (trailing != null) trailing!,
+        ],
       ),
     );
   }
+}
 
-  String _axisFmt(int v) {
-    if (v >= 1000000) return '${(v / 1000000).toStringAsFixed(1)}M';
-    if (v >= 1000) return '${(v / 1000).toStringAsFixed(0)}k';
-    return '$v';
+class _CardTitle extends StatelessWidget {
+  const _CardTitle(this.text);
+  final String text;
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return Text(text,
+        style: PTypo.body.copyWith(
+            color: t.fgPrimary, fontWeight: FontWeight.w700));
   }
 }
 
-// ─── 카테고리 분포 도넛 (드릴다운 #285) ─────────────────────
-
-class _CategoryDonut extends ConsumerStatefulWidget {
-  const _CategoryDonut(
-      {required this.async, required this.masked, required this.tokens});
-  final AsyncValue<MonthlySummary> async;
-  final bool masked;
-  final PorestTokens tokens;
-
+class _EmptyBox extends StatelessWidget {
+  const _EmptyBox({this.text = '데이터가 없습니다'});
+  final String text;
   @override
-  ConsumerState<_CategoryDonut> createState() => _CategoryDonutState();
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 28),
+      child: Center(
+        child: Text(text,
+            style: PTypo.caption.copyWith(color: t.fgTertiary)),
+      ),
+    );
+  }
 }
 
-class _CategoryDonutState extends ConsumerState<_CategoryDonut> {
-  /// 활성 부모 카테고리 ID — null 이면 최상위, set 시 해당 부모의 자식만 표시.
+// ─── DONUT CARD ────────────────────────────────────────────
+
+const _donutColorStrings = [
+  'oklch(0.55 0.12 55)',
+  'oklch(0.50 0.12 340)',
+  'oklch(0.50 0.1 140)',
+  'oklch(0.50 0.12 290)',
+  'oklch(0.48 0.012 195)',
+  'oklch(0.50 0.08 50)',
+  'oklch(0.52 0.1 215)',
+  'oklch(0.50 0.1 230)',
+  'oklch(0.55 0.13 25)',
+];
+
+Color _donutColor(BuildContext context, int idx) {
+  final t = context.tokens;
+  if (idx < _donutColorStrings.length) {
+    return parseColor(_donutColorStrings[idx], fallback: t.fgBrand);
+  }
+  return t.fgBrand;
+}
+
+class _DonutRow {
+  _DonutRow({
+    required this.rowId,
+    required this.name,
+    required this.amount,
+    this.icon,
+    this.color,
+  });
+  final int rowId;
+  final String name;
+  int amount;
+  final String? icon;
+  final String? color;
+  bool hasChildren = false;
+}
+
+class _DonutCard extends ConsumerStatefulWidget {
+  const _DonutCard({
+    required this.state,
+    required this.monthlyAsync,
+    required this.yearlyAsync,
+    required this.categoriesAsync,
+    required this.masked,
+  });
+  final _StatsScreenState state;
+  final AsyncValue<MonthlySummary> monthlyAsync;
+  final AsyncValue<YearlySummary> yearlyAsync;
+  final AsyncValue<List<dynamic>> categoriesAsync;
+  final bool masked;
+
+  @override
+  ConsumerState<_DonutCard> createState() => _DonutCardState();
+}
+
+class _DonutCardState extends ConsumerState<_DonutCard> {
   int? _activeParentId;
 
   @override
-  Widget build(BuildContext context) {
-    final tokens = widget.tokens;
-    final masked = widget.masked;
-    final async = widget.async;
-    final s = async.value;
-    if (async.isLoading && s == null) {
-      return const SizedBox(
-          height: 200, child: Center(child: CircularProgressIndicator()));
+  void didUpdateWidget(covariant _DonutCard old) {
+    super.didUpdateWidget(old);
+    // 기간/월 변경 시 드릴다운 해제.
+    if (old.state._period != widget.state._period ||
+        old.state._month != widget.state._month) {
+      _activeParentId = null;
     }
-    if (async.hasError && s == null) {
-      return _ErrorMini(text: '카테고리 로드 실패', tokens: tokens);
-    }
-    final all = s?.categoryBreakdown ?? const <CategoryBreakdown>[];
-    final expensesAll = all.where((c) => c.expenseType == 'EXPENSE').toList();
-    if (expensesAll.isEmpty) {
-      return _EmptyMini(text: '데이터 없음', tokens: tokens);
-    }
+  }
 
-    // 드릴다운: 부모가 선택되면 해당 부모의 직접 자식 만, 아니면 최상위(parent==null) 만.
-    final exp = (_activeParentId == null
-            ? expensesAll
-                .where((c) => c.parentCategoryRowId == null)
-                .toList()
-            : expensesAll
-                .where((c) => c.parentCategoryRowId == _activeParentId)
-                .toList())
-      ..sort((a, b) => b.totalAmount.compareTo(a.totalAmount));
-    // fallback: 최상위 0건이면 전체 보여주기 (백엔드가 평면 응답일 때).
-    final view = exp.isEmpty
-        ? (List.of(expensesAll)
-          ..sort((a, b) => b.totalAmount.compareTo(a.totalAmount)))
-        : exp;
-
-    final categories = ref.watch(categoriesProvider).value ?? const [];
-    final total = view.fold<int>(0, (s, c) => s + c.totalAmount);
-
-    // 자식 카테고리 수가 1 이상인 부모 ID 집합 — 드릴다운 가능 표시
-    final hasChildrenIds = <int>{
-      for (final c in expensesAll)
-        if (c.parentCategoryRowId != null) c.parentCategoryRowId!
-    };
-
-    String? activeName() {
-      if (_activeParentId == null) return null;
-      final p = expensesAll.firstWhere(
-          (CategoryBreakdown c) => c.categoryRowId == _activeParentId,
-          orElse: () => expensesAll.first);
-      return p.categoryName;
-    }
-
-    Color colorFor(CategoryBreakdown c) {
-      for (final cat in categories) {
-        try {
-          if (cat.rowId == c.categoryRowId) {
-            return parseColor(cat.color, fallback: tokens.fgBrand);
-          }
-        } catch (_) {}
+  List<CategoryBreakdown> get _periodBreakdown {
+    final s = widget.state;
+    final out = <CategoryBreakdown>[];
+    void push(List<CategoryBreakdown> list) {
+      for (final c in list) {
+        if (c.expenseType == 'EXPENSE') out.add(c);
       }
-      return tokens.fgBrand;
     }
 
-    return Column(
-      children: [
-        if (_activeParentId != null)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: Row(
-              children: [
-                InkWell(
-                  onTap: () => setState(() => _activeParentId = null),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 6, vertical: 4),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(LucideIcons.arrowLeft,
-                            size: 13, color: tokens.fgSecondary),
-                        const SizedBox(width: 4),
-                        Text('전체로',
-                            style: PTypo.caption.copyWith(
-                                color: tokens.fgSecondary,
-                                fontWeight: FontWeight.w600)),
+    if (s._period == _PeriodKey.m1) {
+      push(widget.monthlyAsync.value?.categoryBreakdown ?? const <CategoryBreakdown>[]);
+    } else {
+      for (final m
+          in widget.yearlyAsync.value?.monthlyAmounts ?? const <MonthlyAmount>[]) {
+        if (s._periodMonths.contains(m.month)) push(m.categoryBreakdown);
+      }
+    }
+    return out;
+  }
+
+  List<_DonutRow> _aggregateParent(List<CategoryBreakdown> bd) {
+    final map = <int, _DonutRow>{};
+    final cats = (widget.categoriesAsync.value ?? const []).cast<dynamic>();
+    for (final c in bd) {
+      final groupId = c.parentCategoryRowId ?? c.categoryRowId;
+      if (groupId == null) continue;
+      final groupName = c.parentCategoryName ?? c.categoryName ?? '미지정';
+      var row = map[groupId];
+      if (row == null) {
+        final cat = cats
+            .cast<dynamic>()
+            .where((x) => x.rowId == groupId)
+            .cast<dynamic>()
+            .firstOrNull;
+        row = _DonutRow(
+          rowId: groupId,
+          name: groupName,
+          amount: 0,
+          icon: cat?.icon as String?,
+          color: cat?.color as String?,
+        );
+        map[groupId] = row;
+      }
+      row.amount += c.totalAmount;
+      if (c.parentCategoryRowId != null) row.hasChildren = true;
+    }
+    final list = map.values.toList()
+      ..sort((a, b) => b.amount.compareTo(a.amount));
+    return list;
+  }
+
+  List<_DonutRow> _aggregateChildren(
+      List<CategoryBreakdown> bd, int parentId) {
+    final map = <int, _DonutRow>{};
+    final cats = (widget.categoriesAsync.value ?? const []).cast<dynamic>();
+    for (final c in bd) {
+      if (c.parentCategoryRowId != parentId) continue;
+      final id = c.categoryRowId;
+      if (id == null) continue;
+      var row = map[id];
+      if (row == null) {
+        final cat = cats
+            .cast<dynamic>()
+            .where((x) => x.rowId == id)
+            .cast<dynamic>()
+            .firstOrNull;
+        row = _DonutRow(
+          rowId: id,
+          name: c.categoryName ?? '미지정',
+          amount: 0,
+          icon: cat?.icon as String?,
+          color: cat?.color as String?,
+        );
+        map[id] = row;
+      }
+      row.amount += c.totalAmount;
+    }
+    return map.values.toList()
+      ..sort((a, b) => b.amount.compareTo(a.amount));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final s = widget.state;
+    final t = context.tokens;
+    final loading = s._period == _PeriodKey.m1
+        ? widget.monthlyAsync.isLoading
+        : widget.yearlyAsync.isLoading;
+    final bd = _periodBreakdown;
+    final parents = _aggregateParent(bd);
+    final isDrilled = _activeParentId != null;
+    final children = isDrilled
+        ? _aggregateChildren(bd, _activeParentId!)
+        : const <_DonutRow>[];
+    final view = isDrilled && children.isNotEmpty ? children : parents;
+    final total = view.fold<int>(0, (sum, r) => sum + r.amount);
+    final activeParent = isDrilled
+        ? parents.where((r) => r.rowId == _activeParentId).firstOrNull
+        : null;
+
+    final centerLbl = isDrilled && activeParent != null
+        ? '${activeParent.name} 세부'
+        : '${s._periodLabel} 지출';
+
+    return _Card(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _CardHeader(
+            title: isDrilled
+                ? Row(
+                    children: [
+                      InkWell(
+                        onTap: () => setState(() => _activeParentId = null),
+                        child: Text('카테고리별 지출',
+                            style: PTypo.body.copyWith(
+                                color: t.fgSecondary,
+                                fontWeight: FontWeight.w500)),
+                      ),
+                      const SizedBox(width: 4),
+                      Text('›',
+                          style: PTypo.body.copyWith(color: t.fgTertiary)),
+                      const SizedBox(width: 4),
+                      Flexible(
+                        child: _CardTitle(activeParent?.name ?? ''),
+                      ),
+                    ],
+                  )
+                : const _CardTitle('카테고리별 지출'),
+          ),
+          _PeriodSelectorRow(state: s),
+          const SizedBox(height: 14),
+          if (loading)
+            const _EmptyBox(text: '불러오는 중…')
+          else if (view.isEmpty)
+            const _EmptyBox(text: '카테고리 데이터가 없습니다')
+          else ...[
+            SizedBox(
+              height: 200,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  PieChart(
+                    PieChartData(
+                      sectionsSpace: 0,
+                      centerSpaceRadius: 60,
+                      startDegreeOffset: -90,
+                      sections: [
+                        for (var i = 0; i < view.length; i++)
+                          PieChartSectionData(
+                            value: view[i].amount.toDouble(),
+                            color: _donutColor(context, i),
+                            radius: 28,
+                            showTitle: false,
+                          ),
                       ],
                     ),
                   ),
-                ),
-                const Spacer(),
-                Text(activeName() ?? '',
-                    style: PTypo.caption.copyWith(
-                        color: tokens.fgPrimary,
-                        fontWeight: FontWeight.w700)),
-              ],
-            ),
-          ),
-        SizedBox(
-          height: 180,
-          child: PieChart(
-            PieChartData(
-              sectionsSpace: 2,
-              centerSpaceRadius: 50,
-              sections: [
-                for (final c in view.take(8))
-                  PieChartSectionData(
-                    value: c.totalAmount.toDouble(),
-                    color: colorFor(c),
-                    radius: 32,
-                    showTitle: false,
-                  ),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: PSpace.x8),
-        for (final c in view.take(5))
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: InkWell(
-              onTap: c.categoryRowId == null
-                  ? null
-                  : (_activeParentId == null &&
-                          hasChildrenIds.contains(c.categoryRowId)
-                      ? () => setState(() => _activeParentId = c.categoryRowId)
-                      : null),
-              borderRadius: PRadius.brSm,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 4, vertical: 2),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 10,
-                      height: 10,
-                      decoration: BoxDecoration(
-                          color: colorFor(c), shape: BoxShape.circle),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Row(
-                        children: [
-                          Flexible(
-                            child: Text(c.categoryName ?? '미지정',
-                                overflow: TextOverflow.ellipsis,
-                                style: PTypo.bodySm
-                                    .copyWith(color: tokens.fgPrimary)),
-                          ),
-                          if (_activeParentId == null &&
-                              c.categoryRowId != null &&
-                              hasChildrenIds.contains(c.categoryRowId)) ...[
-                            const SizedBox(width: 4),
-                            Icon(LucideIcons.chevronRight,
-                                size: 12, color: tokens.fgTertiary),
-                          ],
-                        ],
-                      ),
-                    ),
-                    Text(
-                      '${total > 0 ? ((c.totalAmount / total) * 100).round() : 0}%',
-                      style:
-                          PTypo.caption.copyWith(color: tokens.fgTertiary),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(krwMasked(c.totalAmount, masked),
-                        style: PTypo.bodySm.copyWith(
-                            color: tokens.fgPrimary,
-                            fontWeight: FontWeight.w600)),
-                  ],
-                ),
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-// ─── 가맹점 Top ──────────────────────────────────────────
-
-class _MerchantTop extends StatefulWidget {
-  const _MerchantTop(
-      {required this.async, required this.masked, required this.tokens});
-  final AsyncValue<List<MerchantSummary>> async;
-  final bool masked;
-  final PorestTokens tokens;
-  @override
-  State<_MerchantTop> createState() => _MerchantTopState();
-}
-
-class _MerchantTopState extends State<_MerchantTop> {
-  bool _expanded = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final tokens = widget.tokens;
-    final masked = widget.masked;
-    final async = widget.async;
-    final list = async.value ?? const <MerchantSummary>[];
-    if (async.isLoading && list.isEmpty) {
-      return const SizedBox(
-          height: 100, child: Center(child: CircularProgressIndicator()));
-    }
-    if (async.hasError && list.isEmpty) {
-      return _ErrorMini(text: '가맹점 로드 실패', tokens: tokens);
-    }
-    if (list.isEmpty) return _EmptyMini(text: '데이터 없음', tokens: tokens);
-
-    final sorted = (List.of(list)
-      ..sort((a, b) => b.totalAmount.compareTo(a.totalAmount)));
-    final maxAmt = sorted.first.totalAmount;
-    final total = sorted.fold<int>(0, (s, m) => s + m.totalAmount);
-    final visible = _expanded ? sorted.take(15).toList() : sorted.take(5).toList();
-
-    return Column(
-      children: [
-        for (int i = 0; i < visible.length; i++)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 6),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      width: 18,
-                      height: 18,
-                      decoration: BoxDecoration(
-                          color: tokens.bgMuted,
-                          borderRadius: PRadius.brXs),
-                      alignment: Alignment.center,
-                      child: Text('${i + 1}',
-                          style: PTypo.caption.copyWith(
-                              color: tokens.fgSecondary,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 10)),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(visible[i].merchant ?? '(이름 없음)',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: PTypo.bodySm
-                                  .copyWith(color: tokens.fgPrimary)),
-                          Text(
-                              '${visible[i].count}건 · 1회 평균 ${masked ? '•••' : krw(visible[i].totalAmount ~/ (visible[i].count == 0 ? 1 : visible[i].count))}원',
-                              style: PTypo.micro
-                                  .copyWith(color: tokens.fgTertiary)),
-                        ],
-                      ),
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(krwMasked(visible[i].totalAmount, masked),
-                            style: PTypo.bodySm.copyWith(
-                                color: tokens.fgPrimary,
-                                fontWeight: FontWeight.w700)),
-                        Text(
-                            total > 0
-                                ? '${(visible[i].totalAmount * 100 / total).toStringAsFixed(1)}%'
-                                : '-',
-                            style: PTypo.micro
-                                .copyWith(color: tokens.fgTertiary)),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                ClipRRect(
-                  borderRadius: PRadius.brXs,
-                  child: LinearProgressIndicator(
-                    value: maxAmt > 0 ? visible[i].totalAmount / maxAmt : 0,
-                    minHeight: 6,
-                    backgroundColor: tokens.bgTrack,
-                    color: tokens.fgBrand,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        if (sorted.length > 5)
-          Padding(
-            padding: const EdgeInsets.only(top: 6),
-            child: TextButton.icon(
-              onPressed: () => setState(() => _expanded = !_expanded),
-              icon: Icon(
-                  _expanded
-                      ? LucideIcons.chevronUp
-                      : LucideIcons.chevronDown,
-                  size: 14),
-              label: Text(_expanded ? '접기' : '더 보기 (${sorted.length - 5})'),
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-// ─── 자산별 지출 ───────────────────────────────────────────
-
-class _AssetUsageList extends StatelessWidget {
-  const _AssetUsageList(
-      {required this.async, required this.masked, required this.tokens});
-  final AsyncValue<List<AssetExpenseSummary>> async;
-  final bool masked;
-  final PorestTokens tokens;
-  @override
-  Widget build(BuildContext context) {
-    final list = async.value ?? const <AssetExpenseSummary>[];
-    if (async.isLoading && list.isEmpty) {
-      return const SizedBox(
-          height: 100, child: Center(child: CircularProgressIndicator()));
-    }
-    if (async.hasError && list.isEmpty) {
-      return _ErrorMini(text: '자산 로드 실패', tokens: tokens);
-    }
-    if (list.isEmpty) return _EmptyMini(text: '데이터 없음', tokens: tokens);
-
-    final sorted = (List.of(list)
-      ..sort((a, b) => b.totalAmount.compareTo(a.totalAmount)));
-    final maxAmt = sorted.first.totalAmount;
-    final total = sorted.fold<int>(0, (s, a) => s + a.totalAmount);
-
-    return Column(
-      children: [
-        for (final a in sorted)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 6),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(a.assetName ?? '(이름 없음)',
-                          style: PTypo.bodySm
-                              .copyWith(color: tokens.fgPrimary)),
-                    ),
-                    Text(
-                        total > 0
-                            ? '${(a.totalAmount * 100 / total).toStringAsFixed(1)}%'
-                            : '-',
-                        style:
-                            PTypo.caption.copyWith(color: tokens.fgTertiary)),
-                    const SizedBox(width: 8),
-                    Text(krwMasked(a.totalAmount, masked),
-                        style: PTypo.bodySm.copyWith(
-                            color: tokens.fgPrimary,
-                            fontWeight: FontWeight.w700)),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                ClipRRect(
-                  borderRadius: PRadius.brXs,
-                  child: LinearProgressIndicator(
-                    value: maxAmt > 0 ? a.totalAmount / maxAmt : 0,
-                    minHeight: 6,
-                    backgroundColor: tokens.bgTrack,
-                    color: tokens.fgBrand,
-                  ),
-                ),
-              ],
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-// ─── 히트맵 ───────────────────────────────────────────────
-
-class _Heatmap extends StatelessWidget {
-  const _Heatmap({required this.async, required this.tokens});
-  final AsyncValue<List<HeatmapCell>> async;
-  final PorestTokens tokens;
-  @override
-  Widget build(BuildContext context) {
-    final list = async.value ?? const <HeatmapCell>[];
-    if (async.isLoading && list.isEmpty) {
-      return const SizedBox(
-          height: 120, child: Center(child: CircularProgressIndicator()));
-    }
-    if (async.hasError && list.isEmpty) {
-      return _ErrorMini(text: '히트맵 로드 실패', tokens: tokens);
-    }
-    if (list.isEmpty) return _EmptyMini(text: '데이터 없음', tokens: tokens);
-
-    final cellMap = <String, int>{};
-    int maxAmt = 0;
-    for (final c in list) {
-      final key = '${c.dayOfWeek}-${c.hour}';
-      cellMap[key] = (cellMap[key] ?? 0) + c.totalAmount;
-      if (cellMap[key]! > maxAmt) maxAmt = cellMap[key]!;
-    }
-
-    const dows = ['월', '화', '수', '목', '금', '토', '일'];
-    return Column(
-      children: [
-        Row(
-          children: [
-            const SizedBox(width: 18),
-            // 시간 라벨 (0,6,12,18 만)
-            for (int h = 0; h < 24; h++)
-              Expanded(
-                child: Text(
-                  h % 6 == 0 ? '$h' : '',
-                  textAlign: TextAlign.center,
-                  style: PTypo.caption.copyWith(
-                      color: tokens.fgTertiary, fontSize: 8),
-                ),
-              ),
-          ],
-        ),
-        const SizedBox(height: 4),
-        for (int d = 1; d <= 7; d++)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 1),
-            child: Row(
-              children: [
-                SizedBox(
-                  width: 18,
-                  child: Text(dows[d - 1],
-                      style: PTypo.caption.copyWith(
-                          color: tokens.fgSecondary, fontSize: 10)),
-                ),
-                for (int h = 0; h < 24; h++)
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(0.5),
-                      child: AspectRatio(
-                        aspectRatio: 1,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: _heatColor(
-                                cellMap['$d-$h'] ?? 0, maxAmt, tokens),
-                            borderRadius: BorderRadius.circular(2),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-      ],
-    );
-  }
-
-  Color _heatColor(int v, int max, PorestTokens t) {
-    if (max == 0 || v == 0) return t.bgMuted;
-    final ratio = (v / max).clamp(0.05, 1.0);
-    return t.fgBrand.withValues(alpha: ratio);
-  }
-}
-
-// ─── small helpers ────────────────────────────────────────
-
-class _ErrorMini extends StatelessWidget {
-  const _ErrorMini({required this.text, required this.tokens});
-  final String text;
-  final PorestTokens tokens;
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: PSpace.x16),
-      child: Center(
-        child: Text(text,
-            style: PTypo.bodySm.copyWith(color: tokens.statusDanger)),
-      ),
-    );
-  }
-}
-
-class _EmptyMini extends StatelessWidget {
-  const _EmptyMini({required this.text, required this.tokens});
-  final String text;
-  final PorestTokens tokens;
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: PSpace.x16),
-      child: Center(
-        child: Text(text,
-            style: PTypo.bodySm.copyWith(color: tokens.fgTertiary)),
-      ),
-    );
-  }
-}
-
-/// 전년 대비 12개월 BarChart (#284). 두 yearlySummary 의 monthlyAmounts 비교.
-class _YearOverYearChart extends StatelessWidget {
-  const _YearOverYearChart({
-    required this.thisYear,
-    required this.prevYear,
-    required this.masked,
-    required this.tokens,
-  });
-  final AsyncValue<YearlySummary> thisYear;
-  final AsyncValue<YearlySummary> prevYear;
-  final bool masked;
-  final PorestTokens tokens;
-
-  @override
-  Widget build(BuildContext context) {
-    final loading =
-        (thisYear.isLoading && !thisYear.hasValue) ||
-            (prevYear.isLoading && !prevYear.hasValue);
-    if (loading) {
-      return const SizedBox(
-          height: 220, child: Center(child: CircularProgressIndicator()));
-    }
-    final cur = thisYear.value;
-    final prev = prevYear.value;
-    if (cur == null) {
-      return _EmptyMini(text: '데이터 없음', tokens: tokens);
-    }
-
-    int amountFor(YearlySummary? y, int month) {
-      if (y == null) return 0;
-      for (final m in y.monthlyAmounts) {
-        if (m.month == month) return m.totalExpense;
-      }
-      return 0;
-    }
-
-    final maxY = [
-      for (var i = 1; i <= 12; i++)
-        amountFor(cur, i) > amountFor(prev, i)
-            ? amountFor(cur, i)
-            : amountFor(prev, i),
-    ].fold<int>(0, (m, v) => v > m ? v : m).toDouble();
-
-    final curTotal = cur.totalExpense;
-    final prevTotal = prev?.totalExpense ?? 0;
-    final delta = curTotal - prevTotal;
-    final deltaPct = prevTotal == 0
-        ? 0.0
-        : (delta * 100 / prevTotal);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Text(
-              masked
-                  ? '••• 원'
-                  : '${krw(curTotal)}원',
-              style: PTypo.h3.copyWith(
-                  color: tokens.fgPrimary, fontWeight: FontWeight.w700),
-            ),
-            const SizedBox(width: 8),
-            Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(
-                color: delta > 0
-                    ? tokens.statusDangerSubtle
-                    : tokens.statusSuccessSubtle,
-                borderRadius: PRadius.brSm,
-              ),
-              child: Text(
-                  '${delta > 0 ? '+' : ''}${deltaPct.toStringAsFixed(1)}%',
-                  style: PTypo.caption.copyWith(
-                      color: delta > 0
-                          ? tokens.statusDangerFg
-                          : tokens.statusSuccessFg,
-                      fontWeight: FontWeight.w700)),
-            ),
-          ],
-        ),
-        const SizedBox(height: 4),
-        Text(
-            '전년 ${masked ? '•••' : krw(prevTotal)}원',
-            style: PTypo.caption.copyWith(color: tokens.fgTertiary)),
-        const SizedBox(height: PSpace.x12),
-        SizedBox(
-          height: 180,
-          child: BarChart(
-            BarChartData(
-              maxY: maxY > 0 ? maxY * 1.15 : 100,
-              minY: 0,
-              alignment: BarChartAlignment.spaceAround,
-              barTouchData: BarTouchData(enabled: true),
-              gridData: const FlGridData(show: false),
-              titlesData: FlTitlesData(
-                leftTitles: const AxisTitles(),
-                rightTitles: const AxisTitles(),
-                topTitles: const AxisTitles(),
-                bottomTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    reservedSize: 18,
-                    interval: 1,
-                    getTitlesWidget: (v, _) {
-                      final i = v.toInt();
-                      if (i < 0 || i > 11) return const SizedBox();
-                      return Text('${i + 1}',
-                          style: PTypo.micro
-                              .copyWith(color: tokens.fgTertiary));
-                    },
-                  ),
-                ),
-              ),
-              borderData: FlBorderData(show: false),
-              barGroups: [
-                for (int i = 0; i < 12; i++)
-                  BarChartGroupData(
-                    x: i,
-                    barsSpace: 2,
-                    barRods: [
-                      BarChartRodData(
-                        toY: amountFor(prev, i + 1).toDouble(),
-                        color: tokens.fgTertiary.withValues(alpha: 0.5),
-                        width: 5,
-                        borderRadius: const BorderRadius.vertical(
-                            top: Radius.circular(2)),
-                      ),
-                      BarChartRodData(
-                        toY: amountFor(cur, i + 1).toDouble(),
-                        color: tokens.fgBrand,
-                        width: 5,
-                        borderRadius: const BorderRadius.vertical(
-                            top: Radius.circular(2)),
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(centerLbl,
+                          style: PTypo.caption
+                              .copyWith(color: t.fgSecondary)),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${krwMasked(total, widget.masked)}원',
+                        style: PTypo.h4.copyWith(
+                            color: t.fgPrimary,
+                            fontWeight: FontWeight.w800,
+                            fontFamily: 'monospace'),
                       ),
                     ],
                   ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 14),
+            for (var i = 0; i < view.length; i++)
+              _DonutLegendRow(
+                row: view[i],
+                index: i,
+                total: total,
+                masked: widget.masked,
+                clickable: !isDrilled && view[i].hasChildren,
+                onTap: !isDrilled && view[i].hasChildren
+                    ? () => setState(
+                        () => _activeParentId = view[i].rowId)
+                    : null,
+              ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _DonutLegendRow extends StatelessWidget {
+  const _DonutLegendRow({
+    required this.row,
+    required this.index,
+    required this.total,
+    required this.masked,
+    required this.clickable,
+    required this.onTap,
+  });
+  final _DonutRow row;
+  final int index;
+  final int total;
+  final bool masked;
+  final bool clickable;
+  final VoidCallback? onTap;
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final pct = total > 0 ? (row.amount * 100 / total) : 0;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(6),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+        child: Row(
+          children: [
+            Container(
+              width: 10,
+              height: 10,
+              decoration: BoxDecoration(
+                color: _donutColor(context, index),
+                shape: BoxShape.circle,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(row.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: PTypo.bodySm.copyWith(
+                      color: t.fgPrimary, fontWeight: FontWeight.w500)),
+            ),
+            Text('${pct.toStringAsFixed(1)}%',
+                style: PTypo.caption.copyWith(color: t.fgTertiary)),
+            const SizedBox(width: 12),
+            Text(krwMasked(row.amount, masked),
+                style: PTypo.bodySm.copyWith(
+                    color: t.fgPrimary,
+                    fontWeight: FontWeight.w700,
+                    fontFamily: 'monospace')),
+            if (clickable) ...[
+              const SizedBox(width: 4),
+              Icon(LucideIcons.chevronRight,
+                  size: 13, color: t.fgTertiary),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─── TOP MERCHANTS ─────────────────────────────────────────
+
+class _TopMerchantsCard extends StatelessWidget {
+  const _TopMerchantsCard({required this.async, required this.masked});
+  final AsyncValue<List<MerchantSummary>> async;
+  final bool masked;
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final list = async.value ?? const <MerchantSummary>[];
+    final sorted = (List.of(list)
+      ..sort((a, b) => b.totalAmount.compareTo(a.totalAmount)));
+    final top = sorted.take(5).toList();
+    final maxAmt = top.isEmpty ? 1 : top.first.totalAmount;
+    return _Card(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const _CardHeader(title: _CardTitle('많이 쓴 가맹점 TOP 5')),
+          if (async.isLoading && top.isEmpty)
+            const _EmptyBox(text: '불러오는 중…')
+          else if (top.isEmpty)
+            const _EmptyBox(text: '가맹점 데이터가 없습니다')
+          else
+            for (var i = 0; i < top.length; i++) ...[
+              if (i > 0) const SizedBox(height: 14),
+              Row(
+                children: [
+                  SizedBox(
+                    width: 24,
+                    child: Text('${i + 1}',
+                        textAlign: TextAlign.center,
+                        style: PTypo.caption.copyWith(
+                            color:
+                                i < 3 ? t.fgBrand : t.fgTertiary,
+                            fontWeight: FontWeight.w700)),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Flexible(
+                              child: Text(top[i].merchant ?? '(이름 없음)',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: PTypo.bodySm.copyWith(
+                                      color: t.fgPrimary,
+                                      fontWeight: FontWeight.w600)),
+                            ),
+                            const SizedBox(width: 6),
+                            Text('${top[i].count}회',
+                                style: PTypo.caption
+                                    .copyWith(color: t.fgTertiary)),
+                            const Spacer(),
+                            Text(
+                              krwMasked(top[i].totalAmount, masked),
+                              style: PTypo.bodySm.copyWith(
+                                  color: t.fgPrimary,
+                                  fontWeight: FontWeight.w700,
+                                  fontFamily: 'monospace'),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(999),
+                          child: LinearProgressIndicator(
+                            value: top[i].totalAmount / maxAmt,
+                            minHeight: 4,
+                            backgroundColor: t.bgMuted,
+                            color: _donutColor(context, i),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+        ],
+      ),
+    );
+  }
+}
+
+// ─── HEATMAP ───────────────────────────────────────────────
+
+class _HeatmapRow {
+  const _HeatmapRow(this.label, this.sub, this.hours);
+  final String label;
+  final String sub;
+  final List<int> hours;
+}
+
+const _heatRows = [
+  _HeatmapRow('아침', '06–10시', [6, 7, 8, 9]),
+  _HeatmapRow('점심', '10–14시', [10, 11, 12, 13]),
+  _HeatmapRow('오후', '14–18시', [14, 15, 16, 17]),
+  _HeatmapRow('저녁', '18–22시', [18, 19, 20, 21]),
+  _HeatmapRow('심야', '22–02시', [22, 23, 0, 1]),
+  _HeatmapRow('새벽', '02–06시', [2, 3, 4, 5]),
+];
+
+const _heatCols = [
+  ('월', 1),
+  ('화', 2),
+  ('수', 3),
+  ('목', 4),
+  ('금', 5),
+  ('토', 6),
+  ('일', 7),
+];
+
+int _heatBucket(int v, int max) {
+  if (max <= 0 || v <= 0) return 0;
+  final r = v / max;
+  if (r < 0.08) return 1;
+  if (r < 0.22) return 2;
+  if (r < 0.45) return 3;
+  if (r < 0.75) return 4;
+  return 5;
+}
+
+class _HeatmapCard extends StatelessWidget {
+  const _HeatmapCard({required this.async});
+  final AsyncValue<List<HeatmapCell>> async;
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final cells = async.value ?? const <HeatmapCell>[];
+    // matrix [row][col]
+    final matrix =
+        List.generate(_heatRows.length, (_) => List.filled(_heatCols.length, 0));
+    for (final c in cells) {
+      final colIdx =
+          _heatCols.indexWhere((col) => col.$2 == c.dayOfWeek);
+      final rowIdx =
+          _heatRows.indexWhere((row) => row.hours.contains(c.hour));
+      if (colIdx < 0 || rowIdx < 0) continue;
+      matrix[rowIdx][colIdx] += c.totalAmount;
+    }
+    int maxV = 0;
+    int total = 0;
+    for (final row in matrix) {
+      for (final v in row) {
+        if (v > maxV) maxV = v;
+        total += v;
+      }
+    }
+
+    Color bgFor(int bucket) {
+      if (bucket == 0) return t.bgMuted;
+      final alpha = [0.0, 0.18, 0.35, 0.55, 0.75, 1.0][bucket];
+      return t.fgBrand.withValues(alpha: alpha);
+    }
+
+    Color fgFor(int bucket) {
+      if (bucket >= 3) return t.fgOnBrand;
+      if (bucket == 0) return t.fgTertiary;
+      return t.fgPrimary;
+    }
+
+    return _Card(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const _CardHeader(title: _CardTitle('요일·시간대 지출 패턴')),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 14),
+            child: Text(
+              '색이 진할수록 지출이 많은 시간대예요 (단위: 원)',
+              style: PTypo.caption.copyWith(color: t.fgTertiary),
+            ),
+          ),
+          if (async.isLoading && cells.isEmpty)
+            const _EmptyBox(text: '불러오는 중…')
+          else if (total == 0)
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 32),
+              decoration: BoxDecoration(
+                color: t.bgMuted,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              alignment: Alignment.center,
+              child: Text('이번 달 거래가 아직 적어요',
+                  style: PTypo.caption.copyWith(color: t.fgTertiary)),
+            )
+          else ...[
+            // Header row: 빈 코너 + 요일
+            Row(
+              children: [
+                const SizedBox(width: 56),
+                for (final col in _heatCols)
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 2),
+                      child: Text(col.$1,
+                          textAlign: TextAlign.center,
+                          style: PTypo.caption.copyWith(
+                              color: t.fgTertiary,
+                              fontWeight: FontWeight.w600)),
+                    ),
+                  ),
               ],
             ),
+            const SizedBox(height: 6),
+            for (var r = 0; r < _heatRows.length; r++) ...[
+              Row(
+                children: [
+                  SizedBox(
+                    width: 56,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(_heatRows[r].label,
+                            style: PTypo.caption.copyWith(
+                                color: t.fgPrimary,
+                                fontWeight: FontWeight.w700)),
+                        Text(_heatRows[r].sub,
+                            style: PTypo.micro.copyWith(
+                                color: t.fgTertiary, fontSize: 9)),
+                      ],
+                    ),
+                  ),
+                  for (var c = 0; c < _heatCols.length; c++)
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(2),
+                        child: AspectRatio(
+                          aspectRatio: 1,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: bgFor(_heatBucket(matrix[r][c], maxV)),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              _shortAmount(matrix[r][c]),
+                              style: PTypo.micro.copyWith(
+                                  color: fgFor(
+                                      _heatBucket(matrix[r][c], maxV)),
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 10),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              if (r < _heatRows.length - 1) const SizedBox(height: 4),
+            ],
+            const SizedBox(height: 14),
+            Row(
+              children: [
+                Text('적음',
+                    style:
+                        PTypo.caption.copyWith(color: t.fgTertiary)),
+                const SizedBox(width: 8),
+                for (var i = 1; i <= 5; i++) ...[
+                  Container(
+                    width: 14,
+                    height: 14,
+                    decoration: BoxDecoration(
+                      color: bgFor(i),
+                      borderRadius: BorderRadius.circular(3),
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                ],
+                const SizedBox(width: 4),
+                Text('많음',
+                    style:
+                        PTypo.caption.copyWith(color: t.fgTertiary)),
+                const Spacer(),
+                Text('총 ${krw(total)}원',
+                    style: PTypo.caption.copyWith(
+                        color: t.fgSecondary,
+                        fontWeight: FontWeight.w600)),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+String _shortAmount(int v) {
+  if (v <= 0) return '—';
+  if (v < 10000) return '${(v / 1000).round()}천';
+  return '${(v / 10000).toStringAsFixed(1)}만';
+}
+
+// ─── HIGHLIGHTS GRID ───────────────────────────────────────
+
+class _HighlightsGrid extends StatelessWidget {
+  const _HighlightsGrid({
+    required this.state,
+    required this.monthlyAsync,
+    required this.prevMonthlyAsync,
+    required this.yearlyAsync,
+    required this.categoriesAsync,
+    required this.merchantAsync,
+    required this.masked,
+  });
+  final _StatsScreenState state;
+  final AsyncValue<MonthlySummary> monthlyAsync;
+  final AsyncValue<MonthlySummary> prevMonthlyAsync;
+  final AsyncValue<YearlySummary> yearlyAsync;
+  final AsyncValue<List<dynamic>> categoriesAsync;
+  final AsyncValue<List<MerchantSummary>> merchantAsync;
+  final bool masked;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = state;
+
+    // 카테고리 Top
+    final bd = monthlyAsync.value?.categoryBreakdown ?? const <CategoryBreakdown>[];
+    final groupTotals = <int, ({String name, int amount})>{};
+    for (final c in bd) {
+      if (c.expenseType != 'EXPENSE') continue;
+      final id = c.parentCategoryRowId ?? c.categoryRowId;
+      if (id == null) continue;
+      final name =
+          c.parentCategoryName ?? c.categoryName ?? '미지정';
+      final cur = groupTotals[id];
+      groupTotals[id] = cur == null
+          ? (name: name, amount: c.totalAmount)
+          : (name: cur.name, amount: cur.amount + c.totalAmount);
+    }
+    final topCat = groupTotals.values.toList()
+      ..sort((a, b) => b.amount.compareTo(a.amount));
+    final topCategory = topCat.firstOrNull;
+
+    // 가맹점 Top
+    final merchants = (merchantAsync.value ?? const <MerchantSummary>[]).toList()
+      ..sort((a, b) => b.totalAmount.compareTo(a.totalAmount));
+    final topMerchant = merchants.firstOrNull;
+
+    final totalExpense = monthlyAsync.value?.totalExpense ?? 0;
+    final prevExpense = prevMonthlyAsync.value?.totalExpense ?? 0;
+    final daysInMonth =
+        DateTime(s._month.year, s._month.month + 1, 0).day;
+
+    int periodTotal;
+    int divisor;
+    if (s._period == _PeriodKey.m1) {
+      periodTotal = totalExpense;
+      divisor = daysInMonth;
+    } else {
+      var sum = 0;
+      for (final m in yearlyAsync.value?.monthlyAmounts ?? const <MonthlyAmount>[]) {
+        if (s._periodMonths.contains(m.month)) sum += m.totalExpense;
+      }
+      periodTotal = sum;
+      divisor = s._periodMonths.length;
+    }
+    final avgValue = divisor > 0 ? periodTotal ~/ divisor : 0;
+    final avgLabel = s._period == _PeriodKey.m1 ? '하루 평균' : '월 평균';
+    final dayPct = prevExpense > 0
+        ? (((totalExpense - prevExpense) / prevExpense) * 100).round()
+        : 0;
+
+    String avgSub;
+    if (s._period != _PeriodKey.m1) {
+      avgSub = '${s._periodMonths.length}개월 합계 ${krwMasked(periodTotal, masked)}원';
+    } else if (prevExpense > 0) {
+      avgSub = '전월 대비 ${dayPct >= 0 ? '↑' : '↓'}${dayPct.abs()}%';
+    } else {
+      avgSub = '전월 비교 불가';
+    }
+
+    return Column(
+      children: [
+        _HighlightCard(
+          label: '가장 많이 쓴 카테고리',
+          value: topCategory?.name ?? '—',
+          sub: topCategory != null
+              ? '${krwMasked(topCategory.amount, masked)}원'
+              : '데이터 없음',
+        ),
+        const SizedBox(height: 10),
+        _HighlightCard(
+          label: '가장 많이 쓴 가맹점',
+          value: topMerchant?.merchant ?? '—',
+          sub: topMerchant != null
+              ? '${topMerchant.count}회 · ${krwMasked(topMerchant.totalAmount, masked)}원'
+              : '데이터 없음',
+        ),
+        const SizedBox(height: 10),
+        _HighlightCard(
+          label: avgLabel,
+          value: '${krwMasked(avgValue, masked)}원',
+          sub: avgSub,
+          valueIsAmount: true,
+        ),
+      ],
+    );
+  }
+}
+
+class _HighlightCard extends StatelessWidget {
+  const _HighlightCard({
+    required this.label,
+    required this.value,
+    required this.sub,
+    this.valueIsAmount = false,
+  });
+  final String label;
+  final String value;
+  final String sub;
+  final bool valueIsAmount;
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return _Card(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label,
+              style: PTypo.caption.copyWith(
+                  color: t.fgTertiary, fontWeight: FontWeight.w500)),
+          const SizedBox(height: 8),
+          Text(value,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: PTypo.h4.copyWith(
+                  color: t.fgPrimary,
+                  fontWeight: FontWeight.w700,
+                  fontFamily: valueIsAmount ? 'monospace' : null)),
+          const SizedBox(height: 4),
+          Text(sub,
+              style: PTypo.caption.copyWith(color: t.fgTertiary)),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── TREND TAB CARDS ───────────────────────────────────────
+
+class _TrendPoint {
+  const _TrendPoint({required this.label, required this.income, required this.expense});
+  final String label;
+  final int income;
+  final int expense;
+  int get savings => income - expense;
+}
+
+List<_TrendPoint> _computeTrendData(
+  _StatsScreenState s,
+  AsyncValue<YearlySummary> yearlyAsync,
+  AsyncValue<List<Expense>> monthExpAsync,
+) {
+  if (s._period == _PeriodKey.m1) {
+    final exps = monthExpAsync.value ?? const <Expense>[];
+    final days = DateTime(s._month.year, s._month.month + 1, 0).day;
+    final byDay = <int, ({int income, int expense})>{
+      for (var d = 1; d <= days; d++) d: (income: 0, expense: 0),
+    };
+    for (final e in exps) {
+      final raw = e.expenseDate ?? '';
+      if (raw.length < 10) continue;
+      final day = int.tryParse(raw.substring(8, 10));
+      if (day == null) continue;
+      final cur = byDay[day];
+      if (cur == null) continue;
+      if (e.expenseType == 'INCOME') {
+        byDay[day] = (income: cur.income + e.amount, expense: cur.expense);
+      } else {
+        byDay[day] = (income: cur.income, expense: cur.expense + e.amount);
+      }
+    }
+    return [
+      for (var d = 1; d <= days; d++)
+        _TrendPoint(
+          label: '${d.toString().padLeft(2, '0')}일',
+          income: byDay[d]!.income,
+          expense: byDay[d]!.expense,
+        ),
+    ];
+  }
+  final months = (yearlyAsync.value?.monthlyAmounts ?? const <MonthlyAmount>[])
+      .where((m) => s._periodMonths.contains(m.month))
+      .toList()
+    ..sort((a, b) => a.month.compareTo(b.month));
+  return [
+    for (final m in months)
+      _TrendPoint(
+        label: '${m.month.toString().padLeft(2, '0')}월',
+        income: m.totalIncome,
+        expense: m.totalExpense,
+      ),
+  ];
+}
+
+String _fmtTick(double v) {
+  if (v >= 100000000) return '${(v / 100000000).toStringAsFixed(1)}억';
+  if (v >= 10000) return '${(v / 10000).round()}만';
+  return v.toStringAsFixed(0);
+}
+
+class _TrendBigCard extends StatelessWidget {
+  const _TrendBigCard({
+    required this.state,
+    required this.yearlyAsync,
+    required this.monthExpAsync,
+  });
+  final _StatsScreenState state;
+  final AsyncValue<YearlySummary> yearlyAsync;
+  final AsyncValue<List<Expense>> monthExpAsync;
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final data = _computeTrendData(state, yearlyAsync, monthExpAsync);
+    final loading = state._period == _PeriodKey.m1
+        ? monthExpAsync.isLoading
+        : yearlyAsync.isLoading;
+
+    return _Card(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _CardHeader(
+              title: _CardTitle('${state._periodLabel} 수입·지출 추이')),
+          _PeriodSelectorRow(state: state),
+          const SizedBox(height: 16),
+          if (loading && data.isEmpty)
+            const _EmptyBox(text: '불러오는 중…')
+          else if (data.isEmpty || data.every((p) => p.income == 0 && p.expense == 0))
+            const _EmptyBox(text: '추이 데이터가 없습니다')
+          else ...[
+            SizedBox(
+              height: 200,
+              child: LineChart(
+                LineChartData(
+                  minX: 0,
+                  maxX: (data.length - 1).toDouble(),
+                  lineTouchData: const LineTouchData(enabled: false),
+                  gridData: FlGridData(
+                    show: true,
+                    drawVerticalLine: false,
+                    getDrawingHorizontalLine: (_) => FlLine(
+                      color: t.borderSubtle,
+                      strokeWidth: 1,
+                      dashArray: [4, 4],
+                    ),
+                  ),
+                  borderData: FlBorderData(show: false),
+                  titlesData: FlTitlesData(
+                    leftTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 44,
+                        getTitlesWidget: (v, _) => Padding(
+                          padding: const EdgeInsets.only(right: 6),
+                          child: Text(_fmtTick(v),
+                              style: PTypo.micro.copyWith(
+                                  color: t.fgTertiary, fontSize: 9)),
+                        ),
+                      ),
+                    ),
+                    rightTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false)),
+                    topTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false)),
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 22,
+                        interval:
+                            ((data.length - 1) / 5).clamp(1, 1000).toDouble(),
+                        getTitlesWidget: (v, _) {
+                          final i = v.round();
+                          if (i < 0 || i >= data.length) {
+                            return const SizedBox.shrink();
+                          }
+                          return Padding(
+                            padding: const EdgeInsets.only(top: 6),
+                            child: Text(data[i].label,
+                                style: PTypo.micro.copyWith(
+                                    color: t.fgTertiary, fontSize: 9)),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                  lineBarsData: [
+                    // 수입
+                    LineChartBarData(
+                      spots: [
+                        for (var i = 0; i < data.length; i++)
+                          FlSpot(i.toDouble(), data[i].income.toDouble()),
+                      ],
+                      isCurved: true,
+                      color: t.fgBrand,
+                      barWidth: 2,
+                      dotData: FlDotData(
+                        show: true,
+                        getDotPainter: (s, _, __, ___) => FlDotCirclePainter(
+                            radius: 2.5,
+                            color: t.fgBrand,
+                            strokeWidth: 2,
+                            strokeColor: t.bgSurface),
+                      ),
+                      belowBarData: BarAreaData(
+                        show: true,
+                        color: t.fgBrand.withValues(alpha: 0.18),
+                      ),
+                    ),
+                    // 지출
+                    LineChartBarData(
+                      spots: [
+                        for (var i = 0; i < data.length; i++)
+                          FlSpot(i.toDouble(), data[i].expense.toDouble()),
+                      ],
+                      isCurved: true,
+                      color: t.statusDangerFg,
+                      barWidth: 2,
+                      dotData: FlDotData(
+                        show: true,
+                        getDotPainter: (s, _, __, ___) => FlDotCirclePainter(
+                            radius: 2.5,
+                            color: t.statusDangerFg,
+                            strokeWidth: 2,
+                            strokeColor: t.bgSurface),
+                      ),
+                      belowBarData: BarAreaData(
+                        show: true,
+                        color: t.statusDangerFg.withValues(alpha: 0.16),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                _LegendChip(color: t.fgBrand, label: '수입'),
+                const SizedBox(width: 16),
+                _LegendChip(color: t.statusDangerFg, label: '지출'),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _LegendChip extends StatelessWidget {
+  const _LegendChip({required this.color, required this.label});
+  final Color color;
+  final String label;
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 10,
+          height: 10,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
+        const SizedBox(width: 6),
+        Text(label,
+            style: PTypo.caption.copyWith(color: t.fgSecondary)),
+      ],
+    );
+  }
+}
+
+class _TrendStatsGrid extends StatelessWidget {
+  const _TrendStatsGrid({
+    required this.state,
+    required this.yearlyAsync,
+    required this.masked,
+  });
+  final _StatsScreenState state;
+  final AsyncValue<YearlySummary> yearlyAsync;
+  final bool masked;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = state;
+    final months = (yearlyAsync.value?.monthlyAmounts ?? const <MonthlyAmount>[])
+        .where((m) => s._periodMonths.contains(m.month))
+        .toList();
+    final sumIn = months.fold<int>(0, (sum, m) => sum + m.totalIncome);
+    final sumOut = months.fold<int>(0, (sum, m) => sum + m.totalExpense);
+    final n = months.isEmpty ? 1 : months.length;
+    final avgIn = sumIn ~/ n;
+    final avgOut = sumOut ~/ n;
+    final avgSave = avgIn - avgOut;
+    final isSingle = s._period == _PeriodKey.m1;
+
+    final saveRate = avgIn > 0
+        ? ((avgSave / avgIn) * 100).toStringAsFixed(1) + '%'
+        : '—';
+
+    return GridView.count(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      crossAxisCount: 2,
+      childAspectRatio: 2.4,
+      mainAxisSpacing: 10,
+      crossAxisSpacing: 10,
+      children: [
+        _StatCard(
+            label: isSingle ? '수입' : '평균 수입',
+            value: '${krwMasked(avgIn, masked)}원'),
+        _StatCard(
+            label: isSingle ? '지출' : '평균 지출',
+            value: '${krwMasked(avgOut, masked)}원'),
+        _StatCard(
+            label: isSingle ? '순저축' : '평균 저축',
+            value: '${krwMasked(avgSave, masked)}원'),
+        _StatCard(label: '저축률', value: saveRate),
+      ],
+    );
+  }
+}
+
+class _StatCard extends StatelessWidget {
+  const _StatCard({required this.label, required this.value});
+  final String label;
+  final String value;
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return _Card(
+      padding: const EdgeInsets.all(14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(label,
+              style: PTypo.caption.copyWith(
+                  color: t.fgTertiary, fontWeight: FontWeight.w500)),
+          const SizedBox(height: 6),
+          Text(value,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: PTypo.h4.copyWith(
+                  color: t.fgPrimary,
+                  fontWeight: FontWeight.w800,
+                  fontFamily: 'monospace')),
+        ],
+      ),
+    );
+  }
+}
+
+class _SavingsBarsCard extends StatelessWidget {
+  const _SavingsBarsCard({
+    required this.state,
+    required this.yearlyAsync,
+    required this.monthExpAsync,
+  });
+  final _StatsScreenState state;
+  final AsyncValue<YearlySummary> yearlyAsync;
+  final AsyncValue<List<Expense>> monthExpAsync;
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final data = _computeTrendData(state, yearlyAsync, monthExpAsync);
+    final isMonth = state._period == _PeriodKey.m1;
+    return _Card(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _CardHeader(
+            title: _CardTitle(isMonth ? '일별 순저축' : '월별 순저축'),
+            trailing: Text('수입 − 지출',
+                style: PTypo.caption.copyWith(color: t.fgTertiary)),
+          ),
+          if (data.isEmpty)
+            const _EmptyBox(text: '데이터가 없습니다')
+          else
+            SizedBox(
+              height: 180,
+              child: BarChart(
+                BarChartData(
+                  alignment: BarChartAlignment.spaceAround,
+                  barTouchData: BarTouchData(enabled: false),
+                  gridData: FlGridData(
+                    show: true,
+                    drawVerticalLine: false,
+                    getDrawingHorizontalLine: (_) => FlLine(
+                      color: t.borderSubtle,
+                      strokeWidth: 1,
+                      dashArray: [4, 4],
+                    ),
+                  ),
+                  borderData: FlBorderData(show: false),
+                  titlesData: FlTitlesData(
+                    leftTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 44,
+                        getTitlesWidget: (v, _) => Padding(
+                          padding: const EdgeInsets.only(right: 6),
+                          child: Text(_fmtTick(v),
+                              style: PTypo.micro.copyWith(
+                                  color: t.fgTertiary, fontSize: 9)),
+                        ),
+                      ),
+                    ),
+                    rightTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false)),
+                    topTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false)),
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 22,
+                        interval:
+                            ((data.length - 1) / 5).clamp(1, 1000).toDouble(),
+                        getTitlesWidget: (v, _) {
+                          final i = v.round();
+                          if (i < 0 || i >= data.length) {
+                            return const SizedBox.shrink();
+                          }
+                          return Padding(
+                            padding: const EdgeInsets.only(top: 6),
+                            child: Text(data[i].label,
+                                style: PTypo.micro.copyWith(
+                                    color: t.fgTertiary, fontSize: 9)),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                  barGroups: [
+                    for (var i = 0; i < data.length; i++)
+                      BarChartGroupData(
+                        x: i,
+                        barRods: [
+                          BarChartRodData(
+                            toY: data[i].savings.toDouble(),
+                            color: data[i].savings >= 0
+                                ? t.fgBrand
+                                : t.statusDangerFg,
+                            width: data.length > 20 ? 4 : 12,
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ],
+                      ),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── COMPARE TAB CARDS ─────────────────────────────────────
+
+class _CompareSummaryGrid extends StatelessWidget {
+  const _CompareSummaryGrid({
+    required this.state,
+    required this.monthlyAsync,
+    required this.prevMonthlyAsync,
+    required this.yearlyAsync,
+    required this.prevYearlyAsync,
+    required this.masked,
+  });
+  final _StatsScreenState state;
+  final AsyncValue<MonthlySummary> monthlyAsync;
+  final AsyncValue<MonthlySummary> prevMonthlyAsync;
+  final AsyncValue<YearlySummary> yearlyAsync;
+  final AsyncValue<YearlySummary> prevYearlyAsync;
+  final bool masked;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final s = state;
+
+    int periodTotal() {
+      if (s._period == _PeriodKey.m1) {
+        return monthlyAsync.value?.totalExpense ?? 0;
+      }
+      var sum = 0;
+      for (final m in yearlyAsync.value?.monthlyAmounts ?? const <MonthlyAmount>[]) {
+        if (s._periodMonths.contains(m.month)) sum += m.totalExpense;
+      }
+      return sum;
+    }
+
+    int prevTotal() {
+      final p = s._prevPeriod;
+      if (s._period == _PeriodKey.m1) {
+        return prevMonthlyAsync.value?.totalExpense ?? 0;
+      }
+      final pSrc = p.year == s._month.year
+          ? yearlyAsync.value
+          : prevYearlyAsync.value;
+      var sum = 0;
+      for (final m in pSrc?.monthlyAmounts ?? const <MonthlyAmount>[]) {
+        if (p.months.contains(m.month)) sum += m.totalExpense;
+      }
+      return sum;
+    }
+
+    final now = periodTotal();
+    final prev = prevTotal();
+    final diff = now - prev;
+    final up = diff >= 0;
+    final pct = prev > 0
+        ? ((diff.abs() / prev) * 100).toStringAsFixed(1) + '%'
+        : '—';
+
+    return Column(
+      children: [
+        _CompareCard(
+          label: '${s._periodNow} 지출',
+          amount: '${krwMasked(now, masked)}원',
+        ),
+        const SizedBox(height: 10),
+        _CompareCard(
+          label: '${s._periodPrev} 지출',
+          amount: '${krwMasked(prev, masked)}원',
+          muted: true,
+        ),
+        const SizedBox(height: 10),
+        _Card(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(s._momLabel,
+                  style: PTypo.caption.copyWith(
+                      color: t.fgTertiary, fontWeight: FontWeight.w500)),
+              const SizedBox(height: 8),
+              Text(
+                prev > 0 ? '${up ? '+' : '−'}$pct' : '—',
+                style: PTypo.h3.copyWith(
+                    color: prev <= 0
+                        ? t.fgPrimary
+                        : (up ? t.statusDangerFg : t.fgBrand),
+                    fontWeight: FontWeight.w800,
+                    fontFamily: 'monospace'),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                prev > 0
+                    ? '${up ? '+' : '−'}${krwMasked(diff.abs(), masked)}원'
+                    : '${s._momLabel.replaceFirst(' 대비', '')} 데이터 없음',
+                style: PTypo.caption.copyWith(color: t.fgTertiary),
+              ),
+            ],
           ),
         ),
       ],
@@ -1092,300 +1802,263 @@ class _YearOverYearChart extends StatelessWidget {
   }
 }
 
-/// 예산 vs 실제 카테고리별 비교 (#282).
-class _BudgetVsActual extends StatelessWidget {
-  const _BudgetVsActual({
-    required this.budgetsAsync,
-    required this.monthExpAsync,
-    required this.categoriesAsync,
-    required this.masked,
-    required this.tokens,
+class _CompareCard extends StatelessWidget {
+  const _CompareCard({
+    required this.label,
+    required this.amount,
+    this.muted = false,
   });
-  final AsyncValue<List<Budget>> budgetsAsync;
-  final AsyncValue<List<Expense>> monthExpAsync;
-  final AsyncValue<List<ExpenseCategory>> categoriesAsync;
-  final bool masked;
-  final PorestTokens tokens;
-
+  final String label;
+  final String amount;
+  final bool muted;
   @override
   Widget build(BuildContext context) {
-    final loading = (budgetsAsync.isLoading && !budgetsAsync.hasValue) ||
-        (monthExpAsync.isLoading && !monthExpAsync.hasValue);
-    if (loading) {
-      return const SizedBox(
-          height: 120, child: Center(child: CircularProgressIndicator()));
-    }
-    final budgets = budgetsAsync.value ?? const <Budget>[];
-    final expenses = monthExpAsync.value ?? const <Expense>[];
-    if (budgets.isEmpty) return _EmptyMini(text: '등록된 예산 없음', tokens: tokens);
-
-    final spentByCat = <int, int>{};
-    for (final e in expenses) {
-      if (e.expenseType != 'EXPENSE') continue;
-      final cid = e.categoryRowId;
-      if (cid == null) continue;
-      spentByCat.update(cid, (v) => v + e.amount, ifAbsent: () => e.amount);
-    }
-    final cats = categoriesAsync.value ?? const <ExpenseCategory>[];
-    String catName(int id) => cats
-        .firstWhere((c) => c.rowId == id,
-            orElse: () => const ExpenseCategory(
-                rowId: 0, categoryName: '', expenseType: 'EXPENSE'))
-        .categoryName;
-    Color catColor(int id) {
-      try {
-        final c = cats.firstWhere((c) => c.rowId == id);
-        return parseColor(c.color, fallback: tokens.fgBrand);
-      } catch (_) {
-        return tokens.fgBrand;
-      }
-    }
-
-    final sorted = [...budgets]
-      ..sort((a, b) {
-        final pa = (spentByCat[a.categoryRowId] ?? 0) /
-            (a.budgetAmount == 0 ? 1 : a.budgetAmount);
-        final pb = (spentByCat[b.categoryRowId] ?? 0) /
-            (b.budgetAmount == 0 ? 1 : b.budgetAmount);
-        return pb.compareTo(pa);
-      });
-
-    return Column(
-      children: [
-        for (final b in sorted)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 6),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      width: 8, height: 8,
-                      decoration: BoxDecoration(
-                          color: catColor(b.categoryRowId),
-                          shape: BoxShape.circle),
-                    ),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Text(catName(b.categoryRowId),
-                          style: PTypo.bodySm
-                              .copyWith(color: tokens.fgPrimary)),
-                    ),
-                    Text(
-                      '${krwMasked(spentByCat[b.categoryRowId] ?? 0, masked)} / ${krwMasked(b.budgetAmount, masked)}',
-                      style: PTypo.caption.copyWith(color: tokens.fgTertiary),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Builder(builder: (_) {
-                  final spent = spentByCat[b.categoryRowId] ?? 0;
-                  final pct = b.budgetAmount == 0
-                      ? 0.0
-                      : (spent / b.budgetAmount).clamp(0.0, 1.5);
-                  final over = pct > 1.0;
-                  return ClipRRect(
-                    borderRadius: PRadius.brXs,
-                    child: LinearProgressIndicator(
-                      value: pct.clamp(0.0, 1.0),
-                      minHeight: 6,
-                      backgroundColor: tokens.bgTrack,
-                      color: over ? tokens.statusDanger : tokens.fgBrand,
-                    ),
-                  );
-                }),
-              ],
-            ),
-          ),
-      ],
+    final t = context.tokens;
+    return _Card(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label,
+              style: PTypo.caption.copyWith(
+                  color: t.fgTertiary, fontWeight: FontWeight.w500)),
+          const SizedBox(height: 8),
+          Text(amount,
+              style: PTypo.h3.copyWith(
+                  color: muted ? t.fgSecondary : t.fgPrimary,
+                  fontWeight: FontWeight.w800,
+                  fontFamily: 'monospace')),
+        ],
+      ),
     );
   }
 }
 
-/// 카테고리별 12개월 지출 추이 (#281).
-class _CategoryTrendChart extends StatefulWidget {
-  const _CategoryTrendChart({
+class _CompareCategoryCard extends StatelessWidget {
+  const _CompareCategoryCard({
+    required this.state,
+    required this.monthlyAsync,
+    required this.prevMonthlyAsync,
     required this.yearlyAsync,
+    required this.prevYearlyAsync,
     required this.categoriesAsync,
-    required this.tokens,
+    required this.masked,
   });
+  final _StatsScreenState state;
+  final AsyncValue<MonthlySummary> monthlyAsync;
+  final AsyncValue<MonthlySummary> prevMonthlyAsync;
   final AsyncValue<YearlySummary> yearlyAsync;
-  final AsyncValue<List<ExpenseCategory>> categoriesAsync;
-  final PorestTokens tokens;
-
-  @override
-  State<_CategoryTrendChart> createState() => _CategoryTrendChartState();
-}
-
-class _CategoryTrendChartState extends State<_CategoryTrendChart> {
-  int? _selectedCategoryId;
+  final AsyncValue<YearlySummary> prevYearlyAsync;
+  final AsyncValue<List<dynamic>> categoriesAsync;
+  final bool masked;
 
   @override
   Widget build(BuildContext context) {
-    final tokens = widget.tokens;
-    final summary = widget.yearlyAsync.value;
-    if (widget.yearlyAsync.isLoading && summary == null) {
-      return const SizedBox(
-          height: 180, child: Center(child: CircularProgressIndicator()));
-    }
-    if (summary == null || summary.monthlyAmounts.isEmpty) {
-      return _EmptyMini(text: '데이터 없음', tokens: tokens);
-    }
+    final t = context.tokens;
+    final s = state;
 
-    final candidateIds = <int, String>{};
-    for (final m in summary.monthlyAmounts) {
-      for (final c in m.categoryBreakdown) {
-        if (c.expenseType != 'EXPENSE' || c.categoryRowId == null) continue;
-        candidateIds.putIfAbsent(c.categoryRowId!,
-            () => c.categoryName ?? '#${c.categoryRowId}');
-      }
-    }
-    if (candidateIds.isEmpty) {
-      return _EmptyMini(text: '카테고리 데이터 없음', tokens: tokens);
-    }
-    final byTotal = <int, int>{};
-    for (final m in summary.monthlyAmounts) {
-      for (final c in m.categoryBreakdown) {
-        if (c.expenseType != 'EXPENSE' || c.categoryRowId == null) continue;
-        byTotal.update(c.categoryRowId!, (v) => v + c.totalAmount,
-            ifAbsent: () => c.totalAmount);
-      }
-    }
-    final ids = candidateIds.keys.toList()
-      ..sort((a, b) => (byTotal[b] ?? 0).compareTo(byTotal[a] ?? 0));
-    _selectedCategoryId ??= ids.first;
-    final selId = _selectedCategoryId!;
+    final cats = categoriesAsync.value ?? const <dynamic>[];
+    dynamic catBy(int id) => cats
+        .cast<dynamic>()
+        .where((c) => c.rowId == id)
+        .cast<dynamic>()
+        .firstOrNull;
 
-    final categories =
-        widget.categoriesAsync.value ?? const <ExpenseCategory>[];
-    Color colorOf(int id) {
-      try {
-        final c = categories.firstWhere((c) => c.rowId == id);
-        return parseColor(c.color, fallback: tokens.fgBrand);
-      } catch (_) {
-        return tokens.fgBrand;
-      }
-    }
-
-    int amountFor(int month) {
-      for (final m in summary.monthlyAmounts) {
-        if (m.month != month) continue;
-        for (final c in m.categoryBreakdown) {
-          if (c.categoryRowId == selId) return c.totalAmount;
+    final byId = <int, ({String name, String? icon, String? color, int now, int prev})>{};
+    void addBd(String which, List<CategoryBreakdown> list) {
+      for (final c in list) {
+        if (c.expenseType != 'EXPENSE') continue;
+        final id = c.parentCategoryRowId ?? c.categoryRowId;
+        if (id == null) continue;
+        final cur = byId[id];
+        final name = c.parentCategoryName ?? c.categoryName ?? '미지정';
+        final cat = catBy(id);
+        var rec = cur ??
+            (
+              name: name,
+              icon: cat?.icon as String?,
+              color: cat?.color as String?,
+              now: 0,
+              prev: 0,
+            );
+        if (which == 'now') {
+          rec = (
+            name: rec.name,
+            icon: rec.icon,
+            color: rec.color,
+            now: rec.now + c.totalAmount,
+            prev: rec.prev,
+          );
+        } else {
+          rec = (
+            name: rec.name,
+            icon: rec.icon,
+            color: rec.color,
+            now: rec.now,
+            prev: rec.prev + c.totalAmount,
+          );
         }
-        return 0;
+        byId[id] = rec;
       }
-      return 0;
     }
 
-    final spots = <FlSpot>[
-      for (var m = 1; m <= 12; m++)
-        FlSpot(m.toDouble(), amountFor(m).toDouble()),
-    ];
-    final maxY =
-        spots.map((s) => s.y).fold<double>(0, (m, v) => v > m ? v : m);
+    if (s._period == _PeriodKey.m1) {
+      addBd('now', monthlyAsync.value?.categoryBreakdown ?? const <CategoryBreakdown>[]);
+      addBd('prev', prevMonthlyAsync.value?.categoryBreakdown ?? const <CategoryBreakdown>[]);
+    } else {
+      for (final m in yearlyAsync.value?.monthlyAmounts ?? const <MonthlyAmount>[]) {
+        if (s._periodMonths.contains(m.month)) {
+          addBd('now', m.categoryBreakdown);
+        }
+      }
+      final p = s._prevPeriod;
+      final src = p.year == s._month.year
+          ? yearlyAsync.value
+          : prevYearlyAsync.value;
+      for (final m in src?.monthlyAmounts ?? const <MonthlyAmount>[]) {
+        if (p.months.contains(m.month)) addBd('prev', m.categoryBreakdown);
+      }
+    }
+
+    final rows = byId.entries.toList()
+      ..sort((a, b) {
+        final c = b.value.now.compareTo(a.value.now);
+        return c != 0 ? c : b.value.prev.compareTo(a.value.prev);
+      });
+    final top = rows.take(10).toList();
+    final maxAmt = top.isEmpty
+        ? 1
+        : top
+            .map((e) => e.value.now > e.value.prev ? e.value.now : e.value.prev)
+            .reduce((a, b) => a > b ? a : b)
+            .clamp(1, 1 << 62);
+
+    return _Card(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _CardHeader(
+            title: _CardTitle('카테고리별 ${s._momLabel}'),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _LegendChip(color: t.fgBrand, label: s._periodNow),
+                const SizedBox(width: 10),
+                _LegendChip(
+                    color: t.bgBrandMuted, label: s._periodPrev),
+              ],
+            ),
+          ),
+          if (top.isEmpty)
+            const _EmptyBox(text: '비교할 데이터가 없습니다')
+          else
+            for (var i = 0; i < top.length; i++) ...[
+              if (i > 0) const SizedBox(height: 16),
+              _CompareRow(
+                row: top[i].value,
+                maxAmt: maxAmt,
+                masked: masked,
+              ),
+            ],
+        ],
+      ),
+    );
+  }
+}
+
+class _CompareRow extends StatelessWidget {
+  const _CompareRow(
+      {required this.row, required this.maxAmt, required this.masked});
+  final ({String name, String? icon, String? color, int now, int prev}) row;
+  final int maxAmt;
+  final bool masked;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final fg =
+        parseColor(row.color, fallback: t.fgBrand);
+    final iconData = lucideByName(row.icon ?? 'tag');
+    final diff = row.now - row.prev;
+    final up = diff > 0;
+    final pct = row.prev > 0 ? ((diff / row.prev) * 100).round() : 0;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(
-          height: 38,
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            children: [
-              for (final id in ids.take(15))
-                Padding(
-                  padding: const EdgeInsets.only(right: 6),
-                  child: GestureDetector(
-                    onTap: () => setState(() => _selectedCategoryId = id),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: id == selId
-                            ? tokens.bgBrandSubtle
-                            : tokens.bgMuted,
-                        borderRadius: PRadius.brPill,
-                        border: Border.all(
-                          color: id == selId
-                              ? tokens.borderBrand
-                              : tokens.borderSubtle,
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            width: 8,
-                            height: 8,
-                            decoration: BoxDecoration(
-                                color: colorOf(id), shape: BoxShape.circle),
-                          ),
-                          const SizedBox(width: 6),
-                          Text(candidateIds[id] ?? '',
-                              style: PTypo.caption.copyWith(
-                                color: id == selId
-                                    ? tokens.fgPrimary
-                                    : tokens.fgSecondary,
-                                fontWeight: id == selId
-                                    ? FontWeight.w700
-                                    : FontWeight.w500,
-                              )),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-            ],
-          ),
+        Row(
+          children: [
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: fg.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              alignment: Alignment.center,
+              child: Icon(iconData, size: 16, color: fg),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(row.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: PTypo.bodySm.copyWith(
+                      color: t.fgPrimary, fontWeight: FontWeight.w600)),
+            ),
+            Text('${krwMasked(row.now, masked)}원',
+                style: PTypo.bodySm.copyWith(
+                    color: t.fgPrimary,
+                    fontWeight: FontWeight.w700,
+                    fontFamily: 'monospace')),
+            const SizedBox(width: 10),
+            SizedBox(
+              width: 56,
+              child: Text(
+                row.prev > 0 ? '${up ? '▲' : '▼'} ${pct.abs()}%' : '—',
+                textAlign: TextAlign.right,
+                style: PTypo.caption.copyWith(
+                    color: row.prev == 0
+                        ? t.fgTertiary
+                        : (up ? t.statusDangerFg : t.fgBrand),
+                    fontWeight: FontWeight.w700),
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: PSpace.x12),
-        SizedBox(
-          height: 160,
-          child: LineChart(
-            LineChartData(
-              minY: 0,
-              maxY: maxY > 0 ? maxY * 1.15 : 100,
-              gridData: const FlGridData(show: false),
-              titlesData: FlTitlesData(
-                leftTitles: const AxisTitles(),
-                rightTitles: const AxisTitles(),
-                topTitles: const AxisTitles(),
-                bottomTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    reservedSize: 18,
-                    interval: 1,
-                    getTitlesWidget: (v, _) {
-                      final m = v.toInt();
-                      if (m < 1 || m > 12) return const SizedBox();
-                      return Text('$m',
-                          style: PTypo.micro
-                              .copyWith(color: tokens.fgTertiary));
-                    },
-                  ),
+        const SizedBox(height: 8),
+        Padding(
+          padding: const EdgeInsets.only(left: 42),
+          child: Column(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(999),
+                child: LinearProgressIndicator(
+                  value: row.now / maxAmt,
+                  minHeight: 10,
+                  backgroundColor: t.bgMuted,
+                  color: t.fgBrand,
                 ),
               ),
-              borderData: FlBorderData(show: false),
-              lineBarsData: [
-                LineChartBarData(
-                  spots: spots,
-                  isCurved: true,
-                  color: colorOf(selId),
-                  barWidth: 2.5,
-                  dotData: const FlDotData(show: true),
-                  belowBarData: BarAreaData(
-                    show: true,
-                    color: colorOf(selId).withValues(alpha: 0.12),
-                  ),
+              const SizedBox(height: 4),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(999),
+                child: LinearProgressIndicator(
+                  value: row.prev / maxAmt,
+                  minHeight: 6,
+                  backgroundColor: t.bgMuted,
+                  color: t.bgBrandMuted,
                 ),
-              ],
-              lineTouchData: LineTouchData(enabled: true),
-            ),
+              ),
+            ],
           ),
         ),
       ],
     );
   }
 }
+
+// ─── helpers ────────────────────────────────────────────────
+
+String _fmt(DateTime d) =>
+    '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
