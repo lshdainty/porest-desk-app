@@ -489,38 +489,33 @@ class _RecurringFromTxBodyState extends ConsumerState<_RecurringFromTxBody> {
               ],
             ),
           ),
-          // Footer
+          // Footer — 웹 ModalShell 과 동일: justify-end + gap-2 + auto-width
           Container(
-            padding: const EdgeInsets.fromLTRB(
-                PSpace.x16, PSpace.x8, PSpace.x16, PSpace.x16),
+            padding: const EdgeInsets.symmetric(
+                horizontal: PSpace.x20, vertical: PSpace.x12),
             decoration: BoxDecoration(
               color: t.bgSurface,
               border: Border(top: BorderSide(color: t.borderSubtle)),
             ),
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Expanded(
-                  child: TextButton(
-                    onPressed: _submitting
-                        ? null
-                        : () => Navigator.of(context).pop(),
-                    child: const Text('취소'),
-                  ),
+                TextButton(
+                  onPressed: _submitting
+                      ? null
+                      : () => Navigator.of(context).pop(),
+                  child: const Text('취소'),
                 ),
                 const SizedBox(width: 8),
-                Expanded(
-                  flex: 2,
-                  child: FilledButton(
-                    onPressed: _ready && !_submitting ? _save : null,
-                    child: _submitting
-                        ? const SizedBox(
-                            width: 18,
-                            height: 18,
-                            child:
-                                CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Text('반복 저장'),
-                  ),
+                FilledButton(
+                  onPressed: _ready && !_submitting ? _save : null,
+                  child: _submitting
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Text('반복 저장'),
                 ),
               ],
             ),
