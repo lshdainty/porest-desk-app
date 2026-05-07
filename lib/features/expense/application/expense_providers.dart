@@ -88,6 +88,23 @@ String _lastDay(int y, int m) {
       '${last.toString().padLeft(2, '0')}';
 }
 
+/// 같은 가맹점·같은 달 거래 — TX 상세 dialog "이전 거래" 섹션.
+/// front `useSearchExpenses({merchant, startDate, endDate})` 미러.
+typedef MerchantMonthKey = ({String merchant, int year, int month});
+
+final merchantMonthExpensesProvider =
+    FutureProvider.family<List<Expense>, MerchantMonthKey>((ref, key) async {
+  final repo = await ref.watch(expenseRepositoryProvider.future);
+  final all = await repo.search(
+    merchant: key.merchant,
+    startDate: _firstDay(key.year, key.month),
+    endDate: _lastDay(key.year, key.month),
+  );
+  all.sort((a, b) =>
+      (b.expenseDate ?? '').compareTo(a.expenseDate ?? ''));
+  return all;
+});
+
 /// 카테고리 lookup by rowId.
 extension CategoryListX on List<ExpenseCategory> {
   ExpenseCategory? byRowId(int rowId) {

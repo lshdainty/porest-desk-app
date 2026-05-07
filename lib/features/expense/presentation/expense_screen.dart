@@ -258,16 +258,11 @@ class _ArrowBtn extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: PRadius.brSm,
-      child: Container(
-        width: 32,
-        height: 32,
-        decoration: BoxDecoration(
-          border: Border.all(color: tokens.borderSubtle),
-          borderRadius: PRadius.brSm,
-        ),
-        alignment: Alignment.center,
-        child: Icon(icon, size: 16, color: tokens.fgSecondary),
+      borderRadius: BorderRadius.circular(999),
+      child: SizedBox(
+        width: 28,
+        height: 28,
+        child: Icon(icon, size: 18, color: tokens.fgSecondary),
       ),
     );
   }
@@ -455,7 +450,12 @@ class _DayGroup extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = context.tokens;
     final label = formatDay(date);
-    final daySum = items.fold<int>(0, (s, e) => s + e.signedAmount);
+    final dayExpense = items
+        .where((e) => e.expenseType == 'EXPENSE')
+        .fold<int>(0, (s, e) => s + e.amount);
+    final dayIncome = items
+        .where((e) => e.expenseType == 'INCOME')
+        .fold<int>(0, (s, e) => s + e.amount);
     final categories = ref.watch(categoriesProvider).value ?? const [];
 
     return Padding(
@@ -475,17 +475,24 @@ class _DayGroup extends ConsumerWidget {
                 Text(label.dow,
                     style: PTypo.caption.copyWith(color: t.fgTertiary)),
                 const Spacer(),
-                Text(
-                  krwMasked(daySum, masked, sign: true),
-                  style: PTypo.caption.copyWith(
-                    color: daySum > 0
-                        ? t.statusSuccess
-                        : daySum < 0
-                            ? t.fgPrimary
-                            : t.fgTertiary,
-                    fontWeight: FontWeight.w600,
+                if (dayExpense > 0)
+                  Text(
+                    '−${krwMasked(dayExpense, masked)}',
+                    style: PTypo.caption.copyWith(
+                      color: t.statusDangerFg,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ),
+                if (dayIncome > 0) ...[
+                  if (dayExpense > 0) const SizedBox(width: PSpace.x8),
+                  Text(
+                    '+${krwMasked(dayIncome, masked)}',
+                    style: PTypo.caption.copyWith(
+                      color: t.statusSuccessFg,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
               ],
             ),
           ),

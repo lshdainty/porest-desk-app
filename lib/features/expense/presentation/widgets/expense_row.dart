@@ -73,7 +73,9 @@ class ExpenseRow extends StatelessWidget {
             ),
             const SizedBox(width: PSpace.x8),
             Text(
-              krwMasked(expense.signedAmount, masked, sign: true),
+              masked
+                  ? krwMasked(expense.signedAmount, masked, sign: true)
+                  : '${krwMasked(expense.signedAmount, masked, sign: true)}원',
               style: PTypo.money.copyWith(
                   color: positive ? t.statusSuccessFg : t.statusDangerFg,
                   fontWeight: FontWeight.w600),
