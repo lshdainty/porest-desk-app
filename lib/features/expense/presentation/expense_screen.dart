@@ -579,7 +579,7 @@ class _DayGroup extends ConsumerWidget {
                     );
                   }),
                   if (i < items.length - 1)
-                    Divider(height: 1, color: t.borderSubtle, indent: 68),
+                    Divider(height: 1, color: t.borderSubtle),
                 ],
               ],
             ),
