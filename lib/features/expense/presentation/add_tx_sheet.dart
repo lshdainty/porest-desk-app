@@ -18,6 +18,24 @@ import '../../preset/domain/expense_template.dart';
 import '../application/expense_providers.dart';
 import '../domain/expense.dart';
 
+const _paymentMethods = [
+  ('CASH', '현금'),
+  ('CARD', '카드'),
+  ('TRANSFER', '계좌이체'),
+  ('OTHER', '기타'),
+];
+
+/// 결제 수단별 허용 자산 타입. null = 전체 허용.
+const Map<String, List<String>?> _paymentAssetTypes = {
+  'CASH': ['CASH'],
+  'CARD': ['CREDIT_CARD', 'CHECK_CARD'],
+  'TRANSFER': ['BANK_ACCOUNT', 'SAVINGS'],
+  'OTHER': null,
+};
+
+String _formatTime(TimeOfDay t) =>
+    '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
+
 /// 거래 추가/편집 시트 (front `AddTxSheet` 미러).
 ///
 /// [edit] 가 주어지면 편집 모드 (PUT /expense/{id}), 아니면 신규 (POST /expense).
@@ -64,12 +82,13 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
   late final TextEditingController _amountCtrl;
   late final TextEditingController _descCtrl;
   late final TextEditingController _merchantCtrl;
-  late final TextEditingController _paymentCtrl;
   late final TextEditingController _feeCtrl;
+  String _paymentMethod = ''; // '' | CASH | CARD | TRANSFER | OTHER
   int? _categoryRowId;
   int? _assetRowId; // EXPENSE/INCOME 자산, TRANSFER 의 출금 자산
   int? _toAssetRowId; // TRANSFER 입금 자산
   late DateTime _date;
+  TimeOfDay _time = TimeOfDay.now();
   bool _submitting = false;
 
   /// 프리셋을 통해 폼이 초기화된 경우 해당 프리셋 ID — 저장 성공 후 /touch.
@@ -86,12 +105,19 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
     _amountCtrl = TextEditingController(text: e == null ? '' : e.amount.toString());
     _descCtrl = TextEditingController(text: e?.description ?? '');
     _merchantCtrl = TextEditingController(text: e?.merchant ?? '');
-    _paymentCtrl = TextEditingController(text: e?.paymentMethod ?? '');
     _feeCtrl = TextEditingController();
+    _paymentMethod = e?.paymentMethod ?? '';
     _categoryRowId = e?.categoryRowId;
     _assetRowId = e?.assetRowId;
     if (e?.expenseDate != null) {
       _date = parseIsoDate(e!.expenseDate!.substring(0, 10));
+      // 시간 추출 (T 또는 공백 뒤 HH:mm)
+      final raw = e.expenseDate!;
+      final m = RegExp(r'[T ](\d{2}):(\d{2})').firstMatch(raw);
+      if (m != null) {
+        _time = TimeOfDay(
+            hour: int.parse(m.group(1)!), minute: int.parse(m.group(2)!));
+      }
     } else if (widget.defaultDate != null) {
       _date = parseIsoDate(widget.defaultDate!);
     } else {
@@ -104,7 +130,6 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
     _amountCtrl.dispose();
     _descCtrl.dispose();
     _merchantCtrl.dispose();
-    _paymentCtrl.dispose();
     _feeCtrl.dispose();
     super.dispose();
   }
@@ -118,7 +143,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
       _assetRowId = p.assetRowId;
       _descCtrl.text = p.description ?? '';
       _merchantCtrl.text = p.merchant ?? '';
-      _paymentCtrl.text = p.paymentMethod ?? '';
+      _paymentMethod = p.paymentMethod ?? '';
       _amountLocked = (p.lockAmount ?? 'N') == 'Y';
     });
   }
@@ -138,10 +163,10 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
     final amount = int.parse(_amountCtrl.text.replaceAll(',', ''));
     final isoDate =
         '${_date.year.toString().padLeft(4, '0')}-${_date.month.toString().padLeft(2, '0')}-${_date.day.toString().padLeft(2, '0')}';
-    final dateStr = '${isoDate}T00:00:00';
+    final dateStr = '${isoDate}T${_formatTime(_time)}:00';
     final desc = _descCtrl.text.trim().isEmpty ? null : _descCtrl.text.trim();
     final merchant = _merchantCtrl.text.trim().isEmpty ? null : _merchantCtrl.text.trim();
-    final payment = _paymentCtrl.text.trim().isEmpty ? null : _paymentCtrl.text.trim();
+    final payment = _paymentMethod.isEmpty ? null : _paymentMethod;
 
     if (_type == 'TRANSFER') {
       setState(() => _submitting = true);
@@ -463,36 +488,103 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
                         style: PTypo.caption
                             .copyWith(color: t.statusDanger)),
                     data: (categories) {
-                      if (categories.isEmpty) {
-                        return Text('등록된 카테고리가 없습니다',
+                      // 현재 type 의 최상위 카테고리만 그리드로 노출
+                      final topCategories = categories
+                          .where((c) =>
+                              c.expenseType == _type &&
+                              (c.parentRowId == null || c.parentRowId == 0))
+                          .toList()
+                        ..sort((a, b) =>
+                            (a.sortOrder ?? 0).compareTo(b.sortOrder ?? 0));
+                      if (topCategories.isEmpty) {
+                        return Text('이 타입에 해당하는 카테고리가 없습니다',
                             style: PTypo.caption
                                 .copyWith(color: t.fgTertiary));
                       }
-                      // 부모 카테고리만 (parentRowId == null) 또는 전체 — 부모 우선
-                      final parents = categories
-                          .where((c) =>
-                              (c.parentRowId == null) ||
-                              (c.parentRowId == 0))
-                          .toList();
-                      final list = parents.isNotEmpty ? parents : categories;
-                      return GridView.count(
-                        crossAxisCount: 5,
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        mainAxisSpacing: 6,
-                        crossAxisSpacing: 6,
-                        childAspectRatio: 0.85,
+
+                      // 자식 카테고리 맵
+                      final childrenByParent = <int, List<dynamic>>{};
+                      for (final c in categories) {
+                        if (c.parentRowId == null ||
+                            c.parentRowId == 0 ||
+                            c.expenseType != _type) {
+                          continue;
+                        }
+                        childrenByParent
+                            .putIfAbsent(c.parentRowId!, () => [])
+                            .add(c);
+                      }
+                      for (final list in childrenByParent.values) {
+                        list.sort((a, b) =>
+                            ((a.sortOrder ?? 0) as int)
+                                .compareTo((b.sortOrder ?? 0) as int));
+                      }
+
+                      // 선택된 카테고리의 부모 ID (자식이면 그 부모, 부모면 자기 자신)
+                      final selectedCat = _categoryRowId == null
+                          ? null
+                          : categories
+                              .where((c) => c.rowId == _categoryRowId)
+                              .firstOrNull;
+                      final selectedParentId = selectedCat == null
+                          ? null
+                          : (selectedCat.parentRowId == null ||
+                                  selectedCat.parentRowId == 0
+                              ? selectedCat.rowId
+                              : selectedCat.parentRowId);
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          for (final c in list)
-                            _CategoryGridItem(
-                              category: c,
-                              selected: _categoryRowId == c.rowId,
-                              onTap: () => setState(() {
-                                _categoryRowId = c.rowId;
-                                _appliedPresetId = null;
-                              }),
-                              tokens: t,
+                          GridView.count(
+                            crossAxisCount: 5,
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            mainAxisSpacing: 6,
+                            crossAxisSpacing: 6,
+                            childAspectRatio: 0.85,
+                            children: [
+                              for (final c in topCategories)
+                                _CategoryGridItem(
+                                  category: c,
+                                  selected: selectedParentId == c.rowId,
+                                  onTap: () => setState(() {
+                                    // 자식이 있으면 첫 자식, 없으면 자기 자신
+                                    final firstChild =
+                                        childrenByParent[c.rowId]?.first;
+                                    _categoryRowId = firstChild != null
+                                        ? firstChild.rowId as int
+                                        : c.rowId;
+                                    _appliedPresetId = null;
+                                  }),
+                                  tokens: t,
+                                ),
+                            ],
+                          ),
+                          // 세부 카테고리 Select — 선택된 부모에 자식이 있으면
+                          if (selectedParentId != null &&
+                              (childrenByParent[selectedParentId]?.isNotEmpty ??
+                                  false)) ...[
+                            const SizedBox(height: 10),
+                            _SelectField<int>(
+                              value: _categoryRowId,
+                              hint: '세부 카테고리',
+                              items: [
+                                _SelectOption<int>(
+                                  selectedParentId,
+                                  '${topCategories.firstWhere((c) => c.rowId == selectedParentId).categoryName} (상위)',
+                                ),
+                                for (final child
+                                    in childrenByParent[selectedParentId]!)
+                                  _SelectOption<int>(
+                                    child.rowId as int,
+                                    child.categoryName as String,
+                                  ),
+                              ],
+                              onChanged: (v) =>
+                                  setState(() => _categoryRowId = v),
                             ),
+                          ],
                         ],
                       );
                     },
@@ -500,118 +592,212 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
                   const SizedBox(height: PSpace.x16),
                 ],
 
-          _Label(_type == 'TRANSFER' ? '보낼 자산' : '자산'),
-          const SizedBox(height: PSpace.x8),
-          assetsAsync.when(
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (e, _) => Text('자산 로드 실패: $e',
-                style: PTypo.caption.copyWith(color: t.statusDanger)),
-            data: (assets) => Wrap(
-              spacing: PSpace.x8,
-              runSpacing: PSpace.x8,
-              children: [
-                for (final a in assets)
-                  _Chip(
-                    label: a.assetName,
-                    selected: _assetRowId == a.rowId,
-                    onTap: () => setState(() => _assetRowId = a.rowId),
-                    tokens: t,
-                  ),
-              ],
-            ),
-          ),
-          const SizedBox(height: PSpace.x16),
-
-          if (_type == 'TRANSFER') ...[
-            _Label('받을 자산'),
-            const SizedBox(height: PSpace.x8),
-            assetsAsync.when(
-              loading: () => const SizedBox.shrink(),
-              error: (_, _) => const SizedBox.shrink(),
-              data: (assets) => Wrap(
-                spacing: PSpace.x8,
-                runSpacing: PSpace.x8,
-                children: [
-                  for (final a in assets)
-                    _Chip(
-                      label: a.assetName,
-                      selected: _toAssetRowId == a.rowId,
-                      onTap: () => setState(() => _toAssetRowId = a.rowId),
-                      tokens: t,
+                if (_type != 'TRANSFER') ...[
+                  // 거래처
+                  _Label(_type == 'INCOME' ? '수입처' : '거래처'),
+                  const SizedBox(height: PSpace.x4),
+                  TextField(
+                    controller: _merchantCtrl,
+                    decoration: InputDecoration(
+                      hintText: _type == 'INCOME' ? '예: (주)포레스트' : '예: 스타벅스 강남점',
+                      filled: true,
+                      fillColor: t.bgSurface,
                     ),
+                  ),
+                  const SizedBox(height: PSpace.x12),
+
+                  // 결제 수단 (Select)
+                  _Label(_type == 'INCOME' ? '수입 방식' : '결제 수단'),
+                  const SizedBox(height: PSpace.x4),
+                  _SelectField<String>(
+                    value: _paymentMethod.isEmpty ? null : _paymentMethod,
+                    hint: '선택 안 함',
+                    items: [
+                      const _SelectOption<String>('', '선택 안 함'),
+                      for (final pm in _paymentMethods)
+                        _SelectOption<String>(pm.$1, pm.$2),
+                    ],
+                    onChanged: (v) => setState(() {
+                      _paymentMethod = v ?? '';
+                      _appliedPresetId = null;
+                      // 결제 수단 변경 시 현재 자산이 허용되지 않으면 리셋
+                      if (_paymentMethod.isNotEmpty && _assetRowId != null) {
+                        final allowed = _paymentAssetTypes[_paymentMethod];
+                        if (allowed != null) {
+                          final assets = assetsAsync.value ?? const [];
+                          final cur = assets
+                              .where((a) => a.rowId == _assetRowId)
+                              .firstOrNull;
+                          if (cur != null && !allowed.contains(cur.assetType)) {
+                            _assetRowId = null;
+                          }
+                        }
+                      }
+                    }),
+                  ),
+                  const SizedBox(height: PSpace.x12),
+
+                  // 계좌·카드 (Select, payment method 로 필터)
+                  _Label(_type == 'INCOME' ? '입금 계좌' : '계좌·카드'),
+                  const SizedBox(height: PSpace.x4),
+                  assetsAsync.when(
+                    loading: () => const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 12),
+                      child: Center(child: CircularProgressIndicator()),
+                    ),
+                    error: (e, _) => Text('자산 로드 실패: $e',
+                        style: PTypo.caption.copyWith(color: t.statusDanger)),
+                    data: (assets) {
+                      final allowed = _paymentMethod.isNotEmpty
+                          ? _paymentAssetTypes[_paymentMethod]
+                          : null;
+                      final filtered = allowed == null
+                          ? assets
+                          : assets
+                              .where((a) => allowed.contains(a.assetType))
+                              .toList();
+                      return _SelectField<int>(
+                        value: _assetRowId,
+                        hint: '선택 안 함',
+                        items: [
+                          for (final a in filtered)
+                            _SelectOption<int>(
+                              a.rowId,
+                              a.institution != null
+                                  ? '${a.institution} · ${a.assetName}'
+                                  : a.assetName,
+                            ),
+                        ],
+                        onChanged: (v) => setState(() {
+                          _assetRowId = v;
+                          _appliedPresetId = null;
+                        }),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: PSpace.x12),
+                ] else ...[
+                  // 이체 — 출금/입금/수수료
+                  _Label('출금 계좌'),
+                  const SizedBox(height: PSpace.x4),
+                  assetsAsync.when(
+                    loading: () => const SizedBox.shrink(),
+                    error: (_, _) => const SizedBox.shrink(),
+                    data: (assets) => _SelectField<int>(
+                      value: _assetRowId,
+                      hint: '선택',
+                      items: [
+                        for (final a in assets)
+                          _SelectOption<int>(
+                            a.rowId,
+                            a.institution != null
+                                ? '${a.institution} · ${a.assetName}'
+                                : a.assetName,
+                          ),
+                      ],
+                      onChanged: (v) => setState(() => _assetRowId = v),
+                    ),
+                  ),
+                  const SizedBox(height: PSpace.x12),
+                  _Label('입금 계좌'),
+                  const SizedBox(height: PSpace.x4),
+                  assetsAsync.when(
+                    loading: () => const SizedBox.shrink(),
+                    error: (_, _) => const SizedBox.shrink(),
+                    data: (assets) => _SelectField<int>(
+                      value: _toAssetRowId,
+                      hint: '선택',
+                      items: [
+                        for (final a
+                            in assets.where((a) => a.rowId != _assetRowId))
+                          _SelectOption<int>(
+                            a.rowId,
+                            a.institution != null
+                                ? '${a.institution} · ${a.assetName}'
+                                : a.assetName,
+                          ),
+                      ],
+                      onChanged: (v) => setState(() => _toAssetRowId = v),
+                    ),
+                  ),
+                  if (_assetRowId != null && _assetRowId == _toAssetRowId)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Text('보낼/받을 자산은 달라야 합니다',
+                          style: PTypo.caption
+                              .copyWith(color: t.statusDanger)),
+                    ),
+                  const SizedBox(height: PSpace.x12),
+                  _Label('수수료 (선택)'),
+                  const SizedBox(height: PSpace.x4),
+                  TextField(
+                    controller: _feeCtrl,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    decoration: InputDecoration(
+                      hintText: '0',
+                      filled: true,
+                      fillColor: t.bgSurface,
+                    ),
+                  ),
+                  const SizedBox(height: PSpace.x12),
                 ],
-              ),
-            ),
-            if (_assetRowId != null && _assetRowId == _toAssetRowId)
-              Padding(
-                padding: const EdgeInsets.only(top: 4),
-                child: Text('보낼/받을 자산은 달라야 합니다',
-                    style: PTypo.caption.copyWith(color: t.statusDanger)),
-              ),
-            const SizedBox(height: PSpace.x16),
 
-            _Label('수수료 (선택)'),
-            const SizedBox(height: PSpace.x4),
-            TextField(
-              controller: _feeCtrl,
-              keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              decoration: const InputDecoration(hintText: '0'),
-            ),
-            const SizedBox(height: PSpace.x16),
-          ],
+                // 날짜·시간
+                _Label(_type == 'TRANSFER' ? '날짜' : '날짜·시간'),
+                const SizedBox(height: PSpace.x4),
+                _type == 'TRANSFER'
+                    ? _DateBox(
+                        date: _date,
+                        onTap: () async {
+                          final picked = await showDatePicker(
+                            context: context,
+                            initialDate: _date,
+                            firstDate: DateTime(2020),
+                            lastDate: DateTime(2030, 12, 31),
+                          );
+                          if (picked != null) setState(() => _date = picked);
+                        },
+                      )
+                    : Row(
+                        children: [
+                          Expanded(
+                            child: _DateBox(
+                              date: _date,
+                              onTap: () async {
+                                final picked = await showDatePicker(
+                                  context: context,
+                                  initialDate: _date,
+                                  firstDate: DateTime(2020),
+                                  lastDate: DateTime(2030, 12, 31),
+                                );
+                                if (picked != null) {
+                                  setState(() => _date = picked);
+                                }
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: PSpace.x8),
+                          SizedBox(
+                            width: 116,
+                            child: _TimeBox(
+                              time: _time,
+                              onTap: () async {
+                                final picked = await showTimePicker(
+                                  context: context,
+                                  initialTime: _time,
+                                );
+                                if (picked != null) {
+                                  setState(() => _time = picked);
+                                }
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                const SizedBox(height: PSpace.x16),
 
-          _Label('날짜'),
-          const SizedBox(height: PSpace.x4),
-          InkWell(
-            onTap: () async {
-              final picked = await showDatePicker(
-                context: context,
-                initialDate: _date,
-                firstDate: DateTime(2020),
-                lastDate: DateTime(2030, 12, 31),
-              );
-              if (picked != null) setState(() => _date = picked);
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-              decoration: BoxDecoration(
-                color: t.bgMuted,
-                borderRadius: PRadius.brMd,
-                border: Border.all(color: t.borderDefault),
-              ),
-              child: Row(
-                children: [
-                  Icon(LucideIcons.calendar, size: 18, color: t.fgSecondary),
-                  const SizedBox(width: PSpace.x8),
-                  Text(
-                      '${_date.year}-${_date.month.toString().padLeft(2, '0')}-${_date.day.toString().padLeft(2, '0')}',
-                      style: PTypo.body.copyWith(color: t.fgPrimary)),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: PSpace.x16),
-
-          if (_type != 'TRANSFER') ...[
-            _Label('가맹점 (선택)'),
-            const SizedBox(height: PSpace.x4),
-            TextField(
-              controller: _merchantCtrl,
-              decoration: const InputDecoration(hintText: '예: 스타벅스'),
-            ),
-            const SizedBox(height: PSpace.x12),
-
-            _Label('결제 수단 (선택)'),
-            const SizedBox(height: PSpace.x4),
-            TextField(
-              controller: _paymentCtrl,
-              decoration: const InputDecoration(hintText: '예: 신용카드, 현금'),
-            ),
-            const SizedBox(height: PSpace.x12),
-          ],
-
-                _Label('메모 (선택)'),
+                _Label('메모'),
                 const SizedBox(height: PSpace.x4),
                 TextField(
                   controller: _descCtrl,
@@ -674,6 +860,117 @@ class _Label extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.tokens;
     return Text(text, style: PTypo.caption.copyWith(color: t.fgSecondary));
+  }
+}
+
+class _SelectOption<T> {
+  const _SelectOption(this.value, this.label);
+  final T value;
+  final String label;
+}
+
+class _SelectField<T> extends StatelessWidget {
+  const _SelectField({
+    required this.value,
+    required this.items,
+    required this.onChanged,
+    required this.hint,
+  });
+  final T? value;
+  final List<_SelectOption<T>> items;
+  final ValueChanged<T?> onChanged;
+  final String hint;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return DropdownButtonFormField<T>(
+      initialValue: items.any((i) => i.value == value) ? value : null,
+      isExpanded: true,
+      decoration: InputDecoration(
+        isDense: true,
+        filled: true,
+        fillColor: t.bgSurface,
+        contentPadding: const EdgeInsets.symmetric(
+            horizontal: 12, vertical: 10),
+      ),
+      hint: Text(hint,
+          style: PTypo.bodySm.copyWith(color: t.fgPlaceholder)),
+      icon: Icon(LucideIcons.chevronDown, size: 16, color: t.fgTertiary),
+      items: [
+        for (final opt in items)
+          DropdownMenuItem<T>(
+            value: opt.value,
+            child: Text(opt.label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: PTypo.bodySm.copyWith(color: t.fgPrimary)),
+          ),
+      ],
+      onChanged: onChanged,
+    );
+  }
+}
+
+class _DateBox extends StatelessWidget {
+  const _DateBox({required this.date, required this.onTap});
+  final DateTime date;
+  final VoidCallback onTap;
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: t.bgSurface,
+          border: Border.all(color: t.borderDefault),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          children: [
+            Icon(LucideIcons.calendar, size: 16, color: t.fgSecondary),
+            const SizedBox(width: 8),
+            Text(
+              '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}',
+              style: PTypo.bodySm.copyWith(color: t.fgPrimary),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _TimeBox extends StatelessWidget {
+  const _TimeBox({required this.time, required this.onTap});
+  final TimeOfDay time;
+  final VoidCallback onTap;
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: t.bgSurface,
+          border: Border.all(color: t.borderDefault),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          children: [
+            Icon(LucideIcons.clock, size: 16, color: t.fgSecondary),
+            const SizedBox(width: 8),
+            Text(_formatTime(time),
+                style: PTypo.bodySm.copyWith(color: t.fgPrimary)),
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -893,36 +1190,3 @@ class _PresetStrip extends StatelessWidget {
   }
 }
 
-class _Chip extends StatelessWidget {
-  const _Chip(
-      {required this.label,
-      required this.selected,
-      required this.onTap,
-      required this.tokens});
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-  final PorestTokens tokens;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: selected ? tokens.bgBrandSubtle : tokens.bgSurface,
-          border: Border.all(
-            color: selected ? tokens.borderBrand : tokens.borderDefault,
-            width: selected ? 1.5 : 1,
-          ),
-          borderRadius: PRadius.brMd,
-        ),
-        child: Text(label,
-            style: PTypo.bodySm.copyWith(
-                color: selected ? tokens.fgPrimary : tokens.fgSecondary,
-                fontWeight: selected ? FontWeight.w600 : FontWeight.w500)),
-      ),
-    );
-  }
-}
