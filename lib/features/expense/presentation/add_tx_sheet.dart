@@ -9,6 +9,7 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/format/color_parse.dart';
 import '../../../core/format/date.dart';
+import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_category_tile.dart';
@@ -17,6 +18,7 @@ import '../../preset/application/preset_providers.dart';
 import '../../preset/domain/expense_template.dart';
 import '../application/expense_providers.dart';
 import '../domain/expense.dart';
+import '../domain/expense_category.dart';
 
 const _paymentMethods = [
   ('CASH', '현금'),
@@ -135,17 +137,41 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
   }
 
   void _applyPreset(ExpenseTemplate p) {
+    final locked = (p.lockAmount ?? 'N') == 'Y';
     setState(() {
       _appliedPresetId = p.rowId;
       _type = p.expenseType;
-      _amountCtrl.text = p.amount.toString();
+      // 웹과 동일: lockAmount === 'Y' 일 때만 금액 채움, 아니면 비워둠
+      _amountCtrl.text = locked ? p.amount.toString() : '';
       _categoryRowId = p.categoryRowId;
       _assetRowId = p.assetRowId;
       _descCtrl.text = p.description ?? '';
       _merchantCtrl.text = p.merchant ?? '';
       _paymentMethod = p.paymentMethod ?? '';
-      _amountLocked = (p.lockAmount ?? 'N') == 'Y';
+      _amountLocked = locked;
     });
+  }
+
+  void _clearPresetMark() {
+    if (_appliedPresetId == null) return;
+    setState(() => _appliedPresetId = null);
+  }
+
+  Future<void> _showSavePresetDialog() async {
+    final amount = int.tryParse(_amountCtrl.text.replaceAll(',', '')) ?? 0;
+    if (amount <= 0 || _categoryRowId == null) return;
+    await showDialog<void>(
+      context: context,
+      builder: (_) => _SavePresetDialog(
+        seedExpenseType: _type == 'TRANSFER' ? 'EXPENSE' : _type,
+        seedAmount: amount,
+        seedCategoryRowId: _categoryRowId!,
+        seedAssetRowId: _assetRowId,
+        seedMerchant: _merchantCtrl.text.trim(),
+        seedDescription: _descCtrl.text.trim(),
+        seedPaymentMethod: _paymentMethod,
+      ),
+    );
   }
 
   bool get _canSubmit {
@@ -368,20 +394,19 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
               padding: const EdgeInsets.fromLTRB(
                   PSpace.x16, 0, PSpace.x16, PSpace.x16),
               children: [
-                if (!_isEdit)
-                  presetsAsync.maybeWhen(
-                    data: (presets) => presets.isEmpty
-                        ? const SizedBox.shrink()
-                        : _PresetStrip(
-                            presets: presets,
-                            appliedId: _appliedPresetId,
-                            onTap: _applyPreset,
-                            tokens: t,
-                          ),
-                    orElse: () => const SizedBox.shrink(),
+                if (!_isEdit && _type != 'TRANSFER') ...[
+                  _PresetSection(
+                    presets: presetsAsync.value ?? const [],
+                    categories: categoriesAsync.value ?? const [],
+                    appliedId: _appliedPresetId,
+                    canSave: amountInt > 0 && _categoryRowId != null,
+                    onTap: _applyPreset,
+                    onSave: _showSavePresetDialog,
+                    onClear: _clearPresetMark,
+                    tokens: t,
                   ),
-                if (!_isEdit && (presetsAsync.value?.isNotEmpty ?? false))
-                  const SizedBox(height: PSpace.x12),
+                  const SizedBox(height: PSpace.x16),
+                ],
 
                 _TypeSegment(
                   value: _type,
@@ -1030,58 +1055,448 @@ class _TypeSegment extends StatelessWidget {
   }
 }
 
-class _PresetStrip extends StatelessWidget {
-  const _PresetStrip(
-      {required this.presets,
-      required this.appliedId,
-      required this.onTap,
-      required this.tokens});
+/// 프리셋 섹션 — 헤더 (라벨 + 적용됨 뱃지 + 저장 버튼) + 칩 strip + 적용 배너.
+/// 웹 `AddTxSheet` 의 "프리셋 불러오기" 영역 1:1 미러.
+class _PresetSection extends StatelessWidget {
+  const _PresetSection({
+    required this.presets,
+    required this.categories,
+    required this.appliedId,
+    required this.canSave,
+    required this.onTap,
+    required this.onSave,
+    required this.onClear,
+    required this.tokens,
+  });
+
   final List<ExpenseTemplate> presets;
+  final List<ExpenseCategory> categories;
   final int? appliedId;
+  final bool canSave;
   final ValueChanged<ExpenseTemplate> onTap;
+  final VoidCallback onSave;
+  final VoidCallback onClear;
   final PorestTokens tokens;
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 32,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemCount: presets.length,
-        separatorBuilder: (_, _) => const SizedBox(width: PSpace.x8),
-        itemBuilder: (_, i) {
-          final p = presets[i];
-          final selected = p.rowId == appliedId;
-          return GestureDetector(
-            onTap: () => onTap(p),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: selected ? tokens.bgBrand : tokens.bgMuted,
-                borderRadius: PRadius.brPill,
-                border: Border.all(
-                    color:
-                        selected ? tokens.borderBrand : tokens.borderSubtle),
+    // 사용 빈도 desc 로 8개 (웹과 동일).
+    final sorted = [...presets]
+      ..sort((a, b) => (b.useCount ?? 0).compareTo(a.useCount ?? 0));
+    final top = sorted.take(8).toList();
+    final hasMore = presets.length > top.length;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // Header
+        Padding(
+          padding: const EdgeInsets.only(bottom: PSpace.x8),
+          child: Row(
+            children: [
+              Icon(LucideIcons.bookmark,
+                  size: 13, color: tokens.fgTertiary),
+              const SizedBox(width: 6),
+              Text(
+                '프리셋 불러오기',
+                style: TextStyle(
+                  fontSize: PFontSize.micro,
+                  color: tokens.fgTertiary,
+                  fontWeight: PFontWeight.semi,
+                  letterSpacing: 0.44, // micro size × wide tracking
+                ),
               ),
+              if (appliedId != null) ...[
+                const SizedBox(width: 6),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: tokens.bgBrandSubtle,
+                    borderRadius: PRadius.brXs,
+                  ),
+                  child: Text(
+                    '적용됨',
+                    style: TextStyle(
+                      fontSize: PFontSize.micro,
+                      color: tokens.fgBrandStrong,
+                      fontWeight: PFontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+              const Spacer(),
+              GestureDetector(
+                onTap: canSave ? onSave : null,
+                behavior: HitTestBehavior.opaque,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(LucideIcons.plus,
+                        size: 12,
+                        color: canSave
+                            ? tokens.fgBrandStrong
+                            : tokens.fgTertiary),
+                    const SizedBox(width: 3),
+                    Text(
+                      '현재 입력값 저장',
+                      style: TextStyle(
+                        fontSize: PFontSize.caption,
+                        color: canSave
+                            ? tokens.fgBrandStrong
+                            : tokens.fgTertiary,
+                        fontWeight: PFontWeight.semi,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // Strip
+        if (top.isNotEmpty)
+          SizedBox(
+            height: 36,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: top.length + (hasMore ? 1 : 0),
+              separatorBuilder: (_, __) => const SizedBox(width: 6),
+              itemBuilder: (_, i) {
+                if (i == top.length) return _MorePresetsHint(tokens: tokens);
+                final p = top[i];
+                final active = p.rowId == appliedId;
+                final showAmount =
+                    (p.lockAmount ?? 'N') == 'Y' && p.amount > 0;
+                final cat = categories.byRowId(p.categoryRowId);
+                return _PresetChip(
+                  preset: p,
+                  category: cat,
+                  active: active,
+                  showAmount: showAmount,
+                  onTap: () => onTap(p),
+                  tokens: tokens,
+                );
+              },
+            ),
+          )
+        else
+          Container(
+            padding: const EdgeInsets.symmetric(
+                horizontal: 10, vertical: 8),
+            decoration: BoxDecoration(
+              color: tokens.bgMuted,
+              border: Border.all(color: tokens.borderDefault),
+              borderRadius: PRadius.brSm,
+            ),
+            child: Text(
+              '저장된 프리셋이 없어요. 자주 쓰는 내역을 입력 후 “현재 입력값 저장”을 눌러보세요.',
+              style: TextStyle(
+                fontSize: PFontSize.caption,
+                color: tokens.fgTertiary,
+              ),
+            ),
+          ),
+
+        // Active preset banner
+        if (appliedId != null) ...[
+          const SizedBox(height: PSpace.x8),
+          Container(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            decoration: BoxDecoration(
+              color: tokens.bgBrandSubtle,
+              border: Border.all(color: tokens.borderBrand),
+              borderRadius: PRadius.brSm,
+            ),
+            child: Row(
+              children: [
+                Icon(LucideIcons.info,
+                    size: 13, color: tokens.fgBrandStrong),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    '프리셋 값이 채워졌어요. 금액·내역만 수정해서 저장하세요.',
+                    style: TextStyle(
+                      fontSize: PFontSize.caption,
+                      color: tokens.fgBrandStrong,
+                      fontWeight: PFontWeight.semi,
+                    ),
+                  ),
+                ),
+                GestureDetector(
+                  onTap: onClear,
+                  child: Text(
+                    '해제',
+                    style: TextStyle(
+                      fontSize: PFontSize.micro,
+                      color: tokens.fgBrandStrong,
+                      fontWeight: PFontWeight.bold,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class _PresetChip extends StatelessWidget {
+  const _PresetChip({
+    required this.preset,
+    required this.category,
+    required this.active,
+    required this.showAmount,
+    required this.onTap,
+    required this.tokens,
+  });
+
+  final ExpenseTemplate preset;
+  final ExpenseCategory? category;
+  final bool active;
+  final bool showAmount;
+  final VoidCallback onTap;
+  final PorestTokens tokens;
+
+  String _shortAmount(int n) {
+    if (n >= 10000) return '${(n / 1000).floor()}k';
+    return krw(n);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final catColor =
+        parseColor(category?.color, fallback: tokens.fgBrand);
+    final iconData = lucideByName(category?.icon, fallback: LucideIcons.tag);
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
+        decoration: BoxDecoration(
+          color: active ? tokens.bgBrandSubtle : tokens.bgSurface,
+          border: Border.all(
+              color: active ? tokens.borderBrand : tokens.borderSubtle),
+          borderRadius: PRadius.brPill,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (category != null) ...[
+              Container(
+                width: 18,
+                height: 18,
+                decoration: BoxDecoration(
+                  color: softBg(catColor),
+                  borderRadius: PRadius.brSm,
+                ),
+                alignment: Alignment.center,
+                child: Icon(iconData, size: 11, color: catColor),
+              ),
+              const SizedBox(width: 7),
+            ],
+            Text(
+              preset.templateName,
+              style: TextStyle(
+                fontSize: PFontSize.bodySm,
+                fontWeight:
+                    active ? PFontWeight.bold : PFontWeight.semi,
+                color:
+                    active ? tokens.fgBrandStrong : tokens.fgPrimary,
+              ),
+            ),
+            if (showAmount) ...[
+              const SizedBox(width: 7),
+              Text(
+                _shortAmount(preset.amount),
+                style: TextStyle(
+                  fontSize: PFontSize.micro,
+                  color:
+                      active ? tokens.fgBrandStrong : tokens.fgTertiary,
+                  fontWeight: PFontWeight.semi,
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _MorePresetsHint extends StatelessWidget {
+  const _MorePresetsHint({required this.tokens});
+  final PorestTokens tokens;
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
+      decoration: BoxDecoration(
+        border: Border.all(
+            color: tokens.borderDefault, style: BorderStyle.solid),
+        borderRadius: PRadius.brPill,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(LucideIcons.moreHorizontal, size: 14, color: tokens.fgTertiary),
+          const SizedBox(width: 4),
+          Text(
+            '설정 → 프리셋 관리',
+            style: TextStyle(
+              fontSize: PFontSize.caption,
+              fontWeight: PFontWeight.semi,
+              color: tokens.fgTertiary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 현재 입력값을 프리셋으로 저장. 웹 `SavePresetDialog` 1:1 미러.
+class _SavePresetDialog extends ConsumerStatefulWidget {
+  const _SavePresetDialog({
+    required this.seedExpenseType,
+    required this.seedAmount,
+    required this.seedCategoryRowId,
+    required this.seedAssetRowId,
+    required this.seedMerchant,
+    required this.seedDescription,
+    required this.seedPaymentMethod,
+  });
+
+  final String seedExpenseType;
+  final int seedAmount;
+  final int seedCategoryRowId;
+  final int? seedAssetRowId;
+  final String seedMerchant;
+  final String seedDescription;
+  final String seedPaymentMethod;
+
+  @override
+  ConsumerState<_SavePresetDialog> createState() =>
+      _SavePresetDialogState();
+}
+
+class _SavePresetDialogState extends ConsumerState<_SavePresetDialog> {
+  late final TextEditingController _nameCtrl;
+  bool _lockAmount = false;
+  bool _submitting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameCtrl = TextEditingController(text: widget.seedMerchant);
+  }
+
+  @override
+  void dispose() {
+    _nameCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    final name = _nameCtrl.text.trim();
+    if (name.isEmpty || _submitting) return;
+    if (widget.seedAssetRowId == null) return;
+    setState(() => _submitting = true);
+    try {
+      final repo = await ref.read(presetRepositoryProvider.future);
+      await repo.create(
+        templateName: name,
+        categoryRowId: widget.seedCategoryRowId,
+        assetRowId: widget.seedAssetRowId!,
+        expenseType: widget.seedExpenseType,
+        amount: _lockAmount ? widget.seedAmount : 0,
+        description:
+            widget.seedDescription.isEmpty ? null : widget.seedDescription,
+        merchant: widget.seedMerchant.isEmpty ? null : widget.seedMerchant,
+        paymentMethod:
+            widget.seedPaymentMethod.isEmpty ? null : widget.seedPaymentMethod,
+        lockAmount: _lockAmount,
+      );
+      ref.invalidate(presetListProvider);
+      if (!mounted) return;
+      Navigator.of(context).pop();
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('저장 실패: ${e.message}')),
+      );
+    } finally {
+      if (mounted) setState(() => _submitting = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return AlertDialog(
+      title: Text('프리셋으로 저장',
+          style: TextStyle(
+              color: t.fgPrimary, fontWeight: PFontWeight.bold)),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          TextField(
+            controller: _nameCtrl,
+            autofocus: true,
+            decoration: const InputDecoration(
+              labelText: '프리셋 이름',
+              hintText: '예: 점심 도시락',
+            ),
+          ),
+          const SizedBox(height: PSpace.x12),
+          InkWell(
+            onTap: () => setState(() => _lockAmount = !_lockAmount),
+            borderRadius: PRadius.brSm,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6),
               child: Row(
-                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(LucideIcons.zap,
-                      size: 11,
-                      color: selected ? tokens.fgOnBrand : tokens.fgSecondary),
+                  Checkbox(
+                    value: _lockAmount,
+                    onChanged: (v) =>
+                        setState(() => _lockAmount = v ?? false),
+                  ),
                   const SizedBox(width: 4),
-                  Text(p.templateName,
-                      style: PTypo.caption.copyWith(
-                          color: selected
-                              ? tokens.fgOnBrand
-                              : tokens.fgSecondary,
-                          fontWeight: PFontWeight.semi)),
+                  Expanded(
+                    child: Text(
+                      '금액 잠금 — 적용 시 ${krw(widget.seedAmount)}원 자동 채움',
+                      style: TextStyle(
+                          fontSize: PFontSize.caption,
+                          color: t.fgSecondary),
+                    ),
+                  ),
                 ],
               ),
             ),
-          );
-        },
+          ),
+        ],
       ),
+      actions: [
+        TextButton(
+          onPressed: _submitting ? null : Navigator.of(context).pop,
+          child: const Text('취소'),
+        ),
+        FilledButton(
+          onPressed:
+              (_submitting || _nameCtrl.text.trim().isEmpty) ? null : _submit,
+          child: _submitting
+              ? const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2))
+              : const Text('저장'),
+        ),
+      ],
     );
   }
 }
