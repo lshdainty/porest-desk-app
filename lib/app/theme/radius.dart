@@ -2,6 +2,7 @@ import 'package:flutter/painting.dart';
 
 /// porest-desk-front `--radius-*` 토큰 매핑.
 abstract final class PRadius {
+  static const double xs2 = 2; // chart marker, legend swatch
   static const double xs = 4;
   static const double sm = 6;
   static const double md = 8;
@@ -12,6 +13,7 @@ abstract final class PRadius {
   static const double xl2 = 20;
   static const double pill = 999;
 
+  static const BorderRadius brXs2 = BorderRadius.all(Radius.circular(xs2));
   static const BorderRadius brXs = BorderRadius.all(Radius.circular(xs));
   static const BorderRadius brSm = BorderRadius.all(Radius.circular(sm));
   static const BorderRadius brMd = BorderRadius.all(Radius.circular(md));
