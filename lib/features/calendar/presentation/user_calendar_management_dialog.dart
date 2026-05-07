@@ -88,7 +88,7 @@ class _BodyState extends ConsumerState<_Body> {
         children: [
           Text('새 캘린더',
               style: PTypo.bodySm.copyWith(
-                  color: t.fgPrimary, fontWeight: FontWeight.w700)),
+                  color: t.fgPrimary, fontWeight: PFontWeight.bold)),
           const SizedBox(height: PSpace.x8),
           Row(
             children: [
@@ -149,7 +149,7 @@ class _BodyState extends ConsumerState<_Body> {
           const SizedBox(height: PSpace.x16),
           Text('등록된 캘린더',
               style: PTypo.bodySm.copyWith(
-                  color: t.fgPrimary, fontWeight: FontWeight.w700)),
+                  color: t.fgPrimary, fontWeight: PFontWeight.bold)),
           const SizedBox(height: PSpace.x8),
           async.when(
             loading: () => const Center(child: CircularProgressIndicator()),
@@ -268,7 +268,7 @@ class _RowState extends ConsumerState<_Row> {
                       overflow: TextOverflow.ellipsis,
                       style: PTypo.bodySm.copyWith(
                           color: t.fgPrimary,
-                          fontWeight: FontWeight.w600)),
+                          fontWeight: PFontWeight.semi)),
                 ),
                 if (widget.cal.isDefault) ...[
                   const SizedBox(width: 6),
@@ -282,7 +282,7 @@ class _RowState extends ConsumerState<_Row> {
                     child: Text('기본',
                         style: PTypo.micro.copyWith(
                             color: t.fgBrand,
-                            fontWeight: FontWeight.w700)),
+                            fontWeight: PFontWeight.bold)),
                   ),
                 ],
               ],

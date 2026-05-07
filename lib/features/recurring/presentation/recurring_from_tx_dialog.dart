@@ -205,7 +205,7 @@ class _RecurringFromTxBodyState extends ConsumerState<_RecurringFromTxBody> {
                 Expanded(
                   child: Text('반복 설정',
                       style: PTypo.h3.copyWith(
-                          color: t.fgPrimary, fontWeight: FontWeight.w800)),
+                          color: t.fgPrimary, fontWeight: PFontWeight.heavy)),
                 ),
                 IconButton(
                   icon: Icon(LucideIcons.x, color: t.fgTertiary, size: 20),
@@ -399,7 +399,7 @@ class _RecurringFromTxBodyState extends ConsumerState<_RecurringFromTxBody> {
                                 Text(_fmt(_endDate),
                                     style: PTypo.bodySm.copyWith(
                                         color: t.fgPrimary,
-                                        fontWeight: FontWeight.w600)),
+                                        fontWeight: PFontWeight.semi)),
                               ],
                             ),
                           ),
@@ -455,7 +455,7 @@ class _RecurringFromTxBodyState extends ConsumerState<_RecurringFromTxBody> {
                             Text('다음 예정일',
                                 style: PTypo.caption.copyWith(
                                     color: t.fgPrimary,
-                                    fontWeight: FontWeight.w700)),
+                                    fontWeight: PFontWeight.bold)),
                           ],
                         ),
                         const SizedBox(height: 8),
@@ -476,7 +476,7 @@ class _RecurringFromTxBodyState extends ConsumerState<_RecurringFromTxBody> {
                                   '${d.month.toString().padLeft(2, '0')}월 ${d.day.toString().padLeft(2, '0')}일',
                                   style: PTypo.caption.copyWith(
                                       color: t.fgPrimary,
-                                      fontWeight: FontWeight.w600,
+                                      fontWeight: PFontWeight.semi,
                                       fontFamily: 'monospace'),
                                 ),
                               ),
@@ -577,7 +577,7 @@ class _SourceCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: PTypo.bodySm.copyWith(
                         color: tokens.fgPrimary,
-                        fontWeight: FontWeight.w700)),
+                        fontWeight: PFontWeight.bold)),
                 const SizedBox(height: 2),
                 Text('$startDate 시작',
                     style: PTypo.caption.copyWith(color: tokens.fgTertiary)),
@@ -592,14 +592,14 @@ class _SourceCard extends StatelessWidget {
                   text: amountText,
                   style: PTypo.body.copyWith(
                       color: tokens.fgPrimary,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: PFontWeight.heavy,
                       fontFamily: 'monospace'),
                 ),
                 TextSpan(
                   text: '원',
                   style: PTypo.bodySm.copyWith(
                       color: tokens.fgPrimary,
-                      fontWeight: FontWeight.w800),
+                      fontWeight: PFontWeight.heavy),
                 ),
               ],
             ),
@@ -624,7 +624,7 @@ class _Section extends StatelessWidget {
         children: [
           Text(title,
               style: PTypo.caption.copyWith(
-                  color: t.fgSecondary, fontWeight: FontWeight.w700)),
+                  color: t.fgSecondary, fontWeight: PFontWeight.bold)),
           const SizedBox(height: 8),
           child,
         ],
@@ -671,8 +671,8 @@ class _Segmented extends StatelessWidget {
                               ? tokens.fgOnBrand
                               : tokens.fgTertiary,
                           fontWeight: o.$1 == value
-                              ? FontWeight.w700
-                              : FontWeight.w500)),
+                              ? PFontWeight.bold
+                              : PFontWeight.medium)),
                 ),
               ),
             ),
@@ -720,7 +720,7 @@ class _DowGrid extends StatelessWidget {
                           ? tokens.fgBrandStrong
                           : tokens.fgPrimary,
                       fontWeight:
-                          i == value ? FontWeight.w700 : FontWeight.w500,
+                          i == value ? PFontWeight.bold : PFontWeight.medium,
                     )),
               ),
             ),
@@ -800,7 +800,7 @@ class _RadioCard extends StatelessWidget {
                   Text(title,
                       style: PTypo.bodySm.copyWith(
                           color: tokens.fgPrimary,
-                          fontWeight: FontWeight.w700)),
+                          fontWeight: PFontWeight.bold)),
                   if (subtitle != null) ...[
                     const SizedBox(height: 4),
                     Text(subtitle!,
@@ -866,7 +866,7 @@ class _ToggleRow extends StatelessWidget {
                 Text(title,
                     style: PTypo.bodySm.copyWith(
                         color: tokens.fgPrimary,
-                        fontWeight: FontWeight.w700)),
+                        fontWeight: PFontWeight.bold)),
                 const SizedBox(height: 2),
                 Text(subtitle,
                     style: PTypo.caption.copyWith(color: tokens.fgTertiary)),

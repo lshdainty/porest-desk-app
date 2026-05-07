@@ -182,7 +182,7 @@ class _CategoryRow extends StatelessWidget {
               child: Text(category.categoryName,
                   style: PTypo.body.copyWith(
                       color: tokens.fgPrimary,
-                      fontWeight: FontWeight.w500)),
+                      fontWeight: PFontWeight.medium)),
             ),
             Icon(LucideIcons.chevronRight,
                 size: 16, color: tokens.fgTertiary),

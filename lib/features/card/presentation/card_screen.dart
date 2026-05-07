@@ -191,7 +191,7 @@ class _CardScreenState extends ConsumerState<CardScreen> {
                         Text('단종 카드 포함',
                             style: PTypo.caption.copyWith(
                                 color: t.fgSecondary,
-                                fontWeight: FontWeight.w500)),
+                                fontWeight: PFontWeight.medium)),
                       ],
                     ),
                   ),
@@ -313,7 +313,7 @@ class _Paginator extends StatelessWidget {
         Text(
           '${(page.number as int) + 1} / ${page.totalPages == 0 ? 1 : page.totalPages}',
           style: PTypo.bodySm.copyWith(
-              color: tokens.fgPrimary, fontWeight: FontWeight.w600),
+              color: tokens.fgPrimary, fontWeight: PFontWeight.semi),
         ),
         const SizedBox(width: 8),
         IconButton(
@@ -353,7 +353,7 @@ class _Chip extends StatelessWidget {
         child: Text(label,
             style: PTypo.caption.copyWith(
                 color: selected ? tokens.fgOnBrand : tokens.fgSecondary,
-                fontWeight: FontWeight.w600)),
+                fontWeight: PFontWeight.semi)),
       ),
     );
   }
@@ -407,7 +407,7 @@ class _CardRow extends StatelessWidget {
                     Text(card.cardName,
                         style: PTypo.bodySm.copyWith(
                             color: tokens.fgPrimary,
-                            fontWeight: FontWeight.w700),
+                            fontWeight: PFontWeight.bold),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis),
                     const SizedBox(height: 2),
@@ -429,7 +429,7 @@ class _CardRow extends StatelessWidget {
                         '실적 ${krw(card.performance!.requiredAmount!)}원/월',
                         style: PTypo.caption.copyWith(
                             color: tokens.fgSecondary,
-                            fontWeight: FontWeight.w600),
+                            fontWeight: PFontWeight.semi),
                       ),
                     ],
                   ],

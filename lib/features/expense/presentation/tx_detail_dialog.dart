@@ -175,7 +175,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                   style: TextStyle(
                       color: t.fgPrimary,
                       fontSize: 17,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: PFontWeight.bold,
                       letterSpacing: -0.34)),
               const Spacer(),
               IconButton(
@@ -224,7 +224,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                     Text(displayMerchant,
                         style: PTypo.bodySm.copyWith(
                             color: t.fgSecondary,
-                            fontWeight: FontWeight.w500)),
+                            fontWeight: PFontWeight.medium)),
                     const SizedBox(height: 4),
                     RichText(
                       text: TextSpan(
@@ -234,7 +234,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                             style: TextStyle(
                               color: amountColor,
                               fontSize: 34,
-                              fontWeight: FontWeight.w800,
+                              fontWeight: PFontWeight.heavy,
                               letterSpacing: -1.02,
                               fontFamily: 'monospace',
                             ),
@@ -245,7 +245,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                               style: TextStyle(
                                 color: amountColor,
                                 fontSize: 18,
-                                fontWeight: FontWeight.w800,
+                                fontWeight: PFontWeight.heavy,
                               ),
                             ),
                         ],
@@ -290,7 +290,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                           Text(e.categoryName ?? '미분류',
                               style: PTypo.bodySm.copyWith(
                                   color: t.fgPrimary,
-                                  fontWeight: FontWeight.w600)),
+                                  fontWeight: PFontWeight.semi)),
                         ],
                       ),
                     ),
@@ -301,7 +301,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                         '$amountText${masked ? '' : '원'}',
                         style: PTypo.bodySm.copyWith(
                             color: t.fgPrimary,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: PFontWeight.bold,
                             fontFamily: 'monospace'),
                       ),
                     ),
@@ -312,7 +312,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                         child: Text(assetLabel,
                             style: PTypo.bodySm.copyWith(
                                 color: t.fgPrimary,
-                                fontWeight: FontWeight.w500)),
+                                fontWeight: PFontWeight.medium)),
                       ),
                     if (paymentLabel.isNotEmpty)
                       _FieldRow(
@@ -321,7 +321,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                         child: Text(paymentLabel,
                             style: PTypo.bodySm.copyWith(
                                 color: t.fgPrimary,
-                                fontWeight: FontWeight.w500)),
+                                fontWeight: PFontWeight.medium)),
                       ),
                     if (dayStr != null)
                       _FieldRow(
@@ -331,7 +331,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                           timeLabel != null ? '$dayStr $timeLabel' : dayStr,
                           style: PTypo.bodySm.copyWith(
                               color: t.fgPrimary,
-                              fontWeight: FontWeight.w500),
+                              fontWeight: PFontWeight.medium),
                         ),
                       ),
                     _FieldRow(
@@ -346,7 +346,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                             color: (e.description ?? '').isEmpty
                                 ? t.fgTertiary
                                 : t.fgPrimary,
-                            fontWeight: FontWeight.w500),
+                            fontWeight: PFontWeight.medium),
                       ),
                     ),
                   ],
@@ -503,7 +503,7 @@ class _MerchantHistorySection extends ConsumerWidget {
                 Text('$merchant에서의 이전 거래',
                     style: PTypo.bodySm.copyWith(
                         color: t.fgPrimary,
-                        fontWeight: FontWeight.w700)),
+                        fontWeight: PFontWeight.bold)),
                 const Spacer(),
                 RichText(
                   text: TextSpan(
@@ -516,7 +516,7 @@ class _MerchantHistorySection extends ConsumerWidget {
                             : '$monthCount회 · ${krw(monthTotal)}원',
                         style: PTypo.caption.copyWith(
                             color: t.fgSecondary,
-                            fontWeight: FontWeight.w700),
+                            fontWeight: PFontWeight.bold),
                       ),
                     ],
                   ),
@@ -635,7 +635,7 @@ class _QuickBtn extends StatelessWidget {
                   color: onTap == null
                       ? tokens.fgTertiary
                       : tokens.fgSecondary,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: PFontWeight.semi,
                 )),
           ],
         ),

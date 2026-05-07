@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/theme/colors.dart';
 import '../../../../app/theme/radius.dart';
 import '../../../../app/theme/tokens.dart';
+import '../../../../app/theme/typography.dart';
 import '../../../../core/settings/settings_notifier.dart';
 import '../../application/asset_providers.dart';
 
@@ -122,7 +123,7 @@ class NetWorthChart extends ConsumerWidget {
                     for (final s in spots)
                       LineTooltipItem(
                         '${points[s.x.toInt()].month}\n${masked ? '•••' : _fmtFull(s.y)}',
-                        TextStyle(color: t.fgPrimary, fontSize: 11.5, fontWeight: FontWeight.w700),
+                        TextStyle(color: t.fgPrimary, fontSize: 11.5, fontWeight: PFontWeight.bold),
                       ),
                   ],
                 ),

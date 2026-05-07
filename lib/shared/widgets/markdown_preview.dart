@@ -49,7 +49,7 @@ class MarkdownPreview extends StatelessWidget {
           padding: const EdgeInsets.only(top: 4, bottom: 2),
           child: Text(line.substring(4),
               style: PTypo.body
-                  .copyWith(color: t.fgPrimary, fontWeight: FontWeight.w700)),
+                  .copyWith(color: t.fgPrimary, fontWeight: PFontWeight.bold)),
         ));
         continue;
       }
@@ -151,7 +151,7 @@ class MarkdownPreview extends StatelessWidget {
         if (end != -1) {
           spans.add(TextSpan(
               text: s.substring(i + 2, end),
-              style: base.copyWith(fontWeight: FontWeight.w700)));
+              style: base.copyWith(fontWeight: PFontWeight.bold)));
           i = end + 2;
           continue;
         }

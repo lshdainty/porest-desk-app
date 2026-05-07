@@ -88,7 +88,7 @@ class _BodyState extends ConsumerState<_Body> {
         children: [
           Text('새 매핑',
               style: PTypo.bodySm.copyWith(
-                  color: t.fgPrimary, fontWeight: FontWeight.w700)),
+                  color: t.fgPrimary, fontWeight: PFontWeight.bold)),
           const SizedBox(height: 4),
           Text('카드 혜택 카테고리(예: 카페, 주유)를 가계부 카테고리와 연결하면 거래 입력 시 자동 추천에 활용됩니다.',
               style: PTypo.caption.copyWith(color: t.fgTertiary)),
@@ -156,7 +156,7 @@ class _BodyState extends ConsumerState<_Body> {
           const SizedBox(height: PSpace.x16),
           Text('등록된 매핑',
               style: PTypo.bodySm.copyWith(
-                  color: t.fgPrimary, fontWeight: FontWeight.w700)),
+                  color: t.fgPrimary, fontWeight: PFontWeight.bold)),
           const SizedBox(height: PSpace.x8),
           mappingsAsync.when(
             loading: () => const Center(child: CircularProgressIndicator()),
@@ -240,7 +240,7 @@ class _RowState extends ConsumerState<_Row> {
                   ),
                   child: Text(m.benefitCategory,
                       style: PTypo.caption.copyWith(
-                          color: t.fgPrimary, fontWeight: FontWeight.w700)),
+                          color: t.fgPrimary, fontWeight: PFontWeight.bold)),
                 ),
                 const SizedBox(width: 8),
                 Icon(LucideIcons.arrowRight,
@@ -263,7 +263,7 @@ class _RowState extends ConsumerState<_Row> {
               ),
               child: Text('기본',
                   style: PTypo.micro.copyWith(
-                      color: t.fgBrand, fontWeight: FontWeight.w700)),
+                      color: t.fgBrand, fontWeight: PFontWeight.bold)),
             )
           else
             IconButton(

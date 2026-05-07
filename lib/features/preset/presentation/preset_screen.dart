@@ -218,7 +218,7 @@ class _PresetRow extends StatelessWidget {
                         child: Text(template.templateName,
                             style: PTypo.body.copyWith(
                                 color: tokens.fgPrimary,
-                                fontWeight: FontWeight.w600),
+                                fontWeight: PFontWeight.semi),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis),
                       ),
@@ -248,7 +248,7 @@ class _PresetRow extends StatelessWidget {
                   color: isExpense
                       ? tokens.statusDanger
                       : tokens.statusSuccess,
-                  fontWeight: FontWeight.w700),
+                  fontWeight: PFontWeight.bold),
             ),
             const SizedBox(width: 4),
             IconButton(

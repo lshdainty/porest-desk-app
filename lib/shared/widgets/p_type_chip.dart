@@ -45,7 +45,7 @@ class PTypeChip extends StatelessWidget {
             if (active) const SizedBox(width: 4),
             Text(label,
                 style: PTypo.bodySm.copyWith(
-                  fontWeight: FontWeight.w700,
+                  fontWeight: PFontWeight.bold,
                   color: active ? ac : t.fgTertiary,
                 )),
           ],

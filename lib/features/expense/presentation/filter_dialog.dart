@@ -203,7 +203,7 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
                   style: TextStyle(
                       color: t.fgPrimary,
                       fontSize: 17,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: PFontWeight.bold,
                       letterSpacing: -0.34)),
               const Spacer(),
               IconButton(
@@ -270,12 +270,12 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
         children: [
           Text(text,
               style: PTypo.bodySm.copyWith(
-                  color: t.fgSecondary, fontWeight: FontWeight.w600)),
+                  color: t.fgSecondary, fontWeight: PFontWeight.semi)),
           if (badge != null && badge.isNotEmpty) ...[
             const SizedBox(width: 4),
             Text(badge,
                 style: PTypo.bodySm.copyWith(
-                    color: t.fgBrandStrong, fontWeight: FontWeight.w600)),
+                    color: t.fgBrandStrong, fontWeight: PFontWeight.semi)),
           ],
         ],
       ),
@@ -485,7 +485,7 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
                         color: _assetIds.contains(a.rowId)
                             ? t.fgBrandStrong
                             : t.fgSecondary,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: PFontWeight.semi,
                       )),
                 ),
               ),

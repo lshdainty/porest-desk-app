@@ -249,7 +249,7 @@ class _SummaryCard extends StatelessWidget {
                 style: TextStyle(
                   color: t.fgPrimary,
                   fontSize: 16,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: PFontWeight.bold,
                   letterSpacing: -0.32,
                 ),
               ),
@@ -325,13 +325,13 @@ class _Stat extends StatelessWidget {
       children: [
         Text(label,
             style: PTypo.micro.copyWith(
-                color: t.fgTertiary, fontWeight: FontWeight.w500)),
+                color: t.fgTertiary, fontWeight: PFontWeight.medium)),
         const SizedBox(height: 2),
         Text(value,
             style: TextStyle(
               color: color,
               fontSize: 16,
-              fontWeight: FontWeight.w700,
+              fontWeight: PFontWeight.bold,
               letterSpacing: -0.24,
               fontFamily: 'monospace',
             )),
@@ -419,7 +419,7 @@ class _FilterRow extends StatelessWidget {
                       child: Text('$advCount',
                           style: PTypo.micro.copyWith(
                               color: t.fgOnBrand,
-                              fontWeight: FontWeight.w700)),
+                              fontWeight: PFontWeight.bold)),
                     ),
                   ),
               ],
@@ -469,7 +469,7 @@ class _Chip extends StatelessWidget {
         child: Text(label,
             style: PTypo.caption.copyWith(
               color: active ? t.fgOnBrand : t.fgSecondary,
-              fontWeight: FontWeight.w600,
+              fontWeight: PFontWeight.semi,
             )),
       ),
     );
@@ -518,7 +518,7 @@ class _DayGroup extends ConsumerWidget {
               children: [
                 Text(label.md,
                     style: PTypo.bodySm.copyWith(
-                        color: t.fgPrimary, fontWeight: FontWeight.w600)),
+                        color: t.fgPrimary, fontWeight: PFontWeight.semi)),
                 const SizedBox(width: PSpace.x8),
                 Text(label.dow,
                     style: PTypo.caption.copyWith(color: t.fgTertiary)),
@@ -530,7 +530,7 @@ class _DayGroup extends ConsumerWidget {
                         : '−${krwMasked(dayExpense, masked)}원',
                     style: PTypo.caption.copyWith(
                       color: t.fgExpense,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: PFontWeight.semi,
                     ),
                   ),
                 if (dayIncome > 0) ...[
@@ -541,7 +541,7 @@ class _DayGroup extends ConsumerWidget {
                         : '+${krwMasked(dayIncome, masked)}원',
                     style: PTypo.caption.copyWith(
                       color: t.fgIncome,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: PFontWeight.semi,
                     ),
                   ),
                 ],

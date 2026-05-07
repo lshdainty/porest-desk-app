@@ -430,7 +430,7 @@ class _TypeChip extends StatelessWidget {
                 style: PTypo.bodySm.copyWith(
                   color: selected ? tokens.fgPrimary : tokens.fgSecondary,
                   fontWeight:
-                      selected ? FontWeight.w600 : FontWeight.w500,
+                      selected ? PFontWeight.semi : PFontWeight.medium,
                 )),
           ],
         ),

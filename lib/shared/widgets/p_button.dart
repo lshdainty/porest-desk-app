@@ -43,9 +43,9 @@ class PButton extends StatelessWidget {
       };
 
   TextStyle _textStyle(PorestTokens t) => switch (size) {
-        PButtonSize.sm => PTypo.caption.copyWith(fontWeight: FontWeight.w600),
-        PButtonSize.md => PTypo.bodySm.copyWith(fontWeight: FontWeight.w600),
-        PButtonSize.lg => PTypo.body.copyWith(fontWeight: FontWeight.w700),
+        PButtonSize.sm => PTypo.caption.copyWith(fontWeight: PFontWeight.semi),
+        PButtonSize.md => PTypo.bodySm.copyWith(fontWeight: PFontWeight.semi),
+        PButtonSize.lg => PTypo.body.copyWith(fontWeight: PFontWeight.bold),
       };
 
   double _iconSize() => switch (size) {
@@ -153,7 +153,7 @@ class PField extends StatelessWidget {
           children: [
             Text(label,
                 style: PTypo.caption.copyWith(
-                    color: t.fgSecondary, fontWeight: FontWeight.w600)),
+                    color: t.fgSecondary, fontWeight: PFontWeight.semi)),
             if (required) ...[
               const SizedBox(width: 2),
               Text('*',

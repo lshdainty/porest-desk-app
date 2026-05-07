@@ -211,7 +211,7 @@ class _MemoCard extends StatelessWidget {
                           color: hasTitle
                               ? tokens.fgPrimary
                               : tokens.fgTertiary,
-                          fontWeight: FontWeight.w700),
+                          fontWeight: PFontWeight.bold),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),

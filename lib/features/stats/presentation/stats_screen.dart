@@ -133,9 +133,9 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
             labelColor: t.fgPrimary,
             unselectedLabelColor: t.fgTertiary,
             labelStyle: PTypo.bodySm
-                .copyWith(fontWeight: FontWeight.w700, color: t.fgPrimary),
+                .copyWith(fontWeight: PFontWeight.bold, color: t.fgPrimary),
             unselectedLabelStyle: PTypo.bodySm
-                .copyWith(fontWeight: FontWeight.w500, color: t.fgTertiary),
+                .copyWith(fontWeight: PFontWeight.medium, color: t.fgTertiary),
             dividerColor: t.borderSubtle,
             tabs: const [
               Tab(text: '카테고리'),
@@ -375,7 +375,7 @@ class _PeriodSeg extends StatelessWidget {
               style: PTypo.caption.copyWith(
                   color: active ? t.fgPrimary : t.fgTertiary,
                   fontWeight:
-                      active ? FontWeight.w700 : FontWeight.w500)),
+                      active ? PFontWeight.bold : PFontWeight.medium)),
         ),
       );
     }
@@ -421,7 +421,7 @@ class _MonthPickerButton extends StatelessWidget {
             const SizedBox(width: 6),
             Text(label,
                 style: PTypo.caption.copyWith(
-                    color: t.fgPrimary, fontWeight: FontWeight.w600)),
+                    color: t.fgPrimary, fontWeight: PFontWeight.semi)),
             const SizedBox(width: 4),
             Icon(LucideIcons.chevronDown, size: 12, color: t.fgTertiary),
           ],
@@ -482,7 +482,7 @@ class _CardTitle extends StatelessWidget {
     final t = context.tokens;
     return Text(text,
         style: PTypo.body.copyWith(
-            color: t.fgPrimary, fontWeight: FontWeight.w700));
+            color: t.fgPrimary, fontWeight: PFontWeight.bold));
   }
 }
 
@@ -688,7 +688,7 @@ class _DonutCardState extends ConsumerState<_DonutCard> {
                         child: Text('카테고리별 지출',
                             style: PTypo.body.copyWith(
                                 color: t.fgSecondary,
-                                fontWeight: FontWeight.w500)),
+                                fontWeight: PFontWeight.medium)),
                       ),
                       const SizedBox(width: 4),
                       Text('›',
@@ -740,7 +740,7 @@ class _DonutCardState extends ConsumerState<_DonutCard> {
                         '${krwMasked(total, widget.masked)}원',
                         style: PTypo.h4.copyWith(
                             color: t.fgPrimary,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: PFontWeight.heavy,
                             fontFamily: 'monospace'),
                       ),
                     ],
@@ -808,7 +808,7 @@ class _DonutLegendRow extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: PTypo.bodySm.copyWith(
-                      color: t.fgPrimary, fontWeight: FontWeight.w500)),
+                      color: t.fgPrimary, fontWeight: PFontWeight.medium)),
             ),
             Text('${pct.toStringAsFixed(1)}%',
                 style: PTypo.caption.copyWith(color: t.fgTertiary)),
@@ -816,7 +816,7 @@ class _DonutLegendRow extends StatelessWidget {
             Text(krwMasked(row.amount, masked),
                 style: PTypo.bodySm.copyWith(
                     color: t.fgPrimary,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: PFontWeight.bold,
                     fontFamily: 'monospace')),
             if (clickable) ...[
               const SizedBox(width: 4),
@@ -865,7 +865,7 @@ class _TopMerchantsCard extends StatelessWidget {
                         style: PTypo.caption.copyWith(
                             color:
                                 i < 3 ? t.fgBrand : t.fgTertiary,
-                            fontWeight: FontWeight.w700)),
+                            fontWeight: PFontWeight.bold)),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
@@ -880,7 +880,7 @@ class _TopMerchantsCard extends StatelessWidget {
                                   overflow: TextOverflow.ellipsis,
                                   style: PTypo.bodySm.copyWith(
                                       color: t.fgPrimary,
-                                      fontWeight: FontWeight.w600)),
+                                      fontWeight: PFontWeight.semi)),
                             ),
                             const SizedBox(width: 6),
                             Text('${top[i].count}회',
@@ -891,7 +891,7 @@ class _TopMerchantsCard extends StatelessWidget {
                               krwMasked(top[i].totalAmount, masked),
                               style: PTypo.bodySm.copyWith(
                                   color: t.fgPrimary,
-                                  fontWeight: FontWeight.w700,
+                                  fontWeight: PFontWeight.bold,
                                   fontFamily: 'monospace'),
                             ),
                           ],
@@ -1034,7 +1034,7 @@ class _HeatmapCard extends StatelessWidget {
                           textAlign: TextAlign.center,
                           style: PTypo.caption.copyWith(
                               color: t.fgTertiary,
-                              fontWeight: FontWeight.w600)),
+                              fontWeight: PFontWeight.semi)),
                     ),
                   ),
               ],
@@ -1051,7 +1051,7 @@ class _HeatmapCard extends StatelessWidget {
                         Text(_heatRows[r].label,
                             style: PTypo.caption.copyWith(
                                 color: t.fgPrimary,
-                                fontWeight: FontWeight.w700)),
+                                fontWeight: PFontWeight.bold)),
                         Text(_heatRows[r].sub,
                             style: PTypo.micro.copyWith(
                                 color: t.fgTertiary, fontSize: 9)),
@@ -1075,7 +1075,7 @@ class _HeatmapCard extends StatelessWidget {
                               style: PTypo.micro.copyWith(
                                   color: fgFor(
                                       _heatBucket(matrix[r][c], maxV)),
-                                  fontWeight: FontWeight.w700,
+                                  fontWeight: PFontWeight.bold,
                                   fontSize: 10),
                             ),
                           ),
@@ -1112,7 +1112,7 @@ class _HeatmapCard extends StatelessWidget {
                 Text('총 ${krw(total)}원',
                     style: PTypo.caption.copyWith(
                         color: t.fgSecondary,
-                        fontWeight: FontWeight.w600)),
+                        fontWeight: PFontWeight.semi)),
               ],
             ),
           ],
@@ -1258,14 +1258,14 @@ class _HighlightCard extends StatelessWidget {
         children: [
           Text(label,
               style: PTypo.caption.copyWith(
-                  color: t.fgTertiary, fontWeight: FontWeight.w500)),
+                  color: t.fgTertiary, fontWeight: PFontWeight.medium)),
           const SizedBox(height: 8),
           Text(value,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: PTypo.h4.copyWith(
                   color: t.fgPrimary,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: PFontWeight.bold,
                   fontFamily: valueIsAmount ? 'monospace' : null)),
           const SizedBox(height: 4),
           Text(sub,
@@ -1580,14 +1580,14 @@ class _StatCard extends StatelessWidget {
         children: [
           Text(label,
               style: PTypo.caption.copyWith(
-                  color: t.fgTertiary, fontWeight: FontWeight.w500)),
+                  color: t.fgTertiary, fontWeight: PFontWeight.medium)),
           const SizedBox(height: 6),
           Text(value,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: PTypo.h4.copyWith(
                   color: t.fgPrimary,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: PFontWeight.heavy,
                   fontFamily: 'monospace')),
         ],
       ),
@@ -1777,7 +1777,7 @@ class _CompareSummaryGrid extends StatelessWidget {
             children: [
               Text(s._momLabel,
                   style: PTypo.caption.copyWith(
-                      color: t.fgTertiary, fontWeight: FontWeight.w500)),
+                      color: t.fgTertiary, fontWeight: PFontWeight.medium)),
               const SizedBox(height: 8),
               Text(
                 prev > 0 ? '${up ? '+' : '−'}$pct' : '—',
@@ -1785,7 +1785,7 @@ class _CompareSummaryGrid extends StatelessWidget {
                     color: prev <= 0
                         ? t.fgPrimary
                         : (up ? t.statusDangerFg : t.fgBrand),
-                    fontWeight: FontWeight.w800,
+                    fontWeight: PFontWeight.heavy,
                     fontFamily: 'monospace'),
               ),
               const SizedBox(height: 4),
@@ -1822,12 +1822,12 @@ class _CompareCard extends StatelessWidget {
         children: [
           Text(label,
               style: PTypo.caption.copyWith(
-                  color: t.fgTertiary, fontWeight: FontWeight.w500)),
+                  color: t.fgTertiary, fontWeight: PFontWeight.medium)),
           const SizedBox(height: 8),
           Text(amount,
               style: PTypo.h3.copyWith(
                   color: muted ? t.fgSecondary : t.fgPrimary,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: PFontWeight.heavy,
                   fontFamily: 'monospace')),
         ],
       ),
@@ -2005,12 +2005,12 @@ class _CompareRow extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: PTypo.bodySm.copyWith(
-                      color: t.fgPrimary, fontWeight: FontWeight.w600)),
+                      color: t.fgPrimary, fontWeight: PFontWeight.semi)),
             ),
             Text('${krwMasked(row.now, masked)}원',
                 style: PTypo.bodySm.copyWith(
                     color: t.fgPrimary,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: PFontWeight.bold,
                     fontFamily: 'monospace')),
             const SizedBox(width: 10),
             SizedBox(
@@ -2022,7 +2022,7 @@ class _CompareRow extends StatelessWidget {
                     color: row.prev == 0
                         ? t.fgTertiary
                         : (up ? t.statusDangerFg : t.fgBrand),
-                    fontWeight: FontWeight.w700),
+                    fontWeight: PFontWeight.bold),
               ),
             ),
           ],

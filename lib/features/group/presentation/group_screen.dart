@@ -324,7 +324,7 @@ class _GroupRow extends StatelessWidget {
                   Text(group.groupName,
                       style: PTypo.body.copyWith(
                           color: tokens.fgPrimary,
-                          fontWeight: FontWeight.w600)),
+                          fontWeight: PFontWeight.semi)),
                   const SizedBox(height: 2),
                   Text(
                     [

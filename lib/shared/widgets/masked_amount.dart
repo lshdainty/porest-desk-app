@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app/theme/typography.dart';
 import '../../core/format/krw.dart';
 import '../../core/settings/settings_notifier.dart';
 
@@ -54,7 +55,7 @@ class MaskedBlock extends ConsumerWidget {
     final hidden = ref.watch(settingsProvider).value?.hideAmounts ?? false;
     if (!hidden) return child;
     return placeholder ??
-        const Text('•••', style: TextStyle(fontWeight: FontWeight.w700));
+        const Text('•••', style: TextStyle(fontWeight: PFontWeight.bold));
   }
 }
 

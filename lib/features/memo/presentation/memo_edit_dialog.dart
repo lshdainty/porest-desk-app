@@ -5,6 +5,7 @@ import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
+import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
 import '../application/memo_providers.dart';
 import '../domain/memo.dart';
@@ -141,7 +142,7 @@ class _BodyState extends ConsumerState<_Body> {
               border: InputBorder.none,
             ),
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: t.fgPrimary, fontWeight: FontWeight.w700),
+                color: t.fgPrimary, fontWeight: PFontWeight.bold),
           ),
           const SizedBox(height: PSpace.x8),
           TextField(

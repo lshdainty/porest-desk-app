@@ -337,7 +337,7 @@ class _BodyState extends ConsumerState<_Body> {
                   child: Text('더치페이 시작',
                       style: PTypo.h3.copyWith(
                           color: t.fgPrimary,
-                          fontWeight: FontWeight.w800)),
+                          fontWeight: PFontWeight.heavy)),
                 ),
                 IconButton(
                   icon: Icon(LucideIcons.x, color: t.fgTertiary, size: 20),
@@ -392,7 +392,7 @@ class _BodyState extends ConsumerState<_Body> {
                                 overflow: TextOverflow.ellipsis,
                                 style: PTypo.bodySm.copyWith(
                                     color: t.fgPrimary,
-                                    fontWeight: FontWeight.w700)),
+                                    fontWeight: PFontWeight.bold)),
                             const SizedBox(height: 2),
                             Text(_expenseDateTime,
                                 style: PTypo.caption
@@ -407,14 +407,14 @@ class _BodyState extends ConsumerState<_Body> {
                             text: krw(_totalAbs),
                             style: PTypo.body.copyWith(
                                 color: t.fgPrimary,
-                                fontWeight: FontWeight.w800,
+                                fontWeight: PFontWeight.heavy,
                                 fontFamily: 'monospace'),
                           ),
                           TextSpan(
                             text: '원',
                             style: PTypo.bodySm.copyWith(
                                 color: t.fgPrimary,
-                                fontWeight: FontWeight.w800),
+                                fontWeight: PFontWeight.heavy),
                           ),
                         ]),
                       ),
@@ -505,7 +505,7 @@ class _BodyState extends ConsumerState<_Body> {
                           child: Text('나도 포함해서 분배',
                               style: PTypo.bodySm.copyWith(
                                   color: t.fgPrimary,
-                                  fontWeight: FontWeight.w700)),
+                                  fontWeight: PFontWeight.bold)),
                         ),
                         Text('내 몫도 계산됩니다',
                             style: PTypo.caption
@@ -524,7 +524,7 @@ class _BodyState extends ConsumerState<_Body> {
                       Text('참여자',
                           style: PTypo.caption.copyWith(
                               color: t.fgSecondary,
-                              fontWeight: FontWeight.w700)),
+                              fontWeight: PFontWeight.bold)),
                       const SizedBox(width: 6),
                       Text('(${participants.length}명)',
                           style: PTypo.caption
@@ -684,7 +684,7 @@ class _BodyState extends ConsumerState<_Body> {
                         text: '${krw(perPerson)}원',
                         style: PTypo.bodySm.copyWith(
                             color: t.fgPrimary,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: PFontWeight.heavy,
                             fontFamily: 'monospace'),
                       ),
                     ]),
@@ -734,7 +734,7 @@ class _Section extends StatelessWidget {
         children: [
           Text(title,
               style: PTypo.caption.copyWith(
-                  color: t.fgSecondary, fontWeight: FontWeight.w700)),
+                  color: t.fgSecondary, fontWeight: PFontWeight.bold)),
           const SizedBox(height: 8),
           child,
         ],
@@ -794,7 +794,7 @@ class _SplitCard extends StatelessWidget {
                           color: selected
                               ? tokens.fgBrandStrong
                               : tokens.fgPrimary,
-                          fontWeight: FontWeight.w700)),
+                          fontWeight: PFontWeight.bold)),
                 ),
               ],
             ),
@@ -864,7 +864,7 @@ class _ParticipantRow extends StatelessWidget {
             alignment: Alignment.center,
             child: Text(firstChar,
                 style: PTypo.bodySm.copyWith(
-                    color: palette, fontWeight: FontWeight.w700)),
+                    color: palette, fontWeight: PFontWeight.bold)),
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -876,7 +876,7 @@ class _ParticipantRow extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: PTypo.bodySm.copyWith(
                           color: tokens.fgPrimary,
-                          fontWeight: FontWeight.w600)),
+                          fontWeight: PFontWeight.semi)),
                 ),
                 if (participant.isMe) ...[
                   const SizedBox(width: 6),
@@ -890,7 +890,7 @@ class _ParticipantRow extends StatelessWidget {
                     child: Text('나',
                         style: PTypo.caption.copyWith(
                             color: tokens.fgBrand,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: PFontWeight.bold,
                             fontSize: 10)),
                   ),
                 ],
@@ -919,7 +919,7 @@ class _ParticipantRow extends StatelessWidget {
             Text('${krw(amount)}원',
                 style: PTypo.bodySm.copyWith(
                     color: tokens.fgPrimary,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: PFontWeight.bold,
                     fontFamily: 'monospace')),
           ] else if (splitMethod == _Split.ratio) ...[
             if (!participant.isMe) ...[
@@ -951,14 +951,14 @@ class _ParticipantRow extends StatelessWidget {
                   textAlign: TextAlign.right,
                   style: PTypo.bodySm.copyWith(
                       color: tokens.fgPrimary,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: PFontWeight.bold,
                       fontFamily: 'monospace')),
             ),
           ] else ...[
             Text('${krw(amount)}원',
                 style: PTypo.bodySm.copyWith(
                     color: tokens.fgPrimary,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: PFontWeight.bold,
                     fontFamily: 'monospace')),
           ],
           if (onRemove != null)
@@ -1016,7 +1016,7 @@ class _QuickChip extends StatelessWidget {
             Text(label,
                 style: PTypo.caption.copyWith(
                     color: tokens.fgPrimary,
-                    fontWeight: FontWeight.w600)),
+                    fontWeight: PFontWeight.semi)),
             const SizedBox(width: 4),
             Icon(LucideIcons.plus, size: 12, color: tokens.fgTertiary),
           ],

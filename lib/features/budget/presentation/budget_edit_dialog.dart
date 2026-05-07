@@ -293,7 +293,7 @@ class _LockedCategory extends StatelessWidget {
           const SizedBox(width: 6),
           Text(category!.categoryName,
               style: PTypo.bodySm.copyWith(
-                  color: tokens.fgPrimary, fontWeight: FontWeight.w500)),
+                  color: tokens.fgPrimary, fontWeight: PFontWeight.medium)),
         ],
       ),
     );
@@ -342,7 +342,7 @@ class _CatChip extends StatelessWidget {
               Text(label,
                   style: PTypo.bodySm.copyWith(
                     color: selected ? tokens.fgPrimary : tokens.fgSecondary,
-                    fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+                    fontWeight: selected ? PFontWeight.semi : PFontWeight.medium,
                   )),
             ],
           ),

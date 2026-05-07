@@ -196,7 +196,7 @@ class _CardPickerSheetState extends ConsumerState<_CardPickerSheet> {
                                         overflow: TextOverflow.ellipsis,
                                         style: PTypo.bodySm.copyWith(
                                             color: t.fgPrimary,
-                                            fontWeight: FontWeight.w600)),
+                                            fontWeight: PFontWeight.semi)),
                                     if (c.company?.name != null)
                                       Text(c.company!.name!,
                                           style: PTypo.caption.copyWith(
@@ -219,7 +219,7 @@ class _CardPickerSheetState extends ConsumerState<_CardPickerSheet> {
                                         color: c.cardType == 'CREDIT'
                                             ? t.fgBrand
                                             : t.fgSecondary,
-                                        fontWeight: FontWeight.w700)),
+                                        fontWeight: PFontWeight.bold)),
                               ),
                             ],
                           ),
@@ -262,7 +262,7 @@ class _Chip extends StatelessWidget {
         child: Text(label,
             style: PTypo.caption.copyWith(
                 color: selected ? tokens.fgPrimary : tokens.fgSecondary,
-                fontWeight: selected ? FontWeight.w700 : FontWeight.w500)),
+                fontWeight: selected ? PFontWeight.bold : PFontWeight.medium)),
       ),
     );
   }

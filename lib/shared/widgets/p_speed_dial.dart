@@ -54,7 +54,7 @@ class _PSpeedDialChildBuilt extends StatelessWidget {
               child: Text(child.label!,
                   style: PTypo.caption.copyWith(
                       color: tokens.fgPrimary,
-                      fontWeight: FontWeight.w600)),
+                      fontWeight: PFontWeight.semi)),
             ),
             const SizedBox(width: 8),
           ],

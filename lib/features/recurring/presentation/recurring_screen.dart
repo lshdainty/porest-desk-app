@@ -393,12 +393,12 @@ class _Stat extends StatelessWidget {
             const SizedBox(width: 4),
             Text(label,
                 style: PTypo.caption.copyWith(
-                    color: tokens.fgTertiary, fontWeight: FontWeight.w600)),
+                    color: tokens.fgTertiary, fontWeight: PFontWeight.semi)),
           ],
         ),
         const SizedBox(height: 4),
         Text(value,
-            style: PTypo.h4.copyWith(color: color, fontWeight: FontWeight.w700)),
+            style: PTypo.h4.copyWith(color: color, fontWeight: PFontWeight.bold)),
       ],
     );
   }
@@ -434,7 +434,7 @@ class _UpcomingCard extends StatelessWidget {
             children: [
               Text('다가오는 7일',
                   style: PTypo.bodySm
-                      .copyWith(color: tokens.fgPrimary, fontWeight: FontWeight.w700)),
+                      .copyWith(color: tokens.fgPrimary, fontWeight: PFontWeight.bold)),
               const Spacer(),
               Text('${items.length}건 예정',
                   style: PTypo.caption.copyWith(color: tokens.fgTertiary)),
@@ -507,7 +507,7 @@ class _UpcomingRow extends StatelessWidget {
               isToday ? '오늘' : 'D-$days',
               style: PTypo.caption.copyWith(
                   color: isToday ? tokens.fgOnBrand : tokens.fgSecondary,
-                  fontWeight: FontWeight.w700),
+                  fontWeight: PFontWeight.bold),
             ),
           ),
           const SizedBox(width: PSpace.x8),
@@ -525,7 +525,7 @@ class _UpcomingRow extends StatelessWidget {
               children: [
                 Text(_displayTitle(item),
                     style: PTypo.bodySm.copyWith(
-                        color: tokens.fgPrimary, fontWeight: FontWeight.w600),
+                        color: tokens.fgPrimary, fontWeight: PFontWeight.semi),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis),
                 Text(
@@ -542,7 +542,7 @@ class _UpcomingRow extends StatelessWidget {
             '${isExpense ? '-' : '+'}${krwMasked(item.amount.abs(), masked)}',
             style: PTypo.bodySm.copyWith(
                 color: isExpense ? tokens.statusDanger : tokens.statusSuccess,
-                fontWeight: FontWeight.w700),
+                fontWeight: PFontWeight.bold),
           ),
         ],
       ),
@@ -623,7 +623,7 @@ class _FilterChip extends StatelessWidget {
             Text(label,
                 style: PTypo.caption.copyWith(
                     color: selected ? tokens.fgOnBrand : tokens.fgSecondary,
-                    fontWeight: FontWeight.w600)),
+                    fontWeight: PFontWeight.semi)),
             const SizedBox(width: 4),
             Text('$count',
                 style: PTypo.caption.copyWith(
@@ -696,7 +696,7 @@ class _RecurringRow extends StatelessWidget {
                           child: Text(_displayTitle(item),
                               style: PTypo.body.copyWith(
                                   color: tokens.fgPrimary,
-                                  fontWeight: FontWeight.w600),
+                                  fontWeight: PFontWeight.semi),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis),
                         ),
@@ -711,7 +711,7 @@ class _RecurringRow extends StatelessWidget {
                             child: Text('일시정지',
                                 style: PTypo.caption.copyWith(
                                     color: tokens.fgTertiary,
-                                    fontWeight: FontWeight.w700,
+                                    fontWeight: PFontWeight.bold,
                                     fontSize: 10)),
                           ),
                         ],
@@ -746,7 +746,7 @@ class _RecurringRow extends StatelessWidget {
                     color: isExpense
                         ? tokens.statusDanger
                         : tokens.statusSuccess,
-                    fontWeight: FontWeight.w700),
+                    fontWeight: PFontWeight.bold),
               ),
               const SizedBox(width: 4),
               _MiniIconBtn(

@@ -121,7 +121,7 @@ class _BodyState extends ConsumerState<_Body> {
           // 사용자 정의 추가 폼
           Text('사용자 휴일 추가',
               style: PTypo.bodySm.copyWith(
-                  color: t.fgPrimary, fontWeight: FontWeight.w700)),
+                  color: t.fgPrimary, fontWeight: PFontWeight.bold)),
           const SizedBox(height: PSpace.x8),
           Row(
             children: [
@@ -199,7 +199,7 @@ class _BodyState extends ConsumerState<_Body> {
 
           Text('$_year년 휴일',
               style: PTypo.bodySm.copyWith(
-                  color: t.fgPrimary, fontWeight: FontWeight.w700)),
+                  color: t.fgPrimary, fontWeight: PFontWeight.bold)),
           const SizedBox(height: PSpace.x8),
           async.when(
             loading: () => const Center(child: CircularProgressIndicator()),
@@ -311,7 +311,7 @@ class _RowState extends ConsumerState<_Row> {
             width: 80,
             child: Text(h.holidayDate.substring(5),
                 style: PTypo.caption.copyWith(
-                    color: t.fgSecondary, fontWeight: FontWeight.w700)),
+                    color: t.fgSecondary, fontWeight: PFontWeight.bold)),
           ),
           Expanded(
             child: Text(h.holidayName,
@@ -330,7 +330,7 @@ class _RowState extends ConsumerState<_Row> {
             ),
             child: Text(typeLabel,
                 style: PTypo.micro.copyWith(
-                    color: badgeColor, fontWeight: FontWeight.w700)),
+                    color: badgeColor, fontWeight: PFontWeight.bold)),
           ),
           if (h.holidayType == 'CUSTOM')
             IconButton(

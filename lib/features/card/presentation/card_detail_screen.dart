@@ -62,7 +62,7 @@ class CardDetailScreen extends ConsumerWidget {
 
               Text(s.cardName,
                   style: PTypo.h3.copyWith(
-                      color: t.fgPrimary, fontWeight: FontWeight.w800)),
+                      color: t.fgPrimary, fontWeight: PFontWeight.heavy)),
               const SizedBox(height: 4),
               Text(
                 [
@@ -104,7 +104,7 @@ class CardDetailScreen extends ConsumerWidget {
               if (d.topBenefits.isNotEmpty) ...[
                 Text('주요 혜택 태그',
                     style: PTypo.body.copyWith(
-                        color: t.fgPrimary, fontWeight: FontWeight.w700)),
+                        color: t.fgPrimary, fontWeight: PFontWeight.bold)),
                 const SizedBox(height: PSpace.x8),
                 Wrap(
                   spacing: 6,
@@ -123,7 +123,7 @@ class CardDetailScreen extends ConsumerWidget {
                           child: Text(tag,
                               style: PTypo.caption.copyWith(
                                   color: t.fgBrandStrong,
-                                  fontWeight: FontWeight.w600)),
+                                  fontWeight: PFontWeight.semi)),
                         ),
                   ],
                 ),
@@ -133,7 +133,7 @@ class CardDetailScreen extends ConsumerWidget {
               if (d.benefits.isNotEmpty) ...[
                 Text('혜택',
                     style: PTypo.body.copyWith(
-                        color: t.fgPrimary, fontWeight: FontWeight.w700)),
+                        color: t.fgPrimary, fontWeight: PFontWeight.bold)),
                 const SizedBox(height: PSpace.x8),
                 Container(
                   decoration: BoxDecoration(
@@ -153,7 +153,7 @@ class CardDetailScreen extends ConsumerWidget {
                                 Text(d.benefits[i].title!,
                                     style: PTypo.bodySm.copyWith(
                                         color: t.fgPrimary,
-                                        fontWeight: FontWeight.w700)),
+                                        fontWeight: PFontWeight.bold)),
                               if ((d.benefits[i].summary ?? '').isNotEmpty) ...[
                                 const SizedBox(height: 2),
                                 Text(d.benefits[i].summary!,
@@ -181,7 +181,7 @@ class CardDetailScreen extends ConsumerWidget {
               if (d.cautions.isNotEmpty) ...[
                 Text('유의사항',
                     style: PTypo.body.copyWith(
-                        color: t.fgPrimary, fontWeight: FontWeight.w700)),
+                        color: t.fgPrimary, fontWeight: PFontWeight.bold)),
                 const SizedBox(height: PSpace.x8),
                 Container(
                   padding: const EdgeInsets.all(PSpace.x12),
@@ -247,7 +247,7 @@ class _InfoCard extends StatelessWidget {
           const SizedBox(height: 2),
           Text(value,
               style: PTypo.body.copyWith(
-                  color: tokens.fgPrimary, fontWeight: FontWeight.w700)),
+                  color: tokens.fgPrimary, fontWeight: PFontWeight.bold)),
         ],
       ),
     );

@@ -356,7 +356,7 @@ class _Chip extends StatelessWidget {
         child: Text(label,
             style: PTypo.caption.copyWith(
                 color: selected ? tokens.fgOnBrand : tokens.fgSecondary,
-                fontWeight: FontWeight.w600)),
+                fontWeight: PFontWeight.semi)),
       ),
     );
   }
@@ -434,7 +434,7 @@ class _TodoRow extends StatelessWidget {
                             color: todo.done
                                 ? tokens.fgTertiary
                                 : tokens.fgPrimary,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: PFontWeight.semi,
                             decoration: todo.done
                                 ? TextDecoration.lineThrough
                                 : null,

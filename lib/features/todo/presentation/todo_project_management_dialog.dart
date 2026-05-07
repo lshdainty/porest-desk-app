@@ -99,7 +99,7 @@ class _BodyState extends ConsumerState<_Body> {
         children: [
           Text('새 프로젝트',
               style: PTypo.bodySm.copyWith(
-                  color: t.fgPrimary, fontWeight: FontWeight.w700)),
+                  color: t.fgPrimary, fontWeight: PFontWeight.bold)),
           const SizedBox(height: PSpace.x8),
           TextField(
             controller: _nameCtrl,
@@ -136,7 +136,7 @@ class _BodyState extends ConsumerState<_Body> {
           const SizedBox(height: PSpace.x16),
           Text('등록된 프로젝트',
               style: PTypo.bodySm.copyWith(
-                  color: t.fgPrimary, fontWeight: FontWeight.w700)),
+                  color: t.fgPrimary, fontWeight: PFontWeight.bold)),
           const SizedBox(height: PSpace.x8),
           projectsAsync.when(
             loading: () => const Center(child: CircularProgressIndicator()),
@@ -296,7 +296,7 @@ class _ProjectRowState extends ConsumerState<_ProjectRow> {
                         contentPadding: EdgeInsets.zero,
                       ),
                       style: PTypo.bodySm.copyWith(
-                          color: t.fgPrimary, fontWeight: FontWeight.w600),
+                          color: t.fgPrimary, fontWeight: PFontWeight.semi),
                     ),
                     if ((_descCtrl.text).isNotEmpty || _expanded)
                       TextField(

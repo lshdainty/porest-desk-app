@@ -62,7 +62,7 @@ class PSegmented<T> extends StatelessWidget {
                           color: o.value == value
                               ? t.fgOnBrand
                               : t.fgSecondary,
-                          fontWeight: FontWeight.w600)),
+                          fontWeight: PFontWeight.semi)),
                 ),
               ),
             ),

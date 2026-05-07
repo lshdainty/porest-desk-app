@@ -122,7 +122,7 @@ class _TabItem extends StatelessWidget {
               label,
               style: PTypo.micro.copyWith(
                 color: color,
-                fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+                fontWeight: selected ? PFontWeight.semi : PFontWeight.medium,
               ),
             ),
           ],

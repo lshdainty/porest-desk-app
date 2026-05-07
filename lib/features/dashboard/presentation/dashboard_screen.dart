@@ -108,7 +108,7 @@ class _UpcomingCard extends StatelessWidget {
                 const SizedBox(width: 6),
                 Text('다가오는 일정',
                     style: PTypo.bodySm.copyWith(
-                        color: t.fgPrimary, fontWeight: FontWeight.w700)),
+                        color: t.fgPrimary, fontWeight: PFontWeight.bold)),
                 const Spacer(),
                 GestureDetector(
                   onTap: () => context.push('/calendar'),
@@ -159,7 +159,7 @@ class _UpcomingCard extends StatelessWidget {
                 const SizedBox(width: 6),
                 Text('최근 할 일',
                     style: PTypo.bodySm.copyWith(
-                        color: t.fgPrimary, fontWeight: FontWeight.w700)),
+                        color: t.fgPrimary, fontWeight: PFontWeight.bold)),
                 const Spacer(),
                 GestureDetector(
                   onTap: () => context.push('/todos'),
@@ -254,7 +254,7 @@ class _BalanceHero extends StatelessWidget {
                     style: TextStyle(
                       color: t.fgOnBrand.withValues(alpha: 0.72),
                       fontSize: 12,
-                      fontWeight: FontWeight.w500,
+                      fontWeight: PFontWeight.medium,
                       letterSpacing: -0.06,
                     ),
                   ),
@@ -288,7 +288,7 @@ class _BalanceHero extends StatelessWidget {
                     style: TextStyle(
                       color: t.fgOnBrand,
                       fontSize: 34,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: PFontWeight.heavy,
                       letterSpacing: -1.02, // -0.03em × 34
                       height: 1.1,
                       fontFeatures: const [FontFeature.tabularFigures()],
@@ -300,7 +300,7 @@ class _BalanceHero extends StatelessWidget {
                     style: TextStyle(
                       color: t.fgOnBrand.withValues(alpha: 0.8),
                       fontSize: 18,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: PFontWeight.semi,
                     ),
                   ),
                 ],
@@ -332,7 +332,7 @@ class _BalanceHero extends StatelessWidget {
                           ? PorestPalette.heroChgUp
                           : PorestPalette.heroChgDown,
                       fontSize: 12.5,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: PFontWeight.semi,
                     ),
                   ),
                 ],
@@ -428,7 +428,7 @@ class _HeroSplitCol extends StatelessWidget {
           style: TextStyle(
             color: t.fgOnBrand,
             fontSize: 16,
-            fontWeight: FontWeight.w700,
+            fontWeight: PFontWeight.bold,
             letterSpacing: -0.24,
             fontFeatures: const [FontFeature.tabularFigures()],
           ),
@@ -506,7 +506,7 @@ class _QuickAction extends StatelessWidget {
             style: TextStyle(
               color: tokens.fgPrimary,
               fontSize: 11.5,
-              fontWeight: FontWeight.w600,
+              fontWeight: PFontWeight.semi,
             ),
           ),
         ],
@@ -552,7 +552,7 @@ class _MonthExpenseCard extends StatelessWidget {
                 style: TextStyle(
                   color: t.fgPrimary,
                   fontSize: 15,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: PFontWeight.bold,
                   letterSpacing: -0.225,
                 ),
               ),
@@ -609,13 +609,13 @@ class _IncomeExpenseCol extends StatelessWidget {
             style: TextStyle(
                 color: t.fgTertiary,
                 fontSize: 11,
-                fontWeight: FontWeight.w500)),
+                fontWeight: PFontWeight.medium)),
         const SizedBox(height: 2),
         Text(value,
             style: TextStyle(
                 color: color,
                 fontSize: 17,
-                fontWeight: FontWeight.w700,
+                fontWeight: PFontWeight.bold,
                 fontFeatures: const [FontFeature.tabularFigures()])),
       ],
     );
@@ -669,7 +669,7 @@ class _RecentTxCard extends StatelessWidget {
                 style: TextStyle(
                   color: t.fgPrimary,
                   fontSize: 15,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: PFontWeight.bold,
                   letterSpacing: -0.225,
                 ),
               ),
@@ -791,7 +791,7 @@ class _ExpenseRow extends StatelessWidget {
                     style: TextStyle(
                       color: tokens.fgPrimary,
                       fontSize: 13.5,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: PFontWeight.semi,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -819,7 +819,7 @@ class _ExpenseRow extends StatelessWidget {
                     ? tokens.statusDangerFg
                     : tokens.statusSuccessFg,
                 fontSize: 13,
-                fontWeight: FontWeight.w700,
+                fontWeight: PFontWeight.bold,
                 fontFeatures: const [FontFeature.tabularFigures()],
               ),
             ),

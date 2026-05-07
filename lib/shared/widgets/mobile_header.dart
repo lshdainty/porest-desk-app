@@ -5,6 +5,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../app/theme/radius.dart';
 import '../../app/theme/tokens.dart';
+import '../../app/theme/typography.dart';
 import '../../core/settings/hide_amounts_unlock_dialog.dart';
 import '../../core/settings/settings_notifier.dart';
 import '../../features/notification/application/notification_providers.dart';
@@ -54,7 +55,7 @@ class MobileHeader extends ConsumerWidget implements PreferredSizeWidget {
                   style: TextStyle(
                     color: t.fgPrimary,
                     fontSize: 22,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: PFontWeight.bold,
                     letterSpacing: -0.44, // -0.02em × 22
                     height: 1.25,
                   ),
@@ -129,7 +130,7 @@ class _NotificationBell extends ConsumerWidget {
                         style: TextStyle(
                           color: tokens.fgOnDanger,
                           fontSize: 9,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: PFontWeight.bold,
                           height: 1.0,
                         ),
                       ),

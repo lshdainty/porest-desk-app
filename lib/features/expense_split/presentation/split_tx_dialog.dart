@@ -245,7 +245,7 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
                   style: TextStyle(
                       color: t.fgPrimary,
                       fontSize: 17,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: PFontWeight.bold,
                       letterSpacing: -0.34)),
               const Spacer(),
               IconButton(
@@ -290,7 +290,7 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
                             widget.expense.description ??
                             '거래',
                         style: PTypo.body.copyWith(
-                            color: t.fgPrimary, fontWeight: FontWeight.w700),
+                            color: t.fgPrimary, fontWeight: PFontWeight.bold),
                       ),
                     ],
                   ),
@@ -307,7 +307,7 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
                           color: _isIncome
                               ? t.statusSuccess
                               : t.fgPrimary,
-                          fontWeight: FontWeight.w800),
+                          fontWeight: PFontWeight.heavy),
                     ),
                   ],
                 ),
@@ -365,7 +365,7 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
           // 분할 비율
           Text('분할 비율',
               style: PTypo.caption
-                  .copyWith(color: t.fgSecondary, fontWeight: FontWeight.w700)),
+                  .copyWith(color: t.fgSecondary, fontWeight: PFontWeight.bold)),
           const SizedBox(height: PSpace.x8),
           _RatioBar(rows: _rows!, total: _totalAbs, categories: categories, tokens: t),
           const SizedBox(height: PSpace.x8),
@@ -500,7 +500,7 @@ class _SplitRowCardState extends State<_SplitRowCard> {
             alignment: Alignment.center,
             child: Text('${widget.index + 1}',
                 style: PTypo.caption.copyWith(
-                    color: t.fgSecondary, fontWeight: FontWeight.w700)),
+                    color: t.fgSecondary, fontWeight: PFontWeight.bold)),
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -739,7 +739,7 @@ class _RatioLegend extends StatelessWidget {
         const SizedBox(width: 4),
         Text('$pct%',
             style: PTypo.caption.copyWith(
-                color: tokens.fgPrimary, fontWeight: FontWeight.w700)),
+                color: tokens.fgPrimary, fontWeight: PFontWeight.bold)),
       ],
     );
   }
@@ -785,7 +785,7 @@ class _MatchPill extends StatelessWidget {
           const SizedBox(width: 4),
           Text(label,
               style: PTypo.caption.copyWith(
-                  color: fg, fontWeight: FontWeight.w700)),
+                  color: fg, fontWeight: PFontWeight.bold)),
         ],
       ),
     );

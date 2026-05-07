@@ -58,11 +58,11 @@ class CardPerformanceBar extends ConsumerWidget {
                   const SizedBox(width: 6),
                   Text('$yearMonth 실적',
                       style: PTypo.caption.copyWith(
-                          color: t.fgPrimary, fontWeight: FontWeight.w700)),
+                          color: t.fgPrimary, fontWeight: PFontWeight.bold)),
                   const Spacer(),
                   Text('$pct%',
                       style: PTypo.caption.copyWith(
-                          color: barColor, fontWeight: FontWeight.w700)),
+                          color: barColor, fontWeight: PFontWeight.bold)),
                 ],
               ),
               const SizedBox(height: 6),
@@ -96,7 +96,7 @@ class CardPerformanceBar extends ConsumerWidget {
                     Text('달성',
                         style: PTypo.caption.copyWith(
                             color: t.statusSuccess,
-                            fontWeight: FontWeight.w700)),
+                            fontWeight: PFontWeight.bold)),
                 ],
               ),
               if ((p.requiredText ?? '').isNotEmpty) ...[

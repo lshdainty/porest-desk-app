@@ -445,7 +445,7 @@ class _TypeChip extends StatelessWidget {
         child: Text(label,
             style: PTypo.caption.copyWith(
                 color: selected ? tokens.fgOnBrand : tokens.fgSecondary,
-                fontWeight: FontWeight.w600)),
+                fontWeight: PFontWeight.semi)),
       ),
     );
   }
@@ -503,7 +503,7 @@ class _ResultRow extends StatelessWidget {
                         '거래',
                     style: PTypo.bodySm.copyWith(
                         color: tokens.fgPrimary,
-                        fontWeight: FontWeight.w600),
+                        fontWeight: PFontWeight.semi),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -527,7 +527,7 @@ class _ResultRow extends StatelessWidget {
                   color: isExpense
                       ? tokens.fgPrimary
                       : tokens.statusSuccess,
-                  fontWeight: FontWeight.w700),
+                  fontWeight: PFontWeight.bold),
             ),
           ],
         ),

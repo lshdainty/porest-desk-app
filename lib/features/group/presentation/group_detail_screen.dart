@@ -237,7 +237,7 @@ class _GroupEventsTab extends ConsumerWidget {
                               overflow: TextOverflow.ellipsis,
                               style: PTypo.bodySm.copyWith(
                                   color: tokens.fgPrimary,
-                                  fontWeight: FontWeight.w700)),
+                                  fontWeight: PFontWeight.bold)),
                           if ((e.startDate ?? '').isNotEmpty)
                             Text(
                               (e.startDate!).substring(0, 16).replaceAll('T', ' '),
@@ -361,7 +361,7 @@ class _GroupExpensesTab extends ConsumerWidget {
                                   overflow: TextOverflow.ellipsis,
                                   style: PTypo.bodySm.copyWith(
                                       color: tokens.fgPrimary,
-                                      fontWeight: FontWeight.w600)),
+                                      fontWeight: PFontWeight.semi)),
                               if ((e.expenseDateOnly ?? '').isNotEmpty)
                                 Text(e.expenseDateOnly!,
                                     style: PTypo.caption.copyWith(
@@ -376,7 +376,7 @@ class _GroupExpensesTab extends ConsumerWidget {
                               color: e.expenseType == 'EXPENSE'
                                   ? tokens.fgPrimary
                                   : tokens.statusSuccess,
-                              fontWeight: FontWeight.w700),
+                              fontWeight: PFontWeight.bold),
                         ),
                       ],
                     ),
@@ -413,7 +413,7 @@ class _SummaryCell extends StatelessWidget {
           const SizedBox(height: 2),
           Text(value,
               style: PTypo.bodySm.copyWith(
-                  color: color, fontWeight: FontWeight.w700)),
+                  color: color, fontWeight: PFontWeight.bold)),
         ],
       ),
     );
@@ -470,7 +470,7 @@ class _GroupHeaderCard extends StatelessWidget {
             child: Text(
                 '${(detail.members as List).length}명',
                 style: PTypo.caption.copyWith(
-                    color: tokens.fgSecondary, fontWeight: FontWeight.w600)),
+                    color: tokens.fgSecondary, fontWeight: PFontWeight.semi)),
           ),
         ],
       ),
@@ -507,7 +507,7 @@ class _InviteCodeCard extends ConsumerWidget {
               const SizedBox(width: 6),
               Text('초대 코드',
                   style: PTypo.bodySm.copyWith(
-                      color: tokens.fgPrimary, fontWeight: FontWeight.w700)),
+                      color: tokens.fgPrimary, fontWeight: PFontWeight.bold)),
             ],
           ),
           const SizedBox(height: PSpace.x8),
@@ -524,7 +524,7 @@ class _InviteCodeCard extends ConsumerWidget {
                   child: Text(code,
                       style: PTypo.body.copyWith(
                           color: tokens.fgPrimary,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: PFontWeight.bold,
                           fontFeatures: const [
                             FontFeature.tabularFigures()
                           ])),
@@ -627,7 +627,7 @@ class _MembersCard extends ConsumerWidget {
                 Text('멤버',
                     style: PTypo.bodySm.copyWith(
                         color: tokens.fgPrimary,
-                        fontWeight: FontWeight.w700)),
+                        fontWeight: PFontWeight.bold)),
                 const Spacer(),
                 Text('${members.length}명',
                     style: PTypo.caption.copyWith(color: tokens.fgTertiary)),
@@ -679,7 +679,7 @@ class _MemberRow extends ConsumerWidget {
               (member.userName.isNotEmpty ? member.userName[0] : '?')
                   .toUpperCase(),
               style: PTypo.bodySm.copyWith(
-                  color: tokens.fgSecondary, fontWeight: FontWeight.w700),
+                  color: tokens.fgSecondary, fontWeight: PFontWeight.bold),
             ),
           ),
           const SizedBox(width: PSpace.x12),
@@ -692,7 +692,7 @@ class _MemberRow extends ConsumerWidget {
                     Text(member.userName,
                         style: PTypo.body.copyWith(
                             color: tokens.fgPrimary,
-                            fontWeight: FontWeight.w600)),
+                            fontWeight: PFontWeight.semi)),
                     if (isMe) ...[
                       const SizedBox(width: 6),
                       Container(
@@ -705,7 +705,7 @@ class _MemberRow extends ConsumerWidget {
                         child: Text('나',
                             style: PTypo.micro.copyWith(
                                 color: tokens.fgBrand,
-                                fontWeight: FontWeight.w700)),
+                                fontWeight: PFontWeight.bold)),
                       ),
                     ],
                   ],
@@ -800,7 +800,7 @@ class _RoleBadge extends StatelessWidget {
       ),
       child: Text(label,
           style: PTypo.micro.copyWith(
-              color: color, fontWeight: FontWeight.w700)),
+              color: color, fontWeight: PFontWeight.bold)),
     );
   }
 }

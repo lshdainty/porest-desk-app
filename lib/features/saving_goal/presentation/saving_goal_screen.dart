@@ -208,7 +208,7 @@ class _GoalCard extends StatelessWidget {
                               child: Text(goal.title,
                                   style: PTypo.body.copyWith(
                                       color: tokens.fgPrimary,
-                                      fontWeight: FontWeight.w700)),
+                                      fontWeight: PFontWeight.bold)),
                             ),
                             if (goal.achieved) ...[
                               const SizedBox(width: 6),
@@ -222,7 +222,7 @@ class _GoalCard extends StatelessWidget {
                                 child: Text('달성!',
                                     style: PTypo.caption.copyWith(
                                         color: tokens.statusSuccessFg,
-                                        fontWeight: FontWeight.w700,
+                                        fontWeight: PFontWeight.bold,
                                         fontSize: 10)),
                               ),
                             ],
@@ -253,7 +253,7 @@ class _GoalCard extends StatelessWidget {
                   Text(krwMasked(goal.currentAmount, masked),
                       style: PTypo.h4.copyWith(
                           color: tokens.fgPrimary,
-                          fontWeight: FontWeight.w800)),
+                          fontWeight: PFontWeight.heavy)),
                   const SizedBox(width: 4),
                   Padding(
                     padding: const EdgeInsets.only(bottom: 2),
@@ -264,7 +264,7 @@ class _GoalCard extends StatelessWidget {
                   const Spacer(),
                   Text('$pct%',
                       style: PTypo.bodySm.copyWith(
-                          color: color, fontWeight: FontWeight.w700)),
+                          color: color, fontWeight: PFontWeight.bold)),
                 ],
               ),
               const SizedBox(height: PSpace.x8),

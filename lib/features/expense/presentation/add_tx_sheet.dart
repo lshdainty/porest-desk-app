@@ -350,7 +350,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
                   child: Text(
                     _isEdit ? '거래 편집' : '내역 추가',
                     style: PTypo.h3.copyWith(
-                        color: t.fgPrimary, fontWeight: FontWeight.w800),
+                        color: t.fgPrimary, fontWeight: PFontWeight.heavy),
                   ),
                 ),
                 IconButton(
@@ -415,7 +415,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
                   enabled: !_amountLocked,
                   style: PTypo.h4.copyWith(
                       color: amountColor,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: PFontWeight.bold,
                       fontFamily: 'monospace'),
                   decoration: InputDecoration(
                     hintText: '0',
@@ -942,7 +942,7 @@ class _SectionLabel extends StatelessWidget {
     return Text(text,
         style: PTypo.caption.copyWith(
             color: t.fgTertiary,
-            fontWeight: FontWeight.w600,
+            fontWeight: PFontWeight.semi,
             letterSpacing: 0.6));
   }
 }
@@ -1017,8 +1017,8 @@ class _TypeSegment extends StatelessWidget {
                                       : tokens.fgPrimary))
                               : tokens.fgSecondary,
                           fontWeight: o.$1 == value
-                              ? FontWeight.w700
-                              : FontWeight.w500,
+                              ? PFontWeight.bold
+                              : PFontWeight.medium,
                         )),
                   ),
                 ),
@@ -1075,7 +1075,7 @@ class _PresetStrip extends StatelessWidget {
                           color: selected
                               ? tokens.fgOnBrand
                               : tokens.fgSecondary,
-                          fontWeight: FontWeight.w600)),
+                          fontWeight: PFontWeight.semi)),
                 ],
               ),
             ),

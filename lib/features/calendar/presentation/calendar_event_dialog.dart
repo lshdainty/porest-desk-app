@@ -480,7 +480,7 @@ class _LabelChip extends StatelessWidget {
                 style: PTypo.caption.copyWith(
                     color: tokens.fgPrimary,
                     fontWeight:
-                        selected ? FontWeight.w700 : FontWeight.w500)),
+                        selected ? PFontWeight.bold : PFontWeight.medium)),
           ],
         ),
       ),

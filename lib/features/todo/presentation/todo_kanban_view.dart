@@ -138,7 +138,7 @@ class _Column extends StatelessWidget {
                   Text(label,
                       style: PTypo.bodySm.copyWith(
                           color: tokens.fgPrimary,
-                          fontWeight: FontWeight.w700)),
+                          fontWeight: PFontWeight.bold)),
                   const Spacer(),
                   Container(
                     padding: const EdgeInsets.symmetric(
@@ -150,7 +150,7 @@ class _Column extends StatelessWidget {
                     child: Text('${items.length}',
                         style: PTypo.caption.copyWith(
                             color: tokens.fgSecondary,
-                            fontWeight: FontWeight.w700)),
+                            fontWeight: PFontWeight.bold)),
                   ),
                 ],
               ),
@@ -218,7 +218,7 @@ class _Card extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: PTypo.bodySm.copyWith(
                           color: tokens.fgPrimary,
-                          fontWeight: FontWeight.w600)),
+                          fontWeight: PFontWeight.semi)),
                 ),
               ],
             ),

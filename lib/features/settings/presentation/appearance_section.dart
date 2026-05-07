@@ -181,7 +181,7 @@ class _ThemeCard extends StatelessWidget {
               Text(label,
                   style: PTypo.bodySm.copyWith(
                     color: selected ? tokens.fgPrimary : tokens.fgSecondary,
-                    fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+                    fontWeight: selected ? PFontWeight.semi : PFontWeight.medium,
                   )),
             ],
           ),
@@ -230,7 +230,7 @@ class _Segment<T> extends StatelessWidget {
                     style: PTypo.bodySm.copyWith(
                       color: opt.$1 == selected ? tokens.fgPrimary : tokens.fgTertiary,
                       fontWeight:
-                          opt.$1 == selected ? FontWeight.w600 : FontWeight.w500,
+                          opt.$1 == selected ? PFontWeight.semi : PFontWeight.medium,
                     ),
                   ),
                 ),
@@ -323,14 +323,14 @@ class _CurrencyRow extends StatelessWidget {
               ),
               child: Text(symbol,
                   style: PTypo.bodyLg.copyWith(
-                      color: tokens.fgPrimary, fontWeight: FontWeight.w600)),
+                      color: tokens.fgPrimary, fontWeight: PFontWeight.semi)),
             ),
             const SizedBox(width: PSpace.x12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(code, style: PTypo.body.copyWith(color: tokens.fgPrimary, fontWeight: FontWeight.w600)),
+                  Text(code, style: PTypo.body.copyWith(color: tokens.fgPrimary, fontWeight: PFontWeight.semi)),
                   Text(label, style: PTypo.caption.copyWith(color: tokens.fgTertiary)),
                 ],
               ),

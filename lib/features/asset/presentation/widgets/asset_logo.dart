@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../app/theme/radius.dart';
+import '../../../../app/theme/typography.dart';
 import '../../../../shared/brand/bank_colors.dart';
 import '../../domain/asset.dart';
 
@@ -41,7 +42,7 @@ class AssetLogo extends StatelessWidget {
         style: TextStyle(
           color: fg,
           fontSize: 14,
-          fontWeight: FontWeight.w800,
+          fontWeight: PFontWeight.heavy,
           letterSpacing: -0.28,
           height: 1.0,
         ),

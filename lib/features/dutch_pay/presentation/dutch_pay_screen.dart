@@ -203,7 +203,7 @@ class _DutchPayCard extends StatelessWidget {
                           child: Text(dp.title,
                               style: PTypo.body.copyWith(
                                   color: tokens.fgPrimary,
-                                  fontWeight: FontWeight.w700),
+                                  fontWeight: PFontWeight.bold),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis),
                         ),
@@ -219,7 +219,7 @@ class _DutchPayCard extends StatelessWidget {
                             child: Text('정산 완료',
                                 style: PTypo.caption.copyWith(
                                     color: tokens.statusSuccessFg,
-                                    fontWeight: FontWeight.w700,
+                                    fontWeight: PFontWeight.bold,
                                     fontSize: 10)),
                           ),
                         ],
@@ -237,7 +237,7 @@ class _DutchPayCard extends StatelessWidget {
               Text(krwMasked(dp.totalAmount, masked),
                   style: PTypo.body.copyWith(
                       color: tokens.fgPrimary,
-                      fontWeight: FontWeight.w800)),
+                      fontWeight: PFontWeight.heavy)),
               IconButton(
                 onPressed: onDelete,
                 icon: Icon(LucideIcons.trash2,
@@ -288,7 +288,7 @@ class _DutchPayCard extends StatelessWidget {
                     Text(krwMasked(p.amount, masked),
                         style: PTypo.bodySm.copyWith(
                             color: tokens.fgPrimary,
-                            fontWeight: FontWeight.w600)),
+                            fontWeight: PFontWeight.semi)),
                   ],
                 ),
               ),

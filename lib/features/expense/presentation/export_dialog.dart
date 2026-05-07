@@ -214,7 +214,7 @@ class _ExportBodyState extends ConsumerState<_ExportBody> {
                 const SizedBox(width: PSpace.x8),
                 Text('CSV',
                     style: PTypo.bodySm.copyWith(
-                        color: t.fgBrand, fontWeight: FontWeight.w700)),
+                        color: t.fgBrand, fontWeight: PFontWeight.bold)),
                 const SizedBox(width: PSpace.x8),
                 Text('Excel·Google 시트에서 열기',
                     style: PTypo.caption.copyWith(color: t.fgTertiary)),
@@ -344,7 +344,7 @@ class _Chip extends StatelessWidget {
         child: Text(label,
             style: PTypo.bodySm.copyWith(
                 color: selected ? tokens.fgPrimary : tokens.fgSecondary,
-                fontWeight: selected ? FontWeight.w600 : FontWeight.w500)),
+                fontWeight: selected ? PFontWeight.semi : PFontWeight.medium)),
       ),
     );
   }
@@ -442,7 +442,7 @@ class _IncludeRow extends StatelessWidget {
                   Text(title,
                       style: PTypo.bodySm.copyWith(
                           color: tokens.fgPrimary,
-                          fontWeight: FontWeight.w600)),
+                          fontWeight: PFontWeight.semi)),
                   Text(subtitle,
                       style: PTypo.caption.copyWith(color: tokens.fgTertiary)),
                 ],

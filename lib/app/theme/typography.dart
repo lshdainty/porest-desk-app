@@ -1,5 +1,20 @@
 import 'package:flutter/painting.dart';
 
+/// 폰트 굵기 토큰 — 웹 `--fw-*` 와 1:1 매핑.
+///
+/// 사용:
+/// ```dart
+/// Text('hello', style: TextStyle(fontWeight: PFontWeight.bold));
+/// PTypo.body.copyWith(fontWeight: PFontWeight.semi);
+/// ```
+abstract final class PFontWeight {
+  static const FontWeight regular = FontWeight.w400; // --fw-regular
+  static const FontWeight medium = FontWeight.w500;  // --fw-medium
+  static const FontWeight semi = FontWeight.w600;    // --fw-semi
+  static const FontWeight bold = FontWeight.w700;    // --fw-bold
+  static const FontWeight heavy = FontWeight.w800;   // --fw-heavy
+}
+
 /// porest-desk-front 의 타이포 토큰 1:1 매핑.
 ///
 /// 폰트 패밀리는 [pubspec.yaml] 에 등록된 `Pretendard` 와 `JetBrainsMono`.

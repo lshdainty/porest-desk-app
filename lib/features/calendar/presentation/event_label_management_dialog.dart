@@ -98,7 +98,7 @@ class _BodyState extends ConsumerState<_Body> {
           // 새 라벨 추가
           Text('새 라벨',
               style: PTypo.bodySm.copyWith(
-                  color: t.fgPrimary, fontWeight: FontWeight.w700)),
+                  color: t.fgPrimary, fontWeight: PFontWeight.bold)),
           const SizedBox(height: PSpace.x8),
           Row(
             children: [
@@ -143,7 +143,7 @@ class _BodyState extends ConsumerState<_Body> {
           // 기존 라벨 리스트
           Text('등록된 라벨',
               style: PTypo.bodySm.copyWith(
-                  color: t.fgPrimary, fontWeight: FontWeight.w700)),
+                  color: t.fgPrimary, fontWeight: PFontWeight.bold)),
           const SizedBox(height: PSpace.x8),
           labelsAsync.when(
             loading: () => const Center(child: CircularProgressIndicator()),

@@ -7,6 +7,7 @@ import '../../../app/theme/colors.dart';
 import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
+import '../../../app/theme/typography.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/settings/hide_amounts_unlock_dialog.dart';
 import '../../../core/settings/settings_notifier.dart';
@@ -46,7 +47,7 @@ class AssetScreen extends ConsumerWidget {
             style: TextStyle(
               color: t.fgPrimary,
               fontSize: 22,
-              fontWeight: FontWeight.w700,
+              fontWeight: PFontWeight.bold,
               letterSpacing: -0.44,
             )),
         backgroundColor: t.bgSurface,
@@ -145,7 +146,7 @@ class _AssetBody extends StatelessWidget {
                     style: TextStyle(
                         color: tokens.fgTertiary,
                         fontSize: 14,
-                        fontWeight: FontWeight.w500)),
+                        fontWeight: PFontWeight.medium)),
                 const SizedBox(height: PSpace.x12),
                 FilledButton.icon(
                   onPressed: () => showAssetAddDialog(context),
@@ -280,7 +281,7 @@ class _SummaryCard extends StatelessWidget {
                   style: TextStyle(
                       color: t.fgTertiary,
                       fontSize: 12,
-                      fontWeight: FontWeight.w500)),
+                      fontWeight: PFontWeight.medium)),
               const SizedBox(width: 6),
               Icon(masked ? LucideIcons.eyeOff : LucideIcons.eye,
                   size: 14, color: t.fgTertiary),
@@ -294,7 +295,7 @@ class _SummaryCard extends StatelessWidget {
               style: TextStyle(
                 color: t.fgPrimary,
                 fontSize: 28,
-                fontWeight: FontWeight.w800,
+                fontWeight: PFontWeight.heavy,
                 letterSpacing: -0.84, // -0.03em × 28
                 height: 1.1,
                 fontFeatures: const [FontFeature.tabularFigures()],
@@ -306,7 +307,7 @@ class _SummaryCard extends StatelessWidget {
                     style: TextStyle(
                       color: t.fgPrimary,
                       fontSize: 16,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: PFontWeight.bold,
                       letterSpacing: 0,
                     ),
                   ),
@@ -326,7 +327,7 @@ class _SummaryCard extends StatelessWidget {
                 style: TextStyle(
                     color: trendColor,
                     fontSize: 12.5,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: PFontWeight.semi,
                     fontFeatures: const [FontFeature.tabularFigures()]),
               ),
               if (!masked && changeAmount != 0) ...[
@@ -336,7 +337,7 @@ class _SummaryCard extends StatelessWidget {
                   style: TextStyle(
                       color: t.fgTertiary,
                       fontSize: 12.5,
-                      fontWeight: FontWeight.w500),
+                      fontWeight: PFontWeight.medium),
                 ),
               ],
               const SizedBox(width: 10),
@@ -408,7 +409,7 @@ class _SummaryCol extends StatelessWidget {
             style: TextStyle(
                 color: tokens.fgTertiary,
                 fontSize: 11,
-                fontWeight: FontWeight.w500)),
+                fontWeight: PFontWeight.medium)),
         const SizedBox(height: 2),
         Text(
           masked
@@ -419,7 +420,7 @@ class _SummaryCol extends StatelessWidget {
           style: TextStyle(
             color: valueColor ?? tokens.fgPrimary,
             fontSize: 14,
-            fontWeight: FontWeight.w700,
+            fontWeight: PFontWeight.bold,
             fontFeatures: const [FontFeature.tabularFigures()],
           ),
         ),
@@ -480,7 +481,7 @@ class _TypeGroup extends StatelessWidget {
                   style: TextStyle(
                       color: tokens.fgPrimary,
                       fontSize: 15,
-                      fontWeight: FontWeight.w700)),
+                      fontWeight: PFontWeight.bold)),
               const Spacer(),
               Text(
                 masked
@@ -491,7 +492,7 @@ class _TypeGroup extends StatelessWidget {
                 style: TextStyle(
                   color: totalColor ?? tokens.fgPrimary,
                   fontSize: 13,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: PFontWeight.bold,
                   fontFeatures: const [FontFeature.tabularFigures()],
                 ),
               ),
@@ -511,7 +512,7 @@ class _TypeGroup extends StatelessWidget {
                           style: TextStyle(
                               color: tokens.fgSecondary,
                               fontSize: 12.5,
-                              fontWeight: FontWeight.w600)),
+                              fontWeight: PFontWeight.semi)),
                     ],
                   ),
                 ),
@@ -588,7 +589,7 @@ class _AssetCard extends StatelessWidget {
                             style: TextStyle(
                               color: t.fgPrimary,
                               fontSize: 13.5,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: PFontWeight.semi,
                             ),
                           ),
                         ),
@@ -601,7 +602,7 @@ class _AssetCard extends StatelessWidget {
                               style: TextStyle(
                                 color: t.fgTertiary,
                                 fontSize: 12,
-                                fontWeight: FontWeight.w500,
+                                fontWeight: PFontWeight.medium,
                               ),
                             ),
                           ),
@@ -633,7 +634,7 @@ class _AssetCard extends StatelessWidget {
                 style: TextStyle(
                   color: t.fgPrimary,
                   fontSize: 16,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: PFontWeight.bold,
                   letterSpacing: -0.32,
                   fontFeatures: const [FontFeature.tabularFigures()],
                 ),

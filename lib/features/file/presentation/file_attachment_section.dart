@@ -145,7 +145,7 @@ class _FileAttachmentSectionState
             const SizedBox(width: 6),
             Text('첨부 파일',
                 style: PTypo.caption.copyWith(
-                    color: t.fgPrimary, fontWeight: FontWeight.w700)),
+                    color: t.fgPrimary, fontWeight: PFontWeight.bold)),
             const Spacer(),
             IconButton(
               icon: Icon(LucideIcons.image, size: 16, color: t.fgSecondary),
@@ -215,7 +215,7 @@ class _FileAttachmentSectionState
                                   overflow: TextOverflow.ellipsis,
                                   style: PTypo.caption.copyWith(
                                       color: t.fgPrimary,
-                                      fontWeight: FontWeight.w600)),
+                                      fontWeight: PFontWeight.semi)),
                               if ((f.fileSize ?? 0) > 0)
                                 Text(_humanSize(f.fileSize),
                                     style: PTypo.micro.copyWith(

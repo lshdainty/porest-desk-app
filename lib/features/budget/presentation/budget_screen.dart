@@ -353,7 +353,7 @@ class _OverallCard extends StatelessWidget {
               const Spacer(),
               Text('${(pct * 100).toStringAsFixed(0)}%',
                   style: PTypo.bodySm.copyWith(
-                      color: color, fontWeight: FontWeight.w700)),
+                      color: color, fontWeight: PFontWeight.bold)),
             ],
           ),
           const SizedBox(height: PSpace.x4),
@@ -362,7 +362,7 @@ class _OverallCard extends StatelessWidget {
             children: [
               Text(krwMasked(spent, masked),
                   style: PTypo.h2.copyWith(
-                      color: tokens.fgPrimary, fontWeight: FontWeight.w800)),
+                      color: tokens.fgPrimary, fontWeight: PFontWeight.heavy)),
               const SizedBox(width: 6),
               Padding(
                 padding: const EdgeInsets.only(bottom: 4),
@@ -441,7 +441,7 @@ class _BudgetRow extends StatelessWidget {
                   child: Text(budget.categoryName ?? '카테고리',
                       style: PTypo.body.copyWith(
                           color: tokens.fgPrimary,
-                          fontWeight: FontWeight.w500)),
+                          fontWeight: PFontWeight.medium)),
                 ),
                 Text(
                   '${krwMasked(spent, masked)} / ${krwMasked(budget.budgetAmount, masked)}',
@@ -539,7 +539,7 @@ class _ComplianceCard extends StatelessWidget {
               const SizedBox(width: 6),
               Text('최근 6개월 예산 준수율',
                   style: PTypo.bodySm.copyWith(
-                      color: tokens.fgPrimary, fontWeight: FontWeight.w700)),
+                      color: tokens.fgPrimary, fontWeight: PFontWeight.bold)),
             ],
           ),
           const SizedBox(height: PSpace.x12),
@@ -607,7 +607,7 @@ class _ComplianceBar extends StatelessWidget {
           Text('${p.toStringAsFixed(0)}%',
               style: PTypo.micro.copyWith(
                 color: overLimit ? tokens.statusDanger : tokens.fgSecondary,
-                fontWeight: FontWeight.w700,
+                fontWeight: PFontWeight.bold,
               )),
           Text('${month.month}월',
               style: PTypo.micro.copyWith(color: tokens.fgTertiary)),

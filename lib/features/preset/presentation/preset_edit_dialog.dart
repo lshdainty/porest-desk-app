@@ -381,8 +381,8 @@ class _Seg extends StatelessWidget {
                               ? tokens.fgPrimary
                               : tokens.fgTertiary,
                           fontWeight: o.$1 == value
-                              ? FontWeight.w700
-                              : FontWeight.w500)),
+                              ? PFontWeight.bold
+                              : PFontWeight.medium)),
                 ),
               ),
             ),
@@ -428,7 +428,7 @@ class _CatChip extends StatelessWidget {
             Text(label,
                 style: PTypo.bodySm.copyWith(
                   color: selected ? tokens.fgPrimary : tokens.fgSecondary,
-                  fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+                  fontWeight: selected ? PFontWeight.semi : PFontWeight.medium,
                 )),
           ],
         ),
@@ -464,7 +464,7 @@ class _PlainChip extends StatelessWidget {
         child: Text(label,
             style: PTypo.bodySm.copyWith(
                 color: selected ? tokens.fgPrimary : tokens.fgSecondary,
-                fontWeight: selected ? FontWeight.w600 : FontWeight.w500)),
+                fontWeight: selected ? PFontWeight.semi : PFontWeight.medium)),
       ),
     );
   }

@@ -147,7 +147,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
               ),
               Text(krwMasked(asset.balance ?? 0, masked),
                   style: PTypo.moneyLg.copyWith(
-                      color: t.fgPrimary, fontWeight: FontWeight.w700)),
+                      color: t.fgPrimary, fontWeight: PFontWeight.bold)),
             ],
           ),
           const SizedBox(height: PSpace.x16),
@@ -179,7 +179,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
               const SizedBox(width: 6),
               Text('잔액 추이 (12주)',
                   style: PTypo.bodySm.copyWith(
-                      color: t.fgPrimary, fontWeight: FontWeight.w700)),
+                      color: t.fgPrimary, fontWeight: PFontWeight.bold)),
             ],
           ),
           const SizedBox(height: PSpace.x8),
@@ -196,7 +196,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
               const SizedBox(width: 6),
               Text('최근 거래',
                   style: PTypo.bodySm.copyWith(
-                      color: t.fgPrimary, fontWeight: FontWeight.w700)),
+                      color: t.fgPrimary, fontWeight: PFontWeight.bold)),
             ],
           ),
           const SizedBox(height: PSpace.x8),
@@ -415,7 +415,7 @@ class _ExpenseRow extends StatelessWidget {
               krwMasked(expense.signedAmount, masked, sign: true),
               style: PTypo.bodySm.copyWith(
                   color: isIncome ? tokens.statusSuccess : tokens.fgPrimary,
-                  fontWeight: FontWeight.w700),
+                  fontWeight: PFontWeight.bold),
             ),
           ],
         ),

@@ -88,7 +88,7 @@ class _BodyState extends ConsumerState<_Body> {
         children: [
           Text('새 태그',
               style: PTypo.bodySm.copyWith(
-                  color: t.fgPrimary, fontWeight: FontWeight.w700)),
+                  color: t.fgPrimary, fontWeight: PFontWeight.bold)),
           const SizedBox(height: PSpace.x8),
           Row(
             children: [
@@ -132,7 +132,7 @@ class _BodyState extends ConsumerState<_Body> {
           const SizedBox(height: PSpace.x16),
           Text('등록된 태그',
               style: PTypo.bodySm.copyWith(
-                  color: t.fgPrimary, fontWeight: FontWeight.w700)),
+                  color: t.fgPrimary, fontWeight: PFontWeight.bold)),
           const SizedBox(height: PSpace.x8),
           tagsAsync.when(
             loading: () => const Center(child: CircularProgressIndicator()),

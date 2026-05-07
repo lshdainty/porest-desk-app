@@ -83,7 +83,7 @@ class _BodyState extends ConsumerState<_Body> {
         children: [
           Text('새 폴더',
               style: PTypo.bodySm.copyWith(
-                  color: t.fgPrimary, fontWeight: FontWeight.w700)),
+                  color: t.fgPrimary, fontWeight: PFontWeight.bold)),
           const SizedBox(height: PSpace.x8),
           TextField(
             controller: _newCtrl,
@@ -137,7 +137,7 @@ class _BodyState extends ConsumerState<_Body> {
           const SizedBox(height: PSpace.x16),
           Text('폴더 트리',
               style: PTypo.bodySm.copyWith(
-                  color: t.fgPrimary, fontWeight: FontWeight.w700)),
+                  color: t.fgPrimary, fontWeight: PFontWeight.bold)),
           const SizedBox(height: PSpace.x8),
           treeAsync.when(
             loading: () => const Center(child: CircularProgressIndicator()),

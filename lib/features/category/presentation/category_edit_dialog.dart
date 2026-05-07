@@ -348,8 +348,8 @@ class _TypeSeg extends StatelessWidget {
                           ? tokens.fgPrimary
                           : tokens.fgTertiary,
                       fontWeight: o.$1 == value
-                          ? FontWeight.w700
-                          : FontWeight.w500,
+                          ? PFontWeight.bold
+                          : PFontWeight.medium,
                     ),
                   ),
                 ),

@@ -64,7 +64,7 @@ class ExpenseRow extends StatelessWidget {
                     expense.merchant ?? expense.description ?? cName,
                     style: PTypo.body.copyWith(
                         color: t.fgPrimary,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: PFontWeight.semi,
                         letterSpacing: -0.07),
                     maxLines: 1, overflow: TextOverflow.ellipsis,
                   ),
@@ -84,7 +84,7 @@ class ExpenseRow extends StatelessWidget {
                   : '${krwMasked(expense.signedAmount, masked, sign: true)}원',
               style: PTypo.money.copyWith(
                   color: positive ? t.fgIncome : t.fgExpense,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: PFontWeight.bold,
                   letterSpacing: -0.14),
             ),
           ],

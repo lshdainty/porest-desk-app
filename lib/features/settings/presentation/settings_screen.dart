@@ -139,7 +139,7 @@ class SettingsScreen extends ConsumerWidget {
                                     : '?')
                                 .toUpperCase(),
                             style: PTypo.body.copyWith(
-                                color: t.fgBrand, fontWeight: FontWeight.w700),
+                                color: t.fgBrand, fontWeight: PFontWeight.bold),
                           ),
                         ),
                         const SizedBox(width: PSpace.x12),
@@ -150,7 +150,7 @@ class SettingsScreen extends ConsumerWidget {
                               Text(user.userName,
                                   style: PTypo.body.copyWith(
                                       color: t.fgPrimary,
-                                      fontWeight: FontWeight.w600)),
+                                      fontWeight: PFontWeight.semi)),
                               if (user.userEmail.isNotEmpty)
                                 Text(user.userEmail,
                                     style: PTypo.caption
@@ -177,7 +177,7 @@ class SettingsScreen extends ConsumerWidget {
                           child: Text(l.navChangePassword,
                               style: PTypo.body.copyWith(
                                   color: t.fgPrimary,
-                                  fontWeight: FontWeight.w600)),
+                                  fontWeight: PFontWeight.semi)),
                         ),
                         Icon(LucideIcons.chevronRight,
                             size: 16, color: t.fgTertiary),
@@ -199,7 +199,7 @@ class SettingsScreen extends ConsumerWidget {
                         Text(l.navLogout,
                             style: PTypo.body.copyWith(
                                 color: t.statusDanger,
-                                fontWeight: FontWeight.w600)),
+                                fontWeight: PFontWeight.semi)),
                       ],
                     ),
                   ),
@@ -279,7 +279,7 @@ class _SectionRow extends StatelessWidget {
                   Text(section.label,
                       style: PTypo.body.copyWith(
                           color: tokens.fgPrimary,
-                          fontWeight: FontWeight.w600)),
+                          fontWeight: PFontWeight.semi)),
                   const SizedBox(height: 1),
                   Text(section.desc,
                       style: PTypo.caption.copyWith(color: tokens.fgTertiary)),

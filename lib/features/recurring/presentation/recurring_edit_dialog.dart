@@ -389,7 +389,7 @@ class _RecurringEditBodyState extends ConsumerState<_RecurringEditBody> {
                       Text('다음 예정일',
                           style: PTypo.caption.copyWith(
                               color: t.fgPrimary,
-                              fontWeight: FontWeight.w700)),
+                              fontWeight: PFontWeight.bold)),
                     ],
                   ),
                   const SizedBox(height: PSpace.x8),
@@ -410,7 +410,7 @@ class _RecurringEditBodyState extends ConsumerState<_RecurringEditBody> {
                               '${d.month.toString().padLeft(2, '0')}월 ${d.day.toString().padLeft(2, '0')}일',
                               style: PTypo.caption.copyWith(
                                   color: t.fgPrimary,
-                                  fontWeight: FontWeight.w600)),
+                                  fontWeight: PFontWeight.semi)),
                         ),
                     ],
                   ),
@@ -536,8 +536,8 @@ class _Seg extends StatelessWidget {
                               ? tokens.fgPrimary
                               : tokens.fgTertiary,
                           fontWeight: o.$1 == value
-                              ? FontWeight.w600
-                              : FontWeight.w500)),
+                              ? PFontWeight.semi
+                              : PFontWeight.medium)),
                 ),
               ),
             ),
@@ -582,7 +582,7 @@ class _DowPicker extends StatelessWidget {
                     style: PTypo.bodySm.copyWith(
                       color: i == value ? tokens.fgOnBrand : tokens.fgPrimary,
                       fontWeight:
-                          i == value ? FontWeight.w700 : FontWeight.w500,
+                          i == value ? PFontWeight.bold : PFontWeight.medium,
                     ),
                   ),
                 ),
@@ -717,7 +717,7 @@ class _CatChip extends StatelessWidget {
                 style: PTypo.bodySm.copyWith(
                   color: selected ? tokens.fgPrimary : tokens.fgSecondary,
                   fontWeight:
-                      selected ? FontWeight.w600 : FontWeight.w500,
+                      selected ? PFontWeight.semi : PFontWeight.medium,
                 )),
           ],
         ),
@@ -753,7 +753,7 @@ class _PlainChip extends StatelessWidget {
         child: Text(label,
             style: PTypo.bodySm.copyWith(
                 color: selected ? tokens.fgPrimary : tokens.fgSecondary,
-                fontWeight: selected ? FontWeight.w600 : FontWeight.w500)),
+                fontWeight: selected ? PFontWeight.semi : PFontWeight.medium)),
       ),
     );
   }

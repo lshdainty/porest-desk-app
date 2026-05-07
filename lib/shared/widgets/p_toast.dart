@@ -75,7 +75,7 @@ class PToast {
               Expanded(
                 child: Text(message,
                     style: PTypo.bodySm.copyWith(
-                        color: fg, fontWeight: FontWeight.w600)),
+                        color: fg, fontWeight: PFontWeight.semi)),
               ),
               if (actionLabel != null && onAction != null) ...[
                 const SizedBox(width: 8),
@@ -86,7 +86,7 @@ class PToast {
                   },
                   child: Text(actionLabel,
                       style: PTypo.bodySm.copyWith(
-                          color: fg, fontWeight: FontWeight.w700)),
+                          color: fg, fontWeight: PFontWeight.bold)),
                 ),
               ],
             ],

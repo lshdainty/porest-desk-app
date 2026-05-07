@@ -183,8 +183,8 @@ class _NotiRow extends StatelessWidget {
                             style: PTypo.bodySm.copyWith(
                                 color: tokens.fgPrimary,
                                 fontWeight: unread
-                                    ? FontWeight.w700
-                                    : FontWeight.w600),
+                                    ? PFontWeight.bold
+                                    : PFontWeight.semi),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis),
                       ),

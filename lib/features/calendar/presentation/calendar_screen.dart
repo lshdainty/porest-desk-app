@@ -114,7 +114,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                   formatButtonVisible: false,
                   titleCentered: true,
                   titleTextStyle: PTypo.body.copyWith(
-                      color: t.fgPrimary, fontWeight: FontWeight.w700),
+                      color: t.fgPrimary, fontWeight: PFontWeight.bold),
                   leftChevronIcon: Icon(LucideIcons.chevronLeft,
                       size: 18, color: t.fgSecondary),
                   rightChevronIcon: Icon(LucideIcons.chevronRight,
@@ -138,13 +138,13 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                   ),
                   todayTextStyle: PTypo.bodySm.copyWith(
                       color: t.fgBrandStrong,
-                      fontWeight: FontWeight.w700),
+                      fontWeight: PFontWeight.bold),
                   selectedDecoration: BoxDecoration(
                     color: t.bgBrand,
                     shape: BoxShape.circle,
                   ),
                   selectedTextStyle: PTypo.bodySm.copyWith(
-                      color: t.fgOnBrand, fontWeight: FontWeight.w700),
+                      color: t.fgOnBrand, fontWeight: PFontWeight.bold),
                   markerDecoration: BoxDecoration(
                     color: t.fgBrand,
                     shape: BoxShape.circle,
@@ -162,7 +162,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                 Text(
                     '${_selected.year}.${_selected.month}.${_selected.day}',
                     style: PTypo.body.copyWith(
-                        color: t.fgPrimary, fontWeight: FontWeight.w700)),
+                        color: t.fgPrimary, fontWeight: PFontWeight.bold)),
                 const SizedBox(width: 6),
                 Text('${dayEvents.length}건',
                     style: PTypo.caption.copyWith(color: t.fgTertiary)),
@@ -261,7 +261,7 @@ class _EventRow extends StatelessWidget {
                   Text(event.title,
                       style: PTypo.body.copyWith(
                           color: tokens.fgPrimary,
-                          fontWeight: FontWeight.w600)),
+                          fontWeight: PFontWeight.semi)),
                   const SizedBox(height: 2),
                   Text(
                     [
