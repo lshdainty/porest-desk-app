@@ -525,18 +525,22 @@ class _DayGroup extends ConsumerWidget {
                 const Spacer(),
                 if (dayExpense > 0)
                   Text(
-                    '−${krwMasked(dayExpense, masked)}',
+                    masked
+                        ? '−${krwMasked(dayExpense, masked)}'
+                        : '−${krwMasked(dayExpense, masked)}원',
                     style: PTypo.caption.copyWith(
-                      color: t.statusDangerFg,
+                      color: t.fgExpense,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                 if (dayIncome > 0) ...[
                   if (dayExpense > 0) const SizedBox(width: PSpace.x8),
                   Text(
-                    '+${krwMasked(dayIncome, masked)}',
+                    masked
+                        ? '+${krwMasked(dayIncome, masked)}'
+                        : '+${krwMasked(dayIncome, masked)}원',
                     style: PTypo.caption.copyWith(
-                      color: t.statusSuccessFg,
+                      color: t.fgIncome,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -575,7 +579,7 @@ class _DayGroup extends ConsumerWidget {
                     );
                   }),
                   if (i < items.length - 1)
-                    Divider(height: 1, color: t.borderSubtle, indent: 60),
+                    Divider(height: 1, color: t.borderSubtle, indent: 68),
                 ],
               ],
             ),
