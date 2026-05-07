@@ -11,9 +11,9 @@ import '../../../core/format/krw.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../application/expense_providers.dart';
 import '../domain/expense.dart';
+import 'add_tx_sheet.dart';
 import 'filter_dialog.dart';
 import 'widgets/expense_row.dart';
-import 'widgets/month_picker.dart';
 
 /// 가계부 화면 — 백엔드 `/expenses` 직접 호출.
 class ExpenseScreen extends ConsumerStatefulWidget {
@@ -51,29 +51,9 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
         await ref.read(monthExpensesProvider(_key).future);
       },
       child: ListView(
-        padding: const EdgeInsets.symmetric(
-            horizontal: PSpace.x16, vertical: PSpace.x16),
+        padding: const EdgeInsets.fromLTRB(
+            PSpace.x16, PSpace.x4, PSpace.x16, PSpace.x24),
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: MonthPicker(
-                  month: _month,
-                  onPrev: () => setState(() =>
-                      _month = DateTime(_month.year, _month.month - 1, 1)),
-                  onNext: () => setState(() =>
-                      _month = DateTime(_month.year, _month.month + 1, 1)),
-                ),
-              ),
-              _FilterButton(
-                active: !_advFilter.isEmpty,
-                count: _advFilter.categoryIds.length + _advFilter.assetIds.length,
-                onTap: _openFilter,
-              ),
-            ],
-          ),
-          const SizedBox(height: PSpace.x12),
-
           // 본문 — 비동기 상태에 따라 분기
           expensesAsync.when(
             loading: () => const Padding(
@@ -103,6 +83,17 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                     !_advFilter.assetIds.contains(e.assetRowId)) {
                   return false;
                 }
+                if (_advFilter.types.length < 2 &&
+                    e.expenseType != null &&
+                    !_advFilter.types.contains(e.expenseType)) {
+                  return false;
+                }
+                if (_advFilter.min != null && e.amount < _advFilter.min!) {
+                  return false;
+                }
+                if (_advFilter.max != null && e.amount > _advFilter.max!) {
+                  return false;
+                }
                 return true;
               }).toList()
                 ..sort((a, b) =>
@@ -125,16 +116,26 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
               return Column(
                 children: [
                   _SummaryCard(
+                    month: _month,
                     income: monthIncome,
                     expense: monthExpense,
                     masked: settings.hideAmounts,
+                    onPickMonth: () => _pickMonth(t),
                   ),
-                  const SizedBox(height: PSpace.x16),
-                  _FilterSeg(
+                  const SizedBox(height: PSpace.x12),
+                  _FilterRow(
                     value: _filter,
                     onChanged: (v) => setState(() => _filter = v),
+                    advActive: !_advFilter.isEmpty,
+                    advCount: _advFilter.categoryIds.length +
+                        _advFilter.assetIds.length +
+                        (_advFilter.types.length < 2 ? 1 : 0) +
+                        (_advFilter.min != null ? 1 : 0) +
+                        (_advFilter.max != null ? 1 : 0),
+                    onOpenFilter: _openFilter,
+                    onAddTx: () => showAddTxSheet(context),
                   ),
-                  const SizedBox(height: PSpace.x16),
+                  const SizedBox(height: PSpace.x12),
                   if (groupKeys.isEmpty)
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: PSpace.x32),
@@ -158,14 +159,37 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
       ),
     );
   }
+
+  Future<void> _pickMonth(PorestTokens t) async {
+    final picked = await showModalBottomSheet<DateTime>(
+      context: context,
+      backgroundColor: t.bgSurface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => _MonthGridSheet(initial: _month),
+    );
+    if (picked != null && mounted) {
+      setState(() => _month = DateTime(picked.year, picked.month, 1));
+    }
+  }
 }
 
+/// 월 요약 카드 — front HomeMobile/ExpenseMobile 의 패턴 미러.
+/// 헤더에 "YYYY년 M월" + 우측 dropdown 트리거, 본문은 수입/지출/합계 3-col grid.
 class _SummaryCard extends StatelessWidget {
-  const _SummaryCard(
-      {required this.income, required this.expense, required this.masked});
+  const _SummaryCard({
+    required this.month,
+    required this.income,
+    required this.expense,
+    required this.masked,
+    required this.onPickMonth,
+  });
+  final DateTime month;
   final int income;
   final int expense;
   final bool masked;
+  final VoidCallback onPickMonth;
 
   @override
   Widget build(BuildContext context) {
@@ -178,16 +202,72 @@ class _SummaryCard extends StatelessWidget {
         borderRadius: PRadius.brLg,
         border: Border.all(color: t.borderSubtle),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _Stat(label: '수입', value: krwMasked(income, masked), color: t.statusSuccess),
-          _StatDivider(t: t),
-          _Stat(label: '지출', value: krwMasked(expense, masked), color: t.fgPrimary),
-          _StatDivider(t: t),
-          _Stat(
-            label: '잔액',
-            value: krwMasked(balance, masked, sign: true),
-            color: balance >= 0 ? t.statusSuccess : t.statusDanger,
+          Row(
+            children: [
+              Text(
+                '${month.year}년 ${month.month}월',
+                style: TextStyle(
+                  color: t.fgPrimary,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: -0.32,
+                ),
+              ),
+              const Spacer(),
+              InkWell(
+                onTap: onPickMonth,
+                borderRadius: PRadius.brSm,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: PSpace.x12, vertical: 6),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: t.borderSubtle),
+                    borderRadius: PRadius.brSm,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(LucideIcons.calendar,
+                          size: 13, color: t.fgSecondary),
+                      const SizedBox(width: 6),
+                      Text('${month.year}년 ${month.month}월',
+                          style: PTypo.caption.copyWith(
+                              color: t.fgSecondary,
+                              fontWeight: FontWeight.w600)),
+                      const SizedBox(width: 6),
+                      Icon(LucideIcons.chevronDown,
+                          size: 12, color: t.fgSecondary),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              Expanded(
+                child: _Stat(
+                    label: '수입',
+                    value: krwMasked(income, masked, sign: true),
+                    color: t.statusSuccessFg),
+              ),
+              Expanded(
+                child: _Stat(
+                    label: '지출',
+                    value: krwMasked(-expense, masked, sign: true),
+                    color: t.statusDangerFg),
+              ),
+              Expanded(
+                child: _Stat(
+                    label: '합계',
+                    value: krwMasked(balance, masked, sign: true),
+                    color: t.fgBrandStrong),
+              ),
+            ],
           ),
         ],
       ),
@@ -203,66 +283,258 @@ class _Stat extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    return Expanded(
-      child: Column(
-        children: [
-          Text(label, style: PTypo.caption.copyWith(color: t.fgTertiary)),
-          const SizedBox(height: 4),
-          Text(value,
-              style: PTypo.money.copyWith(color: color, fontWeight: FontWeight.w600)),
-        ],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label,
+            style: PTypo.micro.copyWith(
+                color: t.fgTertiary, fontWeight: FontWeight.w500)),
+        const SizedBox(height: 2),
+        Text(value,
+            style: TextStyle(
+              color: color,
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              letterSpacing: -0.24,
+              fontFamily: 'monospace',
+            )),
+      ],
+    );
+  }
+}
+
+/// 필터 행 — front ExpenseMobile 레이아웃 미러.
+/// 좌측: 가로 스크롤 가능한 칩 그룹 (전체/지출/수입). 우측: 필터 아이콘 + 추가(+) 아이콘.
+class _FilterRow extends StatelessWidget {
+  const _FilterRow({
+    required this.value,
+    required this.onChanged,
+    required this.advActive,
+    required this.advCount,
+    required this.onOpenFilter,
+    required this.onAddTx,
+  });
+  final _Filter value;
+  final ValueChanged<_Filter> onChanged;
+  final bool advActive;
+  final int advCount;
+  final VoidCallback onOpenFilter;
+  final VoidCallback onAddTx;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return Row(
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                for (final f in _Filter.values) ...[
+                  _Chip(
+                    label: switch (f) {
+                      _Filter.all => '전체',
+                      _Filter.expense => '지출',
+                      _Filter.income => '수입',
+                    },
+                    active: f == value,
+                    onTap: () => onChanged(f),
+                  ),
+                  const SizedBox(width: 6),
+                ],
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(width: 6),
+        // 고급 필터 아이콘 (sliders-horizontal)
+        InkWell(
+          onTap: onOpenFilter,
+          borderRadius: PRadius.brSm,
+          child: Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: advActive ? t.bgBrandSubtle : Colors.transparent,
+              border: Border.all(
+                  color: advActive ? t.borderBrand : t.borderSubtle),
+              borderRadius: PRadius.brSm,
+            ),
+            child: Stack(
+              clipBehavior: Clip.none,
+              alignment: Alignment.center,
+              children: [
+                Icon(LucideIcons.slidersHorizontal,
+                    size: 18,
+                    color: advActive ? t.fgBrand : t.fgSecondary),
+                if (advActive && advCount > 0)
+                  Positioned(
+                    right: -2,
+                    top: -2,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 4, vertical: 1),
+                      decoration: BoxDecoration(
+                        color: t.bgBrand,
+                        borderRadius: PRadius.brPill,
+                      ),
+                      child: Text('$advCount',
+                          style: PTypo.micro.copyWith(
+                              color: t.fgOnBrand,
+                              fontWeight: FontWeight.w700)),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(width: 6),
+        // 거래 추가 (+) 버튼 — front 의 brand-bg primary 액션 미러
+        InkWell(
+          onTap: onAddTx,
+          borderRadius: PRadius.brSm,
+          child: Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: t.bgBrand,
+              borderRadius: PRadius.brSm,
+            ),
+            child: Icon(LucideIcons.plus, size: 18, color: t.fgOnBrand),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _Chip extends StatelessWidget {
+  const _Chip(
+      {required this.label, required this.active, required this.onTap});
+  final String label;
+  final bool active;
+  final VoidCallback onTap;
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: PRadius.brPill,
+      child: Container(
+        padding:
+            const EdgeInsets.symmetric(horizontal: PSpace.x12, vertical: 7),
+        decoration: BoxDecoration(
+          color: active ? t.bgBrand : t.bgSurface,
+          border: Border.all(color: active ? t.bgBrand : t.borderSubtle),
+          borderRadius: PRadius.brPill,
+        ),
+        child: Text(label,
+            style: PTypo.caption.copyWith(
+              color: active ? t.fgOnBrand : t.fgSecondary,
+              fontWeight: FontWeight.w600,
+            )),
       ),
     );
   }
 }
 
-class _StatDivider extends StatelessWidget {
-  const _StatDivider({required this.t});
-  final PorestTokens t;
+/// 월 선택 BottomSheet — 12개월 grid + 좌우 화살표로 연도 이동.
+class _MonthGridSheet extends StatefulWidget {
+  const _MonthGridSheet({required this.initial});
+  final DateTime initial;
   @override
-  Widget build(BuildContext context) =>
-      Container(width: 1, height: 28, color: t.borderSubtle);
+  State<_MonthGridSheet> createState() => _MonthGridSheetState();
 }
 
-class _FilterSeg extends StatelessWidget {
-  const _FilterSeg({required this.value, required this.onChanged});
-  final _Filter value;
-  final ValueChanged<_Filter> onChanged;
+class _MonthGridSheetState extends State<_MonthGridSheet> {
+  late int _year = widget.initial.year;
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    return Container(
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(color: t.bgMuted, borderRadius: PRadius.brMd),
-      child: Row(
-        children: [
-          for (final f in _Filter.values)
-            Expanded(
-              child: GestureDetector(
-                onTap: () => onChanged(f),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  decoration: BoxDecoration(
-                    color: f == value ? t.bgSurface : Colors.transparent,
-                    borderRadius: PRadius.brSm,
-                  ),
-                  child: Text(
-                    switch (f) {
-                      _Filter.all => '전체',
-                      _Filter.expense => '지출',
-                      _Filter.income => '수입',
-                    },
-                    textAlign: TextAlign.center,
-                    style: PTypo.bodySm.copyWith(
-                      color: f == value ? t.fgPrimary : t.fgTertiary,
-                      fontWeight: f == value ? FontWeight.w600 : FontWeight.w500,
-                    ),
-                  ),
+    final now = DateTime.now();
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              children: [
+                IconButton(
+                  onPressed: () => setState(() => _year -= 1),
+                  icon: Icon(LucideIcons.chevronLeft, color: t.fgSecondary),
                 ),
-              ),
+                Expanded(
+                  child: Text('$_year년',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          color: t.fgPrimary,
+                          fontSize: 17,
+                          fontWeight: FontWeight.w700)),
+                ),
+                IconButton(
+                  onPressed: () => setState(() => _year += 1),
+                  icon: Icon(LucideIcons.chevronRight, color: t.fgSecondary),
+                ),
+              ],
             ),
-        ],
+            const SizedBox(height: 8),
+            GridView.count(
+              crossAxisCount: 4,
+              mainAxisSpacing: 8,
+              crossAxisSpacing: 8,
+              childAspectRatio: 1.6,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              children: [
+                for (int m = 1; m <= 12; m++)
+                  _MonthCell(
+                    label: '$m월',
+                    selected: _year == widget.initial.year &&
+                        m == widget.initial.month,
+                    isCurrentMonth: _year == now.year && m == now.month,
+                    onTap: () => Navigator.of(context).pop(DateTime(_year, m, 1)),
+                  ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _MonthCell extends StatelessWidget {
+  const _MonthCell({
+    required this.label,
+    required this.selected,
+    required this.isCurrentMonth,
+    required this.onTap,
+  });
+  final String label;
+  final bool selected;
+  final bool isCurrentMonth;
+  final VoidCallback onTap;
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: PRadius.brSm,
+      child: Container(
+        decoration: BoxDecoration(
+          color: selected ? t.bgBrand : t.bgMuted,
+          border: Border.all(
+              color: isCurrentMonth && !selected ? t.borderBrand : Colors.transparent),
+          borderRadius: PRadius.brSm,
+        ),
+        alignment: Alignment.center,
+        child: Text(label,
+            style: PTypo.bodySm.copyWith(
+                color: selected ? t.fgOnBrand : t.fgPrimary,
+                fontWeight: FontWeight.w600)),
       ),
     );
   }
@@ -365,56 +637,6 @@ class _ErrorBox extends StatelessWidget {
           const SizedBox(height: PSpace.x8),
           OutlinedButton(onPressed: onRetry, child: const Text('다시 시도')),
         ],
-      ),
-    );
-  }
-}
-
-class _FilterButton extends StatelessWidget {
-  const _FilterButton({
-    required this.active,
-    required this.count,
-    required this.onTap,
-  });
-  final bool active;
-  final int count;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    return InkWell(
-      onTap: onTap,
-      borderRadius: PRadius.brMd,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: PSpace.x12, vertical: 8),
-        decoration: BoxDecoration(
-          color: active ? t.bgBrandSubtle : Colors.transparent,
-          border: Border.all(
-            color: active ? t.borderBrand : t.borderDefault,
-          ),
-          borderRadius: PRadius.brMd,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(LucideIcons.filter,
-                size: 16, color: active ? t.fgBrand : t.fgSecondary),
-            if (active) ...[
-              const SizedBox(width: 4),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                decoration: BoxDecoration(
-                  color: t.bgBrand,
-                  borderRadius: PRadius.brPill,
-                ),
-                child: Text('$count',
-                    style: PTypo.micro.copyWith(
-                        color: t.fgOnBrand, fontWeight: FontWeight.w700)),
-              ),
-            ],
-          ],
-        ),
       ),
     );
   }
