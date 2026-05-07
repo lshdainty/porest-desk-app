@@ -638,10 +638,21 @@ class _RecentTxCard extends StatelessWidget {
     final list = expensesAsync.value ?? const <Expense>[];
     final categories = categoriesAsync.value as List? ?? const [];
 
+    final today = DateTime.now();
+    final todayStr =
+        '${today.year.toString().padLeft(4, '0')}-'
+        '${today.month.toString().padLeft(2, '0')}-'
+        '${today.day.toString().padLeft(2, '0')}';
     final sorted = [...list]
       ..sort((a, b) =>
           (b.expenseDate ?? '').compareTo(a.expenseDate ?? ''));
-    final recent = sorted.take(4).toList();
+    // 오늘 포함 이전 거래만 — 미래 거래(테스트 데이터 등) 제외
+    final recent = sorted
+        .where((e) =>
+            (e.expenseDate ?? '').isEmpty ||
+            e.expenseDate!.substring(0, 10).compareTo(todayStr) <= 0)
+        .take(4)
+        .toList();
 
     return PCard(
       padding: const EdgeInsets.all(18),
@@ -738,17 +749,24 @@ class _ExpenseRow extends StatelessWidget {
         : null;
 
     return InkWell(
-      onTap: () => context.go('/expense'),
+      onTap: () {
+        final dateStr = expense.expenseDate?.substring(0, 7);
+        if (dateStr != null && dateStr.length == 7) {
+          context.go('/expense?month=$dateStr&txId=${expense.rowId}');
+        } else {
+          context.go('/expense?txId=${expense.rowId}');
+        }
+      },
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 10),
         child: Row(
           children: [
-            // 카테고리 아이콘 ~36×36 round-square
+            // 카테고리 아이콘 40×40 round-square (front CategoryChip md 미러)
             Container(
-              width: 36,
-              height: 36,
-              decoration:
-                  BoxDecoration(color: bg, borderRadius: PRadius.brSm),
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                  color: bg, borderRadius: BorderRadius.circular(12)),
               alignment: Alignment.center,
               child: Icon(
                 lucideByName(
@@ -780,10 +798,13 @@ class _ExpenseRow extends StatelessWidget {
                   Text(
                     [
                       expense.categoryName,
+                      expense.assetName,
                       if (dayLabel != null)
                         '${dayLabel.md} (${dayLabel.dow})',
-                    ].whereType<String>().join(' · '),
+                    ].whereType<String>().where((s) => s.isNotEmpty).join(' · '),
                     style: PTypo.caption.copyWith(color: tokens.fgTertiary),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),

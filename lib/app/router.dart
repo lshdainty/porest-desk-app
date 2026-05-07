@@ -100,7 +100,18 @@ final routerProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(routes: [
             GoRoute(
               path: '/expense',
-              pageBuilder: (_, _) => const NoTransitionPage(child: ExpenseScreen()),
+              pageBuilder: (_, state) {
+                final month = state.uri.queryParameters['month'];
+                final txId =
+                    int.tryParse(state.uri.queryParameters['txId'] ?? '');
+                return NoTransitionPage(
+                  child: ExpenseScreen(
+                    key: ValueKey('expense-${month ?? ''}-${txId ?? ''}'),
+                    initialMonth: month,
+                    focusTxId: txId,
+                  ),
+                );
+              },
             ),
           ]),
           StatefulShellBranch(routes: [

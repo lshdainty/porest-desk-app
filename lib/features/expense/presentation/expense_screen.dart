@@ -17,7 +17,11 @@ import 'widgets/expense_row.dart';
 
 /// 가계부 화면 — 백엔드 `/expenses` 직접 호출.
 class ExpenseScreen extends ConsumerStatefulWidget {
-  const ExpenseScreen({super.key});
+  const ExpenseScreen({this.initialMonth, this.focusTxId, super.key});
+  /// "YYYY-MM" — 홈 최근 거래 → 해당 월로 자동 이동.
+  final String? initialMonth;
+  /// 진입 후 자동 스크롤할 거래 rowId.
+  final int? focusTxId;
 
   @override
   ConsumerState<ExpenseScreen> createState() => _ExpenseScreenState();
@@ -26,9 +30,32 @@ class ExpenseScreen extends ConsumerStatefulWidget {
 enum _Filter { all, expense, income }
 
 class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
-  late DateTime _month = monthStart(DateTime.now());
+  late DateTime _month = _resolveInitialMonth();
   _Filter _filter = _Filter.all;
   ExpenseFilter _advFilter = const ExpenseFilter();
+  final Map<int, GlobalKey> _rowKeys = {};
+  bool _scrolledToFocus = false;
+
+  DateTime _resolveInitialMonth() {
+    final raw = widget.initialMonth;
+    if (raw != null && RegExp(r'^\d{4}-\d{2}$').hasMatch(raw)) {
+      final parts = raw.split('-');
+      return DateTime(int.parse(parts[0]), int.parse(parts[1]), 1);
+    }
+    return monthStart(DateTime.now());
+  }
+
+  @override
+  void didUpdateWidget(covariant ExpenseScreen old) {
+    super.didUpdateWidget(old);
+    // 라우트 query param 변경 시 (예: 다른 tx 클릭) 월/스크롤 상태 재초기화
+    if (old.initialMonth != widget.initialMonth) {
+      setState(() => _month = _resolveInitialMonth());
+    }
+    if (old.focusTxId != widget.focusTxId) {
+      _scrolledToFocus = false;
+    }
+  }
 
   MonthKey get _key => (year: _month.year, month: _month.month);
 
@@ -113,7 +140,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
               }
               final groupKeys = groups.keys.toList();
 
-              return Column(
+              final content = Column(
                 children: [
                   _SummaryCard(
                     month: _month,
@@ -153,9 +180,27 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                       items: groups[key]!,
                       categoriesAsync: categoriesAsync,
                       masked: settings.hideAmounts,
+                      rowKeys: _rowKeys,
+                      focusTxId: widget.focusTxId,
                     ),
                 ],
               );
+              // focusTxId 가 있으면 첫 렌더 후 한 번만 스크롤
+              if (widget.focusTxId != null && !_scrolledToFocus) {
+                final key = _rowKeys[widget.focusTxId!];
+                if (key != null) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    final ctx = key.currentContext;
+                    if (ctx != null && mounted) {
+                      Scrollable.ensureVisible(ctx,
+                          duration: const Duration(milliseconds: 300),
+                          alignment: 0.2);
+                      _scrolledToFocus = true;
+                    }
+                  });
+                }
+              }
+              return content;
             },
           ),
         ],
@@ -440,11 +485,15 @@ class _DayGroup extends ConsumerWidget {
     required this.items,
     required this.categoriesAsync,
     required this.masked,
+    this.rowKeys,
+    this.focusTxId,
   });
   final DateTime date;
   final List<Expense> items;
   final AsyncValue<dynamic> categoriesAsync;
   final bool masked;
+  final Map<int, GlobalKey>? rowKeys;
+  final int? focusTxId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -505,13 +554,27 @@ class _DayGroup extends ConsumerWidget {
             child: Column(
               children: [
                 for (int i = 0; i < items.length; i++) ...[
-                  ExpenseRow(
-                    expense: items[i],
-                    category: items[i].categoryRowId == null
-                        ? null
-                        : categories.byRowId(items[i].categoryRowId!),
-                    masked: masked,
-                  ),
+                  Builder(builder: (_) {
+                    final isFocus = focusTxId == items[i].rowId;
+                    final k = isFocus
+                        ? (rowKeys?.putIfAbsent(items[i].rowId, () => GlobalKey()))
+                        : null;
+                    return Container(
+                      key: k,
+                      decoration: isFocus
+                          ? BoxDecoration(
+                              color: t.bgBrandSubtle,
+                              borderRadius: PRadius.brSm)
+                          : null,
+                      child: ExpenseRow(
+                        expense: items[i],
+                        category: items[i].categoryRowId == null
+                            ? null
+                            : categories.byRowId(items[i].categoryRowId!),
+                        masked: masked,
+                      ),
+                    );
+                  }),
                   if (i < items.length - 1)
                     Divider(height: 1, color: t.borderSubtle, indent: 60),
                 ],

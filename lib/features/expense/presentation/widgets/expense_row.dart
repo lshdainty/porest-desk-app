@@ -17,12 +17,15 @@ class ExpenseRow extends StatelessWidget {
     required this.expense,
     required this.category,
     required this.masked,
+    this.interactive = true,
     super.key,
   });
 
   final Expense expense;
   final ExpenseCategory? category;
   final bool masked;
+  /// false 면 InkWell tap 비활성 — 단순 표시 용도 (예: 가맹점 history).
+  final bool interactive;
 
   @override
   Widget build(BuildContext context) {
@@ -39,15 +42,16 @@ class ExpenseRow extends StatelessWidget {
     final icon = lucideByName(iconRaw, fallback: LucideIcons.tag);
 
     return InkWell(
-      onTap: () => showTxDetailDialog(context, expense),
+      onTap: interactive ? () => showTxDetailDialog(context, expense) : null,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: PSpace.x16, vertical: PSpace.x12),
         child: Row(
           children: [
             Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(color: bg, borderRadius: PRadius.brSm),
+              width: 40,
+              height: 40,
+              decoration:
+                  BoxDecoration(color: bg, borderRadius: BorderRadius.circular(12)),
               alignment: Alignment.center,
               child: Icon(icon, size: 18, color: fg),
             ),

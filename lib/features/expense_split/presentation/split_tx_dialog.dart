@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
 import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
@@ -20,21 +19,22 @@ import '../domain/expense_split.dart';
 
 /// 거래 분할 다이얼로그.
 void showSplitTxDialog(BuildContext context, Expense expense) {
-  WoltModalSheet.show<void>(
+  showModalBottomSheet<void>(
     context: context,
-    pageListBuilder: (modalCtx) => [
-      WoltModalSheetPage(
-        topBarTitle: const Text('내역 분할'),
-        isTopBarLayerAlwaysVisible: true,
-        backgroundColor:
-            Theme.of(modalCtx).extension<PorestTokens>()?.bgSurface,
-        trailingNavBarWidget: IconButton(
-          icon: const Icon(LucideIcons.x),
-          onPressed: Navigator.of(modalCtx).pop,
-        ),
-        child: _SplitBody(expense: expense),
-      ),
-    ],
+    isScrollControlled: true,
+    backgroundColor:
+        Theme.of(context).extension<PorestTokens>()?.bgSurface,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    ),
+    builder: (ctx) => DraggableScrollableSheet(
+      initialChildSize: 0.85,
+      minChildSize: 0.5,
+      maxChildSize: 0.95,
+      expand: false,
+      builder: (_, scrollCtrl) =>
+          _SplitBody(expense: expense, scrollController: scrollCtrl),
+    ),
   );
 }
 
@@ -46,8 +46,9 @@ class _Row {
 }
 
 class _SplitBody extends ConsumerStatefulWidget {
-  const _SplitBody({required this.expense});
+  const _SplitBody({required this.expense, required this.scrollController});
   final Expense expense;
+  final ScrollController scrollController;
 
   @override
   ConsumerState<_SplitBody> createState() => _SplitBodyState();
@@ -223,22 +224,54 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
   }
 
   Widget _build(PorestTokens t, List<ExpenseCategory> categories) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-          PSpace.x16, PSpace.x8, PSpace.x16, PSpace.x16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('하나의 결제를 카테고리·항목별로 나누어 기록합니다.',
-              style: PTypo.caption.copyWith(color: t.fgSecondary)),
-          const SizedBox(height: PSpace.x12),
+    return Column(
+      children: [
+        Container(
+          margin: const EdgeInsets.only(top: 8, bottom: 4),
+          width: 36,
+          height: 4,
+          decoration: BoxDecoration(
+            color: t.borderSubtle,
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
+        // Header
+        Padding(
+          padding: const EdgeInsets.fromLTRB(
+              PSpace.x20, PSpace.x12, PSpace.x12, PSpace.x12),
+          child: Row(
+            children: [
+              Text('내역 분할',
+                  style: TextStyle(
+                      color: t.fgPrimary,
+                      fontSize: 17,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: -0.34)),
+              const Spacer(),
+              IconButton(
+                icon: Icon(LucideIcons.x, color: t.fgSecondary, size: 20),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: ListView(
+            controller: widget.scrollController,
+            padding: const EdgeInsets.fromLTRB(
+                PSpace.x20, 0, PSpace.x20, PSpace.x16),
+            children: [
+              Text(
+                  '하나의 결제를 카테고리·항목별로 나누어 기록합니다. 예: 마트에서 식품과 생활품을 함께 결제한 경우.',
+                  style: PTypo.caption
+                      .copyWith(color: t.fgSecondary, height: 1.55)),
+              const SizedBox(height: PSpace.x12),
 
           // 원 거래 요약
           Container(
             padding: const EdgeInsets.symmetric(
                 horizontal: PSpace.x12, vertical: PSpace.x12),
             decoration: BoxDecoration(
-              color: t.bgMuted,
               borderRadius: PRadius.brMd,
               border: Border.all(color: t.borderSubtle),
             ),
@@ -305,20 +338,25 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
 
           Row(
             children: [
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: _submitting ? null : _addRow,
-                  icon: const Icon(LucideIcons.plus, size: 14),
-                  label: const Text('항목 추가'),
-                ),
+              TextButton.icon(
+                onPressed: _submitting ? null : _addRow,
+                icon: Icon(LucideIcons.plus, size: 14, color: t.fgSecondary),
+                label: Text('항목 추가',
+                    style: PTypo.bodySm.copyWith(color: t.fgSecondary)),
+                style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 6)),
               ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: _submitting ? null : _splitEvenly,
-                  icon: const Icon(LucideIcons.scissors, size: 14),
-                  label: const Text('균등 분배'),
-                ),
+              const Spacer(),
+              TextButton.icon(
+                onPressed: _submitting ? null : _splitEvenly,
+                icon:
+                    Icon(LucideIcons.scissors, size: 14, color: t.fgSecondary),
+                label: Text('균등 분배',
+                    style: PTypo.bodySm.copyWith(color: t.fgSecondary)),
+                style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 6)),
               ),
             ],
           ),
@@ -334,48 +372,57 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
           _RatioLegend(rows: _rows!, total: _totalAbs, categories: categories, tokens: t),
           const SizedBox(height: PSpace.x16),
 
-          // 합계 상태 표시
-          _MatchPill(
-            matched: _matched,
-            remainder: _remainder,
-            tokens: t,
+            ],
           ),
-          const SizedBox(height: PSpace.x12),
-
-          // 액션
-          Row(
+        ),
+        // Fixed footer
+        Padding(
+          padding: const EdgeInsets.fromLTRB(
+              PSpace.x16, PSpace.x12, PSpace.x16, PSpace.x16),
+          child: Row(
             children: [
-              if (_hasExisting) ...[
-                Expanded(
-                  child: OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: t.statusDanger,
-                      side: BorderSide(
-                          color: t.statusDanger.withValues(alpha: 0.5)),
-                    ),
-                    onPressed: _submitting ? null : _deleteAll,
-                    icon: const Icon(LucideIcons.trash2, size: 16),
-                    label: const Text('분할 해제'),
-                  ),
+              if (_hasExisting)
+                TextButton.icon(
+                  onPressed: _submitting ? null : _deleteAll,
+                  icon: Icon(LucideIcons.trash2,
+                      size: 14, color: t.statusDangerFg),
+                  label: Text('분할 해제',
+                      style: PTypo.body.copyWith(color: t.statusDangerFg)),
                 ),
-                const SizedBox(width: PSpace.x8),
-              ],
-              Expanded(
-                flex: _hasExisting ? 1 : 2,
-                child: FilledButton(
-                  onPressed: (_matched && !_submitting) ? _save : null,
-                  child: _submitting
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2))
-                      : const Text('분할 저장'),
+              const SizedBox(width: 4),
+              _MatchPill(
+                matched: _matched,
+                remainder: _remainder,
+                tokens: t,
+              ),
+              const Spacer(),
+              TextButton(
+                onPressed: _submitting
+                    ? null
+                    : () => Navigator.of(context).pop(),
+                child: Text('취소',
+                    style: PTypo.body.copyWith(color: t.fgSecondary)),
+              ),
+              const SizedBox(width: PSpace.x8),
+              FilledButton(
+                onPressed: (_matched && !_submitting) ? _save : null,
+                style: FilledButton.styleFrom(
+                  backgroundColor: t.bgBrand,
+                  foregroundColor: t.fgOnBrand,
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: PSpace.x16, vertical: PSpace.x12),
                 ),
+                child: _submitting
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2))
+                    : const Text('분할 저장'),
               ),
             ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
@@ -441,91 +488,116 @@ class _SplitRowCardState extends State<_SplitRowCard> {
   @override
   Widget build(BuildContext context) {
     final t = widget.tokens;
+    // front 1행 layout 미러: [# circle] [label] [category dropdown] [amount + 원] [X]
     return Container(
-      padding: const EdgeInsets.fromLTRB(10, 10, 6, 10),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
         color: t.bgSurface,
         borderRadius: PRadius.brMd,
         border: Border.all(color: t.borderSubtle),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Row(
-            children: [
-              Container(
-                width: 24,
-                height: 24,
-                decoration: BoxDecoration(
-                    color: t.bgMuted, borderRadius: PRadius.brPill),
-                alignment: Alignment.center,
-                child: Text('${widget.index + 1}',
-                    style: PTypo.caption.copyWith(
-                        color: t.fgSecondary, fontWeight: FontWeight.w700)),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: TextField(
-                  controller: _labelCtrl,
-                  decoration: const InputDecoration(
-                      hintText: '항목 이름 (선택)',
-                      isDense: true,
-                      border: InputBorder.none),
-                  enabled: !widget.disabled,
-                  onChanged: (v) {
-                    widget.row.label = v;
-                  },
-                ),
-              ),
-              IconButton(
-                onPressed:
-                    widget.disabled || !widget.canRemove ? null : widget.onRemove,
-                icon: Icon(LucideIcons.x, size: 14, color: t.fgTertiary),
-                tooltip: '항목 삭제',
-                visualDensity: VisualDensity.compact,
-                constraints:
-                    const BoxConstraints.tightFor(width: 28, height: 28),
-              ),
-            ],
+          Container(
+            width: 24,
+            height: 24,
+            decoration: BoxDecoration(
+                color: t.bgMuted, borderRadius: PRadius.brPill),
+            alignment: Alignment.center,
+            child: Text('${widget.index + 1}',
+                style: PTypo.caption.copyWith(
+                    color: t.fgSecondary, fontWeight: FontWeight.w700)),
           ),
-          const SizedBox(height: 6),
-          Row(
-            children: [
-              Expanded(
-                flex: 5,
-                child: _CategoryDropdown(
-                  value: widget.row.categoryRowId,
-                  categories: widget.categories,
-                  onChanged: widget.disabled
-                      ? null
-                      : (v) {
-                          widget.row.categoryRowId = v;
-                          widget.onChange();
-                        },
-                  tokens: t,
-                ),
+          const SizedBox(width: 8),
+          Expanded(
+            flex: 14,
+            child: TextField(
+              controller: _labelCtrl,
+              style: PTypo.caption.copyWith(color: t.fgPrimary),
+              decoration: InputDecoration(
+                hintText: '항목 이름',
+                hintStyle: PTypo.caption.copyWith(color: t.fgTertiary),
+                isDense: true,
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                filled: false,
+                border: OutlineInputBorder(
+                    borderRadius: PRadius.brSm,
+                    borderSide: BorderSide(color: t.borderSubtle)),
+                enabledBorder: OutlineInputBorder(
+                    borderRadius: PRadius.brSm,
+                    borderSide: BorderSide(color: t.borderSubtle)),
+                focusedBorder: OutlineInputBorder(
+                    borderRadius: PRadius.brSm,
+                    borderSide: BorderSide(color: t.borderBrand)),
               ),
-              const SizedBox(width: 8),
-              Expanded(
-                flex: 4,
-                child: TextField(
-                  controller: _amountCtrl,
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  textAlign: TextAlign.right,
-                  enabled: !widget.disabled,
-                  decoration: const InputDecoration(
-                    hintText: '0',
-                    suffixText: '원',
-                    isDense: true,
-                  ),
-                  onChanged: (v) {
-                    widget.row.amount = int.tryParse(v) ?? 0;
-                    widget.onChange();
-                  },
-                ),
+              enabled: !widget.disabled,
+              onChanged: (v) {
+                widget.row.label = v;
+              },
+            ),
+          ),
+          const SizedBox(width: 6),
+          Expanded(
+            flex: 10,
+            child: _CategoryDropdown(
+              value: widget.row.categoryRowId,
+              categories: widget.categories,
+              onChanged: widget.disabled
+                  ? null
+                  : (v) {
+                      widget.row.categoryRowId = v;
+                      widget.onChange();
+                    },
+              tokens: t,
+            ),
+          ),
+          const SizedBox(width: 6),
+          Expanded(
+            flex: 11,
+            child: TextField(
+              controller: _amountCtrl,
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              textAlign: TextAlign.right,
+              enabled: !widget.disabled,
+              style: PTypo.caption.copyWith(
+                  color: t.fgPrimary, fontFamily: 'monospace'),
+              decoration: InputDecoration(
+                hintText: '0',
+                hintStyle: PTypo.caption.copyWith(color: t.fgTertiary),
+                suffixText: '원',
+                suffixStyle: PTypo.caption.copyWith(color: t.fgTertiary),
+                isDense: true,
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                filled: false,
+                border: OutlineInputBorder(
+                    borderRadius: PRadius.brSm,
+                    borderSide: BorderSide(color: t.borderSubtle)),
+                enabledBorder: OutlineInputBorder(
+                    borderRadius: PRadius.brSm,
+                    borderSide: BorderSide(color: t.borderSubtle)),
+                focusedBorder: OutlineInputBorder(
+                    borderRadius: PRadius.brSm,
+                    borderSide: BorderSide(color: t.borderBrand)),
               ),
-            ],
+              onChanged: (v) {
+                widget.row.amount = int.tryParse(v) ?? 0;
+                widget.onChange();
+              },
+            ),
+          ),
+          IconButton(
+            onPressed: widget.disabled || !widget.canRemove
+                ? null
+                : widget.onRemove,
+            icon: Icon(LucideIcons.x, size: 14, color: t.fgTertiary),
+            tooltip: '항목 삭제',
+            visualDensity: VisualDensity.compact,
+            padding: EdgeInsets.zero,
+            constraints:
+                const BoxConstraints.tightFor(width: 24, height: 24),
           ),
         ],
       ),
@@ -552,17 +624,32 @@ class _CategoryDropdown extends StatelessWidget {
           value != null && categories.any((c) => c.rowId == value) ? value : null,
       isDense: true,
       isExpanded: true,
-      decoration: const InputDecoration(
+      style: PTypo.caption.copyWith(color: tokens.fgPrimary),
+      decoration: InputDecoration(
         isDense: true,
-        contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        isCollapsed: false,
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
         hintText: '카테고리',
+        hintStyle: PTypo.caption.copyWith(color: tokens.fgTertiary),
+        filled: false,
+        border: OutlineInputBorder(
+            borderRadius: PRadius.brSm,
+            borderSide: BorderSide(color: tokens.borderSubtle)),
+        enabledBorder: OutlineInputBorder(
+            borderRadius: PRadius.brSm,
+            borderSide: BorderSide(color: tokens.borderSubtle)),
+        focusedBorder: OutlineInputBorder(
+            borderRadius: PRadius.brSm,
+            borderSide: BorderSide(color: tokens.borderBrand)),
       ),
       items: [
         for (final c in categories)
           DropdownMenuItem<int>(
             value: c.rowId,
             child: Text(c.categoryName,
-                style: PTypo.bodySm.copyWith(color: tokens.fgPrimary)),
+                overflow: TextOverflow.ellipsis,
+                style: PTypo.caption.copyWith(color: tokens.fgPrimary)),
           ),
       ],
       onChanged: onChanged,

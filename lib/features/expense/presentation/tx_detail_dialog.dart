@@ -198,7 +198,12 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [bg, t.bgSurface],
+                    colors: [
+                      Color.alphaBlend(
+                          fg.withValues(alpha: 0.14), t.bgSurface),
+                      t.bgSurface,
+                    ],
+                    stops: const [0.0, 0.85],
                   ),
                   border: Border.all(color: fg.withValues(alpha: 0.2)),
                   borderRadius: BorderRadius.circular(16),
@@ -209,7 +214,9 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                          color: bg, borderRadius: PRadius.brSm),
+                        color: fg.withValues(alpha: 0.14),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                       alignment: Alignment.center,
                       child: Icon(icon, size: 20, color: fg),
                     ),
@@ -524,17 +531,15 @@ class _MerchantHistorySection extends ConsumerWidget {
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
             child: Column(
               children: [
-                for (int i = 0; i < history.length; i++) ...[
+                for (final h in history)
                   ExpenseRow(
-                    expense: history[i],
-                    category: history[i].categoryRowId == null
+                    expense: h,
+                    category: h.categoryRowId == null
                         ? null
-                        : categories.byRowId(history[i].categoryRowId!),
+                        : categories.byRowId(h.categoryRowId!),
                     masked: masked,
+                    interactive: false,
                   ),
-                  if (i < history.length - 1)
-                    Divider(height: 1, color: t.borderSubtle),
-                ],
               ],
             ),
           ),
