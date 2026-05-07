@@ -185,20 +185,19 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                     ),
                 ],
               );
-              // focusTxId 가 있으면 첫 렌더 후 한 번만 스크롤
+              // focusTxId 가 있으면 첫 렌더 후 한 번만 스크롤.
+              // 키 조회는 반드시 postFrameCallback 안에서 — _DayGroup 의 Builder
+              // 자식이 build 된 뒤에야 _rowKeys 가 채워지기 때문.
               if (widget.focusTxId != null && !_scrolledToFocus) {
-                final key = _rowKeys[widget.focusTxId!];
-                if (key != null) {
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    final ctx = key.currentContext;
-                    if (ctx != null && mounted) {
-                      Scrollable.ensureVisible(ctx,
-                          duration: const Duration(milliseconds: 300),
-                          alignment: 0.2);
-                      _scrolledToFocus = true;
-                    }
-                  });
-                }
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (!mounted) return;
+                  final ctx = _rowKeys[widget.focusTxId!]?.currentContext;
+                  if (ctx == null) return;
+                  Scrollable.ensureVisible(ctx,
+                      duration: const Duration(milliseconds: 300),
+                      alignment: 0.2);
+                  _scrolledToFocus = true;
+                });
               }
               return content;
             },
