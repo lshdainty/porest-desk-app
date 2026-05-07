@@ -437,15 +437,13 @@ class _PeriodSelectorRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Flexible(
-          child: _MonthPickerButton(
-            label: '${state._month.year}년 ${state._month.month}월',
-            onTap: state._pickMonth,
-          ),
+        _MonthPickerButton(
+          label: '${state._month.year}년 ${state._month.month}월',
+          onTap: state._pickMonth,
         ),
-        const SizedBox(width: 8),
+        const SizedBox(width: 6),
         _PeriodSeg(
           value: state._period,
           onChanged: state.setPeriod,
@@ -480,9 +478,12 @@ class _CardTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    // 웹 `CardTitle style={{ fontSize: 'var(--fs-body-lg)' }}` 매칭.
     return Text(text,
-        style: PTypo.body.copyWith(
-            color: t.fgPrimary, fontWeight: PFontWeight.bold));
+        style: TextStyle(
+            color: t.fgPrimary,
+            fontSize: PFontSize.bodyLg,
+            fontWeight: PFontWeight.bold));
   }
 }
 
@@ -686,7 +687,8 @@ class _DonutCardState extends ConsumerState<_DonutCard> {
                       InkWell(
                         onTap: () => setState(() => _activeParentId = null),
                         child: Text('카테고리별 지출',
-                            style: PTypo.body.copyWith(
+                            style: TextStyle(
+                                fontSize: PFontSize.bodyLg,
                                 color: t.fgSecondary,
                                 fontWeight: PFontWeight.medium)),
                       ),
@@ -700,9 +702,8 @@ class _DonutCardState extends ConsumerState<_DonutCard> {
                     ],
                   )
                 : const _CardTitle('카테고리별 지출'),
+            trailing: _PeriodSelectorRow(state: s),
           ),
-          _PeriodSelectorRow(state: s),
-          const SizedBox(height: 14),
           if (loading)
             const _EmptyBox(text: '불러오는 중…')
           else if (view.isEmpty)
@@ -864,7 +865,7 @@ class _TopMerchantsCard extends StatelessWidget {
                         textAlign: TextAlign.center,
                         style: PTypo.caption.copyWith(
                             color:
-                                i < 3 ? t.fgBrand : t.fgTertiary,
+                                i < 3 ? t.fgIncome : t.fgTertiary,
                             fontWeight: PFontWeight.bold)),
                   ),
                   const SizedBox(width: 8),
