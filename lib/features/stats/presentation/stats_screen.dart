@@ -437,13 +437,15 @@ class _PeriodSelectorRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        _MonthPickerButton(
-          label: '${state._month.year}년 ${state._month.month}월',
-          onTap: state._pickMonth,
+        Flexible(
+          child: _MonthPickerButton(
+            label: '${state._month.year}년 ${state._month.month}월',
+            onTap: state._pickMonth,
+          ),
         ),
-        const SizedBox(width: 6),
+        const SizedBox(width: 8),
         _PeriodSeg(
           value: state._period,
           onChanged: state.setPeriod,
@@ -702,8 +704,9 @@ class _DonutCardState extends ConsumerState<_DonutCard> {
                     ],
                   )
                 : const _CardTitle('카테고리별 지출'),
-            trailing: _PeriodSelectorRow(state: s),
           ),
+          _PeriodSelectorRow(state: s),
+          const SizedBox(height: PSpace.x12),
           if (loading)
             const _EmptyBox(text: '불러오는 중…')
           else if (view.isEmpty)
