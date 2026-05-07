@@ -1213,6 +1213,7 @@ class _HighlightsGrid extends StatelessWidget {
     }
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _HighlightCard(
           label: '가장 많이 쓴 카테고리',
