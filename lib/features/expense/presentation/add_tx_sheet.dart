@@ -11,6 +11,7 @@ import '../../../core/format/color_parse.dart';
 import '../../../core/format/date.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
+import '../../../shared/widgets/p_category_tile.dart';
 import '../../asset/application/asset_providers.dart';
 import '../../preset/application/preset_providers.dart';
 import '../../preset/domain/expense_template.dart';
@@ -46,7 +47,7 @@ void showAddTxSheet(BuildContext context, {String? defaultDate, Expense? edit}) 
     backgroundColor:
         Theme.of(context).extension<PorestTokens>()?.bgSurface,
     shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      borderRadius: BorderRadius.vertical(top: Radius.circular(PRadius.xl2)),
     ),
     builder: (_) => DraggableScrollableSheet(
       initialChildSize: 0.92,
@@ -336,7 +337,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
             height: 4,
             decoration: BoxDecoration(
               color: t.borderDefault,
-              borderRadius: BorderRadius.circular(2),
+              borderRadius: PRadius.brXs2,
             ),
           ),
           // Header
@@ -499,9 +500,14 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
                             childAspectRatio: 0.85,
                             children: [
                               for (final c in topCategories)
-                                _CategoryGridItem(
-                                  category: c,
-                                  selected: selectedParentId == c.rowId,
+                                PCategoryTile(
+                                  name: (c.categoryName as String?) ?? '',
+                                  color: parseColor(
+                                      c.color as String?,
+                                      fallback: t.fgBrand),
+                                  icon: lucideByName(
+                                      (c.icon as String?) ?? 'tag'),
+                                  active: selectedParentId == c.rowId,
                                   onTap: () => setState(() {
                                     // 자식이 있으면 첫 자식, 없으면 자기 자신
                                     final firstChild =
@@ -511,7 +517,6 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
                                         : c.rowId;
                                     _appliedPresetId = null;
                                   }),
-                                  tokens: t,
                                 ),
                             ],
                           ),
@@ -875,13 +880,13 @@ class _DateBox extends StatelessWidget {
     final t = context.tokens;
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: PRadius.brMd,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
           color: t.bgSurface,
           border: Border.all(color: t.borderDefault),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: PRadius.brMd,
         ),
         child: Row(
           children: [
@@ -907,13 +912,13 @@ class _TimeBox extends StatelessWidget {
     final t = context.tokens;
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: PRadius.brMd,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
           color: t.bgSurface,
           border: Border.all(color: t.borderDefault),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: PRadius.brMd,
         ),
         child: Row(
           children: [
@@ -939,69 +944,6 @@ class _SectionLabel extends StatelessWidget {
             color: t.fgTertiary,
             fontWeight: FontWeight.w600,
             letterSpacing: 0.6));
-  }
-}
-
-class _CategoryGridItem extends StatelessWidget {
-  const _CategoryGridItem({
-    required this.category,
-    required this.selected,
-    required this.onTap,
-    required this.tokens,
-  });
-  final dynamic category; // ExpenseCategory shape — duck-typed to avoid extra import
-  final bool selected;
-  final VoidCallback onTap;
-  final PorestTokens tokens;
-
-  @override
-  Widget build(BuildContext context) {
-    final fg = parseColor((category.color as String?), fallback: tokens.fgBrand);
-    final iconData = lucideByName((category.icon as String?) ?? 'tag');
-    final name = (category.categoryName as String?) ?? '';
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(10),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
-        decoration: BoxDecoration(
-          color: selected ? tokens.bgBrandSubtle : Colors.transparent,
-          border: Border.all(
-            color:
-                selected ? tokens.borderBrand : tokens.borderSubtle,
-          ),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: fg.withValues(alpha: 0.18),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              alignment: Alignment.center,
-              child: Icon(iconData, size: 18, color: fg),
-            ),
-            const SizedBox(height: 4),
-            Text(name,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,
-                style: PTypo.caption.copyWith(
-                    color: selected
-                        ? tokens.fgBrandStrong
-                        : tokens.fgSecondary,
-                    fontWeight:
-                        selected ? FontWeight.w700 : FontWeight.w500,
-                    fontSize: 10.5)),
-          ],
-        ),
-      ),
-    );
   }
 }
 
@@ -1034,7 +976,7 @@ class _TypeSegment extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
-          color: tokens.bgMuted, borderRadius: BorderRadius.circular(10)),
+          color: tokens.bgMuted, borderRadius: PRadius.brTile),
       child: Row(
         children: [
           for (final o in opts)
@@ -1054,7 +996,7 @@ class _TypeSegment extends StatelessWidget {
                       color: o.$1 == value
                           ? tokens.bgSurface
                           : Colors.transparent,
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: PRadius.brMd,
                       boxShadow: o.$1 == value
                           ? [
                               BoxShadow(

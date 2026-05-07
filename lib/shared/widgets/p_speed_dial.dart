@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
+import '../../app/theme/radius.dart';
 import '../../app/theme/tokens.dart';
 import '../../app/theme/typography.dart';
 
@@ -47,7 +48,7 @@ class _PSpeedDialChildBuilt extends StatelessWidget {
                   const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
                 color: tokens.bgSurface,
-                borderRadius: BorderRadius.circular(6),
+                borderRadius: PRadius.brSm,
                 border: Border.all(color: tokens.borderSubtle),
               ),
               child: Text(child.label!,

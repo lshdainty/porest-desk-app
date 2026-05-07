@@ -497,7 +497,7 @@ class _TypeGroup extends StatelessWidget {
               ),
               const SizedBox(width: 6),
               InkWell(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: PRadius.brMd,
                 onTap: () => _onAdd(context),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(

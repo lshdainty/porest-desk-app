@@ -34,7 +34,7 @@ void showTxDetailDialog(BuildContext context, Expense expense) {
     backgroundColor:
         Theme.of(context).extension<PorestTokens>()?.bgSurface,
     shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      borderRadius: BorderRadius.vertical(top: Radius.circular(PRadius.xl2)),
     ),
     builder: (ctx) => DraggableScrollableSheet(
       initialChildSize: 0.85,
@@ -162,7 +162,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
           height: 4,
           decoration: BoxDecoration(
             color: t.borderSubtle,
-            borderRadius: BorderRadius.circular(2),
+            borderRadius: PRadius.brXs2,
           ),
         ),
         // Header
@@ -206,7 +206,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                     stops: const [0.0, 0.85],
                   ),
                   border: Border.all(color: fg.withValues(alpha: 0.2)),
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: PRadius.brXl,
                 ),
                 child: Column(
                   children: [
@@ -215,7 +215,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                       height: 40,
                       decoration: BoxDecoration(
                         color: fg.withValues(alpha: 0.14),
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: PRadius.brLg,
                       ),
                       alignment: Alignment.center,
                       child: Icon(icon, size: 20, color: fg),
@@ -267,7 +267,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                 decoration: BoxDecoration(
                   color: t.borderSubtle,
                   border: Border.all(color: t.borderSubtle),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: PRadius.brLg,
                 ),
                 child: Column(
                   children: [
@@ -283,7 +283,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                             height: 10,
                             decoration: BoxDecoration(
                               color: fg,
-                              borderRadius: BorderRadius.circular(3),
+                              borderRadius: PRadius.brXs2,
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -518,7 +518,7 @@ class _MerchantHistorySection extends ConsumerWidget {
             decoration: BoxDecoration(
               color: t.bgSurface,
               border: Border.all(color: t.borderSubtle),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: PRadius.brLg,
             ),
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
             child: Column(
@@ -561,8 +561,8 @@ class _FieldRow extends StatelessWidget {
       decoration: BoxDecoration(
         color: tokens.bgSurface,
         borderRadius: BorderRadius.vertical(
-          top: isFirst ? const Radius.circular(11) : Radius.zero,
-          bottom: isLast ? const Radius.circular(11) : Radius.zero,
+          top: isFirst ? const Radius.circular(PRadius.lg) : Radius.zero,
+          bottom: isLast ? const Radius.circular(PRadius.lg) : Radius.zero,
         ),
       ),
       padding:
@@ -604,13 +604,13 @@ class _QuickBtn extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: PRadius.brLg,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 16),
         decoration: BoxDecoration(
           color: tokens.bgSurface,
           border: Border.all(color: tokens.borderSubtle),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: PRadius.brLg,
         ),
         child: Column(
           children: [

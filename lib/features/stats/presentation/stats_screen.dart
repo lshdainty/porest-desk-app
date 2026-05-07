@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
+import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
@@ -337,7 +338,7 @@ class _Card extends StatelessWidget {
       decoration: BoxDecoration(
         color: t.bgSurface,
         border: Border.all(color: t.borderSubtle),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: PRadius.brCard,
       ),
       child: child,
     );
@@ -360,7 +361,7 @@ class _PeriodSeg extends StatelessWidget {
               const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           decoration: BoxDecoration(
             color: active ? t.bgSurface : Colors.transparent,
-            borderRadius: BorderRadius.circular(7),
+            borderRadius: PRadius.brMd,
             boxShadow: active
                 ? [
                     BoxShadow(
@@ -383,7 +384,7 @@ class _PeriodSeg extends StatelessWidget {
       padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
         color: t.bgMuted,
-        borderRadius: BorderRadius.circular(9),
+        borderRadius: PRadius.brTile,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -406,12 +407,12 @@ class _MonthPickerButton extends StatelessWidget {
     final t = context.tokens;
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(9),
+      borderRadius: PRadius.brTile,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
         decoration: BoxDecoration(
           border: Border.all(color: t.borderSubtle),
-          borderRadius: BorderRadius.circular(9),
+          borderRadius: PRadius.brTile,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -788,7 +789,7 @@ class _DonutLegendRow extends StatelessWidget {
     final pct = total > 0 ? (row.amount * 100 / total) : 0;
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(6),
+      borderRadius: PRadius.brSm,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
         child: Row(
@@ -897,7 +898,7 @@ class _TopMerchantsCard extends StatelessWidget {
                         ),
                         const SizedBox(height: 6),
                         ClipRRect(
-                          borderRadius: BorderRadius.circular(999),
+                          borderRadius: PRadius.brPill,
                           child: LinearProgressIndicator(
                             value: top[i].totalAmount / maxAmt,
                             minHeight: 4,
@@ -1014,7 +1015,7 @@ class _HeatmapCard extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 32),
               decoration: BoxDecoration(
                 color: t.bgMuted,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: PRadius.brLg,
               ),
               alignment: Alignment.center,
               child: Text('이번 달 거래가 아직 적어요',
@@ -1066,7 +1067,7 @@ class _HeatmapCard extends StatelessWidget {
                           child: Container(
                             decoration: BoxDecoration(
                               color: bgFor(_heatBucket(matrix[r][c], maxV)),
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: PRadius.brMd,
                             ),
                             alignment: Alignment.center,
                             child: Text(
@@ -1098,7 +1099,7 @@ class _HeatmapCard extends StatelessWidget {
                     height: 14,
                     decoration: BoxDecoration(
                       color: bgFor(i),
-                      borderRadius: BorderRadius.circular(3),
+                      borderRadius: PRadius.brXs2,
                     ),
                   ),
                   const SizedBox(width: 4),
@@ -1502,7 +1503,7 @@ class _LegendChip extends StatelessWidget {
           height: 10,
           decoration: BoxDecoration(
             color: color,
-            borderRadius: BorderRadius.circular(2),
+            borderRadius: PRadius.brXs2,
           ),
         ),
         const SizedBox(width: 6),
@@ -1685,7 +1686,7 @@ class _SavingsBarsCard extends StatelessWidget {
                                 ? t.fgBrand
                                 : t.statusDangerFg,
                             width: data.length > 20 ? 4 : 12,
-                            borderRadius: BorderRadius.circular(2),
+                            borderRadius: PRadius.brXs2,
                           ),
                         ],
                       ),
@@ -1993,7 +1994,7 @@ class _CompareRow extends StatelessWidget {
               height: 32,
               decoration: BoxDecoration(
                 color: fg.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: PRadius.brTile,
               ),
               alignment: Alignment.center,
               child: Icon(iconData, size: 16, color: fg),
@@ -2032,7 +2033,7 @@ class _CompareRow extends StatelessWidget {
           child: Column(
             children: [
               ClipRRect(
-                borderRadius: BorderRadius.circular(999),
+                borderRadius: PRadius.brPill,
                 child: LinearProgressIndicator(
                   value: row.now / maxAmt,
                   minHeight: 10,
@@ -2042,7 +2043,7 @@ class _CompareRow extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               ClipRRect(
-                borderRadius: BorderRadius.circular(999),
+                borderRadius: PRadius.brPill,
                 child: LinearProgressIndicator(
                   value: row.prev / maxAmt,
                   minHeight: 6,

@@ -302,7 +302,7 @@ class _ArrowBtn extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(999),
+      borderRadius: PRadius.brPill,
       child: SizedBox(
         width: 28,
         height: 28,

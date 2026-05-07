@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
+import '../../app/theme/radius.dart';
 import '../../app/theme/spacing.dart';
 import '../../app/theme/tokens.dart';
 import '../../app/theme/typography.dart';
@@ -109,7 +110,7 @@ class _TabItem extends StatelessWidget {
     final color = selected ? tokens.fgBrand : tokens.fgTertiary;
     return InkWell(
       onTap: onTap,
-      borderRadius: const BorderRadius.all(Radius.circular(8)),
+      borderRadius: const BorderRadius.all(Radius.circular(PRadius.md)),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 4),
         child: Column(

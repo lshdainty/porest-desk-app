@@ -399,7 +399,7 @@ class _TodoRow extends StatelessWidget {
                 height: 22,
                 decoration: BoxDecoration(
                   color: todo.done ? tokens.statusSuccess : Colors.transparent,
-                  borderRadius: BorderRadius.circular(6),
+                  borderRadius: PRadius.brSm,
                   border: Border.all(
                       color: todo.done
                           ? tokens.statusSuccess

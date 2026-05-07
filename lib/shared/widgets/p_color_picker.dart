@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
+import '../../app/theme/radius.dart';
 import '../../app/theme/tokens.dart';
 import '../../core/format/color_parse.dart';
 
@@ -111,7 +112,7 @@ class PIconPicker extends StatelessWidget {
               height: size,
               decoration: BoxDecoration(
                 color: name == selected ? t.bgBrandSubtle : t.bgMuted,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: PRadius.brMd,
                 border: Border.all(
                   color: name == selected ? t.borderBrand : Colors.transparent,
                   width: 1.5,

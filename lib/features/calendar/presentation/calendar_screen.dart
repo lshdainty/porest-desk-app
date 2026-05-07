@@ -250,7 +250,7 @@ class _EventRow extends StatelessWidget {
               height: 36,
               decoration: BoxDecoration(
                 color: color,
-                borderRadius: BorderRadius.circular(2),
+                borderRadius: PRadius.brXs2,
               ),
             ),
             const SizedBox(width: PSpace.x12),

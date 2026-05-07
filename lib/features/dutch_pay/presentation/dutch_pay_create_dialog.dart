@@ -121,7 +121,7 @@ class _BodyState extends ConsumerState<_Body> {
       backgroundColor: context.tokens.bgSurface,
       shape: const RoundedRectangleBorder(
         borderRadius:
-            BorderRadius.vertical(top: Radius.circular(16)),
+            BorderRadius.vertical(top: Radius.circular(PRadius.xl)),
       ),
       builder: (sheetCtx) {
         final t = sheetCtx.tokens;

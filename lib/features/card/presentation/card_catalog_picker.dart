@@ -24,7 +24,7 @@ Future<CardCatalogSummary?> showCardCatalogPicker(
     isScrollControlled: true,
     backgroundColor: context.tokens.bgSurface,
     shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      borderRadius: BorderRadius.vertical(top: Radius.circular(PRadius.xl)),
     ),
     builder: (sheetCtx) => _CardPickerSheet(initialType: cardType),
   );

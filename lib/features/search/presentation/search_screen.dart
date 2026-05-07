@@ -80,7 +80,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       isScrollControlled: true,
       backgroundColor: t.bgSurface,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(PRadius.xl)),
       ),
       builder: (sheetCtx) {
         return StatefulBuilder(builder: (ctx, setSheet) {

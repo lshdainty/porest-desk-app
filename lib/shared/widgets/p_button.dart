@@ -83,7 +83,7 @@ class PButton extends StatelessWidget {
         break;
       case PButtonVariant.danger:
         bg = t.statusDanger;
-        fg = Colors.white;
+        fg = t.fgOnDanger;
         border = BorderSide.none;
         break;
     }

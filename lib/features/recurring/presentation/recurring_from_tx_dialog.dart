@@ -26,7 +26,7 @@ void showRecurringFromTxDialog(BuildContext context, Expense expense) {
     backgroundColor:
         Theme.of(context).extension<PorestTokens>()?.bgSurface,
     shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      borderRadius: BorderRadius.vertical(top: Radius.circular(PRadius.xl2)),
     ),
     builder: (_) => DraggableScrollableSheet(
       initialChildSize: 0.85,
@@ -193,7 +193,7 @@ class _RecurringFromTxBodyState extends ConsumerState<_RecurringFromTxBody> {
             height: 4,
             decoration: BoxDecoration(
               color: t.borderDefault,
-              borderRadius: BorderRadius.circular(2),
+              borderRadius: PRadius.brXs2,
             ),
           ),
           // Title bar
@@ -389,7 +389,7 @@ class _RecurringFromTxBodyState extends ConsumerState<_RecurringFromTxBody> {
                             decoration: BoxDecoration(
                               color: t.bgSurface,
                               border: Border.all(color: t.borderDefault),
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: PRadius.brMd,
                             ),
                             child: Row(
                               children: [
@@ -442,7 +442,7 @@ class _RecurringFromTxBodyState extends ConsumerState<_RecurringFromTxBody> {
                     decoration: BoxDecoration(
                       color: t.bgSurface,
                       border: Border.all(color: t.borderSubtle),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: PRadius.brLg,
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -553,7 +553,7 @@ class _SourceCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: tokens.bgSurface,
         border: Border.all(color: tokens.borderSubtle),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: PRadius.brLg,
       ),
       child: Row(
         children: [
@@ -562,7 +562,7 @@ class _SourceCard extends StatelessWidget {
             height: 38,
             decoration: BoxDecoration(
               color: fg.withValues(alpha: 0.14),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: PRadius.brTile,
             ),
             alignment: Alignment.center,
             child: Icon(iconData, size: 18, color: fg),
@@ -751,7 +751,7 @@ class _RadioCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onSelect,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: PRadius.brLg,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
@@ -760,7 +760,7 @@ class _RadioCard extends StatelessWidget {
             color:
                 selected ? tokens.borderBrand : tokens.borderSubtle,
           ),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: PRadius.brLg,
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -844,7 +844,7 @@ class _ToggleRow extends StatelessWidget {
       decoration: BoxDecoration(
         color: tokens.bgSurface,
         border: Border.all(color: tokens.borderSubtle),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: PRadius.brLg,
       ),
       child: Row(
         children: [
@@ -853,7 +853,7 @@ class _ToggleRow extends StatelessWidget {
             height: 32,
             decoration: BoxDecoration(
               color: tokens.bgMuted,
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: PRadius.brMd,
             ),
             alignment: Alignment.center,
             child: Icon(icon, size: 16, color: tokens.fgSecondary),

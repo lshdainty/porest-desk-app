@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../app/theme/radius.dart';
 import '../../../../shared/brand/bank_colors.dart';
 import '../../domain/asset.dart';
 
@@ -33,7 +34,7 @@ class AssetLogo extends StatelessWidget {
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: bg,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: PRadius.brTile,
       ),
       child: Text(
         char,

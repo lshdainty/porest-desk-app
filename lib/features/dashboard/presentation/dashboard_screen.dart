@@ -218,6 +218,7 @@ class _BalanceHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.tokens;
     final loading = summaryAsync.isLoading && !summaryAsync.hasValue;
     final s = summaryAsync.value;
     final netWorth = (s?.netWorth as int?) ?? 0;
@@ -246,12 +247,12 @@ class _BalanceHero extends StatelessWidget {
               Row(
                 children: [
                   Icon(LucideIcons.wallet,
-                      size: 13, color: Colors.white.withValues(alpha: 0.72)),
+                      size: 13, color: t.fgOnBrand.withValues(alpha: 0.72)),
                   const SizedBox(width: 8),
                   Text(
                     '순자산',
                     style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.72),
+                      color: t.fgOnBrand.withValues(alpha: 0.72),
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
                       letterSpacing: -0.06,
@@ -263,15 +264,15 @@ class _BalanceHero extends StatelessWidget {
                     width: 26,
                     height: 26,
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.12),
+                      color: t.fgOnBrand.withValues(alpha: 0.12),
                       shape: BoxShape.circle,
                       border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.15)),
+                          color: t.fgOnBrand.withValues(alpha: 0.15)),
                     ),
                     child: Icon(
                       masked ? LucideIcons.eyeOff : LucideIcons.eye,
                       size: 13,
-                      color: Colors.white,
+                      color: t.fgOnBrand,
                     ),
                   ),
                 ],
@@ -284,20 +285,20 @@ class _BalanceHero extends StatelessWidget {
                 children: [
                   Text(
                     loading ? '—' : krwMasked(netWorth, masked),
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: t.fgOnBrand,
                       fontSize: 34,
                       fontWeight: FontWeight.w800,
                       letterSpacing: -1.02, // -0.03em × 34
                       height: 1.1,
-                      fontFeatures: [FontFeature.tabularFigures()],
+                      fontFeatures: const [FontFeature.tabularFigures()],
                     ),
                   ),
                   const SizedBox(width: 4),
                   Text(
                     '원',
                     style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.8),
+                      color: t.fgOnBrand.withValues(alpha: 0.8),
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
                     ),
@@ -311,7 +312,7 @@ class _BalanceHero extends StatelessWidget {
                   Text(
                     '지난달 대비',
                     style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.78),
+                      color: t.fgOnBrand.withValues(alpha: 0.78),
                       fontSize: 12.5,
                     ),
                   ),
@@ -343,7 +344,7 @@ class _BalanceHero extends StatelessWidget {
                 decoration: BoxDecoration(
                   border: Border(
                     top: BorderSide(
-                        color: Colors.white.withValues(alpha: 0.14)),
+                        color: t.fgOnBrand.withValues(alpha: 0.14)),
                   ),
                 ),
                 child: IntrinsicHeight(
@@ -357,7 +358,7 @@ class _BalanceHero extends StatelessWidget {
                       ),
                       Container(
                         width: 1,
-                        color: Colors.white.withValues(alpha: 0.14),
+                        color: t.fgOnBrand.withValues(alpha: 0.14),
                       ),
                       Expanded(
                         child: Padding(
@@ -408,6 +409,7 @@ class _HeroSplitCol extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.tokens;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -415,7 +417,7 @@ class _HeroSplitCol extends StatelessWidget {
         Text(
           label,
           style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.7),
+            color: t.fgOnBrand.withValues(alpha: 0.7),
             fontSize: 11.5,
           ),
         ),
@@ -423,12 +425,12 @@ class _HeroSplitCol extends StatelessWidget {
         // .v: 16px / 700 / -0.015em / tabular-nums
         Text(
           value,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: t.fgOnBrand,
             fontSize: 16,
             fontWeight: FontWeight.w700,
             letterSpacing: -0.24,
-            fontFeatures: [FontFeature.tabularFigures()],
+            fontFeatures: const [FontFeature.tabularFigures()],
           ),
         ),
       ],
@@ -494,7 +496,7 @@ class _QuickAction extends StatelessWidget {
             height: 32,
             decoration: BoxDecoration(
               color: tokens.bgBrandSubtle,
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: PRadius.brTile,
             ),
             child: Icon(icon, size: 18, color: tokens.fgBrandStrong),
           ),
@@ -766,7 +768,7 @@ class _ExpenseRow extends StatelessWidget {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                  color: bg, borderRadius: BorderRadius.circular(12)),
+                  color: bg, borderRadius: PRadius.brLg),
               alignment: Alignment.center,
               child: Icon(
                 lucideByName(

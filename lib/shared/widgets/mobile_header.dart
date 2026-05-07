@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
+import '../../app/theme/radius.dart';
 import '../../app/theme/tokens.dart';
 import '../../core/settings/hide_amounts_unlock_dialog.dart';
 import '../../core/settings/settings_notifier.dart';
@@ -101,7 +102,7 @@ class _NotificationBell extends ConsumerWidget {
       message: '알림',
       child: InkWell(
         onTap: () => context.push('/notifications'),
-        borderRadius: BorderRadius.circular(999),
+        borderRadius: PRadius.brPill,
         child: SizedBox(
           width: 36,
           height: 36,
@@ -119,14 +120,14 @@ class _NotificationBell extends ConsumerWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 4),
                     decoration: BoxDecoration(
                       color: tokens.statusDanger,
-                      borderRadius: BorderRadius.circular(999),
+                      borderRadius: PRadius.brPill,
                       border: Border.all(color: tokens.bgSurface, width: 1.5),
                     ),
                     child: Center(
                       child: Text(
                         unread > 99 ? '99+' : '$unread',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: tokens.fgOnDanger,
                           fontSize: 9,
                           fontWeight: FontWeight.w700,
                           height: 1.0,
@@ -157,7 +158,7 @@ class _IcoBtn extends StatelessWidget {
       message: tooltip ?? '',
       child: InkWell(
         onTap: onPressed,
-        borderRadius: BorderRadius.circular(999),
+        borderRadius: PRadius.brPill,
         child: SizedBox(
           width: 36,
           height: 36,

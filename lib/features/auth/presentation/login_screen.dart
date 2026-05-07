@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 import '../../../app/env.dart';
+import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
@@ -125,7 +126,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               bottom: PSpace.x16,
               child: Material(
                 color: t.statusDangerSubtle,
-                borderRadius: const BorderRadius.all(Radius.circular(8)),
+                borderRadius: const BorderRadius.all(Radius.circular(PRadius.md)),
                 child: Padding(
                   padding: const EdgeInsets.all(PSpace.x12),
                   child: Text(_error!,

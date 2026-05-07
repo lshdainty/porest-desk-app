@@ -175,12 +175,12 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                 await _clearMonth(context, ref);
               }
             },
-            itemBuilder: (_) => const [
-              PopupMenuItem(value: 'copyFromPrev', child: Text('전월 예산 복사')),
+            itemBuilder: (_) => [
+              const PopupMenuItem(value: 'copyFromPrev', child: Text('전월 예산 복사')),
               PopupMenuItem(
                 value: 'clearMonth',
                 child: Text('이번 달 전체 삭제',
-                    style: TextStyle(color: Colors.red)),
+                    style: TextStyle(color: t.statusDangerFg)),
               ),
             ],
           ),
@@ -598,7 +598,7 @@ class _ComplianceBar extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: overLimit ? tokens.statusDanger : tokens.fgBrand,
                   borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(3)),
+                      top: Radius.circular(PRadius.xs2)),
                 ),
               ),
             ),

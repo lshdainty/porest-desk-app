@@ -64,12 +64,12 @@ class GroupDetailScreen extends ConsumerWidget {
                     await _confirmDelete(context, ref, detail);
                   }
                 },
-                itemBuilder: (_) => const [
-                  PopupMenuItem(value: 'edit', child: Text('그룹 수정')),
+                itemBuilder: (_) => [
+                  const PopupMenuItem(value: 'edit', child: Text('그룹 수정')),
                   PopupMenuItem(
                     value: 'delete',
                     child: Text('그룹 삭제',
-                        style: TextStyle(color: Colors.red)),
+                        style: TextStyle(color: t.statusDangerFg)),
                   ),
                 ],
               ),
@@ -730,10 +730,10 @@ class _MemberRow extends ConsumerWidget {
                 if (member.role != 'MEMBER')
                   const PopupMenuItem(
                       value: 'MEMBER', child: Text('일반 멤버로')),
-                const PopupMenuItem(
+                PopupMenuItem(
                     value: 'remove',
                     child: Text('내보내기',
-                        style: TextStyle(color: Colors.red))),
+                        style: TextStyle(color: tokens.statusDangerFg))),
               ],
             ),
         ],

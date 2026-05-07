@@ -25,7 +25,7 @@ void showDutchPayFromTxDialog(BuildContext context, Expense expense) {
     backgroundColor:
         Theme.of(context).extension<PorestTokens>()?.bgSurface,
     shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      borderRadius: BorderRadius.vertical(top: Radius.circular(PRadius.xl2)),
     ),
     builder: (_) => DraggableScrollableSheet(
       initialChildSize: 0.9,
@@ -325,7 +325,7 @@ class _BodyState extends ConsumerState<_Body> {
             height: 4,
             decoration: BoxDecoration(
               color: t.borderDefault,
-              borderRadius: BorderRadius.circular(2),
+              borderRadius: PRadius.brXs2,
             ),
           ),
           Padding(
@@ -368,7 +368,7 @@ class _BodyState extends ConsumerState<_Body> {
                   decoration: BoxDecoration(
                     color: t.bgSurface,
                     border: Border.all(color: t.borderSubtle),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: PRadius.brLg,
                   ),
                   child: Row(
                     children: [
@@ -377,7 +377,7 @@ class _BodyState extends ConsumerState<_Body> {
                         height: 38,
                         decoration: BoxDecoration(
                           color: fg.withValues(alpha: 0.14),
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: PRadius.brTile,
                         ),
                         alignment: Alignment.center,
                         child: Icon(iconData, size: 18, color: fg),
@@ -467,7 +467,7 @@ class _BodyState extends ConsumerState<_Body> {
 
                 // 나도 포함
                 InkWell(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: PRadius.brLg,
                   onTap: () => setState(() => _includeMyself = !_includeMyself),
                   child: Container(
                     padding: const EdgeInsets.symmetric(
@@ -475,7 +475,7 @@ class _BodyState extends ConsumerState<_Body> {
                     decoration: BoxDecoration(
                       color: t.bgSurface,
                       border: Border.all(color: t.borderSubtle),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: PRadius.brLg,
                     ),
                     child: Row(
                       children: [
@@ -492,7 +492,7 @@ class _BodyState extends ConsumerState<_Body> {
                                   : t.borderDefault,
                               width: 2,
                             ),
-                            borderRadius: BorderRadius.circular(5),
+                            borderRadius: PRadius.brSm,
                           ),
                           alignment: Alignment.center,
                           child: _includeMyself
@@ -763,7 +763,7 @@ class _SplitCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: PRadius.brLg,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         decoration: BoxDecoration(
@@ -772,7 +772,7 @@ class _SplitCard extends StatelessWidget {
             color:
                 selected ? tokens.borderBrand : tokens.borderSubtle,
           ),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: PRadius.brLg,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -850,7 +850,7 @@ class _ParticipantRow extends StatelessWidget {
       decoration: BoxDecoration(
         color: tokens.bgSurface,
         border: Border.all(color: tokens.borderSubtle),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: PRadius.brLg,
       ),
       child: Row(
         children: [
@@ -885,7 +885,7 @@ class _ParticipantRow extends StatelessWidget {
                         horizontal: 7, vertical: 2),
                     decoration: BoxDecoration(
                       color: tokens.fgBrand.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(999),
+                      borderRadius: PRadius.brPill,
                     ),
                     child: Text('나',
                         style: PTypo.caption.copyWith(

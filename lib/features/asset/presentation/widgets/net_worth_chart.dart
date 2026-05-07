@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/theme/colors.dart';
+import '../../../../app/theme/radius.dart';
 import '../../../../app/theme/tokens.dart';
 import '../../../../core/settings/settings_notifier.dart';
 import '../../application/asset_providers.dart';
@@ -115,7 +116,7 @@ class NetWorthChart extends ConsumerWidget {
                 touchTooltipData: LineTouchTooltipData(
                   getTooltipColor: (_) => t.bgSurface,
                   tooltipBorder: BorderSide(color: t.borderSubtle),
-                  tooltipBorderRadius: BorderRadius.circular(10),
+                  tooltipBorderRadius: PRadius.brTile,
                   tooltipPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                   getTooltipItems: (spots) => [
                     for (final s in spots)

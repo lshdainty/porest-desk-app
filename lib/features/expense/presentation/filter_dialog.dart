@@ -80,7 +80,7 @@ Future<ExpenseFilter?> showFilterDialog(
     backgroundColor:
         Theme.of(context).extension<PorestTokens>()?.bgSurface,
     shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      borderRadius: BorderRadius.vertical(top: Radius.circular(PRadius.xl2)),
     ),
     builder: (ctx) => DraggableScrollableSheet(
       initialChildSize: 0.85,
@@ -191,7 +191,7 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
           height: 4,
           decoration: BoxDecoration(
             color: t.borderSubtle,
-            borderRadius: BorderRadius.circular(2),
+            borderRadius: PRadius.brXs2,
           ),
         ),
         Padding(
