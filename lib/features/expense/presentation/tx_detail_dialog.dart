@@ -12,7 +12,7 @@ import '../../../core/network/api_exception.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../asset/application/asset_providers.dart';
-import '../../dutch_pay/presentation/dutch_pay_create_dialog.dart';
+import '../../dutch_pay/presentation/dutch_pay_from_tx_dialog.dart';
 import '../../expense_split/presentation/split_tx_dialog.dart';
 import '../../recurring/presentation/recurring_from_tx_dialog.dart';
 import '../application/expense_providers.dart';
@@ -393,8 +393,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                           ? null
                           : () {
                               Navigator.of(context).pop();
-                              showDutchPayCreateDialog(context,
-                                  fromExpense: e);
+                              showDutchPayFromTxDialog(context, e);
                             },
                     ),
                   ),
