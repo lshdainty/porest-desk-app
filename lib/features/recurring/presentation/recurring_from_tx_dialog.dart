@@ -493,10 +493,7 @@ class _RecurringFromTxBodyState extends ConsumerState<_RecurringFromTxBody> {
           Container(
             padding: const EdgeInsets.symmetric(
                 horizontal: PSpace.x20, vertical: PSpace.x12),
-            decoration: BoxDecoration(
-              color: t.bgSurface,
-              border: Border(top: BorderSide(color: t.borderSubtle)),
-            ),
+            color: t.bgSurface,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [

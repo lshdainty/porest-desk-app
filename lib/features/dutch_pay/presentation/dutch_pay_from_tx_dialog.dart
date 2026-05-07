@@ -670,10 +670,7 @@ class _BodyState extends ConsumerState<_Body> {
           Container(
             padding: const EdgeInsets.fromLTRB(
                 PSpace.x12, PSpace.x8, PSpace.x12, PSpace.x12),
-            decoration: BoxDecoration(
-              color: t.bgSurface,
-              border: Border(top: BorderSide(color: t.borderSubtle)),
-            ),
+            color: t.bgSurface,
             child: Row(
               children: [
                 Expanded(
