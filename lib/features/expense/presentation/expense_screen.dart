@@ -120,7 +120,10 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                     income: monthIncome,
                     expense: monthExpense,
                     masked: settings.hideAmounts,
-                    onPickMonth: () => _pickMonth(t),
+                    onPrev: () => setState(() => _month =
+                        DateTime(_month.year, _month.month - 1, 1)),
+                    onNext: () => setState(() => _month =
+                        DateTime(_month.year, _month.month + 1, 1)),
                   ),
                   const SizedBox(height: PSpace.x12),
                   _FilterRow(
@@ -160,36 +163,26 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
     );
   }
 
-  Future<void> _pickMonth(PorestTokens t) async {
-    final picked = await showModalBottomSheet<DateTime>(
-      context: context,
-      backgroundColor: t.bgSurface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (ctx) => _MonthGridSheet(initial: _month),
-    );
-    if (picked != null && mounted) {
-      setState(() => _month = DateTime(picked.year, picked.month, 1));
-    }
-  }
 }
 
-/// 월 요약 카드 — front HomeMobile/ExpenseMobile 의 패턴 미러.
-/// 헤더에 "YYYY년 M월" + 우측 dropdown 트리거, 본문은 수입/지출/합계 3-col grid.
+/// 월 요약 카드 — front ExpenseMobile/Desktop 미러.
+/// 헤더: "YYYY년 M월" + 우측 prev/next 화살표 (멀리 떨어진 월은 상세 필터에서).
+/// 본문: 수입/지출/합계 3-col grid.
 class _SummaryCard extends StatelessWidget {
   const _SummaryCard({
     required this.month,
     required this.income,
     required this.expense,
     required this.masked,
-    required this.onPickMonth,
+    required this.onPrev,
+    required this.onNext,
   });
   final DateTime month;
   final int income;
   final int expense;
   final bool masked;
-  final VoidCallback onPickMonth;
+  final VoidCallback onPrev;
+  final VoidCallback onNext;
 
   @override
   Widget build(BuildContext context) {
@@ -217,33 +210,11 @@ class _SummaryCard extends StatelessWidget {
                 ),
               ),
               const Spacer(),
-              InkWell(
-                onTap: onPickMonth,
-                borderRadius: PRadius.brSm,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: PSpace.x12, vertical: 6),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: t.borderSubtle),
-                    borderRadius: PRadius.brSm,
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(LucideIcons.calendar,
-                          size: 13, color: t.fgSecondary),
-                      const SizedBox(width: 6),
-                      Text('${month.year}년 ${month.month}월',
-                          style: PTypo.caption.copyWith(
-                              color: t.fgSecondary,
-                              fontWeight: FontWeight.w600)),
-                      const SizedBox(width: 6),
-                      Icon(LucideIcons.chevronDown,
-                          size: 12, color: t.fgSecondary),
-                    ],
-                  ),
-                ),
-              ),
+              _ArrowBtn(
+                  icon: LucideIcons.chevronLeft, onTap: onPrev, tokens: t),
+              const SizedBox(width: 4),
+              _ArrowBtn(
+                  icon: LucideIcons.chevronRight, onTap: onNext, tokens: t),
             ],
           ),
           const SizedBox(height: 14),
@@ -270,6 +241,33 @@ class _SummaryCard extends StatelessWidget {
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// 월 prev/next 화살표 — _SummaryCard 헤더 우측에 사용.
+class _ArrowBtn extends StatelessWidget {
+  const _ArrowBtn(
+      {required this.icon, required this.onTap, required this.tokens});
+  final IconData icon;
+  final VoidCallback onTap;
+  final PorestTokens tokens;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: PRadius.brSm,
+      child: Container(
+        width: 32,
+        height: 32,
+        decoration: BoxDecoration(
+          border: Border.all(color: tokens.borderSubtle),
+          borderRadius: PRadius.brSm,
+        ),
+        alignment: Alignment.center,
+        child: Icon(icon, size: 16, color: tokens.fgSecondary),
       ),
     );
   }
@@ -440,105 +438,6 @@ class _Chip extends StatelessWidget {
 }
 
 /// 월 선택 BottomSheet — 12개월 grid + 좌우 화살표로 연도 이동.
-class _MonthGridSheet extends StatefulWidget {
-  const _MonthGridSheet({required this.initial});
-  final DateTime initial;
-  @override
-  State<_MonthGridSheet> createState() => _MonthGridSheetState();
-}
-
-class _MonthGridSheetState extends State<_MonthGridSheet> {
-  late int _year = widget.initial.year;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    final now = DateTime.now();
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              children: [
-                IconButton(
-                  onPressed: () => setState(() => _year -= 1),
-                  icon: Icon(LucideIcons.chevronLeft, color: t.fgSecondary),
-                ),
-                Expanded(
-                  child: Text('$_year년',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          color: t.fgPrimary,
-                          fontSize: 17,
-                          fontWeight: FontWeight.w700)),
-                ),
-                IconButton(
-                  onPressed: () => setState(() => _year += 1),
-                  icon: Icon(LucideIcons.chevronRight, color: t.fgSecondary),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            GridView.count(
-              crossAxisCount: 4,
-              mainAxisSpacing: 8,
-              crossAxisSpacing: 8,
-              childAspectRatio: 1.6,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              children: [
-                for (int m = 1; m <= 12; m++)
-                  _MonthCell(
-                    label: '$m월',
-                    selected: _year == widget.initial.year &&
-                        m == widget.initial.month,
-                    isCurrentMonth: _year == now.year && m == now.month,
-                    onTap: () => Navigator.of(context).pop(DateTime(_year, m, 1)),
-                  ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _MonthCell extends StatelessWidget {
-  const _MonthCell({
-    required this.label,
-    required this.selected,
-    required this.isCurrentMonth,
-    required this.onTap,
-  });
-  final String label;
-  final bool selected;
-  final bool isCurrentMonth;
-  final VoidCallback onTap;
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    return InkWell(
-      onTap: onTap,
-      borderRadius: PRadius.brSm,
-      child: Container(
-        decoration: BoxDecoration(
-          color: selected ? t.bgBrand : t.bgMuted,
-          border: Border.all(
-              color: isCurrentMonth && !selected ? t.borderBrand : Colors.transparent),
-          borderRadius: PRadius.brSm,
-        ),
-        alignment: Alignment.center,
-        child: Text(label,
-            style: PTypo.bodySm.copyWith(
-                color: selected ? t.fgOnBrand : t.fgPrimary,
-                fontWeight: FontWeight.w600)),
-      ),
-    );
-  }
-}
 
 class _DayGroup extends ConsumerWidget {
   const _DayGroup({
