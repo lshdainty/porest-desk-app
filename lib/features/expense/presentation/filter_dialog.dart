@@ -623,7 +623,7 @@ class _CategoryTile extends StatelessWidget {
           color: active ? t.bgBrandSubtle : Colors.transparent,
           border: Border.all(
               color: active ? t.borderBrand : t.borderSubtle),
-          borderRadius: PRadius.brSm,
+          borderRadius: const BorderRadius.all(Radius.circular(10)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -633,7 +633,7 @@ class _CategoryTile extends StatelessWidget {
               height: 32,
               decoration: BoxDecoration(
                 color: softBg(color),
-                borderRadius: PRadius.brSm,
+                borderRadius: const BorderRadius.all(Radius.circular(10)),
               ),
               alignment: Alignment.center,
               child: Icon(icon, size: 18, color: color),
