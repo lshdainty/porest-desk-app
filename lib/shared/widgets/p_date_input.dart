@@ -41,12 +41,14 @@ class PDateInput extends StatelessWidget {
         );
         if (p != null) onChanged(p);
       },
+      borderRadius: PRadius.brSm,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        height: 36,
+        padding: const EdgeInsets.symmetric(horizontal: PSpace.x12),
         decoration: BoxDecoration(
-          color: t.bgMuted,
-          borderRadius: PRadius.brMd,
-          border: Border.all(color: t.borderDefault),
+          color: t.bgSurface,
+          borderRadius: PRadius.brSm,
+          border: Border.all(color: t.borderSubtle),
         ),
         child: Row(
           children: [
@@ -99,12 +101,14 @@ class PTimeInput extends StatelessWidget {
         );
         if (p != null) onChanged(p);
       },
+      borderRadius: PRadius.brSm,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        height: 36,
+        padding: const EdgeInsets.symmetric(horizontal: PSpace.x12),
         decoration: BoxDecoration(
-          color: t.bgMuted,
-          borderRadius: PRadius.brMd,
-          border: Border.all(color: t.borderDefault),
+          color: t.bgSurface,
+          borderRadius: PRadius.brSm,
+          border: Border.all(color: t.borderSubtle),
         ),
         child: Row(
           children: [

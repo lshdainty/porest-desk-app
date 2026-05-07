@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
@@ -9,6 +8,10 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/format/color_parse.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
+import '../../../shared/widgets/p_category_tile.dart';
+import '../../../shared/widgets/p_segmented.dart';
+import '../../../shared/widgets/p_text_input.dart';
+import '../../../shared/widgets/p_type_chip.dart';
 import '../../asset/application/asset_providers.dart';
 import '../application/expense_providers.dart';
 
@@ -280,44 +283,21 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
   }
 
   Widget _periodSection(PorestTokens t) {
-    const opts = [
-      (FilterPeriod.week, '이번 주'),
-      (FilterPeriod.month, '이번 달'),
-      (FilterPeriod.threeMonth, '3개월'),
-      (FilterPeriod.custom, '직접 선택'),
-    ];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _label('기간', t),
-        Container(
-          padding: const EdgeInsets.all(4),
-          decoration:
-              BoxDecoration(color: t.bgMuted, borderRadius: PRadius.brSm),
-          child: Row(
-            children: [
-              for (final o in opts)
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => setState(() => _period = o.$1),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      decoration: BoxDecoration(
-                        color: o.$1 == _period ? t.bgBrand : Colors.transparent,
-                        borderRadius: PRadius.brXs,
-                      ),
-                      alignment: Alignment.center,
-                      child: Text(o.$2,
-                          style: PTypo.caption.copyWith(
-                              color: o.$1 == _period
-                                  ? t.fgOnBrand
-                                  : t.fgSecondary,
-                              fontWeight: FontWeight.w600)),
-                    ),
-                  ),
-                ),
-            ],
-          ),
+        PSegmented<FilterPeriod>(
+          value: _period,
+          onChanged: (v) => setState(() => _period = v),
+          options: const [
+            PSegmentOption(value: FilterPeriod.week, label: '이번 주'),
+            PSegmentOption(value: FilterPeriod.month, label: '이번 달'),
+            PSegmentOption(
+                value: FilterPeriod.threeMonth, label: '3개월'),
+            PSegmentOption(
+                value: FilterPeriod.custom, label: '직접 선택'),
+          ],
         ),
         if (_period == FilterPeriod.custom) ...[
           const SizedBox(height: 10),
@@ -391,65 +371,36 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
   }
 
   Widget _typeSection(PorestTokens t) {
-    const opts = [
-      ('EXPENSE', '지출'),
-      ('INCOME', '수입'),
-    ];
+    void toggle(String code) => setState(() {
+          if (_types.contains(code)) {
+            _types.remove(code);
+          } else {
+            _types.add(code);
+          }
+        });
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _label('거래 종류', t),
         Row(
           children: [
-            for (int i = 0; i < opts.length; i++) ...[
-              if (i > 0) const SizedBox(width: 8),
-              Expanded(
-                child: GestureDetector(
-                  onTap: () => setState(() {
-                    if (_types.contains(opts[i].$1)) {
-                      _types.remove(opts[i].$1);
-                    } else {
-                      _types.add(opts[i].$1);
-                    }
-                  }),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    decoration: BoxDecoration(
-                      color: _types.contains(opts[i].$1)
-                          ? t.bgBrandSubtle
-                          : t.bgMuted,
-                      border: Border.all(
-                          color: _types.contains(opts[i].$1)
-                              ? t.borderBrand
-                              : t.borderSubtle),
-                      borderRadius: PRadius.brSm,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        if (_types.contains(opts[i].$1))
-                          Icon(LucideIcons.check,
-                              size: 12,
-                              color: opts[i].$1 == 'EXPENSE'
-                                  ? t.statusDangerFg
-                                  : t.statusSuccessFg),
-                        if (_types.contains(opts[i].$1))
-                          const SizedBox(width: 4),
-                        Text(opts[i].$2,
-                            style: PTypo.bodySm.copyWith(
-                              fontWeight: FontWeight.w700,
-                              color: _types.contains(opts[i].$1)
-                                  ? (opts[i].$1 == 'EXPENSE'
-                                      ? t.statusDangerFg
-                                      : t.statusSuccessFg)
-                                  : t.fgTertiary,
-                            )),
-                      ],
-                    ),
-                  ),
-                ),
+            Expanded(
+              child: PTypeChip(
+                label: '지출',
+                active: _types.contains('EXPENSE'),
+                activeColor: t.statusDangerFg,
+                onTap: () => toggle('EXPENSE'),
               ),
-            ],
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: PTypeChip(
+                label: '수입',
+                active: _types.contains('INCOME'),
+                activeColor: t.statusSuccessFg,
+                onTap: () => toggle('INCOME'),
+              ),
+            ),
           ],
         ),
       ],
@@ -476,7 +427,7 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
           physics: const NeverScrollableScrollPhysics(),
           children: [
             for (final c in parents)
-              _CategoryTile(
+              PCategoryTile(
                 name: c.categoryName,
                 color: parseColor(c.color, fallback: t.fgBrand),
                 icon: lucideByName(c.icon, fallback: LucideIcons.tag),
@@ -551,104 +502,22 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
         _label('금액 범위', t),
         Row(
           children: [
-            Expanded(child: _amountInput(t, _minCtrl, '최소 금액')),
+            Expanded(
+                child: PTextInput(
+                    controller: _minCtrl,
+                    placeholder: '최소 금액',
+                    numbersOnly: true)),
             const SizedBox(width: 8),
             Text('~', style: PTypo.body.copyWith(color: t.fgTertiary)),
             const SizedBox(width: 8),
-            Expanded(child: _amountInput(t, _maxCtrl, '최대 금액')),
+            Expanded(
+                child: PTextInput(
+                    controller: _maxCtrl,
+                    placeholder: '최대 금액',
+                    numbersOnly: true)),
           ],
         ),
       ],
-    );
-  }
-
-  Widget _amountInput(
-      PorestTokens t, TextEditingController ctrl, String hint) {
-    return SizedBox(
-      height: 36,
-      child: TextField(
-        controller: ctrl,
-        keyboardType: TextInputType.number,
-        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-        style: PTypo.bodySm
-            .copyWith(color: t.fgPrimary, fontFamily: 'monospace'),
-        decoration: InputDecoration(
-          hintText: hint,
-          hintStyle: PTypo.bodySm.copyWith(color: t.fgTertiary),
-          filled: true,
-          fillColor: t.bgSurface,
-          isDense: true,
-          contentPadding: const EdgeInsets.symmetric(
-              horizontal: PSpace.x12, vertical: 8),
-          border: OutlineInputBorder(
-            borderRadius: PRadius.brSm,
-            borderSide: BorderSide(color: t.borderSubtle),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: PRadius.brSm,
-            borderSide: BorderSide(color: t.borderSubtle),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: PRadius.brSm,
-            borderSide: BorderSide(color: t.borderBrand),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _CategoryTile extends StatelessWidget {
-  const _CategoryTile({
-    required this.name,
-    required this.color,
-    required this.icon,
-    required this.active,
-    required this.onTap,
-  });
-  final String name;
-  final Color color;
-  final IconData icon;
-  final bool active;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
-        decoration: BoxDecoration(
-          color: active ? t.bgBrandSubtle : Colors.transparent,
-          border: Border.all(
-              color: active ? t.borderBrand : t.borderSubtle),
-          borderRadius: const BorderRadius.all(Radius.circular(10)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: softBg(color),
-                borderRadius: const BorderRadius.all(Radius.circular(10)),
-              ),
-              alignment: Alignment.center,
-              child: Icon(icon, size: 18, color: color),
-            ),
-            const SizedBox(height: 4),
-            Text(name,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: PTypo.micro.copyWith(
-                  color: active ? t.fgBrandStrong : t.fgSecondary,
-                  fontWeight: active ? FontWeight.w700 : FontWeight.w500,
-                )),
-          ],
-        ),
-      ),
     );
   }
 }
