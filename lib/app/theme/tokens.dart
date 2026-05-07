@@ -63,6 +63,12 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     required this.statusInfo,
     required this.statusInfoSubtle,
     required this.statusInfoFg,
+    required this.fgExpense,
+    required this.fgIncome,
+    required this.fgTransfer,
+    required this.bgExpenseSubtle,
+    required this.bgIncomeSubtle,
+    required this.bgTransferSubtle,
     required this.surfaceHero,
   });
 
@@ -122,6 +128,15 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
   final Color statusInfoSubtle;
   final Color statusInfoFg;
 
+  // Tx semantic — 거래 종류별 색
+  // 지출=danger 톤 / 수입=brand 톤 / 이체=info 톤
+  final Color fgExpense;
+  final Color fgIncome;
+  final Color fgTransfer;
+  final Color bgExpenseSubtle;
+  final Color bgIncomeSubtle;
+  final Color bgTransferSubtle;
+
   // Hero
   final Color surfaceHero;
 
@@ -175,6 +190,13 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     statusInfo: PorestPalette.sky500,
     statusInfoSubtle: PorestPalette.sky100,
     statusInfoFg: PorestPalette.sky700,
+    // Tx semantic — 웹 --fg-expense / --fg-income / --fg-transfer 미러
+    fgExpense: PorestPalette.berry700,
+    fgIncome: PorestPalette.mossy700,
+    fgTransfer: PorestPalette.sky700,
+    bgExpenseSubtle: PorestPalette.berry100,
+    bgIncomeSubtle: PorestPalette.mossy50,
+    bgTransferSubtle: PorestPalette.sky100,
     surfaceHero: PorestPalette.mossy50,
   );
 
@@ -228,6 +250,13 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     statusInfo: PorestPalette.sky500,
     statusInfoSubtle: Color(0x59243C5C),
     statusInfoFg: PorestPalette.sky300,
+    // Tx semantic — 다크 모드 변형
+    fgExpense: PorestPalette.berry300,
+    fgIncome: PorestPalette.mossy300,
+    fgTransfer: PorestPalette.sky300,
+    bgExpenseSubtle: Color(0x595A2926),
+    bgIncomeSubtle: Color(0x80453F1A),
+    bgTransferSubtle: Color(0x59243C5C),
     surfaceHero: Color(0x80453F1A),
   );
 
@@ -281,6 +310,12 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     Color? statusInfo,
     Color? statusInfoSubtle,
     Color? statusInfoFg,
+    Color? fgExpense,
+    Color? fgIncome,
+    Color? fgTransfer,
+    Color? bgExpenseSubtle,
+    Color? bgIncomeSubtle,
+    Color? bgTransferSubtle,
     Color? surfaceHero,
   }) {
     return PorestTokens(
@@ -332,6 +367,12 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
       statusInfo: statusInfo ?? this.statusInfo,
       statusInfoSubtle: statusInfoSubtle ?? this.statusInfoSubtle,
       statusInfoFg: statusInfoFg ?? this.statusInfoFg,
+      fgExpense: fgExpense ?? this.fgExpense,
+      fgIncome: fgIncome ?? this.fgIncome,
+      fgTransfer: fgTransfer ?? this.fgTransfer,
+      bgExpenseSubtle: bgExpenseSubtle ?? this.bgExpenseSubtle,
+      bgIncomeSubtle: bgIncomeSubtle ?? this.bgIncomeSubtle,
+      bgTransferSubtle: bgTransferSubtle ?? this.bgTransferSubtle,
       surfaceHero: surfaceHero ?? this.surfaceHero,
     );
   }
@@ -389,6 +430,12 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
       statusInfo: l(statusInfo, other.statusInfo),
       statusInfoSubtle: l(statusInfoSubtle, other.statusInfoSubtle),
       statusInfoFg: l(statusInfoFg, other.statusInfoFg),
+      fgExpense: l(fgExpense, other.fgExpense),
+      fgIncome: l(fgIncome, other.fgIncome),
+      fgTransfer: l(fgTransfer, other.fgTransfer),
+      bgExpenseSubtle: l(bgExpenseSubtle, other.bgExpenseSubtle),
+      bgIncomeSubtle: l(bgIncomeSubtle, other.bgIncomeSubtle),
+      bgTransferSubtle: l(bgTransferSubtle, other.bgTransferSubtle),
       surfaceHero: l(surfaceHero, other.surfaceHero),
     );
   }
