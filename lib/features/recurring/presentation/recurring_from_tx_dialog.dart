@@ -284,9 +284,11 @@ class _RecurringFromTxBodyState extends ConsumerState<_RecurringFromTxBody> {
                                 text: _dayOfMonth.toString())
                               ..selection = TextSelection.collapsed(
                                   offset: _dayOfMonth.toString().length),
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               isDense: true,
-                              contentPadding: EdgeInsets.symmetric(
+                              filled: true,
+                              fillColor: t.bgSurface,
+                              contentPadding: const EdgeInsets.symmetric(
                                   horizontal: 8, vertical: 8),
                             ),
                             onChanged: (v) {
@@ -352,9 +354,11 @@ class _RecurringFromTxBodyState extends ConsumerState<_RecurringFromTxBody> {
                                 ],
                                 onTap: () => setState(
                                     () => _endMode = _EndMode.count),
-                                decoration: const InputDecoration(
+                                decoration: InputDecoration(
                                   isDense: true,
-                                  contentPadding: EdgeInsets.symmetric(
+                                  filled: true,
+                                  fillColor: t.bgSurface,
+                                  contentPadding: const EdgeInsets.symmetric(
                                       horizontal: 8, vertical: 6),
                                 ),
                               ),
@@ -664,7 +668,7 @@ class _Segmented extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   decoration: BoxDecoration(
                     color: o.$1 == value
-                        ? tokens.bgSurface
+                        ? tokens.bgBrand
                         : Colors.transparent,
                     borderRadius: PRadius.brSm,
                   ),
@@ -672,10 +676,10 @@ class _Segmented extends StatelessWidget {
                       textAlign: TextAlign.center,
                       style: PTypo.bodySm.copyWith(
                           color: o.$1 == value
-                              ? tokens.fgPrimary
+                              ? tokens.fgOnBrand
                               : tokens.fgTertiary,
                           fontWeight: o.$1 == value
-                              ? FontWeight.w600
+                              ? FontWeight.w700
                               : FontWeight.w500)),
                 ),
               ),
