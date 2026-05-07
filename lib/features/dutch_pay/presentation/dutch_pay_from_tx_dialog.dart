@@ -357,7 +357,7 @@ class _BodyState extends ConsumerState<_Body> {
                 Text(
                   '이 거래를 기준으로 더치페이 정산을 만듭니다. 참여자에게 송금 요청을 보내고, 정산 진행 상황을 추적할 수 있어요.',
                   style: PTypo.bodySm.copyWith(
-                      color: t.fgSecondary, height: 1.55),
+                      color: t.fgSecondary, height: PLineHeight.normal),
                 ),
                 const SizedBox(height: 14),
 
@@ -891,7 +891,7 @@ class _ParticipantRow extends StatelessWidget {
                         style: PTypo.caption.copyWith(
                             color: tokens.fgBrand,
                             fontWeight: PFontWeight.bold,
-                            fontSize: 10)),
+                            fontSize: PFontSize.micro)),
                   ),
                 ],
               ],

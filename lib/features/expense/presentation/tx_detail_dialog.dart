@@ -174,7 +174,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
               Text(title,
                   style: TextStyle(
                       color: t.fgPrimary,
-                      fontSize: 17,
+                      fontSize: PFontSize.h4,
                       fontWeight: PFontWeight.bold,
                       letterSpacing: -0.34)),
               const Spacer(),
@@ -233,7 +233,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                             text: amountText,
                             style: TextStyle(
                               color: amountColor,
-                              fontSize: 34,
+                              fontSize: PFontSize.displayMd,
                               fontWeight: PFontWeight.heavy,
                               letterSpacing: -1.02,
                               fontFamily: 'monospace',
@@ -244,7 +244,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                               text: '원',
                               style: TextStyle(
                                 color: amountColor,
-                                fontSize: 18,
+                                fontSize: PFontSize.h4,
                                 fontWeight: PFontWeight.heavy,
                               ),
                             ),

@@ -202,7 +202,7 @@ class _NotiRow extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(_relativeTime(noti.createAt!),
                         style: PTypo.caption
-                            .copyWith(color: tokens.fgTertiary, fontSize: 10)),
+                            .copyWith(color: tokens.fgTertiary, fontSize: PFontSize.micro)),
                   ],
                 ],
               ),

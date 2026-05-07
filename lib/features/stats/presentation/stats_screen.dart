@@ -1054,7 +1054,7 @@ class _HeatmapCard extends StatelessWidget {
                                 fontWeight: PFontWeight.bold)),
                         Text(_heatRows[r].sub,
                             style: PTypo.micro.copyWith(
-                                color: t.fgTertiary, fontSize: 9)),
+                                color: t.fgTertiary, fontSize: PFontSize.micro)),
                       ],
                     ),
                   ),
@@ -1076,7 +1076,7 @@ class _HeatmapCard extends StatelessWidget {
                                   color: fgFor(
                                       _heatBucket(matrix[r][c], maxV)),
                                   fontWeight: PFontWeight.bold,
-                                  fontSize: 10),
+                                  fontSize: PFontSize.micro),
                             ),
                           ),
                         ),
@@ -1395,7 +1395,7 @@ class _TrendBigCard extends StatelessWidget {
                           padding: const EdgeInsets.only(right: 6),
                           child: Text(_fmtTick(v),
                               style: PTypo.micro.copyWith(
-                                  color: t.fgTertiary, fontSize: 9)),
+                                  color: t.fgTertiary, fontSize: PFontSize.micro)),
                         ),
                       ),
                     ),
@@ -1418,7 +1418,7 @@ class _TrendBigCard extends StatelessWidget {
                             padding: const EdgeInsets.only(top: 6),
                             child: Text(data[i].label,
                                 style: PTypo.micro.copyWith(
-                                    color: t.fgTertiary, fontSize: 9)),
+                                    color: t.fgTertiary, fontSize: PFontSize.micro)),
                           );
                         },
                       ),
@@ -1646,7 +1646,7 @@ class _SavingsBarsCard extends StatelessWidget {
                           padding: const EdgeInsets.only(right: 6),
                           child: Text(_fmtTick(v),
                               style: PTypo.micro.copyWith(
-                                  color: t.fgTertiary, fontSize: 9)),
+                                  color: t.fgTertiary, fontSize: PFontSize.micro)),
                         ),
                       ),
                     ),
@@ -1669,7 +1669,7 @@ class _SavingsBarsCard extends StatelessWidget {
                             padding: const EdgeInsets.only(top: 6),
                             child: Text(data[i].label,
                                 style: PTypo.micro.copyWith(
-                                    color: t.fgTertiary, fontSize: 9)),
+                                    color: t.fgTertiary, fontSize: PFontSize.micro)),
                           );
                         },
                       ),

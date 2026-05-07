@@ -248,7 +248,7 @@ class _SummaryCard extends StatelessWidget {
                 '${month.year}년 ${month.month}월',
                 style: TextStyle(
                   color: t.fgPrimary,
-                  fontSize: 16,
+                  fontSize: PFontSize.bodyLg,
                   fontWeight: PFontWeight.bold,
                   letterSpacing: -0.32,
                 ),
@@ -330,7 +330,7 @@ class _Stat extends StatelessWidget {
         Text(value,
             style: TextStyle(
               color: color,
-              fontSize: 16,
+              fontSize: PFontSize.bodyLg,
               fontWeight: PFontWeight.bold,
               letterSpacing: -0.24,
               fontFamily: 'monospace',

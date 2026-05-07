@@ -202,7 +202,7 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
               Text('필터',
                   style: TextStyle(
                       color: t.fgPrimary,
-                      fontSize: 17,
+                      fontSize: PFontSize.h4,
                       fontWeight: PFontWeight.bold,
                       letterSpacing: -0.34)),
               const Spacer(),

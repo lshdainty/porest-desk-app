@@ -223,7 +223,7 @@ class _GoalCard extends StatelessWidget {
                                     style: PTypo.caption.copyWith(
                                         color: tokens.statusSuccessFg,
                                         fontWeight: PFontWeight.bold,
-                                        fontSize: 10)),
+                                        fontSize: PFontSize.micro)),
                               ),
                             ],
                           ],

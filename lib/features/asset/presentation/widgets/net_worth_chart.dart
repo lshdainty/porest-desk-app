@@ -28,13 +28,13 @@ class NetWorthChart extends ConsumerWidget {
         loading: () => Center(
           child: Text(
             '불러오는 중…',
-            style: TextStyle(color: t.fgTertiary, fontSize: 13),
+            style: TextStyle(color: t.fgTertiary, fontSize: PFontSize.bodySm),
           ),
         ),
         error: (_, __) => Center(
           child: Text(
             '추이 데이터를 불러오지 못했어요',
-            style: TextStyle(color: t.fgTertiary, fontSize: 13),
+            style: TextStyle(color: t.fgTertiary, fontSize: PFontSize.bodySm),
           ),
         ),
         data: (points) {
@@ -42,7 +42,7 @@ class NetWorthChart extends ConsumerWidget {
             return Center(
               child: Text(
                 '추이 데이터가 없어요',
-                style: TextStyle(color: t.fgTertiary, fontSize: 13),
+                style: TextStyle(color: t.fgTertiary, fontSize: PFontSize.bodySm),
               ),
             );
           }
@@ -85,7 +85,7 @@ class NetWorthChart extends ConsumerWidget {
                       padding: const EdgeInsets.only(right: 4),
                       child: Text(
                         masked ? '•••' : _fmtAxis(v),
-                        style: TextStyle(color: t.fgTertiary, fontSize: 10),
+                        style: TextStyle(color: t.fgTertiary, fontSize: PFontSize.micro),
                       ),
                     ),
                   ),
@@ -105,7 +105,7 @@ class NetWorthChart extends ConsumerWidget {
                         padding: const EdgeInsets.only(top: 6),
                         child: Text(
                           '${mm}월',
-                          style: TextStyle(color: t.fgTertiary, fontSize: 10),
+                          style: TextStyle(color: t.fgTertiary, fontSize: PFontSize.micro),
                         ),
                       );
                     },
@@ -123,7 +123,7 @@ class NetWorthChart extends ConsumerWidget {
                     for (final s in spots)
                       LineTooltipItem(
                         '${points[s.x.toInt()].month}\n${masked ? '•••' : _fmtFull(s.y)}',
-                        TextStyle(color: t.fgPrimary, fontSize: 11.5, fontWeight: PFontWeight.bold),
+                        TextStyle(color: t.fgPrimary, fontSize: PFontSize.caption, fontWeight: PFontWeight.bold),
                       ),
                   ],
                 ),

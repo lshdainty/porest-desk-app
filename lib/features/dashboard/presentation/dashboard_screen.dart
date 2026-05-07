@@ -253,7 +253,7 @@ class _BalanceHero extends StatelessWidget {
                     '순자산',
                     style: TextStyle(
                       color: t.fgOnBrand.withValues(alpha: 0.72),
-                      fontSize: 12,
+                      fontSize: PFontSize.caption,
                       fontWeight: PFontWeight.medium,
                       letterSpacing: -0.06,
                     ),
@@ -287,10 +287,10 @@ class _BalanceHero extends StatelessWidget {
                     loading ? '—' : krwMasked(netWorth, masked),
                     style: TextStyle(
                       color: t.fgOnBrand,
-                      fontSize: 34,
+                      fontSize: PFontSize.displayMd,
                       fontWeight: PFontWeight.heavy,
                       letterSpacing: -1.02, // -0.03em × 34
-                      height: 1.1,
+                      height: PLineHeight.tight,
                       fontFeatures: const [FontFeature.tabularFigures()],
                     ),
                   ),
@@ -299,7 +299,7 @@ class _BalanceHero extends StatelessWidget {
                     '원',
                     style: TextStyle(
                       color: t.fgOnBrand.withValues(alpha: 0.8),
-                      fontSize: 18,
+                      fontSize: PFontSize.h4,
                       fontWeight: PFontWeight.semi,
                     ),
                   ),
@@ -313,7 +313,7 @@ class _BalanceHero extends StatelessWidget {
                     '지난달 대비',
                     style: TextStyle(
                       color: t.fgOnBrand.withValues(alpha: 0.78),
-                      fontSize: 12.5,
+                      fontSize: PFontSize.bodySm,
                     ),
                   ),
                   const SizedBox(width: 6),
@@ -331,7 +331,7 @@ class _BalanceHero extends StatelessWidget {
                       color: isUp
                           ? PorestPalette.heroChgUp
                           : PorestPalette.heroChgDown,
-                      fontSize: 12.5,
+                      fontSize: PFontSize.bodySm,
                       fontWeight: PFontWeight.semi,
                     ),
                   ),
@@ -418,7 +418,7 @@ class _HeroSplitCol extends StatelessWidget {
           label,
           style: TextStyle(
             color: t.fgOnBrand.withValues(alpha: 0.7),
-            fontSize: 11.5,
+            fontSize: PFontSize.caption,
           ),
         ),
         const SizedBox(height: 4),
@@ -427,7 +427,7 @@ class _HeroSplitCol extends StatelessWidget {
           value,
           style: TextStyle(
             color: t.fgOnBrand,
-            fontSize: 16,
+            fontSize: PFontSize.bodyLg,
             fontWeight: PFontWeight.bold,
             letterSpacing: -0.24,
             fontFeatures: const [FontFeature.tabularFigures()],
@@ -505,7 +505,7 @@ class _QuickAction extends StatelessWidget {
             label,
             style: TextStyle(
               color: tokens.fgPrimary,
-              fontSize: 11.5,
+              fontSize: PFontSize.caption,
               fontWeight: PFontWeight.semi,
             ),
           ),
@@ -551,7 +551,7 @@ class _MonthExpenseCard extends StatelessWidget {
                 '$month월 가계부',
                 style: TextStyle(
                   color: t.fgPrimary,
-                  fontSize: 15,
+                  fontSize: PFontSize.bodyLg,
                   fontWeight: PFontWeight.bold,
                   letterSpacing: -0.225,
                 ),
@@ -565,7 +565,7 @@ class _MonthExpenseCard extends StatelessWidget {
           if (hasError)
             Text(
               '이번달 거래를 불러오지 못했습니다',
-              style: TextStyle(color: t.statusDanger, fontSize: 12.5),
+              style: TextStyle(color: t.statusDanger, fontSize: PFontSize.bodySm),
             )
           else
             Row(
@@ -608,13 +608,13 @@ class _IncomeExpenseCol extends StatelessWidget {
         Text(label,
             style: TextStyle(
                 color: t.fgTertiary,
-                fontSize: 11,
+                fontSize: PFontSize.micro,
                 fontWeight: PFontWeight.medium)),
         const SizedBox(height: 2),
         Text(value,
             style: TextStyle(
                 color: color,
-                fontSize: 17,
+                fontSize: PFontSize.h4,
                 fontWeight: PFontWeight.bold,
                 fontFeatures: const [FontFeature.tabularFigures()])),
       ],
@@ -668,7 +668,7 @@ class _RecentTxCard extends StatelessWidget {
                 '최근 거래',
                 style: TextStyle(
                   color: t.fgPrimary,
-                  fontSize: 15,
+                  fontSize: PFontSize.bodyLg,
                   fontWeight: PFontWeight.bold,
                   letterSpacing: -0.225,
                 ),
@@ -683,7 +683,7 @@ class _RecentTxCard extends StatelessWidget {
                       '전체',
                       style: TextStyle(
                         color: t.fgTertiary,
-                        fontSize: 12.5,
+                        fontSize: PFontSize.bodySm,
                       ),
                     ),
                   ],
@@ -701,7 +701,7 @@ class _RecentTxCard extends StatelessWidget {
                         ? '거래를 불러오지 못했습니다'
                         : '거래가 없어요',
                     style:
-                        TextStyle(color: t.fgTertiary, fontSize: 12)),
+                        TextStyle(color: t.fgTertiary, fontSize: PFontSize.caption)),
               ),
             )
           else
@@ -790,7 +790,7 @@ class _ExpenseRow extends StatelessWidget {
                         '거래',
                     style: TextStyle(
                       color: tokens.fgPrimary,
-                      fontSize: 13.5,
+                      fontSize: PFontSize.body,
                       fontWeight: PFontWeight.semi,
                     ),
                     maxLines: 1,
@@ -818,7 +818,7 @@ class _ExpenseRow extends StatelessWidget {
                 color: isExpense
                     ? tokens.statusDangerFg
                     : tokens.statusSuccessFg,
-                fontSize: 13,
+                fontSize: PFontSize.bodySm,
                 fontWeight: PFontWeight.bold,
                 fontFeatures: const [FontFeature.tabularFigures()],
               ),

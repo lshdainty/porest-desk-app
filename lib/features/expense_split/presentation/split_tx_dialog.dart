@@ -244,7 +244,7 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
               Text('내역 분할',
                   style: TextStyle(
                       color: t.fgPrimary,
-                      fontSize: 17,
+                      fontSize: PFontSize.h4,
                       fontWeight: PFontWeight.bold,
                       letterSpacing: -0.34)),
               const Spacer(),
@@ -264,7 +264,7 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
               Text(
                   '하나의 결제를 카테고리·항목별로 나누어 기록합니다. 예: 마트에서 식품과 생활품을 함께 결제한 경우.',
                   style: PTypo.caption
-                      .copyWith(color: t.fgSecondary, height: 1.55)),
+                      .copyWith(color: t.fgSecondary, height: PLineHeight.normal)),
               const SizedBox(height: PSpace.x12),
 
           // 원 거래 요약

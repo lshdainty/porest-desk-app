@@ -1,18 +1,57 @@
 import 'package:flutter/painting.dart';
 
 /// 폰트 굵기 토큰 — 웹 `--fw-*` 와 1:1 매핑.
-///
-/// 사용:
-/// ```dart
-/// Text('hello', style: TextStyle(fontWeight: PFontWeight.bold));
-/// PTypo.body.copyWith(fontWeight: PFontWeight.semi);
-/// ```
 abstract final class PFontWeight {
   static const FontWeight regular = FontWeight.w400; // --fw-regular
   static const FontWeight medium = FontWeight.w500;  // --fw-medium
   static const FontWeight semi = FontWeight.w600;    // --fw-semi
   static const FontWeight bold = FontWeight.w700;    // --fw-bold
   static const FontWeight heavy = FontWeight.w800;   // --fw-heavy
+}
+
+/// 폰트 크기 토큰 — 웹 `--fs-*` 와 1:1 매핑 (px).
+abstract final class PFontSize {
+  static const double micro = 11;       // --fs-micro
+  static const double caption = 12;     // --fs-caption
+  static const double bodySm = 13;      // --fs-body-sm
+  static const double body = 14;        // --fs-body
+  static const double bodyLg = 16;      // --fs-body-lg
+  static const double h4 = 17;          // --fs-h4
+  static const double h3 = 20;          // --fs-h3
+  static const double h2 = 24;          // --fs-h2
+  static const double h1 = 30;          // --fs-h1
+  static const double displayMd = 36;   // --fs-display-md
+  static const double displayLg = 44;   // --fs-display-lg
+  static const double displayXl = 56;   // --fs-display-xl
+}
+
+/// 라인 하이트 토큰 — 웹 `--lh-*` 와 1:1 매핑 (Flutter `height` 속성).
+abstract final class PLineHeight {
+  static const double tight = 1.15;   // --lh-tight
+  static const double snug = 1.3;     // --lh-snug
+  static const double normal = 1.5;   // --lh-normal
+  static const double loose = 1.7;    // --lh-loose
+}
+
+/// 자간 토큰 — 웹 `--tracking-*` 의 em ratio (절대 px 환산 헬퍼).
+///
+/// 웹은 em(상대값), Flutter `letterSpacing` 은 px(절대값). 사용 시:
+/// ```dart
+/// Text(s, style: TextStyle(
+///   fontSize: PFontSize.h4,
+///   letterSpacing: PTracking.tight(PFontSize.h4),
+/// ))
+/// ```
+/// 또는 prefab [PTypo] 스타일이 이미 letterSpacing 을 포함.
+abstract final class PTracking {
+  static const double tightEm = -0.022;
+  static const double snugEm = -0.012;
+  static const double wideEm = 0.04;
+
+  static double tight(double fontSize) => fontSize * tightEm;
+  static double snug(double fontSize) => fontSize * snugEm;
+  static double normal(double _) => 0;
+  static double wide(double fontSize) => fontSize * wideEm;
 }
 
 /// porest-desk-front 의 타이포 토큰 1:1 매핑.

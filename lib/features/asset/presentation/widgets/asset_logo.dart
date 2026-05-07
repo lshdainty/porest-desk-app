@@ -41,10 +41,10 @@ class AssetLogo extends StatelessWidget {
         char,
         style: TextStyle(
           color: fg,
-          fontSize: 14,
+          fontSize: PFontSize.body,
           fontWeight: PFontWeight.heavy,
           letterSpacing: -0.28,
-          height: 1.0,
+          height: PLineHeight.tight,
         ),
       ),
     );

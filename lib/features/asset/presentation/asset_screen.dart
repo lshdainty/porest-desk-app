@@ -46,7 +46,7 @@ class AssetScreen extends ConsumerWidget {
         title: Text('자산',
             style: TextStyle(
               color: t.fgPrimary,
-              fontSize: 22,
+              fontSize: PFontSize.h2,
               fontWeight: PFontWeight.bold,
               letterSpacing: -0.44,
             )),
@@ -145,7 +145,7 @@ class _AssetBody extends StatelessWidget {
                 Text('아직 등록된 자산이 없어요',
                     style: TextStyle(
                         color: tokens.fgTertiary,
-                        fontSize: 14,
+                        fontSize: PFontSize.body,
                         fontWeight: PFontWeight.medium)),
                 const SizedBox(height: PSpace.x12),
                 FilledButton.icon(
@@ -280,7 +280,7 @@ class _SummaryCard extends StatelessWidget {
               Text('총 순자산',
                   style: TextStyle(
                       color: t.fgTertiary,
-                      fontSize: 12,
+                      fontSize: PFontSize.caption,
                       fontWeight: PFontWeight.medium)),
               const SizedBox(width: 6),
               Icon(masked ? LucideIcons.eyeOff : LucideIcons.eye,
@@ -294,10 +294,10 @@ class _SummaryCard extends StatelessWidget {
               text: masked ? '•••' : krw(netWorth),
               style: TextStyle(
                 color: t.fgPrimary,
-                fontSize: 28,
+                fontSize: PFontSize.h1,
                 fontWeight: PFontWeight.heavy,
                 letterSpacing: -0.84, // -0.03em × 28
-                height: 1.1,
+                height: PLineHeight.tight,
                 fontFeatures: const [FontFeature.tabularFigures()],
               ),
               children: [
@@ -306,7 +306,7 @@ class _SummaryCard extends StatelessWidget {
                     text: ' 원',
                     style: TextStyle(
                       color: t.fgPrimary,
-                      fontSize: 16,
+                      fontSize: PFontSize.bodyLg,
                       fontWeight: PFontWeight.bold,
                       letterSpacing: 0,
                     ),
@@ -326,7 +326,7 @@ class _SummaryCard extends StatelessWidget {
                 '${isUp ? '+' : ''}${changePercent.toStringAsFixed(1)}%',
                 style: TextStyle(
                     color: trendColor,
-                    fontSize: 12.5,
+                    fontSize: PFontSize.bodySm,
                     fontWeight: PFontWeight.semi,
                     fontFeatures: const [FontFeature.tabularFigures()]),
               ),
@@ -336,13 +336,13 @@ class _SummaryCard extends StatelessWidget {
                   '(${isUp ? '+' : '−'}${krw(changeAmount.abs())}원)',
                   style: TextStyle(
                       color: t.fgTertiary,
-                      fontSize: 12.5,
+                      fontSize: PFontSize.bodySm,
                       fontWeight: PFontWeight.medium),
                 ),
               ],
               const SizedBox(width: 10),
               Text('지난달 대비',
-                  style: TextStyle(color: t.fgTertiary, fontSize: 12.5)),
+                  style: TextStyle(color: t.fgTertiary, fontSize: PFontSize.bodySm)),
             ],
           ),
           const SizedBox(height: 14),
@@ -408,7 +408,7 @@ class _SummaryCol extends StatelessWidget {
         Text(label,
             style: TextStyle(
                 color: tokens.fgTertiary,
-                fontSize: 11,
+                fontSize: PFontSize.micro,
                 fontWeight: PFontWeight.medium)),
         const SizedBox(height: 2),
         Text(
@@ -419,7 +419,7 @@ class _SummaryCol extends StatelessWidget {
                   : krw(amount),
           style: TextStyle(
             color: valueColor ?? tokens.fgPrimary,
-            fontSize: 14,
+            fontSize: PFontSize.body,
             fontWeight: PFontWeight.bold,
             fontFeatures: const [FontFeature.tabularFigures()],
           ),
@@ -480,7 +480,7 @@ class _TypeGroup extends StatelessWidget {
               Text(title,
                   style: TextStyle(
                       color: tokens.fgPrimary,
-                      fontSize: 15,
+                      fontSize: PFontSize.bodyLg,
                       fontWeight: PFontWeight.bold)),
               const Spacer(),
               Text(
@@ -491,7 +491,7 @@ class _TypeGroup extends StatelessWidget {
                         : '${krw(total)}원',
                 style: TextStyle(
                   color: totalColor ?? tokens.fgPrimary,
-                  fontSize: 13,
+                  fontSize: PFontSize.bodySm,
                   fontWeight: PFontWeight.bold,
                   fontFeatures: const [FontFeature.tabularFigures()],
                 ),
@@ -511,7 +511,7 @@ class _TypeGroup extends StatelessWidget {
                       Text('추가',
                           style: TextStyle(
                               color: tokens.fgSecondary,
-                              fontSize: 12.5,
+                              fontSize: PFontSize.bodySm,
                               fontWeight: PFontWeight.semi)),
                     ],
                   ),
@@ -525,7 +525,7 @@ class _TypeGroup extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 24),
               child: Center(
                 child: Text('등록된 항목이 없어요',
-                    style: TextStyle(color: tokens.fgTertiary, fontSize: 13)),
+                    style: TextStyle(color: tokens.fgTertiary, fontSize: PFontSize.bodySm)),
               ),
             )
           else
@@ -588,7 +588,7 @@ class _AssetCard extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               color: t.fgPrimary,
-                              fontSize: 13.5,
+                              fontSize: PFontSize.body,
                               fontWeight: PFontWeight.semi,
                             ),
                           ),
@@ -601,7 +601,7 @@ class _AssetCard extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 color: t.fgTertiary,
-                                fontSize: 12,
+                                fontSize: PFontSize.caption,
                                 fontWeight: PFontWeight.medium,
                               ),
                             ),
@@ -617,7 +617,7 @@ class _AssetCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                               color: t.fgTertiary,
-                              fontSize: 11.5,
+                              fontSize: PFontSize.caption,
                               fontFeatures: const [FontFeature.tabularFigures()]),
                         ),
                       ),
@@ -633,7 +633,7 @@ class _AssetCard extends StatelessWidget {
                         : '${krw(balance)}원',
                 style: TextStyle(
                   color: t.fgPrimary,
-                  fontSize: 16,
+                  fontSize: PFontSize.bodyLg,
                   fontWeight: PFontWeight.bold,
                   letterSpacing: -0.32,
                   fontFeatures: const [FontFeature.tabularFigures()],
@@ -686,7 +686,7 @@ class _ErrorBox extends StatelessWidget {
           ),
           child: Column(
             children: [
-              Text(message, style: TextStyle(color: t.statusDangerFg, fontSize: 13)),
+              Text(message, style: TextStyle(color: t.statusDangerFg, fontSize: PFontSize.bodySm)),
               const SizedBox(height: PSpace.x8),
               OutlinedButton(onPressed: onRetry, child: const Text('다시 시도')),
             ],

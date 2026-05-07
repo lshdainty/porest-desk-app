@@ -712,7 +712,7 @@ class _RecurringRow extends StatelessWidget {
                                 style: PTypo.caption.copyWith(
                                     color: tokens.fgTertiary,
                                     fontWeight: PFontWeight.bold,
-                                    fontSize: 10)),
+                                    fontSize: PFontSize.micro)),
                           ),
                         ],
                         if (item.autoLog) ...[

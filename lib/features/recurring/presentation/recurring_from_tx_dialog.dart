@@ -224,7 +224,7 @@ class _RecurringFromTxBodyState extends ConsumerState<_RecurringFromTxBody> {
               children: [
                 Text(
                   '이 거래를 정해진 주기로 자동 반복합니다. 구독료·월세·정기 후원 등에 사용해보세요.',
-                  style: PTypo.bodySm.copyWith(color: t.fgSecondary, height: 1.55),
+                  style: PTypo.bodySm.copyWith(color: t.fgSecondary, height: PLineHeight.normal),
                 ),
                 const SizedBox(height: 14),
                 // Source card

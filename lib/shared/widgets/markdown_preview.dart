@@ -164,7 +164,7 @@ class MarkdownPreview extends StatelessWidget {
               text: s.substring(i + 1, end),
               style: base.copyWith(
                 fontFamily: 'JetBrainsMono',
-                fontSize: 12,
+                fontSize: PFontSize.caption,
                 background: Paint()..color = tokens.bgMuted,
               )));
           i = end + 1;

@@ -54,10 +54,10 @@ class MobileHeader extends ConsumerWidget implements PreferredSizeWidget {
                   title,
                   style: TextStyle(
                     color: t.fgPrimary,
-                    fontSize: 22,
+                    fontSize: PFontSize.h2,
                     fontWeight: PFontWeight.bold,
                     letterSpacing: -0.44, // -0.02em × 22
-                    height: 1.25,
+                    height: PLineHeight.snug,
                   ),
                 ),
               ),
@@ -129,9 +129,9 @@ class _NotificationBell extends ConsumerWidget {
                         unread > 99 ? '99+' : '$unread',
                         style: TextStyle(
                           color: tokens.fgOnDanger,
-                          fontSize: 9,
+                          fontSize: PFontSize.micro,
                           fontWeight: PFontWeight.bold,
-                          height: 1.0,
+                          height: PLineHeight.tight,
                         ),
                       ),
                     ),
