@@ -394,6 +394,17 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
               padding: const EdgeInsets.fromLTRB(
                   PSpace.x16, 0, PSpace.x16, PSpace.x16),
               children: [
+                _TypeSegment(
+                  value: _type,
+                  onChanged: _isEdit
+                      ? (_) {} // 편집 모드 — 타입 변경 막음
+                      : (v) => setState(() => _type = v),
+                  tokens: t,
+                  allowTransfer: !_isEdit,
+                  lockedToValue: _isEdit ? _type : null,
+                ),
+                const SizedBox(height: PSpace.x20),
+
                 if (!_isEdit && _type != 'TRANSFER') ...[
                   _PresetSection(
                     presets: presetsAsync.value ?? const [],
@@ -405,19 +416,8 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
                     onClear: _clearPresetMark,
                     tokens: t,
                   ),
-                  const SizedBox(height: PSpace.x16),
+                  const SizedBox(height: PSpace.x20),
                 ],
-
-                _TypeSegment(
-                  value: _type,
-                  onChanged: _isEdit
-                      ? (_) {} // 편집 모드 — 타입 변경 막음
-                      : (v) => setState(() => _type = v),
-                  tokens: t,
-                  allowTransfer: !_isEdit,
-                  lockedToValue: _isEdit ? _type : null,
-                ),
-                const SizedBox(height: PSpace.x20),
 
                 // 금액 — 다른 필드와 동일한 단순 label + input
                 Row(
