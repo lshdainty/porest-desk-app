@@ -201,7 +201,8 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
           child: TabBar(
             controller: _tab,
             isScrollable: false,
-            indicatorColor: t.bgBrand,
+            // 웹 underline 변형이 var(--bg-brand-hover) 사용 → 매칭.
+            indicatorColor: t.bgBrandHover,
             indicatorWeight: 2.4,
             indicatorSize: TabBarIndicatorSize.tab,
             labelColor: t.fgPrimary,
