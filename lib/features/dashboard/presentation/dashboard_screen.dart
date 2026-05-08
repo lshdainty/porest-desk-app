@@ -781,14 +781,27 @@ class _CategoryDonutCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final segs = ((summary?.categoryBreakdown ?? const <CategoryBreakdown>[])
-            .where((c) =>
-                c.expenseType == 'EXPENSE' && c.parentCategoryRowId == null)
-            .toList()
-          ..sort((a, b) => b.totalAmount.compareTo(a.totalAmount)))
-        .take(4)
-        .toList();
-    final total = segs.fold<int>(0, (s, c) => s + c.totalAmount);
+    // 부모 카테고리로 롤업: 부모가 있으면 부모 ID/이름으로, 없으면 자기 자신.
+    final rolled = <int, ({String name, int total})>{};
+    for (final c in (summary?.categoryBreakdown ?? const <CategoryBreakdown>[])) {
+      if (c.expenseType != 'EXPENSE') continue;
+      final id = c.parentCategoryRowId ?? c.categoryRowId;
+      final name = c.parentCategoryName ?? (c.categoryName ?? '-');
+      if (id == null) continue;
+      final cur = rolled[id];
+      rolled[id] = (
+        name: cur?.name ?? name,
+        total: (cur?.total ?? 0) + c.totalAmount,
+      );
+    }
+    final segs = rolled.entries.map((e) => (
+          rowId: e.key,
+          name: e.value.name,
+          totalAmount: e.value.total,
+        )).toList()
+      ..sort((a, b) => b.totalAmount.compareTo(a.totalAmount));
+    final topSegs = segs.take(4).toList();
+    final total = topSegs.fold<int>(0, (s, c) => s + c.totalAmount);
 
     return PCard(
       padding: const EdgeInsets.all(18),
@@ -823,7 +836,7 @@ class _CategoryDonutCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 14),
-          if (segs.isEmpty)
+          if (topSegs.isEmpty)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 12),
               child: Center(
@@ -849,9 +862,9 @@ class _CategoryDonutCard extends StatelessWidget {
                           centerSpaceRadius: 38,
                           startDegreeOffset: -90,
                           sections: [
-                            for (var i = 0; i < segs.length; i++)
+                            for (var i = 0; i < topSegs.length; i++)
                               PieChartSectionData(
-                                value: segs[i].totalAmount.toDouble(),
+                                value: topSegs[i].totalAmount.toDouble(),
                                 color:
                                     _categoryPalette[i % _categoryPalette.length],
                                 radius: 18,
@@ -890,7 +903,7 @@ class _CategoryDonutCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      for (var i = 0; i < segs.length; i++) ...[
+                      for (var i = 0; i < topSegs.length; i++) ...[
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 4),
                           child: Row(
@@ -907,7 +920,7 @@ class _CategoryDonutCard extends StatelessWidget {
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
-                                  segs[i].categoryName ?? '-',
+                                  topSegs[i].name,
                                   style: TextStyle(
                                       color: t.fgSecondary,
                                       fontSize: PFontSize.caption),
@@ -918,7 +931,7 @@ class _CategoryDonutCard extends StatelessWidget {
                               Text(
                                 masked
                                     ? '••••'
-                                    : '${(segs[i].totalAmount / 10000).toStringAsFixed(0)}만',
+                                    : '${(topSegs[i].totalAmount / 10000).toStringAsFixed(0)}만',
                                 style: TextStyle(
                                   color: t.fgPrimary,
                                   fontSize: PFontSize.caption,
