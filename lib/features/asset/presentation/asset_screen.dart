@@ -82,12 +82,8 @@ class AssetScreen extends ConsumerWidget {
           const SizedBox(width: 4),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: t.bgBrand,
-        foregroundColor: t.fgOnBrand,
-        onPressed: () => showAssetAddDialog(context),
-        child: const Icon(LucideIcons.plus),
-      ),
+      // FAB 미사용 — 각 그룹(계좌·예금/투자/카드/대출) 헤더의 '+ 추가'
+      // 버튼이 종류별 적절한 다이얼로그를 띄움.
       body: RefreshIndicator(
         color: t.bgBrand,
         onRefresh: () async {
