@@ -1387,7 +1387,60 @@ class _TrendBigCard extends StatelessWidget {
                 LineChartData(
                   minX: 0,
                   maxX: (data.length - 1).toDouble(),
-                  lineTouchData: const LineTouchData(enabled: false),
+                  lineTouchData: LineTouchData(
+                    enabled: true,
+                    touchTooltipData: LineTouchTooltipData(
+                      getTooltipColor: (_) => t.bgSurface,
+                      tooltipBorder:
+                          BorderSide(color: t.borderSubtle, width: 1),
+                      tooltipBorderRadius: BorderRadius.circular(8),
+                      tooltipPadding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 8),
+                      maxContentWidth: 180,
+                      getTooltipItems: (touched) {
+                        if (touched.isEmpty) return [];
+                        final i = touched.first.x.toInt();
+                        if (i < 0 || i >= data.length) return [];
+                        final p = data[i];
+                        // 첫 spot 에 합쳐서 한 번만 렌더, 나머지는 null 반환
+                        return List.generate(touched.length, (idx) {
+                          if (idx != 0) return null;
+                          return LineTooltipItem(
+                            '${p.label}\n',
+                            PTypo.micro.copyWith(
+                                color: t.fgTertiary,
+                                fontWeight: PFontWeight.semi),
+                            children: [
+                              TextSpan(
+                                text: '수입 ',
+                                style: PTypo.caption
+                                    .copyWith(color: t.fgSecondary),
+                              ),
+                              TextSpan(
+                                text: '${krw(p.income)}원\n',
+                                style: PTypo.bodySm.copyWith(
+                                    color: t.fgPrimary,
+                                    fontWeight: PFontWeight.bold,
+                                    fontFamily: 'monospace'),
+                              ),
+                              TextSpan(
+                                text: '지출 ',
+                                style: PTypo.caption
+                                    .copyWith(color: t.fgSecondary),
+                              ),
+                              TextSpan(
+                                text: '${krw(p.expense)}원',
+                                style: PTypo.bodySm.copyWith(
+                                    color: t.fgPrimary,
+                                    fontWeight: PFontWeight.bold,
+                                    fontFamily: 'monospace'),
+                              ),
+                            ],
+                          );
+                        });
+                      },
+                    ),
+                  ),
                   gridData: FlGridData(
                     show: true,
                     drawVerticalLine: false,
@@ -1556,7 +1609,7 @@ class _TrendStatsGrid extends StatelessWidget {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       crossAxisCount: 2,
-      childAspectRatio: 2.4,
+      childAspectRatio: 2.0,
       mainAxisSpacing: 10,
       crossAxisSpacing: 10,
       children: [
@@ -1636,7 +1689,46 @@ class _SavingsBarsCard extends StatelessWidget {
               child: BarChart(
                 BarChartData(
                   alignment: BarChartAlignment.spaceAround,
-                  barTouchData: BarTouchData(enabled: false),
+                  barTouchData: BarTouchData(
+                    enabled: true,
+                    touchTooltipData: BarTouchTooltipData(
+                      getTooltipColor: (_) => t.bgSurface,
+                      tooltipBorder:
+                          BorderSide(color: t.borderSubtle, width: 1),
+                      tooltipBorderRadius: BorderRadius.circular(8),
+                      tooltipPadding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 8),
+                      getTooltipItem: (group, _, rod, __) {
+                        final i = group.x;
+                        if (i < 0 || i >= data.length) return null;
+                        final p = data[i];
+                        final v = p.savings;
+                        final sign = v >= 0 ? '+' : '−';
+                        return BarTooltipItem(
+                          '${p.label}\n',
+                          PTypo.micro.copyWith(
+                              color: t.fgTertiary,
+                              fontWeight: PFontWeight.semi),
+                          children: [
+                            TextSpan(
+                              text: '순저축 ',
+                              style: PTypo.caption
+                                  .copyWith(color: t.fgSecondary),
+                            ),
+                            TextSpan(
+                              text: '$sign${krw(v.abs())}원',
+                              style: PTypo.bodySm.copyWith(
+                                  color: v >= 0
+                                      ? t.fgIncome
+                                      : t.statusDangerFg,
+                                  fontWeight: PFontWeight.bold,
+                                  fontFamily: 'monospace'),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
                   gridData: FlGridData(
                     show: true,
                     drawVerticalLine: false,
