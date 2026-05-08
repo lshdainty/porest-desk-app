@@ -897,21 +897,29 @@ class _TopMerchantsCard extends StatelessWidget {
                       children: [
                         Row(
                           children: [
-                            Flexible(
-                              child: Text(top[i].merchant ?? '(이름 없음)',
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: PTypo.bodySm.copyWith(
-                                      color: t.fgPrimary,
-                                      fontWeight: PFontWeight.semi)),
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Flexible(
+                                    child: Text(top[i].merchant ?? '(이름 없음)',
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: PTypo.bodySm.copyWith(
+                                            color: t.fgPrimary,
+                                            fontWeight: PFontWeight.semi)),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text('${top[i].count}회',
+                                      style: PTypo.caption
+                                          .copyWith(color: t.fgTertiary)),
+                                ],
+                              ),
                             ),
-                            const SizedBox(width: 6),
-                            Text('${top[i].count}회',
-                                style: PTypo.caption
-                                    .copyWith(color: t.fgTertiary)),
-                            const Spacer(),
+                            const SizedBox(width: 8),
+                            // 고정폭 우측 정렬 — 모든 행 amount 가 같은 X 에서 끝나도록
                             Text(
                               '${krwMasked(top[i].totalAmount, masked)}원',
+                              textAlign: TextAlign.right,
                               style: PTypo.bodySm.copyWith(
                                   color: t.fgPrimary,
                                   fontWeight: PFontWeight.bold,
