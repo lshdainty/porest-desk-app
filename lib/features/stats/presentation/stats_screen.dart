@@ -1377,42 +1377,113 @@ bool _showXLabel(int i, int n) {
 }
 
 /// fl_chart 툴팁 한 줄 ─ 색 스왓치(유니코드) + 레이블 + 금액.
+/// 차트 위에 떠있는 커스텀 오버레이 툴팁.
 ///
-/// fl_chart 1.2.0 LineTooltipItem 은 RichText 기반 + WidgetSpan 호환 안 됨
-/// (dimensions != null assertion 실패). 그래서 모든 요소 TextSpan 으로만 구성.
-/// amount 는 monospace + 공백 padLeft 로 행 간 끝점을 비슷하게 정렬.
-List<TextSpan> _tooltipRow({
-  required Color color,
-  required String label,
-  required String amount,
-  required PorestTokens t,
-  Color? amountColor,
-}) {
-  return [
-    TextSpan(
-      text: '■  ',
-      style: TextStyle(
-        color: color,
-        fontSize: PFontSize.bodySm,
-        height: 1.0,
+/// fl_chart 1.2.0 의 RichText 기반 툴팁(`LineTooltipItem`/`BarTooltipItem`)은
+/// 모든 자식이 `TextSpan` 이어야 해서 `SizedBox + textAlign:right` 같은
+/// 레이아웃 기반 정렬이 불가능. `WidgetSpan` 은 placeholder dimensions 미설정
+/// 으로 assertion 실패. → 기본 툴팁을 끄고 Stack 위에 직접 렌더한다.
+class _ChartTooltipBox extends StatelessWidget {
+  const _ChartTooltipBox({required this.title, required this.rows});
+  final String title;
+  final List<_ChartTooltipRowData> rows;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return IgnorePointer(
+      ignoring: true,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: t.bgSurface,
+          border: Border.all(color: t.borderSubtle, width: 1),
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.06),
+              blurRadius: 10,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title,
+                style: PTypo.micro.copyWith(
+                    color: t.fgTertiary, fontWeight: PFontWeight.semi)),
+            const SizedBox(height: 6),
+            for (final r in rows) ...[
+              _ChartTooltipRow(data: r),
+              if (r != rows.last) const SizedBox(height: 4),
+            ],
+          ],
+        ),
       ),
-    ),
-    TextSpan(
-      text: '$label  ',
-      style: PTypo.caption.copyWith(color: t.fgSecondary),
-    ),
-    TextSpan(
-      text: amount, // caller 가 padLeft 처리한 full string
-      style: PTypo.bodySm.copyWith(
-        color: amountColor ?? t.fgPrimary,
-        fontWeight: PFontWeight.bold,
-        fontFamily: 'monospace',
-      ),
-    ),
-  ];
+    );
+  }
 }
 
-class _TrendBigCard extends StatelessWidget {
+class _ChartTooltipRowData {
+  const _ChartTooltipRowData({
+    required this.color,
+    required this.label,
+    required this.amount,
+    this.amountColor,
+  });
+  final Color color;
+  final String label;
+  final String amount;
+  final Color? amountColor;
+}
+
+class _ChartTooltipRow extends StatelessWidget {
+  const _ChartTooltipRow({required this.data});
+  final _ChartTooltipRowData data;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 9,
+          height: 9,
+          decoration: BoxDecoration(
+            color: data.color,
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
+        const SizedBox(width: 8),
+        // 라벨 폭 고정 — 한글 폭 차이 무시하고 amount 시작 위치를 고정.
+        SizedBox(
+          width: 36,
+          child: Text(data.label,
+              style: PTypo.caption.copyWith(color: t.fgSecondary)),
+        ),
+        const SizedBox(width: 12),
+        // amount 는 우측 정렬된 고정폭 박스 안에 둬서 행 간 우측 끝점 일치.
+        SizedBox(
+          width: 110,
+          child: Text(
+            data.amount,
+            textAlign: TextAlign.right,
+            style: PTypo.bodySm.copyWith(
+              color: data.amountColor ?? t.fgPrimary,
+              fontWeight: PFontWeight.bold,
+              fontFamily: 'monospace',
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _TrendBigCard extends ConsumerStatefulWidget {
   const _TrendBigCard({
     required this.state,
     required this.rangeAsync,
@@ -1421,11 +1492,21 @@ class _TrendBigCard extends StatelessWidget {
   final _StatsScreenState state;
   final AsyncValue<RangeSummary> rangeAsync;
   final AsyncValue<List<Expense>> monthExpAsync;
+
+  @override
+  ConsumerState<_TrendBigCard> createState() => _TrendBigCardState();
+}
+
+class _TrendBigCardState extends ConsumerState<_TrendBigCard> {
+  int? _touchedIdx;
+
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final data = _computeTrendData(state, rangeAsync, monthExpAsync);
-    final loading = rangeAsync.isLoading || monthExpAsync.isLoading;
+    final data = _computeTrendData(
+        widget.state, widget.rangeAsync, widget.monthExpAsync);
+    final loading =
+        widget.rangeAsync.isLoading || widget.monthExpAsync.isLoading;
 
     // 수입 ↔ 지출 스케일 차이가 크면 한 축에 그릴 때 작은 시리즈가 묻힘.
     // → 지출을 (incomeMax / expenseMax) 로 스케일링해 시각적으론 같은 높이 범위를 차지하게.
@@ -1442,8 +1523,8 @@ class _TrendBigCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _CardHeader(
-              title: _CardTitle('${state._periodLabel} 수입·지출 추이')),
-          _PeriodSelectorRow(state: state),
+              title: _CardTitle('${widget.state._periodLabel} 수입·지출 추이')),
+          _PeriodSelectorRow(state: widget.state),
           const SizedBox(height: 16),
           if (loading && data.isEmpty)
             const _EmptyBox(text: '불러오는 중…')
@@ -1452,67 +1533,48 @@ class _TrendBigCard extends StatelessWidget {
           else ...[
             SizedBox(
               height: 200,
-              child: LineChart(
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  LineChart(
                 LineChartData(
                   minX: 0,
                   maxX: (data.length - 1).toDouble(),
                   lineTouchData: LineTouchData(
                     enabled: true,
+                    handleBuiltInTouches: true,
+                    touchCallback: (event, response) {
+                      if (event is FlTapUpEvent ||
+                          event is FlPanEndEvent ||
+                          event is FlPanCancelEvent ||
+                          event is FlLongPressEnd ||
+                          event is FlPointerExitEvent) {
+                        if (_touchedIdx != null) {
+                          setState(() => _touchedIdx = null);
+                        }
+                        return;
+                      }
+                      final spots = response?.lineBarSpots;
+                      if (spots == null || spots.isEmpty) {
+                        if (_touchedIdx != null) {
+                          setState(() => _touchedIdx = null);
+                        }
+                        return;
+                      }
+                      final i = spots.first.x.toInt();
+                      if (i != _touchedIdx && i >= 0 && i < data.length) {
+                        setState(() => _touchedIdx = i);
+                      }
+                    },
                     touchTooltipData: LineTouchTooltipData(
-                      getTooltipColor: (_) => t.bgSurface,
-                      tooltipBorder:
-                          BorderSide(color: t.borderSubtle, width: 1),
-                      tooltipBorderRadius: BorderRadius.circular(10),
-                      tooltipPadding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 10),
-                      tooltipMargin: 12,
-                      maxContentWidth: 200,
-                      getTooltipItems: (touched) {
-                        if (touched.isEmpty) return [];
-                        final i = touched.first.x.toInt();
-                        if (i < 0 || i >= data.length) return [];
-                        final p = data[i];
-                        // 첫 spot 에 합쳐서 한 번만 렌더, 나머지는 null 반환
-                        // monospace 폰트 + 공백 padLeft 로 amount 끝점 맞춤
-                        final incomeStr = '${krw(p.income)}원';
-                        final expenseStr = '${krw(p.expense)}원';
-                        final maxLen = incomeStr.length > expenseStr.length
-                            ? incomeStr.length
-                            : expenseStr.length;
-                        return List.generate(touched.length, (idx) {
-                          if (idx != 0) return null;
-                          return LineTooltipItem(
-                            '',
-                            const TextStyle(),
-                            textAlign: TextAlign.left,
-                            children: [
-                              // 헤더: 라벨 (micro · tertiary · semi)
-                              TextSpan(
-                                text: '${p.label}\n',
-                                style: PTypo.micro.copyWith(
-                                    color: t.fgTertiary,
-                                    fontWeight: PFontWeight.semi,
-                                    height: 1.6),
-                              ),
-                              // 수입 행
-                              ..._tooltipRow(
-                                color: t.fgBrand,
-                                label: '수입',
-                                amount: incomeStr.padLeft(maxLen),
-                                t: t,
-                              ),
-                              const TextSpan(text: '\n'),
-                              // 지출 행
-                              ..._tooltipRow(
-                                color: t.statusDangerFg,
-                                label: '지출',
-                                amount: expenseStr.padLeft(maxLen),
-                                t: t,
-                              ),
-                            ],
-                          );
-                        });
-                      },
+                      // fl_chart 의 RichText 툴팁은 한글 라벨 폭 차이로 정렬 불가.
+                      // → 기본 툴팁 끄고 Stack 위에 직접 그린다 (아래 Positioned).
+                      getTooltipColor: (_) => Colors.transparent,
+                      tooltipBorder: BorderSide.none,
+                      tooltipPadding: EdgeInsets.zero,
+                      tooltipMargin: 0,
+                      getTooltipItems: (touched) =>
+                          List<LineTooltipItem?>.filled(touched.length, null),
                     ),
                   ),
                   gridData: FlGridData(
@@ -1630,6 +1692,28 @@ class _TrendBigCard extends StatelessWidget {
                     ),
                   ],
                 ),
+              ),
+                  if (_touchedIdx != null && _touchedIdx! < data.length)
+                    Positioned(
+                      top: 0,
+                      right: 0,
+                      child: _ChartTooltipBox(
+                        title: data[_touchedIdx!].label,
+                        rows: [
+                          _ChartTooltipRowData(
+                            color: t.fgBrand,
+                            label: '수입',
+                            amount: '${krw(data[_touchedIdx!].income)}원',
+                          ),
+                          _ChartTooltipRowData(
+                            color: t.statusDangerFg,
+                            label: '지출',
+                            amount: '${krw(data[_touchedIdx!].expense)}원',
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
               ),
             ),
             const SizedBox(height: 12),
@@ -1752,7 +1836,7 @@ class _StatCard extends StatelessWidget {
   }
 }
 
-class _SavingsBarsCard extends StatelessWidget {
+class _SavingsBarsCard extends ConsumerStatefulWidget {
   const _SavingsBarsCard({
     required this.state,
     required this.rangeAsync,
@@ -1761,11 +1845,21 @@ class _SavingsBarsCard extends StatelessWidget {
   final _StatsScreenState state;
   final AsyncValue<RangeSummary> rangeAsync;
   final AsyncValue<List<Expense>> monthExpAsync;
+
+  @override
+  ConsumerState<_SavingsBarsCard> createState() => _SavingsBarsCardState();
+}
+
+class _SavingsBarsCardState extends ConsumerState<_SavingsBarsCard> {
+  int? _touchedIdx;
+
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final data = _computeTrendData(state, rangeAsync, monthExpAsync);
-    final useDaily = state.useDailyTrend(rangeAsync.value?.monthlyBuckets.length ?? 0);
+    final data = _computeTrendData(
+        widget.state, widget.rangeAsync, widget.monthExpAsync);
+    final useDaily = widget.state
+        .useDailyTrend(widget.rangeAsync.value?.monthlyBuckets.length ?? 0);
     return _Card(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1780,48 +1874,45 @@ class _SavingsBarsCard extends StatelessWidget {
           else
             SizedBox(
               height: 180,
-              child: BarChart(
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  BarChart(
                 BarChartData(
                   alignment: BarChartAlignment.spaceAround,
                   barTouchData: BarTouchData(
                     enabled: true,
+                    handleBuiltInTouches: true,
+                    touchCallback: (event, response) {
+                      if (event is FlTapUpEvent ||
+                          event is FlPanEndEvent ||
+                          event is FlPanCancelEvent ||
+                          event is FlLongPressEnd ||
+                          event is FlPointerExitEvent) {
+                        if (_touchedIdx != null) {
+                          setState(() => _touchedIdx = null);
+                        }
+                        return;
+                      }
+                      final spot = response?.spot;
+                      if (spot == null) {
+                        if (_touchedIdx != null) {
+                          setState(() => _touchedIdx = null);
+                        }
+                        return;
+                      }
+                      final i = spot.touchedBarGroup.x;
+                      if (i != _touchedIdx && i >= 0 && i < data.length) {
+                        setState(() => _touchedIdx = i);
+                      }
+                    },
                     touchTooltipData: BarTouchTooltipData(
-                      getTooltipColor: (_) => t.bgSurface,
-                      tooltipBorder:
-                          BorderSide(color: t.borderSubtle, width: 1),
-                      tooltipBorderRadius: BorderRadius.circular(10),
-                      tooltipPadding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 10),
-                      tooltipMargin: 12,
-                      getTooltipItem: (group, _, rod, __) {
-                        final i = group.x;
-                        if (i < 0 || i >= data.length) return null;
-                        final p = data[i];
-                        final v = p.savings;
-                        final sign = v >= 0 ? '+' : '−';
-                        return BarTooltipItem(
-                          '',
-                          const TextStyle(),
-                          textAlign: TextAlign.left,
-                          children: [
-                            TextSpan(
-                              text: '${p.label}\n',
-                              style: PTypo.micro.copyWith(
-                                  color: t.fgTertiary,
-                                  fontWeight: PFontWeight.semi,
-                                  height: 1.6),
-                            ),
-                            ..._tooltipRow(
-                              color: v >= 0 ? t.bgBrand : t.statusDangerFg,
-                              label: '순저축',
-                              amount: '$sign${krw(v.abs())}원',
-                              amountColor:
-                                  v >= 0 ? t.fgIncome : t.statusDangerFg,
-                              t: t,
-                            ),
-                          ],
-                        );
-                      },
+                      // 기본 툴팁 OFF — Stack 위에 직접 그린다 (아래 Positioned)
+                      getTooltipColor: (_) => Colors.transparent,
+                      tooltipBorder: BorderSide.none,
+                      tooltipPadding: EdgeInsets.zero,
+                      tooltipMargin: 0,
+                      getTooltipItem: (_, __, ___, ____) => null,
                     ),
                   ),
                   gridData: FlGridData(
@@ -1892,6 +1983,30 @@ class _SavingsBarsCard extends StatelessWidget {
                       ),
                   ],
                 ),
+              ),
+                  if (_touchedIdx != null && _touchedIdx! < data.length)
+                    Positioned(
+                      top: 0,
+                      right: 0,
+                      child: Builder(builder: (_) {
+                        final p = data[_touchedIdx!];
+                        final v = p.savings;
+                        final sign = v >= 0 ? '+' : '−';
+                        return _ChartTooltipBox(
+                          title: p.label,
+                          rows: [
+                            _ChartTooltipRowData(
+                              color: v >= 0 ? t.bgBrand : t.statusDangerFg,
+                              label: '순저축',
+                              amount: '$sign${krw(v.abs())}원',
+                              amountColor:
+                                  v >= 0 ? t.fgIncome : t.statusDangerFg,
+                            ),
+                          ],
+                        );
+                      }),
+                    ),
+                ],
               ),
             ),
         ],
