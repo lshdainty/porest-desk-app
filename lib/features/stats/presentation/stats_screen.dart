@@ -203,6 +203,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
             isScrollable: false,
             indicatorColor: t.bgBrand,
             indicatorWeight: 2.4,
+            indicatorSize: TabBarIndicatorSize.tab,
             labelColor: t.fgPrimary,
             unselectedLabelColor: t.fgTertiary,
             labelStyle: PTypo.bodySm
