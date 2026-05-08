@@ -690,9 +690,12 @@ class _DonutCardState extends ConsumerState<_DonutCard> {
         ? parents.where((r) => r.rowId == _activeParentId).firstOrNull
         : null;
 
+    // 도넛 센터 라벨은 항상 짧게 — custom 모드의 full date range 가 도넛 안으로 침범하지 않도록.
+    final centerPeriodLbl =
+        s._segMode == _SegMode.custom ? '선택 기간' : s._periodLabel;
     final centerLbl = isDrilled && activeParent != null
         ? '${activeParent.name} 세부'
-        : '${s._periodLabel} 지출';
+        : '$centerPeriodLbl 지출';
 
     return _Card(
       child: Column(
