@@ -1348,9 +1348,25 @@ List<_TrendPoint> _computeTrendData(
 }
 
 String _fmtTick(double v) {
-  if (v >= 100000000) return '${(v / 100000000).toStringAsFixed(1)}억';
-  if (v >= 10000) return '${(v / 10000).round()}만';
-  return v.toStringAsFixed(0);
+  final abs = v.abs();
+  String body;
+  if (abs >= 100000000) {
+    body = '${(abs / 100000000).toStringAsFixed(1)}억';
+  } else if (abs >= 10000) {
+    body = '${(abs / 10000).round()}만';
+  } else {
+    body = abs.toStringAsFixed(0);
+  }
+  return v < 0 ? '−$body' : body;
+}
+
+/// fl_chart 의 x 라벨 스텝 필터 — interval 만으로는 BarChart 에서 잘 안 먹힘.
+/// 데이터 갯수에 따라 약 6~7 라벨만 표시 (양 끝 + 균등 간격).
+bool _showXLabel(int i, int n) {
+  if (n <= 1) return true;
+  if (i == 0 || i == n - 1) return true; // 양 끝 항상
+  final step = (n / 6).ceil();
+  return i % step == 0 && (n - 1 - i) >= (step ~/ 2);
 }
 
 /// fl_chart 툴팁 한 줄 ─ 색 스왓치(유니코드) + 레이블 + 금액 (웹 PorestChartTooltip 매칭).
@@ -1510,6 +1526,9 @@ class _TrendBigCard extends StatelessWidget {
                         getTitlesWidget: (v, _) {
                           final i = v.round();
                           if (i < 0 || i >= data.length) {
+                            return const SizedBox.shrink();
+                          }
+                          if (!_showXLabel(i, data.length)) {
                             return const SizedBox.shrink();
                           }
                           return Padding(
@@ -1799,6 +1818,9 @@ class _SavingsBarsCard extends StatelessWidget {
                         getTitlesWidget: (v, _) {
                           final i = v.round();
                           if (i < 0 || i >= data.length) {
+                            return const SizedBox.shrink();
+                          }
+                          if (!_showXLabel(i, data.length)) {
                             return const SizedBox.shrink();
                           }
                           return Padding(
