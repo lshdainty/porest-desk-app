@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Budget {
 
- int get rowId; int? get userRowId; int get categoryRowId; String? get categoryName; int get budgetAmount; int get budgetYear; int get budgetMonth;
+ int get rowId; int? get userRowId; int? get categoryRowId; String? get categoryName; int get budgetAmount; int get budgetYear; int get budgetMonth;
 /// Create a copy of Budget
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -48,7 +48,7 @@ abstract mixin class $BudgetCopyWith<$Res>  {
   factory $BudgetCopyWith(Budget value, $Res Function(Budget) _then) = _$BudgetCopyWithImpl;
 @useResult
 $Res call({
- int rowId, int? userRowId, int categoryRowId, String? categoryName, int budgetAmount, int budgetYear, int budgetMonth
+ int rowId, int? userRowId, int? categoryRowId, String? categoryName, int budgetAmount, int budgetYear, int budgetMonth
 });
 
 
@@ -65,12 +65,12 @@ class _$BudgetCopyWithImpl<$Res>
 
 /// Create a copy of Budget
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? rowId = null,Object? userRowId = freezed,Object? categoryRowId = null,Object? categoryName = freezed,Object? budgetAmount = null,Object? budgetYear = null,Object? budgetMonth = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? rowId = null,Object? userRowId = freezed,Object? categoryRowId = freezed,Object? categoryName = freezed,Object? budgetAmount = null,Object? budgetYear = null,Object? budgetMonth = null,}) {
   return _then(_self.copyWith(
 rowId: null == rowId ? _self.rowId : rowId // ignore: cast_nullable_to_non_nullable
 as int,userRowId: freezed == userRowId ? _self.userRowId : userRowId // ignore: cast_nullable_to_non_nullable
-as int?,categoryRowId: null == categoryRowId ? _self.categoryRowId : categoryRowId // ignore: cast_nullable_to_non_nullable
-as int,categoryName: freezed == categoryName ? _self.categoryName : categoryName // ignore: cast_nullable_to_non_nullable
+as int?,categoryRowId: freezed == categoryRowId ? _self.categoryRowId : categoryRowId // ignore: cast_nullable_to_non_nullable
+as int?,categoryName: freezed == categoryName ? _self.categoryName : categoryName // ignore: cast_nullable_to_non_nullable
 as String?,budgetAmount: null == budgetAmount ? _self.budgetAmount : budgetAmount // ignore: cast_nullable_to_non_nullable
 as int,budgetYear: null == budgetYear ? _self.budgetYear : budgetYear // ignore: cast_nullable_to_non_nullable
 as int,budgetMonth: null == budgetMonth ? _self.budgetMonth : budgetMonth // ignore: cast_nullable_to_non_nullable
@@ -159,7 +159,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int rowId,  int? userRowId,  int categoryRowId,  String? categoryName,  int budgetAmount,  int budgetYear,  int budgetMonth)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int rowId,  int? userRowId,  int? categoryRowId,  String? categoryName,  int budgetAmount,  int budgetYear,  int budgetMonth)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Budget() when $default != null:
 return $default(_that.rowId,_that.userRowId,_that.categoryRowId,_that.categoryName,_that.budgetAmount,_that.budgetYear,_that.budgetMonth);case _:
@@ -180,7 +180,7 @@ return $default(_that.rowId,_that.userRowId,_that.categoryRowId,_that.categoryNa
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int rowId,  int? userRowId,  int categoryRowId,  String? categoryName,  int budgetAmount,  int budgetYear,  int budgetMonth)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int rowId,  int? userRowId,  int? categoryRowId,  String? categoryName,  int budgetAmount,  int budgetYear,  int budgetMonth)  $default,) {final _that = this;
 switch (_that) {
 case _Budget():
 return $default(_that.rowId,_that.userRowId,_that.categoryRowId,_that.categoryName,_that.budgetAmount,_that.budgetYear,_that.budgetMonth);case _:
@@ -200,7 +200,7 @@ return $default(_that.rowId,_that.userRowId,_that.categoryRowId,_that.categoryNa
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int rowId,  int? userRowId,  int categoryRowId,  String? categoryName,  int budgetAmount,  int budgetYear,  int budgetMonth)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int rowId,  int? userRowId,  int? categoryRowId,  String? categoryName,  int budgetAmount,  int budgetYear,  int budgetMonth)?  $default,) {final _that = this;
 switch (_that) {
 case _Budget() when $default != null:
 return $default(_that.rowId,_that.userRowId,_that.categoryRowId,_that.categoryName,_that.budgetAmount,_that.budgetYear,_that.budgetMonth);case _:
@@ -215,12 +215,12 @@ return $default(_that.rowId,_that.userRowId,_that.categoryRowId,_that.categoryNa
 @JsonSerializable()
 
 class _Budget implements Budget {
-  const _Budget({required this.rowId, this.userRowId, required this.categoryRowId, this.categoryName, required this.budgetAmount, required this.budgetYear, required this.budgetMonth});
+  const _Budget({required this.rowId, this.userRowId, this.categoryRowId, this.categoryName, required this.budgetAmount, required this.budgetYear, required this.budgetMonth});
   factory _Budget.fromJson(Map<String, dynamic> json) => _$BudgetFromJson(json);
 
 @override final  int rowId;
 @override final  int? userRowId;
-@override final  int categoryRowId;
+@override final  int? categoryRowId;
 @override final  String? categoryName;
 @override final  int budgetAmount;
 @override final  int budgetYear;
@@ -259,7 +259,7 @@ abstract mixin class _$BudgetCopyWith<$Res> implements $BudgetCopyWith<$Res> {
   factory _$BudgetCopyWith(_Budget value, $Res Function(_Budget) _then) = __$BudgetCopyWithImpl;
 @override @useResult
 $Res call({
- int rowId, int? userRowId, int categoryRowId, String? categoryName, int budgetAmount, int budgetYear, int budgetMonth
+ int rowId, int? userRowId, int? categoryRowId, String? categoryName, int budgetAmount, int budgetYear, int budgetMonth
 });
 
 
@@ -276,12 +276,12 @@ class __$BudgetCopyWithImpl<$Res>
 
 /// Create a copy of Budget
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? rowId = null,Object? userRowId = freezed,Object? categoryRowId = null,Object? categoryName = freezed,Object? budgetAmount = null,Object? budgetYear = null,Object? budgetMonth = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? rowId = null,Object? userRowId = freezed,Object? categoryRowId = freezed,Object? categoryName = freezed,Object? budgetAmount = null,Object? budgetYear = null,Object? budgetMonth = null,}) {
   return _then(_Budget(
 rowId: null == rowId ? _self.rowId : rowId // ignore: cast_nullable_to_non_nullable
 as int,userRowId: freezed == userRowId ? _self.userRowId : userRowId // ignore: cast_nullable_to_non_nullable
-as int?,categoryRowId: null == categoryRowId ? _self.categoryRowId : categoryRowId // ignore: cast_nullable_to_non_nullable
-as int,categoryName: freezed == categoryName ? _self.categoryName : categoryName // ignore: cast_nullable_to_non_nullable
+as int?,categoryRowId: freezed == categoryRowId ? _self.categoryRowId : categoryRowId // ignore: cast_nullable_to_non_nullable
+as int?,categoryName: freezed == categoryName ? _self.categoryName : categoryName // ignore: cast_nullable_to_non_nullable
 as String?,budgetAmount: null == budgetAmount ? _self.budgetAmount : budgetAmount // ignore: cast_nullable_to_non_nullable
 as int,budgetYear: null == budgetYear ? _self.budgetYear : budgetYear // ignore: cast_nullable_to_non_nullable
 as int,budgetMonth: null == budgetMonth ? _self.budgetMonth : budgetMonth // ignore: cast_nullable_to_non_nullable

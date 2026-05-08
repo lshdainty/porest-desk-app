@@ -35,7 +35,7 @@ class BudgetRepository {
   }
 
   Future<void> create({
-    required int categoryRowId,
+    int? categoryRowId,
     required int budgetAmount,
     required int budgetYear,
     required int budgetMonth,
@@ -44,7 +44,8 @@ class BudgetRepository {
       await _dio.post<dynamic>(
         '/expense/budget',
         data: {
-          'categoryRowId': categoryRowId,
+          // null 이면 '월 전체 상한' 으로 백엔드 처리 (web 동일).
+          'categoryRowId': ?categoryRowId,
           'budgetAmount': budgetAmount,
           'budgetYear': budgetYear,
           'budgetMonth': budgetMonth,

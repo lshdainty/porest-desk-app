@@ -9,7 +9,7 @@ part of 'budget.dart';
 _Budget _$BudgetFromJson(Map<String, dynamic> json) => _Budget(
   rowId: (json['rowId'] as num).toInt(),
   userRowId: (json['userRowId'] as num?)?.toInt(),
-  categoryRowId: (json['categoryRowId'] as num).toInt(),
+  categoryRowId: (json['categoryRowId'] as num?)?.toInt(),
   categoryName: json['categoryName'] as String?,
   budgetAmount: (json['budgetAmount'] as num).toInt(),
   budgetYear: (json['budgetYear'] as num).toInt(),

@@ -194,7 +194,10 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
             context,
             year: _month.year,
             month: _month.month,
-            usedCategoryIds: budgets.map((b) => b.categoryRowId).toSet(),
+            usedCategoryIds: budgets
+                .map((b) => b.categoryRowId)
+                .whereType<int>()
+                .toSet(),
           ),
           child: const Icon(LucideIcons.plus),
         ),
@@ -281,9 +284,12 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                           for (int i = 0; i < budgets.length; i++) ...[
                             _BudgetRow(
                               budget: budgets[i],
-                              spent: spentByCat[budgets[i].categoryRowId] ?? 0,
-                              category: categoriesAsync.value
-                                  ?.byRowId(budgets[i].categoryRowId),
+                              spent:
+                                  spentByCat[budgets[i].categoryRowId] ?? 0,
+                              category: budgets[i].categoryRowId == null
+                                  ? null
+                                  : categoriesAsync.value
+                                      ?.byRowId(budgets[i].categoryRowId!),
                               masked: settings.hideAmounts,
                               tokens: t,
                               onTap: () => showBudgetEditDialog(
@@ -291,8 +297,10 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                                 year: _month.year,
                                 month: _month.month,
                                 edit: budgets[i],
-                                usedCategoryIds:
-                                    budgets.map((b) => b.categoryRowId).toSet(),
+                                usedCategoryIds: budgets
+                                    .map((b) => b.categoryRowId)
+                                    .whereType<int>()
+                                    .toSet(),
                               ),
                             ),
                             if (i < budgets.length - 1)

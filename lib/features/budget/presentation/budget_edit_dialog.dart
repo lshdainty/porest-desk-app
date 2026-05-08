@@ -178,13 +178,15 @@ class _BudgetEditBodyState extends ConsumerState<_BudgetEditBody> {
           _Label('카테고리'),
           const SizedBox(height: PSpace.x8),
           if (_isEdit)
-            // 수정 시엔 카테고리 변경 불가
+            // 수정 시엔 카테고리 변경 불가. categoryRowId 가 null 이면
+            // '월 전체 상한' 으로 표기 (web 동일 패턴).
             _LockedCategory(
-                category: categoriesAsync.value
-                    ?.firstWhere(
+                category: widget.edit!.categoryRowId == null
+                    ? ExpenseCategory(rowId: 0, categoryName: '월 전체 상한')
+                    : categoriesAsync.value?.firstWhere(
                         (c) => c.rowId == widget.edit!.categoryRowId,
                         orElse: () => ExpenseCategory(
-                            rowId: widget.edit!.categoryRowId,
+                            rowId: widget.edit!.categoryRowId!,
                             categoryName: widget.edit!.categoryName ?? '-')),
                 tokens: t)
           else
