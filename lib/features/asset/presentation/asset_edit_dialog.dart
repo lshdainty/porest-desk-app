@@ -13,6 +13,7 @@ import '../../card/presentation/card_catalog_picker.dart';
 import '../application/asset_providers.dart';
 import '../domain/asset.dart';
 import '../domain/asset_type_meta.dart';
+import 'account_add_dialog.dart';
 import 'asset_detail_dialog.dart';
 
 /// 자산 추가/수정 통합 시트 (구). 신규 코드는 아래 4종 진입점 사용 권장:
@@ -27,12 +28,9 @@ void showAssetEditDialog(BuildContext context, {Asset? edit}) {
 }
 
 /// 일반 자산 추가 — 계좌·예적금·현금·대출 등.
+/// front `AssetAddDialog` 미러 — [showAccountAddDialog] 로 위임.
 void showAssetAddDialog(BuildContext context, {String? presetType}) {
-  _open(
-    context: context,
-    title: '자산 추가',
-    body: _AssetEditBody(presetType: presetType),
-  );
+  showAccountAddDialog(context, presetType: presetType);
 }
 
 /// 카드 추가 — assetType 을 CREDIT_CARD 로 미리 지정.

@@ -8,110 +8,403 @@ class BrandColor {
   final Color fg;
 }
 
-class _BankEntry {
-  const _BankEntry(this.name, this.color, [this.aliases = const <String>[]]);
+/// 은행/증권사 카테고리. 자산 추가 다이얼로그 섹션 헤더로 활용.
+enum BankCategory {
+  retailBank('시중은행'),
+  internetBank('인터넷은행'),
+  regionalBank('지방은행'),
+  specialBank('특수은행'),
+  savingsInstitution('저축기관'),
+  foreignBank('외국계'),
+  other('기타'),
+  brokerage('증권사'),
+  cryptoExchange('가상자산');
+
+  const BankCategory(this.label);
+  final String label;
+}
+
+class BankEntry {
+  const BankEntry({
+    required this.name,
+    required this.category,
+    required this.color,
+    this.aliases = const <String>[],
+  });
   final String name;
+  final BankCategory category;
   final BrandColor color;
   final List<String> aliases;
 }
 
-const _entries = <_BankEntry>[
+/// 투자 상품 등록 시 선택 가능한 카테고리 (증권사 + 가상자산).
+const Set<BankCategory> investCategories = {
+  BankCategory.brokerage,
+  BankCategory.cryptoExchange,
+};
+
+/// 자산 추가 다이얼로그 섹션 표시 순서.
+const List<BankCategory> bankCategoryOrder = [
+  BankCategory.retailBank,
+  BankCategory.internetBank,
+  BankCategory.regionalBank,
+  BankCategory.specialBank,
+  BankCategory.savingsInstitution,
+  BankCategory.foreignBank,
+  BankCategory.other,
+  BankCategory.brokerage,
+  BankCategory.cryptoExchange,
+];
+
+const List<BankEntry> bankEntries = <BankEntry>[
   // 시중은행
-  _BankEntry('신한', BrandColor(bg: Color(0xFF0046FF)), ['신한은행']),
-  _BankEntry('KB국민', BrandColor(bg: Color(0xFFFFBC00), fg: Color(0xFF191919)),
-      ['KB', '국민', 'KB국민은행']),
-  _BankEntry('우리', BrandColor(bg: Color(0xFF0067AC)), ['우리은행']),
-  _BankEntry('하나', BrandColor(bg: Color(0xFF008485)), ['KEB하나', '하나은행']),
-  _BankEntry('NH농협', BrandColor(bg: Color(0xFF00A651)), ['농협', 'NH농협은행']),
-  _BankEntry('IBK기업', BrandColor(bg: Color(0xFF004098)), ['기업', 'IBK', '기업은행']),
-  _BankEntry('SC제일', BrandColor(bg: Color(0xFF009A44)), ['제일', 'SC', 'SC제일은행']),
-  _BankEntry('씨티', BrandColor(bg: Color(0xFF056DAE)), ['시티', '씨티은행', '한국씨티']),
+  BankEntry(
+      name: '신한',
+      category: BankCategory.retailBank,
+      color: BrandColor(bg: Color(0xFF0046FF)),
+      aliases: ['신한은행']),
+  BankEntry(
+      name: 'KB국민',
+      category: BankCategory.retailBank,
+      color: BrandColor(bg: Color(0xFFFFBC00), fg: Color(0xFF191919)),
+      aliases: ['KB', '국민', 'KB국민은행']),
+  BankEntry(
+      name: '우리',
+      category: BankCategory.retailBank,
+      color: BrandColor(bg: Color(0xFF0067AC)),
+      aliases: ['우리은행']),
+  BankEntry(
+      name: '하나',
+      category: BankCategory.retailBank,
+      color: BrandColor(bg: Color(0xFF008485)),
+      aliases: ['KEB하나', '하나은행']),
+  BankEntry(
+      name: 'NH농협',
+      category: BankCategory.retailBank,
+      color: BrandColor(bg: Color(0xFF00A651)),
+      aliases: ['농협', 'NH농협은행']),
+  BankEntry(
+      name: 'IBK기업',
+      category: BankCategory.retailBank,
+      color: BrandColor(bg: Color(0xFF004098)),
+      aliases: ['기업', 'IBK', '기업은행']),
+  BankEntry(
+      name: 'SC제일',
+      category: BankCategory.retailBank,
+      color: BrandColor(bg: Color(0xFF009A44)),
+      aliases: ['제일', 'SC', 'SC제일은행']),
+  BankEntry(
+      name: '씨티',
+      category: BankCategory.retailBank,
+      color: BrandColor(bg: Color(0xFF056DAE)),
+      aliases: ['시티', '씨티은행', '한국씨티']),
 
   // 인터넷은행
-  _BankEntry('카카오뱅크',
-      BrandColor(bg: Color(0xFFFEE500), fg: Color(0xFF191919)), ['카뱅']),
-  _BankEntry('토스뱅크', BrandColor(bg: Color(0xFF0064FF)), ['토스']),
-  _BankEntry('케이뱅크', BrandColor(bg: Color(0xFFFF6F20)), ['K뱅크', 'K Bank']),
+  BankEntry(
+      name: '카카오뱅크',
+      category: BankCategory.internetBank,
+      color: BrandColor(bg: Color(0xFFFEE500), fg: Color(0xFF191919)),
+      aliases: ['카뱅']),
+  BankEntry(
+      name: '토스뱅크',
+      category: BankCategory.internetBank,
+      color: BrandColor(bg: Color(0xFF0064FF)),
+      aliases: ['토스']),
+  BankEntry(
+      name: '케이뱅크',
+      category: BankCategory.internetBank,
+      color: BrandColor(bg: Color(0xFFFF6F20)),
+      aliases: ['K뱅크', 'K Bank']),
 
   // 지방은행
-  _BankEntry('부산', BrandColor(bg: Color(0xFF0033A0)), ['부산은행', 'BNK부산']),
-  _BankEntry('대구', BrandColor(bg: Color(0xFF1464AC)),
-      ['대구은행', 'iM뱅크', 'DGB대구']),
-  _BankEntry('경남', BrandColor(bg: Color(0xFF0E4C92)), ['경남은행', 'BNK경남']),
-  _BankEntry('광주', BrandColor(bg: Color(0xFF00428A)), ['광주은행', 'JB광주']),
-  _BankEntry('전북', BrandColor(bg: Color(0xFF0F3E8C)), ['전북은행', 'JB전북']),
-  _BankEntry('제주', BrandColor(bg: Color(0xFFF47216)), ['제주은행']),
+  BankEntry(
+      name: '부산',
+      category: BankCategory.regionalBank,
+      color: BrandColor(bg: Color(0xFF0033A0)),
+      aliases: ['부산은행', 'BNK부산']),
+  BankEntry(
+      name: '대구',
+      category: BankCategory.regionalBank,
+      color: BrandColor(bg: Color(0xFF1464AC)),
+      aliases: ['대구은행', 'iM뱅크', 'DGB대구']),
+  BankEntry(
+      name: '경남',
+      category: BankCategory.regionalBank,
+      color: BrandColor(bg: Color(0xFF0E4C92)),
+      aliases: ['경남은행', 'BNK경남']),
+  BankEntry(
+      name: '광주',
+      category: BankCategory.regionalBank,
+      color: BrandColor(bg: Color(0xFF00428A)),
+      aliases: ['광주은행', 'JB광주']),
+  BankEntry(
+      name: '전북',
+      category: BankCategory.regionalBank,
+      color: BrandColor(bg: Color(0xFF0F3E8C)),
+      aliases: ['전북은행', 'JB전북']),
+  BankEntry(
+      name: '제주',
+      category: BankCategory.regionalBank,
+      color: BrandColor(bg: Color(0xFFF47216)),
+      aliases: ['제주은행']),
 
   // 특수은행
-  _BankEntry('KDB산업', BrandColor(bg: Color(0xFF004098)), ['산업', '산업은행', 'KDB']),
-  _BankEntry('수출입', BrandColor(bg: Color(0xFF003A6C)), ['수출입은행', 'EXIM']),
-  _BankEntry('수협', BrandColor(bg: Color(0xFF003DA5)), ['수협은행', 'Sh수협']),
+  BankEntry(
+      name: 'KDB산업',
+      category: BankCategory.specialBank,
+      color: BrandColor(bg: Color(0xFF004098)),
+      aliases: ['산업', '산업은행', 'KDB']),
+  BankEntry(
+      name: '수출입',
+      category: BankCategory.specialBank,
+      color: BrandColor(bg: Color(0xFF003A6C)),
+      aliases: ['수출입은행', 'EXIM']),
+  BankEntry(
+      name: '수협',
+      category: BankCategory.specialBank,
+      color: BrandColor(bg: Color(0xFF003DA5)),
+      aliases: ['수협은행', 'Sh수협']),
 
   // 저축기관
-  _BankEntry('우체국', BrandColor(bg: Color(0xFFE4002B)), ['우체국예금', '우체국금융']),
-  _BankEntry('새마을금고', BrandColor(bg: Color(0xFFD61E29)), ['새마을', 'MG']),
-  _BankEntry('신협', BrandColor(bg: Color(0xFF003A70)), ['신용협동조합']),
-  _BankEntry('산림조합', BrandColor(bg: Color(0xFF2E7D32)), ['산림조합중앙회']),
-  _BankEntry('SBI저축', BrandColor(bg: Color(0xFF0E3E85)), ['SBI저축은행', 'SBI']),
-  _BankEntry('OK저축', BrandColor(bg: Color(0xFFFECC00), fg: Color(0xFF191919)),
-      ['OK저축은행']),
-  _BankEntry('웰컴저축', BrandColor(bg: Color(0xFFE30613)), ['웰컴저축은행']),
-  _BankEntry('페퍼저축', BrandColor(bg: Color(0xFFB3002D)), ['페퍼저축은행', 'Pepper']),
+  BankEntry(
+      name: '우체국',
+      category: BankCategory.savingsInstitution,
+      color: BrandColor(bg: Color(0xFFE4002B)),
+      aliases: ['우체국예금', '우체국금융']),
+  BankEntry(
+      name: '새마을금고',
+      category: BankCategory.savingsInstitution,
+      color: BrandColor(bg: Color(0xFFD61E29)),
+      aliases: ['새마을', 'MG']),
+  BankEntry(
+      name: '신협',
+      category: BankCategory.savingsInstitution,
+      color: BrandColor(bg: Color(0xFF003A70)),
+      aliases: ['신용협동조합']),
+  BankEntry(
+      name: '산림조합',
+      category: BankCategory.savingsInstitution,
+      color: BrandColor(bg: Color(0xFF2E7D32)),
+      aliases: ['산림조합중앙회']),
+  BankEntry(
+      name: 'SBI저축',
+      category: BankCategory.savingsInstitution,
+      color: BrandColor(bg: Color(0xFF0E3E85)),
+      aliases: ['SBI저축은행', 'SBI']),
+  BankEntry(
+      name: 'OK저축',
+      category: BankCategory.savingsInstitution,
+      color: BrandColor(bg: Color(0xFFFECC00), fg: Color(0xFF191919)),
+      aliases: ['OK저축은행']),
+  BankEntry(
+      name: '웰컴저축',
+      category: BankCategory.savingsInstitution,
+      color: BrandColor(bg: Color(0xFFE30613)),
+      aliases: ['웰컴저축은행']),
+  BankEntry(
+      name: '페퍼저축',
+      category: BankCategory.savingsInstitution,
+      color: BrandColor(bg: Color(0xFFB3002D)),
+      aliases: ['페퍼저축은행', 'Pepper']),
 
   // 외국계
-  _BankEntry('HSBC', BrandColor(bg: Color(0xFFDB0011)), ['홍콩상하이', '에이치에스비씨']),
-  _BankEntry('ICBC', BrandColor(bg: Color(0xFFD6001C)), ['공상은행', '중국공상은행']),
-  _BankEntry('BoA', BrandColor(bg: Color(0xFF012169)),
-      ['뱅크오브아메리카', 'Bank of America']),
-  _BankEntry('도이치', BrandColor(bg: Color(0xFF004A8F)), ['도이치뱅크', 'Deutsche']),
-  _BankEntry('JP모건', BrandColor(bg: Color(0xFF006CB7)), ['JPMorgan', 'JP모건체이스']),
+  BankEntry(
+      name: 'HSBC',
+      category: BankCategory.foreignBank,
+      color: BrandColor(bg: Color(0xFFDB0011)),
+      aliases: ['홍콩상하이', '에이치에스비씨']),
+  BankEntry(
+      name: 'ICBC',
+      category: BankCategory.foreignBank,
+      color: BrandColor(bg: Color(0xFFD6001C)),
+      aliases: ['공상은행', '중국공상은행']),
+  BankEntry(
+      name: 'BoA',
+      category: BankCategory.foreignBank,
+      color: BrandColor(bg: Color(0xFF012169)),
+      aliases: ['뱅크오브아메리카', 'Bank of America']),
+  BankEntry(
+      name: '도이치',
+      category: BankCategory.foreignBank,
+      color: BrandColor(bg: Color(0xFF004A8F)),
+      aliases: ['도이치뱅크', 'Deutsche']),
+  BankEntry(
+      name: 'JP모건',
+      category: BankCategory.foreignBank,
+      color: BrandColor(bg: Color(0xFF006CB7)),
+      aliases: ['JPMorgan', 'JP모건체이스']),
 
   // 기타
-  _BankEntry('현금', BrandColor(bg: Color(0xFF64748B)), ['지갑', 'Cash']),
+  BankEntry(
+      name: '현금',
+      category: BankCategory.other,
+      color: BrandColor(bg: Color(0xFF64748B)),
+      aliases: ['지갑', 'Cash']),
 
   // 증권사
-  _BankEntry('삼성증권', BrandColor(bg: Color(0xFF1428A0)), ['삼성']),
-  _BankEntry('미래에셋', BrandColor(bg: Color(0xFF2C3E50)), ['미래에셋증권']),
-  _BankEntry('NH투자', BrandColor(bg: Color(0xFF00A651)), ['NH투자증권']),
-  _BankEntry('한국투자', BrandColor(bg: Color(0xFF00529B)), ['한투', '한국투자증권']),
-  _BankEntry('KB증권', BrandColor(bg: Color(0xFFFFBC00), fg: Color(0xFF191919))),
-  _BankEntry('신한투자', BrandColor(bg: Color(0xFF0046FF)),
-      ['신한금융투자', '신한투자증권']),
-  _BankEntry('하나증권', BrandColor(bg: Color(0xFF008485))),
-  _BankEntry('키움증권', BrandColor(bg: Color(0xFFFF0033)), ['키움']),
-  _BankEntry('메리츠증권', BrandColor(bg: Color(0xFFE60012)),
-      ['메리츠', '메리츠종합금융증권']),
-  _BankEntry('대신증권', BrandColor(bg: Color(0xFFF58220)), ['대신']),
-  _BankEntry('유안타증권', BrandColor(bg: Color(0xFF10B981)), ['유안타', '동양']),
-  _BankEntry('유진투자', BrandColor(bg: Color(0xFF003595)), ['유진투자증권']),
-  _BankEntry('교보증권', BrandColor(bg: Color(0xFF004A8F)), ['교보']),
-  _BankEntry('IBK투자', BrandColor(bg: Color(0xFF004098)), ['IBK투자증권']),
-  _BankEntry('DB금융투자', BrandColor(bg: Color(0xFF008456)), ['DB', 'DB금투']),
-  _BankEntry('SK증권', BrandColor(bg: Color(0xFFEA002C)), ['SK']),
-  _BankEntry('현대차증권', BrandColor(bg: Color(0xFF002C5F)), ['현대차', 'HMC투자']),
-  _BankEntry('하이투자', BrandColor(bg: Color(0xFF004098)), ['하이투자증권']),
-  _BankEntry('한화투자', BrandColor(bg: Color(0xFFFF7900)), ['한화투자증권', '한화']),
-  _BankEntry('BNK투자', BrandColor(bg: Color(0xFF0033A0)), ['BNK투자증권']),
-  _BankEntry('한양증권', BrandColor(bg: Color(0xFF004098)), ['한양']),
-  _BankEntry('LS증권', BrandColor(bg: Color(0xFF005EB8)),
-      ['이베스트', '이베스트투자', 'E-best']),
-  _BankEntry('부국증권', BrandColor(bg: Color(0xFF003366)), ['부국']),
-  _BankEntry('신영증권', BrandColor(bg: Color(0xFF005EB8)), ['신영']),
-  _BankEntry('카카오페이증권',
-      BrandColor(bg: Color(0xFFFEE500), fg: Color(0xFF191919)), ['카카오페이']),
-  _BankEntry('토스증권', BrandColor(bg: Color(0xFF0064FF))),
+  BankEntry(
+      name: '삼성증권',
+      category: BankCategory.brokerage,
+      color: BrandColor(bg: Color(0xFF1428A0)),
+      aliases: ['삼성']),
+  BankEntry(
+      name: '미래에셋',
+      category: BankCategory.brokerage,
+      color: BrandColor(bg: Color(0xFF2C3E50)),
+      aliases: ['미래에셋증권']),
+  BankEntry(
+      name: 'NH투자',
+      category: BankCategory.brokerage,
+      color: BrandColor(bg: Color(0xFF00A651)),
+      aliases: ['NH투자증권']),
+  BankEntry(
+      name: '한국투자',
+      category: BankCategory.brokerage,
+      color: BrandColor(bg: Color(0xFF00529B)),
+      aliases: ['한투', '한국투자증권']),
+  BankEntry(
+      name: 'KB증권',
+      category: BankCategory.brokerage,
+      color: BrandColor(bg: Color(0xFFFFBC00), fg: Color(0xFF191919))),
+  BankEntry(
+      name: '신한투자',
+      category: BankCategory.brokerage,
+      color: BrandColor(bg: Color(0xFF0046FF)),
+      aliases: ['신한금융투자', '신한투자증권']),
+  BankEntry(
+      name: '하나증권',
+      category: BankCategory.brokerage,
+      color: BrandColor(bg: Color(0xFF008485))),
+  BankEntry(
+      name: '키움증권',
+      category: BankCategory.brokerage,
+      color: BrandColor(bg: Color(0xFFFF0033)),
+      aliases: ['키움']),
+  BankEntry(
+      name: '메리츠증권',
+      category: BankCategory.brokerage,
+      color: BrandColor(bg: Color(0xFFE60012)),
+      aliases: ['메리츠', '메리츠종합금융증권']),
+  BankEntry(
+      name: '대신증권',
+      category: BankCategory.brokerage,
+      color: BrandColor(bg: Color(0xFFF58220)),
+      aliases: ['대신']),
+  BankEntry(
+      name: '유안타증권',
+      category: BankCategory.brokerage,
+      color: BrandColor(bg: Color(0xFF10B981)),
+      aliases: ['유안타', '동양']),
+  BankEntry(
+      name: '유진투자',
+      category: BankCategory.brokerage,
+      color: BrandColor(bg: Color(0xFF003595)),
+      aliases: ['유진투자증권']),
+  BankEntry(
+      name: '교보증권',
+      category: BankCategory.brokerage,
+      color: BrandColor(bg: Color(0xFF004A8F)),
+      aliases: ['교보']),
+  BankEntry(
+      name: 'IBK투자',
+      category: BankCategory.brokerage,
+      color: BrandColor(bg: Color(0xFF004098)),
+      aliases: ['IBK투자증권']),
+  BankEntry(
+      name: 'DB금융투자',
+      category: BankCategory.brokerage,
+      color: BrandColor(bg: Color(0xFF008456)),
+      aliases: ['DB', 'DB금투']),
+  BankEntry(
+      name: 'SK증권',
+      category: BankCategory.brokerage,
+      color: BrandColor(bg: Color(0xFFEA002C)),
+      aliases: ['SK']),
+  BankEntry(
+      name: '현대차증권',
+      category: BankCategory.brokerage,
+      color: BrandColor(bg: Color(0xFF002C5F)),
+      aliases: ['현대차', 'HMC투자']),
+  BankEntry(
+      name: '하이투자',
+      category: BankCategory.brokerage,
+      color: BrandColor(bg: Color(0xFF004098)),
+      aliases: ['하이투자증권']),
+  BankEntry(
+      name: '한화투자',
+      category: BankCategory.brokerage,
+      color: BrandColor(bg: Color(0xFFFF7900)),
+      aliases: ['한화투자증권', '한화']),
+  BankEntry(
+      name: 'BNK투자',
+      category: BankCategory.brokerage,
+      color: BrandColor(bg: Color(0xFF0033A0)),
+      aliases: ['BNK투자증권']),
+  BankEntry(
+      name: '한양증권',
+      category: BankCategory.brokerage,
+      color: BrandColor(bg: Color(0xFF004098)),
+      aliases: ['한양']),
+  BankEntry(
+      name: 'LS증권',
+      category: BankCategory.brokerage,
+      color: BrandColor(bg: Color(0xFF005EB8)),
+      aliases: ['이베스트', '이베스트투자', 'E-best']),
+  BankEntry(
+      name: '부국증권',
+      category: BankCategory.brokerage,
+      color: BrandColor(bg: Color(0xFF003366)),
+      aliases: ['부국']),
+  BankEntry(
+      name: '신영증권',
+      category: BankCategory.brokerage,
+      color: BrandColor(bg: Color(0xFF005EB8)),
+      aliases: ['신영']),
+  BankEntry(
+      name: '카카오페이증권',
+      category: BankCategory.brokerage,
+      color: BrandColor(bg: Color(0xFFFEE500), fg: Color(0xFF191919)),
+      aliases: ['카카오페이']),
+  BankEntry(
+      name: '토스증권',
+      category: BankCategory.brokerage,
+      color: BrandColor(bg: Color(0xFF0064FF))),
 
   // 가상자산
-  _BankEntry('업비트', BrandColor(bg: Color(0xFF1F55F4)),
-      ['Upbit', 'UPBIT', '두나무']),
-  _BankEntry('빗썸', BrandColor(bg: Color(0xFFF2811D)), ['Bithumb', 'BITHUMB']),
-  _BankEntry('코인원', BrandColor(bg: Color(0xFFF55826)), ['Coinone', 'COINONE']),
-  _BankEntry('코빗', BrandColor(bg: Color(0xFF1D3FFF)), ['Korbit', 'KORBIT']),
+  BankEntry(
+      name: '업비트',
+      category: BankCategory.cryptoExchange,
+      color: BrandColor(bg: Color(0xFF1F55F4)),
+      aliases: ['Upbit', 'UPBIT', '두나무']),
+  BankEntry(
+      name: '빗썸',
+      category: BankCategory.cryptoExchange,
+      color: BrandColor(bg: Color(0xFFF2811D)),
+      aliases: ['Bithumb', 'BITHUMB']),
+  BankEntry(
+      name: '코인원',
+      category: BankCategory.cryptoExchange,
+      color: BrandColor(bg: Color(0xFFF55826)),
+      aliases: ['Coinone', 'COINONE']),
+  BankEntry(
+      name: '코빗',
+      category: BankCategory.cryptoExchange,
+      color: BrandColor(bg: Color(0xFF1D3FFF)),
+      aliases: ['Korbit', 'KORBIT']),
 ];
+
+/// 카테고리별로 묶인 은행·증권사 리스트 — 다이얼로그 섹션 헤더용.
+final Map<BankCategory, List<BankEntry>> bankEntriesByCategory = (() {
+  final m = <BankCategory, List<BankEntry>>{};
+  for (final e in bankEntries) {
+    (m[e.category] ??= <BankEntry>[]).add(e);
+  }
+  return m;
+})();
 
 final Map<String, BrandColor> _brandMap = (() {
   final m = <String, BrandColor>{};
-  for (final e in _entries) {
+  for (final e in bankEntries) {
     m[_normalize(e.name)] = e.color;
     for (final a in e.aliases) {
       m[_normalize(a)] = e.color;
