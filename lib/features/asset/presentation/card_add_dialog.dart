@@ -223,23 +223,44 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
                             color: t.fgPrimary,
                             fontWeight: PFontWeight.medium)),
                     const Spacer(),
-                    Text('단종 포함',
-                        style: PTypo.micro.copyWith(color: t.fgTertiary)),
-                    const SizedBox(width: 6),
-                    Transform.scale(
-                      scale: 0.8,
-                      child: Switch(
-                        value: _includeDiscontinued,
-                        onChanged: (v) =>
-                            setState(() => _includeDiscontinued = v),
+                    // web: '단종 포함 [switch]   총 N건' — 한 row 에 끝까지 정렬.
+                    InkWell(
+                      onTap: () => setState(
+                          () => _includeDiscontinued = !_includeDiscontinued),
+                      borderRadius: BorderRadius.circular(4),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 2),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text('단종 포함',
+                                style: PTypo.caption
+                                    .copyWith(color: t.fgTertiary)),
+                            const SizedBox(width: 6),
+                            // Material Switch.adaptive 의 기본 폭이 커서 60% 로 축소.
+                            SizedBox(
+                              width: 36,
+                              height: 22,
+                              child: FittedBox(
+                                fit: BoxFit.contain,
+                                child: Switch(
+                                  value: _includeDiscontinued,
+                                  onChanged: (v) => setState(
+                                      () => _includeDiscontinued = v),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    if (pageAsync.value != null)
-                      Text(
-                        '총 ${pageAsync.value!.totalElements}건',
-                        style: PTypo.micro.copyWith(color: t.fgTertiary),
-                      ),
+                    const SizedBox(width: 12),
+                    Text(
+                      pageAsync.value != null
+                          ? '총 ${pageAsync.value!.totalElements}건'
+                          : '총 …',
+                      style: PTypo.micro.copyWith(color: t.fgTertiary),
+                    ),
                   ],
                 ),
                 const SizedBox(height: PSpace.x8),
