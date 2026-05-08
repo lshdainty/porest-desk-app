@@ -22,12 +22,17 @@ void showBudgetEditDialog(
   required int month,
   Budget? edit,
   Set<int> usedCategoryIds = const {},
+  bool overallNew = false,
 }) {
+  final isOverall = overallNew || (edit?.categoryRowId == null && edit != null);
+  final title = edit == null
+      ? (overallNew ? '월 전체 상한 설정' : '카테고리 예산 추가')
+      : (isOverall ? '월 전체 상한 수정' : '카테고리 예산 수정');
   WoltModalSheet.show<void>(
     context: context,
     pageListBuilder: (modalCtx) => [
       WoltModalSheetPage(
-        topBarTitle: Text(edit == null ? '예산 추가' : '예산 수정'),
+        topBarTitle: Text(title),
         isTopBarLayerAlwaysVisible: true,
         backgroundColor:
             Theme.of(modalCtx).extension<PorestTokens>()?.bgSurface,
@@ -40,6 +45,7 @@ void showBudgetEditDialog(
           month: month,
           edit: edit,
           usedCategoryIds: usedCategoryIds,
+          overallNew: overallNew,
         ),
       ),
     ],
@@ -52,11 +58,13 @@ class _BudgetEditBody extends ConsumerStatefulWidget {
     required this.month,
     this.edit,
     required this.usedCategoryIds,
+    this.overallNew = false,
   });
   final int year;
   final int month;
   final Budget? edit;
   final Set<int> usedCategoryIds;
+  final bool overallNew;
 
   @override
   ConsumerState<_BudgetEditBody> createState() => _BudgetEditBodyState();
@@ -84,12 +92,15 @@ class _BudgetEditBodyState extends ConsumerState<_BudgetEditBody> {
     super.dispose();
   }
 
+  bool get _isOverall =>
+      widget.overallNew || (_isEdit && widget.edit!.categoryRowId == null);
+
   bool get _canSubmit {
     final amount = int.tryParse(_amountCtrl.text.replaceAll(',', ''));
     return !_submitting &&
         amount != null &&
         amount > 0 &&
-        _categoryRowId != null;
+        (_isOverall || _categoryRowId != null);
   }
 
   Future<void> _submit() async {
@@ -101,7 +112,7 @@ class _BudgetEditBodyState extends ConsumerState<_BudgetEditBody> {
         await repo.update(id: widget.edit!.rowId, budgetAmount: amount);
       } else {
         await repo.create(
-          categoryRowId: _categoryRowId!,
+          categoryRowId: _isOverall ? null : _categoryRowId!,
           budgetAmount: amount,
           budgetYear: widget.year,
           budgetMonth: widget.month,
@@ -177,7 +188,11 @@ class _BudgetEditBodyState extends ConsumerState<_BudgetEditBody> {
 
           _Label('카테고리'),
           const SizedBox(height: PSpace.x8),
-          if (_isEdit)
+          if (widget.overallNew)
+            _LockedCategory(
+                category: ExpenseCategory(rowId: 0, categoryName: '월 전체 상한'),
+                tokens: t)
+          else if (_isEdit)
             // 수정 시엔 카테고리 변경 불가. categoryRowId 가 null 이면
             // '월 전체 상한' 으로 표기 (web 동일 패턴).
             _LockedCategory(
