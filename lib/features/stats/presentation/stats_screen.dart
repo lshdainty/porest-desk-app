@@ -403,16 +403,24 @@ class _Card extends StatelessWidget {
 }
 
 class _PeriodSeg extends StatelessWidget {
-  const _PeriodSeg({required this.value, required this.onChanged});
+  const _PeriodSeg({
+    required this.value,
+    required this.onTapStandard,
+    required this.onTapCustom,
+    required this.customLabel,
+  });
   final _SegMode value;
-  final ValueChanged<_SegMode> onChanged;
+  final ValueChanged<_SegMode> onTapStandard; // 월/분기/년
+  final VoidCallback onTapCustom;             // 사용자 지정 — 항상 피커 오픈
+  final String customLabel;
+
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    Widget pill(_SegMode v, String label) {
+    Widget pill(_SegMode v, String label, VoidCallback onTap) {
       final active = v == value;
       return GestureDetector(
-        onTap: () => onChanged(v),
+        onTap: onTap,
         child: Container(
           padding:
               const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
@@ -446,50 +454,11 @@ class _PeriodSeg extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          pill(_SegMode.month, '월'),
-          pill(_SegMode.quarter, '분기'),
-          pill(_SegMode.year, '년'),
-          pill(_SegMode.custom, '사용자 지정'),
+          pill(_SegMode.month, '월', () => onTapStandard(_SegMode.month)),
+          pill(_SegMode.quarter, '분기', () => onTapStandard(_SegMode.quarter)),
+          pill(_SegMode.year, '년', () => onTapStandard(_SegMode.year)),
+          pill(_SegMode.custom, customLabel, onTapCustom),
         ],
-      ),
-    );
-  }
-}
-
-class _RangePickerButton extends StatelessWidget {
-  const _RangePickerButton({required this.from, required this.to, required this.onTap});
-  final DateTime from;
-  final DateTime to;
-  final VoidCallback onTap;
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    final nowYear = DateTime.now().year;
-    String short(DateTime d) {
-      final y = d.year == nowYear ? '' : '${d.year.toString().substring(2)}.';
-      return '$y${d.month.toString().padLeft(2, '0')}.${d.day.toString().padLeft(2, '0')}';
-    }
-
-    return InkWell(
-      onTap: onTap,
-      borderRadius: PRadius.brTile,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-        decoration: BoxDecoration(
-          border: Border.all(color: t.borderSubtle),
-          borderRadius: PRadius.brTile,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(LucideIcons.calendar, size: 14, color: t.fgSecondary),
-            const SizedBox(width: 6),
-            Text(
-              '${short(from)} ~ ${short(to)}',
-              style: PTypo.caption.copyWith(color: t.fgTertiary),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -500,22 +469,22 @@ class _PeriodSelectorRow extends StatelessWidget {
   final _StatsScreenState state;
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      alignment: WrapAlignment.end,
-      crossAxisAlignment: WrapCrossAlignment.center,
-      spacing: 8,
-      runSpacing: 8,
-      children: [
-        _RangePickerButton(
-          from: state._from,
-          to: state._to,
-          onTap: state._pickRange,
-        ),
-        _PeriodSeg(
-          value: state._segMode,
-          onChanged: state.setSegMode,
-        ),
-      ],
+    final s = state;
+    final isCustom = s._segMode == _SegMode.custom;
+    final customLabel = isCustom
+        ? (s._from.year == s._to.year
+            ? '${s._from.month}/${s._from.day} ~ ${s._to.month}/${s._to.day}'
+            : '${s._from.year.toString().substring(2)}.${s._from.month.toString().padLeft(2, '0')}.${s._from.day.toString().padLeft(2, '0')} ~ '
+                '${s._to.year.toString().substring(2)}.${s._to.month.toString().padLeft(2, '0')}.${s._to.day.toString().padLeft(2, '0')}')
+        : '사용자 지정';
+    return Align(
+      alignment: Alignment.centerRight,
+      child: _PeriodSeg(
+        value: s._segMode,
+        customLabel: customLabel,
+        onTapStandard: s.setSegMode,
+        onTapCustom: s._pickRange,
+      ),
     );
   }
 }
