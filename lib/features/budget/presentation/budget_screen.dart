@@ -255,13 +255,17 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
     final categoriesAsync = ref.watch(categoriesProvider);
     final complianceAsync = ref.watch(budgetComplianceProvider(6));
 
+    final canPop = Navigator.of(context).canPop();
     return Scaffold(
       backgroundColor: t.bgCanvas,
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(LucideIcons.arrowLeft),
-          onPressed: () => context.pop(),
-        ),
+        leading: canPop
+            ? IconButton(
+                icon: const Icon(LucideIcons.arrowLeft),
+                onPressed: () => context.pop(),
+              )
+            : null,
+        automaticallyImplyLeading: canPop,
         title: const Text('예산'),
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,
