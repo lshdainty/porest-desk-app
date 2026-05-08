@@ -1339,10 +1339,15 @@ List<_TrendPoint> _computeTrendData(
     ];
   }
 
+  // 모든 버킷이 같은 해면 'MM' 만 (년 prefix 생략) — 년/단일년도 사용자기간
+  final allSameYear =
+      buckets.isNotEmpty && buckets.every((b) => b.year == buckets.first.year);
   return [
     for (final b in buckets)
       _TrendPoint(
-        label: '${b.year}.${b.month.toString().padLeft(2, '0')}',
+        label: allSameYear
+            ? b.month.toString().padLeft(2, '0')
+            : '${b.year}.${b.month.toString().padLeft(2, '0')}',
         income: b.totalIncome,
         expense: b.totalExpense,
       ),
@@ -1363,9 +1368,9 @@ String _fmtTick(double v) {
 }
 
 /// fl_chart 의 x 라벨 스텝 필터 — interval 만으로는 BarChart 에서 잘 안 먹힘.
-/// 데이터 갯수에 따라 약 6~7 라벨만 표시 (양 끝 + 균등 간격).
+/// 12 이하면 전부, 그 이상이면 약 6~7 라벨만 (양 끝 + 균등 간격).
 bool _showXLabel(int i, int n) {
-  if (n <= 1) return true;
+  if (n <= 12) return true; // 년(12) / 분기(3) / 짧은 사용자기간 — 전부 표시
   if (i == 0 || i == n - 1) return true; // 양 끝 항상
   final step = (n / 6).ceil();
   return i % step == 0 && (n - 1 - i) >= (step ~/ 2);
