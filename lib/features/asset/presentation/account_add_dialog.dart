@@ -11,12 +11,13 @@ import '../../../core/network/api_exception.dart';
 import '../../../shared/brand/bank_colors.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../application/asset_providers.dart';
+import '../domain/asset.dart';
 
-/// 계좌 추가 다이얼로그 — front `AssetAddDialog` 미러.
+/// 계좌 추가/편집 다이얼로그 — front `AssetAddDialog` / `AssetEditDialog` 미러.
 ///
 /// add_tx_sheet 와 동일한 패턴:
 /// - showModalBottomSheet + DraggableScrollableSheet
-/// - 본문 내부 row 헤더 (drag handle + 타이틀 + X) — 별도 border line 없음
+/// - 본문 내부 row 헤더 (drag handle + 타이틀 + X) — border line 없음
 /// - 본문은 ListView 로 스크롤, 액션 버튼도 본문 하단에 함께 들어가서 키보드 안 가림
 void showAccountAddDialog(BuildContext context, {String? presetType}) {
   final initialSub = switch (presetType) {
@@ -25,6 +26,23 @@ void showAccountAddDialog(BuildContext context, {String? presetType}) {
     'LOAN' => _SubType.loan,
     _ => _SubType.checking,
   };
+  _open(context, edit: null, initialSubType: initialSub);
+}
+
+/// 계좌 편집 — 기존 자산을 받아서 동일 폼 재사용.
+void showAccountEditDialog(BuildContext context, Asset asset) {
+  _open(
+    context,
+    edit: asset,
+    initialSubType: _subTypeFromAssetType(asset.assetType),
+  );
+}
+
+void _open(
+  BuildContext context, {
+  required Asset? edit,
+  required _SubType initialSubType,
+}) {
   showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
@@ -39,12 +57,20 @@ void showAccountAddDialog(BuildContext context, {String? presetType}) {
       maxChildSize: 0.95,
       expand: false,
       builder: (_, scrollCtrl) => _AccountAddBody(
-        initialSubType: initialSub,
+        edit: edit,
+        initialSubType: initialSubType,
         scrollController: scrollCtrl,
       ),
     ),
   );
 }
+
+_SubType _subTypeFromAssetType(String t) => switch (t) {
+      'SAVINGS' => _SubType.savingsRecurring,
+      'CASH' => _SubType.cash,
+      'LOAN' => _SubType.loan,
+      _ => _SubType.checking,
+    };
 
 enum _SubType { checking, savingsRecurring, savingsTime, cash, loan }
 
@@ -69,9 +95,11 @@ extension _SubTypeX on _SubType {
 
 class _AccountAddBody extends ConsumerStatefulWidget {
   const _AccountAddBody({
+    required this.edit,
     required this.initialSubType,
     required this.scrollController,
   });
+  final Asset? edit;
   final _SubType initialSubType;
   final ScrollController scrollController;
 
@@ -84,10 +112,14 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
   late final TextEditingController _nicknameCtrl;
   late final TextEditingController _accountNumberCtrl;
   late final TextEditingController _balanceCtrl;
+  late final TextEditingController _memoCtrl;
 
-  String _brand = bankEntries.first.name;
+  late String _brand;
   late _SubType _subType;
   bool _submitting = false;
+  bool _deleting = false;
+
+  bool get _isEdit => widget.edit != null;
 
   /// 계좌 추가에 노출할 카테고리 — 증권사·가상자산 제외.
   List<MapEntry<BankCategory, List<BankEntry>>> get _filteredByCategory {
@@ -124,11 +156,24 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
   @override
   void initState() {
     super.initState();
+    final e = widget.edit;
     _subType = widget.initialSubType;
+    // 편집 모드: institution 으로 brand 추론, 없으면 첫 항목.
+    _brand = e?.institution != null && e!.institution!.isNotEmpty
+        ? bankEntries.firstWhere(
+            (b) =>
+                b.name == e.institution ||
+                b.aliases.contains(e.institution),
+            orElse: () => bankEntries.first,
+          ).name
+        : bankEntries.first.name;
     _queryCtrl = TextEditingController()..addListener(_onQueryChanged);
-    _nicknameCtrl = TextEditingController()..addListener(_onPreviewChanged);
+    _nicknameCtrl = TextEditingController(text: e?.assetName ?? '')
+      ..addListener(_onPreviewChanged);
     _accountNumberCtrl = TextEditingController();
-    _balanceCtrl = TextEditingController(text: '0');
+    _balanceCtrl =
+        TextEditingController(text: (e?.balance ?? 0).toString());
+    _memoCtrl = TextEditingController(text: e?.memo ?? '');
   }
 
   void _onQueryChanged() => setState(() {});
@@ -140,6 +185,7 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
     _nicknameCtrl.dispose();
     _accountNumberCtrl.dispose();
     _balanceCtrl.dispose();
+    _memoCtrl.dispose();
     super.dispose();
   }
 
@@ -150,23 +196,42 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
     final name = nickname.isEmpty ? '$brand ${_subType.label}' : nickname;
     final balance = int.tryParse(_balanceCtrl.text.replaceAll(',', '')) ?? 0;
     final accountNumber = _accountNumberCtrl.text.trim();
+    final memo = _memoCtrl.text.trim();
+    // 신규: 계좌번호를 memo 로 저장. 편집: 사용자가 입력한 메모를 우선,
+    // 비었고 계좌번호가 채워졌으면 그걸 사용.
+    final memoForApi = _isEdit
+        ? (memo.isEmpty ? (accountNumber.isEmpty ? null : accountNumber) : memo)
+        : (accountNumber.isEmpty ? null : accountNumber);
 
     setState(() => _submitting = true);
     try {
       final repo = await ref.read(assetRepositoryProvider.future);
-      await repo.create(
-        assetName: name,
-        assetType: _subType.assetType,
-        balance: balance,
-        currency: 'KRW',
-        institution: brand,
-        memo: accountNumber.isEmpty ? null : accountNumber,
-      );
+      if (_isEdit) {
+        await repo.update(
+          id: widget.edit!.rowId,
+          assetName: name,
+          assetType: _subType.assetType,
+          balance: balance,
+          currency: 'KRW',
+          institution: brand,
+          memo: memoForApi,
+        );
+      } else {
+        await repo.create(
+          assetName: name,
+          assetType: _subType.assetType,
+          balance: balance,
+          currency: 'KRW',
+          institution: brand,
+          memo: memoForApi,
+        );
+      }
       ref.invalidate(assetsProvider);
       if (!mounted) return;
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('계좌가 추가되었습니다')),
+        SnackBar(
+            content: Text(_isEdit ? '계좌가 수정되었습니다' : '계좌가 추가되었습니다')),
       );
     } on ApiException catch (e) {
       if (!mounted) return;
@@ -175,6 +240,47 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
       );
     } finally {
       if (mounted) setState(() => _submitting = false);
+    }
+  }
+
+  Future<void> _delete() async {
+    if (_deleting || widget.edit == null) return;
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('계좌 삭제'),
+        content: const Text('이 계좌를 삭제하시겠습니까? 연결된 거래는 유지됩니다.'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('취소')),
+          FilledButton(
+            style: FilledButton.styleFrom(
+                backgroundColor: context.tokens.statusDanger),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('삭제'),
+          ),
+        ],
+      ),
+    );
+    if (ok != true || !mounted) return;
+    setState(() => _deleting = true);
+    try {
+      final repo = await ref.read(assetRepositoryProvider.future);
+      await repo.delete(widget.edit!.rowId);
+      ref.invalidate(assetsProvider);
+      if (!mounted) return;
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('계좌가 삭제되었습니다')),
+      );
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('삭제 실패: ${e.message}')),
+      );
+    } finally {
+      if (mounted) setState(() => _deleting = false);
     }
   }
 
@@ -205,7 +311,7 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
               children: [
                 Expanded(
                   child: Text(
-                    '계좌 추가',
+                    _isEdit ? '계좌 편집' : '계좌 추가',
                     style: PTypo.h3.copyWith(
                       color: t.fgPrimary,
                       fontWeight: PFontWeight.heavy,
@@ -310,7 +416,7 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('잔액 (원)',
+                          Text(_isEdit ? '잔액 (원)' : '잔액 (원)',
                               style: PTypo.caption.copyWith(
                                   color: t.fgPrimary,
                                   fontWeight: PFontWeight.medium)),
@@ -327,14 +433,51 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
                     ),
                   ],
                 ),
+
+                // 메모 — 편집 모드에서만 노출 (web 동일).
+                if (_isEdit) ...[
+                  const SizedBox(height: PSpace.x20),
+                  Text('메모 (선택)',
+                      style: PTypo.caption.copyWith(
+                          color: t.fgPrimary,
+                          fontWeight: PFontWeight.medium)),
+                  const SizedBox(height: PSpace.x8),
+                  PTextInput(
+                    controller: _memoCtrl,
+                    placeholder: '계좌번호 뒷자리, 결제일, 한도 등 메모하세요',
+                  ),
+                ],
+
                 const SizedBox(height: PSpace.x24),
 
                 // 액션 ──────────────────────────────
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
+                    if (_isEdit) ...[
+                      TextButton.icon(
+                        onPressed:
+                            (_submitting || _deleting) ? null : _delete,
+                        style: TextButton.styleFrom(
+                          foregroundColor: t.statusDangerFg,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 8),
+                        ),
+                        icon: _deleting
+                            ? SizedBox(
+                                width: 14,
+                                height: 14,
+                                child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: t.statusDangerFg))
+                            : const Icon(LucideIcons.trash2, size: 14),
+                        label: Text('삭제',
+                            style: PTypo.bodySm
+                                .copyWith(color: t.statusDangerFg)),
+                      ),
+                    ],
+                    const Spacer(),
                     TextButton(
-                      onPressed: _submitting
+                      onPressed: (_submitting || _deleting)
                           ? null
                           : () => Navigator.of(context).pop(),
                       style: TextButton.styleFrom(
@@ -354,14 +497,15 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 18, vertical: 8),
                       ),
-                      onPressed: _submitting ? null : _submit,
+                      onPressed:
+                          (_submitting || _deleting) ? null : _submit,
                       child: _submitting
                           ? const SizedBox(
                               width: 16,
                               height: 16,
                               child: CircularProgressIndicator(
                                   strokeWidth: 2, color: Colors.white))
-                          : const Text('추가'),
+                          : Text(_isEdit ? '저장' : '추가'),
                     ),
                   ],
                 ),

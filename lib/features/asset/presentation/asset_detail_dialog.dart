@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
 import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
@@ -26,28 +25,35 @@ import 'asset_edit_dialog.dart';
 
 /// 자산 상세 — front `AssetDetailDialog` 모바일 미러.
 ///
-/// 구성:
-/// - Hero 카드 (브랜드 컬러 그라디언트 bg + 아이콘 + 이름 + 잔액)
+/// add_tx_sheet 패턴 (showModalBottomSheet + DraggableScrollableSheet) 으로
+/// 통일. WoltModalSheet 의 자동 헤더/스티키 푸터 border line 이 web 디자인과
+/// 안 맞아서 일관성 위해 같은 시트 베이스로 정리.
+///
+/// 구성 (web 동일):
+/// - Drag handle + Row(타이틀 + X) — border line 없음
+/// - Hero 카드 (브랜드 그라디언트 + 아이콘 + 이름 + 잔액)
 /// - 12/24/52주 잔액 추이 + 3개월/6개월/1년 segmented
-/// - 최근 거래 12건 + "전체 보기 →" (가계부 화면으로 이동)
-/// - 액션 바: 금액 가리기 / 편집 / 확인
+/// - 최근 거래 12건 + "전체 보기 →"
+/// - 푸터: 금액 가리기 / 편집 / 확인 (본문 끝에 함께 스크롤)
 void showAssetDetailRich(BuildContext context, Asset asset) {
-  WoltModalSheet.show<void>(
+  showModalBottomSheet<void>(
     context: context,
-    pageListBuilder: (modalCtx) => [
-      WoltModalSheetPage(
-        topBarTitle: Text(_titleFor(asset)),
-        isTopBarLayerAlwaysVisible: true,
-        backgroundColor:
-            Theme.of(modalCtx).extension<PorestTokens>()?.bgSurface,
-        trailingNavBarWidget: IconButton(
-          icon: const Icon(LucideIcons.x),
-          onPressed: Navigator.of(modalCtx).pop,
-        ),
-        child: _DetailBody(asset: asset),
-        stickyActionBar: _DetailActionBar(asset: asset),
+    isScrollControlled: true,
+    backgroundColor:
+        Theme.of(context).extension<PorestTokens>()?.bgSurface,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(PRadius.xl2)),
+    ),
+    builder: (_) => DraggableScrollableSheet(
+      initialChildSize: 0.92,
+      minChildSize: 0.5,
+      maxChildSize: 0.95,
+      expand: false,
+      builder: (_, scrollCtrl) => _DetailBody(
+        asset: asset,
+        scrollController: scrollCtrl,
       ),
-    ],
+    ),
   );
 }
 
@@ -80,8 +86,9 @@ extension on _Period {
 }
 
 class _DetailBody extends ConsumerStatefulWidget {
-  const _DetailBody({required this.asset});
+  const _DetailBody({required this.asset, required this.scrollController});
   final Asset asset;
+  final ScrollController scrollController;
   @override
   ConsumerState<_DetailBody> createState() => _DetailBodyState();
 }
@@ -113,107 +120,197 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
         ref.watch(expensesByAssetProvider((assetId: asset.rowId, limit: 12)));
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(
-          PSpace.x16, PSpace.x4, PSpace.x16, PSpace.x16 + 64),
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Hero ─────────────────────────────────────
-          _HeroCard(
-            asset: asset,
-            meta: meta,
-            brandFg: brandFg,
-            valueLabel: valueLabel,
-            isCard: isCard,
-            masked: masked,
-          ),
-          const SizedBox(height: PSpace.x16),
-
-          // CARD 일 때만 카드 실적 바
-          if (isCard) ...[
-            CardPerformanceBar(
-              assetRowId: asset.rowId,
-              yearMonth: _currentYearMonth(),
-              masked: masked,
-            ),
-            const SizedBox(height: PSpace.x16),
-          ],
-
-          // Trend ───────────────────────────────────
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  trendTitle,
-                  style: PTypo.bodySm.copyWith(
-                    color: t.fgPrimary,
-                    fontWeight: PFontWeight.bold,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              _PeriodSeg(
-                value: _period,
-                onChanged: (p) => setState(() => _period = p),
-              ),
-            ],
-          ),
-          const SizedBox(height: PSpace.x12),
-          SizedBox(
-            height: 160,
-            child: _BalanceTrendChart(
-              async: trendAsync,
-              tokens: t,
-              brandFg: brandFg,
-              seriesLabel: seriesLabel,
-              masked: masked,
+          // Drag handle ─────────────────────────────────
+          Container(
+            margin: const EdgeInsets.only(top: 8),
+            width: 36,
+            height: 4,
+            decoration: BoxDecoration(
+              color: t.borderDefault,
+              borderRadius: PRadius.brXs2,
             ),
           ),
-          const SizedBox(height: PSpace.x20),
-
-          // Recent tx ──────────────────────────────
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  (recentAsync.value?.isNotEmpty ?? false)
-                      ? '최근 거래 (${recentAsync.value!.length})'
-                      : '최근 거래',
-                  style: PTypo.bodySm.copyWith(
-                    color: t.fgPrimary,
-                    fontWeight: PFontWeight.bold,
+          // Header ─────────────────────────────────────
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+                PSpace.x16, PSpace.x12, PSpace.x8, PSpace.x4),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    _titleFor(asset),
+                    style: PTypo.h3.copyWith(
+                      color: t.fgPrimary,
+                      fontWeight: PFontWeight.heavy,
+                    ),
                   ),
                 ),
-              ),
-              InkWell(
-                borderRadius: BorderRadius.circular(6),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  context.go('/expense');
-                },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 6, vertical: 4),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text('전체 보기',
-                          style: PTypo.bodySm.copyWith(
-                            color: t.fgSecondary,
-                            fontWeight: PFontWeight.semi,
-                          )),
-                      const SizedBox(width: 2),
-                      Icon(LucideIcons.chevronRight,
-                          size: 12, color: t.fgSecondary),
-                    ],
-                  ),
+                IconButton(
+                  icon: Icon(LucideIcons.x, color: t.fgTertiary, size: 20),
+                  onPressed: () => Navigator.of(context).pop(),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-          const SizedBox(height: PSpace.x8),
-          _RecentExpenses(async: recentAsync, masked: masked, tokens: t),
+          // Body ───────────────────────────────────────
+          Expanded(
+            child: ListView(
+              controller: widget.scrollController,
+              padding: const EdgeInsets.fromLTRB(
+                  PSpace.x16, 0, PSpace.x16, PSpace.x16),
+              children: [
+                _HeroCard(
+                  asset: asset,
+                  meta: meta,
+                  brandFg: brandFg,
+                  valueLabel: valueLabel,
+                  isCard: isCard,
+                  masked: masked,
+                ),
+                const SizedBox(height: PSpace.x16),
+                if (isCard) ...[
+                  CardPerformanceBar(
+                    assetRowId: asset.rowId,
+                    yearMonth: _currentYearMonth(),
+                    masked: masked,
+                  ),
+                  const SizedBox(height: PSpace.x16),
+                ],
+
+                // Trend header
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        trendTitle,
+                        style: PTypo.bodySm.copyWith(
+                          color: t.fgPrimary,
+                          fontWeight: PFontWeight.bold,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    _PeriodSeg(
+                      value: _period,
+                      onChanged: (p) => setState(() => _period = p),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: PSpace.x12),
+                SizedBox(
+                  height: 160,
+                  child: _BalanceTrendChart(
+                    async: trendAsync,
+                    tokens: t,
+                    brandFg: brandFg,
+                    seriesLabel: seriesLabel,
+                    masked: masked,
+                  ),
+                ),
+                const SizedBox(height: PSpace.x20),
+
+                // Recent tx
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        (recentAsync.value?.isNotEmpty ?? false)
+                            ? '최근 거래 (${recentAsync.value!.length})'
+                            : '최근 거래',
+                        style: PTypo.bodySm.copyWith(
+                          color: t.fgPrimary,
+                          fontWeight: PFontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    InkWell(
+                      borderRadius: BorderRadius.circular(6),
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        context.go('/expense');
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 4),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text('전체 보기',
+                                style: PTypo.bodySm.copyWith(
+                                  color: t.fgSecondary,
+                                  fontWeight: PFontWeight.semi,
+                                )),
+                            const SizedBox(width: 2),
+                            Icon(LucideIcons.chevronRight,
+                                size: 12, color: t.fgSecondary),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: PSpace.x8),
+                _RecentExpenses(
+                    async: recentAsync, masked: masked, tokens: t),
+                const SizedBox(height: PSpace.x20),
+
+                // 푸터 ─────────────────────────────
+                Row(
+                  children: [
+                    TextButton.icon(
+                      onPressed: () =>
+                          toggleHideAmountsWithUnlock(context, ref),
+                      style: TextButton.styleFrom(
+                        foregroundColor: t.fgSecondary,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 6),
+                      ),
+                      icon: Icon(
+                        masked ? LucideIcons.eye : LucideIcons.eyeOff,
+                        size: 14,
+                      ),
+                      label: Text(masked ? '금액 표시' : '금액 가리기',
+                          style: PTypo.bodySm
+                              .copyWith(color: t.fgSecondary)),
+                    ),
+                    const Spacer(),
+                    TextButton.icon(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        showAssetEditForm(context, asset);
+                      },
+                      style: TextButton.styleFrom(
+                        foregroundColor: t.fgSecondary,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 6),
+                      ),
+                      icon: const Icon(LucideIcons.pencil, size: 14),
+                      label: Text('편집',
+                          style: PTypo.bodySm
+                              .copyWith(color: t.fgSecondary)),
+                    ),
+                    const SizedBox(width: 4),
+                    FilledButton(
+                      style: FilledButton.styleFrom(
+                        backgroundColor: t.bgBrand,
+                        foregroundColor: t.fgOnBrand,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 18, vertical: 8),
+                      ),
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text('확인'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -737,75 +834,6 @@ class _ExpenseRow extends StatelessWidget {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-/// 하단 sticky 액션 바 — 금액 가리기 / 편집 / 확인.
-class _DetailActionBar extends ConsumerWidget {
-  const _DetailActionBar({required this.asset});
-  final Asset asset;
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final t = context.tokens;
-    final masked =
-        ref.watch(settingsProvider).value?.hideAmounts ?? false;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: t.bgSurface,
-        border: Border(top: BorderSide(color: t.borderSubtle)),
-      ),
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-          child: Row(
-            children: [
-              TextButton.icon(
-                onPressed: () =>
-                    toggleHideAmountsWithUnlock(context, ref),
-                style: TextButton.styleFrom(
-                  foregroundColor: t.fgSecondary,
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 8, vertical: 6),
-                ),
-                icon: Icon(
-                  masked ? LucideIcons.eye : LucideIcons.eyeOff,
-                  size: 14,
-                ),
-                label: Text(masked ? '금액 표시' : '금액 가리기',
-                    style: PTypo.bodySm.copyWith(color: t.fgSecondary)),
-              ),
-              const Spacer(),
-              TextButton.icon(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  showAssetEditForm(context, asset);
-                },
-                style: TextButton.styleFrom(
-                  foregroundColor: t.fgSecondary,
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 8, vertical: 6),
-                ),
-                icon: const Icon(LucideIcons.pencil, size: 14),
-                label: Text('편집',
-                    style: PTypo.bodySm.copyWith(color: t.fgSecondary)),
-              ),
-              const SizedBox(width: 4),
-              FilledButton(
-                style: FilledButton.styleFrom(
-                  backgroundColor: t.bgBrand,
-                  foregroundColor: t.fgOnBrand,
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 8),
-                ),
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('확인'),
-              ),
-            ],
-          ),
         ),
       ),
     );

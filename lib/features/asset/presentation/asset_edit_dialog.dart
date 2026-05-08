@@ -19,6 +19,7 @@ import 'asset_detail_dialog.dart';
 /// 자산 추가/수정 통합 시트 (구). 신규 코드는 아래 4종 진입점 사용 권장:
 ///   [showAssetAddDialog] / [showCardAddDialog] /
 ///   [showInvestmentAddDialog] / [showAssetDetailDialog]
+// ignore: unused_element
 void showAssetEditDialog(BuildContext context, {Asset? edit}) {
   if (edit != null) {
     showAssetDetailDialog(context, edit);
@@ -61,12 +62,9 @@ void showAssetDetailDialog(BuildContext context, Asset asset) {
 }
 
 /// 자산 편집 폼 진입 (상세 다이얼로그 내부에서 직접 호출용).
+/// front `AssetEditDialog` 미러 — `showAccountEditDialog` 로 위임.
 void showAssetEditForm(BuildContext context, Asset asset) {
-  _open(
-    context: context,
-    title: '자산 수정',
-    body: _AssetEditBody(edit: asset),
-  );
+  showAccountEditDialog(context, asset);
 }
 
 void _open({
@@ -97,6 +95,9 @@ enum AssetKind { generic, card, investment }
 
 class _AssetEditBody extends ConsumerStatefulWidget {
   const _AssetEditBody({
+    // 편집 진입은 account_add_dialog 의 showAccountEditDialog 가 담당.
+    // 카드/투자 추가 폼만 이 위젯 사용 (presetType + kindHint).
+    // ignore: unused_element_parameter
     this.edit,
     this.presetType,
     this.kindHint = AssetKind.generic,
