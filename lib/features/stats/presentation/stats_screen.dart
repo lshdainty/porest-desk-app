@@ -1959,6 +1959,42 @@ class _CompareSummaryGrid extends StatelessWidget {
   }
 }
 
+/// 양쪽 끝 모두 라운드 처리된 progress bar (LinearProgressIndicator 의 fill 우측이
+/// 항상 square 인 한계 우회). 트랙은 투명.
+class _RoundedBar extends StatelessWidget {
+  const _RoundedBar({
+    required this.value,
+    required this.height,
+    required this.color,
+  });
+  final double value; // 0.0 ~ 1.0
+  final double height;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    final clamped = value.isNaN ? 0.0 : value.clamp(0.0, 1.0);
+    return SizedBox(
+      height: height,
+      child: LayoutBuilder(
+        builder: (ctx, c) {
+          return Align(
+            alignment: Alignment.centerLeft,
+            child: Container(
+              width: c.maxWidth * clamped,
+              height: height,
+              decoration: BoxDecoration(
+                color: color,
+                borderRadius: BorderRadius.circular(height / 2),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
 class _CompareCard extends StatelessWidget {
   const _CompareCard({
     required this.label,
@@ -2169,25 +2205,17 @@ class _CompareRow extends StatelessWidget {
           padding: const EdgeInsets.only(left: 42),
           child: Column(
             children: [
-              // 트랙 투명 — 웹과 매칭. 채워진 부분만 보이도록.
-              ClipRRect(
-                borderRadius: PRadius.brPill,
-                child: LinearProgressIndicator(
-                  value: row.now / maxAmt,
-                  minHeight: 10,
-                  backgroundColor: Colors.transparent,
-                  color: t.fgBrand,
-                ),
+              // 트랙 투명, fill 양 끝 round — 웹과 매칭
+              _RoundedBar(
+                value: row.now / maxAmt,
+                height: 10,
+                color: t.fgBrand,
               ),
               const SizedBox(height: 4),
-              ClipRRect(
-                borderRadius: PRadius.brPill,
-                child: LinearProgressIndicator(
-                  value: row.prev / maxAmt,
-                  minHeight: 6,
-                  backgroundColor: Colors.transparent,
-                  color: t.bgBrandMuted,
-                ),
+              _RoundedBar(
+                value: row.prev / maxAmt,
+                height: 6,
+                color: t.bgBrandMuted,
               ),
             ],
           ),
