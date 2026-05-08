@@ -286,48 +286,52 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
                 const SizedBox(height: 6),
                 Text('청구될 금액을 입력하세요. 총 부채에 반영됩니다.',
                     style: PTypo.micro.copyWith(color: t.fgTertiary)),
-
-                const SizedBox(height: PSpace.x24),
-
-                // 액션 ──────────────────────────────
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton(
-                      onPressed: _submitting
-                          ? null
-                          : () => Navigator.of(context).pop(),
-                      style: TextButton.styleFrom(
-                        foregroundColor: t.fgSecondary,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 8),
-                      ),
-                      child: Text('취소',
-                          style: PTypo.bodySm
-                              .copyWith(color: t.fgSecondary)),
-                    ),
-                    const SizedBox(width: 4),
-                    FilledButton(
-                      style: FilledButton.styleFrom(
-                        backgroundColor: t.bgBrand,
-                        foregroundColor: t.fgOnBrand,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 18, vertical: 8),
-                        disabledBackgroundColor: t.bgDisabled,
-                        disabledForegroundColor: t.fgTertiary,
-                      ),
-                      onPressed: canSubmit ? _submit : null,
-                      child: _submitting
-                          ? const SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(
-                                  strokeWidth: 2, color: Colors.white))
-                          : Text(_selected == null ? '카드 선택 필요' : '추가'),
-                    ),
-                  ],
-                ),
               ],
+            ),
+          ),
+          // Sticky footer ─────────────────────────────
+          SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(
+                  PSpace.x12, PSpace.x8, PSpace.x12, PSpace.x8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: _submitting
+                        ? null
+                        : () => Navigator.of(context).pop(),
+                    style: TextButton.styleFrom(
+                      foregroundColor: t.fgSecondary,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 8),
+                    ),
+                    child: Text('취소',
+                        style: PTypo.bodySm
+                            .copyWith(color: t.fgSecondary)),
+                  ),
+                  const SizedBox(width: 4),
+                  FilledButton(
+                    style: FilledButton.styleFrom(
+                      backgroundColor: t.bgBrand,
+                      foregroundColor: t.fgOnBrand,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 18, vertical: 8),
+                      disabledBackgroundColor: t.bgDisabled,
+                      disabledForegroundColor: t.fgTertiary,
+                    ),
+                    onPressed: canSubmit ? _submit : null,
+                    child: _submitting
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                                strokeWidth: 2, color: Colors.white))
+                        : Text(_selected == null ? '카드 선택 필요' : '추가'),
+                  ),
+                ],
+              ),
             ),
           ),
         ],

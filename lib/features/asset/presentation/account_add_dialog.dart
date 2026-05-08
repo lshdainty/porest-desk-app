@@ -447,69 +447,73 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
                     placeholder: '계좌번호 뒷자리, 결제일, 한도 등 메모하세요',
                   ),
                 ],
-
-                const SizedBox(height: PSpace.x24),
-
-                // 액션 ──────────────────────────────
-                Row(
-                  children: [
-                    if (_isEdit) ...[
-                      TextButton.icon(
-                        onPressed:
-                            (_submitting || _deleting) ? null : _delete,
-                        style: TextButton.styleFrom(
-                          foregroundColor: t.statusDangerFg,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 8),
-                        ),
-                        icon: _deleting
-                            ? SizedBox(
-                                width: 14,
-                                height: 14,
-                                child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: t.statusDangerFg))
-                            : const Icon(LucideIcons.trash2, size: 14),
-                        label: Text('삭제',
-                            style: PTypo.bodySm
-                                .copyWith(color: t.statusDangerFg)),
-                      ),
-                    ],
-                    const Spacer(),
-                    TextButton(
-                      onPressed: (_submitting || _deleting)
-                          ? null
-                          : () => Navigator.of(context).pop(),
-                      style: TextButton.styleFrom(
-                        foregroundColor: t.fgSecondary,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 8),
-                      ),
-                      child: Text('취소',
-                          style: PTypo.bodySm
-                              .copyWith(color: t.fgSecondary)),
-                    ),
-                    const SizedBox(width: 4),
-                    FilledButton(
-                      style: FilledButton.styleFrom(
-                        backgroundColor: t.bgBrand,
-                        foregroundColor: t.fgOnBrand,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 18, vertical: 8),
-                      ),
+              ],
+            ),
+          ),
+          // Sticky footer ─────────────────────────────
+          SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(
+                  PSpace.x12, PSpace.x8, PSpace.x12, PSpace.x8),
+              child: Row(
+                children: [
+                  if (_isEdit) ...[
+                    TextButton.icon(
                       onPressed:
-                          (_submitting || _deleting) ? null : _submit,
-                      child: _submitting
-                          ? const SizedBox(
-                              width: 16,
-                              height: 16,
+                          (_submitting || _deleting) ? null : _delete,
+                      style: TextButton.styleFrom(
+                        foregroundColor: t.statusDangerFg,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 8),
+                      ),
+                      icon: _deleting
+                          ? SizedBox(
+                              width: 14,
+                              height: 14,
                               child: CircularProgressIndicator(
-                                  strokeWidth: 2, color: Colors.white))
-                          : Text(_isEdit ? '저장' : '추가'),
+                                  strokeWidth: 2,
+                                  color: t.statusDangerFg))
+                          : const Icon(LucideIcons.trash2, size: 14),
+                      label: Text('삭제',
+                          style: PTypo.bodySm
+                              .copyWith(color: t.statusDangerFg)),
                     ),
                   ],
-                ),
-              ],
+                  const Spacer(),
+                  TextButton(
+                    onPressed: (_submitting || _deleting)
+                        ? null
+                        : () => Navigator.of(context).pop(),
+                    style: TextButton.styleFrom(
+                      foregroundColor: t.fgSecondary,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 8),
+                    ),
+                    child: Text('취소',
+                        style: PTypo.bodySm
+                            .copyWith(color: t.fgSecondary)),
+                  ),
+                  const SizedBox(width: 4),
+                  FilledButton(
+                    style: FilledButton.styleFrom(
+                      backgroundColor: t.bgBrand,
+                      foregroundColor: t.fgOnBrand,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 18, vertical: 8),
+                    ),
+                    onPressed:
+                        (_submitting || _deleting) ? null : _submit,
+                    child: _submitting
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                                strokeWidth: 2, color: Colors.white))
+                        : Text(_isEdit ? '저장' : '추가'),
+                  ),
+                ],
+              ),
             ),
           ),
         ],

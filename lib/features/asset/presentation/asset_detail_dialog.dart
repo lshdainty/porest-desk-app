@@ -258,57 +258,62 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                 const SizedBox(height: PSpace.x8),
                 _RecentExpenses(
                     async: recentAsync, masked: masked, tokens: t),
-                const SizedBox(height: PSpace.x20),
-
-                // 푸터 ─────────────────────────────
-                Row(
-                  children: [
-                    TextButton.icon(
-                      onPressed: () =>
-                          toggleHideAmountsWithUnlock(context, ref),
-                      style: TextButton.styleFrom(
-                        foregroundColor: t.fgSecondary,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 6),
-                      ),
-                      icon: Icon(
-                        masked ? LucideIcons.eye : LucideIcons.eyeOff,
-                        size: 14,
-                      ),
-                      label: Text(masked ? '금액 표시' : '금액 가리기',
-                          style: PTypo.bodySm
-                              .copyWith(color: t.fgSecondary)),
-                    ),
-                    const Spacer(),
-                    TextButton.icon(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        showAssetEditForm(context, asset);
-                      },
-                      style: TextButton.styleFrom(
-                        foregroundColor: t.fgSecondary,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 6),
-                      ),
-                      icon: const Icon(LucideIcons.pencil, size: 14),
-                      label: Text('편집',
-                          style: PTypo.bodySm
-                              .copyWith(color: t.fgSecondary)),
-                    ),
-                    const SizedBox(width: 4),
-                    FilledButton(
-                      style: FilledButton.styleFrom(
-                        backgroundColor: t.bgBrand,
-                        foregroundColor: t.fgOnBrand,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 18, vertical: 8),
-                      ),
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('확인'),
-                    ),
-                  ],
-                ),
               ],
+            ),
+          ),
+          // Sticky footer ─────────────────────────────
+          SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(
+                  PSpace.x12, PSpace.x8, PSpace.x12, PSpace.x8),
+              child: Row(
+                children: [
+                  TextButton.icon(
+                    onPressed: () =>
+                        toggleHideAmountsWithUnlock(context, ref),
+                    style: TextButton.styleFrom(
+                      foregroundColor: t.fgSecondary,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 6),
+                    ),
+                    icon: Icon(
+                      masked ? LucideIcons.eye : LucideIcons.eyeOff,
+                      size: 14,
+                    ),
+                    label: Text(masked ? '금액 표시' : '금액 가리기',
+                        style: PTypo.bodySm
+                            .copyWith(color: t.fgSecondary)),
+                  ),
+                  const Spacer(),
+                  TextButton.icon(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      showAssetEditForm(context, asset);
+                    },
+                    style: TextButton.styleFrom(
+                      foregroundColor: t.fgSecondary,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 6),
+                    ),
+                    icon: const Icon(LucideIcons.pencil, size: 14),
+                    label: Text('편집',
+                        style: PTypo.bodySm
+                            .copyWith(color: t.fgSecondary)),
+                  ),
+                  const SizedBox(width: 4),
+                  FilledButton(
+                    style: FilledButton.styleFrom(
+                      backgroundColor: t.bgBrand,
+                      foregroundColor: t.fgOnBrand,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 18, vertical: 8),
+                    ),
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text('확인'),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
