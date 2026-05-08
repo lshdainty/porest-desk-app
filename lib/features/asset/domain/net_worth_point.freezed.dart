@@ -15,8 +15,8 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$NetWorthPoint {
 
- String get month;// 'YYYY-MM'
- int get totalAssets; int get totalDebt; int get netWorth;
+ int get year; int get month;// 1~12
+ int get netWorth;
 /// Create a copy of NetWorthPoint
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -29,16 +29,16 @@ $NetWorthPointCopyWith<NetWorthPoint> get copyWith => _$NetWorthPointCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is NetWorthPoint&&(identical(other.month, month) || other.month == month)&&(identical(other.totalAssets, totalAssets) || other.totalAssets == totalAssets)&&(identical(other.totalDebt, totalDebt) || other.totalDebt == totalDebt)&&(identical(other.netWorth, netWorth) || other.netWorth == netWorth));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is NetWorthPoint&&(identical(other.year, year) || other.year == year)&&(identical(other.month, month) || other.month == month)&&(identical(other.netWorth, netWorth) || other.netWorth == netWorth));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,month,totalAssets,totalDebt,netWorth);
+int get hashCode => Object.hash(runtimeType,year,month,netWorth);
 
 @override
 String toString() {
-  return 'NetWorthPoint(month: $month, totalAssets: $totalAssets, totalDebt: $totalDebt, netWorth: $netWorth)';
+  return 'NetWorthPoint(year: $year, month: $month, netWorth: $netWorth)';
 }
 
 
@@ -49,7 +49,7 @@ abstract mixin class $NetWorthPointCopyWith<$Res>  {
   factory $NetWorthPointCopyWith(NetWorthPoint value, $Res Function(NetWorthPoint) _then) = _$NetWorthPointCopyWithImpl;
 @useResult
 $Res call({
- String month, int totalAssets, int totalDebt, int netWorth
+ int year, int month, int netWorth
 });
 
 
@@ -66,11 +66,10 @@ class _$NetWorthPointCopyWithImpl<$Res>
 
 /// Create a copy of NetWorthPoint
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? month = null,Object? totalAssets = null,Object? totalDebt = null,Object? netWorth = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? year = null,Object? month = null,Object? netWorth = null,}) {
   return _then(_self.copyWith(
-month: null == month ? _self.month : month // ignore: cast_nullable_to_non_nullable
-as String,totalAssets: null == totalAssets ? _self.totalAssets : totalAssets // ignore: cast_nullable_to_non_nullable
-as int,totalDebt: null == totalDebt ? _self.totalDebt : totalDebt // ignore: cast_nullable_to_non_nullable
+year: null == year ? _self.year : year // ignore: cast_nullable_to_non_nullable
+as int,month: null == month ? _self.month : month // ignore: cast_nullable_to_non_nullable
 as int,netWorth: null == netWorth ? _self.netWorth : netWorth // ignore: cast_nullable_to_non_nullable
 as int,
   ));
@@ -157,10 +156,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String month,  int totalAssets,  int totalDebt,  int netWorth)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int year,  int month,  int netWorth)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _NetWorthPoint() when $default != null:
-return $default(_that.month,_that.totalAssets,_that.totalDebt,_that.netWorth);case _:
+return $default(_that.year,_that.month,_that.netWorth);case _:
   return orElse();
 
 }
@@ -178,10 +177,10 @@ return $default(_that.month,_that.totalAssets,_that.totalDebt,_that.netWorth);ca
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String month,  int totalAssets,  int totalDebt,  int netWorth)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int year,  int month,  int netWorth)  $default,) {final _that = this;
 switch (_that) {
 case _NetWorthPoint():
-return $default(_that.month,_that.totalAssets,_that.totalDebt,_that.netWorth);case _:
+return $default(_that.year,_that.month,_that.netWorth);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -198,10 +197,10 @@ return $default(_that.month,_that.totalAssets,_that.totalDebt,_that.netWorth);ca
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String month,  int totalAssets,  int totalDebt,  int netWorth)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int year,  int month,  int netWorth)?  $default,) {final _that = this;
 switch (_that) {
 case _NetWorthPoint() when $default != null:
-return $default(_that.month,_that.totalAssets,_that.totalDebt,_that.netWorth);case _:
+return $default(_that.year,_that.month,_that.netWorth);case _:
   return null;
 
 }
@@ -212,14 +211,13 @@ return $default(_that.month,_that.totalAssets,_that.totalDebt,_that.netWorth);ca
 /// @nodoc
 @JsonSerializable()
 
-class _NetWorthPoint implements NetWorthPoint {
-  const _NetWorthPoint({required this.month, this.totalAssets = 0, this.totalDebt = 0, this.netWorth = 0});
+class _NetWorthPoint extends NetWorthPoint {
+  const _NetWorthPoint({required this.year, required this.month, this.netWorth = 0}): super._();
   factory _NetWorthPoint.fromJson(Map<String, dynamic> json) => _$NetWorthPointFromJson(json);
 
-@override final  String month;
-// 'YYYY-MM'
-@override@JsonKey() final  int totalAssets;
-@override@JsonKey() final  int totalDebt;
+@override final  int year;
+@override final  int month;
+// 1~12
 @override@JsonKey() final  int netWorth;
 
 /// Create a copy of NetWorthPoint
@@ -235,16 +233,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _NetWorthPoint&&(identical(other.month, month) || other.month == month)&&(identical(other.totalAssets, totalAssets) || other.totalAssets == totalAssets)&&(identical(other.totalDebt, totalDebt) || other.totalDebt == totalDebt)&&(identical(other.netWorth, netWorth) || other.netWorth == netWorth));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _NetWorthPoint&&(identical(other.year, year) || other.year == year)&&(identical(other.month, month) || other.month == month)&&(identical(other.netWorth, netWorth) || other.netWorth == netWorth));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,month,totalAssets,totalDebt,netWorth);
+int get hashCode => Object.hash(runtimeType,year,month,netWorth);
 
 @override
 String toString() {
-  return 'NetWorthPoint(month: $month, totalAssets: $totalAssets, totalDebt: $totalDebt, netWorth: $netWorth)';
+  return 'NetWorthPoint(year: $year, month: $month, netWorth: $netWorth)';
 }
 
 
@@ -255,7 +253,7 @@ abstract mixin class _$NetWorthPointCopyWith<$Res> implements $NetWorthPointCopy
   factory _$NetWorthPointCopyWith(_NetWorthPoint value, $Res Function(_NetWorthPoint) _then) = __$NetWorthPointCopyWithImpl;
 @override @useResult
 $Res call({
- String month, int totalAssets, int totalDebt, int netWorth
+ int year, int month, int netWorth
 });
 
 
@@ -272,11 +270,10 @@ class __$NetWorthPointCopyWithImpl<$Res>
 
 /// Create a copy of NetWorthPoint
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? month = null,Object? totalAssets = null,Object? totalDebt = null,Object? netWorth = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? year = null,Object? month = null,Object? netWorth = null,}) {
   return _then(_NetWorthPoint(
-month: null == month ? _self.month : month // ignore: cast_nullable_to_non_nullable
-as String,totalAssets: null == totalAssets ? _self.totalAssets : totalAssets // ignore: cast_nullable_to_non_nullable
-as int,totalDebt: null == totalDebt ? _self.totalDebt : totalDebt // ignore: cast_nullable_to_non_nullable
+year: null == year ? _self.year : year // ignore: cast_nullable_to_non_nullable
+as int,month: null == month ? _self.month : month // ignore: cast_nullable_to_non_nullable
 as int,netWorth: null == netWorth ? _self.netWorth : netWorth // ignore: cast_nullable_to_non_nullable
 as int,
   ));

@@ -100,7 +100,7 @@ class NetWorthChart extends ConsumerWidget {
                       if (i < 0 || i >= points.length) return const SizedBox.shrink();
                       // 격월 표시 (07월 / 09월 / 11월 …)
                       if (points.length > 7 && i % 2 != 0) return const SizedBox.shrink();
-                      final mm = points[i].month.split('-').last;
+                      final mm = points[i].month.toString().padLeft(2, '0');
                       return Padding(
                         padding: const EdgeInsets.only(top: 6),
                         child: Text(
@@ -122,7 +122,7 @@ class NetWorthChart extends ConsumerWidget {
                   getTooltipItems: (spots) => [
                     for (final s in spots)
                       LineTooltipItem(
-                        '${points[s.x.toInt()].month}\n${masked ? '•••' : _fmtFull(s.y)}',
+                        '${points[s.x.toInt()].monthLabel}\n${masked ? '•••' : _fmtFull(s.y)}',
                         TextStyle(color: t.fgPrimary, fontSize: PFontSize.caption, fontWeight: PFontWeight.bold),
                       ),
                   ],

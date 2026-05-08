@@ -8,16 +8,14 @@ part of 'net_worth_point.dart';
 
 _NetWorthPoint _$NetWorthPointFromJson(Map<String, dynamic> json) =>
     _NetWorthPoint(
-      month: json['month'] as String,
-      totalAssets: (json['totalAssets'] as num?)?.toInt() ?? 0,
-      totalDebt: (json['totalDebt'] as num?)?.toInt() ?? 0,
+      year: (json['year'] as num).toInt(),
+      month: (json['month'] as num).toInt(),
       netWorth: (json['netWorth'] as num?)?.toInt() ?? 0,
     );
 
 Map<String, dynamic> _$NetWorthPointToJson(_NetWorthPoint instance) =>
     <String, dynamic>{
+      'year': instance.year,
       'month': instance.month,
-      'totalAssets': instance.totalAssets,
-      'totalDebt': instance.totalDebt,
       'netWorth': instance.netWorth,
     };
