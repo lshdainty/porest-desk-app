@@ -28,7 +28,7 @@ void showDutchPayFromTxDialog(BuildContext context, Expense expense) {
       borderRadius: BorderRadius.vertical(top: Radius.circular(PRadius.xl2)),
     ),
     builder: (_) => DraggableScrollableSheet(
-      initialChildSize: 0.9,
+      initialChildSize: 0.85,
       minChildSize: 0.5,
       maxChildSize: 0.95,
       expand: false,
