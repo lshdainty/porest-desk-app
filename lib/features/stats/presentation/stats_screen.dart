@@ -2169,12 +2169,13 @@ class _CompareRow extends StatelessWidget {
           padding: const EdgeInsets.only(left: 42),
           child: Column(
             children: [
+              // 트랙 투명 — 웹과 매칭. 채워진 부분만 보이도록.
               ClipRRect(
                 borderRadius: PRadius.brPill,
                 child: LinearProgressIndicator(
                   value: row.now / maxAmt,
                   minHeight: 10,
-                  backgroundColor: t.bgMuted,
+                  backgroundColor: Colors.transparent,
                   color: t.fgBrand,
                 ),
               ),
@@ -2184,7 +2185,7 @@ class _CompareRow extends StatelessWidget {
                 child: LinearProgressIndicator(
                   value: row.prev / maxAmt,
                   minHeight: 6,
-                  backgroundColor: t.bgMuted,
+                  backgroundColor: Colors.transparent,
                   color: t.bgBrandMuted,
                 ),
               ),
