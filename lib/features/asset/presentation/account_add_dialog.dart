@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
 import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
@@ -14,10 +14,10 @@ import '../application/asset_providers.dart';
 
 /// 계좌 추가 다이얼로그 — front `AssetAddDialog` 미러.
 ///
-/// Wolt sheet 의 3 영역 활용:
-/// - 상단 (sticky)  : `topBarTitle` + `trailingNavBarWidget`
-/// - 본문 (scroll) : `child` — 미리보기 / 기관·브랜드 / 별칭 / 계좌 종류 / 계좌번호·잔액
-/// - 하단 (sticky)  : `stickyActionBar` — 취소 / 추가
+/// add_tx_sheet 와 동일한 패턴:
+/// - showModalBottomSheet + DraggableScrollableSheet
+/// - 본문 내부 row 헤더 (drag handle + 타이틀 + X) — 별도 border line 없음
+/// - 본문은 ListView 로 스크롤, 액션 버튼도 본문 하단에 함께 들어가서 키보드 안 가림
 void showAccountAddDialog(BuildContext context, {String? presetType}) {
   final initialSub = switch (presetType) {
     'SAVINGS' => _SubType.savingsRecurring,
@@ -25,38 +25,24 @@ void showAccountAddDialog(BuildContext context, {String? presetType}) {
     'LOAN' => _SubType.loan,
     _ => _SubType.checking,
   };
-  final bodyKey = GlobalKey<_AccountAddBodyState>();
-  final submitting = ValueNotifier<bool>(false);
-  WoltModalSheet.show<void>(
+  showModalBottomSheet<void>(
     context: context,
-    pageListBuilder: (modalCtx) {
-      final t = Theme.of(modalCtx).extension<PorestTokens>();
-      return [
-        WoltModalSheetPage(
-          topBarTitle: const Text('계좌 추가'),
-          isTopBarLayerAlwaysVisible: true,
-          backgroundColor: t?.bgSurface,
-          surfaceTintColor: t?.bgSurface,
-          trailingNavBarWidget: IconButton(
-            icon: const Icon(LucideIcons.x),
-            onPressed: () {
-              if (submitting.value) return;
-              Navigator.of(modalCtx).pop();
-            },
-          ),
-          child: _AccountAddBody(
-            key: bodyKey,
-            initialSubType: initialSub,
-            submitting: submitting,
-          ),
-          stickyActionBar: _ActionBar(
-            submitting: submitting,
-            onCancel: () => Navigator.of(modalCtx).pop(),
-            onSubmit: () => bodyKey.currentState?.submit(),
-          ),
-        ),
-      ];
-    },
+    isScrollControlled: true,
+    backgroundColor:
+        Theme.of(context).extension<PorestTokens>()?.bgSurface,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(PRadius.xl2)),
+    ),
+    builder: (_) => DraggableScrollableSheet(
+      initialChildSize: 0.92,
+      minChildSize: 0.5,
+      maxChildSize: 0.95,
+      expand: false,
+      builder: (_, scrollCtrl) => _AccountAddBody(
+        initialSubType: initialSub,
+        scrollController: scrollCtrl,
+      ),
+    ),
   );
 }
 
@@ -83,12 +69,11 @@ extension _SubTypeX on _SubType {
 
 class _AccountAddBody extends ConsumerStatefulWidget {
   const _AccountAddBody({
-    super.key,
     required this.initialSubType,
-    required this.submitting,
+    required this.scrollController,
   });
   final _SubType initialSubType;
-  final ValueNotifier<bool> submitting;
+  final ScrollController scrollController;
 
   @override
   ConsumerState<_AccountAddBody> createState() => _AccountAddBodyState();
@@ -102,6 +87,7 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
 
   String _brand = bankEntries.first.name;
   late _SubType _subType;
+  bool _submitting = false;
 
   /// 계좌 추가에 노출할 카테고리 — 증권사·가상자산 제외.
   List<MapEntry<BankCategory, List<BankEntry>>> get _filteredByCategory {
@@ -157,16 +143,15 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
     super.dispose();
   }
 
-  /// stickyActionBar 의 '추가' 에서 호출.
-  Future<void> submit() async {
-    if (widget.submitting.value) return;
+  Future<void> _submit() async {
+    if (_submitting) return;
     final brand = _brand;
     final nickname = _nicknameCtrl.text.trim();
     final name = nickname.isEmpty ? '$brand ${_subType.label}' : nickname;
     final balance = int.tryParse(_balanceCtrl.text.replaceAll(',', '')) ?? 0;
     final accountNumber = _accountNumberCtrl.text.trim();
 
-    widget.submitting.value = true;
+    setState(() => _submitting = true);
     try {
       final repo = await ref.read(assetRepositoryProvider.future);
       await repo.create(
@@ -189,7 +174,7 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
         SnackBar(content: Text('실패: ${e.message}')),
       );
     } finally {
-      widget.submitting.value = false;
+      if (mounted) setState(() => _submitting = false);
     }
   }
 
@@ -197,106 +182,191 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
   Widget build(BuildContext context) {
     final t = context.tokens;
     return Padding(
-      // 하단 stickyActionBar 높이만큼 여유 (action bar ≈ 56)
-      padding: const EdgeInsets.fromLTRB(
-          PSpace.x16, PSpace.x4, PSpace.x16, PSpace.x16 + 56),
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _PreviewTile(
-              entry: _selectedEntry, nickname: _nicknameCtrl.text.trim()),
-          const SizedBox(height: PSpace.x20),
-
-          // 기관·브랜드 ──────────────────────────
-          Row(
-            children: [
-              Text('기관·브랜드',
-                  style: PTypo.caption.copyWith(
-                      color: t.fgPrimary, fontWeight: PFontWeight.medium)),
-              const Spacer(),
-              Text('총 $_accountEntriesCount개',
-                  style: PTypo.micro.copyWith(color: t.fgTertiary)),
-            ],
-          ),
-          const SizedBox(height: PSpace.x8),
-          PTextInput(
-            controller: _queryCtrl,
-            placeholder: '은행명 또는 증권사 검색',
-            prefix: Padding(
-              padding: const EdgeInsets.only(left: 10, right: 6),
-              child: Icon(LucideIcons.search, size: 14, color: t.fgTertiary),
+          // Drag handle ─────────────────────────────────
+          Container(
+            margin: const EdgeInsets.only(top: 8),
+            width: 36,
+            height: 4,
+            decoration: BoxDecoration(
+              color: t.borderDefault,
+              borderRadius: PRadius.brXs2,
             ),
           ),
-          const SizedBox(height: PSpace.x8),
-          _BrandPicker(
-            categories: _filteredByCategory,
-            selectedName: _brand,
-            onPick: (name) => setState(() => _brand = name),
+          // Header ─────────────────────────────────────
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+                PSpace.x16, PSpace.x12, PSpace.x8, PSpace.x4),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    '계좌 추가',
+                    style: PTypo.h3.copyWith(
+                      color: t.fgPrimary,
+                      fontWeight: PFontWeight.heavy,
+                    ),
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(LucideIcons.x, color: t.fgTertiary, size: 20),
+                  onPressed: _submitting
+                      ? null
+                      : () => Navigator.of(context).pop(),
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: PSpace.x20),
+          // Content (scrollable, 액션 버튼 포함) ──────
+          Expanded(
+            child: ListView(
+              controller: widget.scrollController,
+              padding: const EdgeInsets.fromLTRB(
+                  PSpace.x16, 0, PSpace.x16, PSpace.x16),
+              children: [
+                _PreviewTile(
+                    entry: _selectedEntry,
+                    nickname: _nicknameCtrl.text.trim()),
+                const SizedBox(height: PSpace.x20),
 
-          // 별칭 ────────────────────────────────────
-          Text('별칭',
-              style: PTypo.caption.copyWith(
-                  color: t.fgPrimary, fontWeight: PFontWeight.medium)),
-          const SizedBox(height: PSpace.x8),
-          PTextInput(
-            controller: _nicknameCtrl,
-            placeholder: '예: 신한 주거래',
-          ),
-          const SizedBox(height: PSpace.x20),
-
-          // 계좌 종류 ────────────────────────────────
-          Text('계좌 종류',
-              style: PTypo.caption.copyWith(
-                  color: t.fgPrimary, fontWeight: PFontWeight.medium)),
-          const SizedBox(height: PSpace.x8),
-          _SubTypeRow(
-            value: _subType,
-            onChanged: (v) => setState(() => _subType = v),
-          ),
-          const SizedBox(height: PSpace.x20),
-
-          // 계좌번호 / 잔액 ─────────────────────────
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                // 기관·브랜드 ────────────────────────
+                Row(
                   children: [
-                    Text('계좌번호',
+                    Text('기관·브랜드',
                         style: PTypo.caption.copyWith(
                             color: t.fgPrimary,
                             fontWeight: PFontWeight.medium)),
-                    const SizedBox(height: PSpace.x8),
-                    PTextInput(
-                      controller: _accountNumberCtrl,
-                      placeholder: '110-***-123456',
-                    ),
+                    const Spacer(),
+                    Text('총 $_accountEntriesCount개',
+                        style: PTypo.micro.copyWith(color: t.fgTertiary)),
                   ],
                 ),
-              ),
-              const SizedBox(width: PSpace.x12),
-              Expanded(
-                child: Column(
+                const SizedBox(height: PSpace.x8),
+                PTextInput(
+                  controller: _queryCtrl,
+                  placeholder: '은행명 또는 증권사 검색',
+                  prefix: Padding(
+                    padding: const EdgeInsets.only(left: 10, right: 6),
+                    child: Icon(LucideIcons.search,
+                        size: 14, color: t.fgTertiary),
+                  ),
+                ),
+                const SizedBox(height: PSpace.x8),
+                _BrandPicker(
+                  categories: _filteredByCategory,
+                  selectedName: _brand,
+                  onPick: (name) => setState(() => _brand = name),
+                ),
+                const SizedBox(height: PSpace.x20),
+
+                // 별칭 ────────────────────────────────
+                Text('별칭',
+                    style: PTypo.caption.copyWith(
+                        color: t.fgPrimary, fontWeight: PFontWeight.medium)),
+                const SizedBox(height: PSpace.x8),
+                PTextInput(
+                  controller: _nicknameCtrl,
+                  placeholder: '예: 신한 주거래',
+                ),
+                const SizedBox(height: PSpace.x20),
+
+                // 계좌 종류 ──────────────────────────
+                Text('계좌 종류',
+                    style: PTypo.caption.copyWith(
+                        color: t.fgPrimary, fontWeight: PFontWeight.medium)),
+                const SizedBox(height: PSpace.x8),
+                _SubTypeRow(
+                  value: _subType,
+                  onChanged: (v) => setState(() => _subType = v),
+                ),
+                const SizedBox(height: PSpace.x20),
+
+                // 계좌번호 / 잔액 ─────────────────────
+                Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('잔액 (원)',
-                        style: PTypo.caption.copyWith(
-                            color: t.fgPrimary,
-                            fontWeight: PFontWeight.medium)),
-                    const SizedBox(height: PSpace.x8),
-                    PTextInput(
-                      controller: _balanceCtrl,
-                      keyboardType: const TextInputType.numberWithOptions(
-                          signed: true),
-                      placeholder: '0',
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('계좌번호',
+                              style: PTypo.caption.copyWith(
+                                  color: t.fgPrimary,
+                                  fontWeight: PFontWeight.medium)),
+                          const SizedBox(height: PSpace.x8),
+                          PTextInput(
+                            controller: _accountNumberCtrl,
+                            placeholder: '110-***-123456',
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: PSpace.x12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('잔액 (원)',
+                              style: PTypo.caption.copyWith(
+                                  color: t.fgPrimary,
+                                  fontWeight: PFontWeight.medium)),
+                          const SizedBox(height: PSpace.x8),
+                          PTextInput(
+                            controller: _balanceCtrl,
+                            keyboardType:
+                                const TextInputType.numberWithOptions(
+                                    signed: true),
+                            placeholder: '0',
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
-              ),
-            ],
+                const SizedBox(height: PSpace.x24),
+
+                // 액션 ──────────────────────────────
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: _submitting
+                          ? null
+                          : () => Navigator.of(context).pop(),
+                      style: TextButton.styleFrom(
+                        foregroundColor: t.fgSecondary,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 8),
+                      ),
+                      child: Text('취소',
+                          style: PTypo.bodySm
+                              .copyWith(color: t.fgSecondary)),
+                    ),
+                    const SizedBox(width: 4),
+                    FilledButton(
+                      style: FilledButton.styleFrom(
+                        backgroundColor: t.bgBrand,
+                        foregroundColor: t.fgOnBrand,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 18, vertical: 8),
+                      ),
+                      onPressed: _submitting ? null : _submit,
+                      child: _submitting
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                  strokeWidth: 2, color: Colors.white))
+                          : const Text('추가'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -360,7 +430,8 @@ class _PreviewTile extends StatelessWidget {
   }
 }
 
-/// 카테고리별 브랜드 chip 그리드 — 자체 스크롤(maxHeight 220).
+/// 카테고리별 브랜드 chip 그리드 — full width, 자체 높이는 내용에 맞춰 자동.
+/// 부모 ListView 가 스크롤하므로 내부 별도 스크롤 X.
 class _BrandPicker extends StatelessWidget {
   const _BrandPicker({
     required this.categories,
@@ -374,59 +445,62 @@ class _BrandPicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    if (categories.isEmpty) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 28),
+        decoration: BoxDecoration(
+          color: t.bgSurface,
+          borderRadius: PRadius.brMd,
+          border: Border.all(color: t.borderSubtle),
+        ),
+        child: Center(
+          child: Text(
+            '검색 결과가 없어요',
+            style: PTypo.caption.copyWith(color: t.fgTertiary),
+          ),
+        ),
+      );
+    }
     return Container(
+      width: double.infinity,
       decoration: BoxDecoration(
         color: t.bgSurface,
         borderRadius: PRadius.brMd,
         border: Border.all(color: t.borderSubtle),
       ),
-      constraints: const BoxConstraints(maxHeight: 220),
-      child: categories.isEmpty
-          ? Padding(
-              padding: const EdgeInsets.symmetric(vertical: 24),
-              child: Center(
-                child: Text(
-                  '검색 결과가 없어요',
-                  style: PTypo.caption.copyWith(color: t.fgTertiary),
+      padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (int i = 0; i < categories.length; i++) ...[
+            if (i > 0) const SizedBox(height: 10),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: Text(
+                categories[i].key.label,
+                style: PTypo.micro.copyWith(
+                  color: t.fgTertiary,
+                  fontWeight: PFontWeight.semi,
+                  letterSpacing: 0.4,
                 ),
               ),
-            )
-          : SingleChildScrollView(
-              padding: EdgeInsets.zero,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  for (final entry in categories) ...[
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
-                      child: Text(
-                        entry.key.label,
-                        style: PTypo.micro.copyWith(
-                          color: t.fgTertiary,
-                          fontWeight: PFontWeight.semi,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
-                      child: Wrap(
-                        spacing: 6,
-                        runSpacing: 6,
-                        children: [
-                          for (final e in entry.value)
-                            _BrandChip(
-                              entry: e,
-                              selected: e.name == selectedName,
-                              onTap: () => onPick(e.name),
-                            ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ],
-              ),
             ),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: [
+                for (final e in categories[i].value)
+                  _BrandChip(
+                    entry: e,
+                    selected: e.name == selectedName,
+                    onTap: () => onPick(e.name),
+                  ),
+              ],
+            ),
+          ],
+        ],
+      ),
     );
   }
 }
@@ -444,17 +518,16 @@ class _BrandChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    // ⚠️ Container 에 alignment 를 주면 부모가 unbounded 일 때 width 를 다 차지.
-    //    Wrap 안에서 chip 이 행 전체로 stretched 되는 걸 막기 위해 명시적으로
-    //    Row(MainAxisSize.min) + Padding 으로 intrinsic 폭 강제.
+    // ⚠️ Container 에 alignment 를 주면 부모(Wrap)가 unbounded 일 때
+    //    width 를 다 차지 → chip 이 행 전체로 stretched. Material+InkWell
+    //    + Padding + Row(MainAxisSize.min) 으로 intrinsic 폭 강제.
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(999),
         child: Container(
-          padding:
-              const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
           decoration: BoxDecoration(
             color: selected ? entry.color.bg : t.bgMuted,
             borderRadius: BorderRadius.circular(999),
@@ -522,66 +595,7 @@ class _SubTypeRow extends StatelessWidget {
   }
 }
 
-/// 하단 sticky 액션 바 — 취소 / 추가. `submitting` 노티파이어로 spinner 동기화.
-class _ActionBar extends StatelessWidget {
-  const _ActionBar({
-    required this.submitting,
-    required this.onCancel,
-    required this.onSubmit,
-  });
-  final ValueNotifier<bool> submitting;
-  final VoidCallback onCancel;
-  final VoidCallback onSubmit;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: t.bgSurface,
-        border: Border(top: BorderSide(color: t.borderSubtle)),
-      ),
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-          child: ValueListenableBuilder<bool>(
-            valueListenable: submitting,
-            builder: (_, busy, __) => Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  onPressed: busy ? null : onCancel,
-                  style: TextButton.styleFrom(
-                    foregroundColor: t.fgSecondary,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 14, vertical: 8),
-                  ),
-                  child: Text('취소',
-                      style: PTypo.bodySm.copyWith(color: t.fgSecondary)),
-                ),
-                const SizedBox(width: 4),
-                FilledButton(
-                  style: FilledButton.styleFrom(
-                    backgroundColor: t.bgBrand,
-                    foregroundColor: t.fgOnBrand,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 18, vertical: 8),
-                  ),
-                  onPressed: busy ? null : onSubmit,
-                  child: busy
-                      ? const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(
-                              strokeWidth: 2, color: Colors.white))
-                      : const Text('추가'),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
+// _balanceFormatters: 향후 천단위 콤마 자동 포매팅 시 참조용 placeholder.
+// 현재는 numberWithOptions(signed: true) 로 충분.
+// ignore: unused_element
+const _balanceFormatters = <TextInputFormatter>[];
