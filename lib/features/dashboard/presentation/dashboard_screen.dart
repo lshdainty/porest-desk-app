@@ -996,7 +996,7 @@ class _BudgetCard extends StatelessWidget {
                   )),
               const Spacer(),
               GestureDetector(
-                onTap: () => context.go('/budget'),
+                onTap: () => context.push('/budget'),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
