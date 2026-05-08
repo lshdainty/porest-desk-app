@@ -794,13 +794,12 @@ class _CategoryDonutCard extends StatelessWidget {
         total: (cur?.total ?? 0) + c.totalAmount,
       );
     }
-    final segs = rolled.entries.map((e) => (
+    final topSegs = rolled.entries.map((e) => (
           rowId: e.key,
           name: e.value.name,
           totalAmount: e.value.total,
         )).toList()
       ..sort((a, b) => b.totalAmount.compareTo(a.totalAmount));
-    final topSegs = segs.take(4).toList();
     final total = topSegs.fold<int>(0, (s, c) => s + c.totalAmount);
 
     return PCard(
@@ -882,12 +881,10 @@ class _CategoryDonutCard extends StatelessWidget {
                                   fontSize: PFontSize.micro)),
                           const SizedBox(height: 2),
                           Text(
-                            masked
-                                ? '••••'
-                                : '${(total / 10000).toStringAsFixed(0)}만',
+                            krwMasked(total, masked),
                             style: TextStyle(
                                 color: t.fgPrimary,
-                                fontSize: PFontSize.body,
+                                fontSize: PFontSize.caption,
                                 fontWeight: PFontWeight.heavy,
                                 fontFeatures: const [
                                   FontFeature.tabularFigures()
@@ -929,9 +926,7 @@ class _CategoryDonutCard extends StatelessWidget {
                                 ),
                               ),
                               Text(
-                                masked
-                                    ? '••••'
-                                    : '${(topSegs[i].totalAmount / 10000).toStringAsFixed(0)}만',
+                                krwMasked(topSegs[i].totalAmount, masked),
                                 style: TextStyle(
                                   color: t.fgPrimary,
                                   fontSize: PFontSize.caption,
@@ -991,7 +986,7 @@ class _BudgetCard extends StatelessWidget {
       }
     }
     final totalEx = summary?.totalExpense ?? 0;
-    final items = budgets.take(3).toList();
+    final items = budgets;
 
     return PCard(
       padding: const EdgeInsets.all(18),
