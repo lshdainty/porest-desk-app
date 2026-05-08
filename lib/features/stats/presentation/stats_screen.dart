@@ -911,7 +911,7 @@ class _TopMerchantsCard extends StatelessWidget {
                                     .copyWith(color: t.fgTertiary)),
                             const Spacer(),
                             Text(
-                              krwMasked(top[i].totalAmount, masked),
+                              '${krwMasked(top[i].totalAmount, masked)}원',
                               style: PTypo.bodySm.copyWith(
                                   color: t.fgPrimary,
                                   fontWeight: PFontWeight.bold,
