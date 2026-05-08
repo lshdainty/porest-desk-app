@@ -233,7 +233,8 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                       borderRadius: BorderRadius.circular(6),
                       onTap: () {
                         Navigator.of(context).pop();
-                        context.go('/expense');
+                        context.go(
+                            '/expense?assetId=${asset.rowId}');
                       },
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
@@ -756,11 +757,8 @@ class _RecentExpenses extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
       child: Column(
         children: [
-          for (int i = 0; i < list.length; i++) ...[
-            _ExpenseRow(expense: list[i], masked: masked, tokens: tokens),
-            if (i < list.length - 1)
-              Divider(height: 1, color: tokens.borderSubtle, indent: 56),
-          ],
+          for (final e in list)
+            _ExpenseRow(expense: e, masked: masked, tokens: tokens),
         ],
       ),
     );

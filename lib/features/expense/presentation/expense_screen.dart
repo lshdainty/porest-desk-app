@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../../app/theme/radius.dart';
@@ -9,6 +10,7 @@ import '../../../app/theme/typography.dart';
 import '../../../core/format/date.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/settings/settings_notifier.dart';
+import '../../asset/application/asset_providers.dart';
 import '../application/expense_providers.dart';
 import '../domain/expense.dart';
 import 'add_tx_sheet.dart';
@@ -17,11 +19,18 @@ import 'widgets/expense_row.dart';
 
 /// 가계부 화면 — 백엔드 `/expenses` 직접 호출.
 class ExpenseScreen extends ConsumerStatefulWidget {
-  const ExpenseScreen({this.initialMonth, this.focusTxId, super.key});
+  const ExpenseScreen({
+    this.initialMonth,
+    this.focusTxId,
+    this.initialAssetId,
+    super.key,
+  });
   /// "YYYY-MM" — 홈 최근 거래 → 해당 월로 자동 이동.
   final String? initialMonth;
   /// 진입 후 자동 스크롤할 거래 rowId.
   final int? focusTxId;
+  /// 자산 상세 → 전체 보기 클릭 시 진입. 해당 자산만 필터링.
+  final int? initialAssetId;
 
   @override
   ConsumerState<ExpenseScreen> createState() => _ExpenseScreenState();
@@ -33,8 +42,15 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
   late DateTime _month = _resolveInitialMonth();
   _Filter _filter = _Filter.all;
   ExpenseFilter _advFilter = const ExpenseFilter();
+  int? _assetIdFilter;
   final Map<int, GlobalKey> _rowKeys = {};
   bool _scrolledToFocus = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _assetIdFilter = widget.initialAssetId;
+  }
 
   DateTime _resolveInitialMonth() {
     final raw = widget.initialMonth;
@@ -55,6 +71,18 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
     if (old.focusTxId != widget.focusTxId) {
       _scrolledToFocus = false;
     }
+    if (old.initialAssetId != widget.initialAssetId) {
+      setState(() => _assetIdFilter = widget.initialAssetId);
+    }
+  }
+
+  void _clearAssetFilter() {
+    setState(() => _assetIdFilter = null);
+    // URL 동기화 — assetId 쿼리 제거 (다른 param 은 유지).
+    final m = _month;
+    final monthQ =
+        '${m.year}-${m.month.toString().padLeft(2, '0')}';
+    context.go('/expense?month=$monthQ');
   }
 
   MonthKey get _key => (year: _month.year, month: _month.month);
@@ -102,6 +130,10 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                     return e.expenseType == 'INCOME';
                 }
               }).where((e) {
+                if (_assetIdFilter != null &&
+                    e.assetRowId != _assetIdFilter) {
+                  return false;
+                }
                 if (_advFilter.categoryIds.isNotEmpty &&
                     !_advFilter.categoryIds.contains(e.categoryRowId)) {
                   return false;
@@ -141,7 +173,15 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
               final groupKeys = groups.keys.toList();
 
               final content = Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  if (_assetIdFilter != null) ...[
+                    _AssetFilterBadge(
+                      assetId: _assetIdFilter!,
+                      onClear: _clearAssetFilter,
+                    ),
+                    const SizedBox(height: PSpace.x12),
+                  ],
                   _SummaryCard(
                     month: _month,
                     income: monthIncome,
@@ -582,6 +622,53 @@ class _DayGroup extends ConsumerWidget {
                     Divider(height: 1, color: t.borderSubtle),
                 ],
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 자산 필터 활성 시 상단에 표시되는 chip — '<자산명> 필터 중 ✕'.
+/// front `AssetFilterBadge` 미러.
+class _AssetFilterBadge extends ConsumerWidget {
+  const _AssetFilterBadge({required this.assetId, required this.onClear});
+  final int assetId;
+  final VoidCallback onClear;
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = context.tokens;
+    // assetsProvider 캐시 우선, 없으면 단건 fetch.
+    final all = ref.watch(assetsProvider).value;
+    final cached = all?.byRowId(assetId);
+    final asyncFallback = cached == null
+        ? ref.watch(assetByIdProvider(assetId))
+        : null;
+    final name = cached?.assetName ?? asyncFallback?.value?.assetName;
+    final label = name == null ? '필터 중' : '$name 필터 중';
+    return Container(
+      padding: const EdgeInsets.fromLTRB(12, 6, 6, 6),
+      decoration: BoxDecoration(
+        color: t.bgBrandSubtle,
+        border: Border.all(color: t.borderBrand),
+        borderRadius: PRadius.brPill,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(label,
+              style: PTypo.bodySm.copyWith(
+                color: t.fgBrandStrong,
+                fontWeight: PFontWeight.semi,
+              )),
+          const SizedBox(width: 4),
+          InkWell(
+            onTap: onClear,
+            borderRadius: BorderRadius.circular(999),
+            child: Padding(
+              padding: const EdgeInsets.all(2),
+              child: Icon(LucideIcons.x, size: 14, color: t.fgBrand),
             ),
           ),
         ],

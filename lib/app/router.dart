@@ -104,11 +104,15 @@ final routerProvider = Provider<GoRouter>((ref) {
                 final month = state.uri.queryParameters['month'];
                 final txId =
                     int.tryParse(state.uri.queryParameters['txId'] ?? '');
+                final assetId = int.tryParse(
+                    state.uri.queryParameters['assetId'] ?? '');
                 return NoTransitionPage(
                   child: ExpenseScreen(
-                    key: ValueKey('expense-${month ?? ''}-${txId ?? ''}'),
+                    key: ValueKey(
+                        'expense-${month ?? ''}-${txId ?? ''}-${assetId ?? ''}'),
                     initialMonth: month,
                     focusTxId: txId,
+                    initialAssetId: assetId,
                   ),
                 );
               },
