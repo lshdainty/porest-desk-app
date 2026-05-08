@@ -120,11 +120,50 @@ class NetWorthChart extends ConsumerWidget {
                   tooltipBorderRadius: PRadius.brTile,
                   tooltipPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                   getTooltipItems: (spots) => [
-                    for (final s in spots)
-                      LineTooltipItem(
-                        '${points[s.x.toInt()].monthLabel}\n${masked ? '•••' : _fmtFull(s.y)}',
-                        TextStyle(color: t.fgPrimary, fontSize: PFontSize.caption, fontWeight: PFontWeight.bold),
-                      ),
+                    for (int i = 0; i < spots.length; i++)
+                      if (i == 0)
+                        LineTooltipItem(
+                          '',
+                          const TextStyle(),
+                          textAlign: TextAlign.left,
+                          children: [
+                            TextSpan(
+                              text: () {
+                                final ix = spots[i].x.toInt();
+                                if (ix < 0 || ix >= points.length) return '\n';
+                                return '${points[ix].month.toString().padLeft(2, '0')}월\n';
+                              }(),
+                              style: PTypo.micro.copyWith(
+                                  color: t.fgTertiary,
+                                  fontWeight: PFontWeight.semi,
+                                  height: 1.6),
+                            ),
+                            TextSpan(
+                              text: '●  ',
+                              style: TextStyle(
+                                color: PorestPalette.mossy500,
+                                fontSize: PFontSize.caption,
+                                height: 1.0,
+                              ),
+                            ),
+                            TextSpan(
+                              text: '순자산  ',
+                              style: PTypo.caption.copyWith(color: t.fgSecondary),
+                            ),
+                            TextSpan(
+                              text: masked ? '•••' : _fmtFull(spots[i].y),
+                              style: PTypo.bodySm.copyWith(
+                                color: spots[i].y < 0
+                                    ? t.statusDangerFg
+                                    : t.fgPrimary,
+                                fontWeight: PFontWeight.bold,
+                                fontFamily: 'monospace',
+                              ),
+                            ),
+                          ],
+                        )
+                      else
+                        null,
                   ],
                 ),
               ),
