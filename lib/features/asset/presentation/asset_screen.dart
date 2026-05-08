@@ -12,6 +12,7 @@ import '../../../core/format/krw.dart';
 import '../../../core/settings/hide_amounts_unlock_dialog.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/widgets/p_card.dart';
+import '../../notification/application/notification_providers.dart';
 import '../application/asset_providers.dart';
 import '../domain/asset.dart';
 import '../domain/asset_summary.dart';
@@ -55,6 +56,7 @@ class AssetScreen extends ConsumerWidget {
         elevation: 0,
         scrolledUnderElevation: 0,
         actions: [
+          // web MobileHeader 와 동일: 다크모드 / 눈 / 알림(빨강 점) / 검색
           _IcoBtn(
             isDark: Theme.of(context).brightness == Brightness.dark,
             onTap: () {
@@ -74,10 +76,11 @@ class AssetScreen extends ConsumerWidget {
             ),
             onPressed: () => toggleHideAmountsWithUnlock(context, ref),
           ),
+          _NotificationBell(tokens: t),
           IconButton(
-            tooltip: '자산 간 이체',
-            icon: Icon(LucideIcons.arrowRightLeft, size: 20, color: t.fgPrimary),
-            onPressed: () => showAssetTransferDialog(context),
+            tooltip: '검색',
+            icon: Icon(LucideIcons.search, size: 20, color: t.fgPrimary),
+            onPressed: () => context.push('/search'),
           ),
           const SizedBox(width: 4),
         ],
@@ -281,6 +284,26 @@ class _SummaryCard extends StatelessWidget {
               const SizedBox(width: 6),
               Icon(masked ? LucideIcons.eyeOff : LucideIcons.eye,
                   size: 14, color: t.fgTertiary),
+              const Spacer(),
+              // 자산 간 이체 — 헤더 아이콘에서 옮겨옴 (web 와 동일 패턴: 본문 안 액션).
+              TextButton.icon(
+                onPressed: () => showAssetTransferDialog(context),
+                style: TextButton.styleFrom(
+                  foregroundColor: t.fgSecondary,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  minimumSize: const Size(0, 28),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                icon: Icon(LucideIcons.arrowRightLeft,
+                    size: 14, color: t.fgSecondary),
+                label: Text('이체',
+                    style: TextStyle(
+                      color: t.fgSecondary,
+                      fontSize: PFontSize.caption,
+                      fontWeight: PFontWeight.semi,
+                    )),
+              ),
             ],
           ),
           const SizedBox(height: 6),
@@ -660,6 +683,49 @@ class _IcoBtn extends StatelessWidget {
       icon: Icon(isDark ? LucideIcons.sun : LucideIcons.moon,
           size: 20, color: tokens.fgPrimary),
       onPressed: onTap,
+    );
+  }
+}
+
+/// 헤더 종 아이콘 + unread 배지 — front `NotificationBell` 미러.
+/// 모바일 공통 헤더(MobileHeader)의 동일 패턴을 자산 화면 AppBar 에 인라인.
+class _NotificationBell extends ConsumerWidget {
+  const _NotificationBell({required this.tokens});
+  final PorestTokens tokens;
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final unread = ref.watch(unreadCountProvider).value ?? 0;
+    return Tooltip(
+      message: '알림',
+      child: InkWell(
+        onTap: () => context.push('/notifications'),
+        borderRadius: PRadius.brPill,
+        child: SizedBox(
+          width: 40,
+          height: 40,
+          child: Stack(
+            clipBehavior: Clip.none,
+            alignment: Alignment.center,
+            children: [
+              Icon(LucideIcons.bell, size: 20, color: tokens.fgPrimary),
+              if (unread > 0)
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: Container(
+                    constraints:
+                        const BoxConstraints(minWidth: 10, minHeight: 10),
+                    decoration: BoxDecoration(
+                      color: tokens.statusDanger,
+                      borderRadius: PRadius.brPill,
+                      border: Border.all(color: tokens.bgSurface, width: 1.5),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
