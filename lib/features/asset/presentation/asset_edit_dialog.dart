@@ -15,6 +15,7 @@ import '../domain/asset.dart';
 import '../domain/asset_type_meta.dart';
 import 'account_add_dialog.dart';
 import 'asset_detail_dialog.dart';
+import 'investment_add_dialog.dart' as inv;
 
 /// 자산 추가/수정 통합 시트 (구). 신규 코드는 아래 4종 진입점 사용 권장:
 ///   [showAssetAddDialog] / [showCardAddDialog] /
@@ -44,15 +45,10 @@ void showCardAddDialog(BuildContext context) {
   );
 }
 
-/// 투자 자산 추가 — assetType 을 INVESTMENT 로 미리 지정.
-/// 증권사·상품 카탈로그 매핑은 추후 구현.
+/// 투자 자산 추가 — front `InvestmentAddDialog` 미러.
+/// [investment_add_dialog.dart] 의 `showInvestmentAddDialog` 로 위임.
 void showInvestmentAddDialog(BuildContext context) {
-  _open(
-    context: context,
-    title: '투자 추가',
-    body: const _AssetEditBody(
-        presetType: 'INVESTMENT', kindHint: AssetKind.investment),
-  );
+  inv.showInvestmentAddDialog(context);
 }
 
 /// 자산 상세 — 잔액 추이 차트 + 최근 거래 + 편집/삭제 진입.
@@ -62,9 +58,15 @@ void showAssetDetailDialog(BuildContext context, Asset asset) {
 }
 
 /// 자산 편집 폼 진입 (상세 다이얼로그 내부에서 직접 호출용).
-/// front `AssetEditDialog` 미러 — `showAccountEditDialog` 로 위임.
+/// front `AssetEditDialog` 미러 — assetType 별로 분기.
 void showAssetEditForm(BuildContext context, Asset asset) {
-  showAccountEditDialog(context, asset);
+  if (asset.assetType == 'INVESTMENT') {
+    inv.showInvestmentEditDialog(context, asset);
+  } else {
+    // 카드 (CREDIT_CARD/CHECK_CARD) 도 v0.1 에선 계좌 편집 폼 사용.
+    // 카드 카탈로그 분리는 추후 카드 다이얼로그 미러 시 정리.
+    showAccountEditDialog(context, asset);
+  }
 }
 
 void _open({
