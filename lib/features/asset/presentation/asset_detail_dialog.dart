@@ -1,6 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
@@ -10,7 +11,7 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/format/color_parse.dart';
 import '../../../core/format/krw.dart';
-import '../../../core/network/api_exception.dart';
+import '../../../core/settings/hide_amounts_unlock_dialog.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../card/presentation/card_performance_bar.dart';
@@ -26,16 +27,16 @@ import 'asset_edit_dialog.dart';
 /// 자산 상세 — front `AssetDetailDialog` 모바일 미러.
 ///
 /// 구성:
-/// - 헤더: 자산 이름·유형·잔액
-/// - 잔액 추이 (12주 라인 차트)
-/// - 최근 거래 (5건)
-/// - 액션: 편집 / 삭제
+/// - Hero 카드 (브랜드 컬러 그라디언트 bg + 아이콘 + 이름 + 잔액)
+/// - 12/24/52주 잔액 추이 + 3개월/6개월/1년 segmented
+/// - 최근 거래 12건 + "전체 보기 →" (가계부 화면으로 이동)
+/// - 액션 바: 금액 가리기 / 편집 / 확인
 void showAssetDetailRich(BuildContext context, Asset asset) {
   WoltModalSheet.show<void>(
     context: context,
     pageListBuilder: (modalCtx) => [
       WoltModalSheetPage(
-        topBarTitle: Text(asset.assetName),
+        topBarTitle: Text(_titleFor(asset)),
         isTopBarLayerAlwaysVisible: true,
         backgroundColor:
             Theme.of(modalCtx).extension<PorestTokens>()?.bgSurface,
@@ -44,9 +45,38 @@ void showAssetDetailRich(BuildContext context, Asset asset) {
           onPressed: Navigator.of(modalCtx).pop,
         ),
         child: _DetailBody(asset: asset),
+        stickyActionBar: _DetailActionBar(asset: asset),
       ),
     ],
   );
+}
+
+String _titleFor(Asset a) {
+  if (a.assetType == 'CREDIT_CARD' || a.assetType == 'CHECK_CARD') {
+    return '카드 상세';
+  }
+  if (a.assetType == 'INVESTMENT') return '투자 상세';
+  return '계좌 상세';
+}
+
+enum _Period { p3m, p6m, p1y }
+
+extension on _Period {
+  int get weeks => switch (this) {
+        _Period.p3m => 12,
+        _Period.p6m => 24,
+        _Period.p1y => 52,
+      };
+  String get label => switch (this) {
+        _Period.p3m => '3개월',
+        _Period.p6m => '6개월',
+        _Period.p1y => '1년',
+      };
+  String get headerLabel => switch (this) {
+        _Period.p3m => '12주',
+        _Period.p6m => '24주',
+        _Period.p1y => '52주',
+      };
 }
 
 class _DetailBody extends ConsumerStatefulWidget {
@@ -57,48 +87,7 @@ class _DetailBody extends ConsumerStatefulWidget {
 }
 
 class _DetailBodyState extends ConsumerState<_DetailBody> {
-  bool _deleting = false;
-
-  Future<void> _delete() async {
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('자산 삭제'),
-        content:
-            const Text('이 자산을 삭제하시겠습니까? 연결된 거래는 유지됩니다.'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('취소')),
-          FilledButton(
-            style: FilledButton.styleFrom(
-                backgroundColor: context.tokens.statusDanger),
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('삭제'),
-          ),
-        ],
-      ),
-    );
-    if (ok != true || !mounted) return;
-    setState(() => _deleting = true);
-    try {
-      final repo = await ref.read(assetRepositoryProvider.future);
-      await repo.delete(widget.asset.rowId);
-      ref.invalidate(assetsProvider);
-      if (!mounted) return;
-      Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('자산이 삭제되었습니다')),
-      );
-    } on ApiException catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('삭제 실패: ${e.message}')),
-      );
-    } finally {
-      if (mounted) setState(() => _deleting = false);
-    }
-  }
+  _Period _period = _Period.p3m;
 
   @override
   Widget build(BuildContext context) {
@@ -107,62 +96,41 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
     final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
     final masked = settings.hideAmounts;
     final meta = AssetTypeMeta.of(asset.assetType);
-    final fg = parseColor(asset.color, fallback: t.fgBrand);
-    final bg = softBg(fg);
-    final trendAsync = ref
-        .watch(assetBalanceTrendProvider((assetId: asset.rowId, weeks: 12)));
-    final recentAsync = ref
-        .watch(expensesByAssetProvider((assetId: asset.rowId, limit: 5)));
+    final brandFg = parseColor(asset.color, fallback: t.fgBrand);
+
+    final isCard =
+        asset.assetType == 'CREDIT_CARD' || asset.assetType == 'CHECK_CARD';
+    final isInv = asset.assetType == 'INVESTMENT';
+    final valueLabel = isCard ? '이번 달 결제 예정' : isInv ? '평가액' : '잔액';
+    final seriesLabel = isCard ? '사용' : isInv ? '평가액' : '잔액';
+    final trendTitle =
+        '최근 ${_period.headerLabel} ${isCard ? '사용 추이' : isInv ? '평가액 추이' : '잔액 추이'}';
+
+    final trendAsync = ref.watch(assetBalanceTrendProvider(
+        (assetId: asset.rowId, weeks: _period.weeks)));
+    // recent tx — web 와 동일 12건.
+    final recentAsync =
+        ref.watch(expensesByAssetProvider((assetId: asset.rowId, limit: 12)));
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(
-          PSpace.x16, PSpace.x16, PSpace.x16, PSpace.x16),
+          PSpace.x16, PSpace.x4, PSpace.x16, PSpace.x16 + 64),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 자산 헤더
-          Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                    color: bg, borderRadius: PRadius.brMd),
-                alignment: Alignment.center,
-                child: Icon(meta.icon, size: 22, color: fg),
-              ),
-              const SizedBox(width: PSpace.x12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(asset.assetName,
-                        style: PTypo.h3.copyWith(color: t.fgPrimary)),
-                    const SizedBox(height: 2),
-                    Text(meta.label,
-                        style:
-                            PTypo.caption.copyWith(color: t.fgTertiary)),
-                  ],
-                ),
-              ),
-              Text(krwMasked(asset.balance ?? 0, masked),
-                  style: PTypo.moneyLg.copyWith(
-                      color: t.fgPrimary, fontWeight: PFontWeight.bold)),
-            ],
+          // Hero ─────────────────────────────────────
+          _HeroCard(
+            asset: asset,
+            meta: meta,
+            brandFg: brandFg,
+            valueLabel: valueLabel,
+            isCard: isCard,
+            masked: masked,
           ),
           const SizedBox(height: PSpace.x16),
-          if ((asset.institution ?? '').isNotEmpty ||
-              (asset.memo ?? '').isNotEmpty) ...[
-            if ((asset.institution ?? '').isNotEmpty)
-              _InfoRow('금융사', asset.institution!, tokens: t),
-            if ((asset.memo ?? '').isNotEmpty)
-              _InfoRow('메모', asset.memo!, tokens: t),
-            const SizedBox(height: PSpace.x16),
-          ],
 
-          // 카드 실적 바 (CARD 타입에 한해)
-          if (asset.assetType == 'CREDIT_CARD' ||
-              asset.assetType == 'CHECK_CARD') ...[
+          // CARD 일 때만 카드 실적 바
+          if (isCard) ...[
             CardPerformanceBar(
               assetRowId: asset.rowId,
               yearMonth: _currentYearMonth(),
@@ -171,72 +139,204 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
             const SizedBox(height: PSpace.x16),
           ],
 
-          // 잔액 추이
+          // Trend ───────────────────────────────────
           Row(
             children: [
-              Icon(LucideIcons.lineChart,
-                  size: 14, color: t.fgSecondary),
-              const SizedBox(width: 6),
-              Text('잔액 추이 (12주)',
+              Expanded(
+                child: Text(
+                  trendTitle,
                   style: PTypo.bodySm.copyWith(
-                      color: t.fgPrimary, fontWeight: PFontWeight.bold)),
+                    color: t.fgPrimary,
+                    fontWeight: PFontWeight.bold,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              _PeriodSeg(
+                value: _period,
+                onChanged: (p) => setState(() => _period = p),
+              ),
             ],
           ),
-          const SizedBox(height: PSpace.x8),
+          const SizedBox(height: PSpace.x12),
           SizedBox(
-            height: 100,
-            child: _BalanceTrendChart(async: trendAsync, tokens: t),
+            height: 160,
+            child: _BalanceTrendChart(
+              async: trendAsync,
+              tokens: t,
+              brandFg: brandFg,
+              seriesLabel: seriesLabel,
+              masked: masked,
+            ),
           ),
           const SizedBox(height: PSpace.x20),
 
-          // 최근 거래
+          // Recent tx ──────────────────────────────
           Row(
             children: [
-              Icon(LucideIcons.receipt, size: 14, color: t.fgSecondary),
-              const SizedBox(width: 6),
-              Text('최근 거래',
+              Expanded(
+                child: Text(
+                  (recentAsync.value?.isNotEmpty ?? false)
+                      ? '최근 거래 (${recentAsync.value!.length})'
+                      : '최근 거래',
                   style: PTypo.bodySm.copyWith(
-                      color: t.fgPrimary, fontWeight: PFontWeight.bold)),
+                    color: t.fgPrimary,
+                    fontWeight: PFontWeight.bold,
+                  ),
+                ),
+              ),
+              InkWell(
+                borderRadius: BorderRadius.circular(6),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  context.go('/expense');
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 6, vertical: 4),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('전체 보기',
+                          style: PTypo.bodySm.copyWith(
+                            color: t.fgSecondary,
+                            fontWeight: PFontWeight.semi,
+                          )),
+                      const SizedBox(width: 2),
+                      Icon(LucideIcons.chevronRight,
+                          size: 12, color: t.fgSecondary),
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
           const SizedBox(height: PSpace.x8),
           _RecentExpenses(async: recentAsync, masked: masked, tokens: t),
+        ],
+      ),
+    );
+  }
+}
 
-          const SizedBox(height: PSpace.x24),
+class _HeroCard extends StatelessWidget {
+  const _HeroCard({
+    required this.asset,
+    required this.meta,
+    required this.brandFg,
+    required this.valueLabel,
+    required this.isCard,
+    required this.masked,
+  });
+  final Asset asset;
+  final AssetTypeMeta meta;
+  final Color brandFg;
+  final String valueLabel;
+  final bool isCard;
+  final bool masked;
 
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final subtitle = [
+      asset.institution,
+      meta.label,
+      asset.memo,
+    ].where((s) => s != null && s.isNotEmpty).join(' · ');
+    final absBalance = (asset.balance ?? 0).abs();
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            brandFg.withValues(alpha: 0.12),
+            brandFg.withValues(alpha: 0.04),
+          ],
+        ),
+        border: Border.all(color: brandFg.withValues(alpha: 0.22), width: 1),
+        borderRadius: PRadius.brXl,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
           Row(
             children: [
-              Expanded(
-                child: OutlinedButton.icon(
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: t.statusDanger,
-                    side: BorderSide(
-                        color: t.statusDanger.withValues(alpha: 0.5)),
-                  ),
-                  onPressed: _deleting ? null : _delete,
-                  icon: _deleting
-                      ? const SizedBox(
-                          width: 14,
-                          height: 14,
-                          child: CircularProgressIndicator(strokeWidth: 2))
-                      : const Icon(LucideIcons.trash2, size: 16),
-                  label: const Text('삭제'),
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: brandFg,
+                  borderRadius: PRadius.brLg,
                 ),
+                alignment: Alignment.center,
+                child: Icon(meta.icon, size: 22, color: t.fgOnBrand),
               ),
-              const SizedBox(width: PSpace.x8),
+              const SizedBox(width: 14),
               Expanded(
-                child: FilledButton.icon(
-                  onPressed: _deleting
-                      ? null
-                      : () {
-                          Navigator.of(context).pop();
-                          showAssetEditForm(context, asset);
-                        },
-                  icon: const Icon(LucideIcons.pencil, size: 16),
-                  label: const Text('편집'),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      asset.assetName,
+                      style: PTypo.h3.copyWith(
+                        color: t.fgPrimary,
+                        fontWeight: PFontWeight.bold,
+                        letterSpacing: -0.4,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (subtitle.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(subtitle,
+                          style:
+                              PTypo.bodySm.copyWith(color: t.fgTertiary),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis),
+                    ],
+                  ],
                 ),
               ),
             ],
+          ),
+          const SizedBox(height: 14),
+          Text(
+            valueLabel,
+            style: PTypo.micro.copyWith(
+              color: t.fgTertiary,
+              fontWeight: PFontWeight.semi,
+              letterSpacing: 0.4,
+            ),
+          ),
+          const SizedBox(height: 4),
+          // 큰 금액 — 숫자/원 분리해서 원 폰트만 작게.
+          RichText(
+            text: TextSpan(
+              children: [
+                TextSpan(
+                  text: masked
+                      ? '•••'
+                      : '${isCard && absBalance > 0 ? '−' : ''}${krw(absBalance)}',
+                  style: PTypo.h1.copyWith(
+                    color: isCard ? t.statusDangerFg : t.fgPrimary,
+                    fontWeight: PFontWeight.heavy,
+                    letterSpacing: -0.6,
+                    fontFamily: 'monospace',
+                  ),
+                ),
+                if (!masked)
+                  TextSpan(
+                    text: '원',
+                    style: PTypo.body.copyWith(
+                      color: isCard ? t.statusDangerFg : t.fgPrimary,
+                      fontWeight: PFontWeight.bold,
+                    ),
+                  ),
+              ],
+            ),
           ),
         ],
       ),
@@ -244,27 +344,53 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
   }
 }
 
-class _InfoRow extends StatelessWidget {
-  const _InfoRow(this.label, this.value, {required this.tokens});
-  final String label;
-  final String value;
-  final PorestTokens tokens;
+/// 3개월/6개월/1년 segmented — 작은 사이즈 (상세 다이얼로그 헤더용).
+class _PeriodSeg extends StatelessWidget {
+  const _PeriodSeg({required this.value, required this.onChanged});
+  final _Period value;
+  final ValueChanged<_Period> onChanged;
+
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+    final t = context.tokens;
+    return Container(
+      padding: const EdgeInsets.all(2),
+      decoration: BoxDecoration(
+        color: t.bgMuted,
+        borderRadius: PRadius.brSm,
+      ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          SizedBox(
-            width: 60,
-            child: Text(label,
-                style: PTypo.caption.copyWith(color: tokens.fgSecondary)),
-          ),
-          Expanded(
-            child: Text(value,
-                style: PTypo.bodySm.copyWith(color: tokens.fgPrimary)),
-          ),
+          for (final p in _Period.values)
+            GestureDetector(
+              onTap: () => onChanged(p),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: p == value ? t.bgSurface : Colors.transparent,
+                  borderRadius: PRadius.brXs,
+                  boxShadow: p == value
+                      ? [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.04),
+                            blurRadius: 4,
+                            offset: const Offset(0, 1),
+                          ),
+                        ]
+                      : null,
+                ),
+                child: Text(
+                  p.label,
+                  style: PTypo.micro.copyWith(
+                    color: p == value ? t.fgPrimary : t.fgSecondary,
+                    fontWeight:
+                        p == value ? PFontWeight.semi : PFontWeight.medium,
+                  ),
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -272,54 +398,208 @@ class _InfoRow extends StatelessWidget {
 }
 
 class _BalanceTrendChart extends StatelessWidget {
-  const _BalanceTrendChart({required this.async, required this.tokens});
+  const _BalanceTrendChart({
+    required this.async,
+    required this.tokens,
+    required this.brandFg,
+    required this.seriesLabel,
+    required this.masked,
+  });
   final AsyncValue<List<AssetBalancePoint>> async;
   final PorestTokens tokens;
+  final Color brandFg;
+  final String seriesLabel;
+  final bool masked;
+
   @override
   Widget build(BuildContext context) {
     final list = async.value ?? const <AssetBalancePoint>[];
     if (async.isLoading && list.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
+      return _ChartPlaceholder(text: '불러오는 중…', tokens: tokens);
     }
     if (list.isEmpty) {
-      return Center(
-          child: Text('데이터 없음',
-              style: PTypo.caption.copyWith(color: tokens.fgTertiary)));
+      return _ChartPlaceholder(text: '표시할 데이터가 없어요', tokens: tokens);
     }
+    final n = list.length;
     final spots = [
-      for (int i = 0; i < list.length; i++)
+      for (int i = 0; i < n; i++)
         FlSpot(i.toDouble(), list[i].balance.toDouble()),
     ];
-    final maxY = list
-        .map((p) => p.balance)
-        .fold<int>(0, (m, v) => v > m ? v : m)
-        .toDouble();
-    final minY = list
+    final maxV =
+        list.map((p) => p.balance).fold<int>(0, (m, v) => v > m ? v : m).toDouble();
+    final minV = list
         .map((p) => p.balance)
         .fold<int>(list.first.balance, (m, v) => v < m ? v : m)
         .toDouble();
+    final pad = ((maxV - minV).abs() * 0.12).clamp(1.0, double.infinity);
+    final yMin = minV - pad;
+    final yMax = maxV + pad;
+    final yInterval = ((yMax - yMin) / 4).clamp(1.0, double.infinity);
+    final xInterval = (n / 6).clamp(1.0, double.infinity);
+
     return LineChart(
       LineChartData(
-        minY: minY * 0.95,
-        maxY: maxY > 0 ? maxY * 1.05 : 100,
+        minX: 0,
+        maxX: (n - 1).toDouble(),
+        minY: yMin,
+        maxY: yMax,
+        gridData: FlGridData(
+          show: true,
+          drawVerticalLine: false,
+          horizontalInterval: yInterval,
+          getDrawingHorizontalLine: (_) => FlLine(
+            color: tokens.borderSubtle,
+            strokeWidth: 1,
+            dashArray: const [3, 3],
+          ),
+        ),
+        borderData: FlBorderData(show: false),
+        titlesData: FlTitlesData(
+          topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false)),
+          rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false)),
+          leftTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 40,
+              interval: yInterval,
+              getTitlesWidget: (v, _) => Padding(
+                padding: const EdgeInsets.only(right: 4),
+                child: Text(
+                  masked ? '•••' : _fmtAxisNum(v),
+                  style: PTypo.micro.copyWith(
+                      color: tokens.fgTertiary,
+                      fontSize: PFontSize.micro),
+                ),
+              ),
+            ),
+          ),
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 22,
+              interval: xInterval,
+              getTitlesWidget: (v, _) {
+                final i = v.round();
+                if (i < 0 || i >= n) return const SizedBox.shrink();
+                // 너무 빽빽하면 균등 stride 만 표시.
+                final stride = (n / 6).ceil();
+                if (n > 12 && stride > 1 && i % stride != 0 && i != n - 1) {
+                  return const SizedBox.shrink();
+                }
+                return Padding(
+                  padding: const EdgeInsets.only(top: 6),
+                  child: Text('${i + 1}주',
+                      style: PTypo.micro.copyWith(
+                          color: tokens.fgTertiary,
+                          fontSize: PFontSize.micro)),
+                );
+              },
+            ),
+          ),
+        ),
+        lineTouchData: LineTouchData(
+          enabled: true,
+          touchTooltipData: LineTouchTooltipData(
+            getTooltipColor: (_) => tokens.bgSurface,
+            tooltipBorder: BorderSide(color: tokens.borderSubtle),
+            tooltipBorderRadius: PRadius.brTile,
+            tooltipPadding:
+                const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            getTooltipItems: (spots) => [
+              for (int i = 0; i < spots.length; i++)
+                if (i == 0)
+                  LineTooltipItem(
+                    '',
+                    const TextStyle(),
+                    textAlign: TextAlign.left,
+                    children: [
+                      TextSpan(
+                        text: '${spots[i].x.toInt() + 1}주\n',
+                        style: PTypo.micro.copyWith(
+                            color: tokens.fgTertiary,
+                            fontWeight: PFontWeight.semi,
+                            height: 1.6),
+                      ),
+                      TextSpan(
+                        text: '●  ',
+                        style: TextStyle(
+                          color: brandFg,
+                          fontSize: PFontSize.caption,
+                          height: 1.0,
+                        ),
+                      ),
+                      TextSpan(
+                        text: '$seriesLabel  ',
+                        style:
+                            PTypo.caption.copyWith(color: tokens.fgSecondary),
+                      ),
+                      TextSpan(
+                        text: masked ? '•••' : '${krw(spots[i].y.round())}원',
+                        style: PTypo.bodySm.copyWith(
+                          color: tokens.fgPrimary,
+                          fontWeight: PFontWeight.bold,
+                          fontFamily: 'monospace',
+                        ),
+                      ),
+                    ],
+                  )
+                else
+                  null,
+            ],
+          ),
+        ),
         lineBarsData: [
           LineChartBarData(
             spots: spots,
             isCurved: true,
-            color: tokens.fgBrand,
+            curveSmoothness: 0.25,
+            color: brandFg,
             barWidth: 2,
-            dotData: const FlDotData(show: false),
+            isStrokeCapRound: true,
+            dotData: FlDotData(
+              show: true,
+              getDotPainter: (_, __, ___, ____) => FlDotCirclePainter(
+                radius: 3,
+                color: brandFg,
+                strokeColor: tokens.bgSurface,
+                strokeWidth: 1.5,
+              ),
+            ),
             belowBarData: BarAreaData(
               show: true,
-              color: tokens.fgBrand.withValues(alpha: 0.12),
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  brandFg.withValues(alpha: 0.28),
+                  brandFg.withValues(alpha: 0),
+                ],
+              ),
             ),
           ),
         ],
-        titlesData: const FlTitlesData(show: false),
-        gridData: const FlGridData(show: false),
-        borderData: FlBorderData(show: false),
-        lineTouchData: LineTouchData(enabled: true),
       ),
+    );
+  }
+}
+
+class _ChartPlaceholder extends StatelessWidget {
+  const _ChartPlaceholder({required this.text, required this.tokens});
+  final String text;
+  final PorestTokens tokens;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: tokens.bgSunken,
+        borderRadius: PRadius.brTile,
+      ),
+      alignment: Alignment.center,
+      child: Text(text,
+          style: PTypo.bodySm.copyWith(color: tokens.fgTertiary)),
     );
   }
 }
@@ -334,31 +614,41 @@ class _RecentExpenses extends StatelessWidget {
   Widget build(BuildContext context) {
     final list = async.value ?? const <Expense>[];
     if (async.isLoading && list.isEmpty) {
-      return const Padding(
-          padding: EdgeInsets.symmetric(vertical: 16),
-          child: Center(child: CircularProgressIndicator()));
+      return Container(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        decoration: BoxDecoration(
+            color: tokens.bgSurface,
+            borderRadius: PRadius.brLg,
+            border: Border.all(color: tokens.borderSubtle)),
+        child: const Center(child: CircularProgressIndicator()),
+      );
     }
     if (list.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16),
+      return Container(
+        padding: const EdgeInsets.symmetric(vertical: 24),
+        decoration: BoxDecoration(
+            color: tokens.bgSurface,
+            borderRadius: PRadius.brLg,
+            border: Border.all(color: tokens.borderSubtle)),
         child: Center(
-          child: Text('거래 내역 없음',
-              style: PTypo.caption.copyWith(color: tokens.fgTertiary)),
+          child: Text('연결된 거래 내역이 없어요.',
+              style: PTypo.bodySm.copyWith(color: tokens.fgTertiary)),
         ),
       );
     }
     return Container(
       decoration: BoxDecoration(
         color: tokens.bgSurface,
-        borderRadius: PRadius.brMd,
+        borderRadius: PRadius.brLg,
         border: Border.all(color: tokens.borderSubtle),
       ),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
       child: Column(
         children: [
           for (int i = 0; i < list.length; i++) ...[
             _ExpenseRow(expense: list[i], masked: masked, tokens: tokens),
             if (i < list.length - 1)
-              Divider(height: 1, color: tokens.borderSubtle, indent: 12),
+              Divider(height: 1, color: tokens.borderSubtle, indent: 56),
           ],
         ],
       ),
@@ -377,51 +667,151 @@ class _ExpenseRow extends StatelessWidget {
   final PorestTokens tokens;
   @override
   Widget build(BuildContext context) {
-    final isIncome = expense.expenseType != 'EXPENSE';
+    final isIncome = expense.expenseType == 'INCOME';
     final color = parseColor(expense.categoryColor, fallback: tokens.fgBrand);
     final bg = softBg(color);
+    final title = expense.merchant ??
+        expense.description ??
+        (expense.categoryName ?? '거래');
+    final subParts = [
+      expense.categoryName ?? '기타',
+      if ((expense.assetName ?? '').isNotEmpty) expense.assetName!,
+    ];
     return InkWell(
       onTap: () => showTxDetailDialog(context, expense),
+      borderRadius: PRadius.brMd,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
-              width: 28, height: 28,
-              decoration: BoxDecoration(color: bg, borderRadius: PRadius.brSm),
+              width: 36,
+              height: 36,
+              decoration:
+                  BoxDecoration(color: bg, borderRadius: PRadius.brSm),
               alignment: Alignment.center,
               child: Icon(lucideByName(expense.categoryIcon),
-                  size: 14, color: color),
+                  size: 18, color: color),
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                      expense.merchant ?? expense.description ??
-                          (expense.categoryName ?? '거래'),
+                  Text(title,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: PTypo.bodySm.copyWith(color: tokens.fgPrimary)),
-                  if ((expense.expenseDateOnly ?? '').isNotEmpty)
-                    Text(expense.expenseDateOnly!,
-                        style: PTypo.caption
-                            .copyWith(color: tokens.fgTertiary)),
+                      style: PTypo.bodySm.copyWith(
+                        color: tokens.fgPrimary,
+                        fontWeight: PFontWeight.semi,
+                      )),
+                  const SizedBox(height: 2),
+                  Text(subParts.join(' · '),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: PTypo.caption
+                          .copyWith(color: tokens.fgTertiary)),
                 ],
               ),
             ),
+            const SizedBox(width: 12),
             Text(
               krwMasked(expense.signedAmount, masked, sign: true),
               style: PTypo.bodySm.copyWith(
-                  color: isIncome ? tokens.statusSuccess : tokens.fgPrimary,
-                  fontWeight: PFontWeight.bold),
+                color: isIncome ? tokens.fgIncome : tokens.statusDangerFg,
+                fontWeight: PFontWeight.bold,
+                fontFamily: 'monospace',
+              ),
             ),
           ],
         ),
       ),
     );
   }
+}
+
+/// 하단 sticky 액션 바 — 금액 가리기 / 편집 / 확인.
+class _DetailActionBar extends ConsumerWidget {
+  const _DetailActionBar({required this.asset});
+  final Asset asset;
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = context.tokens;
+    final masked =
+        ref.watch(settingsProvider).value?.hideAmounts ?? false;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: t.bgSurface,
+        border: Border(top: BorderSide(color: t.borderSubtle)),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+          child: Row(
+            children: [
+              TextButton.icon(
+                onPressed: () =>
+                    toggleHideAmountsWithUnlock(context, ref),
+                style: TextButton.styleFrom(
+                  foregroundColor: t.fgSecondary,
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 8, vertical: 6),
+                ),
+                icon: Icon(
+                  masked ? LucideIcons.eye : LucideIcons.eyeOff,
+                  size: 14,
+                ),
+                label: Text(masked ? '금액 표시' : '금액 가리기',
+                    style: PTypo.bodySm.copyWith(color: t.fgSecondary)),
+              ),
+              const Spacer(),
+              TextButton.icon(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  showAssetEditForm(context, asset);
+                },
+                style: TextButton.styleFrom(
+                  foregroundColor: t.fgSecondary,
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 8, vertical: 6),
+                ),
+                icon: const Icon(LucideIcons.pencil, size: 14),
+                label: Text('편집',
+                    style: PTypo.bodySm.copyWith(color: t.fgSecondary)),
+              ),
+              const SizedBox(width: 4),
+              FilledButton(
+                style: FilledButton.styleFrom(
+                  backgroundColor: t.bgBrand,
+                  foregroundColor: t.fgOnBrand,
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16, vertical: 8),
+                ),
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('확인'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+String _fmtAxisNum(double v) {
+  final n = v.abs();
+  String body;
+  if (n >= 1000000) {
+    body = '${(n / 1000000).toStringAsFixed(1)}M';
+  } else if (n >= 1000) {
+    body = '${(n / 1000).round()}k';
+  } else {
+    body = n.toStringAsFixed(0);
+  }
+  return v < 0 ? '−$body' : body;
 }
 
 String _currentYearMonth() {
