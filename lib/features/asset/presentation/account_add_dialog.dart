@@ -430,8 +430,8 @@ class _PreviewTile extends StatelessWidget {
   }
 }
 
-/// 카테고리별 브랜드 chip 그리드 — full width, 자체 높이는 내용에 맞춰 자동.
-/// 부모 ListView 가 스크롤하므로 내부 별도 스크롤 X.
+/// 카테고리별 브랜드 chip 그리드 — web 동일 maxHeight 220 + 내부 자체 스크롤.
+/// 박스 자체는 width 풀, 부모 ListView 와 별개로 자기 영역 안에서 스크롤.
 class _BrandPicker extends StatelessWidget {
   const _BrandPicker({
     required this.categories,
@@ -445,15 +445,16 @@ class _BrandPicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final box = BoxDecoration(
+      color: t.bgSurface,
+      borderRadius: PRadius.brMd,
+      border: Border.all(color: t.borderSubtle),
+    );
     if (categories.isEmpty) {
       return Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 28),
-        decoration: BoxDecoration(
-          color: t.bgSurface,
-          borderRadius: PRadius.brMd,
-          border: Border.all(color: t.borderSubtle),
-        ),
+        decoration: box,
         child: Center(
           child: Text(
             '검색 결과가 없어요',
@@ -464,42 +465,47 @@ class _BrandPicker extends StatelessWidget {
     }
     return Container(
       width: double.infinity,
-      decoration: BoxDecoration(
-        color: t.bgSurface,
-        borderRadius: PRadius.brMd,
-        border: Border.all(color: t.borderSubtle),
-      ),
-      padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          for (int i = 0; i < categories.length; i++) ...[
-            if (i > 0) const SizedBox(height: 10),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 6),
-              child: Text(
-                categories[i].key.label,
-                style: PTypo.micro.copyWith(
-                  color: t.fgTertiary,
-                  fontWeight: PFontWeight.semi,
-                  letterSpacing: 0.4,
-                ),
-              ),
-            ),
-            Wrap(
-              spacing: 6,
-              runSpacing: 6,
-              children: [
-                for (final e in categories[i].value)
-                  _BrandChip(
-                    entry: e,
-                    selected: e.name == selectedName,
-                    onTap: () => onPick(e.name),
+      decoration: box,
+      constraints: const BoxConstraints(maxHeight: 220),
+      // ClipRRect 없이 SingleChildScrollView 만 쓰면 박스 모서리 안쪽에서
+      // 콘텐츠가 살짝 비져나와 보일 수 있어 radius clip 적용.
+      clipBehavior: Clip.hardEdge,
+      child: Scrollbar(
+        thumbVisibility: false,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (int i = 0; i < categories.length; i++) ...[
+                if (i > 0) const SizedBox(height: 10),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 6),
+                  child: Text(
+                    categories[i].key.label,
+                    style: PTypo.micro.copyWith(
+                      color: t.fgTertiary,
+                      fontWeight: PFontWeight.semi,
+                      letterSpacing: 0.4,
+                    ),
                   ),
+                ),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: [
+                    for (final e in categories[i].value)
+                      _BrandChip(
+                        entry: e,
+                        selected: e.name == selectedName,
+                        onTap: () => onPick(e.name),
+                      ),
+                  ],
+                ),
               ],
-            ),
-          ],
-        ],
+            ],
+          ),
+        ),
       ),
     );
   }
