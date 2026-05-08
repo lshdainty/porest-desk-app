@@ -1418,6 +1418,16 @@ class _TrendBigCard extends StatelessWidget {
     final data = _computeTrendData(state, rangeAsync, monthExpAsync);
     final loading = rangeAsync.isLoading || monthExpAsync.isLoading;
 
+    // 수입 ↔ 지출 스케일 차이가 크면 한 축에 그릴 때 작은 시리즈가 묻힘.
+    // → 지출을 (incomeMax / expenseMax) 로 스케일링해 시각적으론 같은 높이 범위를 차지하게.
+    //   좌축은 수입(raw), 우축 라벨은 표시값을 1/scale 로 되돌려 지출 실제값.
+    final incomeMax =
+        data.fold<int>(0, (m, p) => p.income > m ? p.income : m);
+    final expenseMax =
+        data.fold<int>(0, (m, p) => p.expense > m ? p.expense : m);
+    final useDualAxis = incomeMax > 0 && expenseMax > 0;
+    final scale = useDualAxis ? incomeMax / expenseMax : 1.0;
+
     return _Card(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1501,6 +1511,7 @@ class _TrendBigCard extends StatelessWidget {
                   ),
                   borderData: FlBorderData(show: false),
                   titlesData: FlTitlesData(
+                    // 좌축: 수입 (raw)
                     leftTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,
@@ -1509,12 +1520,28 @@ class _TrendBigCard extends StatelessWidget {
                           padding: const EdgeInsets.only(right: 6),
                           child: Text(_fmtTick(v),
                               style: PTypo.micro.copyWith(
-                                  color: t.fgTertiary, fontSize: PFontSize.micro)),
+                                  color: useDualAxis ? t.fgBrand : t.fgTertiary,
+                                  fontSize: PFontSize.micro)),
                         ),
                       ),
                     ),
-                    rightTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false)),
+                    // 우축: 지출 — 표시값을 역스케일해 원래 지출값 복원
+                    rightTitles: useDualAxis
+                        ? AxisTitles(
+                            sideTitles: SideTitles(
+                              showTitles: true,
+                              reservedSize: 44,
+                              getTitlesWidget: (v, _) => Padding(
+                                padding: const EdgeInsets.only(left: 6),
+                                child: Text(_fmtTick(v / scale),
+                                    style: PTypo.micro.copyWith(
+                                        color: t.statusDangerFg,
+                                        fontSize: PFontSize.micro)),
+                              ),
+                            ),
+                          )
+                        : const AxisTitles(
+                            sideTitles: SideTitles(showTitles: false)),
                     topTitles: const AxisTitles(
                         sideTitles: SideTitles(showTitles: false)),
                     bottomTitles: AxisTitles(
@@ -1564,11 +1591,11 @@ class _TrendBigCard extends StatelessWidget {
                         color: t.fgBrand.withValues(alpha: 0.18),
                       ),
                     ),
-                    // 지출
+                    // 지출 — 좌축에 함께 그리되 시각적 비율은 수입 max 에 맞춰 스케일링
                     LineChartBarData(
                       spots: [
                         for (var i = 0; i < data.length; i++)
-                          FlSpot(i.toDouble(), data[i].expense.toDouble()),
+                          FlSpot(i.toDouble(), data[i].expense * scale),
                       ],
                       isCurved: true,
                       color: t.statusDangerFg,
