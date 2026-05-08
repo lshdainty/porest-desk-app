@@ -14,12 +14,10 @@ import '../application/asset_providers.dart';
 
 /// 계좌 추가 다이얼로그 — front `AssetAddDialog` 미러.
 ///
-/// 구성 (web 동일):
-/// 1. 미리보기 타일 (브랜드 컬러 박스 + 별칭/브랜드)
-/// 2. 기관·브랜드 — 검색 + 카테고리별 chip 그리드
-/// 3. 별칭 input
-/// 4. 계좌 종류 segmented (입출금/적금/예금/현금/대출)
-/// 5. 계좌번호 / 잔액 2-column row
+/// Wolt sheet 의 3 영역 활용:
+/// - 상단 (sticky)  : `topBarTitle` + `trailingNavBarWidget`
+/// - 본문 (scroll) : `child` — 미리보기 / 기관·브랜드 / 별칭 / 계좌 종류 / 계좌번호·잔액
+/// - 하단 (sticky)  : `stickyActionBar` — 취소 / 추가
 void showAccountAddDialog(BuildContext context, {String? presetType}) {
   final initialSub = switch (presetType) {
     'SAVINGS' => _SubType.savingsRecurring,
@@ -27,21 +25,38 @@ void showAccountAddDialog(BuildContext context, {String? presetType}) {
     'LOAN' => _SubType.loan,
     _ => _SubType.checking,
   };
+  final bodyKey = GlobalKey<_AccountAddBodyState>();
+  final submitting = ValueNotifier<bool>(false);
   WoltModalSheet.show<void>(
     context: context,
-    pageListBuilder: (modalCtx) => [
-      WoltModalSheetPage(
-        topBarTitle: const Text('계좌 추가'),
-        isTopBarLayerAlwaysVisible: true,
-        backgroundColor:
-            Theme.of(modalCtx).extension<PorestTokens>()?.bgSurface,
-        trailingNavBarWidget: IconButton(
-          icon: const Icon(LucideIcons.x),
-          onPressed: Navigator.of(modalCtx).pop,
+    pageListBuilder: (modalCtx) {
+      final t = Theme.of(modalCtx).extension<PorestTokens>();
+      return [
+        WoltModalSheetPage(
+          topBarTitle: const Text('계좌 추가'),
+          isTopBarLayerAlwaysVisible: true,
+          backgroundColor: t?.bgSurface,
+          surfaceTintColor: t?.bgSurface,
+          trailingNavBarWidget: IconButton(
+            icon: const Icon(LucideIcons.x),
+            onPressed: () {
+              if (submitting.value) return;
+              Navigator.of(modalCtx).pop();
+            },
+          ),
+          child: _AccountAddBody(
+            key: bodyKey,
+            initialSubType: initialSub,
+            submitting: submitting,
+          ),
+          stickyActionBar: _ActionBar(
+            submitting: submitting,
+            onCancel: () => Navigator.of(modalCtx).pop(),
+            onSubmit: () => bodyKey.currentState?.submit(),
+          ),
         ),
-        child: _AccountAddBody(initialSubType: initialSub),
-      ),
-    ],
+      ];
+    },
   );
 }
 
@@ -67,8 +82,13 @@ extension _SubTypeX on _SubType {
 }
 
 class _AccountAddBody extends ConsumerStatefulWidget {
-  const _AccountAddBody({required this.initialSubType});
+  const _AccountAddBody({
+    super.key,
+    required this.initialSubType,
+    required this.submitting,
+  });
   final _SubType initialSubType;
+  final ValueNotifier<bool> submitting;
 
   @override
   ConsumerState<_AccountAddBody> createState() => _AccountAddBodyState();
@@ -82,11 +102,10 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
 
   String _brand = bankEntries.first.name;
   late _SubType _subType;
-  bool _submitting = false;
 
-  /// 계좌 추가 다이얼로그에서 노출할 카테고리 — 증권사·가상자산 제외 (그건 투자 추가).
+  /// 계좌 추가에 노출할 카테고리 — 증권사·가상자산 제외.
   List<MapEntry<BankCategory, List<BankEntry>>> get _filteredByCategory {
-    final q = _queryCtrl.text.trim().toLowerCase().replaceAll(RegExp(r'\s+'), '');
+    final q = _norm(_queryCtrl.text.trim());
     final result = <MapEntry<BankCategory, List<BankEntry>>>[];
     for (final cat in bankCategoryOrder) {
       if (investCategories.contains(cat)) continue;
@@ -112,8 +131,9 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
       .where((e) => !investCategories.contains(e.category))
       .length;
 
-  BankEntry get _selectedEntry =>
-      bankEntries.firstWhere((e) => e.name == _brand, orElse: () => bankEntries.first);
+  BankEntry get _selectedEntry => bankEntries.firstWhere(
+      (e) => e.name == _brand,
+      orElse: () => bankEntries.first);
 
   @override
   void initState() {
@@ -137,14 +157,16 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
     super.dispose();
   }
 
-  Future<void> _submit() async {
+  /// stickyActionBar 의 '추가' 에서 호출.
+  Future<void> submit() async {
+    if (widget.submitting.value) return;
     final brand = _brand;
     final nickname = _nicknameCtrl.text.trim();
     final name = nickname.isEmpty ? '$brand ${_subType.label}' : nickname;
     final balance = int.tryParse(_balanceCtrl.text.replaceAll(',', '')) ?? 0;
     final accountNumber = _accountNumberCtrl.text.trim();
 
-    setState(() => _submitting = true);
+    widget.submitting.value = true;
     try {
       final repo = await ref.read(assetRepositoryProvider.future);
       await repo.create(
@@ -167,7 +189,7 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
         SnackBar(content: Text('실패: ${e.message}')),
       );
     } finally {
-      if (mounted) setState(() => _submitting = false);
+      widget.submitting.value = false;
     }
   }
 
@@ -175,8 +197,9 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
   Widget build(BuildContext context) {
     final t = context.tokens;
     return Padding(
+      // 하단 stickyActionBar 높이만큼 여유 (action bar ≈ 56)
       padding: const EdgeInsets.fromLTRB(
-          PSpace.x16, PSpace.x4, PSpace.x16, PSpace.x16),
+          PSpace.x16, PSpace.x4, PSpace.x16, PSpace.x16 + 56),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -184,7 +207,7 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
               entry: _selectedEntry, nickname: _nicknameCtrl.text.trim()),
           const SizedBox(height: PSpace.x20),
 
-          // 기관·브랜드 섹션 ──────────────────────────
+          // 기관·브랜드 ──────────────────────────
           Row(
             children: [
               Text('기관·브랜드',
@@ -275,36 +298,6 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
               ),
             ],
           ),
-          const SizedBox(height: PSpace.x24),
-
-          // 액션 ───────────────────────────────────
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              TextButton(
-                onPressed:
-                    _submitting ? null : () => Navigator.of(context).pop(),
-                child: Text('취소',
-                    style: PTypo.bodySm.copyWith(color: t.fgSecondary)),
-              ),
-              const SizedBox(width: PSpace.x8),
-              FilledButton(
-                style: FilledButton.styleFrom(
-                  backgroundColor: t.bgBrand,
-                  foregroundColor: t.fgOnBrand,
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 8),
-                ),
-                onPressed: _submitting ? null : _submit,
-                child: _submitting
-                    ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2))
-                    : const Text('추가'),
-              ),
-            ],
-          ),
         ],
       ),
     );
@@ -367,7 +360,7 @@ class _PreviewTile extends StatelessWidget {
   }
 }
 
-/// 카테고리별로 묶인 브랜드 chip 그리드 — 스크롤 가능 박스.
+/// 카테고리별 브랜드 chip 그리드 — 자체 스크롤(maxHeight 220).
 class _BrandPicker extends StatelessWidget {
   const _BrandPicker({
     required this.categories,
@@ -387,7 +380,7 @@ class _BrandPicker extends StatelessWidget {
         borderRadius: PRadius.brMd,
         border: Border.all(color: t.borderSubtle),
       ),
-      constraints: const BoxConstraints(maxHeight: 240),
+      constraints: const BoxConstraints(maxHeight: 220),
       child: categories.isEmpty
           ? Padding(
               padding: const EdgeInsets.symmetric(vertical: 24),
@@ -451,21 +444,32 @@ class _BrandChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        height: 28,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: selected ? entry.color.bg : t.bgMuted,
-          borderRadius: BorderRadius.circular(999),
-        ),
-        child: Text(
-          entry.name,
-          style: PTypo.bodySm.copyWith(
-            color: selected ? entry.color.fg : t.fgSecondary,
-            fontWeight: PFontWeight.medium,
+    // ⚠️ Container 에 alignment 를 주면 부모가 unbounded 일 때 width 를 다 차지.
+    //    Wrap 안에서 chip 이 행 전체로 stretched 되는 걸 막기 위해 명시적으로
+    //    Row(MainAxisSize.min) + Padding 으로 intrinsic 폭 강제.
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(999),
+        child: Container(
+          padding:
+              const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+          decoration: BoxDecoration(
+            color: selected ? entry.color.bg : t.bgMuted,
+            borderRadius: BorderRadius.circular(999),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                entry.name,
+                style: PTypo.bodySm.copyWith(
+                  color: selected ? entry.color.fg : t.fgSecondary,
+                  fontWeight: PFontWeight.medium,
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -474,7 +478,6 @@ class _BrandChip extends StatelessWidget {
 }
 
 /// 5칸 segmented row — 입출금/적금/예금/현금/대출.
-/// PSegmented 와 톤은 동일하지만 brand strong 색을 쓰기 위해 인라인.
 class _SubTypeRow extends StatelessWidget {
   const _SubTypeRow({required this.value, required this.onChanged});
   final _SubType value;
@@ -519,3 +522,66 @@ class _SubTypeRow extends StatelessWidget {
   }
 }
 
+/// 하단 sticky 액션 바 — 취소 / 추가. `submitting` 노티파이어로 spinner 동기화.
+class _ActionBar extends StatelessWidget {
+  const _ActionBar({
+    required this.submitting,
+    required this.onCancel,
+    required this.onSubmit,
+  });
+  final ValueNotifier<bool> submitting;
+  final VoidCallback onCancel;
+  final VoidCallback onSubmit;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: t.bgSurface,
+        border: Border(top: BorderSide(color: t.borderSubtle)),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+          child: ValueListenableBuilder<bool>(
+            valueListenable: submitting,
+            builder: (_, busy, __) => Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: busy ? null : onCancel,
+                  style: TextButton.styleFrom(
+                    foregroundColor: t.fgSecondary,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 8),
+                  ),
+                  child: Text('취소',
+                      style: PTypo.bodySm.copyWith(color: t.fgSecondary)),
+                ),
+                const SizedBox(width: 4),
+                FilledButton(
+                  style: FilledButton.styleFrom(
+                    backgroundColor: t.bgBrand,
+                    foregroundColor: t.fgOnBrand,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 18, vertical: 8),
+                  ),
+                  onPressed: busy ? null : onSubmit,
+                  child: busy
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                              strokeWidth: 2, color: Colors.white))
+                      : const Text('추가'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
