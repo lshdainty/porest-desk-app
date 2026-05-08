@@ -39,7 +39,7 @@ void _open(BuildContext context, {required Asset? edit}) {
       borderRadius: BorderRadius.vertical(top: Radius.circular(PRadius.xl2)),
     ),
     builder: (_) => DraggableScrollableSheet(
-      initialChildSize: 0.92,
+      initialChildSize: 0.85,
       minChildSize: 0.5,
       maxChildSize: 0.95,
       expand: false,
