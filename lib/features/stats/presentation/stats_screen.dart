@@ -1376,38 +1376,61 @@ bool _showXLabel(int i, int n) {
   return i % step == 0 && (n - 1 - i) >= (step ~/ 2);
 }
 
-/// fl_chart 툴팁 한 줄 ─ 색 스왓치(유니코드) + 레이블 + 금액 (웹 PorestChartTooltip 매칭).
-/// fl_chart 의 LineTooltipItem.children 이 List<TextSpan> 만 허용해 WidgetSpan 이 막힘 →
-/// 작은 사각 유니코드(▪)에 컬러 입혀서 스왓치 흉내.
-List<TextSpan> _tooltipRow({
+/// fl_chart 툴팁 한 줄 ─ 색 스왓치 + 고정폭 레이블 + 우측정렬 고정폭 금액.
+///
+/// LineTooltipItem.children 은 List<TextSpan> 만 받지만, 각 TextSpan 의 children 은
+/// List<InlineSpan> 이라 WidgetSpan(SizedBox) 으로 컬럼 폭 보장 가능.
+/// 이로써 레이블·금액 모두 같은 X 에서 시작/끝 → 행 간 우측 정렬 일치.
+TextSpan _tooltipRow({
   required Color color,
   required String label,
   required String amount,
   required PorestTokens t,
   Color? amountColor,
+  double labelWidth = 56,
+  double amountWidth = 110,
 }) {
-  return [
-    TextSpan(
-      text: '■  ',
-      style: TextStyle(
-        color: color,
-        fontSize: PFontSize.bodySm,
-        height: 1.0,
+  return TextSpan(
+    children: [
+      WidgetSpan(
+        alignment: PlaceholderAlignment.middle,
+        child: Container(
+          width: 9,
+          height: 9,
+          margin: const EdgeInsets.only(right: 8),
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
       ),
-    ),
-    TextSpan(
-      text: '$label  ',
-      style: PTypo.caption.copyWith(color: t.fgSecondary),
-    ),
-    TextSpan(
-      text: amount, // caller 가 padLeft 등으로 정렬 처리한 full string
-      style: PTypo.bodySm.copyWith(
-        color: amountColor ?? t.fgPrimary,
-        fontWeight: PFontWeight.bold,
-        fontFamily: 'monospace',
+      WidgetSpan(
+        alignment: PlaceholderAlignment.middle,
+        child: SizedBox(
+          width: labelWidth,
+          child: Text(
+            label,
+            style: PTypo.caption.copyWith(color: t.fgSecondary),
+          ),
+        ),
       ),
-    ),
-  ];
+      WidgetSpan(
+        alignment: PlaceholderAlignment.middle,
+        child: SizedBox(
+          width: amountWidth,
+          child: Text(
+            amount,
+            textAlign: TextAlign.right,
+            style: PTypo.bodySm.copyWith(
+              color: amountColor ?? t.fgPrimary,
+              fontWeight: PFontWeight.bold,
+              fontFamily: 'monospace',
+            ),
+          ),
+        ),
+      ),
+    ],
+  );
 }
 
 class _TrendBigCard extends StatelessWidget {
@@ -1471,12 +1494,6 @@ class _TrendBigCard extends StatelessWidget {
                         if (i < 0 || i >= data.length) return [];
                         final p = data[i];
                         // 첫 spot 에 합쳐서 한 번만 렌더, 나머지는 null 반환
-                        // monospace 폰트 + 공백 padLeft 로 amount 우측 정렬 흉내
-                        final incomeStr = '${krw(p.income)}원';
-                        final expenseStr = '${krw(p.expense)}원';
-                        final maxLen = incomeStr.length > expenseStr.length
-                            ? incomeStr.length
-                            : expenseStr.length;
                         return List.generate(touched.length, (idx) {
                           if (idx != 0) return null;
                           return LineTooltipItem(
@@ -1493,18 +1510,18 @@ class _TrendBigCard extends StatelessWidget {
                                     height: 1.6),
                               ),
                               // 수입 행
-                              ..._tooltipRow(
+                              _tooltipRow(
                                 color: t.fgBrand,
                                 label: '수입',
-                                amount: incomeStr.padLeft(maxLen),
+                                amount: '${krw(p.income)}원',
                                 t: t,
                               ),
                               const TextSpan(text: '\n'),
                               // 지출 행
-                              ..._tooltipRow(
+                              _tooltipRow(
                                 color: t.statusDangerFg,
                                 label: '지출',
-                                amount: expenseStr.padLeft(maxLen),
+                                amount: '${krw(p.expense)}원',
                                 t: t,
                               ),
                             ],
@@ -1809,7 +1826,7 @@ class _SavingsBarsCard extends StatelessWidget {
                                   fontWeight: PFontWeight.semi,
                                   height: 1.6),
                             ),
-                            ..._tooltipRow(
+                            _tooltipRow(
                               color: v >= 0 ? t.bgBrand : t.statusDangerFg,
                               label: '순저축',
                               amount: '$sign${krw(v.abs())}원',
