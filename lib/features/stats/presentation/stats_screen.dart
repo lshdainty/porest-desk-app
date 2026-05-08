@@ -1353,6 +1353,40 @@ String _fmtTick(double v) {
   return v.toStringAsFixed(0);
 }
 
+/// fl_chart 툴팁 한 줄 ─ 색 스왓치(유니코드) + 레이블 + 금액 (웹 PorestChartTooltip 매칭).
+/// fl_chart 의 LineTooltipItem.children 이 List<TextSpan> 만 허용해 WidgetSpan 이 막힘 →
+/// 작은 사각 유니코드(▪)에 컬러 입혀서 스왓치 흉내.
+List<TextSpan> _tooltipRow({
+  required Color color,
+  required String label,
+  required String amount,
+  required PorestTokens t,
+  Color? amountColor,
+}) {
+  return [
+    TextSpan(
+      text: '■  ',
+      style: TextStyle(
+        color: color,
+        fontSize: PFontSize.bodySm,
+        height: 1.0,
+      ),
+    ),
+    TextSpan(
+      text: '$label  ',
+      style: PTypo.caption.copyWith(color: t.fgSecondary),
+    ),
+    TextSpan(
+      text: '${amount}원',
+      style: PTypo.bodySm.copyWith(
+        color: amountColor ?? t.fgPrimary,
+        fontWeight: PFontWeight.bold,
+        fontFamily: 'monospace',
+      ),
+    ),
+  ];
+}
+
 class _TrendBigCard extends StatelessWidget {
   const _TrendBigCard({
     required this.state,
@@ -1393,10 +1427,11 @@ class _TrendBigCard extends StatelessWidget {
                       getTooltipColor: (_) => t.bgSurface,
                       tooltipBorder:
                           BorderSide(color: t.borderSubtle, width: 1),
-                      tooltipBorderRadius: BorderRadius.circular(8),
+                      tooltipBorderRadius: BorderRadius.circular(10),
                       tooltipPadding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 8),
-                      maxContentWidth: 180,
+                          horizontal: 12, vertical: 10),
+                      tooltipMargin: 12,
+                      maxContentWidth: 200,
                       getTooltipItems: (touched) {
                         if (touched.isEmpty) return [];
                         final i = touched.first.x.toInt();
@@ -1406,34 +1441,32 @@ class _TrendBigCard extends StatelessWidget {
                         return List.generate(touched.length, (idx) {
                           if (idx != 0) return null;
                           return LineTooltipItem(
-                            '${p.label}\n',
-                            PTypo.micro.copyWith(
-                                color: t.fgTertiary,
-                                fontWeight: PFontWeight.semi),
+                            '',
+                            const TextStyle(),
+                            textAlign: TextAlign.left,
                             children: [
+                              // 헤더: 라벨 (micro · tertiary · semi)
                               TextSpan(
-                                text: '수입 ',
-                                style: PTypo.caption
-                                    .copyWith(color: t.fgSecondary),
+                                text: '${p.label}\n',
+                                style: PTypo.micro.copyWith(
+                                    color: t.fgTertiary,
+                                    fontWeight: PFontWeight.semi,
+                                    height: 1.6),
                               ),
-                              TextSpan(
-                                text: '${krw(p.income)}원\n',
-                                style: PTypo.bodySm.copyWith(
-                                    color: t.fgPrimary,
-                                    fontWeight: PFontWeight.bold,
-                                    fontFamily: 'monospace'),
+                              // 수입 행
+                              ..._tooltipRow(
+                                color: t.fgBrand,
+                                label: '수입',
+                                amount: krw(p.income),
+                                t: t,
                               ),
-                              TextSpan(
-                                text: '지출 ',
-                                style: PTypo.caption
-                                    .copyWith(color: t.fgSecondary),
-                              ),
-                              TextSpan(
-                                text: '${krw(p.expense)}원',
-                                style: PTypo.bodySm.copyWith(
-                                    color: t.fgPrimary,
-                                    fontWeight: PFontWeight.bold,
-                                    fontFamily: 'monospace'),
+                              const TextSpan(text: '\n'),
+                              // 지출 행
+                              ..._tooltipRow(
+                                color: t.statusDangerFg,
+                                label: '지출',
+                                amount: krw(p.expense),
+                                t: t,
                               ),
                             ],
                           );
@@ -1695,9 +1728,10 @@ class _SavingsBarsCard extends StatelessWidget {
                       getTooltipColor: (_) => t.bgSurface,
                       tooltipBorder:
                           BorderSide(color: t.borderSubtle, width: 1),
-                      tooltipBorderRadius: BorderRadius.circular(8),
+                      tooltipBorderRadius: BorderRadius.circular(10),
                       tooltipPadding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 8),
+                          horizontal: 12, vertical: 10),
+                      tooltipMargin: 12,
                       getTooltipItem: (group, _, rod, __) {
                         final i = group.x;
                         if (i < 0 || i >= data.length) return null;
@@ -1705,24 +1739,24 @@ class _SavingsBarsCard extends StatelessWidget {
                         final v = p.savings;
                         final sign = v >= 0 ? '+' : '−';
                         return BarTooltipItem(
-                          '${p.label}\n',
-                          PTypo.micro.copyWith(
-                              color: t.fgTertiary,
-                              fontWeight: PFontWeight.semi),
+                          '',
+                          const TextStyle(),
+                          textAlign: TextAlign.left,
                           children: [
                             TextSpan(
-                              text: '순저축 ',
-                              style: PTypo.caption
-                                  .copyWith(color: t.fgSecondary),
+                              text: '${p.label}\n',
+                              style: PTypo.micro.copyWith(
+                                  color: t.fgTertiary,
+                                  fontWeight: PFontWeight.semi,
+                                  height: 1.6),
                             ),
-                            TextSpan(
-                              text: '$sign${krw(v.abs())}원',
-                              style: PTypo.bodySm.copyWith(
-                                  color: v >= 0
-                                      ? t.fgIncome
-                                      : t.statusDangerFg,
-                                  fontWeight: PFontWeight.bold,
-                                  fontFamily: 'monospace'),
+                            ..._tooltipRow(
+                              color: v >= 0 ? t.bgBrand : t.statusDangerFg,
+                              label: '순저축',
+                              amount: '$sign${krw(v.abs())}',
+                              amountColor:
+                                  v >= 0 ? t.fgIncome : t.statusDangerFg,
+                              t: t,
                             ),
                           ],
                         );
