@@ -425,16 +425,22 @@ class _BalanceTrendChart extends StatelessWidget {
       for (int i = 0; i < n; i++)
         FlSpot(i.toDouble(), list[i].balance.toDouble()),
     ];
-    final maxV =
-        list.map((p) => p.balance).fold<int>(0, (m, v) => v > m ? v : m).toDouble();
-    final minV = list
-        .map((p) => p.balance)
-        .fold<int>(list.first.balance, (m, v) => v < m ? v : m)
-        .toDouble();
-    final pad = ((maxV - minV).abs() * 0.12).clamp(1.0, double.infinity);
-    final yMin = minV - pad;
-    final yMax = maxV + pad;
-    final yInterval = ((yMax - yMin) / 4).clamp(1.0, double.infinity);
+    // 데이터 실제 min/max — 첫 값으로 시작해서 양쪽 비교 (하드코딩 0 사용 X).
+    final values = list.map((p) => p.balance).toList(growable: false);
+    final maxRaw =
+        values.fold<int>(values.first, (m, v) => v > m ? v : m).toDouble();
+    final minRaw =
+        values.fold<int>(values.first, (m, v) => v < m ? v : m).toDouble();
+
+    // 모두 양수면 yMin 을 0 으로 클램프 (음수 영역 표시 방지 — web recharts 동작).
+    // pad 는 시각 여유.
+    final span = (maxRaw - minRaw).abs();
+    final pad = (span * 0.12).clamp(1.0, double.infinity);
+    final allNonNeg = minRaw >= 0;
+    final yMin = allNonNeg ? 0.0 : minRaw - pad;
+    final yMax = maxRaw + pad;
+    // 라벨은 최대 4개. fl_chart interval 은 데이터 거리 기반.
+    final yInterval = ((yMax - yMin) / 3).clamp(1.0, double.infinity);
     final xInterval = (n / 6).clamp(1.0, double.infinity);
 
     return LineChart(
@@ -462,12 +468,15 @@ class _BalanceTrendChart extends StatelessWidget {
           leftTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
-              reservedSize: 40,
+              reservedSize: 52,
               interval: yInterval,
               getTitlesWidget: (v, _) => Padding(
-                padding: const EdgeInsets.only(right: 4),
+                padding: const EdgeInsets.only(right: 6),
                 child: Text(
                   masked ? '•••' : _fmtAxisNum(v),
+                  maxLines: 1,
+                  softWrap: false,
+                  overflow: TextOverflow.visible,
                   style: PTypo.micro.copyWith(
                       color: tokens.fgTertiary,
                       fontSize: PFontSize.micro),
@@ -718,7 +727,9 @@ class _ExpenseRow extends StatelessWidget {
             ),
             const SizedBox(width: 12),
             Text(
-              krwMasked(expense.signedAmount, masked, sign: true),
+              masked
+                  ? '•••'
+                  : '${krw(expense.signedAmount, sign: true)}원',
               style: PTypo.bodySm.copyWith(
                 color: isIncome ? tokens.fgIncome : tokens.statusDangerFg,
                 fontWeight: PFontWeight.bold,
@@ -801,13 +812,15 @@ class _DetailActionBar extends ConsumerWidget {
   }
 }
 
+/// stats 차트와 동일한 만/억 단위 — 한글 단위가 KRW 와 어울리고
+/// '4.3M'/'-40.4M' 보다 짧게 표현돼 reservedSize 안에 안전히 들어간다.
 String _fmtAxisNum(double v) {
   final n = v.abs();
   String body;
-  if (n >= 1000000) {
-    body = '${(n / 1000000).toStringAsFixed(1)}M';
-  } else if (n >= 1000) {
-    body = '${(n / 1000).round()}k';
+  if (n >= 100000000) {
+    body = '${(n / 100000000).toStringAsFixed(1)}억';
+  } else if (n >= 10000) {
+    body = '${(n / 10000).round()}만';
   } else {
     body = n.toStringAsFixed(0);
   }
