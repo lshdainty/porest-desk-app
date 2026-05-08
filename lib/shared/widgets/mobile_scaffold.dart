@@ -12,7 +12,7 @@ class MobileScaffold extends StatelessWidget {
   const MobileScaffold({required this.navigationShell, super.key});
   final StatefulNavigationShell navigationShell;
 
-  static const _titles = ['홈', '가계부', '통계', '전체'];
+  static const _titles = ['홈', '가계부', '통계·분석', '전체'];
 
   @override
   Widget build(BuildContext context) {

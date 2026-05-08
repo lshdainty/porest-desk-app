@@ -1913,6 +1913,7 @@ class _CompareSummaryGrid extends StatelessWidget {
         : '—';
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _CompareCard(
           label: '${s._periodNow} 지출',
