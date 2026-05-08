@@ -42,28 +42,49 @@ Map<String, dynamic> _$CategoryBreakdownToJson(_CategoryBreakdown instance) =>
       'totalAmount': instance.totalAmount,
     };
 
-_MonthlySummary _$MonthlySummaryFromJson(Map<String, dynamic> json) =>
-    _MonthlySummary(
+_RangeSummary _$RangeSummaryFromJson(
+  Map<String, dynamic> json,
+) => _RangeSummary(
+  startDate: json['startDate'] as String,
+  endDate: json['endDate'] as String,
+  totalIncome: (json['totalIncome'] as num?)?.toInt() ?? 0,
+  totalExpense: (json['totalExpense'] as num?)?.toInt() ?? 0,
+  categoryBreakdown:
+      (json['categoryBreakdown'] as List<dynamic>?)
+          ?.map((e) => CategoryBreakdown.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const <CategoryBreakdown>[],
+  monthlyBuckets:
+      (json['monthlyBuckets'] as List<dynamic>?)
+          ?.map((e) => RangeMonthlyBucket.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const <RangeMonthlyBucket>[],
+);
+
+Map<String, dynamic> _$RangeSummaryToJson(_RangeSummary instance) =>
+    <String, dynamic>{
+      'startDate': instance.startDate,
+      'endDate': instance.endDate,
+      'totalIncome': instance.totalIncome,
+      'totalExpense': instance.totalExpense,
+      'categoryBreakdown': instance.categoryBreakdown,
+      'monthlyBuckets': instance.monthlyBuckets,
+    };
+
+_RangeMonthlyBucket _$RangeMonthlyBucketFromJson(Map<String, dynamic> json) =>
+    _RangeMonthlyBucket(
       year: (json['year'] as num).toInt(),
       month: (json['month'] as num).toInt(),
       totalIncome: (json['totalIncome'] as num?)?.toInt() ?? 0,
       totalExpense: (json['totalExpense'] as num?)?.toInt() ?? 0,
-      categoryBreakdown:
-          (json['categoryBreakdown'] as List<dynamic>?)
-              ?.map(
-                (e) => CategoryBreakdown.fromJson(e as Map<String, dynamic>),
-              )
-              .toList() ??
-          const <CategoryBreakdown>[],
     );
 
-Map<String, dynamic> _$MonthlySummaryToJson(_MonthlySummary instance) =>
+Map<String, dynamic> _$RangeMonthlyBucketToJson(_RangeMonthlyBucket instance) =>
     <String, dynamic>{
       'year': instance.year,
       'month': instance.month,
       'totalIncome': instance.totalIncome,
       'totalExpense': instance.totalExpense,
-      'categoryBreakdown': instance.categoryBreakdown,
     };
 
 _MerchantSummary _$MerchantSummaryFromJson(Map<String, dynamic> json) =>

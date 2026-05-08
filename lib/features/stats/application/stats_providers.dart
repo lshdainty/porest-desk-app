@@ -10,12 +10,13 @@ final statsRepositoryProvider = FutureProvider<StatsRepository>((ref) async {
   return StatsRepository(dio);
 });
 
-typedef YM = ({int year, int month});
+typedef DateRange = ({String startDate, String endDate});
 
-final monthlySummaryProvider =
-    FutureProvider.family<MonthlySummary, YM>((ref, key) async {
+/// 임의 기간 요약 — 도넛/하이라이트/추이.
+final rangeSummaryProvider =
+    FutureProvider.family<RangeSummary, DateRange>((ref, range) async {
   final repo = await ref.watch(statsRepositoryProvider.future);
-  return repo.monthly(year: key.year, month: key.month);
+  return repo.range(startDate: range.startDate, endDate: range.endDate);
 });
 
 final monthlyTrendProvider =
@@ -24,47 +25,32 @@ final monthlyTrendProvider =
   return repo.trend(months: months);
 });
 
-typedef DateRange = ({String? startDate, String? endDate});
+typedef OptionalDateRange = ({String? startDate, String? endDate});
 
 final merchantSummaryProvider =
-    FutureProvider.family<List<MerchantSummary>, DateRange>((ref, range) async {
+    FutureProvider.family<List<MerchantSummary>, OptionalDateRange>(
+        (ref, range) async {
   final repo = await ref.watch(statsRepositoryProvider.future);
   return repo.byMerchant(
       startDate: range.startDate, endDate: range.endDate);
 });
 
 final assetExpenseSummaryProvider =
-    FutureProvider.family<List<AssetExpenseSummary>, DateRange>(
+    FutureProvider.family<List<AssetExpenseSummary>, OptionalDateRange>(
         (ref, range) async {
   final repo = await ref.watch(statsRepositoryProvider.future);
   return repo.byAsset(startDate: range.startDate, endDate: range.endDate);
 });
 
 final heatmapProvider =
-    FutureProvider.family<List<HeatmapCell>, YM>((ref, key) async {
+    FutureProvider.family<List<HeatmapCell>, DateRange>((ref, range) async {
   final repo = await ref.watch(statsRepositoryProvider.future);
-  return repo.heatmap(year: key.year, month: key.month);
+  return repo.heatmap(startDate: range.startDate, endDate: range.endDate);
 });
 
-/// 일별 요약 (#251).
+/// 일별 요약.
 final dailySummaryProvider =
     FutureProvider.family<DailySummary, String>((ref, date) async {
   final repo = await ref.watch(statsRepositoryProvider.future);
   return repo.daily(date);
-});
-
-/// 주별 요약 (#251).
-typedef WeekRange = ({String weekStart, String weekEnd});
-final weeklySummaryProvider =
-    FutureProvider.family<WeeklySummary, WeekRange>((ref, key) async {
-  final repo = await ref.watch(statsRepositoryProvider.future);
-  return repo.weekly(weekStart: key.weekStart, weekEnd: key.weekEnd);
-});
-
-/// 연간 요약 (#251 #284).
-final yearlySummaryProvider =
-    FutureProvider.family<YearlySummary, int>((ref, year) async {
-  ref.keepAlive();
-  final repo = await ref.watch(statsRepositoryProvider.future);
-  return repo.yearly(year);
 });

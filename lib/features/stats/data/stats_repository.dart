@@ -9,13 +9,17 @@ class StatsRepository {
   StatsRepository(this._dio);
   final Dio _dio;
 
-  Future<MonthlySummary> monthly({required int year, required int month}) async {
+  /// 임의 기간 요약. GET /expenses/summary/range?startDate&endDate.
+  Future<RangeSummary> range({
+    required String startDate,
+    required String endDate,
+  }) async {
     try {
       final res = await _dio.get<Map<String, dynamic>>(
-        '/expenses/summary/monthly',
-        queryParameters: {'year': year, 'month': month},
+        '/expenses/summary/range',
+        queryParameters: {'startDate': startDate, 'endDate': endDate},
       );
-      return _unwrap(res, MonthlySummary.fromJson);
+      return _unwrap(res, RangeSummary.fromJson);
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }
@@ -63,11 +67,14 @@ class StatsRepository {
     }
   }
 
-  Future<List<HeatmapCell>> heatmap({required int year, required int month}) async {
+  Future<List<HeatmapCell>> heatmap({
+    required String startDate,
+    required String endDate,
+  }) async {
     try {
       final res = await _dio.get<Map<String, dynamic>>(
         '/expenses/summary/heatmap',
-        queryParameters: {'year': year, 'month': month},
+        queryParameters: {'startDate': startDate, 'endDate': endDate},
       );
       return _unwrapList(res, 'cells', HeatmapCell.fromJson);
     } on DioException catch (e) {
@@ -83,35 +90,6 @@ class StatsRepository {
         queryParameters: {'date': date},
       );
       return _unwrap(res, DailySummary.fromJson);
-    } on DioException catch (e) {
-      throw ApiException.fromDio(e);
-    }
-  }
-
-  /// 주별 요약. GET /expenses/summary/weekly?weekStart&weekEnd.
-  Future<WeeklySummary> weekly({
-    required String weekStart,
-    required String weekEnd,
-  }) async {
-    try {
-      final res = await _dio.get<Map<String, dynamic>>(
-        '/expenses/summary/weekly',
-        queryParameters: {'weekStart': weekStart, 'weekEnd': weekEnd},
-      );
-      return _unwrap(res, WeeklySummary.fromJson);
-    } on DioException catch (e) {
-      throw ApiException.fromDio(e);
-    }
-  }
-
-  /// 연간 요약 (월별 분해 포함). GET /expenses/summary/yearly?year=N.
-  Future<YearlySummary> yearly(int year) async {
-    try {
-      final res = await _dio.get<Map<String, dynamic>>(
-        '/expenses/summary/yearly',
-        queryParameters: {'year': year},
-      );
-      return _unwrap(res, YearlySummary.fromJson);
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }

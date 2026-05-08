@@ -1,6 +1,4 @@
-import 'stats_models.dart' show CategoryBreakdown;
-
-/// 백엔드 일/주/연 요약 응답 매핑 (plain class — freezed 회피).
+/// 백엔드 일별 요약 응답 매핑 (plain class — freezed 회피).
 
 class DailySummary {
   const DailySummary({
@@ -17,71 +15,3 @@ class DailySummary {
         totalExpense: (j['totalExpense'] as num?)?.toInt() ?? 0,
       );
 }
-
-class WeeklySummary {
-  const WeeklySummary({
-    required this.weekStart,
-    required this.weekEnd,
-    required this.totalIncome,
-    required this.totalExpense,
-  });
-  final String weekStart;
-  final String weekEnd;
-  final int totalIncome;
-  final int totalExpense;
-  factory WeeklySummary.fromJson(Map<String, dynamic> j) => WeeklySummary(
-        weekStart: (j['weekStart'] as String?) ?? '',
-        weekEnd: (j['weekEnd'] as String?) ?? '',
-        totalIncome: (j['totalIncome'] as num?)?.toInt() ?? 0,
-        totalExpense: (j['totalExpense'] as num?)?.toInt() ?? 0,
-      );
-}
-
-class MonthlyAmount {
-  const MonthlyAmount({
-    required this.month,
-    required this.totalIncome,
-    required this.totalExpense,
-    this.categoryBreakdown = const [],
-  });
-  final int month;
-  final int totalIncome;
-  final int totalExpense;
-  final List<CategoryBreakdown> categoryBreakdown;
-  factory MonthlyAmount.fromJson(Map<String, dynamic> j) {
-    final raw = (j['categoryBreakdown'] as List?) ?? const [];
-    return MonthlyAmount(
-      month: (j['month'] as num?)?.toInt() ?? 0,
-      totalIncome: (j['totalIncome'] as num?)?.toInt() ?? 0,
-      totalExpense: (j['totalExpense'] as num?)?.toInt() ?? 0,
-      categoryBreakdown: raw
-          .map((e) => CategoryBreakdown.fromJson(e as Map<String, dynamic>))
-          .toList(growable: false),
-    );
-  }
-}
-
-class YearlySummary {
-  const YearlySummary({
-    required this.year,
-    required this.totalIncome,
-    required this.totalExpense,
-    this.monthlyAmounts = const [],
-  });
-  final int year;
-  final int totalIncome;
-  final int totalExpense;
-  final List<MonthlyAmount> monthlyAmounts;
-  factory YearlySummary.fromJson(Map<String, dynamic> j) {
-    final raw = (j['monthlyAmounts'] as List?) ?? const [];
-    return YearlySummary(
-      year: (j['year'] as num?)?.toInt() ?? 0,
-      totalIncome: (j['totalIncome'] as num?)?.toInt() ?? 0,
-      totalExpense: (j['totalExpense'] as num?)?.toInt() ?? 0,
-      monthlyAmounts: raw
-          .map((e) => MonthlyAmount.fromJson(e as Map<String, dynamic>))
-          .toList(growable: false),
-    );
-  }
-}
-

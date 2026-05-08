@@ -27,18 +27,42 @@ class StatsScreen extends ConsumerStatefulWidget {
   ConsumerState<StatsScreen> createState() => _StatsScreenState();
 }
 
-enum _PeriodKey { m1, m3, y1 }
+enum _SegMode { month, quarter, year, custom }
+
+String _ymd(DateTime d) =>
+    '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+
+({DateTime from, DateTime to}) _monthRangeOf(DateTime base) {
+  final f = DateTime(base.year, base.month, 1);
+  final t = DateTime(base.year, base.month + 1, 0);
+  return (from: f, to: t);
+}
+
+({DateTime from, DateTime to}) _quarterRangeOf(DateTime base) {
+  final q = (base.month - 1) ~/ 3;
+  final f = DateTime(base.year, q * 3 + 1, 1);
+  final t = DateTime(base.year, q * 3 + 4, 0);
+  return (from: f, to: t);
+}
+
+({DateTime from, DateTime to}) _yearRangeOf(DateTime base) {
+  return (from: DateTime(base.year, 1, 1), to: DateTime(base.year, 12, 31));
+}
 
 class _StatsScreenState extends ConsumerState<StatsScreen>
     with SingleTickerProviderStateMixin {
   late final TabController _tab;
-  late DateTime _month = monthStart(DateTime.now());
-  _PeriodKey _period = _PeriodKey.m1;
+  late DateTime _from;
+  late DateTime _to;
+  _SegMode _segMode = _SegMode.month;
 
   @override
   void initState() {
     super.initState();
     _tab = TabController(length: 3, vsync: this);
+    final r = _monthRangeOf(DateTime.now());
+    _from = r.from;
+    _to = r.to;
   }
 
   @override
@@ -47,74 +71,123 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
     super.dispose();
   }
 
-  YM get _ym => (year: _month.year, month: _month.month);
-  YM get _prevYm {
-    if (_month.month == 1) return (year: _month.year - 1, month: 12);
-    return (year: _month.year, month: _month.month - 1);
+  DateRange get _range => (startDate: _ymd(_from), endDate: _ymd(_to));
+
+  /// 이전 동등 기간 (segMode 별).
+  ({DateTime from, DateTime to}) get _prevRange {
+    switch (_segMode) {
+      case _SegMode.month:
+        return (
+          from: DateTime(_from.year, _from.month - 1, 1),
+          to: DateTime(_from.year, _from.month, 0),
+        );
+      case _SegMode.quarter:
+        return (
+          from: DateTime(_from.year, _from.month - 3, 1),
+          to: DateTime(_from.year, _from.month, 0),
+        );
+      case _SegMode.year:
+        return (
+          from: DateTime(_from.year - 1, 1, 1),
+          to: DateTime(_from.year - 1, 12, 31),
+        );
+      case _SegMode.custom:
+        final days = _to.difference(_from).inDays + 1;
+        final t = _from.subtract(const Duration(days: 1));
+        final f = t.subtract(Duration(days: days - 1));
+        return (from: f, to: t);
+    }
   }
 
-  /// 기간 모드에 해당하는 month 번호 list.
-  List<int> get _periodMonths {
-    if (_period == _PeriodKey.m1) return [_month.month];
-    if (_period == _PeriodKey.m3) {
-      final q = ((_month.month - 1) ~/ 3) + 1;
-      return [q * 3 - 2, q * 3 - 1, q * 3];
-    }
-    return List.generate(12, (i) => i + 1);
-  }
+  DateRange get _prevRangeKey =>
+      (startDate: _ymd(_prevRange.from), endDate: _ymd(_prevRange.to));
 
-  /// 이전 기간 (year, months).
-  ({int year, List<int> months}) get _prevPeriod {
-    if (_period == _PeriodKey.m1) {
-      return (year: _prevYm.year, months: [_prevYm.month]);
-    }
-    if (_period == _PeriodKey.m3) {
-      final q = ((_month.month - 1) ~/ 3) + 1;
-      if (q == 1) return (year: _month.year - 1, months: [10, 11, 12]);
-      final pq = q - 1;
-      return (year: _month.year, months: [pq * 3 - 2, pq * 3 - 1, pq * 3]);
-    }
-    return (year: _month.year - 1, months: List.generate(12, (i) => i + 1));
-  }
+  /// 단일 월 모드면 일평균, 그 외엔 월평균.
+  bool get _useDailyAvg =>
+      _segMode == _SegMode.month || _segMode == _SegMode.custom;
+
+  /// 단일 월 또는 1개월 이내 사용자 기간이면 trend chart 일별. 그 외 월별.
+  bool useDailyTrend(int monthlyBucketCount) =>
+      _segMode == _SegMode.month ||
+      (_segMode == _SegMode.custom && monthlyBucketCount <= 1);
 
   String get _periodLabel {
-    if (_period == _PeriodKey.m1) return '${_month.month}월';
-    if (_period == _PeriodKey.m3) {
-      final q = ((_month.month - 1) ~/ 3) + 1;
-      return '${_month.year}년 $q분기';
+    if (_segMode == _SegMode.month) return '${_from.year}년 ${_from.month}월';
+    if (_segMode == _SegMode.quarter) {
+      final q = (_from.month - 1) ~/ 3 + 1;
+      return '${_from.year}년 $q분기';
     }
-    return '${_month.year}년';
+    if (_segMode == _SegMode.year) return '${_from.year}년';
+    final sameYear = _from.year == _to.year;
+    return sameYear
+        ? '${_from.month}/${_from.day} ~ ${_to.month}/${_to.day}'
+        : '${_ymd(_from)} ~ ${_ymd(_to)}';
   }
 
-  String get _periodNow => switch (_period) {
-        _PeriodKey.m1 => '이번 달',
-        _PeriodKey.m3 => '이번 분기',
-        _PeriodKey.y1 => '이번 해',
+  String get _periodNow => switch (_segMode) {
+        _SegMode.month => '이번 달',
+        _SegMode.quarter => '이번 분기',
+        _SegMode.year => '이번 해',
+        _SegMode.custom => '선택 기간',
       };
-  String get _periodPrev => switch (_period) {
-        _PeriodKey.m1 => '지난 달',
-        _PeriodKey.m3 => '지난 분기',
-        _PeriodKey.y1 => '지난 해',
+  String get _periodPrev => switch (_segMode) {
+        _SegMode.month => '지난 달',
+        _SegMode.quarter => '지난 분기',
+        _SegMode.year => '지난 해',
+        _SegMode.custom => '이전 기간',
       };
-  String get _momLabel => switch (_period) {
-        _PeriodKey.m1 => '전월 대비',
-        _PeriodKey.m3 => '전분기 대비',
-        _PeriodKey.y1 => '전년 대비',
+  String get _momLabel => switch (_segMode) {
+        _SegMode.month => '전월 대비',
+        _SegMode.quarter => '전분기 대비',
+        _SegMode.year => '전년 대비',
+        _SegMode.custom => '이전 기간 대비',
+      };
+  String get _avgLabel => _useDailyAvg ? '하루 평균' : '월 평균';
+  String get _noPrevText => switch (_segMode) {
+        _SegMode.month => '전월 데이터 없음',
+        _SegMode.quarter => '전분기 데이터 없음',
+        _SegMode.year => '전년 데이터 없음',
+        _SegMode.custom => '이전 기간 데이터 없음',
       };
 
-  void setPeriod(_PeriodKey p) {
-    setState(() => _period = p);
+  void setSegMode(_SegMode m) {
+    setState(() {
+      _segMode = m;
+      final now = DateTime.now();
+      switch (m) {
+        case _SegMode.month:
+          final r = _monthRangeOf(now);
+          _from = r.from; _to = r.to;
+        case _SegMode.quarter:
+          final r = _quarterRangeOf(now);
+          _from = r.from; _to = r.to;
+        case _SegMode.year:
+          final r = _yearRangeOf(now);
+          _from = r.from; _to = r.to;
+        case _SegMode.custom:
+          // 현재 from/to 유지 — 사용자가 캘린더로 직접 조정
+          break;
+      }
+    });
   }
 
-  Future<void> _pickMonth() async {
-    final picked = await showDatePicker(
+  void setCustomRange(DateTime f, DateTime t) {
+    setState(() {
+      _from = f;
+      _to = t;
+      _segMode = _SegMode.custom;
+    });
+  }
+
+  Future<void> _pickRange() async {
+    final picked = await showDateRangePicker(
       context: context,
-      initialDate: _month,
+      initialDateRange: DateTimeRange(start: _from, end: _to),
       firstDate: DateTime(2020),
-      lastDate: DateTime(_month.year + 5, 12, 31),
+      lastDate: DateTime(DateTime.now().year + 5, 12, 31),
     );
     if (picked != null) {
-      setState(() => _month = DateTime(picked.year, picked.month, 1));
+      setCustomRange(picked.start, picked.end);
     }
   }
 
@@ -170,26 +243,23 @@ class _CategoryTab extends ConsumerWidget {
     final t = context.tokens;
     final settings =
         ref.watch(settingsProvider).value ?? AppSettings.defaults;
-    final monthlyAsync = ref.watch(monthlySummaryProvider(state._ym));
-    final prevMonthlyAsync =
-        ref.watch(monthlySummaryProvider(state._prevYm));
-    final yearlyAsync = ref.watch(yearlySummaryProvider(state._month.year));
+    final rangeAsync = ref.watch(rangeSummaryProvider(state._range));
     final categoriesAsync = ref.watch(categoriesProvider);
-    final start = _fmt(state._month);
-    final end =
-        _fmt(DateTime(state._month.year, state._month.month + 1, 0));
-    final merchantAsync =
-        ref.watch(merchantSummaryProvider((startDate: start, endDate: end)));
-    final heatmapAsync = ref.watch(heatmapProvider(state._ym));
+    final merchantAsync = ref.watch(merchantSummaryProvider((
+      startDate: state._range.startDate,
+      endDate: state._range.endDate,
+    )));
+    final heatmapAsync = ref.watch(heatmapProvider(state._range));
 
     return RefreshIndicator(
       color: t.bgBrand,
       onRefresh: () async {
-        ref.invalidate(monthlySummaryProvider(state._ym));
-        ref.invalidate(merchantSummaryProvider(
-            (startDate: start, endDate: end)));
-        ref.invalidate(heatmapProvider(state._ym));
-        ref.invalidate(yearlySummaryProvider(state._month.year));
+        ref.invalidate(rangeSummaryProvider(state._range));
+        ref.invalidate(merchantSummaryProvider((
+          startDate: state._range.startDate,
+          endDate: state._range.endDate,
+        )));
+        ref.invalidate(heatmapProvider(state._range));
       },
       child: ListView(
         padding: const EdgeInsets.fromLTRB(
@@ -197,8 +267,7 @@ class _CategoryTab extends ConsumerWidget {
         children: [
           _DonutCard(
             state: state,
-            monthlyAsync: monthlyAsync,
-            yearlyAsync: yearlyAsync,
+            rangeAsync: rangeAsync,
             categoriesAsync: categoriesAsync,
             masked: settings.hideAmounts,
           ),
@@ -212,9 +281,7 @@ class _CategoryTab extends ConsumerWidget {
           const SizedBox(height: PSpace.x12),
           _HighlightsGrid(
             state: state,
-            monthlyAsync: monthlyAsync,
-            prevMonthlyAsync: prevMonthlyAsync,
-            yearlyAsync: yearlyAsync,
+            rangeAsync: rangeAsync,
             categoriesAsync: categoriesAsync,
             merchantAsync: merchantAsync,
             masked: settings.hideAmounts,
@@ -235,13 +302,13 @@ class _TrendTab extends ConsumerWidget {
     final t = context.tokens;
     final settings =
         ref.watch(settingsProvider).value ?? AppSettings.defaults;
-    final yearlyAsync = ref.watch(yearlySummaryProvider(state._month.year));
-    final monthExpAsync = ref.watch(monthExpensesProvider(state._ym));
+    final rangeAsync = ref.watch(rangeSummaryProvider(state._range));
+    final monthExpAsync = ref.watch(rangeExpensesProvider(state._range));
     return RefreshIndicator(
       color: t.bgBrand,
       onRefresh: () async {
-        ref.invalidate(yearlySummaryProvider(state._month.year));
-        ref.invalidate(monthExpensesProvider(state._ym));
+        ref.invalidate(rangeSummaryProvider(state._range));
+        ref.invalidate(rangeExpensesProvider(state._range));
       },
       child: ListView(
         padding: const EdgeInsets.fromLTRB(
@@ -249,19 +316,19 @@ class _TrendTab extends ConsumerWidget {
         children: [
           _TrendBigCard(
             state: state,
-            yearlyAsync: yearlyAsync,
+            rangeAsync: rangeAsync,
             monthExpAsync: monthExpAsync,
           ),
           const SizedBox(height: PSpace.x12),
           _TrendStatsGrid(
             state: state,
-            yearlyAsync: yearlyAsync,
+            rangeAsync: rangeAsync,
             masked: settings.hideAmounts,
           ),
           const SizedBox(height: PSpace.x12),
           _SavingsBarsCard(
             state: state,
-            yearlyAsync: yearlyAsync,
+            rangeAsync: rangeAsync,
             monthExpAsync: monthExpAsync,
           ),
         ],
@@ -280,20 +347,14 @@ class _CompareTab extends ConsumerWidget {
     final t = context.tokens;
     final settings =
         ref.watch(settingsProvider).value ?? AppSettings.defaults;
-    final monthlyAsync = ref.watch(monthlySummaryProvider(state._ym));
-    final prevMonthlyAsync =
-        ref.watch(monthlySummaryProvider(state._prevYm));
-    final yearlyAsync = ref.watch(yearlySummaryProvider(state._month.year));
-    final prevYearlyAsync =
-        ref.watch(yearlySummaryProvider(state._month.year - 1));
+    final rangeAsync = ref.watch(rangeSummaryProvider(state._range));
+    final prevRangeAsync = ref.watch(rangeSummaryProvider(state._prevRangeKey));
     final categoriesAsync = ref.watch(categoriesProvider);
     return RefreshIndicator(
       color: t.bgBrand,
       onRefresh: () async {
-        ref.invalidate(monthlySummaryProvider(state._ym));
-        ref.invalidate(monthlySummaryProvider(state._prevYm));
-        ref.invalidate(yearlySummaryProvider(state._month.year));
-        ref.invalidate(yearlySummaryProvider(state._month.year - 1));
+        ref.invalidate(rangeSummaryProvider(state._range));
+        ref.invalidate(rangeSummaryProvider(state._prevRangeKey));
       },
       child: ListView(
         padding: const EdgeInsets.fromLTRB(
@@ -301,19 +362,15 @@ class _CompareTab extends ConsumerWidget {
         children: [
           _CompareSummaryGrid(
             state: state,
-            monthlyAsync: monthlyAsync,
-            prevMonthlyAsync: prevMonthlyAsync,
-            yearlyAsync: yearlyAsync,
-            prevYearlyAsync: prevYearlyAsync,
+            rangeAsync: rangeAsync,
+            prevRangeAsync: prevRangeAsync,
             masked: settings.hideAmounts,
           ),
           const SizedBox(height: PSpace.x12),
           _CompareCategoryCard(
             state: state,
-            monthlyAsync: monthlyAsync,
-            prevMonthlyAsync: prevMonthlyAsync,
-            yearlyAsync: yearlyAsync,
-            prevYearlyAsync: prevYearlyAsync,
+            rangeAsync: rangeAsync,
+            prevRangeAsync: prevRangeAsync,
             categoriesAsync: categoriesAsync,
             masked: settings.hideAmounts,
           ),
@@ -347,12 +404,12 @@ class _Card extends StatelessWidget {
 
 class _PeriodSeg extends StatelessWidget {
   const _PeriodSeg({required this.value, required this.onChanged});
-  final _PeriodKey value;
-  final ValueChanged<_PeriodKey> onChanged;
+  final _SegMode value;
+  final ValueChanged<_SegMode> onChanged;
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    Widget pill(_PeriodKey v, String label) {
+    Widget pill(_SegMode v, String label) {
       final active = v == value;
       return GestureDetector(
         onTap: () => onChanged(v),
@@ -389,22 +446,30 @@ class _PeriodSeg extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          pill(_PeriodKey.m1, '월'),
-          pill(_PeriodKey.m3, '분기'),
-          pill(_PeriodKey.y1, '년'),
+          pill(_SegMode.month, '월'),
+          pill(_SegMode.quarter, '분기'),
+          pill(_SegMode.year, '년'),
+          pill(_SegMode.custom, '사용자 지정'),
         ],
       ),
     );
   }
 }
 
-class _MonthPickerButton extends StatelessWidget {
-  const _MonthPickerButton({required this.label, required this.onTap});
-  final String label;
+class _RangePickerButton extends StatelessWidget {
+  const _RangePickerButton({required this.from, required this.to, required this.onTap});
+  final DateTime from;
+  final DateTime to;
   final VoidCallback onTap;
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final nowYear = DateTime.now().year;
+    String short(DateTime d) {
+      final y = d.year == nowYear ? '' : '${d.year.toString().substring(2)}.';
+      return '$y${d.month.toString().padLeft(2, '0')}.${d.day.toString().padLeft(2, '0')}';
+    }
+
     return InkWell(
       onTap: onTap,
       borderRadius: PRadius.brTile,
@@ -417,13 +482,12 @@ class _MonthPickerButton extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(LucideIcons.calendar, size: 13, color: t.fgSecondary),
+            Icon(LucideIcons.calendar, size: 14, color: t.fgSecondary),
             const SizedBox(width: 6),
-            Text(label,
-                style: PTypo.caption.copyWith(
-                    color: t.fgPrimary, fontWeight: PFontWeight.semi)),
-            const SizedBox(width: 4),
-            Icon(LucideIcons.chevronDown, size: 12, color: t.fgTertiary),
+            Text(
+              '${short(from)} ~ ${short(to)}',
+              style: PTypo.caption.copyWith(color: t.fgTertiary),
+            ),
           ],
         ),
       ),
@@ -436,19 +500,20 @@ class _PeriodSelectorRow extends StatelessWidget {
   final _StatsScreenState state;
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
+    return Wrap(
+      alignment: WrapAlignment.end,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      spacing: 8,
+      runSpacing: 8,
       children: [
-        Flexible(
-          child: _MonthPickerButton(
-            label: '${state._month.year}년 ${state._month.month}월',
-            onTap: state._pickMonth,
-          ),
+        _RangePickerButton(
+          from: state._from,
+          to: state._to,
+          onTap: state._pickRange,
         ),
-        const SizedBox(width: 8),
         _PeriodSeg(
-          value: state._period,
-          onChanged: state.setPeriod,
+          value: state._segMode,
+          onChanged: state.setSegMode,
         ),
       ],
     );
@@ -546,14 +611,12 @@ class _DonutRow {
 class _DonutCard extends ConsumerStatefulWidget {
   const _DonutCard({
     required this.state,
-    required this.monthlyAsync,
-    required this.yearlyAsync,
+    required this.rangeAsync,
     required this.categoriesAsync,
     required this.masked,
   });
   final _StatsScreenState state;
-  final AsyncValue<MonthlySummary> monthlyAsync;
-  final AsyncValue<YearlySummary> yearlyAsync;
+  final AsyncValue<RangeSummary> rangeAsync;
   final AsyncValue<List<dynamic>> categoriesAsync;
   final bool masked;
 
@@ -567,31 +630,17 @@ class _DonutCardState extends ConsumerState<_DonutCard> {
   @override
   void didUpdateWidget(covariant _DonutCard old) {
     super.didUpdateWidget(old);
-    // 기간/월 변경 시 드릴다운 해제.
-    if (old.state._period != widget.state._period ||
-        old.state._month != widget.state._month) {
+    // 기간 변경 시 드릴다운 해제.
+    if (old.state._from != widget.state._from ||
+        old.state._to != widget.state._to ||
+        old.state._segMode != widget.state._segMode) {
       _activeParentId = null;
     }
   }
 
   List<CategoryBreakdown> get _periodBreakdown {
-    final s = widget.state;
-    final out = <CategoryBreakdown>[];
-    void push(List<CategoryBreakdown> list) {
-      for (final c in list) {
-        if (c.expenseType == 'EXPENSE') out.add(c);
-      }
-    }
-
-    if (s._period == _PeriodKey.m1) {
-      push(widget.monthlyAsync.value?.categoryBreakdown ?? const <CategoryBreakdown>[]);
-    } else {
-      for (final m
-          in widget.yearlyAsync.value?.monthlyAmounts ?? const <MonthlyAmount>[]) {
-        if (s._periodMonths.contains(m.month)) push(m.categoryBreakdown);
-      }
-    }
-    return out;
+    final raw = widget.rangeAsync.value?.categoryBreakdown ?? const <CategoryBreakdown>[];
+    return [for (final c in raw) if (c.expenseType == 'EXPENSE') c];
   }
 
   List<_DonutRow> _aggregateParent(List<CategoryBreakdown> bd) {
@@ -659,9 +708,7 @@ class _DonutCardState extends ConsumerState<_DonutCard> {
   Widget build(BuildContext context) {
     final s = widget.state;
     final t = context.tokens;
-    final loading = s._period == _PeriodKey.m1
-        ? widget.monthlyAsync.isLoading
-        : widget.yearlyAsync.isLoading;
+    final loading = widget.rangeAsync.isLoading;
     final bd = _periodBreakdown;
     final parents = _aggregateParent(bd);
     final isDrilled = _activeParentId != null;
@@ -1137,17 +1184,13 @@ String _shortAmount(int v) {
 class _HighlightsGrid extends StatelessWidget {
   const _HighlightsGrid({
     required this.state,
-    required this.monthlyAsync,
-    required this.prevMonthlyAsync,
-    required this.yearlyAsync,
+    required this.rangeAsync,
     required this.categoriesAsync,
     required this.merchantAsync,
     required this.masked,
   });
   final _StatsScreenState state;
-  final AsyncValue<MonthlySummary> monthlyAsync;
-  final AsyncValue<MonthlySummary> prevMonthlyAsync;
-  final AsyncValue<YearlySummary> yearlyAsync;
+  final AsyncValue<RangeSummary> rangeAsync;
   final AsyncValue<List<dynamic>> categoriesAsync;
   final AsyncValue<List<MerchantSummary>> merchantAsync;
   final bool masked;
@@ -1156,8 +1199,8 @@ class _HighlightsGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     final s = state;
 
-    // 카테고리 Top
-    final bd = monthlyAsync.value?.categoryBreakdown ?? const <CategoryBreakdown>[];
+    // 카테고리 Top — 부모 카테고리 단위 합계
+    final bd = rangeAsync.value?.categoryBreakdown ?? const <CategoryBreakdown>[];
     final groupTotals = <int, ({String name, int amount})>{};
     for (final c in bd) {
       if (c.expenseType != 'EXPENSE') continue;
@@ -1179,37 +1222,19 @@ class _HighlightsGrid extends StatelessWidget {
       ..sort((a, b) => b.totalAmount.compareTo(a.totalAmount));
     final topMerchant = merchants.firstOrNull;
 
-    final totalExpense = monthlyAsync.value?.totalExpense ?? 0;
-    final prevExpense = prevMonthlyAsync.value?.totalExpense ?? 0;
-    final daysInMonth =
-        DateTime(s._month.year, s._month.month + 1, 0).day;
-
-    int periodTotal;
-    int divisor;
-    if (s._period == _PeriodKey.m1) {
-      periodTotal = totalExpense;
-      divisor = daysInMonth;
-    } else {
-      var sum = 0;
-      for (final m in yearlyAsync.value?.monthlyAmounts ?? const <MonthlyAmount>[]) {
-        if (s._periodMonths.contains(m.month)) sum += m.totalExpense;
-      }
-      periodTotal = sum;
-      divisor = s._periodMonths.length;
-    }
+    // 평균 계산 — 단일 월 또는 사용자 지정 기간이면 일평균, 그 외엔 월평균
+    final periodTotal = rangeAsync.value?.totalExpense ?? 0;
+    final monthlyBuckets = rangeAsync.value?.monthlyBuckets ?? const <RangeMonthlyBucket>[];
+    final rangeDays = s._to.difference(s._from).inDays + 1;
+    final divisor = s._useDailyAvg ? rangeDays : monthlyBuckets.length.clamp(1, 9999);
     final avgValue = divisor > 0 ? periodTotal ~/ divisor : 0;
-    final avgLabel = s._period == _PeriodKey.m1 ? '하루 평균' : '월 평균';
-    final dayPct = prevExpense > 0
-        ? (((totalExpense - prevExpense) / prevExpense) * 100).round()
-        : 0;
+    final avgLabel = s._avgLabel;
 
     String avgSub;
-    if (s._period != _PeriodKey.m1) {
-      avgSub = '${s._periodMonths.length}개월 합계 ${krwMasked(periodTotal, masked)}원';
-    } else if (prevExpense > 0) {
-      avgSub = '전월 대비 ${dayPct >= 0 ? '↑' : '↓'}${dayPct.abs()}%';
+    if (s._segMode != _SegMode.month) {
+      avgSub = '$rangeDays일 합계 ${krwMasked(periodTotal, masked)}원';
     } else {
-      avgSub = '전월 비교 불가';
+      avgSub = '${s._periodLabel} 합계';
     }
 
     return Column(
@@ -1293,47 +1318,51 @@ class _TrendPoint {
 
 List<_TrendPoint> _computeTrendData(
   _StatsScreenState s,
-  AsyncValue<YearlySummary> yearlyAsync,
+  AsyncValue<RangeSummary> rangeAsync,
   AsyncValue<List<Expense>> monthExpAsync,
 ) {
-  if (s._period == _PeriodKey.m1) {
+  final buckets = rangeAsync.value?.monthlyBuckets ?? const <RangeMonthlyBucket>[];
+  final useDaily = s.useDailyTrend(buckets.length);
+
+  if (useDaily) {
     final exps = monthExpAsync.value ?? const <Expense>[];
-    final days = DateTime(s._month.year, s._month.month + 1, 0).day;
-    final byDay = <int, ({int income, int expense})>{
-      for (var d = 1; d <= days; d++) d: (income: 0, expense: 0),
-    };
+    final fromDay = DateTime(s._from.year, s._from.month, s._from.day);
+    final toDay = DateTime(s._to.year, s._to.month, s._to.day);
+    final days = toDay.difference(fromDay).inDays + 1;
+    final byDate = <String, ({int income, int expense, String label})>{};
+    for (var i = 0; i < days; i++) {
+      final d = fromDay.add(Duration(days: i));
+      final key = _ymd(d);
+      byDate[key] = (
+        income: 0,
+        expense: 0,
+        label: '${d.month}/${d.day}',
+      );
+    }
     for (final e in exps) {
       final raw = e.expenseDate ?? '';
       if (raw.length < 10) continue;
-      final day = int.tryParse(raw.substring(8, 10));
-      if (day == null) continue;
-      final cur = byDay[day];
+      final key = raw.substring(0, 10);
+      final cur = byDate[key];
       if (cur == null) continue;
       if (e.expenseType == 'INCOME') {
-        byDay[day] = (income: cur.income + e.amount, expense: cur.expense);
+        byDate[key] = (income: cur.income + e.amount, expense: cur.expense, label: cur.label);
       } else {
-        byDay[day] = (income: cur.income, expense: cur.expense + e.amount);
+        byDate[key] = (income: cur.income, expense: cur.expense + e.amount, label: cur.label);
       }
     }
     return [
-      for (var d = 1; d <= days; d++)
-        _TrendPoint(
-          label: '${d.toString().padLeft(2, '0')}일',
-          income: byDay[d]!.income,
-          expense: byDay[d]!.expense,
-        ),
+      for (final v in byDate.values)
+        _TrendPoint(label: v.label, income: v.income, expense: v.expense),
     ];
   }
-  final months = (yearlyAsync.value?.monthlyAmounts ?? const <MonthlyAmount>[])
-      .where((m) => s._periodMonths.contains(m.month))
-      .toList()
-    ..sort((a, b) => a.month.compareTo(b.month));
+
   return [
-    for (final m in months)
+    for (final b in buckets)
       _TrendPoint(
-        label: '${m.month.toString().padLeft(2, '0')}월',
-        income: m.totalIncome,
-        expense: m.totalExpense,
+        label: '${b.year}.${b.month.toString().padLeft(2, '0')}',
+        income: b.totalIncome,
+        expense: b.totalExpense,
       ),
   ];
 }
@@ -1347,19 +1376,17 @@ String _fmtTick(double v) {
 class _TrendBigCard extends StatelessWidget {
   const _TrendBigCard({
     required this.state,
-    required this.yearlyAsync,
+    required this.rangeAsync,
     required this.monthExpAsync,
   });
   final _StatsScreenState state;
-  final AsyncValue<YearlySummary> yearlyAsync;
+  final AsyncValue<RangeSummary> rangeAsync;
   final AsyncValue<List<Expense>> monthExpAsync;
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final data = _computeTrendData(state, yearlyAsync, monthExpAsync);
-    final loading = state._period == _PeriodKey.m1
-        ? monthExpAsync.isLoading
-        : yearlyAsync.isLoading;
+    final data = _computeTrendData(state, rangeAsync, monthExpAsync);
+    final loading = rangeAsync.isLoading || monthExpAsync.isLoading;
 
     return _Card(
       child: Column(
@@ -1522,26 +1549,24 @@ class _LegendChip extends StatelessWidget {
 class _TrendStatsGrid extends StatelessWidget {
   const _TrendStatsGrid({
     required this.state,
-    required this.yearlyAsync,
+    required this.rangeAsync,
     required this.masked,
   });
   final _StatsScreenState state;
-  final AsyncValue<YearlySummary> yearlyAsync;
+  final AsyncValue<RangeSummary> rangeAsync;
   final bool masked;
 
   @override
   Widget build(BuildContext context) {
     final s = state;
-    final months = (yearlyAsync.value?.monthlyAmounts ?? const <MonthlyAmount>[])
-        .where((m) => s._periodMonths.contains(m.month))
-        .toList();
-    final sumIn = months.fold<int>(0, (sum, m) => sum + m.totalIncome);
-    final sumOut = months.fold<int>(0, (sum, m) => sum + m.totalExpense);
-    final n = months.isEmpty ? 1 : months.length;
+    final buckets = rangeAsync.value?.monthlyBuckets ?? const <RangeMonthlyBucket>[];
+    final sumIn = buckets.fold<int>(0, (sum, b) => sum + b.totalIncome);
+    final sumOut = buckets.fold<int>(0, (sum, b) => sum + b.totalExpense);
+    final n = buckets.isEmpty ? 1 : buckets.length;
     final avgIn = sumIn ~/ n;
     final avgOut = sumOut ~/ n;
     final avgSave = avgIn - avgOut;
-    final isSingle = s._period == _PeriodKey.m1;
+    final isSingle = s._segMode == _SegMode.month;
 
     final saveRate = avgIn > 0
         ? ((avgSave / avgIn) * 100).toStringAsFixed(1) + '%'
@@ -1603,23 +1628,23 @@ class _StatCard extends StatelessWidget {
 class _SavingsBarsCard extends StatelessWidget {
   const _SavingsBarsCard({
     required this.state,
-    required this.yearlyAsync,
+    required this.rangeAsync,
     required this.monthExpAsync,
   });
   final _StatsScreenState state;
-  final AsyncValue<YearlySummary> yearlyAsync;
+  final AsyncValue<RangeSummary> rangeAsync;
   final AsyncValue<List<Expense>> monthExpAsync;
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final data = _computeTrendData(state, yearlyAsync, monthExpAsync);
-    final isMonth = state._period == _PeriodKey.m1;
+    final data = _computeTrendData(state, rangeAsync, monthExpAsync);
+    final useDaily = state.useDailyTrend(rangeAsync.value?.monthlyBuckets.length ?? 0);
     return _Card(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _CardHeader(
-            title: _CardTitle(isMonth ? '일별 순저축' : '월별 순저축'),
+            title: _CardTitle(useDaily ? '일별 순저축' : '월별 순저축'),
             trailing: Text('수입 − 지출',
                 style: PTypo.caption.copyWith(color: t.fgTertiary)),
           ),
@@ -1710,17 +1735,13 @@ class _SavingsBarsCard extends StatelessWidget {
 class _CompareSummaryGrid extends StatelessWidget {
   const _CompareSummaryGrid({
     required this.state,
-    required this.monthlyAsync,
-    required this.prevMonthlyAsync,
-    required this.yearlyAsync,
-    required this.prevYearlyAsync,
+    required this.rangeAsync,
+    required this.prevRangeAsync,
     required this.masked,
   });
   final _StatsScreenState state;
-  final AsyncValue<MonthlySummary> monthlyAsync;
-  final AsyncValue<MonthlySummary> prevMonthlyAsync;
-  final AsyncValue<YearlySummary> yearlyAsync;
-  final AsyncValue<YearlySummary> prevYearlyAsync;
+  final AsyncValue<RangeSummary> rangeAsync;
+  final AsyncValue<RangeSummary> prevRangeAsync;
   final bool masked;
 
   @override
@@ -1728,34 +1749,8 @@ class _CompareSummaryGrid extends StatelessWidget {
     final t = context.tokens;
     final s = state;
 
-    int periodTotal() {
-      if (s._period == _PeriodKey.m1) {
-        return monthlyAsync.value?.totalExpense ?? 0;
-      }
-      var sum = 0;
-      for (final m in yearlyAsync.value?.monthlyAmounts ?? const <MonthlyAmount>[]) {
-        if (s._periodMonths.contains(m.month)) sum += m.totalExpense;
-      }
-      return sum;
-    }
-
-    int prevTotal() {
-      final p = s._prevPeriod;
-      if (s._period == _PeriodKey.m1) {
-        return prevMonthlyAsync.value?.totalExpense ?? 0;
-      }
-      final pSrc = p.year == s._month.year
-          ? yearlyAsync.value
-          : prevYearlyAsync.value;
-      var sum = 0;
-      for (final m in pSrc?.monthlyAmounts ?? const <MonthlyAmount>[]) {
-        if (p.months.contains(m.month)) sum += m.totalExpense;
-      }
-      return sum;
-    }
-
-    final now = periodTotal();
-    final prev = prevTotal();
+    final now = rangeAsync.value?.totalExpense ?? 0;
+    final prev = prevRangeAsync.value?.totalExpense ?? 0;
     final diff = now - prev;
     final up = diff >= 0;
     final pct = prev > 0
@@ -1843,18 +1838,14 @@ class _CompareCard extends StatelessWidget {
 class _CompareCategoryCard extends StatelessWidget {
   const _CompareCategoryCard({
     required this.state,
-    required this.monthlyAsync,
-    required this.prevMonthlyAsync,
-    required this.yearlyAsync,
-    required this.prevYearlyAsync,
+    required this.rangeAsync,
+    required this.prevRangeAsync,
     required this.categoriesAsync,
     required this.masked,
   });
   final _StatsScreenState state;
-  final AsyncValue<MonthlySummary> monthlyAsync;
-  final AsyncValue<MonthlySummary> prevMonthlyAsync;
-  final AsyncValue<YearlySummary> yearlyAsync;
-  final AsyncValue<YearlySummary> prevYearlyAsync;
+  final AsyncValue<RangeSummary> rangeAsync;
+  final AsyncValue<RangeSummary> prevRangeAsync;
   final AsyncValue<List<dynamic>> categoriesAsync;
   final bool masked;
 
@@ -1908,23 +1899,8 @@ class _CompareCategoryCard extends StatelessWidget {
       }
     }
 
-    if (s._period == _PeriodKey.m1) {
-      addBd('now', monthlyAsync.value?.categoryBreakdown ?? const <CategoryBreakdown>[]);
-      addBd('prev', prevMonthlyAsync.value?.categoryBreakdown ?? const <CategoryBreakdown>[]);
-    } else {
-      for (final m in yearlyAsync.value?.monthlyAmounts ?? const <MonthlyAmount>[]) {
-        if (s._periodMonths.contains(m.month)) {
-          addBd('now', m.categoryBreakdown);
-        }
-      }
-      final p = s._prevPeriod;
-      final src = p.year == s._month.year
-          ? yearlyAsync.value
-          : prevYearlyAsync.value;
-      for (final m in src?.monthlyAmounts ?? const <MonthlyAmount>[]) {
-        if (p.months.contains(m.month)) addBd('prev', m.categoryBreakdown);
-      }
-    }
+    addBd('now', rangeAsync.value?.categoryBreakdown ?? const <CategoryBreakdown>[]);
+    addBd('prev', prevRangeAsync.value?.categoryBreakdown ?? const <CategoryBreakdown>[]);
 
     final rows = byId.entries.toList()
       ..sort((a, b) {
@@ -2064,7 +2040,3 @@ class _CompareRow extends StatelessWidget {
   }
 }
 
-// ─── helpers ────────────────────────────────────────────────
-
-String _fmt(DateTime d) =>
-    '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';

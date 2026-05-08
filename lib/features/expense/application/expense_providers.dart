@@ -29,6 +29,15 @@ final monthExpensesProvider =
   return repo.list(startDate: start, endDate: end);
 });
 
+/// 임의 기간 거래 목록 — Stats 화면 추이 차트용.
+typedef RangeKey = ({String startDate, String endDate});
+
+final rangeExpensesProvider =
+    FutureProvider.family<List<Expense>, RangeKey>((ref, key) async {
+  final repo = await ref.watch(expenseRepositoryProvider.future);
+  return repo.list(startDate: key.startDate, endDate: key.endDate);
+});
+
 /// 자산 별 최근 거래 N건 — front `useSearchExpenses({assetId})` 미러.
 /// AssetDetailDialog 등에서 활용.
 typedef AssetExpensesKey = ({int assetId, int limit});

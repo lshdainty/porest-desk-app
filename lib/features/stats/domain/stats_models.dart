@@ -33,18 +33,35 @@ abstract class CategoryBreakdown with _$CategoryBreakdown {
       _$CategoryBreakdownFromJson(json);
 }
 
+/// `/expenses/summary/range?startDate&endDate` 의 응답.
+/// 도넛/하이라이트 + 추이 차트용 monthlyBuckets 포함.
 @freezed
-abstract class MonthlySummary with _$MonthlySummary {
-  const factory MonthlySummary({
+abstract class RangeSummary with _$RangeSummary {
+  const factory RangeSummary({
+    required String startDate,
+    required String endDate,
+    @Default(0) int totalIncome,
+    @Default(0) int totalExpense,
+    @Default(<CategoryBreakdown>[]) List<CategoryBreakdown> categoryBreakdown,
+    @Default(<RangeMonthlyBucket>[]) List<RangeMonthlyBucket> monthlyBuckets,
+  }) = _RangeSummary;
+
+  factory RangeSummary.fromJson(Map<String, dynamic> json) =>
+      _$RangeSummaryFromJson(json);
+}
+
+/// 추이 차트용 월별 버킷 — 0인 달도 포함.
+@freezed
+abstract class RangeMonthlyBucket with _$RangeMonthlyBucket {
+  const factory RangeMonthlyBucket({
     required int year,
     required int month,
     @Default(0) int totalIncome,
     @Default(0) int totalExpense,
-    @Default(<CategoryBreakdown>[]) List<CategoryBreakdown> categoryBreakdown,
-  }) = _MonthlySummary;
+  }) = _RangeMonthlyBucket;
 
-  factory MonthlySummary.fromJson(Map<String, dynamic> json) =>
-      _$MonthlySummaryFromJson(json);
+  factory RangeMonthlyBucket.fromJson(Map<String, dynamic> json) =>
+      _$RangeMonthlyBucketFromJson(json);
 }
 
 @freezed
