@@ -1,3 +1,4 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -5,49 +6,108 @@ import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../../app/theme/colors.dart';
 import '../../../app/theme/radius.dart';
-import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/format/color_parse.dart';
-import '../../../core/format/date.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_card.dart';
 import '../../asset/application/asset_providers.dart';
+import '../../budget/application/budget_providers.dart';
+import '../../budget/domain/budget.dart';
 import '../../expense/application/expense_providers.dart';
 import '../../expense/domain/expense.dart';
+import '../../expense/domain/expense_category.dart';
+import '../../stats/application/stats_providers.dart';
+import '../../stats/domain/stats_models.dart';
 import '../application/dashboard_providers.dart';
 import '../domain/dashboard_summary.dart';
 
+const _categoryPalette = <Color>[
+  Color(0xFFB48A4A), // mossy/orange-ish (cf. CSS oklch palette)
+  Color(0xFFB04F8A),
+  Color(0xFF5C9F6E),
+  Color(0xFF8C6BB4),
+  Color(0xFF5A8FB7),
+  Color(0xFFC75A4F),
+  Color(0xFF4F8A98),
+  Color(0xFF8B7B5A),
+];
+
 /// 홈 / 대시보드 — porest-desk-front HomeMobile 정확 미러.
-class DashboardScreen extends ConsumerWidget {
+class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends ConsumerState<DashboardScreen> {
+  late DateTime _month = DateTime(DateTime.now().year, DateTime.now().month, 1);
+
+  String get _ymdStart =>
+      '${_month.year.toString().padLeft(4, '0')}-${_month.month.toString().padLeft(2, '0')}-01';
+  String get _ymdEnd {
+    final last = DateTime(_month.year, _month.month + 1, 0).day;
+    return '${_month.year.toString().padLeft(4, '0')}-${_month.month.toString().padLeft(2, '0')}-${last.toString().padLeft(2, '0')}';
+  }
+
+  ({String start, String end}) _prevMonthRange() {
+    final p = DateTime(_month.year, _month.month - 1, 1);
+    final lastDay = DateTime(p.year, p.month + 1, 0).day;
+    return (
+      start:
+          '${p.year.toString().padLeft(4, '0')}-${p.month.toString().padLeft(2, '0')}-01',
+      end:
+          '${p.year.toString().padLeft(4, '0')}-${p.month.toString().padLeft(2, '0')}-${lastDay.toString().padLeft(2, '0')}',
+    );
+  }
+
+  Future<void> _pickMonth() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _month,
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2030),
+      initialDatePickerMode: DatePickerMode.year,
+      helpText: '월 선택',
+    );
+    if (picked != null) {
+      setState(() => _month = DateTime(picked.year, picked.month, 1));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final t = context.tokens;
     final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
 
-    final now = DateTime.now();
-    final monthKey = (year: now.year, month: now.month);
-    final summaryAsync = ref.watch(
-        assetSummaryProvider((year: now.year, month: now.month)));
+    final monthKey = (year: _month.year, month: _month.month);
+    final summaryAsync =
+        ref.watch(assetSummaryProvider((year: _month.year, month: _month.month)));
     final expensesAsync = ref.watch(monthExpensesProvider(monthKey));
     final categoriesAsync = ref.watch(categoriesProvider);
     final dashboardAsync = ref.watch(dashboardSummaryProvider);
+    final summaryRangeAsync = ref.watch(rangeSummaryProvider(
+        (startDate: _ymdStart, endDate: _ymdEnd)));
+    final prevRange = _prevMonthRange();
+    final prevSummaryAsync = ref.watch(rangeSummaryProvider(
+        (startDate: prevRange.start, endDate: prevRange.end)));
+    final budgetsAsync = ref.watch(monthBudgetsProvider(monthKey));
 
     return RefreshIndicator(
       color: t.bgBrand,
       onRefresh: () async {
         ref.invalidate(
-            assetSummaryProvider((year: now.year, month: now.month)));
+            assetSummaryProvider((year: _month.year, month: _month.month)));
         ref.invalidate(monthExpensesProvider(monthKey));
         ref.invalidate(dashboardSummaryProvider);
+        ref.invalidate(rangeSummaryProvider(
+            (startDate: _ymdStart, endDate: _ymdEnd)));
+        ref.invalidate(monthBudgetsProvider(monthKey));
       },
       child: ListView(
-        // .m-scroll : padding: 0 → child 가 직접 padding
-        // HomeMobile.tsx: padding: '4px 20px 24px', gap: 16
         padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
         children: [
           _BalanceHero(
@@ -56,14 +116,30 @@ class DashboardScreen extends ConsumerWidget {
           const _QuickActions(),
           const SizedBox(height: 16),
           _MonthExpenseCard(
-            month: now.month,
+            month: _month,
             expensesAsync: expensesAsync,
+            currentSummary: summaryRangeAsync.value,
+            prevSummary: prevSummaryAsync.value,
+            masked: settings.hideAmounts,
+            onPickMonth: _pickMonth,
+          ),
+          const SizedBox(height: 16),
+          _CategoryDonutCard(
+            summary: summaryRangeAsync.value,
+            loading: summaryRangeAsync.isLoading,
+            masked: settings.hideAmounts,
+          ),
+          const SizedBox(height: 16),
+          _BudgetCard(
+            budgetsAsync: budgetsAsync,
+            categoriesAsync: categoriesAsync,
+            summary: summaryRangeAsync.value,
             masked: settings.hideAmounts,
           ),
           const SizedBox(height: 16),
           _UpcomingCard(async: dashboardAsync),
           const SizedBox(height: 16),
-          _RecentTxCard(
+          _TodaySpendCard(
             expensesAsync: expensesAsync,
             categoriesAsync: categoriesAsync,
             masked: settings.hideAmounts,
@@ -232,18 +308,16 @@ class _BalanceHero extends StatelessWidget {
         Container(
           padding: const EdgeInsets.fromLTRB(24, 24, 24, 20),
           decoration: BoxDecoration(
-            // .balance-hero CSS: linear-gradient(135deg, mossy-700, mossy-900)
             gradient: const LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [PorestPalette.mossy700, PorestPalette.mossy900],
             ),
-            borderRadius: PRadius.brXl2, // 20px
+            borderRadius: PRadius.brXl2,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // __eyebrow: 12px / 500 / opacity 0.72
               Row(
                 children: [
                   Icon(LucideIcons.wallet,
@@ -259,7 +333,6 @@ class _BalanceHero extends StatelessWidget {
                     ),
                   ),
                   const Spacer(),
-                  // 우측 작은 eye (현재는 정적, 본인 hide-amounts 와 동기화)
                   Container(
                     width: 26,
                     height: 26,
@@ -278,7 +351,6 @@ class _BalanceHero extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 6),
-              // __amount: 34px / 800 / -0.03em / line-height 1.1, baseline align with unit (18px)
               Row(
                 crossAxisAlignment: CrossAxisAlignment.baseline,
                 textBaseline: TextBaseline.alphabetic,
@@ -289,7 +361,7 @@ class _BalanceHero extends StatelessWidget {
                       color: t.fgOnBrand,
                       fontSize: PFontSize.displayMd,
                       fontWeight: PFontWeight.heavy,
-                      letterSpacing: -1.02, // -0.03em × 34
+                      letterSpacing: -1.02,
                       height: PLineHeight.tight,
                       fontFeatures: const [FontFeature.tabularFigures()],
                     ),
@@ -306,7 +378,6 @@ class _BalanceHero extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 8),
-              // __sub: 12.5px / opacity 0.78
               Row(
                 children: [
                   Text(
@@ -337,7 +408,6 @@ class _BalanceHero extends StatelessWidget {
                   ),
                 ],
               ),
-              // __split: 2-col grid mt 20px pt 18px border-top white/0.14
               const SizedBox(height: 20),
               Container(
                 padding: const EdgeInsets.only(top: 18),
@@ -376,7 +446,6 @@ class _BalanceHero extends StatelessWidget {
             ],
           ),
         ),
-        // ::after radial spot upper-right
         Positioned(
           right: -40,
           top: -80,
@@ -413,7 +482,6 @@ class _HeroSplitCol extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // .l: 11.5px opacity 0.7
         Text(
           label,
           style: TextStyle(
@@ -422,7 +490,6 @@ class _HeroSplitCol extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 4),
-        // .v: 16px / 700 / -0.015em / tabular-nums
         Text(
           value,
           style: TextStyle(
@@ -483,14 +550,12 @@ class _QuickAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // padding: 14px 8px, gap 6, items center
     return PCard(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
-      borderRadius: PRadius.brXl, // 14px in front but xl=16 is closest
+      borderRadius: PRadius.brXl,
       onTap: onTap,
       child: Column(
         children: [
-          // 32×32 round-rect, bg-brand-subtle, fg-brand-strong, radius 10
           Container(
             width: 32,
             height: 32,
@@ -515,40 +580,59 @@ class _QuickAction extends StatelessWidget {
   }
 }
 
-// ─── 5월 가계부 카드 ──────────────────────────────────────
+// ─── 가계부 카드 ──────────────────────────────────────
 
 class _MonthExpenseCard extends StatelessWidget {
   const _MonthExpenseCard({
     required this.month,
     required this.expensesAsync,
+    required this.currentSummary,
+    required this.prevSummary,
     required this.masked,
+    required this.onPickMonth,
   });
-  final int month;
+  final DateTime month;
   final AsyncValue<List<Expense>> expensesAsync;
+  final RangeSummary? currentSummary;
+  final RangeSummary? prevSummary;
   final bool masked;
+  final VoidCallback onPickMonth;
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
     final list = expensesAsync.value ?? const <Expense>[];
-    final income = list
-        .where((e) => e.expenseType == 'INCOME')
-        .fold<int>(0, (s, e) => s + e.amount);
-    final expense = list
-        .where((e) => e.expenseType == 'EXPENSE')
-        .fold<int>(0, (s, e) => s + e.amount);
+    final income = currentSummary?.totalIncome ??
+        list
+            .where((e) => e.expenseType == 'INCOME')
+            .fold<int>(0, (s, e) => s + e.amount);
+    final expense = currentSummary?.totalExpense ??
+        list
+            .where((e) => e.expenseType == 'EXPENSE')
+            .fold<int>(0, (s, e) => s + e.amount);
+    final prevExpense = prevSummary?.totalExpense ?? 0;
     final hasError = expensesAsync.hasError && !expensesAsync.hasValue;
+
+    final today = DateTime.now();
+    final isCurMonth =
+        today.year == month.year && today.month == month.month;
+    final daysInMonth = DateTime(month.year, month.month + 1, 0).day;
+    final dayOfMonth = isCurMonth ? today.day : daysInMonth;
+    final dailyAvg = expense ~/ (dayOfMonth < 1 ? 1 : dayOfMonth);
+    final savingsPct = prevExpense > 0
+        ? ((prevExpense - expense) / prevExpense) * 100
+        : 0.0;
+    final saving = savingsPct > 0;
 
     return PCard(
       padding: const EdgeInsets.all(18),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 헤더: 15px / 700 / -0.015em + 우측 trending icon
           Row(
             children: [
               Text(
-                '$month월 가계부',
+                '${month.month}월 가계부',
                 style: TextStyle(
                   color: t.fgPrimary,
                   fontSize: PFontSize.bodyLg,
@@ -557,15 +641,35 @@ class _MonthExpenseCard extends StatelessWidget {
                 ),
               ),
               const Spacer(),
-              Icon(LucideIcons.trendingUp,
-                  size: 14, color: t.statusSuccessFg),
+              OutlinedButton.icon(
+                onPressed: onPickMonth,
+                icon: Icon(LucideIcons.calendar,
+                    size: 13, color: t.fgSecondary),
+                label: Text(
+                  '${month.year}년 ${month.month}월',
+                  style: TextStyle(
+                    color: t.fgPrimary,
+                    fontSize: PFontSize.caption,
+                    fontWeight: PFontWeight.semi,
+                  ),
+                ),
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide(color: t.borderSubtle),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 10, vertical: 4),
+                  minimumSize: const Size(0, 32),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  shape: RoundedRectangleBorder(borderRadius: PRadius.brMd),
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 14),
           if (hasError)
             Text(
               '이번달 거래를 불러오지 못했습니다',
-              style: TextStyle(color: t.statusDanger, fontSize: PFontSize.bodySm),
+              style: TextStyle(
+                  color: t.statusDanger, fontSize: PFontSize.bodySm),
             )
           else
             Row(
@@ -586,6 +690,46 @@ class _MonthExpenseCard extends StatelessWidget {
                 ),
               ],
             ),
+          const SizedBox(height: 14),
+          Container(
+            padding: const EdgeInsets.only(top: 12),
+            decoration: BoxDecoration(
+              border: Border(
+                  top: BorderSide(color: t.borderSubtle)),
+            ),
+            child: RichText(
+              text: TextSpan(
+                style: PTypo.caption.copyWith(
+                    color: t.fgSecondary, height: 1.5),
+                children: [
+                  const TextSpan(text: '하루 평균 '),
+                  TextSpan(
+                    text: krwMasked(dailyAvg, masked),
+                    style: TextStyle(
+                      color: t.fgPrimary,
+                      fontWeight: PFontWeight.bold,
+                      fontFeatures: const [FontFeature.tabularFigures()],
+                    ),
+                  ),
+                  const TextSpan(text: '원 썼어요.'),
+                  if (prevExpense > 0) ...[
+                    const TextSpan(text: ' 전월 대비 '),
+                    TextSpan(
+                      text: '${savingsPct.abs().toStringAsFixed(0)}%',
+                      style: TextStyle(
+                        color: saving ? t.fgBrandStrong : t.fgExpense,
+                        fontWeight: PFontWeight.bold,
+                      ),
+                    ),
+                    TextSpan(
+                        text: saving
+                            ? ' 절약 중이에요.'
+                            : (savingsPct < 0 ? ' 더 썼어요.' : ' 동일해요.')),
+                  ],
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -622,10 +766,381 @@ class _IncomeExpenseCol extends StatelessWidget {
   }
 }
 
-// ─── 최근 거래 카드 ───────────────────────────────────────
+// ─── 카테고리 도넛 카드 ───────────────────────────────────
 
-class _RecentTxCard extends StatelessWidget {
-  const _RecentTxCard({
+class _CategoryDonutCard extends StatelessWidget {
+  const _CategoryDonutCard({
+    required this.summary,
+    required this.loading,
+    required this.masked,
+  });
+  final RangeSummary? summary;
+  final bool loading;
+  final bool masked;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final segs = ((summary?.categoryBreakdown ?? const <CategoryBreakdown>[])
+            .where((c) =>
+                c.expenseType == 'EXPENSE' && c.parentCategoryRowId == null)
+            .toList()
+          ..sort((a, b) => b.totalAmount.compareTo(a.totalAmount)))
+        .take(4)
+        .toList();
+    final total = segs.fold<int>(0, (s, c) => s + c.totalAmount);
+
+    return PCard(
+      padding: const EdgeInsets.all(18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text('카테고리',
+                  style: TextStyle(
+                    color: t.fgPrimary,
+                    fontSize: PFontSize.bodyLg,
+                    fontWeight: PFontWeight.bold,
+                    letterSpacing: -0.225,
+                  )),
+              const Spacer(),
+              GestureDetector(
+                onTap: () => context.go('/stats'),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('자세히',
+                        style: TextStyle(
+                            color: t.fgTertiary,
+                            fontSize: PFontSize.bodySm)),
+                    const SizedBox(width: 2),
+                    Icon(LucideIcons.chevronRight,
+                        size: 14, color: t.fgTertiary),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          if (segs.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              child: Center(
+                child: Text(
+                    loading ? '불러오는 중…' : '카테고리 데이터가 없어요',
+                    style: TextStyle(
+                        color: t.fgTertiary, fontSize: PFontSize.caption)),
+              ),
+            )
+          else
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                SizedBox(
+                  width: 120,
+                  height: 120,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      PieChart(
+                        PieChartData(
+                          sectionsSpace: 0,
+                          centerSpaceRadius: 38,
+                          startDegreeOffset: -90,
+                          sections: [
+                            for (var i = 0; i < segs.length; i++)
+                              PieChartSectionData(
+                                value: segs[i].totalAmount.toDouble(),
+                                color:
+                                    _categoryPalette[i % _categoryPalette.length],
+                                radius: 18,
+                                showTitle: false,
+                              ),
+                          ],
+                        ),
+                      ),
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text('지출',
+                              style: TextStyle(
+                                  color: t.fgTertiary,
+                                  fontSize: PFontSize.micro)),
+                          const SizedBox(height: 2),
+                          Text(
+                            masked
+                                ? '••••'
+                                : '${(total / 10000).toStringAsFixed(0)}만',
+                            style: TextStyle(
+                                color: t.fgPrimary,
+                                fontSize: PFontSize.body,
+                                fontWeight: PFontWeight.heavy,
+                                fontFeatures: const [
+                                  FontFeature.tabularFigures()
+                                ]),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      for (var i = 0; i < segs.length; i++) ...[
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 8,
+                                height: 8,
+                                decoration: BoxDecoration(
+                                  color:
+                                      _categoryPalette[i % _categoryPalette.length],
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  segs[i].categoryName ?? '-',
+                                  style: TextStyle(
+                                      color: t.fgSecondary,
+                                      fontSize: PFontSize.caption),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              Text(
+                                masked
+                                    ? '••••'
+                                    : '${(segs[i].totalAmount / 10000).toStringAsFixed(0)}만',
+                                style: TextStyle(
+                                  color: t.fgPrimary,
+                                  fontSize: PFontSize.caption,
+                                  fontWeight: PFontWeight.semi,
+                                  fontFeatures: const [
+                                    FontFeature.tabularFigures()
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── 예산 카드 ───────────────────────────────────────────
+
+class _BudgetCard extends StatelessWidget {
+  const _BudgetCard({
+    required this.budgetsAsync,
+    required this.categoriesAsync,
+    required this.summary,
+    required this.masked,
+  });
+  final AsyncValue<List<Budget>> budgetsAsync;
+  final AsyncValue<List<ExpenseCategory>> categoriesAsync;
+  final RangeSummary? summary;
+  final bool masked;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final budgets = budgetsAsync.value ?? const <Budget>[];
+    final categories = categoriesAsync.value ?? const <ExpenseCategory>[];
+
+    final spentByCat = <int, int>{};
+    for (final c in summary?.categoryBreakdown ?? const <CategoryBreakdown>[]) {
+      if (c.expenseType != 'EXPENSE') continue;
+      final cid = c.categoryRowId;
+      if (cid != null) {
+        spentByCat.update(cid, (v) => v + c.totalAmount,
+            ifAbsent: () => c.totalAmount);
+      }
+      final pid = c.parentCategoryRowId;
+      if (pid != null) {
+        spentByCat.update(pid, (v) => v + c.totalAmount,
+            ifAbsent: () => c.totalAmount);
+      }
+    }
+    final totalEx = summary?.totalExpense ?? 0;
+    final items = budgets.take(3).toList();
+
+    return PCard(
+      padding: const EdgeInsets.all(18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text('예산',
+                  style: TextStyle(
+                    color: t.fgPrimary,
+                    fontSize: PFontSize.bodyLg,
+                    fontWeight: PFontWeight.bold,
+                    letterSpacing: -0.225,
+                  )),
+              const Spacer(),
+              GestureDetector(
+                onTap: () => context.go('/budget'),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('전체',
+                        style: TextStyle(
+                            color: t.fgTertiary,
+                            fontSize: PFontSize.bodySm)),
+                    const SizedBox(width: 2),
+                    Icon(LucideIcons.chevronRight,
+                        size: 14, color: t.fgTertiary),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          if (items.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              child: Center(
+                child: Text(
+                    budgetsAsync.isLoading ? '불러오는 중…' : '등록된 예산이 없어요',
+                    style: TextStyle(
+                        color: t.fgTertiary, fontSize: PFontSize.caption)),
+              ),
+            )
+          else
+            for (var i = 0; i < items.length; i++) ...[
+              _BudgetRow(
+                budget: items[i],
+                category: items[i].categoryRowId == null
+                    ? null
+                    : categories.byRowId(items[i].categoryRowId!),
+                spent: items[i].categoryRowId == null
+                    ? totalEx
+                    : (spentByCat[items[i].categoryRowId!] ?? 0),
+                masked: masked,
+                tokens: t,
+              ),
+              if (i < items.length - 1) const SizedBox(height: 14),
+            ],
+        ],
+      ),
+    );
+  }
+}
+
+class _BudgetRow extends StatelessWidget {
+  const _BudgetRow({
+    required this.budget,
+    required this.category,
+    required this.spent,
+    required this.masked,
+    required this.tokens,
+  });
+  final Budget budget;
+  final ExpenseCategory? category;
+  final int spent;
+  final bool masked;
+  final PorestTokens tokens;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = budget.budgetAmount > 0
+        ? (spent / budget.budgetAmount) * 100
+        : 0.0;
+    final over = p > 100;
+    final warn = p > 85 && !over;
+    final stateColor = over
+        ? tokens.fgExpense
+        : warn
+            ? tokens.statusWarning
+            : tokens.fgBrand;
+    final fg = parseColor(category?.color, fallback: tokens.fgBrand);
+    final bg = softBg(fg);
+    final name = category?.categoryName ??
+        budget.categoryName ??
+        (budget.categoryRowId == null ? '전체' : '카테고리');
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              width: 28,
+              height: 28,
+              alignment: Alignment.center,
+              decoration:
+                  BoxDecoration(color: bg, borderRadius: PRadius.brTile),
+              child: Icon(lucideByName(category?.icon),
+                  size: 14, color: fg),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(name,
+                  style: TextStyle(
+                      color: tokens.fgPrimary,
+                      fontSize: PFontSize.bodySm,
+                      fontWeight: PFontWeight.semi),
+                  overflow: TextOverflow.ellipsis),
+            ),
+            const SizedBox(width: 6),
+            RichText(
+              text: TextSpan(
+                style: TextStyle(
+                  fontSize: PFontSize.caption,
+                  fontWeight: PFontWeight.semi,
+                  color: over ? tokens.fgExpense : tokens.fgPrimary,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
+                children: [
+                  TextSpan(text: krwMasked(spent, masked)),
+                  TextSpan(
+                    text: ' / ${krwMasked(budget.budgetAmount, masked)}',
+                    style: TextStyle(
+                      color: tokens.fgTertiary,
+                      fontWeight: PFontWeight.medium,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        ClipRRect(
+          borderRadius: PRadius.brSm,
+          child: LinearProgressIndicator(
+            value: (p / 100).clamp(0, 1).toDouble(),
+            minHeight: 6,
+            backgroundColor: tokens.bgTrack,
+            color: stateColor,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ─── 오늘 쓴 돈 카드 ───────────────────────────────────────
+
+class _TodaySpendCard extends StatelessWidget {
+  const _TodaySpendCard({
     required this.expensesAsync,
     required this.categoriesAsync,
     required this.masked,
@@ -645,27 +1160,27 @@ class _RecentTxCard extends StatelessWidget {
         '${today.year.toString().padLeft(4, '0')}-'
         '${today.month.toString().padLeft(2, '0')}-'
         '${today.day.toString().padLeft(2, '0')}';
-    final sorted = [...list]
+    // 오늘 거래만
+    final todayTx = [...list]
+      ..removeWhere((e) =>
+          e.expenseDate == null ||
+          e.expenseDate!.substring(0, 10) != todayStr)
       ..sort((a, b) =>
           (b.expenseDate ?? '').compareTo(a.expenseDate ?? ''));
-    // 오늘 포함 이전 거래만 — 미래 거래(테스트 데이터 등) 제외
-    final recent = sorted
-        .where((e) =>
-            (e.expenseDate ?? '').isEmpty ||
-            e.expenseDate!.substring(0, 10).compareTo(todayStr) <= 0)
-        .take(4)
-        .toList();
+    final todayTotal = todayTx
+        .where((e) => e.expenseType == 'EXPENSE')
+        .fold<int>(0, (s, e) => s + e.amount);
 
     return PCard(
       padding: const EdgeInsets.all(18),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // CardHeader (.all 우측 링크)
           Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
-                '최근 거래',
+                '오늘 쓴 돈',
                 style: TextStyle(
                   color: t.fgPrimary,
                   fontSize: PFontSize.bodyLg,
@@ -673,39 +1188,47 @@ class _RecentTxCard extends StatelessWidget {
                   letterSpacing: -0.225,
                 ),
               ),
+              if (todayTotal > 0) ...[
+                const SizedBox(width: 8),
+                Text(
+                  '-${krwMasked(todayTotal, masked)}원',
+                  style: TextStyle(
+                    color: t.statusDangerFg,
+                    fontSize: PFontSize.caption,
+                    fontWeight: PFontWeight.bold,
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
+                ),
+              ],
               const Spacer(),
               GestureDetector(
                 onTap: () => context.go('/expense'),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      '전체',
-                      style: TextStyle(
-                        color: t.fgTertiary,
-                        fontSize: PFontSize.bodySm,
-                      ),
-                    ),
-                  ],
+                child: Text(
+                  '전체',
+                  style: TextStyle(
+                    color: t.fgTertiary,
+                    fontSize: PFontSize.bodySm,
+                  ),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 6),
-          if (recent.isEmpty)
+          if (todayTx.isEmpty)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 12),
               child: Center(
                 child: Text(
                     expensesAsync.hasError
                         ? '거래를 불러오지 못했습니다'
-                        : '거래가 없어요',
-                    style:
-                        TextStyle(color: t.fgTertiary, fontSize: PFontSize.caption)),
+                        : '오늘은 아직 쓴 돈이 없어요',
+                    style: TextStyle(
+                        color: t.fgTertiary,
+                        fontSize: PFontSize.caption)),
               ),
             )
           else
-            for (final e in recent)
+            for (final e in todayTx)
               _ExpenseRow(
                 expense: e,
                 category: _findCategory(categories, e.categoryRowId),
@@ -746,8 +1269,9 @@ class _ExpenseRow extends StatelessWidget {
         fallback: tokens.fgBrand);
     final bg = softBg(fg);
     final isExpense = expense.expenseType == 'EXPENSE';
-    final dayLabel = expense.expenseDate != null
-        ? formatDay(parseIsoDate(expense.expenseDate!.substring(0, 10)))
+    // 오늘 쓴 돈 카드는 모두 오늘 거래라 날짜 대신 시각만 표시
+    final time = expense.expenseDate != null && expense.expenseDate!.length >= 16
+        ? expense.expenseDate!.substring(11, 16)
         : null;
 
     return InkWell(
@@ -763,12 +1287,11 @@ class _ExpenseRow extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 10),
         child: Row(
           children: [
-            // 카테고리 아이콘 40×40 round-square (front CategoryChip md 미러)
             Container(
               width: 40,
               height: 40,
-              decoration: BoxDecoration(
-                  color: bg, borderRadius: PRadius.brLg),
+              decoration:
+                  BoxDecoration(color: bg, borderRadius: PRadius.brLg),
               alignment: Alignment.center,
               child: Icon(
                 lucideByName(
@@ -801,8 +1324,7 @@ class _ExpenseRow extends StatelessWidget {
                     [
                       expense.categoryName,
                       expense.assetName,
-                      if (dayLabel != null)
-                        '${dayLabel.md} (${dayLabel.dow})',
+                      ?time,
                     ].whereType<String>().where((s) => s.isNotEmpty).join(' · '),
                     style: PTypo.caption.copyWith(color: tokens.fgTertiary),
                     maxLines: 1,
