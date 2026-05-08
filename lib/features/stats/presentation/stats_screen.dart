@@ -1400,7 +1400,7 @@ List<TextSpan> _tooltipRow({
       style: PTypo.caption.copyWith(color: t.fgSecondary),
     ),
     TextSpan(
-      text: '${amount}원',
+      text: amount, // caller 가 padLeft 등으로 정렬 처리한 full string
       style: PTypo.bodySm.copyWith(
         color: amountColor ?? t.fgPrimary,
         fontWeight: PFontWeight.bold,
@@ -1471,6 +1471,12 @@ class _TrendBigCard extends StatelessWidget {
                         if (i < 0 || i >= data.length) return [];
                         final p = data[i];
                         // 첫 spot 에 합쳐서 한 번만 렌더, 나머지는 null 반환
+                        // monospace 폰트 + 공백 padLeft 로 amount 우측 정렬 흉내
+                        final incomeStr = '${krw(p.income)}원';
+                        final expenseStr = '${krw(p.expense)}원';
+                        final maxLen = incomeStr.length > expenseStr.length
+                            ? incomeStr.length
+                            : expenseStr.length;
                         return List.generate(touched.length, (idx) {
                           if (idx != 0) return null;
                           return LineTooltipItem(
@@ -1490,7 +1496,7 @@ class _TrendBigCard extends StatelessWidget {
                               ..._tooltipRow(
                                 color: t.fgBrand,
                                 label: '수입',
-                                amount: krw(p.income),
+                                amount: incomeStr.padLeft(maxLen),
                                 t: t,
                               ),
                               const TextSpan(text: '\n'),
@@ -1498,7 +1504,7 @@ class _TrendBigCard extends StatelessWidget {
                               ..._tooltipRow(
                                 color: t.statusDangerFg,
                                 label: '지출',
-                                amount: krw(p.expense),
+                                amount: expenseStr.padLeft(maxLen),
                                 t: t,
                               ),
                             ],
@@ -1806,7 +1812,7 @@ class _SavingsBarsCard extends StatelessWidget {
                             ..._tooltipRow(
                               color: v >= 0 ? t.bgBrand : t.statusDangerFg,
                               label: '순저축',
-                              amount: '$sign${krw(v.abs())}',
+                              amount: '$sign${krw(v.abs())}원',
                               amountColor:
                                   v >= 0 ? t.fgIncome : t.statusDangerFg,
                               t: t,
