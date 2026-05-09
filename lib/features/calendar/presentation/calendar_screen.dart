@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -112,7 +113,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                 size: 18, color: t.fgSecondary),
           ),
           daysOfWeekStyle: DaysOfWeekStyle(
-            weekendStyle: PTypo.caption.copyWith(color: t.statusDanger),
+            weekendStyle: PTypo.caption.copyWith(color: t.fgSecondary),
             weekdayStyle: PTypo.caption.copyWith(color: t.fgSecondary),
           ),
           calendarStyle: const CalendarStyle(
@@ -121,6 +122,22 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
             cellPadding: EdgeInsets.zero,
           ),
           calendarBuilders: CalendarBuilders<CalendarEvent>(
+            dowBuilder: (ctx, day) {
+              Color color;
+              if (day.weekday == DateTime.sunday) {
+                color = t.statusDanger;
+              } else if (day.weekday == DateTime.saturday) {
+                color = t.statusInfo;
+              } else {
+                color = t.fgSecondary;
+              }
+              return Center(
+                child: Text(
+                  DateFormat.E('ko_KR').format(day),
+                  style: PTypo.caption.copyWith(color: color),
+                ),
+              );
+            },
             defaultBuilder: (ctx, day, _) => _DayCell(
                 day: day,
                 events: _eventsOnDay(events, day),
