@@ -278,25 +278,24 @@ class _DayCell extends StatelessWidget {
       ),
     );
 
-    const maxLabels = 2;
+    const maxLabels = 1;
     final visible = events.take(maxLabels).toList();
     final overflow = events.length - visible.length;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(
-          PSpace.x4, PSpace.x4, PSpace.x4, PSpace.x4),
+      padding: const EdgeInsets.all(PSpace.x4),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Center(child: dayNumber),
           const SizedBox(height: PSpace.x4),
-          for (final ev in visible) ...[
+          for (final ev in visible)
             _CellEventLabel(event: ev, dimmed: isOutside, tokens: t),
-            const SizedBox(height: PSpace.x4),
-          ],
           if (overflow > 0)
             Padding(
-              padding: const EdgeInsets.only(left: PSpace.x4),
+              padding: const EdgeInsets.only(
+                  left: PSpace.x4, top: PSpace.x4),
               child: Text('+$overflow',
                   style: PTypo.micro.copyWith(color: t.fgTertiary)),
             ),
