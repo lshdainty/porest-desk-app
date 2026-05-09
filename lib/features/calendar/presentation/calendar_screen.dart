@@ -110,6 +110,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                 onFormatChanged: (f) => setState(() => _fmt = f),
                 eventLoader: (d) => _eventsOnDay(events, d),
                 locale: 'ko_KR',
+                rowHeight: PSpace.x80,
                 headerStyle: HeaderStyle(
                   formatButtonVisible: false,
                   titleCentered: true,
@@ -126,33 +127,25 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                   weekdayStyle: PTypo.caption
                       .copyWith(color: t.fgSecondary),
                 ),
-                calendarStyle: CalendarStyle(
-                  outsideDaysVisible: false,
-                  defaultTextStyle:
-                      PTypo.bodySm.copyWith(color: t.fgPrimary),
-                  weekendTextStyle:
-                      PTypo.bodySm.copyWith(color: t.statusDanger),
-                  todayDecoration: BoxDecoration(
-                    color: t.bgBrandSubtle,
-                    shape: BoxShape.circle,
-                  ),
-                  todayTextStyle: PTypo.bodySm.copyWith(
-                      color: t.fgBrandStrong,
-                      fontWeight: PFontWeight.bold),
-                  selectedDecoration: BoxDecoration(
-                    color: t.bgBrand,
-                    shape: BoxShape.circle,
-                  ),
-                  selectedTextStyle: PTypo.bodySm.copyWith(
-                      color: t.fgOnBrand, fontWeight: PFontWeight.bold),
-                  markerDecoration: BoxDecoration(
-                    color: t.fgBrand,
-                    shape: BoxShape.circle,
-                  ),
-                  markersMaxCount: 3,
-                  markerSize: 4,
-                  markerMargin:
-                      const EdgeInsets.symmetric(horizontal: 0.5),
+                calendarStyle: const CalendarStyle(
+                  outsideDaysVisible: true,
+                  cellMargin: EdgeInsets.zero,
+                  cellPadding: EdgeInsets.zero,
+                ),
+                calendarBuilders: CalendarBuilders<CalendarEvent>(
+                  defaultBuilder: (ctx, day, _) =>
+                      _DayCell(day: day, events: _eventsOnDay(events, day),
+                          selected: _selected, isOutside: false, tokens: t),
+                  todayBuilder: (ctx, day, _) =>
+                      _DayCell(day: day, events: _eventsOnDay(events, day),
+                          selected: _selected, isOutside: false, tokens: t),
+                  selectedBuilder: (ctx, day, _) =>
+                      _DayCell(day: day, events: _eventsOnDay(events, day),
+                          selected: _selected, isOutside: false, tokens: t),
+                  outsideBuilder: (ctx, day, _) =>
+                      _DayCell(day: day, events: _eventsOnDay(events, day),
+                          selected: _selected, isOutside: true, tokens: t),
+                  markerBuilder: (_, _, _) => const SizedBox.shrink(),
                 ),
               ),
             ),
@@ -222,6 +215,132 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       return !(ee.isBefore(dayStart) || s.isAfter(dayEnd));
     }).toList()
       ..sort((a, b) => a.start.compareTo(b.start));
+  }
+}
+
+class _DayCell extends StatelessWidget {
+  const _DayCell({
+    required this.day,
+    required this.events,
+    required this.selected,
+    required this.isOutside,
+    required this.tokens,
+  });
+  final DateTime day;
+  final List<CalendarEvent> events;
+  final DateTime selected;
+  final bool isOutside;
+  final PorestTokens tokens;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = tokens;
+    final today = DateTime.now();
+    final isToday = today.year == day.year &&
+        today.month == day.month &&
+        today.day == day.day;
+    final isSelected = selected.year == day.year &&
+        selected.month == day.month &&
+        selected.day == day.day;
+
+    Color dayColor;
+    if (isOutside) {
+      dayColor = t.fgTertiary.withValues(alpha: 0.4);
+    } else if (isSelected) {
+      dayColor = t.fgOnBrand;
+    } else if (isToday) {
+      dayColor = t.fgBrandStrong;
+    } else if (day.weekday == DateTime.sunday) {
+      dayColor = t.statusDanger;
+    } else if (day.weekday == DateTime.saturday) {
+      dayColor = t.statusInfo;
+    } else {
+      dayColor = t.fgPrimary;
+    }
+
+    final dayNumber = Container(
+      width: PSpace.x24,
+      height: PSpace.x24,
+      alignment: Alignment.center,
+      decoration: isSelected
+          ? BoxDecoration(color: t.bgBrand, shape: BoxShape.circle)
+          : isToday
+              ? BoxDecoration(color: t.bgBrandSubtle, shape: BoxShape.circle)
+              : null,
+      child: Text(
+        '${day.day}',
+        style: PTypo.bodySm.copyWith(
+          color: dayColor,
+          fontWeight: (isSelected || isToday)
+              ? PFontWeight.bold
+              : PFontWeight.medium,
+        ),
+      ),
+    );
+
+    const maxLabels = 2;
+    final visible = events.take(maxLabels).toList();
+    final overflow = events.length - visible.length;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+          PSpace.x4, PSpace.x4, PSpace.x4, PSpace.x4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Center(child: dayNumber),
+          const SizedBox(height: PSpace.x4),
+          for (final ev in visible) ...[
+            _CellEventLabel(event: ev, dimmed: isOutside, tokens: t),
+            const SizedBox(height: PSpace.x4),
+          ],
+          if (overflow > 0)
+            Padding(
+              padding: const EdgeInsets.only(left: PSpace.x4),
+              child: Text('+$overflow',
+                  style: PTypo.micro.copyWith(color: t.fgTertiary)),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CellEventLabel extends StatelessWidget {
+  const _CellEventLabel({
+    required this.event,
+    required this.dimmed,
+    required this.tokens,
+  });
+  final CalendarEvent event;
+  final bool dimmed;
+  final PorestTokens tokens;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = parseColor(event.labelColor ?? event.color,
+        fallback: tokens.fgBrand);
+    final bgAlpha = dimmed ? 0.08 : 0.15;
+    final borderAlpha = dimmed ? 0.18 : 0.35;
+    final textAlpha = dimmed ? 0.55 : 1.0;
+    return Container(
+      padding: const EdgeInsets.symmetric(
+          horizontal: PSpace.x4, vertical: PSpace.x0),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: bgAlpha),
+        border: Border.all(color: color.withValues(alpha: borderAlpha)),
+        borderRadius: PRadius.brXs,
+      ),
+      child: Text(
+        event.title,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: PTypo.micro.copyWith(
+          color: color.withValues(alpha: textAlpha),
+          fontWeight: PFontWeight.semi,
+        ),
+      ),
+    );
   }
 }
 
