@@ -13,6 +13,7 @@ Future<T?> showPModalSheet<T>(
   required String title,
   required Widget body,
   bool barrierDismissible = true,
+  List<Widget> extraTrailingActions = const [],
 }) {
   return WoltModalSheet.show<T>(
     context: context,
@@ -23,9 +24,15 @@ Future<T?> showPModalSheet<T>(
         isTopBarLayerAlwaysVisible: true,
         backgroundColor:
             Theme.of(modalCtx).extension<PorestTokens>()?.bgSurface,
-        trailingNavBarWidget: IconButton(
-          icon: const Icon(LucideIcons.x),
-          onPressed: Navigator.of(modalCtx).pop,
+        trailingNavBarWidget: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ...extraTrailingActions,
+            IconButton(
+              icon: const Icon(LucideIcons.x),
+              onPressed: Navigator.of(modalCtx).pop,
+            ),
+          ],
         ),
         child: body,
       ),

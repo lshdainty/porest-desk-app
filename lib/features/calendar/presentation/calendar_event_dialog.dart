@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
 import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
@@ -9,6 +8,7 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/format/color_parse.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../shared/widgets/p_modal.dart';
 import '../application/calendar_providers.dart';
 import '../domain/calendar_event.dart';
 import '../domain/user_calendar.dart';
@@ -18,36 +18,21 @@ void showCalendarEventDialog(
   CalendarEvent? edit,
   DateTime? defaultDate,
 }) {
-  WoltModalSheet.show<void>(
-    context: context,
-    pageListBuilder: (modalCtx) => [
-      WoltModalSheetPage(
-        topBarTitle: Text(edit == null ? '일정 추가' : '일정 수정'),
-        isTopBarLayerAlwaysVisible: true,
-        backgroundColor:
-            Theme.of(modalCtx).extension<PorestTokens>()?.bgSurface,
-        trailingNavBarWidget: edit == null
-            ? IconButton(
-                icon: const Icon(LucideIcons.x),
-                onPressed: Navigator.of(modalCtx).pop,
-              )
-            : Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    icon: const Icon(LucideIcons.trash2),
-                    color: modalCtx.tokens.statusDanger,
-                    onPressed: () => _confirmDelete(modalCtx, edit),
-                  ),
-                  IconButton(
-                    icon: const Icon(LucideIcons.x),
-                    onPressed: Navigator.of(modalCtx).pop,
-                  ),
-                ],
+  showPModalSheet<void>(
+    context,
+    title: edit == null ? '일정 추가' : '일정 수정',
+    body: _Body(edit: edit, defaultDate: defaultDate),
+    extraTrailingActions: edit == null
+        ? const []
+        : [
+            Builder(
+              builder: (modalCtx) => IconButton(
+                icon: const Icon(LucideIcons.trash2),
+                color: modalCtx.tokens.statusDanger,
+                onPressed: () => _confirmDelete(modalCtx, edit),
               ),
-        child: _Body(edit: edit, defaultDate: defaultDate),
-      ),
-    ],
+            ),
+          ],
   );
 }
 
@@ -92,25 +77,14 @@ String _reminderLabel(int min) {
 
 Future<void> _confirmDelete(BuildContext ctx, CalendarEvent edit) async {
   final container = ProviderScope.containerOf(ctx, listen: false);
-  final ok = await showDialog<bool>(
-    context: ctx,
-    builder: (dCtx) => AlertDialog(
-      title: const Text('일정 삭제'),
-      content: Text('"${edit.title}" 일정을 삭제할까요?'),
-      actions: [
-        TextButton(
-            onPressed: () => Navigator.pop(dCtx, false),
-            child: const Text('취소')),
-        FilledButton(
-          style: FilledButton.styleFrom(
-              backgroundColor: dCtx.tokens.statusDanger),
-          onPressed: () => Navigator.pop(dCtx, true),
-          child: const Text('삭제'),
-        ),
-      ],
-    ),
+  final ok = await showPConfirmDialog(
+    ctx,
+    title: '일정 삭제',
+    message: '"${edit.title}" 일정을 삭제할까요?',
+    confirmLabel: '삭제',
+    destructive: true,
   );
-  if (ok != true) return;
+  if (!ok) return;
   try {
     final repo = await container.read(calendarRepositoryProvider.future);
     await repo.deleteEvent(edit.rowId);
@@ -284,16 +258,17 @@ class _BodyState extends ConsumerState<_Body> {
   }
 
   Future<void> _pickCalendar(List<UserCalendar> cals) async {
-    final res = await showModalBottomSheet<int>(
-      context: context,
-      builder: (sheetCtx) {
-        final t = sheetCtx.tokens;
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              for (final c in cals)
-                ListTile(
+    final res = await showPModalSheet<int>(
+      context,
+      title: '캘린더 선택',
+      body: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (final c in cals)
+            Builder(
+              builder: (sheetCtx) {
+                final t = sheetCtx.tokens;
+                return ListTile(
                   leading: Container(
                     width: PSpace.x12,
                     height: PSpace.x12,
@@ -307,11 +282,11 @@ class _BodyState extends ConsumerState<_Body> {
                       ? Icon(LucideIcons.check, color: t.fgBrand)
                       : null,
                   onTap: () => Navigator.pop(sheetCtx, c.rowId),
-                ),
-            ],
-          ),
-        );
-      },
+                );
+              },
+            ),
+        ],
+      ),
     );
     if (res != null) setState(() => _userCalendarRowId = res);
   }
