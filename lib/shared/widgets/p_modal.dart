@@ -123,10 +123,14 @@ Future<T?> showPSheet<T>(
         expand: false,
         builder: (innerCtx, scrollCtrl) {
           final t = innerCtx.tokens;
+          final mq = MediaQuery.of(innerCtx);
+          // 키보드(viewInsets) 와 home indicator(viewPadding) 중 큰 값으로
+          // bottom 여백을 잡아 footer 버튼이 잘리지 않게 함.
+          final bottomInset = mq.viewInsets.bottom > 0
+              ? mq.viewInsets.bottom
+              : mq.viewPadding.bottom;
           return Padding(
-            padding: EdgeInsets.only(
-              bottom: MediaQuery.of(innerCtx).viewInsets.bottom,
-            ),
+            padding: EdgeInsets.only(bottom: bottomInset),
             child: Column(
               children: [
                 // Drag handle
@@ -168,8 +172,8 @@ Future<T?> showPSheet<T>(
                 // Footer (고정)
                 if (footerBuilder != null)
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: PSpace.x20, vertical: PSpace.x12),
+                    padding: const EdgeInsets.fromLTRB(
+                        PSpace.x20, PSpace.x12, PSpace.x20, PSpace.x16),
                     color: t.bgSurface,
                     child: footerBuilder(innerCtx),
                   ),
