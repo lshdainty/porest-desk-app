@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
 import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
@@ -10,6 +9,7 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../shared/widgets/p_modal.dart';
 import '../../expense/domain/expense.dart' show Expense;
 import '../../group/application/group_providers.dart';
 import '../../group/domain/group_member.dart';
@@ -21,21 +21,17 @@ import '../application/dutch_pay_providers.dart';
 /// date=expenseDate) 미리 채워지며 sourceExpenseRowId 로 연결된다 — front
 /// `DutchPayFromTxDialog` 미러.
 void showDutchPayCreateDialog(BuildContext context, {Expense? fromExpense}) {
-  WoltModalSheet.show<void>(
-    context: context,
-    pageListBuilder: (modalCtx) => [
-      WoltModalSheetPage(
-        topBarTitle: Text(fromExpense == null ? '더치페이 만들기' : '거래에서 더치페이'),
-        isTopBarLayerAlwaysVisible: true,
-        backgroundColor:
-            Theme.of(modalCtx).extension<PorestTokens>()?.bgSurface,
-        trailingNavBarWidget: IconButton(
-          icon: const Icon(LucideIcons.x),
-          onPressed: Navigator.of(modalCtx).pop,
-        ),
-        child: _Body(fromExpense: fromExpense),
-      ),
-    ],
+  final controller = PSheetController();
+  showPSheet<void>(
+    context,
+    title: fromExpense == null ? '더치페이 만들기' : '거래에서 더치페이',
+    contentBuilder: (ctx, scrollCtrl) => _Body(
+      fromExpense: fromExpense,
+      scrollController: scrollCtrl,
+      controller: controller,
+    ),
+    footerBuilder: (ctx) =>
+        PSheetFooter(controller: controller, submitLabel: '만들기'),
   );
 }
 
@@ -46,8 +42,14 @@ class _Pname {
 }
 
 class _Body extends ConsumerStatefulWidget {
-  const _Body({this.fromExpense});
+  const _Body({
+    this.fromExpense,
+    required this.scrollController,
+    required this.controller,
+  });
   final Expense? fromExpense;
+  final ScrollController scrollController;
+  final PSheetController controller;
   @override
   ConsumerState<_Body> createState() => _BodyState();
 }
@@ -84,6 +86,12 @@ class _BodyState extends ConsumerState<_Body> {
     } else {
       _date = DateTime.now();
     }
+    widget.controller.onSubmit = _submit;
+  }
+
+  void _setSubmitting(bool v) {
+    setState(() => _submitting = v);
+    widget.controller.setSubmitting(v);
   }
 
   @override
@@ -242,7 +250,7 @@ class _BodyState extends ConsumerState<_Body> {
   }
 
   Future<void> _submit() async {
-    setState(() => _submitting = true);
+    _setSubmitting(true);
     try {
       final repo = await ref.read(dutchPayRepositoryProvider.future);
       final names =
@@ -283,7 +291,7 @@ class _BodyState extends ConsumerState<_Body> {
         SnackBar(content: Text('실패: ${e.message}')),
       );
     } finally {
-      if (mounted) setState(() => _submitting = false);
+      if (mounted) _setSubmitting(false);
     }
   }
 
@@ -293,13 +301,15 @@ class _BodyState extends ConsumerState<_Body> {
     final sumCustom =
         _participants.fold<int>(0, (s, p) => s + p.amount);
     final remainder = _total - sumCustom;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) widget.controller.setCanSubmit(_canSubmit);
+    });
 
-    return Padding(
+    return ListView(
+      controller: widget.scrollController,
       padding: const EdgeInsets.fromLTRB(
-          PSpace.x16, PSpace.x8, PSpace.x16, PSpace.x16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+          PSpace.x16, 0, PSpace.x16, PSpace.x16),
+      children: [
           Text('제목',
               style: PTypo.caption.copyWith(color: t.fgSecondary)),
           const SizedBox(height: PSpace.x4),
@@ -472,22 +482,7 @@ class _BodyState extends ConsumerState<_Body> {
               ),
             ),
           ],
-
-          const SizedBox(height: PSpace.x24),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton(
-              onPressed: _canSubmit ? _submit : null,
-              child: _submitting
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Text('만들기'),
-            ),
-          ),
-        ],
-      ),
+      ],
     );
   }
 }

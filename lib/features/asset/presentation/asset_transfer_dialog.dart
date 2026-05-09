@@ -2,37 +2,37 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
 import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../shared/widgets/p_modal.dart';
 import '../application/asset_providers.dart';
 import '../domain/asset.dart';
 
 void showAssetTransferDialog(BuildContext context) {
-  WoltModalSheet.show<void>(
-    context: context,
-    pageListBuilder: (modalCtx) => [
-      WoltModalSheetPage(
-        topBarTitle: const Text('자산 간 이체'),
-        isTopBarLayerAlwaysVisible: true,
-        backgroundColor:
-            Theme.of(modalCtx).extension<PorestTokens>()?.bgSurface,
-        trailingNavBarWidget: IconButton(
-          icon: const Icon(LucideIcons.x),
-          onPressed: Navigator.of(modalCtx).pop,
-        ),
-        child: const _TransferBody(),
-      ),
-    ],
+  final controller = PSheetController();
+  showPSheet<void>(
+    context,
+    title: '자산 간 이체',
+    contentBuilder: (ctx, scrollCtrl) => _TransferBody(
+      scrollController: scrollCtrl,
+      controller: controller,
+    ),
+    footerBuilder: (ctx) =>
+        PSheetFooter(controller: controller, submitLabel: '이체'),
   );
 }
 
 class _TransferBody extends ConsumerStatefulWidget {
-  const _TransferBody();
+  const _TransferBody({
+    required this.scrollController,
+    required this.controller,
+  });
+  final ScrollController scrollController;
+  final PSheetController controller;
 
   @override
   ConsumerState<_TransferBody> createState() => _TransferBodyState();
@@ -48,11 +48,22 @@ class _TransferBodyState extends ConsumerState<_TransferBody> {
   bool _submitting = false;
 
   @override
+  void initState() {
+    super.initState();
+    widget.controller.onSubmit = _submit;
+  }
+
+  @override
   void dispose() {
     _amountCtrl.dispose();
     _feeCtrl.dispose();
     _descCtrl.dispose();
     super.dispose();
+  }
+
+  void _setSubmitting(bool v) {
+    setState(() => _submitting = v);
+    widget.controller.setSubmitting(v);
   }
 
   bool get _canSubmit {
@@ -72,7 +83,7 @@ class _TransferBodyState extends ConsumerState<_TransferBody> {
     final dateStr =
         '${_date.year.toString().padLeft(4, '0')}-${_date.month.toString().padLeft(2, '0')}-${_date.day.toString().padLeft(2, '0')}';
 
-    setState(() => _submitting = true);
+    _setSubmitting(true);
     try {
       final repo = await ref.read(assetRepositoryProvider.future);
       await repo.createTransfer(
@@ -95,7 +106,7 @@ class _TransferBodyState extends ConsumerState<_TransferBody> {
         SnackBar(content: Text('실패: ${e.message}')),
       );
     } finally {
-      if (mounted) setState(() => _submitting = false);
+      if (mounted) _setSubmitting(false);
     }
   }
 
@@ -103,25 +114,32 @@ class _TransferBodyState extends ConsumerState<_TransferBody> {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final assetsAsync = ref.watch(assetsProvider);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) widget.controller.setCanSubmit(_canSubmit);
+    });
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-          PSpace.x16, PSpace.x8, PSpace.x16, PSpace.x16),
-      child: assetsAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Text('자산 로드 실패: $e',
+    return assetsAsync.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, _) => Padding(
+        padding: const EdgeInsets.all(PSpace.x16),
+        child: Text('자산 로드 실패: $e',
             style: PTypo.bodySm.copyWith(color: t.statusDanger)),
-        data: (assets) {
-          if (assets.length < 2) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(vertical: PSpace.x24),
+      ),
+      data: (assets) {
+        if (assets.length < 2) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: PSpace.x24),
+            child: Center(
               child: Text('이체하려면 자산이 2개 이상 필요합니다',
                   style: PTypo.bodySm.copyWith(color: t.fgTertiary)),
-            );
-          }
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+            ),
+          );
+        }
+        return ListView(
+          controller: widget.scrollController,
+          padding: const EdgeInsets.fromLTRB(
+              PSpace.x16, 0, PSpace.x16, PSpace.x16),
+          children: [
               _Label('출금 자산'),
               const SizedBox(height: PSpace.x4),
               _AssetSelector(
@@ -209,24 +227,10 @@ class _TransferBodyState extends ConsumerState<_TransferBody> {
                 controller: _descCtrl,
                 decoration: const InputDecoration(hintText: '메모'),
               ),
-              const SizedBox(height: PSpace.x24),
-
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: _canSubmit ? _submit : null,
-                  child: _submitting
-                      ? const SizedBox(
-                          width: 18, height: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2))
-                      : const Text('이체'),
-                ),
-              ),
             ],
           );
         },
-      ),
-    );
+      );
   }
 }
 

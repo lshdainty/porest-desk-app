@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
 import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
@@ -11,6 +10,7 @@ import '../../../app/theme/typography.dart';
 import '../../../core/format/color_parse.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
+import '../../../shared/widgets/p_modal.dart';
 import '../../asset/application/asset_providers.dart';
 import '../../expense/application/expense_providers.dart';
 import '../../expense/domain/expense.dart' show Expense;
@@ -25,28 +25,34 @@ void showRecurringEditDialog(
   RecurringTransaction? edit,
   Expense? fromExpense,
 }) {
-  WoltModalSheet.show<void>(
-    context: context,
-    pageListBuilder: (modalCtx) => [
-      WoltModalSheetPage(
-        topBarTitle: Text(edit == null ? '반복 설정' : '반복 거래 수정'),
-        isTopBarLayerAlwaysVisible: true,
-        backgroundColor:
-            Theme.of(modalCtx).extension<PorestTokens>()?.bgSurface,
-        trailingNavBarWidget: IconButton(
-          icon: const Icon(LucideIcons.x),
-          onPressed: Navigator.of(modalCtx).pop,
-        ),
-        child: _RecurringEditBody(edit: edit, fromExpense: fromExpense),
-      ),
-    ],
+  final controller = PSheetController();
+  showPSheet<void>(
+    context,
+    title: edit == null ? '반복 설정' : '반복 거래 수정',
+    contentBuilder: (ctx, scrollCtrl) => _RecurringEditBody(
+      edit: edit,
+      fromExpense: fromExpense,
+      scrollController: scrollCtrl,
+      controller: controller,
+    ),
+    footerBuilder: (ctx) => PSheetFooter(
+      controller: controller,
+      submitLabel: edit == null ? '추가' : '수정',
+    ),
   );
 }
 
 class _RecurringEditBody extends ConsumerStatefulWidget {
-  const _RecurringEditBody({this.edit, this.fromExpense});
+  const _RecurringEditBody({
+    this.edit,
+    this.fromExpense,
+    required this.scrollController,
+    required this.controller,
+  });
   final RecurringTransaction? edit;
   final Expense? fromExpense;
+  final ScrollController scrollController;
+  final PSheetController controller;
 
   @override
   ConsumerState<_RecurringEditBody> createState() => _RecurringEditBodyState();
@@ -96,6 +102,13 @@ class _RecurringEditBodyState extends ConsumerState<_RecurringEditBody> {
         TextEditingController(text: r?.merchant ?? fe?.merchant ?? '');
     _autoLog = r?.autoLog ?? false;
     _notifyDayBefore = r?.notifyDayBefore ?? false;
+    widget.controller.onSubmit = _submit;
+    if (_isEdit) widget.controller.onDelete = _delete;
+  }
+
+  void _setSubmitting(bool v) {
+    setState(() => _submitting = v);
+    widget.controller.setSubmitting(v);
   }
 
   @override
@@ -120,7 +133,7 @@ class _RecurringEditBodyState extends ConsumerState<_RecurringEditBody> {
 
   Future<void> _submit() async {
     final amount = int.parse(_amountCtrl.text.replaceAll(',', ''));
-    setState(() => _submitting = true);
+    _setSubmitting(true);
     try {
       final repo = await ref.read(recurringRepositoryProvider.future);
       if (_isEdit) {
@@ -178,30 +191,20 @@ class _RecurringEditBodyState extends ConsumerState<_RecurringEditBody> {
         SnackBar(content: Text('실패: ${e.message}')),
       );
     } finally {
-      if (mounted) setState(() => _submitting = false);
+      if (mounted) _setSubmitting(false);
     }
   }
 
   Future<void> _delete() async {
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('반복 거래 삭제'),
-        content: const Text('이 반복 거래를 삭제하시겠습니까?'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false), child: const Text('취소')),
-          FilledButton(
-            style: FilledButton.styleFrom(
-                backgroundColor: context.tokens.statusDanger),
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('삭제'),
-          ),
-        ],
-      ),
+    final ok = await showPConfirmDialog(
+      context,
+      title: '반복 거래 삭제',
+      message: '이 반복 거래를 삭제하시겠습니까?',
+      confirmLabel: '삭제',
+      destructive: true,
     );
-    if (ok != true || !mounted) return;
-    setState(() => _submitting = true);
+    if (!ok || !mounted) return;
+    _setSubmitting(true);
     try {
       final repo = await ref.read(recurringRepositoryProvider.future);
       await repo.delete(widget.edit!.rowId);
@@ -214,7 +217,7 @@ class _RecurringEditBodyState extends ConsumerState<_RecurringEditBody> {
         SnackBar(content: Text('삭제 실패: ${e.message}')),
       );
     } finally {
-      if (mounted) setState(() => _submitting = false);
+      if (mounted) _setSubmitting(false);
     }
   }
 
@@ -223,13 +226,15 @@ class _RecurringEditBodyState extends ConsumerState<_RecurringEditBody> {
     final t = context.tokens;
     final categoriesAsync = ref.watch(categoriesProvider);
     final assetsAsync = ref.watch(assetsProvider);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) widget.controller.setCanSubmit(_canSubmit);
+    });
 
-    return Padding(
+    return ListView(
+      controller: widget.scrollController,
       padding: const EdgeInsets.fromLTRB(
-          PSpace.x16, PSpace.x8, PSpace.x16, PSpace.x16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+          PSpace.x16, 0, PSpace.x16, PSpace.x16),
+      children: [
           // 거래 유형
           _Seg(
             options: const [
@@ -450,41 +455,7 @@ class _RecurringEditBodyState extends ConsumerState<_RecurringEditBody> {
             controller: _descCtrl,
             decoration: const InputDecoration(hintText: '메모'),
           ),
-          const SizedBox(height: PSpace.x24),
-
-          Row(
-            children: [
-              if (_isEdit) ...[
-                Expanded(
-                  child: OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: t.statusDanger,
-                      side: BorderSide(
-                          color: t.statusDanger.withValues(alpha: 0.5)),
-                    ),
-                    onPressed: _submitting ? null : _delete,
-                    icon: const Icon(LucideIcons.trash2, size: 16),
-                    label: const Text('삭제'),
-                  ),
-                ),
-                const SizedBox(width: PSpace.x8),
-              ],
-              Expanded(
-                flex: _isEdit ? 1 : 2,
-                child: FilledButton(
-                  onPressed: _canSubmit ? _submit : null,
-                  child: _submitting
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2))
-                      : Text(_isEdit ? '수정' : '추가'),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+      ],
     );
   }
 }

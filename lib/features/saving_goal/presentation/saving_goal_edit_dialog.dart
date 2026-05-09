@@ -2,39 +2,43 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
 import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../shared/widgets/p_modal.dart';
 import '../../category/presentation/category_palette.dart';
 import '../application/saving_goal_providers.dart';
 import '../domain/saving_goal.dart';
 
 void showSavingGoalEditDialog(BuildContext context, {SavingGoal? edit}) {
-  WoltModalSheet.show<void>(
-    context: context,
-    pageListBuilder: (modalCtx) => [
-      WoltModalSheetPage(
-        topBarTitle: Text(edit == null ? '저금 목표 추가' : '저금 목표 수정'),
-        isTopBarLayerAlwaysVisible: true,
-        backgroundColor:
-            Theme.of(modalCtx).extension<PorestTokens>()?.bgSurface,
-        trailingNavBarWidget: IconButton(
-          icon: const Icon(LucideIcons.x),
-          onPressed: Navigator.of(modalCtx).pop,
-        ),
-        child: _Body(edit: edit),
-      ),
-    ],
+  final controller = PSheetController();
+  showPSheet<void>(
+    context,
+    title: edit == null ? '저금 목표 추가' : '저금 목표 수정',
+    contentBuilder: (ctx, scrollCtrl) => _Body(
+      edit: edit,
+      scrollController: scrollCtrl,
+      controller: controller,
+    ),
+    footerBuilder: (ctx) => PSheetFooter(
+      controller: controller,
+      submitLabel: edit == null ? '추가' : '수정',
+    ),
   );
 }
 
 class _Body extends ConsumerStatefulWidget {
-  const _Body({this.edit});
+  const _Body({
+    this.edit,
+    required this.scrollController,
+    required this.controller,
+  });
   final SavingGoal? edit;
+  final ScrollController scrollController;
+  final PSheetController controller;
   @override
   ConsumerState<_Body> createState() => _BodyState();
 }
@@ -59,6 +63,13 @@ class _BodyState extends ConsumerState<_Body> {
         ? null
         : DateTime.tryParse(widget.edit!.deadlineDate!);
     _paletteIdx = CatPalette.indexByColor(widget.edit?.color) ?? 0;
+    widget.controller.onSubmit = _submit;
+    if (_isEdit) widget.controller.onDelete = _delete;
+  }
+
+  void _setSubmitting(bool v) {
+    setState(() => _submitting = v);
+    widget.controller.setSubmitting(v);
   }
 
   @override
@@ -80,7 +91,7 @@ class _BodyState extends ConsumerState<_Body> {
   }
 
   Future<void> _submit() async {
-    setState(() => _submitting = true);
+    _setSubmitting(true);
     try {
       final repo = await ref.read(savingGoalRepositoryProvider.future);
       final amt = int.parse(_amountCtrl.text.replaceAll(',', ''));
@@ -116,31 +127,20 @@ class _BodyState extends ConsumerState<_Body> {
         SnackBar(content: Text('실패: ${e.message}')),
       );
     } finally {
-      if (mounted) setState(() => _submitting = false);
+      if (mounted) _setSubmitting(false);
     }
   }
 
   Future<void> _delete() async {
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('저금 목표 삭제'),
-        content: Text('"${widget.edit!.title}"을(를) 삭제할까요?'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('취소')),
-          FilledButton(
-            style: FilledButton.styleFrom(
-                backgroundColor: context.tokens.statusDanger),
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('삭제'),
-          ),
-        ],
-      ),
+    final ok = await showPConfirmDialog(
+      context,
+      title: '저금 목표 삭제',
+      message: '"${widget.edit!.title}"을(를) 삭제할까요?',
+      confirmLabel: '삭제',
+      destructive: true,
     );
-    if (ok != true || !mounted) return;
-    setState(() => _submitting = true);
+    if (!ok || !mounted) return;
+    _setSubmitting(true);
     try {
       final repo = await ref.read(savingGoalRepositoryProvider.future);
       await repo.delete(widget.edit!.rowId);
@@ -153,19 +153,21 @@ class _BodyState extends ConsumerState<_Body> {
         SnackBar(content: Text('삭제 실패: ${e.message}')),
       );
     } finally {
-      if (mounted) setState(() => _submitting = false);
+      if (mounted) _setSubmitting(false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    return Padding(
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) widget.controller.setCanSubmit(_canSubmit);
+    });
+    return ListView(
+      controller: widget.scrollController,
       padding: const EdgeInsets.fromLTRB(
-          PSpace.x16, PSpace.x8, PSpace.x16, PSpace.x16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+          PSpace.x16, 0, PSpace.x16, PSpace.x16),
+      children: [
           Text('목표 이름',
               style: PTypo.caption.copyWith(color: t.fgSecondary)),
           const SizedBox(height: PSpace.x4),
@@ -274,40 +276,7 @@ class _BodyState extends ConsumerState<_Body> {
             maxLines: 2,
             decoration: const InputDecoration(hintText: '메모'),
           ),
-          const SizedBox(height: PSpace.x24),
-          Row(
-            children: [
-              if (_isEdit) ...[
-                Expanded(
-                  child: OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: t.statusDanger,
-                      side: BorderSide(
-                          color: t.statusDanger.withValues(alpha: 0.5)),
-                    ),
-                    onPressed: _submitting ? null : _delete,
-                    icon: const Icon(LucideIcons.trash2, size: 16),
-                    label: const Text('삭제'),
-                  ),
-                ),
-                const SizedBox(width: PSpace.x8),
-              ],
-              Expanded(
-                flex: _isEdit ? 1 : 2,
-                child: FilledButton(
-                  onPressed: _canSubmit ? _submit : null,
-                  child: _submitting
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2))
-                      : Text(_isEdit ? '수정' : '추가'),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+      ],
     );
   }
 }
