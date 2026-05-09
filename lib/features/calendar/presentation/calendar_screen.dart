@@ -10,6 +10,7 @@ import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/format/color_parse.dart';
+import '../../../shared/widgets/p_modal.dart';
 import '../application/calendar_providers.dart';
 import '../domain/calendar_event.dart';
 import 'calendar_event_dialog.dart';
@@ -95,6 +96,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
               _selected = sel;
               _focused = foc;
             });
+            _openDayEventsSheet(sel);
           },
           onPageChanged: (foc) => setState(() => _focused = foc),
           calendarFormat: _fmt,
@@ -165,6 +167,30 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
             markerBuilder: (_, _, _) => const SizedBox.shrink(),
           ),
         ),
+      ),
+    );
+  }
+
+  void _openDayEventsSheet(DateTime day) {
+    final events =
+        ref.read(monthEventsProvider(_key)).value ?? const <CalendarEvent>[];
+    final dayEvents = _eventsOnDay(events, day);
+    final weekday = const ['월', '화', '수', '목', '금', '토', '일'][day.weekday - 1];
+    final title = '${day.month}월 ${day.day}일 $weekday요일';
+    showPModalSheet<void>(
+      context,
+      title: title,
+      body: _DayEventsSheetBody(
+        day: day,
+        events: dayEvents,
+        onAdd: () {
+          Navigator.of(context).pop();
+          showCalendarEventDialog(context, defaultDate: day);
+        },
+        onTapEvent: (e) {
+          Navigator.of(context).pop();
+          showCalendarEventDialog(context, edit: e);
+        },
       ),
     );
   }
@@ -314,6 +340,155 @@ class _CellEventLabel extends StatelessWidget {
         style: PTypo.micro.copyWith(
           color: color.withValues(alpha: textAlpha),
           fontWeight: PFontWeight.semi,
+        ),
+      ),
+    );
+  }
+}
+
+class _DayEventsSheetBody extends StatelessWidget {
+  const _DayEventsSheetBody({
+    required this.day,
+    required this.events,
+    required this.onAdd,
+    required this.onTapEvent,
+  });
+  final DateTime day;
+  final List<CalendarEvent> events;
+  final VoidCallback onAdd;
+  final void Function(CalendarEvent) onTapEvent;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+          PSpace.x16, PSpace.x4, PSpace.x16, PSpace.x16),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Text(
+                '${events.length}건',
+                style: PTypo.bodySm.copyWith(color: t.fgTertiary),
+              ),
+              const Spacer(),
+              IconButton(
+                icon: Icon(LucideIcons.plus, color: t.fgPrimary),
+                onPressed: onAdd,
+                tooltip: '이벤트 추가',
+              ),
+            ],
+          ),
+          const SizedBox(height: PSpace.x4),
+          if (events.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: PSpace.x32),
+              child: Center(
+                child: Text(
+                  '이날 이벤트가 없습니다',
+                  style: PTypo.bodySm.copyWith(color: t.fgTertiary),
+                ),
+              ),
+            )
+          else
+            for (int i = 0; i < events.length; i++) ...[
+              _DaySheetEventRow(
+                event: events[i],
+                day: day,
+                tokens: t,
+                onTap: () => onTapEvent(events[i]),
+              ),
+              if (i < events.length - 1)
+                Divider(height: 1, color: t.borderSubtle),
+            ],
+        ],
+      ),
+    );
+  }
+}
+
+class _DaySheetEventRow extends StatelessWidget {
+  const _DaySheetEventRow({
+    required this.event,
+    required this.day,
+    required this.tokens,
+    required this.onTap,
+  });
+  final CalendarEvent event;
+  final DateTime day;
+  final PorestTokens tokens;
+  final VoidCallback onTap;
+
+  String _hhmm(DateTime d) =>
+      '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
+
+  @override
+  Widget build(BuildContext context) {
+    final t = tokens;
+    final color =
+        parseColor(event.labelColor ?? event.color, fallback: t.fgBrand);
+    final timeLabel = event.isAllDayBool ? '종일' : _hhmm(event.start);
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: PSpace.x12),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: PSpace.x40,
+              child: Text(
+                timeLabel,
+                style: PTypo.caption.copyWith(color: t.fgSecondary),
+              ),
+            ),
+            const SizedBox(width: PSpace.x8),
+            Container(
+              width: PSpace.x4,
+              height: PSpace.x24,
+              decoration: BoxDecoration(
+                color: color,
+                borderRadius: PRadius.brXs,
+              ),
+            ),
+            const SizedBox(width: PSpace.x12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    event.title,
+                    style: PTypo.body.copyWith(
+                        color: t.fgPrimary, fontWeight: PFontWeight.semi),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  if ((event.location ?? '').isNotEmpty ||
+                      event.labelName != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: PSpace.x4),
+                      child: Text(
+                        [
+                          if ((event.location ?? '').isNotEmpty)
+                            event.location!,
+                          if (event.labelName != null) event.labelName!,
+                        ].join(' · '),
+                        style:
+                            PTypo.caption.copyWith(color: t.fgTertiary),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            Icon(LucideIcons.chevronRight,
+                size: PSpace.x16, color: t.fgTertiary),
+          ],
         ),
       ),
     );
