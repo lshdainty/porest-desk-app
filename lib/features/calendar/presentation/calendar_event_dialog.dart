@@ -13,11 +13,30 @@ import '../application/calendar_providers.dart';
 import '../domain/calendar_event.dart';
 import '../domain/user_calendar.dart';
 
+/// content 와 footer 가 공유하는 작업 상태 (controller 패턴).
+class _FormController extends ChangeNotifier {
+  bool submitting = false;
+  bool canSubmit = false;
+  Future<void> Function()? onSubmit;
+
+  void setSubmitting(bool v) {
+    submitting = v;
+    notifyListeners();
+  }
+
+  void setCanSubmit(bool v) {
+    if (canSubmit == v) return;
+    canSubmit = v;
+    notifyListeners();
+  }
+}
+
 void showCalendarEventDialog(
   BuildContext context, {
   CalendarEvent? edit,
   DateTime? defaultDate,
 }) {
+  final controller = _FormController();
   showPSheet<void>(
     context,
     title: edit == null ? '일정 추가' : '일정 수정',
@@ -32,12 +51,55 @@ void showCalendarEventDialog(
               ),
             ),
           ],
-    bodyBuilder: (ctx, scrollCtrl) => _Body(
+    contentBuilder: (ctx, scrollCtrl) => _Body(
       edit: edit,
       defaultDate: defaultDate,
       scrollController: scrollCtrl,
+      controller: controller,
     ),
-  );
+    footerBuilder: (ctx) => _Footer(
+      isEdit: edit != null,
+      controller: controller,
+    ),
+  ).whenComplete(controller.dispose);
+}
+
+class _Footer extends StatelessWidget {
+  const _Footer({required this.isEdit, required this.controller});
+  final bool isEdit;
+  final _FormController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: controller,
+      builder: (ctx, _) {
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            TextButton(
+              onPressed: controller.submitting
+                  ? null
+                  : () => Navigator.of(ctx).pop(),
+              child: const Text('취소'),
+            ),
+            const SizedBox(width: PSpace.x4),
+            FilledButton(
+              onPressed: controller.canSubmit && !controller.submitting
+                  ? controller.onSubmit
+                  : null,
+              child: controller.submitting
+                  ? const SizedBox(
+                      width: PSpace.x16,
+                      height: PSpace.x16,
+                      child: CircularProgressIndicator(strokeWidth: 2))
+                  : Text(isEdit ? '수정' : '저장'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 }
 
 const _colorOptions = <String>[
@@ -106,10 +168,16 @@ Future<void> _confirmDelete(BuildContext ctx, CalendarEvent edit) async {
 }
 
 class _Body extends ConsumerStatefulWidget {
-  const _Body({this.edit, this.defaultDate, required this.scrollController});
+  const _Body({
+    this.edit,
+    this.defaultDate,
+    required this.scrollController,
+    required this.controller,
+  });
   final CalendarEvent? edit;
   final DateTime? defaultDate;
   final ScrollController scrollController;
+  final _FormController controller;
   @override
   ConsumerState<_Body> createState() => _BodyState();
 }
@@ -151,6 +219,9 @@ class _BodyState extends ConsumerState<_Body> {
       _end = DateTime(d.year, d.month, d.day, 10, 0);
       _allDay = false;
     }
+    widget.controller.onSubmit = _submit;
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => _syncController());
   }
 
   @override
@@ -164,11 +235,17 @@ class _BodyState extends ConsumerState<_Body> {
   bool get _canSubmit =>
       !_submitting && _titleCtrl.text.trim().isNotEmpty;
 
+  void _syncController() {
+    widget.controller.setCanSubmit(_canSubmit);
+    widget.controller.setSubmitting(_submitting);
+  }
+
   String _iso(DateTime d) =>
       '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}T${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}:00';
 
   Future<void> _submit() async {
     setState(() => _submitting = true);
+    _syncController();
     try {
       final repo = await ref.read(calendarRepositoryProvider.future);
       final monthKey = (year: _start.year, month: _start.month);
@@ -221,7 +298,10 @@ class _BodyState extends ConsumerState<_Body> {
         SnackBar(content: Text('실패: ${e.message}')),
       );
     } finally {
-      if (mounted) setState(() => _submitting = false);
+      if (mounted) {
+        setState(() => _submitting = false);
+        _syncController();
+      }
     }
   }
 
@@ -320,7 +400,10 @@ class _BodyState extends ConsumerState<_Body> {
           TextField(
             controller: _titleCtrl,
             decoration: const InputDecoration(hintText: '예: 가족 식사'),
-            onChanged: (_) => setState(() {}),
+            onChanged: (_) {
+              setState(() {});
+              _syncController();
+            },
           ),
           const SizedBox(height: PSpace.x16),
 
@@ -558,30 +641,6 @@ class _BodyState extends ConsumerState<_Body> {
                   tokens: t,
                   withDot: false,
                 ),
-            ],
-          ),
-          const SizedBox(height: PSpace.x24),
-
-          // 푸터: 우측 정렬 (취소 outlined + 저장 filled)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              OutlinedButton(
-                onPressed: _submitting
-                    ? null
-                    : () => Navigator.of(context).pop(),
-                child: const Text('취소'),
-              ),
-              const SizedBox(width: PSpace.x8),
-              FilledButton(
-                onPressed: _canSubmit ? _submit : null,
-                child: _submitting
-                    ? const SizedBox(
-                        width: PSpace.x16,
-                        height: PSpace.x16,
-                        child: CircularProgressIndicator(strokeWidth: 2))
-                    : Text(_isEdit ? '수정' : '저장'),
-              ),
             ],
           ),
       ],

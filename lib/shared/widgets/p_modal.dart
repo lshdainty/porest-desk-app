@@ -45,12 +45,16 @@ Future<T?> showPModalSheet<T>(
 
 /// add_tx_sheet 와 동일한 표준 bottom sheet helper.
 ///
-/// 구조: drag handle → 좌측 큰 제목 + 우측 X (+ extra actions) → 본문 (scrollable).
-/// `bodyBuilder` 는 `ScrollController` 를 받아 ListView/CustomScrollView 등을 직접 구성.
+/// 구조 (모두 helper 가 강제):
+///   - drag handle (고정)
+///   - header: 좌측 큰 제목 + headerActions + 우측 X (고정 높이)
+///   - content: 스크롤 영역. `contentBuilder(ctx, scrollController)` 가 ListView/CustomScrollView 직접 구성
+///   - footer: optional, 고정 높이. `footerBuilder(ctx)` 로 Row 등 액션 위젯 전달
 Future<T?> showPSheet<T>(
   BuildContext context, {
   required String title,
-  required Widget Function(BuildContext, ScrollController) bodyBuilder,
+  required Widget Function(BuildContext, ScrollController) contentBuilder,
+  Widget Function(BuildContext)? footerBuilder,
   List<Widget> headerActions = const [],
   double initialChildSize = 0.85,
   double minChildSize = 0.5,
@@ -112,7 +116,16 @@ Future<T?> showPSheet<T>(
                     ],
                   ),
                 ),
-                Expanded(child: bodyBuilder(innerCtx, scrollCtrl)),
+                // Content (scroll)
+                Expanded(child: contentBuilder(innerCtx, scrollCtrl)),
+                // Footer (고정)
+                if (footerBuilder != null)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: PSpace.x20, vertical: PSpace.x12),
+                    color: t.bgSurface,
+                    child: footerBuilder(innerCtx),
+                  ),
               ],
             ),
           );
