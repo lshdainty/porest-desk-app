@@ -13,6 +13,7 @@ import '../../../core/format/krw.dart';
 import '../../../core/settings/hide_amounts_unlock_dialog.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
+import '../../../shared/widgets/p_modal.dart';
 import '../../card/presentation/card_performance_bar.dart';
 import '../../expense/application/expense_providers.dart';
 import '../../expense/domain/expense.dart';
@@ -36,25 +37,52 @@ import 'asset_edit_dialog.dart';
 /// - 최근 거래 12건 + "전체 보기 →"
 /// - 푸터: 금액 가리기 / 편집 / 확인 (본문 끝에 함께 스크롤)
 void showAssetDetailRich(BuildContext context, Asset asset) {
-  showModalBottomSheet<void>(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor:
-        Theme.of(context).extension<PorestTokens>()?.bgSurface,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(PRadius.xl2)),
+  showPSheet<void>(
+    context,
+    title: _titleFor(asset),
+    contentBuilder: (ctx, scrollCtrl) => _DetailBody(
+      asset: asset,
+      scrollController: scrollCtrl,
     ),
-    builder: (_) => DraggableScrollableSheet(
-      initialChildSize: 0.85,
-      minChildSize: 0.5,
-      maxChildSize: 0.95,
-      expand: false,
-      builder: (_, scrollCtrl) => _DetailBody(
-        asset: asset,
-        scrollController: scrollCtrl,
-      ),
-    ),
+    footerBuilder: (ctx) => _DetailFooter(asset: asset),
   );
+}
+
+class _DetailFooter extends ConsumerWidget {
+  const _DetailFooter({required this.asset});
+  final Asset asset;
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = context.tokens;
+    final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
+    final masked = settings.hideAmounts;
+    return Row(
+      children: [
+        TextButton.icon(
+          onPressed: () => toggleHideAmountsWithUnlock(context, ref),
+          icon: Icon(masked ? LucideIcons.eye : LucideIcons.eyeOff,
+              size: PSpace.x12, color: t.fgSecondary),
+          label: Text(masked ? '금액 표시' : '금액 가리기',
+              style: PTypo.bodySm.copyWith(color: t.fgSecondary)),
+        ),
+        const Spacer(),
+        TextButton.icon(
+          onPressed: () {
+            Navigator.of(context).pop();
+            showAssetEditForm(context, asset);
+          },
+          icon: Icon(LucideIcons.pencil, size: PSpace.x12, color: t.fgSecondary),
+          label: Text('편집',
+              style: PTypo.bodySm.copyWith(color: t.fgSecondary)),
+        ),
+        const SizedBox(width: PSpace.x4),
+        FilledButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('확인'),
+        ),
+      ],
+    );
+  }
 }
 
 String _titleFor(Asset a) {
@@ -119,51 +147,11 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
     final recentAsync =
         ref.watch(expensesByAssetProvider((assetId: asset.rowId, limit: 12)));
 
-    return Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-      ),
-      child: Column(
-        children: [
-          // Drag handle ─────────────────────────────────
-          Container(
-            margin: const EdgeInsets.only(top: 8),
-            width: 36,
-            height: 4,
-            decoration: BoxDecoration(
-              color: t.borderDefault,
-              borderRadius: PRadius.brXs2,
-            ),
-          ),
-          // Header ─────────────────────────────────────
-          Padding(
-            padding: const EdgeInsets.fromLTRB(
-                PSpace.x16, PSpace.x12, PSpace.x8, PSpace.x4),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    _titleFor(asset),
-                    style: PTypo.h3.copyWith(
-                      color: t.fgPrimary,
-                      fontWeight: PFontWeight.heavy,
-                    ),
-                  ),
-                ),
-                IconButton(
-                  icon: Icon(LucideIcons.x, color: t.fgTertiary, size: 20),
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-              ],
-            ),
-          ),
-          // Body ───────────────────────────────────────
-          Expanded(
-            child: ListView(
-              controller: widget.scrollController,
-              padding: const EdgeInsets.fromLTRB(
-                  PSpace.x16, 0, PSpace.x16, PSpace.x16),
-              children: [
+    return ListView(
+      controller: widget.scrollController,
+      padding: const EdgeInsets.fromLTRB(
+          PSpace.x16, 0, PSpace.x16, PSpace.x16),
+      children: [
                 _HeroCard(
                   asset: asset,
                   meta: meta,
@@ -259,66 +247,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                 const SizedBox(height: PSpace.x8),
                 _RecentExpenses(
                     async: recentAsync, masked: masked, tokens: t),
-              ],
-            ),
-          ),
-          // Sticky footer ─────────────────────────────
-          SafeArea(
-            top: false,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(
-                  PSpace.x12, PSpace.x8, PSpace.x12, PSpace.x8),
-              child: Row(
-                children: [
-                  TextButton.icon(
-                    onPressed: () =>
-                        toggleHideAmountsWithUnlock(context, ref),
-                    style: TextButton.styleFrom(
-                      foregroundColor: t.fgSecondary,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 6),
-                    ),
-                    icon: Icon(
-                      masked ? LucideIcons.eye : LucideIcons.eyeOff,
-                      size: 14,
-                    ),
-                    label: Text(masked ? '금액 표시' : '금액 가리기',
-                        style: PTypo.bodySm
-                            .copyWith(color: t.fgSecondary)),
-                  ),
-                  const Spacer(),
-                  TextButton.icon(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      showAssetEditForm(context, asset);
-                    },
-                    style: TextButton.styleFrom(
-                      foregroundColor: t.fgSecondary,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 6),
-                    ),
-                    icon: const Icon(LucideIcons.pencil, size: 14),
-                    label: Text('편집',
-                        style: PTypo.bodySm
-                            .copyWith(color: t.fgSecondary)),
-                  ),
-                  const SizedBox(width: 4),
-                  FilledButton(
-                    style: FilledButton.styleFrom(
-                      backgroundColor: t.bgBrand,
-                      foregroundColor: t.fgOnBrand,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 18, vertical: 8),
-                    ),
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('확인'),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
+      ],
     );
   }
 }

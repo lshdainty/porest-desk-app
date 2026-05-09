@@ -8,6 +8,7 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/brand/bank_colors.dart';
+import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../../card/application/card_providers.dart';
 import '../../card/domain/card_catalog.dart';
@@ -25,22 +26,19 @@ import '../application/asset_providers.dart';
 /// - 별칭 (선택)
 /// - 현재 사용액 (원)  → 청구 예정 금액. 총 부채에 반영.
 void showCardAddDialog(BuildContext context) {
-  showModalBottomSheet<void>(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor:
-        Theme.of(context).extension<PorestTokens>()?.bgSurface,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(PRadius.xl2)),
+  final controller = PSheetController();
+  showPSheet<void>(
+    context,
+    title: '카드 추가',
+    contentBuilder: (ctx, scrollCtrl) => _CardAddBody(
+      scrollController: scrollCtrl,
+      controller: controller,
     ),
-    builder: (_) => DraggableScrollableSheet(
-      initialChildSize: 0.85,
-      minChildSize: 0.5,
-      maxChildSize: 0.95,
-      expand: false,
-      builder: (_, scrollCtrl) => _CardAddBody(scrollController: scrollCtrl),
+    footerBuilder: (ctx) => PSheetFooter(
+      controller: controller,
+      submitLabel: '추가',
     ),
-  );
+  ).whenComplete(controller.dispose);
 }
 
 enum _CardType { credit, check }
@@ -61,8 +59,12 @@ extension on _CardType {
 }
 
 class _CardAddBody extends ConsumerStatefulWidget {
-  const _CardAddBody({required this.scrollController});
+  const _CardAddBody({
+    required this.scrollController,
+    required this.controller,
+  });
   final ScrollController scrollController;
+  final PSheetController controller;
   @override
   ConsumerState<_CardAddBody> createState() => _CardAddBodyState();
 }
@@ -83,9 +85,18 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
     _keywordCtrl = TextEditingController()..addListener(_onChanged);
     _nicknameCtrl = TextEditingController()..addListener(_onChanged);
     _balanceCtrl = TextEditingController(text: '0');
+    widget.controller.onSubmit = _submit;
   }
 
-  void _onChanged() => setState(() {});
+  void _setSubmitting(bool v) {
+    setState(() => _submitting = v);
+    widget.controller.setSubmitting(v);
+  }
+
+  void _onChanged() {
+    setState(() {});
+    widget.controller.setCanSubmit(_selected != null && !_submitting);
+  }
 
   @override
   void dispose() {
@@ -104,7 +115,7 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
         int.tryParse(_balanceCtrl.text.replaceAll(',', '')) ?? 0;
     final company = selected.company?.name;
 
-    setState(() => _submitting = true);
+    _setSubmitting(true);
     try {
       final repo = await ref.read(assetRepositoryProvider.future);
       await repo.create(
@@ -129,7 +140,7 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
         SnackBar(content: Text('실패: ${e.message}')),
       );
     } finally {
-      if (mounted) setState(() => _submitting = false);
+      if (mounted) _setSubmitting(false);
     }
   }
 
@@ -146,54 +157,17 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
       size: 40,
     );
     final pageAsync = ref.watch(cardCatalogPageProvider(searchKey));
-    final canSubmit = _selected != null && !_submitting;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        widget.controller.setCanSubmit(_selected != null && !_submitting);
+      }
+    });
 
-    return Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-      ),
-      child: Column(
-        children: [
-          // Drag handle ─────────────────────────────────
-          Container(
-            margin: const EdgeInsets.only(top: 8),
-            width: 36,
-            height: 4,
-            decoration: BoxDecoration(
-              color: t.borderDefault,
-              borderRadius: PRadius.brXs2,
-            ),
-          ),
-          // Header ─────────────────────────────────────
-          Padding(
-            padding: const EdgeInsets.fromLTRB(
-                PSpace.x16, PSpace.x12, PSpace.x8, PSpace.x4),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    '카드 추가',
-                    style: PTypo.h3.copyWith(
-                      color: t.fgPrimary,
-                      fontWeight: PFontWeight.heavy,
-                    ),
-                  ),
-                ),
-                IconButton(
-                  icon: Icon(LucideIcons.x, color: t.fgTertiary, size: 20),
-                  onPressed: _submitting
-                      ? null
-                      : () => Navigator.of(context).pop(),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: ListView(
-              controller: widget.scrollController,
-              padding: const EdgeInsets.fromLTRB(
-                  PSpace.x16, 0, PSpace.x16, PSpace.x16),
-              children: [
+    return ListView(
+      controller: widget.scrollController,
+      padding: const EdgeInsets.fromLTRB(
+          PSpace.x16, 0, PSpace.x16, PSpace.x16),
+      children: [
                 _PreviewTile(
                   selected: _selected,
                   cardType: _cardType,
@@ -308,56 +282,7 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
                 Text('청구될 금액을 입력하세요. 총 부채에 반영됩니다.',
                     style: PTypo.micro.copyWith(color: t.fgTertiary)),
               ],
-            ),
-          ),
-          // Sticky footer ─────────────────────────────
-          SafeArea(
-            top: false,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(
-                  PSpace.x12, PSpace.x8, PSpace.x12, PSpace.x8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton(
-                    onPressed: _submitting
-                        ? null
-                        : () => Navigator.of(context).pop(),
-                    style: TextButton.styleFrom(
-                      foregroundColor: t.fgSecondary,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 8),
-                    ),
-                    child: Text('취소',
-                        style: PTypo.bodySm
-                            .copyWith(color: t.fgSecondary)),
-                  ),
-                  const SizedBox(width: 4),
-                  FilledButton(
-                    style: FilledButton.styleFrom(
-                      backgroundColor: t.bgBrand,
-                      foregroundColor: t.fgOnBrand,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 18, vertical: 8),
-                      disabledBackgroundColor: t.bgDisabled,
-                      disabledForegroundColor: t.fgTertiary,
-                    ),
-                    onPressed: canSubmit ? _submit : null,
-                    child: _submitting
-                        ? const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(
-                                strokeWidth: 2, color: Colors.white))
-                        : Text(_selected == null ? '카드 선택 필요' : '추가'),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
+            );
   }
 }
 
