@@ -18,11 +18,10 @@ void showCalendarEventDialog(
   CalendarEvent? edit,
   DateTime? defaultDate,
 }) {
-  showPModalSheet<void>(
+  showPSheet<void>(
     context,
     title: edit == null ? '일정 추가' : '일정 수정',
-    body: _Body(edit: edit, defaultDate: defaultDate),
-    extraTrailingActions: edit == null
+    headerActions: edit == null
         ? const []
         : [
             Builder(
@@ -33,6 +32,11 @@ void showCalendarEventDialog(
               ),
             ),
           ],
+    bodyBuilder: (ctx, scrollCtrl) => _Body(
+      edit: edit,
+      defaultDate: defaultDate,
+      scrollController: scrollCtrl,
+    ),
   );
 }
 
@@ -102,9 +106,10 @@ Future<void> _confirmDelete(BuildContext ctx, CalendarEvent edit) async {
 }
 
 class _Body extends ConsumerStatefulWidget {
-  const _Body({this.edit, this.defaultDate});
+  const _Body({this.edit, this.defaultDate, required this.scrollController});
   final CalendarEvent? edit;
   final DateTime? defaultDate;
+  final ScrollController scrollController;
   @override
   ConsumerState<_Body> createState() => _BodyState();
 }
@@ -305,12 +310,11 @@ class _BodyState extends ConsumerState<_Body> {
       ),
     );
 
-    return SingleChildScrollView(
+    return ListView(
+      controller: widget.scrollController,
       padding: const EdgeInsets.fromLTRB(
           PSpace.x16, PSpace.x8, PSpace.x16, PSpace.x16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+      children: [
           _SectionLabel('제목', tokens: t),
           const SizedBox(height: PSpace.x4),
           TextField(
@@ -580,8 +584,7 @@ class _BodyState extends ConsumerState<_Body> {
               ),
             ],
           ),
-        ],
-      ),
+      ],
     );
   }
 }
