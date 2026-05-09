@@ -1,47 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
 import '../../app/theme/radius.dart';
 import '../../app/theme/spacing.dart';
 import '../../app/theme/tokens.dart';
 import '../../app/theme/typography.dart';
-
-/// 모든 다이얼로그/시트 진입점을 통일하는 helper — front `ModalShell` 미러.
-///
-/// 이미 곳곳에서 `WoltModalSheet.show + WoltModalSheetPage` 가 반복되어
-/// 신규 코드는 이 helper 를 통해 일관 스타일 (제목바 + close 버튼)을 얻는다.
-Future<T?> showPModalSheet<T>(
-  BuildContext context, {
-  required String title,
-  required Widget body,
-  bool barrierDismissible = true,
-  List<Widget> extraTrailingActions = const [],
-}) {
-  return WoltModalSheet.show<T>(
-    context: context,
-    barrierDismissible: barrierDismissible,
-    pageListBuilder: (modalCtx) => [
-      WoltModalSheetPage(
-        topBarTitle: Text(title),
-        isTopBarLayerAlwaysVisible: true,
-        backgroundColor:
-            Theme.of(modalCtx).extension<PorestTokens>()?.bgSurface,
-        trailingNavBarWidget: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ...extraTrailingActions,
-            IconButton(
-              icon: const Icon(LucideIcons.x),
-              onPressed: Navigator.of(modalCtx).pop,
-            ),
-          ],
-        ),
-        child: body,
-      ),
-    ],
-  );
-}
 
 /// 표준 footer — 좌측 삭제(편집 모드만) / 우측 취소 + 저장. controller listen.
 class PSheetFooter extends StatelessWidget {

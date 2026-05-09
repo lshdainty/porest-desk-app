@@ -279,35 +279,37 @@ class _BodyState extends ConsumerState<_Body> {
   }
 
   Future<void> _pickCalendar(List<UserCalendar> cals) async {
-    final res = await showPModalSheet<int>(
+    final res = await showPSheet<int>(
       context,
       title: '캘린더 선택',
-      body: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          for (final c in cals)
-            Builder(
-              builder: (sheetCtx) {
-                final t = sheetCtx.tokens;
-                return ListTile(
-                  leading: Container(
-                    width: PSpace.x12,
-                    height: PSpace.x12,
-                    decoration: BoxDecoration(
-                      color: parseColor(c.color, fallback: t.fgBrand),
-                      shape: BoxShape.circle,
-                    ),
+      contentBuilder: (sheetCtx, scrollCtrl) {
+        final t = sheetCtx.tokens;
+        return ListView(
+          controller: scrollCtrl,
+          padding: const EdgeInsets.fromLTRB(
+              PSpace.x8, 0, PSpace.x8, PSpace.x16),
+          children: [
+            for (final c in cals)
+              ListTile(
+                leading: Container(
+                  width: PSpace.x12,
+                  height: PSpace.x12,
+                  decoration: BoxDecoration(
+                    color: parseColor(c.color, fallback: t.fgBrand),
+                    shape: BoxShape.circle,
                   ),
-                  title: Text(c.calendarName),
-                  trailing: c.rowId == _userCalendarRowId
-                      ? Icon(LucideIcons.check, color: t.fgBrand)
-                      : null,
-                  onTap: () => Navigator.pop(sheetCtx, c.rowId),
-                );
-              },
-            ),
-        ],
-      ),
+                ),
+                title: Text(c.calendarName),
+                trailing: c.rowId == _userCalendarRowId
+                    ? Icon(LucideIcons.check, color: t.fgBrand)
+                    : null,
+                onTap: () => Navigator.pop(sheetCtx, c.rowId),
+              ),
+          ],
+        );
+      },
+      initialChildSize: 0.5,
+      minChildSize: 0.3,
     );
     if (res != null) setState(() => _userCalendarRowId = res);
   }

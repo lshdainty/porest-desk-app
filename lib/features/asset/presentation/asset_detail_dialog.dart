@@ -26,12 +26,7 @@ import 'asset_edit_dialog.dart';
 
 /// 자산 상세 — front `AssetDetailDialog` 모바일 미러.
 ///
-/// add_tx_sheet 패턴 (showModalBottomSheet + DraggableScrollableSheet) 으로
-/// 통일. WoltModalSheet 의 자동 헤더/스티키 푸터 border line 이 web 디자인과
-/// 안 맞아서 일관성 위해 같은 시트 베이스로 정리.
-///
-/// 구성 (web 동일):
-/// - Drag handle + Row(타이틀 + X) — border line 없음
+/// 공통 `showPSheet` 사용. 구성 (web 동일):
 /// - Hero 카드 (브랜드 그라디언트 + 아이콘 + 이름 + 잔액)
 /// - 12/24/52주 잔액 추이 + 3개월/6개월/1년 segmented
 /// - 최근 거래 12건 + "전체 보기 →"

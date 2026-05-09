@@ -123,119 +123,104 @@ class _BodyState extends ConsumerState<_Body> {
   /// 같은 그룹 멤버에서 다중 선택해 참여자 추가 (#291).
   Future<void> _showSiblingPicker(BuildContext context) async {
     final selected = <int>{};
-    final picked = await showModalBottomSheet<List<SiblingMember>>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: context.tokens.bgSurface,
-      shape: const RoundedRectangleBorder(
-        borderRadius:
-            BorderRadius.vertical(top: Radius.circular(PRadius.xl)),
-      ),
-      builder: (sheetCtx) {
-        final t = sheetCtx.tokens;
+    final controller = PSheetController();
+    List<SiblingMember> resolvedMembers = const [];
+    List<SiblingMember>? picked;
+
+    controller.onSubmit = () async {
+      if (selected.isEmpty) return;
+      picked = resolvedMembers
+          .where((m) => selected.contains(m.userRowId))
+          .toList();
+      if (context.mounted) Navigator.of(context).pop();
+    };
+
+    await showPSheet<void>(
+      context,
+      title: '그룹 멤버에서 추가',
+      contentBuilder: (sheetCtx, scrollCtrl) {
         return Consumer(builder: (ctx, ref, _) {
           final async = ref.watch(siblingMembersProvider);
+          final t = ctx.tokens;
           return StatefulBuilder(builder: (ctx, setSheetState) {
-            return SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('그룹 멤버에서 추가',
-                        style: PTypo.h4.copyWith(color: t.fgPrimary)),
-                    const SizedBox(height: 12),
-                    Flexible(
-                      child: async.when(
-                        loading: () => const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 32),
-                          child: Center(child: CircularProgressIndicator()),
-                        ),
-                        error: (e, _) => Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 32),
-                          child: Text('멤버 로드 실패: $e',
-                              style: PTypo.caption
-                                  .copyWith(color: t.statusDanger)),
-                        ),
-                        data: (members) {
-                          if (members.isEmpty) {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 32),
-                              child: Text('같은 그룹의 다른 멤버가 없습니다',
-                                  style: PTypo.caption
-                                      .copyWith(color: t.fgTertiary)),
-                            );
-                          }
-                          return ListView.builder(
-                            shrinkWrap: true,
-                            itemCount: members.length,
-                            itemBuilder: (_, i) {
-                              final m = members[i];
-                              final isSel = selected.contains(m.userRowId);
-                              return CheckboxListTile(
-                                value: isSel,
-                                title: Text(m.userName),
-                                subtitle: m.userEmail == null
-                                    ? null
-                                    : Text(m.userEmail!,
-                                        style: PTypo.caption
-                                            .copyWith(color: t.fgTertiary)),
-                                contentPadding: EdgeInsets.zero,
-                                onChanged: (v) => setSheetState(() {
-                                  if (v == true) {
-                                    selected.add(m.userRowId);
-                                  } else {
-                                    selected.remove(m.userRowId);
-                                  }
-                                }),
-                              );
-                            },
-                          );
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: OutlinedButton(
-                            onPressed: () => Navigator.pop(sheetCtx),
-                            child: const Text('취소'),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: FilledButton(
-                            onPressed: selected.isEmpty
-                                ? null
-                                : () {
-                                    final all =
-                                        async.value ?? <SiblingMember>[];
-                                    Navigator.pop(
-                                        sheetCtx,
-                                        all
-                                            .where((m) =>
-                                                selected.contains(m.userRowId))
-                                            .toList());
-                                  },
-                            child: Text('${selected.length}명 추가'),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+            return async.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (e, _) => Padding(
+                padding: const EdgeInsets.all(PSpace.x16),
+                child: Text('멤버 로드 실패: $e',
+                    style: PTypo.caption.copyWith(color: t.statusDanger)),
               ),
+              data: (members) {
+                resolvedMembers = members;
+                if (members.isEmpty) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: PSpace.x32),
+                    child: Center(
+                      child: Text('같은 그룹의 다른 멤버가 없습니다',
+                          style: PTypo.caption.copyWith(color: t.fgTertiary)),
+                    ),
+                  );
+                }
+                return ListView.builder(
+                  controller: scrollCtrl,
+                  padding: const EdgeInsets.fromLTRB(
+                      PSpace.x8, 0, PSpace.x8, PSpace.x16),
+                  itemCount: members.length,
+                  itemBuilder: (_, i) {
+                    final m = members[i];
+                    final isSel = selected.contains(m.userRowId);
+                    return CheckboxListTile(
+                      value: isSel,
+                      title: Text(m.userName),
+                      subtitle: m.userEmail == null
+                          ? null
+                          : Text(m.userEmail!,
+                              style: PTypo.caption
+                                  .copyWith(color: t.fgTertiary)),
+                      contentPadding: EdgeInsets.zero,
+                      onChanged: (v) => setSheetState(() {
+                        if (v == true) {
+                          selected.add(m.userRowId);
+                        } else {
+                          selected.remove(m.userRowId);
+                        }
+                        controller.setCanSubmit(selected.isNotEmpty);
+                        controller.bump();
+                      }),
+                    );
+                  },
+                );
+              },
             );
           });
         });
       },
+      footerBuilder: (sheetCtx) => AnimatedBuilder(
+        animation: controller,
+        builder: (ctx, _) => Row(
+          children: [
+            const Spacer(),
+            TextButton(
+              onPressed: controller.submitting
+                  ? null
+                  : () => Navigator.of(ctx).pop(),
+              child: const Text('취소'),
+            ),
+            const SizedBox(width: PSpace.x8),
+            FilledButton(
+              onPressed: controller.canSubmit && !controller.submitting
+                  ? controller.onSubmit
+                  : null,
+              child: Text('${selected.length}명 추가'),
+            ),
+          ],
+        ),
+      ),
     );
     if (picked == null || !mounted) return;
     setState(() {
       // 빈 슬롯부터 채우고 부족하면 새 슬롯 추가.
-      for (final m in picked) {
+      for (final m in picked!) {
         final empty = _participants.firstWhere(
           (p) => p.name.trim().isEmpty,
           orElse: () {
