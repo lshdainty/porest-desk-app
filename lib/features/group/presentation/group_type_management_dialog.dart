@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
 import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
@@ -9,26 +8,16 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/format/color_parse.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../shared/widgets/p_modal.dart';
 import '../application/group_providers.dart';
 import '../domain/group_type.dart';
 
 /// 그룹 타입 관리 다이얼로그 — front `GroupTypeManagementDialog` 미러.
 void showGroupTypeManagementDialog(BuildContext context) {
-  WoltModalSheet.show<void>(
-    context: context,
-    pageListBuilder: (modalCtx) => [
-      WoltModalSheetPage(
-        topBarTitle: const Text('그룹 타입 관리'),
-        isTopBarLayerAlwaysVisible: true,
-        backgroundColor:
-            Theme.of(modalCtx).extension<PorestTokens>()?.bgSurface,
-        trailingNavBarWidget: IconButton(
-          icon: const Icon(LucideIcons.x),
-          onPressed: Navigator.of(modalCtx).pop,
-        ),
-        child: const _Body(),
-      ),
-    ],
+  showPSheet<void>(
+    context,
+    title: '그룹 타입 관리',
+    contentBuilder: (ctx, scrollCtrl) => _Body(scrollController: scrollCtrl),
   );
 }
 
@@ -38,7 +27,8 @@ const _palette = <String>[
 ];
 
 class _Body extends ConsumerStatefulWidget {
-  const _Body();
+  const _Body({required this.scrollController});
+  final ScrollController scrollController;
   @override
   ConsumerState<_Body> createState() => _BodyState();
 }
@@ -80,12 +70,11 @@ class _BodyState extends ConsumerState<_Body> {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final typesAsync = ref.watch(groupTypeListProvider);
-    return Padding(
+    return ListView(
+      controller: widget.scrollController,
       padding: const EdgeInsets.fromLTRB(
-          PSpace.x16, PSpace.x16, PSpace.x16, PSpace.x16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+          PSpace.x16, 0, PSpace.x16, PSpace.x16),
+      children: [
           Text('새 그룹 타입',
               style: PTypo.bodySm.copyWith(
                   color: t.fgPrimary, fontWeight: PFontWeight.bold)),
@@ -154,8 +143,7 @@ class _BodyState extends ConsumerState<_Body> {
               );
             },
           ),
-        ],
-      ),
+      ],
     );
   }
 }
@@ -215,26 +203,15 @@ class _RowState extends ConsumerState<_Row> {
   }
 
   Future<void> _delete() async {
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('타입 삭제'),
-        content:
-            Text('"${widget.type.typeName}" 타입을 삭제하시겠어요? 이 타입을 사용하던 그룹은 타입 미지정 상태가 됩니다.'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('취소')),
-          FilledButton(
-            style: FilledButton.styleFrom(
-                backgroundColor: context.tokens.statusDanger),
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('삭제'),
-          ),
-        ],
-      ),
+    final ok = await showPConfirmDialog(
+      context,
+      title: '타입 삭제',
+      message:
+          '"${widget.type.typeName}" 타입을 삭제하시겠어요? 이 타입을 사용하던 그룹은 타입 미지정 상태가 됩니다.',
+      confirmLabel: '삭제',
+      destructive: true,
     );
-    if (ok != true || !mounted) return;
+    if (!ok || !mounted) return;
     setState(() => _busy = true);
     try {
       final repo = await ref.read(groupTypeRepositoryProvider.future);

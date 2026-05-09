@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
 import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
@@ -9,6 +8,7 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/format/color_parse.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../shared/widgets/p_modal.dart';
 import '../application/calendar_providers.dart';
 import '../domain/event_label.dart';
 
@@ -17,21 +17,10 @@ import '../domain/event_label.dart';
 /// 라벨 CRUD: 색상 선택, 이름 수정/삭제. 신규 라벨 추가 폼이 상단에 있고,
 /// 그 아래 기존 라벨 리스트(인라인 편집).
 void showEventLabelManagementDialog(BuildContext context) {
-  WoltModalSheet.show<void>(
-    context: context,
-    pageListBuilder: (modalCtx) => [
-      WoltModalSheetPage(
-        topBarTitle: const Text('라벨 관리'),
-        isTopBarLayerAlwaysVisible: true,
-        backgroundColor:
-            Theme.of(modalCtx).extension<PorestTokens>()?.bgSurface,
-        trailingNavBarWidget: IconButton(
-          icon: const Icon(LucideIcons.x),
-          onPressed: Navigator.of(modalCtx).pop,
-        ),
-        child: const _Body(),
-      ),
-    ],
+  showPSheet<void>(
+    context,
+    title: '라벨 관리',
+    contentBuilder: (ctx, scrollCtrl) => _Body(scrollController: scrollCtrl),
   );
 }
 
@@ -47,7 +36,8 @@ const _palette = <String>[
 ];
 
 class _Body extends ConsumerStatefulWidget {
-  const _Body();
+  const _Body({required this.scrollController});
+  final ScrollController scrollController;
   @override
   ConsumerState<_Body> createState() => _BodyState();
 }
@@ -89,12 +79,11 @@ class _BodyState extends ConsumerState<_Body> {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final labelsAsync = ref.watch(eventLabelsProvider);
-    return Padding(
+    return ListView(
+      controller: widget.scrollController,
       padding: const EdgeInsets.fromLTRB(
-          PSpace.x16, PSpace.x16, PSpace.x16, PSpace.x16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+          PSpace.x16, 0, PSpace.x16, PSpace.x16),
+      children: [
           // 새 라벨 추가
           Text('새 라벨',
               style: PTypo.bodySm.copyWith(
@@ -167,8 +156,7 @@ class _BodyState extends ConsumerState<_Body> {
               );
             },
           ),
-        ],
-      ),
+      ],
     );
   }
 }
@@ -224,25 +212,15 @@ class _LabelRowState extends ConsumerState<_LabelRow> {
   }
 
   Future<void> _delete() async {
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('라벨 삭제'),
-        content: Text('"${widget.label.labelName}" 라벨을 삭제하시겠어요? 이 라벨이 적용된 이벤트는 라벨이 해제됩니다.'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('취소')),
-          FilledButton(
-            style: FilledButton.styleFrom(
-                backgroundColor: context.tokens.statusDanger),
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('삭제'),
-          ),
-        ],
-      ),
+    final ok = await showPConfirmDialog(
+      context,
+      title: '라벨 삭제',
+      message:
+          '"${widget.label.labelName}" 라벨을 삭제하시겠어요? 이 라벨이 적용된 이벤트는 라벨이 해제됩니다.',
+      confirmLabel: '삭제',
+      destructive: true,
     );
-    if (ok != true || !mounted) return;
+    if (!ok || !mounted) return;
     setState(() => _busy = true);
     try {
       final repo = await ref.read(calendarRepositoryProvider.future);

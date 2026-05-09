@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
 import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../shared/widgets/p_modal.dart';
 import '../application/calendar_providers.dart';
 import '../domain/holiday.dart';
 
@@ -15,26 +15,16 @@ import '../domain/holiday.dart';
 ///
 /// 현재 연도의 공휴일을 조회하고 사용자 정의(CUSTOM) 휴일 추가/수정/삭제.
 void showHolidayManagementDialog(BuildContext context) {
-  WoltModalSheet.show<void>(
-    context: context,
-    pageListBuilder: (modalCtx) => [
-      WoltModalSheetPage(
-        topBarTitle: const Text('공휴일 관리'),
-        isTopBarLayerAlwaysVisible: true,
-        backgroundColor:
-            Theme.of(modalCtx).extension<PorestTokens>()?.bgSurface,
-        trailingNavBarWidget: IconButton(
-          icon: const Icon(LucideIcons.x),
-          onPressed: Navigator.of(modalCtx).pop,
-        ),
-        child: const _Body(),
-      ),
-    ],
+  showPSheet<void>(
+    context,
+    title: '공휴일 관리',
+    contentBuilder: (ctx, scrollCtrl) => _Body(scrollController: scrollCtrl),
   );
 }
 
 class _Body extends ConsumerStatefulWidget {
-  const _Body();
+  const _Body({required this.scrollController});
+  final ScrollController scrollController;
   @override
   ConsumerState<_Body> createState() => _BodyState();
 }
@@ -91,12 +81,11 @@ class _BodyState extends ConsumerState<_Body> {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final async = ref.watch(holidayListProvider(_range));
-    return Padding(
+    return ListView(
+      controller: widget.scrollController,
       padding: const EdgeInsets.fromLTRB(
-          PSpace.x16, PSpace.x16, PSpace.x16, PSpace.x16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+          PSpace.x16, 0, PSpace.x16, PSpace.x16),
+      children: [
           // 연도 선택
           Row(
             children: [
@@ -226,8 +215,7 @@ class _BodyState extends ConsumerState<_Body> {
               );
             },
           ),
-        ],
-      ),
+      ],
     );
   }
 }
@@ -245,25 +233,14 @@ class _RowState extends ConsumerState<_Row> {
 
   Future<void> _delete() async {
     if (widget.holiday.holidayType != 'CUSTOM') return;
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('휴일 삭제'),
-        content: Text('${widget.holiday.holidayName} 삭제할까요?'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('취소')),
-          FilledButton(
-            style: FilledButton.styleFrom(
-                backgroundColor: context.tokens.statusDanger),
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('삭제'),
-          ),
-        ],
-      ),
+    final ok = await showPConfirmDialog(
+      context,
+      title: '휴일 삭제',
+      message: '${widget.holiday.holidayName} 삭제할까요?',
+      confirmLabel: '삭제',
+      destructive: true,
     );
-    if (ok != true || !mounted) return;
+    if (!ok || !mounted) return;
     setState(() => _busy = true);
     try {
       final repo = await ref.read(holidayRepositoryProvider.future);

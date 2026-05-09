@@ -5,13 +5,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
 import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../shared/widgets/p_modal.dart';
 import '../../asset/application/asset_providers.dart';
 import '../../asset/domain/asset.dart';
 import '../application/expense_providers.dart';
@@ -20,21 +20,16 @@ import '../domain/expense_category.dart';
 
 /// 거래 데이터 내보내기 시트 — front `ExportDialog` 미러.
 void showExportDialog(BuildContext context) {
-  WoltModalSheet.show<void>(
-    context: context,
-    pageListBuilder: (modalCtx) => [
-      WoltModalSheetPage(
-        topBarTitle: const Text('내보내기'),
-        isTopBarLayerAlwaysVisible: true,
-        backgroundColor:
-            Theme.of(modalCtx).extension<PorestTokens>()?.bgSurface,
-        trailingNavBarWidget: IconButton(
-          icon: const Icon(LucideIcons.x),
-          onPressed: Navigator.of(modalCtx).pop,
-        ),
-        child: const _ExportBody(),
-      ),
-    ],
+  final controller = PSheetController();
+  showPSheet<void>(
+    context,
+    title: '내보내기',
+    contentBuilder: (ctx, scrollCtrl) => _ExportBody(
+      scrollController: scrollCtrl,
+      controller: controller,
+    ),
+    footerBuilder: (ctx) =>
+        PSheetFooter(controller: controller, submitLabel: 'CSV 내보내기'),
   );
 }
 
@@ -43,7 +38,12 @@ enum _Period { week, month, q3, year, custom }
 enum _Include { tx, category, asset }
 
 class _ExportBody extends ConsumerStatefulWidget {
-  const _ExportBody();
+  const _ExportBody({
+    required this.scrollController,
+    required this.controller,
+  });
+  final ScrollController scrollController;
+  final PSheetController controller;
 
   @override
   ConsumerState<_ExportBody> createState() => _ExportBodyState();
@@ -55,6 +55,17 @@ class _ExportBodyState extends ConsumerState<_ExportBody> {
   DateTime _customFrom = DateTime.now().subtract(const Duration(days: 30));
   DateTime _customTo = DateTime.now();
   bool _running = false;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.controller.onSubmit = _run;
+  }
+
+  void _setRunning(bool v) {
+    setState(() => _running = v);
+    widget.controller.setSubmitting(v);
+  }
 
   ({DateTime from, DateTime to}) _resolvePeriod() {
     final now = DateTime.now();
@@ -143,7 +154,7 @@ class _ExportBodyState extends ConsumerState<_ExportBody> {
 
   Future<void> _run() async {
     if (_running || _includes.isEmpty) return;
-    setState(() => _running = true);
+    _setRunning(true);
     try {
       final p = _resolvePeriod();
       final eRepo = await ref.read(expenseRepositoryProvider.future);
@@ -186,19 +197,21 @@ class _ExportBodyState extends ConsumerState<_ExportBody> {
         SnackBar(content: Text('내보내기 실패: $e')),
       );
     } finally {
-      if (mounted) setState(() => _running = false);
+      if (mounted) _setRunning(false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    return Padding(
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) widget.controller.setCanSubmit(_includes.isNotEmpty);
+    });
+    return ListView(
+      controller: widget.scrollController,
       padding: const EdgeInsets.fromLTRB(
-          PSpace.x16, PSpace.x8, PSpace.x16, PSpace.x16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+          PSpace.x16, 0, PSpace.x16, PSpace.x16),
+      children: [
           _Label('파일 형식'),
           const SizedBox(height: PSpace.x8),
           Container(
@@ -278,21 +291,7 @@ class _ExportBodyState extends ConsumerState<_ExportBody> {
                 tokens: t,
               ),
             ),
-          const SizedBox(height: PSpace.x16),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              onPressed: (_includes.isEmpty || _running) ? null : _run,
-              icon: _running
-                  ? const SizedBox(
-                      width: 16, height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Icon(LucideIcons.download, size: 16),
-              label: const Text('CSV 내보내기'),
-            ),
-          ),
-        ],
-      ),
+      ],
     );
   }
 

@@ -1,40 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
 import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../shared/widgets/p_modal.dart';
 import '../../expense/application/expense_providers.dart';
-import '../../expense/domain/expense_category.dart';
 import '../application/card_providers.dart';
 import '../domain/card_benefit_mapping.dart';
 
 /// 카드 혜택 ↔ 가계부 카테고리 매핑 관리 — front `CardSettingsPage` 핵심 패널 미러.
 void showCardBenefitMappingDialog(BuildContext context) {
-  WoltModalSheet.show<void>(
-    context: context,
-    pageListBuilder: (modalCtx) => [
-      WoltModalSheetPage(
-        topBarTitle: const Text('카드 혜택 매핑'),
-        isTopBarLayerAlwaysVisible: true,
-        backgroundColor:
-            Theme.of(modalCtx).extension<PorestTokens>()?.bgSurface,
-        trailingNavBarWidget: IconButton(
-          icon: const Icon(LucideIcons.x),
-          onPressed: Navigator.of(modalCtx).pop,
-        ),
-        child: const _Body(),
-      ),
-    ],
+  showPSheet<void>(
+    context,
+    title: '카드 혜택 매핑',
+    contentBuilder: (ctx, scrollCtrl) => _Body(scrollController: scrollCtrl),
   );
 }
 
 class _Body extends ConsumerStatefulWidget {
-  const _Body();
+  const _Body({required this.scrollController});
+  final ScrollController scrollController;
   @override
   ConsumerState<_Body> createState() => _BodyState();
 }
@@ -80,12 +69,11 @@ class _BodyState extends ConsumerState<_Body> {
     final t = context.tokens;
     final mappingsAsync = ref.watch(cardBenefitMappingsProvider);
     final categoriesAsync = ref.watch(categoriesProvider);
-    return Padding(
+    return ListView(
+      controller: widget.scrollController,
       padding: const EdgeInsets.fromLTRB(
-          PSpace.x16, PSpace.x16, PSpace.x16, PSpace.x16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+          PSpace.x16, 0, PSpace.x16, PSpace.x16),
+      children: [
           Text('새 매핑',
               style: PTypo.bodySm.copyWith(
                   color: t.fgPrimary, fontWeight: PFontWeight.bold)),
@@ -180,8 +168,7 @@ class _BodyState extends ConsumerState<_Body> {
               );
             },
           ),
-        ],
-      ),
+      ],
     );
   }
 }
