@@ -34,7 +34,6 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     final t = context.tokens;
     final eventsAsync = ref.watch(monthEventsProvider(_key));
     final events = eventsAsync.value ?? const <CalendarEvent>[];
-    final dayEvents = _eventsOnDay(events, _selected);
 
     return Scaffold(
       backgroundColor: t.bgCanvas,
@@ -48,6 +47,11 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         foregroundColor: t.fgPrimary,
         elevation: 0,
         actions: [
+          IconButton(
+            icon: Icon(LucideIcons.refreshCw,
+                size: 18, color: t.fgSecondary),
+            onPressed: () => ref.invalidate(monthEventsProvider(_key)),
+          ),
           PopupMenuButton<String>(
             icon: Icon(LucideIcons.moreVertical, color: t.fgSecondary),
             onSelected: (v) {
@@ -78,129 +82,71 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
             showCalendarEventDialog(context, defaultDate: _selected),
         child: const Icon(LucideIcons.plus),
       ),
-      body: RefreshIndicator(
-        color: t.bgBrand,
-        onRefresh: () async {
-          ref.invalidate(monthEventsProvider(_key));
-          await ref.read(monthEventsProvider(_key).future);
-        },
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(
-              PSpace.x16, PSpace.x12, PSpace.x16, PSpace.x80),
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                color: t.bgSurface,
-                borderRadius: PRadius.brLg,
-                border: Border.all(color: t.borderSubtle),
-              ),
-              child: TableCalendar<CalendarEvent>(
-                firstDay: DateTime(2020),
-                lastDay: DateTime(2030),
-                focusedDay: _focused,
-                selectedDayPredicate: (d) => isSameDay(_selected, d),
-                onDaySelected: (sel, foc) {
-                  setState(() {
-                    _selected = sel;
-                    _focused = foc;
-                  });
-                },
-                onPageChanged: (foc) => setState(() => _focused = foc),
-                calendarFormat: _fmt,
-                onFormatChanged: (f) => setState(() => _fmt = f),
-                eventLoader: (d) => _eventsOnDay(events, d),
-                locale: 'ko_KR',
-                rowHeight: PSpace.x80,
-                headerStyle: HeaderStyle(
-                  formatButtonVisible: false,
-                  titleCentered: true,
-                  titleTextStyle: PTypo.body.copyWith(
-                      color: t.fgPrimary, fontWeight: PFontWeight.bold),
-                  leftChevronIcon: Icon(LucideIcons.chevronLeft,
-                      size: 18, color: t.fgSecondary),
-                  rightChevronIcon: Icon(LucideIcons.chevronRight,
-                      size: 18, color: t.fgSecondary),
-                ),
-                daysOfWeekStyle: DaysOfWeekStyle(
-                  weekendStyle: PTypo.caption
-                      .copyWith(color: t.statusDanger),
-                  weekdayStyle: PTypo.caption
-                      .copyWith(color: t.fgSecondary),
-                ),
-                calendarStyle: const CalendarStyle(
-                  outsideDaysVisible: true,
-                  cellMargin: EdgeInsets.zero,
-                  cellPadding: EdgeInsets.zero,
-                ),
-                calendarBuilders: CalendarBuilders<CalendarEvent>(
-                  defaultBuilder: (ctx, day, _) =>
-                      _DayCell(day: day, events: _eventsOnDay(events, day),
-                          selected: _selected, isOutside: false, tokens: t),
-                  todayBuilder: (ctx, day, _) =>
-                      _DayCell(day: day, events: _eventsOnDay(events, day),
-                          selected: _selected, isOutside: false, tokens: t),
-                  selectedBuilder: (ctx, day, _) =>
-                      _DayCell(day: day, events: _eventsOnDay(events, day),
-                          selected: _selected, isOutside: false, tokens: t),
-                  outsideBuilder: (ctx, day, _) =>
-                      _DayCell(day: day, events: _eventsOnDay(events, day),
-                          selected: _selected, isOutside: true, tokens: t),
-                  markerBuilder: (_, _, _) => const SizedBox.shrink(),
-                ),
-              ),
-            ),
-            const SizedBox(height: PSpace.x12),
-            Row(
-              children: [
-                Text(
-                    '${_selected.year}.${_selected.month}.${_selected.day}',
-                    style: PTypo.body.copyWith(
-                        color: t.fgPrimary, fontWeight: PFontWeight.bold)),
-                const SizedBox(width: 6),
-                Text('${dayEvents.length}건',
-                    style: PTypo.caption.copyWith(color: t.fgTertiary)),
-              ],
-            ),
-            const SizedBox(height: PSpace.x8),
-            if (eventsAsync.isLoading && events.isEmpty)
-              const Center(
-                  child: Padding(
-                      padding: EdgeInsets.all(PSpace.x24),
-                      child: CircularProgressIndicator()))
-            else if (eventsAsync.hasError && events.isEmpty)
-              Padding(
-                padding: const EdgeInsets.all(PSpace.x16),
-                child: Text('이벤트 로드 실패\n${eventsAsync.error}',
-                    style:
-                        PTypo.bodySm.copyWith(color: t.statusDanger)),
-              )
-            else if (dayEvents.isEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: PSpace.x32),
-                child: Center(
-                    child: Text('이날 이벤트가 없습니다',
-                        style: PTypo.bodySm
-                            .copyWith(color: t.fgTertiary))),
-              )
-            else
-              Container(
-                decoration: BoxDecoration(
-                  color: t.bgSurface,
-                  borderRadius: PRadius.brLg,
-                  border: Border.all(color: t.borderSubtle),
-                ),
-                child: Column(
-                  children: [
-                    for (int i = 0; i < dayEvents.length; i++) ...[
-                      _EventRow(event: dayEvents[i], tokens: t),
-                      if (i < dayEvents.length - 1)
-                        Divider(
-                            height: 1, color: t.borderSubtle, indent: 16),
-                    ],
-                  ],
-                ),
-              ),
-          ],
+      body: SafeArea(
+        top: false,
+        child: TableCalendar<CalendarEvent>(
+          firstDay: DateTime(2020),
+          lastDay: DateTime(2030),
+          focusedDay: _focused,
+          selectedDayPredicate: (d) => isSameDay(_selected, d),
+          onDaySelected: (sel, foc) {
+            setState(() {
+              _selected = sel;
+              _focused = foc;
+            });
+          },
+          onPageChanged: (foc) => setState(() => _focused = foc),
+          calendarFormat: _fmt,
+          onFormatChanged: (f) => setState(() => _fmt = f),
+          eventLoader: (d) => _eventsOnDay(events, d),
+          locale: 'ko_KR',
+          shouldFillViewport: true,
+          headerStyle: HeaderStyle(
+            formatButtonVisible: false,
+            titleCentered: true,
+            titleTextStyle: PTypo.body.copyWith(
+                color: t.fgPrimary, fontWeight: PFontWeight.bold),
+            leftChevronIcon: Icon(LucideIcons.chevronLeft,
+                size: 18, color: t.fgSecondary),
+            rightChevronIcon: Icon(LucideIcons.chevronRight,
+                size: 18, color: t.fgSecondary),
+          ),
+          daysOfWeekStyle: DaysOfWeekStyle(
+            weekendStyle: PTypo.caption.copyWith(color: t.statusDanger),
+            weekdayStyle: PTypo.caption.copyWith(color: t.fgSecondary),
+          ),
+          calendarStyle: const CalendarStyle(
+            outsideDaysVisible: true,
+            cellMargin: EdgeInsets.zero,
+            cellPadding: EdgeInsets.zero,
+          ),
+          calendarBuilders: CalendarBuilders<CalendarEvent>(
+            defaultBuilder: (ctx, day, _) => _DayCell(
+                day: day,
+                events: _eventsOnDay(events, day),
+                selected: _selected,
+                isOutside: false,
+                tokens: t),
+            todayBuilder: (ctx, day, _) => _DayCell(
+                day: day,
+                events: _eventsOnDay(events, day),
+                selected: _selected,
+                isOutside: false,
+                tokens: t),
+            selectedBuilder: (ctx, day, _) => _DayCell(
+                day: day,
+                events: _eventsOnDay(events, day),
+                selected: _selected,
+                isOutside: false,
+                tokens: t),
+            outsideBuilder: (ctx, day, _) => _DayCell(
+                day: day,
+                events: _eventsOnDay(events, day),
+                selected: _selected,
+                isOutside: true,
+                tokens: t),
+            markerBuilder: (_, _, _) => const SizedBox.shrink(),
+          ),
         ),
       ),
     );
@@ -278,29 +224,42 @@ class _DayCell extends StatelessWidget {
       ),
     );
 
-    const maxLabels = 1;
-    final visible = events.take(maxLabels).toList();
-    final overflow = events.length - visible.length;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // 셀 가용 높이에서 날짜 숫자 영역(24) + 상하 패딩(8) + 간격(4) 빼고
+        // 라벨 1개 높이(약 18) 로 나눠 표시 가능 개수 계산.
+        const dayNumberArea = PSpace.x24 + PSpace.x4 + PSpace.x4 + PSpace.x4;
+        const labelRowHeight = 18.0;
+        final available = constraints.maxHeight - dayNumberArea;
+        final fit = available > 0 ? (available / labelRowHeight).floor() : 0;
+        final maxLabels = fit.clamp(0, events.length);
+        final reserveOverflow = events.length > maxLabels;
+        final visibleCount = reserveOverflow && maxLabels > 0
+            ? maxLabels - 1
+            : maxLabels;
+        final visible = events.take(visibleCount).toList();
+        final overflow = events.length - visible.length;
 
-    return Padding(
-      padding: const EdgeInsets.all(PSpace.x4),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Center(child: dayNumber),
-          const SizedBox(height: PSpace.x4),
-          for (final ev in visible)
-            _CellEventLabel(event: ev, dimmed: isOutside, tokens: t),
-          if (overflow > 0)
-            Padding(
-              padding: const EdgeInsets.only(
-                  left: PSpace.x4, top: PSpace.x4),
-              child: Text('+$overflow',
-                  style: PTypo.micro.copyWith(color: t.fgTertiary)),
-            ),
-        ],
-      ),
+        return Padding(
+          padding: const EdgeInsets.all(PSpace.x4),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Center(child: dayNumber),
+              const SizedBox(height: PSpace.x4),
+              for (final ev in visible)
+                _CellEventLabel(event: ev, dimmed: isOutside, tokens: t),
+              if (overflow > 0)
+                Padding(
+                  padding: const EdgeInsets.only(left: PSpace.x4),
+                  child: Text('+$overflow',
+                      style: PTypo.micro.copyWith(color: t.fgTertiary)),
+                ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
@@ -343,65 +302,3 @@ class _CellEventLabel extends StatelessWidget {
   }
 }
 
-class _EventRow extends StatelessWidget {
-  const _EventRow({required this.event, required this.tokens});
-  final CalendarEvent event;
-  final PorestTokens tokens;
-  @override
-  Widget build(BuildContext context) {
-    final color = parseColor(event.labelColor ?? event.color,
-        fallback: tokens.fgBrand);
-    final s = event.start;
-    final e = event.end;
-    final timeLabel = event.isAllDayBool
-        ? '종일'
-        : '${_hhmm(s)}–${_hhmm(e)}';
-    return InkWell(
-      onTap: () => showCalendarEventDialog(context, edit: event),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-            horizontal: PSpace.x16, vertical: PSpace.x12),
-        child: Row(
-          children: [
-            Container(
-              width: 4,
-              height: 36,
-              decoration: BoxDecoration(
-                color: color,
-                borderRadius: PRadius.brXs2,
-              ),
-            ),
-            const SizedBox(width: PSpace.x12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(event.title,
-                      style: PTypo.body.copyWith(
-                          color: tokens.fgPrimary,
-                          fontWeight: PFontWeight.semi)),
-                  const SizedBox(height: 2),
-                  Text(
-                    [
-                      timeLabel,
-                      if ((event.location ?? '').isNotEmpty)
-                        event.location!,
-                      if (event.labelName != null) event.labelName!,
-                    ].whereType<String>().join(' · '),
-                    style: PTypo.caption
-                        .copyWith(color: tokens.fgTertiary),
-                  ),
-                ],
-              ),
-            ),
-            Icon(LucideIcons.chevronRight,
-                size: 16, color: tokens.fgTertiary),
-          ],
-        ),
-      ),
-    );
-  }
-
-  String _hhmm(DateTime d) =>
-      '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
-}
