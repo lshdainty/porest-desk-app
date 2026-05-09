@@ -292,7 +292,8 @@ class _CellEventLabel extends StatelessWidget {
       child: Text(
         event.title,
         maxLines: 1,
-        overflow: TextOverflow.ellipsis,
+        overflow: TextOverflow.clip,
+        softWrap: false,
         style: PTypo.micro.copyWith(
           color: color.withValues(alpha: textAlpha),
           fontWeight: PFontWeight.semi,
