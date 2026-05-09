@@ -9,6 +9,7 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/brand/bank_colors.dart';
+import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../application/asset_providers.dart';
 import '../domain/asset.dart';
@@ -43,26 +44,21 @@ void _open(
   required Asset? edit,
   required _SubType initialSubType,
 }) {
-  showModalBottomSheet<void>(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor:
-        Theme.of(context).extension<PorestTokens>()?.bgSurface,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(PRadius.xl2)),
+  final controller = PSheetController();
+  showPSheet<void>(
+    context,
+    title: edit == null ? '계좌 추가' : '계좌 편집',
+    contentBuilder: (ctx, scrollCtrl) => _AccountAddBody(
+      edit: edit,
+      initialSubType: initialSubType,
+      scrollController: scrollCtrl,
+      controller: controller,
     ),
-    builder: (_) => DraggableScrollableSheet(
-      initialChildSize: 0.85,
-      minChildSize: 0.5,
-      maxChildSize: 0.95,
-      expand: false,
-      builder: (_, scrollCtrl) => _AccountAddBody(
-        edit: edit,
-        initialSubType: initialSubType,
-        scrollController: scrollCtrl,
-      ),
+    footerBuilder: (ctx) => PSheetFooter(
+      controller: controller,
+      submitLabel: edit != null ? '저장' : '추가',
     ),
-  );
+  ).whenComplete(controller.dispose);
 }
 
 _SubType _subTypeFromAssetType(String t) => switch (t) {
@@ -98,10 +94,12 @@ class _AccountAddBody extends ConsumerStatefulWidget {
     required this.edit,
     required this.initialSubType,
     required this.scrollController,
+    required this.controller,
   });
   final Asset? edit;
   final _SubType initialSubType;
   final ScrollController scrollController;
+  final PSheetController controller;
 
   @override
   ConsumerState<_AccountAddBody> createState() => _AccountAddBodyState();
@@ -174,6 +172,20 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
     _balanceCtrl =
         TextEditingController(text: (e?.balance ?? 0).toString());
     _memoCtrl = TextEditingController(text: e?.memo ?? '');
+    widget.controller.onSubmit = _submit;
+    if (widget.edit != null) widget.controller.onDelete = _delete;
+    WidgetsBinding.instance.addPostFrameCallback(
+        (_) => widget.controller.setCanSubmit(true));
+  }
+
+  void _setSubmitting(bool v) {
+    setState(() => _submitting = v);
+    widget.controller.setSubmitting(v || _deleting);
+  }
+
+  void _setDeleting(bool v) {
+    setState(() => _deleting = v);
+    widget.controller.setSubmitting(v || _submitting);
   }
 
   void _onQueryChanged() => setState(() {});
@@ -203,7 +215,7 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
         ? (memo.isEmpty ? (accountNumber.isEmpty ? null : accountNumber) : memo)
         : (accountNumber.isEmpty ? null : accountNumber);
 
-    setState(() => _submitting = true);
+    _setSubmitting(true);
     try {
       final repo = await ref.read(assetRepositoryProvider.future);
       if (_isEdit) {
@@ -239,7 +251,7 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
         SnackBar(content: Text('실패: ${e.message}')),
       );
     } finally {
-      if (mounted) setState(() => _submitting = false);
+      if (mounted) _setSubmitting(false);
     }
   }
 
@@ -264,7 +276,7 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
       ),
     );
     if (ok != true || !mounted) return;
-    setState(() => _deleting = true);
+    _setDeleting(true);
     try {
       final repo = await ref.read(assetRepositoryProvider.future);
       await repo.delete(widget.edit!.rowId);
@@ -280,60 +292,18 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
         SnackBar(content: Text('삭제 실패: ${e.message}')),
       );
     } finally {
-      if (mounted) setState(() => _deleting = false);
+      if (mounted) _setDeleting(false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    return Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-      ),
-      child: Column(
-        children: [
-          // Drag handle ─────────────────────────────────
-          Container(
-            margin: const EdgeInsets.only(top: 8),
-            width: 36,
-            height: 4,
-            decoration: BoxDecoration(
-              color: t.borderDefault,
-              borderRadius: PRadius.brXs2,
-            ),
-          ),
-          // Header ─────────────────────────────────────
-          Padding(
-            padding: const EdgeInsets.fromLTRB(
-                PSpace.x16, PSpace.x12, PSpace.x8, PSpace.x4),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    _isEdit ? '계좌 편집' : '계좌 추가',
-                    style: PTypo.h3.copyWith(
-                      color: t.fgPrimary,
-                      fontWeight: PFontWeight.heavy,
-                    ),
-                  ),
-                ),
-                IconButton(
-                  icon: Icon(LucideIcons.x, color: t.fgTertiary, size: 20),
-                  onPressed: _submitting
-                      ? null
-                      : () => Navigator.of(context).pop(),
-                ),
-              ],
-            ),
-          ),
-          // Content (scrollable, 액션 버튼 포함) ──────
-          Expanded(
-            child: ListView(
-              controller: widget.scrollController,
-              padding: const EdgeInsets.fromLTRB(
-                  PSpace.x16, 0, PSpace.x16, PSpace.x16),
-              children: [
+    return ListView(
+      controller: widget.scrollController,
+      padding: const EdgeInsets.fromLTRB(
+          PSpace.x16, 0, PSpace.x16, PSpace.x16),
+      children: [
                 _PreviewTile(
                     entry: _selectedEntry,
                     nickname: _nicknameCtrl.text.trim()),
@@ -448,77 +418,7 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
                   ),
                 ],
               ],
-            ),
-          ),
-          // Sticky footer ─────────────────────────────
-          SafeArea(
-            top: false,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(
-                  PSpace.x12, PSpace.x8, PSpace.x12, PSpace.x8),
-              child: Row(
-                children: [
-                  if (_isEdit) ...[
-                    TextButton.icon(
-                      onPressed:
-                          (_submitting || _deleting) ? null : _delete,
-                      style: TextButton.styleFrom(
-                        foregroundColor: t.statusDangerFg,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 8),
-                      ),
-                      icon: _deleting
-                          ? SizedBox(
-                              width: 14,
-                              height: 14,
-                              child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: t.statusDangerFg))
-                          : const Icon(LucideIcons.trash2, size: 14),
-                      label: Text('삭제',
-                          style: PTypo.bodySm
-                              .copyWith(color: t.statusDangerFg)),
-                    ),
-                  ],
-                  const Spacer(),
-                  TextButton(
-                    onPressed: (_submitting || _deleting)
-                        ? null
-                        : () => Navigator.of(context).pop(),
-                    style: TextButton.styleFrom(
-                      foregroundColor: t.fgSecondary,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 8),
-                    ),
-                    child: Text('취소',
-                        style: PTypo.bodySm
-                            .copyWith(color: t.fgSecondary)),
-                  ),
-                  const SizedBox(width: 4),
-                  FilledButton(
-                    style: FilledButton.styleFrom(
-                      backgroundColor: t.bgBrand,
-                      foregroundColor: t.fgOnBrand,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 18, vertical: 8),
-                    ),
-                    onPressed:
-                        (_submitting || _deleting) ? null : _submit,
-                    child: _submitting
-                        ? const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(
-                                strokeWidth: 2, color: Colors.white))
-                        : Text(_isEdit ? '저장' : '추가'),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
+            );
   }
 }
 
