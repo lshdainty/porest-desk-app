@@ -43,6 +43,86 @@ Future<T?> showPModalSheet<T>(
   );
 }
 
+/// 표준 footer — 좌측 삭제(편집 모드만) / 우측 취소 + 저장. controller listen.
+class PSheetFooter extends StatelessWidget {
+  const PSheetFooter({
+    super.key,
+    required this.controller,
+    required this.submitLabel,
+    this.cancelLabel = '취소',
+    this.deleteLabel = '삭제',
+  });
+  final PSheetController controller;
+  final String submitLabel;
+  final String cancelLabel;
+  final String deleteLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return AnimatedBuilder(
+      animation: controller,
+      builder: (ctx, _) {
+        return Row(
+          children: [
+            if (controller.onDelete != null)
+              TextButton.icon(
+                onPressed: controller.submitting ? null : controller.onDelete,
+                icon: Icon(LucideIcons.trash2,
+                    size: PSpace.x12, color: t.statusDangerFg),
+                label: Text(deleteLabel,
+                    style: TextStyle(color: t.statusDangerFg)),
+              ),
+            const Spacer(),
+            TextButton(
+              onPressed: controller.submitting
+                  ? null
+                  : () => Navigator.of(ctx).pop(),
+              child: Text(cancelLabel),
+            ),
+            const SizedBox(width: PSpace.x4),
+            FilledButton(
+              onPressed: controller.canSubmit && !controller.submitting
+                  ? controller.onSubmit
+                  : null,
+              child: controller.submitting
+                  ? const SizedBox(
+                      width: PSpace.x16,
+                      height: PSpace.x16,
+                      child: CircularProgressIndicator(strokeWidth: 2))
+                  : Text(submitLabel),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+/// content 와 footer 가 공유하는 작업 상태 (showPSheet 표준 컨트롤러).
+///
+/// content 측 (입력 폼) 의 setState 시 [setCanSubmit]/[setSubmitting] 호출 →
+/// footer 의 AnimatedBuilder 가 listen → 버튼 활성/로딩 상태 자동 반영.
+/// footer 측의 onPressed 는 [onSubmit] 을 호출.
+class PSheetController extends ChangeNotifier {
+  bool submitting = false;
+  bool canSubmit = false;
+  Future<void> Function()? onSubmit;
+  Future<void> Function()? onDelete;
+
+  void setSubmitting(bool v) {
+    if (submitting == v) return;
+    submitting = v;
+    notifyListeners();
+  }
+
+  void setCanSubmit(bool v) {
+    if (canSubmit == v) return;
+    canSubmit = v;
+    notifyListeners();
+  }
+}
+
 /// add_tx_sheet 와 동일한 표준 bottom sheet helper.
 ///
 /// 구조 (모두 helper 가 강제):

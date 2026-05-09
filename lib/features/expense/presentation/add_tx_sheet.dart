@@ -13,6 +13,7 @@ import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_category_tile.dart';
+import '../../../shared/widgets/p_modal.dart';
 import '../../asset/application/asset_providers.dart';
 import '../../preset/application/preset_providers.dart';
 import '../../preset/domain/expense_template.dart';
@@ -43,26 +44,21 @@ String _formatTime(TimeOfDay t) =>
 /// [edit] 가 주어지면 편집 모드 (PUT /expense/{id}), 아니면 신규 (POST /expense).
 /// 성공 시 해당 월 expensesProvider invalidate.
 void showAddTxSheet(BuildContext context, {String? defaultDate, Expense? edit}) {
-  showModalBottomSheet<void>(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor:
-        Theme.of(context).extension<PorestTokens>()?.bgSurface,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(PRadius.xl2)),
+  final controller = PSheetController();
+  showPSheet<void>(
+    context,
+    title: edit == null ? '내역 추가' : '거래 편집',
+    contentBuilder: (ctx, scrollCtrl) => _AddTxBody(
+      defaultDate: defaultDate,
+      edit: edit,
+      scrollController: scrollCtrl,
+      controller: controller,
     ),
-    builder: (_) => DraggableScrollableSheet(
-      initialChildSize: 0.85,
-      minChildSize: 0.5,
-      maxChildSize: 0.95,
-      expand: false,
-      builder: (_, scrollCtrl) => _AddTxBody(
-        defaultDate: defaultDate,
-        edit: edit,
-        scrollController: scrollCtrl,
-      ),
+    footerBuilder: (ctx) => PSheetFooter(
+      controller: controller,
+      submitLabel: edit != null ? '저장' : '추가',
     ),
-  );
+  ).whenComplete(controller.dispose);
 }
 
 class _AddTxBody extends ConsumerStatefulWidget {
@@ -70,10 +66,12 @@ class _AddTxBody extends ConsumerStatefulWidget {
     this.defaultDate,
     this.edit,
     required this.scrollController,
+    required this.controller,
   });
   final String? defaultDate;
   final Expense? edit;
   final ScrollController scrollController;
+  final PSheetController controller;
 
   @override
   ConsumerState<_AddTxBody> createState() => _AddTxBodyState();
@@ -125,6 +123,20 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
     } else {
       _date = DateTime.now();
     }
+    widget.controller.onSubmit = _submit;
+    if (widget.edit != null) widget.controller.onDelete = _confirmDelete;
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => _syncController());
+  }
+
+  void _syncController() {
+    widget.controller.setCanSubmit(_canSubmit);
+    widget.controller.setSubmitting(_submitting);
+  }
+
+  void _setSubmitting(bool v) {
+    setState(() => _submitting = v);
+    widget.controller.setSubmitting(v);
   }
 
   @override
@@ -195,7 +207,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
     final payment = _paymentMethod.isEmpty ? null : _paymentMethod;
 
     if (_type == 'TRANSFER') {
-      setState(() => _submitting = true);
+      _setSubmitting(true);
       try {
         final fee = int.tryParse(_feeCtrl.text.replaceAll(',', ''));
         final aRepo = await ref.read(assetRepositoryProvider.future);
@@ -221,12 +233,12 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
           SnackBar(content: Text('실패: ${e.message}')),
         );
       } finally {
-        if (mounted) setState(() => _submitting = false);
+        if (mounted) _setSubmitting(false);
       }
       return;
     }
 
-    setState(() => _submitting = true);
+    _setSubmitting(true);
     try {
       final repo = await ref.read(expenseRepositoryProvider.future);
       if (_isEdit) {
@@ -282,7 +294,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
         SnackBar(content: Text('실패: ${e.message}')),
       );
     } finally {
-      if (mounted) setState(() => _submitting = false);
+      if (mounted) _setSubmitting(false);
     }
   }
 
@@ -307,7 +319,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
       ),
     );
     if (ok != true || !mounted) return;
-    setState(() => _submitting = true);
+    _setSubmitting(true);
     try {
       final repo = await ref.read(expenseRepositoryProvider.future);
       await repo.delete(widget.edit!.rowId);
@@ -327,7 +339,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
         SnackBar(content: Text('삭제 실패: ${e.message}')),
       );
     } finally {
-      if (mounted) setState(() => _submitting = false);
+      if (mounted) _setSubmitting(false);
     }
   }
 
@@ -350,50 +362,16 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
         ? '−'
         : (_type == 'INCOME' ? '+' : '');
 
-    return Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-      ),
-      child: Column(
-        children: [
-          // Drag handle
-          Container(
-            margin: const EdgeInsets.only(top: 8),
-            width: 36,
-            height: 4,
-            decoration: BoxDecoration(
-              color: t.borderDefault,
-              borderRadius: PRadius.brXs2,
-            ),
-          ),
-          // Header
-          Padding(
-            padding: const EdgeInsets.fromLTRB(
-                PSpace.x16, PSpace.x12, PSpace.x8, PSpace.x4),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    _isEdit ? '거래 편집' : '내역 추가',
-                    style: PTypo.h3.copyWith(
-                        color: t.fgPrimary, fontWeight: PFontWeight.heavy),
-                  ),
-                ),
-                IconButton(
-                  icon: Icon(LucideIcons.x, color: t.fgTertiary, size: 20),
-                  onPressed: _submitting
-                      ? null
-                      : () => Navigator.of(context).pop(),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: ListView(
-              controller: widget.scrollController,
-              padding: const EdgeInsets.fromLTRB(
-                  PSpace.x16, 0, PSpace.x16, PSpace.x16),
-              children: [
+    // controller 와 매 build 마다 동기화 (setState 위치 무관).
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) widget.controller.setCanSubmit(_canSubmit);
+    });
+
+    return ListView(
+      controller: widget.scrollController,
+      padding: const EdgeInsets.fromLTRB(
+          PSpace.x16, 0, PSpace.x16, PSpace.x16),
+      children: [
                 _TypeSegment(
                   value: _type,
                   onChanged: _isEdit
@@ -452,7 +430,10 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
                     suffixStyle:
                         PTypo.bodySm.copyWith(color: t.fgTertiary),
                   ),
-                  onChanged: (_) => setState(() {}),
+                  onChanged: (_) {
+                    setState(() {});
+                    _syncController();
+                  },
                 ),
                 const SizedBox(height: PSpace.x16),
 
@@ -794,46 +775,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
                 ),
                 const SizedBox(height: PSpace.x16),
               ],
-            ),
-          ),
-          // Footer — 삭제 (편집 시) + 취소 + 저장/추가
-          Container(
-            padding: const EdgeInsets.symmetric(
-                horizontal: PSpace.x20, vertical: PSpace.x12),
-            color: t.bgSurface,
-            child: Row(
-              children: [
-                if (_isEdit)
-                  TextButton.icon(
-                    onPressed: _submitting ? null : _confirmDelete,
-                    icon: Icon(LucideIcons.trash2,
-                        size: 14, color: t.statusDangerFg),
-                    label: Text('삭제',
-                        style: TextStyle(color: t.statusDangerFg)),
-                  ),
-                const Spacer(),
-                TextButton(
-                  onPressed: _submitting
-                      ? null
-                      : () => Navigator.of(context).pop(),
-                  child: const Text('취소'),
-                ),
-                const SizedBox(width: 4),
-                FilledButton(
-                  onPressed: _canSubmit ? _submit : null,
-                  child: _submitting
-                      ? const SizedBox(
-                          width: 14,
-                          height: 14,
-                          child: CircularProgressIndicator(strokeWidth: 2))
-                      : Text(_isEdit ? '저장' : '추가'),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
+            );
   }
 }
 

@@ -13,93 +13,26 @@ import '../application/calendar_providers.dart';
 import '../domain/calendar_event.dart';
 import '../domain/user_calendar.dart';
 
-/// content 와 footer 가 공유하는 작업 상태 (controller 패턴).
-class _FormController extends ChangeNotifier {
-  bool submitting = false;
-  bool canSubmit = false;
-  Future<void> Function()? onSubmit;
-
-  void setSubmitting(bool v) {
-    submitting = v;
-    notifyListeners();
-  }
-
-  void setCanSubmit(bool v) {
-    if (canSubmit == v) return;
-    canSubmit = v;
-    notifyListeners();
-  }
-}
-
 void showCalendarEventDialog(
   BuildContext context, {
   CalendarEvent? edit,
   DateTime? defaultDate,
 }) {
-  final controller = _FormController();
+  final controller = PSheetController();
   showPSheet<void>(
     context,
     title: edit == null ? '일정 추가' : '일정 수정',
-    headerActions: edit == null
-        ? const []
-        : [
-            Builder(
-              builder: (modalCtx) => IconButton(
-                icon: const Icon(LucideIcons.trash2),
-                color: modalCtx.tokens.statusDanger,
-                onPressed: () => _confirmDelete(modalCtx, edit),
-              ),
-            ),
-          ],
     contentBuilder: (ctx, scrollCtrl) => _Body(
       edit: edit,
       defaultDate: defaultDate,
       scrollController: scrollCtrl,
       controller: controller,
     ),
-    footerBuilder: (ctx) => _Footer(
-      isEdit: edit != null,
+    footerBuilder: (ctx) => PSheetFooter(
       controller: controller,
+      submitLabel: edit != null ? '수정' : '저장',
     ),
   ).whenComplete(controller.dispose);
-}
-
-class _Footer extends StatelessWidget {
-  const _Footer({required this.isEdit, required this.controller});
-  final bool isEdit;
-  final _FormController controller;
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: controller,
-      builder: (ctx, _) {
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            TextButton(
-              onPressed: controller.submitting
-                  ? null
-                  : () => Navigator.of(ctx).pop(),
-              child: const Text('취소'),
-            ),
-            const SizedBox(width: PSpace.x4),
-            FilledButton(
-              onPressed: controller.canSubmit && !controller.submitting
-                  ? controller.onSubmit
-                  : null,
-              child: controller.submitting
-                  ? const SizedBox(
-                      width: PSpace.x16,
-                      height: PSpace.x16,
-                      child: CircularProgressIndicator(strokeWidth: 2))
-                  : Text(isEdit ? '수정' : '저장'),
-            ),
-          ],
-        );
-      },
-    );
-  }
 }
 
 const _colorOptions = <String>[
@@ -177,7 +110,7 @@ class _Body extends ConsumerStatefulWidget {
   final CalendarEvent? edit;
   final DateTime? defaultDate;
   final ScrollController scrollController;
-  final _FormController controller;
+  final PSheetController controller;
   @override
   ConsumerState<_Body> createState() => _BodyState();
 }
@@ -220,6 +153,9 @@ class _BodyState extends ConsumerState<_Body> {
       _allDay = false;
     }
     widget.controller.onSubmit = _submit;
+    if (widget.edit != null) {
+      widget.controller.onDelete = () => _confirmDelete(context, widget.edit!);
+    }
     WidgetsBinding.instance
         .addPostFrameCallback((_) => _syncController());
   }
