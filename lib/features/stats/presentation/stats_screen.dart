@@ -8,7 +8,6 @@ import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/format/color_parse.dart';
-import '../../../core/format/date.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
@@ -16,7 +15,6 @@ import '../../expense/application/expense_providers.dart';
 import '../../expense/domain/expense.dart';
 import '../application/stats_providers.dart';
 import '../domain/stats_models.dart';
-import '../domain/stats_summaries.dart';
 
 /// 통계·분석 화면 (front `StatsPage` 미러).
 ///
@@ -143,12 +141,6 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
         _SegMode.custom => '이전 기간 대비',
       };
   String get _avgLabel => _useDailyAvg ? '하루 평균' : '월 평균';
-  String get _noPrevText => switch (_segMode) {
-        _SegMode.month => '전월 데이터 없음',
-        _SegMode.quarter => '전분기 데이터 없음',
-        _SegMode.year => '전년 데이터 없음',
-        _SegMode.custom => '이전 기간 데이터 없음',
-      };
 
   void setSegMode(_SegMode m) {
     setState(() {
@@ -503,7 +495,7 @@ class _CardHeader extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Expanded(child: title),
-          if (trailing != null) trailing!,
+          ?trailing,
         ],
       ),
     );
@@ -1657,7 +1649,7 @@ class _TrendBigCardState extends ConsumerState<_TrendBigCard> {
                       barWidth: 2,
                       dotData: FlDotData(
                         show: true,
-                        getDotPainter: (s, _, __, ___) => FlDotCirclePainter(
+                        getDotPainter: (s, _, _, _) => FlDotCirclePainter(
                             radius: 2.5,
                             color: t.fgBrand,
                             strokeWidth: 2,
@@ -1679,7 +1671,7 @@ class _TrendBigCardState extends ConsumerState<_TrendBigCard> {
                       barWidth: 2,
                       dotData: FlDotData(
                         show: true,
-                        getDotPainter: (s, _, __, ___) => FlDotCirclePainter(
+                        getDotPainter: (s, _, _, _) => FlDotCirclePainter(
                             radius: 2.5,
                             color: t.statusDangerFg,
                             strokeWidth: 2,
@@ -1780,7 +1772,7 @@ class _TrendStatsGrid extends StatelessWidget {
     final isSingle = s._segMode == _SegMode.month;
 
     final saveRate = avgIn > 0
-        ? ((avgSave / avgIn) * 100).toStringAsFixed(1) + '%'
+        ? '${((avgSave / avgIn) * 100).toStringAsFixed(1)}%'
         : '—';
 
     return GridView.count(
@@ -1912,7 +1904,7 @@ class _SavingsBarsCardState extends ConsumerState<_SavingsBarsCard> {
                       tooltipBorder: BorderSide.none,
                       tooltipPadding: EdgeInsets.zero,
                       tooltipMargin: 0,
-                      getTooltipItem: (_, __, ___, ____) => null,
+                      getTooltipItem: (_, _, _, _) => null,
                     ),
                   ),
                   gridData: FlGridData(
@@ -2039,7 +2031,7 @@ class _CompareSummaryGrid extends StatelessWidget {
     final diff = now - prev;
     final up = diff >= 0;
     final pct = prev > 0
-        ? ((diff.abs() / prev) * 100).toStringAsFixed(1) + '%'
+        ? '${((diff.abs() / prev) * 100).toStringAsFixed(1)}%'
         : '—';
 
     return Column(

@@ -13,6 +13,7 @@ import '../../../core/format/color_parse.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/settings/settings_notifier.dart';
+import '../../../shared/widgets/p_modal.dart';
 import '../../calendar/application/calendar_providers.dart';
 import '../../expense/application/expense_providers.dart';
 import '../../expense/domain/expense.dart';
@@ -168,7 +169,7 @@ class _GroupEventsTab extends ConsumerWidget {
     final now = DateTime.now();
     final start = DateTime(now.year, now.month - 1, 1);
     final end = DateTime(now.year, now.month + 2, 0);
-    final fmt = (DateTime d) =>
+    String fmt(DateTime d) =>
         '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}T00:00:00';
     final async = ref.watch(groupEventsProvider((
       groupId: groupId,
@@ -201,8 +202,7 @@ class _GroupEventsTab extends ConsumerWidget {
             ]);
           }
           final sorted = [...list]
-            ..sort((a, b) =>
-                (a.startDate ?? '').compareTo(b.startDate ?? ''));
+            ..sort((a, b) => a.startDate.compareTo(b.startDate));
           return ListView.separated(
             padding: const EdgeInsets.all(PSpace.x16),
             itemCount: sorted.length,
@@ -238,9 +238,9 @@ class _GroupEventsTab extends ConsumerWidget {
                               style: PTypo.bodySm.copyWith(
                                   color: tokens.fgPrimary,
                                   fontWeight: PFontWeight.bold)),
-                          if ((e.startDate ?? '').isNotEmpty)
+                          if (e.startDate.isNotEmpty)
                             Text(
-                              (e.startDate!).substring(0, 16).replaceAll('T', ' '),
+                              e.startDate.substring(0, 16).replaceAll('T', ' '),
                               style: PTypo.caption
                                   .copyWith(color: tokens.fgTertiary),
                             ),
@@ -743,30 +743,20 @@ class _MemberRow extends ConsumerWidget {
 
   Future<void> _handleAction(
       BuildContext context, WidgetRef ref, String action) async {
-    final repo = await ref.read(groupRepositoryProvider.future);
     try {
       if (action == 'remove') {
-        final ok = await showDialog<bool>(
-          context: context,
-          builder: (ctx) => AlertDialog(
-            title: const Text('멤버 내보내기'),
-            content: Text('${member.userName} 님을 그룹에서 내보내시겠어요?'),
-            actions: [
-              TextButton(
-                  onPressed: () => Navigator.pop(ctx, false),
-                  child: const Text('취소')),
-              FilledButton(
-                style: FilledButton.styleFrom(
-                    backgroundColor: context.tokens.statusDanger),
-                onPressed: () => Navigator.pop(ctx, true),
-                child: const Text('내보내기'),
-              ),
-            ],
-          ),
+        final ok = await showPConfirmDialog(
+          context,
+          title: '멤버 내보내기',
+          message: '${member.userName} 님을 그룹에서 내보내시겠어요?',
+          confirmLabel: '내보내기',
+          destructive: true,
         );
-        if (ok != true) return;
+        if (!ok) return;
+        final repo = await ref.read(groupRepositoryProvider.future);
         await repo.removeMember(groupId, member.rowId);
       } else {
+        final repo = await ref.read(groupRepositoryProvider.future);
         await repo.changeMemberRole(groupId, member.rowId, action);
       }
       ref.invalidate(groupDetailProvider(groupId));

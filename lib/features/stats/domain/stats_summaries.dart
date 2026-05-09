@@ -1,4 +1,5 @@
 /// 백엔드 일별 요약 응답 매핑 (plain class — freezed 회피).
+library;
 
 class DailySummary {
   const DailySummary({

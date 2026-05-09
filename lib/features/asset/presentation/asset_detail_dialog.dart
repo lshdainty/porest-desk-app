@@ -601,7 +601,7 @@ class _BalanceTrendChart extends StatelessWidget {
             isStrokeCapRound: true,
             dotData: FlDotData(
               show: true,
-              getDotPainter: (_, __, ___, ____) => FlDotCirclePainter(
+              getDotPainter: (_, _, _, _) => FlDotCirclePainter(
                 radius: 3,
                 color: brandFg,
                 strokeColor: tokens.bgSurface,

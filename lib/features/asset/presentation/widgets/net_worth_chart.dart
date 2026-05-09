@@ -31,7 +31,7 @@ class NetWorthChart extends ConsumerWidget {
             style: TextStyle(color: t.fgTertiary, fontSize: PFontSize.bodySm),
           ),
         ),
-        error: (_, __) => Center(
+        error: (_, _) => Center(
           child: Text(
             '추이 데이터를 불러오지 못했어요',
             style: TextStyle(color: t.fgTertiary, fontSize: PFontSize.bodySm),
@@ -104,7 +104,7 @@ class NetWorthChart extends ConsumerWidget {
                       return Padding(
                         padding: const EdgeInsets.only(top: 6),
                         child: Text(
-                          '${mm}월',
+                          '$mm월',
                           style: TextStyle(color: t.fgTertiary, fontSize: PFontSize.micro),
                         ),
                       );
@@ -177,7 +177,7 @@ class NetWorthChart extends ConsumerWidget {
                   isStrokeCapRound: true,
                   dotData: FlDotData(
                     show: true,
-                    getDotPainter: (_, __, ___, ____) => FlDotCirclePainter(
+                    getDotPainter: (_, _, _, _) => FlDotCirclePainter(
                       radius: 3,
                       color: PorestPalette.mossy500,
                       strokeColor: t.bgSurface,

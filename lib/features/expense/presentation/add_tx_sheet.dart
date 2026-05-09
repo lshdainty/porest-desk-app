@@ -507,19 +507,18 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
                             children: [
                               for (final c in topCategories)
                                 PCategoryTile(
-                                  name: (c.categoryName as String?) ?? '',
+                                  name: c.categoryName,
                                   color: parseColor(
-                                      c.color as String?,
+                                      c.color,
                                       fallback: t.fgBrand),
-                                  icon: lucideByName(
-                                      (c.icon as String?) ?? 'tag'),
+                                  icon: lucideByName(c.icon ?? 'tag'),
                                   active: selectedParentId == c.rowId,
                                   onTap: () => setState(() {
                                     // 자식이 있으면 첫 자식, 없으면 자기 자신
                                     final firstChild =
                                         childrenByParent[c.rowId]?.first;
                                     _categoryRowId = firstChild != null
-                                        ? firstChild.rowId as int
+                                        ? firstChild.rowId
                                         : c.rowId;
                                     _appliedPresetId = null;
                                   }),
@@ -1104,7 +1103,7 @@ class _PresetSection extends StatelessWidget {
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: top.length + (hasMore ? 1 : 0),
-              separatorBuilder: (_, __) => const SizedBox(width: 6),
+              separatorBuilder: (_, _) => const SizedBox(width: 6),
               itemBuilder: (_, i) {
                 if (i == top.length) return _MorePresetsHint(tokens: tokens);
                 final p = top[i];

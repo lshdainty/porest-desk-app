@@ -143,7 +143,6 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                   return false;
                 }
                 if (_advFilter.types.length < 2 &&
-                    e.expenseType != null &&
                     !_advFilter.types.contains(e.expenseType)) {
                   return false;
                 }

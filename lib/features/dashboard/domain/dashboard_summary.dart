@@ -1,4 +1,5 @@
 /// 백엔드 `DashboardApiDto.SummaryResponse` 매핑 (plain class).
+library;
 
 class TodoCountSummary {
   const TodoCountSummary({

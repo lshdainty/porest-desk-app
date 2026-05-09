@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../data/notification_repository.dart';
 import '../domain/notification.dart';
 import 'notification_providers.dart';
 

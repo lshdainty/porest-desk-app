@@ -320,7 +320,7 @@ class _PreviewTile extends StatelessWidget {
                 ? Image.network(
                     imgUrl,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) =>
+                    errorBuilder: (_, _, _) =>
                         _PlaceholderBox(brand: brand, tokens: t),
                   )
                 : _PlaceholderBox(brand: brand, tokens: t),
@@ -441,7 +441,7 @@ class _CatalogList extends StatelessWidget {
           padding: EdgeInsets.symmetric(vertical: 24),
           child: Center(child: CircularProgressIndicator()),
         ),
-        error: (_, __) => Padding(
+        error: (_, _) => Padding(
           padding: const EdgeInsets.symmetric(vertical: 24),
           child: Center(
             child: Text('카탈로그 로드 실패',
@@ -463,7 +463,7 @@ class _CatalogList extends StatelessWidget {
             child: ListView.separated(
               padding: EdgeInsets.zero,
               itemCount: items.length,
-              separatorBuilder: (_, __) =>
+              separatorBuilder: (_, _) =>
                   Divider(height: 1, color: t.borderSubtle),
               itemBuilder: (_, i) {
                 final c = items[i];
@@ -524,7 +524,7 @@ class _CatalogRow extends StatelessWidget {
                       ? Image.network(
                           item.imgUrl!,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) =>
+                          errorBuilder: (_, _, _) =>
                               _RowPlaceholder(brand: brand, name: company ?? item.cardName, tokens: t),
                         )
                       : _RowPlaceholder(

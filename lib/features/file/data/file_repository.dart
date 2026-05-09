@@ -26,7 +26,7 @@ class FileRepository {
       final form = FormData.fromMap({
         'file': await MultipartFile.fromFile(filePath, filename: fileName),
         'referenceType': referenceType,
-        if (referenceRowId != null) 'referenceRowId': referenceRowId,
+        'referenceRowId': ?referenceRowId,
       });
       final res = await _dio.post<Map<String, dynamic>>(
         '/files/upload',
