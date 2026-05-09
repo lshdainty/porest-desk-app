@@ -11,6 +11,7 @@ import '../../../core/format/color_parse.dart';
 import '../../../core/network/api_exception.dart';
 import '../application/calendar_providers.dart';
 import '../domain/calendar_event.dart';
+import '../domain/user_calendar.dart';
 
 void showCalendarEventDialog(
   BuildContext context, {
@@ -21,18 +22,109 @@ void showCalendarEventDialog(
     context: context,
     pageListBuilder: (modalCtx) => [
       WoltModalSheetPage(
-        topBarTitle: Text(edit == null ? '이벤트 추가' : '이벤트 수정'),
+        topBarTitle: Text(edit == null ? '일정 추가' : '일정 수정'),
         isTopBarLayerAlwaysVisible: true,
         backgroundColor:
             Theme.of(modalCtx).extension<PorestTokens>()?.bgSurface,
-        trailingNavBarWidget: IconButton(
-          icon: const Icon(LucideIcons.x),
-          onPressed: Navigator.of(modalCtx).pop,
-        ),
+        trailingNavBarWidget: edit == null
+            ? IconButton(
+                icon: const Icon(LucideIcons.x),
+                onPressed: Navigator.of(modalCtx).pop,
+              )
+            : Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: const Icon(LucideIcons.trash2),
+                    color: modalCtx.tokens.statusDanger,
+                    onPressed: () => _confirmDelete(modalCtx, edit),
+                  ),
+                  IconButton(
+                    icon: const Icon(LucideIcons.x),
+                    onPressed: Navigator.of(modalCtx).pop,
+                  ),
+                ],
+              ),
         child: _Body(edit: edit, defaultDate: defaultDate),
       ),
     ],
   );
+}
+
+const _colorOptions = <String>[
+  '#3b82f6',
+  '#ef4444',
+  '#22c55e',
+  '#f59e0b',
+  '#8b5cf6',
+  '#ec4899',
+  '#06b6d4',
+  '#f97316',
+];
+
+enum _RecurrenceOption { none, daily, weekly, monthly, yearly }
+
+const _recurrenceLabels = <_RecurrenceOption, String>{
+  _RecurrenceOption.none: '반복 없음',
+  _RecurrenceOption.daily: '매일',
+  _RecurrenceOption.weekly: '매주',
+  _RecurrenceOption.monthly: '매월',
+  _RecurrenceOption.yearly: '매년',
+};
+
+_RecurrenceOption _rruleToRecurrence(String? rrule) {
+  if (rrule == null || rrule.isEmpty) return _RecurrenceOption.none;
+  if (rrule.contains('FREQ=DAILY')) return _RecurrenceOption.daily;
+  if (rrule.contains('FREQ=WEEKLY')) return _RecurrenceOption.weekly;
+  if (rrule.contains('FREQ=MONTHLY')) return _RecurrenceOption.monthly;
+  if (rrule.contains('FREQ=YEARLY')) return _RecurrenceOption.yearly;
+  return _RecurrenceOption.none;
+}
+
+const _reminderOptions = <int>[5, 15, 30, 60, 1440];
+
+String _reminderLabel(int min) {
+  if (min < 60) return '$min분 전';
+  if (min == 60) return '1시간 전';
+  if (min == 1440) return '1일 전';
+  return '$min분 전';
+}
+
+Future<void> _confirmDelete(BuildContext ctx, CalendarEvent edit) async {
+  final container = ProviderScope.containerOf(ctx, listen: false);
+  final ok = await showDialog<bool>(
+    context: ctx,
+    builder: (dCtx) => AlertDialog(
+      title: const Text('일정 삭제'),
+      content: Text('"${edit.title}" 일정을 삭제할까요?'),
+      actions: [
+        TextButton(
+            onPressed: () => Navigator.pop(dCtx, false),
+            child: const Text('취소')),
+        FilledButton(
+          style: FilledButton.styleFrom(
+              backgroundColor: dCtx.tokens.statusDanger),
+          onPressed: () => Navigator.pop(dCtx, true),
+          child: const Text('삭제'),
+        ),
+      ],
+    ),
+  );
+  if (ok != true) return;
+  try {
+    final repo = await container.read(calendarRepositoryProvider.future);
+    await repo.deleteEvent(edit.rowId);
+    container.invalidate(monthEventsProvider(
+        (year: edit.start.year, month: edit.start.month)));
+  } on ApiException catch (e) {
+    if (!ctx.mounted) return;
+    ScaffoldMessenger.of(ctx).showSnackBar(
+      SnackBar(content: Text('삭제 실패: ${e.message}')),
+    );
+    return;
+  }
+  if (!ctx.mounted) return;
+  Navigator.of(ctx).pop();
 }
 
 class _Body extends ConsumerStatefulWidget {
@@ -51,6 +143,10 @@ class _BodyState extends ConsumerState<_Body> {
   late DateTime _end;
   late bool _allDay;
   int? _labelRowId;
+  int? _userCalendarRowId;
+  String _color = _colorOptions[4]; // violet 기본
+  _RecurrenceOption _recurrence = _RecurrenceOption.none;
+  final Set<int> _reminders = <int>{};
   bool _submitting = false;
 
   bool get _isEdit => widget.edit != null;
@@ -67,6 +163,9 @@ class _BodyState extends ConsumerState<_Body> {
       _end = e.end;
       _allDay = e.isAllDayBool;
       _labelRowId = e.labelRowId;
+      _userCalendarRowId = e.userRowId;
+      _color = e.color ?? _colorOptions[4];
+      _recurrence = _rruleToRecurrence(e.rrule);
     } else {
       final d = widget.defaultDate ?? DateTime.now();
       _start = DateTime(d.year, d.month, d.day, 9, 0);
@@ -100,6 +199,7 @@ class _BodyState extends ConsumerState<_Body> {
           title: _titleCtrl.text.trim(),
           description:
               _descCtrl.text.trim().isEmpty ? null : _descCtrl.text.trim(),
+          color: _color,
           startDate: _iso(_start),
           endDate: _iso(_end),
           isAllDay: _allDay,
@@ -113,6 +213,7 @@ class _BodyState extends ConsumerState<_Body> {
           title: _titleCtrl.text.trim(),
           description:
               _descCtrl.text.trim().isEmpty ? null : _descCtrl.text.trim(),
+          color: _color,
           startDate: _iso(_start),
           endDate: _iso(_end),
           isAllDay: _allDay,
@@ -123,7 +224,6 @@ class _BodyState extends ConsumerState<_Body> {
         );
       }
       ref.invalidate(monthEventsProvider(monthKey));
-      // 이전 month 도 invalidate (수정 시 날짜 변경 가능성)
       if (_isEdit) {
         final orig = widget.edit!.start;
         if (orig.year != _start.year || orig.month != _start.month) {
@@ -134,50 +234,12 @@ class _BodyState extends ConsumerState<_Body> {
       if (!mounted) return;
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(_isEdit ? '이벤트가 수정되었습니다' : '이벤트가 추가되었습니다')),
+        SnackBar(content: Text(_isEdit ? '일정이 수정되었습니다' : '일정이 추가되었습니다')),
       );
     } on ApiException catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('실패: ${e.message}')),
-      );
-    } finally {
-      if (mounted) setState(() => _submitting = false);
-    }
-  }
-
-  Future<void> _delete() async {
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('이벤트 삭제'),
-        content: Text('"${widget.edit!.title}" 이벤트를 삭제할까요?'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('취소')),
-          FilledButton(
-            style: FilledButton.styleFrom(
-                backgroundColor: context.tokens.statusDanger),
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('삭제'),
-          ),
-        ],
-      ),
-    );
-    if (ok != true || !mounted) return;
-    setState(() => _submitting = true);
-    try {
-      final repo = await ref.read(calendarRepositoryProvider.future);
-      await repo.deleteEvent(widget.edit!.rowId);
-      final monthKey = (year: _start.year, month: _start.month);
-      ref.invalidate(monthEventsProvider(monthKey));
-      if (!mounted) return;
-      Navigator.of(context).pop();
-    } on ApiException catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('삭제 실패: ${e.message}')),
       );
     } finally {
       if (mounted) setState(() => _submitting = false);
@@ -206,11 +268,12 @@ class _BodyState extends ConsumerState<_Body> {
 
   Future<void> _pickTime(bool isStart) async {
     final cur = isStart ? _start : _end;
-    final t = await showTimePicker(
+    final picked = await showTimePicker(
         context: context, initialTime: TimeOfDay.fromDateTime(cur));
-    if (t == null || !mounted) return;
+    if (picked == null || !mounted) return;
     setState(() {
-      final next = DateTime(cur.year, cur.month, cur.day, t.hour, t.minute);
+      final next =
+          DateTime(cur.year, cur.month, cur.day, picked.hour, picked.minute);
       if (isStart) {
         _start = next;
         if (_end.isBefore(_start)) _end = _start.add(const Duration(hours: 1));
@@ -220,26 +283,185 @@ class _BodyState extends ConsumerState<_Body> {
     });
   }
 
+  Future<void> _pickCalendar(List<UserCalendar> cals) async {
+    final res = await showModalBottomSheet<int>(
+      context: context,
+      builder: (sheetCtx) {
+        final t = sheetCtx.tokens;
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (final c in cals)
+                ListTile(
+                  leading: Container(
+                    width: PSpace.x12,
+                    height: PSpace.x12,
+                    decoration: BoxDecoration(
+                      color: parseColor(c.color, fallback: t.fgBrand),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  title: Text(c.calendarName),
+                  trailing: c.rowId == _userCalendarRowId
+                      ? Icon(LucideIcons.check, color: t.fgBrand)
+                      : null,
+                  onTap: () => Navigator.pop(sheetCtx, c.rowId),
+                ),
+            ],
+          ),
+        );
+      },
+    );
+    if (res != null) setState(() => _userCalendarRowId = res);
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
     final labelsAsync = ref.watch(eventLabelsProvider);
+    final calendarsAsync = ref.watch(userCalendarListProvider);
 
-    return Padding(
+    final selectedCalendar = calendarsAsync.value?.firstWhere(
+      (c) => c.rowId == _userCalendarRowId,
+      orElse: () => calendarsAsync.value!.firstWhere(
+        (c) => c.isDefault,
+        orElse: () => calendarsAsync.value!.first,
+      ),
+    );
+
+    return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(
           PSpace.x16, PSpace.x8, PSpace.x16, PSpace.x16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('제목', style: PTypo.caption.copyWith(color: t.fgSecondary)),
+          _SectionLabel('제목', tokens: t),
           const SizedBox(height: PSpace.x4),
           TextField(
             controller: _titleCtrl,
             decoration: const InputDecoration(hintText: '예: 가족 식사'),
             onChanged: (_) => setState(() {}),
           ),
-          const SizedBox(height: PSpace.x12),
+          const SizedBox(height: PSpace.x16),
 
+          _SectionLabel('설명', tokens: t),
+          const SizedBox(height: PSpace.x4),
+          TextField(
+            controller: _descCtrl,
+            maxLines: 3,
+            decoration: const InputDecoration(hintText: '추가 설명 (선택)'),
+          ),
+          const SizedBox(height: PSpace.x16),
+
+          // 캘린더
+          _SectionLabel('캘린더', tokens: t),
+          const SizedBox(height: PSpace.x4),
+          calendarsAsync.when(
+            loading: () => const Padding(
+              padding: EdgeInsets.symmetric(vertical: PSpace.x8),
+              child:
+                  Center(child: SizedBox(height: PSpace.x16, width: PSpace.x16, child: CircularProgressIndicator(strokeWidth: 2))),
+            ),
+            error: (_, _) => Text('캘린더 로드 실패',
+                style: PTypo.caption.copyWith(color: t.statusDanger)),
+            data: (cals) => InkWell(
+              onTap: cals.isEmpty ? null : () => _pickCalendar(cals),
+              borderRadius: PRadius.brMd,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: PSpace.x12, vertical: PSpace.x12),
+                decoration: BoxDecoration(
+                  color: t.bgMuted,
+                  borderRadius: PRadius.brMd,
+                  border: Border.all(color: t.borderDefault),
+                ),
+                child: Row(
+                  children: [
+                    if (selectedCalendar != null) ...[
+                      Container(
+                        width: PSpace.x12,
+                        height: PSpace.x12,
+                        decoration: BoxDecoration(
+                          color: parseColor(selectedCalendar.color,
+                              fallback: t.fgBrand),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: PSpace.x8),
+                      Text(selectedCalendar.calendarName,
+                          style: PTypo.bodySm
+                              .copyWith(color: t.fgPrimary)),
+                    ] else
+                      Text('캘린더 없음',
+                          style:
+                              PTypo.bodySm.copyWith(color: t.fgTertiary)),
+                    const Spacer(),
+                    Icon(LucideIcons.chevronDown,
+                        size: PSpace.x16, color: t.fgTertiary),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: PSpace.x16),
+
+          // 라벨
+          _SectionLabel('라벨', tokens: t, icon: LucideIcons.tag),
+          const SizedBox(height: PSpace.x8),
+          labelsAsync.when(
+            loading: () => const SizedBox(
+                height: PSpace.x32,
+                child: Center(child: CircularProgressIndicator())),
+            error: (_, _) => Text('라벨 로드 실패',
+                style: PTypo.caption.copyWith(color: t.statusDanger)),
+            data: (labels) => labels.isEmpty
+                ? Text('라벨이 없습니다',
+                    style: PTypo.caption.copyWith(color: t.fgTertiary))
+                : Wrap(
+                    spacing: PSpace.x8,
+                    runSpacing: PSpace.x8,
+                    children: [
+                      _ChipPill(
+                        label: '없음',
+                        color: t.fgTertiary,
+                        selected: _labelRowId == null,
+                        onTap: () => setState(() => _labelRowId = null),
+                        tokens: t,
+                      ),
+                      for (final l in labels)
+                        _ChipPill(
+                          label: l.labelName,
+                          color: parseColor(l.color, fallback: t.fgBrand),
+                          selected: _labelRowId == l.rowId,
+                          onTap: () =>
+                              setState(() => _labelRowId = l.rowId),
+                          tokens: t,
+                        ),
+                    ],
+                  ),
+          ),
+          const SizedBox(height: PSpace.x16),
+
+          // 색상
+          _SectionLabel('색상', tokens: t),
+          const SizedBox(height: PSpace.x8),
+          Wrap(
+            spacing: PSpace.x12,
+            runSpacing: PSpace.x8,
+            children: [
+              for (final c in _colorOptions)
+                _ColorSphere(
+                  color: parseColor(c, fallback: t.fgBrand),
+                  selected: _color.toLowerCase() == c.toLowerCase(),
+                  onTap: () => setState(() => _color = c),
+                  tokens: t,
+                ),
+            ],
+          ),
+          const SizedBox(height: PSpace.x16),
+
+          // 종일
           SwitchListTile.adaptive(
             contentPadding: EdgeInsets.zero,
             title: Text('종일',
@@ -250,7 +472,7 @@ class _BodyState extends ConsumerState<_Body> {
           const SizedBox(height: PSpace.x4),
 
           // 시작
-          Text('시작', style: PTypo.caption.copyWith(color: t.fgSecondary)),
+          _SectionLabel('시작일', tokens: t),
           const SizedBox(height: PSpace.x4),
           Row(
             children: [
@@ -264,9 +486,9 @@ class _BodyState extends ConsumerState<_Body> {
                 ),
               ),
               if (!_allDay) ...[
-                const SizedBox(width: 8),
+                const SizedBox(width: PSpace.x8),
                 SizedBox(
-                  width: 100,
+                  width: PSpace.x80 + PSpace.x20,
                   child: _DateTimeBox(
                     icon: LucideIcons.clock,
                     label:
@@ -280,7 +502,7 @@ class _BodyState extends ConsumerState<_Body> {
           ),
           const SizedBox(height: PSpace.x12),
 
-          Text('종료', style: PTypo.caption.copyWith(color: t.fgSecondary)),
+          _SectionLabel('종료일', tokens: t),
           const SizedBox(height: PSpace.x4),
           Row(
             children: [
@@ -294,9 +516,9 @@ class _BodyState extends ConsumerState<_Body> {
                 ),
               ),
               if (!_allDay) ...[
-                const SizedBox(width: 8),
+                const SizedBox(width: PSpace.x8),
                 SizedBox(
-                  width: 100,
+                  width: PSpace.x80 + PSpace.x20,
                   child: _DateTimeBox(
                     icon: LucideIcons.clock,
                     label:
@@ -310,96 +532,101 @@ class _BodyState extends ConsumerState<_Body> {
           ),
           const SizedBox(height: PSpace.x16),
 
-          Text('라벨 (선택)',
-              style: PTypo.caption.copyWith(color: t.fgSecondary)),
-          const SizedBox(height: PSpace.x8),
-          labelsAsync.when(
-            loading: () => const SizedBox(
-                height: 32,
-                child: Center(child: CircularProgressIndicator())),
-            error: (_, _) => Text('라벨 로드 실패',
-                style: PTypo.caption.copyWith(color: t.statusDanger)),
-            data: (labels) => labels.isEmpty
-                ? Text('등록된 라벨이 없습니다',
-                    style:
-                        PTypo.caption.copyWith(color: t.fgTertiary))
-                : Wrap(
-                    spacing: 6,
-                    runSpacing: 6,
-                    children: [
-                      _LabelChip(
-                        label: '없음',
-                        color: t.fgTertiary,
-                        selected: _labelRowId == null,
-                        onTap: () => setState(() => _labelRowId = null),
-                        tokens: t,
-                      ),
-                      for (final l in labels)
-                        _LabelChip(
-                          label: l.labelName,
-                          color: parseColor(l.color, fallback: t.fgBrand),
-                          selected: _labelRowId == l.rowId,
-                          onTap: () =>
-                              setState(() => _labelRowId = l.rowId),
-                          tokens: t,
-                        ),
-                    ],
-                  ),
-          ),
-          const SizedBox(height: PSpace.x12),
-
-          Text('장소 (선택)',
-              style: PTypo.caption.copyWith(color: t.fgSecondary)),
+          // 장소
+          _SectionLabel('장소', tokens: t, icon: LucideIcons.mapPin),
           const SizedBox(height: PSpace.x4),
           TextField(
             controller: _locationCtrl,
-            decoration: const InputDecoration(hintText: '예: 강남역 1번 출구'),
+            decoration: const InputDecoration(hintText: '장소를 입력하세요'),
           ),
-          const SizedBox(height: PSpace.x12),
+          const SizedBox(height: PSpace.x16),
 
-          Text('메모 (선택)',
-              style: PTypo.caption.copyWith(color: t.fgSecondary)),
-          const SizedBox(height: PSpace.x4),
-          TextField(
-            controller: _descCtrl,
-            maxLines: 3,
-            decoration: const InputDecoration(hintText: '추가 메모'),
+          // 반복
+          _SectionLabel('반복', tokens: t, icon: LucideIcons.repeat),
+          const SizedBox(height: PSpace.x8),
+          Wrap(
+            spacing: PSpace.x8,
+            runSpacing: PSpace.x8,
+            children: [
+              for (final r in _RecurrenceOption.values)
+                _ChipPill(
+                  label: _recurrenceLabels[r]!,
+                  color: t.fgBrand,
+                  selected: _recurrence == r,
+                  onTap: () => setState(() => _recurrence = r),
+                  tokens: t,
+                  withDot: false,
+                ),
+            ],
+          ),
+          const SizedBox(height: PSpace.x16),
+
+          // 알림
+          _SectionLabel('알림', tokens: t, icon: LucideIcons.bell),
+          const SizedBox(height: PSpace.x8),
+          Wrap(
+            spacing: PSpace.x8,
+            runSpacing: PSpace.x8,
+            children: [
+              for (final m in _reminderOptions)
+                _ChipPill(
+                  label: _reminderLabel(m),
+                  color: t.fgBrand,
+                  selected: _reminders.contains(m),
+                  onTap: () => setState(() {
+                    if (!_reminders.add(m)) _reminders.remove(m);
+                  }),
+                  tokens: t,
+                  withDot: false,
+                ),
+            ],
           ),
           const SizedBox(height: PSpace.x24),
 
+          // 푸터: 우측 정렬 (취소 outlined + 저장 filled)
           Row(
+            mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              if (_isEdit) ...[
-                Expanded(
-                  child: OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: t.statusDanger,
-                      side: BorderSide(
-                          color: t.statusDanger.withValues(alpha: 0.5)),
-                    ),
-                    onPressed: _submitting ? null : _delete,
-                    icon: const Icon(LucideIcons.trash2, size: 16),
-                    label: const Text('삭제'),
-                  ),
-                ),
-                const SizedBox(width: PSpace.x8),
-              ],
-              Expanded(
-                flex: _isEdit ? 1 : 2,
-                child: FilledButton(
-                  onPressed: _canSubmit ? _submit : null,
-                  child: _submitting
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2))
-                      : Text(_isEdit ? '수정' : '추가'),
-                ),
+              OutlinedButton(
+                onPressed: _submitting
+                    ? null
+                    : () => Navigator.of(context).pop(),
+                child: const Text('취소'),
+              ),
+              const SizedBox(width: PSpace.x8),
+              FilledButton(
+                onPressed: _canSubmit ? _submit : null,
+                child: _submitting
+                    ? const SizedBox(
+                        width: PSpace.x16,
+                        height: PSpace.x16,
+                        child: CircularProgressIndicator(strokeWidth: 2))
+                    : Text(_isEdit ? '수정' : '저장'),
               ),
             ],
           ),
         ],
       ),
+    );
+  }
+}
+
+class _SectionLabel extends StatelessWidget {
+  const _SectionLabel(this.label, {required this.tokens, this.icon});
+  final String label;
+  final PorestTokens tokens;
+  final IconData? icon;
+  @override
+  Widget build(BuildContext context) {
+    final style = PTypo.bodySm
+        .copyWith(color: tokens.fgPrimary, fontWeight: PFontWeight.semi);
+    if (icon == null) return Text(label, style: style);
+    return Row(
+      children: [
+        Icon(icon, size: PSpace.x16, color: tokens.fgSecondary),
+        const SizedBox(width: PSpace.x4),
+        Text(label, style: style),
+      ],
     );
   }
 }
@@ -419,8 +646,10 @@ class _DateTimeBox extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
+      borderRadius: PRadius.brMd,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        padding: const EdgeInsets.symmetric(
+            horizontal: PSpace.x12, vertical: PSpace.x12),
         decoration: BoxDecoration(
           color: tokens.bgMuted,
           borderRadius: PRadius.brMd,
@@ -428,8 +657,8 @@ class _DateTimeBox extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(icon, size: 16, color: tokens.fgSecondary),
-            const SizedBox(width: 6),
+            Icon(icon, size: PSpace.x16, color: tokens.fgSecondary),
+            const SizedBox(width: PSpace.x4),
             Expanded(
               child: Text(label,
                   style: PTypo.bodySm.copyWith(color: tokens.fgPrimary)),
@@ -441,15 +670,67 @@ class _DateTimeBox extends StatelessWidget {
   }
 }
 
-class _LabelChip extends StatelessWidget {
-  const _LabelChip({
+class _ChipPill extends StatelessWidget {
+  const _ChipPill({
     required this.label,
     required this.color,
     required this.selected,
     required this.onTap,
     required this.tokens,
+    this.withDot = true,
   });
   final String label;
+  final Color color;
+  final bool selected;
+  final VoidCallback onTap;
+  final PorestTokens tokens;
+  final bool withDot;
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+            horizontal: PSpace.x12, vertical: PSpace.x8),
+        decoration: BoxDecoration(
+          color:
+              selected ? color.withValues(alpha: 0.12) : tokens.bgMuted,
+          border: Border.all(
+              color: selected ? color : tokens.borderDefault,
+              width: selected ? 1.5 : 1),
+          borderRadius: PRadius.brPill,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (withDot) ...[
+              Container(
+                width: PSpace.x8,
+                height: PSpace.x8,
+                decoration:
+                    BoxDecoration(color: color, shape: BoxShape.circle),
+              ),
+              const SizedBox(width: PSpace.x4),
+            ],
+            Text(label,
+                style: PTypo.caption.copyWith(
+                    color: tokens.fgPrimary,
+                    fontWeight:
+                        selected ? PFontWeight.bold : PFontWeight.medium)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ColorSphere extends StatelessWidget {
+  const _ColorSphere({
+    required this.color,
+    required this.selected,
+    required this.onTap,
+    required this.tokens,
+  });
   final Color color;
   final bool selected;
   final VoidCallback onTap;
@@ -459,29 +740,14 @@ class _LabelChip extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        width: PSpace.x32,
+        height: PSpace.x32,
         decoration: BoxDecoration(
-          color: selected ? color.withValues(alpha: 0.12) : tokens.bgSurface,
-          border: Border.all(
-              color: selected ? color : tokens.borderDefault,
-              width: selected ? 1.5 : 1),
-          borderRadius: PRadius.brPill,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 8,
-              height: 8,
-              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-            ),
-            const SizedBox(width: 6),
-            Text(label,
-                style: PTypo.caption.copyWith(
-                    color: tokens.fgPrimary,
-                    fontWeight:
-                        selected ? PFontWeight.bold : PFontWeight.medium)),
-          ],
+          color: color,
+          shape: BoxShape.circle,
+          border: selected
+              ? Border.all(color: tokens.fgBrand, width: 2.5)
+              : null,
         ),
       ),
     );
