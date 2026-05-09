@@ -14,6 +14,7 @@ import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
+import '../../../shared/widgets/p_modal.dart';
 import '../../expense/application/expense_providers.dart';
 import '../../expense/domain/expense_category.dart';
 import '../../stats/application/stats_providers.dart';
@@ -146,101 +147,74 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
   }
 
   void _openSettings(List<Budget> budgets) {
-    showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: context.tokens.bgSurface,
-      shape: const RoundedRectangleBorder(
-        borderRadius:
-            BorderRadius.vertical(top: Radius.circular(PRadius.lg)),
-      ),
-      builder: (ctx) {
-        final t = ctx.tokens;
-        final overall =
-            budgets.where((b) => b.categoryRowId == null).toList();
-        final hasOverall = overall.isNotEmpty;
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(
-                PSpace.x16, PSpace.x12, PSpace.x16, PSpace.x16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Center(
-                  child: Container(
-                    width: 36,
-                    height: 4,
-                    margin: const EdgeInsets.only(bottom: PSpace.x12),
-                    decoration: BoxDecoration(
-                      color: t.borderSubtle,
-                      borderRadius: PRadius.brSm,
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: PSpace.x8),
-                  child: Text('예산 설정',
-                      style: PTypo.h4.copyWith(color: t.fgPrimary)),
-                ),
-                _SheetTile(
-                  icon: LucideIcons.target,
-                  label: hasOverall ? '월 전체 상한 수정' : '월 전체 상한 설정',
-                  description: '${_key.month}월 전체 지출 상한을 정해요',
-                  onTap: () {
-                    Navigator.of(ctx).pop();
-                    showBudgetEditDialog(
-                      context,
-                      year: _key.year,
-                      month: _key.month,
-                      edit: hasOverall ? overall.first : null,
-                      overallNew: !hasOverall,
-                    );
-                  },
-                ),
-                const SizedBox(height: PSpace.x8),
-                _SheetTile(
-                  icon: LucideIcons.plus,
-                  label: '카테고리 예산 추가',
-                  description: '카테고리별 한도를 설정해요',
-                  onTap: () {
-                    Navigator.of(ctx).pop();
-                    showBudgetEditDialog(
-                      context,
-                      year: _key.year,
-                      month: _key.month,
-                      usedCategoryIds: budgets
-                          .map((b) => b.categoryRowId)
-                          .whereType<int>()
-                          .toSet(),
-                    );
-                  },
-                ),
-                const Divider(height: PSpace.x24),
-                _SheetTile(
-                  icon: LucideIcons.copy,
-                  label: '전월 예산 복사',
-                  description: '지난달 예산을 그대로 가져와요',
-                  onTap: () {
-                    Navigator.of(ctx).pop();
-                    _copyFromPreviousMonth();
-                  },
-                ),
-                const SizedBox(height: PSpace.x8),
-                _SheetTile(
-                  icon: LucideIcons.trash2,
-                  label: '이번 달 전체 삭제',
-                  description: '이 달의 모든 예산을 삭제해요',
-                  destructive: true,
-                  onTap: () {
-                    Navigator.of(ctx).pop();
-                    _clearMonth();
-                  },
-                ),
-              ],
-            ),
+    final overall = budgets.where((b) => b.categoryRowId == null).toList();
+    final hasOverall = overall.isNotEmpty;
+    showPSheet<void>(
+      context,
+      title: '예산 설정',
+      contentBuilder: (ctx, scrollCtrl) => ListView(
+        controller: scrollCtrl,
+        padding: const EdgeInsets.fromLTRB(
+            PSpace.x16, 0, PSpace.x16, PSpace.x16),
+        children: [
+          _SheetTile(
+            icon: LucideIcons.target,
+            label: hasOverall ? '월 전체 상한 수정' : '월 전체 상한 설정',
+            description: '${_key.month}월 전체 지출 상한을 정해요',
+            onTap: () {
+              Navigator.of(ctx).pop();
+              showBudgetEditDialog(
+                context,
+                year: _key.year,
+                month: _key.month,
+                edit: hasOverall ? overall.first : null,
+                overallNew: !hasOverall,
+              );
+            },
           ),
-        );
-      },
+          const SizedBox(height: PSpace.x8),
+          _SheetTile(
+            icon: LucideIcons.plus,
+            label: '카테고리 예산 추가',
+            description: '카테고리별 한도를 설정해요',
+            onTap: () {
+              Navigator.of(ctx).pop();
+              showBudgetEditDialog(
+                context,
+                year: _key.year,
+                month: _key.month,
+                usedCategoryIds: budgets
+                    .map((b) => b.categoryRowId)
+                    .whereType<int>()
+                    .toSet(),
+              );
+            },
+          ),
+          const Divider(height: PSpace.x24),
+          _SheetTile(
+            icon: LucideIcons.copy,
+            label: '전월 예산 복사',
+            description: '지난달 예산을 그대로 가져와요',
+            onTap: () {
+              Navigator.of(ctx).pop();
+              _copyFromPreviousMonth();
+            },
+          ),
+          const SizedBox(height: PSpace.x8),
+          _SheetTile(
+            icon: LucideIcons.trash2,
+            label: '이번 달 전체 삭제',
+            description: '이 달의 모든 예산을 삭제해요',
+            destructive: true,
+            onTap: () {
+              Navigator.of(ctx).pop();
+              _clearMonth();
+            },
+          ),
+        ],
+      ),
+      initialChildSize: 0.55,
+      minChildSize: 0.4,
     );
   }
 

@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
 import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
@@ -11,6 +10,7 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/format/color_parse.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../shared/widgets/p_modal.dart';
 import '../application/group_providers.dart';
 import '../domain/group.dart';
 import 'group_type_management_dialog.dart';
@@ -115,181 +115,119 @@ class GroupScreen extends ConsumerWidget {
 void _showCreateDialog(BuildContext context, WidgetRef ref) {
   final nameCtrl = TextEditingController();
   final descCtrl = TextEditingController();
-  WoltModalSheet.show<void>(
-    context: context,
-    pageListBuilder: (modalCtx) {
-      bool submitting = false;
-      return [
-        WoltModalSheetPage(
-          topBarTitle: const Text('그룹 만들기'),
-          isTopBarLayerAlwaysVisible: true,
-          backgroundColor:
-              Theme.of(modalCtx).extension<PorestTokens>()?.bgSurface,
-          trailingNavBarWidget: IconButton(
-            icon: const Icon(LucideIcons.x),
-            onPressed: Navigator.of(modalCtx).pop,
+  final controller = PSheetController();
+  Future<void> submit() async {
+    if (nameCtrl.text.trim().isEmpty) return;
+    controller.setSubmitting(true);
+    try {
+      final repo = await ref.read(groupRepositoryProvider.future);
+      await repo.create(
+        groupName: nameCtrl.text.trim(),
+        description: descCtrl.text.trim().isEmpty ? null : descCtrl.text.trim(),
+      );
+      ref.invalidate(groupListProvider);
+      if (!context.mounted) return;
+      Navigator.of(context).pop();
+    } on ApiException catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('실패: ${e.message}')),
+      );
+    } finally {
+      controller.setSubmitting(false);
+    }
+  }
+
+  controller.onSubmit = submit;
+
+  showPSheet<void>(
+    context,
+    title: '그룹 만들기',
+    contentBuilder: (ctx, scrollCtrl) {
+      final t = ctx.tokens;
+      return ListView(
+        controller: scrollCtrl,
+        padding: const EdgeInsets.fromLTRB(
+            PSpace.x16, 0, PSpace.x16, PSpace.x16),
+        children: [
+          Text('그룹명',
+              style: PTypo.caption.copyWith(color: t.fgSecondary)),
+          const SizedBox(height: PSpace.x4),
+          TextField(
+            controller: nameCtrl,
+            decoration: const InputDecoration(hintText: '예: 가족, 회사 동료'),
+            onChanged: (v) =>
+                controller.setCanSubmit(v.trim().isNotEmpty),
           ),
-          child: StatefulBuilder(
-            builder: (ctx, setState) {
-              final t = ctx.tokens;
-              return Padding(
-                padding: const EdgeInsets.fromLTRB(
-                    PSpace.x16, PSpace.x8, PSpace.x16, PSpace.x16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('그룹명',
-                        style: PTypo.caption
-                            .copyWith(color: t.fgSecondary)),
-                    const SizedBox(height: PSpace.x4),
-                    TextField(
-                      controller: nameCtrl,
-                      decoration:
-                          const InputDecoration(hintText: '예: 가족, 회사 동료'),
-                    ),
-                    const SizedBox(height: PSpace.x12),
-                    Text('설명 (선택)',
-                        style: PTypo.caption
-                            .copyWith(color: t.fgSecondary)),
-                    const SizedBox(height: PSpace.x4),
-                    TextField(
-                      controller: descCtrl,
-                      maxLines: 3,
-                      decoration: const InputDecoration(hintText: '그룹 설명'),
-                    ),
-                    const SizedBox(height: PSpace.x24),
-                    SizedBox(
-                      width: double.infinity,
-                      child: FilledButton(
-                        onPressed: submitting
-                            ? null
-                            : () async {
-                                if (nameCtrl.text.trim().isEmpty) return;
-                                setState(() => submitting = true);
-                                try {
-                                  final repo = await ref.read(
-                                      groupRepositoryProvider.future);
-                                  await repo.create(
-                                    groupName: nameCtrl.text.trim(),
-                                    description:
-                                        descCtrl.text.trim().isEmpty
-                                            ? null
-                                            : descCtrl.text.trim(),
-                                  );
-                                  ref.invalidate(groupListProvider);
-                                  if (!ctx.mounted) return;
-                                  Navigator.of(ctx).pop();
-                                } on ApiException catch (e) {
-                                  if (!ctx.mounted) return;
-                                  setState(() => submitting = false);
-                                  ScaffoldMessenger.of(ctx).showSnackBar(
-                                    SnackBar(
-                                        content: Text('실패: ${e.message}')),
-                                  );
-                                }
-                              },
-                        child: submitting
-                            ? const SizedBox(
-                                width: 18,
-                                height: 18,
-                                child: CircularProgressIndicator(
-                                    strokeWidth: 2))
-                            : const Text('만들기'),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
+          const SizedBox(height: PSpace.x12),
+          Text('설명 (선택)',
+              style: PTypo.caption.copyWith(color: t.fgSecondary)),
+          const SizedBox(height: PSpace.x4),
+          TextField(
+            controller: descCtrl,
+            maxLines: 3,
+            decoration: const InputDecoration(hintText: '그룹 설명'),
           ),
-        ),
-      ];
+        ],
+      );
     },
+    footerBuilder: (ctx) =>
+        PSheetFooter(controller: controller, submitLabel: '만들기'),
   );
 }
 
 void _showJoinDialog(BuildContext context, WidgetRef ref) {
   final codeCtrl = TextEditingController();
-  WoltModalSheet.show<void>(
-    context: context,
-    pageListBuilder: (modalCtx) {
-      bool submitting = false;
-      return [
-        WoltModalSheetPage(
-          topBarTitle: const Text('초대 코드로 참여'),
-          isTopBarLayerAlwaysVisible: true,
-          backgroundColor:
-              Theme.of(modalCtx).extension<PorestTokens>()?.bgSurface,
-          trailingNavBarWidget: IconButton(
-            icon: const Icon(LucideIcons.x),
-            onPressed: Navigator.of(modalCtx).pop,
+  final controller = PSheetController();
+  Future<void> submit() async {
+    if (codeCtrl.text.trim().isEmpty) return;
+    controller.setSubmitting(true);
+    try {
+      final repo = await ref.read(groupRepositoryProvider.future);
+      await repo.joinByCode(codeCtrl.text.trim().toUpperCase());
+      ref.invalidate(groupListProvider);
+      if (!context.mounted) return;
+      Navigator.of(context).pop();
+    } on ApiException catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('참여 실패: ${e.message}')),
+      );
+    } finally {
+      controller.setSubmitting(false);
+    }
+  }
+
+  controller.onSubmit = submit;
+
+  showPSheet<void>(
+    context,
+    title: '초대 코드로 참여',
+    contentBuilder: (ctx, scrollCtrl) {
+      final t = ctx.tokens;
+      return ListView(
+        controller: scrollCtrl,
+        padding: const EdgeInsets.fromLTRB(
+            PSpace.x16, 0, PSpace.x16, PSpace.x16),
+        children: [
+          Text('초대 코드',
+              style: PTypo.caption.copyWith(color: t.fgSecondary)),
+          const SizedBox(height: PSpace.x4),
+          TextField(
+            controller: codeCtrl,
+            decoration: const InputDecoration(hintText: '예: ABC123'),
+            textCapitalization: TextCapitalization.characters,
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]')),
+            ],
+            onChanged: (v) =>
+                controller.setCanSubmit(v.trim().isNotEmpty),
           ),
-          child: StatefulBuilder(
-            builder: (ctx, setState) {
-              final t = ctx.tokens;
-              return Padding(
-                padding: const EdgeInsets.fromLTRB(
-                    PSpace.x16, PSpace.x8, PSpace.x16, PSpace.x16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('초대 코드',
-                        style: PTypo.caption
-                            .copyWith(color: t.fgSecondary)),
-                    const SizedBox(height: PSpace.x4),
-                    TextField(
-                      controller: codeCtrl,
-                      decoration: const InputDecoration(
-                          hintText: '예: ABC123'),
-                      textCapitalization: TextCapitalization.characters,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.allow(
-                            RegExp(r'[a-zA-Z0-9]'))
-                      ],
-                    ),
-                    const SizedBox(height: PSpace.x24),
-                    SizedBox(
-                      width: double.infinity,
-                      child: FilledButton(
-                        onPressed: submitting
-                            ? null
-                            : () async {
-                                if (codeCtrl.text.trim().isEmpty) return;
-                                setState(() => submitting = true);
-                                try {
-                                  final repo = await ref.read(
-                                      groupRepositoryProvider.future);
-                                  await repo.joinByCode(
-                                      codeCtrl.text.trim().toUpperCase());
-                                  ref.invalidate(groupListProvider);
-                                  if (!ctx.mounted) return;
-                                  Navigator.of(ctx).pop();
-                                } on ApiException catch (e) {
-                                  if (!ctx.mounted) return;
-                                  setState(() => submitting = false);
-                                  ScaffoldMessenger.of(ctx).showSnackBar(
-                                    SnackBar(
-                                        content: Text('참여 실패: ${e.message}')),
-                                  );
-                                }
-                              },
-                        child: submitting
-                            ? const SizedBox(
-                                width: 18,
-                                height: 18,
-                                child: CircularProgressIndicator(
-                                    strokeWidth: 2))
-                            : const Text('참여'),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-        ),
-      ];
+        ],
+      );
     },
+    footerBuilder: (ctx) =>
+        PSheetFooter(controller: controller, submitLabel: '참여'),
   );
 }
 

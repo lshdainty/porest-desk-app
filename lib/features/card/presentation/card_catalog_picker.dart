@@ -8,6 +8,7 @@ import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
+import '../../../shared/widgets/p_modal.dart';
 import '../application/card_providers.dart';
 import '../domain/card_catalog.dart';
 
@@ -19,20 +20,20 @@ Future<CardCatalogSummary?> showCardCatalogPicker(
   BuildContext context, {
   String? cardType, // CREDIT/CHECK
 }) {
-  return showModalBottomSheet<CardCatalogSummary>(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor: context.tokens.bgSurface,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(PRadius.xl)),
+  return showPSheet<CardCatalogSummary>(
+    context,
+    title: '카드 선택',
+    contentBuilder: (ctx, scrollCtrl) => _CardPickerSheet(
+      initialType: cardType,
+      scrollController: scrollCtrl,
     ),
-    builder: (sheetCtx) => _CardPickerSheet(initialType: cardType),
   );
 }
 
 class _CardPickerSheet extends ConsumerStatefulWidget {
-  const _CardPickerSheet({this.initialType});
+  const _CardPickerSheet({this.initialType, required this.scrollController});
   final String? initialType;
+  final ScrollController scrollController;
   @override
   ConsumerState<_CardPickerSheet> createState() => _CardPickerSheetState();
 }
@@ -72,20 +73,11 @@ class _CardPickerSheetState extends ConsumerState<_CardPickerSheet> {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final pageAsync = ref.watch(cardCatalogPageProvider(_key));
-    return SafeArea(
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(
-            16,
-            16,
-            16,
-            16 + MediaQuery.of(context).viewInsets.bottom),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('카드 선택',
-                style: PTypo.h3.copyWith(color: t.fgPrimary)),
-            const SizedBox(height: 12),
+    return ListView(
+      controller: widget.scrollController,
+      padding: const EdgeInsets.fromLTRB(
+          PSpace.x16, 0, PSpace.x16, PSpace.x16),
+      children: [
             TextField(
               controller: _ctrl,
               autofocus: true,
@@ -136,11 +128,7 @@ class _CardPickerSheetState extends ConsumerState<_CardPickerSheet> {
               ],
             ),
             const SizedBox(height: 8),
-            ConstrainedBox(
-              constraints: BoxConstraints(
-                maxHeight: MediaQuery.of(context).size.height * 0.55,
-              ),
-              child: pageAsync.when(
+            pageAsync.when(
                 loading: () => const SizedBox(
                     height: 200,
                     child: Center(child: CircularProgressIndicator())),
@@ -162,6 +150,7 @@ class _CardPickerSheetState extends ConsumerState<_CardPickerSheet> {
                   }
                   return ListView.separated(
                     shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
                     itemCount: page.content.length,
                     separatorBuilder: (_, _) =>
                         Divider(height: 1, color: t.borderSubtle),
@@ -229,10 +218,7 @@ class _CardPickerSheetState extends ConsumerState<_CardPickerSheet> {
                   );
                 },
               ),
-            ),
-          ],
-        ),
-      ),
+      ],
     );
   }
 }

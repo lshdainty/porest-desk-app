@@ -15,6 +15,7 @@ import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
+import '../../../shared/widgets/p_modal.dart';
 import '../../expense/application/expense_providers.dart';
 import '../../expense/domain/expense.dart';
 import '../../expense/presentation/tx_detail_dialog.dart';
@@ -68,144 +69,131 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 
   Future<void> _showAdvancedSheet() async {
-    final t = context.tokens;
     var min = _minAmount;
     var max = _maxAmount;
     var start = _startDate;
     var end = _endDate;
     final minCtrl = TextEditingController(text: min?.toString() ?? '');
     final maxCtrl = TextEditingController(text: max?.toString() ?? '');
-    await showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: t.bgSurface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(PRadius.xl)),
-      ),
-      builder: (sheetCtx) {
+    await showPSheet<void>(
+      context,
+      title: '고급 필터',
+      contentBuilder: (sheetCtx, scrollCtrl) {
         return StatefulBuilder(builder: (ctx, setSheet) {
-          return SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
+          final t = ctx.tokens;
+          return ListView(
+            controller: scrollCtrl,
+            padding: const EdgeInsets.fromLTRB(
+                PSpace.x20, 0, PSpace.x20, PSpace.x16),
+            children: [
+              Text('금액 범위',
+                  style: PTypo.caption.copyWith(color: t.fgSecondary)),
+              const SizedBox(height: 4),
+              Row(
                 children: [
-                  Text('고급 필터',
-                      style: PTypo.h3.copyWith(color: t.fgPrimary)),
-                  const SizedBox(height: 12),
-                  Text('금액 범위',
-                      style: PTypo.caption.copyWith(color: t.fgSecondary)),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: minCtrl,
-                          keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(
-                            hintText: '최소',
-                            suffixText: '원',
-                          ),
-                          onChanged: (v) => min = int.tryParse(v),
-                        ),
+                  Expanded(
+                    child: TextField(
+                      controller: minCtrl,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        hintText: '최소',
+                        suffixText: '원',
                       ),
-                      const SizedBox(width: 8),
-                      const Text('~'),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: TextField(
-                          controller: maxCtrl,
-                          keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(
-                            hintText: '최대',
-                            suffixText: '원',
-                          ),
-                          onChanged: (v) => max = int.tryParse(v),
-                        ),
-                      ),
-                    ],
+                      onChanged: (v) => min = int.tryParse(v),
+                    ),
                   ),
-                  const SizedBox(height: 12),
-                  Text('기간',
-                      style: PTypo.caption.copyWith(color: t.fgSecondary)),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          icon: const Icon(LucideIcons.calendar, size: 14),
-                          label: Text(start == null
-                              ? '시작'
-                              : _fmtDate(start!)),
-                          onPressed: () async {
-                            final p = await showDatePicker(
-                              context: ctx,
-                              initialDate: start ?? DateTime.now(),
-                              firstDate: DateTime(2020),
-                              lastDate: DateTime(2030, 12, 31),
-                            );
-                            if (p != null) setSheet(() => start = p);
-                          },
-                        ),
+                  const SizedBox(width: 8),
+                  const Text('~'),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: TextField(
+                      controller: maxCtrl,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        hintText: '최대',
+                        suffixText: '원',
                       ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          icon: const Icon(LucideIcons.calendar, size: 14),
-                          label: Text(end == null ? '종료' : _fmtDate(end!)),
-                          onPressed: () async {
-                            final p = await showDatePicker(
-                              context: ctx,
-                              initialDate: end ?? DateTime.now(),
-                              firstDate: DateTime(2020),
-                              lastDate: DateTime(2030, 12, 31),
-                            );
-                            if (p != null) setSheet(() => end = p);
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          onPressed: () {
-                            setSheet(() {
-                              min = null;
-                              max = null;
-                              start = null;
-                              end = null;
-                              minCtrl.clear();
-                              maxCtrl.clear();
-                            });
-                          },
-                          child: const Text('초기화'),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: FilledButton(
-                          onPressed: () {
-                            Navigator.pop(sheetCtx);
-                            setState(() {
-                              _minAmount = min;
-                              _maxAmount = max;
-                              _startDate = start;
-                              _endDate = end;
-                            });
-                            _runSearch();
-                          },
-                          child: const Text('적용'),
-                        ),
-                      ),
-                    ],
+                      onChanged: (v) => max = int.tryParse(v),
+                    ),
                   ),
                 ],
               ),
-            ),
+              const SizedBox(height: 12),
+              Text('기간',
+                  style: PTypo.caption.copyWith(color: t.fgSecondary)),
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      icon: const Icon(LucideIcons.calendar, size: 14),
+                      label: Text(start == null ? '시작' : _fmtDate(start!)),
+                      onPressed: () async {
+                        final p = await showDatePicker(
+                          context: ctx,
+                          initialDate: start ?? DateTime.now(),
+                          firstDate: DateTime(2020),
+                          lastDate: DateTime(2030, 12, 31),
+                        );
+                        if (p != null) setSheet(() => start = p);
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      icon: const Icon(LucideIcons.calendar, size: 14),
+                      label: Text(end == null ? '종료' : _fmtDate(end!)),
+                      onPressed: () async {
+                        final p = await showDatePicker(
+                          context: ctx,
+                          initialDate: end ?? DateTime.now(),
+                          firstDate: DateTime(2020),
+                          lastDate: DateTime(2030, 12, 31),
+                        );
+                        if (p != null) setSheet(() => end = p);
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () {
+                        setSheet(() {
+                          min = null;
+                          max = null;
+                          start = null;
+                          end = null;
+                          minCtrl.clear();
+                          maxCtrl.clear();
+                        });
+                      },
+                      child: const Text('초기화'),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: FilledButton(
+                      onPressed: () {
+                        Navigator.pop(sheetCtx);
+                        setState(() {
+                          _minAmount = min;
+                          _maxAmount = max;
+                          _startDate = start;
+                          _endDate = end;
+                        });
+                        _runSearch();
+                      },
+                      child: const Text('적용'),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           );
         });
       },
