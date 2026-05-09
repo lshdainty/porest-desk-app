@@ -1,38 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
 import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../shared/widgets/p_modal.dart';
 import '../application/memo_providers.dart';
 import '../domain/memo_folder.dart';
 
 /// 메모 폴더 트리 관리 — front `MemoFolderTree` 미러 (CRUD).
 void showMemoFolderManagementDialog(BuildContext context) {
-  WoltModalSheet.show<void>(
-    context: context,
-    pageListBuilder: (modalCtx) => [
-      WoltModalSheetPage(
-        topBarTitle: const Text('폴더 관리'),
-        isTopBarLayerAlwaysVisible: true,
-        backgroundColor:
-            Theme.of(modalCtx).extension<PorestTokens>()?.bgSurface,
-        trailingNavBarWidget: IconButton(
-          icon: const Icon(LucideIcons.x),
-          onPressed: Navigator.of(modalCtx).pop,
-        ),
-        child: const _Body(),
-      ),
-    ],
+  showPSheet<void>(
+    context,
+    title: '폴더 관리',
+    contentBuilder: (ctx, scrollCtrl) => _Body(scrollController: scrollCtrl),
   );
 }
 
 class _Body extends ConsumerStatefulWidget {
-  const _Body();
+  const _Body({required this.scrollController});
+  final ScrollController scrollController;
   @override
   ConsumerState<_Body> createState() => _BodyState();
 }
@@ -75,12 +65,11 @@ class _BodyState extends ConsumerState<_Body> {
     final t = context.tokens;
     final treeAsync = ref.watch(memoFolderTreeProvider);
     final flatAsync = ref.watch(memoFolderListProvider);
-    return Padding(
+    return ListView(
+      controller: widget.scrollController,
       padding: const EdgeInsets.fromLTRB(
-          PSpace.x16, PSpace.x16, PSpace.x16, PSpace.x16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+          PSpace.x16, 0, PSpace.x16, PSpace.x16),
+      children: [
           Text('새 폴더',
               style: PTypo.bodySm.copyWith(
                   color: t.fgPrimary, fontWeight: PFontWeight.bold)),
@@ -161,8 +150,7 @@ class _BodyState extends ConsumerState<_Body> {
               );
             },
           ),
-        ],
-      ),
+      ],
     );
   }
 }
@@ -221,26 +209,15 @@ class _NodeState extends ConsumerState<_Node> {
   }
 
   Future<void> _delete() async {
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('폴더 삭제'),
-        content: Text(
-            '"${widget.node.folder.folderName}" 폴더와 하위 폴더를 모두 삭제할까요? 폴더 내 메모는 폴더가 해제됩니다.'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('취소')),
-          FilledButton(
-            style: FilledButton.styleFrom(
-                backgroundColor: context.tokens.statusDanger),
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('삭제'),
-          ),
-        ],
-      ),
+    final ok = await showPConfirmDialog(
+      context,
+      title: '폴더 삭제',
+      message:
+          '"${widget.node.folder.folderName}" 폴더와 하위 폴더를 모두 삭제할까요? 폴더 내 메모는 폴더가 해제됩니다.',
+      confirmLabel: '삭제',
+      destructive: true,
     );
-    if (ok != true || !mounted) return;
+    if (!ok || !mounted) return;
     setState(() => _busy = true);
     try {
       final repo = await ref.read(memoFolderRepositoryProvider.future);

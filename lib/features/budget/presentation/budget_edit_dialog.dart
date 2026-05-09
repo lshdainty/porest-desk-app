@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons/lucide_icons.dart';
-import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
 import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
@@ -11,6 +9,7 @@ import '../../../app/theme/typography.dart';
 import '../../../core/format/color_parse.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
+import '../../../shared/widgets/p_modal.dart';
 import '../../expense/application/expense_providers.dart';
 import '../../expense/domain/expense_category.dart';
 import '../application/budget_providers.dart';
@@ -28,27 +27,23 @@ void showBudgetEditDialog(
   final title = edit == null
       ? (overallNew ? '월 전체 상한 설정' : '카테고리 예산 추가')
       : (isOverall ? '월 전체 상한 수정' : '카테고리 예산 수정');
-  WoltModalSheet.show<void>(
-    context: context,
-    pageListBuilder: (modalCtx) => [
-      WoltModalSheetPage(
-        topBarTitle: Text(title),
-        isTopBarLayerAlwaysVisible: true,
-        backgroundColor:
-            Theme.of(modalCtx).extension<PorestTokens>()?.bgSurface,
-        trailingNavBarWidget: IconButton(
-          icon: const Icon(LucideIcons.x),
-          onPressed: Navigator.of(modalCtx).pop,
-        ),
-        child: _BudgetEditBody(
-          year: year,
-          month: month,
-          edit: edit,
-          usedCategoryIds: usedCategoryIds,
-          overallNew: overallNew,
-        ),
-      ),
-    ],
+  final controller = PSheetController();
+  showPSheet<void>(
+    context,
+    title: title,
+    contentBuilder: (ctx, scrollCtrl) => _BudgetEditBody(
+      year: year,
+      month: month,
+      edit: edit,
+      usedCategoryIds: usedCategoryIds,
+      overallNew: overallNew,
+      scrollController: scrollCtrl,
+      controller: controller,
+    ),
+    footerBuilder: (ctx) => PSheetFooter(
+      controller: controller,
+      submitLabel: edit == null ? '추가' : '수정',
+    ),
   );
 }
 
@@ -59,12 +54,16 @@ class _BudgetEditBody extends ConsumerStatefulWidget {
     this.edit,
     required this.usedCategoryIds,
     this.overallNew = false,
+    required this.scrollController,
+    required this.controller,
   });
   final int year;
   final int month;
   final Budget? edit;
   final Set<int> usedCategoryIds;
   final bool overallNew;
+  final ScrollController scrollController;
+  final PSheetController controller;
 
   @override
   ConsumerState<_BudgetEditBody> createState() => _BudgetEditBodyState();
@@ -84,12 +83,19 @@ class _BudgetEditBodyState extends ConsumerState<_BudgetEditBody> {
       text: widget.edit == null ? '' : widget.edit!.budgetAmount.toString(),
     );
     _categoryRowId = widget.edit?.categoryRowId;
+    widget.controller.onSubmit = _submit;
+    if (_isEdit) widget.controller.onDelete = _delete;
   }
 
   @override
   void dispose() {
     _amountCtrl.dispose();
     super.dispose();
+  }
+
+  void _setSubmitting(bool v) {
+    setState(() => _submitting = v);
+    widget.controller.setSubmitting(v);
   }
 
   bool get _isOverall =>
@@ -105,7 +111,7 @@ class _BudgetEditBodyState extends ConsumerState<_BudgetEditBody> {
 
   Future<void> _submit() async {
     final amount = int.parse(_amountCtrl.text.replaceAll(',', ''));
-    setState(() => _submitting = true);
+    _setSubmitting(true);
     try {
       final repo = await ref.read(budgetRepositoryProvider.future);
       if (_isEdit) {
@@ -131,30 +137,20 @@ class _BudgetEditBodyState extends ConsumerState<_BudgetEditBody> {
         SnackBar(content: Text('실패: ${e.message}')),
       );
     } finally {
-      if (mounted) setState(() => _submitting = false);
+      if (mounted) _setSubmitting(false);
     }
   }
 
   Future<void> _delete() async {
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('예산 삭제'),
-        content: const Text('이 예산을 삭제하시겠습니까?'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false), child: const Text('취소')),
-          FilledButton(
-            style: FilledButton.styleFrom(
-                backgroundColor: context.tokens.statusDanger),
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('삭제'),
-          ),
-        ],
-      ),
+    final ok = await showPConfirmDialog(
+      context,
+      title: '예산 삭제',
+      message: '이 예산을 삭제하시겠습니까?',
+      confirmLabel: '삭제',
+      destructive: true,
     );
-    if (ok != true || !mounted) return;
-    setState(() => _submitting = true);
+    if (!ok || !mounted) return;
+    _setSubmitting(true);
     try {
       final repo = await ref.read(budgetRepositoryProvider.future);
       await repo.delete(widget.edit!.rowId);
@@ -168,7 +164,7 @@ class _BudgetEditBodyState extends ConsumerState<_BudgetEditBody> {
         SnackBar(content: Text('삭제 실패: ${e.message}')),
       );
     } finally {
-      if (mounted) setState(() => _submitting = false);
+      if (mounted) _setSubmitting(false);
     }
   }
 
@@ -176,105 +172,71 @@ class _BudgetEditBodyState extends ConsumerState<_BudgetEditBody> {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final categoriesAsync = ref.watch(categoriesProvider);
-    return Padding(
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) widget.controller.setCanSubmit(_canSubmit);
+    });
+    return ListView(
+      controller: widget.scrollController,
       padding: const EdgeInsets.fromLTRB(
-          PSpace.x16, PSpace.x8, PSpace.x16, PSpace.x16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('${widget.year}년 ${widget.month}월',
-              style: PTypo.caption.copyWith(color: t.fgTertiary)),
-          const SizedBox(height: PSpace.x12),
+          PSpace.x16, 0, PSpace.x16, PSpace.x16),
+      children: [
+        Text('${widget.year}년 ${widget.month}월',
+            style: PTypo.caption.copyWith(color: t.fgTertiary)),
+        const SizedBox(height: PSpace.x12),
 
-          _Label('카테고리'),
-          const SizedBox(height: PSpace.x8),
-          if (widget.overallNew)
-            _LockedCategory(
-                category: ExpenseCategory(rowId: 0, categoryName: '월 전체 상한'),
-                tokens: t)
-          else if (_isEdit)
-            // 수정 시엔 카테고리 변경 불가. categoryRowId 가 null 이면
-            // '월 전체 상한' 으로 표기 (web 동일 패턴).
-            _LockedCategory(
-                category: widget.edit!.categoryRowId == null
-                    ? ExpenseCategory(rowId: 0, categoryName: '월 전체 상한')
-                    : categoriesAsync.value?.firstWhere(
-                        (c) => c.rowId == widget.edit!.categoryRowId,
-                        orElse: () => ExpenseCategory(
-                            rowId: widget.edit!.categoryRowId!,
-                            categoryName: widget.edit!.categoryName ?? '-')),
-                tokens: t)
-          else
-            categoriesAsync.when(
-              loading: () =>
-                  const Center(child: CircularProgressIndicator()),
-              error: (e, _) => Text('카테고리 로드 실패',
-                  style: PTypo.caption.copyWith(color: t.statusDanger)),
-              data: (categories) => Wrap(
-                spacing: PSpace.x8,
-                runSpacing: PSpace.x8,
-                children: [
-                  for (final c in categories
-                      .where((c) => c.expenseType != 'INCOME'))
-                    _CatChip(
-                      label: c.categoryName,
-                      icon: lucideByName(c.icon),
-                      fg: parseColor(c.color, fallback: t.fgBrand),
-                      selected: _categoryRowId == c.rowId,
-                      disabled: widget.usedCategoryIds.contains(c.rowId),
-                      onTap: () => setState(() => _categoryRowId = c.rowId),
-                      tokens: t,
-                    ),
-                ],
-              ),
-            ),
-          const SizedBox(height: PSpace.x16),
-
-          _Label('월 예산 한도'),
-          const SizedBox(height: PSpace.x4),
-          TextField(
-            controller: _amountCtrl,
-            keyboardType: TextInputType.number,
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            style: PTypo.h3.copyWith(color: t.fgPrimary),
-            decoration: const InputDecoration(hintText: '0'),
-            onChanged: (_) => setState(() {}),
-          ),
-          const SizedBox(height: PSpace.x24),
-
-          Row(
-            children: [
-              if (_isEdit) ...[
-                Expanded(
-                  child: OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: t.statusDanger,
-                      side: BorderSide(
-                          color: t.statusDanger.withValues(alpha: 0.5)),
-                    ),
-                    onPressed: _submitting ? null : _delete,
-                    icon: const Icon(LucideIcons.trash2, size: 16),
-                    label: const Text('삭제'),
+        _Label('카테고리'),
+        const SizedBox(height: PSpace.x8),
+        if (widget.overallNew)
+          _LockedCategory(
+              category: ExpenseCategory(rowId: 0, categoryName: '월 전체 상한'),
+              tokens: t)
+        else if (_isEdit)
+          _LockedCategory(
+              category: widget.edit!.categoryRowId == null
+                  ? ExpenseCategory(rowId: 0, categoryName: '월 전체 상한')
+                  : categoriesAsync.value?.firstWhere(
+                      (c) => c.rowId == widget.edit!.categoryRowId,
+                      orElse: () => ExpenseCategory(
+                          rowId: widget.edit!.categoryRowId!,
+                          categoryName: widget.edit!.categoryName ?? '-')),
+              tokens: t)
+        else
+          categoriesAsync.when(
+            loading: () =>
+                const Center(child: CircularProgressIndicator()),
+            error: (e, _) => Text('카테고리 로드 실패',
+                style: PTypo.caption.copyWith(color: t.statusDanger)),
+            data: (categories) => Wrap(
+              spacing: PSpace.x8,
+              runSpacing: PSpace.x8,
+              children: [
+                for (final c in categories
+                    .where((c) => c.expenseType != 'INCOME'))
+                  _CatChip(
+                    label: c.categoryName,
+                    icon: lucideByName(c.icon),
+                    fg: parseColor(c.color, fallback: t.fgBrand),
+                    selected: _categoryRowId == c.rowId,
+                    disabled: widget.usedCategoryIds.contains(c.rowId),
+                    onTap: () => setState(() => _categoryRowId = c.rowId),
+                    tokens: t,
                   ),
-                ),
-                const SizedBox(width: PSpace.x8),
               ],
-              Expanded(
-                flex: _isEdit ? 1 : 2,
-                child: FilledButton(
-                  onPressed: _canSubmit ? _submit : null,
-                  child: _submitting
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2))
-                      : Text(_isEdit ? '수정' : '추가'),
-                ),
-              ),
-            ],
+            ),
           ),
-        ],
-      ),
+        const SizedBox(height: PSpace.x16),
+
+        _Label('월 예산 한도'),
+        const SizedBox(height: PSpace.x4),
+        TextField(
+          controller: _amountCtrl,
+          keyboardType: TextInputType.number,
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          style: PTypo.h3.copyWith(color: t.fgPrimary),
+          decoration: const InputDecoration(hintText: '0'),
+          onChanged: (_) => setState(() {}),
+        ),
+      ],
     );
   }
 }

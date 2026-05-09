@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
 import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
@@ -9,6 +8,7 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
+import '../../../shared/widgets/p_modal.dart';
 import '../../expense/application/expense_providers.dart';
 import '../../expense/domain/expense_category.dart';
 import 'category_palette.dart';
@@ -18,29 +18,34 @@ void showCategoryEditDialog(
   ExpenseCategory? edit,
   String defaultExpenseType = 'EXPENSE',
 }) {
-  WoltModalSheet.show<void>(
-    context: context,
-    pageListBuilder: (modalCtx) => [
-      WoltModalSheetPage(
-        topBarTitle: Text(edit == null ? '카테고리 추가' : '카테고리 수정'),
-        isTopBarLayerAlwaysVisible: true,
-        backgroundColor:
-            Theme.of(modalCtx).extension<PorestTokens>()?.bgSurface,
-        trailingNavBarWidget: IconButton(
-          icon: const Icon(LucideIcons.x),
-          onPressed: Navigator.of(modalCtx).pop,
-        ),
-        child: _CategoryEditBody(
-            edit: edit, defaultExpenseType: defaultExpenseType),
-      ),
-    ],
+  final controller = PSheetController();
+  showPSheet<void>(
+    context,
+    title: edit == null ? '카테고리 추가' : '카테고리 수정',
+    contentBuilder: (ctx, scrollCtrl) => _CategoryEditBody(
+      edit: edit,
+      defaultExpenseType: defaultExpenseType,
+      scrollController: scrollCtrl,
+      controller: controller,
+    ),
+    footerBuilder: (ctx) => PSheetFooter(
+      controller: controller,
+      submitLabel: edit == null ? '추가' : '수정',
+    ),
   );
 }
 
 class _CategoryEditBody extends ConsumerStatefulWidget {
-  const _CategoryEditBody({this.edit, required this.defaultExpenseType});
+  const _CategoryEditBody({
+    this.edit,
+    required this.defaultExpenseType,
+    required this.scrollController,
+    required this.controller,
+  });
   final ExpenseCategory? edit;
   final String defaultExpenseType;
+  final ScrollController scrollController;
+  final PSheetController controller;
 
   @override
   ConsumerState<_CategoryEditBody> createState() => _CategoryEditBodyState();
@@ -63,6 +68,13 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
     _expenseType = c?.expenseType ?? widget.defaultExpenseType;
     _icon = c?.icon ?? 'tag';
     _paletteIdx = CatPalette.indexByColor(c?.color) ?? 0;
+    widget.controller.onSubmit = _submit;
+    if (_isEdit) widget.controller.onDelete = _delete;
+  }
+
+  void _setSubmitting(bool v) {
+    setState(() => _submitting = v);
+    widget.controller.setSubmitting(v);
   }
 
   @override
@@ -80,7 +92,7 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
     if (!_canSubmit) return;
     final name = _nameCtrl.text.trim();
     final color = CatPalette.all[_paletteIdx].toHex();
-    setState(() => _submitting = true);
+    _setSubmitting(true);
     try {
       final repo = await ref.read(expenseRepositoryProvider.future);
       if (_isEdit) {
@@ -110,32 +122,21 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
         SnackBar(content: Text('실패: ${e.message}')),
       );
     } finally {
-      if (mounted) setState(() => _submitting = false);
+      if (mounted) _setSubmitting(false);
     }
   }
 
   Future<void> _delete() async {
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('카테고리 삭제'),
-        content: Text(
-            '"${widget.edit!.categoryName}" 카테고리를 삭제할까요?\n이 카테고리에 연결된 거래는 영향을 받을 수 있습니다.'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('취소')),
-          FilledButton(
-            style: FilledButton.styleFrom(
-                backgroundColor: context.tokens.statusDanger),
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('삭제'),
-          ),
-        ],
-      ),
+    final ok = await showPConfirmDialog(
+      context,
+      title: '카테고리 삭제',
+      message:
+          '"${widget.edit!.categoryName}" 카테고리를 삭제할까요?\n이 카테고리에 연결된 거래는 영향을 받을 수 있습니다.',
+      confirmLabel: '삭제',
+      destructive: true,
     );
-    if (ok != true || !mounted) return;
-    setState(() => _submitting = true);
+    if (!ok || !mounted) return;
+    _setSubmitting(true);
     try {
       final repo = await ref.read(expenseRepositoryProvider.future);
       await repo.deleteCategory(widget.edit!.rowId);
@@ -148,7 +149,7 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
         SnackBar(content: Text('삭제 실패: ${e.message}')),
       );
     } finally {
-      if (mounted) setState(() => _submitting = false);
+      if (mounted) _setSubmitting(false);
     }
   }
 
@@ -156,13 +157,15 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final palette = CatPalette.all[_paletteIdx];
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) widget.controller.setCanSubmit(_canSubmit);
+    });
 
-    return Padding(
+    return ListView(
+      controller: widget.scrollController,
       padding: const EdgeInsets.fromLTRB(
-          PSpace.x16, PSpace.x8, PSpace.x16, PSpace.x16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+          PSpace.x16, 0, PSpace.x16, PSpace.x16),
+      children: [
           // 미리보기
           Center(
             child: Container(
@@ -272,41 +275,7 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
                 ),
             ],
           ),
-          const SizedBox(height: PSpace.x24),
-
-          Row(
-            children: [
-              if (_isEdit) ...[
-                Expanded(
-                  child: OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: t.statusDanger,
-                      side: BorderSide(
-                          color: t.statusDanger.withValues(alpha: 0.5)),
-                    ),
-                    onPressed: _submitting ? null : _delete,
-                    icon: const Icon(LucideIcons.trash2, size: 16),
-                    label: const Text('삭제'),
-                  ),
-                ),
-                const SizedBox(width: PSpace.x8),
-              ],
-              Expanded(
-                flex: _isEdit ? 1 : 2,
-                child: FilledButton(
-                  onPressed: _canSubmit ? _submit : null,
-                  child: _submitting
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2))
-                      : Text(_isEdit ? '수정' : '추가'),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+      ],
     );
   }
 }
