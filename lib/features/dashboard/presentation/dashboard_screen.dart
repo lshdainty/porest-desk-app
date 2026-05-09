@@ -44,7 +44,8 @@ class DashboardScreen extends ConsumerStatefulWidget {
 }
 
 class _DashboardScreenState extends ConsumerState<DashboardScreen> {
-  late DateTime _month = DateTime(DateTime.now().year, DateTime.now().month, 1);
+  late final DateTime _month =
+      DateTime(DateTime.now().year, DateTime.now().month, 1);
 
   String get _ymdStart =>
       '${_month.year.toString().padLeft(4, '0')}-${_month.month.toString().padLeft(2, '0')}-01';
@@ -62,20 +63,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       end:
           '${p.year.toString().padLeft(4, '0')}-${p.month.toString().padLeft(2, '0')}-${lastDay.toString().padLeft(2, '0')}',
     );
-  }
-
-  Future<void> _pickMonth() async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: _month,
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2030),
-      initialDatePickerMode: DatePickerMode.year,
-      helpText: '월 선택',
-    );
-    if (picked != null) {
-      setState(() => _month = DateTime(picked.year, picked.month, 1));
-    }
   }
 
   @override
@@ -121,7 +108,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             currentSummary: summaryRangeAsync.value,
             prevSummary: prevSummaryAsync.value,
             masked: settings.hideAmounts,
-            onPickMonth: _pickMonth,
           ),
           const SizedBox(height: 16),
           _CategoryDonutCard(
@@ -589,14 +575,12 @@ class _MonthExpenseCard extends StatelessWidget {
     required this.currentSummary,
     required this.prevSummary,
     required this.masked,
-    required this.onPickMonth,
   });
   final DateTime month;
   final AsyncValue<List<Expense>> expensesAsync;
   final RangeSummary? currentSummary;
   final RangeSummary? prevSummary;
   final bool masked;
-  final VoidCallback onPickMonth;
 
   @override
   Widget build(BuildContext context) {
@@ -629,40 +613,14 @@ class _MonthExpenseCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Text(
-                '${month.month}월 가계부',
-                style: TextStyle(
-                  color: t.fgPrimary,
-                  fontSize: PFontSize.bodyLg,
-                  fontWeight: PFontWeight.bold,
-                  letterSpacing: -0.225,
-                ),
-              ),
-              const Spacer(),
-              OutlinedButton.icon(
-                onPressed: onPickMonth,
-                icon: Icon(LucideIcons.calendar,
-                    size: 13, color: t.fgSecondary),
-                label: Text(
-                  '${month.year}년 ${month.month}월',
-                  style: TextStyle(
-                    color: t.fgPrimary,
-                    fontSize: PFontSize.caption,
-                    fontWeight: PFontWeight.semi,
-                  ),
-                ),
-                style: OutlinedButton.styleFrom(
-                  side: BorderSide(color: t.borderSubtle),
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 10, vertical: 4),
-                  minimumSize: const Size(0, 32),
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  shape: RoundedRectangleBorder(borderRadius: PRadius.brMd),
-                ),
-              ),
-            ],
+          Text(
+            '${month.month}월 가계부',
+            style: TextStyle(
+              color: t.fgPrimary,
+              fontSize: PFontSize.bodyLg,
+              fontWeight: PFontWeight.bold,
+              letterSpacing: -0.225,
+            ),
           ),
           const SizedBox(height: 14),
           if (hasError)
