@@ -9,6 +9,7 @@ import '../../../app/theme/typography.dart';
 import '../../../core/format/color_parse.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_category_tile.dart';
+import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_segmented.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../../../shared/widgets/p_type_chip.dart';
@@ -74,31 +75,56 @@ class ExpenseFilter {
 
 Future<ExpenseFilter?> showFilterDialog(
     BuildContext context, ExpenseFilter current) async {
-  return showModalBottomSheet<ExpenseFilter>(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor:
-        Theme.of(context).extension<PorestTokens>()?.bgSurface,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(PRadius.xl2)),
+  final controller = PSheetController();
+  final formKey = GlobalKey<_FilterBodyState>();
+  return showPSheet<ExpenseFilter>(
+    context,
+    title: '필터',
+    contentBuilder: (ctx, scrollCtrl) => _FilterBody(
+      key: formKey,
+      initial: current,
+      scrollController: scrollCtrl,
+      controller: controller,
     ),
-    builder: (ctx) => DraggableScrollableSheet(
-      initialChildSize: 0.85,
-      minChildSize: 0.5,
-      maxChildSize: 0.95,
-      expand: false,
-      builder: (_, scrollCtrl) => _FilterBody(
-        initial: current,
-        scrollController: scrollCtrl,
-      ),
+    footerBuilder: (ctx) => AnimatedBuilder(
+      animation: controller,
+      builder: (_, _) {
+        final t = ctx.tokens;
+        return Row(
+          children: [
+            TextButton(
+              onPressed: () => formKey.currentState?._reset(),
+              child: Text('초기화',
+                  style: PTypo.body.copyWith(color: t.fgSecondary)),
+            ),
+            const Spacer(),
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: Text('취소',
+                  style: PTypo.body.copyWith(color: t.fgSecondary)),
+            ),
+            const SizedBox(width: PSpace.x8),
+            FilledButton(
+              onPressed: controller.canSubmit ? controller.onSubmit : null,
+              child: const Text('필터 적용'),
+            ),
+          ],
+        );
+      },
     ),
-  );
+  ).whenComplete(controller.dispose);
 }
 
 class _FilterBody extends ConsumerStatefulWidget {
-  const _FilterBody({required this.initial, required this.scrollController});
+  const _FilterBody({
+    super.key,
+    required this.initial,
+    required this.scrollController,
+    required this.controller,
+  });
   final ExpenseFilter initial;
   final ScrollController scrollController;
+  final PSheetController controller;
 
   @override
   ConsumerState<_FilterBody> createState() => _FilterBodyState();
@@ -139,6 +165,9 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
         TextEditingController(text: widget.initial.min?.toString() ?? '');
     _maxCtrl =
         TextEditingController(text: widget.initial.max?.toString() ?? '');
+    widget.controller.onSubmit = () async => _apply();
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => widget.controller.setCanSubmit(!_customInvalid));
   }
 
   @override
@@ -183,82 +212,23 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    return Column(
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) widget.controller.setCanSubmit(!_customInvalid);
+    });
+    return ListView(
+      controller: widget.scrollController,
+      padding: const EdgeInsets.fromLTRB(
+          PSpace.x20, 0, PSpace.x20, PSpace.x16),
       children: [
-        Container(
-          margin: const EdgeInsets.only(top: 8, bottom: 4),
-          width: 36,
-          height: 4,
-          decoration: BoxDecoration(
-            color: t.borderSubtle,
-            borderRadius: PRadius.brXs2,
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(
-              PSpace.x20, PSpace.x12, PSpace.x12, PSpace.x12),
-          child: Row(
-            children: [
-              Text('필터',
-                  style: TextStyle(
-                      color: t.fgPrimary,
-                      fontSize: PFontSize.h4,
-                      fontWeight: PFontWeight.bold,
-                      letterSpacing: -0.34)),
-              const Spacer(),
-              IconButton(
-                icon: Icon(LucideIcons.x, color: t.fgSecondary, size: 20),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-            ],
-          ),
-        ),
-        Expanded(
-          child: ListView(
-            controller: widget.scrollController,
-            padding: const EdgeInsets.fromLTRB(
-                PSpace.x20, 0, PSpace.x20, PSpace.x16),
-            children: [
-              _periodSection(t),
-              const SizedBox(height: PSpace.x16),
-              _typeSection(t),
-              const SizedBox(height: PSpace.x16),
-              _categorySection(t),
-              const SizedBox(height: PSpace.x16),
-              _assetSection(t),
-              const SizedBox(height: PSpace.x16),
-              _amountSection(t),
-            ],
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(
-              PSpace.x16, PSpace.x12, PSpace.x16, PSpace.x16),
-          child: Row(
-            children: [
-              TextButton(
-                onPressed: _reset,
-                child: Text('초기화',
-                    style: PTypo.body.copyWith(color: t.fgSecondary)),
-              ),
-              const Spacer(),
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text('취소',
-                    style: PTypo.body.copyWith(color: t.fgSecondary)),
-              ),
-              const SizedBox(width: PSpace.x8),
-              FilledButton(
-                onPressed: _customInvalid ? null : _apply,
-                style: FilledButton.styleFrom(
-                  backgroundColor: t.bgBrand,
-                  foregroundColor: t.fgOnBrand,
-                ),
-                child: const Text('필터 적용'),
-              ),
-            ],
-          ),
-        ),
+        _periodSection(t),
+        const SizedBox(height: PSpace.x16),
+        _typeSection(t),
+        const SizedBox(height: PSpace.x16),
+        _categorySection(t),
+        const SizedBox(height: PSpace.x16),
+        _assetSection(t),
+        const SizedBox(height: PSpace.x16),
+        _amountSection(t),
       ],
     );
   }

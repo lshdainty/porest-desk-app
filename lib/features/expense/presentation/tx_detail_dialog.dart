@@ -11,6 +11,7 @@ import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
+import '../../../shared/widgets/p_modal.dart';
 import '../../asset/application/asset_providers.dart';
 import '../../dutch_pay/presentation/dutch_pay_from_tx_dialog.dart';
 import '../../expense_split/presentation/split_tx_dialog.dart';
@@ -28,30 +29,83 @@ import 'widgets/expense_row.dart';
 /// - Quick actions (3-col grid): 내역 분할 / 반복 설정 / 더치페이
 /// - Footer: 삭제 / 편집 / 확인
 void showTxDetailDialog(BuildContext context, Expense expense) {
-  showModalBottomSheet<void>(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor:
-        Theme.of(context).extension<PorestTokens>()?.bgSurface,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(PRadius.xl2)),
+  final controller = PSheetController();
+  final isIncome = expense.expenseType == 'INCOME';
+  showPSheet<void>(
+    context,
+    title: isIncome ? '수입 상세' : '지출 상세',
+    contentBuilder: (ctx, scrollCtrl) => _DetailBody(
+      expense: expense,
+      scrollController: scrollCtrl,
+      controller: controller,
     ),
-    builder: (ctx) => DraggableScrollableSheet(
-      initialChildSize: 0.85,
-      minChildSize: 0.5,
-      maxChildSize: 0.95,
-      expand: false,
-      builder: (_, scrollCtrl) =>
-          _DetailBody(expense: expense, scrollController: scrollCtrl),
+    footerBuilder: (ctx) => _TxDetailFooter(
+      expense: expense,
+      controller: controller,
     ),
-  );
+  ).whenComplete(controller.dispose);
+}
+
+class _TxDetailFooter extends StatelessWidget {
+  const _TxDetailFooter({required this.expense, required this.controller});
+  final Expense expense;
+  final PSheetController controller;
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return AnimatedBuilder(
+      animation: controller,
+      builder: (ctx, _) {
+        final busy = controller.submitting;
+        return Row(
+          children: [
+            TextButton.icon(
+              onPressed: busy ? null : controller.onDelete,
+              icon: busy
+                  ? const SizedBox(
+                      width: PSpace.x12,
+                      height: PSpace.x12,
+                      child: CircularProgressIndicator(strokeWidth: 2))
+                  : Icon(LucideIcons.trash2,
+                      size: PSpace.x12, color: t.statusDangerFg),
+              label: Text('삭제',
+                  style: PTypo.body.copyWith(color: t.statusDangerFg)),
+            ),
+            const Spacer(),
+            TextButton.icon(
+              onPressed: busy
+                  ? null
+                  : () {
+                      Navigator.of(ctx).pop();
+                      showAddTxSheet(ctx, edit: expense);
+                    },
+              icon: Icon(LucideIcons.pencil,
+                  size: PSpace.x12, color: t.fgSecondary),
+              label: Text('편집',
+                  style: PTypo.body.copyWith(color: t.fgSecondary)),
+            ),
+            const SizedBox(width: PSpace.x8),
+            FilledButton(
+              onPressed:
+                  busy ? null : () => Navigator.of(ctx).pop(),
+              child: const Text('확인'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 }
 
 class _DetailBody extends ConsumerStatefulWidget {
-  const _DetailBody(
-      {required this.expense, required this.scrollController});
+  const _DetailBody({
+    required this.expense,
+    required this.scrollController,
+    required this.controller,
+  });
   final Expense expense;
   final ScrollController scrollController;
+  final PSheetController controller;
 
   @override
   ConsumerState<_DetailBody> createState() => _DetailBodyState();
@@ -59,6 +113,17 @@ class _DetailBody extends ConsumerStatefulWidget {
 
 class _DetailBodyState extends ConsumerState<_DetailBody> {
   bool _deleting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.controller.onDelete = _delete;
+  }
+
+  void _setDeleting(bool v) {
+    setState(() => _deleting = v);
+    widget.controller.setSubmitting(v);
+  }
 
   Future<void> _delete() async {
     final t = context.tokens;
@@ -81,7 +146,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
     );
     if (ok != true || !mounted) return;
 
-    setState(() => _deleting = true);
+    _setDeleting(true);
     try {
       final repo = await ref.read(expenseRepositoryProvider.future);
       await repo.delete(widget.expense.rowId);
@@ -103,7 +168,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
         SnackBar(content: Text('삭제 실패: ${e.message}')),
       );
     } finally {
-      if (mounted) setState(() => _deleting = false);
+      if (mounted) _setDeleting(false);
     }
   }
 
@@ -123,10 +188,8 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
     final masked = settings.hideAmounts;
     final e = widget.expense;
     final isIncome = e.expenseType == 'INCOME';
-    final title = isIncome ? '수입 상세' : '지출 상세';
 
     final fg = parseColor(e.categoryColor, fallback: t.fgBrand);
-    final bg = softBg(fg);
     final icon = lucideByName(e.categoryIcon, fallback: LucideIcons.tag);
 
     final assets = ref.watch(assetsProvider).value ?? const [];
@@ -153,44 +216,11 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
         ? '••••'
         : '${isIncome ? '+' : '−'}${krw(e.amount, abs: true)}';
 
-    return Column(
+    return ListView(
+      controller: widget.scrollController,
+      padding: const EdgeInsets.fromLTRB(
+          PSpace.x20, 0, PSpace.x20, PSpace.x16),
       children: [
-        // Grab handle
-        Container(
-          margin: const EdgeInsets.only(top: 8, bottom: 4),
-          width: 36,
-          height: 4,
-          decoration: BoxDecoration(
-            color: t.borderSubtle,
-            borderRadius: PRadius.brXs2,
-          ),
-        ),
-        // Header
-        Padding(
-          padding: const EdgeInsets.fromLTRB(
-              PSpace.x20, PSpace.x12, PSpace.x12, PSpace.x12),
-          child: Row(
-            children: [
-              Text(title,
-                  style: TextStyle(
-                      color: t.fgPrimary,
-                      fontSize: PFontSize.h4,
-                      fontWeight: PFontWeight.bold,
-                      letterSpacing: -0.34)),
-              const Spacer(),
-              IconButton(
-                icon: Icon(LucideIcons.x, color: t.fgSecondary, size: 20),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-            ],
-          ),
-        ),
-        Expanded(
-          child: ListView(
-            controller: widget.scrollController,
-            padding: const EdgeInsets.fromLTRB(
-                PSpace.x20, 0, PSpace.x20, PSpace.x16),
-            children: [
               // Hero card
               Container(
                 padding: const EdgeInsets.all(22),
@@ -409,50 +439,6 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                   masked: masked,
                   tokens: t,
                 ),
-            ],
-          ),
-        ),
-        // Footer
-        Padding(
-          padding: const EdgeInsets.fromLTRB(
-              PSpace.x16, PSpace.x12, PSpace.x16, PSpace.x16),
-          child: Row(
-            children: [
-              TextButton.icon(
-                onPressed: _deleting ? null : _delete,
-                icon: _deleting
-                    ? const SizedBox(
-                        width: 14,
-                        height: 14,
-                        child: CircularProgressIndicator(strokeWidth: 2))
-                    : Icon(LucideIcons.trash2,
-                        size: 14, color: t.statusDangerFg),
-                label: Text('삭제',
-                    style: PTypo.body.copyWith(color: t.statusDangerFg)),
-              ),
-              const Spacer(),
-              TextButton.icon(
-                onPressed: _deleting
-                    ? null
-                    : () {
-                        Navigator.of(context).pop();
-                        showAddTxSheet(context, edit: e);
-                      },
-                icon: Icon(LucideIcons.pencil,
-                    size: 14, color: t.fgSecondary),
-                label: Text('편집',
-                    style: PTypo.body.copyWith(color: t.fgSecondary)),
-              ),
-              const SizedBox(width: PSpace.x8),
-              FilledButton(
-                onPressed: _deleting
-                    ? null
-                    : () => Navigator.of(context).pop(),
-                child: const Text('확인'),
-              ),
-            ],
-          ),
-        ),
       ],
     );
   }

@@ -11,6 +11,7 @@ import '../../../core/format/color_parse.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
+import '../../../shared/widgets/p_modal.dart';
 import '../../expense/application/expense_providers.dart';
 import '../../expense/domain/expense.dart';
 import '../application/recurring_providers.dart';
@@ -20,32 +21,31 @@ import '../application/recurring_providers.dart';
 /// 거래의 카테고리/자산/금액/메모/가맹점은 그대로 사용하고, 사용자는 반복
 /// 주기·종료·옵션만 설정합니다.
 void showRecurringFromTxDialog(BuildContext context, Expense expense) {
-  showModalBottomSheet<void>(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor:
-        Theme.of(context).extension<PorestTokens>()?.bgSurface,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(PRadius.xl2)),
+  final controller = PSheetController();
+  showPSheet<void>(
+    context,
+    title: '반복 설정',
+    contentBuilder: (ctx, scrollCtrl) => _RecurringFromTxBody(
+      expense: expense,
+      scrollController: scrollCtrl,
+      controller: controller,
     ),
-    builder: (_) => DraggableScrollableSheet(
-      initialChildSize: 0.85,
-      minChildSize: 0.5,
-      maxChildSize: 0.95,
-      expand: false,
-      builder: (_, scrollCtrl) =>
-          _RecurringFromTxBody(expense: expense, scrollController: scrollCtrl),
-    ),
+    footerBuilder: (ctx) =>
+        PSheetFooter(controller: controller, submitLabel: '반복 저장'),
   );
 }
 
 enum _EndMode { none, count, date }
 
 class _RecurringFromTxBody extends ConsumerStatefulWidget {
-  const _RecurringFromTxBody(
-      {required this.expense, required this.scrollController});
+  const _RecurringFromTxBody({
+    required this.expense,
+    required this.scrollController,
+    required this.controller,
+  });
   final Expense expense;
   final ScrollController scrollController;
+  final PSheetController controller;
 
   @override
   ConsumerState<_RecurringFromTxBody> createState() =>
@@ -81,6 +81,12 @@ class _RecurringFromTxBodyState extends ConsumerState<_RecurringFromTxBody> {
     _dayOfWeekUi = _baseDate.weekday % 7; // Mon=1..Sun=7 → UI 1..0
     _dayOfMonth = _baseDate.day.clamp(1, 31);
     _endDate = DateTime(_baseDate.year + 1, _baseDate.month, _baseDate.day);
+    widget.controller.onSubmit = _save;
+  }
+
+  void _setSubmitting(bool v) {
+    setState(() => _submitting = v);
+    widget.controller.setSubmitting(v);
   }
 
   @override
@@ -104,7 +110,7 @@ class _RecurringFromTxBodyState extends ConsumerState<_RecurringFromTxBody> {
   Future<void> _save() async {
     final e = widget.expense;
     if (!_ready || _submitting) return;
-    setState(() => _submitting = true);
+    _setSubmitting(true);
     try {
       final repo = await ref.read(recurringRepositoryProvider.future);
       await repo.create(
@@ -144,7 +150,7 @@ class _RecurringFromTxBodyState extends ConsumerState<_RecurringFromTxBody> {
         SnackBar(content: Text('저장 실패: ${e.message}')),
       );
     } finally {
-      if (mounted) setState(() => _submitting = false);
+      if (mounted) _setSubmitting(false);
     }
   }
 
@@ -180,48 +186,15 @@ class _RecurringFromTxBodyState extends ConsumerState<_RecurringFromTxBody> {
       3,
     );
 
-    return Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-      ),
-      child: Column(
-        children: [
-          // Drag handle
-          Container(
-            margin: const EdgeInsets.only(top: 8),
-            width: 36,
-            height: 4,
-            decoration: BoxDecoration(
-              color: t.borderDefault,
-              borderRadius: PRadius.brXs2,
-            ),
-          ),
-          // Title bar
-          Padding(
-            padding: const EdgeInsets.fromLTRB(
-                PSpace.x16, PSpace.x12, PSpace.x8, PSpace.x4),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text('반복 설정',
-                      style: PTypo.h3.copyWith(
-                          color: t.fgPrimary, fontWeight: PFontWeight.heavy)),
-                ),
-                IconButton(
-                  icon: Icon(LucideIcons.x, color: t.fgTertiary, size: 20),
-                  onPressed: _submitting
-                      ? null
-                      : () => Navigator.of(context).pop(),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: ListView(
-              controller: widget.scrollController,
-              padding: const EdgeInsets.fromLTRB(
-                  PSpace.x16, 0, PSpace.x16, PSpace.x16),
-              children: [
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) widget.controller.setCanSubmit(_ready);
+    });
+
+    return ListView(
+      controller: widget.scrollController,
+      padding: const EdgeInsets.fromLTRB(
+          PSpace.x16, 0, PSpace.x16, PSpace.x16),
+      children: [
                 Text(
                   '이 거래를 정해진 주기로 자동 반복합니다. 구독료·월세·정기 후원 등에 사용해보세요.',
                   style: PTypo.bodySm.copyWith(color: t.fgSecondary, height: PLineHeight.normal),
@@ -485,40 +458,8 @@ class _RecurringFromTxBodyState extends ConsumerState<_RecurringFromTxBody> {
                       ],
                     ),
                   ),
-                ],
-              ],
-            ),
-          ),
-          // Footer — 웹 ModalShell 과 동일: justify-end + gap-2 + auto-width
-          Container(
-            padding: const EdgeInsets.symmetric(
-                horizontal: PSpace.x20, vertical: PSpace.x12),
-            color: t.bgSurface,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  onPressed: _submitting
-                      ? null
-                      : () => Navigator.of(context).pop(),
-                  child: const Text('취소'),
-                ),
-                const SizedBox(width: 8),
-                FilledButton(
-                  onPressed: _ready && !_submitting ? _save : null,
-                  child: _submitting
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Text('반복 저장'),
-                ),
-              ],
-            ),
-          ),
         ],
-      ),
+      ],
     );
   }
 }

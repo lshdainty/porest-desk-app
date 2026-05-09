@@ -121,6 +121,10 @@ class PSheetController extends ChangeNotifier {
     canSubmit = v;
     notifyListeners();
   }
+
+  /// content snapshot 등이 바뀌어 footer 가 다시 그려져야 할 때 호출.
+  /// (canSubmit/submitting 외에 footer 가 참조하는 값이 바뀐 경우)
+  void bump() => notifyListeners();
 }
 
 /// add_tx_sheet 와 동일한 표준 bottom sheet helper.

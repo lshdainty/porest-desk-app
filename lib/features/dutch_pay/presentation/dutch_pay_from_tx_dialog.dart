@@ -12,6 +12,7 @@ import '../../../core/format/color_parse.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
+import '../../../shared/widgets/p_modal.dart';
 import '../../expense/application/expense_providers.dart';
 import '../../expense/domain/expense.dart';
 import '../../group/application/group_providers.dart';
@@ -19,22 +20,19 @@ import '../application/dutch_pay_providers.dart';
 
 /// 거래 → 더치페이 시작 다이얼로그 (front `DutchPayFromTxDialog` 미러).
 void showDutchPayFromTxDialog(BuildContext context, Expense expense) {
-  showModalBottomSheet<void>(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor:
-        Theme.of(context).extension<PorestTokens>()?.bgSurface,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(PRadius.xl2)),
+  final controller = PSheetController();
+  final bodyKey = GlobalKey<_BodyState>();
+  showPSheet<void>(
+    context,
+    title: '더치페이 시작',
+    contentBuilder: (ctx, scrollCtrl) => _Body(
+      key: bodyKey,
+      expense: expense,
+      scrollController: scrollCtrl,
+      controller: controller,
     ),
-    builder: (_) => DraggableScrollableSheet(
-      initialChildSize: 0.85,
-      minChildSize: 0.5,
-      maxChildSize: 0.95,
-      expand: false,
-      builder: (_, scrollCtrl) =>
-          _Body(expense: expense, scrollController: scrollCtrl),
-    ),
+    footerBuilder: (ctx) =>
+        _DutchPayFooter(controller: controller, bodyKey: bodyKey),
   );
 }
 
@@ -71,9 +69,15 @@ const List<String> _participantPaletteOklch = [
 ];
 
 class _Body extends ConsumerStatefulWidget {
-  const _Body({required this.expense, required this.scrollController});
+  const _Body({
+    super.key,
+    required this.expense,
+    required this.scrollController,
+    required this.controller,
+  });
   final Expense expense;
   final ScrollController scrollController;
+  final PSheetController controller;
   @override
   ConsumerState<_Body> createState() => _BodyState();
 }
@@ -87,6 +91,11 @@ class _BodyState extends ConsumerState<_Body> {
   late final String _expenseDay;
   late final String _expenseDateTime;
   bool _submitting = false;
+
+  // 마지막 build 에서 계산된 footer snapshot — _DutchPayFooter 가 읽음.
+  List<_Participant> _lastParticipants = const [];
+  bool _lastMatched = false;
+  int _lastPerPerson = 0;
 
   // 제어된 입력 컨트롤러 — Participant uid 별로 유지해 매 build 마다 cursor 안 튀게.
   final Map<String, TextEditingController> _amountCtrls = {};
@@ -105,6 +114,12 @@ class _BodyState extends ConsumerState<_Body> {
     } else {
       _expenseDateTime = _expenseDay;
     }
+    widget.controller.onSubmit = () => _submit(_lastParticipants);
+  }
+
+  void _setSubmitting(bool v) {
+    setState(() => _submitting = v);
+    widget.controller.setSubmitting(v);
   }
 
   @override
@@ -230,7 +245,7 @@ class _BodyState extends ConsumerState<_Body> {
 
   Future<void> _submit(List<_Participant> participants) async {
     if (_submitting) return;
-    setState(() => _submitting = true);
+    _setSubmitting(true);
     try {
       final repo = await ref.read(dutchPayRepositoryProvider.future);
       final amounts = [
@@ -270,7 +285,7 @@ class _BodyState extends ConsumerState<_Body> {
         SnackBar(content: Text('실패: ${e.message}')),
       );
     } finally {
-      if (mounted) setState(() => _submitting = false);
+      if (mounted) _setSubmitting(false);
     }
   }
 
@@ -313,47 +328,20 @@ class _BodyState extends ConsumerState<_Body> {
     final matched = remainder == 0 && participants.isNotEmpty;
     final perPerson = _perPerson(_totalAbs, participants.length);
 
-    return Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-      ),
-      child: Column(
-        children: [
-          Container(
-            margin: const EdgeInsets.only(top: 8),
-            width: 36,
-            height: 4,
-            decoration: BoxDecoration(
-              color: t.borderDefault,
-              borderRadius: PRadius.brXs2,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(
-                PSpace.x16, PSpace.x12, PSpace.x8, PSpace.x4),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text('더치페이 시작',
-                      style: PTypo.h3.copyWith(
-                          color: t.fgPrimary,
-                          fontWeight: PFontWeight.heavy)),
-                ),
-                IconButton(
-                  icon: Icon(LucideIcons.x, color: t.fgTertiary, size: 20),
-                  onPressed: _submitting
-                      ? null
-                      : () => Navigator.of(context).pop(),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: ListView(
-              controller: widget.scrollController,
-              padding: const EdgeInsets.fromLTRB(
-                  PSpace.x16, 0, PSpace.x16, PSpace.x16),
-              children: [
+    _lastParticipants = participants;
+    _lastMatched = matched;
+    _lastPerPerson = perPerson;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      widget.controller.setCanSubmit(matched);
+      widget.controller.bump();
+    });
+
+    return ListView(
+      controller: widget.scrollController,
+      padding: const EdgeInsets.fromLTRB(
+          PSpace.x16, 0, PSpace.x16, PSpace.x16),
+      children: [
                 Text(
                   '이 거래를 기준으로 더치페이 정산을 만듭니다. 참여자에게 송금 요청을 보내고, 정산 진행 상황을 추적할 수 있어요.',
                   style: PTypo.bodySm.copyWith(
@@ -652,70 +640,77 @@ class _BodyState extends ConsumerState<_Body> {
                   ),
                 ),
 
-                if (!matched && participants.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: Text(
-                      remainder > 0
-                          ? '합계가 총액보다 ${krw(remainder)}원 부족합니다.'
-                          : '합계가 총액보다 ${krw(-remainder)}원 초과합니다.',
-                      style: PTypo.caption.copyWith(color: t.statusDangerFg),
-                    ),
-                  ),
-              ],
+        if (!matched && participants.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Text(
+              remainder > 0
+                  ? '합계가 총액보다 ${krw(remainder)}원 부족합니다.'
+                  : '합계가 총액보다 ${krw(-remainder)}원 초과합니다.',
+              style: PTypo.caption.copyWith(color: t.statusDangerFg),
             ),
           ),
+      ],
+    );
+  }
+}
 
-          // Footer
-          Container(
-            padding: const EdgeInsets.fromLTRB(
-                PSpace.x12, PSpace.x8, PSpace.x12, PSpace.x12),
-            color: t.bgSurface,
-            child: Row(
-              children: [
-                Expanded(
-                  child: RichText(
-                    text: TextSpan(children: [
-                      TextSpan(
-                        text: '1인당 ',
-                        style: PTypo.bodySm.copyWith(color: t.fgSecondary),
-                      ),
-                      TextSpan(
-                        text: '${krw(perPerson)}원',
-                        style: PTypo.bodySm.copyWith(
-                            color: t.fgPrimary,
-                            fontWeight: PFontWeight.heavy,
-                            fontFamily: 'monospace'),
-                      ),
-                    ]),
+class _DutchPayFooter extends StatelessWidget {
+  const _DutchPayFooter({required this.controller, required this.bodyKey});
+  final PSheetController controller;
+  final GlobalKey<_BodyState> bodyKey;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return AnimatedBuilder(
+      animation: controller,
+      builder: (ctx, _) {
+        final state = bodyKey.currentState;
+        final perPerson = state?._lastPerPerson ?? 0;
+        final matched = state?._lastMatched ?? false;
+        return Row(
+          children: [
+            Expanded(
+              child: RichText(
+                text: TextSpan(children: [
+                  TextSpan(
+                    text: '1인당 ',
+                    style: PTypo.bodySm.copyWith(color: t.fgSecondary),
                   ),
-                ),
-                TextButton(
-                  onPressed: _submitting
-                      ? null
-                      : () => Navigator.of(context).pop(),
-                  child: const Text('취소'),
-                ),
-                const SizedBox(width: 4),
-                FilledButton.icon(
-                  onPressed: matched && !_submitting
-                      ? () => _submit(participants)
-                      : null,
-                  icon: _submitting
-                      ? const SizedBox(
-                          width: 14,
-                          height: 14,
-                          child:
-                              CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(LucideIcons.send, size: 14),
-                  label: const Text('정산 만들기'),
-                ),
-              ],
+                  TextSpan(
+                    text: '${krw(perPerson)}원',
+                    style: PTypo.bodySm.copyWith(
+                        color: t.fgPrimary,
+                        fontWeight: PFontWeight.heavy,
+                        fontFamily: 'monospace'),
+                  ),
+                ]),
+              ),
             ),
-          ),
-        ],
-      ),
+            TextButton(
+              onPressed: controller.submitting
+                  ? null
+                  : () => Navigator.of(ctx).pop(),
+              child: const Text('취소'),
+            ),
+            const SizedBox(width: PSpace.x4),
+            FilledButton.icon(
+              onPressed: matched && !controller.submitting
+                  ? controller.onSubmit
+                  : null,
+              icon: controller.submitting
+                  ? const SizedBox(
+                      width: PSpace.x16,
+                      height: PSpace.x16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(LucideIcons.send, size: 14),
+              label: const Text('정산 만들기'),
+            ),
+          ],
+        );
+      },
     );
   }
 }

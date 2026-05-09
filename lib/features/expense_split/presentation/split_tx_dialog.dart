@@ -10,6 +10,7 @@ import '../../../app/theme/typography.dart';
 import '../../../core/format/color_parse.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../shared/widgets/p_modal.dart';
 import '../../expense/application/expense_providers.dart';
 import '../../expense/domain/expense.dart';
 import '../../expense/domain/expense_category.dart';
@@ -19,22 +20,18 @@ import '../domain/expense_split.dart';
 
 /// 거래 분할 다이얼로그.
 void showSplitTxDialog(BuildContext context, Expense expense) {
-  showModalBottomSheet<void>(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor:
-        Theme.of(context).extension<PorestTokens>()?.bgSurface,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(PRadius.xl2)),
+  final controller = PSheetController();
+  final bodyKey = GlobalKey<_SplitBodyState>();
+  showPSheet<void>(
+    context,
+    title: '내역 분할',
+    contentBuilder: (ctx, scrollCtrl) => _SplitBody(
+      key: bodyKey,
+      expense: expense,
+      scrollController: scrollCtrl,
+      controller: controller,
     ),
-    builder: (ctx) => DraggableScrollableSheet(
-      initialChildSize: 0.85,
-      minChildSize: 0.5,
-      maxChildSize: 0.95,
-      expand: false,
-      builder: (_, scrollCtrl) =>
-          _SplitBody(expense: expense, scrollController: scrollCtrl),
-    ),
+    footerBuilder: (ctx) => _SplitFooter(controller: controller, bodyKey: bodyKey),
   );
 }
 
@@ -46,9 +43,15 @@ class _Row {
 }
 
 class _SplitBody extends ConsumerStatefulWidget {
-  const _SplitBody({required this.expense, required this.scrollController});
+  const _SplitBody({
+    super.key,
+    required this.expense,
+    required this.scrollController,
+    required this.controller,
+  });
   final Expense expense;
   final ScrollController scrollController;
+  final PSheetController controller;
 
   @override
   ConsumerState<_SplitBody> createState() => _SplitBodyState();
@@ -61,6 +64,25 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
 
   int get _totalAbs => widget.expense.amount.abs();
   bool get _isIncome => widget.expense.expenseType == 'INCOME';
+
+  @override
+  void initState() {
+    super.initState();
+    widget.controller.onSubmit = _save;
+  }
+
+  void _setSubmitting(bool v) {
+    setState(() => _submitting = v);
+    widget.controller.setSubmitting(v);
+  }
+
+  void _syncFooter() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      widget.controller.setCanSubmit(_matched);
+      widget.controller.onDelete = _hasExisting ? _deleteAll : null;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -87,6 +109,7 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
                 c.expenseType == null ||
                 c.expenseType == widget.expense.expenseType)
             .toList();
+        _syncFooter();
         return _build(t, sameTypeCategories);
       },
     );
@@ -152,7 +175,7 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
 
   Future<void> _save() async {
     if (!_matched || _submitting) return;
-    setState(() => _submitting = true);
+    _setSubmitting(true);
     try {
       final repo = await ref.read(expenseSplitRepositoryProvider.future);
       await repo.replace(
@@ -181,32 +204,21 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
         SnackBar(content: Text('저장 실패: ${e.message}')),
       );
     } finally {
-      if (mounted) setState(() => _submitting = false);
+      if (mounted) _setSubmitting(false);
     }
   }
 
   Future<void> _deleteAll() async {
     if (_submitting) return;
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('분할 해제'),
-        content: const Text('이 거래의 분할 내역을 모두 삭제하시겠습니까?'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('취소')),
-          FilledButton(
-            style: FilledButton.styleFrom(
-                backgroundColor: context.tokens.statusDanger),
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('해제'),
-          ),
-        ],
-      ),
+    final ok = await showPConfirmDialog(
+      context,
+      title: '분할 해제',
+      message: '이 거래의 분할 내역을 모두 삭제하시겠습니까?',
+      confirmLabel: '해제',
+      destructive: true,
     );
-    if (ok != true || !mounted) return;
-    setState(() => _submitting = true);
+    if (!ok || !mounted) return;
+    _setSubmitting(true);
     try {
       final repo = await ref.read(expenseSplitRepositoryProvider.future);
       await repo.deleteAll(widget.expense.rowId);
@@ -219,56 +231,24 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
         SnackBar(content: Text('해제 실패: ${e.message}')),
       );
     } finally {
-      if (mounted) setState(() => _submitting = false);
+      if (mounted) _setSubmitting(false);
     }
   }
 
   Widget _build(PorestTokens t, List<ExpenseCategory> categories) {
-    return Column(
+    return ListView(
+      controller: widget.scrollController,
+      padding: const EdgeInsets.fromLTRB(
+          PSpace.x20, 0, PSpace.x20, PSpace.x16),
       children: [
-        Container(
-          margin: const EdgeInsets.only(top: 8, bottom: 4),
-          width: 36,
-          height: 4,
-          decoration: BoxDecoration(
-            color: t.borderSubtle,
-            borderRadius: PRadius.brXs2,
-          ),
-        ),
-        // Header
-        Padding(
-          padding: const EdgeInsets.fromLTRB(
-              PSpace.x20, PSpace.x12, PSpace.x12, PSpace.x12),
-          child: Row(
-            children: [
-              Text('내역 분할',
-                  style: TextStyle(
-                      color: t.fgPrimary,
-                      fontSize: PFontSize.h4,
-                      fontWeight: PFontWeight.bold,
-                      letterSpacing: -0.34)),
-              const Spacer(),
-              IconButton(
-                icon: Icon(LucideIcons.x, color: t.fgSecondary, size: 20),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-            ],
-          ),
-        ),
-        Expanded(
-          child: ListView(
-            controller: widget.scrollController,
-            padding: const EdgeInsets.fromLTRB(
-                PSpace.x20, 0, PSpace.x20, PSpace.x16),
-            children: [
-              Text(
-                  '하나의 결제를 카테고리·항목별로 나누어 기록합니다. 예: 마트에서 식품과 생활품을 함께 결제한 경우.',
-                  style: PTypo.caption
-                      .copyWith(color: t.fgSecondary, height: PLineHeight.normal)),
-              const SizedBox(height: PSpace.x12),
+        Text(
+            '하나의 결제를 카테고리·항목별로 나누어 기록합니다. 예: 마트에서 식품과 생활품을 함께 결제한 경우.',
+            style: PTypo.caption
+                .copyWith(color: t.fgSecondary, height: PLineHeight.normal)),
+        const SizedBox(height: PSpace.x12),
 
-          // 원 거래 요약
-          Container(
+        // 원 거래 요약
+        Container(
             padding: const EdgeInsets.symmetric(
                 horizontal: PSpace.x12, vertical: PSpace.x12),
             decoration: BoxDecoration(
@@ -371,52 +351,65 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
           const SizedBox(height: PSpace.x8),
           _RatioLegend(rows: _rows!, total: _totalAbs, categories: categories, tokens: t),
           const SizedBox(height: PSpace.x16),
-
-            ],
-          ),
-        ),
-        // Fixed footer
-        Padding(
-          padding: const EdgeInsets.fromLTRB(
-              PSpace.x16, PSpace.x12, PSpace.x16, PSpace.x16),
-          child: Row(
-            children: [
-              if (_hasExisting)
-                TextButton.icon(
-                  onPressed: _submitting ? null : _deleteAll,
-                  icon: Icon(LucideIcons.trash2,
-                      size: 14, color: t.statusDangerFg),
-                  label: Text('분할 해제',
-                      style: PTypo.body.copyWith(color: t.statusDangerFg)),
-                ),
-              const SizedBox(width: 4),
-              _MatchPill(
-                matched: _matched,
-                remainder: _remainder,
-                tokens: t,
-              ),
-              const Spacer(),
-              TextButton(
-                onPressed: _submitting
-                    ? null
-                    : () => Navigator.of(context).pop(),
-                child: Text('취소',
-                    style: PTypo.body.copyWith(color: t.fgSecondary)),
-              ),
-              const SizedBox(width: PSpace.x8),
-              FilledButton(
-                onPressed: (_matched && !_submitting) ? _save : null,
-                child: _submitting
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2))
-                    : const Text('분할 저장'),
-              ),
-            ],
-          ),
-        ),
       ],
+    );
+  }
+}
+
+class _SplitFooter extends StatelessWidget {
+  const _SplitFooter({required this.controller, required this.bodyKey});
+  final PSheetController controller;
+  final GlobalKey<_SplitBodyState> bodyKey;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return AnimatedBuilder(
+      animation: controller,
+      builder: (ctx, _) {
+        final state = bodyKey.currentState;
+        final remainder = state?._rows == null ? 0 : state!._remainder;
+        final matched = state?._rows == null ? false : state!._matched;
+        final hasExisting = state?._hasExisting ?? false;
+        return Row(
+          children: [
+            if (hasExisting)
+              TextButton.icon(
+                onPressed: controller.submitting ? null : controller.onDelete,
+                icon: Icon(LucideIcons.trash2,
+                    size: PSpace.x12, color: t.statusDangerFg),
+                label: Text('분할 해제',
+                    style: PTypo.body.copyWith(color: t.statusDangerFg)),
+              ),
+            const SizedBox(width: PSpace.x4),
+            _MatchPill(
+              matched: matched,
+              remainder: remainder,
+              tokens: t,
+            ),
+            const Spacer(),
+            TextButton(
+              onPressed: controller.submitting
+                  ? null
+                  : () => Navigator.of(ctx).pop(),
+              child: Text('취소',
+                  style: PTypo.body.copyWith(color: t.fgSecondary)),
+            ),
+            const SizedBox(width: PSpace.x8),
+            FilledButton(
+              onPressed: (matched && !controller.submitting)
+                  ? controller.onSubmit
+                  : null,
+              child: controller.submitting
+                  ? const SizedBox(
+                      width: PSpace.x16,
+                      height: PSpace.x16,
+                      child: CircularProgressIndicator(strokeWidth: 2))
+                  : const Text('분할 저장'),
+            ),
+          ],
+        );
+      },
     );
   }
 }
