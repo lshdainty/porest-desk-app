@@ -177,12 +177,13 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     final dayEvents = _eventsOnDay(events, day);
     final weekday = const ['월', '화', '수', '목', '금', '토', '일'][day.weekday - 1];
     final title = '${day.month}월 ${day.day}일 $weekday요일';
-    showPModalSheet<void>(
+    showPSheet<void>(
       context,
       title: title,
-      body: _DayEventsSheetBody(
+      contentBuilder: (ctx, scrollCtrl) => _DayEventsSheetBody(
         day: day,
         events: dayEvents,
+        scrollController: scrollCtrl,
         onAdd: () {
           Navigator.of(context).pop();
           showCalendarEventDialog(context, defaultDate: day);
@@ -350,62 +351,61 @@ class _DayEventsSheetBody extends StatelessWidget {
   const _DayEventsSheetBody({
     required this.day,
     required this.events,
+    required this.scrollController,
     required this.onAdd,
     required this.onTapEvent,
   });
   final DateTime day;
   final List<CalendarEvent> events;
+  final ScrollController scrollController;
   final VoidCallback onAdd;
   final void Function(CalendarEvent) onTapEvent;
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    return Padding(
+    return ListView(
+      controller: scrollController,
       padding: const EdgeInsets.fromLTRB(
-          PSpace.x16, PSpace.x4, PSpace.x16, PSpace.x16),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            children: [
-              Text(
-                '${events.length}건',
+          PSpace.x16, 0, PSpace.x16, PSpace.x16),
+      children: [
+        Row(
+          children: [
+            Text(
+              '${events.length}건',
+              style: PTypo.bodySm.copyWith(color: t.fgTertiary),
+            ),
+            const Spacer(),
+            IconButton(
+              icon: Icon(LucideIcons.plus, color: t.fgPrimary),
+              onPressed: onAdd,
+              tooltip: '이벤트 추가',
+            ),
+          ],
+        ),
+        const SizedBox(height: PSpace.x4),
+        if (events.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: PSpace.x32),
+            child: Center(
+              child: Text(
+                '이날 이벤트가 없습니다',
                 style: PTypo.bodySm.copyWith(color: t.fgTertiary),
               ),
-              const Spacer(),
-              IconButton(
-                icon: Icon(LucideIcons.plus, color: t.fgPrimary),
-                onPressed: onAdd,
-                tooltip: '이벤트 추가',
-              ),
-            ],
-          ),
-          const SizedBox(height: PSpace.x4),
-          if (events.isEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: PSpace.x32),
-              child: Center(
-                child: Text(
-                  '이날 이벤트가 없습니다',
-                  style: PTypo.bodySm.copyWith(color: t.fgTertiary),
-                ),
-              ),
-            )
-          else
-            for (int i = 0; i < events.length; i++) ...[
-              _DaySheetEventRow(
-                event: events[i],
-                day: day,
-                tokens: t,
-                onTap: () => onTapEvent(events[i]),
-              ),
-              if (i < events.length - 1)
-                Divider(height: 1, color: t.borderSubtle),
-            ],
-        ],
-      ),
+            ),
+          )
+        else
+          for (int i = 0; i < events.length; i++) ...[
+            _DaySheetEventRow(
+              event: events[i],
+              day: day,
+              tokens: t,
+              onTap: () => onTapEvent(events[i]),
+            ),
+            if (i < events.length - 1)
+              Divider(height: 1, color: t.borderSubtle),
+          ],
+      ],
     );
   }
 }
