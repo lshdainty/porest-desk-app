@@ -25,7 +25,7 @@ class PCard extends StatelessWidget {
   const PCard({
     super.key,
     required this.child,
-    this.padding = const EdgeInsets.all(16),
+    this.padding,
     this.borderRadius = PRadius.brLg,
     this.variant = PCardVariant.shadow,
     this.color,
@@ -34,7 +34,12 @@ class PCard extends StatelessWidget {
   });
 
   final Widget child;
-  final EdgeInsetsGeometry padding;
+
+  /// 명시 지정 시 그대로, 미지정 시 variant 기본값:
+  /// - shadow: `EdgeInsets.all(16)` (spec)
+  /// - bordered/muted/brand: `EdgeInsets.zero`
+  ///   (list shell 패턴 — 자식 row가 자체 padding 가지는 게 일반적)
+  final EdgeInsetsGeometry? padding;
   final BorderRadius borderRadius;
   final PCardVariant variant;
 
@@ -57,8 +62,12 @@ class PCard extends StatelessWidget {
       PCardVariant.brand =>
         (t.bgBrandSubtle, Border.all(color: t.borderBrand), false),
     };
+    final effectivePadding = padding ??
+        (variant == PCardVariant.shadow
+            ? const EdgeInsets.all(16)
+            : EdgeInsets.zero);
     final wrap = Container(
-      padding: padding,
+      padding: effectivePadding,
       decoration: BoxDecoration(
         color: color ?? defaultBg,
         borderRadius: borderRadius,
