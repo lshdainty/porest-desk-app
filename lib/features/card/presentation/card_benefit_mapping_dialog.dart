@@ -7,6 +7,7 @@ import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../shared/widgets/p_badge.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_select.dart';
@@ -237,17 +238,8 @@ class _RowState extends ConsumerState<_Row> {
             ),
           ),
           if (!m.isCustom)
-            Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(
-                color: t.bgBrandSubtle,
-                borderRadius: PRadius.brXs,
-              ),
-              child: Text('기본',
-                  style: PTypo.micro.copyWith(
-                      color: t.fgBrand, fontWeight: PFontWeight.bold)),
-            )
+            const PBadge(
+                label: '기본', variant: PBadgeVariant.softBrand)
           else
             PButton.icon(
               icon: LucideIcons.trash2,

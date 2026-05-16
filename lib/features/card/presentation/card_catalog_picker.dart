@@ -8,6 +8,7 @@ import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
+import '../../../shared/widgets/p_badge.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../application/card_providers.dart';
@@ -187,22 +188,11 @@ class _CardPickerSheetState extends ConsumerState<_CardPickerSheet> {
                                   ],
                                 ),
                               ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 6, vertical: 2),
-                                decoration: BoxDecoration(
-                                  color: c.cardType == 'CREDIT'
-                                      ? t.bgBrandSubtle
-                                      : t.bgMuted,
-                                  borderRadius: PRadius.brXs,
-                                ),
-                                child: Text(
-                                    c.cardType == 'CREDIT' ? '신용' : '체크',
-                                    style: PTypo.micro.copyWith(
-                                        color: c.cardType == 'CREDIT'
-                                            ? t.fgBrand
-                                            : t.fgSecondary,
-                                        fontWeight: PFontWeight.bold)),
+                              PBadge(
+                                label: c.cardType == 'CREDIT' ? '신용' : '체크',
+                                variant: c.cardType == 'CREDIT'
+                                    ? PBadgeVariant.softBrand
+                                    : PBadgeVariant.secondary,
                               ),
                             ],
                           ),

@@ -7,6 +7,7 @@ import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../shared/widgets/p_badge.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_text_input.dart';
@@ -296,17 +297,7 @@ class _RowState extends ConsumerState<_Row> {
             Icon(LucideIcons.repeat, size: 12, color: t.fgTertiary),
             const SizedBox(width: 6),
           ],
-          Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-            decoration: BoxDecoration(
-              color: badgeColor.withValues(alpha: 0.15),
-              borderRadius: PRadius.brXs,
-            ),
-            child: Text(typeLabel,
-                style: PTypo.micro.copyWith(
-                    color: badgeColor, fontWeight: PFontWeight.bold)),
-          ),
+          PBadge.softColor(label: typeLabel, color: badgeColor),
           if (h.holidayType == 'CUSTOM')
             PButton.icon(
               icon: LucideIcons.trash2,

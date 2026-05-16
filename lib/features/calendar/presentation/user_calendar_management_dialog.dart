@@ -8,6 +8,7 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/format/color_parse.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../shared/widgets/p_badge.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_text_input.dart';
@@ -249,18 +250,8 @@ class _RowState extends ConsumerState<_Row> {
                 ),
                 if (widget.cal.isDefault) ...[
                   const SizedBox(width: 6),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: t.bgBrandSubtle,
-                      borderRadius: PRadius.brXs,
-                    ),
-                    child: Text('기본',
-                        style: PTypo.micro.copyWith(
-                            color: t.fgBrand,
-                            fontWeight: PFontWeight.bold)),
-                  ),
+                  const PBadge(
+                      label: '기본', variant: PBadgeVariant.softBrand),
                 ],
               ],
             ),

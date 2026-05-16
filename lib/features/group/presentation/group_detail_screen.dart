@@ -13,6 +13,7 @@ import '../../../core/format/color_parse.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/settings/settings_notifier.dart';
+import '../../../shared/widgets/p_badge.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_text_input.dart';
@@ -686,18 +687,8 @@ class _MemberRow extends ConsumerWidget {
                             fontWeight: PFontWeight.semi)),
                     if (isMe) ...[
                       const SizedBox(width: 6),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: tokens.bgBrandSubtle,
-                          borderRadius: PRadius.brSm,
-                        ),
-                        child: Text('나',
-                            style: PTypo.micro.copyWith(
-                                color: tokens.fgBrand,
-                                fontWeight: PFontWeight.bold)),
-                      ),
+                      const PBadge(
+                          label: '나', variant: PBadgeVariant.softBrand),
                     ],
                   ],
                 ),
@@ -772,16 +763,9 @@ class _RoleBadge extends StatelessWidget {
       'ADMIN' => ('관리자', tokens.statusInfo),
       _ => ('멤버', tokens.fgTertiary),
     };
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      margin: const EdgeInsets.only(right: 4),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        borderRadius: PRadius.brSm,
-      ),
-      child: Text(label,
-          style: PTypo.micro.copyWith(
-              color: color, fontWeight: PFontWeight.bold)),
+    return Padding(
+      padding: const EdgeInsets.only(right: 4),
+      child: PBadge.softColor(label: label, color: color),
     );
   }
 }
