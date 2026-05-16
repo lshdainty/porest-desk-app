@@ -2,7 +2,6 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../app/theme/colors.dart';
 import '../../../../app/theme/radius.dart';
 import '../../../../app/theme/tokens.dart';
 import '../../../../app/theme/typography.dart';
@@ -141,7 +140,7 @@ class NetWorthChart extends ConsumerWidget {
                             TextSpan(
                               text: '●  ',
                               style: TextStyle(
-                                color: PorestPalette.cobalt500,
+                                color: t.bgBrand,
                                 fontSize: PFontSize.caption,
                                 height: 1.0,
                               ),
@@ -172,14 +171,14 @@ class NetWorthChart extends ConsumerWidget {
                   spots: spots,
                   isCurved: true,
                   curveSmoothness: 0.25,
-                  color: PorestPalette.cobalt500,
+                  color: t.bgBrand,
                   barWidth: 2,
                   isStrokeCapRound: true,
                   dotData: FlDotData(
                     show: true,
                     getDotPainter: (_, _, _, _) => FlDotCirclePainter(
                       radius: 3,
-                      color: PorestPalette.cobalt500,
+                      color: t.bgBrand,
                       strokeColor: t.bgSurface,
                       strokeWidth: 2,
                     ),
@@ -190,8 +189,8 @@ class NetWorthChart extends ConsumerWidget {
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
-                        PorestPalette.cobalt500.withValues(alpha: 0.25),
-                        PorestPalette.cobalt500.withValues(alpha: 0.0),
+                        t.bgBrand.withValues(alpha: 0.25),
+                        t.bgBrand.withValues(alpha: 0.0),
                       ],
                     ),
                   ),

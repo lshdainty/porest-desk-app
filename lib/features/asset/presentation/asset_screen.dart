@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
-import '../../../app/theme/colors.dart';
 import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
@@ -218,7 +217,7 @@ class _AssetBody extends StatelessWidget {
           title: '카드',
           assets: cards,
           total: cardsTotal,
-          totalColor: PorestPalette.berry700,
+          totalColor: tokens.fgExpense,
           negativeTotal: true,
           masked: masked,
           tokens: tokens,
@@ -230,7 +229,7 @@ class _AssetBody extends StatelessWidget {
             title: '대출',
             assets: loans,
             total: loansTotal,
-            totalColor: PorestPalette.berry700,
+            totalColor: tokens.fgExpense,
             negativeTotal: true,
             masked: masked,
             tokens: tokens,
@@ -266,8 +265,7 @@ class _SummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isUp = changeAmount >= 0;
-    final trendColor =
-        isUp ? PorestPalette.cobalt700 : PorestPalette.berry500;
+    final trendColor = isUp ? tokens.fgIncome : tokens.fgExpense;
     final t = tokens;
     return PCard(
       padding: const EdgeInsets.all(18),
@@ -390,7 +388,7 @@ class _SummaryCard extends StatelessWidget {
                     child: _SummaryCol(
                         label: '카드값',
                         amount: cardsTotal,
-                        valueColor: PorestPalette.berry700,
+                        valueColor: t.fgExpense,
                         negative: true,
                         masked: masked,
                         tokens: t)),
