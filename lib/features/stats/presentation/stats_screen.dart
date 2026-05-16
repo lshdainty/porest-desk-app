@@ -10,6 +10,8 @@ import '../../../app/theme/typography.dart';
 import '../../../core/format/color_parse.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/settings/settings_notifier.dart';
+import '../../../app/theme/chart_palette.dart';
+import '../../../app/theme/shadow.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_segmented_control.dart';
 import '../../expense/application/expense_providers.dart';
@@ -479,25 +481,10 @@ class _EmptyBox extends StatelessWidget {
 
 // ─── DONUT CARD ────────────────────────────────────────────
 
-const _donutColorStrings = [
-  'oklch(0.55 0.12 55)',
-  'oklch(0.50 0.12 340)',
-  'oklch(0.50 0.1 140)',
-  'oklch(0.50 0.12 290)',
-  'oklch(0.48 0.012 195)',
-  'oklch(0.50 0.08 50)',
-  'oklch(0.52 0.1 215)',
-  'oklch(0.50 0.1 230)',
-  'oklch(0.55 0.13 25)',
-];
-
-Color _donutColor(BuildContext context, int idx) {
-  final t = context.tokens;
-  if (idx < _donutColorStrings.length) {
-    return parseColor(_donutColorStrings[idx], fallback: t.fgBrand);
-  }
-  return t.fgBrand;
-}
+/// Donut 차트 카테고리 색 — [PorestChartPalette] 위임.
+/// stats inline OKLCH 9색 배열은 통합 차트 팔레트로 흡수 (light/dark 분기).
+Color _donutColor(BuildContext context, int idx) =>
+    PorestChartPalette.category(context, idx);
 
 class _DonutRow {
   _DonutRow({
@@ -1335,13 +1322,7 @@ class _ChartTooltipBox extends StatelessWidget {
           color: t.bgSurface,
           border: Border.all(color: t.borderSubtle, width: 1),
           borderRadius: BorderRadius.circular(10),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.06),
-              blurRadius: 10,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          boxShadow: PShadow.sm,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,

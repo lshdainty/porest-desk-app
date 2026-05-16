@@ -84,6 +84,11 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     required this.statusDangerPress,
     required this.statusInfoBorder,
     required this.surfaceHero,
+    required this.bgHeroGradientStart,
+    required this.bgHeroGradientEnd,
+    required this.fgOnHeroChgUp,
+    required this.fgOnHeroChgDown,
+    required this.fgOnHeroSpot,
   });
 
   // Backgrounds
@@ -171,8 +176,15 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
   final Color statusDangerPress;
   final Color statusInfoBorder;
 
-  // Hero
+  // Hero — "always-on-dark" balance card.
+  // 그라데이션은 light/dark 모드 무관하게 깊은 cobalt 톤 유지(hero 자체가 어두운
+  // 배경). fg* 페어는 그 위에 올라가는 chg/spot 색.
   final Color surfaceHero;
+  final Color bgHeroGradientStart;
+  final Color bgHeroGradientEnd;
+  final Color fgOnHeroChgUp;
+  final Color fgOnHeroChgDown;
+  final Color fgOnHeroSpot;
 
   /// Light 모드 의미론 토큰 (DESIGN.desk.md spec 매핑).
   static const PorestTokens light = PorestTokens(
@@ -249,6 +261,11 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     statusDangerPress: PorestPalette.statusErrorBase,
     statusInfoBorder: PorestPalette.statusInfoBase,
     surfaceHero: PorestPalette.cobalt50,
+    bgHeroGradientStart: PorestPalette.cobalt700,
+    bgHeroGradientEnd: PorestPalette.cobalt900,
+    fgOnHeroChgUp: PorestPalette.heroChgUp,
+    fgOnHeroChgDown: PorestPalette.heroChgDown,
+    fgOnHeroSpot: PorestPalette.heroSpot,
   );
 
   /// Dark 모드 의미론 토큰 (DESIGN.desk.md spec 매핑).
@@ -326,6 +343,12 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     statusDangerPress: PorestPalette.statusErrorLight,
     statusInfoBorder: PorestPalette.statusInfoBase,
     surfaceHero: Color(0x80001A42),       // cobalt900 @ 50%
+    // Hero gradient — light과 동일(의도: always-on-dark hero).
+    bgHeroGradientStart: PorestPalette.cobalt700,
+    bgHeroGradientEnd: PorestPalette.cobalt900,
+    fgOnHeroChgUp: PorestPalette.heroChgUp,
+    fgOnHeroChgDown: PorestPalette.heroChgDown,
+    fgOnHeroSpot: PorestPalette.heroSpot,
   );
 
   @override
@@ -399,6 +422,11 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     Color? statusDangerPress,
     Color? statusInfoBorder,
     Color? surfaceHero,
+    Color? bgHeroGradientStart,
+    Color? bgHeroGradientEnd,
+    Color? fgOnHeroChgUp,
+    Color? fgOnHeroChgDown,
+    Color? fgOnHeroSpot,
   }) {
     return PorestTokens(
       bgCanvas: bgCanvas ?? this.bgCanvas,
@@ -470,6 +498,11 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
       statusDangerPress: statusDangerPress ?? this.statusDangerPress,
       statusInfoBorder: statusInfoBorder ?? this.statusInfoBorder,
       surfaceHero: surfaceHero ?? this.surfaceHero,
+      bgHeroGradientStart: bgHeroGradientStart ?? this.bgHeroGradientStart,
+      bgHeroGradientEnd: bgHeroGradientEnd ?? this.bgHeroGradientEnd,
+      fgOnHeroChgUp: fgOnHeroChgUp ?? this.fgOnHeroChgUp,
+      fgOnHeroChgDown: fgOnHeroChgDown ?? this.fgOnHeroChgDown,
+      fgOnHeroSpot: fgOnHeroSpot ?? this.fgOnHeroSpot,
     );
   }
 
@@ -547,6 +580,11 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
       statusDangerPress: l(statusDangerPress, other.statusDangerPress),
       statusInfoBorder: l(statusInfoBorder, other.statusInfoBorder),
       surfaceHero: l(surfaceHero, other.surfaceHero),
+      bgHeroGradientStart: l(bgHeroGradientStart, other.bgHeroGradientStart),
+      bgHeroGradientEnd: l(bgHeroGradientEnd, other.bgHeroGradientEnd),
+      fgOnHeroChgUp: l(fgOnHeroChgUp, other.fgOnHeroChgUp),
+      fgOnHeroChgDown: l(fgOnHeroChgDown, other.fgOnHeroChgDown),
+      fgOnHeroSpot: l(fgOnHeroSpot, other.fgOnHeroSpot),
     );
   }
 }

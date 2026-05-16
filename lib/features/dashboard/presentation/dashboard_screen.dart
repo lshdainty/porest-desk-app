@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
-import '../../../app/theme/colors.dart';
 import '../../../app/theme/radius.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
@@ -284,10 +283,10 @@ class _BalanceHero extends StatelessWidget {
         Container(
           padding: const EdgeInsets.fromLTRB(24, 24, 24, 20),
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
+            gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [PorestPalette.cobalt700, PorestPalette.cobalt900],
+              colors: [t.bgHeroGradientStart, t.bgHeroGradientEnd],
             ),
             borderRadius: PRadius.brXl2,
           ),
@@ -367,17 +366,13 @@ class _BalanceHero extends StatelessWidget {
                   Icon(
                     isUp ? LucideIcons.trendingUp : LucideIcons.trendingDown,
                     size: 13,
-                    color: isUp
-                        ? PorestPalette.heroChgUp
-                        : PorestPalette.heroChgDown,
+                    color: isUp ? t.fgOnHeroChgUp : t.fgOnHeroChgDown,
                   ),
                   const SizedBox(width: 2),
                   Text(
                     '${isUp ? '+' : ''}${changePct.toStringAsFixed(1)}%',
                     style: TextStyle(
-                      color: isUp
-                          ? PorestPalette.heroChgUp
-                          : PorestPalette.heroChgDown,
+                      color: isUp ? t.fgOnHeroChgUp : t.fgOnHeroChgDown,
                       fontSize: PFontSize.bodySm,
                       fontWeight: PFontWeight.semi,
                     ),
@@ -433,7 +428,7 @@ class _BalanceHero extends StatelessWidget {
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    PorestPalette.heroSpot.withValues(alpha: 0.25),
+                    t.fgOnHeroSpot.withValues(alpha: 0.25),
                     Colors.transparent,
                   ],
                   stops: const [0.0, 0.7],
@@ -805,8 +800,7 @@ class _CategoryDonutCard extends StatelessWidget {
                             for (var i = 0; i < topSegs.length; i++)
                               PieChartSectionData(
                                 value: topSegs[i].totalAmount.toDouble(),
-                                color:
-                                    PorestChartPalette.category(i),
+                                color: PorestChartPalette.category(context, i),
                                 radius: 18,
                                 showTitle: false,
                               ),
@@ -850,8 +844,7 @@ class _CategoryDonutCard extends StatelessWidget {
                                 width: 8,
                                 height: 8,
                                 decoration: BoxDecoration(
-                                  color:
-                                      PorestChartPalette.category(i),
+                                  color: PorestChartPalette.category(context, i),
                                   shape: BoxShape.circle,
                                 ),
                               ),
