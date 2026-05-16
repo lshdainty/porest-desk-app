@@ -8,6 +8,7 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_select.dart';
 import '../application/memo_providers.dart';
 import '../domain/memo_folder.dart';
 
@@ -89,20 +90,16 @@ class _BodyState extends ConsumerState<_Body> {
               const SizedBox(width: 8),
               Expanded(
                 child: flatAsync.when(
-                  data: (folders) => DropdownButton<int?>(
-                    isExpanded: true,
+                  data: (folders) => PSelect<int?>(
                     value: _newParentId,
-                    hint: const Text('루트'),
-                    onChanged: _adding
-                        ? null
-                        : (v) => setState(() => _newParentId = v),
+                    placeholder: '루트',
+                    enabled: !_adding,
+                    onChanged: (v) => setState(() => _newParentId = v),
                     items: [
-                      const DropdownMenuItem(value: null, child: Text('루트')),
+                      const PSelectItem<int?>(value: null, label: '루트'),
                       for (final f in folders)
-                        DropdownMenuItem(
-                          value: f.rowId,
-                          child: Text(f.folderName),
-                        ),
+                        PSelectItem<int?>(
+                            value: f.rowId, label: f.folderName),
                     ],
                   ),
                   loading: () => const SizedBox.shrink(),

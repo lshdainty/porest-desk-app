@@ -14,6 +14,7 @@ import '../../../core/network/api_exception.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_category_tile.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_select.dart';
 import '../../asset/application/asset_providers.dart';
 import '../../preset/application/preset_providers.dart';
 import '../../preset/domain/expense_template.dart';
@@ -796,31 +797,14 @@ class _SelectField<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
-    return DropdownButtonFormField<T>(
-      initialValue: items.any((i) => i.value == value) ? value : null,
-      isExpanded: true,
-      decoration: InputDecoration(
-        isDense: true,
-        filled: true,
-        fillColor: t.bgSurface,
-        contentPadding: const EdgeInsets.symmetric(
-            horizontal: 12, vertical: 10),
-      ),
-      hint: Text(hint,
-          style: PTypo.bodySm.copyWith(color: t.fgPlaceholder)),
-      icon: Icon(LucideIcons.chevronDown, size: 16, color: t.fgTertiary),
+    return PSelect<T>(
+      value: items.any((i) => i.value == value) ? value : null,
+      placeholder: hint,
+      onChanged: onChanged,
       items: [
         for (final opt in items)
-          DropdownMenuItem<T>(
-            value: opt.value,
-            child: Text(opt.label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: PTypo.bodySm.copyWith(color: t.fgPrimary)),
-          ),
+          PSelectItem<T>(value: opt.value, label: opt.label),
       ],
-      onChanged: onChanged,
     );
   }
 }

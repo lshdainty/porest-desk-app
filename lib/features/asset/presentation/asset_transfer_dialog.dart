@@ -9,6 +9,7 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_select.dart';
 import '../application/asset_providers.dart';
 import '../domain/asset.dart';
 
@@ -258,12 +259,12 @@ class _AssetSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DropdownButtonFormField<int>(
-      initialValue: selectedId,
-      decoration: const InputDecoration(),
+    return PSelect<int>(
+      value: selectedId,
+      placeholder: '자산 선택',
       items: [
         for (final a in assets)
-          DropdownMenuItem(value: a.rowId, child: Text(a.assetName)),
+          PSelectItem<int>(value: a.rowId, label: a.assetName),
       ],
       onChanged: (v) {
         if (v != null) onChanged(v);

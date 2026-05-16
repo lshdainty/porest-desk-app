@@ -8,6 +8,7 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_select.dart';
 import '../../expense/application/expense_providers.dart';
 import '../application/card_providers.dart';
 import '../domain/card_benefit_mapping.dart';
@@ -104,17 +105,16 @@ class _BodyState extends ConsumerState<_Body> {
                         .where((c) =>
                             (c.expenseType ?? 'EXPENSE') == 'EXPENSE')
                         .toList();
-                    return DropdownButton<int?>(
-                      isExpanded: true,
+                    return PSelect<int?>(
                       value: _selectedCategoryId,
-                      hint: const Text('가계부 카테고리'),
-                      onChanged: _adding
-                          ? null
-                          : (v) => setState(() => _selectedCategoryId = v),
+                      placeholder: '가계부 카테고리',
+                      enabled: !_adding,
+                      onChanged: (v) =>
+                          setState(() => _selectedCategoryId = v),
                       items: [
                         for (final c in exp)
-                          DropdownMenuItem(
-                              value: c.rowId, child: Text(c.categoryName)),
+                          PSelectItem<int?>(
+                              value: c.rowId, label: c.categoryName),
                       ],
                     );
                   },

@@ -11,6 +11,7 @@ import '../../../core/format/color_parse.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_select.dart';
 import '../../expense/application/expense_providers.dart';
 import '../../expense/domain/expense.dart';
 import '../../expense/domain/expense_category.dart';
@@ -606,40 +607,17 @@ class _CategoryDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DropdownButtonFormField<int>(
-      initialValue:
-          value != null && categories.any((c) => c.rowId == value) ? value : null,
-      isDense: true,
-      isExpanded: true,
-      style: PTypo.caption.copyWith(color: tokens.fgPrimary),
-      decoration: InputDecoration(
-        isDense: true,
-        isCollapsed: false,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-        hintText: '카테고리',
-        hintStyle: PTypo.caption.copyWith(color: tokens.fgTertiary),
-        filled: false,
-        border: OutlineInputBorder(
-            borderRadius: PRadius.brSm,
-            borderSide: BorderSide(color: tokens.borderSubtle)),
-        enabledBorder: OutlineInputBorder(
-            borderRadius: PRadius.brSm,
-            borderSide: BorderSide(color: tokens.borderSubtle)),
-        focusedBorder: OutlineInputBorder(
-            borderRadius: PRadius.brSm,
-            borderSide: BorderSide(color: tokens.borderBrand)),
-      ),
+    return PSelect<int>(
+      value: value != null && categories.any((c) => c.rowId == value)
+          ? value
+          : null,
+      placeholder: '카테고리',
+      enabled: onChanged != null,
       items: [
         for (final c in categories)
-          DropdownMenuItem<int>(
-            value: c.rowId,
-            child: Text(c.categoryName,
-                overflow: TextOverflow.ellipsis,
-                style: PTypo.caption.copyWith(color: tokens.fgPrimary)),
-          ),
+          PSelectItem<int>(value: c.rowId, label: c.categoryName),
       ],
-      onChanged: onChanged,
+      onChanged: onChanged ?? (_) {},
     );
   }
 }
