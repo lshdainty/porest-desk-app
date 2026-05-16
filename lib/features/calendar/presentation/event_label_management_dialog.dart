@@ -9,7 +9,9 @@ import '../../../app/theme/typography.dart';
 import '../../../core/format/color_parse.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_button.dart';
+import '../../../shared/widgets/p_divider.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_progress.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../application/calendar_providers.dart';
@@ -123,7 +125,7 @@ class _BodyState extends ConsumerState<_Body> {
             tokens: t,
           ),
           const SizedBox(height: PSpace.x20),
-          Divider(height: 1, color: t.borderSubtle),
+          PDivider(),
           const SizedBox(height: PSpace.x16),
 
           // 기존 라벨 리스트
@@ -132,7 +134,7 @@ class _BodyState extends ConsumerState<_Body> {
                   color: t.fgPrimary, fontWeight: PFontWeight.bold)),
           const SizedBox(height: PSpace.x8),
           labelsAsync.when(
-            loading: () => const Center(child: CircularProgressIndicator()),
+            loading: () => const Center(child: PCircularProgressIndicator()),
             error: (e, _) => Text('라벨 로드 실패: $e',
                 style: PTypo.caption.copyWith(color: t.statusDanger)),
             data: (labels) {

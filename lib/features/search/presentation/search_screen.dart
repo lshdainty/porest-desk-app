@@ -17,7 +17,9 @@ import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_chip.dart';
+import '../../../shared/widgets/p_divider.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_progress.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../../expense/application/expense_providers.dart';
 import '../../expense/domain/expense.dart';
@@ -359,7 +361,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
   Widget _buildBody(PorestTokens t, AppSettings settings, List categories) {
     if (_loading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: PCircularProgressIndicator());
     }
     if (_error != null) {
       return Padding(
@@ -389,7 +391,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           horizontal: PSpace.x16, vertical: PSpace.x8),
       itemCount: _results.length,
       separatorBuilder: (_, _) =>
-          Divider(height: 1, color: t.borderSubtle, indent: 60),
+          PDivider(indent: 60),
       itemBuilder: (_, i) => _ResultRow(
         expense: _results[i],
         category: _findCategory(categories, _results[i].categoryRowId),

@@ -12,6 +12,7 @@ import '../../../core/settings/hide_amounts_unlock_dialog.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_card.dart';
+import '../../../shared/widgets/p_progress.dart';
 import '../../notification/application/notification_providers.dart';
 import '../application/asset_providers.dart';
 import '../domain/asset.dart';
@@ -94,7 +95,7 @@ class AssetScreen extends ConsumerWidget {
           await ref.read(assetsProvider.future);
         },
         child: assetsAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const Center(child: PCircularProgressIndicator()),
           error: (e, _) => _ErrorBox(
             message: '자산을 불러오지 못했습니다\n$e',
             onRetry: () => ref.invalidate(assetsProvider),

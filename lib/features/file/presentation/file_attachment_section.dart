@@ -12,6 +12,7 @@ import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../application/file_providers.dart';
 import '../domain/file_attachment.dart';
+import '../../../shared/widgets/p_progress.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 
 /// 첨부 파일 섹션 — 거래/할일/메모/이벤트 상세에 embed.
@@ -156,7 +157,7 @@ class _FileAttachmentSectionState
         async.when(
           loading: () => const Padding(
             padding: EdgeInsets.symmetric(vertical: 8),
-            child: Center(child: CircularProgressIndicator()),
+            child: Center(child: PCircularProgressIndicator()),
           ),
           error: (e, _) => Text('첨부 로드 실패',
               style: PTypo.caption.copyWith(color: t.statusDanger)),

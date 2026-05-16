@@ -11,8 +11,10 @@ import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_card.dart';
 import '../../../shared/widgets/p_chip.dart';
+import '../../../shared/widgets/p_divider.dart';
 import '../../../shared/widgets/p_empty_state.dart';
 import '../../../shared/widgets/p_floating_action_button.dart';
+import '../../../shared/widgets/p_progress.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../application/todo_providers.dart';
@@ -235,7 +237,7 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
           await ref.read(todoListProvider(_filter).future);
         },
         child: listAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const Center(child: PCircularProgressIndicator()),
           error: (e, _) => Padding(
             padding: const EdgeInsets.all(PSpace.x16),
             child: Text('할 일 로드 실패\n$e',
@@ -274,10 +276,7 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
                               edit: sorted[i]),
                         ),
                         if (i < sorted.length - 1)
-                          Divider(
-                              height: 1,
-                              color: t.borderSubtle,
-                              indent: 48),
+                          PDivider(indent: 48),
                       ],
                     ],
                   ),

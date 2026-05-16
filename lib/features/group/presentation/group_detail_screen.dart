@@ -16,7 +16,9 @@ import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/widgets/p_badge.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_card.dart';
+import '../../../shared/widgets/p_divider.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_progress.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../../calendar/application/calendar_providers.dart';
@@ -85,7 +87,7 @@ class GroupDetailScreen extends ConsumerWidget {
         ),
       ),
       body: detailAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const Center(child: PCircularProgressIndicator()),
         error: (e, _) => Center(
           child: Padding(
             padding: const EdgeInsets.all(PSpace.x20),
@@ -187,7 +189,7 @@ class _GroupEventsTab extends ConsumerWidget {
         ref.invalidate(groupEventsProvider);
       },
       child: async.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const Center(child: PCircularProgressIndicator()),
         error: (e, _) => Padding(
           padding: const EdgeInsets.all(PSpace.x20),
           child: Text('일정 로드 실패\n$e',
@@ -279,7 +281,7 @@ class _GroupExpensesTab extends ConsumerWidget {
         ref.invalidate(expensesByGroupProvider);
       },
       child: async.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const Center(child: PCircularProgressIndicator()),
         error: (e, _) => Padding(
           padding: const EdgeInsets.all(PSpace.x20),
           child: Text('지출 로드 실패\n$e',
@@ -611,7 +613,7 @@ class _MembersCard extends ConsumerWidget {
             ),
           ),
           for (int i = 0; i < members.length; i++) ...[
-            if (i > 0) Divider(height: 1, color: tokens.borderSubtle, indent: 60),
+            if (i > 0) PDivider(indent: 60),
             _MemberRow(
               member: members[i],
               isMe: members[i].userRowId == myUserRowId,

@@ -12,6 +12,7 @@ import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_badge.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_progress.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../../expense/domain/expense.dart' show Expense;
@@ -148,7 +149,7 @@ class _BodyState extends ConsumerState<_Body> {
           final t = ctx.tokens;
           return StatefulBuilder(builder: (ctx, setSheetState) {
             return async.when(
-              loading: () => const Center(child: CircularProgressIndicator()),
+              loading: () => const Center(child: PCircularProgressIndicator()),
               error: (e, _) => Padding(
                 padding: const EdgeInsets.all(PSpace.x16),
                 child: Text('멤버 로드 실패: $e',

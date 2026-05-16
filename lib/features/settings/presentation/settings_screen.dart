@@ -13,6 +13,7 @@ import '../../expense/presentation/export_dialog.dart';
 import 'appearance_section.dart';
 import 'password_change_dialog.dart';
 import '../../../shared/widgets/p_card.dart';
+import '../../../shared/widgets/p_divider.dart';
 
 /// 설정 화면 — front `SettingsPage` 9개 섹션 미러.
 ///
@@ -103,7 +104,7 @@ class SettingsScreen extends ConsumerWidget {
                 for (int i = 0; i < sections.length; i++) ...[
                   _SectionRow(section: sections[i], tokens: t),
                   if (i < sections.length - 1)
-                    Divider(height: 1, color: t.borderSubtle, indent: 56),
+                    PDivider(indent: 56),
                 ],
               ],
             ),
@@ -155,7 +156,7 @@ class SettingsScreen extends ConsumerWidget {
                     ),
                   ),
                 if (user != null)
-                  Divider(height: 1, color: t.borderSubtle, indent: 56),
+                  PDivider(indent: 56),
                 InkWell(
                   onTap: () => showPasswordChangeDialog(context),
                   child: Padding(
@@ -178,7 +179,7 @@ class SettingsScreen extends ConsumerWidget {
                     ),
                   ),
                 ),
-                Divider(height: 1, color: t.borderSubtle, indent: 56),
+                PDivider(indent: 56),
                 InkWell(
                   onTap: () => ref.read(authProvider.notifier).logout(),
                   child: Padding(

@@ -9,6 +9,8 @@ import '../../../app/theme/typography.dart';
 import '../../../core/format/krw.dart';
 import '../../../shared/widgets/p_badge.dart';
 import '../../../shared/widgets/p_card.dart';
+import '../../../shared/widgets/p_divider.dart';
+import '../../../shared/widgets/p_progress.dart';
 import '../application/card_providers.dart';
 
 class CardDetailScreen extends ConsumerWidget {
@@ -33,7 +35,7 @@ class CardDetailScreen extends ConsumerWidget {
         elevation: 0,
       ),
       body: detailAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const Center(child: PCircularProgressIndicator()),
         error: (e, _) => Padding(
           padding: const EdgeInsets.all(PSpace.x16),
           child: Text('카드 상세 로드 실패\n$e',
@@ -156,7 +158,7 @@ class CardDetailScreen extends ConsumerWidget {
                           ),
                         ),
                         if (i < d.benefits.length - 1)
-                          Divider(height: 1, color: t.borderSubtle),
+                          PDivider(),
                       ],
                     ],
                   ),

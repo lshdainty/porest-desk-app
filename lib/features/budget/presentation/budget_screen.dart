@@ -27,6 +27,7 @@ import '../application/budget_providers.dart';
 import '../domain/budget.dart';
 import '../domain/budget_compliance.dart';
 import 'budget_edit_dialog.dart';
+import '../../../shared/widgets/p_progress.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 
 const double _warnThreshold = 85;
@@ -245,7 +246,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
             budgetsAsync.when(
               loading: () => const Padding(
                 padding: EdgeInsets.symmetric(vertical: PSpace.x32),
-                child: Center(child: CircularProgressIndicator()),
+                child: Center(child: PCircularProgressIndicator()),
               ),
               error: (e, _) => _ErrorBox(
                 message: '예산을 불러오지 못했습니다\n$e',
@@ -1332,7 +1333,7 @@ class _ComplianceCard extends StatelessWidget {
           if (async.isLoading && list.isEmpty)
             const SizedBox(
                 height: 140,
-                child: Center(child: CircularProgressIndicator()))
+                child: Center(child: PCircularProgressIndicator()))
           else if (list.isEmpty)
             SizedBox(
               height: 80,

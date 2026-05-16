@@ -10,6 +10,7 @@ import '../../../core/auth/auth_notifier.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../../expense/presentation/export_dialog.dart';
 import '../../../shared/widgets/p_card.dart';
+import '../../../shared/widgets/p_divider.dart';
 
 /// 모바일 전용 "전체" 탭 — 잘 안 쓰는 메뉴를 한 화면에 모음.
 class MoreScreen extends ConsumerWidget {
@@ -70,7 +71,7 @@ class MoreScreen extends ConsumerWidget {
                     ? null
                     : () => items[i].onTap!(context, ref)),
                 if (i < items.length - 1)
-                  Divider(height: 1, color: t.borderSubtle, indent: 52),
+                  PDivider(indent: 52),
               ],
             ],
           ),

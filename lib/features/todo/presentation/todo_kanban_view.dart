@@ -11,6 +11,7 @@ import '../../../shared/widgets/p_badge.dart';
 import '../application/todo_providers.dart';
 import '../domain/todo.dart';
 import 'todo_edit_dialog.dart';
+import '../../../shared/widgets/p_progress.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 
 /// Todo 칸반 보드 — front `KanbanBoard` 미러.
@@ -52,7 +53,7 @@ class _TodoKanbanViewState extends ConsumerState<TodoKanbanView> {
         todoListProvider((status: null, priority: widget.priority)));
 
     return async.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading: () => const Center(child: PCircularProgressIndicator()),
       error: (e, _) => Padding(
         padding: const EdgeInsets.all(PSpace.x16),
         child: Text('할 일 로드 실패\n$e',

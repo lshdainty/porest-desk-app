@@ -10,6 +10,7 @@ import '../../../core/format/color_parse.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_chip.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_progress.dart';
 import '../../../shared/widgets/p_section_label.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_text_input.dart';
@@ -359,7 +360,7 @@ class _BodyState extends ConsumerState<_Body> {
             loading: () => const Padding(
               padding: EdgeInsets.symmetric(vertical: PSpace.x8),
               child:
-                  Center(child: SizedBox(height: PSpace.x16, width: PSpace.x16, child: CircularProgressIndicator(strokeWidth: 2))),
+                  Center(child: SizedBox(height: PSpace.x16, width: PSpace.x16, child: PCircularProgressIndicator(strokeWidth: 2))),
             ),
             error: (_, _) => Text('캘린더 로드 실패',
                 style: PTypo.caption.copyWith(color: t.statusDanger)),
@@ -410,7 +411,7 @@ class _BodyState extends ConsumerState<_Body> {
           labelsAsync.when(
             loading: () => const SizedBox(
                 height: PSpace.x32,
-                child: Center(child: CircularProgressIndicator())),
+                child: Center(child: PCircularProgressIndicator())),
             error: (_, _) => Text('라벨 로드 실패',
                 style: PTypo.caption.copyWith(color: t.statusDanger)),
             data: (labels) => labels.isEmpty

@@ -10,6 +10,7 @@ import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/markdown_preview.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_progress.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../application/todo_providers.dart';
@@ -424,7 +425,7 @@ class _SubtaskSectionState extends ConsumerState<_SubtaskSection> {
         async.when(
           loading: () => const Padding(
             padding: EdgeInsets.symmetric(vertical: 8),
-            child: Center(child: CircularProgressIndicator()),
+            child: Center(child: PCircularProgressIndicator()),
           ),
           error: (e, _) => Text('하위 작업 로드 실패',
               style: PTypo.caption.copyWith(color: t.statusDanger)),

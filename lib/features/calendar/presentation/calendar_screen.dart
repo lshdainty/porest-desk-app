@@ -11,6 +11,7 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/format/color_parse.dart';
 import '../../../shared/widgets/p_button.dart';
+import '../../../shared/widgets/p_divider.dart';
 import '../../../shared/widgets/p_floating_action_button.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../application/calendar_providers.dart';
@@ -403,7 +404,7 @@ class _DayEventsSheetBody extends StatelessWidget {
               onTap: () => onTapEvent(events[i]),
             ),
             if (i < events.length - 1)
-              Divider(height: 1, color: t.borderSubtle),
+              PDivider(),
           ],
       ],
     );

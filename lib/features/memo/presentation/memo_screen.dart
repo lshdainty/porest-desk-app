@@ -11,6 +11,7 @@ import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_empty_state.dart';
 import '../../../shared/widgets/p_floating_action_button.dart';
+import '../../../shared/widgets/p_progress.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../application/memo_providers.dart';
@@ -100,7 +101,7 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
           }
         },
         child: listAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const Center(child: PCircularProgressIndicator()),
           error: (e, _) => Padding(
             padding: const EdgeInsets.all(PSpace.x16),
             child: Text('메모 로드 실패\n$e',

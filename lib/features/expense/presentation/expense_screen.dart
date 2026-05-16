@@ -14,6 +14,8 @@ import '../../../shared/widgets/p_badge.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_card.dart';
 import '../../../shared/widgets/p_chip.dart';
+import '../../../shared/widgets/p_divider.dart';
+import '../../../shared/widgets/p_progress.dart';
 import '../../asset/application/asset_providers.dart';
 import '../application/expense_providers.dart';
 import '../domain/expense.dart';
@@ -117,7 +119,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
           expensesAsync.when(
             loading: () => const Padding(
               padding: EdgeInsets.symmetric(vertical: PSpace.x32),
-              child: Center(child: CircularProgressIndicator()),
+              child: Center(child: PCircularProgressIndicator()),
             ),
             error: (e, _) => _ErrorBox(
               message: '거래를 불러오지 못했습니다\n$e',
@@ -577,7 +579,7 @@ class _DayGroup extends ConsumerWidget {
                     );
                   }),
                   if (i < items.length - 1)
-                    Divider(height: 1, color: t.borderSubtle),
+                    PDivider(),
                 ],
               ],
             ),

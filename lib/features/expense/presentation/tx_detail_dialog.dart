@@ -21,6 +21,7 @@ import '../application/expense_providers.dart';
 import '../domain/expense.dart';
 import 'add_tx_sheet.dart';
 import 'widgets/expense_row.dart';
+import '../../../shared/widgets/p_progress.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 
 /// 거래 상세 다이얼로그 — front `TxDetailDialog` 미러.
@@ -67,7 +68,7 @@ class _TxDetailFooter extends StatelessWidget {
                   ? const SizedBox(
                       width: PSpace.x12,
                       height: PSpace.x12,
-                      child: CircularProgressIndicator(strokeWidth: 2))
+                      child: PCircularProgressIndicator(strokeWidth: 2))
                   : Icon(LucideIcons.trash2,
                       size: PSpace.x12, color: t.statusDangerFg),
               label: Text('삭제',

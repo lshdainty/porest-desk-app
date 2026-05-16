@@ -11,6 +11,7 @@ import '../../../core/network/api_exception.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_chip.dart';
+import '../../../shared/widgets/p_progress.dart';
 import '../../../shared/widgets/p_section_label.dart';
 import '../../../shared/widgets/p_segmented_control.dart';
 import '../../../shared/widgets/p_modal.dart';
@@ -260,7 +261,7 @@ class _RecurringEditBodyState extends ConsumerState<_RecurringEditBody> {
           PSectionLabel('카테고리'),
           const SizedBox(height: PSpace.x8),
           categoriesAsync.when(
-            loading: () => const Center(child: CircularProgressIndicator()),
+            loading: () => const Center(child: PCircularProgressIndicator()),
             error: (e, _) => Text('카테고리 로드 실패',
                 style: PTypo.caption.copyWith(color: t.statusDanger)),
             data: (categories) => Wrap(
@@ -284,7 +285,7 @@ class _RecurringEditBodyState extends ConsumerState<_RecurringEditBody> {
           PSectionLabel('자산'),
           const SizedBox(height: PSpace.x8),
           assetsAsync.when(
-            loading: () => const Center(child: CircularProgressIndicator()),
+            loading: () => const Center(child: PCircularProgressIndicator()),
             error: (e, _) => Text('자산 로드 실패',
                 style: PTypo.caption.copyWith(color: t.statusDanger)),
             data: (assets) => Wrap(

@@ -16,6 +16,7 @@ import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_card.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_progress.dart';
 import '../../../shared/widgets/p_segmented_control.dart';
 import '../../card/presentation/card_performance_bar.dart';
 import '../../expense/application/expense_providers.dart';
@@ -609,7 +610,7 @@ class _RecentExpenses extends StatelessWidget {
       return PCard(
         padding: const EdgeInsets.symmetric(vertical: 16),
         variant: PCardVariant.bordered,
-        child: const Center(child: CircularProgressIndicator()),
+        child: const Center(child: PCircularProgressIndicator()),
       );
     }
     if (list.isEmpty) {

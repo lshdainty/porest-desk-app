@@ -10,7 +10,9 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../shared/widgets/p_badge.dart';
 import '../../../shared/widgets/p_chip.dart';
+import '../../../shared/widgets/p_divider.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_progress.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../application/card_providers.dart';
 import '../domain/card_catalog.dart';
@@ -127,7 +129,7 @@ class _CardPickerSheetState extends ConsumerState<_CardPickerSheet> {
             pageAsync.when(
                 loading: () => const SizedBox(
                     height: 200,
-                    child: Center(child: CircularProgressIndicator())),
+                    child: Center(child: PCircularProgressIndicator())),
                 error: (e, _) => Padding(
                   padding: const EdgeInsets.all(24),
                   child: Text('카드 검색 실패: $e',
@@ -149,7 +151,7 @@ class _CardPickerSheetState extends ConsumerState<_CardPickerSheet> {
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: page.content.length,
                     separatorBuilder: (_, _) =>
-                        Divider(height: 1, color: t.borderSubtle),
+                        PDivider(),
                     itemBuilder: (_, i) {
                       final c = page.content[i];
                       return InkWell(

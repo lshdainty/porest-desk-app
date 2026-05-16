@@ -12,9 +12,11 @@ import '../../../core/format/color_parse.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_card.dart';
+import '../../../shared/widgets/p_divider.dart';
 import '../../../shared/widgets/p_empty_state.dart';
 import '../../../shared/widgets/p_floating_action_button.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_progress.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../application/group_providers.dart';
@@ -64,7 +66,7 @@ class GroupScreen extends ConsumerWidget {
           await ref.read(groupListProvider.future);
         },
         child: listAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const Center(child: PCircularProgressIndicator()),
           error: (e, _) => Padding(
             padding: const EdgeInsets.all(PSpace.x16),
             child: Text('그룹 로드 실패\n$e',
@@ -90,10 +92,7 @@ class GroupScreen extends ConsumerWidget {
                       for (int i = 0; i < groups.length; i++) ...[
                         _GroupRow(group: groups[i], tokens: t),
                         if (i < groups.length - 1)
-                          Divider(
-                              height: 1,
-                              color: t.borderSubtle,
-                              indent: 56),
+                          PDivider(indent: 56),
                       ],
                     ],
                   ),

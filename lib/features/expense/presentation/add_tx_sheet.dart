@@ -15,6 +15,7 @@ import '../../../shared/widgets/p_badge.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_category_tile.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_progress.dart';
 import '../../../shared/widgets/p_section_label.dart';
 import '../../../shared/widgets/p_select.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
@@ -416,7 +417,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
                   categoriesAsync.when(
                     loading: () => const Padding(
                       padding: EdgeInsets.symmetric(vertical: 16),
-                      child: Center(child: CircularProgressIndicator()),
+                      child: Center(child: PCircularProgressIndicator()),
                     ),
                     error: (e, _) => Text('카테고리 로드 실패: $e',
                         style: PTypo.caption
@@ -577,7 +578,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
                   assetsAsync.when(
                     loading: () => const Padding(
                       padding: EdgeInsets.symmetric(vertical: 12),
-                      child: Center(child: CircularProgressIndicator()),
+                      child: Center(child: PCircularProgressIndicator()),
                     ),
                     error: (e, _) => Text('자산 로드 실패: $e',
                         style: PTypo.caption.copyWith(color: t.statusDanger)),

@@ -10,9 +10,11 @@ import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../../../shared/widgets/p_button.dart';
+import '../../../shared/widgets/p_divider.dart';
 import '../../../shared/widgets/p_empty_state.dart';
 import '../application/notification_providers.dart';
 import '../domain/notification.dart';
+import '../../../shared/widgets/p_progress.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 
 class NotificationScreen extends ConsumerWidget {
@@ -64,7 +66,7 @@ class NotificationScreen extends ConsumerWidget {
           await ref.read(notificationListProvider.future);
         },
         child: listAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const Center(child: PCircularProgressIndicator()),
           error: (e, _) => Padding(
             padding: const EdgeInsets.all(PSpace.x16),
             child: Text('${l.stateError}\n$e',
@@ -83,7 +85,7 @@ class NotificationScreen extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(vertical: PSpace.x4),
               itemCount: items.length,
               separatorBuilder: (_, _) =>
-                  Divider(height: 1, color: t.borderSubtle, indent: 56),
+                  PDivider(indent: 56),
               itemBuilder: (_, i) => _NotiRow(
                 noti: items[i],
                 tokens: t,

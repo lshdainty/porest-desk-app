@@ -9,6 +9,7 @@ import '../../../core/network/api_exception.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_chip.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_progress.dart';
 import '../../../shared/widgets/p_segmented_control.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_text_input.dart';
@@ -235,7 +236,7 @@ class _BodyState extends ConsumerState<_Body> {
               style: PTypo.caption.copyWith(color: t.fgSecondary)),
           const SizedBox(height: PSpace.x8),
           categoriesAsync.when(
-            loading: () => const Center(child: CircularProgressIndicator()),
+            loading: () => const Center(child: PCircularProgressIndicator()),
             error: (e, _) => Text('카테고리 로드 실패',
                 style: PTypo.caption.copyWith(color: t.statusDanger)),
             data: (categories) => Wrap(
@@ -262,7 +263,7 @@ class _BodyState extends ConsumerState<_Body> {
           Text('자산', style: PTypo.caption.copyWith(color: t.fgSecondary)),
           const SizedBox(height: PSpace.x8),
           assetsAsync.when(
-            loading: () => const Center(child: CircularProgressIndicator()),
+            loading: () => const Center(child: PCircularProgressIndicator()),
             error: (e, _) => Text('자산 로드 실패',
                 style: PTypo.caption.copyWith(color: t.statusDanger)),
             data: (assets) => Wrap(

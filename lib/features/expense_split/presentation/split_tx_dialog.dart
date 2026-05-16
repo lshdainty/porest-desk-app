@@ -13,6 +13,7 @@ import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_badge.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_progress.dart';
 import '../../../shared/widgets/p_select.dart';
 import '../../expense/application/expense_providers.dart';
 import '../../expense/domain/expense.dart';
@@ -98,7 +99,7 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
     return splitsAsync.when(
       loading: () => const Padding(
         padding: EdgeInsets.all(PSpace.x32),
-        child: Center(child: CircularProgressIndicator()),
+        child: Center(child: PCircularProgressIndicator()),
       ),
       error: (e, _) => Padding(
         padding: const EdgeInsets.all(PSpace.x16),

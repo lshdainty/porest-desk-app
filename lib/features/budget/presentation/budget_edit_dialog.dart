@@ -10,6 +10,7 @@ import '../../../core/network/api_exception.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_chip.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_progress.dart';
 import '../../../shared/widgets/p_section_label.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_text_input.dart';
@@ -200,7 +201,7 @@ class _BudgetEditBodyState extends ConsumerState<_BudgetEditBody> {
         else
           categoriesAsync.when(
             loading: () =>
-                const Center(child: CircularProgressIndicator()),
+                const Center(child: PCircularProgressIndicator()),
             error: (e, _) => Text('카테고리 로드 실패',
                 style: PTypo.caption.copyWith(color: t.statusDanger)),
             data: (categories) => Wrap(

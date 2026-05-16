@@ -19,6 +19,7 @@ import '../../../shared/widgets/p_modal.dart';
 import '../application/dutch_pay_providers.dart';
 import '../domain/dutch_pay.dart';
 import 'dutch_pay_create_dialog.dart';
+import '../../../shared/widgets/p_progress.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 
 class DutchPayScreen extends ConsumerWidget {
@@ -53,7 +54,7 @@ class DutchPayScreen extends ConsumerWidget {
           await ref.read(dutchPayListProvider.future);
         },
         child: listAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const Center(child: PCircularProgressIndicator()),
           error: (e, _) => Padding(
             padding: const EdgeInsets.all(PSpace.x16),
             child: Text('더치페이 로드 실패\n$e',

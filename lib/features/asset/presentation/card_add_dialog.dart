@@ -8,7 +8,9 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/brand/bank_colors.dart';
+import '../../../shared/widgets/p_divider.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_progress.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../../card/application/card_providers.dart';
@@ -436,7 +438,7 @@ class _CatalogList extends StatelessWidget {
       child: async.when(
         loading: () => const Padding(
           padding: EdgeInsets.symmetric(vertical: 24),
-          child: Center(child: CircularProgressIndicator()),
+          child: Center(child: PCircularProgressIndicator()),
         ),
         error: (_, _) => Padding(
           padding: const EdgeInsets.symmetric(vertical: 24),
@@ -461,7 +463,7 @@ class _CatalogList extends StatelessWidget {
               padding: EdgeInsets.zero,
               itemCount: items.length,
               separatorBuilder: (_, _) =>
-                  Divider(height: 1, color: t.borderSubtle),
+                  PDivider(),
               itemBuilder: (_, i) {
                 final c = items[i];
                 final active = c.rowId == selectedId;

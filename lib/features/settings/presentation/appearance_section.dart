@@ -8,6 +8,7 @@ import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/settings/settings_notifier.dart';
+import '../../../shared/widgets/p_divider.dart';
 import '../../../shared/widgets/p_section_label.dart';
 import '../../../shared/widgets/p_segmented_control.dart';
 
@@ -221,7 +222,7 @@ class _CurrencyList extends StatelessWidget {
               tokens: tokens,
             ),
             if (i < _options.length - 1)
-              Divider(height: 1, color: tokens.borderSubtle, indent: 60),
+              PDivider(indent: 60),
           ],
         ],
       ),

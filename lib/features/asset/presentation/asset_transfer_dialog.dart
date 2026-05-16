@@ -8,6 +8,7 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_progress.dart';
 import '../../../shared/widgets/p_section_label.dart';
 import '../../../shared/widgets/p_select.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
@@ -118,7 +119,7 @@ class _TransferBodyState extends ConsumerState<_TransferBody> {
     });
 
     return assetsAsync.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading: () => const Center(child: PCircularProgressIndicator()),
       error: (e, _) => Padding(
         padding: const EdgeInsets.all(PSpace.x16),
         child: Text('자산 로드 실패: $e',

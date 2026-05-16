@@ -16,6 +16,7 @@ import '../../../shared/widgets/p_badge.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_card.dart';
 import '../../../shared/widgets/p_chip.dart';
+import '../../../shared/widgets/p_divider.dart';
 import '../../../shared/widgets/p_empty_state.dart';
 import '../../../shared/widgets/p_floating_action_button.dart';
 import '../../../shared/widgets/p_modal.dart';
@@ -24,6 +25,7 @@ import '../../expense/domain/expense_category.dart';
 import '../application/recurring_providers.dart';
 import '../domain/recurring_transaction.dart';
 import 'recurring_edit_dialog.dart';
+import '../../../shared/widgets/p_progress.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 
 enum _Filter { all, expense, income, paused }
@@ -113,7 +115,7 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
           await ref.read(recurringListProvider.future);
         },
         child: listAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const Center(child: PCircularProgressIndicator()),
           error: (e, _) => ListView(
             padding: const EdgeInsets.all(PSpace.x16),
             children: [
@@ -192,10 +194,7 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
                             onDelete: () => _delete(filtered[i]),
                           ),
                           if (i < filtered.length - 1)
-                            Divider(
-                                height: 1,
-                                color: t.borderSubtle,
-                                indent: PSpace.x16),
+                            PDivider(indent: PSpace.x16),
                         ],
                       ],
                     ),
@@ -326,7 +325,7 @@ class _SummaryCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: PSpace.x12),
-          Divider(height: 1, color: tokens.borderSubtle),
+          PDivider(),
           const SizedBox(height: PSpace.x12),
           Row(
             children: [

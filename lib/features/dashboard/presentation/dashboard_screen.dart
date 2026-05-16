@@ -12,6 +12,7 @@ import '../../../core/format/krw.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_card.dart';
+import '../../../shared/widgets/p_progress.dart';
 import '../../asset/application/asset_providers.dart';
 import '../../budget/application/budget_providers.dart';
 import '../../budget/domain/budget.dart';
@@ -137,7 +138,7 @@ class _UpcomingCard extends StatelessWidget {
       return PCard(
         padding: const EdgeInsets.all(18),
         child: const SizedBox(
-            height: 80, child: Center(child: CircularProgressIndicator())),
+            height: 80, child: Center(child: PCircularProgressIndicator())),
       );
     }
     final s = async.value;

@@ -14,6 +14,7 @@ import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_card.dart';
+import '../../../shared/widgets/p_divider.dart';
 import '../../../shared/widgets/p_empty_state.dart';
 import '../../../shared/widgets/p_floating_action_button.dart';
 import '../../expense/application/expense_providers.dart';
@@ -21,6 +22,7 @@ import '../../expense/domain/expense_category.dart';
 import '../application/preset_providers.dart';
 import '../domain/expense_template.dart';
 import 'preset_edit_dialog.dart';
+import '../../../shared/widgets/p_progress.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 
 class PresetScreen extends ConsumerStatefulWidget {
@@ -85,7 +87,7 @@ class _PresetScreenState extends ConsumerState<PresetScreen> {
           await ref.read(presetListProvider.future);
         },
         child: listAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const Center(child: PCircularProgressIndicator()),
           error: (e, _) => ListView(
             padding: const EdgeInsets.all(PSpace.x16),
             children: [
@@ -133,10 +135,7 @@ class _PresetScreenState extends ConsumerState<PresetScreen> {
                           onUseNow: () => _useNow(items[i]),
                         ),
                         if (i < items.length - 1)
-                          Divider(
-                              height: 1,
-                              color: t.borderSubtle,
-                              indent: PSpace.x16),
+                          PDivider(indent: PSpace.x16),
                       ],
                     ],
                   ),

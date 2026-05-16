@@ -10,8 +10,10 @@ import '../../../app/theme/typography.dart';
 import '../../../core/format/color_parse.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_card.dart';
+import '../../../shared/widgets/p_divider.dart';
 import '../../../shared/widgets/p_empty_state.dart';
 import '../../../shared/widgets/p_floating_action_button.dart';
+import '../../../shared/widgets/p_progress.dart';
 import '../../expense/application/expense_providers.dart';
 import '../../expense/domain/expense_category.dart';
 import 'category_edit_dialog.dart';
@@ -74,7 +76,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen>
             defaultExpenseType: _kinds[_tab.index].$1),
       ),
       body: categoriesAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const Center(child: PCircularProgressIndicator()),
         error: (e, _) => Padding(
           padding: const EdgeInsets.all(PSpace.x16),
           child: Text('카테고리 로드 실패\n$e',
@@ -127,10 +129,7 @@ class _CategoryList extends StatelessWidget {
               for (int i = 0; i < categories.length; i++) ...[
                 _CategoryRow(category: categories[i], tokens: tokens),
                 if (i < categories.length - 1)
-                  Divider(
-                      height: 1,
-                      color: tokens.borderSubtle,
-                      indent: PSpace.x16),
+                  PDivider(indent: PSpace.x16),
               ],
             ],
           ),
