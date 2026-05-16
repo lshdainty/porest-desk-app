@@ -7,6 +7,7 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/auth/auth_notifier.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_text_input.dart';
 
@@ -139,19 +140,16 @@ class _PasswordChangeDialogState extends ConsumerState<_PasswordChangeDialog> {
         ),
       ),
       actions: [
-        TextButton(
+        PButton(
+          label: '취소',
+          variant: PButtonVariant.ghost,
           onPressed:
               _submitting ? null : () => Navigator.of(context).pop(),
-          child: const Text('취소'),
         ),
-        FilledButton(
+        PButton(
+          label: '변경',
+          loading: _submitting,
           onPressed: _canSubmit ? _submit : null,
-          child: _submitting
-              ? const SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2))
-              : const Text('변경'),
         ),
       ],
     );
