@@ -9,6 +9,7 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_empty_state.dart';
+import '../../../shared/widgets/p_text_input.dart';
 import '../application/memo_providers.dart';
 import '../domain/memo.dart';
 import 'memo_edit_dialog.dart';
@@ -62,32 +63,21 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
           child: Padding(
             padding: const EdgeInsets.fromLTRB(
                 PSpace.x16, 0, PSpace.x16, PSpace.x12),
-            child: TextField(
+            child: PTextInput(
               controller: _searchCtrl,
-              decoration: InputDecoration(
-                hintText: '메모 검색',
-                prefixIcon: Icon(LucideIcons.search,
-                    size: 16, color: t.fgTertiary),
-                suffixIcon: hasQuery
-                    ? IconButton(
-                        icon: Icon(LucideIcons.x,
-                            size: 16, color: t.fgTertiary),
-                        onPressed: () {
-                          _searchCtrl.clear();
-                          setState(() => _query = '');
-                        },
-                      )
-                    : null,
-                isDense: true,
-                contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 14, vertical: 10),
-                fillColor: t.bgMuted,
-                filled: true,
-                border: OutlineInputBorder(
-                  borderRadius: PRadius.brMd,
-                  borderSide: BorderSide.none,
-                ),
-              ),
+              placeholder: '메모 검색',
+              prefix:
+                  Icon(LucideIcons.search, size: 16, color: t.fgTertiary),
+              suffix: hasQuery
+                  ? IconButton(
+                      icon: Icon(LucideIcons.x,
+                          size: 16, color: t.fgTertiary),
+                      onPressed: () {
+                        _searchCtrl.clear();
+                        setState(() => _query = '');
+                      },
+                    )
+                  : null,
               onChanged: (v) => setState(() => _query = v),
             ),
           ),

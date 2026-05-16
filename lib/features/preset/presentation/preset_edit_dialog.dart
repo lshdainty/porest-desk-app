@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme/radius.dart';
@@ -10,6 +9,7 @@ import '../../../core/format/color_parse.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_text_input.dart';
 import '../../asset/application/asset_providers.dart';
 import '../../expense/application/expense_providers.dart';
 import '../application/preset_providers.dart';
@@ -209,24 +209,19 @@ class _BodyState extends ConsumerState<_Body> {
           Text('프리셋 이름',
               style: PTypo.caption.copyWith(color: t.fgSecondary)),
           const SizedBox(height: PSpace.x4),
-          TextField(
+          PTextInput(
             controller: _nameCtrl,
-            maxLength: 20,
-            decoration: const InputDecoration(
-              hintText: '예: 점심 김밥',
-              counterText: '',
-            ),
+            placeholder: '예: 점심 김밥',
             onChanged: (_) => setState(() {}),
           ),
           const SizedBox(height: PSpace.x12),
 
           Text('금액', style: PTypo.caption.copyWith(color: t.fgSecondary)),
           const SizedBox(height: PSpace.x4),
-          TextField(
+          PTextInput(
             controller: _amountCtrl,
-            keyboardType: TextInputType.number,
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            decoration: const InputDecoration(hintText: '0'),
+            numbersOnly: true,
+            placeholder: '0',
             onChanged: (_) => setState(() {}),
           ),
           SwitchListTile.adaptive(
@@ -293,18 +288,18 @@ class _BodyState extends ConsumerState<_Body> {
           Text('가맹점 (선택)',
               style: PTypo.caption.copyWith(color: t.fgSecondary)),
           const SizedBox(height: PSpace.x4),
-          TextField(
+          PTextInput(
             controller: _merchantCtrl,
-            decoration: const InputDecoration(hintText: '예: 김밥천국'),
+            placeholder: '예: 김밥천국',
           ),
           const SizedBox(height: PSpace.x12),
 
           Text('메모 (선택)',
               style: PTypo.caption.copyWith(color: t.fgSecondary)),
           const SizedBox(height: PSpace.x4),
-          TextField(
+          PTextInput(
             controller: _descCtrl,
-            decoration: const InputDecoration(hintText: '메모'),
+            placeholder: '메모',
           ),
       ],
     );

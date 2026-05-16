@@ -8,6 +8,7 @@ import '../../../app/theme/typography.dart';
 import '../../../core/auth/auth_notifier.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_text_input.dart';
 
 /// 비밀번호 변경 다이얼로그 — front `PasswordChangeDialog` 미러.
 ///
@@ -91,33 +92,31 @@ class _PasswordChangeDialogState extends ConsumerState<_PasswordChangeDialog> {
           children: [
             _Label('현재 비밀번호', tokens: t),
             const SizedBox(height: PSpace.x4),
-            TextField(
+            PTextInput(
               controller: _currentCtrl,
               obscureText: true,
               enabled: !_submitting,
-              decoration: const InputDecoration(hintText: '현재 비밀번호'),
+              placeholder: '현재 비밀번호',
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: PSpace.x12),
             _Label('새 비밀번호', tokens: t),
             const SizedBox(height: PSpace.x4),
-            TextField(
+            PTextInput(
               controller: _newCtrl,
               obscureText: true,
               enabled: !_submitting,
-              decoration: const InputDecoration(
-                hintText: '8자 이상',
-              ),
+              placeholder: '8자 이상',
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: PSpace.x12),
             _Label('새 비밀번호 확인', tokens: t),
             const SizedBox(height: PSpace.x4),
-            TextField(
+            PTextInput(
               controller: _confirmCtrl,
               obscureText: true,
               enabled: !_submitting,
-              decoration: const InputDecoration(hintText: '한 번 더 입력'),
+              placeholder: '한 번 더 입력',
               onChanged: (_) => setState(() {}),
             ),
             if (_newCtrl.text.isNotEmpty &&
