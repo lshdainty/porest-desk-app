@@ -5,6 +5,7 @@ import '../../app/theme/radius.dart';
 import '../../app/theme/spacing.dart';
 import '../../app/theme/tokens.dart';
 import '../../app/theme/typography.dart';
+import 'p_button.dart';
 
 /// 표준 footer — 좌측 삭제(편집 모드만) / 우측 취소 + 저장. controller listen.
 class PSheetFooter extends StatelessWidget {
@@ -37,23 +38,20 @@ class PSheetFooter extends StatelessWidget {
                     style: TextStyle(color: t.statusDangerFg)),
               ),
             const Spacer(),
-            TextButton(
+            PButton(
+              label: cancelLabel,
+              variant: PButtonVariant.ghost,
               onPressed: controller.submitting
                   ? null
                   : () => Navigator.of(ctx).pop(),
-              child: Text(cancelLabel),
             ),
             const SizedBox(width: PSpace.x4),
-            FilledButton(
+            PButton(
+              label: submitLabel,
+              loading: controller.submitting,
               onPressed: controller.canSubmit && !controller.submitting
                   ? controller.onSubmit
                   : null,
-              child: controller.submitting
-                  ? const SizedBox(
-                      width: PSpace.x16,
-                      height: PSpace.x16,
-                      child: CircularProgressIndicator(strokeWidth: 2))
-                  : Text(submitLabel),
             ),
           ],
         );
@@ -257,16 +255,17 @@ Future<bool> showPConfirmDialog(
         title: Text(title),
         content: Text(message),
         actions: [
-          TextButton(
+          PButton(
+            label: cancelLabel,
+            variant: PButtonVariant.ghost,
             onPressed: () => Navigator.pop(ctx, false),
-            child: Text(cancelLabel),
           ),
-          FilledButton(
-            style: destructive
-                ? FilledButton.styleFrom(backgroundColor: t.statusDanger)
-                : null,
+          PButton(
+            label: confirmLabel,
+            variant: destructive
+                ? PButtonVariant.danger
+                : PButtonVariant.primary,
             onPressed: () => Navigator.pop(ctx, true),
-            child: Text(confirmLabel),
           ),
         ],
       );
