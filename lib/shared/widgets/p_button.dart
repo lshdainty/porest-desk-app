@@ -24,6 +24,7 @@ class PButton extends StatelessWidget {
     this.loading = false,
     this.fullWidth = false,
     this.tooltip,
+    this.iconColor,
   }) : assert(label != null || icon != null,
             'PButton requires either a label or an icon');
 
@@ -37,6 +38,7 @@ class PButton extends StatelessWidget {
     this.size = PButtonSize.md,
     this.loading = false,
     this.tooltip,
+    this.iconColor,
   })  : label = null,
         fullWidth = false;
 
@@ -48,6 +50,9 @@ class PButton extends StatelessWidget {
   final bool loading;
   final bool fullWidth;
   final String? tooltip;
+  /// icon-only ghost 버튼에서 아이콘 색만 override (예: trash danger).
+  /// label 모드에서도 icon 만 분리 색 적용.
+  final Color? iconColor;
 
   // DESIGN.desk.md / specs/components/button.md spec:
   // sm: h=32, padY=4 padX=8, font=caption(12), radius=sm(4), icon=14
@@ -167,7 +172,7 @@ class PButton extends StatelessWidget {
                     ),
                   )
                 else if (icon != null)
-                  Icon(icon, size: _iconSize(), color: fg),
+                  Icon(icon, size: _iconSize(), color: iconColor ?? fg),
                 if (!iconOnly && (loading || icon != null))
                   const SizedBox(width: PSpace.sm),
                 if (!iconOnly)

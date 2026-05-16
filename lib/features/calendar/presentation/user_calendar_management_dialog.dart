@@ -265,21 +265,19 @@ class _RowState extends ConsumerState<_Row> {
               ],
             ),
           ),
-          IconButton(
-            icon: Icon(
-              widget.cal.isVisible ? LucideIcons.eye : LucideIcons.eyeOff,
-              size: 16,
-              color: widget.cal.isVisible
-                  ? t.fgSecondary
-                  : t.fgTertiary,
-            ),
+          PButton.icon(
+            icon: widget.cal.isVisible ? LucideIcons.eye : LucideIcons.eyeOff,
+            size: PButtonSize.sm,
+            iconColor:
+                widget.cal.isVisible ? t.fgSecondary : t.fgTertiary,
             tooltip: widget.cal.isVisible ? '숨김 처리' : '표시',
             onPressed: _busy ? null : _toggle,
           ),
           if (!widget.cal.isDefault)
-            IconButton(
-              icon: Icon(LucideIcons.trash2,
-                  size: 14, color: t.statusDanger),
+            PButton.icon(
+              icon: LucideIcons.trash2,
+              size: PButtonSize.sm,
+              iconColor: t.statusDanger,
               onPressed: _busy ? null : _delete,
             ),
         ],

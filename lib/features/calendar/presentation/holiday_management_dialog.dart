@@ -91,9 +91,9 @@ class _BodyState extends ConsumerState<_Body> {
           // 연도 선택
           Row(
             children: [
-              IconButton(
+              PButton.icon(
+                icon: LucideIcons.chevronLeft,
                 onPressed: () => setState(() => _year -= 1),
-                icon: Icon(LucideIcons.chevronLeft, color: t.fgSecondary),
               ),
               Expanded(
                 child: Center(
@@ -101,9 +101,9 @@ class _BodyState extends ConsumerState<_Body> {
                       style: PTypo.h4.copyWith(color: t.fgPrimary)),
                 ),
               ),
-              IconButton(
+              PButton.icon(
+                icon: LucideIcons.chevronRight,
                 onPressed: () => setState(() => _year += 1),
-                icon: Icon(LucideIcons.chevronRight, color: t.fgSecondary),
               ),
             ],
           ),
@@ -308,11 +308,11 @@ class _RowState extends ConsumerState<_Row> {
                     color: badgeColor, fontWeight: PFontWeight.bold)),
           ),
           if (h.holidayType == 'CUSTOM')
-            IconButton(
-              icon: Icon(LucideIcons.trash2,
-                  size: 13, color: t.statusDanger),
+            PButton.icon(
+              icon: LucideIcons.trash2,
+              size: PButtonSize.sm,
+              iconColor: t.statusDanger,
               onPressed: _busy ? null : _delete,
-              visualDensity: VisualDensity.compact,
             ),
         ],
       ),

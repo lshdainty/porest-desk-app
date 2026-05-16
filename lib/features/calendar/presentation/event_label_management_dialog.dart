@@ -265,11 +265,9 @@ class _LabelRowState extends ConsumerState<_LabelRow> {
                       PTypo.bodySm.copyWith(color: t.fgPrimary),
                 ),
               ),
-              IconButton(
-                icon: Icon(
-                    _expanded ? LucideIcons.x : LucideIcons.pencil,
-                    size: 16,
-                    color: t.fgSecondary),
+              PButton.icon(
+                icon: _expanded ? LucideIcons.x : LucideIcons.pencil,
+                size: PButtonSize.sm,
                 onPressed: _busy
                     ? null
                     : () {
@@ -282,9 +280,10 @@ class _LabelRowState extends ConsumerState<_LabelRow> {
                         });
                       },
               ),
-              IconButton(
-                icon: Icon(LucideIcons.trash2,
-                    size: 16, color: t.statusDanger),
+              PButton.icon(
+                icon: LucideIcons.trash2,
+                size: PButtonSize.sm,
+                iconColor: t.statusDanger,
                 onPressed: _busy ? null : _delete,
               ),
             ],
