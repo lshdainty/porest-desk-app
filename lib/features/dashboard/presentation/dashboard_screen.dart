@@ -429,6 +429,9 @@ class _BalanceHero extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
+                  // CSS radial-gradient 기본 익스텐트는 `farthest-corner`(=side×√2/2 ≈ 0.707).
+                  // Flutter RadialGradient.radius 기본 0.5(closest-side)와 다름 — 명시적 정합.
+                  radius: 0.707,
                   colors: [
                     t.fgOnHeroSpot.withValues(alpha: 0.22),
                     Colors.transparent,
