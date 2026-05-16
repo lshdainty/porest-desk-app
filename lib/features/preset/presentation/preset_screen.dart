@@ -12,6 +12,7 @@ import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
+import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_empty_state.dart';
 import '../../expense/application/expense_providers.dart';
 import '../../expense/domain/expense_category.dart';
@@ -241,19 +242,13 @@ class _PresetRow extends StatelessWidget {
                   fontWeight: PFontWeight.bold),
             ),
             const SizedBox(width: 4),
-            IconButton(
+            PButton.icon(
+              icon: LucideIcons.zap,
+              size: PButtonSize.sm,
+              iconColor: tokens.fgBrand,
               tooltip: '오늘 거래로 기록',
+              loading: useBusy,
               onPressed: anyBusy ? null : onUseNow,
-              iconSize: 16,
-              visualDensity: VisualDensity.compact,
-              constraints:
-                  const BoxConstraints.tightFor(width: 32, height: 32),
-              icon: useBusy
-                  ? const SizedBox(
-                      width: 14,
-                      height: 14,
-                      child: CircularProgressIndicator(strokeWidth: 2))
-                  : Icon(LucideIcons.zap, color: tokens.fgBrand),
             ),
           ],
         ),

@@ -956,12 +956,11 @@ class _ParticipantRow extends StatelessWidget {
                     fontFamily: 'monospace')),
           ],
           if (onRemove != null)
-            IconButton(
+            PButton.icon(
+              icon: LucideIcons.x,
+              size: PButtonSize.sm,
+              iconColor: tokens.fgTertiary,
               onPressed: onRemove,
-              icon: Icon(LucideIcons.x, size: 14, color: tokens.fgTertiary),
-              visualDensity: VisualDensity.compact,
-              constraints: const BoxConstraints.tightFor(width: 28, height: 28),
-              padding: EdgeInsets.zero,
             )
           else
             const SizedBox(width: 28, height: 28),

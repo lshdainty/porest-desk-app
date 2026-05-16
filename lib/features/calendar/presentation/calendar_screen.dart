@@ -10,6 +10,7 @@ import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/format/color_parse.dart';
+import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../application/calendar_providers.dart';
 import '../domain/calendar_event.dart';
@@ -49,9 +50,8 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         foregroundColor: t.fgPrimary,
         elevation: 0,
         actions: [
-          IconButton(
-            icon: Icon(LucideIcons.refreshCw,
-                size: 18, color: t.fgSecondary),
+          PButton.icon(
+            icon: LucideIcons.refreshCw,
             onPressed: () => ref.invalidate(monthEventsProvider(_key)),
           ),
           PopupMenuButton<String>(
@@ -376,10 +376,11 @@ class _DayEventsSheetBody extends StatelessWidget {
               style: PTypo.bodySm.copyWith(color: t.fgTertiary),
             ),
             const Spacer(),
-            IconButton(
-              icon: Icon(LucideIcons.plus, color: t.fgPrimary),
-              onPressed: onAdd,
+            PButton.icon(
+              icon: LucideIcons.plus,
+              iconColor: t.fgPrimary,
               tooltip: '이벤트 추가',
+              onPressed: onAdd,
             ),
           ],
         ),

@@ -10,6 +10,7 @@ import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/format/krw.dart';
+import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_empty_state.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../application/card_providers.dart';
@@ -91,10 +92,9 @@ class _CardScreenState extends ConsumerState<CardScreen> {
         foregroundColor: t.fgPrimary,
         elevation: 0,
         actions: [
-          IconButton(
+          PButton.icon(
+            icon: LucideIcons.settings,
             tooltip: '혜택 매핑',
-            icon: Icon(LucideIcons.settings,
-                size: 20, color: t.fgSecondary),
             onPressed: () => showCardBenefitMappingDialog(context),
           ),
         ],
@@ -288,11 +288,9 @@ class _Paginator extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        IconButton(
+        PButton.icon(
+          icon: LucideIcons.chevronLeft,
           onPressed: onPrev,
-          icon: const Icon(LucideIcons.chevronLeft, size: 18),
-          color: tokens.fgSecondary,
-          disabledColor: tokens.fgDisabled,
         ),
         const SizedBox(width: 8),
         Text(
@@ -301,11 +299,9 @@ class _Paginator extends StatelessWidget {
               color: tokens.fgPrimary, fontWeight: PFontWeight.semi),
         ),
         const SizedBox(width: 8),
-        IconButton(
+        PButton.icon(
+          icon: LucideIcons.chevronRight,
           onPressed: onNext,
-          icon: const Icon(LucideIcons.chevronRight, size: 18),
-          color: tokens.fgSecondary,
-          disabledColor: tokens.fgDisabled,
         ),
       ],
     );

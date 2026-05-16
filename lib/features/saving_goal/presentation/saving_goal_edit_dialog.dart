@@ -7,6 +7,7 @@ import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../../category/presentation/category_palette.dart';
@@ -228,10 +229,11 @@ class _BodyState extends ConsumerState<_Body> {
                 ),
               ),
               if (_deadline != null)
-                IconButton(
+                PButton.icon(
+                  icon: LucideIcons.x,
+                  size: PButtonSize.sm,
+                  iconColor: t.fgTertiary,
                   onPressed: () => setState(() => _deadline = null),
-                  icon: Icon(LucideIcons.x,
-                      size: 16, color: t.fgTertiary),
                 ),
             ],
           ),

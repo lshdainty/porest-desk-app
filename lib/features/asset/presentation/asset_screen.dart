@@ -67,19 +67,17 @@ class AssetScreen extends ConsumerWidget {
             },
             tokens: t,
           ),
-          IconButton(
+          PButton.icon(
+            icon: settings.hideAmounts ? LucideIcons.eyeOff : LucideIcons.eye,
+            iconColor: t.fgPrimary,
             tooltip: settings.hideAmounts ? '금액 표시' : '금액 숨김',
-            icon: Icon(
-              settings.hideAmounts ? LucideIcons.eyeOff : LucideIcons.eye,
-              size: 20,
-              color: t.fgPrimary,
-            ),
             onPressed: () => toggleHideAmountsWithUnlock(context, ref),
           ),
           _NotificationBell(tokens: t),
-          IconButton(
+          PButton.icon(
+            icon: LucideIcons.search,
+            iconColor: t.fgPrimary,
             tooltip: '검색',
-            icon: Icon(LucideIcons.search, size: 20, color: t.fgPrimary),
             onPressed: () => context.push('/search'),
           ),
           const SizedBox(width: 4),
@@ -666,10 +664,10 @@ class _IcoBtn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return IconButton(
+    return PButton.icon(
+      icon: isDark ? LucideIcons.sun : LucideIcons.moon,
+      iconColor: tokens.fgPrimary,
       tooltip: '테마 전환',
-      icon: Icon(isDark ? LucideIcons.sun : LucideIcons.moon,
-          size: 20, color: tokens.fgPrimary),
       onPressed: onTap,
     );
   }

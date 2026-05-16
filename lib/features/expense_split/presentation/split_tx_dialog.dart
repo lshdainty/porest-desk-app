@@ -568,16 +568,14 @@ class _SplitRowCardState extends State<_SplitRowCard> {
               },
             ),
           ),
-          IconButton(
+          PButton.icon(
+            icon: LucideIcons.x,
+            size: PButtonSize.sm,
+            iconColor: t.fgTertiary,
+            tooltip: '항목 삭제',
             onPressed: widget.disabled || !widget.canRemove
                 ? null
                 : widget.onRemove,
-            icon: Icon(LucideIcons.x, size: 14, color: t.fgTertiary),
-            tooltip: '항목 삭제',
-            visualDensity: VisualDensity.compact,
-            padding: EdgeInsets.zero,
-            constraints:
-                const BoxConstraints.tightFor(width: 24, height: 24),
           ),
         ],
       ),

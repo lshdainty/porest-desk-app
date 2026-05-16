@@ -785,19 +785,13 @@ class _MiniIconBtn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return IconButton(
+    return PButton.icon(
+      icon: icon!,
+      size: PButtonSize.sm,
+      iconColor: color ?? tokens.fgSecondary,
       tooltip: tooltip,
+      loading: busy,
       onPressed: onTap,
-      iconSize: 16,
-      visualDensity: VisualDensity.compact,
-      padding: EdgeInsets.zero,
-      constraints: const BoxConstraints.tightFor(width: 32, height: 32),
-      icon: busy
-          ? const SizedBox(
-              width: 14,
-              height: 14,
-              child: CircularProgressIndicator(strokeWidth: 2))
-          : Icon(icon, color: color ?? tokens.fgSecondary),
     );
   }
 }

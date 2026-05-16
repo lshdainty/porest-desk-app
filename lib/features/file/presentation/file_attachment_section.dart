@@ -8,6 +8,7 @@ import '../../../app/theme/radius.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../application/file_providers.dart';
 import '../domain/file_attachment.dart';
@@ -136,23 +137,23 @@ class _FileAttachmentSectionState
                 style: PTypo.caption.copyWith(
                     color: t.fgPrimary, fontWeight: PFontWeight.bold)),
             const Spacer(),
-            IconButton(
-              icon: Icon(LucideIcons.image, size: 16, color: t.fgSecondary),
+            PButton.icon(
+              icon: LucideIcons.image,
+              size: PButtonSize.sm,
               tooltip: '갤러리',
               onPressed: _busy ? null : _pickImage,
-              visualDensity: VisualDensity.compact,
             ),
-            IconButton(
-              icon: Icon(LucideIcons.camera, size: 16, color: t.fgSecondary),
+            PButton.icon(
+              icon: LucideIcons.camera,
+              size: PButtonSize.sm,
               tooltip: '카메라',
               onPressed: _busy ? null : _pickCamera,
-              visualDensity: VisualDensity.compact,
             ),
-            IconButton(
-              icon: Icon(LucideIcons.file, size: 16, color: t.fgSecondary),
+            PButton.icon(
+              icon: LucideIcons.file,
+              size: PButtonSize.sm,
               tooltip: '파일',
               onPressed: _busy ? null : _pickFile,
-              visualDensity: VisualDensity.compact,
             ),
           ],
         ),
@@ -212,11 +213,11 @@ class _FileAttachmentSectionState
                             ],
                           ),
                         ),
-                        IconButton(
-                          icon: Icon(LucideIcons.x,
-                              size: 14, color: t.fgTertiary),
+                        PButton.icon(
+                          icon: LucideIcons.x,
+                          size: PButtonSize.sm,
+                          iconColor: t.fgTertiary,
                           onPressed: _busy ? null : () => _delete(f),
-                          visualDensity: VisualDensity.compact,
                         ),
                       ],
                     ),

@@ -249,9 +249,10 @@ class _RowState extends ConsumerState<_Row> {
                       color: t.fgBrand, fontWeight: PFontWeight.bold)),
             )
           else
-            IconButton(
-              icon: Icon(LucideIcons.trash2,
-                  size: 14, color: t.statusDanger),
+            PButton.icon(
+              icon: LucideIcons.trash2,
+              size: PButtonSize.sm,
+              iconColor: t.statusDanger,
               onPressed: _busy ? null : _delete,
             ),
         ],

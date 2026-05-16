@@ -459,9 +459,9 @@ class _MonthBar extends StatelessWidget {
     final t = context.tokens;
     return Row(
       children: [
-        IconButton(
+        PButton.icon(
+          icon: LucideIcons.chevronLeft,
           onPressed: onPrev,
-          icon: Icon(LucideIcons.chevronLeft, color: t.fgSecondary),
         ),
         Expanded(
           child: Center(
@@ -469,9 +469,9 @@ class _MonthBar extends StatelessWidget {
                 style: PTypo.h4.copyWith(color: t.fgPrimary)),
           ),
         ),
-        IconButton(
+        PButton.icon(
+          icon: LucideIcons.chevronRight,
           onPressed: onNext,
-          icon: Icon(LucideIcons.chevronRight, color: t.fgSecondary),
         ),
         const SizedBox(width: PSpace.x4),
         FilledButton.tonalIcon(

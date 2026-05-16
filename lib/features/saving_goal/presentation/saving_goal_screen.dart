@@ -227,14 +227,12 @@ class _GoalCard extends StatelessWidget {
                       ],
                     ),
                   ),
-                  IconButton(
-                    onPressed: onContribute,
-                    icon: Icon(LucideIcons.plus,
-                        size: 16, color: tokens.fgBrand),
+                  PButton.icon(
+                    icon: LucideIcons.plus,
+                    size: PButtonSize.sm,
+                    iconColor: tokens.fgBrand,
                     tooltip: '적립',
-                    visualDensity: VisualDensity.compact,
-                    constraints:
-                        const BoxConstraints.tightFor(width: 32, height: 32),
+                    onPressed: onContribute,
                   ),
                 ],
               ),

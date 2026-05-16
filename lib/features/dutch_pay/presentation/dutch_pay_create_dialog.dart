@@ -438,14 +438,12 @@ class _BodyState extends ConsumerState<_Body> {
                       ),
                     ),
                   if (_participants.length > 2)
-                    IconButton(
+                    PButton.icon(
+                      icon: LucideIcons.x,
+                      size: PButtonSize.sm,
+                      iconColor: t.fgTertiary,
                       onPressed: () =>
                           setState(() => _participants.removeAt(i)),
-                      icon: Icon(LucideIcons.x,
-                          size: 14, color: t.fgTertiary),
-                      visualDensity: VisualDensity.compact,
-                      constraints: const BoxConstraints.tightFor(
-                          width: 28, height: 28),
                     ),
                 ],
               ),

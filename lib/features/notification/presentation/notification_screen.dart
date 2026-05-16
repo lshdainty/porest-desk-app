@@ -207,14 +207,12 @@ class _NotiRow extends StatelessWidget {
                 ],
               ),
             ),
-            IconButton(
-              onPressed: onDelete,
-              icon: Icon(LucideIcons.x,
-                  size: 14, color: tokens.fgTertiary),
+            PButton.icon(
+              icon: LucideIcons.x,
+              size: PButtonSize.sm,
+              iconColor: tokens.fgTertiary,
               tooltip: '삭제',
-              visualDensity: VisualDensity.compact,
-              constraints:
-                  const BoxConstraints.tightFor(width: 28, height: 28),
+              onPressed: onDelete,
             ),
           ],
         ),

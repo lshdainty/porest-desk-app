@@ -221,14 +221,12 @@ class _DutchPayCard extends StatelessWidget {
                   style: PTypo.body.copyWith(
                       color: tokens.fgPrimary,
                       fontWeight: PFontWeight.heavy)),
-              IconButton(
-                onPressed: onDelete,
-                icon: Icon(LucideIcons.trash2,
-                    size: 14, color: tokens.fgTertiary),
+              PButton.icon(
+                icon: LucideIcons.trash2,
+                size: PButtonSize.sm,
+                iconColor: tokens.fgTertiary,
                 tooltip: '삭제',
-                visualDensity: VisualDensity.compact,
-                constraints:
-                    const BoxConstraints.tightFor(width: 28, height: 28),
+                onPressed: onDelete,
               ),
             ],
           ),
