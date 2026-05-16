@@ -9,6 +9,7 @@ import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_text_input.dart';
 import '../application/card_providers.dart';
 import '../domain/card_catalog.dart';
 
@@ -78,20 +79,13 @@ class _CardPickerSheetState extends ConsumerState<_CardPickerSheet> {
       padding: const EdgeInsets.fromLTRB(
           PSpace.x16, 0, PSpace.x16, PSpace.x16),
       children: [
-            TextField(
+            PTextInput(
               controller: _ctrl,
               autofocus: true,
               onChanged: _onChange,
-              decoration: InputDecoration(
-                hintText: '카드명 / 회사 검색',
-                isDense: true,
-                prefixIcon: Icon(LucideIcons.search,
-                    size: 16, color: t.fgTertiary),
-                border: OutlineInputBorder(
-                  borderRadius: PRadius.brMd,
-                  borderSide: BorderSide(color: t.borderDefault),
-                ),
-              ),
+              placeholder: '카드명 / 회사 검색',
+              prefix:
+                  Icon(LucideIcons.search, size: 16, color: t.fgTertiary),
             ),
             const SizedBox(height: 8),
             Row(

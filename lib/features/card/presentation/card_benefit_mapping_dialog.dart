@@ -9,6 +9,7 @@ import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_select.dart';
+import '../../../shared/widgets/p_text_input.dart';
 import '../../expense/application/expense_providers.dart';
 import '../application/card_providers.dart';
 import '../domain/card_benefit_mapping.dart';
@@ -86,11 +87,10 @@ class _BodyState extends ConsumerState<_Body> {
             children: [
               Expanded(
                 flex: 4,
-                child: TextField(
+                child: PTextInput(
                   controller: _benefitCtrl,
                   enabled: !_adding,
-                  decoration:
-                      const InputDecoration(hintText: '혜택 카테고리'),
+                  placeholder: '혜택 카테고리',
                   onChanged: (_) => setState(() {}),
                 ),
               ),

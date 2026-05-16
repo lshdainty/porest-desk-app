@@ -11,6 +11,7 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/format/krw.dart';
 import '../../../shared/widgets/p_empty_state.dart';
+import '../../../shared/widgets/p_text_input.dart';
 import '../application/card_providers.dart';
 import '../domain/card_catalog.dart';
 import 'card_benefit_mapping_dialog.dart';
@@ -105,23 +106,12 @@ class _CardScreenState extends ConsumerState<CardScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TextField(
+                PTextInput(
                   controller: _kwCtrl,
                   onChanged: _onChange,
-                  decoration: InputDecoration(
-                    hintText: '카드명 검색',
-                    isDense: true,
-                    prefixIcon: Icon(LucideIcons.search,
-                        size: 16, color: t.fgTertiary),
-                    border: OutlineInputBorder(
-                      borderRadius: PRadius.brMd,
-                      borderSide: BorderSide(color: t.borderDefault),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: PRadius.brMd,
-                      borderSide: BorderSide(color: t.borderDefault),
-                    ),
-                  ),
+                  placeholder: '카드명 검색',
+                  prefix:
+                      Icon(LucideIcons.search, size: 16, color: t.fgTertiary),
                 ),
                 const SizedBox(height: PSpace.x8),
                 SingleChildScrollView(

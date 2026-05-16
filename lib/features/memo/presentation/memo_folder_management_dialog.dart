@@ -9,6 +9,7 @@ import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_select.dart';
+import '../../../shared/widgets/p_text_input.dart';
 import '../application/memo_providers.dart';
 import '../domain/memo_folder.dart';
 
@@ -75,10 +76,10 @@ class _BodyState extends ConsumerState<_Body> {
               style: PTypo.bodySm.copyWith(
                   color: t.fgPrimary, fontWeight: PFontWeight.bold)),
           const SizedBox(height: PSpace.x8),
-          TextField(
+          PTextInput(
             controller: _newCtrl,
             enabled: !_adding,
-            decoration: const InputDecoration(hintText: '폴더 이름'),
+            placeholder: '폴더 이름',
             onSubmitted: (_) => _create(),
             onChanged: (_) => setState(() {}),
           ),
