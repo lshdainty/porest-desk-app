@@ -11,6 +11,7 @@ import '../../../core/format/color_parse.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
+import '../../../shared/widgets/p_segmented_control.dart';
 import '../../expense/application/expense_providers.dart';
 import '../../expense/domain/expense.dart';
 import '../application/stats_providers.dart';
@@ -396,68 +397,6 @@ class _Card extends StatelessWidget {
   }
 }
 
-class _PeriodSeg extends StatelessWidget {
-  const _PeriodSeg({
-    required this.value,
-    required this.onTapStandard,
-    required this.onTapCustom,
-    required this.customLabel,
-  });
-  final _SegMode value;
-  final ValueChanged<_SegMode> onTapStandard; // 월/분기/년
-  final VoidCallback onTapCustom;             // 사용자 지정 — 항상 피커 오픈
-  final String customLabel;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    Widget pill(_SegMode v, String label, VoidCallback onTap) {
-      final active = v == value;
-      return GestureDetector(
-        onTap: onTap,
-        child: Container(
-          padding:
-              const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-          decoration: BoxDecoration(
-            color: active ? t.bgSurface : Colors.transparent,
-            borderRadius: PRadius.brMd,
-            boxShadow: active
-                ? [
-                    BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.05),
-                        blurRadius: 2,
-                        offset: const Offset(0, 1)),
-                  ]
-                : null,
-          ),
-          child: Text(label,
-              style: PTypo.caption.copyWith(
-                  color: active ? t.fgPrimary : t.fgTertiary,
-                  fontWeight:
-                      active ? PFontWeight.bold : PFontWeight.medium)),
-        ),
-      );
-    }
-
-    return Container(
-      padding: const EdgeInsets.all(3),
-      decoration: BoxDecoration(
-        color: t.bgMuted,
-        borderRadius: PRadius.brLg,
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          pill(_SegMode.month, '월', () => onTapStandard(_SegMode.month)),
-          pill(_SegMode.quarter, '분기', () => onTapStandard(_SegMode.quarter)),
-          pill(_SegMode.year, '년', () => onTapStandard(_SegMode.year)),
-          pill(_SegMode.custom, customLabel, onTapCustom),
-        ],
-      ),
-    );
-  }
-}
-
 class _PeriodSelectorRow extends StatelessWidget {
   const _PeriodSelectorRow({required this.state});
   final _StatsScreenState state;
@@ -473,11 +412,16 @@ class _PeriodSelectorRow extends StatelessWidget {
         : '사용자 지정';
     return Align(
       alignment: Alignment.centerRight,
-      child: _PeriodSeg(
+      child: PSegmentedControl<_SegMode>(
         value: s._segMode,
-        customLabel: customLabel,
-        onTapStandard: s.setSegMode,
-        onTapCustom: s._pickRange,
+        elevated: true,
+        items: [
+          const PSegmentItem(_SegMode.month, '월'),
+          const PSegmentItem(_SegMode.quarter, '분기'),
+          const PSegmentItem(_SegMode.year, '년'),
+          PSegmentItem(_SegMode.custom, customLabel, onTap: s._pickRange),
+        ],
+        onChanged: s.setSegMode,
       ),
     );
   }

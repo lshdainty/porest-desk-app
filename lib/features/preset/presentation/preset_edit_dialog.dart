@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
@@ -10,6 +9,7 @@ import '../../../core/network/api_exception.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_chip.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_segmented_control.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../../asset/application/asset_providers.dart';
@@ -191,14 +191,14 @@ class _BodyState extends ConsumerState<_Body> {
           PSpace.x16, 0, PSpace.x16, PSpace.x16),
       children: [
           // 유형
-          _Seg(
-            options: const [
-              ('EXPENSE', '지출'),
-              ('INCOME', '수입'),
-            ],
+          PSegmentedControl<String>(
             value: _expenseType,
+            expand: true,
+            items: const [
+              PSegmentItem('EXPENSE', '지출'),
+              PSegmentItem('INCOME', '수입'),
+            ],
             onChanged: (v) => setState(() => _expenseType = v),
-            tokens: t,
           ),
           const SizedBox(height: PSpace.x16),
 
@@ -303,51 +303,4 @@ class _BodyState extends ConsumerState<_Body> {
   }
 }
 
-class _Seg extends StatelessWidget {
-  const _Seg(
-      {required this.options,
-      required this.value,
-      required this.onChanged,
-      required this.tokens});
-  final List<(String, String)> options;
-  final String value;
-  final ValueChanged<String> onChanged;
-  final PorestTokens tokens;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(4),
-      decoration:
-          BoxDecoration(color: tokens.bgMuted, borderRadius: PRadius.brMd),
-      child: Row(
-        children: [
-          for (final o in options)
-            Expanded(
-              child: GestureDetector(
-                onTap: () => onChanged(o.$1),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  decoration: BoxDecoration(
-                    color:
-                        o.$1 == value ? tokens.bgSurface : Colors.transparent,
-                    borderRadius: PRadius.brSm,
-                  ),
-                  child: Text(o.$2,
-                      textAlign: TextAlign.center,
-                      style: PTypo.bodySm.copyWith(
-                          color: o.$1 == value
-                              ? tokens.fgPrimary
-                              : tokens.fgTertiary,
-                          fontWeight: o.$1 == value
-                              ? PFontWeight.bold
-                              : PFontWeight.medium)),
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-}
 

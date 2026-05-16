@@ -12,6 +12,7 @@ import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_segmented_control.dart';
 import '../../expense/application/expense_providers.dart';
 import '../../expense/domain/expense.dart';
 import '../application/recurring_providers.dart';
@@ -209,16 +210,17 @@ class _RecurringFromTxBodyState extends ConsumerState<_RecurringFromTxBody> {
 
                 _Section(
                   title: '반복 주기',
-                  child: _Segmented(
-                    options: const [
-                      ('DAILY', '매일'),
-                      ('WEEKLY', '매주'),
-                      ('MONTHLY', '매월'),
-                      ('YEARLY', '매년'),
-                    ],
+                  child: PSegmentedControl<String>(
                     value: _frequency,
+                    expand: true,
+                    activeVariant: PSegmentActive.brand,
+                    items: const [
+                      PSegmentItem('DAILY', '매일'),
+                      PSegmentItem('WEEKLY', '매주'),
+                      PSegmentItem('MONTHLY', '매월'),
+                      PSegmentItem('YEARLY', '매년'),
+                    ],
                     onChanged: (v) => setState(() => _frequency = v),
-                    tokens: t,
                   ),
                 ),
 
@@ -565,55 +567,6 @@ class _Section extends StatelessWidget {
                   color: t.fgSecondary, fontWeight: PFontWeight.bold)),
           const SizedBox(height: 8),
           child,
-        ],
-      ),
-    );
-  }
-}
-
-class _Segmented extends StatelessWidget {
-  const _Segmented(
-      {required this.options,
-      required this.value,
-      required this.onChanged,
-      required this.tokens});
-  final List<(String code, String label)> options;
-  final String value;
-  final ValueChanged<String> onChanged;
-  final PorestTokens tokens;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(4),
-      decoration:
-          BoxDecoration(color: tokens.bgMuted, borderRadius: PRadius.brMd),
-      child: Row(
-        children: [
-          for (final o in options)
-            Expanded(
-              child: GestureDetector(
-                onTap: () => onChanged(o.$1),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  decoration: BoxDecoration(
-                    color: o.$1 == value
-                        ? tokens.bgBrand
-                        : Colors.transparent,
-                    borderRadius: PRadius.brSm,
-                  ),
-                  child: Text(o.$2,
-                      textAlign: TextAlign.center,
-                      style: PTypo.bodySm.copyWith(
-                          color: o.$1 == value
-                              ? tokens.fgOnBrand
-                              : tokens.fgTertiary,
-                          fontWeight: o.$1 == value
-                              ? PFontWeight.bold
-                              : PFontWeight.medium)),
-                ),
-              ),
-            ),
         ],
       ),
     );

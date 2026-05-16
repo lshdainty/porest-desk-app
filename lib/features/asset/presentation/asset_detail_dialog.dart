@@ -16,6 +16,7 @@ import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_card.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_segmented_control.dart';
 import '../../card/presentation/card_performance_bar.dart';
 import '../../expense/application/expense_providers.dart';
 import '../../expense/domain/expense.dart';
@@ -181,8 +182,14 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    _PeriodSeg(
+                    PSegmentedControl<_Period>(
                       value: _period,
+                      size: PSegmentSize.sm,
+                      elevated: true,
+                      items: [
+                        for (final p in _Period.values)
+                          PSegmentItem(p, p.label),
+                      ],
                       onChanged: (p) => setState(() => _period = p),
                     ),
                   ],
@@ -367,59 +374,6 @@ class _HeroCard extends StatelessWidget {
               ],
             ),
           ),
-        ],
-      ),
-    );
-  }
-}
-
-/// 3개월/6개월/1년 segmented — 작은 사이즈 (상세 다이얼로그 헤더용).
-class _PeriodSeg extends StatelessWidget {
-  const _PeriodSeg({required this.value, required this.onChanged});
-  final _Period value;
-  final ValueChanged<_Period> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    return Container(
-      padding: const EdgeInsets.all(2),
-      decoration: BoxDecoration(
-        color: t.bgMuted,
-        borderRadius: PRadius.brSm,
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          for (final p in _Period.values)
-            GestureDetector(
-              onTap: () => onChanged(p),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 10, vertical: 5),
-                decoration: BoxDecoration(
-                  color: p == value ? t.bgSurface : Colors.transparent,
-                  borderRadius: PRadius.brXs,
-                  boxShadow: p == value
-                      ? [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.04),
-                            blurRadius: 4,
-                            offset: const Offset(0, 1),
-                          ),
-                        ]
-                      : null,
-                ),
-                child: Text(
-                  p.label,
-                  style: PTypo.micro.copyWith(
-                    color: p == value ? t.fgPrimary : t.fgSecondary,
-                    fontWeight:
-                        p == value ? PFontWeight.semi : PFontWeight.medium,
-                  ),
-                ),
-              ),
-            ),
         ],
       ),
     );

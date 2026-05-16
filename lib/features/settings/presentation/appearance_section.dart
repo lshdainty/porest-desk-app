@@ -8,6 +8,7 @@ import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/settings/settings_notifier.dart';
+import '../../../shared/widgets/p_segmented_control.dart';
 
 /// porest-desk-front `AppearanceSection.tsx` 의 모바일 이식.
 ///
@@ -62,27 +63,28 @@ class AppearanceSection extends ConsumerWidget {
         const SizedBox(height: PSpace.x24),
         _SectionLabel('표시 밀도'),
         const SizedBox(height: PSpace.x8),
-        _Segment<PDensity>(
-          options: const [
-            (PDensity.compact, '컴팩트'),
-            (PDensity.comfortable, '편안'),
-            (PDensity.spacious, '여유'),
+        PSegmentedControl<PDensity>(
+          value: settings.density,
+          expand: true,
+          items: const [
+            PSegmentItem(PDensity.compact, '컴팩트'),
+            PSegmentItem(PDensity.comfortable, '편안'),
+            PSegmentItem(PDensity.spacious, '여유'),
           ],
-          selected: settings.density,
           onChanged: (d) => ref.read(settingsProvider.notifier).setDensity(d),
-          tokens: t,
         ),
 
         const SizedBox(height: PSpace.x24),
         _SectionLabel('언어'),
         const SizedBox(height: PSpace.x8),
-        _Segment<String>(
-          options: const [
-            ('system', '시스템'),
-            ('ko', '한국어'),
-            ('en', 'English'),
+        PSegmentedControl<String>(
+          value: settings.locale?.languageCode ?? 'system',
+          expand: true,
+          items: const [
+            PSegmentItem('system', '시스템'),
+            PSegmentItem('ko', '한국어'),
+            PSegmentItem('en', 'English'),
           ],
-          selected: settings.locale?.languageCode ?? 'system',
           onChanged: (v) {
             final notifier = ref.read(settingsProvider.notifier);
             switch (v) {
@@ -96,7 +98,6 @@ class AppearanceSection extends ConsumerWidget {
                 notifier.setLocale(null);
             }
           },
-          tokens: t,
         ),
 
         const SizedBox(height: PSpace.x24),
@@ -186,57 +187,6 @@ class _ThemeCard extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _Segment<T> extends StatelessWidget {
-  const _Segment({
-    required this.options,
-    required this.selected,
-    required this.onChanged,
-    required this.tokens,
-  });
-
-  final List<(T value, String label)> options;
-  final T selected;
-  final ValueChanged<T> onChanged;
-  final PorestTokens tokens;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: tokens.bgMuted,
-        borderRadius: PRadius.brMd,
-      ),
-      child: Row(
-        children: [
-          for (final opt in options)
-            Expanded(
-              child: GestureDetector(
-                onTap: () => onChanged(opt.$1),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  decoration: BoxDecoration(
-                    color: opt.$1 == selected ? tokens.bgSurface : Colors.transparent,
-                    borderRadius: PRadius.brSm,
-                  ),
-                  child: Text(
-                    opt.$2,
-                    textAlign: TextAlign.center,
-                    style: PTypo.bodySm.copyWith(
-                      color: opt.$1 == selected ? tokens.fgPrimary : tokens.fgTertiary,
-                      fontWeight:
-                          opt.$1 == selected ? PFontWeight.semi : PFontWeight.medium,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-        ],
       ),
     );
   }
