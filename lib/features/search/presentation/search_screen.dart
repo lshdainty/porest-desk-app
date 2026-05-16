@@ -16,6 +16,7 @@ import '../../../core/network/api_exception.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_text_input.dart';
 import '../../expense/application/expense_providers.dart';
 import '../../expense/domain/expense.dart';
 import '../../expense/presentation/tx_detail_dialog.dart';
@@ -92,13 +93,11 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
               Row(
                 children: [
                   Expanded(
-                    child: TextField(
+                    child: PTextInput(
                       controller: minCtrl,
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        hintText: '최소',
-                        suffixText: '원',
-                      ),
+                      numbersOnly: true,
+                      placeholder: '최소',
+                      suffixText: '원',
                       onChanged: (v) => min = int.tryParse(v),
                     ),
                   ),
@@ -106,13 +105,11 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   const Text('~'),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: TextField(
+                    child: PTextInput(
                       controller: maxCtrl,
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        hintText: '최대',
-                        suffixText: '원',
-                      ),
+                      numbersOnly: true,
+                      placeholder: '최대',
+                      suffixText: '원',
                       onChanged: (v) => max = int.tryParse(v),
                     ),
                   ),

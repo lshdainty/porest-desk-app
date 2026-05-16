@@ -9,6 +9,7 @@ import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_text_input.dart';
 import '../../expense/application/expense_providers.dart';
 import '../../expense/domain/expense_category.dart';
 import 'category_palette.dart';
@@ -185,13 +186,9 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
           Text('이름',
               style: PTypo.caption.copyWith(color: t.fgSecondary)),
           const SizedBox(height: PSpace.x4),
-          TextField(
+          PTextInput(
             controller: _nameCtrl,
-            maxLength: 12,
-            decoration: const InputDecoration(
-              hintText: '예: 식비',
-              counterText: '',
-            ),
+            placeholder: '예: 식비',
             onChanged: (_) => setState(() {}),
           ),
           const SizedBox(height: PSpace.x16),
