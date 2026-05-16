@@ -131,4 +131,28 @@ abstract final class PorestPalette {
   static const Color heroChgUp = Color(0xFFB8E0A0);
   static const Color heroChgDown = Color(0xFFF0B6A8);
   static const Color heroSpot = Color(0xFFC8C480);
+
+  // === Chart palette (desk-front --color-chart-* 미러, 10색 페어) ===
+  // 차트 카테고리 구분용. base = light 모드, light = dark 모드 fg.
+  static const Color chartRed = Color(0xFFC73838);
+  static const Color chartOrange = Color(0xFFB36418);
+  static const Color chartYellow = Color(0xFF8C7400);
+  static const Color chartGreen = Color(0xFF2D8060);
+  static const Color chartBlue = Color(0xFF2C70BF);
+  static const Color chartIndigo = Color(0xFF5E60C8);
+  static const Color chartViolet = Color(0xFF8B4DBA);
+  static const Color chartPink = Color(0xFFB83B7A);
+  static const Color chartBrown = Color(0xFF9A6536);
+  static const Color chartGray = Color(0xFF6B7484);
+
+  static const Color chartRedLight = Color(0xFFECA0A0);
+  static const Color chartOrangeLight = Color(0xFFE8B266);
+  static const Color chartYellowLight = Color(0xFFD4B83A);
+  static const Color chartGreenLight = Color(0xFF6BCB86);
+  static const Color chartBlueLight = Color(0xFF7BBBED);
+  static const Color chartIndigoLight = Color(0xFFABB0F0);
+  static const Color chartVioletLight = Color(0xFFD2A8EC);
+  static const Color chartPinkLight = Color(0xFFECA0BC);
+  static const Color chartBrownLight = Color(0xFFDCB088);
+  static const Color chartGrayLight = Color(0xFFB5BBC5);
 }

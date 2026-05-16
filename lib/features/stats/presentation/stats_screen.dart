@@ -481,10 +481,13 @@ class _EmptyBox extends StatelessWidget {
 
 // ─── DONUT CARD ────────────────────────────────────────────
 
-/// Donut 차트 카테고리 색 — [PorestChartPalette] 위임.
-/// stats inline OKLCH 9색 배열은 통합 차트 팔레트로 흡수 (light/dark 분기).
-Color _donutColor(BuildContext context, int idx) =>
-    PorestChartPalette.category(context, idx);
+/// Donut 차트 카테고리 색 — `cat.color` 우선, 없으면 [PorestChartPalette] fallback.
+/// desk-front DashboardPage `CATEGORY_PALETTE` 결정 로직 정합.
+Color _donutColor(BuildContext context, int idx, [String? rawColor]) {
+  final fallback = PorestChartPalette.category(context, idx);
+  if (rawColor == null || rawColor.trim().isEmpty) return fallback;
+  return parseColor(rawColor, fallback: fallback);
+}
 
 class _DonutRow {
   _DonutRow({
@@ -670,7 +673,7 @@ class _DonutCardState extends ConsumerState<_DonutCard> {
                         for (var i = 0; i < view.length; i++)
                           PieChartSectionData(
                             value: view[i].amount.toDouble(),
-                            color: _donutColor(context, i),
+                            color: _donutColor(context, i, view[i].color),
                             radius: 28,
                             showTitle: false,
                           ),
@@ -746,7 +749,7 @@ class _DonutLegendRow extends StatelessWidget {
               width: 10,
               height: 10,
               decoration: BoxDecoration(
-                color: _donutColor(context, index),
+                color: _donutColor(context, index, row.color),
                 shape: BoxShape.circle,
               ),
             ),

@@ -102,6 +102,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           const SizedBox(height: 16),
           _CategoryDonutCard(
             summary: summaryRangeAsync.value,
+            categoriesAsync: categoriesAsync,
             loading: summaryRangeAsync.isLoading,
             masked: settings.hideAmounts,
           ),
@@ -708,12 +709,25 @@ class _IncomeExpenseCol extends StatelessWidget {
 class _CategoryDonutCard extends StatelessWidget {
   const _CategoryDonutCard({
     required this.summary,
+    required this.categoriesAsync,
     required this.loading,
     required this.masked,
   });
   final RangeSummary? summary;
+  final AsyncValue<List<ExpenseCategory>> categoriesAsync;
   final bool loading;
   final bool masked;
+
+  /// 카테고리 자체 색을 1순위로 사용, 없으면 [PorestChartPalette] fallback.
+  /// desk-front DashboardPage `CATEGORY_PALETTE` 정합.
+  Color _segmentColor(BuildContext context, int rowId, int fallbackIdx) {
+    final cat = categoriesAsync.value?.byRowId(rowId);
+    final raw = cat?.color;
+    if (raw != null && raw.trim().isNotEmpty) {
+      return parseColor(raw, fallback: PorestChartPalette.category(context, fallbackIdx));
+    }
+    return PorestChartPalette.category(context, fallbackIdx);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -801,7 +815,7 @@ class _CategoryDonutCard extends StatelessWidget {
                             for (var i = 0; i < topSegs.length; i++)
                               PieChartSectionData(
                                 value: topSegs[i].totalAmount.toDouble(),
-                                color: PorestChartPalette.category(context, i),
+                                color: _segmentColor(context, topSegs[i].rowId, i),
                                 radius: 18,
                                 showTitle: false,
                               ),
@@ -845,7 +859,7 @@ class _CategoryDonutCard extends StatelessWidget {
                                 width: 8,
                                 height: 8,
                                 decoration: BoxDecoration(
-                                  color: PorestChartPalette.category(context, i),
+                                  color: _segmentColor(context, topSegs[i].rowId, i),
                                   shape: BoxShape.circle,
                                 ),
                               ),
