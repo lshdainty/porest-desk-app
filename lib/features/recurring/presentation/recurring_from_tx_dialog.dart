@@ -442,7 +442,7 @@ class _RecurringFromTxBodyState extends ConsumerState<_RecurringFromTxBody> {
                                     horizontal: 10, vertical: 4),
                                 decoration: BoxDecoration(
                                   color: t.bgMuted,
-                                  borderRadius: PRadius.brPill,
+                                  borderRadius: PRadius.brFull,
                                   border: Border.all(color: t.borderSubtle),
                                 ),
                                 child: Text(
@@ -503,7 +503,7 @@ class _SourceCard extends StatelessWidget {
             height: 38,
             decoration: BoxDecoration(
               color: fg.withValues(alpha: 0.14),
-              borderRadius: PRadius.brTile,
+              borderRadius: PRadius.brLg,
             ),
             alignment: Alignment.center,
             child: Icon(iconData, size: 18, color: fg),
@@ -653,7 +653,7 @@ class _DowGrid extends StatelessWidget {
                         ? tokens.borderBrand
                         : tokens.borderSubtle,
                   ),
-                  borderRadius: PRadius.brPill,
+                  borderRadius: PRadius.brFull,
                 ),
                 child: Text(_labels[i],
                     style: PTypo.bodySm.copyWith(

@@ -408,7 +408,7 @@ class _RecurringEditBodyState extends ConsumerState<_RecurringEditBody> {
                               horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
                             color: t.bgMuted,
-                            borderRadius: PRadius.brPill,
+                            borderRadius: PRadius.brFull,
                             border: Border.all(color: t.borderSubtle),
                           ),
                           child: Text(
@@ -677,7 +677,7 @@ class _CatChip extends StatelessWidget {
             color: selected ? tokens.borderBrand : tokens.borderDefault,
             width: selected ? 1.5 : 1,
           ),
-          borderRadius: PRadius.brPill,
+          borderRadius: PRadius.brFull,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,

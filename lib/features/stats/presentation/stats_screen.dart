@@ -389,7 +389,7 @@ class _Card extends StatelessWidget {
       decoration: BoxDecoration(
         color: t.bgSurface,
         border: Border.all(color: t.borderSubtle),
-        borderRadius: PRadius.brCard,
+        borderRadius: PRadius.brLg,
       ),
       child: child,
     );
@@ -443,7 +443,7 @@ class _PeriodSeg extends StatelessWidget {
       padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
         color: t.bgMuted,
-        borderRadius: PRadius.brTile,
+        borderRadius: PRadius.brLg,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -923,7 +923,7 @@ class _TopMerchantsCard extends StatelessWidget {
                         ),
                         const SizedBox(height: 6),
                         ClipRRect(
-                          borderRadius: PRadius.brPill,
+                          borderRadius: PRadius.brFull,
                           child: LinearProgressIndicator(
                             value: top[i].totalAmount / maxAmt,
                             minHeight: 4,
@@ -1124,7 +1124,7 @@ class _HeatmapCard extends StatelessWidget {
                     height: 14,
                     decoration: BoxDecoration(
                       color: bgFor(i),
-                      borderRadius: PRadius.brXs2,
+                      borderRadius: PRadius.brXs,
                     ),
                   ),
                   const SizedBox(width: 4),
@@ -1604,7 +1604,7 @@ class _TrendBigCardState extends ConsumerState<_TrendBigCard> {
                                 padding: const EdgeInsets.only(left: 6),
                                 child: Text(_fmtTick(v / scale),
                                     style: PTypo.micro.copyWith(
-                                        color: t.statusDangerFg,
+                                        color: t.fgExpense,
                                         fontSize: PFontSize.micro)),
                               ),
                             ),
@@ -1645,19 +1645,19 @@ class _TrendBigCardState extends ConsumerState<_TrendBigCard> {
                           FlSpot(i.toDouble(), data[i].income.toDouble()),
                       ],
                       isCurved: true,
-                      color: t.fgBrand,
+                      color: t.fgIncome,
                       barWidth: 2,
                       dotData: FlDotData(
                         show: true,
                         getDotPainter: (s, _, _, _) => FlDotCirclePainter(
                             radius: 2.5,
-                            color: t.fgBrand,
+                            color: t.fgIncome,
                             strokeWidth: 2,
                             strokeColor: t.bgSurface),
                       ),
                       belowBarData: BarAreaData(
                         show: true,
-                        color: t.fgBrand.withValues(alpha: 0.18),
+                        color: t.fgIncome.withValues(alpha: 0.18),
                       ),
                     ),
                     // 지출 — 좌축에 함께 그리되 시각적 비율은 수입 max 에 맞춰 스케일링
@@ -1667,19 +1667,19 @@ class _TrendBigCardState extends ConsumerState<_TrendBigCard> {
                           FlSpot(i.toDouble(), data[i].expense * scale),
                       ],
                       isCurved: true,
-                      color: t.statusDangerFg,
+                      color: t.fgExpense,
                       barWidth: 2,
                       dotData: FlDotData(
                         show: true,
                         getDotPainter: (s, _, _, _) => FlDotCirclePainter(
                             radius: 2.5,
-                            color: t.statusDangerFg,
+                            color: t.fgExpense,
                             strokeWidth: 2,
                             strokeColor: t.bgSurface),
                       ),
                       belowBarData: BarAreaData(
                         show: true,
-                        color: t.statusDangerFg.withValues(alpha: 0.16),
+                        color: t.fgExpense.withValues(alpha: 0.16),
                       ),
                     ),
                   ],
@@ -1693,12 +1693,12 @@ class _TrendBigCardState extends ConsumerState<_TrendBigCard> {
                         title: data[_touchedIdx!].label,
                         rows: [
                           _ChartTooltipRowData(
-                            color: t.fgBrand,
+                            color: t.fgIncome,
                             label: '수입',
                             amount: '${krw(data[_touchedIdx!].income)}원',
                           ),
                           _ChartTooltipRowData(
-                            color: t.statusDangerFg,
+                            color: t.fgExpense,
                             label: '지출',
                             amount: '${krw(data[_touchedIdx!].expense)}원',
                           ),
@@ -1711,9 +1711,9 @@ class _TrendBigCardState extends ConsumerState<_TrendBigCard> {
             const SizedBox(height: 12),
             Row(
               children: [
-                _LegendChip(color: t.fgBrand, label: '수입'),
+                _LegendChip(color: t.fgIncome, label: '수입'),
                 const SizedBox(width: 16),
-                _LegendChip(color: t.statusDangerFg, label: '지출'),
+                _LegendChip(color: t.fgExpense, label: '지출'),
               ],
             ),
           ],
@@ -1738,7 +1738,7 @@ class _LegendChip extends StatelessWidget {
           height: 10,
           decoration: BoxDecoration(
             color: color,
-            borderRadius: PRadius.brXs2,
+            borderRadius: PRadius.brXs,
           ),
         ),
         const SizedBox(width: 6),
@@ -1966,10 +1966,10 @@ class _SavingsBarsCardState extends ConsumerState<_SavingsBarsCard> {
                           BarChartRodData(
                             toY: data[i].savings.toDouble(),
                             color: data[i].savings >= 0
-                                ? t.fgBrand
-                                : t.statusDangerFg,
+                                ? t.fgIncome
+                                : t.fgExpense,
                             width: data.length > 20 ? 4 : 12,
-                            borderRadius: PRadius.brXs2,
+                            borderRadius: PRadius.brXs,
                           ),
                         ],
                       ),
@@ -1988,11 +1988,11 @@ class _SavingsBarsCardState extends ConsumerState<_SavingsBarsCard> {
                           title: p.label,
                           rows: [
                             _ChartTooltipRowData(
-                              color: v >= 0 ? t.bgBrand : t.statusDangerFg,
+                              color: v >= 0 ? t.fgIncome : t.fgExpense,
                               label: '순저축',
                               amount: '$sign${krw(v.abs())}원',
                               amountColor:
-                                  v >= 0 ? t.fgIncome : t.statusDangerFg,
+                                  v >= 0 ? t.fgIncome : t.fgExpense,
                             ),
                           ],
                         );
@@ -2062,7 +2062,7 @@ class _CompareSummaryGrid extends StatelessWidget {
                 style: PTypo.h3.copyWith(
                     color: prev <= 0
                         ? t.fgPrimary
-                        : (up ? t.statusDangerFg : t.fgBrand),
+                        : (up ? t.fgExpense : t.fgIncome),
                     fontWeight: PFontWeight.heavy,
                     fontFamily: 'monospace'),
               ),
@@ -2289,7 +2289,7 @@ class _CompareRow extends StatelessWidget {
               height: 32,
               decoration: BoxDecoration(
                 color: fg.withValues(alpha: 0.12),
-                borderRadius: PRadius.brTile,
+                borderRadius: PRadius.brLg,
               ),
               alignment: Alignment.center,
               child: Icon(iconData, size: 16, color: fg),
@@ -2316,7 +2316,7 @@ class _CompareRow extends StatelessWidget {
                 style: PTypo.caption.copyWith(
                     color: row.prev == 0
                         ? t.fgTertiary
-                        : (up ? t.statusDangerFg : t.fgBrand),
+                        : (up ? t.fgExpense : t.fgIncome),
                     fontWeight: PFontWeight.bold),
               ),
             ),

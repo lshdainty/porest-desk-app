@@ -489,7 +489,7 @@ class _SplitRowCardState extends State<_SplitRowCard> {
             width: 24,
             height: 24,
             decoration: BoxDecoration(
-                color: t.bgMuted, borderRadius: PRadius.brPill),
+                color: t.bgMuted, borderRadius: PRadius.brFull),
             alignment: Alignment.center,
             child: Text('${widget.index + 1}',
                 style: PTypo.caption.copyWith(
@@ -659,7 +659,7 @@ class _RatioBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: PRadius.brPill,
+      borderRadius: PRadius.brFull,
       child: Container(
         height: 10,
         color: tokens.bgTrack,
@@ -724,7 +724,7 @@ class _RatioLegend extends StatelessWidget {
         Container(
           width: 8,
           height: 8,
-          decoration: BoxDecoration(color: color, borderRadius: PRadius.brPill),
+          decoration: BoxDecoration(color: color, borderRadius: PRadius.brFull),
         ),
         const SizedBox(width: 5),
         Text(cat?.categoryName ?? '미선택',
@@ -770,7 +770,7 @@ class _MatchPill extends StatelessWidget {
     final icon = matched ? LucideIcons.check : LucideIcons.alertTriangle;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(color: bg, borderRadius: PRadius.brPill),
+      decoration: BoxDecoration(color: bg, borderRadius: PRadius.brFull),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

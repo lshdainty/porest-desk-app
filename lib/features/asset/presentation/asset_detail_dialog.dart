@@ -540,7 +540,7 @@ class _BalanceTrendChart extends StatelessWidget {
           touchTooltipData: LineTouchTooltipData(
             getTooltipColor: (_) => tokens.bgSurface,
             tooltipBorder: BorderSide(color: tokens.borderSubtle),
-            tooltipBorderRadius: PRadius.brTile,
+            tooltipBorderRadius: PRadius.brLg,
             tooltipPadding:
                 const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
             getTooltipItems: (spots) => [
@@ -631,7 +631,7 @@ class _ChartPlaceholder extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: tokens.bgSunken,
-        borderRadius: PRadius.brTile,
+        borderRadius: PRadius.brLg,
       ),
       alignment: Alignment.center,
       child: Text(text,
@@ -755,7 +755,7 @@ class _ExpenseRow extends StatelessWidget {
                   ? '•••'
                   : '${krw(expense.signedAmount, sign: true)}원',
               style: PTypo.bodySm.copyWith(
-                color: isIncome ? tokens.fgIncome : tokens.statusDangerFg,
+                color: isIncome ? tokens.fgIncome : tokens.fgExpense,
                 fontWeight: PFontWeight.bold,
                 fontFamily: 'monospace',
               ),

@@ -311,7 +311,7 @@ class _CatChip extends StatelessWidget {
               color: selected ? tokens.borderBrand : tokens.borderDefault,
               width: selected ? 1.5 : 1,
             ),
-            borderRadius: PRadius.brPill,
+            borderRadius: PRadius.brFull,
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,

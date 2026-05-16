@@ -117,7 +117,7 @@ class NetWorthChart extends ConsumerWidget {
                 touchTooltipData: LineTouchTooltipData(
                   getTooltipColor: (_) => t.bgSurface,
                   tooltipBorder: BorderSide(color: t.borderSubtle),
-                  tooltipBorderRadius: PRadius.brTile,
+                  tooltipBorderRadius: PRadius.brLg,
                   tooltipPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                   getTooltipItems: (spots) => [
                     for (int i = 0; i < spots.length; i++)
@@ -141,7 +141,7 @@ class NetWorthChart extends ConsumerWidget {
                             TextSpan(
                               text: '●  ',
                               style: TextStyle(
-                                color: PorestPalette.mossy500,
+                                color: PorestPalette.cobalt500,
                                 fontSize: PFontSize.caption,
                                 height: 1.0,
                               ),
@@ -172,14 +172,14 @@ class NetWorthChart extends ConsumerWidget {
                   spots: spots,
                   isCurved: true,
                   curveSmoothness: 0.25,
-                  color: PorestPalette.mossy500,
+                  color: PorestPalette.cobalt500,
                   barWidth: 2,
                   isStrokeCapRound: true,
                   dotData: FlDotData(
                     show: true,
                     getDotPainter: (_, _, _, _) => FlDotCirclePainter(
                       radius: 3,
-                      color: PorestPalette.mossy500,
+                      color: PorestPalette.cobalt500,
                       strokeColor: t.bgSurface,
                       strokeWidth: 2,
                     ),
@@ -190,8 +190,8 @@ class NetWorthChart extends ConsumerWidget {
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
-                        PorestPalette.mossy500.withValues(alpha: 0.25),
-                        PorestPalette.mossy500.withValues(alpha: 0.0),
+                        PorestPalette.cobalt500.withValues(alpha: 0.25),
+                        PorestPalette.cobalt500.withValues(alpha: 0.0),
                       ],
                     ),
                   ),

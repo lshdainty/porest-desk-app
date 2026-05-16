@@ -428,7 +428,7 @@ class _TypeChip extends StatelessWidget {
           color: selected ? tokens.bgBrand : tokens.bgSurface,
           border: Border.all(
               color: selected ? tokens.borderBrand : tokens.borderSubtle),
-          borderRadius: PRadius.brPill,
+          borderRadius: PRadius.brFull,
         ),
         child: Text(label,
             style: PTypo.caption.copyWith(

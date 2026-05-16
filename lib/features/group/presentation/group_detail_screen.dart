@@ -465,7 +465,7 @@ class _GroupHeaderCard extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
               color: tokens.bgMuted,
-              borderRadius: PRadius.brPill,
+              borderRadius: PRadius.brFull,
             ),
             child: Text(
                 '${(detail.members as List).length}명',
@@ -560,22 +560,13 @@ class _InviteCodeCard extends ConsumerWidget {
   }
 
   Future<void> _regenerate(BuildContext context, WidgetRef ref) async {
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('초대 코드 재발급'),
-        content: const Text('기존 코드는 사용할 수 없게 됩니다. 재발급하시겠어요?'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('취소')),
-          FilledButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('재발급')),
-        ],
-      ),
+    final ok = await showPConfirmDialog(
+      context,
+      title: '초대 코드 재발급',
+      message: '기존 코드는 사용할 수 없게 됩니다. 재발급하시겠어요?',
+      confirmLabel: '재발급',
     );
-    if (ok != true || !context.mounted) return;
+    if (!ok || !context.mounted) return;
     try {
       final repo = await ref.read(groupRepositoryProvider.future);
       await repo.regenerateInviteCode(detail.rowId as int);
@@ -870,26 +861,15 @@ Future<void> _showEditDialog(
 
 Future<void> _confirmDelete(
     BuildContext context, WidgetRef ref, GroupDetail detail) async {
-  final ok = await showDialog<bool>(
-    context: context,
-    builder: (ctx) => AlertDialog(
-      title: const Text('그룹 삭제'),
-      content: Text(
-          '"${detail.groupName}" 그룹을 삭제하시겠어요? 멤버 모두가 그룹에서 제외되며 되돌릴 수 없습니다.'),
-      actions: [
-        TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('취소')),
-        FilledButton(
-          style: FilledButton.styleFrom(
-              backgroundColor: ctx.tokens.statusDanger),
-          onPressed: () => Navigator.pop(ctx, true),
-          child: const Text('삭제'),
-        ),
-      ],
-    ),
+  final ok = await showPConfirmDialog(
+    context,
+    title: '그룹 삭제',
+    message:
+        '"${detail.groupName}" 그룹을 삭제하시겠어요? 멤버 모두가 그룹에서 제외되며 되돌릴 수 없습니다.',
+    confirmLabel: '삭제',
+    destructive: true,
   );
-  if (ok != true) return;
+  if (!ok) return;
   try {
     final repo = await ref.read(groupRepositoryProvider.future);
     await repo.delete(detail.rowId);

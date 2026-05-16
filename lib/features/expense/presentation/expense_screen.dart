@@ -307,13 +307,13 @@ class _SummaryCard extends StatelessWidget {
                 child: _Stat(
                     label: '수입',
                     value: krwMasked(income, masked, sign: true),
-                    color: t.statusSuccessFg),
+                    color: t.fgIncome),
               ),
               Expanded(
                 child: _Stat(
                     label: '지출',
                     value: krwMasked(-expense, masked, sign: true),
-                    color: t.statusDangerFg),
+                    color: t.fgExpense),
               ),
               Expanded(
                 child: _Stat(
@@ -341,7 +341,7 @@ class _ArrowBtn extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: PRadius.brPill,
+      borderRadius: PRadius.brFull,
       child: SizedBox(
         width: 28,
         height: 28,
@@ -453,7 +453,7 @@ class _FilterRow extends StatelessWidget {
                           horizontal: 4, vertical: 1),
                       decoration: BoxDecoration(
                         color: t.bgBrand,
-                        borderRadius: PRadius.brPill,
+                        borderRadius: PRadius.brFull,
                       ),
                       child: Text('$advCount',
                           style: PTypo.micro.copyWith(
@@ -496,14 +496,14 @@ class _Chip extends StatelessWidget {
     final t = context.tokens;
     return InkWell(
       onTap: onTap,
-      borderRadius: PRadius.brPill,
+      borderRadius: PRadius.brFull,
       child: Container(
         padding:
             const EdgeInsets.symmetric(horizontal: PSpace.x12, vertical: 7),
         decoration: BoxDecoration(
           color: active ? t.bgBrand : t.bgSurface,
           border: Border.all(color: active ? t.bgBrand : t.borderSubtle),
-          borderRadius: PRadius.brPill,
+          borderRadius: PRadius.brFull,
         ),
         child: Text(label,
             style: PTypo.caption.copyWith(
@@ -651,7 +651,7 @@ class _AssetFilterBadge extends ConsumerWidget {
       decoration: BoxDecoration(
         color: t.bgBrandSubtle,
         border: Border.all(color: t.borderBrand),
-        borderRadius: PRadius.brPill,
+        borderRadius: PRadius.brFull,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

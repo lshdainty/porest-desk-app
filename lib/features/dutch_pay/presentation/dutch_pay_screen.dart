@@ -10,6 +10,8 @@ import '../../../app/theme/typography.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/settings/settings_notifier.dart';
+import '../../../shared/widgets/p_empty_state.dart';
+import '../../../shared/widgets/p_modal.dart';
 import '../application/dutch_pay_providers.dart';
 import '../domain/dutch_pay.dart';
 import 'dutch_pay_create_dialog.dart';
@@ -56,19 +58,10 @@ class DutchPayScreen extends ConsumerWidget {
           ),
           data: (items) {
             if (items.isEmpty) {
-              return ListView(children: [
-                Padding(
-                  padding: const EdgeInsets.all(PSpace.x32),
-                  child: Column(
-                    children: [
-                      Icon(LucideIcons.divide,
-                          size: 48, color: t.fgDisabled),
-                      const SizedBox(height: PSpace.x12),
-                      Text('등록된 더치페이가 없습니다',
-                          style:
-                              PTypo.body.copyWith(color: t.fgTertiary)),
-                    ],
-                  ),
+              return ListView(children: const [
+                PEmptyState(
+                  icon: LucideIcons.divide,
+                  message: '등록된 더치페이가 없습니다',
                 ),
               ]);
             }
@@ -128,25 +121,14 @@ class DutchPayScreen extends ConsumerWidget {
 
   Future<void> _delete(
       BuildContext context, WidgetRef ref, DutchPay dp) async {
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('더치페이 삭제'),
-        content: Text('"${dp.title}"을(를) 삭제할까요?'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('취소')),
-          FilledButton(
-            style: FilledButton.styleFrom(
-                backgroundColor: context.tokens.statusDanger),
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('삭제'),
-          ),
-        ],
-      ),
+    final ok = await showPConfirmDialog(
+      context,
+      title: '더치페이 삭제',
+      message: '"${dp.title}"을(를) 삭제할까요?',
+      confirmLabel: '삭제',
+      destructive: true,
     );
-    if (ok != true || !context.mounted) return;
+    if (!ok || !context.mounted) return;
     try {
       final repo = await ref.read(dutchPayRepositoryProvider.future);
       await repo.delete(dp.rowId);

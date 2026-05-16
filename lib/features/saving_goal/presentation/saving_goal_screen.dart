@@ -13,6 +13,7 @@ import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
+import '../../../shared/widgets/p_empty_state.dart';
 import '../application/saving_goal_providers.dart';
 import '../domain/saving_goal.dart';
 import 'saving_goal_edit_dialog.dart';
@@ -59,17 +60,10 @@ class SavingGoalScreen extends ConsumerWidget {
           ),
           data: (items) {
             if (items.isEmpty) {
-              return ListView(children: [
-                Padding(
-                  padding: const EdgeInsets.all(PSpace.x32),
-                  child: Column(children: [
-                    Icon(LucideIcons.piggyBank,
-                        size: 48, color: t.fgDisabled),
-                    const SizedBox(height: PSpace.x12),
-                    Text('등록된 저금 목표가 없습니다',
-                        style:
-                            PTypo.body.copyWith(color: t.fgTertiary)),
-                  ]),
+              return ListView(children: const [
+                PEmptyState(
+                  icon: LucideIcons.piggyBank,
+                  message: '등록된 저금 목표가 없습니다',
                 ),
               ]);
             }

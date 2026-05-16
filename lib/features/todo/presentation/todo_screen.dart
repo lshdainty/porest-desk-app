@@ -8,6 +8,7 @@ import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../shared/widgets/p_empty_state.dart';
 import '../application/todo_providers.dart';
 import '../domain/todo.dart';
 import 'todo_edit_dialog.dart';
@@ -273,16 +274,10 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
           ),
           data: (items) {
             if (items.isEmpty) {
-              return ListView(children: [
-                Padding(
-                  padding: const EdgeInsets.all(PSpace.x32),
-                  child: Column(children: [
-                    Icon(LucideIcons.checkSquare,
-                        size: 48, color: t.fgDisabled),
-                    const SizedBox(height: PSpace.x12),
-                    Text('할 일이 없습니다',
-                        style: PTypo.body.copyWith(color: t.fgTertiary)),
-                  ]),
+              return ListView(children: const [
+                PEmptyState(
+                  icon: LucideIcons.checkSquare,
+                  message: '할 일이 없습니다',
                 ),
               ]);
             }
@@ -351,7 +346,7 @@ class _Chip extends StatelessWidget {
           color: selected ? tokens.bgBrand : tokens.bgSurface,
           border: Border.all(
               color: selected ? tokens.borderBrand : tokens.borderSubtle),
-          borderRadius: PRadius.brPill,
+          borderRadius: PRadius.brFull,
         ),
         child: Text(label,
             style: PTypo.caption.copyWith(

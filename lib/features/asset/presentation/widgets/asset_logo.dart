@@ -35,7 +35,7 @@ class AssetLogo extends StatelessWidget {
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: bg,
-        borderRadius: PRadius.brTile,
+        borderRadius: PRadius.brLg,
       ),
       child: Text(
         char,

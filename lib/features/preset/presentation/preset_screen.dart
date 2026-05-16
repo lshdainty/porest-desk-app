@@ -12,6 +12,7 @@ import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
+import '../../../shared/widgets/p_empty_state.dart';
 import '../../expense/application/expense_providers.dart';
 import '../../expense/domain/expense_category.dart';
 import '../application/preset_providers.dart';
@@ -97,22 +98,11 @@ class _PresetScreenState extends ConsumerState<PresetScreen> {
           data: (items) {
             if (items.isEmpty) {
               return ListView(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(PSpace.x32),
-                    child: Column(
-                      children: [
-                        Icon(LucideIcons.zap,
-                            size: 48, color: t.fgDisabled),
-                        const SizedBox(height: PSpace.x12),
-                        Text('등록된 프리셋이 없습니다',
-                            style: PTypo.body.copyWith(color: t.fgTertiary)),
-                        const SizedBox(height: PSpace.x4),
-                        Text('자주 입력하는 거래를 프리셋으로 저장하세요',
-                            style: PTypo.caption
-                                .copyWith(color: t.fgTertiary)),
-                      ],
-                    ),
+                children: const [
+                  PEmptyState(
+                    icon: LucideIcons.zap,
+                    message: '등록된 프리셋이 없습니다',
+                    subMessage: '자주 입력하는 거래를 프리셋으로 저장하세요',
                   ),
                 ],
               );

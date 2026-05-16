@@ -358,7 +358,7 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
               child: PTypeChip(
                 label: '지출',
                 active: _types.contains('EXPENSE'),
-                activeColor: t.statusDangerFg,
+                activeColor: t.fgExpense,
                 onTap: () => toggle('EXPENSE'),
               ),
             ),
@@ -367,7 +367,7 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
               child: PTypeChip(
                 label: '수입',
                 active: _types.contains('INCOME'),
-                activeColor: t.statusSuccessFg,
+                activeColor: t.fgIncome,
                 onTap: () => toggle('INCOME'),
               ),
             ),
@@ -448,7 +448,7 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
                         color: _assetIds.contains(a.rowId)
                             ? t.borderBrand
                             : t.borderSubtle),
-                    borderRadius: PRadius.brPill,
+                    borderRadius: PRadius.brFull,
                   ),
                   child: Text(a.assetName,
                       style: PTypo.caption.copyWith(

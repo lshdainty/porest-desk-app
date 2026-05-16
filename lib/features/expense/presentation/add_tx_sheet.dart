@@ -299,26 +299,14 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
   }
 
   Future<void> _confirmDelete() async {
-    final t = context.tokens;
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('거래 삭제'),
-        content: const Text('이 거래를 삭제하시겠습니까? 연결된 자산 잔액이 함께 조정됩니다.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('취소'),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: t.statusDanger),
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('삭제'),
-          ),
-        ],
-      ),
+    final ok = await showPConfirmDialog(
+      context,
+      title: '거래 삭제',
+      message: '이 거래를 삭제하시겠습니까? 연결된 자산 잔액이 함께 조정됩니다.',
+      confirmLabel: '삭제',
+      destructive: true,
     );
-    if (ok != true || !mounted) return;
+    if (!ok || !mounted) return;
     _setSubmitting(true);
     try {
       final repo = await ref.read(expenseRepositoryProvider.future);
@@ -356,8 +344,8 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
     final amountInt =
         int.tryParse(_amountCtrl.text.replaceAll(',', '')) ?? 0;
     final amountColor = _type == 'EXPENSE'
-        ? t.statusDangerFg
-        : (_type == 'INCOME' ? t.fgBrand : t.fgPrimary);
+        ? t.fgExpense
+        : (_type == 'INCOME' ? t.fgIncome : t.fgTransfer);
     final amountPrefix = _type == 'EXPENSE'
         ? '−'
         : (_type == 'INCOME' ? '+' : '');
@@ -929,9 +917,9 @@ class _TypeSegment extends StatelessWidget {
   final String? lockedToValue;
 
   static const _baseOpts = [
-    ('EXPENSE', '지출', Color(0xFFB85458)),
-    ('INCOME', '수입', null),
-    ('TRANSFER', '이체', null),
+    ('EXPENSE', '지출'),
+    ('INCOME', '수입'),
+    ('TRANSFER', '이체'),
   ];
 
   @override
@@ -942,7 +930,7 @@ class _TypeSegment extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
-          color: tokens.bgMuted, borderRadius: PRadius.brTile),
+          color: tokens.bgMuted, borderRadius: PRadius.brLg),
       child: Row(
         children: [
           for (final o in opts)
@@ -977,10 +965,10 @@ class _TypeSegment extends StatelessWidget {
                         style: PTypo.bodySm.copyWith(
                           color: o.$1 == value
                               ? (o.$1 == 'EXPENSE'
-                                  ? tokens.statusDangerFg
+                                  ? tokens.fgExpense
                                   : (o.$1 == 'INCOME'
-                                      ? tokens.fgBrand
-                                      : tokens.fgPrimary))
+                                      ? tokens.fgIncome
+                                      : tokens.fgTransfer))
                               : tokens.fgSecondary,
                           fontWeight: o.$1 == value
                               ? PFontWeight.bold
@@ -1222,7 +1210,7 @@ class _PresetChip extends StatelessWidget {
           color: active ? tokens.bgBrandSubtle : tokens.bgSurface,
           border: Border.all(
               color: active ? tokens.borderBrand : tokens.borderSubtle),
-          borderRadius: PRadius.brPill,
+          borderRadius: PRadius.brFull,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -1279,7 +1267,7 @@ class _MorePresetsHint extends StatelessWidget {
       decoration: BoxDecoration(
         border: Border.all(
             color: tokens.borderDefault, style: BorderStyle.solid),
-        borderRadius: PRadius.brPill,
+        borderRadius: PRadius.brFull,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

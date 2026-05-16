@@ -365,7 +365,7 @@ class _BodyState extends ConsumerState<_Body> {
                         height: 38,
                         decoration: BoxDecoration(
                           color: fg.withValues(alpha: 0.14),
-                          borderRadius: PRadius.brTile,
+                          borderRadius: PRadius.brLg,
                         ),
                         alignment: Alignment.center,
                         child: Icon(iconData, size: 18, color: fg),
@@ -880,7 +880,7 @@ class _ParticipantRow extends StatelessWidget {
                         horizontal: 7, vertical: 2),
                     decoration: BoxDecoration(
                       color: tokens.fgBrand.withValues(alpha: 0.12),
-                      borderRadius: PRadius.brPill,
+                      borderRadius: PRadius.brFull,
                     ),
                     child: Text('나',
                         style: PTypo.caption.copyWith(
@@ -988,13 +988,13 @@ class _QuickChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: PRadius.brPill,
+      borderRadius: PRadius.brFull,
       child: Container(
         padding: const EdgeInsets.fromLTRB(8, 5, 10, 5),
         decoration: BoxDecoration(
           color: tokens.bgSurface,
           border: Border.all(color: tokens.borderSubtle),
-          borderRadius: PRadius.brPill,
+          borderRadius: PRadius.brFull,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,

@@ -673,7 +673,7 @@ class _ChipPill extends StatelessWidget {
           border: Border.all(
               color: selected ? color : tokens.borderDefault,
               width: selected ? 1.5 : 1),
-          borderRadius: PRadius.brPill,
+          borderRadius: PRadius.brFull,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,

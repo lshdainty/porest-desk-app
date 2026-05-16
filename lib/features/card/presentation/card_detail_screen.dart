@@ -117,7 +117,7 @@ class CardDetailScreen extends ConsumerWidget {
                               horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
                             color: t.bgBrandSubtle,
-                            borderRadius: PRadius.brPill,
+                            borderRadius: PRadius.brFull,
                             border: Border.all(color: t.borderBrand),
                           ),
                           child: Text(tag,

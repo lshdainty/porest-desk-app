@@ -8,6 +8,7 @@ import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../shared/widgets/p_empty_state.dart';
 import '../application/memo_providers.dart';
 import '../domain/memo.dart';
 import 'memo_edit_dialog.dart';
@@ -118,17 +119,9 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
           data: (items) {
             if (items.isEmpty) {
               return ListView(children: [
-                Padding(
-                  padding: const EdgeInsets.all(PSpace.x32),
-                  child: Column(
-                    children: [
-                      Icon(LucideIcons.fileText,
-                          size: 48, color: t.fgDisabled),
-                      const SizedBox(height: PSpace.x12),
-                      Text(hasQuery ? '검색 결과가 없습니다' : '등록된 메모가 없습니다',
-                          style: PTypo.body.copyWith(color: t.fgTertiary)),
-                    ],
-                  ),
+                PEmptyState(
+                  icon: LucideIcons.fileText,
+                  message: hasQuery ? '검색 결과가 없습니다' : '등록된 메모가 없습니다',
                 ),
               ]);
             }

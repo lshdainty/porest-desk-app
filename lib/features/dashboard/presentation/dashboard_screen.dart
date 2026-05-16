@@ -17,23 +17,13 @@ import '../../asset/application/asset_providers.dart';
 import '../../budget/application/budget_providers.dart';
 import '../../budget/domain/budget.dart';
 import '../../expense/application/expense_providers.dart';
+import '../../../app/theme/chart_palette.dart';
 import '../../expense/domain/expense.dart';
 import '../../expense/domain/expense_category.dart';
 import '../../stats/application/stats_providers.dart';
 import '../../stats/domain/stats_models.dart';
 import '../application/dashboard_providers.dart';
 import '../domain/dashboard_summary.dart';
-
-const _categoryPalette = <Color>[
-  Color(0xFFB48A4A), // mossy/orange-ish (cf. CSS oklch palette)
-  Color(0xFFB04F8A),
-  Color(0xFF5C9F6E),
-  Color(0xFF8C6BB4),
-  Color(0xFF5A8FB7),
-  Color(0xFFC75A4F),
-  Color(0xFF4F8A98),
-  Color(0xFF8B7B5A),
-];
 
 /// 홈 / 대시보드 — porest-desk-front HomeMobile 정확 미러.
 class DashboardScreen extends ConsumerStatefulWidget {
@@ -297,7 +287,7 @@ class _BalanceHero extends StatelessWidget {
             gradient: const LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [PorestPalette.mossy700, PorestPalette.mossy900],
+              colors: [PorestPalette.cobalt700, PorestPalette.cobalt900],
             ),
             borderRadius: PRadius.brXl2,
           ),
@@ -547,7 +537,7 @@ class _QuickAction extends StatelessWidget {
             height: 32,
             decoration: BoxDecoration(
               color: tokens.bgBrandSubtle,
-              borderRadius: PRadius.brTile,
+              borderRadius: PRadius.brLg,
             ),
             child: Icon(icon, size: 18, color: tokens.fgBrandStrong),
           ),
@@ -636,56 +626,49 @@ class _MonthExpenseCard extends StatelessWidget {
                   child: _IncomeExpenseCol(
                     label: '수입',
                     value: '+${krwMasked(income, masked)}',
-                    color: t.statusSuccessFg,
+                    color: t.fgIncome,
                   ),
                 ),
                 Expanded(
                   child: _IncomeExpenseCol(
                     label: '지출',
                     value: '-${krwMasked(expense, masked)}',
-                    color: t.statusDangerFg,
+                    color: t.fgExpense,
                   ),
                 ),
               ],
             ),
           const SizedBox(height: 14),
-          Container(
-            padding: const EdgeInsets.only(top: 12),
-            decoration: BoxDecoration(
-              border: Border(
-                  top: BorderSide(color: t.borderSubtle)),
-            ),
-            child: RichText(
-              text: TextSpan(
-                style: PTypo.caption.copyWith(
-                    color: t.fgSecondary, height: 1.5),
-                children: [
-                  const TextSpan(text: '하루 평균 '),
+          RichText(
+            text: TextSpan(
+              style: PTypo.caption.copyWith(
+                  color: t.fgSecondary, height: 1.5),
+              children: [
+                const TextSpan(text: '하루 평균 '),
+                TextSpan(
+                  text: krwMasked(dailyAvg, masked),
+                  style: TextStyle(
+                    color: t.fgPrimary,
+                    fontWeight: PFontWeight.bold,
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
+                ),
+                const TextSpan(text: '원 썼어요.'),
+                if (prevExpense > 0) ...[
+                  const TextSpan(text: ' 전월 대비 '),
                   TextSpan(
-                    text: krwMasked(dailyAvg, masked),
+                    text: '${savingsPct.abs().toStringAsFixed(0)}%',
                     style: TextStyle(
-                      color: t.fgPrimary,
+                      color: saving ? t.fgBrandStrong : t.fgExpense,
                       fontWeight: PFontWeight.bold,
-                      fontFeatures: const [FontFeature.tabularFigures()],
                     ),
                   ),
-                  const TextSpan(text: '원 썼어요.'),
-                  if (prevExpense > 0) ...[
-                    const TextSpan(text: ' 전월 대비 '),
-                    TextSpan(
-                      text: '${savingsPct.abs().toStringAsFixed(0)}%',
-                      style: TextStyle(
-                        color: saving ? t.fgBrandStrong : t.fgExpense,
-                        fontWeight: PFontWeight.bold,
-                      ),
-                    ),
-                    TextSpan(
-                        text: saving
-                            ? ' 절약 중이에요.'
-                            : (savingsPct < 0 ? ' 더 썼어요.' : ' 동일해요.')),
-                  ],
+                  TextSpan(
+                      text: saving
+                          ? ' 절약 중이에요.'
+                          : (savingsPct < 0 ? ' 더 썼어요.' : ' 동일해요.')),
                 ],
-              ),
+              ],
             ),
           ),
         ],
@@ -823,7 +806,7 @@ class _CategoryDonutCard extends StatelessWidget {
                               PieChartSectionData(
                                 value: topSegs[i].totalAmount.toDouble(),
                                 color:
-                                    _categoryPalette[i % _categoryPalette.length],
+                                    PorestChartPalette.category(i),
                                 radius: 18,
                                 showTitle: false,
                               ),
@@ -868,7 +851,7 @@ class _CategoryDonutCard extends StatelessWidget {
                                 height: 8,
                                 decoration: BoxDecoration(
                                   color:
-                                      _categoryPalette[i % _categoryPalette.length],
+                                      PorestChartPalette.category(i),
                                   shape: BoxShape.circle,
                                 ),
                               ),
@@ -1052,7 +1035,7 @@ class _BudgetRow extends StatelessWidget {
               height: 28,
               alignment: Alignment.center,
               decoration:
-                  BoxDecoration(color: bg, borderRadius: PRadius.brTile),
+                  BoxDecoration(color: bg, borderRadius: PRadius.brLg),
               child: Icon(lucideByName(category?.icon),
                   size: 14, color: fg),
             ),
@@ -1159,7 +1142,7 @@ class _TodaySpendCard extends StatelessWidget {
                 Text(
                   '-${krwMasked(todayTotal, masked)}원',
                   style: TextStyle(
-                    color: t.statusDangerFg,
+                    color: t.fgExpense,
                     fontSize: PFontSize.caption,
                     fontWeight: PFontWeight.bold,
                     fontFeatures: const [FontFeature.tabularFigures()],
@@ -1303,9 +1286,7 @@ class _ExpenseRow extends StatelessWidget {
             Text(
               '${isExpense ? '-' : '+'}${krwMasked(expense.amount, masked)}원',
               style: TextStyle(
-                color: isExpense
-                    ? tokens.statusDangerFg
-                    : tokens.statusSuccessFg,
+                color: isExpense ? tokens.fgExpense : tokens.fgIncome,
                 fontSize: PFontSize.bodySm,
                 fontWeight: PFontWeight.bold,
                 fontFeatures: const [FontFeature.tabularFigures()],

@@ -210,25 +210,14 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
 
   Future<void> _delete() async {
     if (_deleting || widget.edit == null) return;
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('투자 삭제'),
-        content: const Text('이 투자 자산을 삭제하시겠습니까? 연결된 거래는 유지됩니다.'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('취소')),
-          FilledButton(
-            style: FilledButton.styleFrom(
-                backgroundColor: context.tokens.statusDanger),
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('삭제'),
-          ),
-        ],
-      ),
+    final ok = await showPConfirmDialog(
+      context,
+      title: '투자 삭제',
+      message: '이 투자 자산을 삭제하시겠습니까? 연결된 거래는 유지됩니다.',
+      confirmLabel: '삭제',
+      destructive: true,
     );
-    if (ok != true || !mounted) return;
+    if (!ok || !mounted) return;
     _setDeleting(true);
     try {
       final repo = await ref.read(assetRepositoryProvider.future);

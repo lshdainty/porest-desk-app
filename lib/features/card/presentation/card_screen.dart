@@ -10,6 +10,7 @@ import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/format/krw.dart';
+import '../../../shared/widgets/p_empty_state.dart';
 import '../application/card_providers.dart';
 import '../domain/card_catalog.dart';
 import 'card_benefit_mapping_dialog.dart';
@@ -217,16 +218,10 @@ class _CardScreenState extends ConsumerState<CardScreen> {
           data: (page) {
             final cards = page.content;
             if (cards.isEmpty) {
-              return ListView(children: [
-                Padding(
-                  padding: const EdgeInsets.all(PSpace.x32),
-                  child: Column(children: [
-                    Icon(LucideIcons.creditCard,
-                        size: 48, color: t.fgDisabled),
-                    const SizedBox(height: PSpace.x12),
-                    Text('카드가 없습니다',
-                        style: PTypo.body.copyWith(color: t.fgTertiary)),
-                  ]),
+              return ListView(children: const [
+                PEmptyState(
+                  icon: LucideIcons.creditCard,
+                  message: '카드가 없습니다',
                 ),
               ]);
             }
@@ -348,7 +343,7 @@ class _Chip extends StatelessWidget {
           color: selected ? tokens.bgBrand : tokens.bgSurface,
           border: Border.all(
               color: selected ? tokens.borderBrand : tokens.borderSubtle),
-          borderRadius: PRadius.brPill,
+          borderRadius: PRadius.brFull,
         ),
         child: Text(label,
             style: PTypo.caption.copyWith(

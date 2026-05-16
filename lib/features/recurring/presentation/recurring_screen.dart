@@ -12,6 +12,8 @@ import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
+import '../../../shared/widgets/p_empty_state.dart';
+import '../../../shared/widgets/p_modal.dart';
 import '../../expense/application/expense_providers.dart';
 import '../../expense/domain/expense_category.dart';
 import '../application/recurring_providers.dart';
@@ -55,25 +57,15 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
   }
 
   Future<void> _delete(RecurringTransaction it) async {
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('반복 거래 삭제'),
-        content: Text('"${_displayTitle(it)}" 반복 설정을 삭제할까요?\n이미 기록된 거래는 그대로 남습니다.'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('취소')),
-          FilledButton(
-            style: FilledButton.styleFrom(
-                backgroundColor: context.tokens.statusDanger),
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('삭제'),
-          ),
-        ],
-      ),
+    final ok = await showPConfirmDialog(
+      context,
+      title: '반복 거래 삭제',
+      message:
+          '"${_displayTitle(it)}" 반복 설정을 삭제할까요?\n이미 기록된 거래는 그대로 남습니다.',
+      confirmLabel: '삭제',
+      destructive: true,
     );
-    if (ok != true || !mounted) return;
+    if (!ok || !mounted) return;
     setState(() => _busyDeleteId = it.rowId);
     try {
       final repo = await ref.read(recurringRepositoryProvider.future);
@@ -541,7 +533,7 @@ class _UpcomingRow extends StatelessWidget {
           Text(
             '${isExpense ? '-' : '+'}${krwMasked(item.amount.abs(), masked)}',
             style: PTypo.bodySm.copyWith(
-                color: isExpense ? tokens.statusDanger : tokens.statusSuccess,
+                color: isExpense ? tokens.fgExpense : tokens.fgIncome,
                 fontWeight: PFontWeight.bold),
           ),
         ],
@@ -615,7 +607,7 @@ class _FilterChip extends StatelessWidget {
           border: Border.all(
             color: selected ? tokens.borderBrand : tokens.borderSubtle,
           ),
-          borderRadius: PRadius.brPill,
+          borderRadius: PRadius.brFull,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -821,18 +813,11 @@ class _EmptyState extends StatelessWidget {
       _Filter.income => '활성 반복 수입이 없습니다',
       _Filter.paused => '일시정지된 반복 거래가 없습니다',
     };
-    return Padding(
+    return PEmptyState(
+      icon: LucideIcons.repeat,
+      message: msg,
+      subMessage: '우하단 + 버튼으로 새 반복 거래를 등록하세요',
       padding: const EdgeInsets.symmetric(vertical: PSpace.x32),
-      child: Column(
-        children: [
-          Icon(LucideIcons.repeat, size: 48, color: tokens.fgDisabled),
-          const SizedBox(height: PSpace.x12),
-          Text(msg, style: PTypo.body.copyWith(color: tokens.fgTertiary)),
-          const SizedBox(height: PSpace.x4),
-          Text('우하단 + 버튼으로 새 반복 거래를 등록하세요',
-              style: PTypo.caption.copyWith(color: tokens.fgTertiary)),
-        ],
-      ),
     );
   }
 }

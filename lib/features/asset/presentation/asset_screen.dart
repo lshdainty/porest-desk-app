@@ -267,7 +267,7 @@ class _SummaryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isUp = changeAmount >= 0;
     final trendColor =
-        isUp ? PorestPalette.mossy700 : PorestPalette.berry500;
+        isUp ? PorestPalette.cobalt700 : PorestPalette.berry500;
     final t = tokens;
     return PCard(
       padding: const EdgeInsets.all(18),
@@ -699,7 +699,7 @@ class _NotificationBell extends ConsumerWidget {
       message: '알림',
       child: InkWell(
         onTap: () => context.push('/notifications'),
-        borderRadius: PRadius.brPill,
+        borderRadius: PRadius.brFull,
         child: SizedBox(
           width: 40,
           height: 40,
@@ -717,7 +717,7 @@ class _NotificationBell extends ConsumerWidget {
                         const BoxConstraints(minWidth: 10, minHeight: 10),
                     decoration: BoxDecoration(
                       color: tokens.statusDanger,
-                      borderRadius: PRadius.brPill,
+                      borderRadius: PRadius.brFull,
                       border: Border.all(color: tokens.bgSurface, width: 1.5),
                     ),
                   ),

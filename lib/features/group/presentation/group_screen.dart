@@ -10,6 +10,7 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/format/color_parse.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../shared/widgets/p_empty_state.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../application/group_providers.dart';
 import '../domain/group.dart';
@@ -68,15 +69,10 @@ class GroupScreen extends ConsumerWidget {
           ),
           data: (groups) {
             if (groups.isEmpty) {
-              return ListView(children: [
-                Padding(
-                  padding: const EdgeInsets.all(PSpace.x32),
-                  child: Column(children: [
-                    Icon(LucideIcons.users, size: 48, color: t.fgDisabled),
-                    const SizedBox(height: PSpace.x12),
-                    Text('등록된 그룹이 없습니다',
-                        style: PTypo.body.copyWith(color: t.fgTertiary)),
-                  ]),
+              return ListView(children: const [
+                PEmptyState(
+                  icon: LucideIcons.users,
+                  message: '등록된 그룹이 없습니다',
                 ),
               ]);
             }

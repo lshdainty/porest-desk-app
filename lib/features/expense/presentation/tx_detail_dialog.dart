@@ -126,25 +126,14 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
   }
 
   Future<void> _delete() async {
-    final t = context.tokens;
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('거래 삭제'),
-        content: const Text('이 거래를 삭제하시겠습니까? 연결된 자산 잔액이 함께 조정됩니다.'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('취소')),
-          FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: t.statusDanger),
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('삭제'),
-          ),
-        ],
-      ),
+    final ok = await showPConfirmDialog(
+      context,
+      title: '거래 삭제',
+      message: '이 거래를 삭제하시겠습니까? 연결된 자산 잔액이 함께 조정됩니다.',
+      confirmLabel: '삭제',
+      destructive: true,
     );
-    if (ok != true || !mounted) return;
+    if (!ok || !mounted) return;
 
     _setDeleting(true);
     try {
@@ -313,7 +302,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                             height: 10,
                             decoration: BoxDecoration(
                               color: fg,
-                              borderRadius: PRadius.brXs2,
+                              borderRadius: PRadius.brXs,
                             ),
                           ),
                           const SizedBox(width: 8),

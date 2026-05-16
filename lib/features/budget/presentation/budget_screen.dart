@@ -14,6 +14,7 @@ import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
+import '../../../shared/widgets/p_empty_state.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../expense/application/expense_providers.dart';
 import '../../expense/domain/expense_category.dart';
@@ -67,23 +68,14 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
         return;
       }
       if (!mounted) return;
-      final ok = await showDialog<bool>(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          title: const Text('전월 예산 복사'),
-          content: Text(
-              '${prevKey.month}월의 ${toCreate.length}개 카테고리를 ${_key.month}월로 복사할까요?'),
-          actions: [
-            TextButton(
-                onPressed: () => Navigator.pop(ctx, false),
-                child: const Text('취소')),
-            FilledButton(
-                onPressed: () => Navigator.pop(ctx, true),
-                child: const Text('복사')),
-          ],
-        ),
+      final ok = await showPConfirmDialog(
+        context,
+        title: '전월 예산 복사',
+        message:
+            '${prevKey.month}월의 ${toCreate.length}개 카테고리를 ${_key.month}월로 복사할까요?',
+        confirmLabel: '복사',
       );
-      if (ok != true || !mounted) return;
+      if (!ok || !mounted) return;
       for (final b in toCreate) {
         await repo.create(
           categoryRowId: b.categoryRowId,
@@ -107,25 +99,14 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
   }
 
   Future<void> _clearMonth() async {
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('이번 달 전체 삭제'),
-        content: Text('${_key.month}월에 등록된 예산을 모두 삭제할까요?'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('취소')),
-          FilledButton(
-            style: FilledButton.styleFrom(
-                backgroundColor: context.tokens.statusDanger),
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('삭제'),
-          ),
-        ],
-      ),
+    final ok = await showPConfirmDialog(
+      context,
+      title: '이번 달 전체 삭제',
+      message: '${_key.month}월에 등록된 예산을 모두 삭제할까요?',
+      confirmLabel: '삭제',
+      destructive: true,
     );
-    if (ok != true || !mounted) return;
+    if (!ok || !mounted) return;
     try {
       final repo = await ref.read(budgetRepositoryProvider.future);
       final list = await repo.list(year: _key.year, month: _key.month);
@@ -871,7 +852,7 @@ class _PaceCard extends StatelessWidget {
                   color: onTrack
                       ? tokens.statusSuccessSubtle
                       : tokens.statusWarningSubtle,
-                  borderRadius: PRadius.brPill,
+                  borderRadius: PRadius.brFull,
                 ),
                 child: Text(onTrack ? '정상 속도' : '빠른 속도',
                     style: PTypo.micro.copyWith(
@@ -897,7 +878,7 @@ class _PaceCard extends StatelessWidget {
                       right: 0,
                       top: 3,
                       child: ClipRRect(
-                        borderRadius: PRadius.brPill,
+                        borderRadius: PRadius.brFull,
                         child: LinearProgressIndicator(
                           value: (pct / 100).clamp(0, 1).toDouble(),
                           minHeight: 12,
@@ -916,7 +897,7 @@ class _PaceCard extends StatelessWidget {
                         height: 18,
                         decoration: BoxDecoration(
                           color: tokens.fgPrimary,
-                          borderRadius: PRadius.brXs2,
+                          borderRadius: PRadius.brXs,
                         ),
                       ),
                     ),
@@ -1563,32 +1544,26 @@ class _EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: PSpace.x32),
       decoration: BoxDecoration(
         color: tokens.bgSurface,
         borderRadius: PRadius.brLg,
         border: Border.all(color: tokens.borderSubtle),
       ),
-      child: Column(
-        children: [
-          Icon(LucideIcons.target, size: 48, color: tokens.fgDisabled),
-          const SizedBox(height: PSpace.x12),
-          Text('이 달 예산이 없습니다',
-              style: PTypo.body.copyWith(color: tokens.fgTertiary)),
-          const SizedBox(height: PSpace.x4),
-          Text('전체 상한 또는 카테고리 예산을 설정하세요',
-              style: PTypo.caption.copyWith(color: tokens.fgTertiary)),
-          const SizedBox(height: PSpace.x12),
-          FilledButton.tonalIcon(
-            onPressed: onAdd,
-            icon: const Icon(LucideIcons.settings, size: 16),
-            label: const Text('예산 설정'),
-            style: FilledButton.styleFrom(
-              backgroundColor: tokens.bgBrandSubtle,
-              foregroundColor: tokens.fgBrandStrong,
-            ),
+      child: PEmptyState(
+        icon: LucideIcons.target,
+        message: '이 달 예산이 없습니다',
+        subMessage: '전체 상한 또는 카테고리 예산을 설정하세요',
+        padding: const EdgeInsets.symmetric(
+            horizontal: PSpace.x16, vertical: PSpace.x32),
+        action: FilledButton.tonalIcon(
+          onPressed: onAdd,
+          icon: const Icon(LucideIcons.settings, size: 16),
+          label: const Text('예산 설정'),
+          style: FilledButton.styleFrom(
+            backgroundColor: tokens.bgBrandSubtle,
+            foregroundColor: tokens.fgBrandStrong,
           ),
-        ],
+        ),
       ),
     );
   }

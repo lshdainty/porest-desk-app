@@ -9,6 +9,7 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/format/color_parse.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
+import '../../../shared/widgets/p_empty_state.dart';
 import '../../expense/application/expense_providers.dart';
 import '../../expense/domain/expense_category.dart';
 import 'category_edit_dialog.dart';
@@ -107,22 +108,11 @@ class _CategoryList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (categories.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(PSpace.x32),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(LucideIcons.tag, size: 48, color: tokens.fgDisabled),
-              const SizedBox(height: PSpace.x12),
-              Text('카테고리가 없습니다',
-                  style: PTypo.body.copyWith(color: tokens.fgTertiary)),
-              const SizedBox(height: PSpace.x4),
-              Text('우하단 + 버튼으로 추가하세요',
-                  style:
-                      PTypo.caption.copyWith(color: tokens.fgTertiary)),
-            ],
-          ),
+      return const Center(
+        child: PEmptyState(
+          icon: LucideIcons.tag,
+          message: '카테고리가 없습니다',
+          subMessage: '우하단 + 버튼으로 추가하세요',
         ),
       );
     }

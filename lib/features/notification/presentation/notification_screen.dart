@@ -9,6 +9,7 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../l10n/generated/app_localizations.dart';
+import '../../../shared/widgets/p_empty_state.dart';
 import '../application/notification_providers.dart';
 import '../domain/notification.dart';
 
@@ -69,14 +70,9 @@ class NotificationScreen extends ConsumerWidget {
           data: (items) {
             if (items.isEmpty) {
               return ListView(children: [
-                Padding(
-                  padding: const EdgeInsets.all(PSpace.x32),
-                  child: Column(children: [
-                    Icon(LucideIcons.bell, size: 48, color: t.fgDisabled),
-                    const SizedBox(height: PSpace.x12),
-                    Text(l.notiEmpty,
-                        style: PTypo.body.copyWith(color: t.fgTertiary)),
-                  ]),
+                PEmptyState(
+                  icon: LucideIcons.bell,
+                  message: l.notiEmpty,
                 ),
               ]);
             }
