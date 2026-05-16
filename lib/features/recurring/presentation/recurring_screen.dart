@@ -23,6 +23,7 @@ import '../../expense/domain/expense_category.dart';
 import '../application/recurring_providers.dart';
 import '../domain/recurring_transaction.dart';
 import 'recurring_edit_dialog.dart';
+import '../../../shared/widgets/p_snack_bar.dart';
 
 enum _Filter { all, expense, income, paused }
 
@@ -52,9 +53,7 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
       ref.invalidate(recurringListProvider);
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('변경 실패: ${e.message}')),
-      );
+      showPSnackBar(context, '변경 실패: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) setState(() => _busyToggleId = null);
     }
@@ -77,9 +76,7 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
       ref.invalidate(recurringListProvider);
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('삭제 실패: ${e.message}')),
-      );
+      showPSnackBar(context, '삭제 실패: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) setState(() => _busyDeleteId = null);
     }

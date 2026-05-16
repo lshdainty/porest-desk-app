@@ -15,6 +15,7 @@ import '../../../shared/widgets/p_modal.dart';
 import '../../expense/application/expense_providers.dart';
 import '../../expense/domain/expense.dart';
 import '../application/recurring_providers.dart';
+import '../../../shared/widgets/p_snack_bar.dart';
 
 /// 거래 → 반복 설정 다이얼로그 (front `RecurringFromTxDialog` 미러).
 ///
@@ -141,14 +142,10 @@ class _RecurringFromTxBodyState extends ConsumerState<_RecurringFromTxBody> {
       ref.invalidate(recurringListProvider);
       if (!mounted) return;
       Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('반복 설정이 저장되었습니다')),
-      );
+      showPSnackBar(context, '반복 설정이 저장되었습니다', severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('저장 실패: ${e.message}')),
-      );
+      showPSnackBar(context, '저장 실패: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setSubmitting(false);
     }

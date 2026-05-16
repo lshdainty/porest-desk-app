@@ -21,6 +21,7 @@ import '../application/expense_providers.dart';
 import '../domain/expense.dart';
 import 'add_tx_sheet.dart';
 import 'widgets/expense_row.dart';
+import '../../../shared/widgets/p_snack_bar.dart';
 
 /// 거래 상세 다이얼로그 — front `TxDetailDialog` 미러.
 ///
@@ -148,14 +149,10 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
       }
       if (!mounted) return;
       Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('거래가 삭제되었습니다')),
-      );
+      showPSnackBar(context, '거래가 삭제되었습니다', severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('삭제 실패: ${e.message}')),
-      );
+      showPSnackBar(context, '삭제 실패: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setDeleting(false);
     }

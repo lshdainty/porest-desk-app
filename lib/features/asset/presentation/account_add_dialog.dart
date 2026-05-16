@@ -10,6 +10,7 @@ import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/brand/bank_colors.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../application/asset_providers.dart';
 import '../domain/asset.dart';
@@ -241,15 +242,10 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
       ref.invalidate(assetsProvider);
       if (!mounted) return;
       Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(_isEdit ? '계좌가 수정되었습니다' : '계좌가 추가되었습니다')),
-      );
+      showPSnackBar(context, _isEdit ? '계좌가 수정되었습니다' : '계좌가 추가되었습니다', severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('실패: ${e.message}')),
-      );
+      showPSnackBar(context, '실패: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setSubmitting(false);
     }
@@ -272,14 +268,10 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
       ref.invalidate(assetsProvider);
       if (!mounted) return;
       Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('계좌가 삭제되었습니다')),
-      );
+      showPSnackBar(context, '계좌가 삭제되었습니다', severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('삭제 실패: ${e.message}')),
-      );
+      showPSnackBar(context, '삭제 실패: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setDeleting(false);
     }

@@ -16,6 +16,7 @@ import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_category_tile.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_select.dart';
+import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../../asset/application/asset_providers.dart';
 import '../../preset/application/preset_providers.dart';
@@ -227,14 +228,10 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
             (year: _date.year, month: _date.month)));
         if (!mounted) return;
         Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('이체가 완료되었습니다')),
-        );
+        showPSnackBar(context, '이체가 완료되었습니다', severity: PSnackSeverity.success);
       } on ApiException catch (e) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('실패: ${e.message}')),
-        );
+        showPSnackBar(context, '실패: ${e.message}', severity: PSnackSeverity.error);
       } finally {
         if (mounted) _setSubmitting(false);
       }
@@ -288,14 +285,10 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
           (year: _date.year, month: _date.month)));
       if (!mounted) return;
       Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(_isEdit ? '거래가 수정되었습니다' : '거래가 추가되었습니다')),
-      );
+      showPSnackBar(context, _isEdit ? '거래가 수정되었습니다' : '거래가 추가되었습니다', severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('실패: ${e.message}')),
-      );
+      showPSnackBar(context, '실패: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setSubmitting(false);
     }
@@ -321,14 +314,10 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
       }
       if (!mounted) return;
       Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('거래가 삭제되었습니다')),
-      );
+      showPSnackBar(context, '거래가 삭제되었습니다', severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('삭제 실패: ${e.message}')),
-      );
+      showPSnackBar(context, '삭제 실패: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setSubmitting(false);
     }
@@ -1307,9 +1296,7 @@ class _SavePresetDialogState extends ConsumerState<_SavePresetDialog> {
       Navigator.of(context).pop();
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('저장 실패: ${e.message}')),
-      );
+      showPSnackBar(context, '저장 실패: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) setState(() => _submitting = false);
     }

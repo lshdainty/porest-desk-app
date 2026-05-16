@@ -12,6 +12,7 @@ import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_chip.dart';
 import '../../../shared/widgets/p_empty_state.dart';
 import '../../../shared/widgets/p_floating_action_button.dart';
+import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../application/todo_providers.dart';
 import '../domain/todo.dart';
@@ -53,9 +54,7 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
       ref.invalidate(todoListProvider);
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('추가 실패: ${e.message}')),
-      );
+      showPSnackBar(context, '추가 실패: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) setState(() => _quickAdding = false);
     }
@@ -68,9 +67,7 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
       ref.invalidate(todoListProvider(_filter));
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('실패: ${e.message}')),
-      );
+      showPSnackBar(context, '실패: ${e.message}', severity: PSnackSeverity.error);
     }
   }
 
@@ -81,9 +78,7 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
       ref.invalidate(todoListProvider(_filter));
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('실패: ${e.message}')),
-      );
+      showPSnackBar(context, '실패: ${e.message}', severity: PSnackSeverity.error);
     }
   }
 

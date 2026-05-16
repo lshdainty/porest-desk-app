@@ -20,6 +20,7 @@ import '../../expense/application/expense_providers.dart';
 import '../../expense/domain/expense.dart';
 import '../../group/application/group_providers.dart';
 import '../application/dutch_pay_providers.dart';
+import '../../../shared/widgets/p_snack_bar.dart';
 
 /// 거래 → 더치페이 시작 다이얼로그 (front `DutchPayFromTxDialog` 미러).
 void showDutchPayFromTxDialog(BuildContext context, Expense expense) {
@@ -279,14 +280,10 @@ class _BodyState extends ConsumerState<_Body> {
       ref.invalidate(dutchPayListProvider);
       if (!mounted) return;
       Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('더치페이가 생성되었습니다')),
-      );
+      showPSnackBar(context, '더치페이가 생성되었습니다');
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('실패: ${e.message}')),
-      );
+      showPSnackBar(context, '실패: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setSubmitting(false);
     }

@@ -18,6 +18,7 @@ import '../../../shared/widgets/p_modal.dart';
 import '../application/dutch_pay_providers.dart';
 import '../domain/dutch_pay.dart';
 import 'dutch_pay_create_dialog.dart';
+import '../../../shared/widgets/p_snack_bar.dart';
 
 class DutchPayScreen extends ConsumerWidget {
   const DutchPayScreen({super.key});
@@ -101,9 +102,7 @@ class DutchPayScreen extends ConsumerWidget {
       ref.invalidate(dutchPayListProvider);
     } on ApiException catch (e) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('실패: ${e.message}')),
-      );
+      showPSnackBar(context, '실패: ${e.message}', severity: PSnackSeverity.error);
     }
   }
 
@@ -114,9 +113,7 @@ class DutchPayScreen extends ConsumerWidget {
       ref.invalidate(dutchPayListProvider);
     } on ApiException catch (e) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('정산 실패: ${e.message}')),
-      );
+      showPSnackBar(context, '정산 실패: ${e.message}', severity: PSnackSeverity.error);
     }
   }
 
@@ -136,9 +133,7 @@ class DutchPayScreen extends ConsumerWidget {
       ref.invalidate(dutchPayListProvider);
     } on ApiException catch (e) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('삭제 실패: ${e.message}')),
-      );
+      showPSnackBar(context, '삭제 실패: ${e.message}', severity: PSnackSeverity.error);
     }
   }
 }

@@ -10,6 +10,7 @@ import '../../../core/format/color_parse.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_chip.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../application/calendar_providers.dart';
 import '../domain/calendar_event.dart';
@@ -93,9 +94,7 @@ Future<void> _confirmDelete(BuildContext ctx, CalendarEvent edit) async {
         (year: edit.start.year, month: edit.start.month)));
   } on ApiException catch (e) {
     if (!ctx.mounted) return;
-    ScaffoldMessenger.of(ctx).showSnackBar(
-      SnackBar(content: Text('삭제 실패: ${e.message}')),
-    );
+    showPSnackBar(ctx, '삭제 실패: ${e.message}', severity: PSnackSeverity.error);
     return;
   }
   if (!ctx.mounted) return;
@@ -227,14 +226,10 @@ class _BodyState extends ConsumerState<_Body> {
       }
       if (!mounted) return;
       Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(_isEdit ? '일정이 수정되었습니다' : '일정이 추가되었습니다')),
-      );
+      showPSnackBar(context, _isEdit ? '일정이 수정되었습니다' : '일정이 추가되었습니다', severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('실패: ${e.message}')),
-      );
+      showPSnackBar(context, '실패: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) {
         setState(() => _submitting = false);

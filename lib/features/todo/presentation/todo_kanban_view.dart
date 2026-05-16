@@ -11,6 +11,7 @@ import '../../../shared/widgets/p_badge.dart';
 import '../application/todo_providers.dart';
 import '../domain/todo.dart';
 import 'todo_edit_dialog.dart';
+import '../../../shared/widgets/p_snack_bar.dart';
 
 /// Todo 칸반 보드 — front `KanbanBoard` 미러.
 ///
@@ -39,9 +40,7 @@ class _TodoKanbanViewState extends ConsumerState<TodoKanbanView> {
       ref.invalidate(todoListProvider);
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('이동 실패: ${e.message}')),
-      );
+      showPSnackBar(context, '이동 실패: ${e.message}', severity: PSnackSeverity.error);
     }
   }
 

@@ -14,6 +14,7 @@ import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_empty_state.dart';
 import '../../../shared/widgets/p_floating_action_button.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../application/group_providers.dart';
 import '../domain/group.dart';
@@ -127,9 +128,7 @@ void _showCreateDialog(BuildContext context, WidgetRef ref) {
       Navigator.of(context).pop();
     } on ApiException catch (e) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('실패: ${e.message}')),
-      );
+      showPSnackBar(context, '실패: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       controller.setSubmitting(false);
     }
@@ -187,9 +186,7 @@ void _showJoinDialog(BuildContext context, WidgetRef ref) {
       Navigator.of(context).pop();
     } on ApiException catch (e) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('참여 실패: ${e.message}')),
-      );
+      showPSnackBar(context, '참여 실패: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       controller.setSubmitting(false);
     }

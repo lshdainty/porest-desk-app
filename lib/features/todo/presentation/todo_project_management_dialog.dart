@@ -10,6 +10,7 @@ import '../../../core/format/color_parse.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../application/todo_providers.dart';
 import '../domain/todo_project.dart';
@@ -73,9 +74,7 @@ class _BodyState extends ConsumerState<_Body> {
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() => _adding = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('추가 실패: ${e.message}')),
-      );
+      showPSnackBar(context, '추가 실패: ${e.message}', severity: PSnackSeverity.error);
     }
   }
 
@@ -207,9 +206,7 @@ class _ProjectRowState extends ConsumerState<_ProjectRow> {
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() => _busy = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('수정 실패: ${e.message}')),
-      );
+      showPSnackBar(context, '수정 실패: ${e.message}', severity: PSnackSeverity.error);
     }
   }
 
@@ -231,9 +228,7 @@ class _ProjectRowState extends ConsumerState<_ProjectRow> {
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() => _busy = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('삭제 실패: ${e.message}')),
-      );
+      showPSnackBar(context, '삭제 실패: ${e.message}', severity: PSnackSeverity.error);
     }
   }
 

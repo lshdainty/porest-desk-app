@@ -9,6 +9,7 @@ import '../../../core/auth/auth_notifier.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_text_input.dart';
 
 /// 비밀번호 변경 다이얼로그 — front `PasswordChangeDialog` 미러.
@@ -67,9 +68,7 @@ class _PasswordChangeDialogState extends ConsumerState<_PasswordChangeDialog> {
       );
       if (!mounted) return;
       Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('비밀번호가 변경되었습니다')),
-      );
+      showPSnackBar(context, '비밀번호가 변경되었습니다');
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() {

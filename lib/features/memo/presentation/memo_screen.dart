@@ -11,6 +11,7 @@ import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_empty_state.dart';
 import '../../../shared/widgets/p_floating_action_button.dart';
+import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../application/memo_providers.dart';
 import '../domain/memo.dart';
@@ -139,9 +140,7 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
                     }
                   } on ApiException catch (e) {
                     if (!context.mounted) return;
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('실패: ${e.message}')),
-                    );
+                    showPSnackBar(context, '실패: ${e.message}', severity: PSnackSeverity.error);
                   }
                 },
               ),

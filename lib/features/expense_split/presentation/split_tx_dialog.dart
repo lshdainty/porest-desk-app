@@ -20,6 +20,7 @@ import '../../expense/domain/expense_category.dart';
 import '../application/expense_split_providers.dart';
 import '../data/expense_split_repository.dart';
 import '../domain/expense_split.dart';
+import '../../../shared/widgets/p_snack_bar.dart';
 
 /// 거래 분할 다이얼로그.
 void showSplitTxDialog(BuildContext context, Expense expense) {
@@ -198,14 +199,10 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
       ref.invalidate(expenseSplitsProvider(widget.expense.rowId));
       if (!mounted) return;
       Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('분할이 저장되었습니다')),
-      );
+      showPSnackBar(context, '분할이 저장되었습니다', severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('저장 실패: ${e.message}')),
-      );
+      showPSnackBar(context, '저장 실패: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setSubmitting(false);
     }
@@ -230,9 +227,7 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
       Navigator.of(context).pop();
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('해제 실패: ${e.message}')),
-      );
+      showPSnackBar(context, '해제 실패: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setSubmitting(false);
     }

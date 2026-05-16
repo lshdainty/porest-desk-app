@@ -16,6 +16,7 @@ import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/widgets/p_badge.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../../calendar/application/calendar_providers.dart';
 import '../../expense/application/expense_providers.dart';
@@ -542,9 +543,7 @@ class _InviteCodeCard extends ConsumerWidget {
                     : () async {
                         await Clipboard.setData(ClipboardData(text: code));
                         if (!context.mounted) return;
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('초대 코드를 복사했습니다')),
-                        );
+                        showPSnackBar(context, '초대 코드를 복사했습니다', severity: PSnackSeverity.success);
                       },
               ),
               if (canManage)
@@ -574,14 +573,10 @@ class _InviteCodeCard extends ConsumerWidget {
       ref.invalidate(groupDetailProvider(detail.rowId as int));
       ref.invalidate(groupListProvider);
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('초대 코드를 재발급했습니다')),
-      );
+      showPSnackBar(context, '초대 코드를 재발급했습니다');
     } on ApiException catch (e) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('재발급 실패: ${e.message}')),
-      );
+      showPSnackBar(context, '재발급 실패: ${e.message}', severity: PSnackSeverity.error);
     }
   }
 }
@@ -744,9 +739,7 @@ class _MemberRow extends ConsumerWidget {
       ref.invalidate(groupDetailProvider(groupId));
     } on ApiException catch (e) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('실패: ${e.message}')),
-      );
+      showPSnackBar(context, '실패: ${e.message}', severity: PSnackSeverity.error);
     }
   }
 }
@@ -834,14 +827,10 @@ Future<void> _showEditDialog(
     ref.invalidate(groupDetailProvider(detail.rowId));
     ref.invalidate(groupListProvider);
     if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('그룹이 수정되었습니다')),
-    );
+    showPSnackBar(context, '그룹이 수정되었습니다');
   } on ApiException catch (e) {
     if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('수정 실패: ${e.message}')),
-    );
+    showPSnackBar(context, '수정 실패: ${e.message}', severity: PSnackSeverity.error);
   }
 }
 
@@ -862,13 +851,9 @@ Future<void> _confirmDelete(
     ref.invalidate(groupListProvider);
     if (!context.mounted) return;
     Navigator.of(context).pop();
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('그룹이 삭제되었습니다')),
-    );
+    showPSnackBar(context, '그룹이 삭제되었습니다', severity: PSnackSeverity.success);
   } on ApiException catch (e) {
     if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('삭제 실패: ${e.message}')),
-    );
+    showPSnackBar(context, '삭제 실패: ${e.message}', severity: PSnackSeverity.error);
   }
 }

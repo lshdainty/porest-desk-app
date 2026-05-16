@@ -12,6 +12,7 @@ import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../application/file_providers.dart';
 import '../domain/file_attachment.dart';
+import '../../../shared/widgets/p_snack_bar.dart';
 
 /// 첨부 파일 섹션 — 거래/할일/메모/이벤트 상세에 embed.
 ///
@@ -78,14 +79,10 @@ class _FileAttachmentSectionState
       );
       ref.invalidate(filesByReferenceProvider(_key));
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('$name 업로드 완료')),
-      );
+      showPSnackBar(context, '$name 업로드 완료', severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('업로드 실패: ${e.message}')),
-      );
+      showPSnackBar(context, '업로드 실패: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -107,9 +104,7 @@ class _FileAttachmentSectionState
       ref.invalidate(filesByReferenceProvider(_key));
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('삭제 실패: ${e.message}')),
-      );
+      showPSnackBar(context, '삭제 실패: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) setState(() => _busy = false);
     }

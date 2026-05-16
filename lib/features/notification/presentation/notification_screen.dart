@@ -13,6 +13,7 @@ import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_empty_state.dart';
 import '../application/notification_providers.dart';
 import '../domain/notification.dart';
+import '../../../shared/widgets/p_snack_bar.dart';
 
 class NotificationScreen extends ConsumerWidget {
   const NotificationScreen({super.key});
@@ -48,9 +49,7 @@ class NotificationScreen extends ConsumerWidget {
                 ref.invalidate(unreadCountProvider);
               } on ApiException catch (e) {
                 if (!context.mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('${l.stateError}: ${e.message}')),
-                );
+                showPSnackBar(context, '${l.stateError}: ${e.message}');
               }
             },
           ),
@@ -108,9 +107,7 @@ class NotificationScreen extends ConsumerWidget {
                     ref.invalidate(unreadCountProvider);
                   } on ApiException catch (e) {
                     if (!context.mounted) return;
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('실패: ${e.message}')),
-                    );
+                    showPSnackBar(context, '실패: ${e.message}', severity: PSnackSeverity.error);
                   }
                 },
               ),

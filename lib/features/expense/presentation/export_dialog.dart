@@ -18,6 +18,7 @@ import '../../asset/domain/asset.dart';
 import '../application/expense_providers.dart';
 import '../domain/expense.dart';
 import '../domain/expense_category.dart';
+import '../../../shared/widgets/p_snack_bar.dart';
 
 /// 거래 데이터 내보내기 시트 — front `ExportDialog` 미러.
 void showExportDialog(BuildContext context) {
@@ -189,14 +190,10 @@ class _ExportBodyState extends ConsumerState<_ExportBody> {
       Navigator.of(context).pop();
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('내보내기 실패: ${e.message}')),
-      );
+      showPSnackBar(context, '내보내기 실패: ${e.message}', severity: PSnackSeverity.error);
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('내보내기 실패: $e')),
-      );
+      showPSnackBar(context, '내보내기 실패: $e', severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setRunning(false);
     }

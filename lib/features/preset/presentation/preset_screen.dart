@@ -20,6 +20,7 @@ import '../../expense/domain/expense_category.dart';
 import '../application/preset_providers.dart';
 import '../domain/expense_template.dart';
 import 'preset_edit_dialog.dart';
+import '../../../shared/widgets/p_snack_bar.dart';
 
 class PresetScreen extends ConsumerStatefulWidget {
   const PresetScreen({super.key});
@@ -44,14 +45,10 @@ class _PresetScreenState extends ConsumerState<PresetScreen> {
       ref.invalidate(monthExpensesProvider(
           (year: today.year, month: today.month)));
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('"${p.templateName}" 거래로 기록됐습니다')),
-      );
+      showPSnackBar(context, '"${p.templateName}" 거래로 기록됐습니다');
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('실패: ${e.message}')),
-      );
+      showPSnackBar(context, '실패: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) setState(() => _busyUseId = null);
     }

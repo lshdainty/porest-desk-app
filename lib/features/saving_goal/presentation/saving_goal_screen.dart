@@ -17,6 +17,7 @@ import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_empty_state.dart';
 import '../../../shared/widgets/p_floating_action_button.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../application/saving_goal_providers.dart';
 import '../domain/saving_goal.dart';
@@ -131,8 +132,7 @@ class SavingGoalScreen extends ConsumerWidget {
                         } on ApiException catch (e) {
                           if (!ctx.mounted) return;
                           setS(() => busy = false);
-                          ScaffoldMessenger.of(ctx).showSnackBar(
-                              SnackBar(content: Text('실패: ${e.message}')));
+                          showPSnackBar(ctx, '실패: ${e.message}', severity: PSnackSeverity.error);
                         }
                       },
               ),

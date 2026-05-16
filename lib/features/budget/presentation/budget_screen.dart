@@ -26,6 +26,7 @@ import '../application/budget_providers.dart';
 import '../domain/budget.dart';
 import '../domain/budget_compliance.dart';
 import 'budget_edit_dialog.dart';
+import '../../../shared/widgets/p_snack_bar.dart';
 
 const double _warnThreshold = 85;
 
@@ -53,9 +54,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
       final prev = await repo.list(year: prevKey.year, month: prevKey.month);
       if (prev.isEmpty) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${prevKey.month}월에 등록된 예산이 없습니다')),
-        );
+        showPSnackBar(context, '${prevKey.month}월에 등록된 예산이 없습니다');
         return;
       }
       final cur = await repo.list(year: _key.year, month: _key.month);
@@ -64,9 +63,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
           prev.where((b) => !existingCats.contains(b.categoryRowId)).toList();
       if (toCreate.isEmpty) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('이미 모든 카테고리가 복사되어 있습니다')),
-        );
+        showPSnackBar(context, '이미 모든 카테고리가 복사되어 있습니다');
         return;
       }
       if (!mounted) return;
@@ -89,14 +86,10 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
       ref.invalidate(monthBudgetsProvider(_key));
       ref.invalidate(budgetComplianceProvider(6));
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('${toCreate.length}개 예산을 복사했습니다')),
-      );
+      showPSnackBar(context, '${toCreate.length}개 예산을 복사했습니다', severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('복사 실패: ${e.message}')),
-      );
+      showPSnackBar(context, '복사 실패: ${e.message}', severity: PSnackSeverity.error);
     }
   }
 
@@ -118,14 +111,10 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
       ref.invalidate(monthBudgetsProvider(_key));
       ref.invalidate(budgetComplianceProvider(6));
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('${list.length}개 예산을 삭제했습니다')),
-      );
+      showPSnackBar(context, '${list.length}개 예산을 삭제했습니다');
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('삭제 실패: ${e.message}')),
-      );
+      showPSnackBar(context, '삭제 실패: ${e.message}', severity: PSnackSeverity.error);
     }
   }
 

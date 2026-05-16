@@ -10,6 +10,7 @@ import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/markdown_preview.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../application/todo_providers.dart';
 import '../domain/todo.dart';
@@ -123,9 +124,7 @@ class _BodyState extends ConsumerState<_Body> {
       Navigator.of(context).pop();
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('실패: ${e.message}')),
-      );
+      showPSnackBar(context, '실패: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setSubmitting(false);
     }
@@ -149,9 +148,7 @@ class _BodyState extends ConsumerState<_Body> {
       Navigator.of(context).pop();
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('삭제 실패: ${e.message}')),
-      );
+      showPSnackBar(context, '삭제 실패: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setSubmitting(false);
     }
@@ -386,9 +383,7 @@ class _SubtaskSectionState extends ConsumerState<_SubtaskSection> {
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() => _adding = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('추가 실패: ${e.message}')),
-      );
+      showPSnackBar(context, '추가 실패: ${e.message}', severity: PSnackSeverity.error);
     }
   }
 
@@ -401,9 +396,7 @@ class _SubtaskSectionState extends ConsumerState<_SubtaskSection> {
       ref.invalidate(todoSubtasksProvider(widget.parentId));
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('상태 변경 실패: ${e.message}')),
-      );
+      showPSnackBar(context, '상태 변경 실패: ${e.message}', severity: PSnackSeverity.error);
     }
   }
 
@@ -414,9 +407,7 @@ class _SubtaskSectionState extends ConsumerState<_SubtaskSection> {
       ref.invalidate(todoSubtasksProvider(widget.parentId));
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('삭제 실패: ${e.message}')),
-      );
+      showPSnackBar(context, '삭제 실패: ${e.message}', severity: PSnackSeverity.error);
     }
   }
 
