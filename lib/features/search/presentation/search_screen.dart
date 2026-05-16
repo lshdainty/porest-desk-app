@@ -123,9 +123,11 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
               Row(
                 children: [
                   Expanded(
-                    child: OutlinedButton.icon(
-                      icon: const Icon(LucideIcons.calendar, size: 14),
-                      label: Text(start == null ? '시작' : _fmtDate(start!)),
+                    child: PButton(
+                      label: start == null ? '시작' : _fmtDate(start!),
+                      icon: LucideIcons.calendar,
+                      variant: PButtonVariant.outline,
+                      fullWidth: true,
                       onPressed: () async {
                         final p = await showDatePicker(
                           context: ctx,
@@ -139,9 +141,11 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   ),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: OutlinedButton.icon(
-                      icon: const Icon(LucideIcons.calendar, size: 14),
-                      label: Text(end == null ? '종료' : _fmtDate(end!)),
+                    child: PButton(
+                      label: end == null ? '종료' : _fmtDate(end!),
+                      icon: LucideIcons.calendar,
+                      variant: PButtonVariant.outline,
+                      fullWidth: true,
                       onPressed: () async {
                         final p = await showDatePicker(
                           context: ctx,

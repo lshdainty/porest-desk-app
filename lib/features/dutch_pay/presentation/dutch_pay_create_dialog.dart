@@ -372,16 +372,20 @@ class _BodyState extends ConsumerState<_Body> {
                       color: t.fgSecondary,
                       fontWeight: PFontWeight.bold)),
               const Spacer(),
-              TextButton.icon(
+              PButton(
+                label: '멤버에서',
+                icon: LucideIcons.users,
+                variant: PButtonVariant.ghost,
+                size: PButtonSize.sm,
                 onPressed: () => _showSiblingPicker(context),
-                icon: const Icon(LucideIcons.users, size: 14),
-                label: const Text('멤버에서'),
               ),
-              TextButton.icon(
+              PButton(
+                label: '추가',
+                icon: LucideIcons.plus,
+                variant: PButtonVariant.ghost,
+                size: PButtonSize.sm,
                 onPressed: () =>
                     setState(() => _participants.add(_Pname(name: ''))),
-                icon: const Icon(LucideIcons.plus, size: 14),
-                label: const Text('추가'),
               ),
             ],
           ),

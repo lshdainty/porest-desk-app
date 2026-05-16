@@ -320,25 +320,20 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
 
           Row(
             children: [
-              TextButton.icon(
+              PButton(
+                label: '항목 추가',
+                icon: LucideIcons.plus,
+                variant: PButtonVariant.ghost,
+                size: PButtonSize.sm,
                 onPressed: _submitting ? null : _addRow,
-                icon: Icon(LucideIcons.plus, size: 14, color: t.fgSecondary),
-                label: Text('항목 추가',
-                    style: PTypo.bodySm.copyWith(color: t.fgSecondary)),
-                style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 6)),
               ),
               const Spacer(),
-              TextButton.icon(
+              PButton(
+                label: '균등 분배',
+                icon: LucideIcons.scissors,
+                variant: PButtonVariant.ghost,
+                size: PButtonSize.sm,
                 onPressed: _submitting ? null : _splitEvenly,
-                icon:
-                    Icon(LucideIcons.scissors, size: 14, color: t.fgSecondary),
-                label: Text('균등 분배',
-                    style: PTypo.bodySm.copyWith(color: t.fgSecondary)),
-                style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 6)),
               ),
             ],
           ),

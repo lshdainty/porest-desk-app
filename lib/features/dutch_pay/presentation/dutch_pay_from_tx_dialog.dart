@@ -595,10 +595,12 @@ class _BodyState extends ConsumerState<_Body> {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    OutlinedButton.icon(
+                    PButton(
+                      label: '추가',
+                      icon: LucideIcons.userPlus,
+                      variant: PButtonVariant.outline,
+                      size: PButtonSize.sm,
                       onPressed: _submitting ? null : _addManual,
-                      icon: const Icon(LucideIcons.userPlus, size: 14),
-                      label: const Text('추가'),
                     ),
                   ],
                 ),

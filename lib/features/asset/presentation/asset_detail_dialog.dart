@@ -49,27 +49,27 @@ class _DetailFooter extends ConsumerWidget {
   final Asset asset;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final t = context.tokens;
     final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
     final masked = settings.hideAmounts;
     return Row(
       children: [
-        TextButton.icon(
+        PButton(
+          label: masked ? '금액 표시' : '금액 가리기',
+          icon: masked ? LucideIcons.eye : LucideIcons.eyeOff,
+          variant: PButtonVariant.ghost,
+          size: PButtonSize.sm,
           onPressed: () => toggleHideAmountsWithUnlock(context, ref),
-          icon: Icon(masked ? LucideIcons.eye : LucideIcons.eyeOff,
-              size: PSpace.x12, color: t.fgSecondary),
-          label: Text(masked ? '금액 표시' : '금액 가리기',
-              style: PTypo.bodySm.copyWith(color: t.fgSecondary)),
         ),
         const Spacer(),
-        TextButton.icon(
+        PButton(
+          label: '편집',
+          icon: LucideIcons.pencil,
+          variant: PButtonVariant.ghost,
+          size: PButtonSize.sm,
           onPressed: () {
             Navigator.of(context).pop();
             showAssetEditForm(context, asset);
           },
-          icon: Icon(LucideIcons.pencil, size: PSpace.x12, color: t.fgSecondary),
-          label: Text('편집',
-              style: PTypo.bodySm.copyWith(color: t.fgSecondary)),
         ),
         const SizedBox(width: PSpace.x4),
         PButton(

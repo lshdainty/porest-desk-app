@@ -73,17 +73,16 @@ class _TxDetailFooter extends StatelessWidget {
                   style: PTypo.body.copyWith(color: t.statusDangerFg)),
             ),
             const Spacer(),
-            TextButton.icon(
+            PButton(
+              label: '편집',
+              icon: LucideIcons.pencil,
+              variant: PButtonVariant.ghost,
               onPressed: busy
                   ? null
                   : () {
                       Navigator.of(ctx).pop();
                       showAddTxSheet(ctx, edit: expense);
                     },
-              icon: Icon(LucideIcons.pencil,
-                  size: PSpace.x12, color: t.fgSecondary),
-              label: Text('편집',
-                  style: PTypo.body.copyWith(color: t.fgSecondary)),
             ),
             const SizedBox(width: PSpace.x8),
             PButton(

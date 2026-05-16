@@ -10,6 +10,7 @@ import '../../../app/theme/typography.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/settings/settings_notifier.dart';
+import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_empty_state.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../application/dutch_pay_providers.dart';
@@ -280,10 +281,13 @@ class _DutchPayCard extends StatelessWidget {
             const SizedBox(height: PSpace.x8),
             SizedBox(
               width: double.infinity,
-              child: OutlinedButton.icon(
+              child: PButton(
+                label: '정산 완료 처리',
+                icon: LucideIcons.checkCheck,
+                variant: PButtonVariant.outline,
+                size: PButtonSize.sm,
+                fullWidth: true,
                 onPressed: onSettle,
-                icon: const Icon(LucideIcons.checkCheck, size: 14),
-                label: const Text('정산 완료 처리'),
               ),
             ),
           ],

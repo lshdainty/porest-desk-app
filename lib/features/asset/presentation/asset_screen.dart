@@ -285,23 +285,12 @@ class _SummaryCard extends StatelessWidget {
                   size: 14, color: t.fgTertiary),
               const Spacer(),
               // 자산 간 이체 — 헤더 아이콘에서 옮겨옴 (web 와 동일 패턴: 본문 안 액션).
-              TextButton.icon(
+              PButton(
+                label: '이체',
+                icon: LucideIcons.arrowRightLeft,
+                variant: PButtonVariant.ghost,
+                size: PButtonSize.sm,
                 onPressed: () => showAssetTransferDialog(context),
-                style: TextButton.styleFrom(
-                  foregroundColor: t.fgSecondary,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  minimumSize: const Size(0, 28),
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-                icon: Icon(LucideIcons.arrowRightLeft,
-                    size: 14, color: t.fgSecondary),
-                label: Text('이체',
-                    style: TextStyle(
-                      color: t.fgSecondary,
-                      fontSize: PFontSize.caption,
-                      fontWeight: PFontWeight.semi,
-                    )),
               ),
             ],
           ),
