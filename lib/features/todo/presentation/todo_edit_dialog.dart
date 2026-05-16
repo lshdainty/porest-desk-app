@@ -9,6 +9,7 @@ import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/markdown_preview.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_text_input.dart';
 import '../application/todo_providers.dart';
 import '../domain/todo.dart';
 
@@ -168,9 +169,9 @@ class _BodyState extends ConsumerState<_Body> {
       children: [
           Text('제목', style: PTypo.caption.copyWith(color: t.fgSecondary)),
           const SizedBox(height: PSpace.x4),
-          TextField(
+          PTextInput(
             controller: _titleCtrl,
-            decoration: const InputDecoration(hintText: '예: 보고서 작성'),
+            placeholder: '예: 보고서 작성',
             onChanged: (_) => setState(() {}),
           ),
           const SizedBox(height: PSpace.x12),
@@ -237,9 +238,9 @@ class _BodyState extends ConsumerState<_Body> {
           Text('카테고리 (선택)',
               style: PTypo.caption.copyWith(color: t.fgSecondary)),
           const SizedBox(height: PSpace.x4),
-          TextField(
+          PTextInput(
             controller: _categoryCtrl,
-            decoration: const InputDecoration(hintText: '예: 업무, 개인'),
+            placeholder: '예: 업무, 개인',
           ),
           const SizedBox(height: PSpace.x12),
 
@@ -291,12 +292,10 @@ class _BodyState extends ConsumerState<_Body> {
                   : MarkdownPreview(_contentCtrl.text),
             )
           else
-            TextField(
+            PTextInput(
               controller: _contentCtrl,
               maxLines: 6,
-              decoration: const InputDecoration(
-                hintText: '예: # 제목 / **굵게** / - 항목 / - [ ] 체크',
-              ),
+              placeholder: '예: # 제목 / **굵게** / - 항목 / - [ ] 체크',
             ),
 
           if (_isEdit) ...[
@@ -486,11 +485,10 @@ class _SubtaskSectionState extends ConsumerState<_SubtaskSection> {
         Row(
           children: [
             Expanded(
-              child: TextField(
+              child: PTextInput(
                 controller: _ctrl,
                 enabled: !_adding,
-                decoration: const InputDecoration(
-                    hintText: '+ 하위 작업 추가', isDense: true),
+                placeholder: '+ 하위 작업 추가',
                 onSubmitted: (_) => _addSubtask(),
                 onChanged: (_) => setState(() {}),
               ),

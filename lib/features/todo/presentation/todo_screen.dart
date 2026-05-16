@@ -9,6 +9,7 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_empty_state.dart';
+import '../../../shared/widgets/p_text_input.dart';
 import '../application/todo_providers.dart';
 import '../domain/todo.dart';
 import 'todo_edit_dialog.dart';
@@ -136,23 +137,12 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
                 Row(
                   children: [
                     Expanded(
-                      child: TextField(
+                      child: PTextInput(
                         controller: _quickAddCtrl,
                         enabled: !_quickAdding,
-                        decoration: InputDecoration(
-                          hintText: '+ 빠른 할 일 추가',
-                          isDense: true,
-                          prefixIcon: Icon(LucideIcons.plus,
-                              size: 16, color: t.fgTertiary),
-                          contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 8),
-                          fillColor: t.bgMuted,
-                          filled: true,
-                          border: OutlineInputBorder(
-                            borderRadius: PRadius.brMd,
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
+                        placeholder: '빠른 할 일 추가',
+                        prefix: Icon(LucideIcons.plus,
+                            size: 16, color: t.fgTertiary),
                         onSubmitted: (_) => _quickAdd(),
                         onChanged: (_) => setState(() {}),
                       ),

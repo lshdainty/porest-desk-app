@@ -9,6 +9,7 @@ import '../../../app/theme/typography.dart';
 import '../../../core/format/color_parse.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_text_input.dart';
 import '../application/todo_providers.dart';
 import '../domain/todo_project.dart';
 
@@ -90,17 +91,17 @@ class _BodyState extends ConsumerState<_Body> {
               style: PTypo.bodySm.copyWith(
                   color: t.fgPrimary, fontWeight: PFontWeight.bold)),
           const SizedBox(height: PSpace.x8),
-          TextField(
+          PTextInput(
             controller: _nameCtrl,
             enabled: !_adding,
-            decoration: const InputDecoration(hintText: '프로젝트 이름'),
+            placeholder: '프로젝트 이름',
             onChanged: (_) => setState(() {}),
           ),
           const SizedBox(height: PSpace.x8),
-          TextField(
+          PTextInput(
             controller: _descCtrl,
             enabled: !_adding,
-            decoration: const InputDecoration(hintText: '설명 (선택)'),
+            placeholder: '설명 (선택)',
           ),
           const SizedBox(height: PSpace.x8),
           _Palette(
