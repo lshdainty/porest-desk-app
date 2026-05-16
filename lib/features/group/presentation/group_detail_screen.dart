@@ -14,6 +14,7 @@ import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_text_input.dart';
 import '../../calendar/application/calendar_providers.dart';
 import '../../expense/application/expense_providers.dart';
 import '../../expense/domain/expense.dart';
@@ -807,18 +808,18 @@ Future<void> _showEditDialog(
               Text('이름',
                   style: PTypo.caption.copyWith(color: t.fgSecondary)),
               const SizedBox(height: 4),
-              TextField(
+              PTextInput(
                 controller: nameCtrl,
-                decoration: const InputDecoration(hintText: '그룹 이름'),
+                placeholder: '그룹 이름',
               ),
               const SizedBox(height: 12),
               Text('설명 (선택)',
                   style: PTypo.caption.copyWith(color: t.fgSecondary)),
               const SizedBox(height: 4),
-              TextField(
+              PTextInput(
                 controller: descCtrl,
                 maxLines: 2,
-                decoration: const InputDecoration(hintText: '설명'),
+                placeholder: '설명',
               ),
             ],
           ),

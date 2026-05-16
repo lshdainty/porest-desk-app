@@ -12,6 +12,7 @@ import '../../../core/format/color_parse.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_empty_state.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_text_input.dart';
 import '../application/group_providers.dart';
 import '../domain/group.dart';
 import 'group_type_management_dialog.dart';
@@ -149,9 +150,9 @@ void _showCreateDialog(BuildContext context, WidgetRef ref) {
           Text('그룹명',
               style: PTypo.caption.copyWith(color: t.fgSecondary)),
           const SizedBox(height: PSpace.x4),
-          TextField(
+          PTextInput(
             controller: nameCtrl,
-            decoration: const InputDecoration(hintText: '예: 가족, 회사 동료'),
+            placeholder: '예: 가족, 회사 동료',
             onChanged: (v) =>
                 controller.setCanSubmit(v.trim().isNotEmpty),
           ),
@@ -159,10 +160,10 @@ void _showCreateDialog(BuildContext context, WidgetRef ref) {
           Text('설명 (선택)',
               style: PTypo.caption.copyWith(color: t.fgSecondary)),
           const SizedBox(height: PSpace.x4),
-          TextField(
+          PTextInput(
             controller: descCtrl,
             maxLines: 3,
-            decoration: const InputDecoration(hintText: '그룹 설명'),
+            placeholder: '그룹 설명',
           ),
         ],
       );
@@ -209,10 +210,9 @@ void _showJoinDialog(BuildContext context, WidgetRef ref) {
           Text('초대 코드',
               style: PTypo.caption.copyWith(color: t.fgSecondary)),
           const SizedBox(height: PSpace.x4),
-          TextField(
+          PTextInput(
             controller: codeCtrl,
-            decoration: const InputDecoration(hintText: '예: ABC123'),
-            textCapitalization: TextCapitalization.characters,
+            placeholder: '예: ABC123',
             inputFormatters: [
               FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]')),
             ],

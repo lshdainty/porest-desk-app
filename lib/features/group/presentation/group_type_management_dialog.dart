@@ -9,6 +9,7 @@ import '../../../app/theme/typography.dart';
 import '../../../core/format/color_parse.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_text_input.dart';
 import '../application/group_providers.dart';
 import '../domain/group_type.dart';
 
@@ -90,10 +91,10 @@ class _BodyState extends ConsumerState<_Body> {
               ),
               const SizedBox(width: PSpace.x8),
               Expanded(
-                child: TextField(
+                child: PTextInput(
                   controller: _newCtrl,
                   enabled: !_adding,
-                  decoration: const InputDecoration(hintText: '예: 가족, 회사'),
+                  placeholder: '예: 가족, 회사',
                   onSubmitted: (_) => _create(),
                   onChanged: (_) => setState(() {}),
                 ),

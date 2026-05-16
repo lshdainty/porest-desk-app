@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -15,6 +14,7 @@ import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_empty_state.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_text_input.dart';
 import '../application/saving_goal_providers.dart';
 import '../domain/saving_goal.dart';
 import 'saving_goal_edit_dialog.dart';
@@ -98,13 +98,12 @@ class SavingGoalScreen extends ConsumerWidget {
         return StatefulBuilder(
           builder: (_, setS) => PFormAlertDialog(
             title: '"${g.title}" 적립',
-            content: TextField(
+            content: PTextInput(
               controller: ctrl,
-              keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              numbersOnly: true,
               autofocus: true,
-              decoration: const InputDecoration(
-                  hintText: '금액 (음수 가능)', suffixText: '원'),
+              placeholder: '금액 (음수 가능)',
+              suffixText: '원',
             ),
             actions: [
               TextButton(

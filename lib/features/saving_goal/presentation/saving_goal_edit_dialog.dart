@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
@@ -9,6 +8,7 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_text_input.dart';
 import '../../category/presentation/category_palette.dart';
 import '../application/saving_goal_providers.dart';
 import '../domain/saving_goal.dart';
@@ -171,21 +171,20 @@ class _BodyState extends ConsumerState<_Body> {
           Text('목표 이름',
               style: PTypo.caption.copyWith(color: t.fgSecondary)),
           const SizedBox(height: PSpace.x4),
-          TextField(
+          PTextInput(
             controller: _titleCtrl,
-            decoration: const InputDecoration(hintText: '예: 비상금'),
+            placeholder: '예: 비상금',
             onChanged: (_) => setState(() {}),
           ),
           const SizedBox(height: PSpace.x12),
           Text('목표 금액',
               style: PTypo.caption.copyWith(color: t.fgSecondary)),
           const SizedBox(height: PSpace.x4),
-          TextField(
+          PTextInput(
             controller: _amountCtrl,
-            keyboardType: TextInputType.number,
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            style: PTypo.h3.copyWith(color: t.fgPrimary),
-            decoration: const InputDecoration(hintText: '0'),
+            numbersOnly: true,
+            style: PTypo.h3,
+            placeholder: '0',
             onChanged: (_) => setState(() {}),
           ),
           const SizedBox(height: PSpace.x12),
@@ -271,10 +270,10 @@ class _BodyState extends ConsumerState<_Body> {
           Text('설명 (선택)',
               style: PTypo.caption.copyWith(color: t.fgSecondary)),
           const SizedBox(height: PSpace.x4),
-          TextField(
+          PTextInput(
             controller: _descCtrl,
             maxLines: 2,
-            decoration: const InputDecoration(hintText: '메모'),
+            placeholder: '메모',
           ),
       ],
     );
