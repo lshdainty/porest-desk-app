@@ -8,6 +8,7 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_section_label.dart';
 import '../../../shared/widgets/p_select.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_text_input.dart';
@@ -138,7 +139,7 @@ class _TransferBodyState extends ConsumerState<_TransferBody> {
           padding: const EdgeInsets.fromLTRB(
               PSpace.x16, 0, PSpace.x16, PSpace.x16),
           children: [
-              _Label('출금 자산'),
+              PSectionLabel('출금 자산'),
               const SizedBox(height: PSpace.x4),
               _AssetSelector(
                   assets: assets,
@@ -150,7 +151,7 @@ class _TransferBodyState extends ConsumerState<_TransferBody> {
                   child:
                       Icon(LucideIcons.arrowDown, size: 20, color: t.fgTertiary)),
               const SizedBox(height: PSpace.x12),
-              _Label('입금 자산'),
+              PSectionLabel('입금 자산'),
               const SizedBox(height: PSpace.x4),
               _AssetSelector(
                   assets: assets,
@@ -165,7 +166,7 @@ class _TransferBodyState extends ConsumerState<_TransferBody> {
                 ),
               const SizedBox(height: PSpace.x16),
 
-              _Label('금액'),
+              PSectionLabel('금액'),
               const SizedBox(height: PSpace.x4),
               PTextInput(
                 controller: _amountCtrl,
@@ -176,7 +177,7 @@ class _TransferBodyState extends ConsumerState<_TransferBody> {
               ),
               const SizedBox(height: PSpace.x16),
 
-              _Label('수수료 (선택)'),
+              PSectionLabel('수수료 (선택)'),
               const SizedBox(height: PSpace.x4),
               PTextInput(
                 controller: _feeCtrl,
@@ -185,7 +186,7 @@ class _TransferBodyState extends ConsumerState<_TransferBody> {
               ),
               const SizedBox(height: PSpace.x16),
 
-              _Label('날짜'),
+              PSectionLabel('날짜'),
               const SizedBox(height: PSpace.x4),
               InkWell(
                 onTap: () async {
@@ -217,7 +218,7 @@ class _TransferBodyState extends ConsumerState<_TransferBody> {
               ),
               const SizedBox(height: PSpace.x16),
 
-              _Label('메모 (선택)'),
+              PSectionLabel('메모 (선택)'),
               const SizedBox(height: PSpace.x4),
               PTextInput(
                 controller: _descCtrl,
@@ -227,16 +228,6 @@ class _TransferBodyState extends ConsumerState<_TransferBody> {
           );
         },
       );
-  }
-}
-
-class _Label extends StatelessWidget {
-  const _Label(this.text);
-  final String text;
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    return Text(text, style: PTypo.caption.copyWith(color: t.fgSecondary));
   }
 }
 

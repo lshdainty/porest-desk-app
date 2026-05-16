@@ -10,6 +10,7 @@ import '../../../core/network/api_exception.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_chip.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_section_label.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../../expense/application/expense_providers.dart';
@@ -180,7 +181,7 @@ class _BudgetEditBodyState extends ConsumerState<_BudgetEditBody> {
             style: PTypo.caption.copyWith(color: t.fgTertiary)),
         const SizedBox(height: PSpace.x12),
 
-        _Label('카테고리'),
+        PSectionLabel('카테고리'),
         const SizedBox(height: PSpace.x8),
         if (widget.overallNew)
           _LockedCategory(
@@ -228,7 +229,7 @@ class _BudgetEditBodyState extends ConsumerState<_BudgetEditBody> {
           ),
         const SizedBox(height: PSpace.x16),
 
-        _Label('월 예산 한도'),
+        PSectionLabel('월 예산 한도'),
         const SizedBox(height: PSpace.x4),
         PTextInput(
           controller: _amountCtrl,
@@ -239,16 +240,6 @@ class _BudgetEditBodyState extends ConsumerState<_BudgetEditBody> {
         ),
       ],
     );
-  }
-}
-
-class _Label extends StatelessWidget {
-  const _Label(this.text);
-  final String text;
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    return Text(text, style: PTypo.caption.copyWith(color: t.fgSecondary));
   }
 }
 

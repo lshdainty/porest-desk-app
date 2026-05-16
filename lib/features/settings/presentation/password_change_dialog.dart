@@ -9,6 +9,7 @@ import '../../../core/auth/auth_notifier.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_section_label.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_text_input.dart';
 
@@ -90,7 +91,7 @@ class _PasswordChangeDialogState extends ConsumerState<_PasswordChangeDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _Label('현재 비밀번호', tokens: t),
+            PSectionLabel('현재 비밀번호'),
             const SizedBox(height: PSpace.x4),
             PTextInput(
               controller: _currentCtrl,
@@ -100,7 +101,7 @@ class _PasswordChangeDialogState extends ConsumerState<_PasswordChangeDialog> {
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: PSpace.x12),
-            _Label('새 비밀번호', tokens: t),
+            PSectionLabel('새 비밀번호'),
             const SizedBox(height: PSpace.x4),
             PTextInput(
               controller: _newCtrl,
@@ -110,7 +111,7 @@ class _PasswordChangeDialogState extends ConsumerState<_PasswordChangeDialog> {
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: PSpace.x12),
-            _Label('새 비밀번호 확인', tokens: t),
+            PSectionLabel('새 비밀번호 확인'),
             const SizedBox(height: PSpace.x4),
             PTextInput(
               controller: _confirmCtrl,
@@ -155,14 +156,3 @@ class _PasswordChangeDialogState extends ConsumerState<_PasswordChangeDialog> {
   }
 }
 
-class _Label extends StatelessWidget {
-  const _Label(this.text, {required this.tokens});
-  final String text;
-  final PorestTokens tokens;
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(text,
-        style: PTypo.caption.copyWith(color: tokens.fgSecondary));
-  }
-}

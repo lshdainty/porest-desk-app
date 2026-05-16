@@ -15,6 +15,7 @@ import '../../../shared/widgets/p_badge.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_category_tile.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_section_label.dart';
 import '../../../shared/widgets/p_select.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_text_input.dart';
@@ -380,7 +381,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
                 // 금액 — 다른 필드와 동일한 단순 label + input
                 Row(
                   children: [
-                    Expanded(child: _Label('금액')),
+                    Expanded(child: PSectionLabel('금액')),
                     if (_amountLocked) ...[
                       Icon(LucideIcons.lock, size: 11, color: t.fgTertiary),
                       const SizedBox(width: 3),
@@ -410,7 +411,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
                 const SizedBox(height: PSpace.x16),
 
                 if (_type != 'TRANSFER') ...[
-                  _SectionLabel('카테고리'),
+                  PSectionLabel('카테고리', variant: PSectionLabelVariant.eyebrow),
                   const SizedBox(height: PSpace.x8),
                   categoriesAsync.when(
                     loading: () => const Padding(
@@ -530,7 +531,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
 
                 if (_type != 'TRANSFER') ...[
                   // 거래처
-                  _Label(_type == 'INCOME' ? '수입처' : '거래처'),
+                  PSectionLabel(_type == 'INCOME' ? '수입처' : '거래처'),
                   const SizedBox(height: PSpace.x4),
                   PTextInput(
                     controller: _merchantCtrl,
@@ -540,7 +541,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
                   const SizedBox(height: PSpace.x12),
 
                   // 결제 수단 (Select)
-                  _Label(_type == 'INCOME' ? '수입 방식' : '결제 수단'),
+                  PSectionLabel(_type == 'INCOME' ? '수입 방식' : '결제 수단'),
                   const SizedBox(height: PSpace.x4),
                   _SelectField<String>(
                     value: _paymentMethod.isEmpty ? null : _paymentMethod,
@@ -571,7 +572,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
                   const SizedBox(height: PSpace.x12),
 
                   // 계좌·카드 (Select, payment method 로 필터)
-                  _Label(_type == 'INCOME' ? '입금 계좌' : '계좌·카드'),
+                  PSectionLabel(_type == 'INCOME' ? '입금 계좌' : '계좌·카드'),
                   const SizedBox(height: PSpace.x4),
                   assetsAsync.when(
                     loading: () => const Padding(
@@ -611,7 +612,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
                   const SizedBox(height: PSpace.x12),
                 ] else ...[
                   // 이체 — 출금/입금/수수료
-                  _Label('출금 계좌'),
+                  PSectionLabel('출금 계좌'),
                   const SizedBox(height: PSpace.x4),
                   assetsAsync.when(
                     loading: () => const SizedBox.shrink(),
@@ -632,7 +633,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
                     ),
                   ),
                   const SizedBox(height: PSpace.x12),
-                  _Label('입금 계좌'),
+                  PSectionLabel('입금 계좌'),
                   const SizedBox(height: PSpace.x4),
                   assetsAsync.when(
                     loading: () => const SizedBox.shrink(),
@@ -661,7 +662,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
                               .copyWith(color: t.statusDanger)),
                     ),
                   const SizedBox(height: PSpace.x12),
-                  _Label('수수료 (선택)'),
+                  PSectionLabel('수수료 (선택)'),
                   const SizedBox(height: PSpace.x4),
                   PTextInput(
                     controller: _feeCtrl,
@@ -672,7 +673,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
                 ],
 
                 // 날짜·시간
-                _Label(_type == 'TRANSFER' ? '날짜' : '날짜·시간'),
+                PSectionLabel(_type == 'TRANSFER' ? '날짜' : '날짜·시간'),
                 const SizedBox(height: PSpace.x4),
                 _type == 'TRANSFER'
                     ? _DateBox(
@@ -725,7 +726,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
                       ),
                 const SizedBox(height: PSpace.x16),
 
-                _Label('메모'),
+                PSectionLabel('메모'),
                 const SizedBox(height: PSpace.x4),
                 PTextInput(
                   controller: _descCtrl,
@@ -735,16 +736,6 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
                 const SizedBox(height: PSpace.x16),
               ],
             );
-  }
-}
-
-class _Label extends StatelessWidget {
-  const _Label(this.text);
-  final String text;
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    return Text(text, style: PTypo.caption.copyWith(color: t.fgSecondary));
   }
 }
 
@@ -839,20 +830,6 @@ class _TimeBox extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-class _SectionLabel extends StatelessWidget {
-  const _SectionLabel(this.text);
-  final String text;
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    return Text(text,
-        style: PTypo.caption.copyWith(
-            color: t.fgTertiary,
-            fontWeight: PFontWeight.semi,
-            letterSpacing: 0.6));
   }
 }
 

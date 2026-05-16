@@ -18,6 +18,7 @@ import '../../asset/domain/asset.dart';
 import '../application/expense_providers.dart';
 import '../domain/expense.dart';
 import '../domain/expense_category.dart';
+import '../../../shared/widgets/p_section_label.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 
 /// 거래 데이터 내보내기 시트 — front `ExportDialog` 미러.
@@ -210,7 +211,7 @@ class _ExportBodyState extends ConsumerState<_ExportBody> {
       padding: const EdgeInsets.fromLTRB(
           PSpace.x16, 0, PSpace.x16, PSpace.x16),
       children: [
-          _Label('파일 형식'),
+          PSectionLabel('파일 형식'),
           const SizedBox(height: PSpace.x8),
           Container(
             padding: const EdgeInsets.all(14),
@@ -233,7 +234,7 @@ class _ExportBodyState extends ConsumerState<_ExportBody> {
             ),
           ),
           const SizedBox(height: PSpace.x16),
-          _Label('기간'),
+          PSectionLabel('기간'),
           const SizedBox(height: PSpace.x8),
           Wrap(
             spacing: PSpace.x8,
@@ -272,7 +273,7 @@ class _ExportBodyState extends ConsumerState<_ExportBody> {
             ),
           ],
           const SizedBox(height: PSpace.x16),
-          _Label('포함할 내용'),
+          PSectionLabel('포함할 내용'),
           const SizedBox(height: PSpace.x8),
           for (final inc in _Include.values)
             Padding(
@@ -301,16 +302,6 @@ class _ExportBodyState extends ConsumerState<_ExportBody> {
         _Period.year => '올해',
         _Period.custom => '직접 선택',
       };
-}
-
-class _Label extends StatelessWidget {
-  const _Label(this.text);
-  final String text;
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    return Text(text, style: PTypo.caption.copyWith(color: t.fgSecondary));
-  }
 }
 
 class _DatePickField extends StatelessWidget {

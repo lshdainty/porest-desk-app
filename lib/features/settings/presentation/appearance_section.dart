@@ -8,6 +8,7 @@ import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/settings/settings_notifier.dart';
+import '../../../shared/widgets/p_section_label.dart';
 import '../../../shared/widgets/p_segmented_control.dart';
 
 /// porest-desk-front `AppearanceSection.tsx` 의 모바일 이식.
@@ -27,7 +28,7 @@ class AppearanceSection extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _SectionLabel('테마'),
+        PSectionLabel('테마'),
         const SizedBox(height: PSpace.x8),
         Row(
           children: [
@@ -61,7 +62,7 @@ class AppearanceSection extends ConsumerWidget {
         ),
 
         const SizedBox(height: PSpace.x24),
-        _SectionLabel('표시 밀도'),
+        PSectionLabel('표시 밀도'),
         const SizedBox(height: PSpace.x8),
         PSegmentedControl<PDensity>(
           value: settings.density,
@@ -75,7 +76,7 @@ class AppearanceSection extends ConsumerWidget {
         ),
 
         const SizedBox(height: PSpace.x24),
-        _SectionLabel('언어'),
+        PSectionLabel('언어'),
         const SizedBox(height: PSpace.x8),
         PSegmentedControl<String>(
           value: settings.locale?.languageCode ?? 'system',
@@ -101,7 +102,7 @@ class AppearanceSection extends ConsumerWidget {
         ),
 
         const SizedBox(height: PSpace.x24),
-        _SectionLabel('통화'),
+        PSectionLabel('통화'),
         const SizedBox(height: PSpace.x8),
         _CurrencyList(
           selected: settings.currency,
@@ -111,16 +112,6 @@ class AppearanceSection extends ConsumerWidget {
         ),
       ],
     );
-  }
-}
-
-class _SectionLabel extends StatelessWidget {
-  const _SectionLabel(this.text);
-  final String text;
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    return Text(text, style: PTypo.caption.copyWith(color: t.fgSecondary));
   }
 }
 

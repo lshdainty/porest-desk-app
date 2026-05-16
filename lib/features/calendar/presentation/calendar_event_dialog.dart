@@ -10,6 +10,7 @@ import '../../../core/format/color_parse.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_chip.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_section_label.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../application/calendar_providers.dart';
@@ -330,7 +331,7 @@ class _BodyState extends ConsumerState<_Body> {
       padding: const EdgeInsets.fromLTRB(
           PSpace.x16, PSpace.x8, PSpace.x16, PSpace.x16),
       children: [
-          _SectionLabel('제목', tokens: t),
+          PSectionLabel('제목', variant: PSectionLabelVariant.header),
           const SizedBox(height: PSpace.x4),
           PTextInput(
             controller: _titleCtrl,
@@ -342,7 +343,7 @@ class _BodyState extends ConsumerState<_Body> {
           ),
           const SizedBox(height: PSpace.x16),
 
-          _SectionLabel('설명', tokens: t),
+          PSectionLabel('설명', variant: PSectionLabelVariant.header),
           const SizedBox(height: PSpace.x4),
           PTextInput(
             controller: _descCtrl,
@@ -352,7 +353,7 @@ class _BodyState extends ConsumerState<_Body> {
           const SizedBox(height: PSpace.x16),
 
           // 캘린더
-          _SectionLabel('캘린더', tokens: t),
+          PSectionLabel('캘린더', variant: PSectionLabelVariant.header),
           const SizedBox(height: PSpace.x4),
           calendarsAsync.when(
             loading: () => const Padding(
@@ -404,7 +405,7 @@ class _BodyState extends ConsumerState<_Body> {
           const SizedBox(height: PSpace.x16),
 
           // 라벨
-          _SectionLabel('라벨', tokens: t, icon: LucideIcons.tag),
+          PSectionLabel('라벨', variant: PSectionLabelVariant.header, icon: LucideIcons.tag),
           const SizedBox(height: PSpace.x8),
           labelsAsync.when(
             loading: () => const SizedBox(
@@ -443,7 +444,7 @@ class _BodyState extends ConsumerState<_Body> {
           const SizedBox(height: PSpace.x16),
 
           // 색상
-          _SectionLabel('색상', tokens: t),
+          PSectionLabel('색상', variant: PSectionLabelVariant.header),
           const SizedBox(height: PSpace.x8),
           Wrap(
             spacing: PSpace.x12,
@@ -471,7 +472,7 @@ class _BodyState extends ConsumerState<_Body> {
           const SizedBox(height: PSpace.x4),
 
           // 시작
-          _SectionLabel('시작일', tokens: t),
+          PSectionLabel('시작일', variant: PSectionLabelVariant.header),
           const SizedBox(height: PSpace.x4),
           Row(
             children: [
@@ -501,7 +502,7 @@ class _BodyState extends ConsumerState<_Body> {
           ),
           const SizedBox(height: PSpace.x12),
 
-          _SectionLabel('종료일', tokens: t),
+          PSectionLabel('종료일', variant: PSectionLabelVariant.header),
           const SizedBox(height: PSpace.x4),
           Row(
             children: [
@@ -532,7 +533,7 @@ class _BodyState extends ConsumerState<_Body> {
           const SizedBox(height: PSpace.x16),
 
           // 장소
-          _SectionLabel('장소', tokens: t, icon: LucideIcons.mapPin),
+          PSectionLabel('장소', variant: PSectionLabelVariant.header, icon: LucideIcons.mapPin),
           const SizedBox(height: PSpace.x4),
           PTextInput(
             controller: _locationCtrl,
@@ -541,7 +542,7 @@ class _BodyState extends ConsumerState<_Body> {
           const SizedBox(height: PSpace.x16),
 
           // 반복
-          _SectionLabel('반복', tokens: t, icon: LucideIcons.repeat),
+          PSectionLabel('반복', variant: PSectionLabelVariant.header, icon: LucideIcons.repeat),
           const SizedBox(height: PSpace.x8),
           Wrap(
             spacing: PSpace.x8,
@@ -559,7 +560,7 @@ class _BodyState extends ConsumerState<_Body> {
           const SizedBox(height: PSpace.x16),
 
           // 알림
-          _SectionLabel('알림', tokens: t, icon: LucideIcons.bell),
+          PSectionLabel('알림', variant: PSectionLabelVariant.header, icon: LucideIcons.bell),
           const SizedBox(height: PSpace.x8),
           Wrap(
             spacing: PSpace.x8,
@@ -576,26 +577,6 @@ class _BodyState extends ConsumerState<_Body> {
                 ),
             ],
           ),
-      ],
-    );
-  }
-}
-
-class _SectionLabel extends StatelessWidget {
-  const _SectionLabel(this.label, {required this.tokens, this.icon});
-  final String label;
-  final PorestTokens tokens;
-  final IconData? icon;
-  @override
-  Widget build(BuildContext context) {
-    final style = PTypo.bodySm
-        .copyWith(color: tokens.fgPrimary, fontWeight: PFontWeight.semi);
-    if (icon == null) return Text(label, style: style);
-    return Row(
-      children: [
-        Icon(icon, size: PSpace.x16, color: tokens.fgSecondary),
-        const SizedBox(width: PSpace.x4),
-        Text(label, style: style),
       ],
     );
   }

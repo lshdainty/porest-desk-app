@@ -11,6 +11,7 @@ import '../../../core/network/api_exception.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_chip.dart';
+import '../../../shared/widgets/p_section_label.dart';
 import '../../../shared/widgets/p_segmented_control.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
@@ -245,7 +246,7 @@ class _RecurringEditBodyState extends ConsumerState<_RecurringEditBody> {
           ),
           const SizedBox(height: PSpace.x16),
 
-          _Label('금액'),
+          PSectionLabel('금액'),
           const SizedBox(height: PSpace.x4),
           PTextInput(
             controller: _amountCtrl,
@@ -256,7 +257,7 @@ class _RecurringEditBodyState extends ConsumerState<_RecurringEditBody> {
           ),
           const SizedBox(height: PSpace.x16),
 
-          _Label('카테고리'),
+          PSectionLabel('카테고리'),
           const SizedBox(height: PSpace.x8),
           categoriesAsync.when(
             loading: () => const Center(child: CircularProgressIndicator()),
@@ -280,7 +281,7 @@ class _RecurringEditBodyState extends ConsumerState<_RecurringEditBody> {
           ),
           const SizedBox(height: PSpace.x16),
 
-          _Label('자산'),
+          PSectionLabel('자산'),
           const SizedBox(height: PSpace.x8),
           assetsAsync.when(
             loading: () => const Center(child: CircularProgressIndicator()),
@@ -304,7 +305,7 @@ class _RecurringEditBodyState extends ConsumerState<_RecurringEditBody> {
           const SizedBox(height: PSpace.x20),
 
           // 주기
-          _Label('주기'),
+          PSectionLabel('주기'),
           const SizedBox(height: PSpace.x8),
           PSegmentedControl<String>(
             value: _frequency,
@@ -320,7 +321,7 @@ class _RecurringEditBodyState extends ConsumerState<_RecurringEditBody> {
           const SizedBox(height: PSpace.x12),
 
           if (_frequency == 'WEEKLY') ...[
-            _Label('요일'),
+            PSectionLabel('요일'),
             const SizedBox(height: PSpace.x8),
             _DowPicker(
                 value: _dayOfWeek,
@@ -329,7 +330,7 @@ class _RecurringEditBodyState extends ConsumerState<_RecurringEditBody> {
             const SizedBox(height: PSpace.x12),
           ],
           if (_frequency == 'MONTHLY') ...[
-            _Label('매월 며칠'),
+            PSectionLabel('매월 며칠'),
             const SizedBox(height: PSpace.x4),
             _DomPicker(
                 value: _dayOfMonth,
@@ -338,7 +339,7 @@ class _RecurringEditBodyState extends ConsumerState<_RecurringEditBody> {
             const SizedBox(height: PSpace.x12),
           ],
 
-          _Label('시작 날짜'),
+          PSectionLabel('시작 날짜'),
           const SizedBox(height: PSpace.x4),
           _DateField(
             value: _startDate,
@@ -347,7 +348,7 @@ class _RecurringEditBodyState extends ConsumerState<_RecurringEditBody> {
           ),
           const SizedBox(height: PSpace.x12),
 
-          _Label('종료 날짜 (선택)'),
+          PSectionLabel('종료 날짜 (선택)'),
           const SizedBox(height: PSpace.x4),
           Row(
             children: [
@@ -442,14 +443,14 @@ class _RecurringEditBodyState extends ConsumerState<_RecurringEditBody> {
             onChanged: (v) => setState(() => _notifyDayBefore = v),
           ),
 
-          _Label('가맹점 (선택)'),
+          PSectionLabel('가맹점 (선택)'),
           const SizedBox(height: PSpace.x4),
           PTextInput(
             controller: _merchantCtrl,
             placeholder: '예: 넷플릭스',
           ),
           const SizedBox(height: PSpace.x12),
-          _Label('메모 (선택)'),
+          PSectionLabel('메모 (선택)'),
           const SizedBox(height: PSpace.x4),
           PTextInput(
             controller: _descCtrl,
@@ -457,16 +458,6 @@ class _RecurringEditBodyState extends ConsumerState<_RecurringEditBody> {
           ),
       ],
     );
-  }
-}
-
-class _Label extends StatelessWidget {
-  const _Label(this.text);
-  final String text;
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    return Text(text, style: PTypo.caption.copyWith(color: t.fgSecondary));
   }
 }
 
