@@ -9,6 +9,7 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_button.dart';
+import '../../../shared/widgets/p_chip.dart';
 import '../../../shared/widgets/p_empty_state.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../application/todo_providers.dart';
@@ -162,67 +163,59 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
-                      _Chip(
+                      PChip(
                         label: '전체',
                         selected: _statusFilter == null,
                         onTap: () => setState(() => _statusFilter = null),
-                        tokens: t,
                       ),
                       const SizedBox(width: 6),
-                      _Chip(
+                      PChip(
                         label: '진행중',
                         selected: _statusFilter == 'IN_PROGRESS',
                         onTap: () => setState(
                             () => _statusFilter = 'IN_PROGRESS'),
-                        tokens: t,
                       ),
                       const SizedBox(width: 6),
-                      _Chip(
+                      PChip(
                         label: '대기',
                         selected: _statusFilter == 'PENDING',
                         onTap: () =>
                             setState(() => _statusFilter = 'PENDING'),
-                        tokens: t,
                       ),
                       const SizedBox(width: 6),
-                      _Chip(
+                      PChip(
                         label: '완료',
                         selected: _statusFilter == 'COMPLETED',
                         onTap: () =>
                             setState(() => _statusFilter = 'COMPLETED'),
-                        tokens: t,
                       ),
                       const SizedBox(width: 14),
-                      _Chip(
+                      PChip(
                         label: '우선순위',
                         selected: _priorityFilter == null,
                         onTap: () =>
                             setState(() => _priorityFilter = null),
-                        tokens: t,
                       ),
                       const SizedBox(width: 6),
-                      _Chip(
+                      PChip(
                         label: 'HIGH',
                         selected: _priorityFilter == 'HIGH',
                         onTap: () =>
                             setState(() => _priorityFilter = 'HIGH'),
-                        tokens: t,
                       ),
                       const SizedBox(width: 6),
-                      _Chip(
+                      PChip(
                         label: 'MEDIUM',
                         selected: _priorityFilter == 'MEDIUM',
                         onTap: () =>
                             setState(() => _priorityFilter = 'MEDIUM'),
-                        tokens: t,
                       ),
                       const SizedBox(width: 6),
-                      _Chip(
+                      PChip(
                         label: 'LOW',
                         selected: _priorityFilter == 'LOW',
                         onTap: () =>
                             setState(() => _priorityFilter = 'LOW'),
-                        tokens: t,
                       ),
                     ],
                   ),
@@ -302,37 +295,6 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
             );
           },
         ),
-      ),
-    );
-  }
-}
-
-class _Chip extends StatelessWidget {
-  const _Chip(
-      {required this.label,
-      required this.selected,
-      required this.onTap,
-      required this.tokens});
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-  final PorestTokens tokens;
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: selected ? tokens.bgBrand : tokens.bgSurface,
-          border: Border.all(
-              color: selected ? tokens.borderBrand : tokens.borderSubtle),
-          borderRadius: PRadius.brFull,
-        ),
-        child: Text(label,
-            style: PTypo.caption.copyWith(
-                color: selected ? tokens.fgOnBrand : tokens.fgSecondary,
-                fontWeight: PFontWeight.semi)),
       ),
     );
   }

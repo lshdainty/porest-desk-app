@@ -12,6 +12,7 @@ import '../../../core/format/krw.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/widgets/p_badge.dart';
 import '../../../shared/widgets/p_button.dart';
+import '../../../shared/widgets/p_chip.dart';
 import '../../asset/application/asset_providers.dart';
 import '../application/expense_providers.dart';
 import '../domain/expense.dart';
@@ -410,13 +411,14 @@ class _FilterRow extends StatelessWidget {
             child: Row(
               children: [
                 for (final f in _Filter.values) ...[
-                  _Chip(
+                  PChip(
                     label: switch (f) {
                       _Filter.all => '전체',
                       _Filter.expense => '지출',
                       _Filter.income => '수입',
                     },
-                    active: f == value,
+                    selected: f == value,
+                    size: PChipSize.sm,
                     onTap: () => onChanged(f),
                   ),
                   const SizedBox(width: 6),
@@ -475,36 +477,6 @@ class _FilterRow extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _Chip extends StatelessWidget {
-  const _Chip(
-      {required this.label, required this.active, required this.onTap});
-  final String label;
-  final bool active;
-  final VoidCallback onTap;
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    return InkWell(
-      onTap: onTap,
-      borderRadius: PRadius.brFull,
-      child: Container(
-        padding:
-            const EdgeInsets.symmetric(horizontal: PSpace.x12, vertical: 7),
-        decoration: BoxDecoration(
-          color: active ? t.bgBrand : t.bgSurface,
-          border: Border.all(color: active ? t.bgBrand : t.borderSubtle),
-          borderRadius: PRadius.brFull,
-        ),
-        child: Text(label,
-            style: PTypo.caption.copyWith(
-              color: active ? t.fgOnBrand : t.fgSecondary,
-              fontWeight: PFontWeight.semi,
-            )),
-      ),
     );
   }
 }

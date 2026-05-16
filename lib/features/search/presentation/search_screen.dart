@@ -16,6 +16,7 @@ import '../../../core/network/api_exception.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_button.dart';
+import '../../../shared/widgets/p_chip.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../../expense/application/expense_providers.dart';
@@ -321,34 +322,31 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                 PSpace.x16, 0, PSpace.x16, PSpace.x8),
             child: Row(
               children: [
-                _TypeChip(
+                PChip(
                   label: '전체',
                   selected: _typeFilter == null,
                   onTap: () {
                     setState(() => _typeFilter = null);
                     _runSearch();
                   },
-                  tokens: t,
                 ),
                 const SizedBox(width: 6),
-                _TypeChip(
+                PChip(
                   label: '지출',
                   selected: _typeFilter == 'EXPENSE',
                   onTap: () {
                     setState(() => _typeFilter = 'EXPENSE');
                     _runSearch();
                   },
-                  tokens: t,
                 ),
                 const SizedBox(width: 6),
-                _TypeChip(
+                PChip(
                   label: '수입',
                   selected: _typeFilter == 'INCOME',
                   onTap: () {
                     setState(() => _typeFilter = 'INCOME');
                     _runSearch();
                   },
-                  tokens: t,
                 ),
               ],
             ),
@@ -409,38 +407,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       } catch (_) {}
     }
     return null;
-  }
-}
-
-class _TypeChip extends StatelessWidget {
-  const _TypeChip({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-    required this.tokens,
-  });
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-  final PorestTokens tokens;
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: selected ? tokens.bgBrand : tokens.bgSurface,
-          border: Border.all(
-              color: selected ? tokens.borderBrand : tokens.borderSubtle),
-          borderRadius: PRadius.brFull,
-        ),
-        child: Text(label,
-            style: PTypo.caption.copyWith(
-                color: selected ? tokens.fgOnBrand : tokens.fgSecondary,
-                fontWeight: PFontWeight.semi)),
-      ),
-    );
   }
 }
 
