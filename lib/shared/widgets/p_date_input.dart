@@ -43,12 +43,12 @@ class PDateInput extends StatelessWidget {
       },
       borderRadius: PRadius.brSm,
       child: Container(
-        height: 36,
+        height: 40,
         padding: const EdgeInsets.symmetric(horizontal: PSpace.x12),
         decoration: BoxDecoration(
-          color: t.bgSurface,
+          color: t.bgMuted,
           borderRadius: PRadius.brSm,
-          border: Border.all(color: t.borderSubtle),
+          border: Border.all(color: t.borderDefault),
         ),
         child: Row(
           children: [
@@ -57,7 +57,7 @@ class PDateInput extends StatelessWidget {
             Expanded(
               child: Text(
                 value != null ? _fmt(value!) : placeholder,
-                style: PTypo.bodySm.copyWith(
+                style: PTypo.bodyLg.copyWith(
                   color: value != null ? t.fgPrimary : t.fgTertiary,
                 ),
               ),
@@ -103,12 +103,12 @@ class PTimeInput extends StatelessWidget {
       },
       borderRadius: PRadius.brSm,
       child: Container(
-        height: 36,
+        height: 40,
         padding: const EdgeInsets.symmetric(horizontal: PSpace.x12),
         decoration: BoxDecoration(
-          color: t.bgSurface,
+          color: t.bgMuted,
           borderRadius: PRadius.brSm,
-          border: Border.all(color: t.borderSubtle),
+          border: Border.all(color: t.borderDefault),
         ),
         child: Row(
           children: [
@@ -116,7 +116,7 @@ class PTimeInput extends StatelessWidget {
             const SizedBox(width: PSpace.x8),
             Text(
               value != null ? _fmt(value!) : placeholder,
-              style: PTypo.bodySm.copyWith(
+              style: PTypo.bodyLg.copyWith(
                 color: value != null ? t.fgPrimary : t.fgTertiary,
               ),
             ),

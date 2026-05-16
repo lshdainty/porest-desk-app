@@ -133,20 +133,20 @@ Future<T?> showPSheet<T>(
             padding: EdgeInsets.only(bottom: bottomInset),
             child: Column(
               children: [
-                // Drag handle
+                // Drag handle — spec: 40×4 / surface-input / radius-full
                 Container(
                   margin: const EdgeInsets.only(top: PSpace.x8),
-                  width: PSpace.x32 + PSpace.x4,
-                  height: PSpace.x4,
+                  width: 40,
+                  height: 4,
                   decoration: BoxDecoration(
-                    color: t.borderDefault,
-                    borderRadius: PRadius.brXs2,
+                    color: t.bgMuted,
+                    borderRadius: PRadius.brFull,
                   ),
                 ),
-                // Header (제목 + 액션 + close)
+                // Header (제목 + 액션 + close) — spec: padding lg(16)
                 Padding(
                   padding: const EdgeInsets.fromLTRB(
-                      PSpace.x16, PSpace.x12, PSpace.x8, PSpace.x4),
+                      PSpace.lg, PSpace.md, PSpace.sm, PSpace.xs),
                   child: Row(
                     children: [
                       Expanded(

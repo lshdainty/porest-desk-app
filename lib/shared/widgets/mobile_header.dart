@@ -103,7 +103,7 @@ class _NotificationBell extends ConsumerWidget {
       message: '알림',
       child: InkWell(
         onTap: () => context.push('/notifications'),
-        borderRadius: PRadius.brPill,
+        borderRadius: PRadius.brFull,
         child: SizedBox(
           width: 36,
           height: 36,
@@ -121,7 +121,7 @@ class _NotificationBell extends ConsumerWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 4),
                     decoration: BoxDecoration(
                       color: tokens.statusDanger,
-                      borderRadius: PRadius.brPill,
+                      borderRadius: PRadius.brFull,
                       border: Border.all(color: tokens.bgSurface, width: 1.5),
                     ),
                     child: Center(
@@ -159,7 +159,7 @@ class _IcoBtn extends StatelessWidget {
       message: tooltip ?? '',
       child: InkWell(
         onTap: onPressed,
-        borderRadius: PRadius.brPill,
+        borderRadius: PRadius.brFull,
         child: SizedBox(
           width: 36,
           height: 36,

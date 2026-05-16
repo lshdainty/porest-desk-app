@@ -33,25 +33,56 @@ class PButton extends StatelessWidget {
   final bool loading;
   final bool fullWidth;
 
+  // DESIGN.desk.md / specs/components/button.md spec:
+  // sm: h=32, padY=4 padX=8, font=caption(12), radius=sm(4), icon=14
+  // md: h=40, padY=8 padX=12, font=body-md(15), radius=sm(4), icon=16
+  // lg: h=48, padY=12 padX=16, font=title-sm(16), radius=md(8), icon=18
+  double _height() => switch (size) {
+        PButtonSize.sm => 32,
+        PButtonSize.md => 40,
+        PButtonSize.lg => 48,
+      };
+
   EdgeInsetsGeometry _padding() => switch (size) {
         PButtonSize.sm =>
-          const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         PButtonSize.md =>
-          const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         PButtonSize.lg =>
-          const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+          const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       };
 
   TextStyle _textStyle(PorestTokens t) => switch (size) {
-        PButtonSize.sm => PTypo.caption.copyWith(fontWeight: PFontWeight.semi),
-        PButtonSize.md => PTypo.bodySm.copyWith(fontWeight: PFontWeight.semi),
-        PButtonSize.lg => PTypo.body.copyWith(fontWeight: PFontWeight.bold),
+        PButtonSize.sm => TextStyle(
+              fontFamily: PTypo.sans,
+              fontSize: PFontSize.caption,
+              fontWeight: PFontWeight.medium,
+              height: 1.0,
+            ),
+        PButtonSize.md => TextStyle(
+              fontFamily: PTypo.sans,
+              fontSize: PFontSize.bodyMd,
+              fontWeight: PFontWeight.medium,
+              height: 1.0,
+            ),
+        PButtonSize.lg => TextStyle(
+              fontFamily: PTypo.sans,
+              fontSize: PFontSize.titleSm,
+              fontWeight: PFontWeight.medium,
+              height: 1.0,
+            ),
       };
 
   double _iconSize() => switch (size) {
         PButtonSize.sm => 14,
         PButtonSize.md => 16,
         PButtonSize.lg => 18,
+      };
+
+  BorderRadius _radius() => switch (size) {
+        PButtonSize.sm => PRadius.brSm,
+        PButtonSize.md => PRadius.brSm,
+        PButtonSize.lg => PRadius.brMd,
       };
 
   @override
@@ -89,35 +120,39 @@ class PButton extends StatelessWidget {
     }
 
     final disabled = onPressed == null || loading;
+    final radius = _radius();
     final btn = Material(
       color: disabled ? bg.withValues(alpha: 0.5) : bg,
       shape: RoundedRectangleBorder(
-        borderRadius: PRadius.brMd,
+        borderRadius: radius,
         side: border,
       ),
       child: InkWell(
         onTap: disabled ? null : onPressed,
-        borderRadius: PRadius.brMd,
-        child: Padding(
-          padding: _padding(),
-          child: Row(
-            mainAxisSize: fullWidth ? MainAxisSize.max : MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (loading)
-                SizedBox(
-                  width: _iconSize(),
-                  height: _iconSize(),
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: fg,
-                  ),
-                )
-              else if (icon != null)
-                Icon(icon, size: _iconSize(), color: fg),
-              if ((loading || icon != null)) const SizedBox(width: 6),
-              Text(label, style: _textStyle(t).copyWith(color: fg)),
-            ],
+        borderRadius: radius,
+        child: SizedBox(
+          height: _height(),
+          child: Padding(
+            padding: _padding(),
+            child: Row(
+              mainAxisSize: fullWidth ? MainAxisSize.max : MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (loading)
+                  SizedBox(
+                    width: _iconSize(),
+                    height: _iconSize(),
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: fg,
+                    ),
+                  )
+                else if (icon != null)
+                  Icon(icon, size: _iconSize(), color: fg),
+                if ((loading || icon != null)) const SizedBox(width: PSpace.sm),
+                Text(label, style: _textStyle(t).copyWith(color: fg)),
+              ],
+            ),
           ),
         ),
       ),

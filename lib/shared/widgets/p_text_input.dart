@@ -6,14 +6,15 @@ import '../../app/theme/spacing.dart';
 import '../../app/theme/tokens.dart';
 import '../../app/theme/typography.dart';
 
-/// front shadcn `<Input>` 미러 — bgSurface 배경, height 36, semantic 토큰 일관 사용.
+/// specs/components/input.md 미러 — single size md.
 ///
-/// 다이얼로그·시트의 입력란은 이 위젯을 통해서만 사용. 기본값:
-/// - 높이 36
-/// - 배경 `bgSurface` (white/dark surface)
-/// - 보더 `borderSubtle`
-/// - radius `brSm` (=6)
-/// - padding 좌우 12
+/// Spec:
+/// - Height: 40px
+/// - Padding (Y · X): 8 · 12 (`spacing-sm` · `spacing-md`)
+/// - Font: body-lg (16px / 400)
+/// - Radius: sm (4px)
+/// - Border: 1px `border-default`
+/// - Background: `surface-input` (light #F0F2F7, dark #2D3346)
 class PTextInput extends StatelessWidget {
   const PTextInput({
     super.key,
@@ -67,36 +68,40 @@ class PTextInput extends StatelessWidget {
       obscureText: obscureText,
       maxLines: obscureText ? 1 : maxLines,
       textAlign: textAlign,
-      style: (style ?? PTypo.bodySm).copyWith(color: t.fgPrimary),
+      style: (style ?? PTypo.bodyLg).copyWith(color: t.fgPrimary),
       decoration: InputDecoration(
         hintText: placeholder,
-        hintStyle: PTypo.bodySm.copyWith(color: t.fgTertiary),
+        hintStyle: PTypo.bodyLg.copyWith(color: t.fgTertiary),
         filled: true,
-        fillColor: t.bgSurface,
+        fillColor: t.bgMuted, // surface-input
         isDense: true,
-        contentPadding: EdgeInsets.symmetric(
-            horizontal: PSpace.x12, vertical: isMultiLine ? 10 : 8),
+        contentPadding: const EdgeInsets.symmetric(
+            horizontal: PSpace.md, vertical: PSpace.sm),
         prefixIcon: prefix,
         suffixIcon: suffix,
         border: OutlineInputBorder(
           borderRadius: PRadius.brSm,
-          borderSide: BorderSide(color: t.borderSubtle),
+          borderSide: BorderSide(color: t.borderDefault),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: PRadius.brSm,
-          borderSide: BorderSide(color: t.borderSubtle),
+          borderSide: BorderSide(color: t.borderDefault),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: PRadius.brSm,
-          borderSide: BorderSide(color: t.borderBrand),
+          borderSide: BorderSide(color: t.borderFocus),
         ),
         disabledBorder: OutlineInputBorder(
           borderRadius: PRadius.brSm,
-          borderSide: BorderSide(color: t.borderSubtle),
+          borderSide: BorderSide(color: t.borderDefault),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: PRadius.brSm,
+          borderSide: BorderSide(color: t.statusDanger),
         ),
       ),
     );
     if (isMultiLine) return field;
-    return SizedBox(height: 36, child: field);
+    return SizedBox(height: 40, child: field);
   }
 }

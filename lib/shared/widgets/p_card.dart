@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 
+import '../../app/theme/elevation.dart';
 import '../../app/theme/radius.dart';
 import '../../app/theme/tokens.dart';
 
 /// porest-desk-front `<Card>` (variant: default) 미러.
 ///
-///  className="rounded-[var(--radius-lg)] border bg-card shadow-[var(--shadow-sm)]"
-///  --shadow-sm: 0 1px 2px rgba(28,36,20,0.06), 0 1px 3px rgba(28,36,20,0.04)
+/// specs/components/card.md spec:
+/// - radius `radius-lg` (12px)
+/// - **border 없음** — shadow-only elevation (`shadow-sm`)
+/// - 시각 padding `spacing-xl` (24px) 권장 (사용처별 조정 가능)
 class PCard extends StatelessWidget {
   const PCard({
     super.key,
@@ -22,21 +25,10 @@ class PCard extends StatelessWidget {
   final EdgeInsetsGeometry padding;
   final BorderRadius borderRadius;
   final Color? color;
+
+  /// 명시적 border 지정 (선택). 기본값 없음 — spec: shadow-only elevation.
   final BoxBorder? border;
   final VoidCallback? onTap;
-
-  static const _shadow = [
-    BoxShadow(
-      color: Color(0x0F1C2414), // rgba(28,36,20, 0.06)
-      offset: Offset(0, 1),
-      blurRadius: 2,
-    ),
-    BoxShadow(
-      color: Color(0x0A1C2414), // rgba(28,36,20, 0.04)
-      offset: Offset(0, 1),
-      blurRadius: 3,
-    ),
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -46,8 +38,8 @@ class PCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: color ?? t.bgSurface,
         borderRadius: borderRadius,
-        border: border ?? Border.all(color: t.borderSubtle),
-        boxShadow: _shadow,
+        border: border,
+        boxShadow: PorestElevation.sm,
       ),
       child: child,
     );

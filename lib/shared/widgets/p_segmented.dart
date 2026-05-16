@@ -39,10 +39,16 @@ class PSegmented<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    // ToggleGroup variant="segmented" spec (desk-front .p-seg):
+    // wrapper: bg-sunken + border-default + radius-md + p-0.5 (2px)
+    // item: h-7 (28) + caption(12/600) + active=bg-brand
     return Container(
-      padding: const EdgeInsets.all(4),
-      decoration:
-          BoxDecoration(color: t.bgMuted, borderRadius: PRadius.brSm),
+      padding: const EdgeInsets.all(2),
+      decoration: BoxDecoration(
+        color: t.bgSunken,
+        borderRadius: PRadius.brMd,
+        border: Border.all(color: t.borderDefault),
+      ),
       child: Row(
         children: [
           for (final o in options)
@@ -50,11 +56,11 @@ class PSegmented<T> extends StatelessWidget {
               child: GestureDetector(
                 onTap: () => onChanged(o.value),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  height: 28,
                   decoration: BoxDecoration(
                     color:
                         o.value == value ? t.bgBrand : Colors.transparent,
-                    borderRadius: PRadius.brXs,
+                    borderRadius: PRadius.brSm,
                   ),
                   alignment: Alignment.center,
                   child: Text(o.label,
