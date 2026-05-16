@@ -16,22 +16,38 @@ enum PButtonSize { sm, md, lg }
 class PButton extends StatelessWidget {
   const PButton({
     super.key,
-    required this.label,
+    this.label,
     this.onPressed,
     this.icon,
     this.variant = PButtonVariant.primary,
     this.size = PButtonSize.md,
     this.loading = false,
     this.fullWidth = false,
-  });
+    this.tooltip,
+  }) : assert(label != null || icon != null,
+            'PButton requires either a label or an icon');
 
-  final String label;
+  /// icon-only 생성자 — front `<Button size="icon" variant="ghost">` 대응.
+  /// 가로 = 높이 (정사각), padding 작게.
+  const PButton.icon({
+    super.key,
+    required IconData this.icon,
+    this.onPressed,
+    this.variant = PButtonVariant.ghost,
+    this.size = PButtonSize.md,
+    this.loading = false,
+    this.tooltip,
+  })  : label = null,
+        fullWidth = false;
+
+  final String? label;
   final VoidCallback? onPressed;
   final IconData? icon;
   final PButtonVariant variant;
   final PButtonSize size;
   final bool loading;
   final bool fullWidth;
+  final String? tooltip;
 
   // DESIGN.desk.md / specs/components/button.md spec:
   // sm: h=32, padY=4 padX=8, font=caption(12), radius=sm(4), icon=14
@@ -121,6 +137,8 @@ class PButton extends StatelessWidget {
 
     final disabled = onPressed == null || loading;
     final radius = _radius();
+    final iconOnly = label == null;
+    final h = _height();
     final btn = Material(
       color: disabled ? bg.withValues(alpha: 0.5) : bg,
       shape: RoundedRectangleBorder(
@@ -131,9 +149,10 @@ class PButton extends StatelessWidget {
         onTap: disabled ? null : onPressed,
         borderRadius: radius,
         child: SizedBox(
-          height: _height(),
+          height: h,
+          width: iconOnly ? h : null,
           child: Padding(
-            padding: _padding(),
+            padding: iconOnly ? EdgeInsets.zero : _padding(),
             child: Row(
               mainAxisSize: fullWidth ? MainAxisSize.max : MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
@@ -149,15 +168,20 @@ class PButton extends StatelessWidget {
                   )
                 else if (icon != null)
                   Icon(icon, size: _iconSize(), color: fg),
-                if ((loading || icon != null)) const SizedBox(width: PSpace.sm),
-                Text(label, style: _textStyle(t).copyWith(color: fg)),
+                if (!iconOnly && (loading || icon != null))
+                  const SizedBox(width: PSpace.sm),
+                if (!iconOnly)
+                  Text(label!, style: _textStyle(t).copyWith(color: fg)),
               ],
             ),
           ),
         ),
       ),
     );
-    return fullWidth ? SizedBox(width: double.infinity, child: btn) : btn;
+    final tipped = tooltip != null
+        ? Tooltip(message: tooltip!, child: btn)
+        : btn;
+    return fullWidth ? SizedBox(width: double.infinity, child: tipped) : tipped;
   }
 }
 
