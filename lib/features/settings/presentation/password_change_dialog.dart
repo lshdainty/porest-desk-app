@@ -7,6 +7,7 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/auth/auth_notifier.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../shared/widgets/p_modal.dart';
 
 /// 비밀번호 변경 다이얼로그 — front `PasswordChangeDialog` 미러.
 ///
@@ -79,15 +80,9 @@ class _PasswordChangeDialogState extends ConsumerState<_PasswordChangeDialog> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    return AlertDialog(
-      backgroundColor: t.bgSurface,
-      title: Row(
-        children: [
-          Icon(LucideIcons.key, size: 18, color: t.fgBrand),
-          const SizedBox(width: PSpace.x8),
-          const Text('비밀번호 변경'),
-        ],
-      ),
+    return PFormAlertDialog(
+      title: '비밀번호 변경',
+      titleLeading: Icon(LucideIcons.key, size: 18, color: t.fgBrand),
       content: SizedBox(
         width: 400,
         child: Column(

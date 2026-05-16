@@ -186,6 +186,59 @@ Future<T?> showPSheet<T>(
   );
 }
 
+/// 표준 form-입력 AlertDialog wrapper — 비밀번호/저금 추가/그룹 수정 등.
+///
+/// title + content slot + actions slot 골격만 통일. 각 도메인 content
+/// (입력 필드, validation 등) 는 사용처 직접 구성.
+///
+/// 사용 예:
+/// ```dart
+/// showDialog<bool>(
+///   context: context,
+///   builder: (_) => PFormAlertDialog(
+///     title: '그룹 수정',
+///     content: Column(...),
+///     actions: [TextButton(...), FilledButton(...)],
+///   ),
+/// );
+/// ```
+class PFormAlertDialog extends StatelessWidget {
+  const PFormAlertDialog({
+    super.key,
+    required this.title,
+    required this.content,
+    required this.actions,
+    this.titleLeading,
+  });
+
+  final String title;
+
+  /// title 좌측 prefix (예: 아이콘). 8px gap 후 title 텍스트.
+  final Widget? titleLeading;
+  final Widget content;
+  final List<Widget> actions;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return AlertDialog(
+      backgroundColor: t.bgSurface,
+      shape: const RoundedRectangleBorder(borderRadius: PRadius.brLg),
+      title: titleLeading != null
+          ? Row(
+              children: [
+                titleLeading!,
+                const SizedBox(width: PSpace.sm),
+                Expanded(child: Text(title)),
+              ],
+            )
+          : Text(title),
+      content: content,
+      actions: actions,
+    );
+  }
+}
+
 /// 표준 확인 다이얼로그 — 위험 액션이면 [destructive]=true.
 Future<bool> showPConfirmDialog(
   BuildContext context, {

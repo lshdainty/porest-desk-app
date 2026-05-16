@@ -14,6 +14,7 @@ import '../../../core/network/api_exception.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_empty_state.dart';
+import '../../../shared/widgets/p_modal.dart';
 import '../application/saving_goal_providers.dart';
 import '../domain/saving_goal.dart';
 import 'saving_goal_edit_dialog.dart';
@@ -95,8 +96,8 @@ class SavingGoalScreen extends ConsumerWidget {
       builder: (ctx) {
         bool busy = false;
         return StatefulBuilder(
-          builder: (_, setS) => AlertDialog(
-            title: Text('"${g.title}" 적립'),
+          builder: (_, setS) => PFormAlertDialog(
+            title: '"${g.title}" 적립',
             content: TextField(
               controller: ctrl,
               keyboardType: TextInputType.number,

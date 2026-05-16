@@ -1366,10 +1366,8 @@ class _SavePresetDialogState extends ConsumerState<_SavePresetDialog> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    return AlertDialog(
-      title: Text('프리셋으로 저장',
-          style: TextStyle(
-              color: t.fgPrimary, fontWeight: PFontWeight.bold)),
+    return PFormAlertDialog(
+      title: '프리셋으로 저장',
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,

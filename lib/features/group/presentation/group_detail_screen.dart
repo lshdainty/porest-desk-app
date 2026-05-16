@@ -796,9 +796,8 @@ Future<void> _showEditDialog(
     context: context,
     builder: (ctx) {
       final t = ctx.tokens;
-      return AlertDialog(
-        backgroundColor: t.bgSurface,
-        title: const Text('그룹 수정'),
+      return PFormAlertDialog(
+        title: '그룹 수정',
         content: SizedBox(
           width: 400,
           child: Column(

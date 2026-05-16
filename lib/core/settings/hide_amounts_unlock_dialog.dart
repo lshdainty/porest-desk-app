@@ -5,6 +5,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 import '../../app/theme/spacing.dart';
 import '../../app/theme/tokens.dart';
 import '../../app/theme/typography.dart';
+import '../../shared/widgets/p_modal.dart';
 import '../auth/auth_notifier.dart';
 import '../network/api_exception.dart';
 import 'settings_notifier.dart';
@@ -93,15 +94,10 @@ class _HideAmountsUnlockDialogState
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    return AlertDialog(
-      backgroundColor: t.bgSurface,
-      title: Row(
-        children: [
+    return PFormAlertDialog(
+      title: '금액 보기 인증',
+      titleLeading:
           Icon(LucideIcons.shieldCheck, size: 18, color: t.fgBrand),
-          const SizedBox(width: PSpace.x8),
-          const Text('금액 보기 인증'),
-        ],
-      ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
