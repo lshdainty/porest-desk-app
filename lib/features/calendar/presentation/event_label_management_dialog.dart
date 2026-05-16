@@ -8,6 +8,7 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/format/color_parse.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../application/calendar_providers.dart';
@@ -107,16 +108,12 @@ class _BodyState extends ConsumerState<_Body> {
                 ),
               ),
               const SizedBox(width: PSpace.x8),
-              FilledButton(
+              PButton(
+                label: '추가',
+                loading: _adding,
                 onPressed: (_newNameCtrl.text.trim().isEmpty || _adding)
                     ? null
                     : _create,
-                child: _adding
-                    ? const SizedBox(
-                        width: 14,
-                        height: 14,
-                        child: CircularProgressIndicator(strokeWidth: 2))
-                    : const Text('추가'),
               ),
             ],
           ),
@@ -302,14 +299,10 @@ class _LabelRowState extends ConsumerState<_LabelRow> {
             const SizedBox(height: 8),
             Align(
               alignment: Alignment.centerRight,
-              child: FilledButton(
+              child: PButton(
+                label: '저장',
+                loading: _busy,
                 onPressed: _busy ? null : _save,
-                child: _busy
-                    ? const SizedBox(
-                        width: 14,
-                        height: 14,
-                        child: CircularProgressIndicator(strokeWidth: 2))
-                    : const Text('저장'),
               ),
             ),
           ],

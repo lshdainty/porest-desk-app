@@ -7,6 +7,7 @@ import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../application/calendar_providers.dart';
@@ -171,14 +172,11 @@ class _BodyState extends ConsumerState<_Body> {
               Text('매년 반복',
                   style: PTypo.caption.copyWith(color: t.fgSecondary)),
               const Spacer(),
-              FilledButton(
+              PButton(
+                label: '추가',
+                loading: _adding,
                 onPressed:
                     (_nameCtrl.text.trim().isEmpty || _adding) ? null : _add,
-                child: _adding
-                    ? const SizedBox(
-                        width: 14, height: 14,
-                        child: CircularProgressIndicator(strokeWidth: 2))
-                    : const Text('추가'),
               ),
             ],
           ),
