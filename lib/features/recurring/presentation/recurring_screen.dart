@@ -12,6 +12,7 @@ import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
+import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_empty_state.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../expense/application/expense_providers.dart';
@@ -839,7 +840,10 @@ class _ErrorBox extends StatelessWidget {
         children: [
           Text(message, style: PTypo.bodySm.copyWith(color: t.statusDangerFg)),
           const SizedBox(height: PSpace.x8),
-          OutlinedButton(onPressed: onRetry, child: const Text('다시 시도')),
+          PButton(
+              label: '다시 시도',
+              variant: PButtonVariant.outline,
+              onPressed: onRetry),
         ],
       ),
     );

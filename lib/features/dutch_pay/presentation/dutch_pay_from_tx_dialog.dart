@@ -12,6 +12,7 @@ import '../../../core/format/color_parse.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
+import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../expense/application/expense_providers.dart';
 import '../../expense/domain/expense.dart';
@@ -688,25 +689,21 @@ class _DutchPayFooter extends StatelessWidget {
                 ]),
               ),
             ),
-            TextButton(
+            PButton(
+              label: '취소',
+              variant: PButtonVariant.ghost,
               onPressed: controller.submitting
                   ? null
                   : () => Navigator.of(ctx).pop(),
-              child: const Text('취소'),
             ),
             const SizedBox(width: PSpace.x4),
-            FilledButton.icon(
+            PButton(
+              label: '정산 만들기',
+              icon: LucideIcons.send,
+              loading: controller.submitting,
               onPressed: matched && !controller.submitting
                   ? controller.onSubmit
                   : null,
-              icon: controller.submitting
-                  ? const SizedBox(
-                      width: PSpace.x16,
-                      height: PSpace.x16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(LucideIcons.send, size: 14),
-              label: const Text('정산 만들기'),
             ),
           ],
         );

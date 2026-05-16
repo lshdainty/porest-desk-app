@@ -9,6 +9,7 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../l10n/generated/app_localizations.dart';
+import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_empty_state.dart';
 import '../application/notification_providers.dart';
 import '../domain/notification.dart';
@@ -34,7 +35,10 @@ class NotificationScreen extends ConsumerWidget {
         foregroundColor: t.fgPrimary,
         elevation: 0,
         actions: [
-          TextButton(
+          PButton(
+            label: l.notiMarkAllRead,
+            variant: PButtonVariant.ghost,
+            size: PButtonSize.sm,
             onPressed: () async {
               try {
                 final repo =
@@ -49,8 +53,8 @@ class NotificationScreen extends ConsumerWidget {
                 );
               }
             },
-            child: Text(l.notiMarkAllRead),
           ),
+          const SizedBox(width: PSpace.x8),
         ],
       ),
       body: RefreshIndicator(

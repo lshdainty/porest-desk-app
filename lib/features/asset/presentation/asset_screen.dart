@@ -10,6 +10,7 @@ import '../../../app/theme/typography.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/settings/hide_amounts_unlock_dialog.dart';
 import '../../../core/settings/settings_notifier.dart';
+import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_card.dart';
 import '../../notification/application/notification_providers.dart';
 import '../application/asset_providers.dart';
@@ -146,10 +147,10 @@ class _AssetBody extends StatelessWidget {
                         fontSize: PFontSize.body,
                         fontWeight: PFontWeight.medium)),
                 const SizedBox(height: PSpace.x12),
-                FilledButton.icon(
+                PButton(
+                  label: '첫 자산 추가하기',
+                  icon: LucideIcons.plus,
                   onPressed: () => showAssetAddDialog(context),
-                  icon: const Icon(LucideIcons.plus, size: 14),
-                  label: const Text('첫 자산 추가하기'),
                 ),
               ],
             ),
@@ -748,7 +749,10 @@ class _ErrorBox extends StatelessWidget {
             children: [
               Text(message, style: TextStyle(color: t.statusDangerFg, fontSize: PFontSize.bodySm)),
               const SizedBox(height: PSpace.x8),
-              OutlinedButton(onPressed: onRetry, child: const Text('다시 시도')),
+              PButton(
+                  label: '다시 시도',
+                  variant: PButtonVariant.outline,
+                  onPressed: onRetry),
             ],
           ),
         ),
