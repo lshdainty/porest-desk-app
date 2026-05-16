@@ -11,6 +11,7 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/format/color_parse.dart';
 import '../../../shared/widgets/p_button.dart';
+import '../../../shared/widgets/p_floating_action_button.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../application/calendar_providers.dart';
 import '../domain/calendar_event.dart';
@@ -77,12 +78,10 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: t.bgBrand,
-        foregroundColor: t.fgOnBrand,
+      floatingActionButton: PFloatingActionButton(
+        icon: LucideIcons.plus,
         onPressed: () =>
             showCalendarEventDialog(context, defaultDate: _selected),
-        child: const Icon(LucideIcons.plus),
       ),
       body: SafeArea(
         top: false,

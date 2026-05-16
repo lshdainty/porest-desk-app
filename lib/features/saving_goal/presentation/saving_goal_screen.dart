@@ -15,6 +15,7 @@ import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_badge.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_empty_state.dart';
+import '../../../shared/widgets/p_floating_action_button.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../application/saving_goal_providers.dart';
@@ -42,11 +43,9 @@ class SavingGoalScreen extends ConsumerWidget {
         foregroundColor: t.fgPrimary,
         elevation: 0,
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: t.bgBrand,
-        foregroundColor: t.fgOnBrand,
+      floatingActionButton: PFloatingActionButton(
+        icon: LucideIcons.plus,
         onPressed: () => showSavingGoalEditDialog(context),
-        child: const Icon(LucideIcons.plus),
       ),
       body: RefreshIndicator(
         color: t.bgBrand,

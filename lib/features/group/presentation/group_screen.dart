@@ -12,6 +12,7 @@ import '../../../core/format/color_parse.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_empty_state.dart';
+import '../../../shared/widgets/p_floating_action_button.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../application/group_providers.dart';
@@ -50,11 +51,9 @@ class GroupScreen extends ConsumerWidget {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: t.bgBrand,
-        foregroundColor: t.fgOnBrand,
+      floatingActionButton: PFloatingActionButton(
+        icon: LucideIcons.plus,
         onPressed: () => _showCreateDialog(context, ref),
-        child: const Icon(LucideIcons.plus),
       ),
       body: RefreshIndicator(
         color: t.bgBrand,

@@ -10,6 +10,7 @@ import '../../../app/theme/typography.dart';
 import '../../../core/format/color_parse.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_empty_state.dart';
+import '../../../shared/widgets/p_floating_action_button.dart';
 import '../../expense/application/expense_providers.dart';
 import '../../expense/domain/expense_category.dart';
 import 'category_edit_dialog.dart';
@@ -66,12 +67,10 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen>
           tabs: [for (final k in _kinds) Tab(text: k.$2)],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: t.bgBrand,
-        foregroundColor: t.fgOnBrand,
+      floatingActionButton: PFloatingActionButton(
+        icon: LucideIcons.plus,
         onPressed: () => showCategoryEditDialog(context,
             defaultExpenseType: _kinds[_tab.index].$1),
-        child: const Icon(LucideIcons.plus),
       ),
       body: categoriesAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),

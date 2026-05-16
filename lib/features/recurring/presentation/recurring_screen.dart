@@ -16,6 +16,7 @@ import '../../../shared/widgets/p_badge.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_chip.dart';
 import '../../../shared/widgets/p_empty_state.dart';
+import '../../../shared/widgets/p_floating_action_button.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../expense/application/expense_providers.dart';
 import '../../expense/domain/expense_category.dart';
@@ -103,11 +104,9 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
         foregroundColor: t.fgPrimary,
         elevation: 0,
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: t.bgBrand,
-        foregroundColor: t.fgOnBrand,
+      floatingActionButton: PFloatingActionButton(
+        icon: LucideIcons.plus,
         onPressed: () => showRecurringEditDialog(context),
-        child: const Icon(LucideIcons.plus),
       ),
       body: RefreshIndicator(
         color: t.bgBrand,

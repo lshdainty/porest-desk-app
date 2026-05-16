@@ -14,6 +14,7 @@ import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_empty_state.dart';
+import '../../../shared/widgets/p_floating_action_button.dart';
 import '../../expense/application/expense_providers.dart';
 import '../../expense/domain/expense_category.dart';
 import '../application/preset_providers.dart';
@@ -75,11 +76,9 @@ class _PresetScreenState extends ConsumerState<PresetScreen> {
         foregroundColor: t.fgPrimary,
         elevation: 0,
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: t.bgBrand,
-        foregroundColor: t.fgOnBrand,
+      floatingActionButton: PFloatingActionButton(
+        icon: LucideIcons.plus,
         onPressed: () => showPresetEditDialog(context),
-        child: const Icon(LucideIcons.plus),
       ),
       body: RefreshIndicator(
         color: t.bgBrand,
