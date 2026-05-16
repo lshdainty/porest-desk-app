@@ -11,6 +11,7 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/format/krw.dart';
 import '../../../shared/widgets/p_button.dart';
+import '../../../shared/widgets/p_chip.dart';
 import '../../../shared/widgets/p_empty_state.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../application/card_providers.dart';
@@ -118,47 +119,47 @@ class _CardScreenState extends ConsumerState<CardScreen> {
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
-                      _Chip(
+                      PChip(
                           label: '전체',
                           selected: _typeFilter == null,
                           onTap: () => _setType(null),
-                          tokens: t),
+                          ),
                       const SizedBox(width: 6),
-                      _Chip(
+                      PChip(
                           label: '신용',
                           selected: _typeFilter == 'CREDIT',
                           onTap: () => _setType('CREDIT'),
-                          tokens: t),
+                          ),
                       const SizedBox(width: 6),
-                      _Chip(
+                      PChip(
                           label: '체크',
                           selected: _typeFilter == 'CHECK',
                           onTap: () => _setType('CHECK'),
-                          tokens: t),
+                          ),
                       const SizedBox(width: 14),
-                      _Chip(
+                      PChip(
                           label: '혜택 전체',
                           selected: _benefitFilter == null,
                           onTap: () => _setBenefit(null),
-                          tokens: t),
+                          ),
                       const SizedBox(width: 6),
-                      _Chip(
+                      PChip(
                           label: '할인',
                           selected: _benefitFilter == 'DISCOUNT',
                           onTap: () => _setBenefit('DISCOUNT'),
-                          tokens: t),
+                          ),
                       const SizedBox(width: 6),
-                      _Chip(
+                      PChip(
                           label: '적립',
                           selected: _benefitFilter == 'POINT',
                           onTap: () => _setBenefit('POINT'),
-                          tokens: t),
+                          ),
                       const SizedBox(width: 6),
-                      _Chip(
+                      PChip(
                           label: '캐시백',
                           selected: _benefitFilter == 'CASHBACK',
                           onTap: () => _setBenefit('CASHBACK'),
-                          tokens: t),
+                          ),
                     ],
                   ),
                 ),
@@ -304,38 +305,6 @@ class _Paginator extends StatelessWidget {
           onPressed: onNext,
         ),
       ],
-    );
-  }
-}
-
-class _Chip extends StatelessWidget {
-  const _Chip({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-    required this.tokens,
-  });
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-  final PorestTokens tokens;
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: selected ? tokens.bgBrand : tokens.bgSurface,
-          border: Border.all(
-              color: selected ? tokens.borderBrand : tokens.borderSubtle),
-          borderRadius: PRadius.brFull,
-        ),
-        child: Text(label,
-            style: PTypo.caption.copyWith(
-                color: selected ? tokens.fgOnBrand : tokens.fgSecondary,
-                fontWeight: PFontWeight.semi)),
-      ),
     );
   }
 }

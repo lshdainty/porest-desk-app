@@ -11,6 +11,7 @@ import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../shared/widgets/p_chip.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../asset/application/asset_providers.dart';
 import '../../asset/domain/asset.dart';
@@ -242,11 +243,12 @@ class _ExportBodyState extends ConsumerState<_ExportBody> {
             runSpacing: PSpace.x8,
             children: [
               for (final p in _Period.values)
-                _Chip(
+                PChip(
                   label: _periodLabel(p),
                   selected: _period == p,
+                  variant: PChipVariant.subtle,
+                  shape: PChipShape.rounded,
                   onTap: () => setState(() => _period = p),
-                  tokens: t,
                 ),
             ],
           ),
@@ -311,41 +313,6 @@ class _Label extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.tokens;
     return Text(text, style: PTypo.caption.copyWith(color: t.fgSecondary));
-  }
-}
-
-class _Chip extends StatelessWidget {
-  const _Chip({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-    required this.tokens,
-  });
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-  final PorestTokens tokens;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: selected ? tokens.bgBrandSubtle : tokens.bgSurface,
-          border: Border.all(
-            color: selected ? tokens.borderBrand : tokens.borderDefault,
-            width: selected ? 1.5 : 1,
-          ),
-          borderRadius: PRadius.brMd,
-        ),
-        child: Text(label,
-            style: PTypo.bodySm.copyWith(
-                color: selected ? tokens.fgPrimary : tokens.fgSecondary,
-                fontWeight: selected ? PFontWeight.semi : PFontWeight.medium)),
-      ),
-    );
   }
 }
 

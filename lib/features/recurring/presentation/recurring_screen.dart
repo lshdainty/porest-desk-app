@@ -14,6 +14,7 @@ import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_badge.dart';
 import '../../../shared/widgets/p_button.dart';
+import '../../../shared/widgets/p_chip.dart';
 import '../../../shared/widgets/p_empty_state.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../expense/application/expense_providers.dart';
@@ -569,63 +570,22 @@ class _FilterChips extends StatelessWidget {
       child: Row(
         children: [
           for (final e in entries) ...[
-            _FilterChip(
+            PChip(
               label: e.$2,
-              count: e.$3,
               selected: current == e.$1,
               onTap: () => onChange(e.$1),
-              tokens: tokens,
+              trailing: Text(
+                '${e.$3}',
+                style: PTypo.caption.copyWith(
+                  color: current == e.$1
+                      ? tokens.fgOnBrand.withValues(alpha: 0.75)
+                      : tokens.fgTertiary,
+                ),
+              ),
             ),
             const SizedBox(width: PSpace.x8),
           ],
         ],
-      ),
-    );
-  }
-}
-
-class _FilterChip extends StatelessWidget {
-  const _FilterChip({
-    required this.label,
-    required this.count,
-    required this.selected,
-    required this.onTap,
-    required this.tokens,
-  });
-  final String label;
-  final int count;
-  final bool selected;
-  final VoidCallback onTap;
-  final PorestTokens tokens;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: selected ? tokens.bgBrand : tokens.bgSurface,
-          border: Border.all(
-            color: selected ? tokens.borderBrand : tokens.borderSubtle,
-          ),
-          borderRadius: PRadius.brFull,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(label,
-                style: PTypo.caption.copyWith(
-                    color: selected ? tokens.fgOnBrand : tokens.fgSecondary,
-                    fontWeight: PFontWeight.semi)),
-            const SizedBox(width: 4),
-            Text('$count',
-                style: PTypo.caption.copyWith(
-                    color: selected
-                        ? tokens.fgOnBrand.withValues(alpha: 0.75)
-                        : tokens.fgTertiary)),
-          ],
-        ),
       ),
     );
   }

@@ -9,6 +9,7 @@ import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../shared/widgets/p_badge.dart';
+import '../../../shared/widgets/p_chip.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../application/card_providers.dart';
@@ -91,34 +92,34 @@ class _CardPickerSheetState extends ConsumerState<_CardPickerSheet> {
             const SizedBox(height: 8),
             Row(
               children: [
-                _Chip(
+                PChip(
+                  variant: PChipVariant.subtle,
                   label: '전체',
                   selected: _type == null,
                   onTap: () => setState(() {
                     _type = null;
                     _rebuildKey();
                   }),
-                  tokens: t,
                 ),
                 const SizedBox(width: 6),
-                _Chip(
+                PChip(
+                  variant: PChipVariant.subtle,
                   label: '신용',
                   selected: _type == 'CREDIT',
                   onTap: () => setState(() {
                     _type = 'CREDIT';
                     _rebuildKey();
                   }),
-                  tokens: t,
                 ),
                 const SizedBox(width: 6),
-                _Chip(
+                PChip(
+                  variant: PChipVariant.subtle,
                   label: '체크',
                   selected: _type == 'CHECK',
                   onTap: () => setState(() {
                     _type = 'CHECK';
                     _rebuildKey();
                   }),
-                  tokens: t,
                 ),
               ],
             ),
@@ -207,33 +208,3 @@ class _CardPickerSheetState extends ConsumerState<_CardPickerSheet> {
   }
 }
 
-class _Chip extends StatelessWidget {
-  const _Chip(
-      {required this.label,
-      required this.selected,
-      required this.onTap,
-      required this.tokens});
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-  final PorestTokens tokens;
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-        decoration: BoxDecoration(
-          color: selected ? tokens.bgBrandSubtle : tokens.bgMuted,
-          borderRadius: PRadius.brFull,
-          border: Border.all(
-              color: selected ? tokens.borderBrand : tokens.borderSubtle),
-        ),
-        child: Text(label,
-            style: PTypo.caption.copyWith(
-                color: selected ? tokens.fgPrimary : tokens.fgSecondary,
-                fontWeight: selected ? PFontWeight.bold : PFontWeight.medium)),
-      ),
-    );
-  }
-}
