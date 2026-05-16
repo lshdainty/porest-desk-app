@@ -10,6 +10,7 @@ import '../../../app/theme/typography.dart';
 import '../../../core/format/color_parse.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_select.dart';
 import '../../expense/application/expense_providers.dart';
@@ -389,24 +390,20 @@ class _SplitFooter extends StatelessWidget {
               tokens: t,
             ),
             const Spacer(),
-            TextButton(
+            PButton(
+              label: '취소',
+              variant: PButtonVariant.ghost,
               onPressed: controller.submitting
                   ? null
                   : () => Navigator.of(ctx).pop(),
-              child: Text('취소',
-                  style: PTypo.body.copyWith(color: t.fgSecondary)),
             ),
             const SizedBox(width: PSpace.x8),
-            FilledButton(
+            PButton(
+              label: '분할 저장',
+              loading: controller.submitting,
               onPressed: (matched && !controller.submitting)
                   ? controller.onSubmit
                   : null,
-              child: controller.submitting
-                  ? const SizedBox(
-                      width: PSpace.x16,
-                      height: PSpace.x16,
-                      child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Text('분할 저장'),
             ),
           ],
         );

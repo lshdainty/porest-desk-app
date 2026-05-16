@@ -13,6 +13,7 @@ import '../../../core/format/krw.dart';
 import '../../../core/settings/hide_amounts_unlock_dialog.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
+import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../card/presentation/card_performance_bar.dart';
 import '../../expense/application/expense_providers.dart';
@@ -71,9 +72,9 @@ class _DetailFooter extends ConsumerWidget {
               style: PTypo.bodySm.copyWith(color: t.fgSecondary)),
         ),
         const SizedBox(width: PSpace.x4),
-        FilledButton(
+        PButton(
+          label: '확인',
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('확인'),
         ),
       ],
     );

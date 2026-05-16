@@ -8,6 +8,7 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/format/color_parse.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
+import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_category_tile.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_segmented.dart';
@@ -89,24 +90,23 @@ Future<ExpenseFilter?> showFilterDialog(
     footerBuilder: (ctx) => AnimatedBuilder(
       animation: controller,
       builder: (_, _) {
-        final t = ctx.tokens;
         return Row(
           children: [
-            TextButton(
+            PButton(
+              label: '초기화',
+              variant: PButtonVariant.ghost,
               onPressed: () => formKey.currentState?._reset(),
-              child: Text('초기화',
-                  style: PTypo.body.copyWith(color: t.fgSecondary)),
             ),
             const Spacer(),
-            TextButton(
+            PButton(
+              label: '취소',
+              variant: PButtonVariant.ghost,
               onPressed: () => Navigator.of(ctx).pop(),
-              child: Text('취소',
-                  style: PTypo.body.copyWith(color: t.fgSecondary)),
             ),
             const SizedBox(width: PSpace.x8),
-            FilledButton(
+            PButton(
+              label: '필터 적용',
               onPressed: controller.canSubmit ? controller.onSubmit : null,
-              child: const Text('필터 적용'),
             ),
           ],
         );

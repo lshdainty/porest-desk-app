@@ -13,6 +13,7 @@ import '../../../core/format/color_parse.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/settings/settings_notifier.dart';
+import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../../calendar/application/calendar_providers.dart';
@@ -825,12 +826,15 @@ Future<void> _showEditDialog(
           ),
         ),
         actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('취소')),
-          FilledButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('저장')),
+          PButton(
+            label: '취소',
+            variant: PButtonVariant.ghost,
+            onPressed: () => Navigator.pop(ctx, false),
+          ),
+          PButton(
+            label: '저장',
+            onPressed: () => Navigator.pop(ctx, true),
+          ),
         ],
       );
     },

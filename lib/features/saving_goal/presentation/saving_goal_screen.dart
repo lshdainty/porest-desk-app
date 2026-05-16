@@ -12,6 +12,7 @@ import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
+import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_empty_state.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_text_input.dart';
@@ -106,10 +107,14 @@ class SavingGoalScreen extends ConsumerWidget {
               suffixText: '원',
             ),
             actions: [
-              TextButton(
-                  onPressed: () => Navigator.pop(ctx),
-                  child: const Text('취소')),
-              FilledButton(
+              PButton(
+                label: '취소',
+                variant: PButtonVariant.ghost,
+                onPressed: () => Navigator.pop(ctx),
+              ),
+              PButton(
+                label: '적립',
+                loading: busy,
                 onPressed: busy
                     ? null
                     : () async {
@@ -130,13 +135,6 @@ class SavingGoalScreen extends ConsumerWidget {
                               SnackBar(content: Text('실패: ${e.message}')));
                         }
                       },
-                child: busy
-                    ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child:
-                            CircularProgressIndicator(strokeWidth: 2))
-                    : const Text('적립'),
               ),
             ],
           ),

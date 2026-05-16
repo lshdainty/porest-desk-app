@@ -15,6 +15,7 @@ import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
+import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../../expense/application/expense_providers.dart';
@@ -158,7 +159,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
               Row(
                 children: [
                   Expanded(
-                    child: OutlinedButton(
+                    child: PButton(
+                      label: '초기화',
+                      variant: PButtonVariant.outline,
+                      fullWidth: true,
                       onPressed: () {
                         setSheet(() {
                           min = null;
@@ -169,12 +173,13 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                           maxCtrl.clear();
                         });
                       },
-                      child: const Text('초기화'),
                     ),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: FilledButton(
+                    child: PButton(
+                      label: '적용',
+                      fullWidth: true,
                       onPressed: () {
                         Navigator.pop(sheetCtx);
                         setState(() {
@@ -185,7 +190,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                         });
                         _runSearch();
                       },
-                      child: const Text('적용'),
                     ),
                   ),
                 ],

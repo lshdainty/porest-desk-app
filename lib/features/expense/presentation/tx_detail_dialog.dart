@@ -11,6 +11,7 @@ import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
+import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../asset/application/asset_providers.dart';
 import '../../dutch_pay/presentation/dutch_pay_from_tx_dialog.dart';
@@ -85,10 +86,10 @@ class _TxDetailFooter extends StatelessWidget {
                   style: PTypo.body.copyWith(color: t.fgSecondary)),
             ),
             const SizedBox(width: PSpace.x8),
-            FilledButton(
+            PButton(
+              label: '확인',
               onPressed:
                   busy ? null : () => Navigator.of(ctx).pop(),
-              child: const Text('확인'),
             ),
           ],
         );

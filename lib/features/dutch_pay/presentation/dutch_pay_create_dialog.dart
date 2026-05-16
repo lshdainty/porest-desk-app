@@ -9,6 +9,7 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../../expense/domain/expense.dart' show Expense;
@@ -201,18 +202,20 @@ class _BodyState extends ConsumerState<_Body> {
         builder: (ctx, _) => Row(
           children: [
             const Spacer(),
-            TextButton(
+            PButton(
+              label: '취소',
+              variant: PButtonVariant.ghost,
               onPressed: controller.submitting
                   ? null
                   : () => Navigator.of(ctx).pop(),
-              child: const Text('취소'),
             ),
             const SizedBox(width: PSpace.x8),
-            FilledButton(
+            PButton(
+              label: '${selected.length}명 추가',
+              loading: controller.submitting,
               onPressed: controller.canSubmit && !controller.submitting
                   ? controller.onSubmit
                   : null,
-              child: Text('${selected.length}명 추가'),
             ),
           ],
         ),

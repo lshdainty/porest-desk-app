@@ -11,6 +11,7 @@ import '../../../core/format/date.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
+import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_category_tile.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_select.dart';
@@ -1370,19 +1371,16 @@ class _SavePresetDialogState extends ConsumerState<_SavePresetDialog> {
         ],
       ),
       actions: [
-        TextButton(
+        PButton(
+          label: '취소',
+          variant: PButtonVariant.ghost,
           onPressed: _submitting ? null : Navigator.of(context).pop,
-          child: const Text('취소'),
         ),
-        FilledButton(
+        PButton(
+          label: '저장',
+          loading: _submitting,
           onPressed:
               (_submitting || _nameCtrl.text.trim().isEmpty) ? null : _submit,
-          child: _submitting
-              ? const SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2))
-              : const Text('저장'),
         ),
       ],
     );
