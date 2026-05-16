@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
@@ -11,6 +10,7 @@ import '../../../core/format/color_parse.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_text_input.dart';
 import '../../asset/application/asset_providers.dart';
 import '../../expense/application/expense_providers.dart';
 import '../../expense/domain/expense.dart' show Expense;
@@ -249,12 +249,11 @@ class _RecurringEditBodyState extends ConsumerState<_RecurringEditBody> {
 
           _Label('금액'),
           const SizedBox(height: PSpace.x4),
-          TextField(
+          PTextInput(
             controller: _amountCtrl,
-            keyboardType: TextInputType.number,
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            style: PTypo.h3.copyWith(color: t.fgPrimary),
-            decoration: const InputDecoration(hintText: '0'),
+            numbersOnly: true,
+            style: PTypo.h3,
+            placeholder: '0',
             onChanged: (_) => setState(() {}),
           ),
           const SizedBox(height: PSpace.x16),
@@ -444,16 +443,16 @@ class _RecurringEditBodyState extends ConsumerState<_RecurringEditBody> {
 
           _Label('가맹점 (선택)'),
           const SizedBox(height: PSpace.x4),
-          TextField(
+          PTextInput(
             controller: _merchantCtrl,
-            decoration: const InputDecoration(hintText: '예: 넷플릭스'),
+            placeholder: '예: 넷플릭스',
           ),
           const SizedBox(height: PSpace.x12),
           _Label('메모 (선택)'),
           const SizedBox(height: PSpace.x4),
-          TextField(
+          PTextInput(
             controller: _descCtrl,
-            decoration: const InputDecoration(hintText: '메모'),
+            placeholder: '메모',
           ),
       ],
     );

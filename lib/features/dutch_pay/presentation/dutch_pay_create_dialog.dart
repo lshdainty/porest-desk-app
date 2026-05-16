@@ -10,6 +10,7 @@ import '../../../app/theme/typography.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_text_input.dart';
 import '../../expense/domain/expense.dart' show Expense;
 import '../../group/application/group_providers.dart';
 import '../../group/domain/group_member.dart';
@@ -298,9 +299,9 @@ class _BodyState extends ConsumerState<_Body> {
           Text('제목',
               style: PTypo.caption.copyWith(color: t.fgSecondary)),
           const SizedBox(height: PSpace.x4),
-          TextField(
+          PTextInput(
             controller: _titleCtrl,
-            decoration: const InputDecoration(hintText: '예: 회식 더치페이'),
+            placeholder: '예: 회식 더치페이',
             onChanged: (_) => setState(() {}),
           ),
           const SizedBox(height: PSpace.x12),
@@ -308,12 +309,11 @@ class _BodyState extends ConsumerState<_Body> {
           Text('총 금액',
               style: PTypo.caption.copyWith(color: t.fgSecondary)),
           const SizedBox(height: PSpace.x4),
-          TextField(
+          PTextInput(
             controller: _amountCtrl,
-            keyboardType: TextInputType.number,
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            style: PTypo.h3.copyWith(color: t.fgPrimary),
-            decoration: const InputDecoration(hintText: '0'),
+            numbersOnly: true,
+            style: PTypo.h3,
+            placeholder: '0',
             onChanged: (_) => setState(() {}),
           ),
           const SizedBox(height: PSpace.x12),
