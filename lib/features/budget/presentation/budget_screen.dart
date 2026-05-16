@@ -14,6 +14,7 @@ import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
+import '../../../shared/widgets/p_badge.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_empty_state.dart';
 import '../../../shared/widgets/p_modal.dart';
@@ -846,22 +847,11 @@ class _PaceCard extends StatelessWidget {
                       color: tokens.fgPrimary,
                       fontWeight: PFontWeight.bold)),
               const Spacer(),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: PSpace.x8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: onTrack
-                      ? tokens.statusSuccessSubtle
-                      : tokens.statusWarningSubtle,
-                  borderRadius: PRadius.brFull,
-                ),
-                child: Text(onTrack ? '정상 속도' : '빠른 속도',
-                    style: PTypo.micro.copyWith(
-                      color: onTrack
-                          ? tokens.statusSuccessFg
-                          : tokens.statusWarningFg,
-                      fontWeight: PFontWeight.semi,
-                    )),
+              PBadge(
+                label: onTrack ? '정상 속도' : '빠른 속도',
+                variant: onTrack
+                    ? PBadgeVariant.softSuccess
+                    : PBadgeVariant.softWarning,
               ),
             ],
           ),

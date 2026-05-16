@@ -7,6 +7,7 @@ import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/format/krw.dart';
+import '../../../shared/widgets/p_badge.dart';
 import '../application/card_providers.dart';
 
 class CardDetailScreen extends ConsumerWidget {
@@ -112,19 +113,7 @@ class CardDetailScreen extends ConsumerWidget {
                   children: [
                     for (final g in d.topBenefits)
                       for (final tag in g.tags)
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: t.bgBrandSubtle,
-                            borderRadius: PRadius.brFull,
-                            border: Border.all(color: t.borderBrand),
-                          ),
-                          child: Text(tag,
-                              style: PTypo.caption.copyWith(
-                                  color: t.fgBrandStrong,
-                                  fontWeight: PFontWeight.semi)),
-                        ),
+                        PBadge(label: tag, variant: PBadgeVariant.softBrand),
                   ],
                 ),
                 const SizedBox(height: PSpace.x20),

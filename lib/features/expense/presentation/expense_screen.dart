@@ -10,6 +10,7 @@ import '../../../app/theme/typography.dart';
 import '../../../core/format/date.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/settings/settings_notifier.dart';
+import '../../../shared/widgets/p_badge.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../asset/application/asset_providers.dart';
 import '../application/expense_providers.dart';
@@ -449,17 +450,9 @@ class _FilterRow extends StatelessWidget {
                   Positioned(
                     right: -2,
                     top: -2,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 4, vertical: 1),
-                      decoration: BoxDecoration(
-                        color: t.bgBrand,
-                        borderRadius: PRadius.brFull,
-                      ),
-                      child: Text('$advCount',
-                          style: PTypo.micro.copyWith(
-                              color: t.fgOnBrand,
-                              fontWeight: PFontWeight.bold)),
+                    child: PBadge(
+                      label: '$advCount',
+                      variant: PBadgeVariant.primary,
                     ),
                   ),
               ],

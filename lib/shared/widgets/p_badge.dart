@@ -36,6 +36,7 @@ class PBadge extends StatelessWidget {
     required this.label,
     this.variant = PBadgeVariant.secondary,
     this.dotColor,
+    this.icon,
   })  : _customFg = null,
         _customBorder = null;
 
@@ -45,6 +46,7 @@ class PBadge extends StatelessWidget {
     required this.label,
     required Color color,
     this.dotColor,
+    this.icon,
   })  : variant = PBadgeVariant.softBrand,
         _customFg = color,
         _customBorder = null;
@@ -55,6 +57,7 @@ class PBadge extends StatelessWidget {
     required this.label,
     required Color color,
     this.dotColor,
+    this.icon,
   })  : variant = PBadgeVariant.outline,
         _customFg = color,
         _customBorder = color;
@@ -64,6 +67,9 @@ class PBadge extends StatelessWidget {
 
   /// 좌측 6×6 colored dot — neutral outline에 색상 의미 부가 시.
   final Color? dotColor;
+
+  /// 좌측 12px 아이콘 — 상태 강조(check/alert 등) 용도.
+  final IconData? icon;
 
   // softColor / outlineColor 생성자 내부 사용. public 생성자에선 null.
   final Color? _customFg;
@@ -90,6 +96,9 @@ class PBadge extends StatelessWidget {
               height: 6,
               decoration: BoxDecoration(color: dotColor, shape: BoxShape.circle),
             ),
+            const SizedBox(width: 4),
+          ] else if (icon != null) ...[
+            Icon(icon, size: 12, color: fg),
             const SizedBox(width: 4),
           ],
           Text(

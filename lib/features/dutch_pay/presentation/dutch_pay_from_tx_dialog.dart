@@ -12,6 +12,7 @@ import '../../../core/format/color_parse.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
+import '../../../shared/widgets/p_badge.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../expense/application/expense_providers.dart';
@@ -874,19 +875,7 @@ class _ParticipantRow extends StatelessWidget {
                 ),
                 if (participant.isMe) ...[
                   const SizedBox(width: 6),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 7, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: tokens.fgBrand.withValues(alpha: 0.12),
-                      borderRadius: PRadius.brFull,
-                    ),
-                    child: Text('나',
-                        style: PTypo.caption.copyWith(
-                            color: tokens.fgBrand,
-                            fontWeight: PFontWeight.bold,
-                            fontSize: PFontSize.micro)),
-                  ),
+                  const PBadge(label: '나', variant: PBadgeVariant.softBrand),
                 ],
               ],
             ),

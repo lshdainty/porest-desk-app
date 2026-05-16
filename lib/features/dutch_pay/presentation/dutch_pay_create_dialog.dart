@@ -9,6 +9,7 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../shared/widgets/p_badge.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_text_input.dart';
@@ -451,25 +452,13 @@ class _BodyState extends ConsumerState<_Body> {
 
           if (_split == 'CUSTOM' && _total > 0) ...[
             const SizedBox(height: PSpace.x8),
-            Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: remainder == 0
-                    ? t.statusSuccessSubtle
-                    : t.statusDangerSubtle,
-                borderRadius: PRadius.brSm,
-              ),
-              child: Text(
-                remainder == 0
-                    ? '합계 일치'
-                    : (remainder > 0 ? '$remainder원 부족' : '${-remainder}원 초과'),
-                style: PTypo.caption.copyWith(
-                    color: remainder == 0
-                        ? t.statusSuccessFg
-                        : t.statusDangerFg,
-                    fontWeight: PFontWeight.bold),
-              ),
+            PBadge(
+              label: remainder == 0
+                  ? '합계 일치'
+                  : (remainder > 0 ? '$remainder원 부족' : '${-remainder}원 초과'),
+              variant: remainder == 0
+                  ? PBadgeVariant.softSuccess
+                  : PBadgeVariant.softError,
             ),
           ],
       ],

@@ -7,6 +7,7 @@ import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../shared/widgets/p_badge.dart';
 import '../application/todo_providers.dart';
 import '../domain/todo.dart';
 import 'todo_edit_dialog.dart';
@@ -140,17 +141,9 @@ class _Column extends StatelessWidget {
                           color: tokens.fgPrimary,
                           fontWeight: PFontWeight.bold)),
                   const Spacer(),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: tokens.bgSurface,
-                      borderRadius: PRadius.brXs,
-                    ),
-                    child: Text('${items.length}',
-                        style: PTypo.caption.copyWith(
-                            color: tokens.fgSecondary,
-                            fontWeight: PFontWeight.bold)),
+                  PBadge(
+                    label: '${items.length}',
+                    variant: PBadgeVariant.secondary,
                   ),
                 ],
               ),

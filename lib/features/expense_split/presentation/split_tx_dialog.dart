@@ -10,6 +10,7 @@ import '../../../app/theme/typography.dart';
 import '../../../core/format/color_parse.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../shared/widgets/p_badge.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_select.dart';
@@ -726,29 +727,15 @@ class _MatchPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bg = matched
-        ? tokens.statusSuccessSubtle
-        : tokens.statusDangerSubtle;
-    final fg = matched ? tokens.statusSuccessFg : tokens.statusDangerFg;
-    final label = matched
-        ? '합계 일치'
-        : (remainder > 0
-            ? '${krw(remainder)}원 부족'
-            : '${krw(-remainder)}원 초과');
-    final icon = matched ? LucideIcons.check : LucideIcons.alertTriangle;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(color: bg, borderRadius: PRadius.brFull),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 12, color: fg),
-          const SizedBox(width: 4),
-          Text(label,
-              style: PTypo.caption.copyWith(
-                  color: fg, fontWeight: PFontWeight.bold)),
-        ],
-      ),
+    return PBadge(
+      label: matched
+          ? '합계 일치'
+          : (remainder > 0
+              ? '${krw(remainder)}원 부족'
+              : '${krw(-remainder)}원 초과'),
+      variant:
+          matched ? PBadgeVariant.softSuccess : PBadgeVariant.softError,
+      icon: matched ? LucideIcons.check : LucideIcons.alertTriangle,
     );
   }
 }
