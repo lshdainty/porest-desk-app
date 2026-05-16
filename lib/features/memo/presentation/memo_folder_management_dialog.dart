@@ -7,6 +7,7 @@ import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_select.dart';
 import '../../../shared/widgets/p_text_input.dart';
@@ -108,14 +109,11 @@ class _BodyState extends ConsumerState<_Body> {
                 ),
               ),
               const SizedBox(width: 8),
-              FilledButton(
+              PButton(
+                label: '추가',
+                loading: _adding,
                 onPressed:
                     (_newCtrl.text.trim().isEmpty || _adding) ? null : _create,
-                child: _adding
-                    ? const SizedBox(
-                        width: 14, height: 14,
-                        child: CircularProgressIndicator(strokeWidth: 2))
-                    : const Text('추가'),
               ),
             ],
           ),

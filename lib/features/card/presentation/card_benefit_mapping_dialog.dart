@@ -7,6 +7,7 @@ import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_select.dart';
 import '../../../shared/widgets/p_text_input.dart';
@@ -123,21 +124,16 @@ class _BodyState extends ConsumerState<_Body> {
             ],
           ),
           const SizedBox(height: 8),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton(
-              onPressed:
-                  (_benefitCtrl.text.trim().isEmpty ||
-                          _selectedCategoryId == null ||
-                          _adding)
-                      ? null
-                      : _add,
-              child: _adding
-                  ? const SizedBox(
-                      width: 14, height: 14,
-                      child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Text('매핑 추가'),
-            ),
+          PButton(
+            label: '매핑 추가',
+            loading: _adding,
+            fullWidth: true,
+            onPressed:
+                (_benefitCtrl.text.trim().isEmpty ||
+                        _selectedCategoryId == null ||
+                        _adding)
+                    ? null
+                    : _add,
           ),
           const SizedBox(height: PSpace.x16),
           Divider(height: 1, color: t.borderSubtle),
