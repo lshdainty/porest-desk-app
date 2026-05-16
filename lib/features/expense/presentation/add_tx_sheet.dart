@@ -11,6 +11,7 @@ import '../../../core/format/date.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
+import '../../../shared/widgets/p_badge.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_category_tile.dart';
 import '../../../shared/widgets/p_modal.dart';
@@ -1002,22 +1003,8 @@ class _PresetSection extends StatelessWidget {
               ),
               if (appliedId != null) ...[
                 const SizedBox(width: 6),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: tokens.bgBrandSubtle,
-                    borderRadius: PRadius.brXs,
-                  ),
-                  child: Text(
-                    '적용됨',
-                    style: TextStyle(
-                      fontSize: PFontSize.micro,
-                      color: tokens.fgBrandStrong,
-                      fontWeight: PFontWeight.bold,
-                    ),
-                  ),
-                ),
+                const PBadge(
+                    label: '적용됨', variant: PBadgeVariant.softBrand),
               ],
               const Spacer(),
               GestureDetector(

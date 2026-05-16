@@ -12,6 +12,7 @@ import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
+import '../../../shared/widgets/p_badge.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_empty_state.dart';
 import '../../../shared/widgets/p_modal.dart';
@@ -204,19 +205,9 @@ class _GoalCard extends StatelessWidget {
                             ),
                             if (goal.achieved) ...[
                               const SizedBox(width: 6),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 6, vertical: 2),
-                                decoration: BoxDecoration(
-                                  color: tokens.statusSuccessSubtle,
-                                  borderRadius: PRadius.brXs,
-                                ),
-                                child: Text('달성!',
-                                    style: PTypo.caption.copyWith(
-                                        color: tokens.statusSuccessFg,
-                                        fontWeight: PFontWeight.bold,
-                                        fontSize: PFontSize.micro)),
-                              ),
+                              const PBadge(
+                                  label: '달성!',
+                                  variant: PBadgeVariant.softSuccess),
                             ],
                           ],
                         ),
