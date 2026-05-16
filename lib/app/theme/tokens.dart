@@ -261,11 +261,14 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     statusDangerPress: PorestPalette.statusErrorBase,
     statusInfoBorder: PorestPalette.statusInfoBase,
     surfaceHero: PorestPalette.cobalt50,
-    bgHeroGradientStart: PorestPalette.cobalt700,
-    bgHeroGradientEnd: PorestPalette.cobalt900,
+    // desk-front .balance-hero: linear-gradient(135deg, bg-brand 0%, color-mix(srgb, bg-brand 60%, #000) 100%)
+    // bg-brand=cobalt500 #0147AD, end ≈ #012B68 (60% × cobalt500 on black)
+    bgHeroGradientStart: PorestPalette.cobalt500,
+    bgHeroGradientEnd: Color(0xFF012B68),
     fgOnHeroChgUp: PorestPalette.heroChgUp,
     fgOnHeroChgDown: PorestPalette.heroChgDown,
-    fgOnHeroSpot: PorestPalette.heroSpot,
+    // desk-front .balance-hero::after: radial gradient(fg-on-brand 22%, transparent 70%) — 흰색 광원
+    fgOnHeroSpot: PorestPalette.slate0,
   );
 
   /// Dark 모드 의미론 토큰 (DESIGN.desk.md spec 매핑).
@@ -343,12 +346,12 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     statusDangerPress: PorestPalette.statusErrorLight,
     statusInfoBorder: PorestPalette.statusInfoBase,
     surfaceHero: Color(0x80001A42),       // cobalt900 @ 50%
-    // Hero gradient — light과 동일(의도: always-on-dark hero).
-    bgHeroGradientStart: PorestPalette.cobalt700,
-    bgHeroGradientEnd: PorestPalette.cobalt900,
+    // Hero gradient — light과 동일(의도: always-on-dark hero, desk-front 정합).
+    bgHeroGradientStart: PorestPalette.cobalt500,
+    bgHeroGradientEnd: Color(0xFF012B68),
     fgOnHeroChgUp: PorestPalette.heroChgUp,
     fgOnHeroChgDown: PorestPalette.heroChgDown,
-    fgOnHeroSpot: PorestPalette.heroSpot,
+    fgOnHeroSpot: PorestPalette.slate0,
   );
 
   @override

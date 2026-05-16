@@ -430,7 +430,7 @@ class _BalanceHero extends StatelessWidget {
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    t.fgOnHeroSpot.withValues(alpha: 0.25),
+                    t.fgOnHeroSpot.withValues(alpha: 0.22),
                     Colors.transparent,
                   ],
                   stops: const [0.0, 0.7],
