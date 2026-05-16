@@ -8,6 +8,7 @@ import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_empty_state.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../application/todo_providers.dart';
@@ -149,19 +150,10 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
                     ),
                     if (_quickAddCtrl.text.trim().isNotEmpty || _quickAdding) ...[
                       const SizedBox(width: 6),
-                      FilledButton(
+                      PButton(
+                        label: '추가',
+                        loading: _quickAdding,
                         onPressed: _quickAdding ? null : _quickAdd,
-                        style: FilledButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 14, vertical: 10),
-                        ),
-                        child: _quickAdding
-                            ? const SizedBox(
-                                width: 14,
-                                height: 14,
-                                child: CircularProgressIndicator(
-                                    strokeWidth: 2))
-                            : const Text('추가'),
                       ),
                     ],
                   ],

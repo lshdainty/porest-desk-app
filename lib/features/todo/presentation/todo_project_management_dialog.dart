@@ -8,6 +8,7 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/format/color_parse.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../application/todo_providers.dart';
@@ -110,16 +111,13 @@ class _BodyState extends ConsumerState<_Body> {
             tokens: t,
           ),
           const SizedBox(height: PSpace.x8),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              onPressed:
-                  (_nameCtrl.text.trim().isEmpty || _adding) ? null : _create,
-              icon: const Icon(LucideIcons.plus, size: 16),
-              label: _adding
-                  ? const Text('추가 중...')
-                  : const Text('프로젝트 추가'),
-            ),
+          PButton(
+            label: _adding ? '추가 중...' : '프로젝트 추가',
+            icon: LucideIcons.plus,
+            loading: _adding,
+            fullWidth: true,
+            onPressed:
+                (_nameCtrl.text.trim().isEmpty || _adding) ? null : _create,
           ),
           const SizedBox(height: PSpace.x20),
           Divider(height: 1, color: t.borderSubtle),
@@ -323,14 +321,10 @@ class _ProjectRowState extends ConsumerState<_ProjectRow> {
             const SizedBox(height: 8),
             Align(
               alignment: Alignment.centerRight,
-              child: FilledButton(
+              child: PButton(
+                label: '저장',
+                loading: _busy,
                 onPressed: _busy ? null : _save,
-                child: _busy
-                    ? const SizedBox(
-                        width: 14,
-                        height: 14,
-                        child: CircularProgressIndicator(strokeWidth: 2))
-                    : const Text('저장'),
               ),
             ),
           ],

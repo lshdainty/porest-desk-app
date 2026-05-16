@@ -8,6 +8,7 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/markdown_preview.dart';
+import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../application/todo_providers.dart';
@@ -494,14 +495,11 @@ class _SubtaskSectionState extends ConsumerState<_SubtaskSection> {
               ),
             ),
             const SizedBox(width: 6),
-            FilledButton(
+            PButton(
+              label: '추가',
+              loading: _adding,
               onPressed:
                   (_ctrl.text.trim().isEmpty || _adding) ? null : _addSubtask,
-              child: _adding
-                  ? const SizedBox(
-                      width: 14, height: 14,
-                      child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Text('추가'),
             ),
           ],
         ),
