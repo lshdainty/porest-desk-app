@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'colors.dart';
 import 'radius.dart';
+import 'spacing.dart';
 import 'tokens.dart';
 import 'typography.dart';
 
@@ -14,13 +15,13 @@ abstract final class PorestTheme {
   static ThemeData light() => _build(
         brightness: Brightness.light,
         tokens: PorestTokens.light,
-        seed: PorestPalette.mossy500,
+        seed: PorestPalette.cobalt500,
       );
 
   static ThemeData dark() => _build(
         brightness: Brightness.dark,
         tokens: PorestTokens.dark,
-        seed: PorestPalette.mossy400,
+        seed: PorestPalette.cobalt400,
       );
 
   static ThemeData _build({
@@ -88,61 +89,94 @@ abstract final class PorestTheme {
       dialogTheme: DialogThemeData(
         backgroundColor: tokens.bgSurface,
         surfaceTintColor: Colors.transparent,
-        shape: RoundedRectangleBorder(borderRadius: PRadius.brXl),
+        // specs/components/dialog.md md(default): radius-xl(20)
+        shape: RoundedRectangleBorder(borderRadius: PRadius.brXl2),
       ),
+      // specs/components/input.md spec:
+      // height 40 (minimumSize 외부에서) / radius-sm(4) / padding sm·md (8·12)
+      // bg surface-input / border-default / border-focus(1.5)
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: tokens.bgMuted,
-        hintStyle: PTypo.body.copyWith(color: tokens.fgPlaceholder),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        hintStyle: PTypo.bodyLg.copyWith(color: tokens.fgPlaceholder),
+        contentPadding: const EdgeInsets.symmetric(
+            horizontal: PSpace.md, vertical: PSpace.sm),
         border: OutlineInputBorder(
-          borderRadius: PRadius.brMd,
+          borderRadius: PRadius.brSm,
           borderSide: BorderSide(color: tokens.borderDefault),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: PRadius.brMd,
+          borderRadius: PRadius.brSm,
           borderSide: BorderSide(color: tokens.borderDefault),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: PRadius.brMd,
+          borderRadius: PRadius.brSm,
           borderSide: BorderSide(color: tokens.borderFocus, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: PRadius.brMd,
+          borderRadius: PRadius.brSm,
           borderSide: BorderSide(color: tokens.statusDanger),
         ),
       ),
+      // specs/components/button.md spec — md(default):
+      // h=40 / padding y·x (8·12) / font body-md(15) weight-medium(500) / radius-sm(4)
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           backgroundColor: tokens.bgBrand,
           foregroundColor: tokens.fgOnBrand,
-          shape: RoundedRectangleBorder(borderRadius: PRadius.brMd),
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-          minimumSize: const Size(0, 36),
+          disabledBackgroundColor: tokens.bgDisabled,
+          disabledForegroundColor: tokens.fgDisabled,
+          shape: RoundedRectangleBorder(borderRadius: PRadius.brSm),
+          padding: const EdgeInsets.symmetric(
+              horizontal: PSpace.md, vertical: PSpace.sm),
+          minimumSize: const Size(0, 40),
           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          textStyle: PTypo.bodySm.copyWith(fontWeight: FontWeight.w700),
+          textStyle: TextStyle(
+            fontFamily: PTypo.sans,
+            fontSize: PFontSize.bodyMd,
+            fontWeight: PFontWeight.medium,
+            height: 1.0,
+          ),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: tokens.fgBrand,
-          shape: RoundedRectangleBorder(borderRadius: PRadius.brMd),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          minimumSize: const Size(0, 36),
+          shape: RoundedRectangleBorder(borderRadius: PRadius.brSm),
+          padding: const EdgeInsets.symmetric(
+              horizontal: PSpace.md, vertical: PSpace.sm),
+          minimumSize: const Size(0, 40),
           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          textStyle: PTypo.bodySm.copyWith(fontWeight: FontWeight.w600),
+          textStyle: TextStyle(
+            fontFamily: PTypo.sans,
+            fontSize: PFontSize.bodyMd,
+            fontWeight: PFontWeight.medium,
+            height: 1.0,
+          ),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: tokens.fgPrimary,
           side: BorderSide(color: tokens.borderDefault),
-          shape: RoundedRectangleBorder(borderRadius: PRadius.brMd),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          minimumSize: const Size(0, 36),
+          shape: RoundedRectangleBorder(borderRadius: PRadius.brSm),
+          padding: const EdgeInsets.symmetric(
+              horizontal: PSpace.md, vertical: PSpace.sm),
+          minimumSize: const Size(0, 40),
           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          textStyle: PTypo.bodySm.copyWith(fontWeight: FontWeight.w500),
+          textStyle: TextStyle(
+            fontFamily: PTypo.sans,
+            fontSize: PFontSize.bodyMd,
+            fontWeight: PFontWeight.medium,
+            height: 1.0,
+          ),
         ),
+      ),
+      progressIndicatorTheme: ProgressIndicatorThemeData(
+        color: tokens.fgBrand,
+        circularTrackColor: tokens.bgBrandMuted,
+        linearTrackColor: tokens.bgBrandMuted,
+        strokeWidth: 2,
       ),
       iconTheme: IconThemeData(color: tokens.fgSecondary, size: 20),
       navigationBarTheme: NavigationBarThemeData(
