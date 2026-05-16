@@ -8,6 +8,7 @@ import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_empty_state.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../application/memo_providers.dart';
@@ -51,10 +52,9 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
         foregroundColor: t.fgPrimary,
         elevation: 0,
         actions: [
-          IconButton(
+          PButton.icon(
+            icon: LucideIcons.folderTree,
             tooltip: '폴더 관리',
-            icon: Icon(LucideIcons.folderTree,
-                size: 20, color: t.fgSecondary),
             onPressed: () => showMemoFolderManagementDialog(context),
           ),
         ],
@@ -209,19 +209,13 @@ class _MemoCard extends StatelessWidget {
                   ],
                 ),
               ),
-              IconButton(
-                onPressed: onPin,
-                icon: Icon(
-                  memo.pinned ? LucideIcons.pin : LucideIcons.pin,
-                  size: 16,
-                  color: memo.pinned
-                      ? tokens.fgBrand
-                      : tokens.fgTertiary,
-                ),
+              PButton.icon(
+                icon: LucideIcons.pin,
+                size: PButtonSize.sm,
+                iconColor:
+                    memo.pinned ? tokens.fgBrand : tokens.fgTertiary,
                 tooltip: memo.pinned ? '고정 해제' : '고정',
-                visualDensity: VisualDensity.compact,
-                constraints:
-                    const BoxConstraints.tightFor(width: 32, height: 32),
+                onPressed: onPin,
               ),
             ],
           ),

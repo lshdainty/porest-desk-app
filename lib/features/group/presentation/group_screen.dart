@@ -10,6 +10,7 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/format/color_parse.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_empty_state.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_text_input.dart';
@@ -37,13 +38,13 @@ class GroupScreen extends ConsumerWidget {
         foregroundColor: t.fgPrimary,
         elevation: 0,
         actions: [
-          IconButton(
-            icon: const Icon(LucideIcons.tag),
+          PButton.icon(
+            icon: LucideIcons.tag,
             tooltip: '그룹 타입 관리',
             onPressed: () => showGroupTypeManagementDialog(context),
           ),
-          IconButton(
-            icon: const Icon(LucideIcons.userPlus),
+          PButton.icon(
+            icon: LucideIcons.userPlus,
             tooltip: '초대 코드로 참여',
             onPressed: () => _showJoinDialog(context, ref),
           ),

@@ -226,11 +226,12 @@ class _BodyState extends ConsumerState<_Body> {
                 ),
               ),
               if (_due != null)
-                IconButton(
-                  onPressed: () => setState(() => _due = null),
-                  icon: Icon(LucideIcons.x,
-                      size: 16, color: t.fgTertiary),
+                PButton.icon(
+                  icon: LucideIcons.x,
+                  size: PButtonSize.sm,
+                  iconColor: t.fgTertiary,
                   tooltip: '마감일 제거',
+                  onPressed: () => setState(() => _due = null),
                 ),
             ],
           ),
@@ -445,18 +446,15 @@ class _SubtaskSectionState extends ConsumerState<_SubtaskSection> {
                     padding: const EdgeInsets.symmetric(vertical: 2),
                     child: Row(
                       children: [
-                        IconButton(
-                          icon: Icon(
-                            s.status == 'COMPLETED'
-                                ? LucideIcons.checkCircle
-                                : LucideIcons.circle,
-                            size: 16,
-                            color: s.status == 'COMPLETED'
-                                ? t.statusSuccess
-                                : t.fgTertiary,
-                          ),
+                        PButton.icon(
+                          icon: s.status == 'COMPLETED'
+                              ? LucideIcons.checkCircle
+                              : LucideIcons.circle,
+                          size: PButtonSize.sm,
+                          iconColor: s.status == 'COMPLETED'
+                              ? t.statusSuccess
+                              : t.fgTertiary,
                           onPressed: () => _toggleStatus(s),
-                          visualDensity: VisualDensity.compact,
                         ),
                         Expanded(
                           child: Text(
@@ -469,11 +467,11 @@ class _SubtaskSectionState extends ConsumerState<_SubtaskSection> {
                             ),
                           ),
                         ),
-                        IconButton(
-                          icon: Icon(LucideIcons.x,
-                              size: 14, color: t.fgTertiary),
+                        PButton.icon(
+                          icon: LucideIcons.x,
+                          size: PButtonSize.sm,
+                          iconColor: t.fgTertiary,
                           onPressed: () => _deleteSubtask(s.rowId),
-                          visualDensity: VisualDensity.compact,
                         ),
                       ],
                     ),

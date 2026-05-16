@@ -533,7 +533,8 @@ class _InviteCodeCard extends ConsumerWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              IconButton(
+              PButton.icon(
+                icon: LucideIcons.copy,
                 tooltip: '복사',
                 onPressed: code == '-'
                     ? null
@@ -544,15 +545,12 @@ class _InviteCodeCard extends ConsumerWidget {
                           const SnackBar(content: Text('초대 코드를 복사했습니다')),
                         );
                       },
-                icon: Icon(LucideIcons.copy,
-                    size: 18, color: tokens.fgSecondary),
               ),
               if (canManage)
-                IconButton(
+                PButton.icon(
+                  icon: LucideIcons.refreshCw,
                   tooltip: '재발급',
                   onPressed: () => _regenerate(context, ref),
-                  icon: Icon(LucideIcons.refreshCw,
-                      size: 18, color: tokens.fgSecondary),
                 ),
             ],
           ),

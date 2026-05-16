@@ -102,10 +102,9 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
         foregroundColor: t.fgPrimary,
         elevation: 0,
         actions: [
-          IconButton(
+          PButton.icon(
+            icon: _kanban ? LucideIcons.list : LucideIcons.layoutGrid,
             tooltip: _kanban ? '리스트 보기' : '칸반 보기',
-            icon: Icon(_kanban ? LucideIcons.list : LucideIcons.layoutGrid,
-                size: 20, color: t.fgSecondary),
             onPressed: () => setState(() => _kanban = !_kanban),
           ),
           PopupMenuButton<String>(
@@ -439,15 +438,13 @@ class _TodoRow extends StatelessWidget {
                 ],
               ),
             ),
-            IconButton(
-              onPressed: onPin,
-              icon: Icon(LucideIcons.pin,
-                  size: 14,
-                  color: todo.pinned ? tokens.fgBrand : tokens.fgTertiary),
+            PButton.icon(
+              icon: LucideIcons.pin,
+              size: PButtonSize.sm,
+              iconColor:
+                  todo.pinned ? tokens.fgBrand : tokens.fgTertiary,
               tooltip: todo.pinned ? '고정 해제' : '고정',
-              visualDensity: VisualDensity.compact,
-              constraints:
-                  const BoxConstraints.tightFor(width: 28, height: 28),
+              onPressed: onPin,
             ),
           ],
         ),

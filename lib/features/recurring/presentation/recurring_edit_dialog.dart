@@ -9,6 +9,7 @@ import '../../../app/theme/typography.dart';
 import '../../../core/format/color_parse.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
+import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../../asset/application/asset_providers.dart';
@@ -361,10 +362,12 @@ class _RecurringEditBodyState extends ConsumerState<_RecurringEditBody> {
                 ),
               ),
               if (_endDate != null)
-                IconButton(
-                  icon: Icon(LucideIcons.x, size: 16, color: t.fgTertiary),
-                  onPressed: () => setState(() => _endDate = null),
+                PButton.icon(
+                  icon: LucideIcons.x,
+                  size: PButtonSize.sm,
+                  iconColor: t.fgTertiary,
                   tooltip: '종료 날짜 제거',
+                  onPressed: () => setState(() => _endDate = null),
                 ),
             ],
           ),
@@ -583,18 +586,18 @@ class _DomPicker extends StatelessWidget {
       ),
       child: Row(
         children: [
-          IconButton(
+          PButton.icon(
+            icon: LucideIcons.minus,
             onPressed: value > 1 ? () => onChanged(value - 1) : null,
-            icon: Icon(LucideIcons.minus, size: 18, color: tokens.fgSecondary),
           ),
           Expanded(
             child: Text('$value 일',
                 textAlign: TextAlign.center,
                 style: PTypo.body.copyWith(color: tokens.fgPrimary)),
           ),
-          IconButton(
+          PButton.icon(
+            icon: LucideIcons.plus,
             onPressed: value < 31 ? () => onChanged(value + 1) : null,
-            icon: Icon(LucideIcons.plus, size: 18, color: tokens.fgSecondary),
           ),
         ],
       ),
