@@ -9,6 +9,7 @@ import '../../../app/theme/typography.dart';
 import '../../../core/format/color_parse.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_text_input.dart';
 import '../application/calendar_providers.dart';
 import '../domain/calendar_event.dart';
 import '../domain/user_calendar.dart';
@@ -335,9 +336,9 @@ class _BodyState extends ConsumerState<_Body> {
       children: [
           _SectionLabel('제목', tokens: t),
           const SizedBox(height: PSpace.x4),
-          TextField(
+          PTextInput(
             controller: _titleCtrl,
-            decoration: const InputDecoration(hintText: '예: 가족 식사'),
+            placeholder: '예: 가족 식사',
             onChanged: (_) {
               setState(() {});
               _syncController();
@@ -347,10 +348,10 @@ class _BodyState extends ConsumerState<_Body> {
 
           _SectionLabel('설명', tokens: t),
           const SizedBox(height: PSpace.x4),
-          TextField(
+          PTextInput(
             controller: _descCtrl,
             maxLines: 3,
-            decoration: const InputDecoration(hintText: '추가 설명 (선택)'),
+            placeholder: '추가 설명 (선택)',
           ),
           const SizedBox(height: PSpace.x16),
 
@@ -535,9 +536,9 @@ class _BodyState extends ConsumerState<_Body> {
           // 장소
           _SectionLabel('장소', tokens: t, icon: LucideIcons.mapPin),
           const SizedBox(height: PSpace.x4),
-          TextField(
+          PTextInput(
             controller: _locationCtrl,
-            decoration: const InputDecoration(hintText: '장소를 입력하세요'),
+            placeholder: '장소를 입력하세요',
           ),
           const SizedBox(height: PSpace.x16),
 

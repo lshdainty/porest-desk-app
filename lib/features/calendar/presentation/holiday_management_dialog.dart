@@ -8,6 +8,7 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_text_input.dart';
 import '../application/calendar_providers.dart';
 import '../domain/holiday.dart';
 
@@ -116,11 +117,10 @@ class _BodyState extends ConsumerState<_Body> {
             children: [
               Expanded(
                 flex: 4,
-                child: TextField(
+                child: PTextInput(
                   controller: _nameCtrl,
                   enabled: !_adding,
-                  decoration:
-                      const InputDecoration(hintText: '휴일 이름'),
+                  placeholder: '휴일 이름',
                   onChanged: (_) => setState(() {}),
                 ),
               ),

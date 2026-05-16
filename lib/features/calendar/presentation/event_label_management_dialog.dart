@@ -9,6 +9,7 @@ import '../../../app/theme/typography.dart';
 import '../../../core/format/color_parse.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_text_input.dart';
 import '../application/calendar_providers.dart';
 import '../domain/event_label.dart';
 
@@ -97,10 +98,10 @@ class _BodyState extends ConsumerState<_Body> {
               ),
               const SizedBox(width: PSpace.x8),
               Expanded(
-                child: TextField(
+                child: PTextInput(
                   controller: _newNameCtrl,
                   enabled: !_adding,
-                  decoration: const InputDecoration(hintText: '라벨 이름'),
+                  placeholder: '라벨 이름',
                   onSubmitted: (_) => _create(),
                   onChanged: (_) => setState(() {}),
                 ),
