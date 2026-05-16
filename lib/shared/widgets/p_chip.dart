@@ -35,6 +35,7 @@ class PChip extends StatelessWidget {
     this.color,
     this.icon,
     this.iconColor,
+    this.dotColor,
     this.trailing,
   });
 
@@ -47,6 +48,9 @@ class PChip extends StatelessWidget {
   final Color? color;
   final IconData? icon;
   final Color? iconColor;
+
+  /// 좌측 8×8 colored dot — 카테고리·이벤트 색상 표시용. icon보다 우선.
+  final Color? dotColor;
   final Widget? trailing;
 
   @override
@@ -74,7 +78,15 @@ class PChip extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (icon != null) ...[
+              if (dotColor != null) ...[
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration:
+                      BoxDecoration(color: dotColor, shape: BoxShape.circle),
+                ),
+                const SizedBox(width: 6),
+              ] else if (icon != null) ...[
                 Icon(icon, size: 14, color: iconColor ?? fg),
                 const SizedBox(width: 6),
               ],

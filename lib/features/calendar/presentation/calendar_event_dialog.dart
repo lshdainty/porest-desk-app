@@ -8,6 +8,7 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/format/color_parse.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../shared/widgets/p_chip.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../application/calendar_providers.dart';
@@ -423,21 +424,23 @@ class _BodyState extends ConsumerState<_Body> {
                     spacing: PSpace.x8,
                     runSpacing: PSpace.x8,
                     children: [
-                      _ChipPill(
+                      PChip(
                         label: '없음',
                         color: t.fgTertiary,
+                        dotColor: t.fgTertiary,
+                        variant: PChipVariant.subtle,
                         selected: _labelRowId == null,
                         onTap: () => setState(() => _labelRowId = null),
-                        tokens: t,
                       ),
                       for (final l in labels)
-                        _ChipPill(
+                        PChip(
                           label: l.labelName,
                           color: parseColor(l.color, fallback: t.fgBrand),
+                          dotColor: parseColor(l.color, fallback: t.fgBrand),
+                          variant: PChipVariant.subtle,
                           selected: _labelRowId == l.rowId,
                           onTap: () =>
                               setState(() => _labelRowId = l.rowId),
-                          tokens: t,
                         ),
                     ],
                   ),
@@ -550,13 +553,11 @@ class _BodyState extends ConsumerState<_Body> {
             runSpacing: PSpace.x8,
             children: [
               for (final r in _RecurrenceOption.values)
-                _ChipPill(
+                PChip(
                   label: _recurrenceLabels[r]!,
-                  color: t.fgBrand,
+                  variant: PChipVariant.subtle,
                   selected: _recurrence == r,
                   onTap: () => setState(() => _recurrence = r),
-                  tokens: t,
-                  withDot: false,
                 ),
             ],
           ),
@@ -570,15 +571,13 @@ class _BodyState extends ConsumerState<_Body> {
             runSpacing: PSpace.x8,
             children: [
               for (final m in _reminderOptions)
-                _ChipPill(
+                PChip(
                   label: _reminderLabel(m),
-                  color: t.fgBrand,
+                  variant: PChipVariant.subtle,
                   selected: _reminders.contains(m),
                   onTap: () => setState(() {
                     if (!_reminders.add(m)) _reminders.remove(m);
                   }),
-                  tokens: t,
-                  withDot: false,
                 ),
             ],
           ),
@@ -646,59 +645,6 @@ class _DateTimeBox extends StatelessWidget {
   }
 }
 
-class _ChipPill extends StatelessWidget {
-  const _ChipPill({
-    required this.label,
-    required this.color,
-    required this.selected,
-    required this.onTap,
-    required this.tokens,
-    this.withDot = true,
-  });
-  final String label;
-  final Color color;
-  final bool selected;
-  final VoidCallback onTap;
-  final PorestTokens tokens;
-  final bool withDot;
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(
-            horizontal: PSpace.x12, vertical: PSpace.x8),
-        decoration: BoxDecoration(
-          color:
-              selected ? color.withValues(alpha: 0.12) : tokens.bgMuted,
-          border: Border.all(
-              color: selected ? color : tokens.borderDefault,
-              width: selected ? 1.5 : 1),
-          borderRadius: PRadius.brFull,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (withDot) ...[
-              Container(
-                width: PSpace.x8,
-                height: PSpace.x8,
-                decoration:
-                    BoxDecoration(color: color, shape: BoxShape.circle),
-              ),
-              const SizedBox(width: PSpace.x4),
-            ],
-            Text(label,
-                style: PTypo.caption.copyWith(
-                    color: tokens.fgPrimary,
-                    fontWeight:
-                        selected ? PFontWeight.bold : PFontWeight.medium)),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 class _ColorSphere extends StatelessWidget {
   const _ColorSphere({

@@ -8,6 +8,7 @@ import '../../../app/theme/typography.dart';
 import '../../../core/format/color_parse.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
+import '../../../shared/widgets/p_chip.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../../expense/application/expense_providers.dart';
@@ -212,14 +213,20 @@ class _BudgetEditBodyState extends ConsumerState<_BudgetEditBody> {
               children: [
                 for (final c in categories
                     .where((c) => c.expenseType != 'INCOME'))
-                  _CatChip(
-                    label: c.categoryName,
-                    icon: lucideByName(c.icon),
-                    fg: parseColor(c.color, fallback: t.fgBrand),
-                    selected: _categoryRowId == c.rowId,
-                    disabled: widget.usedCategoryIds.contains(c.rowId),
-                    onTap: () => setState(() => _categoryRowId = c.rowId),
-                    tokens: t,
+                  Opacity(
+                    opacity: widget.usedCategoryIds.contains(c.rowId)
+                        ? 0.4
+                        : 1.0,
+                    child: PChip(
+                      label: c.categoryName,
+                      icon: lucideByName(c.icon),
+                      iconColor: parseColor(c.color, fallback: t.fgBrand),
+                      variant: PChipVariant.subtle,
+                      selected: _categoryRowId == c.rowId,
+                      onTap: widget.usedCategoryIds.contains(c.rowId)
+                          ? () {}
+                          : () => setState(() => _categoryRowId = c.rowId),
+                    ),
                   ),
               ],
             ),
@@ -278,54 +285,3 @@ class _LockedCategory extends StatelessWidget {
   }
 }
 
-class _CatChip extends StatelessWidget {
-  const _CatChip({
-    required this.label,
-    required this.icon,
-    required this.fg,
-    required this.selected,
-    required this.disabled,
-    required this.onTap,
-    required this.tokens,
-  });
-  final String label;
-  final IconData icon;
-  final Color fg;
-  final bool selected;
-  final bool disabled;
-  final VoidCallback onTap;
-  final PorestTokens tokens;
-
-  @override
-  Widget build(BuildContext context) {
-    return Opacity(
-      opacity: disabled ? 0.4 : 1.0,
-      child: GestureDetector(
-        onTap: disabled ? null : onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-          decoration: BoxDecoration(
-            color: selected ? tokens.bgBrandSubtle : tokens.bgSurface,
-            border: Border.all(
-              color: selected ? tokens.borderBrand : tokens.borderDefault,
-              width: selected ? 1.5 : 1,
-            ),
-            borderRadius: PRadius.brFull,
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, size: 14, color: fg),
-              const SizedBox(width: 6),
-              Text(label,
-                  style: PTypo.bodySm.copyWith(
-                    color: selected ? tokens.fgPrimary : tokens.fgSecondary,
-                    fontWeight: selected ? PFontWeight.semi : PFontWeight.medium,
-                  )),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}

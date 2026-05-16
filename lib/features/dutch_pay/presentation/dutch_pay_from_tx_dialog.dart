@@ -14,6 +14,7 @@ import '../../../core/network/api_exception.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_badge.dart';
 import '../../../shared/widgets/p_button.dart';
+import '../../../shared/widgets/p_chip.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../expense/application/expense_providers.dart';
 import '../../expense/domain/expense.dart';
@@ -613,14 +614,16 @@ class _BodyState extends ConsumerState<_Body> {
                     runSpacing: 6,
                     children: [
                       for (var i = 0; i < quickAdd.length; i++)
-                        _QuickChip(
-                          color: parseColor(
+                        PChip(
+                          dotColor: parseColor(
                               _participantPaletteOklch[i % _participantPaletteOklch.length],
                               fallback: t.fgBrand),
                           label: quickAdd[i].userName,
+                          size: PChipSize.sm,
+                          trailing: Icon(LucideIcons.plus,
+                              size: 12, color: t.fgTertiary),
                           onTap: () => _addFromSibling(
                               quickAdd[i].userRowId, quickAdd[i].userName),
-                          tokens: t,
                         ),
                     ],
                   ),
@@ -959,51 +962,3 @@ class _ParticipantRow extends StatelessWidget {
   }
 }
 
-class _QuickChip extends StatelessWidget {
-  const _QuickChip({
-    required this.color,
-    required this.label,
-    required this.onTap,
-    required this.tokens,
-  });
-  final Color color;
-  final String label;
-  final VoidCallback onTap;
-  final PorestTokens tokens;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: PRadius.brFull,
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(8, 5, 10, 5),
-        decoration: BoxDecoration(
-          color: tokens.bgSurface,
-          border: Border.all(color: tokens.borderSubtle),
-          borderRadius: PRadius.brFull,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 8,
-              height: 8,
-              decoration: BoxDecoration(
-                color: color,
-                shape: BoxShape.circle,
-              ),
-            ),
-            const SizedBox(width: 6),
-            Text(label,
-                style: PTypo.caption.copyWith(
-                    color: tokens.fgPrimary,
-                    fontWeight: PFontWeight.semi)),
-            const SizedBox(width: 4),
-            Icon(LucideIcons.plus, size: 12, color: tokens.fgTertiary),
-          ],
-        ),
-      ),
-    );
-  }
-}

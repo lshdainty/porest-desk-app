@@ -10,6 +10,7 @@ import '../../../core/format/color_parse.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_button.dart';
+import '../../../shared/widgets/p_chip.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../../asset/application/asset_providers.dart';
@@ -270,13 +271,13 @@ class _RecurringEditBodyState extends ConsumerState<_RecurringEditBody> {
               runSpacing: PSpace.x8,
               children: [
                 for (final c in categories)
-                  _CatChip(
+                  PChip(
                     label: c.categoryName,
                     icon: lucideByName(c.icon),
-                    fg: parseColor(c.color, fallback: t.fgBrand),
+                    iconColor: parseColor(c.color, fallback: t.fgBrand),
+                    variant: PChipVariant.subtle,
                     selected: _categoryRowId == c.rowId,
                     onTap: () => setState(() => _categoryRowId = c.rowId),
-                    tokens: t,
                   ),
               ],
             ),
@@ -294,11 +295,12 @@ class _RecurringEditBodyState extends ConsumerState<_RecurringEditBody> {
               runSpacing: PSpace.x8,
               children: [
                 for (final a in assets)
-                  _PlainChip(
+                  PChip(
                     label: a.assetName,
                     selected: _assetRowId == a.rowId,
+                    variant: PChipVariant.subtle,
+                    shape: PChipShape.rounded,
                     onTap: () => setState(() => _assetRowId = a.rowId),
-                    tokens: t,
                   ),
               ],
             ),
@@ -653,84 +655,6 @@ class _DateField extends StatelessWidget {
   }
 }
 
-class _CatChip extends StatelessWidget {
-  const _CatChip(
-      {required this.label,
-      required this.icon,
-      required this.fg,
-      required this.selected,
-      required this.onTap,
-      required this.tokens});
-  final String label;
-  final IconData icon;
-  final Color fg;
-  final bool selected;
-  final VoidCallback onTap;
-  final PorestTokens tokens;
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        decoration: BoxDecoration(
-          color: selected ? tokens.bgBrandSubtle : tokens.bgSurface,
-          border: Border.all(
-            color: selected ? tokens.borderBrand : tokens.borderDefault,
-            width: selected ? 1.5 : 1,
-          ),
-          borderRadius: PRadius.brFull,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 14, color: fg),
-            const SizedBox(width: 6),
-            Text(label,
-                style: PTypo.bodySm.copyWith(
-                  color: selected ? tokens.fgPrimary : tokens.fgSecondary,
-                  fontWeight:
-                      selected ? PFontWeight.semi : PFontWeight.medium,
-                )),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _PlainChip extends StatelessWidget {
-  const _PlainChip(
-      {required this.label,
-      required this.selected,
-      required this.onTap,
-      required this.tokens});
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-  final PorestTokens tokens;
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: selected ? tokens.bgBrandSubtle : tokens.bgSurface,
-          border: Border.all(
-            color: selected ? tokens.borderBrand : tokens.borderDefault,
-            width: selected ? 1.5 : 1,
-          ),
-          borderRadius: PRadius.brMd,
-        ),
-        child: Text(label,
-            style: PTypo.bodySm.copyWith(
-                color: selected ? tokens.fgPrimary : tokens.fgSecondary,
-                fontWeight: selected ? PFontWeight.semi : PFontWeight.medium)),
-      ),
-    );
-  }
-}
 
 // ─── helpers ────────────────────────────────────────────────
 
