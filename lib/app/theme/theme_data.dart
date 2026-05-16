@@ -178,6 +178,45 @@ abstract final class PorestTheme {
         linearTrackColor: tokens.bgBrandMuted,
         strokeWidth: 2,
       ),
+      // specs/components/checkbox.md spec — md(default):
+      // 18×18 / border-strong 1px / radius-sm / checked = bgBrand fill + fgOnBrand check
+      checkboxTheme: CheckboxThemeData(
+        fillColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.disabled)) return tokens.bgDisabled;
+          if (states.contains(WidgetState.selected)) return tokens.bgBrand;
+          return tokens.bgSurface;
+        }),
+        checkColor: WidgetStateProperty.all(tokens.fgOnBrand),
+        side: WidgetStateBorderSide.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) return BorderSide.none;
+          return BorderSide(color: tokens.borderStrong, width: 1);
+        }),
+        shape: RoundedRectangleBorder(borderRadius: PRadius.brSm),
+        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      ),
+      // specs/components/switch.md — track + thumb, brand 채움
+      switchTheme: SwitchThemeData(
+        thumbColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.disabled)) return tokens.fgDisabled;
+          return tokens.fgOnBrand;
+        }),
+        trackColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.disabled)) return tokens.bgDisabled;
+          if (states.contains(WidgetState.selected)) return tokens.bgBrand;
+          return tokens.bgTrack;
+        }),
+        trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
+        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      ),
+      // Radio (사용처 적지만 일관 스타일)
+      radioTheme: RadioThemeData(
+        fillColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.disabled)) return tokens.fgDisabled;
+          if (states.contains(WidgetState.selected)) return tokens.bgBrand;
+          return tokens.borderStrong;
+        }),
+        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      ),
       iconTheme: IconThemeData(color: tokens.fgSecondary, size: 20),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: tokens.bgSurface,
