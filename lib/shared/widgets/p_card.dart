@@ -36,7 +36,7 @@ class PCard extends StatelessWidget {
   final Widget child;
 
   /// 명시 지정 시 그대로, 미지정 시 variant 기본값:
-  /// - shadow: `EdgeInsets.all(16)` (spec)
+  /// - shadow: `EdgeInsets.all(24)` (card.md spec — `spacing-xl`)
   /// - bordered/muted/brand: `EdgeInsets.zero`
   ///   (list shell 패턴 — 자식 row가 자체 padding 가지는 게 일반적)
   final EdgeInsetsGeometry? padding;
@@ -64,7 +64,7 @@ class PCard extends StatelessWidget {
     };
     final effectivePadding = padding ??
         (variant == PCardVariant.shadow
-            ? const EdgeInsets.all(16)
+            ? const EdgeInsets.all(24)
             : EdgeInsets.zero);
     final wrap = Container(
       padding: effectivePadding,
