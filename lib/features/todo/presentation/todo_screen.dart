@@ -9,6 +9,7 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_button.dart';
+import '../../../shared/widgets/p_card.dart';
 import '../../../shared/widgets/p_chip.dart';
 import '../../../shared/widgets/p_empty_state.dart';
 import '../../../shared/widgets/p_floating_action_button.dart';
@@ -259,12 +260,8 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
               padding: const EdgeInsets.fromLTRB(
                   PSpace.x16, PSpace.x12, PSpace.x16, PSpace.x80),
               children: [
-                Container(
-                  decoration: BoxDecoration(
-                    color: t.bgSurface,
-                    borderRadius: PRadius.brLg,
-                    border: Border.all(color: t.borderSubtle),
-                  ),
+                PCard(
+                  variant: PCardVariant.bordered,
                   child: Column(
                     children: [
                       for (int i = 0; i < sorted.length; i++) ...[

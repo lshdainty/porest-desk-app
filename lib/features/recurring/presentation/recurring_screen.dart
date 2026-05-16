@@ -14,6 +14,7 @@ import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_badge.dart';
 import '../../../shared/widgets/p_button.dart';
+import '../../../shared/widgets/p_card.dart';
 import '../../../shared/widgets/p_chip.dart';
 import '../../../shared/widgets/p_empty_state.dart';
 import '../../../shared/widgets/p_floating_action_button.dart';
@@ -170,12 +171,8 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
                 if (filtered.isEmpty)
                   _EmptyState(filter: _filter, tokens: t)
                 else
-                  Container(
-                    decoration: BoxDecoration(
-                      color: t.bgSurface,
-                      borderRadius: PRadius.brLg,
-                      border: Border.all(color: t.borderSubtle),
-                    ),
+                  PCard(
+                    variant: PCardVariant.bordered,
                     child: Column(
                       children: [
                         for (int i = 0; i < filtered.length; i++) ...[
@@ -305,13 +302,9 @@ class _SummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return PCard(
       padding: const EdgeInsets.all(PSpace.x16),
-      decoration: BoxDecoration(
-        color: tokens.bgSurface,
-        borderRadius: PRadius.brLg,
-        border: Border.all(color: tokens.borderSubtle),
-      ),
+      variant: PCardVariant.bordered,
       child: Column(
         children: [
           Row(
@@ -411,13 +404,9 @@ class _UpcomingCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final today = DateTime.now();
     final todayStart = DateTime(today.year, today.month, today.day);
-    return Container(
+    return PCard(
       padding: const EdgeInsets.all(PSpace.x16),
-      decoration: BoxDecoration(
-        color: tokens.bgSurface,
-        borderRadius: PRadius.brLg,
-        border: Border.all(color: tokens.borderSubtle),
-      ),
+      variant: PCardVariant.bordered,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

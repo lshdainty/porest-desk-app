@@ -14,6 +14,7 @@ import '../../../core/settings/hide_amounts_unlock_dialog.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_button.dart';
+import '../../../shared/widgets/p_card.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../card/presentation/card_performance_bar.dart';
 import '../../expense/application/expense_providers.dart';
@@ -651,34 +652,24 @@ class _RecentExpenses extends StatelessWidget {
   Widget build(BuildContext context) {
     final list = async.value ?? const <Expense>[];
     if (async.isLoading && list.isEmpty) {
-      return Container(
+      return PCard(
         padding: const EdgeInsets.symmetric(vertical: 16),
-        decoration: BoxDecoration(
-            color: tokens.bgSurface,
-            borderRadius: PRadius.brLg,
-            border: Border.all(color: tokens.borderSubtle)),
+        variant: PCardVariant.bordered,
         child: const Center(child: CircularProgressIndicator()),
       );
     }
     if (list.isEmpty) {
-      return Container(
+      return PCard(
         padding: const EdgeInsets.symmetric(vertical: 24),
-        decoration: BoxDecoration(
-            color: tokens.bgSurface,
-            borderRadius: PRadius.brLg,
-            border: Border.all(color: tokens.borderSubtle)),
+        variant: PCardVariant.bordered,
         child: Center(
           child: Text('연결된 거래 내역이 없어요.',
               style: PTypo.bodySm.copyWith(color: tokens.fgTertiary)),
         ),
       );
     }
-    return Container(
-      decoration: BoxDecoration(
-        color: tokens.bgSurface,
-        borderRadius: PRadius.brLg,
-        border: Border.all(color: tokens.borderSubtle),
-      ),
+    return PCard(
+      variant: PCardVariant.bordered,
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
       child: Column(
         children: [

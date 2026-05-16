@@ -13,6 +13,7 @@ import '../../../core/network/api_exception.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_button.dart';
+import '../../../shared/widgets/p_card.dart';
 import '../../../shared/widgets/p_empty_state.dart';
 import '../../../shared/widgets/p_floating_action_button.dart';
 import '../../expense/application/expense_providers.dart';
@@ -114,12 +115,8 @@ class _PresetScreenState extends ConsumerState<PresetScreen> {
                     style:
                         PTypo.caption.copyWith(color: t.fgSecondary)),
                 const SizedBox(height: PSpace.x12),
-                Container(
-                  decoration: BoxDecoration(
-                    color: t.bgSurface,
-                    borderRadius: PRadius.brLg,
-                    border: Border.all(color: t.borderSubtle),
-                  ),
+                PCard(
+                  variant: PCardVariant.bordered,
                   child: Column(
                     children: [
                       for (int i = 0; i < items.length; i++) ...[

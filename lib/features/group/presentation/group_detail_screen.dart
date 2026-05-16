@@ -15,6 +15,7 @@ import '../../../core/network/api_exception.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/widgets/p_badge.dart';
 import '../../../shared/widgets/p_button.dart';
+import '../../../shared/widgets/p_card.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_text_input.dart';
@@ -431,13 +432,9 @@ class _GroupHeaderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return PCard(
       padding: const EdgeInsets.all(PSpace.x16),
-      decoration: BoxDecoration(
-        color: tokens.bgSurface,
-        borderRadius: PRadius.brLg,
-        border: Border.all(color: tokens.borderSubtle),
-      ),
+      variant: PCardVariant.bordered,
       child: Row(
         children: [
           Container(
@@ -495,13 +492,9 @@ class _InviteCodeCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final code = (detail.inviteCode as String?) ?? '-';
-    return Container(
+    return PCard(
       padding: const EdgeInsets.all(PSpace.x16),
-      decoration: BoxDecoration(
-        color: tokens.bgSurface,
-        borderRadius: PRadius.brLg,
-        border: Border.all(color: tokens.borderSubtle),
-      ),
+      variant: PCardVariant.bordered,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -596,12 +589,8 @@ class _MembersCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final members = (detail.members as List).cast<GroupMember>();
-    return Container(
-      decoration: BoxDecoration(
-        color: tokens.bgSurface,
-        borderRadius: PRadius.brLg,
-        border: Border.all(color: tokens.borderSubtle),
-      ),
+    return PCard(
+      variant: PCardVariant.bordered,
       child: Column(
         children: [
           Padding(

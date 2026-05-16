@@ -16,6 +16,7 @@ import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_badge.dart';
 import '../../../shared/widgets/p_button.dart';
+import '../../../shared/widgets/p_card.dart';
 import '../../../shared/widgets/p_empty_state.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../expense/application/expense_providers.dart';
@@ -819,13 +820,9 @@ class _PaceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return PCard(
       padding: const EdgeInsets.all(PSpace.x16),
-      decoration: BoxDecoration(
-        color: tokens.bgSurface,
-        borderRadius: PRadius.brLg,
-        border: Border.all(color: tokens.borderSubtle),
-      ),
+      variant: PCardVariant.bordered,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -993,13 +990,9 @@ class _StatusTiles extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return PCard(
       padding: const EdgeInsets.all(PSpace.x16),
-      decoration: BoxDecoration(
-        color: tokens.bgSurface,
-        borderRadius: PRadius.brLg,
-        border: Border.all(color: tokens.borderSubtle),
-      ),
+      variant: PCardVariant.bordered,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1130,13 +1123,9 @@ class _CategoryListCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return PCard(
       padding: const EdgeInsets.all(PSpace.x16),
-      decoration: BoxDecoration(
-        color: tokens.bgSurface,
-        borderRadius: PRadius.brLg,
-        border: Border.all(color: tokens.borderSubtle),
-      ),
+      variant: PCardVariant.bordered,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1321,13 +1310,9 @@ class _ComplianceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final list = async.value ?? const <BudgetComplianceMonth>[];
-    return Container(
+    return PCard(
       padding: const EdgeInsets.all(PSpace.x16),
-      decoration: BoxDecoration(
-        color: tokens.bgSurface,
-        borderRadius: PRadius.brLg,
-        border: Border.all(color: tokens.borderSubtle),
-      ),
+      variant: PCardVariant.bordered,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1523,12 +1508,8 @@ class _EmptyState extends StatelessWidget {
   final VoidCallback onAdd;
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: tokens.bgSurface,
-        borderRadius: PRadius.brLg,
-        border: Border.all(color: tokens.borderSubtle),
-      ),
+    return PCard(
+      variant: PCardVariant.bordered,
       child: PEmptyState(
         icon: LucideIcons.target,
         message: '이 달 예산이 없습니다',

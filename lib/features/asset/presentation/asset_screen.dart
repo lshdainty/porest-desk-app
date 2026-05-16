@@ -570,13 +570,9 @@ class _AssetCard extends StatelessWidget {
       child: InkWell(
         borderRadius: PRadius.brLg,
         onTap: () => showAssetDetailDialog(context, asset),
-        child: Container(
+        child: PCard(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-          decoration: BoxDecoration(
-            color: t.bgSurface,
-            borderRadius: PRadius.brLg,
-            border: Border.all(color: t.borderSubtle),
-          ),
+          variant: PCardVariant.bordered,
           child: Row(
             children: [
               AssetLogo(asset: asset),

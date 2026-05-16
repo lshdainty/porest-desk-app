@@ -12,6 +12,7 @@ import '../../../core/format/krw.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/widgets/p_badge.dart';
 import '../../../shared/widgets/p_button.dart';
+import '../../../shared/widgets/p_card.dart';
 import '../../../shared/widgets/p_chip.dart';
 import '../../asset/application/asset_providers.dart';
 import '../application/expense_providers.dart';
@@ -274,13 +275,9 @@ class _SummaryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final balance = income - expense;
-    return Container(
+    return PCard(
       padding: const EdgeInsets.all(PSpace.x16),
-      decoration: BoxDecoration(
-        color: t.bgSurface,
-        borderRadius: PRadius.brLg,
-        border: Border.all(color: t.borderSubtle),
-      ),
+      variant: PCardVariant.bordered,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -553,12 +550,8 @@ class _DayGroup extends ConsumerWidget {
               ],
             ),
           ),
-          Container(
-            decoration: BoxDecoration(
-              color: t.bgSurface,
-              borderRadius: PRadius.brLg,
-              border: Border.all(color: t.borderSubtle),
-            ),
+          PCard(
+            variant: PCardVariant.bordered,
             child: Column(
               children: [
                 for (int i = 0; i < items.length; i++) ...[

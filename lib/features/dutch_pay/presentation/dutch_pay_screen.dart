@@ -12,6 +12,7 @@ import '../../../core/network/api_exception.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/widgets/p_badge.dart';
 import '../../../shared/widgets/p_button.dart';
+import '../../../shared/widgets/p_card.dart';
 import '../../../shared/widgets/p_empty_state.dart';
 import '../../../shared/widgets/p_floating_action_button.dart';
 import '../../../shared/widgets/p_modal.dart';
@@ -159,12 +160,8 @@ class _DutchPayCard extends StatelessWidget {
     final paidCount = dp.participants.where((p) => p.isPaid).length;
     final totalP = dp.participants.length;
     final progress = totalP == 0 ? 0.0 : paidCount / totalP;
-    return Container(
-      decoration: BoxDecoration(
-        color: tokens.bgSurface,
-        borderRadius: PRadius.brLg,
-        border: Border.all(color: tokens.borderSubtle),
-      ),
+    return PCard(
+      variant: PCardVariant.bordered,
       padding: const EdgeInsets.all(PSpace.x12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

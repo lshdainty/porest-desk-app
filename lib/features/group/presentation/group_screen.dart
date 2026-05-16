@@ -11,6 +11,7 @@ import '../../../app/theme/typography.dart';
 import '../../../core/format/color_parse.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_button.dart';
+import '../../../shared/widgets/p_card.dart';
 import '../../../shared/widgets/p_empty_state.dart';
 import '../../../shared/widgets/p_floating_action_button.dart';
 import '../../../shared/widgets/p_modal.dart';
@@ -82,12 +83,8 @@ class GroupScreen extends ConsumerWidget {
               padding: const EdgeInsets.fromLTRB(
                   PSpace.x16, PSpace.x12, PSpace.x16, PSpace.x80),
               children: [
-                Container(
-                  decoration: BoxDecoration(
-                    color: t.bgSurface,
-                    borderRadius: PRadius.brLg,
-                    border: Border.all(color: t.borderSubtle),
-                  ),
+                PCard(
+                  variant: PCardVariant.bordered,
                   child: Column(
                     children: [
                       for (int i = 0; i < groups.length; i++) ...[

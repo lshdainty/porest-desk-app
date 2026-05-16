@@ -9,6 +9,7 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/format/color_parse.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
+import '../../../shared/widgets/p_card.dart';
 import '../../../shared/widgets/p_empty_state.dart';
 import '../../../shared/widgets/p_floating_action_button.dart';
 import '../../expense/application/expense_providers.dart';
@@ -119,12 +120,8 @@ class _CategoryList extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(
           PSpace.x16, PSpace.x12, PSpace.x16, PSpace.x80),
       children: [
-        Container(
-          decoration: BoxDecoration(
-            color: tokens.bgSurface,
-            borderRadius: PRadius.brLg,
-            border: Border.all(color: tokens.borderSubtle),
-          ),
+        PCard(
+          variant: PCardVariant.bordered,
           child: Column(
             children: [
               for (int i = 0; i < categories.length; i++) ...[

@@ -12,6 +12,7 @@ import '../../../l10n/generated/app_localizations.dart';
 import '../../expense/presentation/export_dialog.dart';
 import 'appearance_section.dart';
 import 'password_change_dialog.dart';
+import '../../../shared/widgets/p_card.dart';
 
 /// 설정 화면 — front `SettingsPage` 9개 섹션 미러.
 ///
@@ -95,12 +96,8 @@ class SettingsScreen extends ConsumerWidget {
           // 메뉴 그룹
           _SectionHeader(title: '관리', subtitle: '관련 기능 바로가기', tokens: t),
           const SizedBox(height: PSpace.x12),
-          Container(
-            decoration: BoxDecoration(
-              color: t.bgSurface,
-              borderRadius: PRadius.brLg,
-              border: Border.all(color: t.borderSubtle),
-            ),
+          PCard(
+            variant: PCardVariant.bordered,
             child: Column(
               children: [
                 for (int i = 0; i < sections.length; i++) ...[
@@ -116,12 +113,8 @@ class SettingsScreen extends ConsumerWidget {
           // 계정 섹션
           _SectionHeader(title: '계정', subtitle: '프로필·로그아웃', tokens: t),
           const SizedBox(height: PSpace.x12),
-          Container(
-            decoration: BoxDecoration(
-              color: t.bgSurface,
-              borderRadius: PRadius.brLg,
-              border: Border.all(color: t.borderSubtle),
-            ),
+          PCard(
+            variant: PCardVariant.bordered,
             child: Column(
               children: [
                 if (user != null)

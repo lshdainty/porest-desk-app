@@ -3,13 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
-import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/auth/auth_notifier.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../../expense/presentation/export_dialog.dart';
+import '../../../shared/widgets/p_card.dart';
 
 /// 모바일 전용 "전체" 탭 — 잘 안 쓰는 메뉴를 한 화면에 모음.
 class MoreScreen extends ConsumerWidget {
@@ -61,12 +61,8 @@ class MoreScreen extends ConsumerWidget {
       children: [
         Text(l.navMore, style: PTypo.h2.copyWith(color: t.fgPrimary)),
         const SizedBox(height: PSpace.x16),
-        Container(
-          decoration: BoxDecoration(
-            color: t.bgSurface,
-            borderRadius: PRadius.brLg,
-            border: Border.all(color: t.borderSubtle),
-          ),
+        PCard(
+          variant: PCardVariant.bordered,
           child: Column(
             children: [
               for (int i = 0; i < items.length; i++) ...[

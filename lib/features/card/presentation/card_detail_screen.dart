@@ -8,6 +8,7 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/format/krw.dart';
 import '../../../shared/widgets/p_badge.dart';
+import '../../../shared/widgets/p_card.dart';
 import '../application/card_providers.dart';
 
 class CardDetailScreen extends ConsumerWidget {
@@ -124,12 +125,8 @@ class CardDetailScreen extends ConsumerWidget {
                     style: PTypo.body.copyWith(
                         color: t.fgPrimary, fontWeight: PFontWeight.bold)),
                 const SizedBox(height: PSpace.x8),
-                Container(
-                  decoration: BoxDecoration(
-                    color: t.bgSurface,
-                    borderRadius: PRadius.brLg,
-                    border: Border.all(color: t.borderSubtle),
-                  ),
+                PCard(
+                  variant: PCardVariant.bordered,
                   child: Column(
                     children: [
                       for (int i = 0; i < d.benefits.length; i++) ...[
@@ -221,13 +218,9 @@ class _InfoCard extends StatelessWidget {
   final PorestTokens tokens;
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return PCard(
       padding: const EdgeInsets.all(PSpace.x12),
-      decoration: BoxDecoration(
-        color: tokens.bgSurface,
-        borderRadius: PRadius.brLg,
-        border: Border.all(color: tokens.borderSubtle),
-      ),
+      variant: PCardVariant.bordered,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
