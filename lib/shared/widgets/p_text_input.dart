@@ -31,8 +31,14 @@ class PTextInput extends StatelessWidget {
     this.autofocus = false,
     this.suffix,
     this.prefix,
+    this.prefixText,
+    this.suffixText,
+    this.errorText,
     this.style,
     this.onSubmitted,
+    this.focusNode,
+    this.inputFormatters,
+    this.autofillHints,
   });
 
   final TextEditingController? controller;
@@ -48,26 +54,35 @@ class PTextInput extends StatelessWidget {
   final bool autofocus;
   final Widget? suffix;
   final Widget? prefix;
+  final String? prefixText;
+  final String? suffixText;
+  final String? errorText;
   final TextStyle? style;
   final ValueChanged<String>? onSubmitted;
+  final FocusNode? focusNode;
+  final List<TextInputFormatter>? inputFormatters;
+  final Iterable<String>? autofillHints;
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
     final isMultiLine = (maxLines ?? 1) > 1;
+    final formatters = inputFormatters ??
+        (numbersOnly ? [FilteringTextInputFormatter.digitsOnly] : null);
     final field = TextField(
       controller: controller,
+      focusNode: focusNode,
       onChanged: onChanged,
       onSubmitted: onSubmitted,
       autofocus: autofocus,
       enabled: enabled,
       keyboardType:
           keyboardType ?? (numbersOnly ? TextInputType.number : null),
-      inputFormatters:
-          numbersOnly ? [FilteringTextInputFormatter.digitsOnly] : null,
+      inputFormatters: formatters,
       obscureText: obscureText,
       maxLines: obscureText ? 1 : maxLines,
       textAlign: textAlign,
+      autofillHints: autofillHints,
       style: (style ?? PTypo.bodyLg).copyWith(color: t.fgPrimary),
       decoration: InputDecoration(
         hintText: placeholder,
@@ -79,6 +94,10 @@ class PTextInput extends StatelessWidget {
             horizontal: PSpace.md, vertical: PSpace.sm),
         prefixIcon: prefix,
         suffixIcon: suffix,
+        prefixText: prefixText,
+        suffixText: suffixText,
+        suffixStyle: PTypo.bodySm.copyWith(color: t.fgTertiary),
+        errorText: errorText,
         border: OutlineInputBorder(
           borderRadius: PRadius.brSm,
           borderSide: BorderSide(color: t.borderDefault),

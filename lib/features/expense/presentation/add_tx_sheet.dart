@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
@@ -15,6 +14,7 @@ import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_category_tile.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_select.dart';
+import '../../../shared/widgets/p_text_input.dart';
 import '../../asset/application/asset_providers.dart';
 import '../../preset/application/preset_providers.dart';
 import '../../preset/domain/expense_template.dart';
@@ -400,25 +400,17 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
                   ],
                 ),
                 const SizedBox(height: PSpace.x4),
-                TextField(
+                PTextInput(
                   controller: _amountCtrl,
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  numbersOnly: true,
                   enabled: !_amountLocked,
+                  placeholder: '0',
+                  prefixText: amountInt > 0 ? amountPrefix : null,
+                  suffixText: '원',
                   style: PTypo.h4.copyWith(
                       color: amountColor,
                       fontWeight: PFontWeight.bold,
                       fontFamily: 'monospace'),
-                  decoration: InputDecoration(
-                    hintText: '0',
-                    filled: true,
-                    fillColor: t.bgSurface,
-                    prefixText:
-                        amountInt > 0 ? amountPrefix : null,
-                    suffixText: '원',
-                    suffixStyle:
-                        PTypo.bodySm.copyWith(color: t.fgTertiary),
-                  ),
                   onChanged: (_) {
                     setState(() {});
                     _syncController();
@@ -549,13 +541,10 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
                   // 거래처
                   _Label(_type == 'INCOME' ? '수입처' : '거래처'),
                   const SizedBox(height: PSpace.x4),
-                  TextField(
+                  PTextInput(
                     controller: _merchantCtrl,
-                    decoration: InputDecoration(
-                      hintText: _type == 'INCOME' ? '예: (주)포레스트' : '예: 스타벅스 강남점',
-                      filled: true,
-                      fillColor: t.bgSurface,
-                    ),
+                    placeholder:
+                        _type == 'INCOME' ? '예: (주)포레스트' : '예: 스타벅스 강남점',
                   ),
                   const SizedBox(height: PSpace.x12),
 
@@ -683,15 +672,10 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
                   const SizedBox(height: PSpace.x12),
                   _Label('수수료 (선택)'),
                   const SizedBox(height: PSpace.x4),
-                  TextField(
+                  PTextInput(
                     controller: _feeCtrl,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    decoration: InputDecoration(
-                      hintText: '0',
-                      filled: true,
-                      fillColor: t.bgSurface,
-                    ),
+                    numbersOnly: true,
+                    placeholder: '0',
                   ),
                   const SizedBox(height: PSpace.x12),
                 ],
@@ -752,14 +736,10 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
 
                 _Label('메모'),
                 const SizedBox(height: PSpace.x4),
-                TextField(
+                PTextInput(
                   controller: _descCtrl,
                   maxLines: 2,
-                  decoration: InputDecoration(
-                    hintText: '예: 점심, 회식 등',
-                    filled: true,
-                    fillColor: t.bgSurface,
-                  ),
+                  placeholder: '예: 점심, 회식 등',
                 ),
                 const SizedBox(height: PSpace.x16),
               ],
@@ -1356,13 +1336,10 @@ class _SavePresetDialogState extends ConsumerState<_SavePresetDialog> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          TextField(
+          PTextInput(
             controller: _nameCtrl,
             autofocus: true,
-            decoration: const InputDecoration(
-              labelText: '프리셋 이름',
-              hintText: '예: 점심 도시락',
-            ),
+            placeholder: '예: 점심 도시락',
           ),
           const SizedBox(height: PSpace.x12),
           InkWell(
