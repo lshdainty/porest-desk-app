@@ -15,10 +15,13 @@ abstract final class PFontSize {
   static const double caption = 12;     // --fs-caption
   static const double bodySm = 13;      // --fs-body-sm
   static const double body = 14;        // --fs-body
+  static const double bodyMd = 15;      // --fs-body-md (spec body-md)
   static const double bodyLg = 16;      // --fs-body-lg
+  static const double titleSm = 16;     // spec title-sm (== body-lg)
   static const double h4 = 17;          // --fs-h4
-  static const double h3 = 20;          // --fs-h3
-  static const double h2 = 24;          // --fs-h2
+  static const double titleMd = 18;     // spec title-md
+  static const double h3 = 20;          // --fs-h3 (== title-lg)
+  static const double h2 = 24;          // --fs-h2 (== display-sm)
   static const double h1 = 30;          // --fs-h1
   static const double displayMd = 36;   // --fs-display-md
   static const double displayLg = 44;   // --fs-display-lg
@@ -62,24 +65,24 @@ abstract final class PTypo {
   static const String sans = 'Pretendard';
   static const String mono = 'JetBrainsMono';
 
-  // Display
+  // Display (DESIGN.desk.md / desk-front index.css spec)
   static const TextStyle displayXl = TextStyle(
     fontFamily: sans, fontSize: 56, height: 1.15, letterSpacing: -1.232,
-    fontWeight: FontWeight.w800,
+    fontWeight: FontWeight.w800, // heavy
   );
   static const TextStyle displayLg = TextStyle(
     fontFamily: sans, fontSize: 44, height: 1.15, letterSpacing: -0.968,
-    fontWeight: FontWeight.w700,
+    fontWeight: FontWeight.w800, // heavy (spec 일치)
   );
   static const TextStyle displayMd = TextStyle(
-    fontFamily: sans, fontSize: 36, height: 1.15, letterSpacing: -0.792,
-    fontWeight: FontWeight.w700,
+    fontFamily: sans, fontSize: 36, height: 1.15, letterSpacing: -0.432,
+    fontWeight: FontWeight.w700, // bold, tracking-snug (spec 일치)
   );
 
   // Headings
   static const TextStyle h1 = TextStyle(
-    fontFamily: sans, fontSize: 30, height: 1.3, letterSpacing: -0.66,
-    fontWeight: FontWeight.w700,
+    fontFamily: sans, fontSize: 30, height: 1.15, letterSpacing: -0.66,
+    fontWeight: FontWeight.w700, // bold, lh-tight (spec 일치)
   );
   static const TextStyle h2 = TextStyle(
     fontFamily: sans, fontSize: 24, height: 1.3, letterSpacing: -0.288,
