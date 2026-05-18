@@ -23,19 +23,18 @@ class PSheetFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
     return AnimatedBuilder(
       animation: controller,
       builder: (ctx, _) {
         return Row(
           children: [
             if (controller.onDelete != null)
-              TextButton.icon(
+              PButton(
+                label: deleteLabel,
+                icon: LucideIcons.trash2,
+                variant: PButtonVariant.ghost,
+                dangerous: true,
                 onPressed: controller.submitting ? null : controller.onDelete,
-                icon: Icon(LucideIcons.trash2,
-                    size: PSpace.x12, color: t.statusDangerFg),
-                label: Text(deleteLabel,
-                    style: TextStyle(color: t.statusDangerFg)),
               ),
             const Spacer(),
             PButton(

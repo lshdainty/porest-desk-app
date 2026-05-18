@@ -21,7 +21,6 @@ import '../application/expense_providers.dart';
 import '../domain/expense.dart';
 import 'add_tx_sheet.dart';
 import 'widgets/expense_row.dart';
-import '../../../shared/widgets/p_progress.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 
 /// 거래 상세 다이얼로그 — front `TxDetailDialog` 미러.
@@ -55,24 +54,19 @@ class _TxDetailFooter extends StatelessWidget {
   final PSheetController controller;
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
     return AnimatedBuilder(
       animation: controller,
       builder: (ctx, _) {
         final busy = controller.submitting;
         return Row(
           children: [
-            TextButton.icon(
+            PButton(
+              label: '삭제',
+              icon: LucideIcons.trash2,
+              variant: PButtonVariant.ghost,
+              dangerous: true,
+              loading: busy,
               onPressed: busy ? null : controller.onDelete,
-              icon: busy
-                  ? const SizedBox(
-                      width: PSpace.x12,
-                      height: PSpace.x12,
-                      child: PCircularProgressIndicator(strokeWidth: 2))
-                  : Icon(LucideIcons.trash2,
-                      size: PSpace.x12, color: t.statusDangerFg),
-              label: Text('삭제',
-                  style: PTypo.body.copyWith(color: t.statusDangerFg)),
             ),
             const Spacer(),
             PButton(

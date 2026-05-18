@@ -26,6 +26,7 @@ class PButton extends StatelessWidget {
     this.fullWidth = false,
     this.tooltip,
     this.iconColor,
+    this.dangerous = false,
   }) : assert(label != null || icon != null,
             'PButton requires either a label or an icon');
 
@@ -40,6 +41,7 @@ class PButton extends StatelessWidget {
     this.loading = false,
     this.tooltip,
     this.iconColor,
+    this.dangerous = false,
   })  : label = null,
         fullWidth = false;
 
@@ -54,6 +56,10 @@ class PButton extends StatelessWidget {
   /// icon-only ghost 버튼에서 아이콘 색만 override (예: trash danger).
   /// label 모드에서도 icon 만 분리 색 적용.
   final Color? iconColor;
+  /// ghost variant 에 위험(파괴적) 액션 색을 입힌다 — fg/icon → statusDangerFg.
+  /// dialog footer 의 "삭제" 같이 filled `danger` 보다 절제된 표현이 필요한 곳.
+  /// 다른 variant 와 함께 쓰면 무시.
+  final bool dangerous;
 
   // DESIGN.desk.md / specs/components/button.md spec:
   // sm: h=32, padY=4 padX=8, font=caption(12), radius=sm(4), icon=14
@@ -131,7 +137,7 @@ class PButton extends StatelessWidget {
         break;
       case PButtonVariant.ghost:
         bg = Colors.transparent;
-        fg = t.fgSecondary;
+        fg = dangerous ? t.statusDangerFg : t.fgSecondary;
         border = BorderSide.none;
         break;
       case PButtonVariant.danger:

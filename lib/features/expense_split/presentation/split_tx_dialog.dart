@@ -369,12 +369,12 @@ class _SplitFooter extends StatelessWidget {
         return Row(
           children: [
             if (hasExisting)
-              TextButton.icon(
+              PButton(
+                label: '분할 해제',
+                icon: LucideIcons.trash2,
+                variant: PButtonVariant.ghost,
+                dangerous: true,
                 onPressed: controller.submitting ? null : controller.onDelete,
-                icon: Icon(LucideIcons.trash2,
-                    size: PSpace.x12, color: t.statusDangerFg),
-                label: Text('분할 해제',
-                    style: PTypo.body.copyWith(color: t.statusDangerFg)),
               ),
             const SizedBox(width: PSpace.x4),
             _MatchPill(
