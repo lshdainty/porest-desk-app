@@ -12,7 +12,8 @@ import '../../../core/settings/hide_amounts_unlock_dialog.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_card.dart';
-import '../../../shared/widgets/p_progress.dart';
+import '../../../shared/widgets/p_skeleton.dart';
+import '../../../shared/widgets/p_tooltip.dart';
 import '../../notification/application/notification_providers.dart';
 import '../application/asset_providers.dart';
 import '../domain/asset.dart';
@@ -95,7 +96,10 @@ class AssetScreen extends ConsumerWidget {
           await ref.read(assetsProvider.future);
         },
         child: assetsAsync.when(
-          loading: () => const Center(child: PCircularProgressIndicator()),
+          loading: () => const Padding(
+            padding: EdgeInsets.all(PSpace.x16),
+            child: PListSkeleton(rows: 6, showAvatar: true),
+          ),
           error: (e, _) => _ErrorBox(
             message: '자산을 불러오지 못했습니다\n$e',
             onRetry: () => ref.invalidate(assetsProvider),
@@ -678,7 +682,7 @@ class _NotificationBell extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final unread = ref.watch(unreadCountProvider).value ?? 0;
-    return Tooltip(
+    return PTooltip(
       message: '알림',
       child: InkWell(
         onTap: () => context.push('/notifications'),

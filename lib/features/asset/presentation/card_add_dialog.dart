@@ -12,6 +12,7 @@ import '../../../shared/widgets/p_divider.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_progress.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
+import '../../../shared/widgets/p_switch.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../../card/application/card_providers.dart';
 import '../../card/domain/card_catalog.dart';
@@ -200,7 +201,7 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
                     InkWell(
                       onTap: () => setState(
                           () => _includeDiscontinued = !_includeDiscontinued),
-                      borderRadius: BorderRadius.circular(4),
+                      borderRadius: PRadius.brSm,
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 2),
                         child: Row(
@@ -210,13 +211,13 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
                                 style: PTypo.caption
                                     .copyWith(color: t.fgTertiary)),
                             const SizedBox(width: 6),
-                            // Material Switch.adaptive 의 기본 폭이 커서 60% 로 축소.
+                            // PSwitch(44×24) 를 60%로 축소 — toolbar dense 화면.
                             SizedBox(
                               width: 36,
                               height: 22,
                               child: FittedBox(
                                 fit: BoxFit.contain,
-                                child: Switch(
+                                child: PSwitch(
                                   value: _includeDiscontinued,
                                   onChanged: (v) => setState(
                                       () => _includeDiscontinued = v),
@@ -518,7 +519,7 @@ class _CatalogRow extends StatelessWidget {
                 width: 44,
                 height: 28,
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(4),
+                  borderRadius: PRadius.brSm,
                   child: item.imgUrl != null && item.imgUrl!.isNotEmpty
                       ? Image.network(
                           item.imgUrl!,
@@ -563,7 +564,7 @@ class _CatalogRow extends StatelessWidget {
                                 horizontal: 6, vertical: 1),
                             decoration: BoxDecoration(
                               color: t.bgDisabled,
-                              borderRadius: BorderRadius.circular(3),
+                              borderRadius: PRadius.brXs,
                             ),
                             child: Text(
                               '단종',

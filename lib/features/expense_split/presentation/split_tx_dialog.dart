@@ -7,6 +7,7 @@ import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
+import '../../../core/format/chart_palette.dart';
 import '../../../core/format/color_parse.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
@@ -674,14 +675,14 @@ class _RatioLegend extends StatelessWidget {
       runSpacing: 6,
       children: [
         for (final r in rows)
-          _legendChip(r),
+          _legendChip(context, r),
       ],
     );
   }
 
-  Widget _legendChip(_Row r) {
+  Widget _legendChip(BuildContext context, _Row r) {
     final cat = _cat(r.categoryRowId);
-    final color = parseColor(cat?.color, fallback: tokens.fgBrand);
+    final color = resolveChartColor(context, cat?.color, fallback: tokens.fgBrand);
     final pct = total > 0 ? ((r.amount / total) * 100).round() : 0;
     return Row(
       mainAxisSize: MainAxisSize.min,

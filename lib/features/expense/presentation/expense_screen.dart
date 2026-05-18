@@ -15,7 +15,7 @@ import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_card.dart';
 import '../../../shared/widgets/p_chip.dart';
 import '../../../shared/widgets/p_divider.dart';
-import '../../../shared/widgets/p_progress.dart';
+import '../../../shared/widgets/p_skeleton.dart';
 import '../../asset/application/asset_providers.dart';
 import '../application/expense_providers.dart';
 import '../domain/expense.dart';
@@ -118,8 +118,8 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
           // 본문 — 비동기 상태에 따라 분기
           expensesAsync.when(
             loading: () => const Padding(
-              padding: EdgeInsets.symmetric(vertical: PSpace.x32),
-              child: Center(child: PCircularProgressIndicator()),
+              padding: EdgeInsets.symmetric(vertical: PSpace.x16),
+              child: PListSkeleton(rows: 6, showAvatar: true),
             ),
             error: (e, _) => _ErrorBox(
               message: '거래를 불러오지 못했습니다\n$e',
@@ -625,7 +625,7 @@ class _AssetFilterBadge extends ConsumerWidget {
           const SizedBox(width: 4),
           InkWell(
             onTap: onClear,
-            borderRadius: BorderRadius.circular(999),
+            borderRadius: PRadius.brFull,
             child: Padding(
               padding: const EdgeInsets.all(2),
               child: Icon(LucideIcons.x, size: 14, color: t.fgBrand),

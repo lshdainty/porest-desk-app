@@ -7,11 +7,13 @@ import 'package:lucide_icons/lucide_icons.dart';
 import '../../../app/theme/radius.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
+import '../../../core/format/chart_palette.dart';
 import '../../../core/format/color_parse.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_card.dart';
+import '../../../shared/widgets/p_divider.dart';
 import '../../../shared/widgets/p_progress.dart';
 import '../../asset/application/asset_providers.dart';
 import '../../budget/application/budget_providers.dart';
@@ -362,12 +364,13 @@ class _BalanceHero extends StatelessWidget {
                     style: TextStyle(
                       color: t.fgOnBrand.withValues(alpha: 0.78),
                       fontSize: PFontSize.bodySm,
+                      fontWeight: PFontWeight.regular,
                     ),
                   ),
                   const SizedBox(width: 6),
                   Icon(
                     isUp ? LucideIcons.trendingUp : LucideIcons.trendingDown,
-                    size: 13,
+                    size: 14,
                     color: isUp ? t.fgOnHeroChgUp : t.fgOnHeroChgDown,
                   ),
                   const SizedBox(width: 2),
@@ -526,9 +529,14 @@ class _QuickAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // desk-front DashboardPage quick action 미러:
+    // PCard.shadow (bg-surface + shadow-sm, no border) — _MonthExpenseCard와 동일 톤
+    // 아이콘 컨테이너 radius-tile 10px / bg-brand-subtle / fg-brand-strong
     return PCard(
+      variant: PCardVariant.shadow,
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
-      borderRadius: PRadius.brXl,
+      // desk-front --radius-card(14px) 미러 — spec 외 desk custom 카드 톤
+      borderRadius: const BorderRadius.all(Radius.circular(14)),
       onTap: onTap,
       child: Column(
         children: [
@@ -639,6 +647,8 @@ class _MonthExpenseCard extends StatelessWidget {
               ],
             ),
           const SizedBox(height: 14),
+          const PDivider(),
+          const SizedBox(height: 14),
           RichText(
             text: TextSpan(
               style: PTypo.caption.copyWith(
@@ -722,12 +732,17 @@ class _CategoryDonutCard extends StatelessWidget {
   final bool masked;
 
   /// 카테고리 자체 색을 1순위로 사용, 없으면 [PorestChartPalette] fallback.
-  /// desk-front DashboardPage `CATEGORY_PALETTE` 정합.
+  /// chart base hex 면 라이트/다크 variant 자동 swap (resolveChartColor).
+  /// desk-front DashboardPage `donutSegs` 정합.
   Color _segmentColor(BuildContext context, int rowId, int fallbackIdx) {
     final cat = categoriesAsync.value?.byRowId(rowId);
     final raw = cat?.color;
     if (raw != null && raw.trim().isNotEmpty) {
-      return parseColor(raw, fallback: PorestChartPalette.category(context, fallbackIdx));
+      return resolveChartColor(
+        context,
+        raw,
+        fallback: PorestChartPalette.category(context, fallbackIdx),
+      );
     }
     return PorestChartPalette.category(context, fallbackIdx);
   }
@@ -1030,7 +1045,7 @@ class _BudgetRow extends StatelessWidget {
         : warn
             ? tokens.statusWarning
             : tokens.fgBrand;
-    final fg = parseColor(category?.color, fallback: tokens.fgBrand);
+    final fg = resolveChartColor(context, category?.color, fallback: tokens.fgBrand);
     final bg = softBg(fg);
     final name = category?.categoryName ??
         budget.categoryName ??
@@ -1225,7 +1240,8 @@ class _ExpenseRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fg = parseColor((category?.color as String?) ?? expense.categoryColor,
+    final fg = resolveChartColor(
+        context, (category?.color as String?) ?? expense.categoryColor,
         fallback: tokens.fgBrand);
     final bg = softBg(fg);
     final isExpense = expense.expenseType == 'EXPENSE';

@@ -6,6 +6,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 import '../../app/theme/radius.dart';
 import '../../app/theme/tokens.dart';
 import '../../app/theme/typography.dart';
+import 'p_tooltip.dart';
 import '../../core/settings/hide_amounts_unlock_dialog.dart';
 import '../../core/settings/settings_notifier.dart';
 import '../../features/notification/application/notification_providers.dart';
@@ -99,7 +100,7 @@ class _NotificationBell extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final unread = ref.watch(unreadCountProvider).value ?? 0;
-    return Tooltip(
+    return PTooltip(
       message: '알림',
       child: InkWell(
         onTap: () => context.push('/notifications'),
@@ -155,7 +156,7 @@ class _IcoBtn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Tooltip(
+    return PTooltip(
       message: tooltip ?? '',
       child: InkWell(
         onTap: onPressed,

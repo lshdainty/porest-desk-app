@@ -13,7 +13,7 @@ import '../../../core/format/krw.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_chip.dart';
 import '../../../shared/widgets/p_empty_state.dart';
-import '../../../shared/widgets/p_progress.dart';
+import '../../../shared/widgets/p_skeleton.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../application/card_providers.dart';
 import '../domain/card_catalog.dart';
@@ -201,7 +201,10 @@ class _CardScreenState extends ConsumerState<CardScreen> {
           await ref.read(cardCatalogPageProvider(_searchKey).future);
         },
         child: pageAsync.when(
-          loading: () => const Center(child: PCircularProgressIndicator()),
+          loading: () => const Padding(
+            padding: EdgeInsets.all(PSpace.x16),
+            child: PListSkeleton(rows: 6, showAvatar: true),
+          ),
           error: (e, _) => Padding(
             padding: const EdgeInsets.all(PSpace.x16),
             child: Text('카드 로드 실패\n$e',

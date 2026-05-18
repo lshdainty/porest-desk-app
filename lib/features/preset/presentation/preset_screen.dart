@@ -7,6 +7,7 @@ import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
+import '../../../core/format/chart_palette.dart';
 import '../../../core/format/color_parse.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
@@ -22,7 +23,7 @@ import '../../expense/domain/expense_category.dart';
 import '../application/preset_providers.dart';
 import '../domain/expense_template.dart';
 import 'preset_edit_dialog.dart';
-import '../../../shared/widgets/p_progress.dart';
+import '../../../shared/widgets/p_skeleton.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 
 class PresetScreen extends ConsumerStatefulWidget {
@@ -87,7 +88,10 @@ class _PresetScreenState extends ConsumerState<PresetScreen> {
           await ref.read(presetListProvider.future);
         },
         child: listAsync.when(
-          loading: () => const Center(child: PCircularProgressIndicator()),
+          loading: () => const Padding(
+            padding: EdgeInsets.all(PSpace.x16),
+            child: PListSkeleton(rows: 5),
+          ),
           error: (e, _) => ListView(
             padding: const EdgeInsets.all(PSpace.x16),
             children: [
@@ -171,7 +175,7 @@ class _PresetRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fg = parseColor(category?.color, fallback: tokens.fgBrand);
+    final fg = resolveChartColor(context, category?.color, fallback: tokens.fgBrand);
     final bg = softBg(fg);
     final isExpense = template.expenseType == 'EXPENSE';
     final used = template.useCount ?? 0;

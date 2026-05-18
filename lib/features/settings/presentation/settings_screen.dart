@@ -12,6 +12,7 @@ import '../../../l10n/generated/app_localizations.dart';
 import '../../expense/presentation/export_dialog.dart';
 import 'appearance_section.dart';
 import 'password_change_dialog.dart';
+import '../../../shared/widgets/p_avatar.dart';
 import '../../../shared/widgets/p_card.dart';
 import '../../../shared/widgets/p_divider.dart';
 
@@ -124,17 +125,12 @@ class SettingsScreen extends ConsumerWidget {
                         horizontal: PSpace.x16, vertical: PSpace.x12),
                     child: Row(
                       children: [
-                        CircleAvatar(
-                          radius: 20,
-                          backgroundColor: t.bgBrandSubtle,
-                          child: Text(
-                            (user.userName.isNotEmpty
-                                    ? user.userName[0]
-                                    : '?')
-                                .toUpperCase(),
-                            style: PTypo.body.copyWith(
-                                color: t.fgBrand, fontWeight: PFontWeight.bold),
-                          ),
+                        PAvatar(
+                          size: PAvatarSize.md,
+                          fill: PAvatarFill.primary,
+                          fallbackText: user.userName.isNotEmpty
+                              ? user.userName[0].toUpperCase()
+                              : '?',
                         ),
                         const SizedBox(width: PSpace.x12),
                         Expanded(

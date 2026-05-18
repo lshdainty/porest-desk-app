@@ -11,6 +11,7 @@ import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../shared/widgets/p_checkbox.dart';
 import '../../../shared/widgets/p_chip.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../asset/application/asset_providers.dart';
@@ -377,7 +378,7 @@ class _IncludeRow extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Checkbox(value: selected, onChanged: (v) => onChanged(v ?? false)),
+            PCheckbox(value: selected, onChanged: (v) => onChanged(v ?? false)),
             const SizedBox(width: PSpace.x4),
             Container(
               width: 32,

@@ -7,13 +7,14 @@ import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
+import '../../../core/format/chart_palette.dart';
 import '../../../core/format/color_parse.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_card.dart';
 import '../../../shared/widgets/p_divider.dart';
 import '../../../shared/widgets/p_empty_state.dart';
 import '../../../shared/widgets/p_floating_action_button.dart';
-import '../../../shared/widgets/p_progress.dart';
+import '../../../shared/widgets/p_skeleton.dart';
 import '../../expense/application/expense_providers.dart';
 import '../../expense/domain/expense_category.dart';
 import 'category_edit_dialog.dart';
@@ -76,7 +77,10 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen>
             defaultExpenseType: _kinds[_tab.index].$1),
       ),
       body: categoriesAsync.when(
-        loading: () => const Center(child: PCircularProgressIndicator()),
+        loading: () => const Padding(
+          padding: EdgeInsets.all(PSpace.x16),
+          child: PListSkeleton(rows: 8, showAvatar: true),
+        ),
         error: (e, _) => Padding(
           padding: const EdgeInsets.all(PSpace.x16),
           child: Text('카테고리 로드 실패\n$e',
@@ -146,7 +150,7 @@ class _CategoryRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fg = parseColor(category.color, fallback: tokens.fgBrand);
+    final fg = resolveChartColor(context, category.color, fallback: tokens.fgBrand);
     final bg = softBg(fg);
     return InkWell(
       onTap: () => showCategoryEditDialog(context, edit: category),

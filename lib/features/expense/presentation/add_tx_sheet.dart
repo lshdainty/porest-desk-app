@@ -6,6 +6,7 @@ import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
+import '../../../core/format/chart_palette.dart';
 import '../../../core/format/color_parse.dart';
 import '../../../core/format/date.dart';
 import '../../../core/format/krw.dart';
@@ -14,6 +15,7 @@ import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_badge.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_category_tile.dart';
+import '../../../shared/widgets/p_checkbox.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_progress.dart';
 import '../../../shared/widgets/p_section_label.dart';
@@ -482,7 +484,8 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
                               for (final c in topCategories)
                                 PCategoryTile(
                                   name: c.categoryName,
-                                  color: parseColor(
+                                  color: resolveChartColor(
+                                      context,
                                       c.color,
                                       fallback: t.fgBrand),
                                   icon: lucideByName(c.icon ?? 'tag'),
@@ -1119,7 +1122,7 @@ class _PresetChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final catColor =
-        parseColor(category?.color, fallback: tokens.fgBrand);
+        resolveChartColor(context, category?.color, fallback: tokens.fgBrand);
     final iconData = lucideByName(category?.icon, fallback: LucideIcons.tag);
     return GestureDetector(
       onTap: onTap,
@@ -1302,7 +1305,7 @@ class _SavePresetDialogState extends ConsumerState<_SavePresetDialog> {
               padding: const EdgeInsets.symmetric(vertical: 6),
               child: Row(
                 children: [
-                  Checkbox(
+                  PCheckbox(
                     value: _lockAmount,
                     onChanged: (v) =>
                         setState(() => _lockAmount = v ?? false),

@@ -470,12 +470,12 @@ class _BrandChip extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(999),
+        borderRadius: PRadius.brFull,
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
           decoration: BoxDecoration(
             color: selected ? entry.color.bg : t.bgMuted,
-            borderRadius: BorderRadius.circular(999),
+            borderRadius: PRadius.brFull,
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,

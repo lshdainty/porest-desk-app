@@ -4,6 +4,7 @@ import '../../app/theme/radius.dart';
 import '../../app/theme/spacing.dart';
 import '../../app/theme/tokens.dart';
 import '../../app/theme/typography.dart';
+import 'p_tooltip.dart';
 
 /// front `<Button>` (shadcn) 미러 — variant 별 일관 스타일.
 ///
@@ -184,7 +185,7 @@ class PButton extends StatelessWidget {
       ),
     );
     final tipped = tooltip != null
-        ? Tooltip(message: tooltip!, child: btn)
+        ? PTooltip(message: tooltip!, child: btn)
         : btn;
     return fullWidth ? SizedBox(width: double.infinity, child: tipped) : tipped;
   }

@@ -7,7 +7,7 @@ import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
-import '../../../core/format/color_parse.dart';
+import '../../../core/format/chart_palette.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
@@ -17,6 +17,7 @@ import '../../expense/application/expense_providers.dart';
 import '../../expense/domain/expense.dart';
 import '../application/recurring_providers.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
+import '../../../shared/widgets/p_switch.dart';
 
 /// 거래 → 반복 설정 다이얼로그 (front `RecurringFromTxDialog` 미러).
 ///
@@ -173,7 +174,7 @@ class _RecurringFromTxBodyState extends ConsumerState<_RecurringFromTxBody> {
         : cats.where((c) => c.rowId == e.categoryRowId).firstOrNull;
     final fg = cat == null
         ? t.fgBrand
-        : parseColor(cat.color, fallback: t.fgBrand);
+        : resolveChartColor(context, cat.color, fallback: t.fgBrand);
     final iconData = lucideByName(cat?.icon ?? 'tag');
 
     final nextDates = _previewNextDates(
@@ -764,11 +765,7 @@ class _ToggleRow extends StatelessWidget {
               ],
             ),
           ),
-          Switch.adaptive(
-            value: value,
-            onChanged: onChanged,
-            activeTrackColor: tokens.bgBrand,
-          ),
+          PSwitch(value: value, onChanged: onChanged),
         ],
       ),
     );

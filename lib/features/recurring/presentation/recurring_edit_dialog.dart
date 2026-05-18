@@ -6,7 +6,7 @@ import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
-import '../../../core/format/color_parse.dart';
+import '../../../core/format/chart_palette.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_button.dart';
@@ -16,6 +16,7 @@ import '../../../shared/widgets/p_section_label.dart';
 import '../../../shared/widgets/p_segmented_control.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
+import '../../../shared/widgets/p_switch.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../../asset/application/asset_providers.dart';
 import '../../expense/application/expense_providers.dart';
@@ -272,7 +273,7 @@ class _RecurringEditBodyState extends ConsumerState<_RecurringEditBody> {
                   PChip(
                     label: c.categoryName,
                     icon: lucideByName(c.icon),
-                    iconColor: parseColor(c.color, fallback: t.fgBrand),
+                    iconColor: resolveChartColor(context, c.color, fallback: t.fgBrand),
                     variant: PChipVariant.subtle,
                     selected: _categoryRowId == c.rowId,
                     onTap: () => setState(() => _categoryRowId = c.rowId),
@@ -427,19 +428,14 @@ class _RecurringEditBodyState extends ConsumerState<_RecurringEditBody> {
           }),
           const SizedBox(height: PSpace.x16),
 
-          SwitchListTile.adaptive(
-            contentPadding: EdgeInsets.zero,
-            title: Text('자동 기록',
-                style: PTypo.body.copyWith(color: t.fgPrimary)),
-            subtitle: Text('실행 일자에 자동으로 거래 생성',
-                style: PTypo.caption.copyWith(color: t.fgTertiary)),
+          PSwitchTile(
+            title: '자동 기록',
+            subtitle: '실행 일자에 자동으로 거래 생성',
             value: _autoLog,
             onChanged: (v) => setState(() => _autoLog = v),
           ),
-          SwitchListTile.adaptive(
-            contentPadding: EdgeInsets.zero,
-            title: Text('하루 전 알림',
-                style: PTypo.body.copyWith(color: t.fgPrimary)),
+          PSwitchTile(
+            title: '하루 전 알림',
             value: _notifyDayBefore,
             onChanged: (v) => setState(() => _notifyDayBefore = v),
           ),

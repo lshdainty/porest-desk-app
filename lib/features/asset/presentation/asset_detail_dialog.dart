@@ -223,7 +223,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                       ),
                     ),
                     InkWell(
-                      borderRadius: BorderRadius.circular(6),
+                      borderRadius: PRadius.brSm,
                       onTap: () {
                         Navigator.of(context).pop();
                         context.go(

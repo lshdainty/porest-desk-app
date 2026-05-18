@@ -13,6 +13,7 @@ import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_progress.dart';
 import '../../../shared/widgets/p_section_label.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
+import '../../../shared/widgets/p_switch.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../application/calendar_providers.dart';
 import '../domain/calendar_event.dart';
@@ -463,10 +464,8 @@ class _BodyState extends ConsumerState<_Body> {
           const SizedBox(height: PSpace.x16),
 
           // 종일
-          SwitchListTile.adaptive(
-            contentPadding: EdgeInsets.zero,
-            title: Text('종일',
-                style: PTypo.body.copyWith(color: t.fgPrimary)),
+          PSwitchTile(
+            title: '종일',
             value: _allDay,
             onChanged: (v) => setState(() => _allDay = v),
           ),

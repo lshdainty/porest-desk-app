@@ -126,11 +126,13 @@ abstract final class PorestPalette {
   static const Color statusInfoBase = Color(0xFF1D6FCB);
   static const Color statusInfoLight = Color(0xFF60A5FA);
 
-  // Hero(.balance-hero) 내부 always-on-dark 색 — 그라데이션 mossy700→mossy900 위에 사용.
+  // Hero(.balance-hero) 내부 always-on-dark 보조 색 — cobalt 그라데이션 위에 사용.
   // 라이트/다크 분기 없음 (hero 는 항상 어둡기 때문).
-  static const Color heroChgUp = Color(0xFFB8E0A0);
-  static const Color heroChgDown = Color(0xFFF0B6A8);
-  static const Color heroSpot = Color(0xFFC8C480);
+  // 웹 정합: color-mix(in srgb, var(--color-success|error) 60%, white)
+  //   up   = #16803F × 0.6 + #FFFFFF × 0.4 = #73B38C
+  //   down = #DC2626 × 0.6 + #FFFFFF × 0.4 = #EA7D7D
+  static const Color heroChgUp = Color(0xFF73B38C);
+  static const Color heroChgDown = Color(0xFFEA7D7D);
 
   // === Chart palette (desk-front --color-chart-* 미러, 10색 페어) ===
   // 차트 카테고리 구분용. base = light 모드, light = dark 모드 fg.

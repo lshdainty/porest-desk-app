@@ -7,6 +7,7 @@ import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
+import '../../../core/format/chart_palette.dart';
 import '../../../core/format/color_parse.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
@@ -460,7 +461,7 @@ class _UpcomingRow extends StatelessWidget {
     final isToday = days == 0;
     final isExpense = item.expenseType == 'EXPENSE';
 
-    final fg = parseColor(category?.color, fallback: tokens.fgBrand);
+    final fg = resolveChartColor(context, category?.color, fallback: tokens.fgBrand);
     final bg = softBg(fg);
 
     return Container(
@@ -603,7 +604,7 @@ class _RecurringRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final isActive = item.isActive == 'Y';
     final isExpense = item.expenseType == 'EXPENSE';
-    final fg = parseColor(category?.color, fallback: tokens.fgBrand);
+    final fg = resolveChartColor(context, category?.color, fallback: tokens.fgBrand);
     final bg = softBg(fg);
 
     return Opacity(

@@ -7,6 +7,7 @@ import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
+import '../../../core/format/chart_palette.dart' as cp;
 import '../../../core/format/color_parse.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/settings/settings_notifier.dart';
@@ -482,11 +483,10 @@ class _EmptyBox extends StatelessWidget {
 // ─── DONUT CARD ────────────────────────────────────────────
 
 /// Donut 차트 카테고리 색 — `cat.color` 우선, 없으면 [PorestChartPalette] fallback.
-/// desk-front DashboardPage `CATEGORY_PALETTE` 결정 로직 정합.
+/// chart base hex 면 라이트/다크 variant 자동 swap (resolveChartColor).
 Color _donutColor(BuildContext context, int idx, [String? rawColor]) {
   final fallback = PorestChartPalette.category(context, idx);
-  if (rawColor == null || rawColor.trim().isEmpty) return fallback;
-  return parseColor(rawColor, fallback: fallback);
+  return cp.resolveChartColor(context, rawColor, fallback: fallback);
 }
 
 class _DonutRow {
@@ -1324,7 +1324,7 @@ class _ChartTooltipBox extends StatelessWidget {
         decoration: BoxDecoration(
           color: t.bgSurface,
           border: Border.all(color: t.borderSubtle, width: 1),
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: PRadius.brLg,
           boxShadow: PShadow.sm,
         ),
         child: Column(
@@ -1374,7 +1374,7 @@ class _ChartTooltipRow extends StatelessWidget {
           height: 9,
           decoration: BoxDecoration(
             color: data.color,
-            borderRadius: BorderRadius.circular(2),
+            borderRadius: PRadius.brXs,
           ),
         ),
         const SizedBox(width: 8),

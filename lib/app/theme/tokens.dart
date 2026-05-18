@@ -198,8 +198,10 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     bgBrand: PorestPalette.cobalt500,
     bgBrandHover: PorestPalette.cobalt600,
     bgBrandPress: PorestPalette.cobalt700,
-    bgBrandSubtle: PorestPalette.cobalt50,
-    bgBrandMuted: PorestPalette.cobalt100,
+    // desk-front `--bg-brand-subtle: color-mix(srgb, --color-primary 8%, transparent)`
+    // = cobalt500(#0147AD) @ 8% alpha. solid cobalt50 사용 시 톤이 짙어 web 정합 X.
+    bgBrandSubtle: Color(0x140147AD), // cobalt500 @ 8% alpha (0x14 ≈ 0.078)
+    bgBrandMuted: Color(0x240147AD),  // cobalt500 @ 14% alpha (0x24 ≈ 0.141)
     bgHoverSubtle: PorestPalette.slate50,
     bgHoverStrong: PorestPalette.slate100,
     bgRowHover: PorestPalette.slate50,
@@ -212,10 +214,12 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     fgPlaceholder: PorestPalette.slate500,
     fgOnBrand: PorestPalette.slate0,
     fgOnWarm: PorestPalette.bark900,
-    fgBrand: PorestPalette.cobalt700,
-    fgBrandStrong: PorestPalette.cobalt800,
-    fgLink: PorestPalette.cobalt700,
-    fgLinkHover: PorestPalette.cobalt800,
+    // desk-front `--fg-brand`/`--fg-brand-strong`/`--fg-link` 전부 light=--color-primary
+    // (cobalt500 #0147AD). 더 진한 톤(cobalt700/800) 쓰면 web과 톤 불일치.
+    fgBrand: PorestPalette.cobalt500,
+    fgBrandStrong: PorestPalette.cobalt500,
+    fgLink: PorestPalette.cobalt500,
+    fgLinkHover: PorestPalette.cobalt500,
     fgOnDanger: PorestPalette.slate0,
     fgOnSuccess: PorestPalette.slate0,
     borderSubtle: PorestPalette.slate200,
@@ -283,8 +287,10 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     bgBrand: PorestPalette.cobalt400,
     bgBrandHover: PorestPalette.cobalt300,
     bgBrandPress: PorestPalette.cobalt200,
-    bgBrandSubtle: Color(0x80001A42), // cobalt900 @ 50%
-    bgBrandMuted: PorestPalette.darkBrandMutedCobalt,
+    // desk-front dark: `--bg-brand-subtle: color-mix(srgb, --color-primary 12%, transparent)`
+    // = cobalt500(#0147AD) @ 12% alpha. solid cobalt900 사용 시 거의 검정이라 web 정합 X.
+    bgBrandSubtle: Color(0x1F0147AD), // cobalt500 @ 12% alpha (0x1F ≈ 0.122)
+    bgBrandMuted: Color(0x380147AD),  // cobalt500 @ 22% alpha (0x38 ≈ 0.220)
     bgHoverSubtle: Color(0x0AFFFFFF),
     bgHoverStrong: Color(0x14FFFFFF),
     bgRowHover: Color(0x08FFFFFF),
@@ -297,10 +303,11 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     fgPlaceholder: PorestPalette.slateDarkText3,
     fgOnBrand: PorestPalette.slate0,
     fgOnWarm: PorestPalette.bark100,
-    fgBrand: PorestPalette.cobalt300,
-    fgBrandStrong: PorestPalette.cobalt200,
-    fgLink: PorestPalette.cobalt300,
-    fgLinkHover: PorestPalette.cobalt200,
+    // desk-front dark: 전부 --color-primary-light (#5FA0E5 = cobalt400) 사용.
+    fgBrand: PorestPalette.cobalt400,
+    fgBrandStrong: PorestPalette.cobalt400,
+    fgLink: PorestPalette.cobalt400,
+    fgLinkHover: PorestPalette.cobalt400,
     fgOnDanger: PorestPalette.slate0,
     fgOnSuccess: PorestPalette.slate0,
     borderSubtle: PorestPalette.slate800,

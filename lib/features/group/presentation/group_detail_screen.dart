@@ -13,6 +13,7 @@ import '../../../core/format/color_parse.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/settings/settings_notifier.dart';
+import '../../../shared/widgets/p_avatar.dart';
 import '../../../shared/widgets/p_badge.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_card.dart';
@@ -650,15 +651,11 @@ class _MemberRow extends ConsumerWidget {
           const EdgeInsets.symmetric(horizontal: PSpace.x16, vertical: PSpace.x8),
       child: Row(
         children: [
-          CircleAvatar(
-            radius: 18,
-            backgroundColor: tokens.bgMuted,
-            child: Text(
-              (member.userName.isNotEmpty ? member.userName[0] : '?')
-                  .toUpperCase(),
-              style: PTypo.bodySm.copyWith(
-                  color: tokens.fgSecondary, fontWeight: PFontWeight.bold),
-            ),
+          PAvatar(
+            size: PAvatarSize.sm,
+            fallbackText: member.userName.isNotEmpty
+                ? member.userName[0].toUpperCase()
+                : '?',
           ),
           const SizedBox(width: PSpace.x12),
           Expanded(

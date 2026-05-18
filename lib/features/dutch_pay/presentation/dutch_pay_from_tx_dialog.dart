@@ -8,6 +8,7 @@ import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/auth/auth_notifier.dart';
+import '../../../core/format/chart_palette.dart';
 import '../../../core/format/color_parse.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
@@ -303,7 +304,7 @@ class _BodyState extends ConsumerState<_Body> {
         : cats.where((c) => c.rowId == e.categoryRowId).firstOrNull;
     final fg = cat == null
         ? t.fgBrand
-        : parseColor(cat.color, fallback: t.fgBrand);
+        : resolveChartColor(context, cat.color, fallback: t.fgBrand);
     final iconData = lucideByName(cat?.icon ?? 'tag');
 
     final siblingsAsync = ref.watch(siblingMembersProvider);

@@ -9,6 +9,7 @@ import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
+import '../../../core/format/chart_palette.dart';
 import '../../../core/format/color_parse.dart';
 import '../../../core/format/date.dart';
 import '../../../core/format/krw.dart';
@@ -426,7 +427,8 @@ class _ResultRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = parseColor(category?.color as String? ?? expense.categoryColor,
+    final color = resolveChartColor(
+        context, category?.color as String? ?? expense.categoryColor,
         fallback: tokens.fgBrand);
     final bg = softBg(color);
     final isExpense = expense.expenseType == 'EXPENSE';

@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
-import '../../../core/format/color_parse.dart';
+import '../../../core/format/chart_palette.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_chip.dart';
@@ -12,6 +12,7 @@ import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_progress.dart';
 import '../../../shared/widgets/p_segmented_control.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
+import '../../../shared/widgets/p_switch.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../../asset/application/asset_providers.dart';
 import '../../expense/application/expense_providers.dart';
@@ -221,12 +222,9 @@ class _BodyState extends ConsumerState<_Body> {
             placeholder: '0',
             onChanged: (_) => setState(() {}),
           ),
-          SwitchListTile.adaptive(
-            contentPadding: EdgeInsets.zero,
-            title: Text('금액 잠금',
-                style: PTypo.bodySm.copyWith(color: t.fgPrimary)),
-            subtitle: Text('체크 시 사용할 때 금액 변경 불가',
-                style: PTypo.caption.copyWith(color: t.fgTertiary)),
+          PSwitchTile(
+            title: '금액 잠금',
+            subtitle: '체크 시 사용할 때 금액 변경 불가',
             value: _lockAmount,
             onChanged: (v) => setState(() => _lockAmount = v),
           ),
@@ -250,7 +248,7 @@ class _BodyState extends ConsumerState<_Body> {
                   PChip(
                     label: c.categoryName,
                     icon: lucideByName(c.icon),
-                    iconColor: parseColor(c.color, fallback: t.fgBrand),
+                    iconColor: resolveChartColor(context, c.color, fallback: t.fgBrand),
                     variant: PChipVariant.subtle,
                     selected: _categoryRowId == c.rowId,
                     onTap: () => setState(() => _categoryRowId = c.rowId),

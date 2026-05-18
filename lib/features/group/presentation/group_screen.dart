@@ -16,7 +16,7 @@ import '../../../shared/widgets/p_divider.dart';
 import '../../../shared/widgets/p_empty_state.dart';
 import '../../../shared/widgets/p_floating_action_button.dart';
 import '../../../shared/widgets/p_modal.dart';
-import '../../../shared/widgets/p_progress.dart';
+import '../../../shared/widgets/p_skeleton.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../application/group_providers.dart';
@@ -66,7 +66,10 @@ class GroupScreen extends ConsumerWidget {
           await ref.read(groupListProvider.future);
         },
         child: listAsync.when(
-          loading: () => const Center(child: PCircularProgressIndicator()),
+          loading: () => const Padding(
+            padding: EdgeInsets.all(PSpace.x16),
+            child: PListSkeleton(rows: 5, showAvatar: true),
+          ),
           error: (e, _) => Padding(
             padding: const EdgeInsets.all(PSpace.x16),
             child: Text('그룹 로드 실패\n$e',

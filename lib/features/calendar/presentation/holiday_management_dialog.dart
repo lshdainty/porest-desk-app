@@ -9,6 +9,7 @@ import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_badge.dart';
 import '../../../shared/widgets/p_button.dart';
+import '../../../shared/widgets/p_checkbox.dart';
 import '../../../shared/widgets/p_divider.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_progress.dart';
@@ -166,7 +167,7 @@ class _BodyState extends ConsumerState<_Body> {
           const SizedBox(height: 8),
           Row(
             children: [
-              Checkbox(
+              PCheckbox(
                 value: _newRecurring,
                 onChanged: (v) =>
                     setState(() => _newRecurring = v ?? false),
