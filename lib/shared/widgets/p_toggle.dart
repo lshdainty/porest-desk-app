@@ -105,6 +105,12 @@ class PToggle extends StatelessWidget {
 /// 여러 [PToggle]을 segmented connected 형태로 묶음. type=single (mutex) 또는
 /// multiple (multi-select). root border + radius + divider만 — item별 border
 /// 없음.
+///
+/// visual variants (intensity) — spec toggle-group.md Visual variants 정합:
+/// - subtle (default) — active 회색 채움 + 검정 글씨 (토스 절제 톤)
+/// - solid — active primary cobalt 채움 + 흰 글씨 + bold + subtle shadow (강조 톤)
+enum PToggleGroupVisual { subtle, solid }
+
 class PToggleGroupItem<T> {
   const PToggleGroupItem({
     required this.value,
@@ -127,6 +133,7 @@ class PToggleGroupSingle<T> extends StatelessWidget {
     required this.onChanged,
     this.size = PToggleSize.defaultSize,
     this.expanded = false,
+    this.visual = PToggleGroupVisual.subtle,
   });
 
   final List<PToggleGroupItem<T>> items;
@@ -138,6 +145,9 @@ class PToggleGroupSingle<T> extends StatelessWidget {
   /// segment 같이 부모 가로 가득 차야 하는 경우. desk-front segmented variant
   /// `w-full + flex-1` 패턴 parity.
   final bool expanded;
+
+  /// active item 시각 강조도. spec toggle-group.md Visual variants 정합.
+  final PToggleGroupVisual visual;
 
   @override
   Widget build(BuildContext context) {
@@ -164,6 +174,7 @@ class PToggleGroupSingle<T> extends StatelessWidget {
                       selected: items[i].value == value,
                       onTap: () => onChanged(items[i].value),
                       size: size,
+                      visual: visual,
                     ),
                   )
                 else
@@ -172,6 +183,7 @@ class PToggleGroupSingle<T> extends StatelessWidget {
                     selected: items[i].value == value,
                     onTap: () => onChanged(items[i].value),
                     size: size,
+                    visual: visual,
                   ),
               ],
             ],
@@ -191,12 +203,16 @@ class PToggleGroupMultiple<T> extends StatelessWidget {
     required this.value,
     required this.onChanged,
     this.size = PToggleSize.defaultSize,
+    this.visual = PToggleGroupVisual.subtle,
   });
 
   final List<PToggleGroupItem<T>> items;
   final Set<T> value;
   final ValueChanged<Set<T>> onChanged;
   final PToggleSize size;
+
+  /// active item 시각 강조도. spec toggle-group.md Visual variants 정합.
+  final PToggleGroupVisual visual;
 
   @override
   Widget build(BuildContext context) {
@@ -225,6 +241,7 @@ class PToggleGroupMultiple<T> extends StatelessWidget {
                     onChanged(next);
                   },
                   size: size,
+                  visual: visual,
                 ),
               ],
             ],
@@ -241,11 +258,13 @@ class _GroupItem<T> extends StatelessWidget {
     required this.selected,
     required this.onTap,
     required this.size,
+    required this.visual,
   });
   final PToggleGroupItem<T> item;
   final bool selected;
   final VoidCallback onTap;
   final PToggleSize size;
+  final PToggleGroupVisual visual;
 
   (double padX, double padY, double minH) get _metrics => switch (size) {
         PToggleSize.sm => (8, 4, 28),
@@ -257,39 +276,56 @@ class _GroupItem<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final disabled = item.disabled;
-    final fg = selected ? t.fgPrimary : t.fgSecondary;
+    final isSolid = visual == PToggleGroupVisual.solid;
+    final fg = selected
+        ? (isSolid ? t.fgOnBrand : t.fgPrimary)
+        : t.fgSecondary;
+    final bg = selected
+        ? (isSolid ? t.bgBrand : t.bgMuted)
+        : Colors.transparent;
+    final selectedWeight = isSolid ? PFontWeight.bold : PFontWeight.semi;
     final (padX, padY, minH) = _metrics;
-    return Opacity(
-      opacity: disabled ? 0.5 : 1,
-      child: Material(
-        color: selected ? t.bgMuted : Colors.transparent,
-        child: InkWell(
-          onTap: disabled ? null : onTap,
-          child: Container(
-            constraints: BoxConstraints(minHeight: minH),
-            padding: EdgeInsets.symmetric(horizontal: padX, vertical: padY),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                if (item.icon != null) Icon(item.icon, size: 16, color: fg),
-                if (item.icon != null && item.label != null)
-                  const SizedBox(width: 4),
-                if (item.label != null)
-                  Text(
-                    item.label!,
-                    style: TextStyle(
-                      fontFamily: PTypo.sans,
-                      fontSize: PFontSize.caption,
-                      fontWeight: selected ? PFontWeight.semi : PFontWeight.medium,
-                      color: fg,
-                    ),
+    final tile = Material(
+      color: bg,
+      child: InkWell(
+        onTap: disabled ? null : onTap,
+        child: Container(
+          constraints: BoxConstraints(minHeight: minH),
+          padding: EdgeInsets.symmetric(horizontal: padX, vertical: padY),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (item.icon != null) Icon(item.icon, size: 16, color: fg),
+              if (item.icon != null && item.label != null)
+                const SizedBox(width: 4),
+              if (item.label != null)
+                Text(
+                  item.label!,
+                  style: TextStyle(
+                    fontFamily: PTypo.sans,
+                    fontSize: PFontSize.caption,
+                    fontWeight: selected ? selectedWeight : PFontWeight.medium,
+                    color: fg,
                   ),
-              ],
-            ),
+                ),
+            ],
           ),
         ),
       ),
     );
+    // spec solid 의 subtle shadow `0 1px 3px rgba(0,0,0,0.15)` — Flutter BoxShadow.
+    final decorated = (isSolid && selected)
+        ? DecoratedBox(
+            decoration: const BoxDecoration(boxShadow: [
+              BoxShadow(
+                  color: Color(0x26000000),
+                  offset: Offset(0, 1),
+                  blurRadius: 3),
+            ]),
+            child: tile,
+          )
+        : tile;
+    return Opacity(opacity: disabled ? 0.5 : 1, child: decorated);
   }
 }

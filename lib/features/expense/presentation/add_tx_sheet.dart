@@ -359,6 +359,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
       children: [
                 PToggleGroupSingle<String>(
                   expanded: true,
+                  visual: PToggleGroupVisual.solid,
                   value: _type,
                   onChanged: _isEdit
                       ? (_) {}
