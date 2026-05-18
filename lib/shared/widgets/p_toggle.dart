@@ -152,42 +152,41 @@ class PToggleGroupSingle<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    // spec toggle-group.md root + desk-front .p-seg wrapper 정합:
+    //   inline-flex + gap-[2px] + rounded-md + border + bg-sunken + p-0.5(=2)
     final group = Container(
+      padding: const EdgeInsets.all(2),
       decoration: BoxDecoration(
+        color: t.bgSunken,
         borderRadius: PRadius.brMd,
         border: Border.all(color: t.borderDefault),
       ),
-      child: ClipRRect(
-        borderRadius: PRadius.brMd,
-        child: IntrinsicHeight(
-          child: Row(
-            mainAxisSize: expanded ? MainAxisSize.max : MainAxisSize.min,
-            children: [
-              for (int i = 0; i < items.length; i++) ...[
-                if (i > 0)
-                  VerticalDivider(
-                      width: 1, thickness: 1, color: t.borderDefault),
-                if (expanded)
-                  Expanded(
-                    child: _GroupItem<T>(
-                      item: items[i],
-                      selected: items[i].value == value,
-                      onTap: () => onChanged(items[i].value),
-                      size: size,
-                      visual: visual,
-                    ),
-                  )
-                else
-                  _GroupItem<T>(
+      child: IntrinsicHeight(
+        child: Row(
+          mainAxisSize: expanded ? MainAxisSize.max : MainAxisSize.min,
+          children: [
+            for (int i = 0; i < items.length; i++) ...[
+              if (i > 0) const SizedBox(width: 2),
+              if (expanded)
+                Expanded(
+                  child: _GroupItem<T>(
                     item: items[i],
                     selected: items[i].value == value,
                     onTap: () => onChanged(items[i].value),
                     size: size,
                     visual: visual,
                   ),
-              ],
+                )
+              else
+                _GroupItem<T>(
+                  item: items[i],
+                  selected: items[i].value == value,
+                  onTap: () => onChanged(items[i].value),
+                  size: size,
+                  visual: visual,
+                ),
             ],
-          ),
+          ],
         ),
       ),
     );
@@ -218,34 +217,33 @@ class PToggleGroupMultiple<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.tokens;
     return Container(
+      padding: const EdgeInsets.all(2),
       decoration: BoxDecoration(
+        color: t.bgSunken,
         borderRadius: PRadius.brMd,
         border: Border.all(color: t.borderDefault),
       ),
-      child: ClipRRect(
-        borderRadius: PRadius.brMd,
-        child: IntrinsicHeight(
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              for (int i = 0; i < items.length; i++) ...[
-                if (i > 0) VerticalDivider(width: 1, thickness: 1, color: t.borderDefault),
-                _GroupItem<T>(
-                  item: items[i],
-                  selected: value.contains(items[i].value),
-                  onTap: () {
-                    final next = {...value};
-                    next.contains(items[i].value)
-                        ? next.remove(items[i].value)
-                        : next.add(items[i].value);
-                    onChanged(next);
-                  },
-                  size: size,
-                  visual: visual,
-                ),
-              ],
+      child: IntrinsicHeight(
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (int i = 0; i < items.length; i++) ...[
+              if (i > 0) const SizedBox(width: 2),
+              _GroupItem<T>(
+                item: items[i],
+                selected: value.contains(items[i].value),
+                onTap: () {
+                  final next = {...value};
+                  next.contains(items[i].value)
+                      ? next.remove(items[i].value)
+                      : next.add(items[i].value);
+                  onChanged(next);
+                },
+                size: size,
+                visual: visual,
+              ),
             ],
-          ),
+          ],
         ),
       ),
     );
@@ -285,10 +283,14 @@ class _GroupItem<T> extends StatelessWidget {
         : Colors.transparent;
     final selectedWeight = isSolid ? PFontWeight.bold : PFontWeight.semi;
     final (padX, padY, minH) = _metrics;
+    // spec / desk-front segmented item — 개별 radius-sm(4px) + 부모 sunken bar
+    // 안에서 active 시 background 채움 (clipping 없음 — 자체 radius 보존).
     final tile = Material(
       color: bg,
+      borderRadius: PRadius.brSm,
       child: InkWell(
         onTap: disabled ? null : onTap,
+        borderRadius: PRadius.brSm,
         child: Container(
           constraints: BoxConstraints(minHeight: minH),
           padding: EdgeInsets.symmetric(horizontal: padX, vertical: padY),
@@ -305,7 +307,7 @@ class _GroupItem<T> extends StatelessWidget {
                   style: TextStyle(
                     fontFamily: PTypo.sans,
                     fontSize: PFontSize.caption,
-                    fontWeight: selected ? selectedWeight : PFontWeight.medium,
+                    fontWeight: selected ? selectedWeight : PFontWeight.semi,
                     color: fg,
                   ),
                 ),
@@ -317,12 +319,15 @@ class _GroupItem<T> extends StatelessWidget {
     // spec solid 의 subtle shadow `0 1px 3px rgba(0,0,0,0.15)` — Flutter BoxShadow.
     final decorated = (isSolid && selected)
         ? DecoratedBox(
-            decoration: const BoxDecoration(boxShadow: [
-              BoxShadow(
-                  color: Color(0x26000000),
-                  offset: Offset(0, 1),
-                  blurRadius: 3),
-            ]),
+            decoration: BoxDecoration(
+              borderRadius: PRadius.brSm,
+              boxShadow: const [
+                BoxShadow(
+                    color: Color(0x26000000),
+                    offset: Offset(0, 1),
+                    blurRadius: 3),
+              ],
+            ),
             child: tile,
           )
         : tile;
