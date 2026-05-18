@@ -78,37 +78,4 @@ abstract final class PShadow {
     BoxShadow(color: Color(0x1AFFFFFF), offset: Offset(0, 1), blurStyle: BlurStyle.inner),
   ];
 
-  // ==========================================================================
-  // desk-app custom (SoT 외) — 보존. Mossy 잔재 cleanup 은 follow-up task.
-  // ==========================================================================
-
-  /// xs — desk-app 전용 sm 보다 약한 elevation (chip/tile 등).
-  static const List<BoxShadow> xs = [
-    BoxShadow(color: Color(0x0D1C2414), offset: Offset(0, 1), blurRadius: 2),
-  ];
-
-  static const List<BoxShadow> xsDark = [
-    BoxShadow(color: Color(0x4D000000), offset: Offset(0, 1), blurRadius: 2),
-  ];
-
-  /// brand — focus/hover 강조용 brand-tinted shadow. 옛 Mossy oklch(0.52 0.06 110)
-  /// 잔재 — Desk 브랜드 cobalt(#0147AD) 로 정합 필요 (follow-up).
-  static const List<BoxShadow> brand = [
-    BoxShadow(color: Color(0x597C9054), offset: Offset(0, 6), blurRadius: 16, spreadRadius: -4),
-  ];
-
-  /// focus — focus ring. brand 와 동일하게 Mossy 잔재.
-  static const List<BoxShadow> focus = [
-    BoxShadow(color: Color(0x337C9054), spreadRadius: 3),
-  ];
-
-  /// brand-dark — Mossy oklch(0.66 0.06 110) 잔재. cobalt-light(#5FA0E5) 로
-  /// 정합 필요 (follow-up).
-  static const List<BoxShadow> brandDark = [
-    BoxShadow(color: Color(0x80A8BD7E), offset: Offset(0, 6), blurRadius: 16, spreadRadius: -4),
-  ];
-
-  static const List<BoxShadow> focusDark = [
-    BoxShadow(color: Color(0x59A8BD7E), spreadRadius: 3),
-  ];
 }
