@@ -20,7 +20,6 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     required this.bgSurfaceRaised,
     required this.bgSunken,
     required this.bgMuted,
-    required this.bgSectionWarm,
     required this.bgInverse,
     required this.bgBrand,
     required this.bgBrandHover,
@@ -38,7 +37,6 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     required this.fgDisabled,
     required this.fgPlaceholder,
     required this.fgOnBrand,
-    required this.fgOnWarm,
     required this.fgBrand,
     required this.fgBrandStrong,
     required this.fgLink,
@@ -50,7 +48,6 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     required this.borderStrong,
     required this.borderFocus,
     required this.borderBrand,
-    required this.borderWarm,
     required this.statusSuccess,
     required this.statusSuccessSubtle,
     required this.statusSuccessFg,
@@ -72,10 +69,6 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     required this.bgBrandTint,
     required this.bgBrandTintStrong,
     required this.bgTableHead,
-    required this.bgWarmTint,
-    required this.bgWarmTintStrong,
-    required this.bgWarmPress,
-    required this.fgOnWarmStrong,
     required this.borderBrandSoft,
     required this.borderBrandMid,
     required this.statusSuccessBorder,
@@ -97,7 +90,6 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
   final Color bgSurfaceRaised;
   final Color bgSunken;
   final Color bgMuted;
-  final Color bgSectionWarm;
   final Color bgInverse;
   final Color bgBrand;
   final Color bgBrandHover;
@@ -117,7 +109,6 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
   final Color fgDisabled;
   final Color fgPlaceholder;
   final Color fgOnBrand;
-  final Color fgOnWarm;
   final Color fgBrand;
   final Color fgBrandStrong;
   final Color fgLink;
@@ -131,7 +122,6 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
   final Color borderStrong;
   final Color borderFocus;
   final Color borderBrand;
-  final Color borderWarm;
 
   // Status
   final Color statusSuccess;
@@ -160,10 +150,6 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
   final Color bgBrandTint;        // brand 약한 톤
   final Color bgBrandTintStrong;  // brand 진한 톤
   final Color bgTableHead;        // 테이블 헤더 행 배경
-  final Color bgWarmTint;         // warm 약한 톤
-  final Color bgWarmTintStrong;   // warm 진한 톤
-  final Color bgWarmPress;        // warm press 상태
-  final Color fgOnWarmStrong;     // warm bg 위 강한 텍스트
 
   // Border 변형
   final Color borderBrandSoft;    // brand 보더 약한 톤
@@ -193,7 +179,6 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     bgSurfaceRaised: PorestPalette.slate0,
     bgSunken: PorestPalette.slate100,
     bgMuted: PorestPalette.slate100,
-    bgSectionWarm: PorestPalette.bark100,
     bgInverse: PorestPalette.slate950,
     bgBrand: PorestPalette.cobalt500,
     bgBrandHover: PorestPalette.cobalt600,
@@ -213,7 +198,6 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     fgDisabled: PorestPalette.slate400,
     fgPlaceholder: PorestPalette.slate500,
     fgOnBrand: PorestPalette.slate0,
-    fgOnWarm: PorestPalette.bark900,
     // desk-front `--fg-brand`/`--fg-brand-strong`/`--fg-link` 전부 light=--color-primary
     // (cobalt500 #0147AD). 더 진한 톤(cobalt700/800) 쓰면 web과 톤 불일치.
     fgBrand: PorestPalette.cobalt500,
@@ -227,7 +211,6 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     borderStrong: PorestPalette.slate500,
     borderFocus: PorestPalette.cobalt500,
     borderBrand: PorestPalette.cobalt500,
-    borderWarm: PorestPalette.bark300,
     statusSuccess: PorestPalette.statusSuccessBase,
     statusSuccessSubtle: Color(0x1F16803F), // success @ 12% alpha
     statusSuccessFg: PorestPalette.statusSuccessBase,
@@ -251,10 +234,6 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     bgBrandTint: PorestPalette.cobalt50,
     bgBrandTintStrong: PorestPalette.cobalt100,
     bgTableHead: PorestPalette.slate100,
-    bgWarmTint: PorestPalette.bark100,
-    bgWarmTintStrong: PorestPalette.bark200,
-    bgWarmPress: PorestPalette.bark300,
-    fgOnWarmStrong: PorestPalette.bark900,
     // Border 변형
     borderBrandSoft: PorestPalette.cobalt200,
     borderBrandMid: PorestPalette.cobalt300,
@@ -282,7 +261,6 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     bgSurfaceRaised: PorestPalette.slate900,
     bgSunken: PorestPalette.slate950,
     bgMuted: PorestPalette.slate850,
-    bgSectionWarm: PorestPalette.darkSectionWarm,
     bgInverse: PorestPalette.slate50,
     bgBrand: PorestPalette.cobalt400,
     bgBrandHover: PorestPalette.cobalt300,
@@ -302,7 +280,6 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     fgDisabled: PorestPalette.slateDarkTextDisabled,
     fgPlaceholder: PorestPalette.slateDarkText3,
     fgOnBrand: PorestPalette.slate0,
-    fgOnWarm: PorestPalette.bark100,
     // desk-front dark: 전부 --color-primary-light (#5FA0E5 = cobalt400) 사용.
     fgBrand: PorestPalette.cobalt400,
     fgBrandStrong: PorestPalette.cobalt400,
@@ -315,7 +292,6 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     borderStrong: PorestPalette.slateDarkBorderStrong,
     borderFocus: PorestPalette.cobalt400,
     borderBrand: PorestPalette.cobalt400,
-    borderWarm: Color(0x1AFFFFFF),
     statusSuccess: PorestPalette.statusSuccessBase,
     statusSuccessSubtle: Color(0x2E16803F), // success @ 18% alpha
     statusSuccessFg: PorestPalette.statusSuccessLight,
@@ -339,10 +315,6 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     bgBrandTint: Color(0x4D001A42),       // cobalt900 @ 30%
     bgBrandTintStrong: Color(0x80001A42), // cobalt900 @ 50%
     bgTableHead: Color(0x0AFFFFFF),       // oklch(1 0 0 / 0.04)
-    bgWarmTint: Color(0x8C483C23),        // oklch(0.260 0.030 65 / 0.55)
-    bgWarmTintStrong: Color(0xA6534629),  // oklch(0.300 0.035 60 / 0.65)
-    bgWarmPress: Color(0xBF635433),       // oklch(0.350 0.038 55 / 0.75)
-    fgOnWarmStrong: PorestPalette.bark100,
     // Border 변형 — cobalt brand
     borderBrandSoft: Color(0x665FA0E5),   // cobalt400 @ 40%
     borderBrandMid: Color(0x8097C2EE),    // cobalt300 @ 50%
@@ -368,7 +340,6 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     Color? bgSurfaceRaised,
     Color? bgSunken,
     Color? bgMuted,
-    Color? bgSectionWarm,
     Color? bgInverse,
     Color? bgBrand,
     Color? bgBrandHover,
@@ -386,7 +357,6 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     Color? fgDisabled,
     Color? fgPlaceholder,
     Color? fgOnBrand,
-    Color? fgOnWarm,
     Color? fgBrand,
     Color? fgBrandStrong,
     Color? fgLink,
@@ -398,7 +368,6 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     Color? borderStrong,
     Color? borderFocus,
     Color? borderBrand,
-    Color? borderWarm,
     Color? statusSuccess,
     Color? statusSuccessSubtle,
     Color? statusSuccessFg,
@@ -420,10 +389,6 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     Color? bgBrandTint,
     Color? bgBrandTintStrong,
     Color? bgTableHead,
-    Color? bgWarmTint,
-    Color? bgWarmTintStrong,
-    Color? bgWarmPress,
-    Color? fgOnWarmStrong,
     Color? borderBrandSoft,
     Color? borderBrandMid,
     Color? statusSuccessBorder,
@@ -444,7 +409,6 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
       bgSurfaceRaised: bgSurfaceRaised ?? this.bgSurfaceRaised,
       bgSunken: bgSunken ?? this.bgSunken,
       bgMuted: bgMuted ?? this.bgMuted,
-      bgSectionWarm: bgSectionWarm ?? this.bgSectionWarm,
       bgInverse: bgInverse ?? this.bgInverse,
       bgBrand: bgBrand ?? this.bgBrand,
       bgBrandHover: bgBrandHover ?? this.bgBrandHover,
@@ -462,7 +426,6 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
       fgDisabled: fgDisabled ?? this.fgDisabled,
       fgPlaceholder: fgPlaceholder ?? this.fgPlaceholder,
       fgOnBrand: fgOnBrand ?? this.fgOnBrand,
-      fgOnWarm: fgOnWarm ?? this.fgOnWarm,
       fgBrand: fgBrand ?? this.fgBrand,
       fgBrandStrong: fgBrandStrong ?? this.fgBrandStrong,
       fgLink: fgLink ?? this.fgLink,
@@ -474,7 +437,6 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
       borderStrong: borderStrong ?? this.borderStrong,
       borderFocus: borderFocus ?? this.borderFocus,
       borderBrand: borderBrand ?? this.borderBrand,
-      borderWarm: borderWarm ?? this.borderWarm,
       statusSuccess: statusSuccess ?? this.statusSuccess,
       statusSuccessSubtle: statusSuccessSubtle ?? this.statusSuccessSubtle,
       statusSuccessFg: statusSuccessFg ?? this.statusSuccessFg,
@@ -496,10 +458,6 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
       bgBrandTint: bgBrandTint ?? this.bgBrandTint,
       bgBrandTintStrong: bgBrandTintStrong ?? this.bgBrandTintStrong,
       bgTableHead: bgTableHead ?? this.bgTableHead,
-      bgWarmTint: bgWarmTint ?? this.bgWarmTint,
-      bgWarmTintStrong: bgWarmTintStrong ?? this.bgWarmTintStrong,
-      bgWarmPress: bgWarmPress ?? this.bgWarmPress,
-      fgOnWarmStrong: fgOnWarmStrong ?? this.fgOnWarmStrong,
       borderBrandSoft: borderBrandSoft ?? this.borderBrandSoft,
       borderBrandMid: borderBrandMid ?? this.borderBrandMid,
       statusSuccessBorder: statusSuccessBorder ?? this.statusSuccessBorder,
@@ -526,7 +484,6 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
       bgSurfaceRaised: l(bgSurfaceRaised, other.bgSurfaceRaised),
       bgSunken: l(bgSunken, other.bgSunken),
       bgMuted: l(bgMuted, other.bgMuted),
-      bgSectionWarm: l(bgSectionWarm, other.bgSectionWarm),
       bgInverse: l(bgInverse, other.bgInverse),
       bgBrand: l(bgBrand, other.bgBrand),
       bgBrandHover: l(bgBrandHover, other.bgBrandHover),
@@ -544,7 +501,6 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
       fgDisabled: l(fgDisabled, other.fgDisabled),
       fgPlaceholder: l(fgPlaceholder, other.fgPlaceholder),
       fgOnBrand: l(fgOnBrand, other.fgOnBrand),
-      fgOnWarm: l(fgOnWarm, other.fgOnWarm),
       fgBrand: l(fgBrand, other.fgBrand),
       fgBrandStrong: l(fgBrandStrong, other.fgBrandStrong),
       fgLink: l(fgLink, other.fgLink),
@@ -556,7 +512,6 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
       borderStrong: l(borderStrong, other.borderStrong),
       borderFocus: l(borderFocus, other.borderFocus),
       borderBrand: l(borderBrand, other.borderBrand),
-      borderWarm: l(borderWarm, other.borderWarm),
       statusSuccess: l(statusSuccess, other.statusSuccess),
       statusSuccessSubtle: l(statusSuccessSubtle, other.statusSuccessSubtle),
       statusSuccessFg: l(statusSuccessFg, other.statusSuccessFg),
@@ -578,10 +533,6 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
       bgBrandTint: l(bgBrandTint, other.bgBrandTint),
       bgBrandTintStrong: l(bgBrandTintStrong, other.bgBrandTintStrong),
       bgTableHead: l(bgTableHead, other.bgTableHead),
-      bgWarmTint: l(bgWarmTint, other.bgWarmTint),
-      bgWarmTintStrong: l(bgWarmTintStrong, other.bgWarmTintStrong),
-      bgWarmPress: l(bgWarmPress, other.bgWarmPress),
-      fgOnWarmStrong: l(fgOnWarmStrong, other.fgOnWarmStrong),
       borderBrandSoft: l(borderBrandSoft, other.borderBrandSoft),
       borderBrandMid: l(borderBrandMid, other.borderBrandMid),
       statusSuccessBorder: l(statusSuccessBorder, other.statusSuccessBorder),
