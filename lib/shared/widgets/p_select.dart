@@ -30,6 +30,8 @@ class PSelect<T> extends StatelessWidget {
     this.placeholder = '선택',
     this.title,
     this.enabled = true,
+    this.errorText,
+    this.helperText,
   });
 
   final T? value;
@@ -40,6 +42,13 @@ class PSelect<T> extends StatelessWidget {
   /// bottom-sheet 헤더에 표시할 제목 (선택).
   final String? title;
   final bool enabled;
+
+  /// 검증 실패 메시지 — 있으면 invalid state (border-error + helper color text-error).
+  /// specs/components/select.md error state 정합.
+  final String? errorText;
+
+  /// idle state 보조 텍스트 — control 아래 caption. errorText 우선.
+  final String? helperText;
 
   Future<void> _open(BuildContext context) async {
     final picked = await showModalBottomSheet<T>(
@@ -124,6 +133,7 @@ class PSelect<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final hasValue = value != null;
+    final hasError = errorText != null;
     final label = hasValue
         ? items
             .firstWhere(
@@ -132,7 +142,7 @@ class PSelect<T> extends StatelessWidget {
             )
             .label
         : placeholder;
-    return Material(
+    final trigger = Material(
       color: enabled ? t.bgMuted : t.bgDisabled,
       borderRadius: PRadius.brSm,
       child: InkWell(
@@ -143,7 +153,10 @@ class PSelect<T> extends StatelessWidget {
           padding: const EdgeInsets.symmetric(
               horizontal: PSpace.md, vertical: PSpace.sm),
           decoration: BoxDecoration(
-            border: Border.all(color: t.borderDefault),
+            border: Border.all(
+              color: hasError ? t.statusDanger : t.borderDefault,
+              width: hasError ? 1.5 : 1,
+            ),
             borderRadius: PRadius.brSm,
           ),
           child: Row(
@@ -163,6 +176,22 @@ class PSelect<T> extends StatelessWidget {
           ),
         ),
       ),
+    );
+    final caption = hasError ? errorText! : helperText;
+    if (caption == null) return trigger;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        trigger,
+        const SizedBox(height: PSpace.x4),
+        Text(
+          caption,
+          style: PTypo.caption.copyWith(
+            color: hasError ? t.statusDanger : t.fgTertiary,
+          ),
+        ),
+      ],
     );
   }
 }
