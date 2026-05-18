@@ -6,7 +6,8 @@ abstract final class PFontWeight {
   static const FontWeight medium = FontWeight.w500;  // --fw-medium
   static const FontWeight semi = FontWeight.w600;    // --fw-semi
   static const FontWeight bold = FontWeight.w700;    // --fw-bold
-  static const FontWeight heavy = FontWeight.w800;   // --fw-heavy
+  // heavy (800) 제거됨 — SoT 최대 700 (bold). 옛 위젯 PFontWeight.heavy 호출
+  // 26 places 모두 PFontWeight.bold 로 마이그 (display heading 가벼움 800→700).
 }
 
 /// 폰트 크기 토큰 — 웹 `--fs-*` 와 1:1 매핑 (px).
@@ -68,11 +69,11 @@ abstract final class PTypo {
   // Display — porest-design SoT (DESIGN.desk.md L92-109) 정합
   static const TextStyle displayXl = TextStyle(
     fontFamily: sans, fontSize: 56, height: 1.05, letterSpacing: -1.12,
-    fontWeight: FontWeight.w800, // SoT 700 — desk-app heavy 800 유지(별도 결정)
+    fontWeight: FontWeight.w700, // SoT 정합
   );
   static const TextStyle displayLg = TextStyle(
     fontFamily: sans, fontSize: 40, height: 1.1, letterSpacing: -0.4,
-    fontWeight: FontWeight.w800, // SoT 700 — desk-app heavy 800 유지
+    fontWeight: FontWeight.w700, // SoT 정합
   );
   static const TextStyle displayMd = TextStyle(
     fontFamily: sans, fontSize: 32, height: 1.2, letterSpacing: -0.32,

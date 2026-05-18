@@ -305,7 +305,7 @@ class _SummaryCard extends StatelessWidget {
               style: TextStyle(
                 color: t.fgPrimary,
                 fontSize: PFontSize.h1,
-                fontWeight: PFontWeight.heavy,
+                fontWeight: PFontWeight.bold,
                 letterSpacing: -0.84, // -0.03em × 28
                 height: PLineHeight.tight,
                 fontFeatures: const [FontFeature.tabularFigures()],

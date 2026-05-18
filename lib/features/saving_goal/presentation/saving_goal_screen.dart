@@ -234,7 +234,7 @@ class _GoalCard extends StatelessWidget {
                   Text(krwMasked(goal.currentAmount, masked),
                       style: PTypo.h4.copyWith(
                           color: tokens.fgPrimary,
-                          fontWeight: PFontWeight.heavy)),
+                          fontWeight: PFontWeight.bold)),
                   const SizedBox(width: 4),
                   Padding(
                     padding: const EdgeInsets.only(bottom: 2),

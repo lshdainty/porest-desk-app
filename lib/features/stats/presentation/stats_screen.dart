@@ -691,7 +691,7 @@ class _DonutCardState extends ConsumerState<_DonutCard> {
                         '${krwMasked(total, widget.masked)}원',
                         style: PTypo.h4.copyWith(
                             color: t.fgPrimary,
-                            fontWeight: PFontWeight.heavy,
+                            fontWeight: PFontWeight.bold,
                             fontFamily: 'monospace'),
                       ),
                     ],
@@ -1748,7 +1748,7 @@ class _StatCard extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: PTypo.h4.copyWith(
                   color: t.fgPrimary,
-                  fontWeight: PFontWeight.heavy,
+                  fontWeight: PFontWeight.bold,
                   fontFamily: 'monospace')),
         ],
       ),
@@ -1991,7 +1991,7 @@ class _CompareSummaryGrid extends StatelessWidget {
                     color: prev <= 0
                         ? t.fgPrimary
                         : (up ? t.fgExpense : t.fgIncome),
-                    fontWeight: PFontWeight.heavy,
+                    fontWeight: PFontWeight.bold,
                     fontFamily: 'monospace'),
               ),
               const SizedBox(height: 4),
@@ -2069,7 +2069,7 @@ class _CompareCard extends StatelessWidget {
           Text(amount,
               style: PTypo.h3.copyWith(
                   color: muted ? t.fgSecondary : t.fgPrimary,
-                  fontWeight: PFontWeight.heavy,
+                  fontWeight: PFontWeight.bold,
                   fontFamily: 'monospace')),
         ],
       ),

@@ -66,7 +66,7 @@ class CardDetailScreen extends ConsumerWidget {
 
               Text(s.cardName,
                   style: PTypo.h3.copyWith(
-                      color: t.fgPrimary, fontWeight: PFontWeight.heavy)),
+                      color: t.fgPrimary, fontWeight: PFontWeight.bold)),
               const SizedBox(height: 4),
               Text(
                 [

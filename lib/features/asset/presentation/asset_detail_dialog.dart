@@ -359,7 +359,7 @@ class _HeroCard extends StatelessWidget {
                       : '${isCard && absBalance > 0 ? '−' : ''}${krw(absBalance)}',
                   style: PTypo.h1.copyWith(
                     color: isCard ? t.statusDangerFg : t.fgPrimary,
-                    fontWeight: PFontWeight.heavy,
+                    fontWeight: PFontWeight.bold,
                     letterSpacing: -0.6,
                     fontFamily: 'monospace',
                   ),

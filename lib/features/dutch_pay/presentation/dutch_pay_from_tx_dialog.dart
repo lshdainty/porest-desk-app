@@ -396,14 +396,14 @@ class _BodyState extends ConsumerState<_Body> {
                             text: krw(_totalAbs),
                             style: PTypo.body.copyWith(
                                 color: t.fgPrimary,
-                                fontWeight: PFontWeight.heavy,
+                                fontWeight: PFontWeight.bold,
                                 fontFamily: 'monospace'),
                           ),
                           TextSpan(
                             text: '원',
                             style: PTypo.bodySm.copyWith(
                                 color: t.fgPrimary,
-                                fontWeight: PFontWeight.heavy),
+                                fontWeight: PFontWeight.bold),
                           ),
                         ]),
                       ),
@@ -687,7 +687,7 @@ class _DutchPayFooter extends StatelessWidget {
                     text: '${krw(perPerson)}원',
                     style: PTypo.bodySm.copyWith(
                         color: t.fgPrimary,
-                        fontWeight: PFontWeight.heavy,
+                        fontWeight: PFontWeight.bold,
                         fontFamily: 'monospace'),
                   ),
                 ]),

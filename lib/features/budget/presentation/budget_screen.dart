@@ -660,7 +660,7 @@ class _HeaderCard extends StatelessWidget {
               child: Text(krwMasked(totalSpent, masked),
                   style: PTypo.h2.copyWith(
                       color: tokens.fgPrimary,
-                      fontWeight: PFontWeight.heavy),
+                      fontWeight: PFontWeight.bold),
                   overflow: TextOverflow.ellipsis),
             ),
             const SizedBox(width: 6),
@@ -1085,7 +1085,7 @@ class _StatusBox extends StatelessWidget {
               Text('$count',
                   style: PTypo.h2.copyWith(
                       color: count > 0 ? activeColor : tokens.fgPrimary,
-                      fontWeight: PFontWeight.heavy)),
+                      fontWeight: PFontWeight.bold)),
               const SizedBox(width: 4),
               Padding(
                 padding: const EdgeInsets.only(bottom: 4),

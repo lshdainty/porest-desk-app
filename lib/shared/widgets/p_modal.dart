@@ -152,7 +152,7 @@ Future<T?> showPSheet<T>(
                           title,
                           style: PTypo.h3.copyWith(
                             color: t.fgPrimary,
-                            fontWeight: PFontWeight.heavy,
+                            fontWeight: PFontWeight.bold,
                           ),
                         ),
                       ),

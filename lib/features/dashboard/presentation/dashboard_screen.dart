@@ -339,7 +339,7 @@ class _BalanceHero extends StatelessWidget {
                     style: TextStyle(
                       color: t.fgOnBrand,
                       fontSize: PFontSize.displayMd,
-                      fontWeight: PFontWeight.heavy,
+                      fontWeight: PFontWeight.bold,
                       letterSpacing: -1.02,
                       height: PLineHeight.tight,
                       fontFeatures: const [FontFeature.tabularFigures()],
@@ -853,7 +853,7 @@ class _CategoryDonutCard extends StatelessWidget {
                             style: TextStyle(
                                 color: t.fgPrimary,
                                 fontSize: PFontSize.caption,
-                                fontWeight: PFontWeight.heavy,
+                                fontWeight: PFontWeight.bold,
                                 fontFeatures: const [
                                   FontFeature.tabularFigures()
                                 ]),

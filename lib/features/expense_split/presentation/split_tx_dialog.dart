@@ -287,7 +287,7 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
                           color: _isIncome
                               ? t.statusSuccess
                               : t.fgPrimary,
-                          fontWeight: PFontWeight.heavy),
+                          fontWeight: PFontWeight.bold),
                     ),
                   ],
                 ),

@@ -203,7 +203,7 @@ class _DutchPayCard extends StatelessWidget {
               Text(krwMasked(dp.totalAmount, masked),
                   style: PTypo.body.copyWith(
                       color: tokens.fgPrimary,
-                      fontWeight: PFontWeight.heavy)),
+                      fontWeight: PFontWeight.bold)),
               PButton.icon(
                 icon: LucideIcons.trash2,
                 size: PButtonSize.sm,

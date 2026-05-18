@@ -533,14 +533,14 @@ class _SourceCard extends StatelessWidget {
                   text: amountText,
                   style: PTypo.body.copyWith(
                       color: tokens.fgPrimary,
-                      fontWeight: PFontWeight.heavy,
+                      fontWeight: PFontWeight.bold,
                       fontFamily: 'monospace'),
                 ),
                 TextSpan(
                   text: '원',
                   style: PTypo.bodySm.copyWith(
                       color: tokens.fgPrimary,
-                      fontWeight: PFontWeight.heavy),
+                      fontWeight: PFontWeight.bold),
                 ),
               ],
             ),

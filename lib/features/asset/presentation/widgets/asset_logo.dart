@@ -42,7 +42,7 @@ class AssetLogo extends StatelessWidget {
         style: TextStyle(
           color: fg,
           fontSize: PFontSize.body,
-          fontWeight: PFontWeight.heavy,
+          fontWeight: PFontWeight.bold,
           letterSpacing: -0.28,
           height: PLineHeight.tight,
         ),

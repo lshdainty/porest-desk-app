@@ -251,7 +251,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                             style: TextStyle(
                               color: amountColor,
                               fontSize: PFontSize.displayMd,
-                              fontWeight: PFontWeight.heavy,
+                              fontWeight: PFontWeight.bold,
                               letterSpacing: -1.02,
                               fontFamily: 'monospace',
                             ),
@@ -262,7 +262,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                               style: TextStyle(
                                 color: amountColor,
                                 fontSize: PFontSize.h4,
-                                fontWeight: PFontWeight.heavy,
+                                fontWeight: PFontWeight.bold,
                               ),
                             ),
                         ],
