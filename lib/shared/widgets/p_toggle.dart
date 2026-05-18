@@ -126,6 +126,7 @@ class PToggleGroupSingle<T> extends StatelessWidget {
     required this.value,
     required this.onChanged,
     this.size = PToggleSize.defaultSize,
+    this.expanded = false,
   });
 
   final List<PToggleGroupItem<T>> items;
@@ -133,10 +134,15 @@ class PToggleGroupSingle<T> extends StatelessWidget {
   final ValueChanged<T> onChanged;
   final PToggleSize size;
 
+  /// 가로 full-width + 자식 균등 분할 (Row 안 자식 Expanded). form 안 type
+  /// segment 같이 부모 가로 가득 차야 하는 경우. desk-front segmented variant
+  /// `w-full + flex-1` 패턴 parity.
+  final bool expanded;
+
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    return Container(
+    final group = Container(
       decoration: BoxDecoration(
         borderRadius: PRadius.brMd,
         border: Border.all(color: t.borderDefault),
@@ -145,22 +151,35 @@ class PToggleGroupSingle<T> extends StatelessWidget {
         borderRadius: PRadius.brMd,
         child: IntrinsicHeight(
           child: Row(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisSize: expanded ? MainAxisSize.max : MainAxisSize.min,
             children: [
               for (int i = 0; i < items.length; i++) ...[
-                if (i > 0) VerticalDivider(width: 1, thickness: 1, color: t.borderDefault),
-                _GroupItem<T>(
-                  item: items[i],
-                  selected: items[i].value == value,
-                  onTap: () => onChanged(items[i].value),
-                  size: size,
-                ),
+                if (i > 0)
+                  VerticalDivider(
+                      width: 1, thickness: 1, color: t.borderDefault),
+                if (expanded)
+                  Expanded(
+                    child: _GroupItem<T>(
+                      item: items[i],
+                      selected: items[i].value == value,
+                      onTap: () => onChanged(items[i].value),
+                      size: size,
+                    ),
+                  )
+                else
+                  _GroupItem<T>(
+                    item: items[i],
+                    selected: items[i].value == value,
+                    onTap: () => onChanged(items[i].value),
+                    size: size,
+                  ),
               ],
             ],
           ),
         ),
       ),
     );
+    return expanded ? SizedBox(width: double.infinity, child: group) : group;
   }
 }
 

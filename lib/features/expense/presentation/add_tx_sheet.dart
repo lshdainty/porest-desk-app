@@ -22,6 +22,7 @@ import '../../../shared/widgets/p_section_label.dart';
 import '../../../shared/widgets/p_select.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_text_input.dart';
+import '../../../shared/widgets/p_toggle.dart';
 import '../../asset/application/asset_providers.dart';
 import '../../preset/application/preset_providers.dart';
 import '../../preset/domain/expense_template.dart';
@@ -356,16 +357,32 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
       padding: const EdgeInsets.fromLTRB(
           PSpace.x16, 0, PSpace.x16, PSpace.x16),
       children: [
-                _TypeSegment(
+                PToggleGroupSingle<String>(
+                  expanded: true,
                   value: _type,
                   onChanged: _isEdit
-                      ? (_) {} // 편집 모드 — 타입 변경 막음
+                      ? (_) {}
                       : (v) => setState(() => _type = v),
-                  tokens: t,
-                  allowTransfer: !_isEdit,
-                  lockedToValue: _isEdit ? _type : null,
+                  items: [
+                    PToggleGroupItem(
+                      value: 'EXPENSE',
+                      label: '지출',
+                      disabled: _isEdit && _type != 'EXPENSE',
+                    ),
+                    PToggleGroupItem(
+                      value: 'INCOME',
+                      label: '수입',
+                      disabled: _isEdit && _type != 'INCOME',
+                    ),
+                    if (!_isEdit || _type == 'TRANSFER')
+                      PToggleGroupItem(
+                        value: 'TRANSFER',
+                        label: '이체',
+                        disabled: _isEdit && _type != 'TRANSFER',
+                      ),
+                  ],
                 ),
-                const SizedBox(height: PSpace.x20),
+                const SizedBox(height: PSpace.x12),
 
                 if (!_isEdit && _type != 'TRANSFER') ...[
                   _PresetSection(
@@ -530,7 +547,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
                       );
                     },
                   ),
-                  const SizedBox(height: PSpace.x16),
+                  const SizedBox(height: PSpace.x12),
                 ],
 
                 if (_type != 'TRANSFER') ...[
@@ -837,88 +854,6 @@ class _TimeBox extends StatelessWidget {
   }
 }
 
-class _TypeSegment extends StatelessWidget {
-  const _TypeSegment(
-      {required this.value,
-      required this.onChanged,
-      required this.tokens,
-      this.allowTransfer = true,
-      this.lockedToValue});
-  final String value;
-  final ValueChanged<String> onChanged;
-  final PorestTokens tokens;
-  final bool allowTransfer;
-
-  /// 편집 모드 — 이 값 외 다른 옵션은 비활성(disabled).
-  final String? lockedToValue;
-
-  static const _baseOpts = [
-    ('EXPENSE', '지출'),
-    ('INCOME', '수입'),
-    ('TRANSFER', '이체'),
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    final opts = allowTransfer
-        ? _baseOpts
-        : _baseOpts.where((o) => o.$1 != 'TRANSFER').toList();
-    return Container(
-      padding: const EdgeInsets.all(3),
-      decoration: BoxDecoration(
-          color: tokens.bgMuted, borderRadius: PRadius.brLg),
-      child: Row(
-        children: [
-          for (final o in opts)
-            Expanded(
-              child: GestureDetector(
-                onTap: () {
-                  if (lockedToValue != null && o.$1 != lockedToValue) return;
-                  onChanged(o.$1);
-                },
-                child: Opacity(
-                  opacity: (lockedToValue != null && o.$1 != lockedToValue)
-                      ? 0.4
-                      : 1,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    decoration: BoxDecoration(
-                      color: o.$1 == value
-                          ? tokens.bgSurface
-                          : Colors.transparent,
-                      borderRadius: PRadius.brMd,
-                      boxShadow: o.$1 == value
-                          ? [
-                              BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.06),
-                                  blurRadius: 2,
-                                  offset: const Offset(0, 1)),
-                            ]
-                          : null,
-                    ),
-                    child: Text(o.$2,
-                        textAlign: TextAlign.center,
-                        style: PTypo.bodySm.copyWith(
-                          color: o.$1 == value
-                              ? (o.$1 == 'EXPENSE'
-                                  ? tokens.fgExpense
-                                  : (o.$1 == 'INCOME'
-                                      ? tokens.fgIncome
-                                      : tokens.fgTransfer))
-                              : tokens.fgSecondary,
-                          fontWeight: o.$1 == value
-                              ? PFontWeight.bold
-                              : PFontWeight.medium,
-                        )),
-                  ),
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-}
 
 /// 프리셋 섹션 — 헤더 (라벨 + 적용됨 뱃지 + 저장 버튼) + 칩 strip + 적용 배너.
 /// 웹 `AddTxSheet` 의 "프리셋 불러오기" 영역 1:1 미러.
