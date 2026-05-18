@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../app/theme/elevation.dart';
+import '../../app/theme/shadow.dart';
 import '../../app/theme/radius.dart';
 import '../../app/theme/spacing.dart';
 import '../../app/theme/tokens.dart';
@@ -59,7 +59,7 @@ class PForm extends StatelessWidget {
             decoration: BoxDecoration(
               color: t.bgSurface,
               borderRadius: PRadius.brLg,
-              boxShadow: PorestElevation.sm,
+              boxShadow: PShadow.sm,
             ),
             child: column,
           )

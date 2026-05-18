@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../app/theme/elevation.dart';
+import '../../app/theme/shadow.dart';
 import '../../app/theme/radius.dart';
 import '../../app/theme/tokens.dart';
 import '../../app/theme/typography.dart';
@@ -41,7 +41,7 @@ class PTooltip extends StatelessWidget {
       decoration: BoxDecoration(
         color: t.fgPrimary, // inverse — light는 dark bg, dark는 light bg
         borderRadius: PRadius.brXs,
-        boxShadow: PorestElevation.sm,
+        boxShadow: PShadow.sm,
       ),
       textStyle: TextStyle(
         fontFamily: PTypo.sans,

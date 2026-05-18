@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../app/theme/elevation.dart';
+import '../../app/theme/shadow.dart';
 import '../../app/theme/motion.dart';
 import '../../app/theme/radius.dart';
 import '../../app/theme/spacing.dart';
@@ -128,7 +128,7 @@ class PTabs<T> extends StatelessWidget {
             ? BoxDecoration(
                 color: t.bgSurface,
                 borderRadius: radius,
-                boxShadow: PorestElevation.sm,
+                boxShadow: PShadow.sm,
               )
             : null;
         break;

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../app/theme/elevation.dart';
+import '../../app/theme/shadow.dart';
 import '../../app/theme/motion.dart';
 import '../../app/theme/tokens.dart';
 import '../../app/theme/typography.dart';
@@ -57,7 +57,7 @@ class PSwitch extends StatelessWidget {
           decoration: BoxDecoration(
             color: t.fgOnBrand,
             shape: BoxShape.circle,
-            boxShadow: PorestElevation.md,
+            boxShadow: PShadow.md,
           ),
         ),
       ),

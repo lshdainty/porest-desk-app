@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../app/theme/elevation.dart';
+import '../../app/theme/shadow.dart';
 import '../../app/theme/radius.dart';
 import '../../app/theme/tokens.dart';
 
@@ -72,7 +72,7 @@ class PCard extends StatelessWidget {
         color: color ?? defaultBg,
         borderRadius: borderRadius,
         border: border ?? defaultBorder,
-        boxShadow: useShadow ? PorestElevation.sm : null,
+        boxShadow: useShadow ? PShadow.sm : null,
       ),
       child: child,
     );
