@@ -18,6 +18,7 @@ import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_chip.dart';
+import '../../../shared/widgets/p_date_input.dart';
 import '../../../shared/widgets/p_divider.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_progress.dart';
@@ -127,38 +128,26 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
               Row(
                 children: [
                   Expanded(
-                    child: PButton(
-                      label: start == null ? '시작' : _fmtDate(start!),
-                      icon: LucideIcons.calendar,
-                      variant: PButtonVariant.outline,
-                      fullWidth: true,
-                      onPressed: () async {
-                        final p = await showDatePicker(
-                          context: ctx,
-                          initialDate: start ?? DateTime.now(),
-                          firstDate: DateTime(2020),
-                          lastDate: DateTime(2030, 12, 31),
-                        );
-                        if (p != null) setSheet(() => start = p);
+                    child: PDateInput(
+                      value: start,
+                      onChanged: (d) {
+                        if (d != null) setSheet(() => start = d);
                       },
+                      firstDate: DateTime(2020),
+                      lastDate: DateTime(2030, 12, 31),
+                      placeholder: '시작',
                     ),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: PButton(
-                      label: end == null ? '종료' : _fmtDate(end!),
-                      icon: LucideIcons.calendar,
-                      variant: PButtonVariant.outline,
-                      fullWidth: true,
-                      onPressed: () async {
-                        final p = await showDatePicker(
-                          context: ctx,
-                          initialDate: end ?? DateTime.now(),
-                          firstDate: DateTime(2020),
-                          lastDate: DateTime(2030, 12, 31),
-                        );
-                        if (p != null) setSheet(() => end = p);
+                    child: PDateInput(
+                      value: end,
+                      onChanged: (d) {
+                        if (d != null) setSheet(() => end = d);
                       },
+                      firstDate: DateTime(2020),
+                      lastDate: DateTime(2030, 12, 31),
+                      placeholder: '종료',
                     ),
                   ),
                 ],

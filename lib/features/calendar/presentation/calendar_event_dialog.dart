@@ -9,6 +9,7 @@ import '../../../app/theme/typography.dart';
 import '../../../core/format/color_parse.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_chip.dart';
+import '../../../shared/widgets/p_date_input.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_progress.dart';
 import '../../../shared/widgets/p_section_label.dart';
@@ -241,16 +242,10 @@ class _BodyState extends ConsumerState<_Body> {
     }
   }
 
-  Future<void> _pickDate(bool isStart) async {
-    final cur = isStart ? _start : _end;
-    final d = await showDatePicker(
-      context: context,
-      initialDate: cur,
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2030),
-    );
-    if (d == null || !mounted) return;
+  void _onPickDate(bool isStart, DateTime? d) {
+    if (d == null) return;
     setState(() {
+      final cur = isStart ? _start : _end;
       final next = DateTime(d.year, d.month, d.day, cur.hour, cur.minute);
       if (isStart) {
         _start = next;
@@ -261,12 +256,10 @@ class _BodyState extends ConsumerState<_Body> {
     });
   }
 
-  Future<void> _pickTime(bool isStart) async {
-    final cur = isStart ? _start : _end;
-    final picked = await showTimePicker(
-        context: context, initialTime: TimeOfDay.fromDateTime(cur));
-    if (picked == null || !mounted) return;
+  void _onPickTime(bool isStart, TimeOfDay? picked) {
+    if (picked == null) return;
     setState(() {
+      final cur = isStart ? _start : _end;
       final next =
           DateTime(cur.year, cur.month, cur.day, picked.hour, picked.minute);
       if (isStart) {
@@ -477,24 +470,20 @@ class _BodyState extends ConsumerState<_Body> {
           Row(
             children: [
               Expanded(
-                child: _DateTimeBox(
-                  icon: LucideIcons.calendar,
-                  label:
-                      '${_start.year}-${_start.month.toString().padLeft(2, '0')}-${_start.day.toString().padLeft(2, '0')}',
-                  onTap: () => _pickDate(true),
-                  tokens: t,
+                child: PDateInput(
+                  value: _start,
+                  onChanged: (d) => _onPickDate(true, d),
+                  firstDate: DateTime(2020),
+                  lastDate: DateTime(2030),
                 ),
               ),
               if (!_allDay) ...[
                 const SizedBox(width: PSpace.x8),
                 SizedBox(
                   width: PSpace.x80 + PSpace.x20,
-                  child: _DateTimeBox(
-                    icon: LucideIcons.clock,
-                    label:
-                        '${_start.hour.toString().padLeft(2, '0')}:${_start.minute.toString().padLeft(2, '0')}',
-                    onTap: () => _pickTime(true),
-                    tokens: t,
+                  child: PTimeInput(
+                    value: TimeOfDay.fromDateTime(_start),
+                    onChanged: (tm) => _onPickTime(true, tm),
                   ),
                 ),
               ],
@@ -507,24 +496,20 @@ class _BodyState extends ConsumerState<_Body> {
           Row(
             children: [
               Expanded(
-                child: _DateTimeBox(
-                  icon: LucideIcons.calendar,
-                  label:
-                      '${_end.year}-${_end.month.toString().padLeft(2, '0')}-${_end.day.toString().padLeft(2, '0')}',
-                  onTap: () => _pickDate(false),
-                  tokens: t,
+                child: PDateInput(
+                  value: _end,
+                  onChanged: (d) => _onPickDate(false, d),
+                  firstDate: DateTime(2020),
+                  lastDate: DateTime(2030),
                 ),
               ),
               if (!_allDay) ...[
                 const SizedBox(width: PSpace.x8),
                 SizedBox(
                   width: PSpace.x80 + PSpace.x20,
-                  child: _DateTimeBox(
-                    icon: LucideIcons.clock,
-                    label:
-                        '${_end.hour.toString().padLeft(2, '0')}:${_end.minute.toString().padLeft(2, '0')}',
-                    onTap: () => _pickTime(false),
-                    tokens: t,
+                  child: PTimeInput(
+                    value: TimeOfDay.fromDateTime(_end),
+                    onChanged: (tm) => _onPickTime(false, tm),
                   ),
                 ),
               ],
@@ -581,46 +566,6 @@ class _BodyState extends ConsumerState<_Body> {
     );
   }
 }
-
-class _DateTimeBox extends StatelessWidget {
-  const _DateTimeBox({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-    required this.tokens,
-  });
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-  final PorestTokens tokens;
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: PRadius.brMd,
-      child: Container(
-        padding: const EdgeInsets.symmetric(
-            horizontal: PSpace.x12, vertical: PSpace.x12),
-        decoration: BoxDecoration(
-          color: tokens.bgMuted,
-          borderRadius: PRadius.brMd,
-          border: Border.all(color: tokens.borderDefault),
-        ),
-        child: Row(
-          children: [
-            Icon(icon, size: PSpace.x16, color: tokens.fgSecondary),
-            const SizedBox(width: PSpace.x4),
-            Expanded(
-              child: Text(label,
-                  style: PTypo.bodySm.copyWith(color: tokens.fgPrimary)),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 
 class _ColorSphere extends StatelessWidget {
   const _ColorSphere({

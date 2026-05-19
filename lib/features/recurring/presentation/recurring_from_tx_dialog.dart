@@ -11,6 +11,7 @@ import '../../../core/format/chart_palette.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
+import '../../../shared/widgets/p_date_input.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_segmented_control.dart';
 import '../../expense/application/expense_providers.dart';
@@ -151,16 +152,6 @@ class _RecurringFromTxBodyState extends ConsumerState<_RecurringFromTxBody> {
     } finally {
       if (mounted) _setSubmitting(false);
     }
-  }
-
-  Future<void> _pickEndDate() async {
-    final p = await showDatePicker(
-      context: context,
-      initialDate: _endDate,
-      firstDate: _baseDate,
-      lastDate: DateTime(_baseDate.year + 30, 12, 31),
-    );
-    if (p != null) setState(() => _endDate = p);
   }
 
   @override
@@ -350,31 +341,19 @@ class _RecurringFromTxBodyState extends ConsumerState<_RecurringFromTxBody> {
                             setState(() => _endMode = _EndMode.date),
                         title: '종료일 지정',
                         tokens: t,
-                        subtitleChild: GestureDetector(
-                          onTap: () {
-                            setState(() => _endMode = _EndMode.date);
-                            _pickEndDate();
-                          },
-                          child: Container(
-                            margin: const EdgeInsets.only(top: 6),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 10),
-                            decoration: BoxDecoration(
-                              color: t.bgSurface,
-                              border: Border.all(color: t.borderDefault),
-                              borderRadius: PRadius.brMd,
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(LucideIcons.calendar,
-                                    size: 14, color: t.fgSecondary),
-                                const SizedBox(width: 8),
-                                Text(_fmt(_endDate),
-                                    style: PTypo.bodySm.copyWith(
-                                        color: t.fgPrimary,
-                                        fontWeight: PFontWeight.semi)),
-                              ],
-                            ),
+                        subtitleChild: Padding(
+                          padding: const EdgeInsets.only(top: 6),
+                          child: PDateInput(
+                            value: _endDate,
+                            onChanged: (d) {
+                              if (d == null) return;
+                              setState(() {
+                                _endMode = _EndMode.date;
+                                _endDate = d;
+                              });
+                            },
+                            firstDate: _baseDate,
+                            lastDate: DateTime(_baseDate.year + 30, 12, 31),
                           ),
                         ),
                       ),
