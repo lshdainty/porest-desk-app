@@ -392,7 +392,7 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
           crossAxisCount: 5,
           mainAxisSpacing: 6,
           crossAxisSpacing: 6,
-          childAspectRatio: 0.85,
+          childAspectRatio: 1.0,
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           children: [
