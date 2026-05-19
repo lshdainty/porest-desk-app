@@ -19,6 +19,7 @@ import '../../expense/domain/expense.dart';
 import '../application/recurring_providers.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_switch.dart';
+import '../../../shared/widgets/p_text_input.dart';
 
 /// 거래 → 반복 설정 다이얼로그 (front `RecurringFromTxDialog` 미러).
 ///
@@ -237,8 +238,8 @@ class _RecurringFromTxBodyState extends ConsumerState<_RecurringFromTxBody> {
                         const SizedBox(width: 8),
                         SizedBox(
                           width: 64,
-                          child: TextField(
-                            keyboardType: TextInputType.number,
+                          child: PTextInput(
+                            numbersOnly: true,
                             textAlign: TextAlign.center,
                             inputFormatters: [
                               FilteringTextInputFormatter.digitsOnly,
@@ -248,13 +249,6 @@ class _RecurringFromTxBodyState extends ConsumerState<_RecurringFromTxBody> {
                                 text: _dayOfMonth.toString())
                               ..selection = TextSelection.collapsed(
                                   offset: _dayOfMonth.toString().length),
-                            decoration: InputDecoration(
-                              isDense: true,
-                              filled: true,
-                              fillColor: t.bgSurface,
-                              contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 8),
-                            ),
                             onChanged: (v) {
                               final n = int.tryParse(v);
                               if (n == null) return;
@@ -308,23 +302,16 @@ class _RecurringFromTxBodyState extends ConsumerState<_RecurringFromTxBody> {
                             const SizedBox(width: 6),
                             SizedBox(
                               width: 64,
-                              child: TextField(
+                              child: PTextInput(
                                 controller: _endCountCtrl,
-                                keyboardType: TextInputType.number,
+                                numbersOnly: true,
                                 textAlign: TextAlign.center,
                                 inputFormatters: [
                                   FilteringTextInputFormatter.digitsOnly,
                                   LengthLimitingTextInputFormatter(3),
                                 ],
-                                onTap: () => setState(
+                                onChanged: (_) => setState(
                                     () => _endMode = _EndMode.count),
-                                decoration: InputDecoration(
-                                  isDense: true,
-                                  filled: true,
-                                  fillColor: t.bgSurface,
-                                  contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 8, vertical: 6),
-                                ),
                               ),
                             ),
                             const SizedBox(width: 6),

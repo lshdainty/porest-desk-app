@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
@@ -393,9 +392,8 @@ class _BodyState extends ConsumerState<_Body> {
                 children: [
                   Expanded(
                     flex: 5,
-                    child: TextField(
-                      decoration: InputDecoration(
-                          hintText: '참여자 ${i + 1}', isDense: true),
+                    child: PTextInput(
+                      placeholder: '참여자 ${i + 1}',
                       controller: TextEditingController(text: _participants[i].name)
                         ..selection = TextSelection.collapsed(
                             offset: _participants[i].name.length),
@@ -406,12 +404,11 @@ class _BodyState extends ConsumerState<_Body> {
                   if (_split == 'CUSTOM')
                     Expanded(
                       flex: 4,
-                      child: TextField(
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      child: PTextInput(
+                        numbersOnly: true,
                         textAlign: TextAlign.right,
-                        decoration: const InputDecoration(
-                            hintText: '0', isDense: true, suffixText: '원'),
+                        placeholder: '0',
+                        suffixText: '원',
                         onChanged: (v) => setState(() {
                           _participants[i].amount = int.tryParse(v) ?? 0;
                         }),

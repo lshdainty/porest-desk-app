@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
@@ -16,6 +15,7 @@ import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_progress.dart';
 import '../../../shared/widgets/p_select.dart';
+import '../../../shared/widgets/p_text_input.dart';
 import '../../expense/application/expense_providers.dart';
 import '../../expense/domain/expense.dart';
 import '../../expense/domain/expense_category.dart';
@@ -489,26 +489,10 @@ class _SplitRowCardState extends State<_SplitRowCard> {
           const SizedBox(width: 8),
           Expanded(
             flex: 14,
-            child: TextField(
+            child: PTextInput(
               controller: _labelCtrl,
-              style: PTypo.caption.copyWith(color: t.fgPrimary),
-              decoration: InputDecoration(
-                hintText: '항목 이름',
-                hintStyle: PTypo.caption.copyWith(color: t.fgTertiary),
-                isDense: true,
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                filled: false,
-                border: OutlineInputBorder(
-                    borderRadius: PRadius.brSm,
-                    borderSide: BorderSide(color: t.borderSubtle)),
-                enabledBorder: OutlineInputBorder(
-                    borderRadius: PRadius.brSm,
-                    borderSide: BorderSide(color: t.borderSubtle)),
-                focusedBorder: OutlineInputBorder(
-                    borderRadius: PRadius.brSm,
-                    borderSide: BorderSide(color: t.borderBrand)),
-              ),
+              style: PTypo.caption,
+              placeholder: '항목 이름',
               enabled: !widget.disabled,
               onChanged: (v) {
                 widget.row.label = v;
@@ -533,32 +517,14 @@ class _SplitRowCardState extends State<_SplitRowCard> {
           const SizedBox(width: 6),
           Expanded(
             flex: 11,
-            child: TextField(
+            child: PTextInput(
               controller: _amountCtrl,
-              keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              numbersOnly: true,
               textAlign: TextAlign.right,
               enabled: !widget.disabled,
-              style: PTypo.caption.copyWith(color: t.fgPrimary),
-              decoration: InputDecoration(
-                hintText: '0',
-                hintStyle: PTypo.caption.copyWith(color: t.fgTertiary),
-                suffixText: '원',
-                suffixStyle: PTypo.caption.copyWith(color: t.fgTertiary),
-                isDense: true,
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                filled: false,
-                border: OutlineInputBorder(
-                    borderRadius: PRadius.brSm,
-                    borderSide: BorderSide(color: t.borderSubtle)),
-                enabledBorder: OutlineInputBorder(
-                    borderRadius: PRadius.brSm,
-                    borderSide: BorderSide(color: t.borderSubtle)),
-                focusedBorder: OutlineInputBorder(
-                    borderRadius: PRadius.brSm,
-                    borderSide: BorderSide(color: t.borderBrand)),
-              ),
+              style: PTypo.caption,
+              placeholder: '0',
+              suffixText: '원',
               onChanged: (v) {
                 widget.row.amount = int.tryParse(v) ?? 0;
                 widget.onChange();

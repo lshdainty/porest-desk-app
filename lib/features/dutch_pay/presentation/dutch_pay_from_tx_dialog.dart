@@ -22,6 +22,7 @@ import '../../expense/domain/expense.dart';
 import '../../group/application/group_providers.dart';
 import '../application/dutch_pay_providers.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
+import '../../../shared/widgets/p_text_input.dart';
 
 /// 거래 → 더치페이 시작 다이얼로그 (front `DutchPayFromTxDialog` 미러).
 void showDutchPayFromTxDialog(BuildContext context, Expense expense) {
@@ -575,22 +576,12 @@ class _BodyState extends ConsumerState<_Body> {
                 Row(
                   children: [
                     Expanded(
-                      child: SizedBox(
-                        height: 36,
-                        child: TextField(
-                          controller: _manualNameCtrl,
-                          textInputAction: TextInputAction.done,
-                          onSubmitted: (_) => _addManual(),
-                          decoration: InputDecoration(
-                            hintText: '이름 입력 후 추가',
-                            isDense: true,
-                            filled: true,
-                            fillColor: t.bgSurface,
-                            contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 8),
-                          ),
-                          enabled: !_submitting,
-                        ),
+                      child: PTextInput(
+                        controller: _manualNameCtrl,
+                        textInputAction: TextInputAction.done,
+                        onSubmitted: (_) => _addManual(),
+                        placeholder: '이름 입력 후 추가',
+                        enabled: !_submitting,
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -631,15 +622,11 @@ class _BodyState extends ConsumerState<_Body> {
                 // 요청 메시지
                 _Section(
                   title: '요청 메시지 (선택)',
-                  child: TextField(
+                  child: PTextInput(
                     controller: _msgCtrl,
                     maxLines: 3,
                     minLines: 3,
-                    decoration: InputDecoration(
-                      hintText: '참여자에게 함께 보낼 한마디를 적어주세요',
-                      filled: true,
-                      fillColor: t.bgSurface,
-                    ),
+                    placeholder: '참여자에게 함께 보낼 한마디를 적어주세요',
                     enabled: !_submitting,
                   ),
                 ),
@@ -882,18 +869,12 @@ class _ParticipantRow extends StatelessWidget {
           if (splitMethod == _Split.custom && !participant.isMe) ...[
             SizedBox(
               width: 110,
-              child: TextField(
+              child: PTextInput(
                 controller: amountCtrl,
-                keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                numbersOnly: true,
                 textAlign: TextAlign.right,
-                decoration: const InputDecoration(
-                  isDense: true,
-                  hintText: '0',
-                  suffixText: '원',
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                ),
+                placeholder: '0',
+                suffixText: '원',
                 onChanged: onCustomChanged,
               ),
             ),
@@ -906,7 +887,7 @@ class _ParticipantRow extends StatelessWidget {
             if (!participant.isMe) ...[
               SizedBox(
                 width: 76,
-                child: TextField(
+                child: PTextInput(
                   controller: ratioCtrl,
                   keyboardType:
                       const TextInputType.numberWithOptions(decimal: true),
@@ -914,13 +895,8 @@ class _ParticipantRow extends StatelessWidget {
                     FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))
                   ],
                   textAlign: TextAlign.right,
-                  decoration: const InputDecoration(
-                    isDense: true,
-                    hintText: '1',
-                    suffixText: '%',
-                    contentPadding:
-                        EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                  ),
+                  placeholder: '1',
+                  suffixText: '%',
                   onChanged: onRatioChanged,
                 ),
               ),
