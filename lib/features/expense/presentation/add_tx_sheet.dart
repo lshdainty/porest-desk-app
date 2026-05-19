@@ -496,7 +496,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
                             physics: const NeverScrollableScrollPhysics(),
                             mainAxisSpacing: 6,
                             crossAxisSpacing: 6,
-                            childAspectRatio: 1.0,
+                            childAspectRatio: 0.9,
                             children: [
                               for (final c in topCategories)
                                 PCategoryTile(
