@@ -16,6 +16,7 @@ import '../../../shared/widgets/p_badge.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_category_tile.dart';
 import '../../../shared/widgets/p_checkbox.dart';
+import '../../../shared/widgets/p_date_input.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_progress.dart';
 import '../../../shared/widgets/p_section_label.dart';
@@ -704,49 +705,33 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
                 PSectionLabel(_type == 'TRANSFER' ? '날짜' : '날짜·시간'),
                 const SizedBox(height: PSpace.x4),
                 _type == 'TRANSFER'
-                    ? _DateBox(
-                        date: _date,
-                        onTap: () async {
-                          final picked = await showDatePicker(
-                            context: context,
-                            initialDate: _date,
-                            firstDate: DateTime(2020),
-                            lastDate: DateTime(2030, 12, 31),
-                          );
-                          if (picked != null) setState(() => _date = picked);
+                    ? PDateInput(
+                        value: _date,
+                        onChanged: (d) {
+                          if (d != null) setState(() => _date = d);
                         },
+                        firstDate: DateTime(2020),
+                        lastDate: DateTime(2030, 12, 31),
                       )
                     : Row(
                         children: [
                           Expanded(
-                            child: _DateBox(
-                              date: _date,
-                              onTap: () async {
-                                final picked = await showDatePicker(
-                                  context: context,
-                                  initialDate: _date,
-                                  firstDate: DateTime(2020),
-                                  lastDate: DateTime(2030, 12, 31),
-                                );
-                                if (picked != null) {
-                                  setState(() => _date = picked);
-                                }
+                            child: PDateInput(
+                              value: _date,
+                              onChanged: (d) {
+                                if (d != null) setState(() => _date = d);
                               },
+                              firstDate: DateTime(2020),
+                              lastDate: DateTime(2030, 12, 31),
                             ),
                           ),
                           const SizedBox(width: PSpace.x8),
                           SizedBox(
                             width: 116,
-                            child: _TimeBox(
-                              time: _time,
-                              onTap: () async {
-                                final picked = await showTimePicker(
-                                  context: context,
-                                  initialTime: _time,
-                                );
-                                if (picked != null) {
-                                  setState(() => _time = picked);
-                                }
+                            child: PTimeInput(
+                              value: _time,
+                              onChanged: (tm) {
+                                if (tm != null) setState(() => _time = tm);
                               },
                             ),
                           ),
@@ -798,69 +783,6 @@ class _SelectField<T> extends StatelessWidget {
     );
   }
 }
-
-class _DateBox extends StatelessWidget {
-  const _DateBox({required this.date, required this.onTap});
-  final DateTime date;
-  final VoidCallback onTap;
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    return InkWell(
-      onTap: onTap,
-      borderRadius: PRadius.brMd,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        decoration: BoxDecoration(
-          color: t.bgMuted,
-          border: Border.all(color: t.borderDefault),
-          borderRadius: PRadius.brMd,
-        ),
-        child: Row(
-          children: [
-            Icon(LucideIcons.calendar, size: 16, color: t.fgSecondary),
-            const SizedBox(width: 8),
-            Text(
-              '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}',
-              style: PTypo.bodySm.copyWith(color: t.fgPrimary),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _TimeBox extends StatelessWidget {
-  const _TimeBox({required this.time, required this.onTap});
-  final TimeOfDay time;
-  final VoidCallback onTap;
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    return InkWell(
-      onTap: onTap,
-      borderRadius: PRadius.brMd,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        decoration: BoxDecoration(
-          color: t.bgMuted,
-          border: Border.all(color: t.borderDefault),
-          borderRadius: PRadius.brMd,
-        ),
-        child: Row(
-          children: [
-            Icon(LucideIcons.clock, size: 16, color: t.fgSecondary),
-            const SizedBox(width: 8),
-            Text(_formatTime(time),
-                style: PTypo.bodySm.copyWith(color: t.fgPrimary)),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 
 /// 프리셋 섹션 — 헤더 (라벨 + 적용됨 뱃지 + 저장 버튼) + 칩 strip + 적용 배너.
 /// 웹 `AddTxSheet` 의 "프리셋 불러오기" 영역 1:1 미러.
