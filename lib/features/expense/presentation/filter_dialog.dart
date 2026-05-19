@@ -319,7 +319,7 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
         height: 36,
         padding: const EdgeInsets.symmetric(horizontal: PSpace.x12),
         decoration: BoxDecoration(
-          color: t.bgSurface,
+          color: t.bgMuted,
           borderRadius: PRadius.brSm,
           border: Border.all(color: t.borderSubtle),
         ),
