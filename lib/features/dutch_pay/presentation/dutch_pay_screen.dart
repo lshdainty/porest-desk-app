@@ -77,8 +77,8 @@ class DutchPayScreen extends ConsumerWidget {
                     .compareTo(a.dutchPayDate ?? '');
               });
             return ListView.separated(
-              padding: const EdgeInsets.fromLTRB(
-                  PSpace.x16, PSpace.x12, PSpace.x16, PSpace.x80),
+              padding: const EdgeInsets.symmetric(
+            horizontal: PSpace.x20, vertical: PSpace.x24),
               itemCount: sorted.length,
               separatorBuilder: (_, _) => const SizedBox(height: PSpace.x8),
               itemBuilder: (_, i) => _DutchPayCard(

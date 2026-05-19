@@ -88,7 +88,8 @@ class SettingsScreen extends ConsumerWidget {
         elevation: 0,
       ),
       body: ListView(
-        padding: const EdgeInsets.all(PSpace.x20),
+        padding: const EdgeInsets.symmetric(
+            horizontal: PSpace.x20, vertical: PSpace.x24),
         children: [
           // 표시 설정 (inline)
           _SectionHeader(title: '표시 설정', subtitle: '테마·밀도·통화', tokens: t),

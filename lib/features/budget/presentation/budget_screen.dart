@@ -128,8 +128,8 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
       title: '예산 설정',
       contentBuilder: (ctx, scrollCtrl) => ListView(
         controller: scrollCtrl,
-        padding: const EdgeInsets.fromLTRB(
-            PSpace.x16, 0, PSpace.x16, PSpace.x16),
+        padding: const EdgeInsets.symmetric(
+            horizontal: PSpace.x20, vertical: PSpace.x24),
         children: [
           _SheetTile(
             icon: LucideIcons.target,

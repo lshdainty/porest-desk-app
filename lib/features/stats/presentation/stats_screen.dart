@@ -244,8 +244,8 @@ class _CategoryTab extends ConsumerWidget {
         ref.invalidate(heatmapProvider(state._range));
       },
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(
-            PSpace.x16, PSpace.x12, PSpace.x16, PSpace.x32),
+        padding: const EdgeInsets.symmetric(
+            horizontal: PSpace.x20, vertical: PSpace.x24),
         children: [
           _DonutCard(
             state: state,
@@ -293,8 +293,8 @@ class _TrendTab extends ConsumerWidget {
         ref.invalidate(rangeExpensesProvider(state._range));
       },
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(
-            PSpace.x16, PSpace.x12, PSpace.x16, PSpace.x32),
+        padding: const EdgeInsets.symmetric(
+            horizontal: PSpace.x20, vertical: PSpace.x24),
         children: [
           _TrendBigCard(
             state: state,
@@ -339,8 +339,8 @@ class _CompareTab extends ConsumerWidget {
         ref.invalidate(rangeSummaryProvider(state._prevRangeKey));
       },
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(
-            PSpace.x16, PSpace.x12, PSpace.x16, PSpace.x32),
+        padding: const EdgeInsets.symmetric(
+            horizontal: PSpace.x20, vertical: PSpace.x24),
         children: [
           _CompareSummaryGrid(
             state: state,

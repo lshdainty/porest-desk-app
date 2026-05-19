@@ -114,8 +114,8 @@ class _PresetScreenState extends ConsumerState<PresetScreen> {
             final categories =
                 categoriesAsync.value ?? const <ExpenseCategory>[];
             return ListView(
-              padding: const EdgeInsets.fromLTRB(
-                  PSpace.x16, PSpace.x16, PSpace.x16, PSpace.x80),
+              padding: const EdgeInsets.symmetric(
+            horizontal: PSpace.x20, vertical: PSpace.x24),
               children: [
                 Text('탭 한 번으로 거래 기록',
                     style:

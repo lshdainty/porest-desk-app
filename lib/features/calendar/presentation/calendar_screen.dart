@@ -366,8 +366,8 @@ class _DayEventsSheetBody extends StatelessWidget {
     final t = context.tokens;
     return ListView(
       controller: scrollController,
-      padding: const EdgeInsets.fromLTRB(
-          PSpace.x16, 0, PSpace.x16, PSpace.x16),
+      padding: const EdgeInsets.symmetric(
+            horizontal: PSpace.x20, vertical: PSpace.x24),
       children: [
         Row(
           children: [

@@ -58,7 +58,8 @@ class MoreScreen extends ConsumerWidget {
     ];
 
     return ListView(
-      padding: const EdgeInsets.all(PSpace.x20),
+      padding: const EdgeInsets.symmetric(
+          horizontal: PSpace.x20, vertical: PSpace.x24),
       children: [
         Text(l.navMore, style: PTypo.h2.copyWith(color: t.fgPrimary)),
         const SizedBox(height: PSpace.x16),

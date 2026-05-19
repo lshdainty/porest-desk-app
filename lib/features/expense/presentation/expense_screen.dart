@@ -112,8 +112,8 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
         await ref.read(monthExpensesProvider(_key).future);
       },
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(
-            PSpace.x16, PSpace.x4, PSpace.x16, PSpace.x24),
+        padding: const EdgeInsets.symmetric(
+            horizontal: PSpace.x20, vertical: PSpace.x24),
         children: [
           // 본문 — 비동기 상태에 따라 분기
           expensesAsync.when(

@@ -85,8 +85,8 @@ class GroupScreen extends ConsumerWidget {
               ]);
             }
             return ListView(
-              padding: const EdgeInsets.fromLTRB(
-                  PSpace.x16, PSpace.x12, PSpace.x16, PSpace.x80),
+              padding: const EdgeInsets.symmetric(
+            horizontal: PSpace.x20, vertical: PSpace.x24),
               children: [
                 PCard(
                   variant: PCardVariant.bordered,

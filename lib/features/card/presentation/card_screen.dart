@@ -103,8 +103,8 @@ class _CardScreenState extends ConsumerState<CardScreen> {
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(140),
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(
-                PSpace.x16, 0, PSpace.x16, PSpace.x12),
+            padding: const EdgeInsets.symmetric(
+            horizontal: PSpace.x20, vertical: PSpace.x24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

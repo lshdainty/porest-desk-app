@@ -183,8 +183,8 @@ class _AssetBody extends StatelessWidget {
     final changePercent = summary?.changePercent ?? 0.0;
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(
-          PSpace.x20, PSpace.x4, PSpace.x20, PSpace.x80),
+      padding: const EdgeInsets.symmetric(
+            horizontal: PSpace.x20, vertical: PSpace.x24),
       children: [
         _SummaryCard(
           netWorth: netWorth,

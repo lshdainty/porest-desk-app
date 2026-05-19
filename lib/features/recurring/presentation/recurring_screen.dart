@@ -132,8 +132,8 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
             final filtered = _applyFilter(items, _filter);
 
             return ListView(
-              padding: const EdgeInsets.fromLTRB(
-                  PSpace.x16, PSpace.x16, PSpace.x16, PSpace.x80),
+              padding: const EdgeInsets.symmetric(
+            horizontal: PSpace.x20, vertical: PSpace.x24),
               children: [
                 _SummaryCard(
                   active: stats.active,

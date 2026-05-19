@@ -128,8 +128,8 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(120),
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(
-                PSpace.x16, 0, PSpace.x16, PSpace.x8),
+            padding: const EdgeInsets.symmetric(
+            horizontal: PSpace.x20, vertical: PSpace.x24),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [

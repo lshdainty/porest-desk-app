@@ -45,8 +45,8 @@ class CardDetailScreen extends ConsumerWidget {
         data: (d) {
           final s = d.summary;
           return ListView(
-            padding: const EdgeInsets.fromLTRB(
-                PSpace.x16, PSpace.x16, PSpace.x16, PSpace.x40),
+            padding: const EdgeInsets.symmetric(
+            horizontal: PSpace.x20, vertical: PSpace.x24),
             children: [
               // 카드 이미지
               if (s.imgUrl != null)

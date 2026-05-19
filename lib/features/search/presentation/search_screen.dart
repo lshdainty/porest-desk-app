@@ -376,7 +376,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     }
     return ListView.separated(
       padding: const EdgeInsets.symmetric(
-          horizontal: PSpace.x16, vertical: PSpace.x8),
+          horizontal: PSpace.x20, vertical: PSpace.x24),
       itemCount: _results.length,
       separatorBuilder: (_, _) =>
           PDivider(indent: 60),
