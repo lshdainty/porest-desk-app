@@ -9,6 +9,7 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/brand/bank_colors.dart';
+import '../../../shared/widgets/p_chip.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_text_input.dart';
@@ -524,59 +525,15 @@ class _BrandPicker extends StatelessWidget {
                   runSpacing: 6,
                   children: [
                     for (final e in categories[i].value)
-                      _BrandChip(
-                        entry: e,
+                      PChip(
+                        label: e.name,
                         selected: e.name == selectedName,
                         onTap: () => onPick(e.name),
+                        color: e.color.bg,
                       ),
                   ],
                 ),
               ],
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _BrandChip extends StatelessWidget {
-  const _BrandChip({
-    required this.entry,
-    required this.selected,
-    required this.onTap,
-  });
-  final BankEntry entry;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    // ⚠️ Container 에 alignment 를 주면 부모(Wrap)가 unbounded 일 때
-    //    width 를 다 차지 → chip 이 행 전체로 stretched. Material+InkWell
-    //    + Padding + Row(MainAxisSize.min) 으로 intrinsic 폭 강제.
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: PRadius.brFull,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-          decoration: BoxDecoration(
-            color: selected ? entry.color.bg : t.bgMuted,
-            borderRadius: PRadius.brFull,
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                entry.name,
-                style: PTypo.bodySm.copyWith(
-                  color: selected ? entry.color.fg : t.fgSecondary,
-                  fontWeight: PFontWeight.medium,
-                ),
-              ),
             ],
           ),
         ),
