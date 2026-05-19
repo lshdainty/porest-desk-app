@@ -260,30 +260,21 @@ class _ProjectRowState extends ConsumerState<_ProjectRow> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    TextField(
+                    PTextInput(
                       controller: _nameCtrl,
                       enabled: _expanded && !_busy,
-                      decoration: const InputDecoration(
-                        isDense: true,
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.zero,
-                      ),
-                      style: PTypo.bodySm.copyWith(
-                          color: t.fgPrimary, fontWeight: PFontWeight.semi),
+                      style: PTypo.bodySm
+                          .copyWith(fontWeight: PFontWeight.semi),
                     ),
-                    if ((_descCtrl.text).isNotEmpty || _expanded)
-                      TextField(
+                    if ((_descCtrl.text).isNotEmpty || _expanded) ...[
+                      const SizedBox(height: PSpace.x4),
+                      PTextInput(
                         controller: _descCtrl,
                         enabled: _expanded && !_busy,
-                        decoration: const InputDecoration(
-                          isDense: true,
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.zero,
-                          hintText: '설명',
-                        ),
-                        style: PTypo.caption
-                            .copyWith(color: t.fgTertiary),
+                        placeholder: '설명',
+                        style: PTypo.caption,
                       ),
+                    ],
                   ],
                 ),
               ),

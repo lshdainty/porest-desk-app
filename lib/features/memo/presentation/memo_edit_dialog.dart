@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme/spacing.dart';
-import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_snack_bar.dart';
+import '../../../shared/widgets/p_text_input.dart';
 import '../application/memo_providers.dart';
 import '../domain/memo.dart';
-import '../../../shared/widgets/p_snack_bar.dart';
 
 void showMemoEditDialog(BuildContext context, {Memo? edit}) {
   final controller = PSheetController();
@@ -129,7 +129,6 @@ class _BodyState extends ConsumerState<_Body> {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) widget.controller.setCanSubmit(_canSubmit);
     });
@@ -138,27 +137,20 @@ class _BodyState extends ConsumerState<_Body> {
       padding: const EdgeInsets.fromLTRB(
           PSpace.x16, 0, PSpace.x16, PSpace.x16),
       children: [
-        TextField(
+        PTextInput(
           controller: _titleCtrl,
-          decoration: const InputDecoration(
-            hintText: '제목',
-            border: InputBorder.none,
-          ),
+          placeholder: '제목',
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: t.fgPrimary, fontWeight: PFontWeight.bold),
+              fontWeight: PFontWeight.bold),
           onChanged: (_) => setState(() {}),
         ),
         const SizedBox(height: PSpace.x8),
-        TextField(
+        PTextInput(
           controller: _contentCtrl,
-          decoration: const InputDecoration(
-            hintText: '내용을 입력하세요...',
-            border: InputBorder.none,
-          ),
+          placeholder: '내용을 입력하세요...',
           maxLines: 12,
           minLines: 6,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: t.fgPrimary),
+          style: Theme.of(context).textTheme.bodyMedium,
           onChanged: (_) => setState(() {}),
         ),
       ],

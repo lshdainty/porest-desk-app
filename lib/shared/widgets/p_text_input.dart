@@ -26,7 +26,9 @@ class PTextInput extends StatelessWidget {
     this.numbersOnly = false,
     this.obscureText = false,
     this.maxLines = 1,
+    this.minLines,
     this.textAlign = TextAlign.start,
+    this.textInputAction,
     this.enabled = true,
     this.autofocus = false,
     this.suffix,
@@ -49,7 +51,9 @@ class PTextInput extends StatelessWidget {
   final bool numbersOnly;
   final bool obscureText;
   final int? maxLines;
+  final int? minLines;
   final TextAlign textAlign;
+  final TextInputAction? textInputAction;
   final bool enabled;
   final bool autofocus;
   final Widget? suffix;
@@ -81,7 +85,9 @@ class PTextInput extends StatelessWidget {
       inputFormatters: formatters,
       obscureText: obscureText,
       maxLines: obscureText ? 1 : maxLines,
+      minLines: obscureText ? 1 : minLines,
       textAlign: textAlign,
+      textInputAction: textInputAction,
       autofillHints: autofillHints,
       style: (style ?? PTypo.bodyLg).copyWith(color: t.fgPrimary),
       decoration: InputDecoration(

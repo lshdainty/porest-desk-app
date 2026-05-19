@@ -250,16 +250,10 @@ class _LabelRowState extends ConsumerState<_LabelRow> {
               _ColorDot(color: color, size: 20),
               const SizedBox(width: 10),
               Expanded(
-                child: TextField(
+                child: PTextInput(
                   controller: _ctrl,
                   enabled: _expanded && !_busy,
-                  decoration: const InputDecoration(
-                    isDense: true,
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                  style:
-                      PTypo.bodySm.copyWith(color: t.fgPrimary),
+                  style: PTypo.bodySm,
                 ),
               ),
               PButton.icon(

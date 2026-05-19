@@ -255,27 +255,23 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           icon: const Icon(LucideIcons.arrowLeft),
           onPressed: () => context.pop(),
         ),
-        title: TextField(
+        title: PTextInput(
           controller: _ctrl,
           focusNode: _focus,
           onChanged: _onChanged,
           textInputAction: TextInputAction.search,
           onSubmitted: (_) => _runSearch(),
-          decoration: InputDecoration(
-            hintText: '거래 검색...',
-            border: InputBorder.none,
-            hintStyle: PTypo.body.copyWith(color: t.fgPlaceholder),
-            suffixIcon: _ctrl.text.isEmpty
-                ? null
-                : IconButton(
-                    icon: Icon(LucideIcons.x, size: 16, color: t.fgTertiary),
-                    onPressed: () {
-                      _ctrl.clear();
-                      _runSearch();
-                    },
-                  ),
-          ),
-          style: PTypo.body.copyWith(color: t.fgPrimary),
+          placeholder: '거래 검색...',
+          suffix: _ctrl.text.isEmpty
+              ? null
+              : IconButton(
+                  icon: Icon(LucideIcons.x, size: 16, color: t.fgTertiary),
+                  onPressed: () {
+                    _ctrl.clear();
+                    _runSearch();
+                  },
+                ),
+          style: PTypo.body,
         ),
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,
