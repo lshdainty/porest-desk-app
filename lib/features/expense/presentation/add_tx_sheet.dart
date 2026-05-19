@@ -422,8 +422,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
                   suffixText: '원',
                   style: PTypo.h4.copyWith(
                       color: amountColor,
-                      fontWeight: PFontWeight.bold,
-                      fontFamily: 'monospace'),
+                      fontWeight: PFontWeight.bold),
                   onChanged: (_) {
                     setState(() {});
                     _syncController();
