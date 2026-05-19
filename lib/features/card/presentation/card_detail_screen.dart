@@ -8,6 +8,7 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/format/krw.dart';
 import '../../../shared/widgets/p_badge.dart';
+import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_card.dart';
 import '../../../shared/widgets/p_divider.dart';
 import '../../../shared/widgets/p_progress.dart';
@@ -25,8 +26,8 @@ class CardDetailScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: t.bgCanvas,
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(LucideIcons.arrowLeft),
+        leading: PButton.icon(
+          icon: LucideIcons.arrowLeft,
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: const Text('카드 상세'),

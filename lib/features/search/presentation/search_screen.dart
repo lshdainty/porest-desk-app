@@ -251,8 +251,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     return Scaffold(
       backgroundColor: t.bgCanvas,
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(LucideIcons.arrowLeft),
+        leading: PButton.icon(
+          icon: LucideIcons.arrowLeft,
           onPressed: () => context.pop(),
         ),
         title: PTextInput(
@@ -264,8 +264,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           placeholder: '거래 검색...',
           suffix: _ctrl.text.isEmpty
               ? null
-              : IconButton(
-                  icon: Icon(LucideIcons.x, size: 16, color: t.fgTertiary),
+              : PButton.icon(
+                  icon: LucideIcons.x,
+                  size: PButtonSize.sm,
+                  iconColor: t.fgTertiary,
                   onPressed: () {
                     _ctrl.clear();
                     _runSearch();

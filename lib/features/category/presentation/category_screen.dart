@@ -10,6 +10,7 @@ import '../../../app/theme/typography.dart';
 import '../../../core/format/chart_palette.dart';
 import '../../../core/format/color_parse.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
+import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_card.dart';
 import '../../../shared/widgets/p_divider.dart';
 import '../../../shared/widgets/p_empty_state.dart';
@@ -43,8 +44,8 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
     return Scaffold(
       backgroundColor: t.bgCanvas,
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(LucideIcons.arrowLeft),
+        leading: PButton.icon(
+          icon: LucideIcons.arrowLeft,
           onPressed: () => context.pop(),
         ),
         title: const Text('카테고리'),

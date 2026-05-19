@@ -13,6 +13,7 @@ import '../../expense/presentation/export_dialog.dart';
 import 'appearance_section.dart';
 import 'password_change_dialog.dart';
 import '../../../shared/widgets/p_avatar.dart';
+import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_card.dart';
 import '../../../shared/widgets/p_divider.dart';
 
@@ -77,8 +78,8 @@ class SettingsScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: t.bgCanvas,
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(LucideIcons.arrowLeft),
+        leading: PButton.icon(
+          icon: LucideIcons.arrowLeft,
           onPressed: () => context.pop(),
         ),
         title: Text(l.navSettings),

@@ -93,8 +93,8 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
     return Scaffold(
       backgroundColor: t.bgCanvas,
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(LucideIcons.arrowLeft),
+        leading: PButton.icon(
+          icon: LucideIcons.arrowLeft,
           onPressed: () => context.pop(),
         ),
         title: const Text('할 일'),

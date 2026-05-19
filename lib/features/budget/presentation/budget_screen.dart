@@ -206,8 +206,8 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
     return Scaffold(
       backgroundColor: t.bgCanvas,
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(LucideIcons.arrowLeft),
+        leading: PButton.icon(
+          icon: LucideIcons.arrowLeft,
           onPressed: () {
             if (Navigator.of(context).canPop()) {
               context.pop();

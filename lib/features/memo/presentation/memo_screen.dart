@@ -46,8 +46,8 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
     return Scaffold(
       backgroundColor: t.bgCanvas,
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(LucideIcons.arrowLeft),
+        leading: PButton.icon(
+          icon: LucideIcons.arrowLeft,
           onPressed: () => context.pop(),
         ),
         title: const Text('메모'),
@@ -72,9 +72,10 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
               prefix:
                   Icon(LucideIcons.search, size: 16, color: t.fgTertiary),
               suffix: hasQuery
-                  ? IconButton(
-                      icon: Icon(LucideIcons.x,
-                          size: 16, color: t.fgTertiary),
+                  ? PButton.icon(
+                      icon: LucideIcons.x,
+                      size: PButtonSize.sm,
+                      iconColor: t.fgTertiary,
                       onPressed: () {
                         _searchCtrl.clear();
                         setState(() => _query = '');
