@@ -11,6 +11,7 @@ import '../../../core/network/api_exception.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_chip.dart';
+import '../../../shared/widgets/p_date_input.dart';
 import '../../../shared/widgets/p_progress.dart';
 import '../../../shared/widgets/p_section_label.dart';
 import '../../../shared/widgets/p_segmented_control.dart';
@@ -343,34 +344,25 @@ class _RecurringEditBodyState extends ConsumerState<_RecurringEditBody> {
 
           PSectionLabel('시작 날짜'),
           const SizedBox(height: PSpace.x4),
-          _DateField(
+          PDateInput(
             value: _startDate,
-            onChange: (d) => setState(() => _startDate = d),
-            tokens: t,
+            onChanged: (d) {
+              if (d != null) setState(() => _startDate = d);
+            },
+            firstDate: DateTime(2020),
+            lastDate: DateTime(2030, 12, 31),
           ),
           const SizedBox(height: PSpace.x12),
 
           PSectionLabel('종료 날짜 (선택)'),
           const SizedBox(height: PSpace.x4),
-          Row(
-            children: [
-              Expanded(
-                child: _DateField(
-                  value: _endDate,
-                  hint: '미설정 = 무기한',
-                  onChange: (d) => setState(() => _endDate = d),
-                  tokens: t,
-                ),
-              ),
-              if (_endDate != null)
-                PButton.icon(
-                  icon: LucideIcons.x,
-                  size: PButtonSize.sm,
-                  iconColor: t.fgTertiary,
-                  tooltip: '종료 날짜 제거',
-                  onPressed: () => setState(() => _endDate = null),
-                ),
-            ],
+          PDateInput(
+            value: _endDate,
+            onChanged: (d) => setState(() => _endDate = d),
+            firstDate: DateTime(2020),
+            lastDate: DateTime(2030, 12, 31),
+            placeholder: '미설정 = 무기한',
+            allowClear: true,
           ),
           const SizedBox(height: PSpace.x12),
 
@@ -538,54 +530,6 @@ class _DomPicker extends StatelessWidget {
             onPressed: value < 31 ? () => onChanged(value + 1) : null,
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _DateField extends StatelessWidget {
-  const _DateField(
-      {required this.value,
-      required this.onChange,
-      required this.tokens,
-      this.hint});
-  final DateTime? value;
-  final ValueChanged<DateTime> onChange;
-  final PorestTokens tokens;
-  final String? hint;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () async {
-        final p = await showDatePicker(
-          context: context,
-          initialDate: value ?? DateTime.now(),
-          firstDate: DateTime(2020),
-          lastDate: DateTime(2030, 12, 31),
-        );
-        if (p != null) onChange(p);
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        decoration: BoxDecoration(
-          color: tokens.bgMuted,
-          borderRadius: PRadius.brMd,
-          border: Border.all(color: tokens.borderDefault),
-        ),
-        child: Row(
-          children: [
-            Icon(LucideIcons.calendar, size: 18, color: tokens.fgSecondary),
-            const SizedBox(width: PSpace.x8),
-            Text(
-              value == null
-                  ? (hint ?? '날짜 선택')
-                  : '${value!.year}-${value!.month.toString().padLeft(2, '0')}-${value!.day.toString().padLeft(2, '0')}',
-              style: PTypo.body.copyWith(
-                  color: value == null ? tokens.fgPlaceholder : tokens.fgPrimary),
-            ),
-          ],
-        ),
       ),
     );
   }

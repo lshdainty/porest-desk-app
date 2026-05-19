@@ -13,6 +13,7 @@ import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_checkbox.dart';
 import '../../../shared/widgets/p_chip.dart';
+import '../../../shared/widgets/p_date_input.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../asset/application/asset_providers.dart';
 import '../../asset/domain/asset.dart';
@@ -256,18 +257,26 @@ class _ExportBodyState extends ConsumerState<_ExportBody> {
             Row(
               children: [
                 Expanded(
-                  child: _DatePickField(
-                    label: '시작',
+                  child: PDateInput(
                     value: _customFrom,
-                    onChanged: (d) => setState(() => _customFrom = d),
+                    onChanged: (d) {
+                      if (d != null) setState(() => _customFrom = d);
+                    },
+                    firstDate: DateTime(2020),
+                    lastDate: DateTime(2030, 12, 31),
+                    placeholder: '시작',
                   ),
                 ),
                 const SizedBox(width: PSpace.x8),
                 Expanded(
-                  child: _DatePickField(
-                    label: '종료',
+                  child: PDateInput(
                     value: _customTo,
-                    onChanged: (d) => setState(() => _customTo = d),
+                    onChanged: (d) {
+                      if (d != null) setState(() => _customTo = d);
+                    },
+                    firstDate: DateTime(2020),
+                    lastDate: DateTime(2030, 12, 31),
+                    placeholder: '종료',
                   ),
                 ),
               ],
@@ -303,47 +312,6 @@ class _ExportBodyState extends ConsumerState<_ExportBody> {
         _Period.year => '올해',
         _Period.custom => '직접 선택',
       };
-}
-
-class _DatePickField extends StatelessWidget {
-  const _DatePickField(
-      {required this.label, required this.value, required this.onChanged});
-  final String label;
-  final DateTime value;
-  final ValueChanged<DateTime> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    return InkWell(
-      onTap: () async {
-        final p = await showDatePicker(
-          context: context,
-          initialDate: value,
-          firstDate: DateTime(2020),
-          lastDate: DateTime(2030, 12, 31),
-        );
-        if (p != null) onChanged(p);
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        decoration: BoxDecoration(
-          color: t.bgMuted,
-          borderRadius: PRadius.brMd,
-          border: Border.all(color: t.borderDefault),
-        ),
-        child: Row(
-          children: [
-            Icon(LucideIcons.calendar, size: 14, color: t.fgTertiary),
-            const SizedBox(width: 6),
-            Text(
-                '${value.year}-${value.month.toString().padLeft(2, '0')}-${value.day.toString().padLeft(2, '0')}',
-                style: PTypo.caption.copyWith(color: t.fgPrimary)),
-          ],
-        ),
-      ),
-    );
-  }
 }
 
 class _IncludeRow extends StatelessWidget {

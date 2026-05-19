@@ -10,6 +10,7 @@ import '../../../core/format/chart_palette.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_category_tile.dart';
+import '../../../shared/widgets/p_date_input.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_segmented.dart';
 import '../../../shared/widgets/p_text_input.dart';
@@ -274,16 +275,40 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
           Row(
             children: [
               Expanded(
-                  child: _datePill(
-                      t, _startDate, (v) => setState(() => _startDate = v),
-                      '시작일')),
+                child: PDateInput(
+                  value: (_startDate?.isNotEmpty ?? false)
+                      ? DateTime.tryParse(_startDate!)
+                      : null,
+                  onChanged: (d) {
+                    if (d != null) {
+                      setState(() => _startDate =
+                          '${d.year}-${_pad(d.month)}-${_pad(d.day)}');
+                    }
+                  },
+                  firstDate: DateTime(2000),
+                  lastDate: DateTime(2100),
+                  placeholder: '시작일',
+                ),
+              ),
               const SizedBox(width: 8),
               Text('~', style: PTypo.body.copyWith(color: t.fgTertiary)),
               const SizedBox(width: 8),
               Expanded(
-                  child: _datePill(
-                      t, _endDate, (v) => setState(() => _endDate = v),
-                      '종료일')),
+                child: PDateInput(
+                  value: (_endDate?.isNotEmpty ?? false)
+                      ? DateTime.tryParse(_endDate!)
+                      : null,
+                  onChanged: (d) {
+                    if (d != null) {
+                      setState(() => _endDate =
+                          '${d.year}-${_pad(d.month)}-${_pad(d.day)}');
+                    }
+                  },
+                  firstDate: DateTime(2000),
+                  lastDate: DateTime(2100),
+                  placeholder: '종료일',
+                ),
+              ),
             ],
           ),
           if (_customInvalid)
@@ -295,48 +320,6 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
             ),
         ],
       ],
-    );
-  }
-
-  Widget _datePill(PorestTokens t, String? value, ValueChanged<String> onChanged,
-      String hint) {
-    return InkWell(
-      onTap: () async {
-        final init = DateTime.tryParse(value ?? '') ?? DateTime.now();
-        final picked = await showDatePicker(
-          context: context,
-          initialDate: init,
-          firstDate: DateTime(2000),
-          lastDate: DateTime(2100),
-        );
-        if (picked != null) {
-          onChanged(
-              '${picked.year}-${_pad(picked.month)}-${_pad(picked.day)}');
-        }
-      },
-      borderRadius: PRadius.brSm,
-      child: Container(
-        height: 36,
-        padding: const EdgeInsets.symmetric(horizontal: PSpace.x12),
-        decoration: BoxDecoration(
-          color: t.bgMuted,
-          borderRadius: PRadius.brSm,
-          border: Border.all(color: t.borderSubtle),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(
-                (value ?? '').isEmpty ? hint : value!,
-                style: PTypo.bodySm.copyWith(
-                    color:
-                        (value ?? '').isEmpty ? t.fgTertiary : t.fgPrimary),
-              ),
-            ),
-            Icon(LucideIcons.calendar, size: 14, color: t.fgSecondary),
-          ],
-        ),
-      ),
     );
   }
 

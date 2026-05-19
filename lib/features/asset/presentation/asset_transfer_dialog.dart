@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
-import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../shared/widgets/p_date_input.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_progress.dart';
 import '../../../shared/widgets/p_section_label.dart';
@@ -189,33 +189,13 @@ class _TransferBodyState extends ConsumerState<_TransferBody> {
 
               PSectionLabel('날짜'),
               const SizedBox(height: PSpace.x4),
-              InkWell(
-                onTap: () async {
-                  final p = await showDatePicker(
-                    context: context,
-                    initialDate: _date,
-                    firstDate: DateTime(2020),
-                    lastDate: DateTime(2030, 12, 31),
-                  );
-                  if (p != null) setState(() => _date = p);
+              PDateInput(
+                value: _date,
+                onChanged: (d) {
+                  if (d != null) setState(() => _date = d);
                 },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                  decoration: BoxDecoration(
-                    color: t.bgMuted,
-                    borderRadius: PRadius.brMd,
-                    border: Border.all(color: t.borderDefault),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(LucideIcons.calendar, size: 18, color: t.fgSecondary),
-                      const SizedBox(width: PSpace.x8),
-                      Text(
-                          '${_date.year}-${_date.month.toString().padLeft(2, '0')}-${_date.day.toString().padLeft(2, '0')}',
-                          style: PTypo.body.copyWith(color: t.fgPrimary)),
-                    ],
-                  ),
-                ),
+                firstDate: DateTime(2020),
+                lastDate: DateTime(2030, 12, 31),
               ),
               const SizedBox(height: PSpace.x16),
 

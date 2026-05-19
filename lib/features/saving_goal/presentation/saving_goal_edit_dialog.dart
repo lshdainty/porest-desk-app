@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
-import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
-import '../../../shared/widgets/p_button.dart';
+import '../../../shared/widgets/p_date_input.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_text_input.dart';
@@ -189,50 +188,13 @@ class _BodyState extends ConsumerState<_Body> {
           Text('마감일 (선택)',
               style: PTypo.caption.copyWith(color: t.fgSecondary)),
           const SizedBox(height: PSpace.x4),
-          Row(
-            children: [
-              Expanded(
-                child: InkWell(
-                  onTap: () async {
-                    final d = await showDatePicker(
-                      context: context,
-                      initialDate: _deadline ?? DateTime.now(),
-                      firstDate: DateTime(2020),
-                      lastDate: DateTime(2030),
-                    );
-                    if (d != null) setState(() => _deadline = d);
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 12),
-                    decoration: BoxDecoration(
-                      color: t.bgMuted,
-                      borderRadius: PRadius.brMd,
-                      border: Border.all(color: t.borderDefault),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(LucideIcons.calendar,
-                            size: 16, color: t.fgSecondary),
-                        const SizedBox(width: 6),
-                        Text(_deadline == null ? '미설정' : _fmtDate(_deadline!),
-                            style: PTypo.bodySm.copyWith(
-                                color: _deadline == null
-                                    ? t.fgPlaceholder
-                                    : t.fgPrimary)),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              if (_deadline != null)
-                PButton.icon(
-                  icon: LucideIcons.x,
-                  size: PButtonSize.sm,
-                  iconColor: t.fgTertiary,
-                  onPressed: () => setState(() => _deadline = null),
-                ),
-            ],
+          PDateInput(
+            value: _deadline,
+            onChanged: (d) => setState(() => _deadline = d),
+            firstDate: DateTime(2020),
+            lastDate: DateTime(2030),
+            placeholder: '미설정',
+            allowClear: true,
           ),
           const SizedBox(height: PSpace.x16),
           Text('색상',

@@ -11,6 +11,7 @@ import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_badge.dart';
 import '../../../shared/widgets/p_button.dart';
+import '../../../shared/widgets/p_date_input.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_progress.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
@@ -334,35 +335,13 @@ class _BodyState extends ConsumerState<_Body> {
           Text('날짜',
               style: PTypo.caption.copyWith(color: t.fgSecondary)),
           const SizedBox(height: PSpace.x4),
-          InkWell(
-            onTap: () async {
-              final d = await showDatePicker(
-                context: context,
-                initialDate: _date,
-                firstDate: DateTime(2020),
-                lastDate: DateTime(2030),
-              );
+          PDateInput(
+            value: _date,
+            onChanged: (d) {
               if (d != null) setState(() => _date = d);
             },
-            child: Container(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 12, vertical: 12),
-              decoration: BoxDecoration(
-                color: t.bgMuted,
-                borderRadius: PRadius.brMd,
-                border: Border.all(color: t.borderDefault),
-              ),
-              child: Row(
-                children: [
-                  Icon(LucideIcons.calendar,
-                      size: 16, color: t.fgSecondary),
-                  const SizedBox(width: 6),
-                  Text(_fmtDate(_date),
-                      style: PTypo.bodySm
-                          .copyWith(color: t.fgPrimary)),
-                ],
-              ),
-            ),
+            firstDate: DateTime(2020),
+            lastDate: DateTime(2030),
           ),
           const SizedBox(height: PSpace.x16),
 

@@ -9,6 +9,7 @@ import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/markdown_preview.dart';
 import '../../../shared/widgets/p_button.dart';
+import '../../../shared/widgets/p_date_input.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_progress.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
@@ -187,51 +188,13 @@ class _BodyState extends ConsumerState<_Body> {
           Text('마감일 (선택)',
               style: PTypo.caption.copyWith(color: t.fgSecondary)),
           const SizedBox(height: PSpace.x4),
-          Row(
-            children: [
-              Expanded(
-                child: InkWell(
-                  onTap: () async {
-                    final d = await showDatePicker(
-                      context: context,
-                      initialDate: _due ?? DateTime.now(),
-                      firstDate: DateTime(2020),
-                      lastDate: DateTime(2030),
-                    );
-                    if (d != null) setState(() => _due = d);
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 12),
-                    decoration: BoxDecoration(
-                      color: t.bgMuted,
-                      borderRadius: PRadius.brMd,
-                      border: Border.all(color: t.borderDefault),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(LucideIcons.calendar,
-                            size: 16, color: t.fgSecondary),
-                        const SizedBox(width: 6),
-                        Text(_due == null ? '미설정' : _fmtDate(_due!),
-                            style: PTypo.bodySm.copyWith(
-                                color: _due == null
-                                    ? t.fgPlaceholder
-                                    : t.fgPrimary)),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              if (_due != null)
-                PButton.icon(
-                  icon: LucideIcons.x,
-                  size: PButtonSize.sm,
-                  iconColor: t.fgTertiary,
-                  tooltip: '마감일 제거',
-                  onPressed: () => setState(() => _due = null),
-                ),
-            ],
+          PDateInput(
+            value: _due,
+            onChanged: (d) => setState(() => _due = d),
+            firstDate: DateTime(2020),
+            lastDate: DateTime(2030),
+            placeholder: '미설정',
+            allowClear: true,
           ),
           const SizedBox(height: PSpace.x12),
 

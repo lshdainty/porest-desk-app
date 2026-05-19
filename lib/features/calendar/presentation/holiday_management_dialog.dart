@@ -10,6 +10,7 @@ import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_badge.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_checkbox.dart';
+import '../../../shared/widgets/p_date_input.dart';
 import '../../../shared/widgets/p_divider.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_progress.dart';
@@ -131,35 +132,13 @@ class _BodyState extends ConsumerState<_Body> {
               const SizedBox(width: 8),
               Expanded(
                 flex: 3,
-                child: InkWell(
-                  onTap: () async {
-                    final p = await showDatePicker(
-                      context: context,
-                      initialDate: _newDate,
-                      firstDate: DateTime(_year, 1, 1),
-                      lastDate: DateTime(_year, 12, 31),
-                    );
-                    if (p != null) setState(() => _newDate = p);
+                child: PDateInput(
+                  value: _newDate,
+                  onChanged: (d) {
+                    if (d != null) setState(() => _newDate = d);
                   },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 12),
-                    decoration: BoxDecoration(
-                      color: t.bgMuted,
-                      borderRadius: PRadius.brMd,
-                      border: Border.all(color: t.borderDefault),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(LucideIcons.calendar,
-                            size: 14, color: t.fgSecondary),
-                        const SizedBox(width: 4),
-                        Text(_fmt(_newDate),
-                            style:
-                                PTypo.caption.copyWith(color: t.fgPrimary)),
-                      ],
-                    ),
-                  ),
+                  firstDate: DateTime(_year, 1, 1),
+                  lastDate: DateTime(_year, 12, 31),
                 ),
               ),
             ],
