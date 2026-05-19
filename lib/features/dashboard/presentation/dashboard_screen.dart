@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../../app/theme/radius.dart';
+import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/format/chart_palette.dart';
@@ -87,7 +88,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         ref.invalidate(monthBudgetsProvider(monthKey));
       },
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
+        padding: const EdgeInsets.symmetric(
+            horizontal: PSpace.x20, vertical: PSpace.x24),
         children: [
           _BalanceHero(
               summaryAsync: summaryAsync, masked: settings.hideAmounts),
