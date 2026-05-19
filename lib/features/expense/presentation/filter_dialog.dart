@@ -388,29 +388,37 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
         _label('카테고리', t,
             badge:
                 _categoryIds.isEmpty ? null : '· ${_categoryIds.length}개 선택'),
-        GridView.count(
-          crossAxisCount: 5,
-          mainAxisSpacing: 6,
-          crossAxisSpacing: 6,
-          childAspectRatio: 0.9,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          children: [
-            for (final c in parents)
-              PCategoryTile(
-                name: c.categoryName,
-                color: resolveChartColor(context, c.color, fallback: t.fgBrand),
-                icon: lucideByName(c.icon, fallback: LucideIcons.tag),
-                active: _categoryIds.contains(c.rowId),
-                onTap: () => setState(() {
-                  if (_categoryIds.contains(c.rowId)) {
-                    _categoryIds.remove(c.rowId);
-                  } else {
-                    _categoryIds.add(c.rowId);
-                  }
-                }),
-              ),
-          ],
+        LayoutBuilder(
+          builder: (context, constraints) {
+            const gap = 6.0;
+            const columns = 5;
+            final cellWidth =
+                (constraints.maxWidth - gap * (columns - 1)) / columns;
+            return Wrap(
+              spacing: gap,
+              runSpacing: gap,
+              children: [
+                for (final c in parents)
+                  SizedBox(
+                    width: cellWidth,
+                    child: PCategoryTile(
+                      name: c.categoryName,
+                      color: resolveChartColor(context, c.color,
+                          fallback: t.fgBrand),
+                      icon: lucideByName(c.icon, fallback: LucideIcons.tag),
+                      active: _categoryIds.contains(c.rowId),
+                      onTap: () => setState(() {
+                        if (_categoryIds.contains(c.rowId)) {
+                          _categoryIds.remove(c.rowId);
+                        } else {
+                          _categoryIds.add(c.rowId);
+                        }
+                      }),
+                    ),
+                  ),
+              ],
+            );
+          },
         ),
       ],
     );

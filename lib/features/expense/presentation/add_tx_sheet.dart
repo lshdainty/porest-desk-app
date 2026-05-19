@@ -490,34 +490,41 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          GridView.count(
-                            crossAxisCount: 5,
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            mainAxisSpacing: 6,
-                            crossAxisSpacing: 6,
-                            childAspectRatio: 0.9,
-                            children: [
-                              for (final c in topCategories)
-                                PCategoryTile(
-                                  name: c.categoryName,
-                                  color: resolveChartColor(
-                                      context,
-                                      c.color,
-                                      fallback: t.fgBrand),
-                                  icon: lucideByName(c.icon ?? 'tag'),
-                                  active: selectedParentId == c.rowId,
-                                  onTap: () => setState(() {
-                                    // 자식이 있으면 첫 자식, 없으면 자기 자신
-                                    final firstChild =
-                                        childrenByParent[c.rowId]?.first;
-                                    _categoryRowId = firstChild != null
-                                        ? firstChild.rowId
-                                        : c.rowId;
-                                    _appliedPresetId = null;
-                                  }),
-                                ),
-                            ],
+                          LayoutBuilder(
+                            builder: (context, constraints) {
+                              const gap = 6.0;
+                              const columns = 5;
+                              final cellWidth = (constraints.maxWidth -
+                                      gap * (columns - 1)) /
+                                  columns;
+                              return Wrap(
+                                spacing: gap,
+                                runSpacing: gap,
+                                children: [
+                                  for (final c in topCategories)
+                                    SizedBox(
+                                      width: cellWidth,
+                                      child: PCategoryTile(
+                                        name: c.categoryName,
+                                        color: resolveChartColor(
+                                            context,
+                                            c.color,
+                                            fallback: t.fgBrand),
+                                        icon: lucideByName(c.icon ?? 'tag'),
+                                        active: selectedParentId == c.rowId,
+                                        onTap: () => setState(() {
+                                          final firstChild =
+                                              childrenByParent[c.rowId]?.first;
+                                          _categoryRowId = firstChild != null
+                                              ? firstChild.rowId
+                                              : c.rowId;
+                                          _appliedPresetId = null;
+                                        }),
+                                      ),
+                                    ),
+                                ],
+                              );
+                            },
                           ),
                           // 세부 카테고리 Select — 선택된 부모에 자식이 있으면
                           if (selectedParentId != null &&
