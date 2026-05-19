@@ -15,6 +15,7 @@ import '../../../shared/widgets/p_divider.dart';
 import '../../../shared/widgets/p_empty_state.dart';
 import '../../../shared/widgets/p_floating_action_button.dart';
 import '../../../shared/widgets/p_skeleton.dart';
+import '../../../shared/widgets/p_tabs.dart';
 import '../../expense/application/expense_providers.dart';
 import '../../expense/domain/expense_category.dart';
 import 'category_edit_dialog.dart';
@@ -26,26 +27,13 @@ class CategoryScreen extends ConsumerStatefulWidget {
   ConsumerState<CategoryScreen> createState() => _CategoryScreenState();
 }
 
-class _CategoryScreenState extends ConsumerState<CategoryScreen>
-    with SingleTickerProviderStateMixin {
-  late final TabController _tab;
+class _CategoryScreenState extends ConsumerState<CategoryScreen> {
+  int _tabIndex = 0;
   static const _kinds = [
     ('EXPENSE', '지출'),
     ('INCOME', '수입'),
     ('TRANSFER', '이체'),
   ];
-
-  @override
-  void initState() {
-    super.initState();
-    _tab = TabController(length: _kinds.length, vsync: this);
-  }
-
-  @override
-  void dispose() {
-    _tab.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,18 +51,24 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen>
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,
         elevation: 0,
-        bottom: TabBar(
-          controller: _tab,
-          labelColor: t.fgBrand,
-          unselectedLabelColor: t.fgTertiary,
-          indicatorColor: t.fgBrand,
-          tabs: [for (final k in _kinds) Tab(text: k.$2)],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(40),
+          child: PTabs<int>(
+            items: [
+              for (int i = 0; i < _kinds.length; i++)
+                PTabItem(value: i, label: _kinds[i].$2),
+            ],
+            value: _tabIndex,
+            onChanged: (v) => setState(() => _tabIndex = v),
+            variant: PTabsVariant.underline,
+            expand: true,
+          ),
         ),
       ),
       floatingActionButton: PFloatingActionButton(
         icon: LucideIcons.plus,
         onPressed: () => showCategoryEditDialog(context,
-            defaultExpenseType: _kinds[_tab.index].$1),
+            defaultExpenseType: _kinds[_tabIndex].$1),
       ),
       body: categoriesAsync.when(
         loading: () => const Padding(
@@ -87,8 +81,8 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen>
               style: PTypo.bodySm.copyWith(color: t.statusDanger)),
         ),
         data: (categories) {
-          return TabBarView(
-            controller: _tab,
+          return IndexedStack(
+            index: _tabIndex,
             children: [
               for (final k in _kinds)
                 _CategoryList(

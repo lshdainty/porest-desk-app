@@ -15,6 +15,7 @@ import '../../../app/theme/chart_palette.dart';
 import '../../../app/theme/shadow.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_segmented_control.dart';
+import '../../../shared/widgets/p_tabs.dart';
 import '../../expense/application/expense_providers.dart';
 import '../../expense/domain/expense.dart';
 import '../application/stats_providers.dart';
@@ -51,9 +52,8 @@ String _ymd(DateTime d) =>
   return (from: DateTime(base.year, 1, 1), to: DateTime(base.year, 12, 31));
 }
 
-class _StatsScreenState extends ConsumerState<StatsScreen>
-    with SingleTickerProviderStateMixin {
-  late final TabController _tab;
+class _StatsScreenState extends ConsumerState<StatsScreen> {
+  int _tabIndex = 0;
   late DateTime _from;
   late DateTime _to;
   _SegMode _segMode = _SegMode.month;
@@ -61,16 +61,9 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
   @override
   void initState() {
     super.initState();
-    _tab = TabController(length: 3, vsync: this);
     final r = _monthRangeOf(DateTime.now());
     _from = r.from;
     _to = r.to;
-  }
-
-  @override
-  void dispose() {
-    _tab.dispose();
-    super.dispose();
   }
 
   DateRange get _range => (startDate: _ymd(_from), endDate: _ymd(_to));
@@ -194,30 +187,21 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
       children: [
         Container(
           color: t.bgSurface,
-          child: TabBar(
-            controller: _tab,
-            isScrollable: false,
-            // 웹 underline 변형이 var(--bg-brand-hover) 사용 → 매칭.
-            indicatorColor: t.bgBrandHover,
-            indicatorWeight: 2.4,
-            indicatorSize: TabBarIndicatorSize.tab,
-            labelColor: t.fgPrimary,
-            unselectedLabelColor: t.fgTertiary,
-            labelStyle: PTypo.bodySm
-                .copyWith(fontWeight: PFontWeight.bold, color: t.fgPrimary),
-            unselectedLabelStyle: PTypo.bodySm
-                .copyWith(fontWeight: PFontWeight.medium, color: t.fgTertiary),
-            dividerColor: t.borderSubtle,
-            tabs: const [
-              Tab(text: '카테고리'),
-              Tab(text: '추이'),
-              Tab(text: '비교'),
+          child: PTabs<int>(
+            items: const [
+              PTabItem(value: 0, label: '카테고리'),
+              PTabItem(value: 1, label: '추이'),
+              PTabItem(value: 2, label: '비교'),
             ],
+            value: _tabIndex,
+            onChanged: (v) => setState(() => _tabIndex = v),
+            variant: PTabsVariant.underline,
+            expand: true,
           ),
         ),
         Expanded(
-          child: TabBarView(
-            controller: _tab,
+          child: IndexedStack(
+            index: _tabIndex,
             children: [
               _CategoryTab(state: this),
               _TrendTab(state: this),

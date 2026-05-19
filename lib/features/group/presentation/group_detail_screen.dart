@@ -21,6 +21,7 @@ import '../../../shared/widgets/p_divider.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_progress.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
+import '../../../shared/widgets/p_tabs.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../../calendar/application/calendar_providers.dart';
 import '../../expense/application/expense_providers.dart';
@@ -31,13 +32,21 @@ import '../domain/group_member.dart';
 /// 그룹 상세 — 멤버 관리, 초대 코드, 권한 변경, 멤버 제거.
 ///
 /// front `GroupFullWidget` + 멤버 패널 미러.
-class GroupDetailScreen extends ConsumerWidget {
+class GroupDetailScreen extends ConsumerStatefulWidget {
   const GroupDetailScreen({super.key, required this.groupId});
   final int groupId;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<GroupDetailScreen> createState() => _GroupDetailScreenState();
+}
+
+class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen> {
+  int _tabIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
     final t = context.tokens;
+    final groupId = widget.groupId;
     final detailAsync = ref.watch(groupDetailProvider(groupId));
     final myUser = ref.watch(authProvider).value;
 
@@ -105,61 +114,60 @@ class GroupDetailScreen extends ConsumerWidget {
                 : const GroupMember(rowId: 0, userName: '', role: 'MEMBER'),
           );
           final canManage = me.isOwner || me.isAdmin;
-          return DefaultTabController(
-            length: 3,
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-                  child: _GroupHeaderCard(detail: detail, tokens: t),
-                ),
-                TabBar(
-                  labelColor: t.fgPrimary,
-                  unselectedLabelColor: t.fgTertiary,
-                  indicatorColor: t.fgBrand,
-                  tabs: const [
-                    Tab(text: '멤버 · 초대'),
-                    Tab(text: '일정'),
-                    Tab(text: '지출'),
+          return Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+                child: _GroupHeaderCard(detail: detail, tokens: t),
+              ),
+              PTabs<int>(
+                items: const [
+                  PTabItem(value: 0, label: '멤버 · 초대'),
+                  PTabItem(value: 1, label: '일정'),
+                  PTabItem(value: 2, label: '지출'),
+                ],
+                value: _tabIndex,
+                onChanged: (v) => setState(() => _tabIndex = v),
+                variant: PTabsVariant.underline,
+                expand: true,
+              ),
+              Expanded(
+                child: IndexedStack(
+                  index: _tabIndex,
+                  children: [
+                    // Tab 1: 기존 멤버 + 초대코드 패널
+                    RefreshIndicator(
+                      color: t.bgBrand,
+                      onRefresh: () async {
+                        ref.invalidate(groupDetailProvider(groupId));
+                        await ref.read(groupDetailProvider(groupId).future);
+                      },
+                      child: ListView(
+                        padding: const EdgeInsets.all(PSpace.x20),
+                        children: [
+                          _InviteCodeCard(
+                            detail: detail,
+                            canManage: canManage,
+                            tokens: t,
+                          ),
+                          const SizedBox(height: PSpace.x16),
+                          _MembersCard(
+                            detail: detail,
+                            myUserRowId: myUser?.rowId,
+                            canManage: canManage,
+                            tokens: t,
+                          ),
+                        ],
+                      ),
+                    ),
+                    // Tab 2: 일정
+                    _GroupEventsTab(groupId: groupId, tokens: t),
+                    // Tab 3: 지출
+                    _GroupExpensesTab(groupId: groupId, tokens: t),
                   ],
                 ),
-                Expanded(
-                  child: TabBarView(
-                    children: [
-                      // Tab 1: 기존 멤버 + 초대코드 패널
-                      RefreshIndicator(
-                        color: t.bgBrand,
-                        onRefresh: () async {
-                          ref.invalidate(groupDetailProvider(groupId));
-                          await ref.read(groupDetailProvider(groupId).future);
-                        },
-                        child: ListView(
-                          padding: const EdgeInsets.all(PSpace.x20),
-                          children: [
-                            _InviteCodeCard(
-                              detail: detail,
-                              canManage: canManage,
-                              tokens: t,
-                            ),
-                            const SizedBox(height: PSpace.x16),
-                            _MembersCard(
-                              detail: detail,
-                              myUserRowId: myUser?.rowId,
-                              canManage: canManage,
-                              tokens: t,
-                            ),
-                          ],
-                        ),
-                      ),
-                      // Tab 2: 일정
-                      _GroupEventsTab(groupId: groupId, tokens: t),
-                      // Tab 3: 지출
-                      _GroupExpensesTab(groupId: groupId, tokens: t),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           );
         },
       ),
