@@ -539,8 +539,7 @@ class _SplitRowCardState extends State<_SplitRowCard> {
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               textAlign: TextAlign.right,
               enabled: !widget.disabled,
-              style: PTypo.caption.copyWith(
-                  color: t.fgPrimary, fontFamily: 'monospace'),
+              style: PTypo.caption.copyWith(color: t.fgPrimary),
               decoration: InputDecoration(
                 hintText: '0',
                 hintStyle: PTypo.caption.copyWith(color: t.fgTertiary),

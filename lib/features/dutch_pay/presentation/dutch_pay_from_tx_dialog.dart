@@ -396,8 +396,7 @@ class _BodyState extends ConsumerState<_Body> {
                             text: krw(_totalAbs),
                             style: PTypo.body.copyWith(
                                 color: t.fgPrimary,
-                                fontWeight: PFontWeight.bold,
-                                fontFamily: 'monospace'),
+                                fontWeight: PFontWeight.bold),
                           ),
                           TextSpan(
                             text: '원',
@@ -687,8 +686,7 @@ class _DutchPayFooter extends StatelessWidget {
                     text: '${krw(perPerson)}원',
                     style: PTypo.bodySm.copyWith(
                         color: t.fgPrimary,
-                        fontWeight: PFontWeight.bold,
-                        fontFamily: 'monospace'),
+                        fontWeight: PFontWeight.bold),
                   ),
                 ]),
               ),
@@ -903,8 +901,7 @@ class _ParticipantRow extends StatelessWidget {
             Text('${krw(amount)}원',
                 style: PTypo.bodySm.copyWith(
                     color: tokens.fgPrimary,
-                    fontWeight: PFontWeight.bold,
-                    fontFamily: 'monospace')),
+                    fontWeight: PFontWeight.bold)),
           ] else if (splitMethod == _Split.ratio) ...[
             if (!participant.isMe) ...[
               SizedBox(
@@ -935,15 +932,13 @@ class _ParticipantRow extends StatelessWidget {
                   textAlign: TextAlign.right,
                   style: PTypo.bodySm.copyWith(
                       color: tokens.fgPrimary,
-                      fontWeight: PFontWeight.bold,
-                      fontFamily: 'monospace')),
+                      fontWeight: PFontWeight.bold)),
             ),
           ] else ...[
             Text('${krw(amount)}원',
                 style: PTypo.bodySm.copyWith(
                     color: tokens.fgPrimary,
-                    fontWeight: PFontWeight.bold,
-                    fontFamily: 'monospace')),
+                    fontWeight: PFontWeight.bold)),
           ],
           if (onRemove != null)
             PButton.icon(

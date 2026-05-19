@@ -374,7 +374,6 @@ class _Stat extends StatelessWidget {
               fontSize: PFontSize.bodyLg,
               fontWeight: PFontWeight.bold,
               letterSpacing: -0.24,
-              fontFamily: 'monospace',
             )),
       ],
     );

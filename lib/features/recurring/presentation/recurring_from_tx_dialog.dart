@@ -449,8 +449,7 @@ class _RecurringFromTxBodyState extends ConsumerState<_RecurringFromTxBody> {
                                   '${d.month.toString().padLeft(2, '0')}월 ${d.day.toString().padLeft(2, '0')}일',
                                   style: PTypo.caption.copyWith(
                                       color: t.fgPrimary,
-                                      fontWeight: PFontWeight.semi,
-                                      fontFamily: 'monospace'),
+                                      fontWeight: PFontWeight.semi),
                                 ),
                               ),
                           ],
@@ -533,8 +532,7 @@ class _SourceCard extends StatelessWidget {
                   text: amountText,
                   style: PTypo.body.copyWith(
                       color: tokens.fgPrimary,
-                      fontWeight: PFontWeight.bold,
-                      fontFamily: 'monospace'),
+                      fontWeight: PFontWeight.bold),
                 ),
                 TextSpan(
                   text: '원',

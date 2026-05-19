@@ -156,7 +156,6 @@ class NetWorthChart extends ConsumerWidget {
                                     ? t.statusDangerFg
                                     : t.fgPrimary,
                                 fontWeight: PFontWeight.bold,
-                                fontFamily: 'monospace',
                               ),
                             ),
                           ],

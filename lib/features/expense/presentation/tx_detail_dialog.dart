@@ -247,7 +247,6 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                               fontSize: PFontSize.displayMd,
                               fontWeight: PFontWeight.bold,
                               letterSpacing: -1.02,
-                              fontFamily: 'monospace',
                             ),
                           ),
                           if (!masked)
@@ -312,8 +311,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                         '$amountText${masked ? '' : '원'}',
                         style: PTypo.bodySm.copyWith(
                             color: t.fgPrimary,
-                            fontWeight: PFontWeight.bold,
-                            fontFamily: 'monospace'),
+                            fontWeight: PFontWeight.bold),
                       ),
                     ),
                     if (assetLabel != null)

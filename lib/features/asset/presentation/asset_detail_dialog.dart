@@ -361,7 +361,6 @@ class _HeroCard extends StatelessWidget {
                     color: isCard ? t.statusDangerFg : t.fgPrimary,
                     fontWeight: PFontWeight.bold,
                     letterSpacing: -0.6,
-                    fontFamily: 'monospace',
                   ),
                 ),
                 if (!masked)
@@ -533,7 +532,6 @@ class _BalanceTrendChart extends StatelessWidget {
                         style: PTypo.bodySm.copyWith(
                           color: tokens.fgPrimary,
                           fontWeight: PFontWeight.bold,
-                          fontFamily: 'monospace',
                         ),
                       ),
                     ],
@@ -704,7 +702,6 @@ class _ExpenseRow extends StatelessWidget {
               style: PTypo.bodySm.copyWith(
                 color: isIncome ? tokens.fgIncome : tokens.fgExpense,
                 fontWeight: PFontWeight.bold,
-                fontFamily: 'monospace',
               ),
             ),
           ],
