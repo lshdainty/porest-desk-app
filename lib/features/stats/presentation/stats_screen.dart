@@ -1464,10 +1464,13 @@ String _fmtTick(double v) {
 }
 
 /// fl_chart 의 x 라벨 스텝 필터 — interval 만으로는 BarChart 에서 잘 안 먹힘.
-/// 12 이하면 전부, 그 이상이면 약 6~7 라벨만 (양 끝 + 균등 간격).
+/// 모바일 chart area (~300 px) 폭 대비 라벨 'YYYY.MM' (~70 px) — 4 라벨이
+/// 적정 (~280 px). threshold 를 12 → 4 로 낮춰 5~8 구간은 양 끝 + 가운데 1개
+/// (총 3 라벨), 9+ 구간은 기존 thinning 알고리즘 (약 4~5 라벨) 적용.
 bool _showXLabel(int i, int n) {
-  if (n <= 12) return true; // 년(12) / 분기(3) / 짧은 사용자기간 — 전부 표시
+  if (n <= 4) return true; // 분기(3) / 짧은 사용자기간 — 전부 표시
   if (i == 0 || i == n - 1) return true; // 양 끝 항상
+  if (n <= 8) return i == (n - 1) ~/ 2; // 5~8: 가운데 1개 → 총 3 라벨
   final step = (n / 6).ceil();
   return i % step == 0 && (n - 1 - i) >= (step ~/ 2);
 }
