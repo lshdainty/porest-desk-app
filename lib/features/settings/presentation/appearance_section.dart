@@ -8,7 +8,7 @@ import '../../../app/theme/tokens.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/widgets/p_radio_list.dart';
 import '../../../shared/widgets/p_section_label.dart';
-import '../../../shared/widgets/p_segmented_control.dart';
+import '../../../shared/widgets/p_toggle.dart';
 import '../../../shared/widgets/p_tile.dart';
 
 /// porest-desk-front `AppearanceSection.tsx` 의 모바일 이식.
@@ -73,13 +73,13 @@ class AppearanceSection extends ConsumerWidget {
         const SizedBox(height: PSpace.x24),
         PSectionLabel('표시 밀도'),
         const SizedBox(height: PSpace.x8),
-        PSegmentedControl<PDensity>(
+        PToggleGroupSingle<PDensity>(
           value: settings.density,
-          expand: true,
+          expanded: true,
           items: const [
-            PSegmentItem(PDensity.compact, '컴팩트'),
-            PSegmentItem(PDensity.comfortable, '편안'),
-            PSegmentItem(PDensity.spacious, '여유'),
+            PToggleGroupItem(value: PDensity.compact, label: '컴팩트'),
+            PToggleGroupItem(value: PDensity.comfortable, label: '편안'),
+            PToggleGroupItem(value: PDensity.spacious, label: '여유'),
           ],
           onChanged: (d) => ref.read(settingsProvider.notifier).setDensity(d),
         ),
@@ -87,13 +87,13 @@ class AppearanceSection extends ConsumerWidget {
         const SizedBox(height: PSpace.x24),
         PSectionLabel('언어'),
         const SizedBox(height: PSpace.x8),
-        PSegmentedControl<String>(
+        PToggleGroupSingle<String>(
           value: settings.locale?.languageCode ?? 'system',
-          expand: true,
+          expanded: true,
           items: const [
-            PSegmentItem('system', '시스템'),
-            PSegmentItem('ko', '한국어'),
-            PSegmentItem('en', 'English'),
+            PToggleGroupItem(value: 'system', label: '시스템'),
+            PToggleGroupItem(value: 'ko', label: '한국어'),
+            PToggleGroupItem(value: 'en', label: 'English'),
           ],
           onChanged: (v) {
             final notifier = ref.read(settingsProvider.notifier);

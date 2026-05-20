@@ -13,7 +13,7 @@ import '../../../core/network/api_exception.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_date_input.dart';
 import '../../../shared/widgets/p_modal.dart';
-import '../../../shared/widgets/p_segmented_control.dart';
+import '../../../shared/widgets/p_toggle.dart';
 import '../../expense/application/expense_providers.dart';
 import '../../expense/domain/expense.dart';
 import '../application/recurring_providers.dart';
@@ -203,15 +203,15 @@ class _RecurringFromTxBodyState extends ConsumerState<_RecurringFromTxBody> {
 
                 _Section(
                   title: '반복 주기',
-                  child: PSegmentedControl<String>(
+                  child: PToggleGroupSingle<String>(
                     value: _frequency,
-                    expand: true,
-                    activeVariant: PSegmentActive.brand,
+                    expanded: true,
+                    visual: PToggleGroupVisual.solid,
                     items: const [
-                      PSegmentItem('DAILY', '매일'),
-                      PSegmentItem('WEEKLY', '매주'),
-                      PSegmentItem('MONTHLY', '매월'),
-                      PSegmentItem('YEARLY', '매년'),
+                      PToggleGroupItem(value: 'DAILY', label: '매일'),
+                      PToggleGroupItem(value: 'WEEKLY', label: '매주'),
+                      PToggleGroupItem(value: 'MONTHLY', label: '매월'),
+                      PToggleGroupItem(value: 'YEARLY', label: '매년'),
                     ],
                     onChanged: (v) => setState(() => _frequency = v),
                   ),

@@ -10,7 +10,7 @@ import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_chip.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_progress.dart';
-import '../../../shared/widgets/p_segmented_control.dart';
+import '../../../shared/widgets/p_toggle.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_switch.dart';
 import '../../../shared/widgets/p_text_input.dart';
@@ -193,12 +193,12 @@ class _BodyState extends ConsumerState<_Body> {
           PSpace.x16, 0, PSpace.x16, PSpace.x16),
       children: [
           // 유형
-          PSegmentedControl<String>(
+          PToggleGroupSingle<String>(
             value: _expenseType,
-            expand: true,
+            expanded: true,
             items: const [
-              PSegmentItem('EXPENSE', '지출'),
-              PSegmentItem('INCOME', '수입'),
+              PToggleGroupItem(value: 'EXPENSE', label: '지출'),
+              PToggleGroupItem(value: 'INCOME', label: '수입'),
             ],
             onChanged: (v) => setState(() => _expenseType = v),
           ),

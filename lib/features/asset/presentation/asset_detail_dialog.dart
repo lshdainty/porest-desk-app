@@ -17,7 +17,7 @@ import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_card.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_progress.dart';
-import '../../../shared/widgets/p_segmented_control.dart';
+import '../../../shared/widgets/p_toggle.dart';
 import '../../card/presentation/card_performance_bar.dart';
 import '../../expense/application/expense_providers.dart';
 import '../../expense/domain/expense.dart';
@@ -183,13 +183,12 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    PSegmentedControl<_Period>(
+                    PToggleGroupSingle<_Period>(
                       value: _period,
-                      size: PSegmentSize.sm,
-                      elevated: true,
+                      size: PToggleSize.sm,
                       items: [
                         for (final p in _Period.values)
-                          PSegmentItem(p, p.label),
+                          PToggleGroupItem(value: p, label: p.label),
                       ],
                       onChanged: (p) => setState(() => _period = p),
                     ),

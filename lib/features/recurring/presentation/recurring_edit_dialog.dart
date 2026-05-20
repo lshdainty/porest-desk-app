@@ -14,7 +14,7 @@ import '../../../shared/widgets/p_chip.dart';
 import '../../../shared/widgets/p_date_input.dart';
 import '../../../shared/widgets/p_progress.dart';
 import '../../../shared/widgets/p_section_label.dart';
-import '../../../shared/widgets/p_segmented_control.dart';
+import '../../../shared/widgets/p_toggle.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_switch.dart';
@@ -238,12 +238,12 @@ class _RecurringEditBodyState extends ConsumerState<_RecurringEditBody> {
           PSpace.x16, 0, PSpace.x16, PSpace.x16),
       children: [
           // 거래 유형
-          PSegmentedControl<String>(
+          PToggleGroupSingle<String>(
             value: _type,
-            expand: true,
+            expanded: true,
             items: const [
-              PSegmentItem('EXPENSE', '지출'),
-              PSegmentItem('INCOME', '수입'),
+              PToggleGroupItem(value: 'EXPENSE', label: '지출'),
+              PToggleGroupItem(value: 'INCOME', label: '수입'),
             ],
             onChanged: (v) => setState(() => _type = v),
           ),
@@ -310,14 +310,14 @@ class _RecurringEditBodyState extends ConsumerState<_RecurringEditBody> {
           // 주기
           PSectionLabel('주기'),
           const SizedBox(height: PSpace.x8),
-          PSegmentedControl<String>(
+          PToggleGroupSingle<String>(
             value: _frequency,
-            expand: true,
+            expanded: true,
             items: const [
-              PSegmentItem('DAILY', '매일'),
-              PSegmentItem('WEEKLY', '매주'),
-              PSegmentItem('MONTHLY', '매월'),
-              PSegmentItem('YEARLY', '매년'),
+              PToggleGroupItem(value: 'DAILY', label: '매일'),
+              PToggleGroupItem(value: 'WEEKLY', label: '매주'),
+              PToggleGroupItem(value: 'MONTHLY', label: '매월'),
+              PToggleGroupItem(value: 'YEARLY', label: '매년'),
             ],
             onChanged: (v) => setState(() => _frequency = v),
           ),

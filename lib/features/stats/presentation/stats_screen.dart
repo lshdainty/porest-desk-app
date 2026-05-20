@@ -20,7 +20,7 @@ import '../../../shared/widgets/p_card.dart';
 import '../../../shared/widgets/p_chip.dart';
 import '../../../shared/widgets/p_date_input.dart';
 import '../../../shared/widgets/p_modal.dart';
-import '../../../shared/widgets/p_segmented_control.dart';
+import '../../../shared/widgets/p_toggle.dart';
 import '../../../shared/widgets/p_tabs.dart';
 import '../../expense/application/expense_providers.dart';
 import '../../expense/domain/expense.dart';
@@ -496,16 +496,14 @@ class _PeriodSelectorRow extends StatelessWidget {
     final s = state;
     return Align(
       alignment: Alignment.centerRight,
-      child: PSegmentedControl<_SegMode>(
+      child: PToggleGroupSingle<_SegMode>(
         value: s._segMode,
-        elevated: true,
         items: const [
-          PSegmentItem(_SegMode.month, '월'),
-          PSegmentItem(_SegMode.quarter, '분기'),
-          PSegmentItem(_SegMode.year, '년'),
+          PToggleGroupItem(value: _SegMode.month, label: '월'),
+          PToggleGroupItem(value: _SegMode.quarter, label: '분기'),
+          PToggleGroupItem(value: _SegMode.year, label: '년'),
           // '직접' 라벨 — 활성 시 라벨 변하지 않음. 기간 정보는 _SelectedRangeCard 에 표시.
-          // onTap 제거 — segment 클릭 시 segMode 만 변경 (변경 버튼이 picker trigger).
-          PSegmentItem(_SegMode.custom, '직접'),
+          PToggleGroupItem(value: _SegMode.custom, label: '직접'),
         ],
         onChanged: s.setSegMode,
       ),
