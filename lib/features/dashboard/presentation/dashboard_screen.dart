@@ -141,9 +141,8 @@ class _UpcomingCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.tokens;
     if (async.isLoading && !async.hasValue) {
-      return PCard(
-        padding: const EdgeInsets.all(18),
-        child: const SizedBox(
+      return const PCard(
+        child: SizedBox(
             height: 80, child: Center(child: PCircularProgressIndicator())),
       );
     }
@@ -154,7 +153,6 @@ class _UpcomingCard extends StatelessWidget {
     if (events.isEmpty && todos.isEmpty) return const SizedBox.shrink();
 
     return PCard(
-      padding: const EdgeInsets.fromLTRB(18, 18, 18, 14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -610,77 +608,79 @@ class _MonthExpenseCard extends StatelessWidget {
     final saving = savingsPct > 0;
 
     return PCard(
-      padding: const EdgeInsets.all(18),
+      padding: EdgeInsets.zero,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            '${month.month}월 가계부',
-            style: TextStyle(
-              color: t.fgPrimary,
-              fontSize: PFontSize.bodyLg,
-              fontWeight: PFontWeight.bold,
-              letterSpacing: -0.225,
-            ),
-          ),
-          const SizedBox(height: 14),
-          if (hasError)
-            Text(
-              '이번달 거래를 불러오지 못했습니다',
-              style: TextStyle(
-                  color: t.statusDanger, fontSize: PFontSize.bodySm),
-            )
-          else
-            Row(
+          PCardHeader(child: PCardTitle('${month.month}월 가계부')),
+          PCardContent(
+            afterHeader: true,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: _IncomeExpenseCol(
-                    label: '수입',
-                    value: '+${krwMasked(income, masked)}',
-                    color: t.fgIncome,
+                if (hasError)
+                  Text(
+                    '이번달 거래를 불러오지 못했습니다',
+                    style: PTypo.bodySm.copyWith(color: t.statusDanger),
+                  )
+                else
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _IncomeExpenseCol(
+                          label: '수입',
+                          value: '+${krwMasked(income, masked)}',
+                          color: t.fgIncome,
+                        ),
+                      ),
+                      Expanded(
+                        child: _IncomeExpenseCol(
+                          label: '지출',
+                          value: '-${krwMasked(expense, masked)}',
+                          color: t.fgExpense,
+                        ),
+                      ),
+                    ],
+                  ),
+                const SizedBox(height: PSpace.x16),
+                const PDivider(),
+                const SizedBox(height: PSpace.x16),
+                RichText(
+                  text: TextSpan(
+                    style: PTypo.caption.copyWith(
+                        color: t.fgSecondary, height: 1.5),
+                    children: [
+                      const TextSpan(text: '하루 평균 '),
+                      TextSpan(
+                        text: krwMasked(dailyAvg, masked),
+                        style: TextStyle(
+                          color: t.fgPrimary,
+                          fontWeight: PFontWeight.bold,
+                          fontFeatures: const [FontFeature.tabularFigures()],
+                        ),
+                      ),
+                      const TextSpan(text: '원 썼어요.'),
+                      if (prevExpense > 0) ...[
+                        const TextSpan(text: ' 전월 대비 '),
+                        TextSpan(
+                          text:
+                              '${savingsPct.abs().toStringAsFixed(0)}%',
+                          style: TextStyle(
+                            color:
+                                saving ? t.fgBrandStrong : t.fgExpense,
+                            fontWeight: PFontWeight.bold,
+                          ),
+                        ),
+                        TextSpan(
+                            text: saving
+                                ? ' 절약 중이에요.'
+                                : (savingsPct < 0
+                                    ? ' 더 썼어요.'
+                                    : ' 동일해요.')),
+                      ],
+                    ],
                   ),
                 ),
-                Expanded(
-                  child: _IncomeExpenseCol(
-                    label: '지출',
-                    value: '-${krwMasked(expense, masked)}',
-                    color: t.fgExpense,
-                  ),
-                ),
-              ],
-            ),
-          const SizedBox(height: 14),
-          const PDivider(),
-          const SizedBox(height: 14),
-          RichText(
-            text: TextSpan(
-              style: PTypo.caption.copyWith(
-                  color: t.fgSecondary, height: 1.5),
-              children: [
-                const TextSpan(text: '하루 평균 '),
-                TextSpan(
-                  text: krwMasked(dailyAvg, masked),
-                  style: TextStyle(
-                    color: t.fgPrimary,
-                    fontWeight: PFontWeight.bold,
-                    fontFeatures: const [FontFeature.tabularFigures()],
-                  ),
-                ),
-                const TextSpan(text: '원 썼어요.'),
-                if (prevExpense > 0) ...[
-                  const TextSpan(text: ' 전월 대비 '),
-                  TextSpan(
-                    text: '${savingsPct.abs().toStringAsFixed(0)}%',
-                    style: TextStyle(
-                      color: saving ? t.fgBrandStrong : t.fgExpense,
-                      fontWeight: PFontWeight.bold,
-                    ),
-                  ),
-                  TextSpan(
-                      text: saving
-                          ? ' 절약 중이에요.'
-                          : (savingsPct < 0 ? ' 더 썼어요.' : ' 동일해요.')),
-                ],
               ],
             ),
           ),
@@ -775,38 +775,37 @@ class _CategoryDonutCard extends StatelessWidget {
     final total = topSegs.fold<int>(0, (s, c) => s + c.totalAmount);
 
     return PCard(
-      padding: const EdgeInsets.all(18),
+      padding: EdgeInsets.zero,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Text('카테고리',
-                  style: TextStyle(
-                    color: t.fgPrimary,
-                    fontSize: PFontSize.bodyLg,
-                    fontWeight: PFontWeight.bold,
-                    letterSpacing: -0.225,
-                  )),
-              const Spacer(),
-              GestureDetector(
-                onTap: () => context.go('/stats'),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text('자세히',
-                        style: TextStyle(
-                            color: t.fgTertiary,
-                            fontSize: PFontSize.bodySm)),
-                    const SizedBox(width: 2),
-                    Icon(LucideIcons.chevronRight,
-                        size: 14, color: t.fgTertiary),
-                  ],
+          PCardHeader(
+            child: Row(
+              children: [
+                const PCardTitle('카테고리'),
+                const Spacer(),
+                GestureDetector(
+                  onTap: () => context.go('/stats'),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('자세히',
+                          style: PTypo.bodySm
+                              .copyWith(color: t.fgTertiary)),
+                      const SizedBox(width: 2),
+                      Icon(LucideIcons.chevronRight,
+                          size: 14, color: t.fgTertiary),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-          const SizedBox(height: 14),
+          PCardContent(
+            afterHeader: true,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
           if (topSegs.isEmpty)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 12),
@@ -915,6 +914,9 @@ class _CategoryDonutCard extends StatelessWidget {
                 ),
               ],
             ),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -959,63 +961,66 @@ class _BudgetCard extends StatelessWidget {
     final items = budgets;
 
     return PCard(
-      padding: const EdgeInsets.all(18),
+      padding: EdgeInsets.zero,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Text('예산',
-                  style: TextStyle(
-                    color: t.fgPrimary,
-                    fontSize: PFontSize.bodyLg,
-                    fontWeight: PFontWeight.bold,
-                    letterSpacing: -0.225,
-                  )),
-              const Spacer(),
-              GestureDetector(
-                onTap: () => context.push('/budget'),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text('전체',
-                        style: TextStyle(
-                            color: t.fgTertiary,
-                            fontSize: PFontSize.bodySm)),
-                    const SizedBox(width: 2),
-                    Icon(LucideIcons.chevronRight,
-                        size: 14, color: t.fgTertiary),
-                  ],
+          PCardHeader(
+            child: Row(
+              children: [
+                const PCardTitle('예산'),
+                const Spacer(),
+                GestureDetector(
+                  onTap: () => context.push('/budget'),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('전체',
+                          style: PTypo.bodySm
+                              .copyWith(color: t.fgTertiary)),
+                      const SizedBox(width: 2),
+                      Icon(LucideIcons.chevronRight,
+                          size: 14, color: t.fgTertiary),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-          const SizedBox(height: 14),
-          if (items.isEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              child: Center(
-                child: Text(
-                    budgetsAsync.isLoading ? '불러오는 중…' : '등록된 예산이 없어요',
-                    style: TextStyle(
-                        color: t.fgTertiary, fontSize: PFontSize.caption)),
-              ),
-            )
-          else
-            for (var i = 0; i < items.length; i++) ...[
-              _BudgetRow(
-                budget: items[i],
-                category: items[i].categoryRowId == null
-                    ? null
-                    : categories.byRowId(items[i].categoryRowId!),
-                spent: items[i].categoryRowId == null
-                    ? totalEx
-                    : (spentByCat[items[i].categoryRowId!] ?? 0),
-                masked: masked,
-                tokens: t,
-              ),
-              if (i < items.length - 1) const SizedBox(height: 14),
-            ],
+          PCardContent(
+            afterHeader: true,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (items.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: PSpace.x12),
+                    child: Center(
+                      child: Text(
+                          budgetsAsync.isLoading ? '불러오는 중…' : '등록된 예산이 없어요',
+                          style: PTypo.caption.copyWith(color: t.fgTertiary)),
+                    ),
+                  )
+                else
+                  for (var i = 0; i < items.length; i++) ...[
+                    _BudgetRow(
+                      budget: items[i],
+                      category: items[i].categoryRowId == null
+                          ? null
+                          : categories.byRowId(items[i].categoryRowId!),
+                      spent: items[i].categoryRowId == null
+                          ? totalEx
+                          : (spentByCat[items[i].categoryRowId!] ?? 0),
+                      masked: masked,
+                      tokens: t,
+                    ),
+                    if (i < items.length - 1)
+                      const SizedBox(height: PSpace.x16),
+                  ],
+              ],
+            ),
+          ),
         ],
       ),
     );
