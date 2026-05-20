@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../../app/theme/radius.dart';
@@ -19,6 +20,7 @@ import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_card.dart';
 import '../../../shared/widgets/p_chip.dart';
 import '../../../shared/widgets/p_date_input.dart';
+import '../../../shared/widgets/money_tab_bar.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_skeleton.dart';
 import '../../../shared/widgets/p_toggle.dart';
@@ -290,33 +292,54 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    return Column(
-      children: [
-        Container(
-          color: t.bgSurface,
-          child: PTabs<int>(
-            items: const [
-              PTabItem(value: 0, label: '카테고리'),
-              PTabItem(value: 1, label: '추이'),
-              PTabItem(value: 2, label: '비교'),
-            ],
-            value: _tabIndex,
-            onChanged: (v) => setState(() => _tabIndex = v),
-            variant: PTabsVariant.underline,
-            expand: true,
+    return Scaffold(
+      backgroundColor: t.bgCanvas,
+      bottomNavigationBar: MoneyTabBar(
+        current: MoneyTab.stats,
+        onTap: (tab) => switch (tab) {
+          MoneyTab.expense => context.go('/expense'),
+          MoneyTab.assets => context.go('/assets'),
+          MoneyTab.stats => null,
+          MoneyTab.budget => context.go('/budget'),
+        },
+        onBack: () => context.go('/home'),
+      ),
+      appBar: AppBar(
+        // leading 뒤로가기 제거 — MoneyTabBar 의 ← 가 대체.
+        automaticallyImplyLeading: false,
+        title: const Text('통계·분석'),
+        backgroundColor: t.bgSurface,
+        foregroundColor: t.fgPrimary,
+        elevation: 0,
+      ),
+      body: Column(
+        children: [
+          Container(
+            color: t.bgSurface,
+            child: PTabs<int>(
+              items: const [
+                PTabItem(value: 0, label: '카테고리'),
+                PTabItem(value: 1, label: '추이'),
+                PTabItem(value: 2, label: '비교'),
+              ],
+              value: _tabIndex,
+              onChanged: (v) => setState(() => _tabIndex = v),
+              variant: PTabsVariant.underline,
+              expand: true,
+            ),
           ),
-        ),
-        Expanded(
-          child: IndexedStack(
-            index: _tabIndex,
-            children: [
-              _CategoryTab(state: this),
-              _TrendTab(state: this),
-              _CompareTab(state: this),
-            ],
+          Expanded(
+            child: IndexedStack(
+              index: _tabIndex,
+              children: [
+                _CategoryTab(state: this),
+                _TrendTab(state: this),
+                _CompareTab(state: this),
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

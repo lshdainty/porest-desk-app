@@ -10,6 +10,7 @@ import '../../../app/theme/typography.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/settings/hide_amounts_unlock_dialog.dart';
 import '../../../core/settings/settings_notifier.dart';
+import '../../../shared/widgets/money_tab_bar.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_card.dart';
 import '../../../shared/widgets/p_skeleton.dart';
@@ -41,11 +42,19 @@ class AssetScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: t.bgCanvas,
+      bottomNavigationBar: MoneyTabBar(
+        current: MoneyTab.assets,
+        onTap: (tab) => switch (tab) {
+          MoneyTab.expense => context.go('/expense'),
+          MoneyTab.assets => null,
+          MoneyTab.stats => context.go('/stats'),
+          MoneyTab.budget => context.go('/budget'),
+        },
+        onBack: () => context.go('/home'),
+      ),
       appBar: AppBar(
-        leading: PButton.icon(
-          icon: LucideIcons.arrowLeft,
-          onPressed: () => context.pop(),
-        ),
+        // leading 뒤로가기 제거 — MoneyTabBar 의 ← 가 대체.
+        automaticallyImplyLeading: false,
         title: Text('자산',
             style: TextStyle(
               color: t.fgPrimary,

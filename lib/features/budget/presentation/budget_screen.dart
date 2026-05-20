@@ -27,6 +27,7 @@ import '../application/budget_providers.dart';
 import '../domain/budget.dart';
 import '../domain/budget_compliance.dart';
 import 'budget_edit_dialog.dart';
+import '../../../shared/widgets/money_tab_bar.dart';
 import '../../../shared/widgets/p_progress.dart';
 import '../../../shared/widgets/p_skeleton.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
@@ -206,17 +207,19 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
 
     return Scaffold(
       backgroundColor: t.bgCanvas,
+      bottomNavigationBar: MoneyTabBar(
+        current: MoneyTab.budget,
+        onTap: (tab) => switch (tab) {
+          MoneyTab.expense => context.go('/expense'),
+          MoneyTab.assets => context.go('/assets'),
+          MoneyTab.stats => context.go('/stats'),
+          MoneyTab.budget => null,
+        },
+        onBack: () => context.go('/home'),
+      ),
       appBar: AppBar(
-        leading: PButton.icon(
-          icon: LucideIcons.arrowLeft,
-          onPressed: () {
-            if (Navigator.of(context).canPop()) {
-              context.pop();
-            } else {
-              context.go('/home');
-            }
-          },
-        ),
+        // leading 뒤로가기 제거 — MoneyTabBar 의 ← 가 대체.
+        automaticallyImplyLeading: false,
         title: const Text('예산'),
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,
