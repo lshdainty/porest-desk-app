@@ -66,7 +66,7 @@ class PCard extends StatelessWidget {
     };
     final effectivePadding = padding ??
         (variant == PCardVariant.shadow
-            ? const EdgeInsets.all(24)
+            ? const EdgeInsets.all(PSpace.lg)
             : EdgeInsets.zero);
     final wrap = Container(
       padding: effectivePadding,
@@ -97,7 +97,7 @@ class PCardHeader extends StatelessWidget {
   const PCardHeader({
     super.key,
     required this.child,
-    this.padding = const EdgeInsets.all(PSpace.xl),
+    this.padding = const EdgeInsets.all(PSpace.lg),
   });
   final Widget child;
   final EdgeInsetsGeometry padding;
@@ -131,8 +131,8 @@ class PCardContent extends StatelessWidget {
     final p = padding ??
         (afterHeader
             ? const EdgeInsets.fromLTRB(
-                PSpace.xl, 0, PSpace.xl, PSpace.xl)
-            : const EdgeInsets.all(PSpace.xl));
+                PSpace.lg, 0, PSpace.lg, PSpace.lg)
+            : const EdgeInsets.all(PSpace.lg));
     return Padding(padding: p, child: child);
   }
 }
@@ -153,8 +153,8 @@ class PCardFooter extends StatelessWidget {
     final p = padding ??
         (afterHeader
             ? const EdgeInsets.fromLTRB(
-                PSpace.xl, 0, PSpace.xl, PSpace.xl)
-            : const EdgeInsets.all(PSpace.xl));
+                PSpace.lg, 0, PSpace.lg, PSpace.lg)
+            : const EdgeInsets.all(PSpace.lg));
     return Padding(padding: p, child: child);
   }
 }
