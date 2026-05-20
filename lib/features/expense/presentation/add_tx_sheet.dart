@@ -619,10 +619,13 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
                           : assets
                               .where((a) => allowed.contains(a.assetType))
                               .toList();
+                      // Web AddTxSheet 정합 — '선택 안 함' 첫 항목으로 reset 가능.
+                      // sentinel value -1 → null 변환 (자산 rowId 는 양수).
                       return _SelectField<int>(
                         value: _assetRowId,
                         hint: '선택 안 함',
                         items: [
+                          const _SelectOption<int>(-1, '선택 안 함'),
                           for (final a in filtered)
                             _SelectOption<int>(
                               a.rowId,
@@ -632,7 +635,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
                             ),
                         ],
                         onChanged: (v) => setState(() {
-                          _assetRowId = v;
+                          _assetRowId = v == -1 ? null : v;
                           _appliedPresetId = null;
                         }),
                       );
