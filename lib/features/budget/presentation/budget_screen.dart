@@ -1,7 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../../app/theme/radius.dart';
@@ -27,7 +26,6 @@ import '../application/budget_providers.dart';
 import '../domain/budget.dart';
 import '../domain/budget_compliance.dart';
 import 'budget_edit_dialog.dart';
-import '../../../shared/widgets/money_tab_bar.dart';
 import '../../../shared/widgets/p_progress.dart';
 import '../../../shared/widgets/p_skeleton.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
@@ -207,18 +205,9 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
 
     return Scaffold(
       backgroundColor: t.bgCanvas,
-      bottomNavigationBar: MoneyTabBar(
-        current: MoneyTab.budget,
-        onTap: (tab) => switch (tab) {
-          MoneyTab.expense => context.go('/expense'),
-          MoneyTab.assets => context.go('/assets'),
-          MoneyTab.stats => context.go('/stats'),
-          MoneyTab.budget => null,
-        },
-        onBack: () => context.go('/home'),
-      ),
+      // bottomNavigationBar 는 shell MobileScaffold 가 path-aware 표시 —
+      // 안정 고정 bar.
       appBar: AppBar(
-        // leading 뒤로가기 제거 — MoneyTabBar 의 ← 가 대체.
         automaticallyImplyLeading: false,
         title: const Text('예산'),
         backgroundColor: t.bgSurface,

@@ -59,15 +59,13 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/', builder: (_, _) => const SplashScreen()),
       GoRoute(path: '/login', builder: (_, _) => const LoginScreen()),
       GoRoute(path: '/settings', builder: (_, _) => const SettingsScreen()),
-      GoRoute(path: '/assets', builder: (_, _) => const AssetScreen()),
-      GoRoute(path: '/budget', builder: (_, _) => const BudgetScreen()),
+      // /assets, /budget, /stats 는 shell branch 1 (가계부) 안 sub-routes 로
+      // 이동 — 하단바 (MoneyTabBar) 가 shell scaffold 가 한 번 build 되어
+      // sub-tab 전환 시 사라지지 않게 (사용자 의도: 안정적 고정 bottom bar).
       GoRoute(path: '/recurring', builder: (_, _) => const RecurringScreen()),
       GoRoute(path: '/categories', builder: (_, _) => const CategoryScreen()),
       GoRoute(path: '/presets', builder: (_, _) => const PresetScreen()),
       GoRoute(path: '/search', builder: (_, _) => const SearchScreen()),
-      // 통계 — branch 에서 빠져 More 메뉴에서 진입하는 standalone screen.
-      // (branch 2 가 캘린더로 변경됨, mobile_tab_bar 의 '캘린더' 메뉴 정합)
-      GoRoute(path: '/stats', builder: (_, _) => const StatsScreen()),
       GoRoute(path: '/memos', builder: (_, _) => const MemoScreen()),
       GoRoute(path: '/todos', builder: (_, _) => const TodoScreen()),
       GoRoute(path: '/groups', builder: (_, _) => const GroupScreen()),
@@ -99,6 +97,8 @@ final routerProvider = Provider<GoRouter>((ref) {
               pageBuilder: (_, _) => const NoTransitionPage(child: DashboardScreen()),
             ),
           ]),
+          // 가계부 branch — 4 페이지 (money group) 모두 같은 branch:
+          //   /expense, /assets, /stats, /budget — MoneyTabBar 로 전환.
           StatefulShellBranch(routes: [
             GoRoute(
               path: '/expense',
@@ -118,6 +118,18 @@ final routerProvider = Provider<GoRouter>((ref) {
                   ),
                 );
               },
+            ),
+            GoRoute(
+              path: '/assets',
+              pageBuilder: (_, _) => const NoTransitionPage(child: AssetScreen()),
+            ),
+            GoRoute(
+              path: '/stats',
+              pageBuilder: (_, _) => const NoTransitionPage(child: StatsScreen()),
+            ),
+            GoRoute(
+              path: '/budget',
+              pageBuilder: (_, _) => const NoTransitionPage(child: BudgetScreen()),
             ),
           ]),
           StatefulShellBranch(routes: [
