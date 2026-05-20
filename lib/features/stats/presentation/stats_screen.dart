@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -1439,6 +1441,28 @@ String _fmtTick(double v) {
   return v < 0 ? '−$body' : body;
 }
 
+/// recharts 의 "nice number" 알고리즘 — [rawMax] 를 [ticks] 단계 깔끔한
+/// step 으로 ceil. (max=step*(ticks-1)). Web (recharts YAxis) 자동 tick 과
+/// 시각적으로 동일한 결과 (0/200/400/600/800 같은 균등 단계).
+({double max, double step}) _niceCeil(double rawMax, {int ticks = 5}) {
+  if (rawMax <= 0) return (max: 1.0, step: 1.0 / (ticks - 1));
+  final roughStep = rawMax / (ticks - 1);
+  final magnitude =
+      math.pow(10, (math.log(roughStep) / math.ln10).floor()).toDouble();
+  final mantissa = roughStep / magnitude;
+  final niceMantissa = mantissa <= 1
+      ? 1.0
+      : mantissa <= 2
+          ? 2.0
+          : mantissa <= 2.5
+              ? 2.5
+              : mantissa <= 5
+                  ? 5.0
+                  : 10.0;
+  final step = niceMantissa * magnitude;
+  return (max: step * (ticks - 1), step: step);
+}
+
 /// fl_chart 의 x 라벨 스텝 필터 — interval 만으로는 BarChart 에서 잘 안 먹힘.
 /// 12 이하면 전부, 그 이상이면 약 6~7 라벨만 (양 끝 + 균등 간격).
 bool _showXLabel(int i, int n) {
@@ -1574,14 +1598,22 @@ class _TrendBigCardState extends ConsumerState<_TrendBigCard> {
         widget.rangeAsync.isLoading || widget.monthExpAsync.isLoading;
 
     // 수입 ↔ 지출 스케일 차이가 크면 한 축에 그릴 때 작은 시리즈가 묻힘.
-    // → 지출을 (incomeMax / expenseMax) 로 스케일링해 시각적으론 같은 높이 범위를 차지하게.
+    // → 지출을 (incomeNiceMax / expenseNiceMax) 로 스케일링해 시각적으론 같은 높이 범위를 차지하게.
     //   좌축은 수입(raw), 우축 라벨은 표시값을 1/scale 로 되돌려 지출 실제값.
+    // recharts (Web YAxis) 와 동일한 nice-number ceil 로 5-tick 균등 간격 보장.
     final incomeMax =
         data.fold<int>(0, (m, p) => p.income > m ? p.income : m);
     final expenseMax =
         data.fold<int>(0, (m, p) => p.expense > m ? p.expense : m);
     final useDualAxis = incomeMax > 0 && expenseMax > 0;
-    final scale = useDualAxis ? incomeMax / expenseMax : 1.0;
+    final niceIncome = _niceCeil(incomeMax.toDouble());
+    final niceExpense = _niceCeil(expenseMax.toDouble());
+    final scale = useDualAxis ? niceIncome.max / niceExpense.max : 1.0;
+    // single-axis 일 땐 income 만 또는 expense 만 있는 케이스 — 있는 쪽의 nice 적용.
+    final axisMax =
+        useDualAxis || incomeMax > 0 ? niceIncome.max : niceExpense.max;
+    final axisStep =
+        useDualAxis || incomeMax > 0 ? niceIncome.step : niceExpense.step;
 
     return _Card(
       child: Column(
@@ -1609,6 +1641,8 @@ class _TrendBigCardState extends ConsumerState<_TrendBigCard> {
                 LineChartData(
                   minX: 0,
                   maxX: (data.length - 1).toDouble(),
+                  minY: 0,
+                  maxY: axisMax,
                   lineTouchData: LineTouchData(
                     enabled: true,
                     handleBuiltInTouches: true,
@@ -1649,6 +1683,7 @@ class _TrendBigCardState extends ConsumerState<_TrendBigCard> {
                   gridData: FlGridData(
                     show: true,
                     drawVerticalLine: false,
+                    horizontalInterval: axisStep,
                     getDrawingHorizontalLine: (_) => FlLine(
                       color: t.borderSubtle,
                       strokeWidth: 1,
@@ -1657,11 +1692,12 @@ class _TrendBigCardState extends ConsumerState<_TrendBigCard> {
                   ),
                   borderData: FlBorderData(show: false),
                   titlesData: FlTitlesData(
-                    // 좌축: 수입 (raw)
+                    // 좌축: 수입 (raw) — interval=axisStep 로 0/step/2step/3step/4step=max 5 ticks 균등.
                     leftTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,
                         reservedSize: 44,
+                        interval: axisStep,
                         getTitlesWidget: (v, _) => Padding(
                           padding: const EdgeInsets.only(right: 6),
                           child: Text(_fmtTick(v),
@@ -1671,12 +1707,14 @@ class _TrendBigCardState extends ConsumerState<_TrendBigCard> {
                         ),
                       ),
                     ),
-                    // 우축: 지출 — 표시값을 역스케일해 원래 지출값 복원
+                    // 우축: 지출 — 좌축과 같은 5 tick 자리에 표시값 v/scale 로 원래 지출값 복원
+                    // (scale = niceIncome.max / niceExpense.max → v/scale 도 niceExpense.step 단위 균등).
                     rightTitles: useDualAxis
                         ? AxisTitles(
                             sideTitles: SideTitles(
                               showTitles: true,
                               reservedSize: 44,
+                              interval: axisStep,
                               getTitlesWidget: (v, _) => Padding(
                                 padding: const EdgeInsets.only(left: 6),
                                 child: Text(_fmtTick(v / scale),
