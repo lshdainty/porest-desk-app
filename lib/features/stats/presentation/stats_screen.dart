@@ -412,6 +412,7 @@ class _PeriodSelectorRow extends StatelessWidget {
 
 /// '직접' 활성 시 segment 아래에 표시되는 선택 기간 카드.
 /// front `SelectedRangeCard` (StatsPage.tsx) 미러.
+/// PCard(variant: bordered) 사용 — bgSurface + borderSubtle + brLg SoT.
 class _SelectedRangeCard extends StatelessWidget {
   const _SelectedRangeCard({required this.state});
   final _StatsScreenState state;
@@ -422,60 +423,53 @@ class _SelectedRangeCard extends StatelessWidget {
     final days = s._to.difference(s._from).inDays + 1;
     String fmt(DateTime d) =>
         '${d.year}.${d.month.toString().padLeft(2, '0')}.${d.day.toString().padLeft(2, '0')}';
-    return InkWell(
+    return PCard(
+      variant: PCardVariant.bordered,
+      padding: const EdgeInsets.symmetric(
+          horizontal: PSpace.lg, vertical: PSpace.md),
       onTap: s._pickRange,
-      borderRadius: PRadius.brLg,
-      child: Container(
-        padding: const EdgeInsets.symmetric(
-            horizontal: PSpace.lg, vertical: PSpace.md),
-        decoration: BoxDecoration(
-          color: t.bgSurface,
-          border: Border.all(color: t.borderSubtle),
-          borderRadius: PRadius.brLg,
-        ),
-        child: Row(
-          children: [
-            Icon(LucideIcons.calendarClock, size: 16, color: t.fgSecondary),
-            const SizedBox(width: PSpace.md),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('선택 기간',
-                      style: PTypo.caption.copyWith(color: t.fgTertiary)),
-                  const SizedBox(height: 2),
-                  Text.rich(
-                    TextSpan(children: [
-                      TextSpan(text: '${fmt(s._from)} ~ ${fmt(s._to)}'),
-                      TextSpan(
-                        text: '  ($days일)',
-                        style: TextStyle(
-                            color: t.fgTertiary,
-                            fontWeight: PFontWeight.regular),
-                      ),
-                    ]),
-                    style: PTypo.bodySm.copyWith(
-                        color: t.fgPrimary, fontWeight: PFontWeight.semi),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: PSpace.sm),
-            Row(
-              mainAxisSize: MainAxisSize.min,
+      child: Row(
+        children: [
+          Icon(LucideIcons.calendarClock, size: 16, color: t.fgSecondary),
+          const SizedBox(width: PSpace.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(LucideIcons.pencil, size: 14, color: t.fgSecondary),
-                const SizedBox(width: 4),
-                Text('변경',
-                    style: PTypo.caption.copyWith(
-                        color: t.fgSecondary,
-                        fontWeight: PFontWeight.semi)),
+                Text('선택 기간',
+                    style: PTypo.caption.copyWith(color: t.fgTertiary)),
+                const SizedBox(height: 2),
+                Text.rich(
+                  TextSpan(children: [
+                    TextSpan(text: '${fmt(s._from)} ~ ${fmt(s._to)}'),
+                    TextSpan(
+                      text: '  ($days일)',
+                      style: TextStyle(
+                          color: t.fgTertiary,
+                          fontWeight: PFontWeight.regular),
+                    ),
+                  ]),
+                  style: PTypo.bodySm.copyWith(
+                      color: t.fgPrimary, fontWeight: PFontWeight.semi),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ],
             ),
-          ],
-        ),
+          ),
+          const SizedBox(width: PSpace.sm),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(LucideIcons.pencil, size: 14, color: t.fgSecondary),
+              const SizedBox(width: 4),
+              Text('변경',
+                  style: PTypo.caption.copyWith(
+                      color: t.fgSecondary,
+                      fontWeight: PFontWeight.semi)),
+            ],
+          ),
+        ],
       ),
     );
   }
