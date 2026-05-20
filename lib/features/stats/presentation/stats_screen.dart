@@ -174,9 +174,107 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
   }
 
   Future<void> _pickRange() async {
-    final picked = await showDialog<DateTimeRange>(
-      context: context,
-      builder: (_) => _RangePickerDialog(initial: DateTimeRange(start: _from, end: _to)),
+    // 모바일 환경 — Dialog 대신 PSheet (bottom drawer) 패턴 사용.
+    // desk-app CLAUDE.md / showPSheet helper 정합 (모바일에서 dialog → drawer).
+    DateTime draftFrom = _from;
+    DateTime draftTo = _to;
+    final picked = await showPSheet<DateTimeRange>(
+      context,
+      title: '기간 선택',
+      initialChildSize: 0.55,
+      minChildSize: 0.4,
+      maxChildSize: 0.85,
+      contentBuilder: (sheetCtx, scrollCtrl) {
+        const quickRanges = <({String label, int days})>[
+          (label: '최근 7일', days: 7),
+          (label: '최근 30일', days: 30),
+          (label: '최근 3개월', days: 90),
+          (label: '최근 6개월', days: 180),
+          (label: '최근 1년', days: 365),
+        ];
+        return StatefulBuilder(builder: (ctx, setSheet) {
+          final canApply = !draftTo.isBefore(draftFrom);
+          return ListView(
+            controller: scrollCtrl,
+            padding: const EdgeInsets.symmetric(
+                horizontal: PSpace.x20, vertical: PSpace.x12),
+            children: [
+              Wrap(
+                spacing: PSpace.sm,
+                runSpacing: PSpace.sm,
+                children: [
+                  for (final q in quickRanges)
+                    PChip(
+                      label: q.label,
+                      selected: false,
+                      onTap: () {
+                        final today = DateTime.now();
+                        setSheet(() {
+                          draftFrom = today.subtract(Duration(days: q.days - 1));
+                          draftTo = today;
+                        });
+                      },
+                    ),
+                ],
+              ),
+              const SizedBox(height: PSpace.lg),
+              Row(
+                children: [
+                  Expanded(
+                    child: PDateInput(
+                      value: draftFrom,
+                      onChanged: (d) {
+                        if (d != null) setSheet(() => draftFrom = d);
+                      },
+                      firstDate: DateTime(2020),
+                      lastDate: DateTime(DateTime.now().year + 5, 12, 31),
+                    ),
+                  ),
+                  const SizedBox(width: PSpace.sm),
+                  const Text('~'),
+                  const SizedBox(width: PSpace.sm),
+                  Expanded(
+                    child: PDateInput(
+                      value: draftTo,
+                      onChanged: (d) {
+                        if (d != null) setSheet(() => draftTo = d);
+                      },
+                      firstDate: DateTime(2020),
+                      lastDate: DateTime(DateTime.now().year + 5, 12, 31),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: PSpace.lg),
+              Row(
+                children: [
+                  Expanded(
+                    child: PButton(
+                      label: '취소',
+                      variant: PButtonVariant.ghost,
+                      fullWidth: true,
+                      onPressed: () => Navigator.pop(sheetCtx),
+                    ),
+                  ),
+                  const SizedBox(width: PSpace.sm),
+                  Expanded(
+                    child: PButton(
+                      label: '적용',
+                      fullWidth: true,
+                      onPressed: canApply
+                          ? () => Navigator.pop(
+                              sheetCtx,
+                              DateTimeRange(
+                                  start: draftFrom, end: draftTo))
+                          : null,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          );
+        });
+      },
     );
     if (picked != null) {
       setCustomRange(picked.start, picked.end);
@@ -475,106 +573,8 @@ class _SelectedRangeCard extends StatelessWidget {
   }
 }
 
-/// front `RangePickerSheet` (StatsPage.tsx) 미러 — Dialog 기반 기간 선택.
-/// - quick chip: 최근 7일/30일/3개월/6개월/1년
-/// - 시작 PDateInput + 종료 PDateInput
-/// - 취소 / 적용 PButton
-class _RangePickerDialog extends StatefulWidget {
-  const _RangePickerDialog({required this.initial});
-  final DateTimeRange initial;
-  @override
-  State<_RangePickerDialog> createState() => _RangePickerDialogState();
-}
-
-class _RangePickerDialogState extends State<_RangePickerDialog> {
-  late DateTime _from = widget.initial.start;
-  late DateTime _to = widget.initial.end;
-
-  static const _quickRanges = <({String label, int days})>[
-    (label: '최근 7일', days: 7),
-    (label: '최근 30일', days: 30),
-    (label: '최근 3개월', days: 90),
-    (label: '최근 6개월', days: 180),
-    (label: '최근 1년', days: 365),
-  ];
-
-  void _applyQuick(int days) {
-    final today = DateTime.now();
-    setState(() {
-      _from = today.subtract(Duration(days: days - 1));
-      _to = today;
-    });
-  }
-
-  bool get _canApply => !_to.isBefore(_from);
-
-  @override
-  Widget build(BuildContext context) {
-    return PFormAlertDialog(
-      title: '기간 선택',
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Wrap(
-            spacing: PSpace.sm,
-            runSpacing: PSpace.sm,
-            children: [
-              for (final q in _quickRanges)
-                PChip(
-                  label: q.label,
-                  selected: false,
-                  onTap: () => _applyQuick(q.days),
-                ),
-            ],
-          ),
-          const SizedBox(height: PSpace.lg),
-          Row(
-            children: [
-              Expanded(
-                child: PDateInput(
-                  value: _from,
-                  onChanged: (d) {
-                    if (d != null) setState(() => _from = d);
-                  },
-                  firstDate: DateTime(2020),
-                  lastDate: DateTime(DateTime.now().year + 5, 12, 31),
-                ),
-              ),
-              const SizedBox(width: PSpace.sm),
-              const Text('~'),
-              const SizedBox(width: PSpace.sm),
-              Expanded(
-                child: PDateInput(
-                  value: _to,
-                  onChanged: (d) {
-                    if (d != null) setState(() => _to = d);
-                  },
-                  firstDate: DateTime(2020),
-                  lastDate: DateTime(DateTime.now().year + 5, 12, 31),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-      actions: [
-        PButton(
-          label: '취소',
-          variant: PButtonVariant.ghost,
-          onPressed: () => Navigator.pop(context),
-        ),
-        PButton(
-          label: '적용',
-          onPressed: _canApply
-              ? () => Navigator.pop(
-                  context, DateTimeRange(start: _from, end: _to))
-              : null,
-        ),
-      ],
-    );
-  }
-}
+// _RangePickerDialog 제거 — showPSheet (bottom drawer) 패턴으로 전환됨.
+// _pickRange method 안에서 직접 showPSheet 호출 + StatefulBuilder 로 draft state 관리.
 
 /// chart 카드 안의 header (title + optional trailing) — PCardHeader 직접
 /// 사용 대신 _Card 의 내부 padding 컨텍스트와 맞춰 bottom 14 만 유지.
