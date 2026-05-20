@@ -15,7 +15,9 @@ import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_card.dart';
 import '../../../shared/widgets/p_chip.dart';
 import '../../../shared/widgets/p_divider.dart';
+import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_skeleton.dart';
+import '../../../shared/widgets/p_toggle.dart';
 import '../../asset/application/asset_providers.dart';
 import '../application/expense_providers.dart';
 import '../domain/expense.dart';
@@ -44,9 +46,13 @@ class ExpenseScreen extends ConsumerStatefulWidget {
 
 enum _Filter { all, expense, income }
 
+/// 보기 모드 — 달력(grid + day-summary) / 목록(date-grouped list).
+enum _ViewMode { calendar, list }
+
 class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
   late DateTime _month = _resolveInitialMonth();
   _Filter _filter = _Filter.all;
+  _ViewMode _viewMode = _ViewMode.calendar;
   ExpenseFilter _advFilter = const ExpenseFilter();
   int? _assetIdFilter;
   final Map<int, GlobalKey> _rowKeys = {};
@@ -96,6 +102,25 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
   Future<void> _openFilter() async {
     final result = await showFilterDialog(context, _advFilter);
     if (result != null && mounted) setState(() => _advFilter = result);
+  }
+
+  /// 캘린더 셀 클릭 → 하단 시트로 그날 거래 내역 표시 (shrinkWrap 모드 — 자연 wrap).
+  void _openDayDetailSheet(
+    DateTime date,
+    List<Expense> items,
+    AsyncValue<List<dynamic>> categoriesAsync,
+    bool masked,
+  ) {
+    showPSheet<void>(
+      context,
+      title: '${date.month}월 ${date.day}일 ${_koWeekday(date.weekday)}요일',
+      shrinkWrap: true,
+      contentBuilder: (ctx, _) => _DayDetailBody(
+        items: items,
+        categoriesAsync: categoriesAsync,
+        masked: masked,
+      ),
+    );
   }
 
   @override
@@ -198,36 +223,52 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                         DateTime(_month.year, _month.month + 1, 1)),
                   ),
                   const SizedBox(height: PSpace.x12),
-                  _FilterRow(
-                    value: _filter,
-                    onChanged: (v) => setState(() => _filter = v),
-                    advActive: !_advFilter.isEmpty,
-                    advCount: _advFilter.categoryIds.length +
-                        _advFilter.assetIds.length +
-                        (_advFilter.types.length < 2 ? 1 : 0) +
-                        (_advFilter.min != null ? 1 : 0) +
-                        (_advFilter.max != null ? 1 : 0),
-                    onOpenFilter: _openFilter,
-                    onAddTx: () => showAddTxSheet(context),
+                  // 달력 / 목록 보기 토글 — spec ToggleGroup(subtle) 사용.
+                  _ViewModeToggle(
+                    value: _viewMode,
+                    onChanged: (v) => setState(() => _viewMode = v),
                   ),
                   const SizedBox(height: PSpace.x12),
-                  if (groupKeys.isEmpty)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: PSpace.x32),
-                      child: Center(
-                        child: Text('이 달에는 거래가 없습니다',
-                            style: PTypo.bodySm.copyWith(color: t.fgTertiary)),
-                      ),
-                    ),
-                  for (final key in groupKeys)
-                    _DayGroup(
-                      date: parseIsoDate(key),
-                      items: groups[key]!,
-                      categoriesAsync: categoriesAsync,
+                  if (_viewMode == _ViewMode.calendar)
+                    _CalendarGrid(
+                      month: _month,
+                      expenses: raw,
                       masked: settings.hideAmounts,
-                      rowKeys: _rowKeys,
-                      focusTxId: widget.focusTxId,
+                      onTapDate: (date, items) =>
+                          _openDayDetailSheet(date, items, categoriesAsync, settings.hideAmounts),
+                    )
+                  else ...[
+                    _FilterRow(
+                      value: _filter,
+                      onChanged: (v) => setState(() => _filter = v),
+                      advActive: !_advFilter.isEmpty,
+                      advCount: _advFilter.categoryIds.length +
+                          _advFilter.assetIds.length +
+                          (_advFilter.types.length < 2 ? 1 : 0) +
+                          (_advFilter.min != null ? 1 : 0) +
+                          (_advFilter.max != null ? 1 : 0),
+                      onOpenFilter: _openFilter,
+                      onAddTx: () => showAddTxSheet(context),
                     ),
+                    const SizedBox(height: PSpace.x12),
+                    if (groupKeys.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: PSpace.x32),
+                        child: Center(
+                          child: Text('이 달에는 거래가 없습니다',
+                              style: PTypo.bodySm.copyWith(color: t.fgTertiary)),
+                        ),
+                      ),
+                    for (final key in groupKeys)
+                      _DayGroup(
+                        date: parseIsoDate(key),
+                        items: groups[key]!,
+                        categoriesAsync: categoriesAsync,
+                        masked: settings.hideAmounts,
+                        rowKeys: _rowKeys,
+                        focusTxId: widget.focusTxId,
+                      ),
+                  ],
                 ],
               );
               // focusTxId 가 있으면 첫 렌더 후 한 번만 스크롤.
@@ -657,6 +698,275 @@ class _ErrorBox extends StatelessWidget {
               label: '다시 시도',
               variant: PButtonVariant.outline,
               onPressed: onRetry),
+        ],
+      ),
+    );
+  }
+}
+
+/// 보기 모드 토글 — 달력 / 목록. spec ToggleGroup subtle.
+class _ViewModeToggle extends StatelessWidget {
+  const _ViewModeToggle({required this.value, required this.onChanged});
+  final _ViewMode value;
+  final ValueChanged<_ViewMode> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: PToggleGroupSingle<_ViewMode>(
+        value: value,
+        onChanged: onChanged,
+        items: const [
+          PToggleGroupItem(
+              value: _ViewMode.calendar,
+              icon: LucideIcons.calendar,
+              label: '달력'),
+          PToggleGroupItem(
+              value: _ViewMode.list,
+              icon: LucideIcons.list,
+              label: '목록'),
+        ],
+      ),
+    );
+  }
+}
+
+String _koWeekday(int weekday) =>
+    const ['', '월', '화', '수', '목', '금', '토', '일'][weekday];
+
+/// 7×6 캘린더 grid — 날짜 + 그 날의 income/expense 합계 표시.
+/// 셀 클릭 시 [onTapDate] 으로 그날 거래 list 전달.
+class _CalendarGrid extends StatelessWidget {
+  const _CalendarGrid({
+    required this.month,
+    required this.expenses,
+    required this.masked,
+    required this.onTapDate,
+  });
+  final DateTime month;
+  final List<Expense> expenses;
+  final bool masked;
+  final void Function(DateTime date, List<Expense> items) onTapDate;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final firstDay = DateTime(month.year, month.month, 1);
+    final firstWeekday = firstDay.weekday % 7; // Sunday = 0
+    final gridStart = firstDay.subtract(Duration(days: firstWeekday));
+    final today = DateTime.now();
+    bool isSameDay(DateTime a, DateTime b) =>
+        a.year == b.year && a.month == b.month && a.day == b.day;
+
+    // 거래를 날짜별로 group
+    final byDay = <String, List<Expense>>{};
+    for (final e in expenses) {
+      final d = e.expenseDateOnly ?? '';
+      byDay.putIfAbsent(d, () => []).add(e);
+    }
+    String key(DateTime d) =>
+        '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // 요일 헤더 — 일/월/화/수/목/금/토. 일=fgSecondary, 토=fgBrand.
+        Row(
+          children: [
+            for (final wd in const ['일', '월', '화', '수', '목', '금', '토'])
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: PSpace.x8),
+                  child: Text(wd,
+                      textAlign: TextAlign.center,
+                      style: PTypo.caption.copyWith(
+                        color: wd == '일'
+                            ? t.fgSecondary
+                            : wd == '토'
+                                ? t.fgBrand
+                                : t.fgSecondary,
+                        fontWeight: PFontWeight.medium,
+                      )),
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        // 6 주 × 7 요일 grid
+        for (int week = 0; week < 6; week++)
+          Row(
+            children: [
+              for (int dow = 0; dow < 7; dow++)
+                Expanded(
+                  child: () {
+                    final date = gridStart.add(Duration(days: week * 7 + dow));
+                    final inMonth = date.month == month.month;
+                    final isToday = isSameDay(date, today);
+                    final items = byDay[key(date)] ?? const <Expense>[];
+                    final income = items
+                        .where((e) => e.expenseType == 'INCOME')
+                        .fold<int>(0, (s, e) => s + e.amount);
+                    final expense = items
+                        .where((e) => e.expenseType == 'EXPENSE')
+                        .fold<int>(0, (s, e) => s + e.amount);
+                    final dayColor = !inMonth
+                        ? t.fgTertiary.withValues(alpha: 0.5)
+                        : isToday
+                            ? t.fgOnBrand
+                            : dow == 0
+                                ? t.fgPrimary
+                                : dow == 6
+                                    ? t.fgBrand
+                                    : t.fgPrimary;
+                    return InkWell(
+                      onTap: items.isEmpty
+                          ? null
+                          : () => onTapDate(date, items),
+                      borderRadius: PRadius.brSm,
+                      child: Container(
+                        constraints: const BoxConstraints(minHeight: 64),
+                        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            // 날짜 — today 면 동그라미 배경 + 흰 글씨
+                            Container(
+                              width: 24,
+                              height: 24,
+                              alignment: Alignment.center,
+                              decoration: isToday
+                                  ? BoxDecoration(
+                                      color: t.bgBrand, shape: BoxShape.circle)
+                                  : null,
+                              child: Text(
+                                '${date.day}',
+                                style: PTypo.caption.copyWith(
+                                  color: dayColor,
+                                  fontWeight:
+                                      isToday ? PFontWeight.bold : PFontWeight.semi,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            if (expense > 0)
+                              Text(
+                                '−${_compact(expense, masked)}',
+                                style: PTypo.micro.copyWith(
+                                  color: t.fgExpense,
+                                  fontWeight: PFontWeight.semi,
+                                ),
+                              ),
+                            if (income > 0)
+                              Text(
+                                '+${_compact(income, masked)}',
+                                style: PTypo.micro.copyWith(
+                                  color: t.fgIncome,
+                                  fontWeight: PFontWeight.semi,
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }(),
+                ),
+            ],
+          ),
+      ],
+    );
+  }
+}
+
+/// 캘린더 셀용 짧은 금액 표기 — 천 단위 콤마 유지하되 dialog 의 풀 표시와 별개로
+/// 셀 폭이 좁아서 약식 표기. masked 면 '•••'.
+String _compact(int amount, bool masked) {
+  if (masked) return '•••';
+  // amount 가 양수만 — formatter 가 부호는 caller 가 붙임.
+  return krwMasked(amount, false);
+}
+
+/// 캘린더 셀 클릭 시트 본문 — 합계 카드 + 거래 list.
+class _DayDetailBody extends StatelessWidget {
+  const _DayDetailBody({
+    required this.items,
+    required this.categoriesAsync,
+    required this.masked,
+  });
+  final List<Expense> items;
+  final AsyncValue<List<dynamic>> categoriesAsync;
+  final bool masked;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final categories = categoriesAsync.value ?? const <dynamic>[];
+    final income = items
+        .where((e) => e.expenseType == 'INCOME')
+        .fold<int>(0, (s, e) => s + e.amount);
+    final expense = items
+        .where((e) => e.expenseType == 'EXPENSE')
+        .fold<int>(0, (s, e) => s + e.amount);
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(PSpace.x20, PSpace.x4, PSpace.x20, PSpace.x16),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // 합계 카드 — bordered + 좌측 '건수' + 우측 수입/지출
+          PCard(
+            variant: PCardVariant.bordered,
+            padding: const EdgeInsets.symmetric(
+                horizontal: PSpace.lg, vertical: PSpace.md),
+            child: Row(
+              children: [
+                Text('${items.length}건',
+                    style: PTypo.bodySm.copyWith(
+                        color: t.fgSecondary, fontWeight: PFontWeight.semi)),
+                const Spacer(),
+                if (income > 0)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text('수입',
+                          style: PTypo.caption.copyWith(color: t.fgTertiary)),
+                      const SizedBox(height: 2),
+                      Text('+${krwMasked(income, masked)}원',
+                          style: PTypo.bodySm.copyWith(
+                              color: t.fgIncome, fontWeight: PFontWeight.bold)),
+                    ],
+                  ),
+                if (income > 0 && expense > 0) const SizedBox(width: PSpace.lg),
+                if (expense > 0)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text('지출',
+                          style: PTypo.caption.copyWith(color: t.fgTertiary)),
+                      const SizedBox(height: 2),
+                      Text('−${krwMasked(expense, masked)}원',
+                          style: PTypo.bodySm.copyWith(
+                              color: t.fgExpense, fontWeight: PFontWeight.bold)),
+                    ],
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(height: PSpace.lg),
+          // 거래 list — ExpenseRow 재사용
+          for (final e in items)
+            ExpenseRow(
+              expense: e,
+              category: e.categoryRowId == null
+                  ? null
+                  : categories
+                      .cast<dynamic>()
+                      .where((c) => c.rowId == e.categoryRowId)
+                      .cast<dynamic>()
+                      .firstOrNull,
+              masked: masked,
+            ),
         ],
       ),
     );
