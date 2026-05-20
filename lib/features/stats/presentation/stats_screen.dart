@@ -14,6 +14,7 @@ import '../../../core/settings/settings_notifier.dart';
 import '../../../app/theme/chart_palette.dart';
 import '../../../app/theme/shadow.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
+import '../../../shared/widgets/p_card.dart';
 import '../../../shared/widgets/p_segmented_control.dart';
 import '../../../shared/widgets/p_tabs.dart';
 import '../../expense/application/expense_providers.dart';
@@ -364,21 +365,19 @@ class _CompareTab extends ConsumerWidget {
 
 // ─── 공용 위젯 ─────────────────────────────────────────────
 
-/// 카드 컨테이너.
+/// 카드 컨테이너 — PCard(bordered) 위임. shared SoT 사용.
+///
+/// [padding] 미지정 시 chart card 의 dense layout (18) 적용. dashboard 의
+/// PCard(shadow) default(24) 와 의도적으로 다름 — chart 영역 보존.
 class _Card extends StatelessWidget {
   const _Card({required this.child, this.padding});
   final Widget child;
   final EdgeInsets? padding;
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
-    return Container(
+    return PCard(
+      variant: PCardVariant.bordered,
       padding: padding ?? const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: t.bgSurface,
-        border: Border.all(color: t.borderSubtle),
-        borderRadius: PRadius.brLg,
-      ),
       child: child,
     );
   }
@@ -414,6 +413,9 @@ class _PeriodSelectorRow extends StatelessWidget {
   }
 }
 
+/// chart 카드 안의 header (title + optional trailing) — PCardHeader 직접
+/// 사용 대신 _Card 의 내부 padding 컨텍스트와 맞춰 bottom 14 만 유지.
+/// (PCardHeader 의 all(xl=24) 는 _Card 의 dense 18 padding 안에서 너무 큼.)
 class _CardHeader extends StatelessWidget {
   const _CardHeader({required this.title, this.trailing});
   final Widget title;
@@ -433,19 +435,12 @@ class _CardHeader extends StatelessWidget {
   }
 }
 
+/// chart 카드 title — PCardTitle 위임.
 class _CardTitle extends StatelessWidget {
   const _CardTitle(this.text);
   final String text;
   @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    // 웹 `CardTitle style={{ fontSize: 'var(--fs-body-lg)' }}` 매칭.
-    return Text(text,
-        style: TextStyle(
-            color: t.fgPrimary,
-            fontSize: PFontSize.bodyLg,
-            fontWeight: PFontWeight.bold));
-  }
+  Widget build(BuildContext context) => PCardTitle(text);
 }
 
 class _EmptyBox extends StatelessWidget {
