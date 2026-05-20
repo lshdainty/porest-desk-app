@@ -777,7 +777,9 @@ class _CalendarGrid extends StatelessWidget {
         borderRadius: PRadius.brLg,
         border: Border.all(color: borderColor),
       ),
-      clipBehavior: Clip.antiAlias,
+      // clipBehavior 제거 — antiAlias 가 IntrinsicHeight 와 충돌해서 화면 비어
+      // 보이던 layout 버그 fix. 외곽 borderRadius 만 살리고 셀 border 가 약간
+      // 외곽 곡선과 겹쳐도 시각 차이 미미.
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -811,7 +813,9 @@ class _CalendarGrid extends StatelessWidget {
           // 외곽 border 와 겹치지 않게 inner only.
           for (int week = 0; week < 6; week++)
             Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+              // crossAxisAlignment.stretch 제거 — Row 가 ListView 안에서
+              // unbounded vertical 일 때 stretch 시 assertion. 셀 minHeight 72
+              // 로 모든 셀이 같은 높이 보장.
               children: [
                 for (int dow = 0; dow < 7; dow++)
                   Expanded(
