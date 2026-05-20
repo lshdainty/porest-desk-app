@@ -768,133 +768,158 @@ class _CalendarGrid extends StatelessWidget {
     String key(DateTime d) =>
         '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 
-    return PCard(
-      variant: PCardVariant.bordered,
-      padding: const EdgeInsets.symmetric(
-          horizontal: PSpace.x8, vertical: PSpace.x12),
+    // 사진 2 레이아웃 정합 — 카드 wrap 없음 + 배경 bgSurface + 셀 사이 border grid.
+    // 셀 자체에 border (Container.decoration.border) 로 정확한 grid 그림.
+    final borderColor = t.borderSubtle;
+    return Container(
+      decoration: BoxDecoration(
+        color: t.bgSurface,
+        borderRadius: PRadius.brLg,
+        border: Border.all(color: borderColor),
+      ),
+      clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // 요일 헤더 — 일/월/화/수/목/금/토. 일=fgExpense(빨강), 토=fgBrand(파랑).
-          Row(
-            children: [
-              for (final wd in const ['일', '월', '화', '수', '목', '금', '토'])
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: PSpace.x8),
-                    child: Text(wd,
-                        textAlign: TextAlign.center,
-                        style: PTypo.caption.copyWith(
-                          color: wd == '일'
-                              ? t.fgExpense
-                              : wd == '토'
-                                  ? t.fgBrand
-                                  : t.fgSecondary,
-                          fontWeight: PFontWeight.medium,
-                        )),
+          DecoratedBox(
+            decoration: BoxDecoration(
+              border: Border(bottom: BorderSide(color: borderColor)),
+            ),
+            child: Row(
+              children: [
+                for (final wd in const ['일', '월', '화', '수', '목', '금', '토'])
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: PSpace.x8),
+                      child: Text(wd,
+                          textAlign: TextAlign.center,
+                          style: PTypo.caption.copyWith(
+                            color: wd == '일'
+                                ? t.fgExpense
+                                : wd == '토'
+                                    ? t.fgBrand
+                                    : t.fgSecondary,
+                            fontWeight: PFontWeight.medium,
+                          )),
+                    ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
-        const SizedBox(height: 4),
-        // 6 주 × 7 요일 grid
-        for (int week = 0; week < 6; week++)
-          Row(
-            children: [
-              for (int dow = 0; dow < 7; dow++)
-                Expanded(
-                  child: () {
-                    final date = gridStart.add(Duration(days: week * 7 + dow));
-                    final inMonth = date.month == month.month;
-                    final isToday = isSameDay(date, today);
-                    final items = byDay[key(date)] ?? const <Expense>[];
-                    final income = items
-                        .where((e) => e.expenseType == 'INCOME')
-                        .fold<int>(0, (s, e) => s + e.amount);
-                    final expense = items
-                        .where((e) => e.expenseType == 'EXPENSE')
-                        .fold<int>(0, (s, e) => s + e.amount);
-                    final dayColor = !inMonth
-                        ? t.fgTertiary.withValues(alpha: 0.5)
-                        : isToday
-                            ? t.fgOnBrand
-                            : dow == 0
-                                ? t.fgExpense // 일요일 빨강
-                                : dow == 6
-                                    ? t.fgBrand // 토요일 파랑
-                                    : t.fgPrimary;
-                    return InkWell(
-                      onTap: items.isEmpty
-                          ? null
-                          : () => onTapDate(date, items),
-                      borderRadius: PRadius.brSm,
-                      child: Container(
-                        constraints: const BoxConstraints(minHeight: 64),
-                        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            // 날짜 — today 면 동그라미 배경 + 흰 글씨
-                            Container(
-                              width: 24,
-                              height: 24,
-                              alignment: Alignment.center,
-                              decoration: isToday
-                                  ? BoxDecoration(
-                                      color: t.bgBrand, shape: BoxShape.circle)
-                                  : null,
-                              child: Text(
-                                '${date.day}',
-                                style: PTypo.caption.copyWith(
-                                  color: dayColor,
-                                  fontWeight:
-                                      isToday ? PFontWeight.bold : PFontWeight.semi,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            // FittedBox(scaleDown) — 셀 폭 초과 시 폰트 자동 축소,
-                            // 한 줄 강제 (maxLines:1, ellipsis 없이 scale).
-                            if (expense > 0)
-                              SizedBox(
-                                width: double.infinity,
-                                child: FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    '−${_compact(expense, masked)}',
-                                    maxLines: 1,
-                                    style: PTypo.micro.copyWith(
-                                      color: t.fgExpense,
-                                      fontWeight: PFontWeight.semi,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            if (income > 0)
-                              SizedBox(
-                                width: double.infinity,
-                                child: FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    '+${_compact(income, masked)}',
-                                    maxLines: 1,
-                                    style: PTypo.micro.copyWith(
-                                      color: t.fgIncome,
-                                      fontWeight: PFontWeight.semi,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                          ],
+          // 6 주 × 7 요일 grid — 각 셀에 border (right + bottom). 마지막 row/col 은
+          // 외곽 border 와 겹치지 않게 inner only.
+          for (int week = 0; week < 6; week++)
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (int dow = 0; dow < 7; dow++)
+                  Expanded(
+                    child: () {
+                      final date = gridStart.add(Duration(days: week * 7 + dow));
+                      final inMonth = date.month == month.month;
+                      final isToday = isSameDay(date, today);
+                      final items = byDay[key(date)] ?? const <Expense>[];
+                      final income = items
+                          .where((e) => e.expenseType == 'INCOME')
+                          .fold<int>(0, (s, e) => s + e.amount);
+                      final expense = items
+                          .where((e) => e.expenseType == 'EXPENSE')
+                          .fold<int>(0, (s, e) => s + e.amount);
+                      final dayColor = !inMonth
+                          ? t.fgTertiary.withValues(alpha: 0.5)
+                          : isToday
+                              ? t.fgOnBrand
+                              : dow == 0
+                                  ? t.fgExpense // 일요일 빨강
+                                  : dow == 6
+                                      ? t.fgBrand // 토요일 파랑
+                                      : t.fgPrimary;
+                      return DecoratedBox(
+                        decoration: BoxDecoration(
+                          border: Border(
+                            right: dow == 6
+                                ? BorderSide.none
+                                : BorderSide(color: borderColor),
+                            bottom: week == 5
+                                ? BorderSide.none
+                                : BorderSide(color: borderColor),
+                          ),
                         ),
-                      ),
-                    );
-                  }(),
-                ),
-            ],
-          ),
+                        child: InkWell(
+                          onTap: items.isEmpty
+                              ? null
+                              : () => onTapDate(date, items),
+                          child: Container(
+                            constraints: const BoxConstraints(minHeight: 72),
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 6, horizontal: 4),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                // 날짜 — today 면 동그라미 배경 + 흰 글씨
+                                Container(
+                                  width: 24,
+                                  height: 24,
+                                  alignment: Alignment.center,
+                                  decoration: isToday
+                                      ? BoxDecoration(
+                                          color: t.bgBrand,
+                                          shape: BoxShape.circle)
+                                      : null,
+                                  child: Text(
+                                    '${date.day}',
+                                    style: PTypo.caption.copyWith(
+                                      color: dayColor,
+                                      fontWeight: isToday
+                                          ? PFontWeight.bold
+                                          : PFontWeight.semi,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                // FittedBox(scaleDown) — 셀 폭 초과 시 폰트 자동 축소.
+                                if (expense > 0)
+                                  SizedBox(
+                                    width: double.infinity,
+                                    child: FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        '−${_compact(expense, masked)}',
+                                        maxLines: 1,
+                                        style: PTypo.micro.copyWith(
+                                          color: t.fgExpense,
+                                          fontWeight: PFontWeight.semi,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                if (income > 0)
+                                  SizedBox(
+                                    width: double.infinity,
+                                    child: FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        '+${_compact(income, masked)}',
+                                        maxLines: 1,
+                                        style: PTypo.micro.copyWith(
+                                          color: t.fgIncome,
+                                          fontWeight: PFontWeight.semi,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    }(),
+                  ),
+              ],
+            ),
         ],
       ),
     );
