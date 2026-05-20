@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../../app/theme/radius.dart';
@@ -8,13 +7,10 @@ import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/format/krw.dart';
-import '../../../core/settings/hide_amounts_unlock_dialog.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_card.dart';
 import '../../../shared/widgets/p_skeleton.dart';
-import '../../../shared/widgets/p_tooltip.dart';
-import '../../notification/application/notification_providers.dart';
 import '../application/asset_providers.dart';
 import '../domain/asset.dart';
 import '../domain/asset_summary.dart';
@@ -41,50 +37,9 @@ class AssetScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: t.bgCanvas,
-      // bottomNavigationBar 는 shell MobileScaffold 가 path-aware 로 표시 —
-      // 안정 고정 bar (사라졌다 다시 나타나는 transition 회피).
-      appBar: AppBar(
-        // leading 뒤로가기 제거 — shell 의 MoneyTabBar 의 ← 가 대체.
-        automaticallyImplyLeading: false,
-        title: Text('자산',
-            style: TextStyle(
-              color: t.fgPrimary,
-              fontSize: PFontSize.h2,
-              fontWeight: PFontWeight.bold,
-              letterSpacing: -0.44,
-            )),
-        backgroundColor: t.bgSurface,
-        foregroundColor: t.fgPrimary,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        actions: [
-          // web MobileHeader 와 동일: 다크모드 / 눈 / 알림(빨강 점) / 검색
-          _IcoBtn(
-            isDark: Theme.of(context).brightness == Brightness.dark,
-            onTap: () {
-              final isDark = Theme.of(context).brightness == Brightness.dark;
-              ref
-                  .read(settingsProvider.notifier)
-                  .setThemeMode(isDark ? ThemeMode.light : ThemeMode.dark);
-            },
-            tokens: t,
-          ),
-          PButton.icon(
-            icon: settings.hideAmounts ? LucideIcons.eyeOff : LucideIcons.eye,
-            iconColor: t.fgPrimary,
-            tooltip: settings.hideAmounts ? '금액 표시' : '금액 숨김',
-            onPressed: () => toggleHideAmountsWithUnlock(context, ref),
-          ),
-          _NotificationBell(tokens: t),
-          PButton.icon(
-            icon: LucideIcons.search,
-            iconColor: t.fgPrimary,
-            tooltip: '검색',
-            onPressed: () => context.push('/search'),
-          ),
-          const SizedBox(width: 4),
-        ],
-      ),
+      // appBar 제거 — shell MobileScaffold 의 MobileHeader 가 title='자산' +
+      // actions(theme/eye/bell/search) 일관 표시.
+      // bottomNavigationBar 는 shell MobileScaffold 가 path-aware MoneyTabBar 표시.
       // FAB 미사용 — 각 그룹(계좌·예금/투자/카드/대출) 헤더의 '+ 추가'
       // 버튼이 종류별 적절한 다이얼로그를 띄움.
       body: RefreshIndicator(
@@ -644,70 +599,6 @@ class _AssetCard extends StatelessWidget {
                   fontFeatures: const [FontFeature.tabularFigures()],
                 ),
               ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _IcoBtn extends StatelessWidget {
-  const _IcoBtn({
-    required this.isDark,
-    required this.onTap,
-    required this.tokens,
-  });
-  final bool isDark;
-  final VoidCallback onTap;
-  final PorestTokens tokens;
-
-  @override
-  Widget build(BuildContext context) {
-    return PButton.icon(
-      icon: isDark ? LucideIcons.sun : LucideIcons.moon,
-      iconColor: tokens.fgPrimary,
-      tooltip: '테마 전환',
-      onPressed: onTap,
-    );
-  }
-}
-
-/// 헤더 종 아이콘 + unread 배지 — front `NotificationBell` 미러.
-/// 모바일 공통 헤더(MobileHeader)의 동일 패턴을 자산 화면 AppBar 에 인라인.
-class _NotificationBell extends ConsumerWidget {
-  const _NotificationBell({required this.tokens});
-  final PorestTokens tokens;
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final unread = ref.watch(unreadCountProvider).value ?? 0;
-    return PTooltip(
-      message: '알림',
-      child: InkWell(
-        onTap: () => context.push('/notifications'),
-        borderRadius: PRadius.brFull,
-        child: SizedBox(
-          width: 40,
-          height: 40,
-          child: Stack(
-            clipBehavior: Clip.none,
-            alignment: Alignment.center,
-            children: [
-              Icon(LucideIcons.bell, size: 20, color: tokens.fgPrimary),
-              if (unread > 0)
-                Positioned(
-                  top: 8,
-                  right: 8,
-                  child: Container(
-                    constraints:
-                        const BoxConstraints(minWidth: 10, minHeight: 10),
-                    decoration: BoxDecoration(
-                      color: tokens.statusDanger,
-                      borderRadius: PRadius.brFull,
-                      border: Border.all(color: tokens.bgSurface, width: 1.5),
-                    ),
-                  ),
-                ),
             ],
           ),
         ),

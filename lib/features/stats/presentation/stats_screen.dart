@@ -292,14 +292,8 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
     final t = context.tokens;
     return Scaffold(
       backgroundColor: t.bgCanvas,
-      // bottomNavigationBar 는 shell MobileScaffold 가 path-aware 표시 — 안정 고정.
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: const Text('통계·분석'),
-        backgroundColor: t.bgSurface,
-        foregroundColor: t.fgPrimary,
-        elevation: 0,
-      ),
+      // appBar 제거 — shell MobileScaffold 의 MobileHeader 가 title='통계·분석' +
+      // actions(theme/eye/bell/search) 일관 표시.
       body: Column(
         children: [
           Container(

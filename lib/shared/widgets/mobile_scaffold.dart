@@ -31,12 +31,19 @@ class MobileScaffold extends StatelessWidget {
       '/budget' => MoneyTab.budget,
       _ => MoneyTab.expense,
     };
-    // shell appBar 는 /expense (자체 AppBar 없음) 일 때만 표시 —
-    // /assets, /stats, /budget 은 각 screen 자체 AppBar (title + actions 보존).
-    final showShellAppBar = !isMoneyBranch || routePath == '/expense';
+    // shell appBar title — money branch 의 4 path 별 분기 (각 screen 자체 AppBar
+    // 제거됨 — actions(theme/eye/bell/search) 는 모든 path 에서 MobileHeader 가 일관 표시).
+    final title = isMoneyBranch
+        ? switch (routePath) {
+            '/assets' => '자산',
+            '/stats' => '통계·분석',
+            '/budget' => '예산',
+            _ => '가계부',
+          }
+        : _titles[idx];
     return Scaffold(
       backgroundColor: t.bgCanvas,
-      appBar: showShellAppBar ? MobileHeader(title: _titles[idx]) : null,
+      appBar: MobileHeader(title: title),
       body: navigationShell,
       bottomNavigationBar: isMoneyBranch
           ? MoneyTabBar(
