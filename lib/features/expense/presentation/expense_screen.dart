@@ -768,30 +768,34 @@ class _CalendarGrid extends StatelessWidget {
     String key(DateTime d) =>
         '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        // 요일 헤더 — 일/월/화/수/목/금/토. 일=fgSecondary, 토=fgBrand.
-        Row(
-          children: [
-            for (final wd in const ['일', '월', '화', '수', '목', '금', '토'])
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: PSpace.x8),
-                  child: Text(wd,
-                      textAlign: TextAlign.center,
-                      style: PTypo.caption.copyWith(
-                        color: wd == '일'
-                            ? t.fgSecondary
-                            : wd == '토'
-                                ? t.fgBrand
-                                : t.fgSecondary,
-                        fontWeight: PFontWeight.medium,
-                      )),
+    return PCard(
+      variant: PCardVariant.bordered,
+      padding: const EdgeInsets.symmetric(
+          horizontal: PSpace.x8, vertical: PSpace.x12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // 요일 헤더 — 일/월/화/수/목/금/토. 일=fgExpense(빨강), 토=fgBrand(파랑).
+          Row(
+            children: [
+              for (final wd in const ['일', '월', '화', '수', '목', '금', '토'])
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: PSpace.x8),
+                    child: Text(wd,
+                        textAlign: TextAlign.center,
+                        style: PTypo.caption.copyWith(
+                          color: wd == '일'
+                              ? t.fgExpense
+                              : wd == '토'
+                                  ? t.fgBrand
+                                  : t.fgSecondary,
+                          fontWeight: PFontWeight.medium,
+                        )),
+                  ),
                 ),
-              ),
-          ],
-        ),
+            ],
+          ),
         const SizedBox(height: 4),
         // 6 주 × 7 요일 grid
         for (int week = 0; week < 6; week++)
@@ -815,9 +819,9 @@ class _CalendarGrid extends StatelessWidget {
                         : isToday
                             ? t.fgOnBrand
                             : dow == 0
-                                ? t.fgPrimary
+                                ? t.fgExpense // 일요일 빨강
                                 : dow == 6
-                                    ? t.fgBrand
+                                    ? t.fgBrand // 토요일 파랑
                                     : t.fgPrimary;
                     return InkWell(
                       onTap: items.isEmpty
@@ -873,7 +877,8 @@ class _CalendarGrid extends StatelessWidget {
                 ),
             ],
           ),
-      ],
+        ],
+      ),
     );
   }
 }
