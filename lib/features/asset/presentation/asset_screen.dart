@@ -272,7 +272,6 @@ class _SummaryCard extends StatelessWidget {
     final trendColor = isUp ? tokens.fgIncome : tokens.fgExpense;
     final t = tokens;
     return PCard(
-      padding: const EdgeInsets.all(18),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

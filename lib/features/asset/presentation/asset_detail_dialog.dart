@@ -283,7 +283,7 @@ class _HeroCard extends StatelessWidget {
     ].where((s) => s != null && s.isNotEmpty).join(' · ');
     final absBalance = (asset.balance ?? 0).abs();
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(PSpace.xl),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
