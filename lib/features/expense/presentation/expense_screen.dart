@@ -853,20 +853,38 @@ class _CalendarGrid extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(height: 2),
+                            // FittedBox(scaleDown) — 셀 폭 초과 시 폰트 자동 축소,
+                            // 한 줄 강제 (maxLines:1, ellipsis 없이 scale).
                             if (expense > 0)
-                              Text(
-                                '−${_compact(expense, masked)}',
-                                style: PTypo.micro.copyWith(
-                                  color: t.fgExpense,
-                                  fontWeight: PFontWeight.semi,
+                              SizedBox(
+                                width: double.infinity,
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    '−${_compact(expense, masked)}',
+                                    maxLines: 1,
+                                    style: PTypo.micro.copyWith(
+                                      color: t.fgExpense,
+                                      fontWeight: PFontWeight.semi,
+                                    ),
+                                  ),
                                 ),
                               ),
                             if (income > 0)
-                              Text(
-                                '+${_compact(income, masked)}',
-                                style: PTypo.micro.copyWith(
-                                  color: t.fgIncome,
-                                  fontWeight: PFontWeight.semi,
+                              SizedBox(
+                                width: double.infinity,
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    '+${_compact(income, masked)}',
+                                    maxLines: 1,
+                                    style: PTypo.micro.copyWith(
+                                      color: t.fgIncome,
+                                      fontWeight: PFontWeight.semi,
+                                    ),
+                                  ),
                                 ),
                               ),
                           ],
