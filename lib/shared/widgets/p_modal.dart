@@ -94,6 +94,15 @@ class PSheetController extends ChangeNotifier {
 ///   - header: 좌측 큰 제목 + headerActions + 우측 X (고정 높이)
 ///   - content: 스크롤 영역. `contentBuilder(ctx, scrollController)` 가 ListView/CustomScrollView 직접 구성
 ///   - footer: optional, 고정 높이. `footerBuilder(ctx)` 로 Row 등 액션 위젯 전달
+///
+/// 두 sizing 모드:
+///   - [shrinkWrap]=false (default): `DraggableScrollableSheet` 로 sheet 가
+///     화면 [initialChildSize] 비율 만큼 강제 점유. content 짧아도 sheet
+///     크기 유지 (긴 form 의 add_tx_sheet 등 표준 — drag 로 min/max 조정).
+///   - [shrinkWrap]=true: sheet 가 content 자연 합산 height 로 wrap. content
+///     이 짧은 picker/단순 액션 시트 (range picker 등) 에 사용. caller 의
+///     `contentBuilder` 는 ListView 대신 Column (or shrinkWrap ListView) 사용.
+///     [initialChildSize]/[minChildSize]/[maxChildSize] 무시.
 Future<T?> showPSheet<T>(
   BuildContext context, {
   required String title,
@@ -103,6 +112,7 @@ Future<T?> showPSheet<T>(
   double initialChildSize = 0.85,
   double minChildSize = 0.5,
   double maxChildSize = 0.95,
+  bool shrinkWrap = false,
 }) {
   return showModalBottomSheet<T>(
     context: context,
@@ -113,73 +123,121 @@ Future<T?> showPSheet<T>(
           BorderRadius.vertical(top: Radius.circular(PRadius.xl2)),
     ),
     builder: (sheetCtx) {
+      if (shrinkWrap) {
+        // wrap-content 모드 — content 자연 합산 height + max-h 88% cap.
+        final mq = MediaQuery.of(sheetCtx);
+        final bottomInset = mq.viewInsets.bottom > 0
+            ? mq.viewInsets.bottom
+            : mq.viewPadding.bottom;
+        // dummy scroll controller — shrinkWrap 모드에선 caller 가 사용 안 함.
+        final dummyCtrl = ScrollController();
+        return Padding(
+          padding: EdgeInsets.only(bottom: bottomInset),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxHeight: mq.size.height * 0.88),
+            child: SingleChildScrollView(
+              child: _buildSheetColumn(
+                sheetCtx,
+                title: title,
+                headerActions: headerActions,
+                content: contentBuilder(sheetCtx, dummyCtrl),
+                footerBuilder: footerBuilder,
+                expanded: false,
+              ),
+            ),
+          ),
+        );
+      }
+      // default — DraggableScrollableSheet (긴 form 표준).
       return DraggableScrollableSheet(
         initialChildSize: initialChildSize,
         minChildSize: minChildSize,
         maxChildSize: maxChildSize,
         expand: false,
         builder: (innerCtx, scrollCtrl) {
-          final t = innerCtx.tokens;
           final mq = MediaQuery.of(innerCtx);
-          // 키보드(viewInsets) 와 home indicator(viewPadding) 중 큰 값으로
-          // bottom 여백을 잡아 footer 버튼이 잘리지 않게 함.
           final bottomInset = mq.viewInsets.bottom > 0
               ? mq.viewInsets.bottom
               : mq.viewPadding.bottom;
           return Padding(
             padding: EdgeInsets.only(bottom: bottomInset),
-            child: Column(
-              children: [
-                // Drag handle — spec: 40×4 / surface-input / radius-full
-                Container(
-                  margin: const EdgeInsets.only(top: PSpace.x8),
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: t.bgMuted,
-                    borderRadius: PRadius.brFull,
-                  ),
-                ),
-                // Header (제목 + 액션 + close) — spec: padding lg(16)
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                      PSpace.lg, PSpace.md, PSpace.sm, PSpace.xs),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          title,
-                          style: PTypo.h3.copyWith(
-                            color: t.fgPrimary,
-                            fontWeight: PFontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      ...headerActions,
-                      IconButton(
-                        icon: Icon(LucideIcons.x,
-                            color: t.fgTertiary, size: PSpace.x20),
-                        onPressed: () => Navigator.of(innerCtx).pop(),
-                      ),
-                    ],
-                  ),
-                ),
-                // Content (scroll)
-                Expanded(child: contentBuilder(innerCtx, scrollCtrl)),
-                // Footer (고정)
-                if (footerBuilder != null)
-                  Container(
-                    padding: const EdgeInsets.fromLTRB(
-                        PSpace.x20, PSpace.x12, PSpace.x20, PSpace.x16),
-                    color: t.bgSurface,
-                    child: footerBuilder(innerCtx),
-                  ),
-              ],
+            child: _buildSheetColumn(
+              innerCtx,
+              title: title,
+              headerActions: headerActions,
+              content: contentBuilder(innerCtx, scrollCtrl),
+              footerBuilder: footerBuilder,
+              expanded: true,
             ),
           );
         },
       );
     },
+  );
+}
+
+/// showPSheet 의 두 모드 (DraggableScrollableSheet / shrinkWrap) 가 공유하는
+/// 내부 Column 골격 (drag handle + header + content + optional footer).
+///
+/// [expanded] true 면 content 영역을 `Expanded` 로 감싸 부모가 강제한 높이를
+/// 다 차지 (Draggable 모드). false 면 자연 wrap (shrinkWrap 모드).
+Widget _buildSheetColumn(
+  BuildContext ctx, {
+  required String title,
+  required List<Widget> headerActions,
+  required Widget content,
+  required Widget Function(BuildContext)? footerBuilder,
+  required bool expanded,
+}) {
+  final t = ctx.tokens;
+  return Column(
+    mainAxisSize: expanded ? MainAxisSize.max : MainAxisSize.min,
+    children: [
+      // Drag handle — spec: 40×4 / surface-input / radius-full
+      Container(
+        margin: const EdgeInsets.only(top: PSpace.x8),
+        width: 40,
+        height: 4,
+        decoration: BoxDecoration(
+          color: t.bgMuted,
+          borderRadius: PRadius.brFull,
+        ),
+      ),
+      // Header (제목 + 액션 + close) — spec: padding lg(16)
+      Padding(
+        padding: const EdgeInsets.fromLTRB(
+            PSpace.lg, PSpace.md, PSpace.sm, PSpace.xs),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                title,
+                style: PTypo.h3.copyWith(
+                  color: t.fgPrimary,
+                  fontWeight: PFontWeight.bold,
+                ),
+              ),
+            ),
+            ...headerActions,
+            IconButton(
+              icon: Icon(LucideIcons.x,
+                  color: t.fgTertiary, size: PSpace.x20),
+              onPressed: () => Navigator.of(ctx).pop(),
+            ),
+          ],
+        ),
+      ),
+      // Content — Draggable 모드면 Expanded 로 영역 강제, shrinkWrap 모드면 자연 wrap.
+      if (expanded) Expanded(child: content) else content,
+      // Footer (옵션, 고정)
+      if (footerBuilder != null)
+        Container(
+          padding: const EdgeInsets.fromLTRB(
+              PSpace.x20, PSpace.x12, PSpace.x20, PSpace.x16),
+          color: t.bgSurface,
+          child: footerBuilder(ctx),
+        ),
+    ],
   );
 }
 

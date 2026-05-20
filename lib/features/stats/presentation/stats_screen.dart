@@ -176,6 +176,9 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
     // 모바일 환경 — Dialog 대신 PSheet (bottom drawer) 패턴 사용.
     // desk-app CLAUDE.md / showPSheet helper 정합 (모바일에서 dialog → drawer).
     // footer 는 add_tx_sheet 와 동일하게 PSheetFooter 표준 (Spacer + 우측 정렬 ghost+primary).
+    // shrinkWrap: true — content 자연 합산 height (DraggableScrollableSheet
+    // 강제 비율 회피). chips + dateInputs 만 있어 short sheet — wrap-content
+    // 가 적절. caller content 는 ListView 가 아닌 Column (자연 wrap).
     final controller = PSheetController();
     DateTime draftFrom = _from;
     DateTime draftTo = _to;
@@ -184,10 +187,8 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
     final picked = await showPSheet<DateTimeRange>(
       context,
       title: '기간 선택',
-      initialChildSize: 0.55,
-      minChildSize: 0.4,
-      maxChildSize: 0.85,
-      contentBuilder: (sheetCtx, scrollCtrl) {
+      shrinkWrap: true,
+      contentBuilder: (sheetCtx, _) {
         controller.onSubmit ??= () async {
           Navigator.pop(
             sheetCtx,
@@ -204,65 +205,69 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
         return StatefulBuilder(builder: (ctx, setSheet) {
           void syncCan() =>
               controller.setCanSubmit(!draftTo.isBefore(draftFrom));
-          return ListView(
-            controller: scrollCtrl,
+          return Padding(
             padding: const EdgeInsets.symmetric(
                 horizontal: PSpace.x20, vertical: PSpace.x12),
-            children: [
-              Wrap(
-                spacing: PSpace.sm,
-                runSpacing: PSpace.sm,
-                children: [
-                  for (final q in quickRanges)
-                    PChip(
-                      label: q.label,
-                      selected: false,
-                      onTap: () {
-                        final today = DateTime.now();
-                        setSheet(() {
-                          draftFrom = today.subtract(Duration(days: q.days - 1));
-                          draftTo = today;
-                        });
-                        syncCan();
-                      },
-                    ),
-                ],
-              ),
-              const SizedBox(height: PSpace.lg),
-              Row(
-                children: [
-                  Expanded(
-                    child: PDateInput(
-                      value: draftFrom,
-                      onChanged: (d) {
-                        if (d != null) {
-                          setSheet(() => draftFrom = d);
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Wrap(
+                  spacing: PSpace.sm,
+                  runSpacing: PSpace.sm,
+                  children: [
+                    for (final q in quickRanges)
+                      PChip(
+                        label: q.label,
+                        selected: false,
+                        onTap: () {
+                          final today = DateTime.now();
+                          setSheet(() {
+                            draftFrom =
+                                today.subtract(Duration(days: q.days - 1));
+                            draftTo = today;
+                          });
                           syncCan();
-                        }
-                      },
-                      firstDate: DateTime(2020),
-                      lastDate: DateTime(DateTime.now().year + 5, 12, 31),
+                        },
+                      ),
+                  ],
+                ),
+                const SizedBox(height: PSpace.lg),
+                Row(
+                  children: [
+                    Expanded(
+                      child: PDateInput(
+                        value: draftFrom,
+                        onChanged: (d) {
+                          if (d != null) {
+                            setSheet(() => draftFrom = d);
+                            syncCan();
+                          }
+                        },
+                        firstDate: DateTime(2020),
+                        lastDate: DateTime(DateTime.now().year + 5, 12, 31),
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: PSpace.sm),
-                  const Text('~'),
-                  const SizedBox(width: PSpace.sm),
-                  Expanded(
-                    child: PDateInput(
-                      value: draftTo,
-                      onChanged: (d) {
-                        if (d != null) {
-                          setSheet(() => draftTo = d);
-                          syncCan();
-                        }
-                      },
-                      firstDate: DateTime(2020),
-                      lastDate: DateTime(DateTime.now().year + 5, 12, 31),
+                    const SizedBox(width: PSpace.sm),
+                    const Text('~'),
+                    const SizedBox(width: PSpace.sm),
+                    Expanded(
+                      child: PDateInput(
+                        value: draftTo,
+                        onChanged: (d) {
+                          if (d != null) {
+                            setSheet(() => draftTo = d);
+                            syncCan();
+                          }
+                        },
+                        firstDate: DateTime(2020),
+                        lastDate: DateTime(DateTime.now().year + 5, 12, 31),
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           );
         });
       },
