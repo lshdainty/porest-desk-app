@@ -249,7 +249,10 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
                       ),
                     ),
                     const SizedBox(width: PSpace.sm),
-                    const Text('~'),
+                    Text(
+                      '~',
+                      style: PTypo.body.copyWith(color: ctx.tokens.fgTertiary),
+                    ),
                     const SizedBox(width: PSpace.sm),
                     Expanded(
                       child: PDateInput(
