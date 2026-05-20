@@ -65,7 +65,9 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/categories', builder: (_, _) => const CategoryScreen()),
       GoRoute(path: '/presets', builder: (_, _) => const PresetScreen()),
       GoRoute(path: '/search', builder: (_, _) => const SearchScreen()),
-      GoRoute(path: '/calendar', builder: (_, _) => const CalendarScreen()),
+      // 통계 — branch 에서 빠져 More 메뉴에서 진입하는 standalone screen.
+      // (branch 2 가 캘린더로 변경됨, mobile_tab_bar 의 '캘린더' 메뉴 정합)
+      GoRoute(path: '/stats', builder: (_, _) => const StatsScreen()),
       GoRoute(path: '/memos', builder: (_, _) => const MemoScreen()),
       GoRoute(path: '/todos', builder: (_, _) => const TodoScreen()),
       GoRoute(path: '/groups', builder: (_, _) => const GroupScreen()),
@@ -86,7 +88,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         ),
       ),
 
-      // 모바일 셸 (홈/가계부/통계/전체 4개 분기)
+      // 모바일 셸 (홈/가계부/캘린더/전체 4개 분기)
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
             MobileScaffold(navigationShell: navigationShell),
@@ -120,8 +122,8 @@ final routerProvider = Provider<GoRouter>((ref) {
           ]),
           StatefulShellBranch(routes: [
             GoRoute(
-              path: '/stats',
-              pageBuilder: (_, _) => const NoTransitionPage(child: StatsScreen()),
+              path: '/calendar',
+              pageBuilder: (_, _) => const NoTransitionPage(child: CalendarScreen()),
             ),
           ]),
           StatefulShellBranch(routes: [

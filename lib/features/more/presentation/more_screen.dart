@@ -25,8 +25,10 @@ class MoreScreen extends ConsumerWidget {
           onTap: (ctx, _) => ctx.push('/assets')),
       _MoreItem(LucideIcons.target, l.navBudget,
           onTap: (ctx, _) => ctx.push('/budget')),
-      _MoreItem(LucideIcons.calendarDays, l.navCalendar,
-          onTap: (ctx, _) => ctx.push('/calendar')),
+      // 캘린더는 하단바 branch 로 이동 — More 에서 제거.
+      // 통계는 standalone /stats route 로 진입 (mobile_tab_bar 캘린더 변경 정합).
+      _MoreItem(LucideIcons.pieChart, l.navStats,
+          onTap: (ctx, _) => ctx.push('/stats')),
       _MoreItem(LucideIcons.repeat, l.navRecurring,
           onTap: (ctx, _) => ctx.push('/recurring')),
       _MoreItem(LucideIcons.tag, l.navCategories,

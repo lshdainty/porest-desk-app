@@ -7,7 +7,7 @@ import '../../app/theme/tokens.dart';
 import '../../app/theme/typography.dart';
 import '../../l10n/generated/app_localizations.dart';
 
-/// 5칸 탭바 (홈 / 가계부 / [중앙 FAB +] / 통계 / 전체).
+/// 5칸 탭바 (홈 / 가계부 / [중앙 FAB +] / 캘린더 / 전체).
 ///
 /// porest-desk-front `MobileTabBar.tsx` 매핑.
 /// - 일반 탭 4개는 [currentBranch] 와 비교해 활성 표시
@@ -34,7 +34,7 @@ class MobileTabBar extends StatelessWidget {
       _Slot(icon: LucideIcons.home, label: l.navHome, branch: 0),
       _Slot(icon: LucideIcons.receipt, label: l.navExpense, branch: 1),
       const _Slot.fab(),
-      _Slot(icon: LucideIcons.pieChart, label: l.navStats, branch: 2),
+      _Slot(icon: LucideIcons.calendarDays, label: l.navCalendar, branch: 2),
       _Slot(icon: LucideIcons.menu, label: l.navMore, branch: 3),
     ];
     return Material(
