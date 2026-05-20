@@ -28,6 +28,7 @@ import '../domain/budget.dart';
 import '../domain/budget_compliance.dart';
 import 'budget_edit_dialog.dart';
 import '../../../shared/widgets/p_progress.dart';
+import '../../../shared/widgets/p_skeleton.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 
 const double _warnThreshold = 85;
@@ -1144,12 +1145,27 @@ class _CategoryListCard extends StatelessWidget {
           ),
           const SizedBox(height: PSpace.x12),
           if (loading && budgets.isEmpty)
+            // 예산 list placeholder — 3 rows (label + progress).
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: PSpace.x16),
-              child: Center(
-                child: Text('불러오는 중…',
-                    style: PTypo.bodySm
-                        .copyWith(color: tokens.fgTertiary)),
+              padding: const EdgeInsets.symmetric(vertical: PSpace.x8),
+              child: Column(
+                children: [
+                  for (var i = 0; i < 3; i++) ...[
+                    if (i > 0) const SizedBox(height: PSpace.x16),
+                    Row(
+                      children: const [
+                        PSkeleton.line(width: 96, height: 13),
+                        Spacer(),
+                        PSkeleton.line(width: 80, height: 13),
+                      ],
+                    ),
+                    const SizedBox(height: PSpace.x8),
+                    PSkeleton(
+                      height: 6,
+                      borderRadius: PRadius.brFull,
+                    ),
+                  ],
+                ],
               ),
             )
           else if (budgets.isEmpty)

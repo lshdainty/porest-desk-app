@@ -6,6 +6,7 @@ import '../../../../app/theme/radius.dart';
 import '../../../../app/theme/tokens.dart';
 import '../../../../app/theme/typography.dart';
 import '../../../../core/settings/settings_notifier.dart';
+import '../../../../shared/widgets/p_skeleton.dart';
 import '../../application/asset_providers.dart';
 
 /// 12개월 순자산 추이 area chart. front `NetWorthChart` 미러.
@@ -24,11 +25,9 @@ class NetWorthChart extends ConsumerWidget {
     return SizedBox(
       height: height,
       child: trendAsync.when(
-        loading: () => Center(
-          child: Text(
-            '불러오는 중…',
-            style: TextStyle(color: t.fgTertiary, fontSize: PFontSize.bodySm),
-          ),
+        // 차트 전체 PSkeleton — Hero 카드 안 영역에 fill.
+        loading: () => SizedBox.expand(
+          child: PSkeleton(borderRadius: PRadius.brLg),
         ),
         error: (_, _) => Center(
           child: Text(

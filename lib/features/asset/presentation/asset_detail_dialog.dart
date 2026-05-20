@@ -17,6 +17,7 @@ import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_card.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_progress.dart';
+import '../../../shared/widgets/p_skeleton.dart';
 import '../../../shared/widgets/p_toggle.dart';
 import '../../card/presentation/card_performance_bar.dart';
 import '../../expense/application/expense_providers.dart';
@@ -397,7 +398,10 @@ class _BalanceTrendChart extends StatelessWidget {
   Widget build(BuildContext context) {
     final list = async.value ?? const <AssetBalancePoint>[];
     if (async.isLoading && list.isEmpty) {
-      return _ChartPlaceholder(text: '불러오는 중…', tokens: tokens);
+      // 차트 영역 전체 PSkeleton — 부모 SizedBox(height:160) 의 영역에 fill.
+      return SizedBox.expand(
+        child: PSkeleton(borderRadius: PRadius.brLg),
+      );
     }
     if (list.isEmpty) {
       return _ChartPlaceholder(text: '표시할 데이터가 없어요', tokens: tokens);

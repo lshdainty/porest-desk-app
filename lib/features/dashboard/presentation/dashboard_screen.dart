@@ -17,6 +17,7 @@ import '../../../shared/widgets/p_card.dart';
 import '../../../shared/widgets/p_expense_row.dart';
 import '../../../shared/widgets/p_divider.dart';
 import '../../../shared/widgets/p_progress.dart';
+import '../../../shared/widgets/p_skeleton.dart';
 import '../../asset/application/asset_providers.dart';
 import '../../budget/application/budget_providers.dart';
 import '../../budget/domain/budget.dart';
@@ -806,12 +807,42 @@ class _CategoryDonutCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-          if (topSegs.isEmpty)
+          if (loading && topSegs.isEmpty)
+            // 도넛 카드 placeholder — Web stats CategorySkeleton 미러 (작은 사이즈).
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  PSkeleton.circle(size: 120),
+                  const SizedBox(width: PSpace.lg),
+                  Expanded(
+                    child: Column(
+                      children: [
+                        for (var i = 0; i < 4; i++) ...[
+                          if (i > 0) const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              PSkeleton.circle(size: 8),
+                              const SizedBox(width: PSpace.sm),
+                              const Expanded(child: PSkeleton.line(height: 11)),
+                              const SizedBox(width: PSpace.sm),
+                              const PSkeleton.line(width: 48, height: 11),
+                            ],
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            )
+          else if (topSegs.isEmpty)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 12),
               child: Center(
                 child: Text(
-                    loading ? '불러오는 중…' : '카테고리 데이터가 없어요',
+                    '카테고리 데이터가 없어요',
                     style: TextStyle(
                         color: t.fgTertiary, fontSize: PFontSize.caption)),
               ),
@@ -992,13 +1023,42 @@ class _BudgetCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (items.isEmpty)
+                if (budgetsAsync.isLoading && items.isEmpty)
+                  // 예산 카드 placeholder — 3 rows (label + progress + amount).
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: PSpace.x8),
+                    child: Column(
+                      children: [
+                        for (var i = 0; i < 3; i++) ...[
+                          if (i > 0) const SizedBox(height: PSpace.x16),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Row(
+                                children: const [
+                                  PSkeleton.line(width: 80, height: 12),
+                                  Spacer(),
+                                  PSkeleton.line(width: 96, height: 12),
+                                ],
+                              ),
+                              const SizedBox(height: PSpace.x8),
+                              PSkeleton(
+                                height: 6,
+                                borderRadius: PRadius.brFull,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ],
+                    ),
+                  )
+                else if (items.isEmpty)
                   Padding(
                     padding: const EdgeInsets.symmetric(
                         vertical: PSpace.x12),
                     child: Center(
                       child: Text(
-                          budgetsAsync.isLoading ? '불러오는 중…' : '등록된 예산이 없어요',
+                          '등록된 예산이 없어요',
                           style: PTypo.caption.copyWith(color: t.fgTertiary)),
                     ),
                   )
