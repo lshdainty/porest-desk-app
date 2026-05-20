@@ -20,6 +20,7 @@ import '../../../shared/widgets/p_card.dart';
 import '../../../shared/widgets/p_chip.dart';
 import '../../../shared/widgets/p_date_input.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_skeleton.dart';
 import '../../../shared/widgets/p_toggle.dart';
 import '../../../shared/widgets/p_tabs.dart';
 import '../../expense/application/expense_providers.dart';
@@ -625,6 +626,122 @@ class _EmptyBox extends StatelessWidget {
   }
 }
 
+// ─── 로딩 placeholder helpers — Web StatsPageSkeleton 미러 ───────────────
+// 각 카드의 isLoading 분기에서 _EmptyBox(text:'불러오는 중…') 대신 사용.
+// Web 의 SkeletonBase 모양과 1:1 정합 (도넛 circle / 5 legend rows / chart bar 등).
+
+class _DonutCardSkeleton extends StatelessWidget {
+  const _DonutCardSkeleton();
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: Column(
+        children: [
+          Center(child: PSkeleton.circle(size: 180)),
+          const SizedBox(height: PSpace.x20),
+          for (var i = 0; i < 5; i++) ...[
+            if (i > 0) const SizedBox(height: 10),
+            Row(
+              children: [
+                PSkeleton.circle(size: 10),
+                const SizedBox(width: PSpace.sm),
+                const Expanded(child: PSkeleton.line(height: 12)),
+                const SizedBox(width: PSpace.sm),
+                const PSkeleton.line(width: 48, height: 12),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _MerchantListSkeleton extends StatelessWidget {
+  const _MerchantListSkeleton();
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8, bottom: 12),
+      child: Column(
+        children: [
+          for (var i = 0; i < 5; i++) ...[
+            if (i > 0) const SizedBox(height: 14),
+            Row(
+              children: [
+                PSkeleton.circle(size: 24),
+                const SizedBox(width: PSpace.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const PSkeleton.line(width: 120, height: 14),
+                      const SizedBox(height: 6),
+                      PSkeleton(
+                        height: 4,
+                        borderRadius: PRadius.brFull,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: PSpace.md),
+                const PSkeleton.line(width: 64, height: 14),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _HeatmapSkeleton extends StatelessWidget {
+  const _HeatmapSkeleton();
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: 56,
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 8,
+          mainAxisSpacing: 6,
+          crossAxisSpacing: 6,
+          childAspectRatio: 1,
+        ),
+        itemBuilder: (_, _) => const PSkeleton(),
+      ),
+    );
+  }
+}
+
+class _ChartSkeleton extends StatelessWidget {
+  const _ChartSkeleton({required this.height});
+  final double height;
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Column(
+        children: [
+          PSkeleton(height: height),
+          const SizedBox(height: PSpace.x12),
+          Row(
+            children: const [
+              PSkeleton.line(width: 48, height: 12),
+              SizedBox(width: PSpace.md),
+              PSkeleton.line(width: 48, height: 12),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 // ─── DONUT CARD ────────────────────────────────────────────
 
 /// Donut 차트 카테고리 색 — `cat.color` 우선, 없으면 [PorestChartPalette] fallback.
@@ -804,7 +921,7 @@ class _DonutCardState extends ConsumerState<_DonutCard> {
           ],
           const SizedBox(height: PSpace.x12),
           if (loading)
-            const _EmptyBox(text: '불러오는 중…')
+            const _DonutCardSkeleton()
           else if (view.isEmpty)
             const _EmptyBox(text: '카테고리 데이터가 없습니다')
           else ...[
@@ -948,7 +1065,7 @@ class _TopMerchantsCard extends StatelessWidget {
         children: [
           const _CardHeader(title: _CardTitle('많이 쓴 가맹점 TOP 5')),
           if (async.isLoading && top.isEmpty)
-            const _EmptyBox(text: '불러오는 중…')
+            const _MerchantListSkeleton()
           else if (top.isEmpty)
             const _EmptyBox(text: '가맹점 데이터가 없습니다')
           else
@@ -1114,7 +1231,7 @@ class _HeatmapCard extends StatelessWidget {
             ),
           ),
           if (async.isLoading && cells.isEmpty)
-            const _EmptyBox(text: '불러오는 중…')
+            const _HeatmapSkeleton()
           else if (total == 0)
             Container(
               padding: const EdgeInsets.symmetric(vertical: 32),
@@ -1629,7 +1746,7 @@ class _TrendBigCardState extends ConsumerState<_TrendBigCard> {
           ],
           const SizedBox(height: 16),
           if (loading && data.isEmpty)
-            const _EmptyBox(text: '불러오는 중…')
+            const _ChartSkeleton(height: 200)
           else if (data.isEmpty || data.every((p) => p.income == 0 && p.expense == 0))
             const _EmptyBox(text: '추이 데이터가 없습니다')
           else ...[
@@ -1963,6 +2080,7 @@ class _SavingsBarsCardState extends ConsumerState<_SavingsBarsCard> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final loading = widget.rangeAsync.isLoading || widget.monthExpAsync.isLoading;
     final data = _computeTrendData(
         widget.state, widget.rangeAsync, widget.monthExpAsync);
     final useDaily = widget.state
@@ -1976,7 +2094,9 @@ class _SavingsBarsCardState extends ConsumerState<_SavingsBarsCard> {
             trailing: Text('수입 − 지출',
                 style: PTypo.caption.copyWith(color: t.fgTertiary)),
           ),
-          if (data.isEmpty)
+          if (loading && data.isEmpty)
+            const _ChartSkeleton(height: 180)
+          else if (data.isEmpty)
             const _EmptyBox(text: '데이터가 없습니다')
           else
             SizedBox(
@@ -2280,6 +2400,7 @@ class _CompareCategoryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final s = state;
+    final loading = rangeAsync.isLoading || prevRangeAsync.isLoading;
 
     final cats = categoriesAsync.value ?? const <dynamic>[];
     dynamic catBy(int id) => cats
@@ -2358,7 +2479,9 @@ class _CompareCategoryCard extends StatelessWidget {
               ],
             ),
           ),
-          if (top.isEmpty)
+          if (loading && top.isEmpty)
+            const _MerchantListSkeleton()
+          else if (top.isEmpty)
             const _EmptyBox(text: '비교할 데이터가 없습니다')
           else
             for (var i = 0; i < top.length; i++) ...[
