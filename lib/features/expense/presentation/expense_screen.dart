@@ -285,6 +285,9 @@ class _SummaryCard extends StatelessWidget {
         children: [
           Row(
             children: [
+              _ArrowBtn(
+                  icon: LucideIcons.chevronLeft, onTap: onPrev, tokens: t),
+              const SizedBox(width: 8),
               Text(
                 '${month.year}년 ${month.month}월',
                 style: TextStyle(
@@ -294,10 +297,7 @@ class _SummaryCard extends StatelessWidget {
                   letterSpacing: -0.32,
                 ),
               ),
-              const Spacer(),
-              _ArrowBtn(
-                  icon: LucideIcons.chevronLeft, onTap: onPrev, tokens: t),
-              const SizedBox(width: 4),
+              const SizedBox(width: 8),
               _ArrowBtn(
                   icon: LucideIcons.chevronRight, onTap: onNext, tokens: t),
             ],
