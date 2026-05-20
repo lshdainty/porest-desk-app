@@ -14,7 +14,6 @@ import '../../../core/settings/settings_notifier.dart';
 import '../../../app/theme/chart_palette.dart';
 import '../../../app/theme/shadow.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
-import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_card.dart';
 import '../../../shared/widgets/p_chip.dart';
 import '../../../shared/widgets/p_date_input.dart';
@@ -176,8 +175,12 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
   Future<void> _pickRange() async {
     // 모바일 환경 — Dialog 대신 PSheet (bottom drawer) 패턴 사용.
     // desk-app CLAUDE.md / showPSheet helper 정합 (모바일에서 dialog → drawer).
+    // footer 는 add_tx_sheet 와 동일하게 PSheetFooter 표준 (Spacer + 우측 정렬 ghost+primary).
+    final controller = PSheetController();
     DateTime draftFrom = _from;
     DateTime draftTo = _to;
+    controller.setCanSubmit(!draftTo.isBefore(draftFrom));
+
     final picked = await showPSheet<DateTimeRange>(
       context,
       title: '기간 선택',
@@ -185,6 +188,12 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
       minChildSize: 0.4,
       maxChildSize: 0.85,
       contentBuilder: (sheetCtx, scrollCtrl) {
+        controller.onSubmit ??= () async {
+          Navigator.pop(
+            sheetCtx,
+            DateTimeRange(start: draftFrom, end: draftTo),
+          );
+        };
         const quickRanges = <({String label, int days})>[
           (label: '최근 7일', days: 7),
           (label: '최근 30일', days: 30),
@@ -193,7 +202,8 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
           (label: '최근 1년', days: 365),
         ];
         return StatefulBuilder(builder: (ctx, setSheet) {
-          final canApply = !draftTo.isBefore(draftFrom);
+          void syncCan() =>
+              controller.setCanSubmit(!draftTo.isBefore(draftFrom));
           return ListView(
             controller: scrollCtrl,
             padding: const EdgeInsets.symmetric(
@@ -213,6 +223,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
                           draftFrom = today.subtract(Duration(days: q.days - 1));
                           draftTo = today;
                         });
+                        syncCan();
                       },
                     ),
                 ],
@@ -224,7 +235,10 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
                     child: PDateInput(
                       value: draftFrom,
                       onChanged: (d) {
-                        if (d != null) setSheet(() => draftFrom = d);
+                        if (d != null) {
+                          setSheet(() => draftFrom = d);
+                          syncCan();
+                        }
                       },
                       firstDate: DateTime(2020),
                       lastDate: DateTime(DateTime.now().year + 5, 12, 31),
@@ -237,36 +251,13 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
                     child: PDateInput(
                       value: draftTo,
                       onChanged: (d) {
-                        if (d != null) setSheet(() => draftTo = d);
+                        if (d != null) {
+                          setSheet(() => draftTo = d);
+                          syncCan();
+                        }
                       },
                       firstDate: DateTime(2020),
                       lastDate: DateTime(DateTime.now().year + 5, 12, 31),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: PSpace.lg),
-              Row(
-                children: [
-                  Expanded(
-                    child: PButton(
-                      label: '취소',
-                      variant: PButtonVariant.ghost,
-                      fullWidth: true,
-                      onPressed: () => Navigator.pop(sheetCtx),
-                    ),
-                  ),
-                  const SizedBox(width: PSpace.sm),
-                  Expanded(
-                    child: PButton(
-                      label: '적용',
-                      fullWidth: true,
-                      onPressed: canApply
-                          ? () => Navigator.pop(
-                              sheetCtx,
-                              DateTimeRange(
-                                  start: draftFrom, end: draftTo))
-                          : null,
                     ),
                   ),
                 ],
@@ -275,7 +266,11 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
           );
         });
       },
-    );
+      footerBuilder: (ctx) => PSheetFooter(
+        controller: controller,
+        submitLabel: '적용',
+      ),
+    ).whenComplete(controller.dispose);
     if (picked != null) {
       setCustomRange(picked.start, picked.end);
     }
