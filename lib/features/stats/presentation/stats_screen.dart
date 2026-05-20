@@ -14,7 +14,11 @@ import '../../../core/settings/settings_notifier.dart';
 import '../../../app/theme/chart_palette.dart';
 import '../../../app/theme/shadow.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
+import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_card.dart';
+import '../../../shared/widgets/p_chip.dart';
+import '../../../shared/widgets/p_date_input.dart';
+import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_segmented_control.dart';
 import '../../../shared/widgets/p_tabs.dart';
 import '../../expense/application/expense_providers.dart';
@@ -170,11 +174,9 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
   }
 
   Future<void> _pickRange() async {
-    final picked = await showDateRangePicker(
+    final picked = await showDialog<DateTimeRange>(
       context: context,
-      initialDateRange: DateTimeRange(start: _from, end: _to),
-      firstDate: DateTime(2020),
-      lastDate: DateTime(DateTime.now().year + 5, 12, 31),
+      builder: (_) => _RangePickerDialog(initial: DateTimeRange(start: _from, end: _to)),
     );
     if (picked != null) {
       setCustomRange(picked.start, picked.end);
@@ -389,26 +391,193 @@ class _PeriodSelectorRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final s = state;
-    final isCustom = s._segMode == _SegMode.custom;
-    final customLabel = isCustom
-        ? (s._from.year == s._to.year
-            ? '${s._from.month}/${s._from.day} ~ ${s._to.month}/${s._to.day}'
-            : '${s._from.year.toString().substring(2)}.${s._from.month.toString().padLeft(2, '0')}.${s._from.day.toString().padLeft(2, '0')} ~ '
-                '${s._to.year.toString().substring(2)}.${s._to.month.toString().padLeft(2, '0')}.${s._to.day.toString().padLeft(2, '0')}')
-        : '사용자 지정';
     return Align(
       alignment: Alignment.centerRight,
       child: PSegmentedControl<_SegMode>(
         value: s._segMode,
         elevated: true,
-        items: [
-          const PSegmentItem(_SegMode.month, '월'),
-          const PSegmentItem(_SegMode.quarter, '분기'),
-          const PSegmentItem(_SegMode.year, '년'),
-          PSegmentItem(_SegMode.custom, customLabel, onTap: s._pickRange),
+        items: const [
+          PSegmentItem(_SegMode.month, '월'),
+          PSegmentItem(_SegMode.quarter, '분기'),
+          PSegmentItem(_SegMode.year, '년'),
+          // '직접' 라벨 — 활성 시 라벨 변하지 않음. 기간 정보는 _SelectedRangeCard 에 표시.
+          // onTap 제거 — segment 클릭 시 segMode 만 변경 (변경 버튼이 picker trigger).
+          PSegmentItem(_SegMode.custom, '직접'),
         ],
         onChanged: s.setSegMode,
       ),
+    );
+  }
+}
+
+/// '직접' 활성 시 segment 아래에 표시되는 선택 기간 카드.
+/// front `SelectedRangeCard` (StatsPage.tsx) 미러.
+class _SelectedRangeCard extends StatelessWidget {
+  const _SelectedRangeCard({required this.state});
+  final _StatsScreenState state;
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final s = state;
+    final days = s._to.difference(s._from).inDays + 1;
+    String fmt(DateTime d) =>
+        '${d.year}.${d.month.toString().padLeft(2, '0')}.${d.day.toString().padLeft(2, '0')}';
+    return InkWell(
+      onTap: s._pickRange,
+      borderRadius: PRadius.brLg,
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+            horizontal: PSpace.lg, vertical: PSpace.md),
+        decoration: BoxDecoration(
+          color: t.bgSurface,
+          border: Border.all(color: t.borderSubtle),
+          borderRadius: PRadius.brLg,
+        ),
+        child: Row(
+          children: [
+            Icon(LucideIcons.calendarClock, size: 16, color: t.fgSecondary),
+            const SizedBox(width: PSpace.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('선택 기간',
+                      style: PTypo.caption.copyWith(color: t.fgTertiary)),
+                  const SizedBox(height: 2),
+                  Text.rich(
+                    TextSpan(children: [
+                      TextSpan(text: '${fmt(s._from)} ~ ${fmt(s._to)}'),
+                      TextSpan(
+                        text: '  ($days일)',
+                        style: TextStyle(
+                            color: t.fgTertiary,
+                            fontWeight: PFontWeight.regular),
+                      ),
+                    ]),
+                    style: PTypo.bodySm.copyWith(
+                        color: t.fgPrimary, fontWeight: PFontWeight.semi),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: PSpace.sm),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(LucideIcons.pencil, size: 14, color: t.fgSecondary),
+                const SizedBox(width: 4),
+                Text('변경',
+                    style: PTypo.caption.copyWith(
+                        color: t.fgSecondary,
+                        fontWeight: PFontWeight.semi)),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// front `RangePickerSheet` (StatsPage.tsx) 미러 — Dialog 기반 기간 선택.
+/// - quick chip: 최근 7일/30일/3개월/6개월/1년
+/// - 시작 PDateInput + 종료 PDateInput
+/// - 취소 / 적용 PButton
+class _RangePickerDialog extends StatefulWidget {
+  const _RangePickerDialog({required this.initial});
+  final DateTimeRange initial;
+  @override
+  State<_RangePickerDialog> createState() => _RangePickerDialogState();
+}
+
+class _RangePickerDialogState extends State<_RangePickerDialog> {
+  late DateTime _from = widget.initial.start;
+  late DateTime _to = widget.initial.end;
+
+  static const _quickRanges = <({String label, int days})>[
+    (label: '최근 7일', days: 7),
+    (label: '최근 30일', days: 30),
+    (label: '최근 3개월', days: 90),
+    (label: '최근 6개월', days: 180),
+    (label: '최근 1년', days: 365),
+  ];
+
+  void _applyQuick(int days) {
+    final today = DateTime.now();
+    setState(() {
+      _from = today.subtract(Duration(days: days - 1));
+      _to = today;
+    });
+  }
+
+  bool get _canApply => !_to.isBefore(_from);
+
+  @override
+  Widget build(BuildContext context) {
+    return PFormAlertDialog(
+      title: '기간 선택',
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Wrap(
+            spacing: PSpace.sm,
+            runSpacing: PSpace.sm,
+            children: [
+              for (final q in _quickRanges)
+                PChip(
+                  label: q.label,
+                  selected: false,
+                  onTap: () => _applyQuick(q.days),
+                ),
+            ],
+          ),
+          const SizedBox(height: PSpace.lg),
+          Row(
+            children: [
+              Expanded(
+                child: PDateInput(
+                  value: _from,
+                  onChanged: (d) {
+                    if (d != null) setState(() => _from = d);
+                  },
+                  firstDate: DateTime(2020),
+                  lastDate: DateTime(DateTime.now().year + 5, 12, 31),
+                ),
+              ),
+              const SizedBox(width: PSpace.sm),
+              const Text('~'),
+              const SizedBox(width: PSpace.sm),
+              Expanded(
+                child: PDateInput(
+                  value: _to,
+                  onChanged: (d) {
+                    if (d != null) setState(() => _to = d);
+                  },
+                  firstDate: DateTime(2020),
+                  lastDate: DateTime(DateTime.now().year + 5, 12, 31),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+      actions: [
+        PButton(
+          label: '취소',
+          variant: PButtonVariant.ghost,
+          onPressed: () => Navigator.pop(context),
+        ),
+        PButton(
+          label: '적용',
+          onPressed: _canApply
+              ? () => Navigator.pop(
+                  context, DateTimeRange(start: _from, end: _to))
+              : null,
+        ),
+      ],
     );
   }
 }
@@ -632,6 +801,10 @@ class _DonutCardState extends ConsumerState<_DonutCard> {
                 : const _CardTitle('카테고리별 지출'),
           ),
           _PeriodSelectorRow(state: s),
+          if (s._segMode == _SegMode.custom) ...[
+            const SizedBox(height: PSpace.x8),
+            _SelectedRangeCard(state: s),
+          ],
           const SizedBox(height: PSpace.x12),
           if (loading)
             const _EmptyBox(text: '불러오는 중…')
@@ -1420,6 +1593,10 @@ class _TrendBigCardState extends ConsumerState<_TrendBigCard> {
           _CardHeader(
               title: _CardTitle('${widget.state._periodLabel} 수입·지출 추이')),
           _PeriodSelectorRow(state: widget.state),
+          if (widget.state._segMode == _SegMode.custom) ...[
+            const SizedBox(height: PSpace.x8),
+            _SelectedRangeCard(state: widget.state),
+          ],
           const SizedBox(height: 16),
           if (loading && data.isEmpty)
             const _EmptyBox(text: '불러오는 중…')
