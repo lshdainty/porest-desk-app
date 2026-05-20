@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../../app/theme/shadow.dart';
 import '../../app/theme/radius.dart';
+import '../../app/theme/shadow.dart';
+import '../../app/theme/spacing.dart';
 import '../../app/theme/tokens.dart';
+import '../../app/theme/typography.dart';
 
 /// porest-desk-front `<Card>` 미러 + desk-app 실사용 bordered/muted variant 확장.
 ///
@@ -84,6 +86,109 @@ class PCard extends StatelessWidget {
         borderRadius: borderRadius,
         child: wrap,
       ),
+    );
+  }
+}
+
+/// shadcn `<CardHeader>` 미러. title + description 세로 stack용 padding 컨테이너.
+/// caller 가 `PCard(padding: EdgeInsets.zero, child: Column([PCardHeader(...), PCardContent(...)]))`
+/// 형태로 조립. spec card.md `flex flex-col gap-xs p-xl` 매핑.
+class PCardHeader extends StatelessWidget {
+  const PCardHeader({
+    super.key,
+    required this.child,
+    this.padding = const EdgeInsets.all(PSpace.xl),
+  });
+  final Widget child;
+  final EdgeInsetsGeometry padding;
+  @override
+  Widget build(BuildContext context) {
+    return Padding(padding: padding, child: child);
+  }
+}
+
+/// shadcn `<CardContent>` 미러. caller 가 [afterHeader] true 면 top padding 0
+/// (shadcn 의 `:not(:first-child) pt-0` 자연 연결 패턴 대응).
+class PCardContent extends StatelessWidget {
+  const PCardContent({
+    super.key,
+    required this.child,
+    this.afterHeader = false,
+    this.padding,
+  });
+  final Widget child;
+
+  /// PCardHeader 또는 다른 PCard 섹션 다음에 오면 true — top padding 0.
+  final bool afterHeader;
+
+  /// 명시 padding (예: 안에 list rows 이라 horizontal 만). 미지정 시:
+  /// - afterHeader = true: `EdgeInsets.fromLTRB(xl, 0, xl, xl)`
+  /// - false: `EdgeInsets.all(xl)`
+  final EdgeInsetsGeometry? padding;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = padding ??
+        (afterHeader
+            ? const EdgeInsets.fromLTRB(
+                PSpace.xl, 0, PSpace.xl, PSpace.xl)
+            : const EdgeInsets.all(PSpace.xl));
+    return Padding(padding: p, child: child);
+  }
+}
+
+/// shadcn `<CardFooter>` 미러. [afterHeader] 동일 의미 (content 다음이면 top 0).
+class PCardFooter extends StatelessWidget {
+  const PCardFooter({
+    super.key,
+    required this.child,
+    this.afterHeader = true,
+    this.padding,
+  });
+  final Widget child;
+  final bool afterHeader;
+  final EdgeInsetsGeometry? padding;
+  @override
+  Widget build(BuildContext context) {
+    final p = padding ??
+        (afterHeader
+            ? const EdgeInsets.fromLTRB(
+                PSpace.xl, 0, PSpace.xl, PSpace.xl)
+            : const EdgeInsets.all(PSpace.xl));
+    return Padding(padding: p, child: child);
+  }
+}
+
+/// shadcn `<CardTitle>` 미러 — `body-lg` (16) + bold (Web 의 `text-title-md` 와
+/// 동일 16px 매핑).
+class PCardTitle extends StatelessWidget {
+  const PCardTitle(this.text, {super.key, this.style});
+  final String text;
+  final TextStyle? style;
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return Text(
+      text,
+      style: (style ?? PTypo.bodyLg).copyWith(
+        color: t.fgPrimary,
+        fontWeight: PFontWeight.bold,
+        letterSpacing: -0.225,
+      ),
+    );
+  }
+}
+
+/// shadcn `<CardDescription>` 미러 — `body-sm` + fgSecondary.
+class PCardDescription extends StatelessWidget {
+  const PCardDescription(this.text, {super.key});
+  final String text;
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return Text(
+      text,
+      style: PTypo.bodySm.copyWith(color: t.fgSecondary),
     );
   }
 }

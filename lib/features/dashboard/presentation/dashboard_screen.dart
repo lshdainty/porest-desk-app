@@ -14,6 +14,7 @@ import '../../../core/format/krw.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_card.dart';
+import '../../../shared/widgets/p_expense_row.dart';
 import '../../../shared/widgets/p_divider.dart';
 import '../../../shared/widgets/p_progress.dart';
 import '../../asset/application/asset_providers.dart';
@@ -1149,69 +1150,77 @@ class _TodaySpendCard extends StatelessWidget {
         .fold<int>(0, (s, e) => s + e.amount);
 
     return PCard(
-      padding: const EdgeInsets.all(18),
+      padding: EdgeInsets.zero,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                '오늘 쓴 돈',
-                style: TextStyle(
-                  color: t.fgPrimary,
-                  fontSize: PFontSize.bodyLg,
-                  fontWeight: PFontWeight.bold,
-                  letterSpacing: -0.225,
-                ),
-              ),
-              if (todayTotal > 0) ...[
-                const SizedBox(width: 8),
-                Text(
-                  '-${krwMasked(todayTotal, masked)}원',
-                  style: TextStyle(
-                    color: t.fgExpense,
-                    fontSize: PFontSize.caption,
-                    fontWeight: PFontWeight.bold,
-                    fontFeatures: const [FontFeature.tabularFigures()],
+          PCardHeader(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const PCardTitle('오늘 쓴 돈'),
+                if (todayTotal > 0) ...[
+                  const SizedBox(width: PSpace.x8),
+                  Text(
+                    '-${krwMasked(todayTotal, masked)}원',
+                    style: PTypo.caption.copyWith(
+                      color: t.fgExpense,
+                      fontWeight: PFontWeight.bold,
+                      fontFeatures: const [FontFeature.tabularFigures()],
+                    ),
+                  ),
+                ],
+                const Spacer(),
+                GestureDetector(
+                  onTap: () => context.go('/expense'),
+                  child: Text(
+                    '전체',
+                    style: PTypo.bodySm.copyWith(color: t.fgTertiary),
                   ),
                 ),
               ],
-              const Spacer(),
-              GestureDetector(
-                onTap: () => context.go('/expense'),
-                child: Text(
-                  '전체',
-                  style: TextStyle(
-                    color: t.fgTertiary,
-                    fontSize: PFontSize.bodySm,
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
-          const SizedBox(height: 6),
-          if (todayTx.isEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              child: Center(
-                child: Text(
-                    expensesAsync.hasError
-                        ? '거래를 불러오지 못했습니다'
-                        : '오늘은 아직 쓴 돈이 없어요',
-                    style: TextStyle(
-                        color: t.fgTertiary,
-                        fontSize: PFontSize.caption)),
-              ),
-            )
-          else
-            for (final e in todayTx)
-              _ExpenseRow(
-                expense: e,
-                category: _findCategory(categories, e.categoryRowId),
-                masked: masked,
-                tokens: t,
-              ),
+          PCardContent(
+            afterHeader: true,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (todayTx.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: PSpace.x12),
+                    child: Center(
+                      child: Text(
+                          expensesAsync.hasError
+                              ? '거래를 불러오지 못했습니다'
+                              : '오늘은 아직 쓴 돈이 없어요',
+                          style: PTypo.caption.copyWith(color: t.fgTertiary)),
+                    ),
+                  )
+                else
+                  for (final e in todayTx)
+                    PExpenseRow(
+                      expense: e,
+                      masked: masked,
+                      categoryColorOverride:
+                          _findCategory(categories, e.categoryRowId)?.color
+                              as String?,
+                      categoryIconOverride:
+                          _findCategory(categories, e.categoryRowId)?.icon
+                              as String?,
+                      onTap: () {
+                        final dateStr = e.expenseDate?.substring(0, 7);
+                        if (dateStr != null && dateStr.length == 7) {
+                          context.go('/expense?month=$dateStr&txId=${e.rowId}');
+                        } else {
+                          context.go('/expense?txId=${e.rowId}');
+                        }
+                      },
+                    ),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -1228,102 +1237,3 @@ class _TodaySpendCard extends StatelessWidget {
   }
 }
 
-class _ExpenseRow extends StatelessWidget {
-  const _ExpenseRow({
-    required this.expense,
-    required this.category,
-    required this.masked,
-    required this.tokens,
-  });
-  final Expense expense;
-  final dynamic category;
-  final bool masked;
-  final PorestTokens tokens;
-
-  @override
-  Widget build(BuildContext context) {
-    final fg = resolveChartColor(
-        context, (category?.color as String?) ?? expense.categoryColor,
-        fallback: tokens.fgBrand);
-    final bg = softBg(fg);
-    final isExpense = expense.expenseType == 'EXPENSE';
-    // 오늘 쓴 돈 카드는 모두 오늘 거래라 날짜 대신 시각만 표시
-    final time = expense.expenseDate != null && expense.expenseDate!.length >= 16
-        ? expense.expenseDate!.substring(11, 16)
-        : null;
-
-    return InkWell(
-      onTap: () {
-        final dateStr = expense.expenseDate?.substring(0, 7);
-        if (dateStr != null && dateStr.length == 7) {
-          context.go('/expense?month=$dateStr&txId=${expense.rowId}');
-        } else {
-          context.go('/expense?txId=${expense.rowId}');
-        }
-      },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        child: Row(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration:
-                  BoxDecoration(color: bg, borderRadius: PRadius.brLg),
-              alignment: Alignment.center,
-              child: Icon(
-                lucideByName(
-                    (category?.icon as String?) ?? expense.categoryIcon,
-                    fallback: LucideIcons.tag),
-                size: 18,
-                color: fg,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    expense.merchant ??
-                        expense.description ??
-                        expense.categoryName ??
-                        '거래',
-                    style: TextStyle(
-                      color: tokens.fgPrimary,
-                      fontSize: PFontSize.body,
-                      fontWeight: PFontWeight.semi,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    [
-                      expense.categoryName,
-                      expense.assetName,
-                      ?time,
-                    ].whereType<String>().where((s) => s.isNotEmpty).join(' · '),
-                    style: PTypo.caption.copyWith(color: tokens.fgTertiary),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              '${isExpense ? '-' : '+'}${krwMasked(expense.amount, masked)}원',
-              style: TextStyle(
-                color: isExpense ? tokens.fgExpense : tokens.fgIncome,
-                fontSize: PFontSize.bodySm,
-                fontWeight: PFontWeight.bold,
-                fontFeatures: const [FontFeature.tabularFigures()],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
