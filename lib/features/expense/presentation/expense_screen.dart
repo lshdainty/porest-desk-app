@@ -652,7 +652,7 @@ class _DayGroup extends ConsumerWidget {
             ),
           ),
           PCard(
-            variant: PCardVariant.bordered,
+            padding: EdgeInsets.zero,
             child: Column(
               children: [
                 for (int i = 0; i < items.length; i++) ...[
