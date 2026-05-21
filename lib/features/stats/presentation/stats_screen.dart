@@ -1822,7 +1822,7 @@ class _TrendBigCardState extends ConsumerState<_TrendBigCard> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _CardHeader(
-            title: _CardTitle('${widget.state._periodLabel} 수입·지출 추이'),
+            title: const _CardTitle('수입·지출 추이'),
             trailing: _PeriodTrigger(state: widget.state),
           ),
           if (loading && data.isEmpty)
