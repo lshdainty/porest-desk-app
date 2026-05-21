@@ -233,10 +233,13 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                     ),
                   ),
                   const SizedBox(height: PSpace.x12),
-                  // 달력 / 목록 보기 토글 — spec ToggleGroup(subtle) 사용.
-                  _ViewModeToggle(
-                    value: _viewMode,
-                    onChanged: (v) => setState(() => _viewMode = v),
+                  // 보기 모드 토글 — Summary 카드 옆 우측 정렬 (Web ExpenseMobile 정합).
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: _ViewModeToggle(
+                      value: _viewMode,
+                      onChanged: (v) => setState(() => _viewMode = v),
+                    ),
                   ),
                   const SizedBox(height: PSpace.x12),
                   if (_viewMode == _ViewMode.calendar)
