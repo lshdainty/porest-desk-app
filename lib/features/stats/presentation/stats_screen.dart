@@ -600,108 +600,9 @@ class _PeriodTrigger extends StatelessWidget {
   }
 }
 
-class _PeriodSelectorRow extends StatelessWidget {
-  const _PeriodSelectorRow({required this.state});
-  final _StatsScreenState state;
-  @override
-  Widget build(BuildContext context) {
-    final s = state;
-    return Align(
-      alignment: Alignment.centerRight,
-      child: PToggleGroupSingle<_SegMode>(
-        value: s._segMode,
-        items: const [
-          PToggleGroupItem(value: _SegMode.month, label: '월'),
-          PToggleGroupItem(value: _SegMode.quarter, label: '분기'),
-          PToggleGroupItem(value: _SegMode.year, label: '년'),
-          // '직접' 라벨 — 활성 시 라벨 변하지 않음. 기간 정보는 _SelectedRangeCard 에 표시.
-          PToggleGroupItem(value: _SegMode.custom, label: '직접'),
-        ],
-        onChanged: s.setSegMode,
-      ),
-    );
-  }
-}
-
-/// '직접' 활성 시 segment 아래에 표시되는 선택 기간 카드.
-/// front `SelectedRangeCard` (StatsPage.tsx) 미러.
-/// PCard(variant: bordered) 사용 — bgSurface + borderSubtle + brLg SoT.
-class _SelectedRangeCard extends StatelessWidget {
-  const _SelectedRangeCard({required this.state});
-  final _StatsScreenState state;
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    final s = state;
-    final days = s._to.difference(s._from).inDays + 1;
-    String fmt(DateTime d) =>
-        '${d.year}.${d.month.toString().padLeft(2, '0')}.${d.day.toString().padLeft(2, '0')}';
-    return PCard(
-      variant: PCardVariant.bordered,
-      padding: const EdgeInsets.symmetric(
-        horizontal: PSpace.lg,
-        vertical: PSpace.md,
-      ),
-      onTap: s._pickRange,
-      child: Row(
-        children: [
-          Icon(LucideIcons.calendarClock, size: 16, color: t.fgSecondary),
-          const SizedBox(width: PSpace.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '선택 기간',
-                  style: PTypo.caption.copyWith(color: t.fgTertiary),
-                ),
-                const SizedBox(height: 2),
-                Text.rich(
-                  TextSpan(
-                    children: [
-                      TextSpan(text: '${fmt(s._from)} ~ ${fmt(s._to)}'),
-                      TextSpan(
-                        text: '  ($days일)',
-                        style: TextStyle(
-                          color: t.fgTertiary,
-                          fontWeight: PFontWeight.regular,
-                        ),
-                      ),
-                    ],
-                  ),
-                  style: PTypo.bodySm.copyWith(
-                    color: t.fgPrimary,
-                    fontWeight: PFontWeight.semi,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: PSpace.sm),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(LucideIcons.pencil, size: 14, color: t.fgSecondary),
-              const SizedBox(width: 4),
-              Text(
-                '변경',
-                style: PTypo.caption.copyWith(
-                  color: t.fgSecondary,
-                  fontWeight: PFontWeight.semi,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 // _RangePickerDialog 제거 — showPSheet (bottom drawer) 패턴으로 전환됨.
 // _pickRange method 안에서 직접 showPSheet 호출 + StatefulBuilder 로 draft state 관리.
+// _PeriodSelectorRow / _SelectedRangeCard 도 제거 — _PeriodTrigger 로 통합.
 
 /// chart 카드 안의 header (title + optional trailing) — PCardHeader 직접
 /// 사용 대신 _Card 의 내부 padding 컨텍스트와 맞춰 bottom 14 만 유지.
@@ -1922,13 +1823,8 @@ class _TrendBigCardState extends ConsumerState<_TrendBigCard> {
         children: [
           _CardHeader(
             title: _CardTitle('${widget.state._periodLabel} 수입·지출 추이'),
+            trailing: _PeriodTrigger(state: widget.state),
           ),
-          _PeriodSelectorRow(state: widget.state),
-          if (widget.state._segMode == _SegMode.custom) ...[
-            const SizedBox(height: PSpace.x8),
-            _SelectedRangeCard(state: widget.state),
-          ],
-          const SizedBox(height: 16),
           if (loading && data.isEmpty)
             const _ChartSkeleton(height: 200)
           else if (data.isEmpty ||
