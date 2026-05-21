@@ -254,6 +254,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
               onNext: () => setState(
                 () => _month = DateTime(_month.year, _month.month + 1, 1),
               ),
+              onPickMonth: (m) => setState(() => _month = m),
               onSettings: () => _openSettings(budgetsAsync.value ?? []),
             ),
             const SizedBox(height: PSpace.x12),
@@ -457,11 +458,13 @@ class _MonthBar extends StatelessWidget {
     required this.onPrev,
     required this.onNext,
     required this.onSettings,
+    required this.onPickMonth,
   });
   final DateTime month;
   final VoidCallback onPrev;
   final VoidCallback onNext;
   final VoidCallback onSettings;
+  final ValueChanged<DateTime> onPickMonth;
 
   @override
   Widget build(BuildContext context) {
@@ -473,7 +476,10 @@ class _MonthBar extends StatelessWidget {
           child: Center(
             child: InkWell(
               borderRadius: PRadius.brMd,
-              onTap: () {}, // month picker dialog — follow-up
+              onTap: () async {
+                final picked = await showMonthPickerSheet(context, month);
+                if (picked != null) onPickMonth(picked);
+              },
               child: Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: PSpace.x8,
@@ -482,8 +488,6 @@ class _MonthBar extends StatelessWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(LucideIcons.calendar, size: 14, color: t.fgSecondary),
-                    const SizedBox(width: PSpace.x4),
                     Text(
                       yearMonth(month),
                       style: PTypo.h4.copyWith(color: t.fgPrimary),
@@ -502,22 +506,145 @@ class _MonthBar extends StatelessWidget {
         ),
         PButton.icon(icon: LucideIcons.chevronRight, onPressed: onNext),
         const SizedBox(width: PSpace.x4),
-        FilledButton.tonalIcon(
+        PButton(
+          label: '예산 설정',
+          icon: LucideIcons.settings,
+          size: PButtonSize.sm,
           onPressed: onSettings,
-          icon: const Icon(LucideIcons.settings, size: 16),
-          label: const Text('예산 설정'),
-          style: FilledButton.styleFrom(
-            backgroundColor: t.bgBrandSubtle,
-            foregroundColor: t.fgBrandStrong,
-            padding: const EdgeInsets.symmetric(
-              horizontal: PSpace.x12,
-              vertical: PSpace.x8,
-            ),
-            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            shape: RoundedRectangleBorder(borderRadius: PRadius.brMd),
-          ),
         ),
       ],
+    );
+  }
+}
+
+/// Month picker bottom drawer — 디자이너 정합 (year header prev/next + 12 month grid + 오늘로/닫기).
+/// mobile drawer 패턴 — showPSheet (공통 layout). desktop/tablet dialog 는 follow-up.
+Future<DateTime?> showMonthPickerSheet(BuildContext context, DateTime initial) {
+  return showPSheet<DateTime>(
+    context,
+    title: '월 선택',
+    shrinkWrap: true,
+    contentBuilder: (sheetCtx, _) {
+      final t = sheetCtx.tokens;
+      final now = DateTime.now();
+      int viewYear = initial.year;
+      final selectedYear = initial.year;
+      final selectedMonth = initial.month;
+      return StatefulBuilder(
+        builder: (ctx, setSheet) {
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(
+              PSpace.x20,
+              PSpace.x4,
+              PSpace.x20,
+              PSpace.x20,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // year header — prev / year text / next
+                Row(
+                  children: [
+                    PButton.icon(
+                      icon: LucideIcons.chevronLeft,
+                      onPressed: () => setSheet(() => viewYear -= 1),
+                    ),
+                    Expanded(
+                      child: Center(
+                        child: Text(
+                          '$viewYear년',
+                          style: PTypo.bodyLg.copyWith(
+                            color: t.fgPrimary,
+                            fontWeight: PFontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                    PButton.icon(
+                      icon: LucideIcons.chevronRight,
+                      onPressed: () => setSheet(() => viewYear += 1),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: PSpace.x16),
+                // 4x3 month grid (1월 ~ 12월)
+                GridView.count(
+                  crossAxisCount: 4,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  childAspectRatio: 2.0,
+                  mainAxisSpacing: PSpace.x8,
+                  crossAxisSpacing: PSpace.x8,
+                  children: [
+                    for (int m = 1; m <= 12; m++)
+                      _MonthGridButton(
+                        label: '$m월',
+                        selected:
+                            viewYear == selectedYear && m == selectedMonth,
+                        onTap: () =>
+                            Navigator.of(ctx).pop(DateTime(viewYear, m, 1)),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: PSpace.x12),
+                // footer: 오늘로 + 닫기
+                Row(
+                  children: [
+                    PButton(
+                      label: '오늘로',
+                      icon: LucideIcons.locateFixed,
+                      variant: PButtonVariant.ghost,
+                      size: PButtonSize.sm,
+                      onPressed: () => Navigator.of(
+                        ctx,
+                      ).pop(DateTime(now.year, now.month, 1)),
+                    ),
+                    const Spacer(),
+                    PButton(
+                      label: '닫기',
+                      variant: PButtonVariant.ghost,
+                      size: PButtonSize.sm,
+                      onPressed: () => Navigator.of(ctx).pop(),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        },
+      );
+    },
+  );
+}
+
+class _MonthGridButton extends StatelessWidget {
+  const _MonthGridButton({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return Material(
+      color: selected ? t.bgBrand : Colors.transparent,
+      borderRadius: PRadius.brMd,
+      child: InkWell(
+        borderRadius: PRadius.brMd,
+        onTap: onTap,
+        child: Center(
+          child: Text(
+            label,
+            style: PTypo.bodySm.copyWith(
+              color: selected ? t.fgOnBrand : t.fgPrimary,
+              fontWeight: selected ? PFontWeight.bold : PFontWeight.medium,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
