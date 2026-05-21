@@ -858,14 +858,14 @@ class _CalendarGrid extends StatelessWidget {
                               : () => onTapDate(date, items),
                           child: Container(
                             padding: const EdgeInsets.symmetric(
-                                vertical: 6, horizontal: 4),
+                                vertical: 4, horizontal: 4),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
-                                // 날짜 — today 면 동그라미 배경 + 흰 글씨
+                                // 날짜 — today 면 동그라미 배경 + 흰 글씨. 22→20 으로 압축.
                                 Container(
-                                  width: 24,
-                                  height: 24,
+                                  width: 22,
+                                  height: 22,
                                   alignment: Alignment.center,
                                   decoration: isToday
                                       ? BoxDecoration(
@@ -879,10 +879,11 @@ class _CalendarGrid extends StatelessWidget {
                                       fontWeight: isToday
                                           ? PFontWeight.bold
                                           : PFontWeight.semi,
+                                      height: 1.0,
                                     ),
                                   ),
                                 ),
-                                const SizedBox(height: 2),
+                                const SizedBox(height: 1),
                                 // FittedBox(scaleDown) — 셀 폭 초과 시 폰트 자동 축소.
                                 if (expense > 0)
                                   SizedBox(
@@ -896,6 +897,7 @@ class _CalendarGrid extends StatelessWidget {
                                         style: PTypo.micro.copyWith(
                                           color: t.fgExpense,
                                           fontWeight: PFontWeight.semi,
+                                          height: 1.1,
                                         ),
                                       ),
                                     ),
@@ -912,6 +914,7 @@ class _CalendarGrid extends StatelessWidget {
                                         style: PTypo.micro.copyWith(
                                           color: t.fgIncome,
                                           fontWeight: PFontWeight.semi,
+                                          height: 1.1,
                                         ),
                                       ),
                                     ),
