@@ -541,11 +541,8 @@ class _Card extends StatelessWidget {
   final EdgeInsets? padding;
   @override
   Widget build(BuildContext context) {
-    return PCard(
-      variant: PCardVariant.bordered,
-      padding: padding ?? const EdgeInsets.all(18),
-      child: child,
-    );
+    // PCard default = shadow variant (spec card.md SoT). Web 정합.
+    return PCard(padding: padding ?? const EdgeInsets.all(18), child: child);
   }
 }
 
