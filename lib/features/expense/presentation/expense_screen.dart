@@ -146,7 +146,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
         children: [
           // 본문 — 비동기 상태에 따라 분기
           expensesAsync.when(
-            loading: () => const _ExpensePageSkeleton(),
+            loading: () => _ExpensePageSkeleton(viewMode: _viewMode),
             error: (e, _) => _ErrorBox(
               message: '거래를 불러오지 못했습니다\n$e',
               onRetry: () => ref.invalidate(monthExpensesProvider(_key)),
@@ -271,7 +271,13 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                       onAddTx: () => showAddTxSheet(context),
                     ),
                     const SizedBox(height: PSpace.x12),
-                    if (groupKeys.isEmpty)
+                    if (expensesAsync.isLoading) ...const [
+                      _ExpenseDayGroupSkeleton(rows: 3),
+                      SizedBox(height: PSpace.x16),
+                      _ExpenseDayGroupSkeleton(rows: 2),
+                      SizedBox(height: PSpace.x16),
+                      _ExpenseDayGroupSkeleton(rows: 2),
+                    ] else if (groupKeys.isEmpty)
                       Padding(
                         padding: const EdgeInsets.symmetric(
                           vertical: PSpace.x32,
@@ -282,16 +288,17 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                             style: PTypo.bodySm.copyWith(color: t.fgTertiary),
                           ),
                         ),
-                      ),
-                    for (final key in groupKeys)
-                      _DayGroup(
-                        date: parseIsoDate(key),
-                        items: groups[key]!,
-                        categoriesAsync: categoriesAsync,
-                        masked: settings.hideAmounts,
-                        rowKeys: _rowKeys,
-                        focusTxId: widget.focusTxId,
-                      ),
+                      )
+                    else
+                      for (final key in groupKeys)
+                        _DayGroup(
+                          date: parseIsoDate(key),
+                          items: groups[key]!,
+                          categoriesAsync: categoriesAsync,
+                          masked: settings.hideAmounts,
+                          rowKeys: _rowKeys,
+                          focusTxId: widget.focusTxId,
+                        ),
                   ],
                 ],
               );
@@ -737,21 +744,30 @@ class _AssetFilterBadge extends ConsumerWidget {
   }
 }
 
-/// Expense 페이지 구조 맞춤 skeleton — Web ExpensePageSkeleton 정합 (calendar mode default).
-/// Summary 카드 (월 헤더 + 3-col 수입/지출/합계) + Chips/ViewToggle + Calendar grid.
+/// Expense 페이지 구조 맞춤 skeleton — Web ExpensePageSkeleton 정합.
+/// viewMode 따라 본문 분기 (calendar = grid placeholder, list = DayGroup x3).
 class _ExpensePageSkeleton extends StatelessWidget {
-  const _ExpensePageSkeleton();
+  const _ExpensePageSkeleton({required this.viewMode});
+  final _ViewMode viewMode;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: const [
-        _ExpenseSummarySkeleton(),
-        SizedBox(height: PSpace.x12),
-        _ExpenseChipsSkeleton(),
-        SizedBox(height: PSpace.x12),
-        _ExpenseCalendarSkeleton(),
+      children: [
+        const _ExpenseSummarySkeleton(),
+        const SizedBox(height: PSpace.x12),
+        const _ExpenseChipsSkeleton(),
+        const SizedBox(height: PSpace.x12),
+        if (viewMode == _ViewMode.calendar)
+          const _ExpenseCalendarSkeleton()
+        else ...const [
+          _ExpenseDayGroupSkeleton(rows: 3),
+          SizedBox(height: PSpace.x16),
+          _ExpenseDayGroupSkeleton(rows: 2),
+          SizedBox(height: PSpace.x16),
+          _ExpenseDayGroupSkeleton(rows: 2),
+        ],
       ],
     );
   }
@@ -903,6 +919,82 @@ class _ExpenseChipsSkeleton extends StatelessWidget {
         const PSkeleton(width: 32, height: 32, borderRadius: PRadius.brSm),
         const SizedBox(width: PSpace.x4),
         const PSkeleton(width: 32, height: 32, borderRadius: PRadius.brSm),
+      ],
+    );
+  }
+}
+
+/// list mode skeleton — viewMode='list' 일 때 날짜 헤더 + 카드 안 rows 모양.
+class _ExpenseDayGroupSkeleton extends StatelessWidget {
+  const _ExpenseDayGroupSkeleton({required this.rows});
+  final int rows;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // 날짜 헤더 — 카드 밖 평문
+        Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: PSpace.x4,
+            vertical: PSpace.x8,
+          ),
+          child: Row(
+            children: const [
+              PSkeleton.line(width: 48, height: 14),
+              SizedBox(width: PSpace.x8),
+              PSkeleton.line(width: 24, height: 14),
+              Spacer(),
+              PSkeleton.line(width: 60, height: 12),
+              SizedBox(width: PSpace.x8),
+              PSkeleton.line(width: 60, height: 12),
+            ],
+          ),
+        ),
+        // 거래 카드 — rows 만큼 row 들 + 사이 border
+        PCard(
+          padding: EdgeInsets.zero,
+          child: Column(
+            children: [
+              for (int i = 0; i < rows; i++)
+                Container(
+                  decoration: BoxDecoration(
+                    border: i > 0
+                        ? Border(top: BorderSide(color: t.borderSubtle))
+                        : null,
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: PSpace.x12,
+                    vertical: PSpace.x12,
+                  ),
+                  child: Row(
+                    children: [
+                      const PSkeleton(
+                        width: 36,
+                        height: 36,
+                        borderRadius: PRadius.brSm,
+                      ),
+                      const SizedBox(width: PSpace.x12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: const [
+                            PSkeleton.line(width: 120, height: 14),
+                            SizedBox(height: PSpace.x4),
+                            PSkeleton.line(width: 80, height: 11),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: PSpace.x8),
+                      const PSkeleton.line(width: 80, height: 14),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        ),
       ],
     );
   }
