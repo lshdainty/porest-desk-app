@@ -241,17 +241,21 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                   ),
                   const SizedBox(height: PSpace.x12),
                   if (_viewMode == _ViewMode.calendar)
-                    _CalendarGrid(
-                      month: _month,
-                      expenses: raw,
-                      masked: settings.hideAmounts,
-                      onTapDate: (date, items) => _openDayDetailSheet(
-                        date,
-                        items,
-                        categoriesAsync,
-                        settings.hideAmounts,
-                      ),
-                    )
+                    // 월 변경 시 refetch 중이면 (data + isLoading 동시) 캘린더 자체를
+                    // skeleton 으로 대체 — cell 들이 "사용 금액 없는 것처럼" 보이는 현상 fix.
+                    expensesAsync.isLoading
+                        ? const _ExpenseCalendarSkeleton()
+                        : _CalendarGrid(
+                            month: _month,
+                            expenses: raw,
+                            masked: settings.hideAmounts,
+                            onTapDate: (date, items) => _openDayDetailSheet(
+                              date,
+                              items,
+                              categoriesAsync,
+                              settings.hideAmounts,
+                            ),
+                          )
                   else ...[
                     _FilterRow(
                       value: _filter,
