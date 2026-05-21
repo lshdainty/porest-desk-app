@@ -106,7 +106,8 @@ class _BackItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // back 버튼 — 라벨 없어 비어 보이는 현상 fix. 클로드 정합 spec.
+    // back 버튼 — 라벨 없어 비어 보이는 현상 fix. 클로드 시각 정합 (mid-gray icon).
+    // 클로드 토큰은 var(--fg-primary) 지만 값이 우리와 달라 시각 정합 위해 fgSecondary 사용.
     return InkWell(
       onTap: onTap,
       borderRadius: const BorderRadius.all(Radius.circular(PRadius.md)),
@@ -119,7 +120,11 @@ class _BackItem extends StatelessWidget {
             shape: BoxShape.circle,
           ),
           alignment: Alignment.center,
-          child: Icon(LucideIcons.arrowLeft, size: 18, color: tokens.fgPrimary),
+          child: Icon(
+            LucideIcons.arrowLeft,
+            size: 18,
+            color: tokens.fgSecondary,
+          ),
         ),
       ),
     );
