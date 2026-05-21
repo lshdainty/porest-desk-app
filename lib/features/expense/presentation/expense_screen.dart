@@ -841,26 +841,20 @@ class _CalendarGrid extends StatelessWidget {
                                   : dow == 6
                                       ? t.fgBrand // 토요일 파랑
                                       : t.fgPrimary;
+                      // 모바일 — 셀 사이 grid 선 제거 (사용자 요청).
+                      // 외곽 Container 의 border 만 남아 카드 외형 유지.
                       return DecoratedBox(
-                        decoration: BoxDecoration(
-                          border: Border(
-                            right: dow == 6
-                                ? BorderSide.none
-                                : BorderSide(color: borderColor),
-                            bottom: week == weeksCount - 1
-                                ? BorderSide.none
-                                : BorderSide(color: borderColor),
-                          ),
-                        ),
+                        decoration: const BoxDecoration(),
                         child: InkWell(
                           onTap: items.isEmpty
                               ? null
                               : () => onTapDate(date, items),
                           child: Container(
                             padding: const EdgeInsets.symmetric(
-                                vertical: 4, horizontal: 4),
+                                vertical: 4, horizontal: 6),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 // 날짜 — today 면 동그라미 배경 + 흰 글씨. 22→20 으로 압축.
                                 Container(
@@ -890,7 +884,7 @@ class _CalendarGrid extends StatelessWidget {
                                     width: double.infinity,
                                     child: FittedBox(
                                       fit: BoxFit.scaleDown,
-                                      alignment: Alignment.center,
+                                      alignment: Alignment.centerLeft,
                                       child: Text(
                                         '−${_compact(expense, masked)}',
                                         maxLines: 1,
@@ -907,7 +901,7 @@ class _CalendarGrid extends StatelessWidget {
                                     width: double.infinity,
                                     child: FittedBox(
                                       fit: BoxFit.scaleDown,
-                                      alignment: Alignment.center,
+                                      alignment: Alignment.centerLeft,
                                       child: Text(
                                         '+${_compact(income, masked)}',
                                         maxLines: 1,
