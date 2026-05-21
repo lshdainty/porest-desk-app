@@ -32,8 +32,9 @@ class AssetScreen extends ConsumerWidget {
     final t = context.tokens;
     final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
     final assetsAsync = ref.watch(assetsProvider);
-    final summaryAsync =
-        ref.watch(assetSummaryProvider((year: null, month: null)));
+    final summaryAsync = ref.watch(
+      assetSummaryProvider((year: null, month: null)),
+    );
 
     return Scaffold(
       backgroundColor: t.bgCanvas,
@@ -60,8 +61,7 @@ class AssetScreen extends ConsumerWidget {
             onRetry: () => ref.invalidate(assetsProvider),
           ),
           data: (assets) {
-            final summary =
-                summaryAsync.hasValue ? summaryAsync.value : null;
+            final summary = summaryAsync.hasValue ? summaryAsync.value : null;
             return _AssetBody(
               assets: assets,
               summary: summary,
@@ -99,11 +99,14 @@ class _AssetBody extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 20),
             child: Column(
               children: [
-                Text('아직 등록된 자산이 없어요',
-                    style: TextStyle(
-                        color: tokens.fgTertiary,
-                        fontSize: PFontSize.body,
-                        fontWeight: PFontWeight.medium)),
+                Text(
+                  '아직 등록된 자산이 없어요',
+                  style: TextStyle(
+                    color: tokens.fgTertiary,
+                    fontSize: PFontSize.body,
+                    fontWeight: PFontWeight.medium,
+                  ),
+                ),
                 const SizedBox(height: PSpace.x12),
                 PButton(
                   label: '첫 자산 추가하기',
@@ -117,11 +120,18 @@ class _AssetBody extends StatelessWidget {
       );
     }
 
-    final accounts = assets.where((a) => _accountTypes.contains(a.assetType)).toList();
-    final cards = assets.where((a) => _cardTypes.contains(a.assetType)).toList();
-    final investments =
-        assets.where((a) => _investmentTypes.contains(a.assetType)).toList();
-    final loans = assets.where((a) => _loanTypes.contains(a.assetType)).toList();
+    final accounts = assets
+        .where((a) => _accountTypes.contains(a.assetType))
+        .toList();
+    final cards = assets
+        .where((a) => _cardTypes.contains(a.assetType))
+        .toList();
+    final investments = assets
+        .where((a) => _investmentTypes.contains(a.assetType))
+        .toList();
+    final loans = assets
+        .where((a) => _loanTypes.contains(a.assetType))
+        .toList();
 
     int sumIncluded(List<Asset> arr) => arr
         .where((a) => a.isIncludedInTotal == 'Y')
@@ -132,14 +142,17 @@ class _AssetBody extends StatelessWidget {
     final investmentsTotal = sumIncluded(investments);
     final loansTotal = sumIncluded(loans).abs();
 
-    final netWorth = summary?.netWorth ??
+    final netWorth =
+        summary?.netWorth ??
         (accountsTotal + investmentsTotal - cardsTotal - loansTotal);
     final changeAmount = summary?.changeAmount ?? 0;
     final changePercent = summary?.changePercent ?? 0.0;
 
     return ListView(
       padding: const EdgeInsets.symmetric(
-            horizontal: PSpace.x20, vertical: PSpace.x24),
+        horizontal: PSpace.x20,
+        vertical: PSpace.x24,
+      ),
       children: [
         _SummaryCard(
           netWorth: netWorth,
@@ -232,14 +245,20 @@ class _SummaryCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Text('총 순자산',
-                  style: TextStyle(
-                      color: t.fgTertiary,
-                      fontSize: PFontSize.caption,
-                      fontWeight: PFontWeight.medium)),
+              Text(
+                '총 순자산',
+                style: TextStyle(
+                  color: t.fgTertiary,
+                  fontSize: PFontSize.caption,
+                  fontWeight: PFontWeight.medium,
+                ),
+              ),
               const SizedBox(width: 6),
-              Icon(masked ? LucideIcons.eyeOff : LucideIcons.eye,
-                  size: 14, color: t.fgTertiary),
+              Icon(
+                masked ? LucideIcons.eyeOff : LucideIcons.eye,
+                size: 14,
+                color: t.fgTertiary,
+              ),
               const Spacer(),
               // 자산 간 이체 — 헤더 아이콘에서 옮겨옴 (web 와 동일 패턴: 본문 안 액션).
               PButton(
@@ -282,31 +301,39 @@ class _SummaryCard extends StatelessWidget {
           Row(
             children: [
               Icon(
-                  isUp ? LucideIcons.trendingUp : LucideIcons.trendingDown,
-                  size: 14,
-                  color: trendColor),
+                isUp ? LucideIcons.trendingUp : LucideIcons.trendingDown,
+                size: 14,
+                color: trendColor,
+              ),
               const SizedBox(width: 2),
               Text(
                 '${isUp ? '+' : ''}${changePercent.toStringAsFixed(1)}%',
                 style: TextStyle(
-                    color: trendColor,
-                    fontSize: PFontSize.bodySm,
-                    fontWeight: PFontWeight.semi,
-                    fontFeatures: const [FontFeature.tabularFigures()]),
+                  color: trendColor,
+                  fontSize: PFontSize.bodySm,
+                  fontWeight: PFontWeight.semi,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
               ),
               if (!masked && changeAmount != 0) ...[
                 const SizedBox(width: 4),
                 Text(
                   '(${isUp ? '+' : '−'}${krw(changeAmount.abs())}원)',
                   style: TextStyle(
-                      color: t.fgTertiary,
-                      fontSize: PFontSize.bodySm,
-                      fontWeight: PFontWeight.medium),
+                    color: t.fgTertiary,
+                    fontSize: PFontSize.bodySm,
+                    fontWeight: PFontWeight.medium,
+                  ),
                 ),
               ],
               const SizedBox(width: 10),
-              Text('지난달 대비',
-                  style: TextStyle(color: t.fgTertiary, fontSize: PFontSize.bodySm)),
+              Text(
+                '지난달 대비',
+                style: TextStyle(
+                  color: t.fgTertiary,
+                  fontSize: PFontSize.bodySm,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 14),
@@ -320,25 +347,31 @@ class _SummaryCard extends StatelessWidget {
             child: Row(
               children: [
                 Expanded(
-                    child: _SummaryCol(
-                        label: '계좌·예금',
-                        amount: accountsTotal,
-                        masked: masked,
-                        tokens: t)),
+                  child: _SummaryCol(
+                    label: '계좌·예금',
+                    amount: accountsTotal,
+                    masked: masked,
+                    tokens: t,
+                  ),
+                ),
                 Expanded(
-                    child: _SummaryCol(
-                        label: '투자',
-                        amount: investmentsTotal,
-                        masked: masked,
-                        tokens: t)),
+                  child: _SummaryCol(
+                    label: '투자',
+                    amount: investmentsTotal,
+                    masked: masked,
+                    tokens: t,
+                  ),
+                ),
                 Expanded(
-                    child: _SummaryCol(
-                        label: '카드값',
-                        amount: cardsTotal,
-                        valueColor: t.fgExpense,
-                        negative: true,
-                        masked: masked,
-                        tokens: t)),
+                  child: _SummaryCol(
+                    label: '카드값',
+                    amount: cardsTotal,
+                    valueColor: t.fgExpense,
+                    negative: true,
+                    masked: masked,
+                    tokens: t,
+                  ),
+                ),
               ],
             ),
           ),
@@ -369,18 +402,21 @@ class _SummaryCol extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label,
-            style: TextStyle(
-                color: tokens.fgTertiary,
-                fontSize: PFontSize.micro,
-                fontWeight: PFontWeight.medium)),
+        Text(
+          label,
+          style: TextStyle(
+            color: tokens.fgTertiary,
+            fontSize: PFontSize.micro,
+            fontWeight: PFontWeight.medium,
+          ),
+        ),
         const SizedBox(height: 2),
         Text(
           masked
               ? '•••'
               : negative
-                  ? '−${krw(amount.abs())}'
-                  : krw(amount),
+              ? '−${krw(amount.abs())}'
+              : krw(amount),
           style: TextStyle(
             color: valueColor ?? tokens.fgPrimary,
             fontSize: PFontSize.body,
@@ -441,18 +477,21 @@ class _TypeGroup extends StatelessWidget {
         children: [
           Row(
             children: [
-              Text(title,
-                  style: TextStyle(
-                      color: tokens.fgPrimary,
-                      fontSize: PFontSize.bodyLg,
-                      fontWeight: PFontWeight.bold)),
+              Text(
+                title,
+                style: TextStyle(
+                  color: tokens.fgPrimary,
+                  fontSize: PFontSize.bodyLg,
+                  fontWeight: PFontWeight.bold,
+                ),
+              ),
               const Spacer(),
               Text(
                 masked
                     ? '•••'
                     : negativeTotal
-                        ? '−${krw(total.abs())}원'
-                        : '${krw(total)}원',
+                    ? '−${krw(total.abs())}원'
+                    : '${krw(total)}원',
                 style: TextStyle(
                   color: totalColor ?? tokens.fgPrimary,
                   fontSize: PFontSize.bodySm,
@@ -466,17 +505,26 @@ class _TypeGroup extends StatelessWidget {
                 onTap: () => _onAdd(context),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 6, vertical: 4),
+                    horizontal: 6,
+                    vertical: 4,
+                  ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(LucideIcons.plus, size: 13, color: tokens.fgSecondary),
+                      Icon(
+                        LucideIcons.plus,
+                        size: 13,
+                        color: tokens.fgSecondary,
+                      ),
                       const SizedBox(width: 2),
-                      Text('추가',
-                          style: TextStyle(
-                              color: tokens.fgSecondary,
-                              fontSize: PFontSize.bodySm,
-                              fontWeight: PFontWeight.semi)),
+                      Text(
+                        '추가',
+                        style: TextStyle(
+                          color: tokens.fgSecondary,
+                          fontSize: PFontSize.bodySm,
+                          fontWeight: PFontWeight.semi,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -488,20 +536,24 @@ class _TypeGroup extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 24),
               child: Center(
-                child: Text('등록된 항목이 없어요',
-                    style: TextStyle(color: tokens.fgTertiary, fontSize: PFontSize.bodySm)),
+                child: Text(
+                  '등록된 항목이 없어요',
+                  style: TextStyle(
+                    color: tokens.fgTertiary,
+                    fontSize: PFontSize.bodySm,
+                  ),
+                ),
               ),
             )
           else
-            for (int i = 0; i < assets.length; i++) ...[
-              if (i > 0) const SizedBox(height: 8),
+            for (int i = 0; i < assets.length; i++)
               _AssetCard(
                 asset: assets[i],
                 masked: masked,
                 negativeAmount: negativeTotal,
                 tokens: tokens,
+                showTopBorder: i > 0,
               ),
-            ],
         ],
       ),
     );
@@ -514,24 +566,31 @@ class _AssetCard extends StatelessWidget {
     required this.masked,
     required this.negativeAmount,
     required this.tokens,
+    required this.showTopBorder,
   });
   final Asset asset;
   final bool masked;
   final bool negativeAmount;
   final PorestTokens tokens;
+  final bool showTopBorder;
 
   @override
   Widget build(BuildContext context) {
     final t = tokens;
     final balance = asset.balance ?? 0;
+    // list item — 자체 round/border 없음. 부모 list 가 큰 카드, item 사이 border-top
+    // 1px (첫 item 제외) 으로 구분. 클로드 디자인 톤.
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        borderRadius: PRadius.brLg,
         onTap: () => showAssetDetailDialog(context, asset),
-        child: PCard(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-          variant: PCardVariant.bordered,
+        child: Container(
+          decoration: BoxDecoration(
+            border: showTopBorder
+                ? Border(top: BorderSide(color: t.borderSubtle))
+                : null,
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 14),
           child: Row(
             children: [
               AssetLogo(asset: asset),
@@ -553,7 +612,8 @@ class _AssetCard extends StatelessWidget {
                             ),
                           ),
                         ),
-                        if (asset.institution != null && asset.institution!.isNotEmpty) ...[
+                        if (asset.institution != null &&
+                            asset.institution!.isNotEmpty) ...[
                           const SizedBox(width: 6),
                           Flexible(
                             child: Text(
@@ -576,9 +636,10 @@ class _AssetCard extends StatelessWidget {
                           asset.memo!,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                              color: t.fgTertiary,
-                              fontSize: PFontSize.caption,
-                              fontFeatures: const [FontFeature.tabularFigures()]),
+                            color: t.fgTertiary,
+                            fontSize: PFontSize.caption,
+                            fontFeatures: const [FontFeature.tabularFigures()],
+                          ),
                         ),
                       ),
                   ],
@@ -589,8 +650,8 @@ class _AssetCard extends StatelessWidget {
                 masked
                     ? '•••'
                     : negativeAmount
-                        ? '−${krw(balance.abs())}원'
-                        : '${krw(balance)}원',
+                    ? '−${krw(balance.abs())}원'
+                    : '${krw(balance)}원',
                 style: TextStyle(
                   color: t.fgPrimary,
                   fontSize: PFontSize.bodyLg,
@@ -625,12 +686,19 @@ class _ErrorBox extends StatelessWidget {
           ),
           child: Column(
             children: [
-              Text(message, style: TextStyle(color: t.statusDangerFg, fontSize: PFontSize.bodySm)),
+              Text(
+                message,
+                style: TextStyle(
+                  color: t.statusDangerFg,
+                  fontSize: PFontSize.bodySm,
+                ),
+              ),
               const SizedBox(height: PSpace.x8),
               PButton(
-                  label: '다시 시도',
-                  variant: PButtonVariant.outline,
-                  onPressed: onRetry),
+                label: '다시 시도',
+                variant: PButtonVariant.outline,
+                onPressed: onRetry,
+              ),
             ],
           ),
         ),
