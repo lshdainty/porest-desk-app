@@ -240,6 +240,8 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
                 children: [
                   PToggleGroupSingle<_SegMode>(
                     value: draftSeg,
+                    expanded: true,
+                    visual: PToggleGroupVisual.solid,
                     items: const [
                       PToggleGroupItem(value: _SegMode.month, label: '월'),
                       PToggleGroupItem(value: _SegMode.quarter, label: '분기'),
