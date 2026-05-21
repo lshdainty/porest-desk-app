@@ -774,15 +774,14 @@ class _CalendarGrid extends StatelessWidget {
     // 사진 2 레이아웃 정합 — 카드 wrap 없음 + 배경 bgSurface + 셀 사이 border grid.
     // 셀 자체에 border (Container.decoration.border) 로 정확한 grid 그림.
     final borderColor = t.borderSubtle;
+    // height 420 고정 — Web Card 와 정합. 헤더 + 6 row 가 균등 분배.
     return Container(
+      height: 420,
       decoration: BoxDecoration(
         color: t.bgSurface,
         borderRadius: PRadius.brLg,
         border: Border.all(color: borderColor),
       ),
-      // clipBehavior 제거 — antiAlias 가 IntrinsicHeight 와 충돌해서 화면 비어
-      // 보이던 layout 버그 fix. 외곽 borderRadius 만 살리고 셀 border 가 약간
-      // 외곽 곡선과 겹쳐도 시각 차이 미미.
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -812,13 +811,13 @@ class _CalendarGrid extends StatelessWidget {
               ],
             ),
           ),
-          // 6 주 × 7 요일 grid — 각 셀에 border (right + bottom). 마지막 row/col 은
-          // 외곽 border 와 겹치지 않게 inner only.
+          // 4~6 주 × 7 요일 grid — 각 row 를 Expanded 로 균등 분배 (외곽 420 안).
+          // 셀에 border (right + bottom). 마지막 row/col 은 외곽 border 와
+          // 겹치지 않게 inner only.
           for (int week = 0; week < weeksCount; week++)
-            Row(
-              // crossAxisAlignment.stretch 제거 — Row 가 ListView 안에서
-              // unbounded vertical 일 때 stretch 시 assertion. 셀 minHeight 72
-              // 로 모든 셀이 같은 높이 보장.
+            Expanded(
+              child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 for (int dow = 0; dow < 7; dow++)
                   Expanded(
@@ -858,7 +857,6 @@ class _CalendarGrid extends StatelessWidget {
                               ? null
                               : () => onTapDate(date, items),
                           child: Container(
-                            constraints: const BoxConstraints(minHeight: 72),
                             padding: const EdgeInsets.symmetric(
                                 vertical: 6, horizontal: 4),
                             child: Column(
@@ -926,6 +924,7 @@ class _CalendarGrid extends StatelessWidget {
                     }(),
                   ),
               ],
+              ),
             ),
         ],
       ),
