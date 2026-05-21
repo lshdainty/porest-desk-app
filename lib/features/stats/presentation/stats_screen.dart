@@ -127,23 +127,23 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
   }
 
   String get _periodNow => switch (_segMode) {
-        _SegMode.month => '이번 달',
-        _SegMode.quarter => '이번 분기',
-        _SegMode.year => '이번 해',
-        _SegMode.custom => '선택 기간',
-      };
+    _SegMode.month => '이번 달',
+    _SegMode.quarter => '이번 분기',
+    _SegMode.year => '이번 해',
+    _SegMode.custom => '선택 기간',
+  };
   String get _periodPrev => switch (_segMode) {
-        _SegMode.month => '지난 달',
-        _SegMode.quarter => '지난 분기',
-        _SegMode.year => '지난 해',
-        _SegMode.custom => '이전 기간',
-      };
+    _SegMode.month => '지난 달',
+    _SegMode.quarter => '지난 분기',
+    _SegMode.year => '지난 해',
+    _SegMode.custom => '이전 기간',
+  };
   String get _momLabel => switch (_segMode) {
-        _SegMode.month => '전월 대비',
-        _SegMode.quarter => '전분기 대비',
-        _SegMode.year => '전년 대비',
-        _SegMode.custom => '이전 기간 대비',
-      };
+    _SegMode.month => '전월 대비',
+    _SegMode.quarter => '전분기 대비',
+    _SegMode.year => '전년 대비',
+    _SegMode.custom => '이전 기간 대비',
+  };
   String get _avgLabel => _useDailyAvg ? '하루 평균' : '월 평균';
 
   void setSegMode(_SegMode m) {
@@ -153,13 +153,16 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
       switch (m) {
         case _SegMode.month:
           final r = _monthRangeOf(now);
-          _from = r.from; _to = r.to;
+          _from = r.from;
+          _to = r.to;
         case _SegMode.quarter:
           final r = _quarterRangeOf(now);
-          _from = r.from; _to = r.to;
+          _from = r.from;
+          _to = r.to;
         case _SegMode.year:
           final r = _yearRangeOf(now);
-          _from = r.from; _to = r.to;
+          _from = r.from;
+          _to = r.to;
         case _SegMode.custom:
           // 현재 from/to 유지 — 사용자가 캘린더로 직접 조정
           break;
@@ -176,27 +179,25 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
   }
 
   Future<void> _pickRange() async {
-    // 모바일 환경 — Dialog 대신 PSheet (bottom drawer) 패턴 사용.
-    // desk-app CLAUDE.md / showPSheet helper 정합 (모바일에서 dialog → drawer).
-    // footer 는 add_tx_sheet 와 동일하게 PSheetFooter 표준 (Spacer + 우측 정렬 ghost+primary).
-    // shrinkWrap: true — content 자연 합산 height (DraggableScrollableSheet
-    // 강제 비율 회피). chips + dateInputs 만 있어 short sheet — wrap-content
-    // 가 적절. caller content 는 ListView 가 아닌 Column (자연 wrap).
+    // 가계부 FilterDialog 패턴 정합 — 상단 ToggleGroup (월/분기/년/직접) +
+    // 항상 date range PDateInput + custom 시만 quick chips. apply 시 segMode +
+    // from/to 모두 반영. shrinkWrap: true — content 자연 합산.
     final controller = PSheetController();
+    _SegMode draftSeg = _segMode;
     DateTime draftFrom = _from;
     DateTime draftTo = _to;
     controller.setCanSubmit(!draftTo.isBefore(draftFrom));
 
-    final picked = await showPSheet<DateTimeRange>(
+    final picked = await showPSheet<({_SegMode seg, DateTimeRange range})>(
       context,
       title: '기간 선택',
       shrinkWrap: true,
       contentBuilder: (sheetCtx, _) {
         controller.onSubmit ??= () async {
-          Navigator.pop(
-            sheetCtx,
-            DateTimeRange(start: draftFrom, end: draftTo),
-          );
+          Navigator.pop(sheetCtx, (
+            seg: draftSeg,
+            range: DateTimeRange(start: draftFrom, end: draftTo),
+          ));
         };
         const quickRanges = <({String label, int days})>[
           (label: '최근 7일', days: 7),
@@ -205,85 +206,133 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
           (label: '최근 6개월', days: 180),
           (label: '최근 1년', days: 365),
         ];
-        return StatefulBuilder(builder: (ctx, setSheet) {
-          void syncCan() =>
-              controller.setCanSubmit(!draftTo.isBefore(draftFrom));
-          return Padding(
-            padding: const EdgeInsets.symmetric(
-                horizontal: PSpace.x20, vertical: PSpace.x12),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Wrap(
-                  spacing: PSpace.sm,
-                  runSpacing: PSpace.sm,
-                  children: [
-                    for (final q in quickRanges)
-                      PChip(
-                        label: q.label,
-                        selected: false,
-                        onTap: () {
-                          final today = DateTime.now();
-                          setSheet(() {
-                            draftFrom =
-                                today.subtract(Duration(days: q.days - 1));
-                            draftTo = today;
-                          });
-                          syncCan();
-                        },
+        return StatefulBuilder(
+          builder: (ctx, setSheet) {
+            void syncCan() =>
+                controller.setCanSubmit(!draftTo.isBefore(draftFrom));
+            void setSeg(_SegMode v) {
+              setSheet(() {
+                draftSeg = v;
+                final now = DateTime.now();
+                if (v == _SegMode.month) {
+                  draftFrom = DateTime(now.year, now.month, 1);
+                  draftTo = DateTime(now.year, now.month + 1, 0);
+                } else if (v == _SegMode.quarter) {
+                  final q = (now.month - 1) ~/ 3;
+                  draftFrom = DateTime(now.year, q * 3 + 1, 1);
+                  draftTo = DateTime(now.year, q * 3 + 4, 0);
+                } else if (v == _SegMode.year) {
+                  draftFrom = DateTime(now.year, 1, 1);
+                  draftTo = DateTime(now.year, 12, 31);
+                }
+              });
+              syncCan();
+            }
+
+            return Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: PSpace.x20,
+                vertical: PSpace.x12,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  PToggleGroupSingle<_SegMode>(
+                    value: draftSeg,
+                    items: const [
+                      PToggleGroupItem(value: _SegMode.month, label: '월'),
+                      PToggleGroupItem(value: _SegMode.quarter, label: '분기'),
+                      PToggleGroupItem(value: _SegMode.year, label: '년'),
+                      PToggleGroupItem(value: _SegMode.custom, label: '직접'),
+                    ],
+                    onChanged: setSeg,
+                  ),
+                  const SizedBox(height: PSpace.lg),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: PDateInput(
+                          value: draftFrom,
+                          onChanged: (d) {
+                            if (d != null) {
+                              setSheet(() {
+                                draftFrom = d;
+                                draftSeg = _SegMode.custom;
+                              });
+                              syncCan();
+                            }
+                          },
+                          firstDate: DateTime(2020),
+                          lastDate: DateTime(DateTime.now().year + 5, 12, 31),
+                        ),
                       ),
+                      const SizedBox(width: PSpace.sm),
+                      Text(
+                        '~',
+                        style: PTypo.body.copyWith(
+                          color: ctx.tokens.fgTertiary,
+                        ),
+                      ),
+                      const SizedBox(width: PSpace.sm),
+                      Expanded(
+                        child: PDateInput(
+                          value: draftTo,
+                          onChanged: (d) {
+                            if (d != null) {
+                              setSheet(() {
+                                draftTo = d;
+                                draftSeg = _SegMode.custom;
+                              });
+                              syncCan();
+                            }
+                          },
+                          firstDate: DateTime(2020),
+                          lastDate: DateTime(DateTime.now().year + 5, 12, 31),
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (draftSeg == _SegMode.custom) ...[
+                    const SizedBox(height: PSpace.lg),
+                    Wrap(
+                      spacing: PSpace.sm,
+                      runSpacing: PSpace.sm,
+                      children: [
+                        for (final q in quickRanges)
+                          PChip(
+                            label: q.label,
+                            selected: false,
+                            onTap: () {
+                              final today = DateTime.now();
+                              setSheet(() {
+                                draftFrom = today.subtract(
+                                  Duration(days: q.days - 1),
+                                );
+                                draftTo = today;
+                                draftSeg = _SegMode.custom;
+                              });
+                              syncCan();
+                            },
+                          ),
+                      ],
+                    ),
                   ],
-                ),
-                const SizedBox(height: PSpace.lg),
-                Row(
-                  children: [
-                    Expanded(
-                      child: PDateInput(
-                        value: draftFrom,
-                        onChanged: (d) {
-                          if (d != null) {
-                            setSheet(() => draftFrom = d);
-                            syncCan();
-                          }
-                        },
-                        firstDate: DateTime(2020),
-                        lastDate: DateTime(DateTime.now().year + 5, 12, 31),
-                      ),
-                    ),
-                    const SizedBox(width: PSpace.sm),
-                    Text(
-                      '~',
-                      style: PTypo.body.copyWith(color: ctx.tokens.fgTertiary),
-                    ),
-                    const SizedBox(width: PSpace.sm),
-                    Expanded(
-                      child: PDateInput(
-                        value: draftTo,
-                        onChanged: (d) {
-                          if (d != null) {
-                            setSheet(() => draftTo = d);
-                            syncCan();
-                          }
-                        },
-                        firstDate: DateTime(2020),
-                        lastDate: DateTime(DateTime.now().year + 5, 12, 31),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          );
-        });
+                ],
+              ),
+            );
+          },
+        );
       },
-      footerBuilder: (ctx) => PSheetFooter(
-        controller: controller,
-        submitLabel: '적용',
-      ),
+      footerBuilder: (ctx) =>
+          PSheetFooter(controller: controller, submitLabel: '적용'),
     ).whenComplete(controller.dispose);
     if (picked != null) {
-      setCustomRange(picked.start, picked.end);
+      if (picked.seg == _SegMode.custom) {
+        setCustomRange(picked.range.start, picked.range.end);
+      } else {
+        setSegMode(picked.seg);
+      }
     }
   }
 
@@ -335,29 +384,34 @@ class _CategoryTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = context.tokens;
-    final settings =
-        ref.watch(settingsProvider).value ?? AppSettings.defaults;
+    final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
     final rangeAsync = ref.watch(rangeSummaryProvider(state._range));
     final categoriesAsync = ref.watch(categoriesProvider);
-    final merchantAsync = ref.watch(merchantSummaryProvider((
-      startDate: state._range.startDate,
-      endDate: state._range.endDate,
-    )));
+    final merchantAsync = ref.watch(
+      merchantSummaryProvider((
+        startDate: state._range.startDate,
+        endDate: state._range.endDate,
+      )),
+    );
     final heatmapAsync = ref.watch(heatmapProvider(state._range));
 
     return RefreshIndicator(
       color: t.bgBrand,
       onRefresh: () async {
         ref.invalidate(rangeSummaryProvider(state._range));
-        ref.invalidate(merchantSummaryProvider((
-          startDate: state._range.startDate,
-          endDate: state._range.endDate,
-        )));
+        ref.invalidate(
+          merchantSummaryProvider((
+            startDate: state._range.startDate,
+            endDate: state._range.endDate,
+          )),
+        );
         ref.invalidate(heatmapProvider(state._range));
       },
       child: ListView(
         padding: const EdgeInsets.symmetric(
-            horizontal: PSpace.x20, vertical: PSpace.x24),
+          horizontal: PSpace.x20,
+          vertical: PSpace.x24,
+        ),
         children: [
           _DonutCard(
             state: state,
@@ -366,10 +420,7 @@ class _CategoryTab extends ConsumerWidget {
             masked: settings.hideAmounts,
           ),
           const SizedBox(height: PSpace.x12),
-          _TopMerchantsCard(
-            async: merchantAsync,
-            masked: settings.hideAmounts,
-          ),
+          _TopMerchantsCard(async: merchantAsync, masked: settings.hideAmounts),
           const SizedBox(height: PSpace.x12),
           _HeatmapCard(async: heatmapAsync),
           const SizedBox(height: PSpace.x12),
@@ -394,8 +445,7 @@ class _TrendTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = context.tokens;
-    final settings =
-        ref.watch(settingsProvider).value ?? AppSettings.defaults;
+    final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
     final rangeAsync = ref.watch(rangeSummaryProvider(state._range));
     final monthExpAsync = ref.watch(rangeExpensesProvider(state._range));
     return RefreshIndicator(
@@ -406,7 +456,9 @@ class _TrendTab extends ConsumerWidget {
       },
       child: ListView(
         padding: const EdgeInsets.symmetric(
-            horizontal: PSpace.x20, vertical: PSpace.x24),
+          horizontal: PSpace.x20,
+          vertical: PSpace.x24,
+        ),
         children: [
           _TrendBigCard(
             state: state,
@@ -439,8 +491,7 @@ class _CompareTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = context.tokens;
-    final settings =
-        ref.watch(settingsProvider).value ?? AppSettings.defaults;
+    final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
     final rangeAsync = ref.watch(rangeSummaryProvider(state._range));
     final prevRangeAsync = ref.watch(rangeSummaryProvider(state._prevRangeKey));
     final categoriesAsync = ref.watch(categoriesProvider);
@@ -452,7 +503,9 @@ class _CompareTab extends ConsumerWidget {
       },
       child: ListView(
         padding: const EdgeInsets.symmetric(
-            horizontal: PSpace.x20, vertical: PSpace.x24),
+          horizontal: PSpace.x20,
+          vertical: PSpace.x24,
+        ),
         children: [
           _CompareSummaryGrid(
             state: state,
@@ -490,6 +543,51 @@ class _Card extends StatelessWidget {
       variant: PCardVariant.bordered,
       padding: padding ?? const EdgeInsets.all(18),
       child: child,
+    );
+  }
+}
+
+/// 카테고리 카드 우측 trigger — 가계부 FilterDialog 패턴 정합.
+/// 작은 outline button (Calendar icon + periodLabel + chevron). 클릭 시 _pickRange().
+class _PeriodTrigger extends StatelessWidget {
+  const _PeriodTrigger({required this.state});
+  final _StatsScreenState state;
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return Align(
+      alignment: Alignment.centerRight,
+      child: InkWell(
+        onTap: state._pickRange,
+        borderRadius: PRadius.brMd,
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: PSpace.x12,
+            vertical: PSpace.x8,
+          ),
+          decoration: BoxDecoration(
+            color: t.bgSurface,
+            border: Border.all(color: t.borderSubtle),
+            borderRadius: PRadius.brMd,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(LucideIcons.calendar, size: 14, color: t.fgSecondary),
+              const SizedBox(width: PSpace.x4),
+              Text(
+                state._periodLabel,
+                style: PTypo.bodySm.copyWith(
+                  color: t.fgPrimary,
+                  fontWeight: PFontWeight.medium,
+                ),
+              ),
+              const SizedBox(width: PSpace.x4),
+              Icon(LucideIcons.chevronDown, size: 12, color: t.fgTertiary),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
@@ -533,7 +631,9 @@ class _SelectedRangeCard extends StatelessWidget {
     return PCard(
       variant: PCardVariant.bordered,
       padding: const EdgeInsets.symmetric(
-          horizontal: PSpace.lg, vertical: PSpace.md),
+        horizontal: PSpace.lg,
+        vertical: PSpace.md,
+      ),
       onTap: s._pickRange,
       child: Row(
         children: [
@@ -543,21 +643,28 @@ class _SelectedRangeCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('선택 기간',
-                    style: PTypo.caption.copyWith(color: t.fgTertiary)),
+                Text(
+                  '선택 기간',
+                  style: PTypo.caption.copyWith(color: t.fgTertiary),
+                ),
                 const SizedBox(height: 2),
                 Text.rich(
-                  TextSpan(children: [
-                    TextSpan(text: '${fmt(s._from)} ~ ${fmt(s._to)}'),
-                    TextSpan(
-                      text: '  ($days일)',
-                      style: TextStyle(
+                  TextSpan(
+                    children: [
+                      TextSpan(text: '${fmt(s._from)} ~ ${fmt(s._to)}'),
+                      TextSpan(
+                        text: '  ($days일)',
+                        style: TextStyle(
                           color: t.fgTertiary,
-                          fontWeight: PFontWeight.regular),
-                    ),
-                  ]),
+                          fontWeight: PFontWeight.regular,
+                        ),
+                      ),
+                    ],
+                  ),
                   style: PTypo.bodySm.copyWith(
-                      color: t.fgPrimary, fontWeight: PFontWeight.semi),
+                    color: t.fgPrimary,
+                    fontWeight: PFontWeight.semi,
+                  ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -570,10 +677,13 @@ class _SelectedRangeCard extends StatelessWidget {
             children: [
               Icon(LucideIcons.pencil, size: 14, color: t.fgSecondary),
               const SizedBox(width: 4),
-              Text('변경',
-                  style: PTypo.caption.copyWith(
-                      color: t.fgSecondary,
-                      fontWeight: PFontWeight.semi)),
+              Text(
+                '변경',
+                style: PTypo.caption.copyWith(
+                  color: t.fgSecondary,
+                  fontWeight: PFontWeight.semi,
+                ),
+              ),
             ],
           ),
         ],
@@ -624,8 +734,7 @@ class _EmptyBox extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 28),
       child: Center(
-        child: Text(text,
-            style: PTypo.caption.copyWith(color: t.fgTertiary)),
+        child: Text(text, style: PTypo.caption.copyWith(color: t.fgTertiary)),
       ),
     );
   }
@@ -683,10 +792,7 @@ class _MerchantListSkeleton extends StatelessWidget {
                     children: [
                       const PSkeleton.line(width: 120, height: 14),
                       const SizedBox(height: 6),
-                      PSkeleton(
-                        height: 4,
-                        borderRadius: PRadius.brFull,
-                      ),
+                      PSkeleton(height: 4, borderRadius: PRadius.brFull),
                     ],
                   ),
                 ),
@@ -803,8 +909,13 @@ class _DonutCardState extends ConsumerState<_DonutCard> {
   }
 
   List<CategoryBreakdown> get _periodBreakdown {
-    final raw = widget.rangeAsync.value?.categoryBreakdown ?? const <CategoryBreakdown>[];
-    return [for (final c in raw) if (c.expenseType == 'EXPENSE') c];
+    final raw =
+        widget.rangeAsync.value?.categoryBreakdown ??
+        const <CategoryBreakdown>[];
+    return [
+      for (final c in raw)
+        if (c.expenseType == 'EXPENSE') c,
+    ];
   }
 
   List<_DonutRow> _aggregateParent(List<CategoryBreakdown> bd) {
@@ -838,8 +949,7 @@ class _DonutCardState extends ConsumerState<_DonutCard> {
     return list;
   }
 
-  List<_DonutRow> _aggregateChildren(
-      List<CategoryBreakdown> bd, int parentId) {
+  List<_DonutRow> _aggregateChildren(List<CategoryBreakdown> bd, int parentId) {
     final map = <int, _DonutRow>{};
     final cats = (widget.categoriesAsync.value ?? const []).cast<dynamic>();
     for (final c in bd) {
@@ -864,8 +974,7 @@ class _DonutCardState extends ConsumerState<_DonutCard> {
       }
       row.amount += c.totalAmount;
     }
-    return map.values.toList()
-      ..sort((a, b) => b.amount.compareTo(a.amount));
+    return map.values.toList()..sort((a, b) => b.amount.compareTo(a.amount));
   }
 
   @override
@@ -886,8 +995,9 @@ class _DonutCardState extends ConsumerState<_DonutCard> {
         : null;
 
     // 도넛 센터 라벨은 항상 짧게 — custom 모드의 full date range 가 도넛 안으로 침범하지 않도록.
-    final centerPeriodLbl =
-        s._segMode == _SegMode.custom ? '선택 기간' : s._periodLabel;
+    final centerPeriodLbl = s._segMode == _SegMode.custom
+        ? '선택 기간'
+        : s._periodLabel;
     final centerLbl = isDrilled && activeParent != null
         ? '${activeParent.name} 세부'
         : '$centerPeriodLbl 지출';
@@ -902,28 +1012,27 @@ class _DonutCardState extends ConsumerState<_DonutCard> {
                     children: [
                       InkWell(
                         onTap: () => setState(() => _activeParentId = null),
-                        child: Text('카테고리별 지출',
-                            style: TextStyle(
-                                fontSize: PFontSize.bodyLg,
-                                color: t.fgSecondary,
-                                fontWeight: PFontWeight.medium)),
+                        child: Text(
+                          '카테고리별 지출',
+                          style: TextStyle(
+                            fontSize: PFontSize.bodyLg,
+                            color: t.fgSecondary,
+                            fontWeight: PFontWeight.medium,
+                          ),
+                        ),
                       ),
                       const SizedBox(width: 4),
-                      Text('›',
-                          style: PTypo.body.copyWith(color: t.fgTertiary)),
-                      const SizedBox(width: 4),
-                      Flexible(
-                        child: _CardTitle(activeParent?.name ?? ''),
+                      Text(
+                        '›',
+                        style: PTypo.body.copyWith(color: t.fgTertiary),
                       ),
+                      const SizedBox(width: 4),
+                      Flexible(child: _CardTitle(activeParent?.name ?? '')),
                     ],
                   )
                 : const _CardTitle('카테고리별 지출'),
           ),
-          _PeriodSelectorRow(state: s),
-          if (s._segMode == _SegMode.custom) ...[
-            const SizedBox(height: PSpace.x8),
-            _SelectedRangeCard(state: s),
-          ],
+          _PeriodTrigger(state: s),
           const SizedBox(height: PSpace.x12),
           if (loading)
             const _DonutCardSkeleton()
@@ -954,15 +1063,17 @@ class _DonutCardState extends ConsumerState<_DonutCard> {
                   Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(centerLbl,
-                          style: PTypo.caption
-                              .copyWith(color: t.fgSecondary)),
+                      Text(
+                        centerLbl,
+                        style: PTypo.caption.copyWith(color: t.fgSecondary),
+                      ),
                       const SizedBox(height: 4),
                       Text(
                         '${krwMasked(total, widget.masked)}원',
                         style: PTypo.h4.copyWith(
-                            color: t.fgPrimary,
-                            fontWeight: PFontWeight.bold),
+                          color: t.fgPrimary,
+                          fontWeight: PFontWeight.bold,
+                        ),
                       ),
                     ],
                   ),
@@ -978,8 +1089,7 @@ class _DonutCardState extends ConsumerState<_DonutCard> {
                 masked: widget.masked,
                 clickable: !isDrilled && view[i].hasChildren,
                 onTap: !isDrilled && view[i].hasChildren
-                    ? () => setState(
-                        () => _activeParentId = view[i].rowId)
+                    ? () => setState(() => _activeParentId = view[i].rowId)
                     : null,
               ),
           ],
@@ -1025,23 +1135,31 @@ class _DonutLegendRow extends StatelessWidget {
             ),
             const SizedBox(width: 10),
             Expanded(
-              child: Text(row.name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: PTypo.bodySm.copyWith(
-                      color: t.fgPrimary, fontWeight: PFontWeight.medium)),
-            ),
-            Text('${pct.toStringAsFixed(1)}%',
-                style: PTypo.caption.copyWith(color: t.fgTertiary)),
-            const SizedBox(width: 12),
-            Text(krwMasked(row.amount, masked),
+              child: Text(
+                row.name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: PTypo.bodySm.copyWith(
-                    color: t.fgPrimary,
-                    fontWeight: PFontWeight.bold)),
+                  color: t.fgPrimary,
+                  fontWeight: PFontWeight.medium,
+                ),
+              ),
+            ),
+            Text(
+              '${pct.toStringAsFixed(1)}%',
+              style: PTypo.caption.copyWith(color: t.fgTertiary),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              krwMasked(row.amount, masked),
+              style: PTypo.bodySm.copyWith(
+                color: t.fgPrimary,
+                fontWeight: PFontWeight.bold,
+              ),
+            ),
             if (clickable) ...[
               const SizedBox(width: 4),
-              Icon(LucideIcons.chevronRight,
-                  size: 13, color: t.fgTertiary),
+              Icon(LucideIcons.chevronRight, size: 13, color: t.fgTertiary),
             ],
           ],
         ),
@@ -1080,12 +1198,14 @@ class _TopMerchantsCard extends StatelessWidget {
                 children: [
                   SizedBox(
                     width: 24,
-                    child: Text('${i + 1}',
-                        textAlign: TextAlign.center,
-                        style: PTypo.caption.copyWith(
-                            color:
-                                i < 3 ? t.fgIncome : t.fgTertiary,
-                            fontWeight: PFontWeight.bold)),
+                    child: Text(
+                      '${i + 1}',
+                      textAlign: TextAlign.center,
+                      style: PTypo.caption.copyWith(
+                        color: i < 3 ? t.fgIncome : t.fgTertiary,
+                        fontWeight: PFontWeight.bold,
+                      ),
+                    ),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
@@ -1098,17 +1218,23 @@ class _TopMerchantsCard extends StatelessWidget {
                               child: Row(
                                 children: [
                                   Flexible(
-                                    child: Text(top[i].merchant ?? '(이름 없음)',
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: PTypo.bodySm.copyWith(
-                                            color: t.fgPrimary,
-                                            fontWeight: PFontWeight.semi)),
+                                    child: Text(
+                                      top[i].merchant ?? '(이름 없음)',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: PTypo.bodySm.copyWith(
+                                        color: t.fgPrimary,
+                                        fontWeight: PFontWeight.semi,
+                                      ),
+                                    ),
                                   ),
                                   const SizedBox(width: 6),
-                                  Text('${top[i].count}회',
-                                      style: PTypo.caption
-                                          .copyWith(color: t.fgTertiary)),
+                                  Text(
+                                    '${top[i].count}회',
+                                    style: PTypo.caption.copyWith(
+                                      color: t.fgTertiary,
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
@@ -1118,8 +1244,9 @@ class _TopMerchantsCard extends StatelessWidget {
                               '${krwMasked(top[i].totalAmount, masked)}원',
                               textAlign: TextAlign.right,
                               style: PTypo.bodySm.copyWith(
-                                  color: t.fgPrimary,
-                                  fontWeight: PFontWeight.bold),
+                                color: t.fgPrimary,
+                                fontWeight: PFontWeight.bold,
+                              ),
                             ),
                           ],
                         ),
@@ -1191,13 +1318,13 @@ class _HeatmapCard extends StatelessWidget {
     final t = context.tokens;
     final cells = async.value ?? const <HeatmapCell>[];
     // matrix [row][col]
-    final matrix =
-        List.generate(_heatRows.length, (_) => List.filled(_heatCols.length, 0));
+    final matrix = List.generate(
+      _heatRows.length,
+      (_) => List.filled(_heatCols.length, 0),
+    );
     for (final c in cells) {
-      final colIdx =
-          _heatCols.indexWhere((col) => col.$2 == c.dayOfWeek);
-      final rowIdx =
-          _heatRows.indexWhere((row) => row.hours.contains(c.hour));
+      final colIdx = _heatCols.indexWhere((col) => col.$2 == c.dayOfWeek);
+      final rowIdx = _heatRows.indexWhere((row) => row.hours.contains(c.hour));
       if (colIdx < 0 || rowIdx < 0) continue;
       matrix[rowIdx][colIdx] += c.totalAmount;
     }
@@ -1245,8 +1372,10 @@ class _HeatmapCard extends StatelessWidget {
                 borderRadius: PRadius.brLg,
               ),
               alignment: Alignment.center,
-              child: Text('이번 달 거래가 아직 적어요',
-                  style: PTypo.caption.copyWith(color: t.fgTertiary)),
+              child: Text(
+                '이번 달 거래가 아직 적어요',
+                style: PTypo.caption.copyWith(color: t.fgTertiary),
+              ),
             )
           else ...[
             // Header row: 빈 코너 + 요일
@@ -1257,11 +1386,14 @@ class _HeatmapCard extends StatelessWidget {
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 2),
-                      child: Text(col.$1,
-                          textAlign: TextAlign.center,
-                          style: PTypo.caption.copyWith(
-                              color: t.fgTertiary,
-                              fontWeight: PFontWeight.semi)),
+                      child: Text(
+                        col.$1,
+                        textAlign: TextAlign.center,
+                        style: PTypo.caption.copyWith(
+                          color: t.fgTertiary,
+                          fontWeight: PFontWeight.semi,
+                        ),
+                      ),
                     ),
                   ),
               ],
@@ -1275,13 +1407,20 @@ class _HeatmapCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(_heatRows[r].label,
-                            style: PTypo.caption.copyWith(
-                                color: t.fgPrimary,
-                                fontWeight: PFontWeight.bold)),
-                        Text(_heatRows[r].sub,
-                            style: PTypo.micro.copyWith(
-                                color: t.fgTertiary, fontSize: PFontSize.micro)),
+                        Text(
+                          _heatRows[r].label,
+                          style: PTypo.caption.copyWith(
+                            color: t.fgPrimary,
+                            fontWeight: PFontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          _heatRows[r].sub,
+                          style: PTypo.micro.copyWith(
+                            color: t.fgTertiary,
+                            fontSize: PFontSize.micro,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -1300,10 +1439,10 @@ class _HeatmapCard extends StatelessWidget {
                             child: Text(
                               _shortAmount(matrix[r][c]),
                               style: PTypo.micro.copyWith(
-                                  color: fgFor(
-                                      _heatBucket(matrix[r][c], maxV)),
-                                  fontWeight: PFontWeight.bold,
-                                  fontSize: PFontSize.micro),
+                                color: fgFor(_heatBucket(matrix[r][c], maxV)),
+                                fontWeight: PFontWeight.bold,
+                                fontSize: PFontSize.micro,
+                              ),
                             ),
                           ),
                         ),
@@ -1316,9 +1455,7 @@ class _HeatmapCard extends StatelessWidget {
             const SizedBox(height: 14),
             Row(
               children: [
-                Text('적음',
-                    style:
-                        PTypo.caption.copyWith(color: t.fgTertiary)),
+                Text('적음', style: PTypo.caption.copyWith(color: t.fgTertiary)),
                 const SizedBox(width: 8),
                 for (var i = 1; i <= 5; i++) ...[
                   Container(
@@ -1332,14 +1469,15 @@ class _HeatmapCard extends StatelessWidget {
                   const SizedBox(width: 4),
                 ],
                 const SizedBox(width: 4),
-                Text('많음',
-                    style:
-                        PTypo.caption.copyWith(color: t.fgTertiary)),
+                Text('많음', style: PTypo.caption.copyWith(color: t.fgTertiary)),
                 const Spacer(),
-                Text('총 ${krw(total)}원',
-                    style: PTypo.caption.copyWith(
-                        color: t.fgSecondary,
-                        fontWeight: PFontWeight.semi)),
+                Text(
+                  '총 ${krw(total)}원',
+                  style: PTypo.caption.copyWith(
+                    color: t.fgSecondary,
+                    fontWeight: PFontWeight.semi,
+                  ),
+                ),
               ],
             ),
           ],
@@ -1376,14 +1514,14 @@ class _HighlightsGrid extends StatelessWidget {
     final s = state;
 
     // 카테고리 Top — 부모 카테고리 단위 합계
-    final bd = rangeAsync.value?.categoryBreakdown ?? const <CategoryBreakdown>[];
+    final bd =
+        rangeAsync.value?.categoryBreakdown ?? const <CategoryBreakdown>[];
     final groupTotals = <int, ({String name, int amount})>{};
     for (final c in bd) {
       if (c.expenseType != 'EXPENSE') continue;
       final id = c.parentCategoryRowId ?? c.categoryRowId;
       if (id == null) continue;
-      final name =
-          c.parentCategoryName ?? c.categoryName ?? '미지정';
+      final name = c.parentCategoryName ?? c.categoryName ?? '미지정';
       final cur = groupTotals[id];
       groupTotals[id] = cur == null
           ? (name: name, amount: c.totalAmount)
@@ -1394,15 +1532,19 @@ class _HighlightsGrid extends StatelessWidget {
     final topCategory = topCat.firstOrNull;
 
     // 가맹점 Top
-    final merchants = (merchantAsync.value ?? const <MerchantSummary>[]).toList()
-      ..sort((a, b) => b.totalAmount.compareTo(a.totalAmount));
+    final merchants =
+        (merchantAsync.value ?? const <MerchantSummary>[]).toList()
+          ..sort((a, b) => b.totalAmount.compareTo(a.totalAmount));
     final topMerchant = merchants.firstOrNull;
 
     // 평균 계산 — 단일 월 또는 사용자 지정 기간이면 일평균, 그 외엔 월평균
     final periodTotal = rangeAsync.value?.totalExpense ?? 0;
-    final monthlyBuckets = rangeAsync.value?.monthlyBuckets ?? const <RangeMonthlyBucket>[];
+    final monthlyBuckets =
+        rangeAsync.value?.monthlyBuckets ?? const <RangeMonthlyBucket>[];
     final rangeDays = s._to.difference(s._from).inDays + 1;
-    final divisor = s._useDailyAvg ? rangeDays : monthlyBuckets.length.clamp(1, 9999);
+    final divisor = s._useDailyAvg
+        ? rangeDays
+        : monthlyBuckets.length.clamp(1, 9999);
     final avgValue = divisor > 0 ? periodTotal ~/ divisor : 0;
     final avgLabel = s._avgLabel;
 
@@ -1462,20 +1604,26 @@ class _HighlightCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label,
-              style: PTypo.caption.copyWith(
-                  color: t.fgTertiary, fontWeight: PFontWeight.medium)),
+          Text(
+            label,
+            style: PTypo.caption.copyWith(
+              color: t.fgTertiary,
+              fontWeight: PFontWeight.medium,
+            ),
+          ),
           const SizedBox(height: 8),
-          Text(value,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: PTypo.h4.copyWith(
-                  color: t.fgPrimary,
-                  fontWeight: PFontWeight.bold,
-                  fontFamily: valueIsAmount ? 'monospace' : null)),
+          Text(
+            value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: PTypo.h4.copyWith(
+              color: t.fgPrimary,
+              fontWeight: PFontWeight.bold,
+              fontFamily: valueIsAmount ? 'monospace' : null,
+            ),
+          ),
           const SizedBox(height: 4),
-          Text(sub,
-              style: PTypo.caption.copyWith(color: t.fgTertiary)),
+          Text(sub, style: PTypo.caption.copyWith(color: t.fgTertiary)),
         ],
       ),
     );
@@ -1485,7 +1633,11 @@ class _HighlightCard extends StatelessWidget {
 // ─── TREND TAB CARDS ───────────────────────────────────────
 
 class _TrendPoint {
-  const _TrendPoint({required this.label, required this.income, required this.expense});
+  const _TrendPoint({
+    required this.label,
+    required this.income,
+    required this.expense,
+  });
   final String label;
   final int income;
   final int expense;
@@ -1497,7 +1649,8 @@ List<_TrendPoint> _computeTrendData(
   AsyncValue<RangeSummary> rangeAsync,
   AsyncValue<List<Expense>> monthExpAsync,
 ) {
-  final buckets = rangeAsync.value?.monthlyBuckets ?? const <RangeMonthlyBucket>[];
+  final buckets =
+      rangeAsync.value?.monthlyBuckets ?? const <RangeMonthlyBucket>[];
   final useDaily = s.useDailyTrend(buckets.length);
 
   if (useDaily) {
@@ -1509,11 +1662,7 @@ List<_TrendPoint> _computeTrendData(
     for (var i = 0; i < days; i++) {
       final d = fromDay.add(Duration(days: i));
       final key = _ymd(d);
-      byDate[key] = (
-        income: 0,
-        expense: 0,
-        label: '${d.month}/${d.day}',
-      );
+      byDate[key] = (income: 0, expense: 0, label: '${d.month}/${d.day}');
     }
     for (final e in exps) {
       final raw = e.expenseDate ?? '';
@@ -1522,9 +1671,17 @@ List<_TrendPoint> _computeTrendData(
       final cur = byDate[key];
       if (cur == null) continue;
       if (e.expenseType == 'INCOME') {
-        byDate[key] = (income: cur.income + e.amount, expense: cur.expense, label: cur.label);
+        byDate[key] = (
+          income: cur.income + e.amount,
+          expense: cur.expense,
+          label: cur.label,
+        );
       } else {
-        byDate[key] = (income: cur.income, expense: cur.expense + e.amount, label: cur.label);
+        byDate[key] = (
+          income: cur.income,
+          expense: cur.expense + e.amount,
+          label: cur.label,
+        );
       }
     }
     return [
@@ -1567,18 +1724,19 @@ String _fmtTick(double v) {
 ({double max, double step}) _niceCeil(double rawMax, {int ticks = 5}) {
   if (rawMax <= 0) return (max: 1.0, step: 1.0 / (ticks - 1));
   final roughStep = rawMax / (ticks - 1);
-  final magnitude =
-      math.pow(10, (math.log(roughStep) / math.ln10).floor()).toDouble();
+  final magnitude = math
+      .pow(10, (math.log(roughStep) / math.ln10).floor())
+      .toDouble();
   final mantissa = roughStep / magnitude;
   final niceMantissa = mantissa <= 1
       ? 1.0
       : mantissa <= 2
-          ? 2.0
-          : mantissa <= 2.5
-              ? 2.5
-              : mantissa <= 5
-                  ? 5.0
-                  : 10.0;
+      ? 2.0
+      : mantissa <= 2.5
+      ? 2.5
+      : mantissa <= 5
+      ? 5.0
+      : 10.0;
   final step = niceMantissa * magnitude;
   return (max: step * (ticks - 1), step: step);
 }
@@ -1624,9 +1782,13 @@ class _ChartTooltipBox extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title,
-                style: PTypo.micro.copyWith(
-                    color: t.fgTertiary, fontWeight: PFontWeight.semi)),
+            Text(
+              title,
+              style: PTypo.micro.copyWith(
+                color: t.fgTertiary,
+                fontWeight: PFontWeight.semi,
+              ),
+            ),
             const SizedBox(height: 6),
             for (final r in rows) ...[
               _ChartTooltipRow(data: r),
@@ -1674,8 +1836,10 @@ class _ChartTooltipRow extends StatelessWidget {
         // 라벨 폭 고정 — 한글 폭 차이 무시하고 amount 시작 위치를 고정.
         SizedBox(
           width: 36,
-          child: Text(data.label,
-              style: PTypo.caption.copyWith(color: t.fgSecondary)),
+          child: Text(
+            data.label,
+            style: PTypo.caption.copyWith(color: t.fgSecondary),
+          ),
         ),
         const SizedBox(width: 12),
         // amount 는 우측 정렬된 고정폭 박스 안에 둬서 행 간 우측 끝점 일치.
@@ -1716,7 +1880,10 @@ class _TrendBigCardState extends ConsumerState<_TrendBigCard> {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final data = _computeTrendData(
-        widget.state, widget.rangeAsync, widget.monthExpAsync);
+      widget.state,
+      widget.rangeAsync,
+      widget.monthExpAsync,
+    );
     final loading =
         widget.rangeAsync.isLoading || widget.monthExpAsync.isLoading;
 
@@ -1724,26 +1891,30 @@ class _TrendBigCardState extends ConsumerState<_TrendBigCard> {
     // → 지출을 (incomeNiceMax / expenseNiceMax) 로 스케일링해 시각적으론 같은 높이 범위를 차지하게.
     //   좌축은 수입(raw), 우축 라벨은 표시값을 1/scale 로 되돌려 지출 실제값.
     // recharts (Web YAxis) 와 동일한 nice-number ceil 로 5-tick 균등 간격 보장.
-    final incomeMax =
-        data.fold<int>(0, (m, p) => p.income > m ? p.income : m);
-    final expenseMax =
-        data.fold<int>(0, (m, p) => p.expense > m ? p.expense : m);
+    final incomeMax = data.fold<int>(0, (m, p) => p.income > m ? p.income : m);
+    final expenseMax = data.fold<int>(
+      0,
+      (m, p) => p.expense > m ? p.expense : m,
+    );
     final useDualAxis = incomeMax > 0 && expenseMax > 0;
     final niceIncome = _niceCeil(incomeMax.toDouble());
     final niceExpense = _niceCeil(expenseMax.toDouble());
     final scale = useDualAxis ? niceIncome.max / niceExpense.max : 1.0;
     // single-axis 일 땐 income 만 또는 expense 만 있는 케이스 — 있는 쪽의 nice 적용.
-    final axisMax =
-        useDualAxis || incomeMax > 0 ? niceIncome.max : niceExpense.max;
-    final axisStep =
-        useDualAxis || incomeMax > 0 ? niceIncome.step : niceExpense.step;
+    final axisMax = useDualAxis || incomeMax > 0
+        ? niceIncome.max
+        : niceExpense.max;
+    final axisStep = useDualAxis || incomeMax > 0
+        ? niceIncome.step
+        : niceExpense.step;
 
     return _Card(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _CardHeader(
-              title: _CardTitle('${widget.state._periodLabel} 수입·지출 추이')),
+            title: _CardTitle('${widget.state._periodLabel} 수입·지출 추이'),
+          ),
           _PeriodSelectorRow(state: widget.state),
           if (widget.state._segMode == _SegMode.custom) ...[
             const SizedBox(height: PSpace.x8),
@@ -1752,7 +1923,8 @@ class _TrendBigCardState extends ConsumerState<_TrendBigCard> {
           const SizedBox(height: 16),
           if (loading && data.isEmpty)
             const _ChartSkeleton(height: 200)
-          else if (data.isEmpty || data.every((p) => p.income == 0 && p.expense == 0))
+          else if (data.isEmpty ||
+              data.every((p) => p.income == 0 && p.expense == 0))
             const _EmptyBox(text: '추이 데이터가 없습니다')
           else ...[
             SizedBox(
@@ -1761,168 +1933,186 @@ class _TrendBigCardState extends ConsumerState<_TrendBigCard> {
                 clipBehavior: Clip.none,
                 children: [
                   LineChart(
-                LineChartData(
-                  minX: 0,
-                  maxX: (data.length - 1).toDouble(),
-                  minY: 0,
-                  maxY: axisMax,
-                  lineTouchData: LineTouchData(
-                    enabled: true,
-                    handleBuiltInTouches: true,
-                    touchCallback: (event, response) {
-                      if (event is FlTapUpEvent ||
-                          event is FlPanEndEvent ||
-                          event is FlPanCancelEvent ||
-                          event is FlLongPressEnd ||
-                          event is FlPointerExitEvent) {
-                        if (_touchedIdx != null) {
-                          setState(() => _touchedIdx = null);
-                        }
-                        return;
-                      }
-                      final spots = response?.lineBarSpots;
-                      if (spots == null || spots.isEmpty) {
-                        if (_touchedIdx != null) {
-                          setState(() => _touchedIdx = null);
-                        }
-                        return;
-                      }
-                      final i = spots.first.x.toInt();
-                      if (i != _touchedIdx && i >= 0 && i < data.length) {
-                        setState(() => _touchedIdx = i);
-                      }
-                    },
-                    touchTooltipData: LineTouchTooltipData(
-                      // fl_chart 의 RichText 툴팁은 한글 라벨 폭 차이로 정렬 불가.
-                      // → 기본 툴팁 끄고 Stack 위에 직접 그린다 (아래 Positioned).
-                      getTooltipColor: (_) => Colors.transparent,
-                      tooltipBorder: BorderSide.none,
-                      tooltipPadding: EdgeInsets.zero,
-                      tooltipMargin: 0,
-                      getTooltipItems: (touched) =>
-                          List<LineTooltipItem?>.filled(touched.length, null),
-                    ),
-                  ),
-                  gridData: FlGridData(
-                    show: true,
-                    drawVerticalLine: false,
-                    horizontalInterval: axisStep,
-                    getDrawingHorizontalLine: (_) => FlLine(
-                      color: t.borderSubtle,
-                      strokeWidth: 1,
-                      dashArray: [4, 4],
-                    ),
-                  ),
-                  borderData: FlBorderData(show: false),
-                  titlesData: FlTitlesData(
-                    // 좌축: 수입 (raw) — interval=axisStep 로 0/step/2step/3step/4step=max 5 ticks 균등.
-                    leftTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        reservedSize: 44,
-                        interval: axisStep,
-                        getTitlesWidget: (v, _) => Padding(
-                          padding: const EdgeInsets.only(right: 6),
-                          child: Text(_fmtTick(v),
-                              style: PTypo.micro.copyWith(
-                                  color: useDualAxis ? t.fgBrand : t.fgTertiary,
-                                  fontSize: PFontSize.micro)),
+                    LineChartData(
+                      minX: 0,
+                      maxX: (data.length - 1).toDouble(),
+                      minY: 0,
+                      maxY: axisMax,
+                      lineTouchData: LineTouchData(
+                        enabled: true,
+                        handleBuiltInTouches: true,
+                        touchCallback: (event, response) {
+                          if (event is FlTapUpEvent ||
+                              event is FlPanEndEvent ||
+                              event is FlPanCancelEvent ||
+                              event is FlLongPressEnd ||
+                              event is FlPointerExitEvent) {
+                            if (_touchedIdx != null) {
+                              setState(() => _touchedIdx = null);
+                            }
+                            return;
+                          }
+                          final spots = response?.lineBarSpots;
+                          if (spots == null || spots.isEmpty) {
+                            if (_touchedIdx != null) {
+                              setState(() => _touchedIdx = null);
+                            }
+                            return;
+                          }
+                          final i = spots.first.x.toInt();
+                          if (i != _touchedIdx && i >= 0 && i < data.length) {
+                            setState(() => _touchedIdx = i);
+                          }
+                        },
+                        touchTooltipData: LineTouchTooltipData(
+                          // fl_chart 의 RichText 툴팁은 한글 라벨 폭 차이로 정렬 불가.
+                          // → 기본 툴팁 끄고 Stack 위에 직접 그린다 (아래 Positioned).
+                          getTooltipColor: (_) => Colors.transparent,
+                          tooltipBorder: BorderSide.none,
+                          tooltipPadding: EdgeInsets.zero,
+                          tooltipMargin: 0,
+                          getTooltipItems: (touched) =>
+                              List<LineTooltipItem?>.filled(
+                                touched.length,
+                                null,
+                              ),
                         ),
                       ),
-                    ),
-                    // 우축: 지출 — 좌축과 같은 5 tick 자리에 표시값 v/scale 로 원래 지출값 복원
-                    // (scale = niceIncome.max / niceExpense.max → v/scale 도 niceExpense.step 단위 균등).
-                    rightTitles: useDualAxis
-                        ? AxisTitles(
-                            sideTitles: SideTitles(
-                              showTitles: true,
-                              reservedSize: 44,
-                              interval: axisStep,
-                              getTitlesWidget: (v, _) => Padding(
-                                padding: const EdgeInsets.only(left: 6),
-                                child: Text(_fmtTick(v / scale),
-                                    style: PTypo.micro.copyWith(
-                                        color: t.fgExpense,
-                                        fontSize: PFontSize.micro)),
+                      gridData: FlGridData(
+                        show: true,
+                        drawVerticalLine: false,
+                        horizontalInterval: axisStep,
+                        getDrawingHorizontalLine: (_) => FlLine(
+                          color: t.borderSubtle,
+                          strokeWidth: 1,
+                          dashArray: [4, 4],
+                        ),
+                      ),
+                      borderData: FlBorderData(show: false),
+                      titlesData: FlTitlesData(
+                        // 좌축: 수입 (raw) — interval=axisStep 로 0/step/2step/3step/4step=max 5 ticks 균등.
+                        leftTitles: AxisTitles(
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            reservedSize: 44,
+                            interval: axisStep,
+                            getTitlesWidget: (v, _) => Padding(
+                              padding: const EdgeInsets.only(right: 6),
+                              child: Text(
+                                _fmtTick(v),
+                                style: PTypo.micro.copyWith(
+                                  color: useDualAxis ? t.fgBrand : t.fgTertiary,
+                                  fontSize: PFontSize.micro,
+                                ),
                               ),
                             ),
-                          )
-                        : const AxisTitles(
-                            sideTitles: SideTitles(showTitles: false)),
-                    topTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false)),
-                    bottomTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        reservedSize: 22,
-                        interval:
-                            ((data.length - 1) / 5).clamp(1, 1000).toDouble(),
-                        getTitlesWidget: (v, _) {
-                          final i = v.round();
-                          if (i < 0 || i >= data.length) {
-                            return const SizedBox.shrink();
-                          }
-                          if (!_showXLabel(i, data.length)) {
-                            return const SizedBox.shrink();
-                          }
-                          return Padding(
-                            padding: const EdgeInsets.only(top: 6),
-                            child: Text(data[i].label,
-                                style: PTypo.micro.copyWith(
-                                    color: t.fgTertiary, fontSize: PFontSize.micro)),
-                          );
-                        },
+                          ),
+                        ),
+                        // 우축: 지출 — 좌축과 같은 5 tick 자리에 표시값 v/scale 로 원래 지출값 복원
+                        // (scale = niceIncome.max / niceExpense.max → v/scale 도 niceExpense.step 단위 균등).
+                        rightTitles: useDualAxis
+                            ? AxisTitles(
+                                sideTitles: SideTitles(
+                                  showTitles: true,
+                                  reservedSize: 44,
+                                  interval: axisStep,
+                                  getTitlesWidget: (v, _) => Padding(
+                                    padding: const EdgeInsets.only(left: 6),
+                                    child: Text(
+                                      _fmtTick(v / scale),
+                                      style: PTypo.micro.copyWith(
+                                        color: t.fgExpense,
+                                        fontSize: PFontSize.micro,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : const AxisTitles(
+                                sideTitles: SideTitles(showTitles: false),
+                              ),
+                        topTitles: const AxisTitles(
+                          sideTitles: SideTitles(showTitles: false),
+                        ),
+                        bottomTitles: AxisTitles(
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            reservedSize: 22,
+                            interval: ((data.length - 1) / 5)
+                                .clamp(1, 1000)
+                                .toDouble(),
+                            getTitlesWidget: (v, _) {
+                              final i = v.round();
+                              if (i < 0 || i >= data.length) {
+                                return const SizedBox.shrink();
+                              }
+                              if (!_showXLabel(i, data.length)) {
+                                return const SizedBox.shrink();
+                              }
+                              return Padding(
+                                padding: const EdgeInsets.only(top: 6),
+                                child: Text(
+                                  data[i].label,
+                                  style: PTypo.micro.copyWith(
+                                    color: t.fgTertiary,
+                                    fontSize: PFontSize.micro,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
                       ),
+                      lineBarsData: [
+                        // 수입
+                        LineChartBarData(
+                          spots: [
+                            for (var i = 0; i < data.length; i++)
+                              FlSpot(i.toDouble(), data[i].income.toDouble()),
+                          ],
+                          isCurved: true,
+                          color: t.fgIncome,
+                          barWidth: 2,
+                          dotData: FlDotData(
+                            show: true,
+                            getDotPainter: (s, _, _, _) => FlDotCirclePainter(
+                              radius: 2.5,
+                              color: t.fgIncome,
+                              strokeWidth: 2,
+                              strokeColor: t.bgSurface,
+                            ),
+                          ),
+                          belowBarData: BarAreaData(
+                            show: true,
+                            color: t.fgIncome.withValues(alpha: 0.18),
+                          ),
+                        ),
+                        // 지출 — 좌축에 함께 그리되 시각적 비율은 수입 max 에 맞춰 스케일링
+                        LineChartBarData(
+                          spots: [
+                            for (var i = 0; i < data.length; i++)
+                              FlSpot(i.toDouble(), data[i].expense * scale),
+                          ],
+                          isCurved: true,
+                          color: t.fgExpense,
+                          barWidth: 2,
+                          dotData: FlDotData(
+                            show: true,
+                            getDotPainter: (s, _, _, _) => FlDotCirclePainter(
+                              radius: 2.5,
+                              color: t.fgExpense,
+                              strokeWidth: 2,
+                              strokeColor: t.bgSurface,
+                            ),
+                          ),
+                          belowBarData: BarAreaData(
+                            show: true,
+                            color: t.fgExpense.withValues(alpha: 0.16),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  lineBarsData: [
-                    // 수입
-                    LineChartBarData(
-                      spots: [
-                        for (var i = 0; i < data.length; i++)
-                          FlSpot(i.toDouble(), data[i].income.toDouble()),
-                      ],
-                      isCurved: true,
-                      color: t.fgIncome,
-                      barWidth: 2,
-                      dotData: FlDotData(
-                        show: true,
-                        getDotPainter: (s, _, _, _) => FlDotCirclePainter(
-                            radius: 2.5,
-                            color: t.fgIncome,
-                            strokeWidth: 2,
-                            strokeColor: t.bgSurface),
-                      ),
-                      belowBarData: BarAreaData(
-                        show: true,
-                        color: t.fgIncome.withValues(alpha: 0.18),
-                      ),
-                    ),
-                    // 지출 — 좌축에 함께 그리되 시각적 비율은 수입 max 에 맞춰 스케일링
-                    LineChartBarData(
-                      spots: [
-                        for (var i = 0; i < data.length; i++)
-                          FlSpot(i.toDouble(), data[i].expense * scale),
-                      ],
-                      isCurved: true,
-                      color: t.fgExpense,
-                      barWidth: 2,
-                      dotData: FlDotData(
-                        show: true,
-                        getDotPainter: (s, _, _, _) => FlDotCirclePainter(
-                            radius: 2.5,
-                            color: t.fgExpense,
-                            strokeWidth: 2,
-                            strokeColor: t.bgSurface),
-                      ),
-                      belowBarData: BarAreaData(
-                        show: true,
-                        color: t.fgExpense.withValues(alpha: 0.16),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
                   if (_touchedIdx != null && _touchedIdx! < data.length)
                     Positioned(
                       top: 0,
@@ -1974,14 +2164,10 @@ class _LegendChip extends StatelessWidget {
         Container(
           width: 10,
           height: 10,
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: PRadius.brXs,
-          ),
+          decoration: BoxDecoration(color: color, borderRadius: PRadius.brXs),
         ),
         const SizedBox(width: 6),
-        Text(label,
-            style: PTypo.caption.copyWith(color: t.fgSecondary)),
+        Text(label, style: PTypo.caption.copyWith(color: t.fgSecondary)),
       ],
     );
   }
@@ -2000,7 +2186,8 @@ class _TrendStatsGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final s = state;
-    final buckets = rangeAsync.value?.monthlyBuckets ?? const <RangeMonthlyBucket>[];
+    final buckets =
+        rangeAsync.value?.monthlyBuckets ?? const <RangeMonthlyBucket>[];
     final sumIn = buckets.fold<int>(0, (sum, b) => sum + b.totalIncome);
     final sumOut = buckets.fold<int>(0, (sum, b) => sum + b.totalExpense);
     final n = buckets.isEmpty ? 1 : buckets.length;
@@ -2022,14 +2209,17 @@ class _TrendStatsGrid extends StatelessWidget {
       crossAxisSpacing: 10,
       children: [
         _StatCard(
-            label: isSingle ? '수입' : '평균 수입',
-            value: '${krwMasked(avgIn, masked)}원'),
+          label: isSingle ? '수입' : '평균 수입',
+          value: '${krwMasked(avgIn, masked)}원',
+        ),
         _StatCard(
-            label: isSingle ? '지출' : '평균 지출',
-            value: '${krwMasked(avgOut, masked)}원'),
+          label: isSingle ? '지출' : '평균 지출',
+          value: '${krwMasked(avgOut, masked)}원',
+        ),
         _StatCard(
-            label: isSingle ? '순저축' : '평균 저축',
-            value: '${krwMasked(avgSave, masked)}원'),
+          label: isSingle ? '순저축' : '평균 저축',
+          value: '${krwMasked(avgSave, masked)}원',
+        ),
         _StatCard(label: '저축률', value: saveRate),
       ],
     );
@@ -2049,16 +2239,23 @@ class _StatCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(label,
-              style: PTypo.caption.copyWith(
-                  color: t.fgTertiary, fontWeight: PFontWeight.medium)),
+          Text(
+            label,
+            style: PTypo.caption.copyWith(
+              color: t.fgTertiary,
+              fontWeight: PFontWeight.medium,
+            ),
+          ),
           const SizedBox(height: 6),
-          Text(value,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: PTypo.h4.copyWith(
-                  color: t.fgPrimary,
-                  fontWeight: PFontWeight.bold)),
+          Text(
+            value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: PTypo.h4.copyWith(
+              color: t.fgPrimary,
+              fontWeight: PFontWeight.bold,
+            ),
+          ),
         ],
       ),
     );
@@ -2085,19 +2282,26 @@ class _SavingsBarsCardState extends ConsumerState<_SavingsBarsCard> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final loading = widget.rangeAsync.isLoading || widget.monthExpAsync.isLoading;
+    final loading =
+        widget.rangeAsync.isLoading || widget.monthExpAsync.isLoading;
     final data = _computeTrendData(
-        widget.state, widget.rangeAsync, widget.monthExpAsync);
-    final useDaily = widget.state
-        .useDailyTrend(widget.rangeAsync.value?.monthlyBuckets.length ?? 0);
+      widget.state,
+      widget.rangeAsync,
+      widget.monthExpAsync,
+    );
+    final useDaily = widget.state.useDailyTrend(
+      widget.rangeAsync.value?.monthlyBuckets.length ?? 0,
+    );
     return _Card(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _CardHeader(
             title: _CardTitle(useDaily ? '일별 순저축' : '월별 순저축'),
-            trailing: Text('수입 − 지출',
-                style: PTypo.caption.copyWith(color: t.fgTertiary)),
+            trailing: Text(
+              '수입 − 지출',
+              style: PTypo.caption.copyWith(color: t.fgTertiary),
+            ),
           ),
           if (loading && data.isEmpty)
             const _ChartSkeleton(height: 180)
@@ -2110,133 +2314,145 @@ class _SavingsBarsCardState extends ConsumerState<_SavingsBarsCard> {
                 clipBehavior: Clip.none,
                 children: [
                   BarChart(
-                BarChartData(
-                  alignment: BarChartAlignment.spaceAround,
-                  barTouchData: BarTouchData(
-                    enabled: true,
-                    handleBuiltInTouches: true,
-                    touchCallback: (event, response) {
-                      if (event is FlTapUpEvent ||
-                          event is FlPanEndEvent ||
-                          event is FlPanCancelEvent ||
-                          event is FlLongPressEnd ||
-                          event is FlPointerExitEvent) {
-                        if (_touchedIdx != null) {
-                          setState(() => _touchedIdx = null);
-                        }
-                        return;
-                      }
-                      final spot = response?.spot;
-                      if (spot == null) {
-                        if (_touchedIdx != null) {
-                          setState(() => _touchedIdx = null);
-                        }
-                        return;
-                      }
-                      final i = spot.touchedBarGroup.x;
-                      if (i != _touchedIdx && i >= 0 && i < data.length) {
-                        setState(() => _touchedIdx = i);
-                      }
-                    },
-                    touchTooltipData: BarTouchTooltipData(
-                      // 기본 툴팁 OFF — Stack 위에 직접 그린다 (아래 Positioned)
-                      getTooltipColor: (_) => Colors.transparent,
-                      tooltipBorder: BorderSide.none,
-                      tooltipPadding: EdgeInsets.zero,
-                      tooltipMargin: 0,
-                      getTooltipItem: (_, _, _, _) => null,
-                    ),
-                  ),
-                  gridData: FlGridData(
-                    show: true,
-                    drawVerticalLine: false,
-                    getDrawingHorizontalLine: (_) => FlLine(
-                      color: t.borderSubtle,
-                      strokeWidth: 1,
-                      dashArray: [4, 4],
-                    ),
-                  ),
-                  borderData: FlBorderData(show: false),
-                  titlesData: FlTitlesData(
-                    leftTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        reservedSize: 44,
-                        getTitlesWidget: (v, _) => Padding(
-                          padding: const EdgeInsets.only(right: 6),
-                          child: Text(_fmtTick(v),
-                              style: PTypo.micro.copyWith(
-                                  color: t.fgTertiary, fontSize: PFontSize.micro)),
+                    BarChartData(
+                      alignment: BarChartAlignment.spaceAround,
+                      barTouchData: BarTouchData(
+                        enabled: true,
+                        handleBuiltInTouches: true,
+                        touchCallback: (event, response) {
+                          if (event is FlTapUpEvent ||
+                              event is FlPanEndEvent ||
+                              event is FlPanCancelEvent ||
+                              event is FlLongPressEnd ||
+                              event is FlPointerExitEvent) {
+                            if (_touchedIdx != null) {
+                              setState(() => _touchedIdx = null);
+                            }
+                            return;
+                          }
+                          final spot = response?.spot;
+                          if (spot == null) {
+                            if (_touchedIdx != null) {
+                              setState(() => _touchedIdx = null);
+                            }
+                            return;
+                          }
+                          final i = spot.touchedBarGroup.x;
+                          if (i != _touchedIdx && i >= 0 && i < data.length) {
+                            setState(() => _touchedIdx = i);
+                          }
+                        },
+                        touchTooltipData: BarTouchTooltipData(
+                          // 기본 툴팁 OFF — Stack 위에 직접 그린다 (아래 Positioned)
+                          getTooltipColor: (_) => Colors.transparent,
+                          tooltipBorder: BorderSide.none,
+                          tooltipPadding: EdgeInsets.zero,
+                          tooltipMargin: 0,
+                          getTooltipItem: (_, _, _, _) => null,
                         ),
                       ),
-                    ),
-                    rightTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false)),
-                    topTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false)),
-                    bottomTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        reservedSize: 22,
-                        interval:
-                            ((data.length - 1) / 5).clamp(1, 1000).toDouble(),
-                        getTitlesWidget: (v, _) {
-                          final i = v.round();
-                          if (i < 0 || i >= data.length) {
-                            return const SizedBox.shrink();
-                          }
-                          if (!_showXLabel(i, data.length)) {
-                            return const SizedBox.shrink();
-                          }
-                          return Padding(
-                            padding: const EdgeInsets.only(top: 6),
-                            child: Text(data[i].label,
-                                style: PTypo.micro.copyWith(
-                                    color: t.fgTertiary, fontSize: PFontSize.micro)),
-                          );
-                        },
+                      gridData: FlGridData(
+                        show: true,
+                        drawVerticalLine: false,
+                        getDrawingHorizontalLine: (_) => FlLine(
+                          color: t.borderSubtle,
+                          strokeWidth: 1,
+                          dashArray: [4, 4],
+                        ),
                       ),
+                      borderData: FlBorderData(show: false),
+                      titlesData: FlTitlesData(
+                        leftTitles: AxisTitles(
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            reservedSize: 44,
+                            getTitlesWidget: (v, _) => Padding(
+                              padding: const EdgeInsets.only(right: 6),
+                              child: Text(
+                                _fmtTick(v),
+                                style: PTypo.micro.copyWith(
+                                  color: t.fgTertiary,
+                                  fontSize: PFontSize.micro,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        rightTitles: const AxisTitles(
+                          sideTitles: SideTitles(showTitles: false),
+                        ),
+                        topTitles: const AxisTitles(
+                          sideTitles: SideTitles(showTitles: false),
+                        ),
+                        bottomTitles: AxisTitles(
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            reservedSize: 22,
+                            interval: ((data.length - 1) / 5)
+                                .clamp(1, 1000)
+                                .toDouble(),
+                            getTitlesWidget: (v, _) {
+                              final i = v.round();
+                              if (i < 0 || i >= data.length) {
+                                return const SizedBox.shrink();
+                              }
+                              if (!_showXLabel(i, data.length)) {
+                                return const SizedBox.shrink();
+                              }
+                              return Padding(
+                                padding: const EdgeInsets.only(top: 6),
+                                child: Text(
+                                  data[i].label,
+                                  style: PTypo.micro.copyWith(
+                                    color: t.fgTertiary,
+                                    fontSize: PFontSize.micro,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                      barGroups: [
+                        for (var i = 0; i < data.length; i++)
+                          BarChartGroupData(
+                            x: i,
+                            barRods: [
+                              BarChartRodData(
+                                toY: data[i].savings.toDouble(),
+                                color: data[i].savings >= 0
+                                    ? t.fgIncome
+                                    : t.fgExpense,
+                                width: data.length > 20 ? 4 : 12,
+                                borderRadius: PRadius.brXs,
+                              ),
+                            ],
+                          ),
+                      ],
                     ),
                   ),
-                  barGroups: [
-                    for (var i = 0; i < data.length; i++)
-                      BarChartGroupData(
-                        x: i,
-                        barRods: [
-                          BarChartRodData(
-                            toY: data[i].savings.toDouble(),
-                            color: data[i].savings >= 0
-                                ? t.fgIncome
-                                : t.fgExpense,
-                            width: data.length > 20 ? 4 : 12,
-                            borderRadius: PRadius.brXs,
-                          ),
-                        ],
-                      ),
-                  ],
-                ),
-              ),
                   if (_touchedIdx != null && _touchedIdx! < data.length)
                     Positioned(
                       top: 0,
                       right: 0,
-                      child: Builder(builder: (_) {
-                        final p = data[_touchedIdx!];
-                        final v = p.savings;
-                        final sign = v >= 0 ? '+' : '−';
-                        return _ChartTooltipBox(
-                          title: p.label,
-                          rows: [
-                            _ChartTooltipRowData(
-                              color: v >= 0 ? t.fgIncome : t.fgExpense,
-                              label: '순저축',
-                              amount: '$sign${krw(v.abs())}원',
-                              amountColor:
-                                  v >= 0 ? t.fgIncome : t.fgExpense,
-                            ),
-                          ],
-                        );
-                      }),
+                      child: Builder(
+                        builder: (_) {
+                          final p = data[_touchedIdx!];
+                          final v = p.savings;
+                          final sign = v >= 0 ? '+' : '−';
+                          return _ChartTooltipBox(
+                            title: p.label,
+                            rows: [
+                              _ChartTooltipRowData(
+                                color: v >= 0 ? t.fgIncome : t.fgExpense,
+                                label: '순저축',
+                                amount: '$sign${krw(v.abs())}원',
+                                amountColor: v >= 0 ? t.fgIncome : t.fgExpense,
+                              ),
+                            ],
+                          );
+                        },
+                      ),
                     ),
                 ],
               ),
@@ -2293,17 +2509,22 @@ class _CompareSummaryGrid extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(s._momLabel,
-                  style: PTypo.caption.copyWith(
-                      color: t.fgTertiary, fontWeight: PFontWeight.medium)),
+              Text(
+                s._momLabel,
+                style: PTypo.caption.copyWith(
+                  color: t.fgTertiary,
+                  fontWeight: PFontWeight.medium,
+                ),
+              ),
               const SizedBox(height: 8),
               Text(
                 prev > 0 ? '${up ? '+' : '−'}$pct' : '—',
                 style: PTypo.h3.copyWith(
-                    color: prev <= 0
-                        ? t.fgPrimary
-                        : (up ? t.fgExpense : t.fgIncome),
-                    fontWeight: PFontWeight.bold),
+                  color: prev <= 0
+                      ? t.fgPrimary
+                      : (up ? t.fgExpense : t.fgIncome),
+                  fontWeight: PFontWeight.bold,
+                ),
               ),
               const SizedBox(height: 4),
               Text(
@@ -2373,14 +2594,21 @@ class _CompareCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label,
-              style: PTypo.caption.copyWith(
-                  color: t.fgTertiary, fontWeight: PFontWeight.medium)),
+          Text(
+            label,
+            style: PTypo.caption.copyWith(
+              color: t.fgTertiary,
+              fontWeight: PFontWeight.medium,
+            ),
+          ),
           const SizedBox(height: 8),
-          Text(amount,
-              style: PTypo.h3.copyWith(
-                  color: muted ? t.fgSecondary : t.fgPrimary,
-                  fontWeight: PFontWeight.bold)),
+          Text(
+            amount,
+            style: PTypo.h3.copyWith(
+              color: muted ? t.fgSecondary : t.fgPrimary,
+              fontWeight: PFontWeight.bold,
+            ),
+          ),
         ],
       ),
     );
@@ -2414,7 +2642,11 @@ class _CompareCategoryCard extends StatelessWidget {
         .cast<dynamic>()
         .firstOrNull;
 
-    final byId = <int, ({String name, String? icon, String? color, int now, int prev})>{};
+    final byId =
+        <
+          int,
+          ({String name, String? icon, String? color, int now, int prev})
+        >{};
     void addBd(String which, List<CategoryBreakdown> list) {
       for (final c in list) {
         if (c.expenseType != 'EXPENSE') continue;
@@ -2423,7 +2655,8 @@ class _CompareCategoryCard extends StatelessWidget {
         final cur = byId[id];
         final name = c.parentCategoryName ?? c.categoryName ?? '미지정';
         final cat = catBy(id);
-        var rec = cur ??
+        var rec =
+            cur ??
             (
               name: name,
               icon: cat?.icon as String?,
@@ -2452,8 +2685,14 @@ class _CompareCategoryCard extends StatelessWidget {
       }
     }
 
-    addBd('now', rangeAsync.value?.categoryBreakdown ?? const <CategoryBreakdown>[]);
-    addBd('prev', prevRangeAsync.value?.categoryBreakdown ?? const <CategoryBreakdown>[]);
+    addBd(
+      'now',
+      rangeAsync.value?.categoryBreakdown ?? const <CategoryBreakdown>[],
+    );
+    addBd(
+      'prev',
+      prevRangeAsync.value?.categoryBreakdown ?? const <CategoryBreakdown>[],
+    );
 
     final rows = byId.entries.toList()
       ..sort((a, b) {
@@ -2464,9 +2703,11 @@ class _CompareCategoryCard extends StatelessWidget {
     final maxAmt = top.isEmpty
         ? 1
         : top
-            .map((e) => e.value.now > e.value.prev ? e.value.now : e.value.prev)
-            .reduce((a, b) => a > b ? a : b)
-            .clamp(1, 1 << 62);
+              .map(
+                (e) => e.value.now > e.value.prev ? e.value.now : e.value.prev,
+              )
+              .reduce((a, b) => a > b ? a : b)
+              .clamp(1, 1 << 62);
 
     return _Card(
       child: Column(
@@ -2479,8 +2720,7 @@ class _CompareCategoryCard extends StatelessWidget {
               children: [
                 _LegendChip(color: t.fgBrand, label: s._periodNow),
                 const SizedBox(width: 10),
-                _LegendChip(
-                    color: t.bgBrandMuted, label: s._periodPrev),
+                _LegendChip(color: t.bgBrandMuted, label: s._periodPrev),
               ],
             ),
           ),
@@ -2491,11 +2731,7 @@ class _CompareCategoryCard extends StatelessWidget {
           else
             for (var i = 0; i < top.length; i++) ...[
               if (i > 0) const SizedBox(height: 16),
-              _CompareRow(
-                row: top[i].value,
-                maxAmt: maxAmt,
-                masked: masked,
-              ),
+              _CompareRow(row: top[i].value, maxAmt: maxAmt, masked: masked),
             ],
         ],
       ),
@@ -2504,8 +2740,11 @@ class _CompareCategoryCard extends StatelessWidget {
 }
 
 class _CompareRow extends StatelessWidget {
-  const _CompareRow(
-      {required this.row, required this.maxAmt, required this.masked});
+  const _CompareRow({
+    required this.row,
+    required this.maxAmt,
+    required this.masked,
+  });
   final ({String name, String? icon, String? color, int now, int prev}) row;
   final int maxAmt;
   final bool masked;
@@ -2513,8 +2752,7 @@ class _CompareRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final fg =
-        parseColor(row.color, fallback: t.fgBrand);
+    final fg = parseColor(row.color, fallback: t.fgBrand);
     final iconData = lucideByName(row.icon ?? 'tag');
     final diff = row.now - row.prev;
     final up = diff > 0;
@@ -2537,16 +2775,23 @@ class _CompareRow extends StatelessWidget {
             ),
             const SizedBox(width: 10),
             Expanded(
-              child: Text(row.name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: PTypo.bodySm.copyWith(
-                      color: t.fgPrimary, fontWeight: PFontWeight.semi)),
-            ),
-            Text('${krwMasked(row.now, masked)}원',
+              child: Text(
+                row.name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: PTypo.bodySm.copyWith(
-                    color: t.fgPrimary,
-                    fontWeight: PFontWeight.bold)),
+                  color: t.fgPrimary,
+                  fontWeight: PFontWeight.semi,
+                ),
+              ),
+            ),
+            Text(
+              '${krwMasked(row.now, masked)}원',
+              style: PTypo.bodySm.copyWith(
+                color: t.fgPrimary,
+                fontWeight: PFontWeight.bold,
+              ),
+            ),
             const SizedBox(width: 10),
             SizedBox(
               width: 56,
@@ -2554,10 +2799,11 @@ class _CompareRow extends StatelessWidget {
                 row.prev > 0 ? '${up ? '▲' : '▼'} ${pct.abs()}%' : '—',
                 textAlign: TextAlign.right,
                 style: PTypo.caption.copyWith(
-                    color: row.prev == 0
-                        ? t.fgTertiary
-                        : (up ? t.fgExpense : t.fgIncome),
-                    fontWeight: PFontWeight.bold),
+                  color: row.prev == 0
+                      ? t.fgTertiary
+                      : (up ? t.fgExpense : t.fgIncome),
+                  fontWeight: PFontWeight.bold,
+                ),
               ),
             ),
           ],
@@ -2586,4 +2832,3 @@ class _CompareRow extends StatelessWidget {
     );
   }
 }
-
