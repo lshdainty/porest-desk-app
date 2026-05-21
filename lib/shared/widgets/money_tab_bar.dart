@@ -34,80 +34,61 @@ class MoneyTabBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final mq = MediaQuery.of(context);
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // 위 16px 그라데이션 fade — 컨텐츠와 탭바 경계 자연스럽게 (클로드 디자인 톤).
-        SizedBox(
-          height: 16,
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [t.bgSurface.withAlpha(0), t.bgSurface],
-              ),
+    return Material(
+      color: t.bgSurface,
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border(top: BorderSide(color: t.borderSubtle)),
+        ),
+        child: Padding(
+          padding: EdgeInsets.only(
+            left: PSpace.x8,
+            right: PSpace.x8,
+            top: 6,
+            bottom: 12 + mq.padding.bottom,
+          ),
+          child: SizedBox(
+            height: 54,
+            child: Row(
+              children: [
+                Expanded(child: _BackItem(onTap: onBack, tokens: t)),
+                Expanded(
+                    child: _MoneyTabItem(
+                  icon: LucideIcons.receipt,
+                  label: '가계부',
+                  selected: current == MoneyTab.expense,
+                  onTap: () => onTap(MoneyTab.expense),
+                  tokens: t,
+                )),
+                Expanded(
+                    child: _MoneyTabItem(
+                  icon: LucideIcons.wallet,
+                  label: '자산',
+                  selected: current == MoneyTab.assets,
+                  onTap: () => onTap(MoneyTab.assets),
+                  tokens: t,
+                )),
+                Expanded(
+                    child: _MoneyTabItem(
+                  icon: LucideIcons.pieChart,
+                  label: '통계',
+                  selected: current == MoneyTab.stats,
+                  onTap: () => onTap(MoneyTab.stats),
+                  tokens: t,
+                )),
+                Expanded(
+                    child: _MoneyTabItem(
+                  icon: LucideIcons.target,
+                  label: '예산',
+                  selected: current == MoneyTab.budget,
+                  onTap: () => onTap(MoneyTab.budget),
+                  tokens: t,
+                )),
+              ],
             ),
           ),
         ),
-        Material(
-          color: t.bgSurface,
-          child: Padding(
-            padding: EdgeInsets.only(
-              left: PSpace.x8,
-              right: PSpace.x8,
-              top: 6,
-              bottom: 12 + mq.padding.bottom,
-            ),
-            child: SizedBox(
-              height: 54,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: _BackItem(onTap: onBack, tokens: t),
-                  ),
-                  Expanded(
-                    child: _MoneyTabItem(
-                      icon: LucideIcons.receipt,
-                      label: '가계부',
-                      selected: current == MoneyTab.expense,
-                      onTap: () => onTap(MoneyTab.expense),
-                      tokens: t,
-                    ),
-                  ),
-                  Expanded(
-                    child: _MoneyTabItem(
-                      icon: LucideIcons.wallet,
-                      label: '자산',
-                      selected: current == MoneyTab.assets,
-                      onTap: () => onTap(MoneyTab.assets),
-                      tokens: t,
-                    ),
-                  ),
-                  Expanded(
-                    child: _MoneyTabItem(
-                      icon: LucideIcons.pieChart,
-                      label: '통계',
-                      selected: current == MoneyTab.stats,
-                      onTap: () => onTap(MoneyTab.stats),
-                      tokens: t,
-                    ),
-                  ),
-                  Expanded(
-                    child: _MoneyTabItem(
-                      icon: LucideIcons.target,
-                      label: '예산',
-                      selected: current == MoneyTab.budget,
-                      onTap: () => onTap(MoneyTab.budget),
-                      tokens: t,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
@@ -119,25 +100,12 @@ class _BackItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // back 버튼 — 라벨 없는 비어 보이는 현상 fix. icon 만 surface-input pill 로 감싸 채움.
     return InkWell(
       onTap: onTap,
       borderRadius: const BorderRadius.all(Radius.circular(PRadius.md)),
       child: Center(
-        child: Container(
-          width: 36,
-          height: 36,
-          decoration: BoxDecoration(
-            color: tokens.bgMuted,
-            shape: BoxShape.circle,
-          ),
-          alignment: Alignment.center,
-          child: Icon(
-            LucideIcons.arrowLeft,
-            size: 20,
-            color: tokens.fgSecondary,
-          ),
-        ),
+        child: Icon(LucideIcons.arrowLeft,
+            size: 22, color: tokens.fgTertiary),
       ),
     );
   }

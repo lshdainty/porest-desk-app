@@ -37,62 +37,53 @@ class MobileTabBar extends StatelessWidget {
       _Slot(icon: LucideIcons.calendarDays, label: l.navCalendar, branch: 2),
       _Slot(icon: LucideIcons.menu, label: l.navMore, branch: 3),
     ];
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // 위 16px 그라데이션 fade — 컨텐츠와 탭바 경계 자연스럽게 (클로드 디자인 톤).
-        SizedBox(
-          height: 16,
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [t.bgSurface.withAlpha(0), t.bgSurface],
-              ),
+    return Material(
+      color: t.bgSurface,
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border(top: BorderSide(color: t.borderSubtle)),
+        ),
+        child: Padding(
+          padding: EdgeInsets.only(
+            left: PSpace.x8,
+            right: PSpace.x8,
+            top: 6,
+            // 안전영역 + 디자인 12px 마진
+            bottom: 12 + mq.padding.bottom,
+          ),
+          child: SizedBox(
+            height: 54, // 본문 높이; 안전영역은 padding 으로 추가됨
+            child: Row(
+              children: [
+                for (final s in slots)
+                  Expanded(
+                    child: s.isFab
+                        ? _CenterFab(onTap: onAddTx, tokens: t)
+                        : _TabItem(
+                            icon: s.icon!,
+                            label: s.label!,
+                            selected: currentBranch == s.branch,
+                            onTap: () => onTapBranch(s.branch!),
+                            tokens: t,
+                          ),
+                  ),
+              ],
             ),
           ),
         ),
-        Material(
-          color: t.bgSurface,
-          child: Padding(
-            padding: EdgeInsets.only(
-              left: PSpace.x8,
-              right: PSpace.x8,
-              top: 6,
-              // 안전영역 + 디자인 12px 마진
-              bottom: 12 + mq.padding.bottom,
-            ),
-            child: SizedBox(
-              height: 54, // 본문 높이; 안전영역은 padding 으로 추가됨
-              child: Row(
-                children: [
-                  for (final s in slots)
-                    Expanded(
-                      child: s.isFab
-                          ? _CenterFab(onTap: onAddTx, tokens: t)
-                          : _TabItem(
-                              icon: s.icon!,
-                              label: s.label!,
-                              selected: currentBranch == s.branch,
-                              onTap: () => onTapBranch(s.branch!),
-                              tokens: t,
-                            ),
-                    ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
 
 class _Slot {
   const _Slot({required this.icon, required this.label, required this.branch})
-    : isFab = false;
-  const _Slot.fab() : icon = null, label = null, branch = null, isFab = true;
+      : isFab = false;
+  const _Slot.fab()
+      : icon = null,
+        label = null,
+        branch = null,
+        isFab = true;
 
   final IconData? icon;
   final String? label;
