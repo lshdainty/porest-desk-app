@@ -755,6 +755,9 @@ class _CalendarGrid extends StatelessWidget {
     final firstDay = DateTime(month.year, month.month, 1);
     final firstWeekday = firstDay.weekday % 7; // Sunday = 0
     final gridStart = firstDay.subtract(Duration(days: firstWeekday));
+    // 주 수 가변 (4~6) — Web getCalendarCells 정합. 다음 달 일주일 강제 표시 X.
+    final daysInMonth = DateTime(month.year, month.month + 1, 0).day;
+    final weeksCount = ((firstWeekday + daysInMonth) / 7).ceil();
     final today = DateTime.now();
     bool isSameDay(DateTime a, DateTime b) =>
         a.year == b.year && a.month == b.month && a.day == b.day;
@@ -811,7 +814,7 @@ class _CalendarGrid extends StatelessWidget {
           ),
           // 6 주 × 7 요일 grid — 각 셀에 border (right + bottom). 마지막 row/col 은
           // 외곽 border 와 겹치지 않게 inner only.
-          for (int week = 0; week < 6; week++)
+          for (int week = 0; week < weeksCount; week++)
             Row(
               // crossAxisAlignment.stretch 제거 — Row 가 ListView 안에서
               // unbounded vertical 일 때 stretch 시 assertion. 셀 minHeight 72
@@ -845,7 +848,7 @@ class _CalendarGrid extends StatelessWidget {
                             right: dow == 6
                                 ? BorderSide.none
                                 : BorderSide(color: borderColor),
-                            bottom: week == 5
+                            bottom: week == weeksCount - 1
                                 ? BorderSide.none
                                 : BorderSide(color: borderColor),
                           ),
