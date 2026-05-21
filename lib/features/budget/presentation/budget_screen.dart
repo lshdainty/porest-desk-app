@@ -45,8 +45,11 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
   BudgetMonthKey get _key => (year: _month.year, month: _month.month);
 
   String get _monthStartStr => _ymd(_month.year, _month.month, 1);
-  String get _monthEndStr => _ymd(_month.year, _month.month,
-      DateTime(_month.year, _month.month + 1, 0).day);
+  String get _monthEndStr => _ymd(
+    _month.year,
+    _month.month,
+    DateTime(_month.year, _month.month + 1, 0).day,
+  );
 
   Future<void> _copyFromPreviousMonth() async {
     final prevMonth = DateTime(_month.year, _month.month - 1, 1);
@@ -61,8 +64,9 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
       }
       final cur = await repo.list(year: _key.year, month: _key.month);
       final existingCats = cur.map((b) => b.categoryRowId).toSet();
-      final toCreate =
-          prev.where((b) => !existingCats.contains(b.categoryRowId)).toList();
+      final toCreate = prev
+          .where((b) => !existingCats.contains(b.categoryRowId))
+          .toList();
       if (toCreate.isEmpty) {
         if (!mounted) return;
         showPSnackBar(context, '이미 모든 카테고리가 복사되어 있습니다');
@@ -88,10 +92,18 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
       ref.invalidate(monthBudgetsProvider(_key));
       ref.invalidate(budgetComplianceProvider(6));
       if (!mounted) return;
-      showPSnackBar(context, '${toCreate.length}개 예산을 복사했습니다', severity: PSnackSeverity.success);
+      showPSnackBar(
+        context,
+        '${toCreate.length}개 예산을 복사했습니다',
+        severity: PSnackSeverity.success,
+      );
     } on ApiException catch (e) {
       if (!mounted) return;
-      showPSnackBar(context, '복사 실패: ${e.message}', severity: PSnackSeverity.error);
+      showPSnackBar(
+        context,
+        '복사 실패: ${e.message}',
+        severity: PSnackSeverity.error,
+      );
     }
   }
 
@@ -116,7 +128,11 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
       showPSnackBar(context, '${list.length}개 예산을 삭제했습니다');
     } on ApiException catch (e) {
       if (!mounted) return;
-      showPSnackBar(context, '삭제 실패: ${e.message}', severity: PSnackSeverity.error);
+      showPSnackBar(
+        context,
+        '삭제 실패: ${e.message}',
+        severity: PSnackSeverity.error,
+      );
     }
   }
 
@@ -129,7 +145,9 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
       contentBuilder: (ctx, scrollCtrl) => ListView(
         controller: scrollCtrl,
         padding: const EdgeInsets.symmetric(
-            horizontal: PSpace.x20, vertical: PSpace.x24),
+          horizontal: PSpace.x20,
+          vertical: PSpace.x24,
+        ),
         children: [
           _SheetTile(
             icon: LucideIcons.target,
@@ -195,11 +213,11 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final settings =
-        ref.watch(settingsProvider).value ?? AppSettings.defaults;
+    final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
     final budgetsAsync = ref.watch(monthBudgetsProvider(_key));
-    final summaryAsync = ref.watch(rangeSummaryProvider(
-        (startDate: _monthStartStr, endDate: _monthEndStr)));
+    final summaryAsync = ref.watch(
+      rangeSummaryProvider((startDate: _monthStartStr, endDate: _monthEndStr)),
+    );
     final categoriesAsync = ref.watch(categoriesProvider);
     final complianceAsync = ref.watch(budgetComplianceProvider(6));
 
@@ -211,21 +229,31 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
         color: t.bgBrand,
         onRefresh: () async {
           ref.invalidate(monthBudgetsProvider(_key));
-          ref.invalidate(rangeSummaryProvider(
-              (startDate: _monthStartStr, endDate: _monthEndStr)));
+          ref.invalidate(
+            rangeSummaryProvider((
+              startDate: _monthStartStr,
+              endDate: _monthEndStr,
+            )),
+          );
           ref.invalidate(budgetComplianceProvider(6));
           await ref.read(monthBudgetsProvider(_key).future);
         },
         child: ListView(
           padding: const EdgeInsets.fromLTRB(
-              PSpace.x16, PSpace.x4, PSpace.x16, PSpace.x32),
+            PSpace.x16,
+            PSpace.x4,
+            PSpace.x16,
+            PSpace.x32,
+          ),
           children: [
             _MonthBar(
               month: _month,
-              onPrev: () => setState(() =>
-                  _month = DateTime(_month.year, _month.month - 1, 1)),
-              onNext: () => setState(() =>
-                  _month = DateTime(_month.year, _month.month + 1, 1)),
+              onPrev: () => setState(
+                () => _month = DateTime(_month.year, _month.month - 1, 1),
+              ),
+              onNext: () => setState(
+                () => _month = DateTime(_month.year, _month.month + 1, 1),
+              ),
               onSettings: () => _openSettings(budgetsAsync.value ?? []),
             ),
             const SizedBox(height: PSpace.x12),
@@ -255,7 +283,9 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                 }
 
                 final categoryLimitSum = categoryBudgets.fold<int>(
-                    0, (s, b) => s + b.budgetAmount);
+                  0,
+                  (s, b) => s + b.budgetAmount,
+                );
                 final overallLimit = overallBudget?.budgetAmount ?? 0;
                 final totalLimit = overallBudget != null
                     ? overallLimit
@@ -264,14 +294,17 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                     ? (totalExpense / totalLimit) * 100
                     : 0.0;
                 final allocable = overallLimit - categoryLimitSum;
-                final overAllocated = overallBudget != null &&
-                    categoryLimitSum > overallLimit;
+                final overAllocated =
+                    overallBudget != null && categoryLimitSum > overallLimit;
 
                 final today = DateTime.now();
-                final daysInMonth =
-                    DateTime(_month.year, _month.month + 1, 0).day;
-                final dayOfMonth = (today.year == _month.year &&
-                        today.month == _month.month)
+                final daysInMonth = DateTime(
+                  _month.year,
+                  _month.month + 1,
+                  0,
+                ).day;
+                final dayOfMonth =
+                    (today.year == _month.year && today.month == _month.month)
                     ? today.day
                     : daysInMonth;
                 final daysElapsedPct = (dayOfMonth / daysInMonth) * 100;
@@ -279,13 +312,13 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                     .clamp(1, daysInMonth)
                     .toInt();
                 final dailyActual =
-                    (totalExpense / dayOfMonth.clamp(1, daysInMonth))
+                    (totalExpense / dayOfMonth.clamp(1, daysInMonth)).round();
+                final dailyTarget =
+                    ((totalLimit - totalExpense)
+                                .clamp(0, double.infinity)
+                                .toDouble() /
+                            daysRemaining)
                         .round();
-                final dailyTarget = ((totalLimit - totalExpense)
-                            .clamp(0, double.infinity)
-                            .toDouble() /
-                        daysRemaining)
-                    .round();
                 final onTrack = pct <= daysElapsedPct + 5;
 
                 final overList = categoryBudgets.where((b) {
@@ -302,8 +335,8 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                       (spent / b.budgetAmount) * 100 <= _warnThreshold;
                 }).toList();
 
-                final hasNoData = overallBudget == null &&
-                    categoryBudgets.isEmpty;
+                final hasNoData =
+                    overallBudget == null && categoryBudgets.isEmpty;
 
                 return Column(
                   children: [
@@ -405,13 +438,11 @@ Map<int, int> _spentByCategoryFromSummary(RangeSummary? summary) {
   for (final c in summary.categoryBreakdown) {
     final cid = c.categoryRowId;
     if (cid != null) {
-      map.update(cid, (v) => v + c.totalAmount,
-          ifAbsent: () => c.totalAmount);
+      map.update(cid, (v) => v + c.totalAmount, ifAbsent: () => c.totalAmount);
     }
     final pid = c.parentCategoryRowId;
     if (pid != null) {
-      map.update(pid, (v) => v + c.totalAmount,
-          ifAbsent: () => c.totalAmount);
+      map.update(pid, (v) => v + c.totalAmount, ifAbsent: () => c.totalAmount);
     }
   }
   return map;
@@ -437,20 +468,39 @@ class _MonthBar extends StatelessWidget {
     final t = context.tokens;
     return Row(
       children: [
-        PButton.icon(
-          icon: LucideIcons.chevronLeft,
-          onPressed: onPrev,
-        ),
+        PButton.icon(icon: LucideIcons.chevronLeft, onPressed: onPrev),
         Expanded(
           child: Center(
-            child: Text(yearMonth(month),
-                style: PTypo.h4.copyWith(color: t.fgPrimary)),
+            child: InkWell(
+              borderRadius: PRadius.brMd,
+              onTap: () {}, // month picker dialog — follow-up
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: PSpace.x8,
+                  vertical: PSpace.x4,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(LucideIcons.calendar, size: 14, color: t.fgSecondary),
+                    const SizedBox(width: PSpace.x4),
+                    Text(
+                      yearMonth(month),
+                      style: PTypo.h4.copyWith(color: t.fgPrimary),
+                    ),
+                    const SizedBox(width: PSpace.x4),
+                    Icon(
+                      LucideIcons.chevronDown,
+                      size: 14,
+                      color: t.fgTertiary,
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
         ),
-        PButton.icon(
-          icon: LucideIcons.chevronRight,
-          onPressed: onNext,
-        ),
+        PButton.icon(icon: LucideIcons.chevronRight, onPressed: onNext),
         const SizedBox(width: PSpace.x4),
         FilledButton.tonalIcon(
           onPressed: onSettings,
@@ -460,7 +510,9 @@ class _MonthBar extends StatelessWidget {
             backgroundColor: t.bgBrandSubtle,
             foregroundColor: t.fgBrandStrong,
             padding: const EdgeInsets.symmetric(
-                horizontal: PSpace.x12, vertical: PSpace.x8),
+              horizontal: PSpace.x12,
+              vertical: PSpace.x8,
+            ),
             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             shape: RoundedRectangleBorder(borderRadius: PRadius.brMd),
           ),
@@ -494,15 +546,16 @@ class _SheetTile extends StatelessWidget {
       borderRadius: PRadius.brMd,
       child: Padding(
         padding: const EdgeInsets.symmetric(
-            horizontal: PSpace.x4, vertical: PSpace.x8),
+          horizontal: PSpace.x4,
+          vertical: PSpace.x8,
+        ),
         child: Row(
           children: [
             Container(
               width: 36,
               height: 36,
               alignment: Alignment.center,
-              decoration:
-                  BoxDecoration(color: bg, borderRadius: PRadius.brMd),
+              decoration: BoxDecoration(color: bg, borderRadius: PRadius.brMd),
               child: Icon(icon, size: 18, color: fg),
             ),
             const SizedBox(width: PSpace.x12),
@@ -510,18 +563,22 @@ class _SheetTile extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(label,
-                      style: PTypo.body.copyWith(
-                          color: fg, fontWeight: PFontWeight.semi)),
+                  Text(
+                    label,
+                    style: PTypo.body.copyWith(
+                      color: fg,
+                      fontWeight: PFontWeight.semi,
+                    ),
+                  ),
                   const SizedBox(height: 2),
-                  Text(description,
-                      style:
-                          PTypo.caption.copyWith(color: t.fgTertiary)),
+                  Text(
+                    description,
+                    style: PTypo.caption.copyWith(color: t.fgTertiary),
+                  ),
                 ],
               ),
             ),
-            Icon(LucideIcons.chevronRight,
-                size: 16, color: t.fgTertiary),
+            Icon(LucideIcons.chevronRight, size: 16, color: t.fgTertiary),
           ],
         ),
       ),
@@ -562,8 +619,8 @@ class _HeaderCard extends StatelessWidget {
     final color = pct > 100
         ? tokens.statusDanger
         : pct > _warnThreshold
-            ? tokens.statusWarning
-            : tokens.fgBrand;
+        ? tokens.statusWarning
+        : tokens.fgBrand;
 
     return InkWell(
       borderRadius: PRadius.brXl,
@@ -573,8 +630,7 @@ class _HeaderCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: tokens.surfaceHero,
           borderRadius: PRadius.brXl,
-          border: Border.all(
-              color: tokens.borderBrand.withValues(alpha: 0.3)),
+          border: Border.all(color: tokens.borderBrand.withValues(alpha: 0.3)),
         ),
         child: overallBudget == null
             ? _emptyOverall(context)
@@ -587,21 +643,29 @@ class _HeaderCard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('$month월 전체 상한',
-            style: PTypo.caption.copyWith(
-                color: tokens.fgBrandStrong,
-                fontWeight: PFontWeight.semi)),
+        Text(
+          '$month월 전체 상한',
+          style: PTypo.caption.copyWith(
+            color: tokens.fgBrandStrong,
+            fontWeight: PFontWeight.semi,
+          ),
+        ),
         const SizedBox(height: 4),
-        Text('이번 달 전체 지출의 상한이에요 (카테고리 예산이 없는 지출도 포함).',
-            style: PTypo.caption.copyWith(color: tokens.fgTertiary)),
+        Text(
+          '이번 달 전체 지출의 상한이에요 (카테고리 예산이 없는 지출도 포함).',
+          style: PTypo.caption.copyWith(color: tokens.fgTertiary),
+        ),
         const SizedBox(height: PSpace.x12),
         Container(
           padding: const EdgeInsets.symmetric(
-              horizontal: PSpace.x12, vertical: PSpace.x8),
+            horizontal: PSpace.x12,
+            vertical: PSpace.x8,
+          ),
           decoration: BoxDecoration(
-              color: tokens.bgSurface,
-              borderRadius: PRadius.brMd,
-              border: Border.all(color: tokens.borderSubtle)),
+            color: tokens.bgSurface,
+            borderRadius: PRadius.brMd,
+            border: Border.all(color: tokens.borderSubtle),
+          ),
           child: Row(
             children: [
               Icon(LucideIcons.target, size: 14, color: tokens.fgBrand),
@@ -609,8 +673,7 @@ class _HeaderCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   '전체 상한이 아직 설정되지 않았어요. 탭해서 한도를 지정하세요.',
-                  style: PTypo.bodySm
-                      .copyWith(color: tokens.fgSecondary),
+                  style: PTypo.bodySm.copyWith(color: tokens.fgSecondary),
                 ),
               ),
             ],
@@ -619,8 +682,9 @@ class _HeaderCard extends StatelessWidget {
         if (categoryLimitSum > 0) ...[
           const SizedBox(height: PSpace.x8),
           Text(
-              '현재 카테고리 한도 합계: ${krwMasked(categoryLimitSum, masked)}원',
-              style: PTypo.caption.copyWith(color: tokens.fgTertiary)),
+            '현재 카테고리 한도 합계: ${krwMasked(categoryLimitSum, masked)}원',
+            style: PTypo.caption.copyWith(color: tokens.fgTertiary),
+          ),
         ],
       ],
     );
@@ -631,29 +695,39 @@ class _HeaderCard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('$month월 전체 상한',
-            style: PTypo.caption.copyWith(
-                color: tokens.fgBrandStrong,
-                fontWeight: PFontWeight.semi)),
+        Text(
+          '$month월 전체 상한',
+          style: PTypo.caption.copyWith(
+            color: tokens.fgBrandStrong,
+            fontWeight: PFontWeight.semi,
+          ),
+        ),
         const SizedBox(height: 4),
-        Text('이번 달 전체 지출의 상한이에요 (카테고리 예산이 없는 지출도 포함).',
-            style: PTypo.caption.copyWith(color: tokens.fgTertiary)),
+        Text(
+          '이번 달 전체 지출의 상한이에요 (카테고리 예산이 없는 지출도 포함).',
+          style: PTypo.caption.copyWith(color: tokens.fgTertiary),
+        ),
         const SizedBox(height: PSpace.x12),
         Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Flexible(
-              child: Text(krwMasked(totalSpent, masked),
-                  style: PTypo.h2.copyWith(
-                      color: tokens.fgPrimary,
-                      fontWeight: PFontWeight.bold),
-                  overflow: TextOverflow.ellipsis),
+              child: Text(
+                krwMasked(totalSpent, masked),
+                style: PTypo.h2.copyWith(
+                  color: tokens.fgPrimary,
+                  fontWeight: PFontWeight.bold,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
             const SizedBox(width: 6),
             Padding(
               padding: const EdgeInsets.only(bottom: 4),
-              child: Text(' / ${krwMasked(totalLimit, masked)}원',
-                  style: PTypo.bodySm.copyWith(color: tokens.fgSecondary)),
+              child: Text(
+                ' / ${krwMasked(totalLimit, masked)}원',
+                style: PTypo.bodySm.copyWith(color: tokens.fgSecondary),
+              ),
             ),
           ],
         ),
@@ -670,26 +744,26 @@ class _HeaderCard extends StatelessWidget {
         const SizedBox(height: PSpace.x8),
         Row(
           children: [
-            Text('${pct.toStringAsFixed(0)}% 사용',
-                style:
-                    PTypo.caption.copyWith(color: tokens.fgSecondary)),
+            Text(
+              '${pct.toStringAsFixed(0)}% 사용',
+              style: PTypo.caption.copyWith(color: tokens.fgSecondary),
+            ),
             const Spacer(),
             Text(
-                remaining >= 0
-                    ? '남은 예산 ${krwMasked(remaining, masked)}원'
-                    : '한도 ${krwMasked(-remaining, masked)}원 초과',
-                style: PTypo.caption.copyWith(
-                    color: remaining >= 0
-                        ? tokens.fgSecondary
-                        : tokens.fgExpense)),
+              remaining >= 0
+                  ? '남은 예산 ${krwMasked(remaining, masked)}원'
+                  : '한도 ${krwMasked(-remaining, masked)}원 초과',
+              style: PTypo.caption.copyWith(
+                color: remaining >= 0 ? tokens.fgSecondary : tokens.fgExpense,
+              ),
+            ),
           ],
         ),
         const SizedBox(height: PSpace.x12),
         Container(
           padding: const EdgeInsets.only(top: PSpace.x12),
           decoration: BoxDecoration(
-            border: Border(
-                top: BorderSide(color: tokens.borderSubtle)),
+            border: Border(top: BorderSide(color: tokens.borderSubtle)),
           ),
           child: Row(
             children: [
@@ -714,9 +788,7 @@ class _HeaderCard extends StatelessWidget {
                   label: '할당 가능',
                   value:
                       '${overAllocated ? '−' : '+'}${krwMasked(allocable.abs(), masked)}원',
-                  color: overAllocated
-                      ? tokens.fgExpense
-                      : tokens.fgIncome,
+                  color: overAllocated ? tokens.fgExpense : tokens.fgIncome,
                   tokens: tokens,
                 ),
               ),
@@ -727,24 +799,29 @@ class _HeaderCard extends StatelessWidget {
           const SizedBox(height: PSpace.x8),
           Container(
             padding: const EdgeInsets.symmetric(
-                horizontal: PSpace.x12, vertical: PSpace.x8),
+              horizontal: PSpace.x12,
+              vertical: PSpace.x8,
+            ),
             decoration: BoxDecoration(
               color: tokens.statusDangerSubtle,
               borderRadius: PRadius.brMd,
               border: Border.all(
-                  color: tokens.fgExpense.withValues(alpha: 0.3)),
+                color: tokens.fgExpense.withValues(alpha: 0.3),
+              ),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(LucideIcons.alertTriangle,
-                    size: 14, color: tokens.statusDangerFg),
+                Icon(
+                  LucideIcons.alertTriangle,
+                  size: 14,
+                  color: tokens.statusDangerFg,
+                ),
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(
                     '카테고리 한도 합이 전체 상한을 ${krwMasked(categoryLimitSum - overallLimit, masked)}원 초과했어요. 전체 상한을 올리거나 카테고리 한도를 줄여주세요.',
-                    style: PTypo.caption
-                        .copyWith(color: tokens.statusDangerFg),
+                    style: PTypo.caption.copyWith(color: tokens.statusDangerFg),
                   ),
                 ),
               ],
@@ -773,15 +850,22 @@ class _MiniStat extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label,
-            style: PTypo.micro.copyWith(
-                color: tokens.fgTertiary,
-                fontWeight: PFontWeight.medium)),
+        Text(
+          label,
+          style: PTypo.micro.copyWith(
+            color: tokens.fgTertiary,
+            fontWeight: PFontWeight.medium,
+          ),
+        ),
         const SizedBox(height: 2),
-        Text(value,
-            style: PTypo.bodySm.copyWith(
-                color: color, fontWeight: PFontWeight.bold),
-            overflow: TextOverflow.ellipsis),
+        Text(
+          value,
+          style: PTypo.bodySm.copyWith(
+            color: color,
+            fontWeight: PFontWeight.bold,
+          ),
+          overflow: TextOverflow.ellipsis,
+        ),
       ],
     );
   }
@@ -815,10 +899,13 @@ class _PaceCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Text('지출 페이스',
-                  style: PTypo.body.copyWith(
-                      color: tokens.fgPrimary,
-                      fontWeight: PFontWeight.bold)),
+              Text(
+                '지출 페이스',
+                style: PTypo.body.copyWith(
+                  color: tokens.fgPrimary,
+                  fontWeight: PFontWeight.bold,
+                ),
+              ),
               const Spacer(),
               PBadge(
                 label: onTrack ? '정상 속도' : '빠른 속도',
@@ -847,9 +934,7 @@ class _PaceCard extends StatelessWidget {
                           value: (pct / 100).clamp(0, 1).toDouble(),
                           minHeight: 12,
                           backgroundColor: tokens.bgTrack,
-                          color: pct > 100
-                              ? tokens.fgExpense
-                              : tokens.bgBrand,
+                          color: pct > 100 ? tokens.fgExpense : tokens.bgBrand,
                         ),
                       ),
                     ),
@@ -873,20 +958,22 @@ class _PaceCard extends StatelessWidget {
           const SizedBox(height: PSpace.x8),
           Row(
             children: [
-              Text('${pct.toStringAsFixed(0)}% 사용',
-                  style: PTypo.caption.copyWith(color: tokens.fgTertiary)),
+              Text(
+                '${pct.toStringAsFixed(0)}% 사용',
+                style: PTypo.caption.copyWith(color: tokens.fgTertiary),
+              ),
               const Spacer(),
-              Text('이번 달 ${daysElapsedPct.toStringAsFixed(0)}% 경과 ↑',
-                  style:
-                      PTypo.caption.copyWith(color: tokens.fgTertiary)),
+              Text(
+                '이번 달 ${daysElapsedPct.toStringAsFixed(0)}% 경과 ↑',
+                style: PTypo.caption.copyWith(color: tokens.fgTertiary),
+              ),
             ],
           ),
           const SizedBox(height: PSpace.x12),
           Container(
             padding: const EdgeInsets.only(top: PSpace.x12),
             decoration: BoxDecoration(
-              border: Border(
-                  top: BorderSide(color: tokens.borderSubtle)),
+              border: Border(top: BorderSide(color: tokens.borderSubtle)),
             ),
             child: Row(
               children: [
@@ -936,27 +1023,37 @@ class _PaceStat extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label,
-            style: PTypo.micro.copyWith(
-                color: tokens.fgTertiary,
-                fontWeight: PFontWeight.medium)),
+        Text(
+          label,
+          style: PTypo.micro.copyWith(
+            color: tokens.fgTertiary,
+            fontWeight: PFontWeight.medium,
+          ),
+        ),
         const SizedBox(height: 4),
         Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Flexible(
-              child: Text(krwMasked(amount, masked),
-                  style: PTypo.h4.copyWith(
-                      color: color, fontWeight: PFontWeight.bold),
-                  overflow: TextOverflow.ellipsis),
+              child: Text(
+                krwMasked(amount, masked),
+                style: PTypo.h4.copyWith(
+                  color: color,
+                  fontWeight: PFontWeight.bold,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
             const SizedBox(width: 2),
             Padding(
               padding: const EdgeInsets.only(bottom: 2),
-              child: Text('원',
-                  style: PTypo.caption.copyWith(
-                      color: tokens.fgTertiary,
-                      fontWeight: PFontWeight.semi)),
+              child: Text(
+                '원',
+                style: PTypo.caption.copyWith(
+                  color: tokens.fgTertiary,
+                  fontWeight: PFontWeight.semi,
+                ),
+              ),
             ),
           ],
         ),
@@ -983,10 +1080,13 @@ class _StatusTiles extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('예산 현황',
-              style: PTypo.body.copyWith(
-                  color: tokens.fgPrimary,
-                  fontWeight: PFontWeight.bold)),
+          Text(
+            '예산 현황',
+            style: PTypo.body.copyWith(
+              color: tokens.fgPrimary,
+              fontWeight: PFontWeight.bold,
+            ),
+          ),
           const SizedBox(height: PSpace.x12),
           Row(
             children: [
@@ -1048,9 +1148,10 @@ class _StatusBox extends StatelessWidget {
         color: bg,
         borderRadius: PRadius.brLg,
         border: Border.all(
-            color: active && bg != tokens.bgSurface
-                ? activeColor.withValues(alpha: 0.3)
-                : tokens.borderSubtle),
+          color: active && bg != tokens.bgSurface
+              ? activeColor.withValues(alpha: 0.3)
+              : tokens.borderSubtle,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1059,26 +1160,36 @@ class _StatusBox extends StatelessWidget {
             children: [
               Icon(icon, size: 13, color: fg),
               const SizedBox(width: 4),
-              Text(label,
-                  style: PTypo.caption.copyWith(
-                      color: fg, fontWeight: PFontWeight.semi)),
+              Text(
+                label,
+                style: PTypo.caption.copyWith(
+                  color: fg,
+                  fontWeight: PFontWeight.semi,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: PSpace.x4),
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text('$count',
-                  style: PTypo.h2.copyWith(
-                      color: count > 0 ? activeColor : tokens.fgPrimary,
-                      fontWeight: PFontWeight.bold)),
+              Text(
+                '$count',
+                style: PTypo.h2.copyWith(
+                  color: count > 0 ? activeColor : tokens.fgPrimary,
+                  fontWeight: PFontWeight.bold,
+                ),
+              ),
               const SizedBox(width: 4),
               Padding(
                 padding: const EdgeInsets.only(bottom: 4),
-                child: Text('카테고리',
-                    style: PTypo.bodySm.copyWith(
-                        color: tokens.fgTertiary,
-                        fontWeight: PFontWeight.semi)),
+                child: Text(
+                  '카테고리',
+                  style: PTypo.bodySm.copyWith(
+                    color: tokens.fgTertiary,
+                    fontWeight: PFontWeight.semi,
+                  ),
+                ),
               ),
             ],
           ),
@@ -1118,14 +1229,18 @@ class _CategoryListCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Text('카테고리별 예산',
-                  style: PTypo.body.copyWith(
-                      color: tokens.fgPrimary,
-                      fontWeight: PFontWeight.bold)),
+              Text(
+                '카테고리별 예산',
+                style: PTypo.body.copyWith(
+                  color: tokens.fgPrimary,
+                  fontWeight: PFontWeight.bold,
+                ),
+              ),
               const SizedBox(width: PSpace.x8),
-              Text('${budgets.length}개 설정됨',
-                  style:
-                      PTypo.caption.copyWith(color: tokens.fgTertiary)),
+              Text(
+                '${budgets.length}개 설정됨',
+                style: PTypo.caption.copyWith(color: tokens.fgTertiary),
+              ),
             ],
           ),
           const SizedBox(height: PSpace.x12),
@@ -1145,10 +1260,7 @@ class _CategoryListCard extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: PSpace.x8),
-                    PSkeleton(
-                      height: 6,
-                      borderRadius: PRadius.brFull,
-                    ),
+                    PSkeleton(height: 6, borderRadius: PRadius.brFull),
                   ],
                 ],
               ),
@@ -1158,9 +1270,10 @@ class _CategoryListCard extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: PSpace.x16),
               child: Column(
                 children: [
-                  Text('카테고리별 예산이 없어요',
-                      style: PTypo.bodySm
-                          .copyWith(color: tokens.fgTertiary)),
+                  Text(
+                    '카테고리별 예산이 없어요',
+                    style: PTypo.bodySm.copyWith(color: tokens.fgTertiary),
+                  ),
                   const SizedBox(height: PSpace.x8),
                   PButton(
                     label: '예산 설정하러 가기 →',
@@ -1181,8 +1294,7 @@ class _CategoryListCard extends StatelessWidget {
                 tokens: tokens,
                 onTap: () => onTap(budgets[i]),
               ),
-              if (i < budgets.length - 1)
-                const SizedBox(height: PSpace.x16),
+              if (i < budgets.length - 1) const SizedBox(height: PSpace.x16),
             ],
         ],
       ),
@@ -1215,14 +1327,16 @@ class _CategoryRow extends StatelessWidget {
     final stateColor = over
         ? tokens.fgExpense
         : warn
-            ? tokens.statusWarning
-            : tokens.fgBrand;
+        ? tokens.statusWarning
+        : tokens.fgBrand;
     final iconRaw = category?.icon;
     final colorRaw = category?.color;
     final fg = parseColor(colorRaw, fallback: tokens.fgBrand);
     final bg = softBg(fg);
     final name =
-        category?.categoryName ?? budget.categoryName ?? '카테고리 #${budget.categoryRowId}';
+        category?.categoryName ??
+        budget.categoryName ??
+        '카테고리 #${budget.categoryRowId}';
 
     return InkWell(
       onTap: onTap,
@@ -1236,8 +1350,10 @@ class _CategoryRow extends StatelessWidget {
                 width: 36,
                 height: 36,
                 alignment: Alignment.center,
-                decoration:
-                    BoxDecoration(color: bg, borderRadius: PRadius.brMd),
+                decoration: BoxDecoration(
+                  color: bg,
+                  borderRadius: PRadius.brMd,
+                ),
                 child: Icon(lucideByName(iconRaw), size: 18, color: fg),
               ),
               const SizedBox(width: PSpace.x12),
@@ -1245,20 +1361,22 @@ class _CategoryRow extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(name,
-                        style: PTypo.body.copyWith(
-                            color: tokens.fgPrimary,
-                            fontWeight: PFontWeight.semi),
-                        overflow: TextOverflow.ellipsis),
+                    Text(
+                      name,
+                      style: PTypo.body.copyWith(
+                        color: tokens.fgPrimary,
+                        fontWeight: PFontWeight.semi,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                     const SizedBox(height: 2),
                     Text(
                       over
                           ? '한도 ${krwMasked(spent - limit, masked)}원 초과'
                           : '남은 예산 ${krwMasked((limit - spent).clamp(0, limit), masked)}원',
                       style: PTypo.caption.copyWith(
-                          color: over
-                              ? tokens.fgExpense
-                              : tokens.fgTertiary),
+                        color: over ? tokens.fgExpense : tokens.fgTertiary,
+                      ),
                     ),
                   ],
                 ),
@@ -1267,16 +1385,20 @@ class _CategoryRow extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text(krwMasked(spent, masked),
-                      style: PTypo.body.copyWith(
-                        color:
-                            over ? tokens.fgExpense : tokens.fgPrimary,
-                        fontWeight: PFontWeight.bold,
-                      )),
-                  Text('/ ${krwMasked(limit, masked)}',
-                      style: PTypo.micro.copyWith(
-                          color: tokens.fgTertiary,
-                          fontWeight: PFontWeight.medium)),
+                  Text(
+                    krwMasked(spent, masked),
+                    style: PTypo.body.copyWith(
+                      color: over ? tokens.fgExpense : tokens.fgPrimary,
+                      fontWeight: PFontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    '/ ${krwMasked(limit, masked)}',
+                    style: PTypo.micro.copyWith(
+                      color: tokens.fgTertiary,
+                      fontWeight: PFontWeight.medium,
+                    ),
+                  ),
                 ],
               ),
             ],
@@ -1320,28 +1442,34 @@ class _ComplianceCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Text('최근 6개월 예산 이행률',
-                  style: PTypo.body.copyWith(
-                      color: tokens.fgPrimary,
-                      fontWeight: PFontWeight.bold)),
+              Text(
+                '최근 6개월 예산 이행률',
+                style: PTypo.body.copyWith(
+                  color: tokens.fgPrimary,
+                  fontWeight: PFontWeight.bold,
+                ),
+              ),
               const Spacer(),
-              Text('한도 대비 지출 %',
-                  style:
-                      PTypo.caption.copyWith(color: tokens.fgTertiary)),
+              Text(
+                '한도 대비 지출 %',
+                style: PTypo.caption.copyWith(color: tokens.fgTertiary),
+              ),
             ],
           ),
           const SizedBox(height: PSpace.x16),
           if (async.isLoading && list.isEmpty)
             const SizedBox(
-                height: 140,
-                child: Center(child: PCircularProgressIndicator()))
+              height: 140,
+              child: Center(child: PCircularProgressIndicator()),
+            )
           else if (list.isEmpty)
             SizedBox(
               height: 80,
               child: Center(
-                child: Text('아직 이행률 데이터가 없어요',
-                    style:
-                        PTypo.caption.copyWith(color: tokens.fgTertiary)),
+                child: Text(
+                  '아직 이행률 데이터가 없어요',
+                  style: PTypo.caption.copyWith(color: tokens.fgTertiary),
+                ),
               ),
             )
           else
@@ -1375,7 +1503,9 @@ class _ComplianceBarChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final maxY = rows.fold<double>(
-        100, (m, r) => r.compliancePercent > m ? r.compliancePercent : m);
+      100,
+      (m, r) => r.compliancePercent > m ? r.compliancePercent : m,
+    );
     final yMax = (maxY * 1.15).clamp(100, 1000).toDouble();
 
     return BarChart(
@@ -1390,19 +1520,21 @@ class _ComplianceBarChart extends StatelessWidget {
             getTooltipColor: (_) => tokens.bgSurface,
             tooltipBorder: BorderSide(color: tokens.borderSubtle),
             tooltipPadding: const EdgeInsets.symmetric(
-                horizontal: 10, vertical: 6),
+              horizontal: 10,
+              vertical: 6,
+            ),
             tooltipMargin: 8,
             getTooltipItem: (group, groupIdx, rod, rodIdx) {
               final r = rows[group.x];
               return BarTooltipItem(
                 '${r.month}월\n',
                 PTypo.micro.copyWith(
-                    color: tokens.fgTertiary,
-                    fontWeight: PFontWeight.semi),
+                  color: tokens.fgTertiary,
+                  fontWeight: PFontWeight.semi,
+                ),
                 children: [
                   TextSpan(
-                    text:
-                        '${r.compliancePercent.toStringAsFixed(1)}%',
+                    text: '${r.compliancePercent.toStringAsFixed(1)}%',
                     style: PTypo.caption.copyWith(
                       color: r.compliancePercent > 100
                           ? tokens.fgExpense
@@ -1427,9 +1559,11 @@ class _ComplianceBarChart extends StatelessWidget {
         borderData: FlBorderData(show: false),
         titlesData: FlTitlesData(
           leftTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false)),
+            sideTitles: SideTitles(showTitles: false),
+          ),
           rightTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false)),
+            sideTitles: SideTitles(showTitles: false),
+          ),
           topTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
@@ -1443,10 +1577,12 @@ class _ComplianceBarChart extends StatelessWidget {
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 2),
                   child: Text(
-                      '${r.compliancePercent.toStringAsFixed(0)}%',
-                      style: PTypo.micro.copyWith(
-                          color: tokens.fgPrimary,
-                          fontWeight: PFontWeight.bold)),
+                    '${r.compliancePercent.toStringAsFixed(0)}%',
+                    style: PTypo.micro.copyWith(
+                      color: tokens.fgPrimary,
+                      fontWeight: PFontWeight.bold,
+                    ),
+                  ),
                 );
               },
             ),
@@ -1461,19 +1597,16 @@ class _ComplianceBarChart extends StatelessWidget {
                   return const SizedBox.shrink();
                 }
                 final r = rows[i];
-                final last =
-                    r.year == currentYear && r.month == currentMonth;
+                final last = r.year == currentYear && r.month == currentMonth;
                 return Padding(
                   padding: const EdgeInsets.only(top: 6),
-                  child: Text('${r.month}월',
-                      style: PTypo.micro.copyWith(
-                        color: last
-                            ? tokens.fgPrimary
-                            : tokens.fgTertiary,
-                        fontWeight: last
-                            ? PFontWeight.bold
-                            : PFontWeight.medium,
-                      )),
+                  child: Text(
+                    '${r.month}월',
+                    style: PTypo.micro.copyWith(
+                      color: last ? tokens.fgPrimary : tokens.fgTertiary,
+                      fontWeight: last ? PFontWeight.bold : PFontWeight.medium,
+                    ),
+                  ),
                 );
               },
             ),
@@ -1489,12 +1622,13 @@ class _ComplianceBarChart extends StatelessWidget {
                   color: rows[i].compliancePercent > 100
                       ? tokens.fgExpense
                       : (rows[i].year == currentYear &&
-                              rows[i].month == currentMonth)
-                          ? tokens.bgBrand
-                          : tokens.borderSubtle,
+                            rows[i].month == currentMonth)
+                      ? tokens.bgBrand
+                      : tokens.borderSubtle,
                   width: 20,
                   borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(PRadius.xs)),
+                    top: Radius.circular(PRadius.xs),
+                  ),
                 ),
               ],
             ),
@@ -1517,7 +1651,9 @@ class _EmptyState extends StatelessWidget {
         message: '이 달 예산이 없습니다',
         subMessage: '전체 상한 또는 카테고리 예산을 설정하세요',
         padding: const EdgeInsets.symmetric(
-            horizontal: PSpace.x16, vertical: PSpace.x32),
+          horizontal: PSpace.x16,
+          vertical: PSpace.x32,
+        ),
         action: FilledButton.tonalIcon(
           onPressed: onAdd,
           icon: const Icon(LucideIcons.settings, size: 16),
@@ -1547,14 +1683,13 @@ class _ErrorBox extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Text(message,
-              style:
-                  PTypo.bodySm.copyWith(color: t.statusDangerFg)),
+          Text(message, style: PTypo.bodySm.copyWith(color: t.statusDangerFg)),
           const SizedBox(height: PSpace.x8),
           PButton(
-              label: '다시 시도',
-              variant: PButtonVariant.outline,
-              onPressed: onRetry),
+            label: '다시 시도',
+            variant: PButtonVariant.outline,
+            onPressed: onRetry,
+          ),
         ],
       ),
     );
