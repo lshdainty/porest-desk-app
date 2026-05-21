@@ -52,10 +52,7 @@ class AssetScreen extends ConsumerWidget {
           await ref.read(assetsProvider.future);
         },
         child: assetsAsync.when(
-          loading: () => const Padding(
-            padding: EdgeInsets.all(PSpace.x16),
-            child: PListSkeleton(rows: 6, showAvatar: true),
-          ),
+          loading: () => const _AssetPageSkeleton(),
           error: (e, _) => _ErrorBox(
             message: '자산을 불러오지 못했습니다\n$e',
             onRetry: () => ref.invalidate(assetsProvider),
@@ -663,6 +660,169 @@ class _AssetCard extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Asset 페이지 구조 맞춤 skeleton — Web AssetPageSkeleton 정합.
+/// SummaryCard (Hero netWorth + chart + 3-col total) + TypeGroup x2.
+class _AssetPageSkeleton extends StatelessWidget {
+  const _AssetPageSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.symmetric(
+        horizontal: PSpace.x20,
+        vertical: PSpace.x24,
+      ),
+      children: const [
+        _AssetSummaryCardSkeleton(),
+        SizedBox(height: PSpace.x16),
+        _AssetTypeGroupSkeleton(rows: 3),
+        SizedBox(height: PSpace.x16),
+        _AssetTypeGroupSkeleton(rows: 2),
+      ],
+    );
+  }
+}
+
+class _AssetSummaryCardSkeleton extends StatelessWidget {
+  const _AssetSummaryCardSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return PCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Row: 라벨 + eye + Spacer + 이체 button
+          Row(
+            children: const [
+              PSkeleton.line(width: 56, height: 12),
+              SizedBox(width: PSpace.x4),
+              PSkeleton(width: 14, height: 14, borderRadius: PRadius.brXs),
+              Spacer(),
+              PSkeleton(width: 56, height: 28, borderRadius: PRadius.brSm),
+            ],
+          ),
+          const SizedBox(height: 6),
+          // 큰 amount
+          const PSkeleton.line(width: 200, height: 32),
+          const SizedBox(height: 6),
+          // trend row
+          Row(
+            children: const [
+              PSkeleton(width: 14, height: 14, borderRadius: PRadius.brXs),
+              SizedBox(width: PSpace.x4),
+              PSkeleton.line(width: 56, height: 14),
+              SizedBox(width: PSpace.x8),
+              PSkeleton.line(width: 100, height: 14),
+            ],
+          ),
+          const SizedBox(height: PSpace.x12),
+          // NetWorthChart placeholder
+          const PSkeleton(
+            width: double.infinity,
+            height: 140,
+            borderRadius: PRadius.brSm,
+          ),
+          const SizedBox(height: PSpace.x12),
+          // 3-col border-top section
+          Container(
+            padding: const EdgeInsets.only(top: PSpace.x12),
+            decoration: BoxDecoration(
+              border: Border(top: BorderSide(color: t.borderSubtle)),
+            ),
+            child: Row(
+              children: const [
+                Expanded(child: _AssetSummaryColPlaceholder()),
+                Expanded(child: _AssetSummaryColPlaceholder()),
+                Expanded(child: _AssetSummaryColPlaceholder()),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AssetSummaryColPlaceholder extends StatelessWidget {
+  const _AssetSummaryColPlaceholder();
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: const [
+        PSkeleton.line(width: 48, height: 11),
+        SizedBox(height: PSpace.x8),
+        PSkeleton.line(width: 72, height: 14),
+      ],
+    );
+  }
+}
+
+class _AssetTypeGroupSkeleton extends StatelessWidget {
+  const _AssetTypeGroupSkeleton({required this.rows});
+  final int rows;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return PCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // header: title + total + add button
+          Row(
+            children: const [
+              PSkeleton.line(width: 80, height: 16),
+              Spacer(),
+              PSkeleton.line(width: 96, height: 14),
+              SizedBox(width: PSpace.x8),
+              PSkeleton(width: 48, height: 28, borderRadius: PRadius.brSm),
+            ],
+          ),
+          const SizedBox(height: PSpace.x12),
+          // rows — item 사이 border-top
+          for (int i = 0; i < rows; i++)
+            Container(
+              decoration: BoxDecoration(
+                border: i > 0
+                    ? Border(top: BorderSide(color: t.borderSubtle))
+                    : null,
+              ),
+              padding: const EdgeInsets.symmetric(
+                horizontal: PSpace.x4,
+                vertical: PSpace.x12,
+              ),
+              child: Row(
+                children: [
+                  const PSkeleton(
+                    width: 40,
+                    height: 40,
+                    borderRadius: PRadius.brSm,
+                  ),
+                  const SizedBox(width: PSpace.x12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        PSkeleton.line(width: 120, height: 14),
+                        SizedBox(height: PSpace.x4),
+                        PSkeleton.line(width: 72, height: 11),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: PSpace.x8),
+                  const PSkeleton.line(width: 96, height: 16),
+                ],
+              ),
+            ),
+        ],
       ),
     );
   }
