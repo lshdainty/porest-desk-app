@@ -733,8 +733,8 @@ class _AssetFilterBadge extends ConsumerWidget {
   }
 }
 
-/// Expense 페이지 구조 맞춤 skeleton — Web ExpensePageSkeleton 정합.
-/// Summary 카드 (월 헤더 + 3-col 수입/지출/합계) + ViewToggle/Chips + DayGroup x3.
+/// Expense 페이지 구조 맞춤 skeleton — Web ExpensePageSkeleton 정합 (calendar mode default).
+/// Summary 카드 (월 헤더 + 3-col 수입/지출/합계) + Chips/ViewToggle + Calendar grid.
 class _ExpensePageSkeleton extends StatelessWidget {
   const _ExpensePageSkeleton();
 
@@ -743,19 +743,84 @@ class _ExpensePageSkeleton extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: const [
-        // Summary 카드 (월 헤더 + 3-col 수입/지출/합계)
         _ExpenseSummarySkeleton(),
         SizedBox(height: PSpace.x12),
-        // Chips row + view-mode toggle right
         _ExpenseChipsSkeleton(),
-        SizedBox(height: PSpace.x16),
-        // 거래 그룹별 — 날짜 헤더 + 카드 안 row 들
-        _ExpenseDayGroupSkeleton(rows: 3),
-        SizedBox(height: PSpace.x16),
-        _ExpenseDayGroupSkeleton(rows: 2),
-        SizedBox(height: PSpace.x16),
-        _ExpenseDayGroupSkeleton(rows: 2),
+        SizedBox(height: PSpace.x12),
+        _ExpenseCalendarSkeleton(),
       ],
+    );
+  }
+}
+
+/// Calendar grid skeleton — viewMode=calendar (default) 외곽 카드 + 7-col 요일 헤더 + 6주 cell grid.
+/// SizedBox(height: 420) — ExpenseCalendar 본체와 동일 높이.
+class _ExpenseCalendarSkeleton extends StatelessWidget {
+  const _ExpenseCalendarSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return SizedBox(
+      height: 420,
+      child: PCard(
+        padding: EdgeInsets.zero,
+        child: Column(
+          children: [
+            // 요일 헤더 (일~토)
+            DecoratedBox(
+              decoration: BoxDecoration(
+                border: Border(bottom: BorderSide(color: t.borderSubtle)),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: PSpace.x8),
+                child: Row(
+                  children: [
+                    for (int i = 0; i < 7; i++)
+                      const Expanded(
+                        child: Center(
+                          child: PSkeleton.line(width: 16, height: 11),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            // 6주 × 7일 cell grid — Expanded 로 남은 영역 균등 분배
+            Expanded(
+              child: Column(
+                children: [
+                  for (int w = 0; w < 6; w++)
+                    Expanded(
+                      child: Row(
+                        children: [
+                          for (int d = 0; d < 7; d++)
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.all(PSpace.x4),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: const [
+                                    PSkeleton(
+                                      width: 16,
+                                      height: 16,
+                                      borderRadius: PRadius.brFull,
+                                    ),
+                                    Spacer(),
+                                    PSkeleton.line(width: 32, height: 8),
+                                  ],
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -839,6 +904,8 @@ class _ExpenseChipsSkeleton extends StatelessWidget {
   }
 }
 
+/// list mode skeleton — viewMode='list' 일 때 사용 (현재 default 미사용, dead code 보존).
+// ignore: unused_element
 class _ExpenseDayGroupSkeleton extends StatelessWidget {
   const _ExpenseDayGroupSkeleton({required this.rows});
   final int rows;
