@@ -17,7 +17,6 @@ import '../../../shared/widgets/p_chip.dart';
 import '../../../shared/widgets/p_divider.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_skeleton.dart';
-import '../../../shared/widgets/p_toggle.dart';
 import '../../asset/application/asset_providers.dart';
 import '../application/expense_providers.dart';
 import '../domain/expense.dart';
@@ -1028,7 +1027,7 @@ class _ErrorBox extends StatelessWidget {
   }
 }
 
-/// 보기 모드 토글 — 달력 / 목록. spec ToggleGroup subtle.
+/// 보기 모드 토글 — 단일 button. 현재 mode 의 반대 표시 (calendar 모드면 '목록').
 class _ViewModeToggle extends StatelessWidget {
   const _ViewModeToggle({required this.value, required this.onChanged});
   final _ViewMode value;
@@ -1036,23 +1035,16 @@ class _ViewModeToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isCalendar = value == _ViewMode.calendar;
     return Align(
       alignment: Alignment.centerLeft,
-      child: PToggleGroupSingle<_ViewMode>(
-        value: value,
-        onChanged: onChanged,
-        items: const [
-          PToggleGroupItem(
-            value: _ViewMode.calendar,
-            icon: LucideIcons.calendar,
-            label: '달력',
-          ),
-          PToggleGroupItem(
-            value: _ViewMode.list,
-            icon: LucideIcons.list,
-            label: '목록',
-          ),
-        ],
+      child: PButton(
+        label: isCalendar ? '목록' : '달력',
+        icon: isCalendar ? LucideIcons.list : LucideIcons.calendar,
+        variant: PButtonVariant.secondary,
+        size: PButtonSize.sm,
+        onPressed: () =>
+            onChanged(isCalendar ? _ViewMode.list : _ViewMode.calendar),
       ),
     );
   }
