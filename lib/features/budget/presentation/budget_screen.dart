@@ -471,41 +471,44 @@ class _MonthBar extends StatelessWidget {
     final t = context.tokens;
     return Row(
       children: [
-        PButton.icon(icon: LucideIcons.chevronLeft, onPressed: onPrev),
-        Expanded(
-          child: Center(
-            child: InkWell(
-              borderRadius: PRadius.brMd,
-              onTap: () async {
-                final picked = await showMonthPickerSheet(context, month);
-                if (picked != null) onPickMonth(picked);
-              },
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: PSpace.x8,
-                  vertical: PSpace.x4,
+        PButton.icon(
+          icon: LucideIcons.chevronLeft,
+          size: PButtonSize.sm,
+          onPressed: onPrev,
+        ),
+        InkWell(
+          borderRadius: PRadius.brMd,
+          onTap: () async {
+            final picked = await showMonthPickerSheet(context, month);
+            if (picked != null) onPickMonth(picked);
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: PSpace.x4,
+              vertical: PSpace.x4,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  yearMonth(month),
+                  style: PTypo.bodySm.copyWith(
+                    color: t.fgPrimary,
+                    fontWeight: PFontWeight.bold,
+                  ),
                 ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      yearMonth(month),
-                      style: PTypo.h4.copyWith(color: t.fgPrimary),
-                    ),
-                    const SizedBox(width: PSpace.x4),
-                    Icon(
-                      LucideIcons.chevronDown,
-                      size: 14,
-                      color: t.fgTertiary,
-                    ),
-                  ],
-                ),
-              ),
+                const SizedBox(width: PSpace.x4),
+                Icon(LucideIcons.chevronDown, size: 12, color: t.fgTertiary),
+              ],
             ),
           ),
         ),
-        PButton.icon(icon: LucideIcons.chevronRight, onPressed: onNext),
-        const SizedBox(width: PSpace.x4),
+        PButton.icon(
+          icon: LucideIcons.chevronRight,
+          size: PButtonSize.sm,
+          onPressed: onNext,
+        ),
+        const Spacer(),
         PButton(
           label: '예산 설정',
           icon: LucideIcons.settings,
