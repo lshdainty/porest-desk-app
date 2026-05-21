@@ -1031,8 +1031,8 @@ class _DonutCardState extends ConsumerState<_DonutCard> {
                     ],
                   )
                 : const _CardTitle('카테고리별 지출'),
+            trailing: _PeriodTrigger(state: s),
           ),
-          _PeriodTrigger(state: s),
           const SizedBox(height: PSpace.x12),
           if (loading)
             const _DonutCardSkeleton()
