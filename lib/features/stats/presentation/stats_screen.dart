@@ -575,11 +575,17 @@ class _PeriodTrigger extends StatelessWidget {
             children: [
               Icon(LucideIcons.calendar, size: 14, color: t.fgSecondary),
               const SizedBox(width: PSpace.x4),
+              // custom + 다른 year 시 'YYYY-MM-DD ~ YYYY-MM-DD' 너무 길어 wrap. ~ 다음 명시 break.
               Text(
-                state._periodLabel,
+                state._segMode == _SegMode.custom &&
+                        state._from.year != state._to.year
+                    ? '${_ymd(state._from)} ~\n${_ymd(state._to)}'
+                    : state._periodLabel,
+                textAlign: TextAlign.center,
                 style: PTypo.bodySm.copyWith(
                   color: t.fgPrimary,
                   fontWeight: PFontWeight.medium,
+                  height: 1.3,
                 ),
               ),
               const SizedBox(width: PSpace.x4),
