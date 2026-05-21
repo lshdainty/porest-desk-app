@@ -472,7 +472,7 @@ class _BalanceTrendChart extends StatelessWidget {
               getTitlesWidget: (v, _) => Padding(
                 padding: const EdgeInsets.only(right: 6),
                 child: Text(
-                  masked ? '•••' : _fmtAxisNum(v),
+                  masked ? '•••' : formatChartAxis(v),
                   maxLines: 1,
                   softWrap: false,
                   overflow: TextOverflow.visible,
@@ -745,23 +745,6 @@ class _ExpenseRow extends StatelessWidget {
 
 /// stats 차트와 동일한 만/억 단위 — 한글 단위가 KRW 와 어울리고
 /// '4.3M'/'-40.4M' 보다 짧게 표현돼 reservedSize 안에 안전히 들어간다.
-String _fmtAxisNum(double v) {
-  final n = v.abs();
-  String body;
-  if (n >= 100000000) {
-    body = '${(n / 100000000).toStringAsFixed(1)}억';
-  } else if (n >= 10000) {
-    // 100만 단위 round — Web formatChartAxis 정합 (예: 51,750,000 → "5,200만")
-    final mil = (n / 1000000).round() * 100;
-    final mainStr = mil >= 1000
-        ? '${(mil ~/ 1000)},${(mil % 1000).toString().padLeft(3, '0')}'
-        : '$mil';
-    body = '$mainStr만';
-  } else {
-    body = n.toStringAsFixed(0);
-  }
-  return v < 0 ? '−$body' : body;
-}
 
 String _currentYearMonth() {
   final n = DateTime.now();

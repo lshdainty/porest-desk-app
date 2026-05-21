@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/theme/radius.dart';
 import '../../../../app/theme/tokens.dart';
 import '../../../../app/theme/typography.dart';
+import '../../../../core/format/krw.dart';
 import '../../../../core/settings/settings_notifier.dart';
 import '../../../../shared/widgets/p_skeleton.dart';
 import '../../application/asset_providers.dart';
@@ -20,15 +21,13 @@ class NetWorthChart extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = context.tokens;
     final trendAsync = ref.watch(netWorthTrendProvider(months));
-    final masked =
-        ref.watch(settingsProvider).value?.hideAmounts ?? false;
+    final masked = ref.watch(settingsProvider).value?.hideAmounts ?? false;
     return SizedBox(
       height: height,
       child: trendAsync.when(
         // 차트 전체 PSkeleton — Hero 카드 안 영역에 fill.
-        loading: () => SizedBox.expand(
-          child: PSkeleton(borderRadius: PRadius.brLg),
-        ),
+        loading: () =>
+            SizedBox.expand(child: PSkeleton(borderRadius: PRadius.brLg)),
         error: (_, _) => Center(
           child: Text(
             '추이 데이터를 불러오지 못했어요',
@@ -40,7 +39,10 @@ class NetWorthChart extends ConsumerWidget {
             return Center(
               child: Text(
                 '추이 데이터가 없어요',
-                style: TextStyle(color: t.fgTertiary, fontSize: PFontSize.bodySm),
+                style: TextStyle(
+                  color: t.fgTertiary,
+                  fontSize: PFontSize.bodySm,
+                ),
               ),
             );
           }
@@ -64,7 +66,10 @@ class NetWorthChart extends ConsumerWidget {
               gridData: FlGridData(
                 show: true,
                 drawVerticalLine: false,
-                horizontalInterval: ((yMax - yMin) / 4).abs().clamp(1.0, double.infinity),
+                horizontalInterval: ((yMax - yMin) / 4).abs().clamp(
+                  1.0,
+                  double.infinity,
+                ),
                 getDrawingHorizontalLine: (_) => FlLine(
                   color: t.borderSubtle,
                   strokeWidth: 1,
@@ -72,18 +77,31 @@ class NetWorthChart extends ConsumerWidget {
                 ),
               ),
               titlesData: FlTitlesData(
-                topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                topTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+                rightTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
                 leftTitles: AxisTitles(
                   sideTitles: SideTitles(
                     showTitles: true,
-                    reservedSize: 44,
-                    interval: ((yMax - yMin) / 4).abs().clamp(1.0, double.infinity),
+                    reservedSize: 52,
+                    interval: ((yMax - yMin) / 4).abs().clamp(
+                      1.0,
+                      double.infinity,
+                    ),
                     getTitlesWidget: (v, _) => Padding(
-                      padding: const EdgeInsets.only(right: 4),
+                      padding: const EdgeInsets.only(right: 6),
                       child: Text(
-                        masked ? '•••' : _fmtAxis(v),
-                        style: TextStyle(color: t.fgTertiary, fontSize: PFontSize.micro),
+                        masked ? '•••' : formatChartAxis(v),
+                        maxLines: 1,
+                        softWrap: false,
+                        overflow: TextOverflow.visible,
+                        style: TextStyle(
+                          color: t.fgTertiary,
+                          fontSize: PFontSize.micro,
+                        ),
                       ),
                     ),
                   ),
@@ -95,15 +113,20 @@ class NetWorthChart extends ConsumerWidget {
                     interval: 1,
                     getTitlesWidget: (v, _) {
                       final i = v.round();
-                      if (i < 0 || i >= points.length) return const SizedBox.shrink();
+                      if (i < 0 || i >= points.length)
+                        return const SizedBox.shrink();
                       // 격월 표시 (07월 / 09월 / 11월 …)
-                      if (points.length > 7 && i % 2 != 0) return const SizedBox.shrink();
+                      if (points.length > 7 && i % 2 != 0)
+                        return const SizedBox.shrink();
                       final mm = points[i].month.toString().padLeft(2, '0');
                       return Padding(
                         padding: const EdgeInsets.only(top: 6),
                         child: Text(
                           '$mm월',
-                          style: TextStyle(color: t.fgTertiary, fontSize: PFontSize.micro),
+                          style: TextStyle(
+                            color: t.fgTertiary,
+                            fontSize: PFontSize.micro,
+                          ),
                         ),
                       );
                     },
@@ -116,7 +139,10 @@ class NetWorthChart extends ConsumerWidget {
                   getTooltipColor: (_) => t.bgSurface,
                   tooltipBorder: BorderSide(color: t.borderSubtle),
                   tooltipBorderRadius: PRadius.brLg,
-                  tooltipPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                  tooltipPadding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 8,
+                  ),
                   getTooltipItems: (spots) => [
                     for (int i = 0; i < spots.length; i++)
                       if (i == 0)
@@ -132,9 +158,10 @@ class NetWorthChart extends ConsumerWidget {
                                 return '${points[ix].month.toString().padLeft(2, '0')}월\n';
                               }(),
                               style: PTypo.micro.copyWith(
-                                  color: t.fgTertiary,
-                                  fontWeight: PFontWeight.semi,
-                                  height: 1.6),
+                                color: t.fgTertiary,
+                                fontWeight: PFontWeight.semi,
+                                height: 1.6,
+                              ),
                             ),
                             TextSpan(
                               text: '●  ',
@@ -146,7 +173,9 @@ class NetWorthChart extends ConsumerWidget {
                             ),
                             TextSpan(
                               text: '순자산  ',
-                              style: PTypo.caption.copyWith(color: t.fgSecondary),
+                              style: PTypo.caption.copyWith(
+                                color: t.fgSecondary,
+                              ),
                             ),
                             TextSpan(
                               text: masked ? '•••' : _fmtFull(spots[i].y),
@@ -200,13 +229,6 @@ class NetWorthChart extends ConsumerWidget {
       ),
     );
   }
-}
-
-String _fmtAxis(double v) {
-  final n = v.abs();
-  if (n >= 100000000) return '${(v / 100000000).toStringAsFixed(1)}억';
-  if (n >= 10000) return '${(v / 10000).round()}만';
-  return v.round().toString();
 }
 
 String _fmtFull(double v) {
