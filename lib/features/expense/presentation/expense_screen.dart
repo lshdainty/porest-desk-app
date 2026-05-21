@@ -33,10 +33,13 @@ class ExpenseScreen extends ConsumerStatefulWidget {
     this.initialAssetId,
     super.key,
   });
+
   /// "YYYY-MM" — 홈 최근 거래 → 해당 월로 자동 이동.
   final String? initialMonth;
+
   /// 진입 후 자동 스크롤할 거래 rowId.
   final int? focusTxId;
+
   /// 자산 상세 → 전체 보기 클릭 시 진입. 해당 자산만 필터링.
   final int? initialAssetId;
 
@@ -92,8 +95,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
     setState(() => _assetIdFilter = null);
     // URL 동기화 — assetId 쿼리 제거 (다른 param 은 유지).
     final m = _month;
-    final monthQ =
-        '${m.year}-${m.month.toString().padLeft(2, '0')}';
+    final monthQ = '${m.year}-${m.month.toString().padLeft(2, '0')}';
     context.go('/expense?month=$monthQ');
   }
 
@@ -138,7 +140,9 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
       },
       child: ListView(
         padding: const EdgeInsets.symmetric(
-            horizontal: PSpace.x20, vertical: PSpace.x24),
+          horizontal: PSpace.x20,
+          vertical: PSpace.x24,
+        ),
         children: [
           // 본문 — 비동기 상태에 따라 분기
           expensesAsync.when(
@@ -151,42 +155,50 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
               onRetry: () => ref.invalidate(monthExpensesProvider(_key)),
             ),
             data: (raw) {
-              final filtered = raw.where((e) {
-                switch (_filter) {
-                  case _Filter.all:
-                    return true;
-                  case _Filter.expense:
-                    return e.expenseType == 'EXPENSE';
-                  case _Filter.income:
-                    return e.expenseType == 'INCOME';
-                }
-              }).where((e) {
-                if (_assetIdFilter != null &&
-                    e.assetRowId != _assetIdFilter) {
-                  return false;
-                }
-                if (_advFilter.categoryIds.isNotEmpty &&
-                    !_advFilter.categoryIds.contains(e.categoryRowId)) {
-                  return false;
-                }
-                if (_advFilter.assetIds.isNotEmpty &&
-                    !_advFilter.assetIds.contains(e.assetRowId)) {
-                  return false;
-                }
-                if (_advFilter.types.length < 2 &&
-                    !_advFilter.types.contains(e.expenseType)) {
-                  return false;
-                }
-                if (_advFilter.min != null && e.amount < _advFilter.min!) {
-                  return false;
-                }
-                if (_advFilter.max != null && e.amount > _advFilter.max!) {
-                  return false;
-                }
-                return true;
-              }).toList()
-                ..sort((a, b) =>
-                    (b.expenseDate ?? '').compareTo(a.expenseDate ?? ''));
+              final filtered =
+                  raw
+                      .where((e) {
+                        switch (_filter) {
+                          case _Filter.all:
+                            return true;
+                          case _Filter.expense:
+                            return e.expenseType == 'EXPENSE';
+                          case _Filter.income:
+                            return e.expenseType == 'INCOME';
+                        }
+                      })
+                      .where((e) {
+                        if (_assetIdFilter != null &&
+                            e.assetRowId != _assetIdFilter) {
+                          return false;
+                        }
+                        if (_advFilter.categoryIds.isNotEmpty &&
+                            !_advFilter.categoryIds.contains(e.categoryRowId)) {
+                          return false;
+                        }
+                        if (_advFilter.assetIds.isNotEmpty &&
+                            !_advFilter.assetIds.contains(e.assetRowId)) {
+                          return false;
+                        }
+                        if (_advFilter.types.length < 2 &&
+                            !_advFilter.types.contains(e.expenseType)) {
+                          return false;
+                        }
+                        if (_advFilter.min != null &&
+                            e.amount < _advFilter.min!) {
+                          return false;
+                        }
+                        if (_advFilter.max != null &&
+                            e.amount > _advFilter.max!) {
+                          return false;
+                        }
+                        return true;
+                      })
+                      .toList()
+                    ..sort(
+                      (a, b) =>
+                          (b.expenseDate ?? '').compareTo(a.expenseDate ?? ''),
+                    );
 
               final monthIncome = raw
                   .where((e) => e.expenseType == 'INCOME')
@@ -217,10 +229,12 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                     income: monthIncome,
                     expense: monthExpense,
                     masked: settings.hideAmounts,
-                    onPrev: () => setState(() => _month =
-                        DateTime(_month.year, _month.month - 1, 1)),
-                    onNext: () => setState(() => _month =
-                        DateTime(_month.year, _month.month + 1, 1)),
+                    onPrev: () => setState(
+                      () => _month = DateTime(_month.year, _month.month - 1, 1),
+                    ),
+                    onNext: () => setState(
+                      () => _month = DateTime(_month.year, _month.month + 1, 1),
+                    ),
                   ),
                   const SizedBox(height: PSpace.x12),
                   // 달력 / 목록 보기 토글 — spec ToggleGroup(subtle) 사용.
@@ -234,15 +248,20 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                       month: _month,
                       expenses: raw,
                       masked: settings.hideAmounts,
-                      onTapDate: (date, items) =>
-                          _openDayDetailSheet(date, items, categoriesAsync, settings.hideAmounts),
+                      onTapDate: (date, items) => _openDayDetailSheet(
+                        date,
+                        items,
+                        categoriesAsync,
+                        settings.hideAmounts,
+                      ),
                     )
                   else ...[
                     _FilterRow(
                       value: _filter,
                       onChanged: (v) => setState(() => _filter = v),
                       advActive: !_advFilter.isEmpty,
-                      advCount: _advFilter.categoryIds.length +
+                      advCount:
+                          _advFilter.categoryIds.length +
                           _advFilter.assetIds.length +
                           (_advFilter.types.length < 2 ? 1 : 0) +
                           (_advFilter.min != null ? 1 : 0) +
@@ -253,10 +272,14 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                     const SizedBox(height: PSpace.x12),
                     if (groupKeys.isEmpty)
                       Padding(
-                        padding: const EdgeInsets.symmetric(vertical: PSpace.x32),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: PSpace.x32,
+                        ),
                         child: Center(
-                          child: Text('이 달에는 거래가 없습니다',
-                              style: PTypo.bodySm.copyWith(color: t.fgTertiary)),
+                          child: Text(
+                            '이 달에는 거래가 없습니다',
+                            style: PTypo.bodySm.copyWith(color: t.fgTertiary),
+                          ),
                         ),
                       ),
                     for (final key in groupKeys)
@@ -279,9 +302,11 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                   if (!mounted) return;
                   final ctx = _rowKeys[widget.focusTxId!]?.currentContext;
                   if (ctx == null) return;
-                  Scrollable.ensureVisible(ctx,
-                      duration: const Duration(milliseconds: 300),
-                      alignment: 0.2);
+                  Scrollable.ensureVisible(
+                    ctx,
+                    duration: const Duration(milliseconds: 300),
+                    alignment: 0.2,
+                  );
                   _scrolledToFocus = true;
                 });
               }
@@ -292,7 +317,6 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
       ),
     );
   }
-
 }
 
 /// 월 요약 카드 — front ExpenseMobile/Desktop 미러.
@@ -320,14 +344,16 @@ class _SummaryCard extends StatelessWidget {
     final balance = income - expense;
     return PCard(
       padding: const EdgeInsets.all(PSpace.x16),
-      variant: PCardVariant.bordered,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               _ArrowBtn(
-                  icon: LucideIcons.chevronLeft, onTap: onPrev, tokens: t),
+                icon: LucideIcons.chevronLeft,
+                onTap: onPrev,
+                tokens: t,
+              ),
               const SizedBox(width: 8),
               Text(
                 '${month.year}년 ${month.month}월',
@@ -340,7 +366,10 @@ class _SummaryCard extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               _ArrowBtn(
-                  icon: LucideIcons.chevronRight, onTap: onNext, tokens: t),
+                icon: LucideIcons.chevronRight,
+                onTap: onNext,
+                tokens: t,
+              ),
             ],
           ),
           const SizedBox(height: 14),
@@ -348,21 +377,24 @@ class _SummaryCard extends StatelessWidget {
             children: [
               Expanded(
                 child: _Stat(
-                    label: '수입',
-                    value: krwMasked(income, masked, sign: true),
-                    color: t.fgIncome),
+                  label: '수입',
+                  value: krwMasked(income, masked, sign: true),
+                  color: t.fgIncome,
+                ),
               ),
               Expanded(
                 child: _Stat(
-                    label: '지출',
-                    value: krwMasked(-expense, masked, sign: true),
-                    color: t.fgExpense),
+                  label: '지출',
+                  value: krwMasked(-expense, masked, sign: true),
+                  color: t.fgExpense,
+                ),
               ),
               Expanded(
                 child: _Stat(
-                    label: '합계',
-                    value: krwMasked(balance, masked, sign: true),
-                    color: t.fgBrandStrong),
+                  label: '합계',
+                  value: krwMasked(balance, masked, sign: true),
+                  color: t.fgBrandStrong,
+                ),
               ),
             ],
           ),
@@ -374,8 +406,11 @@ class _SummaryCard extends StatelessWidget {
 
 /// 월 prev/next 화살표 — _SummaryCard 헤더 우측에 사용.
 class _ArrowBtn extends StatelessWidget {
-  const _ArrowBtn(
-      {required this.icon, required this.onTap, required this.tokens});
+  const _ArrowBtn({
+    required this.icon,
+    required this.onTap,
+    required this.tokens,
+  });
   final IconData icon;
   final VoidCallback onTap;
   final PorestTokens tokens;
@@ -405,17 +440,23 @@ class _Stat extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label,
-            style: PTypo.micro.copyWith(
-                color: t.fgTertiary, fontWeight: PFontWeight.medium)),
+        Text(
+          label,
+          style: PTypo.micro.copyWith(
+            color: t.fgTertiary,
+            fontWeight: PFontWeight.medium,
+          ),
+        ),
         const SizedBox(height: 2),
-        Text(value,
-            style: TextStyle(
-              color: color,
-              fontSize: PFontSize.bodyLg,
-              fontWeight: PFontWeight.bold,
-              letterSpacing: -0.24,
-            )),
+        Text(
+          value,
+          style: TextStyle(
+            color: color,
+            fontSize: PFontSize.bodyLg,
+            fontWeight: PFontWeight.bold,
+            letterSpacing: -0.24,
+          ),
+        ),
       ],
     );
   }
@@ -477,16 +518,19 @@ class _FilterRow extends StatelessWidget {
             decoration: BoxDecoration(
               color: advActive ? t.bgBrandSubtle : Colors.transparent,
               border: Border.all(
-                  color: advActive ? t.borderBrand : t.borderSubtle),
+                color: advActive ? t.borderBrand : t.borderSubtle,
+              ),
               borderRadius: PRadius.brSm,
             ),
             child: Stack(
               clipBehavior: Clip.none,
               alignment: Alignment.center,
               children: [
-                Icon(LucideIcons.slidersHorizontal,
-                    size: 18,
-                    color: advActive ? t.fgBrand : t.fgSecondary),
+                Icon(
+                  LucideIcons.slidersHorizontal,
+                  size: 18,
+                  color: advActive ? t.fgBrand : t.fgSecondary,
+                ),
                 if (advActive && advCount > 0)
                   Positioned(
                     right: -2,
@@ -557,15 +601,23 @@ class _DayGroup extends ConsumerWidget {
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(
-                horizontal: PSpace.x4, vertical: PSpace.x8),
+              horizontal: PSpace.x4,
+              vertical: PSpace.x8,
+            ),
             child: Row(
               children: [
-                Text(label.md,
-                    style: PTypo.bodySm.copyWith(
-                        color: t.fgPrimary, fontWeight: PFontWeight.semi)),
+                Text(
+                  label.md,
+                  style: PTypo.bodySm.copyWith(
+                    color: t.fgPrimary,
+                    fontWeight: PFontWeight.semi,
+                  ),
+                ),
                 const SizedBox(width: PSpace.x8),
-                Text(label.dow,
-                    style: PTypo.caption.copyWith(color: t.fgTertiary)),
+                Text(
+                  label.dow,
+                  style: PTypo.caption.copyWith(color: t.fgTertiary),
+                ),
                 const Spacer(),
                 if (dayExpense > 0)
                   Text(
@@ -597,29 +649,34 @@ class _DayGroup extends ConsumerWidget {
             child: Column(
               children: [
                 for (int i = 0; i < items.length; i++) ...[
-                  Builder(builder: (_) {
-                    final isFocus = focusTxId == items[i].rowId;
-                    final k = isFocus
-                        ? (rowKeys?.putIfAbsent(items[i].rowId, () => GlobalKey()))
-                        : null;
-                    return Container(
-                      key: k,
-                      decoration: isFocus
-                          ? BoxDecoration(
-                              color: t.bgBrandSubtle,
-                              borderRadius: PRadius.brSm)
-                          : null,
-                      child: ExpenseRow(
-                        expense: items[i],
-                        category: items[i].categoryRowId == null
-                            ? null
-                            : categories.byRowId(items[i].categoryRowId!),
-                        masked: masked,
-                      ),
-                    );
-                  }),
-                  if (i < items.length - 1)
-                    PDivider(),
+                  Builder(
+                    builder: (_) {
+                      final isFocus = focusTxId == items[i].rowId;
+                      final k = isFocus
+                          ? (rowKeys?.putIfAbsent(
+                              items[i].rowId,
+                              () => GlobalKey(),
+                            ))
+                          : null;
+                      return Container(
+                        key: k,
+                        decoration: isFocus
+                            ? BoxDecoration(
+                                color: t.bgBrandSubtle,
+                                borderRadius: PRadius.brSm,
+                              )
+                            : null,
+                        child: ExpenseRow(
+                          expense: items[i],
+                          category: items[i].categoryRowId == null
+                              ? null
+                              : categories.byRowId(items[i].categoryRowId!),
+                          masked: masked,
+                        ),
+                      );
+                    },
+                  ),
+                  if (i < items.length - 1) PDivider(),
                 ],
               ],
             ),
@@ -657,11 +714,13 @@ class _AssetFilterBadge extends ConsumerWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(label,
-              style: PTypo.bodySm.copyWith(
-                color: t.fgBrandStrong,
-                fontWeight: PFontWeight.semi,
-              )),
+          Text(
+            label,
+            style: PTypo.bodySm.copyWith(
+              color: t.fgBrandStrong,
+              fontWeight: PFontWeight.semi,
+            ),
+          ),
           const SizedBox(width: 4),
           InkWell(
             onTap: onClear,
@@ -695,9 +754,10 @@ class _ErrorBox extends StatelessWidget {
           Text(message, style: PTypo.bodySm.copyWith(color: t.statusDangerFg)),
           const SizedBox(height: PSpace.x8),
           PButton(
-              label: '다시 시도',
-              variant: PButtonVariant.outline,
-              onPressed: onRetry),
+            label: '다시 시도',
+            variant: PButtonVariant.outline,
+            onPressed: onRetry,
+          ),
         ],
       ),
     );
@@ -719,13 +779,15 @@ class _ViewModeToggle extends StatelessWidget {
         onChanged: onChanged,
         items: const [
           PToggleGroupItem(
-              value: _ViewMode.calendar,
-              icon: LucideIcons.calendar,
-              label: '달력'),
+            value: _ViewMode.calendar,
+            icon: LucideIcons.calendar,
+            label: '달력',
+          ),
           PToggleGroupItem(
-              value: _ViewMode.list,
-              icon: LucideIcons.list,
-              label: '목록'),
+            value: _ViewMode.list,
+            icon: LucideIcons.list,
+            label: '목록',
+          ),
         ],
       ),
     );
@@ -771,159 +833,168 @@ class _CalendarGrid extends StatelessWidget {
     String key(DateTime d) =>
         '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 
-    // 사진 2 레이아웃 정합 — 카드 wrap 없음 + 배경 bgSurface + 셀 사이 border grid.
-    // 셀 자체에 border (Container.decoration.border) 로 정확한 grid 그림.
+    // 셀 사이 border grid — 셀 자체 Container.decoration.border 로 그림.
+    // outer 카드 시각: PCard default (shadow variant — spec card.md SoT).
     final borderColor = t.borderSubtle;
     // height 420 고정 — Web Card 와 정합. 헤더 + 6 row 가 균등 분배.
-    return Container(
+    return SizedBox(
       height: 420,
-      decoration: BoxDecoration(
-        color: t.bgSurface,
-        borderRadius: PRadius.brLg,
-        border: Border.all(color: borderColor),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // 요일 헤더 — 일/월/화/수/목/금/토. 일=fgExpense(빨강), 토=fgBrand(파랑).
-          DecoratedBox(
-            decoration: BoxDecoration(
-              border: Border(bottom: BorderSide(color: borderColor)),
-            ),
-            child: Row(
-              children: [
-                for (final wd in const ['일', '월', '화', '수', '목', '금', '토'])
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: PSpace.x8),
-                      child: Text(wd,
+      child: PCard(
+        padding: EdgeInsets.zero,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // 요일 헤더 — 일/월/화/수/목/금/토. 일=fgExpense(빨강), 토=fgBrand(파랑).
+            DecoratedBox(
+              decoration: BoxDecoration(
+                border: Border(bottom: BorderSide(color: borderColor)),
+              ),
+              child: Row(
+                children: [
+                  for (final wd in const ['일', '월', '화', '수', '목', '금', '토'])
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: PSpace.x8,
+                        ),
+                        child: Text(
+                          wd,
                           textAlign: TextAlign.center,
                           style: PTypo.caption.copyWith(
                             color: wd == '일'
                                 ? t.fgExpense
                                 : wd == '토'
-                                    ? t.fgBrand
-                                    : t.fgSecondary,
+                                ? t.fgBrand
+                                : t.fgSecondary,
                             fontWeight: PFontWeight.medium,
-                          )),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          // 4~6 주 × 7 요일 grid — 각 row 를 Expanded 로 균등 분배 (외곽 420 안).
-          // 셀에 border (right + bottom). 마지막 row/col 은 외곽 border 와
-          // 겹치지 않게 inner only.
-          for (int week = 0; week < weeksCount; week++)
-            Expanded(
-              child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                for (int dow = 0; dow < 7; dow++)
-                  Expanded(
-                    child: () {
-                      final date = gridStart.add(Duration(days: week * 7 + dow));
-                      final inMonth = date.month == month.month;
-                      final isToday = isSameDay(date, today);
-                      final items = byDay[key(date)] ?? const <Expense>[];
-                      final income = items
-                          .where((e) => e.expenseType == 'INCOME')
-                          .fold<int>(0, (s, e) => s + e.amount);
-                      final expense = items
-                          .where((e) => e.expenseType == 'EXPENSE')
-                          .fold<int>(0, (s, e) => s + e.amount);
-                      final dayColor = !inMonth
-                          ? t.fgTertiary.withValues(alpha: 0.5)
-                          : isToday
-                              ? t.fgOnBrand
-                              : dow == 0
-                                  ? t.fgExpense // 일요일 빨강
-                                  : dow == 6
-                                      ? t.fgBrand // 토요일 파랑
-                                      : t.fgPrimary;
-                      // 모바일 — 셀 사이 grid 선 제거 (사용자 요청).
-                      // 외곽 Container 의 border 만 남아 카드 외형 유지.
-                      return DecoratedBox(
-                        decoration: const BoxDecoration(),
-                        child: InkWell(
-                          onTap: items.isEmpty
-                              ? null
-                              : () => onTapDate(date, items),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 4, horizontal: 6),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // 날짜 — today 면 동그라미 배경 + 흰 글씨. 22→20 으로 압축.
-                                Container(
-                                  width: 22,
-                                  height: 22,
-                                  alignment: Alignment.center,
-                                  decoration: isToday
-                                      ? BoxDecoration(
-                                          color: t.bgBrand,
-                                          shape: BoxShape.circle)
-                                      : null,
-                                  child: Text(
-                                    '${date.day}',
-                                    style: PTypo.caption.copyWith(
-                                      color: dayColor,
-                                      fontWeight: isToday
-                                          ? PFontWeight.bold
-                                          : PFontWeight.semi,
-                                      height: 1.0,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 1),
-                                // FittedBox(scaleDown) — 셀 폭 초과 시 폰트 자동 축소.
-                                if (expense > 0)
-                                  SizedBox(
-                                    width: double.infinity,
-                                    child: FittedBox(
-                                      fit: BoxFit.scaleDown,
-                                      alignment: Alignment.centerLeft,
-                                      child: Text(
-                                        '−${_compact(expense, masked)}',
-                                        maxLines: 1,
-                                        style: PTypo.micro.copyWith(
-                                          color: t.fgExpense,
-                                          fontWeight: PFontWeight.semi,
-                                          height: 1.1,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                if (income > 0)
-                                  SizedBox(
-                                    width: double.infinity,
-                                    child: FittedBox(
-                                      fit: BoxFit.scaleDown,
-                                      alignment: Alignment.centerLeft,
-                                      child: Text(
-                                        '+${_compact(income, masked)}',
-                                        maxLines: 1,
-                                        style: PTypo.micro.copyWith(
-                                          color: t.fgIncome,
-                                          fontWeight: PFontWeight.semi,
-                                          height: 1.1,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                              ],
-                            ),
                           ),
                         ),
-                      );
-                    }(),
-                  ),
-              ],
+                      ),
+                    ),
+                ],
               ),
             ),
-        ],
+            // 4~6 주 × 7 요일 grid — 각 row 를 Expanded 로 균등 분배 (외곽 420 안).
+            // 셀에 border (right + bottom). 마지막 row/col 은 외곽 border 와
+            // 겹치지 않게 inner only.
+            for (int week = 0; week < weeksCount; week++)
+              Expanded(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    for (int dow = 0; dow < 7; dow++)
+                      Expanded(
+                        child: () {
+                          final date = gridStart.add(
+                            Duration(days: week * 7 + dow),
+                          );
+                          final inMonth = date.month == month.month;
+                          final isToday = isSameDay(date, today);
+                          final items = byDay[key(date)] ?? const <Expense>[];
+                          final income = items
+                              .where((e) => e.expenseType == 'INCOME')
+                              .fold<int>(0, (s, e) => s + e.amount);
+                          final expense = items
+                              .where((e) => e.expenseType == 'EXPENSE')
+                              .fold<int>(0, (s, e) => s + e.amount);
+                          final dayColor = !inMonth
+                              ? t.fgTertiary.withValues(alpha: 0.5)
+                              : isToday
+                              ? t.fgOnBrand
+                              : dow == 0
+                              ? t
+                                    .fgExpense // 일요일 빨강
+                              : dow == 6
+                              ? t
+                                    .fgBrand // 토요일 파랑
+                              : t.fgPrimary;
+                          // 모바일 — 셀 사이 grid 선 제거 (사용자 요청).
+                          // 외곽 Container 의 border 만 남아 카드 외형 유지.
+                          return DecoratedBox(
+                            decoration: const BoxDecoration(),
+                            child: InkWell(
+                              onTap: items.isEmpty
+                                  ? null
+                                  : () => onTapDate(date, items),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 4,
+                                  horizontal: 6,
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // 날짜 — today 면 동그라미 배경 + 흰 글씨. 22→20 으로 압축.
+                                    Container(
+                                      width: 22,
+                                      height: 22,
+                                      alignment: Alignment.center,
+                                      decoration: isToday
+                                          ? BoxDecoration(
+                                              color: t.bgBrand,
+                                              shape: BoxShape.circle,
+                                            )
+                                          : null,
+                                      child: Text(
+                                        '${date.day}',
+                                        style: PTypo.caption.copyWith(
+                                          color: dayColor,
+                                          fontWeight: isToday
+                                              ? PFontWeight.bold
+                                              : PFontWeight.semi,
+                                          height: 1.0,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 1),
+                                    // FittedBox(scaleDown) — 셀 폭 초과 시 폰트 자동 축소.
+                                    if (expense > 0)
+                                      SizedBox(
+                                        width: double.infinity,
+                                        child: FittedBox(
+                                          fit: BoxFit.scaleDown,
+                                          alignment: Alignment.centerLeft,
+                                          child: Text(
+                                            '−${_compact(expense, masked)}',
+                                            maxLines: 1,
+                                            style: PTypo.micro.copyWith(
+                                              color: t.fgExpense,
+                                              fontWeight: PFontWeight.semi,
+                                              height: 1.1,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    if (income > 0)
+                                      SizedBox(
+                                        width: double.infinity,
+                                        child: FittedBox(
+                                          fit: BoxFit.scaleDown,
+                                          alignment: Alignment.centerLeft,
+                                          child: Text(
+                                            '+${_compact(income, masked)}',
+                                            maxLines: 1,
+                                            style: PTypo.micro.copyWith(
+                                              color: t.fgIncome,
+                                              fontWeight: PFontWeight.semi,
+                                              height: 1.1,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        }(),
+                      ),
+                  ],
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -960,7 +1031,12 @@ class _DayDetailBody extends StatelessWidget {
         .fold<int>(0, (s, e) => s + e.amount);
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(PSpace.x20, PSpace.x4, PSpace.x20, PSpace.x16),
+      padding: const EdgeInsets.fromLTRB(
+        PSpace.x20,
+        PSpace.x4,
+        PSpace.x20,
+        PSpace.x16,
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -969,23 +1045,35 @@ class _DayDetailBody extends StatelessWidget {
           PCard(
             variant: PCardVariant.bordered,
             padding: const EdgeInsets.symmetric(
-                horizontal: PSpace.lg, vertical: PSpace.md),
+              horizontal: PSpace.lg,
+              vertical: PSpace.md,
+            ),
             child: Row(
               children: [
-                Text('${items.length}건',
-                    style: PTypo.bodySm.copyWith(
-                        color: t.fgSecondary, fontWeight: PFontWeight.semi)),
+                Text(
+                  '${items.length}건',
+                  style: PTypo.bodySm.copyWith(
+                    color: t.fgSecondary,
+                    fontWeight: PFontWeight.semi,
+                  ),
+                ),
                 const Spacer(),
                 if (income > 0)
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Text('수입',
-                          style: PTypo.caption.copyWith(color: t.fgTertiary)),
+                      Text(
+                        '수입',
+                        style: PTypo.caption.copyWith(color: t.fgTertiary),
+                      ),
                       const SizedBox(height: 2),
-                      Text('+${krwMasked(income, masked)}원',
-                          style: PTypo.bodySm.copyWith(
-                              color: t.fgIncome, fontWeight: PFontWeight.bold)),
+                      Text(
+                        '+${krwMasked(income, masked)}원',
+                        style: PTypo.bodySm.copyWith(
+                          color: t.fgIncome,
+                          fontWeight: PFontWeight.bold,
+                        ),
+                      ),
                     ],
                   ),
                 if (income > 0 && expense > 0) const SizedBox(width: PSpace.lg),
@@ -993,12 +1081,18 @@ class _DayDetailBody extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Text('지출',
-                          style: PTypo.caption.copyWith(color: t.fgTertiary)),
+                      Text(
+                        '지출',
+                        style: PTypo.caption.copyWith(color: t.fgTertiary),
+                      ),
                       const SizedBox(height: 2),
-                      Text('−${krwMasked(expense, masked)}원',
-                          style: PTypo.bodySm.copyWith(
-                              color: t.fgExpense, fontWeight: PFontWeight.bold)),
+                      Text(
+                        '−${krwMasked(expense, masked)}원',
+                        style: PTypo.bodySm.copyWith(
+                          color: t.fgExpense,
+                          fontWeight: PFontWeight.bold,
+                        ),
+                      ),
                     ],
                   ),
               ],
@@ -1012,10 +1106,10 @@ class _DayDetailBody extends StatelessWidget {
               category: e.categoryRowId == null
                   ? null
                   : categories
-                      .cast<dynamic>()
-                      .where((c) => c.rowId == e.categoryRowId)
-                      .cast<dynamic>()
-                      .firstOrNull,
+                        .cast<dynamic>()
+                        .where((c) => c.rowId == e.categoryRowId)
+                        .cast<dynamic>()
+                        .firstOrNull,
               masked: masked,
             ),
         ],
