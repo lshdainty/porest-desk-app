@@ -415,46 +415,38 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
       children: [
         _label('계좌·카드', t,
             badge: _assetIds.isEmpty ? null : '· ${_assetIds.length}개 선택'),
-        Container(
-          padding: const EdgeInsets.all(2),
-          decoration: BoxDecoration(
-            color: t.bgSunken,
-            borderRadius: PRadius.brMd,
-            border: Border.all(color: t.borderDefault),
-          ),
-          child: Wrap(
-            spacing: 2,
-            runSpacing: 2,
-            children: [
-              for (final a in assets)
-                GestureDetector(
-                  onTap: () => setState(() {
-                    if (_assetIds.contains(a.rowId)) {
-                      _assetIds.remove(a.rowId);
-                    } else {
-                      _assetIds.add(a.rowId);
-                    }
-                  }),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: PSpace.sm, vertical: PSpace.xs),
-                    decoration: BoxDecoration(
-                      color: _assetIds.contains(a.rowId)
-                          ? t.bgMuted
-                          : Colors.transparent,
-                      borderRadius: PRadius.brSm,
-                    ),
-                    child: Text(a.assetName,
-                        style: PTypo.caption.copyWith(
-                          color: _assetIds.contains(a.rowId)
-                              ? t.fgPrimary
-                              : t.fgSecondary,
-                          fontWeight: PFontWeight.semi,
-                        )),
+        Wrap(
+          spacing: 6,
+          runSpacing: 6,
+          children: [
+            for (final a in assets)
+              GestureDetector(
+                onTap: () => setState(() {
+                  if (_assetIds.contains(a.rowId)) {
+                    _assetIds.remove(a.rowId);
+                  } else {
+                    _assetIds.add(a.rowId);
+                  }
+                }),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: PSpace.sm, vertical: PSpace.xs),
+                  decoration: BoxDecoration(
+                    color: _assetIds.contains(a.rowId)
+                        ? t.bgMuted
+                        : Colors.transparent,
+                    borderRadius: PRadius.brFull,
                   ),
+                  child: Text(a.assetName,
+                      style: PTypo.caption.copyWith(
+                        color: _assetIds.contains(a.rowId)
+                            ? t.fgPrimary
+                            : t.fgSecondary,
+                        fontWeight: PFontWeight.semi,
+                      )),
                 ),
-            ],
-          ),
+              ),
+          ],
         ),
       ],
     );
