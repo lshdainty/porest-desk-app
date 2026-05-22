@@ -1044,7 +1044,7 @@ class _ViewModeToggle extends StatelessWidget {
       child: PButton(
         label: isCalendar ? '목록' : '달력',
         icon: isCalendar ? LucideIcons.list : LucideIcons.calendar,
-        variant: PButtonVariant.secondary,
+        variant: PButtonVariant.ghost,
         size: PButtonSize.sm,
         onPressed: () =>
             onChanged(isCalendar ? _ViewMode.list : _ViewMode.calendar),
