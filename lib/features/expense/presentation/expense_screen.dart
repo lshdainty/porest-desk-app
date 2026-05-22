@@ -784,7 +784,7 @@ class _ExpenseCalendarSkeleton extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.tokens;
     return SizedBox(
-      height: 420,
+      height: _calendarHeight(context),
       child: PCard(
         padding: EdgeInsets.zero,
         child: Column(
@@ -1056,6 +1056,17 @@ class _ViewModeToggle extends StatelessWidget {
 String _koWeekday(int weekday) =>
     const ['', '월', '화', '수', '목', '금', '토', '일'][weekday];
 
+/// 캘린더 그리드 viewport stretch height — Web 의
+/// `h-[calc(100dvh-340px)] min-h-[420px]` 와 동일 패턴.
+/// 차감: AppBar(56) + MoneyTabBar(80) + 페이지 padding 상하(48)
+///     + SummaryCard(~130) + gap(12) = 326. 작은 화면은 420 minimum.
+double _calendarHeight(BuildContext context) {
+  final mq = MediaQuery.of(context);
+  final inner = mq.size.height - mq.padding.vertical;
+  final h = inner - 326;
+  return h < 420 ? 420 : h;
+}
+
 /// 7×6 캘린더 grid — 날짜 + 그 날의 income/expense 합계 표시.
 /// 셀 클릭 시 [onTapDate] 으로 그날 거래 list 전달.
 class _CalendarGrid extends StatelessWidget {
@@ -1095,9 +1106,12 @@ class _CalendarGrid extends StatelessWidget {
     // 셀 사이 border grid — 셀 자체 Container.decoration.border 로 그림.
     // outer 카드 시각: PCard default (shadow variant — spec card.md SoT).
     final borderColor = t.borderSubtle;
-    // height 420 고정 — Web Card 와 정합. 헤더 + 6 row 가 균등 분배.
+    // viewport 의 남은 공간을 채우도록 동적 height — Web 의
+    // `h-[calc(100dvh-340px)] min-h-[420px]` 와 동일 패턴.
+    // 차감: AppBar(56) + MoneyTabBar(80) + 페이지 padding 상하(48)
+    //     + SummaryCard(~130) + gap(12) = 326
     return SizedBox(
-      height: 420,
+      height: _calendarHeight(context),
       child: PCard(
         padding: EdgeInsets.zero,
         child: Column(
