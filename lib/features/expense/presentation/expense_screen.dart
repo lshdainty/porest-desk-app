@@ -131,7 +131,19 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
     final categoriesAsync = ref.watch(categoriesProvider);
     final expensesAsync = ref.watch(monthExpensesProvider(_key));
 
-    return RefreshIndicator(
+    // LayoutBuilder 로 Scaffold body 가용 영역 측정 — calendar 모드는 viewport
+    // 의 남은 공간을 캘린더가 정확히 채우도록 (스크롤 없이). Web 의 flex-1
+    // min-h-0 과 동일 패턴.
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // ListView padding 48 + Summary card(~130) + gap(12) = 190 차감
+        // AssetFilterBadge 있으면 추가 52 차감
+        final hasAssetBadge = _assetIdFilter != null;
+        final calendarH = (constraints.maxHeight -
+                190 -
+                (hasAssetBadge ? 52 : 0))
+            .clamp(280.0, double.infinity);
+        return RefreshIndicator(
       color: t.bgBrand,
       onRefresh: () async {
         ref.invalidate(monthExpensesProvider(_key));
@@ -145,7 +157,10 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
         children: [
           // 본문 — 비동기 상태에 따라 분기
           expensesAsync.when(
-            loading: () => _ExpensePageSkeleton(viewMode: _viewMode),
+            loading: () => _ExpensePageSkeleton(
+              viewMode: _viewMode,
+              calendarHeight: calendarH,
+            ),
             error: (e, _) => _ErrorBox(
               message: '거래를 불러오지 못했습니다\n$e',
               onRetry: () => ref.invalidate(monthExpensesProvider(_key)),
@@ -241,11 +256,12 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                     // 월 변경 시 refetch 중이면 (data + isLoading 동시) 캘린더 자체를
                     // skeleton 으로 대체 — cell 들이 "사용 금액 없는 것처럼" 보이는 현상 fix.
                     expensesAsync.isLoading
-                        ? const _ExpenseCalendarSkeleton()
+                        ? _ExpenseCalendarSkeleton(height: calendarH)
                         : _CalendarGrid(
                             month: _month,
                             expenses: raw,
                             masked: settings.hideAmounts,
+                            height: calendarH,
                             onTapDate: (date, items) => _openDayDetailSheet(
                               date,
                               items,
@@ -320,6 +336,8 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
           ),
         ],
       ),
+    );
+      },
     );
   }
 }
@@ -749,8 +767,12 @@ class _AssetFilterBadge extends ConsumerWidget {
 /// Expense 페이지 구조 맞춤 skeleton — Web ExpensePageSkeleton 정합.
 /// viewMode 따라 본문 분기 (calendar = grid placeholder, list = DayGroup x3).
 class _ExpensePageSkeleton extends StatelessWidget {
-  const _ExpensePageSkeleton({required this.viewMode});
+  const _ExpensePageSkeleton({
+    required this.viewMode,
+    required this.calendarHeight,
+  });
   final _ViewMode viewMode;
+  final double calendarHeight;
 
   @override
   Widget build(BuildContext context) {
@@ -759,11 +781,11 @@ class _ExpensePageSkeleton extends StatelessWidget {
       children: [
         const _ExpenseSummarySkeleton(),
         const SizedBox(height: PSpace.x12),
-        const _ExpenseChipsSkeleton(),
-        const SizedBox(height: PSpace.x12),
         if (viewMode == _ViewMode.calendar)
-          const _ExpenseCalendarSkeleton()
+          _ExpenseCalendarSkeleton(height: calendarHeight)
         else ...const [
+          _ExpenseChipsSkeleton(),
+          SizedBox(height: PSpace.x12),
           _ExpenseDayGroupSkeleton(rows: 3),
           SizedBox(height: PSpace.x16),
           _ExpenseDayGroupSkeleton(rows: 2),
@@ -778,13 +800,14 @@ class _ExpensePageSkeleton extends StatelessWidget {
 /// Calendar grid skeleton — viewMode=calendar (default) 외곽 카드 + 7-col 요일 헤더 + 6주 cell grid.
 /// SizedBox(height: 420) — ExpenseCalendar 본체와 동일 높이.
 class _ExpenseCalendarSkeleton extends StatelessWidget {
-  const _ExpenseCalendarSkeleton();
+  const _ExpenseCalendarSkeleton({required this.height});
+  final double height;
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
     return SizedBox(
-      height: _calendarHeight(context),
+      height: height,
       child: PCard(
         padding: EdgeInsets.zero,
         child: Column(
@@ -1056,30 +1079,22 @@ class _ViewModeToggle extends StatelessWidget {
 String _koWeekday(int weekday) =>
     const ['', '월', '화', '수', '목', '금', '토', '일'][weekday];
 
-/// 캘린더 그리드 viewport stretch height — Web 의
-/// `h-[calc(100dvh-340px)] min-h-[420px]` 와 동일 패턴.
-/// 차감: AppBar(56) + MoneyTabBar(80) + 페이지 padding 상하(48)
-///     + SummaryCard(~130) + gap(12) = 326. 작은 화면은 420 minimum.
-double _calendarHeight(BuildContext context) {
-  final mq = MediaQuery.of(context);
-  final inner = mq.size.height - mq.padding.vertical;
-  final h = inner - 326;
-  return h < 420 ? 420 : h;
-}
-
 /// 7×6 캘린더 grid — 날짜 + 그 날의 income/expense 합계 표시.
 /// 셀 클릭 시 [onTapDate] 으로 그날 거래 list 전달.
+/// [height] 가 0 이면 부모(Expanded 등)가 size 결정 — 그 외에는 SizedBox 로 강제.
 class _CalendarGrid extends StatelessWidget {
   const _CalendarGrid({
     required this.month,
     required this.expenses,
     required this.masked,
     required this.onTapDate,
+    required this.height,
   });
   final DateTime month;
   final List<Expense> expenses;
   final bool masked;
   final void Function(DateTime date, List<Expense> items) onTapDate;
+  final double height;
 
   @override
   Widget build(BuildContext context) {
@@ -1106,12 +1121,10 @@ class _CalendarGrid extends StatelessWidget {
     // 셀 사이 border grid — 셀 자체 Container.decoration.border 로 그림.
     // outer 카드 시각: PCard default (shadow variant — spec card.md SoT).
     final borderColor = t.borderSubtle;
-    // viewport 의 남은 공간을 채우도록 동적 height — Web 의
-    // `h-[calc(100dvh-340px)] min-h-[420px]` 와 동일 패턴.
-    // 차감: AppBar(56) + MoneyTabBar(80) + 페이지 padding 상하(48)
-    //     + SummaryCard(~130) + gap(12) = 326
+    // viewport 의 남은 공간을 채우도록 호출처에서 LayoutBuilder 로 정확 계산한
+    // height 받음. Web 의 `flex-1 min-h-0` 와 동일 패턴.
     return SizedBox(
-      height: _calendarHeight(context),
+      height: height,
       child: PCard(
         padding: EdgeInsets.zero,
         child: Column(
