@@ -231,12 +231,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                     onNext: () => setState(
                       () => _month = DateTime(_month.year, _month.month + 1, 1),
                     ),
-                  ),
-                  const SizedBox(height: PSpace.x12),
-                  // 보기 모드 토글 — Summary 카드 옆 우측 정렬 (Web ExpenseMobile 정합).
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: _ViewModeToggle(
+                    headerRight: _ViewModeToggle(
                       value: _viewMode,
                       onChanged: (v) => setState(() => _viewMode = v),
                     ),
@@ -340,6 +335,7 @@ class _SummaryCard extends StatelessWidget {
     required this.masked,
     required this.onPrev,
     required this.onNext,
+    this.headerRight,
   });
   final DateTime month;
   final int income;
@@ -347,6 +343,9 @@ class _SummaryCard extends StatelessWidget {
   final bool masked;
   final VoidCallback onPrev;
   final VoidCallback onNext;
+
+  /// month header row 우측 슬롯 (예: _ViewModeToggle). 클로드 디자인 정합.
+  final Widget? headerRight;
 
   @override
   Widget build(BuildContext context) {
@@ -380,6 +379,7 @@ class _SummaryCard extends StatelessWidget {
                 onTap: onNext,
                 tokens: t,
               ),
+              if (headerRight != null) ...[const Spacer(), headerRight!],
             ],
           ),
           const SizedBox(height: 14),
