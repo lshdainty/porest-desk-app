@@ -1023,7 +1023,7 @@ class _PaceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return PCard(
       padding: const EdgeInsets.all(PSpace.x16),
-      variant: PCardVariant.bordered,
+      variant: PCardVariant.shadow,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1206,7 +1206,7 @@ class _StatusTiles extends StatelessWidget {
   Widget build(BuildContext context) {
     return PCard(
       padding: const EdgeInsets.all(PSpace.x16),
-      variant: PCardVariant.bordered,
+      variant: PCardVariant.shadow,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1353,7 +1353,7 @@ class _CategoryListCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return PCard(
       padding: const EdgeInsets.all(PSpace.x16),
-      variant: PCardVariant.bordered,
+      variant: PCardVariant.shadow,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1566,7 +1566,7 @@ class _ComplianceCard extends StatelessWidget {
     final list = async.value ?? const <BudgetComplianceMonth>[];
     return PCard(
       padding: const EdgeInsets.all(PSpace.x16),
-      variant: PCardVariant.bordered,
+      variant: PCardVariant.shadow,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1775,7 +1775,7 @@ class _EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PCard(
-      variant: PCardVariant.bordered,
+      variant: PCardVariant.shadow,
       child: PEmptyState(
         icon: LucideIcons.target,
         message: '이 달 예산이 없습니다',
