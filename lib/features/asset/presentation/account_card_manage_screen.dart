@@ -197,6 +197,9 @@ class _ManageRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = tokens;
     final balance = asset.balance ?? 0;
+    final sub = [asset.institution, asset.memo]
+        .where((s) => s != null && s.isNotEmpty)
+        .join(' · ');
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -225,10 +228,9 @@ class _ManageRow extends StatelessWidget {
                         fontWeight: PFontWeight.semi,
                       ),
                     ),
-                    if (asset.institution != null &&
-                        asset.institution!.isNotEmpty)
+                    if (sub.isNotEmpty)
                       Text(
-                        asset.institution!,
+                        sub,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           color: t.fgTertiary,
