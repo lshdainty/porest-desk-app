@@ -9,6 +9,7 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_button.dart';
+import '../../../shared/widgets/p_dropdown_menu.dart';
 import '../../../shared/widgets/p_card.dart';
 import '../../../shared/widgets/p_chip.dart';
 import '../../../shared/widgets/p_divider.dart';
@@ -37,8 +38,7 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
   final _quickAddCtrl = TextEditingController();
   bool _quickAdding = false;
 
-  TodoFilter get _filter =>
-      (status: _statusFilter, priority: _priorityFilter);
+  TodoFilter get _filter => (status: _statusFilter, priority: _priorityFilter);
 
   @override
   void dispose() {
@@ -57,7 +57,11 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
       ref.invalidate(todoListProvider);
     } on ApiException catch (e) {
       if (!mounted) return;
-      showPSnackBar(context, '추가 실패: ${e.message}', severity: PSnackSeverity.error);
+      showPSnackBar(
+        context,
+        '추가 실패: ${e.message}',
+        severity: PSnackSeverity.error,
+      );
     } finally {
       if (mounted) setState(() => _quickAdding = false);
     }
@@ -70,7 +74,11 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
       ref.invalidate(todoListProvider(_filter));
     } on ApiException catch (e) {
       if (!mounted) return;
-      showPSnackBar(context, '실패: ${e.message}', severity: PSnackSeverity.error);
+      showPSnackBar(
+        context,
+        '실패: ${e.message}',
+        severity: PSnackSeverity.error,
+      );
     }
   }
 
@@ -81,7 +89,11 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
       ref.invalidate(todoListProvider(_filter));
     } on ApiException catch (e) {
       if (!mounted) return;
-      showPSnackBar(context, '실패: ${e.message}', severity: PSnackSeverity.error);
+      showPSnackBar(
+        context,
+        '실패: ${e.message}',
+        severity: PSnackSeverity.error,
+      );
     }
   }
 
@@ -107,21 +119,18 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
             tooltip: _kanban ? '리스트 보기' : '칸반 보기',
             onPressed: () => setState(() => _kanban = !_kanban),
           ),
-          PopupMenuButton<String>(
-            icon: Icon(LucideIcons.moreVertical, color: t.fgSecondary),
-            onSelected: (v) {
-              switch (v) {
-                case 'projects':
-                  showTodoProjectManagementDialog(context);
-                  break;
-                case 'tags':
-                  showTodoTagManagementDialog(context);
-                  break;
-              }
-            },
-            itemBuilder: (_) => const [
-              PopupMenuItem(value: 'projects', child: Text('프로젝트 관리')),
-              PopupMenuItem(value: 'tags', child: Text('태그 관리')),
+          PDropdownMenu(
+            iconColor: t.fgSecondary,
+            iconSize: 24,
+            entries: [
+              PDropdownItem(
+                label: '프로젝트 관리',
+                onTap: () => showTodoProjectManagementDialog(context),
+              ),
+              PDropdownItem(
+                label: '태그 관리',
+                onTap: () => showTodoTagManagementDialog(context),
+              ),
             ],
           ),
         ],
@@ -129,7 +138,9 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
           preferredSize: const Size.fromHeight(120),
           child: Padding(
             padding: const EdgeInsets.symmetric(
-            horizontal: PSpace.x20, vertical: PSpace.x24),
+              horizontal: PSpace.x20,
+              vertical: PSpace.x24,
+            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -141,13 +152,17 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
                         controller: _quickAddCtrl,
                         enabled: !_quickAdding,
                         placeholder: '빠른 할 일 추가',
-                        prefix: Icon(LucideIcons.plus,
-                            size: 16, color: t.fgTertiary),
+                        prefix: Icon(
+                          LucideIcons.plus,
+                          size: 16,
+                          color: t.fgTertiary,
+                        ),
                         onSubmitted: (_) => _quickAdd(),
                         onChanged: (_) => setState(() {}),
                       ),
                     ),
-                    if (_quickAddCtrl.text.trim().isNotEmpty || _quickAdding) ...[
+                    if (_quickAddCtrl.text.trim().isNotEmpty ||
+                        _quickAdding) ...[
                       const SizedBox(width: 6),
                       PButton(
                         label: '추가',
@@ -171,15 +186,14 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
                       PChip(
                         label: '진행중',
                         selected: _statusFilter == 'IN_PROGRESS',
-                        onTap: () => setState(
-                            () => _statusFilter = 'IN_PROGRESS'),
+                        onTap: () =>
+                            setState(() => _statusFilter = 'IN_PROGRESS'),
                       ),
                       const SizedBox(width: 6),
                       PChip(
                         label: '대기',
                         selected: _statusFilter == 'PENDING',
-                        onTap: () =>
-                            setState(() => _statusFilter = 'PENDING'),
+                        onTap: () => setState(() => _statusFilter = 'PENDING'),
                       ),
                       const SizedBox(width: 6),
                       PChip(
@@ -192,29 +206,25 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
                       PChip(
                         label: '우선순위',
                         selected: _priorityFilter == null,
-                        onTap: () =>
-                            setState(() => _priorityFilter = null),
+                        onTap: () => setState(() => _priorityFilter = null),
                       ),
                       const SizedBox(width: 6),
                       PChip(
                         label: 'HIGH',
                         selected: _priorityFilter == 'HIGH',
-                        onTap: () =>
-                            setState(() => _priorityFilter = 'HIGH'),
+                        onTap: () => setState(() => _priorityFilter = 'HIGH'),
                       ),
                       const SizedBox(width: 6),
                       PChip(
                         label: 'MEDIUM',
                         selected: _priorityFilter == 'MEDIUM',
-                        onTap: () =>
-                            setState(() => _priorityFilter = 'MEDIUM'),
+                        onTap: () => setState(() => _priorityFilter = 'MEDIUM'),
                       ),
                       const SizedBox(width: 6),
                       PChip(
                         label: 'LOW',
                         selected: _priorityFilter == 'LOW',
-                        onTap: () =>
-                            setState(() => _priorityFilter = 'LOW'),
+                        onTap: () => setState(() => _priorityFilter = 'LOW'),
                       ),
                     ],
                   ),
@@ -231,61 +241,73 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
       body: _kanban
           ? const TodoKanbanView(priority: null)
           : RefreshIndicator(
-        color: t.bgBrand,
-        onRefresh: () async {
-          ref.invalidate(todoListProvider(_filter));
-          await ref.read(todoListProvider(_filter).future);
-        },
-        child: listAsync.when(
-          loading: () => const Center(child: PCircularProgressIndicator()),
-          error: (e, _) => Padding(
-            padding: const EdgeInsets.all(PSpace.x16),
-            child: Text('할 일 로드 실패\n$e',
-                style: PTypo.bodySm.copyWith(color: t.statusDanger)),
-          ),
-          data: (items) {
-            if (items.isEmpty) {
-              return ListView(children: const [
-                PEmptyState(
-                  icon: LucideIcons.checkSquare,
-                  message: '할 일이 없습니다',
-                ),
-              ]);
-            }
-            final sorted = [...items]..sort((a, b) {
-                if (a.pinned != b.pinned) return a.pinned ? -1 : 1;
-                if (a.done != b.done) return a.done ? 1 : -1;
-                return (a.due ?? DateTime(2100))
-                    .compareTo(b.due ?? DateTime(2100));
-              });
-            return ListView(
-              padding: const EdgeInsets.fromLTRB(
-                  PSpace.x16, PSpace.x12, PSpace.x16, PSpace.x80),
-              children: [
-                PCard(
-                  variant: PCardVariant.bordered,
-                  child: Column(
-                    children: [
-                      for (int i = 0; i < sorted.length; i++) ...[
-                        _TodoRow(
-                          todo: sorted[i],
-                          tokens: t,
-                          onToggle: () => _toggleDone(sorted[i]),
-                          onPin: () => _pin(sorted[i]),
-                          onTap: () => showTodoEditDialog(context,
-                              edit: sorted[i]),
-                        ),
-                        if (i < sorted.length - 1)
-                          PDivider(indent: 48),
-                      ],
-                    ],
+              color: t.bgBrand,
+              onRefresh: () async {
+                ref.invalidate(todoListProvider(_filter));
+                await ref.read(todoListProvider(_filter).future);
+              },
+              child: listAsync.when(
+                loading: () =>
+                    const Center(child: PCircularProgressIndicator()),
+                error: (e, _) => Padding(
+                  padding: const EdgeInsets.all(PSpace.x16),
+                  child: Text(
+                    '할 일 로드 실패\n$e',
+                    style: PTypo.bodySm.copyWith(color: t.statusDanger),
                   ),
                 ),
-              ],
-            );
-          },
-        ),
-      ),
+                data: (items) {
+                  if (items.isEmpty) {
+                    return ListView(
+                      children: const [
+                        PEmptyState(
+                          icon: LucideIcons.checkSquare,
+                          message: '할 일이 없습니다',
+                        ),
+                      ],
+                    );
+                  }
+                  final sorted = [...items]
+                    ..sort((a, b) {
+                      if (a.pinned != b.pinned) return a.pinned ? -1 : 1;
+                      if (a.done != b.done) return a.done ? 1 : -1;
+                      return (a.due ?? DateTime(2100)).compareTo(
+                        b.due ?? DateTime(2100),
+                      );
+                    });
+                  return ListView(
+                    padding: const EdgeInsets.fromLTRB(
+                      PSpace.x16,
+                      PSpace.x12,
+                      PSpace.x16,
+                      PSpace.x80,
+                    ),
+                    children: [
+                      PCard(
+                        variant: PCardVariant.bordered,
+                        child: Column(
+                          children: [
+                            for (int i = 0; i < sorted.length; i++) ...[
+                              _TodoRow(
+                                todo: sorted[i],
+                                tokens: t,
+                                onToggle: () => _toggleDone(sorted[i]),
+                                onPin: () => _pin(sorted[i]),
+                                onTap: () => showTodoEditDialog(
+                                  context,
+                                  edit: sorted[i],
+                                ),
+                              ),
+                              if (i < sorted.length - 1) PDivider(indent: 48),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
     );
   }
 }
@@ -305,11 +327,11 @@ class _TodoRow extends StatelessWidget {
   final VoidCallback onTap;
 
   Color _priorityColor(PorestTokens t) => switch (todo.priority) {
-        'HIGH' => t.statusDanger,
-        'MEDIUM' => t.statusWarning,
-        'LOW' => t.statusInfo,
-        _ => t.fgTertiary,
-      };
+    'HIGH' => t.statusDanger,
+    'MEDIUM' => t.statusWarning,
+    'LOW' => t.statusInfo,
+    _ => t.fgTertiary,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -317,7 +339,9 @@ class _TodoRow extends StatelessWidget {
       onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.symmetric(
-            horizontal: PSpace.x12, vertical: PSpace.x12),
+          horizontal: PSpace.x12,
+          vertical: PSpace.x12,
+        ),
         child: Row(
           children: [
             GestureDetector(
@@ -329,14 +353,18 @@ class _TodoRow extends StatelessWidget {
                   color: todo.done ? tokens.statusSuccess : Colors.transparent,
                   borderRadius: PRadius.brSm,
                   border: Border.all(
-                      color: todo.done
-                          ? tokens.statusSuccess
-                          : tokens.borderStrong,
-                      width: 1.5),
+                    color: todo.done
+                        ? tokens.statusSuccess
+                        : tokens.borderStrong,
+                    width: 1.5,
+                  ),
                 ),
                 child: todo.done
-                    ? const Icon(LucideIcons.check,
-                        size: 14, color: Colors.white)
+                    ? const Icon(
+                        LucideIcons.check,
+                        size: 14,
+                        color: Colors.white,
+                      )
                     : null,
               ),
             ),
@@ -351,8 +379,9 @@ class _TodoRow extends StatelessWidget {
                         width: 6,
                         height: 6,
                         decoration: BoxDecoration(
-                            color: _priorityColor(tokens),
-                            shape: BoxShape.circle),
+                          color: _priorityColor(tokens),
+                          shape: BoxShape.circle,
+                        ),
                       ),
                       const SizedBox(width: 6),
                       Flexible(
@@ -378,13 +407,10 @@ class _TodoRow extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       [
-                        if ((todo.dueDate ?? '').isNotEmpty)
-                          '~${todo.dueDate}',
-                        if ((todo.category ?? '').isNotEmpty)
-                          todo.category!,
+                        if ((todo.dueDate ?? '').isNotEmpty) '~${todo.dueDate}',
+                        if ((todo.category ?? '').isNotEmpty) todo.category!,
                       ].join(' · '),
-                      style: PTypo.caption
-                          .copyWith(color: tokens.fgTertiary),
+                      style: PTypo.caption.copyWith(color: tokens.fgTertiary),
                     ),
                   ],
                 ],
@@ -393,8 +419,7 @@ class _TodoRow extends StatelessWidget {
             PButton.icon(
               icon: LucideIcons.pin,
               size: PButtonSize.sm,
-              iconColor:
-                  todo.pinned ? tokens.fgBrand : tokens.fgTertiary,
+              iconColor: todo.pinned ? tokens.fgBrand : tokens.fgTertiary,
               tooltip: todo.pinned ? '고정 해제' : '고정',
               onPressed: onPin,
             ),

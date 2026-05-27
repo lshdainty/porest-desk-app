@@ -16,7 +16,7 @@ import '../../../shared/widgets/p_modal.dart';
 import '../../asset/application/asset_providers.dart';
 import '../../dutch_pay/presentation/dutch_pay_from_tx_dialog.dart';
 import '../../expense_split/presentation/split_tx_dialog.dart';
-import '../../recurring/presentation/recurring_from_tx_dialog.dart';
+import '../../recurring/presentation/recurring_settings_drawer.dart';
 import '../application/expense_providers.dart';
 import '../domain/expense.dart';
 import 'add_tx_sheet.dart';
@@ -41,10 +41,8 @@ void showTxDetailDialog(BuildContext context, Expense expense) {
       scrollController: scrollCtrl,
       controller: controller,
     ),
-    footerBuilder: (ctx) => _TxDetailFooter(
-      expense: expense,
-      controller: controller,
-    ),
+    footerBuilder: (ctx) =>
+        _TxDetailFooter(expense: expense, controller: controller),
   ).whenComplete(controller.dispose);
 }
 
@@ -83,8 +81,7 @@ class _TxDetailFooter extends StatelessWidget {
             const SizedBox(width: PSpace.x8),
             PButton(
               label: '확인',
-              onPressed:
-                  busy ? null : () => Navigator.of(ctx).pop(),
+              onPressed: busy ? null : () => Navigator.of(ctx).pop(),
             ),
           ],
         );
@@ -147,25 +144,28 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
       showPSnackBar(context, '거래가 삭제되었습니다', severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!mounted) return;
-      showPSnackBar(context, '삭제 실패: ${e.message}', severity: PSnackSeverity.error);
+      showPSnackBar(
+        context,
+        '삭제 실패: ${e.message}',
+        severity: PSnackSeverity.error,
+      );
     } finally {
       if (mounted) _setDeleting(false);
     }
   }
 
   String _paymentMethodLabel(String? m) => switch (m) {
-        'CASH' => '현금',
-        'CARD' => '카드',
-        'TRANSFER' => '계좌이체',
-        'OTHER' => '기타',
-        _ => '',
-      };
+    'CASH' => '현금',
+    'CARD' => '카드',
+    'TRANSFER' => '계좌이체',
+    'OTHER' => '기타',
+    _ => '',
+  };
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final settings =
-        ref.watch(settingsProvider).value ?? AppSettings.defaults;
+    final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
     final masked = settings.hideAmounts;
     final e = widget.expense;
     final isIncome = e.expenseType == 'INCOME';
@@ -178,8 +178,8 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
     final assetLabel = asset == null
         ? null
         : (asset.institution != null && asset.institution!.isNotEmpty
-            ? '${asset.institution} · ${asset.assetName}'
-            : asset.assetName);
+              ? '${asset.institution} · ${asset.assetName}'
+              : asset.assetName);
 
     final dayStr = (e.expenseDate ?? '').length >= 10
         ? e.expenseDate!.substring(0, 10)
@@ -190,7 +190,8 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
     final timeLabel = (timeStr != null && timeStr != '00:00') ? timeStr : null;
 
     final paymentLabel = _paymentMethodLabel(e.paymentMethod);
-    final displayMerchant = e.merchant ?? e.description ?? e.categoryName ?? '거래';
+    final displayMerchant =
+        e.merchant ?? e.description ?? e.categoryName ?? '거래';
     // 웹 TxDetailDialog 매칭: 수입=fg-brand (초록), 지출=fg-primary (검정)
     final amountColor = isIncome ? t.fgIncome : t.fgPrimary;
     final amountText = masked
@@ -199,225 +200,236 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
 
     return ListView(
       controller: widget.scrollController,
-      padding: const EdgeInsets.fromLTRB(
-          PSpace.x20, 0, PSpace.x20, PSpace.x16),
+      padding: const EdgeInsets.fromLTRB(PSpace.x20, 0, PSpace.x20, PSpace.x16),
       children: [
-              // Hero card
+        // Hero card
+        Container(
+          padding: const EdgeInsets.all(22),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color.alphaBlend(fg.withValues(alpha: 0.14), t.bgSurface),
+                t.bgSurface,
+              ],
+              stops: const [0.0, 0.85],
+            ),
+            border: Border.all(color: fg.withValues(alpha: 0.2)),
+            borderRadius: PRadius.brXl,
+          ),
+          child: Column(
+            children: [
               Container(
-                padding: const EdgeInsets.all(22),
+                width: 40,
+                height: 40,
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Color.alphaBlend(
-                          fg.withValues(alpha: 0.14), t.bgSurface),
-                      t.bgSurface,
-                    ],
-                    stops: const [0.0, 0.85],
-                  ),
-                  border: Border.all(color: fg.withValues(alpha: 0.2)),
-                  borderRadius: PRadius.brXl,
-                ),
-                child: Column(
-                  children: [
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: fg.withValues(alpha: 0.14),
-                        borderRadius: PRadius.brLg,
-                      ),
-                      alignment: Alignment.center,
-                      child: Icon(icon, size: 20, color: fg),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(displayMerchant,
-                        style: PTypo.bodySm.copyWith(
-                            color: t.fgSecondary,
-                            fontWeight: PFontWeight.medium)),
-                    const SizedBox(height: 4),
-                    RichText(
-                      text: TextSpan(
-                        children: [
-                          TextSpan(
-                            text: amountText,
-                            style: TextStyle(
-                              color: amountColor,
-                              fontSize: PFontSize.displayMd,
-                              fontWeight: PFontWeight.bold,
-                              letterSpacing: -1.02,
-                            ),
-                          ),
-                          if (!masked)
-                            TextSpan(
-                              text: '원',
-                              style: TextStyle(
-                                color: amountColor,
-                                fontSize: PFontSize.h4,
-                                fontWeight: PFontWeight.bold,
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                    if (dayStr != null) ...[
-                      const SizedBox(height: 6),
-                      Text(
-                        timeLabel != null ? '$dayStr · $timeLabel' : dayStr,
-                        style: PTypo.caption.copyWith(color: t.fgTertiary),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              const SizedBox(height: 18),
-              // Field rows
-              Container(
-                decoration: BoxDecoration(
-                  color: t.borderSubtle,
-                  border: Border.all(color: t.borderSubtle),
+                  color: fg.withValues(alpha: 0.14),
                   borderRadius: PRadius.brLg,
                 ),
-                child: Column(
+                alignment: Alignment.center,
+                child: Icon(icon, size: 20, color: fg),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                displayMerchant,
+                style: PTypo.bodySm.copyWith(
+                  color: t.fgSecondary,
+                  fontWeight: PFontWeight.medium,
+                ),
+              ),
+              const SizedBox(height: 4),
+              RichText(
+                text: TextSpan(
                   children: [
-                    _FieldRow(
-                      label: '카테고리',
-                      tokens: t,
-                      isFirst: true,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            width: 10,
-                            height: 10,
-                            decoration: BoxDecoration(
-                              color: fg,
-                              borderRadius: PRadius.brXs,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(e.categoryName ?? '미분류',
-                              style: PTypo.bodySm.copyWith(
-                                  color: t.fgPrimary,
-                                  fontWeight: PFontWeight.semi)),
-                        ],
+                    TextSpan(
+                      text: amountText,
+                      style: TextStyle(
+                        color: amountColor,
+                        fontSize: PFontSize.displayMd,
+                        fontWeight: PFontWeight.bold,
+                        letterSpacing: -1.02,
                       ),
                     ),
-                    _FieldRow(
-                      label: '금액',
-                      tokens: t,
-                      child: Text(
-                        '$amountText${masked ? '' : '원'}',
-                        style: PTypo.bodySm.copyWith(
-                            color: t.fgPrimary,
-                            fontWeight: PFontWeight.bold),
-                      ),
-                    ),
-                    if (assetLabel != null)
-                      _FieldRow(
-                        label: '계좌·카드',
-                        tokens: t,
-                        child: Text(assetLabel,
-                            style: PTypo.bodySm.copyWith(
-                                color: t.fgPrimary,
-                                fontWeight: PFontWeight.medium)),
-                      ),
-                    if (paymentLabel.isNotEmpty)
-                      _FieldRow(
-                        label: '결제 수단',
-                        tokens: t,
-                        child: Text(paymentLabel,
-                            style: PTypo.bodySm.copyWith(
-                                color: t.fgPrimary,
-                                fontWeight: PFontWeight.medium)),
-                      ),
-                    if (dayStr != null)
-                      _FieldRow(
-                        label: '날짜·시간',
-                        tokens: t,
-                        child: Text(
-                          timeLabel != null ? '$dayStr $timeLabel' : dayStr,
-                          style: PTypo.bodySm.copyWith(
-                              color: t.fgPrimary,
-                              fontWeight: PFontWeight.medium),
+                    if (!masked)
+                      TextSpan(
+                        text: '원',
+                        style: TextStyle(
+                          color: amountColor,
+                          fontSize: PFontSize.h4,
+                          fontWeight: PFontWeight.bold,
                         ),
                       ),
-                    _FieldRow(
-                      label: '메모',
-                      tokens: t,
-                      isLast: true,
-                      child: Text(
-                        (e.description ?? '').isEmpty
-                            ? '없음'
-                            : e.description!,
-                        style: PTypo.bodySm.copyWith(
-                            color: (e.description ?? '').isEmpty
-                                ? t.fgTertiary
-                                : t.fgPrimary,
-                            fontWeight: PFontWeight.medium),
+                  ],
+                ),
+              ),
+              if (dayStr != null) ...[
+                const SizedBox(height: 6),
+                Text(
+                  timeLabel != null ? '$dayStr · $timeLabel' : dayStr,
+                  style: PTypo.caption.copyWith(color: t.fgTertiary),
+                ),
+              ],
+            ],
+          ),
+        ),
+        const SizedBox(height: 18),
+        // Field rows
+        Container(
+          decoration: BoxDecoration(
+            color: t.borderSubtle,
+            border: Border.all(color: t.borderSubtle),
+            borderRadius: PRadius.brLg,
+          ),
+          child: Column(
+            children: [
+              _FieldRow(
+                label: '카테고리',
+                tokens: t,
+                isFirst: true,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 10,
+                      height: 10,
+                      decoration: BoxDecoration(
+                        color: fg,
+                        borderRadius: PRadius.brXs,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      e.categoryName ?? '미분류',
+                      style: PTypo.bodySm.copyWith(
+                        color: t.fgPrimary,
+                        fontWeight: PFontWeight.semi,
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
-              // Quick action grid (3-col)
-              Row(
-                children: [
-                  Expanded(
-                    child: _QuickBtn(
-                      icon: LucideIcons.scissors,
-                      label: '내역 분할',
-                      tokens: t,
-                      onTap: _deleting
-                          ? null
-                          : () {
-                              Navigator.of(context).pop();
-                              showSplitTxDialog(context, e);
-                            },
-                    ),
+              _FieldRow(
+                label: '금액',
+                tokens: t,
+                child: Text(
+                  '$amountText${masked ? '' : '원'}',
+                  style: PTypo.bodySm.copyWith(
+                    color: t.fgPrimary,
+                    fontWeight: PFontWeight.bold,
                   ),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: _QuickBtn(
-                      icon: LucideIcons.repeat,
-                      label: '반복 설정',
-                      tokens: t,
-                      onTap: _deleting
-                          ? null
-                          : () {
-                              Navigator.of(context).pop();
-                              showRecurringFromTxDialog(context, e);
-                            },
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: _QuickBtn(
-                      icon: LucideIcons.users,
-                      label: '더치페이',
-                      tokens: t,
-                      onTap: _deleting
-                          ? null
-                          : () {
-                              Navigator.of(context).pop();
-                              showDutchPayFromTxDialog(context, e);
-                            },
-                    ),
-                  ),
-                ],
-              ),
-              // Merchant history — 같은 가맹점·같은 달 이전 거래
-              if ((e.merchant ?? '').isNotEmpty && dayStr != null)
-                _MerchantHistorySection(
-                  merchant: e.merchant!,
-                  year: int.parse(dayStr.substring(0, 4)),
-                  month: int.parse(dayStr.substring(5, 7)),
-                  excludeRowId: e.rowId,
-                  masked: masked,
-                  tokens: t,
                 ),
+              ),
+              if (assetLabel != null)
+                _FieldRow(
+                  label: '계좌·카드',
+                  tokens: t,
+                  child: Text(
+                    assetLabel,
+                    style: PTypo.bodySm.copyWith(
+                      color: t.fgPrimary,
+                      fontWeight: PFontWeight.medium,
+                    ),
+                  ),
+                ),
+              if (paymentLabel.isNotEmpty)
+                _FieldRow(
+                  label: '결제 수단',
+                  tokens: t,
+                  child: Text(
+                    paymentLabel,
+                    style: PTypo.bodySm.copyWith(
+                      color: t.fgPrimary,
+                      fontWeight: PFontWeight.medium,
+                    ),
+                  ),
+                ),
+              if (dayStr != null)
+                _FieldRow(
+                  label: '날짜·시간',
+                  tokens: t,
+                  child: Text(
+                    timeLabel != null ? '$dayStr $timeLabel' : dayStr,
+                    style: PTypo.bodySm.copyWith(
+                      color: t.fgPrimary,
+                      fontWeight: PFontWeight.medium,
+                    ),
+                  ),
+                ),
+              _FieldRow(
+                label: '메모',
+                tokens: t,
+                isLast: true,
+                child: Text(
+                  (e.description ?? '').isEmpty ? '없음' : e.description!,
+                  style: PTypo.bodySm.copyWith(
+                    color: (e.description ?? '').isEmpty
+                        ? t.fgTertiary
+                        : t.fgPrimary,
+                    fontWeight: PFontWeight.medium,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        // Quick action grid (3-col)
+        Row(
+          children: [
+            Expanded(
+              child: _QuickBtn(
+                icon: LucideIcons.scissors,
+                label: '내역 분할',
+                tokens: t,
+                onTap: _deleting
+                    ? null
+                    : () {
+                        Navigator.of(context).pop();
+                        showSplitTxDialog(context, e);
+                      },
+              ),
+            ),
+            const SizedBox(width: 6),
+            Expanded(
+              child: _QuickBtn(
+                icon: LucideIcons.repeat,
+                label: '반복 설정',
+                tokens: t,
+                onTap: _deleting
+                    ? null
+                    : () {
+                        Navigator.of(context).pop();
+                        showRecurringSettingsDialog(context, expense: e);
+                      },
+              ),
+            ),
+            const SizedBox(width: 6),
+            Expanded(
+              child: _QuickBtn(
+                icon: LucideIcons.users,
+                label: '더치페이',
+                tokens: t,
+                onTap: _deleting
+                    ? null
+                    : () {
+                        Navigator.of(context).pop();
+                        showDutchPayFromTxDialog(context, e);
+                      },
+              ),
+            ),
+          ],
+        ),
+        // Merchant history — 같은 가맹점·같은 달 이전 거래
+        if ((e.merchant ?? '').isNotEmpty && dayStr != null)
+          _MerchantHistorySection(
+            merchant: e.merchant!,
+            year: int.parse(dayStr.substring(0, 4)),
+            month: int.parse(dayStr.substring(5, 7)),
+            excludeRowId: e.rowId,
+            masked: masked,
+            tokens: t,
+          ),
       ],
     );
   }
@@ -443,15 +455,19 @@ class _MerchantHistorySection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = tokens;
-    final async = ref.watch(merchantMonthExpensesProvider(
-        (merchant: merchant, year: year, month: month)));
+    final async = ref.watch(
+      merchantMonthExpensesProvider((
+        merchant: merchant,
+        year: year,
+        month: month,
+      )),
+    );
     final all = async.value ?? const <Expense>[];
     final history = all.where((x) => x.rowId != excludeRowId).take(5).toList();
     if (history.isEmpty) return const SizedBox.shrink();
 
     final monthCount = all.length;
-    final monthTotal =
-        all.fold<int>(0, (s, x) => s + x.amount.abs());
+    final monthTotal = all.fold<int>(0, (s, x) => s + x.amount.abs());
     final categories = ref.watch(categoriesProvider).value ?? const [];
 
     return Padding(
@@ -465,10 +481,13 @@ class _MerchantHistorySection extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.baseline,
               textBaseline: TextBaseline.alphabetic,
               children: [
-                Text('$merchant에서의 이전 거래',
-                    style: PTypo.bodySm.copyWith(
-                        color: t.fgPrimary,
-                        fontWeight: PFontWeight.bold)),
+                Text(
+                  '$merchant에서의 이전 거래',
+                  style: PTypo.bodySm.copyWith(
+                    color: t.fgPrimary,
+                    fontWeight: PFontWeight.bold,
+                  ),
+                ),
                 const Spacer(),
                 RichText(
                   text: TextSpan(
@@ -480,8 +499,9 @@ class _MerchantHistorySection extends ConsumerWidget {
                             ? '$monthCount회 · ••••원'
                             : '$monthCount회 · ${krw(monthTotal)}원',
                         style: PTypo.caption.copyWith(
-                            color: t.fgSecondary,
-                            fontWeight: PFontWeight.bold),
+                          color: t.fgSecondary,
+                          fontWeight: PFontWeight.bold,
+                        ),
                       ),
                     ],
                   ),
@@ -540,22 +560,19 @@ class _FieldRow extends StatelessWidget {
           bottom: isLast ? const Radius.circular(PRadius.lg) : Radius.zero,
         ),
       ),
-      padding:
-          const EdgeInsets.symmetric(horizontal: PSpace.x16, vertical: 14),
+      padding: const EdgeInsets.symmetric(horizontal: PSpace.x16, vertical: 14),
       child: Row(
         children: [
           SizedBox(
             width: 72,
-            child: Text(label,
-                style:
-                    PTypo.caption.copyWith(color: tokens.fgTertiary)),
+            child: Text(
+              label,
+              style: PTypo.caption.copyWith(color: tokens.fgTertiary),
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: Align(
-              alignment: Alignment.centerRight,
-              child: child,
-            ),
+            child: Align(alignment: Alignment.centerRight, child: child),
           ),
         ],
       ),
@@ -589,19 +606,19 @@ class _QuickBtn extends StatelessWidget {
         ),
         child: Column(
           children: [
-            Icon(icon,
-                size: 18,
-                color: onTap == null
-                    ? tokens.fgTertiary
-                    : tokens.fgSecondary),
+            Icon(
+              icon,
+              size: 18,
+              color: onTap == null ? tokens.fgTertiary : tokens.fgSecondary,
+            ),
             const SizedBox(height: 8),
-            Text(label,
-                style: PTypo.caption.copyWith(
-                  color: onTap == null
-                      ? tokens.fgTertiary
-                      : tokens.fgSecondary,
-                  fontWeight: PFontWeight.semi,
-                )),
+            Text(
+              label,
+              style: PTypo.caption.copyWith(
+                color: onTap == null ? tokens.fgTertiary : tokens.fgSecondary,
+                fontWeight: PFontWeight.semi,
+              ),
+            ),
           ],
         ),
       ),

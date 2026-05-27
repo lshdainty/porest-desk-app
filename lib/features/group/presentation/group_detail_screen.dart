@@ -16,6 +16,7 @@ import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/widgets/p_avatar.dart';
 import '../../../shared/widgets/p_badge.dart';
 import '../../../shared/widgets/p_button.dart';
+import '../../../shared/widgets/p_dropdown_menu.dart';
 import '../../../shared/widgets/p_card.dart';
 import '../../../shared/widgets/p_divider.dart';
 import '../../../shared/widgets/p_modal.dart';
@@ -68,26 +69,23 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen> {
           data: (detail) {
             final me = detail.members.firstWhere(
               (m) => m.userRowId == myUser?.rowId,
-              orElse: () => const GroupMember(
-                  rowId: 0, userName: '', role: 'MEMBER'),
+              orElse: () =>
+                  const GroupMember(rowId: 0, userName: '', role: 'MEMBER'),
             );
             if (!me.isOwner) return null;
             return [
-              PopupMenuButton<String>(
-                icon: Icon(LucideIcons.moreVertical, color: t.fgSecondary),
-                onSelected: (v) async {
-                  if (v == 'edit') {
-                    await _showEditDialog(context, ref, detail);
-                  } else if (v == 'delete') {
-                    await _confirmDelete(context, ref, detail);
-                  }
-                },
-                itemBuilder: (_) => [
-                  const PopupMenuItem(value: 'edit', child: Text('그룹 수정')),
-                  PopupMenuItem(
-                    value: 'delete',
-                    child: Text('그룹 삭제',
-                        style: TextStyle(color: t.statusDangerFg)),
+              PDropdownMenu(
+                iconColor: t.fgSecondary,
+                iconSize: 24,
+                entries: [
+                  PDropdownItem(
+                    label: '그룹 수정',
+                    onTap: () => _showEditDialog(context, ref, detail),
+                  ),
+                  PDropdownItem(
+                    label: '그룹 삭제',
+                    onTap: () => _confirmDelete(context, ref, detail),
+                    destructive: true,
                   ),
                 ],
               ),
@@ -101,9 +99,11 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen> {
         error: (e, _) => Center(
           child: Padding(
             padding: const EdgeInsets.all(PSpace.x20),
-            child: Text('그룹을 불러오지 못했습니다\n$e',
-                textAlign: TextAlign.center,
-                style: PTypo.bodySm.copyWith(color: t.statusDanger)),
+            child: Text(
+              '그룹을 불러오지 못했습니다\n$e',
+              textAlign: TextAlign.center,
+              style: PTypo.bodySm.copyWith(color: t.statusDanger),
+            ),
           ),
         ),
         data: (detail) {
@@ -187,11 +187,13 @@ class _GroupEventsTab extends ConsumerWidget {
     final end = DateTime(now.year, now.month + 2, 0);
     String fmt(DateTime d) =>
         '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}T00:00:00';
-    final async = ref.watch(groupEventsProvider((
-      groupId: groupId,
-      startDate: fmt(start),
-      endDate: fmt(end),
-    )));
+    final async = ref.watch(
+      groupEventsProvider((
+        groupId: groupId,
+        startDate: fmt(start),
+        endDate: fmt(end),
+      )),
+    );
     return RefreshIndicator(
       color: tokens.bgBrand,
       onRefresh: () async {
@@ -201,21 +203,26 @@ class _GroupEventsTab extends ConsumerWidget {
         loading: () => const Center(child: PCircularProgressIndicator()),
         error: (e, _) => Padding(
           padding: const EdgeInsets.all(PSpace.x20),
-          child: Text('일정 로드 실패\n$e',
-              style: PTypo.bodySm.copyWith(color: tokens.statusDanger)),
+          child: Text(
+            '일정 로드 실패\n$e',
+            style: PTypo.bodySm.copyWith(color: tokens.statusDanger),
+          ),
         ),
         data: (list) {
           if (list.isEmpty) {
-            return ListView(children: [
-              Padding(
-                padding: const EdgeInsets.all(PSpace.x32),
-                child: Center(
-                  child: Text('등록된 일정이 없습니다',
-                      style:
-                          PTypo.body.copyWith(color: tokens.fgTertiary)),
+            return ListView(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(PSpace.x32),
+                  child: Center(
+                    child: Text(
+                      '등록된 일정이 없습니다',
+                      style: PTypo.body.copyWith(color: tokens.fgTertiary),
+                    ),
+                  ),
                 ),
-              ),
-            ]);
+              ],
+            );
           }
           final sorted = [...list]
             ..sort((a, b) => a.startDate.compareTo(b.startDate));
@@ -248,17 +255,21 @@ class _GroupEventsTab extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(e.title,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: PTypo.bodySm.copyWith(
-                                  color: tokens.fgPrimary,
-                                  fontWeight: PFontWeight.bold)),
+                          Text(
+                            e.title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: PTypo.bodySm.copyWith(
+                              color: tokens.fgPrimary,
+                              fontWeight: PFontWeight.bold,
+                            ),
+                          ),
                           if (e.startDate.isNotEmpty)
                             Text(
                               e.startDate.substring(0, 16).replaceAll('T', ' '),
-                              style: PTypo.caption
-                                  .copyWith(color: tokens.fgTertiary),
+                              style: PTypo.caption.copyWith(
+                                color: tokens.fgTertiary,
+                              ),
                             ),
                         ],
                       ),
@@ -282,8 +293,13 @@ class _GroupExpensesTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
-    final async = ref.watch(expensesByGroupProvider(
-        (groupId: groupId, startDate: null, endDate: null)));
+    final async = ref.watch(
+      expensesByGroupProvider((
+        groupId: groupId,
+        startDate: null,
+        endDate: null,
+      )),
+    );
     return RefreshIndicator(
       color: tokens.bgBrand,
       onRefresh: () async {
@@ -293,25 +309,31 @@ class _GroupExpensesTab extends ConsumerWidget {
         loading: () => const Center(child: PCircularProgressIndicator()),
         error: (e, _) => Padding(
           padding: const EdgeInsets.all(PSpace.x20),
-          child: Text('지출 로드 실패\n$e',
-              style: PTypo.bodySm.copyWith(color: tokens.statusDanger)),
+          child: Text(
+            '지출 로드 실패\n$e',
+            style: PTypo.bodySm.copyWith(color: tokens.statusDanger),
+          ),
         ),
         data: (list) {
           if (list.isEmpty) {
-            return ListView(children: [
-              Padding(
-                padding: const EdgeInsets.all(PSpace.x32),
-                child: Center(
-                  child: Text('등록된 지출이 없습니다',
-                      style:
-                          PTypo.body.copyWith(color: tokens.fgTertiary)),
+            return ListView(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(PSpace.x32),
+                  child: Center(
+                    child: Text(
+                      '등록된 지출이 없습니다',
+                      style: PTypo.body.copyWith(color: tokens.fgTertiary),
+                    ),
+                  ),
                 ),
-              ),
-            ]);
+              ],
+            );
           }
           final sorted = [...list]
-            ..sort((a, b) =>
-                (b.expenseDate ?? '').compareTo(a.expenseDate ?? ''));
+            ..sort(
+              (a, b) => (b.expenseDate ?? '').compareTo(a.expenseDate ?? ''),
+            );
           final totalExp = sorted
               .where((e) => e.expenseType == 'EXPENSE')
               .fold<int>(0, (s, e) => s + e.amount);
@@ -331,22 +353,25 @@ class _GroupExpensesTab extends ConsumerWidget {
                 child: Row(
                   children: [
                     _SummaryCell(
-                        label: '지출',
-                        value: krwMasked(totalExp, settings.hideAmounts),
-                        color: tokens.statusDanger,
-                        tokens: tokens),
+                      label: '지출',
+                      value: krwMasked(totalExp, settings.hideAmounts),
+                      color: tokens.statusDanger,
+                      tokens: tokens,
+                    ),
                     const SizedBox(width: 12),
                     _SummaryCell(
-                        label: '수입',
-                        value: krwMasked(totalInc, settings.hideAmounts),
-                        color: tokens.statusSuccess,
-                        tokens: tokens),
+                      label: '수입',
+                      value: krwMasked(totalInc, settings.hideAmounts),
+                      color: tokens.statusSuccess,
+                      tokens: tokens,
+                    ),
                     const SizedBox(width: 12),
                     _SummaryCell(
-                        label: '건수',
-                        value: '${sorted.length}',
-                        color: tokens.fgPrimary,
-                        tokens: tokens),
+                      label: '건수',
+                      value: '${sorted.length}',
+                      color: tokens.fgPrimary,
+                      tokens: tokens,
+                    ),
                   ],
                 ),
               ),
@@ -356,7 +381,9 @@ class _GroupExpensesTab extends ConsumerWidget {
                   padding: const EdgeInsets.only(bottom: 6),
                   child: Container(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 10),
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
                     decoration: BoxDecoration(
                       color: tokens.bgSurface,
                       borderRadius: PRadius.brSm,
@@ -369,30 +396,39 @@ class _GroupExpensesTab extends ConsumerWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                  e.merchant ??
-                                      e.description ??
-                                      e.categoryName ??
-                                      '거래',
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: PTypo.bodySm.copyWith(
-                                      color: tokens.fgPrimary,
-                                      fontWeight: PFontWeight.semi)),
+                                e.merchant ??
+                                    e.description ??
+                                    e.categoryName ??
+                                    '거래',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: PTypo.bodySm.copyWith(
+                                  color: tokens.fgPrimary,
+                                  fontWeight: PFontWeight.semi,
+                                ),
+                              ),
                               if ((e.expenseDateOnly ?? '').isNotEmpty)
-                                Text(e.expenseDateOnly!,
-                                    style: PTypo.caption.copyWith(
-                                        color: tokens.fgTertiary)),
+                                Text(
+                                  e.expenseDateOnly!,
+                                  style: PTypo.caption.copyWith(
+                                    color: tokens.fgTertiary,
+                                  ),
+                                ),
                             ],
                           ),
                         ),
                         Text(
-                          krwMasked(e.signedAmount, settings.hideAmounts,
-                              sign: true),
+                          krwMasked(
+                            e.signedAmount,
+                            settings.hideAmounts,
+                            sign: true,
+                          ),
                           style: PTypo.bodySm.copyWith(
-                              color: e.expenseType == 'EXPENSE'
-                                  ? tokens.fgPrimary
-                                  : tokens.statusSuccess,
-                              fontWeight: PFontWeight.bold),
+                            color: e.expenseType == 'EXPENSE'
+                                ? tokens.fgPrimary
+                                : tokens.statusSuccess,
+                            fontWeight: PFontWeight.bold,
+                          ),
                         ),
                       ],
                     ),
@@ -423,13 +459,15 @@ class _SummaryCell extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label,
-              style:
-                  PTypo.micro.copyWith(color: tokens.fgTertiary)),
+          Text(label, style: PTypo.micro.copyWith(color: tokens.fgTertiary)),
           const SizedBox(height: 2),
-          Text(value,
-              style: PTypo.bodySm.copyWith(
-                  color: color, fontWeight: PFontWeight.bold)),
+          Text(
+            value,
+            style: PTypo.bodySm.copyWith(
+              color: color,
+              fontWeight: PFontWeight.bold,
+            ),
+          ),
         ],
       ),
     );
@@ -463,12 +501,16 @@ class _GroupHeaderCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(detail.groupName as String,
-                    style: PTypo.h3.copyWith(color: tokens.fgPrimary)),
+                Text(
+                  detail.groupName as String,
+                  style: PTypo.h3.copyWith(color: tokens.fgPrimary),
+                ),
                 if ((detail.description as String?)?.isNotEmpty == true) ...[
                   const SizedBox(height: 2),
-                  Text(detail.description as String,
-                      style: PTypo.caption.copyWith(color: tokens.fgTertiary)),
+                  Text(
+                    detail.description as String,
+                    style: PTypo.caption.copyWith(color: tokens.fgTertiary),
+                  ),
                 ],
               ],
             ),
@@ -480,9 +522,12 @@ class _GroupHeaderCard extends StatelessWidget {
               borderRadius: PRadius.brFull,
             ),
             child: Text(
-                '${(detail.members as List).length}명',
-                style: PTypo.caption.copyWith(
-                    color: tokens.fgSecondary, fontWeight: PFontWeight.semi)),
+              '${(detail.members as List).length}명',
+              style: PTypo.caption.copyWith(
+                color: tokens.fgSecondary,
+                fontWeight: PFontWeight.semi,
+              ),
+            ),
           ),
         ],
       ),
@@ -513,9 +558,13 @@ class _InviteCodeCard extends ConsumerWidget {
             children: [
               Icon(LucideIcons.link, size: 16, color: tokens.fgSecondary),
               const SizedBox(width: 6),
-              Text('초대 코드',
-                  style: PTypo.bodySm.copyWith(
-                      color: tokens.fgPrimary, fontWeight: PFontWeight.bold)),
+              Text(
+                '초대 코드',
+                style: PTypo.bodySm.copyWith(
+                  color: tokens.fgPrimary,
+                  fontWeight: PFontWeight.bold,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: PSpace.x8),
@@ -524,18 +573,21 @@ class _InviteCodeCard extends ConsumerWidget {
               Expanded(
                 child: Container(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 14, vertical: 12),
+                    horizontal: 14,
+                    vertical: 12,
+                  ),
                   decoration: BoxDecoration(
                     color: tokens.bgMuted,
                     borderRadius: PRadius.brMd,
                   ),
-                  child: Text(code,
-                      style: PTypo.body.copyWith(
-                          color: tokens.fgPrimary,
-                          fontWeight: PFontWeight.bold,
-                          fontFeatures: const [
-                            FontFeature.tabularFigures()
-                          ])),
+                  child: Text(
+                    code,
+                    style: PTypo.body.copyWith(
+                      color: tokens.fgPrimary,
+                      fontWeight: PFontWeight.bold,
+                      fontFeatures: const [FontFeature.tabularFigures()],
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(width: 8),
@@ -547,7 +599,11 @@ class _InviteCodeCard extends ConsumerWidget {
                     : () async {
                         await Clipboard.setData(ClipboardData(text: code));
                         if (!context.mounted) return;
-                        showPSnackBar(context, '초대 코드를 복사했습니다', severity: PSnackSeverity.success);
+                        showPSnackBar(
+                          context,
+                          '초대 코드를 복사했습니다',
+                          severity: PSnackSeverity.success,
+                        );
                       },
               ),
               if (canManage)
@@ -580,7 +636,11 @@ class _InviteCodeCard extends ConsumerWidget {
       showPSnackBar(context, '초대 코드를 재발급했습니다');
     } on ApiException catch (e) {
       if (!context.mounted) return;
-      showPSnackBar(context, '재발급 실패: ${e.message}', severity: PSnackSeverity.error);
+      showPSnackBar(
+        context,
+        '재발급 실패: ${e.message}',
+        severity: PSnackSeverity.error,
+      );
     }
   }
 }
@@ -606,18 +666,27 @@ class _MembersCard extends ConsumerWidget {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(
-                PSpace.x16, PSpace.x16, PSpace.x16, PSpace.x8),
+              PSpace.x16,
+              PSpace.x16,
+              PSpace.x16,
+              PSpace.x8,
+            ),
             child: Row(
               children: [
                 Icon(LucideIcons.users, size: 16, color: tokens.fgSecondary),
                 const SizedBox(width: 6),
-                Text('멤버',
-                    style: PTypo.bodySm.copyWith(
-                        color: tokens.fgPrimary,
-                        fontWeight: PFontWeight.bold)),
+                Text(
+                  '멤버',
+                  style: PTypo.bodySm.copyWith(
+                    color: tokens.fgPrimary,
+                    fontWeight: PFontWeight.bold,
+                  ),
+                ),
                 const Spacer(),
-                Text('${members.length}명',
-                    style: PTypo.caption.copyWith(color: tokens.fgTertiary)),
+                Text(
+                  '${members.length}명',
+                  style: PTypo.caption.copyWith(color: tokens.fgTertiary),
+                ),
               ],
             ),
           ),
@@ -655,8 +724,10 @@ class _MemberRow extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Padding(
-      padding:
-          const EdgeInsets.symmetric(horizontal: PSpace.x16, vertical: PSpace.x8),
+      padding: const EdgeInsets.symmetric(
+        horizontal: PSpace.x16,
+        vertical: PSpace.x8,
+      ),
       child: Row(
         children: [
           PAvatar(
@@ -672,41 +743,50 @@ class _MemberRow extends ConsumerWidget {
               children: [
                 Row(
                   children: [
-                    Text(member.userName,
-                        style: PTypo.body.copyWith(
-                            color: tokens.fgPrimary,
-                            fontWeight: PFontWeight.semi)),
+                    Text(
+                      member.userName,
+                      style: PTypo.body.copyWith(
+                        color: tokens.fgPrimary,
+                        fontWeight: PFontWeight.semi,
+                      ),
+                    ),
                     if (isMe) ...[
                       const SizedBox(width: 6),
                       const PBadge(
-                          label: '나', variant: PBadgeVariant.softBrand),
+                        label: '나',
+                        variant: PBadgeVariant.softBrand,
+                      ),
                     ],
                   ],
                 ),
                 if (member.userEmail?.isNotEmpty == true)
-                  Text(member.userEmail!,
-                      style:
-                          PTypo.caption.copyWith(color: tokens.fgTertiary)),
+                  Text(
+                    member.userEmail!,
+                    style: PTypo.caption.copyWith(color: tokens.fgTertiary),
+                  ),
               ],
             ),
           ),
           _RoleBadge(role: member.role, tokens: tokens),
           if (canManage)
-            PopupMenuButton<String>(
-              icon: Icon(LucideIcons.moreVertical,
-                  size: 18, color: tokens.fgTertiary),
-              onSelected: (v) => _handleAction(context, ref, v),
-              itemBuilder: (_) => [
+            PDropdownMenu(
+              iconColor: tokens.fgTertiary,
+              entries: [
                 if (member.role != 'ADMIN')
-                  const PopupMenuItem(
-                      value: 'ADMIN', child: Text('관리자로 지정')),
+                  PDropdownItem(
+                    label: '관리자로 지정',
+                    onTap: () => _handleAction(context, ref, 'ADMIN'),
+                  ),
                 if (member.role != 'MEMBER')
-                  const PopupMenuItem(
-                      value: 'MEMBER', child: Text('일반 멤버로')),
-                PopupMenuItem(
-                    value: 'remove',
-                    child: Text('내보내기',
-                        style: TextStyle(color: tokens.statusDangerFg))),
+                  PDropdownItem(
+                    label: '일반 멤버로',
+                    onTap: () => _handleAction(context, ref, 'MEMBER'),
+                  ),
+                PDropdownItem(
+                  label: '내보내기',
+                  onTap: () => _handleAction(context, ref, 'remove'),
+                  destructive: true,
+                ),
               ],
             ),
         ],
@@ -715,7 +795,10 @@ class _MemberRow extends ConsumerWidget {
   }
 
   Future<void> _handleAction(
-      BuildContext context, WidgetRef ref, String action) async {
+    BuildContext context,
+    WidgetRef ref,
+    String action,
+  ) async {
     try {
       if (action == 'remove') {
         final ok = await showPConfirmDialog(
@@ -735,7 +818,11 @@ class _MemberRow extends ConsumerWidget {
       ref.invalidate(groupDetailProvider(groupId));
     } on ApiException catch (e) {
       if (!context.mounted) return;
-      showPSnackBar(context, '실패: ${e.message}', severity: PSnackSeverity.error);
+      showPSnackBar(
+        context,
+        '실패: ${e.message}',
+        severity: PSnackSeverity.error,
+      );
     }
   }
 }
@@ -762,7 +849,10 @@ class _RoleBadge extends StatelessWidget {
 // ─── 그룹 수정/삭제 ──────────────────────────────────────────
 
 Future<void> _showEditDialog(
-    BuildContext context, WidgetRef ref, GroupDetail detail) async {
+  BuildContext context,
+  WidgetRef ref,
+  GroupDetail detail,
+) async {
   final nameCtrl = TextEditingController(text: detail.groupName);
   final descCtrl = TextEditingController(text: detail.description ?? '');
   final ok = await showDialog<bool>(
@@ -777,22 +867,16 @@ Future<void> _showEditDialog(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('이름',
-                  style: PTypo.caption.copyWith(color: t.fgSecondary)),
+              Text('이름', style: PTypo.caption.copyWith(color: t.fgSecondary)),
               const SizedBox(height: 4),
-              PTextInput(
-                controller: nameCtrl,
-                placeholder: '그룹 이름',
-              ),
+              PTextInput(controller: nameCtrl, placeholder: '그룹 이름'),
               const SizedBox(height: 12),
-              Text('설명 (선택)',
-                  style: PTypo.caption.copyWith(color: t.fgSecondary)),
-              const SizedBox(height: 4),
-              PTextInput(
-                controller: descCtrl,
-                maxLines: 2,
-                placeholder: '설명',
+              Text(
+                '설명 (선택)',
+                style: PTypo.caption.copyWith(color: t.fgSecondary),
               ),
+              const SizedBox(height: 4),
+              PTextInput(controller: descCtrl, maxLines: 2, placeholder: '설명'),
             ],
           ),
         ),
@@ -802,10 +886,7 @@ Future<void> _showEditDialog(
             variant: PButtonVariant.ghost,
             onPressed: () => Navigator.pop(ctx, false),
           ),
-          PButton(
-            label: '저장',
-            onPressed: () => Navigator.pop(ctx, true),
-          ),
+          PButton(label: '저장', onPressed: () => Navigator.pop(ctx, true)),
         ],
       );
     },
@@ -826,17 +907,23 @@ Future<void> _showEditDialog(
     showPSnackBar(context, '그룹이 수정되었습니다');
   } on ApiException catch (e) {
     if (!context.mounted) return;
-    showPSnackBar(context, '수정 실패: ${e.message}', severity: PSnackSeverity.error);
+    showPSnackBar(
+      context,
+      '수정 실패: ${e.message}',
+      severity: PSnackSeverity.error,
+    );
   }
 }
 
 Future<void> _confirmDelete(
-    BuildContext context, WidgetRef ref, GroupDetail detail) async {
+  BuildContext context,
+  WidgetRef ref,
+  GroupDetail detail,
+) async {
   final ok = await showPConfirmDialog(
     context,
     title: '그룹 삭제',
-    message:
-        '"${detail.groupName}" 그룹을 삭제하시겠어요? 멤버 모두가 그룹에서 제외되며 되돌릴 수 없습니다.',
+    message: '"${detail.groupName}" 그룹을 삭제하시겠어요? 멤버 모두가 그룹에서 제외되며 되돌릴 수 없습니다.',
     confirmLabel: '삭제',
     destructive: true,
   );
@@ -850,6 +937,10 @@ Future<void> _confirmDelete(
     showPSnackBar(context, '그룹이 삭제되었습니다', severity: PSnackSeverity.success);
   } on ApiException catch (e) {
     if (!context.mounted) return;
-    showPSnackBar(context, '삭제 실패: ${e.message}', severity: PSnackSeverity.error);
+    showPSnackBar(
+      context,
+      '삭제 실패: ${e.message}',
+      severity: PSnackSeverity.error,
+    );
   }
 }
