@@ -8,9 +8,9 @@ import 'p_tooltip.dart';
 
 /// front `<Button>` (shadcn) 미러 — variant 별 일관 스타일.
 ///
-/// variants: primary / secondary / outline / ghost / danger
+/// variants: primary / secondary / outline / ghost(중립) / accent(brand 강조) / danger
 /// size: sm / md / lg
-enum PButtonVariant { primary, secondary, outline, ghost, danger }
+enum PButtonVariant { primary, secondary, outline, ghost, accent, danger }
 
 enum PButtonSize { sm, md, lg }
 
@@ -116,6 +116,7 @@ class PButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final iconOnly = label == null;
     Color bg;
     Color fg;
     BorderSide border;
@@ -137,6 +138,14 @@ class PButton extends StatelessWidget {
         break;
       case PButtonVariant.ghost:
         bg = Colors.transparent;
+        // icon-only ghost(아이콘 액션)는 보조톤 fgSecondary — front button.md v96 정합.
+        fg = dangerous
+            ? t.statusDangerFg
+            : (iconOnly ? t.fgSecondary : t.fgPrimary);
+        border = BorderSide.none;
+        break;
+      case PButtonVariant.accent:
+        bg = Colors.transparent;
         fg = dangerous ? t.statusDangerFg : t.fgBrand;
         border = BorderSide.none;
         break;
@@ -148,8 +157,8 @@ class PButton extends StatelessWidget {
     }
 
     final disabled = onPressed == null || loading;
-    final radius = _radius();
-    final iconOnly = label == null;
+    // icon-only는 radius-md 둥근 박스 (정사각 + 또렷한 hover/splash) — front button.md v96 정합.
+    final radius = iconOnly ? PRadius.brMd : _radius();
     final h = _height();
     final btn = Material(
       color: disabled ? bg.withValues(alpha: 0.5) : bg,
