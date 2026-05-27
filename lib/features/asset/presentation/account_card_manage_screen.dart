@@ -22,8 +22,8 @@ import 'widgets/asset_logo.dart';
 enum _Group { account, card, invest }
 
 const Map<_Group, List<String>> _groupTypes = {
-  _Group.account: ['BANK_ACCOUNT', 'SAVINGS', 'CASH'],
-  _Group.card: ['CREDIT_CARD', 'CHECK_CARD', 'LOAN'],
+  _Group.account: ['BANK_ACCOUNT', 'SAVINGS', 'CASH', 'LOAN'],
+  _Group.card: ['CREDIT_CARD', 'CHECK_CARD'],
   _Group.invest: ['INVESTMENT'],
 };
 
@@ -121,10 +121,22 @@ class _AccountCardManageScreenState
                 ],
               ),
               const SizedBox(height: PSpace.x12),
-              // 총액
-              Text(
-                masked ? '총 •••' : '총 ${krw(total)}원',
-                style: PTypo.caption.copyWith(color: t.fgTertiary),
+              // 총액 (좌) + 추가 (우, ghost+accent)
+              Row(
+                children: [
+                  Text(
+                    masked ? '총 •••' : '총 ${krw(total)}원',
+                    style: PTypo.caption.copyWith(color: t.fgTertiary),
+                  ),
+                  const Spacer(),
+                  PButton(
+                    label: '${_groupLabel(_tab)} 추가',
+                    icon: LucideIcons.plus,
+                    variant: PButtonVariant.accent,
+                    size: PButtonSize.sm,
+                    onPressed: _onAdd,
+                  ),
+                ],
               ),
               const SizedBox(height: PSpace.x8),
               // 리스트
@@ -141,7 +153,7 @@ class _AccountCardManageScreenState
               else
                 PCard(
                   variant: PCardVariant.shadow,
-                  padding: const EdgeInsets.symmetric(horizontal: PSpace.x16),
+                  padding: EdgeInsets.zero,
                   child: Column(
                     children: [
                       for (var i = 0; i < filtered.length; i++)
@@ -156,15 +168,6 @@ class _AccountCardManageScreenState
                     ],
                   ),
                 ),
-              const SizedBox(height: PSpace.x20),
-              // 그룹별 추가
-              Center(
-                child: PButton(
-                  label: '${_groupLabel(_tab)} 추가',
-                  icon: LucideIcons.plus,
-                  onPressed: _onAdd,
-                ),
-              ),
             ],
           );
         },
@@ -204,7 +207,7 @@ class _ManageRow extends StatelessWidget {
                 ? Border(top: BorderSide(color: t.borderSubtle))
                 : null,
           ),
-          padding: const EdgeInsets.symmetric(vertical: 14),
+          padding: const EdgeInsets.symmetric(horizontal: PSpace.x16, vertical: 14),
           child: Row(
             children: [
               AssetLogo(asset: asset),
