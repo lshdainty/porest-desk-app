@@ -85,7 +85,7 @@ class PBadge extends StatelessWidget {
         color: bg,
         border:
             borderColor != null ? Border.all(color: borderColor, width: 1) : null,
-        borderRadius: PRadius.brFull,
+        borderRadius: PRadius.brXs,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

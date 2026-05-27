@@ -1166,14 +1166,12 @@ class _BudgetRow extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 6),
-        ClipRRect(
-          borderRadius: PRadius.brSm,
-          child: LinearProgressIndicator(
-            value: (p / 100).clamp(0, 1).toDouble(),
-            minHeight: 6,
-            backgroundColor: tokens.bgTrack,
-            color: stateColor,
-          ),
+        LinearProgressIndicator(
+          borderRadius: PRadius.brFull,
+          value: (p / 100).clamp(0, 1).toDouble(),
+          minHeight: 6,
+          backgroundColor: tokens.bgTrack,
+          color: stateColor,
         ),
       ],
     );

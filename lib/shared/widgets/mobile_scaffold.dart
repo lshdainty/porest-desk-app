@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/theme/tokens.dart';
+import '../../features/calendar/presentation/calendar_event_dialog.dart';
 import '../../features/expense/presentation/add_tx_sheet.dart';
 import 'mobile_header.dart';
 import 'mobile_tab_bar.dart';
@@ -65,7 +66,15 @@ class MobileScaffold extends StatelessWidget {
                 branch,
                 initialLocation: branch == idx,
               ),
-              onAddTx: () => showAddTxSheet(context),
+              onAddTx: () {
+                if (idx == 2) {
+                  // 캘린더 탭 — 일정 등록
+                  showCalendarEventDialog(
+                      context, defaultDate: DateTime.now());
+                } else {
+                  showAddTxSheet(context);
+                }
+              },
             ),
     );
   }

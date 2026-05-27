@@ -239,11 +239,9 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
           await ref.read(monthBudgetsProvider(_key).future);
         },
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(
-            PSpace.x16,
-            PSpace.x4,
-            PSpace.x16,
-            PSpace.x32,
+          padding: const EdgeInsets.symmetric(
+            horizontal: PSpace.x20,
+            vertical: PSpace.x24,
           ),
           children: [
             _MonthBar(
@@ -752,20 +750,14 @@ class _HeaderCard extends StatelessWidget {
         ? tokens.statusWarning
         : tokens.fgBrand;
 
-    return InkWell(
-      borderRadius: PRadius.brXl,
+    return PCard(
+      variant: PCardVariant.shadow,
+      color: tokens.bgBrandTint,
+      padding: const EdgeInsets.all(PSpace.x16),
       onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(PSpace.x16),
-        decoration: BoxDecoration(
-          color: tokens.surfaceHero,
-          borderRadius: PRadius.brXl,
-          border: Border.all(color: tokens.borderBrand.withValues(alpha: 0.3)),
-        ),
-        child: overallBudget == null
-            ? _emptyOverall(context)
-            : _filledOverall(color),
-      ),
+      child: overallBudget == null
+          ? _emptyOverall(context)
+          : _filledOverall(color),
     );
   }
 
@@ -862,14 +854,12 @@ class _HeaderCard extends StatelessWidget {
           ],
         ),
         const SizedBox(height: PSpace.x12),
-        ClipRRect(
-          borderRadius: PRadius.brSm,
-          child: LinearProgressIndicator(
-            value: (pct / 100).clamp(0, 1).toDouble(),
-            minHeight: 10,
-            backgroundColor: tokens.bgTrack,
-            color: color,
-          ),
+        LinearProgressIndicator(
+          borderRadius: PRadius.brFull,
+          value: (pct / 100).clamp(0, 1).toDouble(),
+          minHeight: 10,
+          backgroundColor: tokens.bgTrack,
+          color: color,
         ),
         const SizedBox(height: PSpace.x8),
         Row(
@@ -1058,14 +1048,12 @@ class _PaceCard extends StatelessWidget {
                       left: 0,
                       right: 0,
                       top: 3,
-                      child: ClipRRect(
+                      child: LinearProgressIndicator(
                         borderRadius: PRadius.brFull,
-                        child: LinearProgressIndicator(
-                          value: (pct / 100).clamp(0, 1).toDouble(),
-                          minHeight: 12,
-                          backgroundColor: tokens.bgTrack,
-                          color: pct > 100 ? tokens.fgExpense : tokens.bgBrand,
-                        ),
+                        value: (pct / 100).clamp(0, 1).toDouble(),
+                        minHeight: 12,
+                        backgroundColor: tokens.bgTrack,
+                        color: pct > 100 ? tokens.fgExpense : tokens.bgBrand,
                       ),
                     ),
                     Positioned(
@@ -1366,7 +1354,7 @@ class _CategoryListCard extends StatelessWidget {
                   fontWeight: PFontWeight.bold,
                 ),
               ),
-              const SizedBox(width: PSpace.x8),
+              const Spacer(),
               Text(
                 '${budgets.length}개 설정됨',
                 style: PTypo.caption.copyWith(color: tokens.fgTertiary),
@@ -1534,14 +1522,12 @@ class _CategoryRow extends StatelessWidget {
             ],
           ),
           const SizedBox(height: PSpace.x8),
-          ClipRRect(
-            borderRadius: PRadius.brSm,
-            child: LinearProgressIndicator(
-              value: (p / 100).clamp(0, 1).toDouble(),
-              minHeight: 7,
-              backgroundColor: tokens.bgTrack,
-              color: stateColor,
-            ),
+          LinearProgressIndicator(
+            borderRadius: PRadius.brFull,
+            value: (p / 100).clamp(0, 1).toDouble(),
+            minHeight: 7,
+            backgroundColor: tokens.bgTrack,
+            color: stateColor,
           ),
         ],
       ),
