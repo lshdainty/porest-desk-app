@@ -46,8 +46,8 @@ List<_SettingsGroup> _buildGroups(BuildContext ctx) => [
     _SettingsItem(
       icon: LucideIcons.wallet,
       label: '계좌·카드 관리',
-      desc: '연결된 계좌와 카드 관리',
-      onTap: (c) => c.push('/assets'),
+      desc: '계좌·카드 추가·편집',
+      onTap: (c) => c.push('/account-card-manage'),
     ),
     _SettingsItem(
       icon: LucideIcons.target,

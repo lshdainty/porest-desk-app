@@ -45,7 +45,7 @@ List<_NavGroup> _buildGroups(BuildContext ctx) => [
     _NavItem(label: '예산', icon: LucideIcons.target, desc: '월간 · 카테고리별', onTap: (c) => c.go('/budget')),
     _NavItem(label: '통계·분석', icon: LucideIcons.pieChart, desc: '카테고리 · 트렌드 · 비교', onTap: (c) => c.go('/stats')),
     _NavItem(label: '반복 거래', icon: LucideIcons.repeat, desc: '구독 · 고정비', onTap: (c) => c.push('/recurring')),
-    _NavItem(label: '카드·계좌 관리', icon: LucideIcons.creditCard, desc: '연결 · 한도 · 만기', onTap: (c) => c.push('/cards')),
+    _NavItem(label: '카드·계좌 관리', icon: LucideIcons.creditCard, desc: '계좌·카드 추가·편집', onTap: (c) => c.push('/account-card-manage')),
   ]),
   _NavGroup(label: '일상', items: [
     _NavItem(label: '캘린더', icon: LucideIcons.calendarDays, desc: '일정 · 반복 · 알림', onTap: (c) => c.go('/calendar')),

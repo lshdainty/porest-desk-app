@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/auth/auth_notifier.dart';
+import '../features/asset/presentation/account_card_manage_screen.dart';
 import '../features/asset/presentation/asset_screen.dart';
 import '../features/budget/presentation/budget_screen.dart';
 import '../features/calendar/presentation/calendar_screen.dart';
@@ -61,6 +62,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/login', builder: (_, _) => const LoginScreen()),
       GoRoute(path: '/settings', builder: (_, _) => const SettingsScreen()),
       GoRoute(path: '/account', builder: (_, _) => const AccountScreen()),
+      GoRoute(path: '/account-card-manage', builder: (_, _) => const AccountCardManageScreen()),
       // /assets, /budget, /stats 는 shell branch 1 (가계부) 안 sub-routes 로
       // 이동 — 하단바 (MoneyTabBar) 가 shell scaffold 가 한 번 build 되어
       // sub-tab 전환 시 사라지지 않게 (사용자 의도: 안정적 고정 bottom bar).

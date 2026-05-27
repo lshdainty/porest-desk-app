@@ -27,7 +27,6 @@ import '../application/asset_providers.dart';
 import '../domain/asset.dart';
 import '../domain/asset_transfer.dart';
 import '../domain/asset_type_meta.dart';
-import 'asset_edit_dialog.dart';
 
 /// 자산 상세 — front `AssetDetailDialog` 모바일 미러.
 ///
@@ -70,7 +69,7 @@ class _DetailFooter extends ConsumerWidget {
           size: PButtonSize.sm,
           onPressed: () {
             Navigator.of(context).pop();
-            showAssetEditForm(context, asset);
+            context.push('/account-card-manage');
           },
         ),
         const SizedBox(width: PSpace.x4),

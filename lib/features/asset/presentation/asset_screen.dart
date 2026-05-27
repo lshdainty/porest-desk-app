@@ -104,11 +104,13 @@ class _AssetBody extends StatelessWidget {
                     fontWeight: PFontWeight.medium,
                   ),
                 ),
-                const SizedBox(height: PSpace.x12),
-                PButton(
-                  label: '첫 자산 추가하기',
-                  icon: LucideIcons.plus,
-                  onPressed: () => showAssetAddDialog(context),
+                const SizedBox(height: PSpace.x8),
+                Text(
+                  '설정 → 카드·계좌 관리에서 추가할 수 있어요',
+                  style: TextStyle(
+                    color: tokens.fgTertiary,
+                    fontSize: PFontSize.caption,
+                  ),
                 ),
               ],
             ),
@@ -448,23 +450,6 @@ class _TypeGroup extends StatelessWidget {
   final Color? totalColor;
   final bool negativeTotal;
 
-  void _onAdd(BuildContext context) {
-    switch (kind) {
-      case _GroupKind.account:
-        showAssetAddDialog(context);
-        break;
-      case _GroupKind.investment:
-        showInvestmentAddDialog(context);
-        break;
-      case _GroupKind.card:
-        showCardAddDialog(context);
-        break;
-      case _GroupKind.loan:
-        showAssetAddDialog(context, presetType: 'LOAN');
-        break;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return PCard(
@@ -494,36 +479,6 @@ class _TypeGroup extends StatelessWidget {
                   fontSize: PFontSize.bodySm,
                   fontWeight: PFontWeight.bold,
                   fontFeatures: const [FontFeature.tabularFigures()],
-                ),
-              ),
-              const SizedBox(width: 6),
-              InkWell(
-                borderRadius: PRadius.brMd,
-                onTap: () => _onAdd(context),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 6,
-                    vertical: 4,
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        LucideIcons.plus,
-                        size: 13,
-                        color: tokens.fgSecondary,
-                      ),
-                      const SizedBox(width: 2),
-                      Text(
-                        '추가',
-                        style: TextStyle(
-                          color: tokens.fgSecondary,
-                          fontSize: PFontSize.bodySm,
-                          fontWeight: PFontWeight.semi,
-                        ),
-                      ),
-                    ],
-                  ),
                 ),
               ),
             ],
