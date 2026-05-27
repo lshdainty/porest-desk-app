@@ -12,10 +12,7 @@ class RecurringRepository {
     try {
       final res = await _dio.get<Map<String, dynamic>>(
         '/recurring-transactions',
-        queryParameters: {
-          'upcoming': ?upcoming,
-          'limit': ?limit,
-        },
+        queryParameters: {'upcoming': ?upcoming, 'limit': ?limit},
       );
       final body = ApiResponse<Map<String, dynamic>>.fromJson(
         res.data ?? const {},
@@ -27,8 +24,7 @@ class RecurringRepository {
       final list =
           (body.data!['recurringTransactions'] as List<dynamic>?) ?? const [];
       return list
-          .map((e) =>
-              RecurringTransaction.fromJson(e as Map<String, dynamic>))
+          .map((e) => RecurringTransaction.fromJson(e as Map<String, dynamic>))
           .toList(growable: false);
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
@@ -47,6 +43,7 @@ class RecurringRepository {
     int? dayOfMonth,
     required String startDate, // 'YYYY-MM-DD'
     String? endDate,
+    int? maxOccurrences,
     String? description,
     String? merchant,
     String? paymentMethod,
@@ -68,6 +65,7 @@ class RecurringRepository {
           'dayOfMonth': ?dayOfMonth,
           'startDate': startDate,
           'endDate': ?endDate,
+          'maxOccurrences': ?maxOccurrences,
           'description': ?description,
           'merchant': ?merchant,
           'paymentMethod': ?paymentMethod,
@@ -92,6 +90,7 @@ class RecurringRepository {
     int? dayOfMonth,
     required String startDate,
     String? endDate,
+    int? maxOccurrences,
     String? description,
     String? merchant,
     String? paymentMethod,
@@ -112,6 +111,7 @@ class RecurringRepository {
           'dayOfMonth': ?dayOfMonth,
           'startDate': startDate,
           'endDate': ?endDate,
+          'maxOccurrences': ?maxOccurrences,
           'description': ?description,
           'merchant': ?merchant,
           'paymentMethod': ?paymentMethod,

@@ -16,16 +16,16 @@ import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_badge.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_card.dart';
-import '../../../shared/widgets/p_chip.dart';
+import '../../../shared/widgets/p_dropdown_menu.dart';
+import '../../../shared/widgets/p_toggle.dart';
 import '../../../shared/widgets/p_divider.dart';
 import '../../../shared/widgets/p_empty_state.dart';
-import '../../../shared/widgets/p_floating_action_button.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../expense/application/expense_providers.dart';
 import '../../expense/domain/expense_category.dart';
 import '../application/recurring_providers.dart';
 import '../domain/recurring_transaction.dart';
-import 'recurring_edit_dialog.dart';
+import 'recurring_settings_drawer.dart';
 import '../../../shared/widgets/p_progress.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 
@@ -57,7 +57,11 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
       ref.invalidate(recurringListProvider);
     } on ApiException catch (e) {
       if (!mounted) return;
-      showPSnackBar(context, '변경 실패: ${e.message}', severity: PSnackSeverity.error);
+      showPSnackBar(
+        context,
+        '변경 실패: ${e.message}',
+        severity: PSnackSeverity.error,
+      );
     } finally {
       if (mounted) setState(() => _busyToggleId = null);
     }
@@ -67,8 +71,7 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
     final ok = await showPConfirmDialog(
       context,
       title: '반복 거래 삭제',
-      message:
-          '"${_displayTitle(it)}" 반복 설정을 삭제할까요?\n이미 기록된 거래는 그대로 남습니다.',
+      message: '"${_displayTitle(it)}" 반복 설정을 삭제할까요?\n이미 기록된 거래는 그대로 남습니다.',
       confirmLabel: '삭제',
       destructive: true,
     );
@@ -80,7 +83,11 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
       ref.invalidate(recurringListProvider);
     } on ApiException catch (e) {
       if (!mounted) return;
-      showPSnackBar(context, '삭제 실패: ${e.message}', severity: PSnackSeverity.error);
+      showPSnackBar(
+        context,
+        '삭제 실패: ${e.message}',
+        severity: PSnackSeverity.error,
+      );
     } finally {
       if (mounted) setState(() => _busyDeleteId = null);
     }
@@ -104,10 +111,7 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,
         elevation: 0,
-      ),
-      floatingActionButton: PFloatingActionButton(
-        icon: LucideIcons.plus,
-        onPressed: () => showRecurringEditDialog(context),
+        scrolledUnderElevation: 0,
       ),
       body: RefreshIndicator(
         color: t.bgBrand,
@@ -127,13 +131,16 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
             ],
           ),
           data: (items) {
-            final categories = categoriesAsync.value ?? const <ExpenseCategory>[];
+            final categories =
+                categoriesAsync.value ?? const <ExpenseCategory>[];
             final stats = _computeStats(items);
             final filtered = _applyFilter(items, _filter);
 
             return ListView(
               padding: const EdgeInsets.symmetric(
-            horizontal: PSpace.x20, vertical: PSpace.x24),
+                horizontal: PSpace.x20,
+                vertical: PSpace.x24,
+              ),
               children: [
                 _SummaryCard(
                   active: stats.active,
@@ -153,53 +160,105 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
                   ),
                 ],
                 const SizedBox(height: PSpace.x12),
-                _FilterChips(
-                  current: _filter,
-                  counts: _Counts(
-                    all: items.length,
-                    expense: items
-                        .where((i) =>
-                            i.expenseType == 'EXPENSE' && i.isActive == 'Y')
-                        .length,
-                    income: items
-                        .where((i) =>
-                            i.expenseType == 'INCOME' && i.isActive == 'Y')
-                        .length,
-                    paused: items.where((i) => i.isActive != 'Y').length,
+                PCard(
+                  padding: EdgeInsets.zero,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // 헤더: 전체 목록 (좌) + 필터 개별 toggle (우, 배경 없음)
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(
+                          PSpace.x16,
+                          PSpace.x12,
+                          PSpace.x16,
+                          0,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // 1행: 전체 목록 (좌) + 추가 버튼 (우, accent 강조)
+                            Row(
+                              children: [
+                                Text(
+                                  '전체 목록',
+                                  style: PTypo.bodySm.copyWith(
+                                    color: t.fgPrimary,
+                                    fontWeight: PFontWeight.bold,
+                                  ),
+                                ),
+                                const Spacer(),
+                                PButton(
+                                  label: '추가',
+                                  icon: LucideIcons.plus,
+                                  variant: PButtonVariant.accent,
+                                  size: PButtonSize.sm,
+                                  onPressed: () =>
+                                      showRecurringSettingsDialog(context),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: PSpace.x8),
+                            // 2행: 필터 single toggle
+                            Row(
+                              children: [
+                                for (final e in <(_Filter, String)>[
+                                  (_Filter.all, '전체 ${items.length}'),
+                                  (
+                                    _Filter.expense,
+                                    '지출 ${items.where((i) => i.expenseType == 'EXPENSE' && i.isActive == 'Y').length}',
+                                  ),
+                                  (
+                                    _Filter.income,
+                                    '수입 ${items.where((i) => i.expenseType == 'INCOME' && i.isActive == 'Y').length}',
+                                  ),
+                                  (
+                                    _Filter.paused,
+                                    '정지 ${items.where((i) => i.isActive != 'Y').length}',
+                                  ),
+                                ]) ...[
+                                  PToggle(
+                                    pressed: _filter == e.$1,
+                                    onChanged: (_) =>
+                                        setState(() => _filter = e.$1),
+                                    label: e.$2,
+                                    size: PToggleSize.sm,
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (filtered.isEmpty)
+                        _EmptyState(filter: _filter, tokens: t)
+                      else
+                        Column(
+                          children: [
+                            for (int i = 0; i < filtered.length; i++) ...[
+                              _RecurringRow(
+                                item: filtered[i],
+                                category: categories.byRowId(
+                                  filtered[i].categoryRowId,
+                                ),
+                                masked: settings.hideAmounts,
+                                tokens: t,
+                                anyBusy:
+                                    _busyToggleId != null ||
+                                    _busyDeleteId != null,
+                                onToggle: () => _toggle(filtered[i]),
+                                onEdit: () => showRecurringSettingsDialog(
+                                  context,
+                                  recurring: filtered[i],
+                                ),
+                                onDelete: () => _delete(filtered[i]),
+                              ),
+                              if (i < filtered.length - 1) const PDivider(),
+                            ],
+                          ],
+                        ),
+                    ],
                   ),
-                  onChange: (f) => setState(() => _filter = f),
-                  tokens: t,
                 ),
-                const SizedBox(height: PSpace.x12),
-                if (filtered.isEmpty)
-                  _EmptyState(filter: _filter, tokens: t)
-                else
-                  PCard(
-                    variant: PCardVariant.bordered,
-                    child: Column(
-                      children: [
-                        for (int i = 0; i < filtered.length; i++) ...[
-                          _RecurringRow(
-                            item: filtered[i],
-                            category:
-                                categories.byRowId(filtered[i].categoryRowId),
-                            masked: settings.hideAmounts,
-                            tokens: t,
-                            toggleBusy: _busyToggleId == filtered[i].rowId,
-                            deleteBusy: _busyDeleteId == filtered[i].rowId,
-                            anyBusy: _busyToggleId != null ||
-                                _busyDeleteId != null,
-                            onToggle: () => _toggle(filtered[i]),
-                            onEdit: () => showRecurringEditDialog(context,
-                                edit: filtered[i]),
-                            onDelete: () => _delete(filtered[i]),
-                          ),
-                          if (i < filtered.length - 1)
-                            PDivider(indent: PSpace.x16),
-                        ],
-                      ],
-                    ),
-                  ),
               ],
             );
           },
@@ -209,20 +268,24 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
   }
 
   List<RecurringTransaction> _applyFilter(
-      List<RecurringTransaction> items, _Filter f) {
-    return items.where((it) {
-      final active = it.isActive == 'Y';
-      switch (f) {
-        case _Filter.all:
-          return true;
-        case _Filter.expense:
-          return it.expenseType == 'EXPENSE' && active;
-        case _Filter.income:
-          return it.expenseType == 'INCOME' && active;
-        case _Filter.paused:
-          return !active;
-      }
-    }).toList(growable: false);
+    List<RecurringTransaction> items,
+    _Filter f,
+  ) {
+    return items
+        .where((it) {
+          final active = it.isActive == 'Y';
+          switch (f) {
+            case _Filter.all:
+              return true;
+            case _Filter.expense:
+              return it.expenseType == 'EXPENSE' && active;
+            case _Filter.income:
+              return it.expenseType == 'INCOME' && active;
+            case _Filter.paused:
+              return !active;
+          }
+        })
+        .toList(growable: false);
   }
 
   _Stats _computeStats(List<RecurringTransaction> items) {
@@ -236,15 +299,17 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
 
     final today = DateTime.now();
     final todayStart = DateTime(today.year, today.month, today.day);
-    final next7 = active.where((i) {
-      if (i.nextExecutionDate == null) return false;
-      final d = DateTime.parse(i.nextExecutionDate!.substring(0, 10));
-      final ds = DateTime(d.year, d.month, d.day);
-      final diff = ds.difference(todayStart).inDays;
-      return diff >= 0 && diff <= 7;
-    }).toList()
-      ..sort((a, b) =>
-          (a.nextExecutionDate ?? '').compareTo(b.nextExecutionDate ?? ''));
+    final next7 =
+        active.where((i) {
+          if (i.nextExecutionDate == null) return false;
+          final d = DateTime.parse(i.nextExecutionDate!.substring(0, 10));
+          final ds = DateTime(d.year, d.month, d.day);
+          final diff = ds.difference(todayStart).inDays;
+          return diff >= 0 && diff <= 7;
+        }).toList()..sort(
+          (a, b) =>
+              (a.nextExecutionDate ?? '').compareTo(b.nextExecutionDate ?? ''),
+        );
 
     return _Stats(
       active: active.length,
@@ -271,19 +336,6 @@ class _Stats {
   final List<RecurringTransaction> next7;
 }
 
-class _Counts {
-  const _Counts({
-    required this.all,
-    required this.expense,
-    required this.income,
-    required this.paused,
-  });
-  final int all;
-  final int expense;
-  final int income;
-  final int paused;
-}
-
 class _SummaryCard extends StatelessWidget {
   const _SummaryCard({
     required this.active,
@@ -304,25 +356,29 @@ class _SummaryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return PCard(
       padding: const EdgeInsets.all(PSpace.x16),
-      variant: PCardVariant.bordered,
+      variant: PCardVariant.shadow,
       child: Column(
         children: [
           Row(
             children: [
               Expanded(
-                  child: _Stat(
-                      label: '활성 반복',
-                      icon: LucideIcons.repeat,
-                      value: '$active개',
-                      color: tokens.fgPrimary,
-                      tokens: tokens)),
+                child: _Stat(
+                  label: '활성 반복',
+                  icon: LucideIcons.repeat,
+                  value: '$active개',
+                  color: tokens.fgPrimary,
+                  tokens: tokens,
+                ),
+              ),
               Expanded(
-                  child: _Stat(
-                      label: '일시정지',
-                      icon: LucideIcons.pauseCircle,
-                      value: '$paused개',
-                      color: tokens.fgTertiary,
-                      tokens: tokens)),
+                child: _Stat(
+                  label: '일시정지',
+                  icon: LucideIcons.pauseCircle,
+                  value: '$paused개',
+                  color: tokens.fgTertiary,
+                  tokens: tokens,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: PSpace.x12),
@@ -331,19 +387,23 @@ class _SummaryCard extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                  child: _Stat(
-                      label: '매월 고정 지출',
-                      icon: LucideIcons.trendingDown,
-                      value: '-${krwMasked(monthlyExpense, masked)}',
-                      color: tokens.statusDanger,
-                      tokens: tokens)),
+                child: _Stat(
+                  label: '매월 고정 지출',
+                  icon: LucideIcons.trendingDown,
+                  value: '-${krwMasked(monthlyExpense, masked)}',
+                  color: tokens.statusDanger,
+                  tokens: tokens,
+                ),
+              ),
               Expanded(
-                  child: _Stat(
-                      label: '매월 고정 수입',
-                      icon: LucideIcons.trendingUp,
-                      value: '+${krwMasked(monthlyIncome, masked)}',
-                      color: tokens.statusSuccess,
-                      tokens: tokens)),
+                child: _Stat(
+                  label: '매월 고정 수입',
+                  icon: LucideIcons.trendingUp,
+                  value: '+${krwMasked(monthlyIncome, masked)}',
+                  color: tokens.fgIncome,
+                  tokens: tokens,
+                ),
+              ),
             ],
           ),
         ],
@@ -375,14 +435,20 @@ class _Stat extends StatelessWidget {
           children: [
             Icon(icon, size: 12, color: tokens.fgTertiary),
             const SizedBox(width: 4),
-            Text(label,
-                style: PTypo.caption.copyWith(
-                    color: tokens.fgTertiary, fontWeight: PFontWeight.semi)),
+            Text(
+              label,
+              style: PTypo.caption.copyWith(
+                color: tokens.fgTertiary,
+                fontWeight: PFontWeight.semi,
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 4),
-        Text(value,
-            style: PTypo.h4.copyWith(color: color, fontWeight: PFontWeight.bold)),
+        Text(
+          value,
+          style: PTypo.h4.copyWith(color: color, fontWeight: PFontWeight.bold),
+        ),
       ],
     );
   }
@@ -406,18 +472,24 @@ class _UpcomingCard extends StatelessWidget {
     final todayStart = DateTime(today.year, today.month, today.day);
     return PCard(
       padding: const EdgeInsets.all(PSpace.x16),
-      variant: PCardVariant.bordered,
+      variant: PCardVariant.shadow,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Text('다가오는 7일',
-                  style: PTypo.bodySm
-                      .copyWith(color: tokens.fgPrimary, fontWeight: PFontWeight.bold)),
+              Text(
+                '다가오는 7일',
+                style: PTypo.bodySm.copyWith(
+                  color: tokens.fgPrimary,
+                  fontWeight: PFontWeight.bold,
+                ),
+              ),
               const Spacer(),
-              Text('${items.length}건 예정',
-                  style: PTypo.caption.copyWith(color: tokens.fgTertiary)),
+              Text(
+                '${items.length}건 예정',
+                style: PTypo.caption.copyWith(color: tokens.fgTertiary),
+              ),
             ],
           ),
           const SizedBox(height: PSpace.x8),
@@ -461,7 +533,11 @@ class _UpcomingRow extends StatelessWidget {
     final isToday = days == 0;
     final isExpense = item.expenseType == 'EXPENSE';
 
-    final fg = resolveChartColor(context, category?.color, fallback: tokens.fgBrand);
+    final fg = resolveChartColor(
+      context,
+      category?.color,
+      fallback: tokens.fgBrand,
+    );
     final bg = softBg(fg);
 
     return Container(
@@ -470,8 +546,8 @@ class _UpcomingRow extends StatelessWidget {
         color: isToday ? tokens.bgBrandSubtle : tokens.bgMuted,
         borderRadius: PRadius.brSm,
         border: Border.all(
-            color:
-                isToday ? tokens.borderBrand : Colors.transparent),
+          color: isToday ? tokens.borderBrand : Colors.transparent,
+        ),
       ),
       child: Row(
         children: [
@@ -486,8 +562,9 @@ class _UpcomingRow extends StatelessWidget {
             child: Text(
               isToday ? '오늘' : 'D-$days',
               style: PTypo.caption.copyWith(
-                  color: isToday ? tokens.fgOnBrand : tokens.fgSecondary,
-                  fontWeight: PFontWeight.bold),
+                color: isToday ? tokens.fgOnBrand : tokens.fgSecondary,
+                fontWeight: PFontWeight.bold,
+              ),
             ),
           ),
           const SizedBox(width: PSpace.x8),
@@ -503,16 +580,18 @@ class _UpcomingRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(_displayTitle(item),
-                    style: PTypo.bodySm.copyWith(
-                        color: tokens.fgPrimary, fontWeight: PFontWeight.semi),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis),
+                Text(
+                  _displayTitle(item),
+                  style: PTypo.bodySm.copyWith(
+                    color: tokens.fgPrimary,
+                    fontWeight: PFontWeight.semi,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
                 Text(
                   '${item.assetName ?? '계좌 없음'} · ${_summary(item)}',
                   style: PTypo.caption.copyWith(color: tokens.fgTertiary),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
@@ -521,55 +600,10 @@ class _UpcomingRow extends StatelessWidget {
           Text(
             '${isExpense ? '-' : '+'}${krwMasked(item.amount.abs(), masked)}',
             style: PTypo.bodySm.copyWith(
-                color: isExpense ? tokens.fgExpense : tokens.fgIncome,
-                fontWeight: PFontWeight.bold),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _FilterChips extends StatelessWidget {
-  const _FilterChips({
-    required this.current,
-    required this.counts,
-    required this.onChange,
-    required this.tokens,
-  });
-  final _Filter current;
-  final _Counts counts;
-  final ValueChanged<_Filter> onChange;
-  final PorestTokens tokens;
-
-  @override
-  Widget build(BuildContext context) {
-    final entries = <(_Filter, String, int)>[
-      (_Filter.all, '전체', counts.all),
-      (_Filter.expense, '지출', counts.expense),
-      (_Filter.income, '수입', counts.income),
-      (_Filter.paused, '일시정지', counts.paused),
-    ];
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: [
-          for (final e in entries) ...[
-            PChip(
-              label: e.$2,
-              selected: current == e.$1,
-              onTap: () => onChange(e.$1),
-              trailing: Text(
-                '${e.$3}',
-                style: PTypo.caption.copyWith(
-                  color: current == e.$1
-                      ? tokens.fgOnBrand.withValues(alpha: 0.75)
-                      : tokens.fgTertiary,
-                ),
-              ),
+              color: isExpense ? tokens.fgExpense : tokens.fgIncome,
+              fontWeight: PFontWeight.bold,
             ),
-            const SizedBox(width: PSpace.x8),
-          ],
+          ),
         ],
       ),
     );
@@ -582,8 +616,6 @@ class _RecurringRow extends StatelessWidget {
     required this.category,
     required this.masked,
     required this.tokens,
-    required this.toggleBusy,
-    required this.deleteBusy,
     required this.anyBusy,
     required this.onToggle,
     required this.onEdit,
@@ -593,8 +625,6 @@ class _RecurringRow extends StatelessWidget {
   final ExpenseCategory? category;
   final bool masked;
   final PorestTokens tokens;
-  final bool toggleBusy;
-  final bool deleteBusy;
   final bool anyBusy;
   final VoidCallback onToggle;
   final VoidCallback onEdit;
@@ -604,131 +634,122 @@ class _RecurringRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final isActive = item.isActive == 'Y';
     final isExpense = item.expenseType == 'EXPENSE';
-    final fg = resolveChartColor(context, category?.color, fallback: tokens.fgBrand);
+    final fg = resolveChartColor(
+      context,
+      category?.color,
+      fallback: tokens.fgBrand,
+    );
     final bg = softBg(fg);
 
     return Opacity(
       opacity: isActive ? 1.0 : 0.55,
-      child: InkWell(
-        onTap: anyBusy ? null : onEdit,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-              horizontal: PSpace.x12, vertical: PSpace.x12),
-          child: Row(
-            children: [
-              Container(
-                width: 36,
-                height: 36,
-                decoration:
-                    BoxDecoration(color: bg, borderRadius: PRadius.brSm),
-                alignment: Alignment.center,
-                child: Icon(lucideByName(category?.icon), size: 18, color: fg),
-              ),
-              const SizedBox(width: PSpace.x12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Flexible(
-                          child: Text(_displayTitle(item),
-                              style: PTypo.body.copyWith(
-                                  color: tokens.fgPrimary,
-                                  fontWeight: PFontWeight.semi),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: PSpace.x12,
+          vertical: PSpace.x12,
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(color: bg, borderRadius: PRadius.brSm),
+              alignment: Alignment.center,
+              child: Icon(lucideByName(category?.icon), size: 18, color: fg),
+            ),
+            const SizedBox(width: PSpace.x12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          _displayTitle(item),
+                          style: PTypo.body.copyWith(
+                            color: tokens.fgPrimary,
+                            fontWeight: PFontWeight.semi,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        if (!isActive) ...[
-                          const SizedBox(width: 6),
-                          const PBadge(
-                              label: '일시정지',
-                              variant: PBadgeVariant.secondary),
-                        ],
-                        if (item.autoLog) ...[
-                          const SizedBox(width: 6),
-                          Icon(LucideIcons.zap,
-                              size: 12, color: tokens.statusSuccess),
-                        ],
-                        if (item.notifyDayBefore) ...[
-                          const SizedBox(width: 4),
-                          Icon(LucideIcons.bell,
-                              size: 12, color: tokens.fgTertiary),
-                        ],
+                      ),
+                      if (!isActive) ...[
+                        const SizedBox(width: 6),
+                        const PBadge(
+                          label: '일시정지',
+                          variant: PBadgeVariant.secondary,
+                        ),
                       ],
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      '${_summary(item)} · ${item.assetName ?? '계좌 없음'}'
-                      '${item.nextExecutionDate != null ? ' · 다음 ${item.nextExecutionDate!.substring(5).replaceAll('-', '/')}' : ''}',
-                      style:
-                          PTypo.caption.copyWith(color: tokens.fgTertiary),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
+                      if (item.maxOccurrences != null) ...[
+                        const SizedBox(width: 6),
+                        PBadge(
+                          label:
+                              '${item.executedCount}/${item.maxOccurrences}회',
+                          variant: PBadgeVariant.softWarning,
+                        ),
+                      ],
+                      if (item.autoLog) ...[
+                        const SizedBox(width: 6),
+                        Icon(
+                          LucideIcons.zap,
+                          size: 12,
+                          color: tokens.statusSuccess,
+                        ),
+                      ],
+                      if (item.notifyDayBefore) ...[
+                        const SizedBox(width: 4),
+                        Icon(
+                          LucideIcons.bell,
+                          size: 12,
+                          color: tokens.fgTertiary,
+                        ),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    '${_summary(item)} · ${item.assetName ?? '계좌 없음'}'
+                    '${item.nextExecutionDate != null ? ' · 다음 ${item.nextExecutionDate!.substring(5).replaceAll('-', '/')}' : ''}',
+                    style: PTypo.caption.copyWith(color: tokens.fgTertiary),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: PSpace.x8),
+            Text(
+              '${isExpense ? '-' : '+'}${krwMasked(item.amount.abs(), masked)}',
+              style: PTypo.bodySm.copyWith(
+                color: isExpense ? tokens.statusDanger : tokens.fgIncome,
+                fontWeight: PFontWeight.bold,
+              ),
+            ),
+            PDropdownMenu(
+              enabled: !anyBusy,
+              entries: [
+                PDropdownItem(
+                  icon: isActive ? LucideIcons.pause : LucideIcons.play,
+                  label: isActive ? '일시정지' : '시작',
+                  onTap: onToggle,
                 ),
-              ),
-              const SizedBox(width: PSpace.x8),
-              Text(
-                '${isExpense ? '-' : '+'}${krwMasked(item.amount.abs(), masked)}',
-                style: PTypo.bodySm.copyWith(
-                    color: isExpense
-                        ? tokens.statusDanger
-                        : tokens.statusSuccess,
-                    fontWeight: PFontWeight.bold),
-              ),
-              const SizedBox(width: 4),
-              _MiniIconBtn(
-                icon: toggleBusy
-                    ? null
-                    : (isActive ? LucideIcons.pause : LucideIcons.play),
-                tooltip: isActive ? '일시정지' : '재개',
-                onTap: anyBusy ? null : onToggle,
-                tokens: tokens,
-                busy: toggleBusy,
-              ),
-              _MiniIconBtn(
-                icon: deleteBusy ? null : LucideIcons.trash2,
-                tooltip: '삭제',
-                onTap: anyBusy ? null : onDelete,
-                tokens: tokens,
-                color: tokens.statusDanger,
-                busy: deleteBusy,
-              ),
-            ],
-          ),
+                PDropdownItem(
+                  icon: LucideIcons.pencil,
+                  label: '수정',
+                  onTap: onEdit,
+                ),
+                const PDropdownDivider(),
+                PDropdownItem(
+                  icon: LucideIcons.trash2,
+                  label: '삭제',
+                  onTap: onDelete,
+                  destructive: true,
+                ),
+              ],
+            ),
+          ],
         ),
       ),
-    );
-  }
-}
-
-class _MiniIconBtn extends StatelessWidget {
-  const _MiniIconBtn({
-    required this.icon,
-    required this.tooltip,
-    required this.onTap,
-    required this.tokens,
-    this.color,
-    this.busy = false,
-  });
-  final IconData? icon;
-  final String tooltip;
-  final VoidCallback? onTap;
-  final PorestTokens tokens;
-  final Color? color;
-  final bool busy;
-
-  @override
-  Widget build(BuildContext context) {
-    return PButton.icon(
-      icon: icon!,
-      size: PButtonSize.sm,
-      iconColor: color ?? tokens.fgSecondary,
-      tooltip: tooltip,
-      loading: busy,
-      onPressed: onTap,
     );
   }
 }
@@ -772,9 +793,10 @@ class _ErrorBox extends StatelessWidget {
           Text(message, style: PTypo.bodySm.copyWith(color: t.statusDangerFg)),
           const SizedBox(height: PSpace.x8),
           PButton(
-              label: '다시 시도',
-              variant: PButtonVariant.outline,
-              onPressed: onRetry),
+            label: '다시 시도',
+            variant: PButtonVariant.outline,
+            onPressed: onRetry,
+          ),
         ],
       ),
     );
@@ -803,4 +825,3 @@ String _summary(RecurringTransaction it) {
   final notify = it.notifyDayBefore ? ' · 알림' : '';
   return '$core · $end$notify';
 }
-
