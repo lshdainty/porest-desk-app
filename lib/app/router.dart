@@ -24,6 +24,7 @@ import '../features/dashboard/presentation/dashboard_screen.dart';
 import '../features/expense/presentation/expense_screen.dart';
 import '../features/more/presentation/more_screen.dart';
 import '../features/recurring/presentation/recurring_screen.dart';
+import '../features/settings/presentation/account_screen.dart';
 import '../features/settings/presentation/settings_screen.dart';
 import '../features/stats/presentation/stats_screen.dart';
 import '../shared/widgets/mobile_scaffold.dart';
@@ -59,6 +60,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/', builder: (_, _) => const SplashScreen()),
       GoRoute(path: '/login', builder: (_, _) => const LoginScreen()),
       GoRoute(path: '/settings', builder: (_, _) => const SettingsScreen()),
+      GoRoute(path: '/account', builder: (_, _) => const AccountScreen()),
       // /assets, /budget, /stats 는 shell branch 1 (가계부) 안 sub-routes 로
       // 이동 — 하단바 (MoneyTabBar) 가 shell scaffold 가 한 번 build 되어
       // sub-tab 전환 시 사라지지 않게 (사용자 의도: 안정적 고정 bottom bar).
