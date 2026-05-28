@@ -14,6 +14,7 @@ import '../../../shared/widgets/p_progress.dart';
 import '../../../shared/widgets/p_toggle.dart';
 import '../application/asset_providers.dart';
 import '../domain/asset.dart';
+import 'asset_detail_dialog.dart';
 import 'asset_edit_dialog.dart';
 import 'widgets/asset_logo.dart';
 
@@ -163,7 +164,12 @@ class _AccountCardManageScreenState
                           negative: isCard,
                           tokens: t,
                           showTopBorder: i > 0,
-                          onTap: () => showAssetEditForm(context, filtered[i]),
+                          onTap: () => showAssetDetailRich(
+                            context,
+                            filtered[i],
+                            onEdit: () =>
+                                showAssetEditForm(context, filtered[i]),
+                          ),
                         ),
                     ],
                   ),

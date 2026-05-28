@@ -35,19 +35,24 @@ import '../domain/asset_type_meta.dart';
 /// - 12/24/52주 잔액 추이 + 3개월/6개월/1년 segmented
 /// - 최근 거래 12건 + "전체 보기 →"
 /// - 푸터: 금액 가리기 / 편집 / 확인 (본문 끝에 함께 스크롤)
-void showAssetDetailRich(BuildContext context, Asset asset) {
+void showAssetDetailRich(
+  BuildContext context,
+  Asset asset, {
+  VoidCallback? onEdit,
+}) {
   showPSheet<void>(
     context,
     title: _titleFor(asset),
     contentBuilder: (ctx, scrollCtrl) =>
         _DetailBody(asset: asset, scrollController: scrollCtrl),
-    footerBuilder: (ctx) => _DetailFooter(asset: asset),
+    footerBuilder: (ctx) => _DetailFooter(asset: asset, onEdit: onEdit),
   );
 }
 
 class _DetailFooter extends ConsumerWidget {
-  const _DetailFooter({required this.asset});
+  const _DetailFooter({required this.asset, this.onEdit});
   final Asset asset;
+  final VoidCallback? onEdit;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
@@ -69,7 +74,11 @@ class _DetailFooter extends ConsumerWidget {
           size: PButtonSize.sm,
           onPressed: () {
             Navigator.of(context).pop();
-            context.push('/account-card-manage');
+            if (onEdit != null) {
+              onEdit!();
+            } else {
+              context.push('/account-card-manage');
+            }
           },
         ),
         const SizedBox(width: PSpace.x4),
