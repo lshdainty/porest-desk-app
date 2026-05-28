@@ -99,17 +99,16 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                         ),
                         const SizedBox(width: PSpace.x8),
                         Expanded(
+                          // collapsed — Material 기본 focusedBorder(파란 두꺼운 border) 제거.
+                          // 시각은 외부 Container(bg + border + radius) 가 전부 담당.
                           child: TextField(
                             onChanged: (v) => setState(() => _query = v),
-                            decoration: InputDecoration(
-                              isDense: true,
-                              border: InputBorder.none,
+                            decoration: InputDecoration.collapsed(
                               hintText: '카테고리 검색',
                               hintStyle: TextStyle(
                                 fontSize: 13,
                                 color: t.fgTertiary,
                               ),
-                              contentPadding: EdgeInsets.zero,
                             ),
                             style: TextStyle(
                               fontSize: 13,
