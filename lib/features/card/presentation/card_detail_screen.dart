@@ -11,7 +11,7 @@ import '../../../shared/widgets/p_badge.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_card.dart';
 import '../../../shared/widgets/p_divider.dart';
-import '../../../shared/widgets/p_progress.dart';
+import '../../../shared/widgets/p_skeleton.dart';
 import '../application/card_providers.dart';
 
 class CardDetailScreen extends ConsumerWidget {
@@ -36,7 +36,7 @@ class CardDetailScreen extends ConsumerWidget {
         elevation: 0,
       ),
       body: detailAsync.when(
-        loading: () => const Center(child: PCircularProgressIndicator()),
+        loading: () => _CardDetailSkeleton(tokens: t),
         error: (e, _) => Padding(
           padding: const EdgeInsets.all(PSpace.x16),
           child: Text('카드 상세 로드 실패\n$e',
@@ -209,6 +209,97 @@ class CardDetailScreen extends ConsumerWidget {
           );
         },
       ),
+    );
+  }
+}
+
+/// 카드 상세 skeleton — 이미지 + 이름/서브텍스트 + 연회비/실적 카드 + 혜택 리스트.
+class _CardDetailSkeleton extends StatelessWidget {
+  const _CardDetailSkeleton({required this.tokens});
+  final PorestTokens tokens;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = tokens;
+    return ListView(
+      padding: const EdgeInsets.symmetric(
+        horizontal: PSpace.x20,
+        vertical: PSpace.x24,
+      ),
+      children: [
+        AspectRatio(
+          aspectRatio: 1.6,
+          child: PSkeleton(width: double.infinity, borderRadius: PRadius.brLg),
+        ),
+        const SizedBox(height: PSpace.x16),
+        const PSkeleton.line(width: 200),
+        const SizedBox(height: 4),
+        PSkeleton.line(width: 120, height: 12),
+        const SizedBox(height: PSpace.x16),
+        Row(
+          children: [
+            Expanded(
+              child: PCard(
+                variant: PCardVariant.bordered,
+                padding: const EdgeInsets.all(PSpace.x12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    PSkeleton.line(width: 40, height: 12),
+                    const SizedBox(height: 4),
+                    const PSkeleton.line(width: 60),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(width: PSpace.x8),
+            Expanded(
+              child: PCard(
+                variant: PCardVariant.bordered,
+                padding: const EdgeInsets.all(PSpace.x12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    PSkeleton.line(width: 48, height: 12),
+                    const SizedBox(height: 4),
+                    const PSkeleton.line(width: 56),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: PSpace.x20),
+        const PSkeleton.line(width: 56),
+        const SizedBox(height: PSpace.x8),
+        PCard(
+          variant: PCardVariant.bordered,
+          padding: EdgeInsets.zero,
+          child: Column(
+            children: [
+              for (int i = 0; i < 4; i++)
+                Container(
+                  decoration: BoxDecoration(
+                    border: i < 3
+                        ? Border(bottom: BorderSide(color: t.borderSubtle))
+                        : null,
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: PSpace.x16,
+                    vertical: PSpace.x12,
+                  ),
+                  child: Row(
+                    children: [
+                      PSkeleton.line(width: i.isEven ? 120 : 100),
+                      const Spacer(),
+                      PSkeleton.line(width: 56, height: 12),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

@@ -26,7 +26,7 @@ import '../../expense/domain/expense_category.dart';
 import '../application/recurring_providers.dart';
 import '../domain/recurring_transaction.dart';
 import 'recurring_settings_drawer.dart';
-import '../../../shared/widgets/p_progress.dart';
+import '../../../shared/widgets/p_skeleton.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 
 enum _Filter { all, expense, income, paused }
@@ -120,7 +120,7 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
           await ref.read(recurringListProvider.future);
         },
         child: listAsync.when(
-          loading: () => const Center(child: PCircularProgressIndicator()),
+          loading: () => const _RecurringSkeleton(),
           error: (e, _) => ListView(
             padding: const EdgeInsets.all(PSpace.x16),
             children: [
@@ -750,6 +750,97 @@ class _RecurringRow extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// 반복 거래 skeleton — 통계 카드 + 예정 카드 + 리스트 행 4개.
+class _RecurringSkeleton extends StatelessWidget {
+  const _RecurringSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return ListView(
+      padding: const EdgeInsets.symmetric(
+        horizontal: PSpace.x20,
+        vertical: PSpace.x24,
+      ),
+      children: [
+        // 통계 카드 (활성/일시중지/월 지출·수입 4열)
+        PCard(
+          variant: PCardVariant.shadow,
+          padding: const EdgeInsets.all(PSpace.x16),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  for (int i = 0; i < 4; i++) ...[
+                    Expanded(
+                      child: Column(
+                        children: [
+                          const PSkeleton(width: 24, height: 24),
+                          const SizedBox(height: 4),
+                          PSkeleton.line(width: 48, height: 12),
+                          const SizedBox(height: 2),
+                          PSkeleton.line(width: 32, height: 10),
+                        ],
+                      ),
+                    ),
+                    if (i < 3) Container(width: 1, height: 36, color: t.borderSubtle),
+                  ],
+                ],
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: PSpace.x12),
+        // 반복 거래 리스트
+        PCard(
+          variant: PCardVariant.bordered,
+          padding: EdgeInsets.zero,
+          child: Column(
+            children: [
+              for (int i = 0; i < 4; i++)
+                Container(
+                  decoration: BoxDecoration(
+                    border: i < 3
+                        ? Border(bottom: BorderSide(color: t.borderSubtle))
+                        : null,
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: PSpace.x16,
+                    vertical: PSpace.x12,
+                  ),
+                  child: Row(
+                    children: [
+                      const PSkeleton(width: 36, height: 36),
+                      const SizedBox(width: PSpace.x12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            PSkeleton.line(width: i.isEven ? 120 : 100),
+                            const SizedBox(height: 4),
+                            PSkeleton.line(width: 80, height: 12),
+                          ],
+                        ),
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          const PSkeleton.line(width: 72),
+                          const SizedBox(height: 4),
+                          PSkeleton.line(width: 48, height: 12),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

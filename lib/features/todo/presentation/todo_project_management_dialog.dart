@@ -11,7 +11,7 @@ import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_divider.dart';
 import '../../../shared/widgets/p_modal.dart';
-import '../../../shared/widgets/p_progress.dart';
+import '../../../shared/widgets/p_skeleton.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../application/todo_providers.dart';
@@ -128,7 +128,10 @@ class _BodyState extends ConsumerState<_Body> {
                   color: t.fgPrimary, fontWeight: PFontWeight.bold)),
           const SizedBox(height: PSpace.x8),
           projectsAsync.when(
-            loading: () => const Center(child: PCircularProgressIndicator()),
+            loading: () => const Padding(
+              padding: EdgeInsets.symmetric(vertical: PSpace.x8),
+              child: PListSkeleton(rows: 3),
+            ),
             error: (e, _) => Text('프로젝트 로드 실패: $e',
                 style: PTypo.caption.copyWith(color: t.statusDanger)),
             data: (projects) {

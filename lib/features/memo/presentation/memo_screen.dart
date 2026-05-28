@@ -11,7 +11,7 @@ import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_empty_state.dart';
 import '../../../shared/widgets/p_floating_action_button.dart';
-import '../../../shared/widgets/p_progress.dart';
+import '../../../shared/widgets/p_skeleton.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../application/memo_providers.dart';
@@ -102,7 +102,7 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
           }
         },
         child: listAsync.when(
-          loading: () => const Center(child: PCircularProgressIndicator()),
+          loading: () => _MemoSkeleton(tokens: t),
           error: (e, _) => Padding(
             padding: const EdgeInsets.all(PSpace.x16),
             child: Text('메모 로드 실패\n$e',
@@ -148,6 +148,53 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
               ),
             );
           },
+        ),
+      ),
+    );
+  }
+}
+
+/// 메모 목록 skeleton — 카드(제목+미리보기+pin버튼) × 5.
+class _MemoSkeleton extends StatelessWidget {
+  const _MemoSkeleton({required this.tokens});
+  final PorestTokens tokens;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = tokens;
+    return ListView.separated(
+      padding: const EdgeInsets.symmetric(
+        horizontal: PSpace.x20,
+        vertical: PSpace.x24,
+      ),
+      physics: const NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
+      itemCount: 5,
+      separatorBuilder: (_, _) => const SizedBox(height: PSpace.x8),
+      itemBuilder: (_, i) => Container(
+        padding: const EdgeInsets.all(PSpace.x12),
+        decoration: BoxDecoration(
+          color: t.bgSurface,
+          borderRadius: PRadius.brLg,
+          border: Border.all(color: t.borderSubtle),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  PSkeleton.line(width: i.isEven ? 160 : 120),
+                  const SizedBox(height: 4),
+                  const PSkeleton.line(width: double.infinity, height: 12),
+                  const SizedBox(height: 2),
+                  PSkeleton.line(width: 200, height: 12),
+                ],
+              ),
+            ),
+            const SizedBox(width: PSpace.x8),
+            const PSkeleton(width: 28, height: 28),
+          ],
         ),
       ),
     );

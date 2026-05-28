@@ -21,7 +21,7 @@ import '../../../shared/widgets/p_chip.dart';
 import '../../../shared/widgets/p_date_input.dart';
 import '../../../shared/widgets/p_divider.dart';
 import '../../../shared/widgets/p_modal.dart';
-import '../../../shared/widgets/p_progress.dart';
+import '../../../shared/widgets/p_skeleton.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../../expense/application/expense_providers.dart';
 import '../../expense/domain/expense.dart';
@@ -349,7 +349,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
   Widget _buildBody(PorestTokens t, AppSettings settings, List categories) {
     if (_loading) {
-      return const Center(child: PCircularProgressIndicator());
+      return const _SearchLoadingSkeleton();
     }
     if (_error != null) {
       return Padding(
@@ -397,6 +397,43 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       } catch (_) {}
     }
     return null;
+  }
+}
+
+/// 검색 결과 로딩 skeleton — 아이콘+제목+날짜 + 금액 행 × 6.
+class _SearchLoadingSkeleton extends StatelessWidget {
+  const _SearchLoadingSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
+      padding: const EdgeInsets.symmetric(vertical: PSpace.x8),
+      itemCount: 6,
+      separatorBuilder: (_, _) => PDivider(),
+      itemBuilder: (_, i) => Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: PSpace.x20,
+          vertical: PSpace.x12,
+        ),
+        child: Row(
+          children: [
+            const PSkeleton(width: 36, height: 36),
+            const SizedBox(width: PSpace.x12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  PSkeleton.line(width: i.isEven ? 120 : 96),
+                  const SizedBox(height: 4),
+                  PSkeleton.line(width: 72, height: 12),
+                ],
+              ),
+            ),
+            const PSkeleton.line(width: 60),
+          ],
+        ),
+      ),
+    );
   }
 }
 
