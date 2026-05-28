@@ -12,6 +12,7 @@ import '../../../core/format/color_parse.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_divider.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_skeleton.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 import '../application/calendar_providers.dart';
 import '../domain/calendar_event.dart';
@@ -53,6 +54,10 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       for (final h in (holidaysAsync.value ?? const <Holiday>[])) h.holidayDate: h.holidayName,
     };
 
+    // 첫 로딩(이벤트/캘린더 아직 없음) — 웹 CalendarMonthViewSkeleton 정합.
+    final firstLoading = (eventsAsync.isLoading && !eventsAsync.hasValue) ||
+        (calendarsAsync.isLoading && !calendarsAsync.hasValue);
+
     return Column(
       children: [
         _MonthHeader(
@@ -67,6 +72,9 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           onFilterTap: _showFilterSheet,
           tokens: t,
         ),
+        if (firstLoading)
+          Expanded(child: _CalendarGridSkeleton(tokens: t))
+        else
         Expanded(
           child: TableCalendar<CalendarEvent>(
             firstDay: DateTime(2020),
@@ -474,6 +482,68 @@ class _CalendarFilterRow extends StatelessWidget {
 }
 
 // ─── 날짜 셀 ──────────────────────────────────────────────────────────────────
+
+/// 캘린더 첫 로딩 skeleton — 요일 헤더 + 6주 × 7일 그리드(날짜+이벤트 점 placeholder).
+class _CalendarGridSkeleton extends StatelessWidget {
+  const _CalendarGridSkeleton({required this.tokens});
+  final PorestTokens tokens;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        // 요일 헤더 (월~일)
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: PSpace.x8),
+          child: Row(
+            children: [
+              for (int i = 0; i < 7; i++)
+                Expanded(
+                  child: Center(
+                    child: PSkeleton.line(width: 16, height: 12),
+                  ),
+                ),
+            ],
+          ),
+        ),
+        // 6주 그리드
+        Expanded(
+          child: Column(
+            children: [
+              for (int w = 0; w < 6; w++)
+                Expanded(
+                  child: Row(
+                    children: [
+                      for (int d = 0; d < 7; d++)
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.all(4),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const PSkeleton(width: 18, height: 14),
+                                const SizedBox(height: 4),
+                                // 일부 셀에만 이벤트 점 placeholder (시각 다양성)
+                                if ((w + d) % 3 == 0)
+                                  PSkeleton(
+                                    width: 28,
+                                    height: 8,
+                                    borderRadius: PRadius.brXs,
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
 
 class _DayCell extends StatelessWidget {
   const _DayCell({

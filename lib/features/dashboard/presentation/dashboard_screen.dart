@@ -359,60 +359,73 @@ class _BalanceHero extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 6),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.baseline,
-                textBaseline: TextBaseline.alphabetic,
-                children: [
-                  Text(
-                    loading ? '—' : krwMasked(netWorth, masked),
-                    style: TextStyle(
-                      color: t.fgOnBrand,
-                      fontSize: PFontSize.displayMd,
-                      fontWeight: PFontWeight.bold,
-                      letterSpacing: -1.02,
-                      height: PLineHeight.tight,
-                      fontFeatures: const [FontFeature.tabularFigures()],
+              // 큰 금액 — 로딩 중 흰 반투명 skeleton 박스 (gradient 위 PSkeleton 색 부적합)
+              if (loading)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: _heroSkelBar(t, width: 180, height: 34),
+                )
+              else
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
+                  children: [
+                    Text(
+                      krwMasked(netWorth, masked),
+                      style: TextStyle(
+                        color: t.fgOnBrand,
+                        fontSize: PFontSize.displayMd,
+                        fontWeight: PFontWeight.bold,
+                        letterSpacing: -1.02,
+                        height: PLineHeight.tight,
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    '원',
-                    style: TextStyle(
-                      color: t.fgOnBrand.withValues(alpha: 0.8),
-                      fontSize: PFontSize.h4,
-                      fontWeight: PFontWeight.semi,
+                    const SizedBox(width: 4),
+                    Text(
+                      '원',
+                      style: TextStyle(
+                        color: t.fgOnBrand.withValues(alpha: 0.8),
+                        fontSize: PFontSize.h4,
+                        fontWeight: PFontWeight.semi,
+                      ),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
               const SizedBox(height: 8),
-              Row(
-                children: [
-                  Text(
-                    '지난달 대비',
-                    style: TextStyle(
-                      color: t.fgOnBrand.withValues(alpha: 0.78),
-                      fontSize: PFontSize.bodySm,
-                      fontWeight: PFontWeight.regular,
+              if (loading)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 2),
+                  child: _heroSkelBar(t, width: 120, height: 14),
+                )
+              else
+                Row(
+                  children: [
+                    Text(
+                      '지난달 대비',
+                      style: TextStyle(
+                        color: t.fgOnBrand.withValues(alpha: 0.78),
+                        fontSize: PFontSize.bodySm,
+                        fontWeight: PFontWeight.regular,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 6),
-                  Icon(
-                    isUp ? LucideIcons.trendingUp : LucideIcons.trendingDown,
-                    size: 14,
-                    color: isUp ? t.fgOnHeroChgUp : t.fgOnHeroChgDown,
-                  ),
-                  const SizedBox(width: 2),
-                  Text(
-                    '${isUp ? '+' : ''}${changePct.toStringAsFixed(1)}%',
-                    style: TextStyle(
+                    const SizedBox(width: 6),
+                    Icon(
+                      isUp ? LucideIcons.trendingUp : LucideIcons.trendingDown,
+                      size: 14,
                       color: isUp ? t.fgOnHeroChgUp : t.fgOnHeroChgDown,
-                      fontSize: PFontSize.bodySm,
-                      fontWeight: PFontWeight.semi,
                     ),
-                  ),
-                ],
-              ),
+                    const SizedBox(width: 2),
+                    Text(
+                      '${isUp ? '+' : ''}${changePct.toStringAsFixed(1)}%',
+                      style: TextStyle(
+                        color: isUp ? t.fgOnHeroChgUp : t.fgOnHeroChgDown,
+                        fontSize: PFontSize.bodySm,
+                        fontWeight: PFontWeight.semi,
+                      ),
+                    ),
+                  ],
+                ),
               const SizedBox(height: 20),
               Container(
                 padding: const EdgeInsets.only(top: 18),
@@ -429,6 +442,7 @@ class _BalanceHero extends StatelessWidget {
                         child: _HeroSplitCol(
                           label: '자산',
                           value: krwMasked(totalAssets, masked),
+                          loading: loading,
                         ),
                       ),
                       Container(
@@ -441,6 +455,7 @@ class _BalanceHero extends StatelessWidget {
                           child: _HeroSplitCol(
                             label: '부채',
                             value: '-${krwMasked(totalDebt, masked)}',
+                            loading: loading,
                           ),
                         ),
                       ),
@@ -479,10 +494,27 @@ class _BalanceHero extends StatelessWidget {
   }
 }
 
+/// hero gradient 위 흰 반투명 skeleton 박스 (PSkeleton bgMuted 색이 gradient 위 부적합).
+Widget _heroSkelBar(PorestTokens t, {required double width, required double height}) {
+  return Container(
+    width: width,
+    height: height,
+    decoration: BoxDecoration(
+      color: t.fgOnBrand.withValues(alpha: 0.18),
+      borderRadius: BorderRadius.circular(6),
+    ),
+  );
+}
+
 class _HeroSplitCol extends StatelessWidget {
-  const _HeroSplitCol({required this.label, required this.value});
+  const _HeroSplitCol({
+    required this.label,
+    required this.value,
+    this.loading = false,
+  });
   final String label;
   final String value;
+  final bool loading;
 
   @override
   Widget build(BuildContext context) {
@@ -498,16 +530,22 @@ class _HeroSplitCol extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 4),
-        Text(
-          value,
-          style: TextStyle(
-            color: t.fgOnBrand,
-            fontSize: PFontSize.bodyLg,
-            fontWeight: PFontWeight.bold,
-            letterSpacing: -0.24,
-            fontFeatures: const [FontFeature.tabularFigures()],
+        if (loading)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 2),
+            child: _heroSkelBar(t, width: 80, height: 16),
+          )
+        else
+          Text(
+            value,
+            style: TextStyle(
+              color: t.fgOnBrand,
+              fontSize: PFontSize.bodyLg,
+              fontWeight: PFontWeight.bold,
+              letterSpacing: -0.24,
+              fontFeatures: const [FontFeature.tabularFigures()],
+            ),
           ),
-        ),
       ],
     );
   }
