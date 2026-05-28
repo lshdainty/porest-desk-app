@@ -30,10 +30,32 @@ class CategoryScreen extends ConsumerStatefulWidget {
 class _CategoryScreenState extends ConsumerState<CategoryScreen> {
   int _tabIndex = 0;
   String _query = '';
+  final FocusNode _searchFocusNode = FocusNode();
+  bool _searchFocused = false;
+
   static const _kinds = [
     ('EXPENSE', '지출'),
     ('INCOME', '수입'),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _searchFocusNode.addListener(_handleSearchFocusChange);
+  }
+
+  @override
+  void dispose() {
+    _searchFocusNode.removeListener(_handleSearchFocusChange);
+    _searchFocusNode.dispose();
+    super.dispose();
+  }
+
+  void _handleSearchFocusChange() {
+    if (_searchFocusNode.hasFocus != _searchFocused) {
+      setState(() => _searchFocused = _searchFocusNode.hasFocus);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -80,11 +102,18 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                 Expanded(
                   // 웹 manager 검색 input 톤 미러 (raw input + inline 토큰, h≈32, 13px).
                   // spec PTextInput(h40, body-lg) 가 아닌 manager-layout searchInputStyle 정합.
+                  // 외부 Container 가 시각 전담 — focus 시 border 색(borderFocus) + 두께(2px) 로
+                  // 웹 manager 검색 input 의 focus 톤(input 전체 둘레 감쌈) 미러.
                   child: Container(
                     height: 32,
                     decoration: BoxDecoration(
                       color: t.bgSurface,
-                      border: Border.all(color: t.borderSubtle),
+                      border: Border.all(
+                        color: _searchFocused
+                            ? t.borderFocus
+                            : t.borderSubtle,
+                        width: _searchFocused ? 2 : 1,
+                      ),
                       borderRadius: BorderRadius.circular(PRadius.md),
                     ),
                     padding: const EdgeInsets.symmetric(
@@ -99,9 +128,9 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                         ),
                         const SizedBox(width: PSpace.x8),
                         Expanded(
-                          // collapsed — Material 기본 focusedBorder(파란 두꺼운 border) 제거.
-                          // 시각은 외부 Container(bg + border + radius) 가 전부 담당.
+                          // collapsed — TextField 자체 decoration 제거 (외부 Container 시각 전담)
                           child: TextField(
+                            focusNode: _searchFocusNode,
                             onChanged: (v) => setState(() => _query = v),
                             decoration: InputDecoration.collapsed(
                               hintText: '카테고리 검색',
