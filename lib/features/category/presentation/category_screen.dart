@@ -74,7 +74,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
               PSpace.x20,
               PSpace.x16,
               PSpace.x20,
-              PSpace.x8,
+              0,
             ),
             child: Row(
               children: [
@@ -83,6 +83,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                     value: _query,
                     onChanged: (v) => setState(() => _query = v),
                     placeholder: '카테고리 검색',
+                    style: const TextStyle(fontSize: 14),
                     prefix: Icon(
                       LucideIcons.search,
                       size: 16,
@@ -92,7 +93,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                 ),
                 const SizedBox(width: PSpace.x8),
                 PButton(
-                  label: '카테고리 추가',
+                  label: '추가',
                   icon: LucideIcons.plus,
                   variant: PButtonVariant.accent,
                   size: PButtonSize.sm,
@@ -159,8 +160,12 @@ class _CategoryList extends StatelessWidget {
       );
     }
     return ListView(
-      padding: const EdgeInsets.symmetric(
-            horizontal: PSpace.x20, vertical: PSpace.x24),
+      padding: const EdgeInsets.fromLTRB(
+        PSpace.x20,
+        PSpace.x8,
+        PSpace.x20,
+        PSpace.x24,
+      ),
       children: [
         PCard(
           variant: PCardVariant.shadow,
