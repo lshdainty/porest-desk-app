@@ -12,7 +12,6 @@ import '../../../core/format/color_parse.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_card.dart';
-import '../../../shared/widgets/p_divider.dart';
 import '../../../shared/widgets/p_empty_state.dart';
 import '../../../shared/widgets/p_skeleton.dart';
 import '../../../shared/widgets/p_tabs.dart';
@@ -66,6 +65,18 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
         _collapsed.add(parentRowId);
       }
     });
+  }
+
+  Future<void> _handleReorder(
+    List<({int categoryRowId, int sortOrder, int? parentRowId})> items,
+  ) async {
+    try {
+      final repo = await ref.read(expenseRepositoryProvider.future);
+      await repo.reorderCategories(items);
+      ref.invalidate(categoriesProvider);
+    } catch (e) {
+      debugPrint('reorderCategories failed: $e');
+    }
   }
 
   @override
@@ -214,6 +225,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                         query: _query,
                         collapsed: _collapsed,
                         onToggleCollapse: _toggleCollapse,
+                        onReorderSiblings: _handleReorder,
                         tokens: t,
                       ),
                   ],
@@ -233,12 +245,16 @@ class _CategoryList extends StatelessWidget {
     required this.query,
     required this.collapsed,
     required this.onToggleCollapse,
+    required this.onReorderSiblings,
     required this.tokens,
   });
   final List<ExpenseCategory> categories;
   final String query;
   final Set<int> collapsed;
   final void Function(int parentRowId) onToggleCollapse;
+  final void Function(
+    List<({int categoryRowId, int sortOrder, int? parentRowId})> items,
+  ) onReorderSiblings;
   final PorestTokens tokens;
 
   @override
@@ -285,6 +301,19 @@ class _CategoryList extends StatelessWidget {
       );
     }
 
+    // visible flatten — [parent, (expanded 시) child, child, parent, ...]
+    final visible = <ExpenseCategory>[];
+    final hasChildrenMap = <int, bool>{};
+    for (final entry in tree) {
+      visible.add(entry.parent);
+      hasChildrenMap[entry.parent.rowId] = entry.children.isNotEmpty;
+      if (!collapsed.contains(entry.parent.rowId)) {
+        for (final c in entry.children) {
+          visible.add(c);
+        }
+      }
+    }
+
     return ListView(
       padding: const EdgeInsets.fromLTRB(
         PSpace.x20,
@@ -296,34 +325,57 @@ class _CategoryList extends StatelessWidget {
         PCard(
           variant: PCardVariant.shadow,
           padding: EdgeInsets.zero,
-          child: Column(
-            children: [
-              for (var i = 0; i < tree.length; i++) ...[
-                if (i > 0) const PDivider(),
-                _CategoryRow(
-                  category: tree[i].parent,
-                  isParent: true,
-                  hasChildren: tree[i].children.isNotEmpty,
-                  isCollapsed: collapsed.contains(tree[i].parent.rowId),
-                  onToggle: tree[i].children.isNotEmpty
-                      ? () => onToggleCollapse(tree[i].parent.rowId)
-                      : null,
-                  tokens: tokens,
-                ),
-                if (!collapsed.contains(tree[i].parent.rowId))
-                  for (final child in tree[i].children) ...[
-                    const PDivider(indent: PSpace.x16),
-                    _CategoryRow(
-                      category: child,
-                      isParent: false,
-                      hasChildren: false,
-                      isCollapsed: false,
-                      onToggle: null,
-                      tokens: tokens,
-                    ),
-                  ],
-              ],
-            ],
+          child: ReorderableListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            buildDefaultDragHandles: false,
+            itemCount: visible.length,
+            itemBuilder: (ctx, i) {
+              final c = visible[i];
+              final isParent = c.parentRowId == null;
+              final hasChildren =
+                  isParent && (hasChildrenMap[c.rowId] ?? false);
+              return _CategoryRow(
+                key: ValueKey(c.rowId),
+                index: i,
+                category: c,
+                isParent: isParent,
+                hasChildren: hasChildren,
+                isCollapsed: isParent && collapsed.contains(c.rowId),
+                onToggle: hasChildren ? () => onToggleCollapse(c.rowId) : null,
+                isLast: i == visible.length - 1,
+                tokens: tokens,
+              );
+            },
+            onReorder: (oldIndex, newIndex) {
+              // Flutter ReorderableListView quirk
+              if (newIndex > oldIndex) newIndex -= 1;
+              if (oldIndex == newIndex) return;
+              final from = visible[oldIndex];
+              final to = visible[newIndex];
+              // level guard — 같은 부모/같은 level 끼리만 reorder 허용
+              if (from.parentRowId != to.parentRowId) return;
+              final parentRowId = from.parentRowId;
+              final siblings = visible
+                  .where((v) => v.parentRowId == parentRowId)
+                  .toList(growable: false);
+              final sibOldIdx = siblings.indexOf(from);
+              final sibNewIdx = siblings.indexOf(to);
+              if (sibOldIdx < 0 || sibNewIdx < 0) return;
+              final reordered = [...siblings];
+              final moved = reordered.removeAt(sibOldIdx);
+              reordered.insert(sibNewIdx, moved);
+              final items =
+                  <({int categoryRowId, int sortOrder, int? parentRowId})>[];
+              for (var idx = 0; idx < reordered.length; idx++) {
+                items.add((
+                  categoryRowId: reordered[idx].rowId,
+                  sortOrder: idx,
+                  parentRowId: parentRowId,
+                ));
+              }
+              onReorderSiblings(items);
+            },
           ),
         ),
       ],
@@ -339,18 +391,23 @@ class _TreeEntry {
 
 class _CategoryRow extends StatelessWidget {
   const _CategoryRow({
+    super.key,
+    required this.index,
     required this.category,
     required this.isParent,
     required this.hasChildren,
     required this.isCollapsed,
     required this.onToggle,
+    required this.isLast,
     required this.tokens,
   });
+  final int index;
   final ExpenseCategory category;
   final bool isParent;
   final bool hasChildren;
   final bool isCollapsed;
   final VoidCallback? onToggle;
+  final bool isLast;
   final PorestTokens tokens;
 
   @override
@@ -358,67 +415,92 @@ class _CategoryRow extends StatelessWidget {
     final t = tokens;
     final fg = resolveChartColor(context, category.color, fallback: t.fgBrand);
     final bg = softBg(fg);
-    return InkWell(
-      onTap: () => showCategoryEditDialog(context, edit: category),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: PSpace.x16,
-          vertical: PSpace.x12,
+    return Material(
+      color: Colors.transparent,
+      child: Container(
+        decoration: BoxDecoration(
+          // 마지막 row 제외 — 하단 border 로 divider 역할 (PDivider 대체, ReorderableListView 와 정합)
+          border: isLast
+              ? null
+              : Border(bottom: BorderSide(color: t.borderSubtle)),
         ),
-        child: Row(
-          children: [
-            // 자식 들여쓰기 (좌측 24px)
-            if (!isParent) const SizedBox(width: PSpace.x24),
-            // 부모 expand chevron (또는 chevron 자리)
-            if (isParent) ...[
-              if (hasChildren && onToggle != null)
-                InkWell(
-                  onTap: onToggle,
-                  borderRadius: BorderRadius.circular(PRadius.sm),
+        child: InkWell(
+          onTap: () => showCategoryEditDialog(context, edit: category),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: PSpace.x12,
+              vertical: PSpace.x12,
+            ),
+            child: Row(
+              children: [
+                // drag handle (좌측 GripVertical, 웹 CategoryManager 미러)
+                ReorderableDragStartListener(
+                  index: index,
                   child: Padding(
                     padding: const EdgeInsets.all(PSpace.x4),
                     child: Icon(
-                      isCollapsed
-                          ? LucideIcons.chevronRight
-                          : LucideIcons.chevronDown,
+                      LucideIcons.gripVertical,
                       size: 16,
-                      color: t.fgSecondary,
+                      color: t.fgTertiary,
                     ),
                   ),
-                )
-              else
-                const SizedBox(width: 24),
-              const SizedBox(width: PSpace.x4),
-            ],
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(color: bg, borderRadius: PRadius.brSm),
-              alignment: Alignment.center,
-              child: Icon(lucideByName(category.icon), size: 18, color: fg),
-            ),
-            const SizedBox(width: PSpace.x12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    category.categoryName,
-                    style: PTypo.body.copyWith(
-                      color: t.fgPrimary,
-                      fontWeight: PFontWeight.medium,
-                    ),
-                  ),
-                  if (isParent && hasChildren)
-                    Text(
-                      '${category.expenseType == 'EXPENSE' ? '지출' : '수입'} · 하위 카테고리 있음',
-                      style: PTypo.caption.copyWith(color: t.fgTertiary),
-                    ),
+                ),
+                // 자식 들여쓰기 (좌측 20px)
+                if (!isParent) const SizedBox(width: PSpace.x20),
+                // 부모 expand chevron (또는 chevron 자리)
+                if (isParent) ...[
+                  if (hasChildren && onToggle != null)
+                    InkWell(
+                      onTap: onToggle,
+                      borderRadius: BorderRadius.circular(PRadius.sm),
+                      child: Padding(
+                        padding: const EdgeInsets.all(PSpace.x4),
+                        child: Icon(
+                          isCollapsed
+                              ? LucideIcons.chevronRight
+                              : LucideIcons.chevronDown,
+                          size: 16,
+                          color: t.fgSecondary,
+                        ),
+                      ),
+                    )
+                  else
+                    const SizedBox(width: 24),
+                  const SizedBox(width: PSpace.x4),
                 ],
-              ),
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration:
+                      BoxDecoration(color: bg, borderRadius: PRadius.brSm),
+                  alignment: Alignment.center,
+                  child: Icon(lucideByName(category.icon), size: 18, color: fg),
+                ),
+                const SizedBox(width: PSpace.x12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        category.categoryName,
+                        style: PTypo.body.copyWith(
+                          color: t.fgPrimary,
+                          fontWeight: PFontWeight.medium,
+                        ),
+                      ),
+                      if (isParent && hasChildren)
+                        Text(
+                          '${category.expenseType == 'EXPENSE' ? '지출' : '수입'} · 하위 카테고리 있음',
+                          style: PTypo.caption.copyWith(color: t.fgTertiary),
+                        ),
+                    ],
+                  ),
+                ),
+                Icon(LucideIcons.chevronRight,
+                    size: 16, color: t.fgTertiary),
+              ],
             ),
-            Icon(LucideIcons.chevronRight, size: 16, color: t.fgTertiary),
-          ],
+          ),
         ),
       ),
     );
