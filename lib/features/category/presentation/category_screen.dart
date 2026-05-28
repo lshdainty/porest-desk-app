@@ -121,7 +121,7 @@ class _CategoryList extends StatelessWidget {
             horizontal: PSpace.x20, vertical: PSpace.x24),
       children: [
         PCard(
-          variant: PCardVariant.bordered,
+          variant: PCardVariant.shadow,
           child: Column(
             children: [
               for (int i = 0; i < categories.length; i++) ...[
