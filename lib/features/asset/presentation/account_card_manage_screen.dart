@@ -227,7 +227,7 @@ class _ManageRow extends StatelessWidget {
                 ? Border(top: BorderSide(color: t.borderSubtle))
                 : null,
           ),
-          padding: const EdgeInsets.symmetric(horizontal: PSpace.x16, vertical: 14),
+          padding: const EdgeInsets.symmetric(horizontal: PSpace.x16, vertical: PSpace.x16),
           child: Row(
             children: [
               AssetLogo(asset: asset),
