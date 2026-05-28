@@ -133,7 +133,7 @@ class PTabs<T> extends StatelessWidget {
             : null;
         break;
       case PTabsVariant.underline:
-        textColor = active ? t.fgPrimary : t.fgSecondary;
+        textColor = active ? t.fgBrand : t.fgSecondary;
         decoration = BoxDecoration(
           border: Border(
             bottom: BorderSide(
