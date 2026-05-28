@@ -32,6 +32,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
   String _query = '';
   final FocusNode _searchFocusNode = FocusNode();
   bool _searchFocused = false;
+  final Set<int> _collapsed = <int>{};
 
   static const _kinds = [
     ('EXPENSE', '지출'),
@@ -55,6 +56,16 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
     if (_searchFocusNode.hasFocus != _searchFocused) {
       setState(() => _searchFocused = _searchFocusNode.hasFocus);
     }
+  }
+
+  void _toggleCollapse(int parentRowId) {
+    setState(() {
+      if (_collapsed.contains(parentRowId)) {
+        _collapsed.remove(parentRowId);
+      } else {
+        _collapsed.add(parentRowId);
+      }
+    });
   }
 
   @override
@@ -198,10 +209,11 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                       _CategoryList(
                         categories: categories
                             .where((c) =>
-                                (c.expenseType ?? 'EXPENSE') == k.$1 &&
-                                (_query.isEmpty ||
-                                    c.categoryName.contains(_query)))
+                                (c.expenseType ?? 'EXPENSE') == k.$1)
                             .toList(growable: false),
+                        query: _query,
+                        collapsed: _collapsed,
+                        onToggleCollapse: _toggleCollapse,
                         tokens: t,
                       ),
                   ],
@@ -216,21 +228,63 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
 }
 
 class _CategoryList extends StatelessWidget {
-  const _CategoryList({required this.categories, required this.tokens});
+  const _CategoryList({
+    required this.categories,
+    required this.query,
+    required this.collapsed,
+    required this.onToggleCollapse,
+    required this.tokens,
+  });
   final List<ExpenseCategory> categories;
+  final String query;
+  final Set<int> collapsed;
+  final void Function(int parentRowId) onToggleCollapse;
   final PorestTokens tokens;
 
   @override
   Widget build(BuildContext context) {
-    if (categories.isEmpty) {
-      return const Center(
+    // 트리 변환 (parentRowId + sortOrder) — 웹 CategoryManager.tree 미러.
+    final sorted = [...categories]
+      ..sort((a, b) => (a.sortOrder ?? 0).compareTo(b.sortOrder ?? 0));
+    final byParent = <int, List<ExpenseCategory>>{};
+    final parents = <ExpenseCategory>[];
+    for (final c in sorted) {
+      if (c.parentRowId == null) {
+        parents.add(c);
+      } else {
+        byParent.putIfAbsent(c.parentRowId!, () => <ExpenseCategory>[]).add(c);
+      }
+    }
+    // 검색 — 그룹 단위 (부모 매치 or 자식 매치 시 그룹 노출).
+    final q = query.trim();
+    final tree = <_TreeEntry>[];
+    for (final p in parents) {
+      final children = byParent[p.rowId] ?? const <ExpenseCategory>[];
+      if (q.isEmpty) {
+        tree.add(_TreeEntry(p, children));
+        continue;
+      }
+      final parentMatch = p.categoryName.contains(q);
+      final filteredChildren = parentMatch
+          ? children
+          : children
+              .where((c) => c.categoryName.contains(q))
+              .toList(growable: false);
+      if (!parentMatch && filteredChildren.isEmpty) continue;
+      tree.add(_TreeEntry(p, filteredChildren));
+    }
+
+    if (tree.isEmpty) {
+      return Center(
         child: PEmptyState(
           icon: LucideIcons.tag,
-          message: '카테고리가 없습니다',
-          subMessage: '우하단 + 버튼으로 추가하세요',
+          message: q.isNotEmpty ? '검색 결과가 없어요' : '카테고리가 없습니다',
+          subMessage:
+              q.isNotEmpty ? null : "상단 '추가' 버튼으로 추가하세요",
         ),
       );
     }
+
     return ListView(
       padding: const EdgeInsets.fromLTRB(
         PSpace.x20,
@@ -244,10 +298,30 @@ class _CategoryList extends StatelessWidget {
           padding: EdgeInsets.zero,
           child: Column(
             children: [
-              for (int i = 0; i < categories.length; i++) ...[
-                _CategoryRow(category: categories[i], tokens: tokens),
-                if (i < categories.length - 1)
-                  PDivider(indent: PSpace.x16),
+              for (var i = 0; i < tree.length; i++) ...[
+                if (i > 0) const PDivider(),
+                _CategoryRow(
+                  category: tree[i].parent,
+                  isParent: true,
+                  hasChildren: tree[i].children.isNotEmpty,
+                  isCollapsed: collapsed.contains(tree[i].parent.rowId),
+                  onToggle: tree[i].children.isNotEmpty
+                      ? () => onToggleCollapse(tree[i].parent.rowId)
+                      : null,
+                  tokens: tokens,
+                ),
+                if (!collapsed.contains(tree[i].parent.rowId))
+                  for (final child in tree[i].children) ...[
+                    const PDivider(indent: PSpace.x16),
+                    _CategoryRow(
+                      category: child,
+                      isParent: false,
+                      hasChildren: false,
+                      isCollapsed: false,
+                      onToggle: null,
+                      tokens: tokens,
+                    ),
+                  ],
               ],
             ],
           ),
@@ -257,22 +331,65 @@ class _CategoryList extends StatelessWidget {
   }
 }
 
+class _TreeEntry {
+  const _TreeEntry(this.parent, this.children);
+  final ExpenseCategory parent;
+  final List<ExpenseCategory> children;
+}
+
 class _CategoryRow extends StatelessWidget {
-  const _CategoryRow({required this.category, required this.tokens});
+  const _CategoryRow({
+    required this.category,
+    required this.isParent,
+    required this.hasChildren,
+    required this.isCollapsed,
+    required this.onToggle,
+    required this.tokens,
+  });
   final ExpenseCategory category;
+  final bool isParent;
+  final bool hasChildren;
+  final bool isCollapsed;
+  final VoidCallback? onToggle;
   final PorestTokens tokens;
 
   @override
   Widget build(BuildContext context) {
-    final fg = resolveChartColor(context, category.color, fallback: tokens.fgBrand);
+    final t = tokens;
+    final fg = resolveChartColor(context, category.color, fallback: t.fgBrand);
     final bg = softBg(fg);
     return InkWell(
       onTap: () => showCategoryEditDialog(context, edit: category),
       child: Padding(
         padding: const EdgeInsets.symmetric(
-            horizontal: PSpace.x16, vertical: PSpace.x12),
+          horizontal: PSpace.x16,
+          vertical: PSpace.x12,
+        ),
         child: Row(
           children: [
+            // 자식 들여쓰기 (좌측 24px)
+            if (!isParent) const SizedBox(width: PSpace.x24),
+            // 부모 expand chevron (또는 chevron 자리)
+            if (isParent) ...[
+              if (hasChildren && onToggle != null)
+                InkWell(
+                  onTap: onToggle,
+                  borderRadius: BorderRadius.circular(PRadius.sm),
+                  child: Padding(
+                    padding: const EdgeInsets.all(PSpace.x4),
+                    child: Icon(
+                      isCollapsed
+                          ? LucideIcons.chevronRight
+                          : LucideIcons.chevronDown,
+                      size: 16,
+                      color: t.fgSecondary,
+                    ),
+                  ),
+                )
+              else
+                const SizedBox(width: 24),
+              const SizedBox(width: PSpace.x4),
+            ],
             Container(
               width: 36,
               height: 36,
@@ -282,13 +399,25 @@ class _CategoryRow extends StatelessWidget {
             ),
             const SizedBox(width: PSpace.x12),
             Expanded(
-              child: Text(category.categoryName,
-                  style: PTypo.body.copyWith(
-                      color: tokens.fgPrimary,
-                      fontWeight: PFontWeight.medium)),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    category.categoryName,
+                    style: PTypo.body.copyWith(
+                      color: t.fgPrimary,
+                      fontWeight: PFontWeight.medium,
+                    ),
+                  ),
+                  if (isParent && hasChildren)
+                    Text(
+                      '${category.expenseType == 'EXPENSE' ? '지출' : '수입'} · 하위 카테고리 있음',
+                      style: PTypo.caption.copyWith(color: t.fgTertiary),
+                    ),
+                ],
+              ),
             ),
-            Icon(LucideIcons.chevronRight,
-                size: 16, color: tokens.fgTertiary),
+            Icon(LucideIcons.chevronRight, size: 16, color: t.fgTertiary),
           ],
         ),
       ),
