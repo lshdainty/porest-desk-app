@@ -14,7 +14,7 @@ import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_card.dart';
 import '../../../shared/widgets/p_divider.dart';
 import '../../../shared/widgets/p_empty_state.dart';
-import '../../../shared/widgets/p_floating_action_button.dart';
+import '../../../shared/widgets/p_text_input.dart';
 import '../../../shared/widgets/p_skeleton.dart';
 import '../../../shared/widgets/p_tabs.dart';
 import '../../expense/application/expense_providers.dart';
@@ -30,6 +30,7 @@ class CategoryScreen extends ConsumerStatefulWidget {
 
 class _CategoryScreenState extends ConsumerState<CategoryScreen> {
   int _tabIndex = 0;
+  String _query = '';
   static const _kinds = [
     ('EXPENSE', '지출'),
     ('INCOME', '수입'),
@@ -65,36 +66,77 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
           ),
         ),
       ),
-      floatingActionButton: PFloatingActionButton(
-        icon: LucideIcons.plus,
-        onPressed: () => showCategoryEditDialog(context,
-            defaultExpenseType: _kinds[_tabIndex].$1),
-      ),
-      body: categoriesAsync.when(
-        loading: () => const Padding(
-          padding: EdgeInsets.all(PSpace.x16),
-          child: PListSkeleton(rows: 8, showAvatar: true),
-        ),
-        error: (e, _) => Padding(
-          padding: const EdgeInsets.all(PSpace.x16),
-          child: Text('카테고리 로드 실패\n$e',
-              style: PTypo.bodySm.copyWith(color: t.statusDanger)),
-        ),
-        data: (categories) {
-          return IndexedStack(
-            index: _tabIndex,
-            children: [
-              for (final k in _kinds)
-                _CategoryList(
-                  categories: categories
-                      .where((c) =>
-                          (c.expenseType ?? 'EXPENSE') == k.$1)
-                      .toList(growable: false),
-                  tokens: t,
+      body: Column(
+        children: [
+          // 검색 + 추가 row (계좌·카드 관리 accent 버튼 톤 미러)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              PSpace.x20,
+              PSpace.x16,
+              PSpace.x20,
+              PSpace.x8,
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: PTextInput(
+                    value: _query,
+                    onChanged: (v) => setState(() => _query = v),
+                    placeholder: '카테고리 검색',
+                    prefix: Icon(
+                      LucideIcons.search,
+                      size: 16,
+                      color: t.fgTertiary,
+                    ),
+                  ),
                 ),
-            ],
-          );
-        },
+                const SizedBox(width: PSpace.x8),
+                PButton(
+                  label: '카테고리 추가',
+                  icon: LucideIcons.plus,
+                  variant: PButtonVariant.accent,
+                  size: PButtonSize.sm,
+                  onPressed: () => showCategoryEditDialog(
+                    context,
+                    defaultExpenseType: _kinds[_tabIndex].$1,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: categoriesAsync.when(
+              loading: () => const Padding(
+                padding: EdgeInsets.all(PSpace.x16),
+                child: PListSkeleton(rows: 8, showAvatar: true),
+              ),
+              error: (e, _) => Padding(
+                padding: const EdgeInsets.all(PSpace.x16),
+                child: Text(
+                  '카테고리 로드 실패\n$e',
+                  style: PTypo.bodySm.copyWith(color: t.statusDanger),
+                ),
+              ),
+              data: (categories) {
+                return IndexedStack(
+                  index: _tabIndex,
+                  children: [
+                    for (final k in _kinds)
+                      _CategoryList(
+                        categories: categories
+                            .where((c) =>
+                                (c.expenseType ?? 'EXPENSE') == k.$1 &&
+                                (_query.isEmpty ||
+                                    c.categoryName.contains(_query)))
+                            .toList(growable: false),
+                        tokens: t,
+                      ),
+                  ],
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
