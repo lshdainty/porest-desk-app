@@ -14,7 +14,7 @@ import '../../../shared/widgets/p_divider.dart';
 import '../../../shared/widgets/p_empty_state.dart';
 import '../application/notification_providers.dart';
 import '../domain/notification.dart';
-import '../../../shared/widgets/p_progress.dart';
+import '../../../shared/widgets/p_skeleton.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 
 class NotificationScreen extends ConsumerWidget {
@@ -66,7 +66,7 @@ class NotificationScreen extends ConsumerWidget {
           await ref.read(notificationListProvider.future);
         },
         child: listAsync.when(
-          loading: () => const Center(child: PCircularProgressIndicator()),
+          loading: () => _NotiSkeleton(tokens: t),
           error: (e, _) => Padding(
             padding: const EdgeInsets.all(PSpace.x16),
             child: Text('${l.stateError}\n$e',
@@ -115,6 +115,48 @@ class NotificationScreen extends ConsumerWidget {
               ),
             );
           },
+        ),
+      ),
+    );
+  }
+}
+
+/// 알림 목록 skeleton — 아이콘(36x36) + 제목+메시지+시간 행 × 6 + PDivider(indent:56).
+class _NotiSkeleton extends StatelessWidget {
+  const _NotiSkeleton({required this.tokens});
+  final PorestTokens tokens;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
+      padding: const EdgeInsets.symmetric(vertical: PSpace.x4),
+      physics: const NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
+      itemCount: 6,
+      separatorBuilder: (_, _) => PDivider(indent: 56),
+      itemBuilder: (_, i) => Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: PSpace.x16,
+          vertical: PSpace.x12,
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const PSkeleton(width: 36, height: 36),
+            const SizedBox(width: PSpace.x12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  PSkeleton.line(width: i.isEven ? 140 : 100),
+                  const SizedBox(height: 4),
+                  const PSkeleton.line(width: double.infinity, height: 12),
+                  const SizedBox(height: 3),
+                  PSkeleton.line(width: 56, height: 11),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );

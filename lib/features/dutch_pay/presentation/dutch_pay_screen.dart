@@ -19,7 +19,7 @@ import '../../../shared/widgets/p_modal.dart';
 import '../application/dutch_pay_providers.dart';
 import '../domain/dutch_pay.dart';
 import 'dutch_pay_create_dialog.dart';
-import '../../../shared/widgets/p_progress.dart';
+import '../../../shared/widgets/p_skeleton.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 
 class DutchPayScreen extends ConsumerWidget {
@@ -54,7 +54,7 @@ class DutchPayScreen extends ConsumerWidget {
           await ref.read(dutchPayListProvider.future);
         },
         child: listAsync.when(
-          loading: () => const Center(child: PCircularProgressIndicator()),
+          loading: () => _DutchPaySkeleton(tokens: t),
           error: (e, _) => Padding(
             padding: const EdgeInsets.all(PSpace.x16),
             child: Text('더치페이 로드 실패\n$e',
@@ -137,6 +137,73 @@ class DutchPayScreen extends ConsumerWidget {
       if (!context.mounted) return;
       showPSnackBar(context, '삭제 실패: ${e.message}', severity: PSnackSeverity.error);
     }
+  }
+}
+
+/// 더치페이 목록 skeleton — PCard bordered × 3 (제목+메타+진행바+참여자 행).
+class _DutchPaySkeleton extends StatelessWidget {
+  const _DutchPaySkeleton({required this.tokens});
+  final PorestTokens tokens;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
+      padding: const EdgeInsets.symmetric(
+        horizontal: PSpace.x20,
+        vertical: PSpace.x24,
+      ),
+      physics: const NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
+      itemCount: 3,
+      separatorBuilder: (_, _) => const SizedBox(height: PSpace.x8),
+      itemBuilder: (_, i) => PCard(
+        variant: PCardVariant.bordered,
+        padding: const EdgeInsets.all(PSpace.x12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      PSkeleton.line(width: 120),
+                      const SizedBox(height: 4),
+                      PSkeleton.line(width: 80, height: 12),
+                    ],
+                  ),
+                ),
+                const PSkeleton.line(width: 72),
+                const SizedBox(width: PSpace.x8),
+                const PSkeleton(width: 28, height: 28),
+              ],
+            ),
+            const SizedBox(height: PSpace.x8),
+            PSkeleton(
+              width: double.infinity,
+              height: 6,
+              borderRadius: BorderRadius.circular(3),
+            ),
+            const SizedBox(height: PSpace.x12),
+            for (int j = 0; j < 2; j++) ...[
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Row(
+                  children: [
+                    const PSkeleton(width: 18, height: 18),
+                    const SizedBox(width: PSpace.x8),
+                    const PSkeleton.line(width: 60),
+                    const Spacer(),
+                    PSkeleton.line(width: 48, height: 12),
+                  ],
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
   }
 }
 

@@ -26,7 +26,6 @@ import '../application/budget_providers.dart';
 import '../domain/budget.dart';
 import '../domain/budget_compliance.dart';
 import 'budget_edit_dialog.dart';
-import '../../../shared/widgets/p_progress.dart';
 import '../../../shared/widgets/p_skeleton.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 
@@ -257,10 +256,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
             ),
             const SizedBox(height: PSpace.x12),
             budgetsAsync.when(
-              loading: () => const Padding(
-                padding: EdgeInsets.symmetric(vertical: PSpace.x32),
-                child: Center(child: PCircularProgressIndicator()),
-              ),
+              loading: () => const _BudgetLoadingSkeleton(),
               error: (e, _) => _ErrorBox(
                 message: '예산을 불러오지 못했습니다\n$e',
                 onRetry: () => ref.invalidate(monthBudgetsProvider(_key)),
@@ -1574,10 +1570,7 @@ class _ComplianceCard extends StatelessWidget {
           ),
           const SizedBox(height: PSpace.x16),
           if (async.isLoading && list.isEmpty)
-            const SizedBox(
-              height: 140,
-              child: Center(child: PCircularProgressIndicator()),
-            )
+            const PSkeleton(width: double.infinity, height: 140)
           else if (list.isEmpty)
             SizedBox(
               height: 80,
@@ -1780,6 +1773,92 @@ class _EmptyState extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// 예산 리스트 로딩 skeleton — 요약 헤더 카드 + 카테고리 예산 행 4개.
+class _BudgetLoadingSkeleton extends StatelessWidget {
+  const _BudgetLoadingSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return Column(
+      children: [
+        // 헤더 요약 카드
+        PCard(
+          variant: PCardVariant.shadow,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const PSkeleton.line(width: 80),
+                  const Spacer(),
+                  PSkeleton.line(width: 56, height: 12),
+                ],
+              ),
+              const SizedBox(height: PSpace.x8),
+              PSkeleton(
+                width: double.infinity,
+                height: 8,
+                borderRadius: PRadius.brXs,
+              ),
+              const SizedBox(height: PSpace.x8),
+              Row(
+                children: [
+                  const PSkeleton.line(width: 60),
+                  const Spacer(),
+                  PSkeleton.line(width: 48, height: 12),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: PSpace.x12),
+        // 카테고리 예산 행
+        PCard(
+          variant: PCardVariant.bordered,
+          padding: EdgeInsets.zero,
+          child: Column(
+            children: [
+              for (int i = 0; i < 4; i++)
+                Container(
+                  decoration: BoxDecoration(
+                    border: i < 3
+                        ? Border(bottom: BorderSide(color: t.borderSubtle))
+                        : null,
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: PSpace.x16,
+                    vertical: PSpace.x12,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const PSkeleton(width: 24, height: 24),
+                          const SizedBox(width: PSpace.x8),
+                          const PSkeleton.line(width: 80),
+                          const Spacer(),
+                          PSkeleton.line(width: 60, height: 12),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      PSkeleton(
+                        width: double.infinity,
+                        height: 4,
+                        borderRadius: PRadius.brXs,
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

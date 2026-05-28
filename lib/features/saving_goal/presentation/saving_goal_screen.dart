@@ -17,7 +17,7 @@ import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_empty_state.dart';
 import '../../../shared/widgets/p_floating_action_button.dart';
 import '../../../shared/widgets/p_modal.dart';
-import '../../../shared/widgets/p_progress.dart';
+import '../../../shared/widgets/p_skeleton.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../application/saving_goal_providers.dart';
@@ -56,7 +56,7 @@ class SavingGoalScreen extends ConsumerWidget {
           await ref.read(savingGoalListProvider.future);
         },
         child: listAsync.when(
-          loading: () => const Center(child: PCircularProgressIndicator()),
+          loading: () => _SavingGoalSkeleton(tokens: t),
           error: (e, _) => Padding(
             padding: const EdgeInsets.all(PSpace.x16),
             child: Text('저금 목표 로드 실패\n$e',
@@ -141,6 +141,73 @@ class SavingGoalScreen extends ConsumerWidget {
           ),
         );
       },
+    );
+  }
+}
+
+/// 저금 목표 skeleton — 카드(아이콘+제목+기한+진행바) × 3.
+class _SavingGoalSkeleton extends StatelessWidget {
+  const _SavingGoalSkeleton({required this.tokens});
+  final PorestTokens tokens;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = tokens;
+    return ListView.separated(
+      padding: const EdgeInsets.symmetric(
+        horizontal: PSpace.x20,
+        vertical: PSpace.x24,
+      ),
+      physics: const NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
+      itemCount: 3,
+      separatorBuilder: (_, _) => const SizedBox(height: PSpace.x8),
+      itemBuilder: (_, _) => Container(
+        padding: const EdgeInsets.all(PSpace.x12),
+        decoration: BoxDecoration(
+          color: t.bgSurface,
+          borderRadius: PRadius.brLg,
+          border: Border.all(color: t.borderSubtle),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const PSkeleton(width: 36, height: 36),
+                const SizedBox(width: PSpace.x12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const PSkeleton.line(width: 120),
+                      const SizedBox(height: 4),
+                      PSkeleton.line(width: 72, height: 12),
+                    ],
+                  ),
+                ),
+                const PSkeleton(width: 28, height: 28),
+              ],
+            ),
+            const SizedBox(height: PSpace.x12),
+            Row(
+              children: [
+                const PSkeleton.line(width: 80),
+                const SizedBox(width: 4),
+                PSkeleton.line(width: 60, height: 12),
+                const Spacer(),
+                PSkeleton.line(width: 36, height: 12),
+              ],
+            ),
+            const SizedBox(height: PSpace.x8),
+            PSkeleton(
+              width: double.infinity,
+              height: 8,
+              borderRadius: PRadius.brXs,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

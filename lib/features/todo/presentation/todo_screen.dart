@@ -15,7 +15,7 @@ import '../../../shared/widgets/p_chip.dart';
 import '../../../shared/widgets/p_divider.dart';
 import '../../../shared/widgets/p_empty_state.dart';
 import '../../../shared/widgets/p_floating_action_button.dart';
-import '../../../shared/widgets/p_progress.dart';
+import '../../../shared/widgets/p_skeleton.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../application/todo_providers.dart';
@@ -247,8 +247,7 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
                 await ref.read(todoListProvider(_filter).future);
               },
               child: listAsync.when(
-                loading: () =>
-                    const Center(child: PCircularProgressIndicator()),
+                loading: () => _TodoSkeleton(tokens: t),
                 error: (e, _) => Padding(
                   padding: const EdgeInsets.all(PSpace.x16),
                   child: Text(
@@ -308,6 +307,71 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
                 },
               ),
             ),
+    );
+  }
+}
+
+/// 할 일 목록 skeleton — PCard bordered + 행(checkbox + 텍스트 + pin 버튼).
+class _TodoSkeleton extends StatelessWidget {
+  const _TodoSkeleton({required this.tokens});
+  final PorestTokens tokens;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(
+        PSpace.x16,
+        PSpace.x12,
+        PSpace.x16,
+        PSpace.x80,
+      ),
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      children: [
+        PCard(
+          variant: PCardVariant.bordered,
+          child: Column(
+            children: [
+              for (int i = 0; i < 6; i++) ...[
+                _TodoRowSkel(tokens: tokens),
+                if (i < 5) PDivider(indent: 48),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _TodoRowSkel extends StatelessWidget {
+  const _TodoRowSkel({required this.tokens});
+  final PorestTokens tokens;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: PSpace.x12,
+        vertical: PSpace.x12,
+      ),
+      child: Row(
+        children: [
+          const PSkeleton(width: 22, height: 22),
+          const SizedBox(width: PSpace.x12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const PSkeleton.line(width: 140),
+                const SizedBox(height: 4),
+                PSkeleton.line(width: 80, height: 12),
+              ],
+            ),
+          ),
+          const PSkeleton(width: 28, height: 28),
+        ],
+      ),
     );
   }
 }

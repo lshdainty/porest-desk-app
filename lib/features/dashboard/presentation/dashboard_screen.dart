@@ -16,7 +16,6 @@ import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_card.dart';
 import '../../../shared/widgets/p_expense_row.dart';
 import '../../../shared/widgets/p_divider.dart';
-import '../../../shared/widgets/p_progress.dart';
 import '../../../shared/widgets/p_skeleton.dart';
 import '../../asset/application/asset_providers.dart';
 import '../../budget/application/budget_providers.dart';
@@ -142,9 +141,37 @@ class _UpcomingCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.tokens;
     if (async.isLoading && !async.hasValue) {
-      return const PCard(
-        child: SizedBox(
-            height: 80, child: Center(child: PCircularProgressIndicator())),
+      return PCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const PSkeleton(width: 16, height: 16),
+                const SizedBox(width: 6),
+                const PSkeleton.line(width: 80),
+              ],
+            ),
+            const SizedBox(height: 8),
+            for (int i = 0; i < 2; i++)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Row(
+                  children: [
+                    PSkeleton(
+                      width: 8,
+                      height: 8,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    const SizedBox(width: 8),
+                    PSkeleton.line(width: i == 0 ? 120 : 96),
+                    const Spacer(),
+                    PSkeleton.line(width: 40, height: 12),
+                  ],
+                ),
+              ),
+          ],
+        ),
       );
     }
     final s = async.value;

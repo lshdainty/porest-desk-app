@@ -20,7 +20,7 @@ import '../../../shared/widgets/p_dropdown_menu.dart';
 import '../../../shared/widgets/p_card.dart';
 import '../../../shared/widgets/p_divider.dart';
 import '../../../shared/widgets/p_modal.dart';
-import '../../../shared/widgets/p_progress.dart';
+import '../../../shared/widgets/p_skeleton.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_tabs.dart';
 import '../../../shared/widgets/p_text_input.dart';
@@ -95,7 +95,7 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen> {
         ),
       ),
       body: detailAsync.when(
-        loading: () => const Center(child: PCircularProgressIndicator()),
+        loading: () => _GroupDetailSkeleton(tokens: t),
         error: (e, _) => Center(
           child: Padding(
             padding: const EdgeInsets.all(PSpace.x20),
@@ -200,7 +200,10 @@ class _GroupEventsTab extends ConsumerWidget {
         ref.invalidate(groupEventsProvider);
       },
       child: async.when(
-        loading: () => const Center(child: PCircularProgressIndicator()),
+        loading: () => const Padding(
+          padding: EdgeInsets.all(PSpace.x20),
+          child: PListSkeleton(rows: 5, showAvatar: true),
+        ),
         error: (e, _) => Padding(
           padding: const EdgeInsets.all(PSpace.x20),
           child: Text(
@@ -306,7 +309,10 @@ class _GroupExpensesTab extends ConsumerWidget {
         ref.invalidate(expensesByGroupProvider);
       },
       child: async.when(
-        loading: () => const Center(child: PCircularProgressIndicator()),
+        loading: () => const Padding(
+          padding: EdgeInsets.all(PSpace.x20),
+          child: PListSkeleton(rows: 5, showAvatar: true),
+        ),
         error: (e, _) => Padding(
           padding: const EdgeInsets.all(PSpace.x20),
           child: Text(
@@ -470,6 +476,73 @@ class _SummaryCell extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// 그룹 상세 진입 skeleton — 헤더 카드 + 탭 + 멤버 리스트.
+class _GroupDetailSkeleton extends StatelessWidget {
+  const _GroupDetailSkeleton({required this.tokens});
+  final PorestTokens tokens;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = tokens;
+    return Column(
+      children: [
+        // 헤더 카드
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+          child: PCard(
+            padding: const EdgeInsets.all(PSpace.x16),
+            variant: PCardVariant.bordered,
+            child: Row(
+              children: [
+                const PSkeleton(width: 48, height: 48),
+                const SizedBox(width: PSpace.x12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const PSkeleton.line(width: 120),
+                      const SizedBox(height: 4),
+                      PSkeleton.line(width: 80, height: 12),
+                    ],
+                  ),
+                ),
+                PSkeleton(
+                  width: 40,
+                  height: 24,
+                  borderRadius: PRadius.brFull,
+                ),
+              ],
+            ),
+          ),
+        ),
+        // 탭 skeleton
+        Container(
+          color: t.bgSurface,
+          child: Row(
+            children: [
+              for (final w in [60.0, 48.0, 48.0])
+                Expanded(
+                  child: Container(
+                    height: 44,
+                    alignment: Alignment.center,
+                    child: PSkeleton.line(width: w),
+                  ),
+                ),
+            ],
+          ),
+        ),
+        // 콘텐츠
+        const Expanded(
+          child: Padding(
+            padding: EdgeInsets.all(PSpace.x20),
+            child: PListSkeleton(rows: 4, showAvatar: true),
+          ),
+        ),
+      ],
     );
   }
 }

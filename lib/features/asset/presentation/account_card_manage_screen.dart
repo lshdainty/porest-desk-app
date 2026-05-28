@@ -10,7 +10,7 @@ import '../../../core/format/krw.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_card.dart';
-import '../../../shared/widgets/p_progress.dart';
+import '../../../shared/widgets/p_skeleton.dart';
 import '../../../shared/widgets/p_tabs.dart';
 import '../application/asset_providers.dart';
 import '../domain/asset.dart';
@@ -77,7 +77,7 @@ class _AccountCardManageScreenState
         scrolledUnderElevation: 0,
       ),
       body: assetsAsync.when(
-        loading: () => const Center(child: PCircularProgressIndicator()),
+        loading: () => _AccountCardManageSkeleton(tokens: t),
         error: (e, _) => Center(
           child: Text(
             '자산을 불러오지 못했습니다\n$e',
@@ -188,6 +188,108 @@ class _AccountCardManageScreenState
             ],
           );
         },
+      ),
+    );
+  }
+}
+
+/// 계좌·카드 관리 skeleton — 탭 + 총액행 + PCard 리스트 5행.
+class _AccountCardManageSkeleton extends StatelessWidget {
+  const _AccountCardManageSkeleton({required this.tokens});
+  final PorestTokens tokens;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = tokens;
+    return Column(
+      children: [
+        // 탭 영역 (underline, full-width — AppBar 바로 아래 bgSurface 띠)
+        Container(
+          color: t.bgSurface,
+          child: Row(
+            children: [
+              for (int i = 0; i < 3; i++)
+                Expanded(
+                  child: Container(
+                    height: 44,
+                    alignment: Alignment.center,
+                    child: PSkeleton.line(width: 60),
+                  ),
+                ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: ListView(
+            padding: const EdgeInsets.symmetric(
+              horizontal: PSpace.x20,
+              vertical: PSpace.x20,
+            ),
+            children: [
+              // 총액 + 추가 버튼 행
+              Row(
+                children: [
+                  const PSkeleton.line(width: 80),
+                  const Spacer(),
+                  const PSkeleton(width: 72, height: 32),
+                ],
+              ),
+              const SizedBox(height: PSpace.x4),
+              PCard(
+                variant: PCardVariant.shadow,
+                padding: EdgeInsets.zero,
+                child: Column(
+                  children: [
+                    for (int i = 0; i < 5; i++)
+                      _ManageRowSkel(isLast: i == 4, tokens: t),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ManageRowSkel extends StatelessWidget {
+  const _ManageRowSkel({required this.isLast, required this.tokens});
+  final bool isLast;
+  final PorestTokens tokens;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = tokens;
+    return Container(
+      decoration: BoxDecoration(
+        border: isLast
+            ? null
+            : Border(bottom: BorderSide(color: t.borderSubtle)),
+      ),
+      padding: const EdgeInsets.symmetric(
+        horizontal: PSpace.x16,
+        vertical: PSpace.x16,
+      ),
+      child: Row(
+        children: [
+          const PSkeleton(width: 36, height: 36),
+          const SizedBox(width: PSpace.x12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const PSkeleton.line(width: 80),
+                const SizedBox(height: 4),
+                PSkeleton.line(width: 56, height: 12),
+              ],
+            ),
+          ),
+          const SizedBox(width: PSpace.x8),
+          const PSkeleton.line(width: 72),
+          const SizedBox(width: PSpace.x8),
+          const PSkeleton(width: 18, height: 18),
+        ],
       ),
     );
   }

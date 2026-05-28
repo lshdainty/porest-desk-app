@@ -201,9 +201,20 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
           ),
           Expanded(
             child: categoriesAsync.when(
-              loading: () => const Padding(
-                padding: EdgeInsets.all(PSpace.x16),
-                child: PListSkeleton(rows: 8, showAvatar: true),
+              loading: () => ListView(
+                padding: const EdgeInsets.fromLTRB(
+                  PSpace.x20,
+                  PSpace.x8,
+                  PSpace.x20,
+                  PSpace.x24,
+                ),
+                children: [
+                  PCard(
+                    variant: PCardVariant.shadow,
+                    padding: EdgeInsets.zero,
+                    child: _CategorySkeleton(tokens: t),
+                  ),
+                ],
               ),
               error: (e, _) => Padding(
                 padding: const EdgeInsets.all(PSpace.x16),
@@ -379,6 +390,86 @@ class _CategoryList extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// 카테고리 트리 구조 skeleton — _CategoryRow 레이아웃 1:1 미러.
+/// 부모 2쌍(자식 각 2행) + 부모 1개 = 총 7행.
+class _CategorySkeleton extends StatelessWidget {
+  const _CategorySkeleton({required this.tokens});
+  final PorestTokens tokens;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _CatRowSkel(isParent: true,  showMeta: true,  isLast: false, tokens: tokens),
+        _CatRowSkel(isParent: false, showMeta: false, isLast: false, tokens: tokens),
+        _CatRowSkel(isParent: false, showMeta: false, isLast: false, tokens: tokens),
+        _CatRowSkel(isParent: true,  showMeta: false, isLast: false, tokens: tokens),
+        _CatRowSkel(isParent: false, showMeta: false, isLast: false, tokens: tokens),
+        _CatRowSkel(isParent: true,  showMeta: true,  isLast: false, tokens: tokens),
+        _CatRowSkel(isParent: false, showMeta: false, isLast: true,  tokens: tokens),
+      ],
+    );
+  }
+}
+
+class _CatRowSkel extends StatelessWidget {
+  const _CatRowSkel({
+    required this.isParent,
+    required this.showMeta,
+    required this.isLast,
+    required this.tokens,
+  });
+  final bool isParent;
+  final bool showMeta;
+  final bool isLast;
+  final PorestTokens tokens;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = tokens;
+    return Container(
+      decoration: BoxDecoration(
+        border: isLast
+            ? null
+            : Border(bottom: BorderSide(color: t.borderSubtle)),
+      ),
+      padding: const EdgeInsets.symmetric(
+        horizontal: PSpace.x12,
+        vertical: PSpace.x12,
+      ),
+      child: Row(
+        children: [
+          // drag handle 자리 (Padding(all:4) + Icon(16) = 24px)
+          const SizedBox(width: 24),
+          // 자식: 들여쓰기 20px / 부모: chevron 자리(24) + gap(4)
+          if (!isParent) const SizedBox(width: PSpace.x20),
+          if (isParent) ...[
+            const SizedBox(width: 24),
+            const SizedBox(width: PSpace.x4),
+          ],
+          const PSkeleton(width: 36, height: 36),
+          const SizedBox(width: PSpace.x12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                PSkeleton.line(width: isParent ? 80 : 60),
+                if (showMeta) ...[
+                  const SizedBox(height: 4),
+                  PSkeleton.line(width: 120, height: 11),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(width: 16), // chevronRight 자리
+        ],
+      ),
     );
   }
 }
