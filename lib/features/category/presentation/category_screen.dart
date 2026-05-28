@@ -33,7 +33,6 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
   static const _kinds = [
     ('EXPENSE', '지출'),
     ('INCOME', '수입'),
-    ('TRANSFER', '이체'),
   ];
 
   @override
