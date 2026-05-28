@@ -122,6 +122,7 @@ class _CategoryList extends StatelessWidget {
       children: [
         PCard(
           variant: PCardVariant.shadow,
+          padding: EdgeInsets.zero,
           child: Column(
             children: [
               for (int i = 0; i < categories.length; i++) ...[
