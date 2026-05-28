@@ -94,85 +94,97 @@ class _AccountCardManageScreenState
           final total = filtered.fold<int>(0, (s, a) => s + (a.balance ?? 0));
           final isCard = _tab == _Group.card;
 
-          return ListView(
-            padding: const EdgeInsets.symmetric(
-              horizontal: PSpace.x20,
-              vertical: PSpace.x20,
-            ),
+          return Column(
             children: [
-              // 탭 — underline 톤 (통계 탭 미러). 앱 / 웹 모바일 공통 시각.
-              PTabs<_Group>(
-                value: _tab,
-                onChanged: (v) => setState(() => _tab = v),
-                variant: PTabsVariant.underline,
-                items: [
-                  PTabItem(
-                    value: _Group.account,
-                    label: '계좌·예금 ${countOf(_Group.account)}',
-                  ),
-                  PTabItem(
-                    value: _Group.card,
-                    label: '카드 ${countOf(_Group.card)}',
-                  ),
-                  PTabItem(
-                    value: _Group.invest,
-                    label: '투자 ${countOf(_Group.invest)}',
-                  ),
-                ],
-              ),
-              const SizedBox(height: PSpace.x12),
-              // 총액 (좌) + 추가 (우, ghost+accent)
-              Row(
-                children: [
-                  Text(
-                    masked ? '총 •••' : '총 ${krw(total)}원',
-                    style: PTypo.caption.copyWith(color: t.fgTertiary),
-                  ),
-                  const Spacer(),
-                  PButton(
-                    label: '${_groupLabel(_tab)} 추가',
-                    icon: LucideIcons.plus,
-                    variant: PButtonVariant.accent,
-                    size: PButtonSize.sm,
-                    onPressed: _onAdd,
-                  ),
-                ],
-              ),
-              const SizedBox(height: PSpace.x4),
-              // 리스트
-              if (filtered.isEmpty)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: PSpace.x32),
-                  child: Center(
-                    child: Text(
-                      '등록된 ${_groupLabel(_tab)}이 없어요',
-                      style: PTypo.bodySm.copyWith(color: t.fgTertiary),
+              // 탭 — AppBar 바로 아래 흰띠, full width underline (stats_screen 미러)
+              Container(
+                color: t.bgSurface,
+                child: PTabs<_Group>(
+                  value: _tab,
+                  onChanged: (v) => setState(() => _tab = v),
+                  variant: PTabsVariant.underline,
+                  expand: true,
+                  items: [
+                    PTabItem(
+                      value: _Group.account,
+                      label: '계좌·예금 ${countOf(_Group.account)}',
                     ),
+                    PTabItem(
+                      value: _Group.card,
+                      label: '카드 ${countOf(_Group.card)}',
+                    ),
+                    PTabItem(
+                      value: _Group.invest,
+                      label: '투자 ${countOf(_Group.invest)}',
+                    ),
+                  ],
+                ),
+              ),
+              // 콘텐츠 (총액 + 리스트, page-edge padding)
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: PSpace.x20,
+                    vertical: PSpace.x20,
                   ),
-                )
-              else
-                PCard(
-                  variant: PCardVariant.shadow,
-                  padding: EdgeInsets.zero,
-                  child: Column(
-                    children: [
-                      for (var i = 0; i < filtered.length; i++)
-                        _ManageRow(
-                          asset: filtered[i],
-                          masked: masked,
-                          negative: isCard,
-                          tokens: t,
-                          showTopBorder: i > 0,
-                          onTap: () => showAssetDetailRich(
-                            context,
-                            filtered[i],
-                            onEdit: () =>
-                                showAssetEditForm(context, filtered[i]),
+                  children: [
+                    // 총액 (좌) + 추가 (우, ghost+accent)
+                    Row(
+                      children: [
+                        Text(
+                          masked ? '총 •••' : '총 ${krw(total)}원',
+                          style: PTypo.caption.copyWith(color: t.fgTertiary),
+                        ),
+                        const Spacer(),
+                        PButton(
+                          label: '${_groupLabel(_tab)} 추가',
+                          icon: LucideIcons.plus,
+                          variant: PButtonVariant.accent,
+                          size: PButtonSize.sm,
+                          onPressed: _onAdd,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: PSpace.x4),
+                    // 리스트
+                    if (filtered.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: PSpace.x32,
+                        ),
+                        child: Center(
+                          child: Text(
+                            '등록된 ${_groupLabel(_tab)}이 없어요',
+                            style: PTypo.bodySm.copyWith(color: t.fgTertiary),
                           ),
                         ),
-                    ],
-                  ),
+                      )
+                    else
+                      PCard(
+                        variant: PCardVariant.shadow,
+                        padding: EdgeInsets.zero,
+                        child: Column(
+                          children: [
+                            for (var i = 0; i < filtered.length; i++)
+                              _ManageRow(
+                                asset: filtered[i],
+                                masked: masked,
+                                negative: isCard,
+                                tokens: t,
+                                showTopBorder: i > 0,
+                                onTap: () => showAssetDetailRich(
+                                  context,
+                                  filtered[i],
+                                  onEdit: () =>
+                                      showAssetEditForm(context, filtered[i]),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                  ],
                 ),
+              ),
             ],
           );
         },
