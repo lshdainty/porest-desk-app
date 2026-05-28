@@ -11,7 +11,7 @@ import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_card.dart';
 import '../../../shared/widgets/p_progress.dart';
-import '../../../shared/widgets/p_toggle.dart';
+import '../../../shared/widgets/p_tabs.dart';
 import '../application/asset_providers.dart';
 import '../domain/asset.dart';
 import 'asset_detail_dialog.dart';
@@ -100,22 +100,21 @@ class _AccountCardManageScreenState
               vertical: PSpace.x20,
             ),
             children: [
-              // 탭 (계좌·예금 / 카드 / 투자)
-              PToggleGroupSingle<_Group>(
+              // 탭 — underline 톤 (통계 탭 미러). 앱 / 웹 모바일 공통 시각.
+              PTabs<_Group>(
                 value: _tab,
-                expanded: true,
-                visual: PToggleGroupVisual.solid,
                 onChanged: (v) => setState(() => _tab = v),
+                variant: PTabsVariant.underline,
                 items: [
-                  PToggleGroupItem(
+                  PTabItem(
                     value: _Group.account,
                     label: '계좌·예금 ${countOf(_Group.account)}',
                   ),
-                  PToggleGroupItem(
+                  PTabItem(
                     value: _Group.card,
                     label: '카드 ${countOf(_Group.card)}',
                   ),
-                  PToggleGroupItem(
+                  PTabItem(
                     value: _Group.invest,
                     label: '투자 ${countOf(_Group.invest)}',
                   ),
