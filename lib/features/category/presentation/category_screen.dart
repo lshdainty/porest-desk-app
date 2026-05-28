@@ -14,7 +14,6 @@ import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_card.dart';
 import '../../../shared/widgets/p_divider.dart';
 import '../../../shared/widgets/p_empty_state.dart';
-import '../../../shared/widgets/p_text_input.dart';
 import '../../../shared/widgets/p_skeleton.dart';
 import '../../../shared/widgets/p_tabs.dart';
 import '../../expense/application/expense_providers.dart';
@@ -79,15 +78,46 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
             child: Row(
               children: [
                 Expanded(
-                  child: PTextInput(
-                    value: _query,
-                    onChanged: (v) => setState(() => _query = v),
-                    placeholder: '카테고리 검색',
-                    style: const TextStyle(fontSize: 14),
-                    prefix: Icon(
-                      LucideIcons.search,
-                      size: 16,
-                      color: t.fgTertiary,
+                  // 웹 manager 검색 input 톤 미러 (raw input + inline 토큰, h≈32, 13px).
+                  // spec PTextInput(h40, body-lg) 가 아닌 manager-layout searchInputStyle 정합.
+                  child: Container(
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: t.bgSurface,
+                      border: Border.all(color: t.borderSubtle),
+                      borderRadius: BorderRadius.circular(PRadius.md),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: PSpace.x12,
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          LucideIcons.search,
+                          size: 14,
+                          color: t.fgTertiary,
+                        ),
+                        const SizedBox(width: PSpace.x8),
+                        Expanded(
+                          child: TextField(
+                            onChanged: (v) => setState(() => _query = v),
+                            decoration: InputDecoration(
+                              isDense: true,
+                              border: InputBorder.none,
+                              hintText: '카테고리 검색',
+                              hintStyle: TextStyle(
+                                fontSize: 13,
+                                color: t.fgTertiary,
+                              ),
+                              contentPadding: EdgeInsets.zero,
+                            ),
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: t.fgPrimary,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
