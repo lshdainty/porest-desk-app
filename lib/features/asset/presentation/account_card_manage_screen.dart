@@ -138,7 +138,7 @@ class _AccountCardManageScreenState
                   ),
                 ],
               ),
-              const SizedBox(height: PSpace.x8),
+              const SizedBox(height: PSpace.x4),
               // 리스트
               if (filtered.isEmpty)
                 Padding(
