@@ -128,11 +128,25 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                         ),
                         const SizedBox(width: PSpace.x8),
                         Expanded(
-                          // collapsed — TextField 자체 decoration 제거 (외부 Container 시각 전담)
+                          // InputDecoration.collapsed 는 border 만 None 으로 두고 focusedBorder/
+                          // enabledBorder 는 null → Theme.inputDecorationTheme 기본값(Material
+                          // primary 2px) 이 적용돼서 focus 시 안쪽에 박스가 그려짐. 모든 border
+                          // field 를 InputBorder.none 으로 명시해서 차단.
                           child: TextField(
                             focusNode: _searchFocusNode,
                             onChanged: (v) => setState(() => _query = v),
-                            decoration: InputDecoration.collapsed(
+                            cursorColor: t.fgBrand,
+                            cursorWidth: 1.5,
+                            decoration: InputDecoration(
+                              border: InputBorder.none,
+                              enabledBorder: InputBorder.none,
+                              focusedBorder: InputBorder.none,
+                              errorBorder: InputBorder.none,
+                              focusedErrorBorder: InputBorder.none,
+                              disabledBorder: InputBorder.none,
+                              isCollapsed: true,
+                              contentPadding: EdgeInsets.zero,
+                              filled: false,
                               hintText: '카테고리 검색',
                               hintStyle: TextStyle(
                                 fontSize: 13,
