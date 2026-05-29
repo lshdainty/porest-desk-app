@@ -7,6 +7,7 @@ import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
+import '../../../core/format/chart_palette.dart';
 import '../../../core/format/color_parse.dart';
 import '../../../core/format/date.dart';
 import '../../../core/format/krw.dart';
@@ -1463,7 +1464,7 @@ class _CategoryRow extends StatelessWidget {
     final iconRaw = category?.icon;
     final colorRaw = category?.color;
     final fg = parseColor(colorRaw, fallback: tokens.fgBrand);
-    final bg = softBg(fg);
+    final bg = softBg(context, fg);
     final name =
         category?.categoryName ??
         budget.categoryName ??

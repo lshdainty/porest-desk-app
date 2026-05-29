@@ -7,7 +7,6 @@ import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/format/chart_palette.dart';
-import '../../../core/format/color_parse.dart';
 import '../../../core/format/date.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
@@ -587,7 +586,7 @@ class _PresetChip extends StatelessWidget {
                 width: 18,
                 height: 18,
                 decoration: BoxDecoration(
-                  color: softBg(catColor),
+                  color: softBg(context, catColor),
                   borderRadius: PRadius.brSm,
                 ),
                 alignment: Alignment.center,

@@ -8,7 +8,6 @@ import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/format/chart_palette.dart';
-import '../../../core/format/color_parse.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/settings/settings_notifier.dart';
@@ -176,7 +175,7 @@ class _PresetRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final fg = resolveChartColor(context, category?.color, fallback: tokens.fgBrand);
-    final bg = softBg(fg);
+    final bg = softBg(context, fg);
     final isExpense = template.expenseType == 'EXPENSE';
     final used = template.useCount ?? 0;
 

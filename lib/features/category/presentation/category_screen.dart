@@ -8,7 +8,6 @@ import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/format/chart_palette.dart';
-import '../../../core/format/color_parse.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_card.dart';
@@ -505,7 +504,7 @@ class _CategoryRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = tokens;
     final fg = resolveChartColor(context, category.color, fallback: t.fgBrand);
-    final bg = softBg(fg);
+    final bg = softBg(context, fg);
     return Material(
       color: Colors.transparent,
       child: Container(

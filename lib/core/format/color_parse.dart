@@ -90,6 +90,5 @@ Color? _parseOklch(String raw) {
   return Color.fromARGB((a * 255).round(), toByte(r), toByte(g), toByte(b));
 }
 
-/// 카테고리 색상 → 약하게 흐린 배경(타일) 색.
-/// alpha 0x22 (~13%) 적용한 같은 색.
-Color softBg(Color base) => base.withValues(alpha: 0.13);
+// softBg(context, base) 는 chart_palette.dart 로 이동 — 다크모드에서 chart light
+// variant 기반 타일 배경(가시성)을 위해 BuildContext 필요.

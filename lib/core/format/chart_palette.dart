@@ -46,6 +46,33 @@ final Map<String, ChartPair> _kBaseHexToPair = {
   for (final p in kChartPairs) p.baseHex.toLowerCase(): p,
 };
 
+/// base/light hex 둘 다 → ChartPair (Color 역조회용).
+final Map<int, ChartPair> _kArgbToPair = {
+  for (final p in kChartPairs) ...{
+    p.base.toARGB32(): p,
+    p.light.toARGB32(): p,
+  },
+};
+
+/// 카테고리 아이콘 타일 배경 색 — 라이트/다크 자동 분기.
+///
+/// 받은 [base]가 chart palette 색(base 또는 light variant)이면:
+/// - dark: light variant 기반 (어두운 배경에서 가시성 확보) @ 22%
+/// - light: base 기반 @ 13%
+/// palette 밖 커스텀 색은 그대로 + 동일 alpha.
+///
+/// 웹 `getPaletteByColor` bg(`--color-cat-* @ 18%`, dark에서 light variant) 정합.
+Color softBg(BuildContext context, Color base) {
+  final isDark = Theme.of(context).brightness == Brightness.dark;
+  final pair = _kArgbToPair[base.toARGB32()];
+  if (isDark) {
+    final c = pair?.light ?? base;
+    return c.withValues(alpha: 0.22);
+  }
+  final c = pair?.base ?? base;
+  return c.withValues(alpha: 0.13);
+}
+
 /// 카테고리 fg Color 결정 — 라이트/다크 자동 분기.
 ///
 /// - hex 가 chart palette base hex 이면 다크모드일 때 light variant 반환

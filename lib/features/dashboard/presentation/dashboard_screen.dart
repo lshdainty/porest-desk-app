@@ -1188,7 +1188,7 @@ class _BudgetRow extends StatelessWidget {
             ? tokens.statusWarningFg
             : tokens.statusInfoFg;
     final fg = resolveChartColor(context, category?.color, fallback: tokens.fgBrand);
-    final bg = softBg(fg);
+    final bg = softBg(context, fg);
     final name = category?.categoryName ??
         budget.categoryName ??
         (budget.categoryRowId == null ? '전체' : '카테고리');

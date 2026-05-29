@@ -10,7 +10,6 @@ import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/format/chart_palette.dart';
-import '../../../core/format/color_parse.dart';
 import '../../../core/format/date.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
@@ -454,7 +453,7 @@ class _ResultRow extends StatelessWidget {
     final color = resolveChartColor(
         context, category?.color as String? ?? expense.categoryColor,
         fallback: tokens.fgBrand);
-    final bg = softBg(color);
+    final bg = softBg(context, color);
     final isExpense = expense.expenseType == 'EXPENSE';
     final dayLabel = expense.expenseDate != null
         ? formatDay(parseIsoDate(expense.expenseDate!.substring(0, 10)))

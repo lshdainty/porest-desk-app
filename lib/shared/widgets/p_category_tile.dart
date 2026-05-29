@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../app/theme/radius.dart';
 import '../../app/theme/tokens.dart';
 import '../../app/theme/typography.dart';
-import '../../core/format/color_parse.dart';
+import '../../core/format/chart_palette.dart';
 
 /// front FilterDialog/AddTxSheet 의 카테고리 타일 미러.
 ///
@@ -45,7 +45,7 @@ class PCategoryTile extends StatelessWidget {
               width: 32,
               height: 32,
               decoration: BoxDecoration(
-                color: softBg(color),
+                color: softBg(context, color),
                 borderRadius: PRadius.brLg,
               ),
               alignment: Alignment.center,

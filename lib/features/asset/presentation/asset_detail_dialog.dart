@@ -8,6 +8,7 @@ import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
+import '../../../core/format/chart_palette.dart';
 import '../../../core/format/color_parse.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/settings/hide_amounts_unlock_dialog.dart';
@@ -683,7 +684,7 @@ class _ExpenseRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final isIncome = expense.expenseType == 'INCOME';
     final color = parseColor(expense.categoryColor, fallback: tokens.fgBrand);
-    final bg = softBg(color);
+    final bg = softBg(context, color);
     final title =
         expense.merchant ??
         expense.description ??

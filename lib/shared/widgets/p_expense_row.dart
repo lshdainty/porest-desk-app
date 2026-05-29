@@ -6,7 +6,6 @@ import '../../app/theme/spacing.dart';
 import '../../app/theme/tokens.dart';
 import '../../app/theme/typography.dart';
 import '../../core/format/chart_palette.dart';
-import '../../core/format/color_parse.dart';
 import '../../core/format/krw.dart';
 import '../../features/expense/domain/expense.dart';
 import '../icons/lucide_icon_map.dart';
@@ -62,7 +61,7 @@ class PExpenseRow extends StatelessWidget {
     final isIncome = expense.expenseType == 'INCOME';
     final colorStr = categoryColorOverride ?? expense.categoryColor;
     final fg = resolveChartColor(context, colorStr, fallback: t.fgBrand);
-    final bg = softBg(fg);
+    final bg = softBg(context, fg);
     final iconData = lucideByName(
         categoryIconOverride ?? expense.categoryIcon,
         fallback: LucideIcons.tag);
