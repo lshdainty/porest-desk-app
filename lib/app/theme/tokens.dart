@@ -305,8 +305,10 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     statusInfoSubtle: Color(0x2E1D6FCB),
     statusInfoFg: PorestPalette.statusInfoLight,
     // Tx semantic — desk-front 다크 미러
+    // 지출=error-light(#F87171), 수입=primary-light(cobalt400 #5FA0E5).
+    // 웹 --fg-income(=fg-brand=primary-light)와 정합. cobalt300은 한 톤 밝아 어긋났음.
     fgExpense: PorestPalette.statusErrorLight,
-    fgIncome: PorestPalette.cobalt300,
+    fgIncome: PorestPalette.cobalt400,
     fgTransfer: PorestPalette.statusInfoLight,
     bgExpenseSubtle: Color(0x2EDC2626),
     bgIncomeSubtle: Color(0x80001A42),    // cobalt900 @ 50%
