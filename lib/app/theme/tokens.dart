@@ -325,9 +325,12 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     statusDangerPress: PorestPalette.statusErrorLight,
     statusInfoBorder: PorestPalette.statusInfoBase,
     surfaceHero: Color(0x80001A42),       // cobalt900 @ 50%
-    // Hero gradient — light과 동일(의도: always-on-dark hero, desk-front 정합).
-    bgHeroGradientStart: PorestPalette.cobalt500,
-    bgHeroGradientEnd: Color(0xFF012B68),
+    // Hero gradient (dark) — primary-light(cobalt400 #5FA0E5) 기반.
+    // 어두운 페이지 배경에서 카드를 밝게 도드라지게 + 디자인 시스템 dark brand 원칙
+    // (fgBrand/border 등 전부 cobalt400=primary-light) 정합. start는 primary-light,
+    // end는 primary(cobalt500)로 흘려 하단 split 영역 대비 확보.
+    bgHeroGradientStart: PorestPalette.cobalt400, // primary-light #5FA0E5
+    bgHeroGradientEnd: PorestPalette.cobalt500,    // primary #0147AD
     fgOnHeroChgUp: PorestPalette.heroChgUp,
     fgOnHeroChgDown: PorestPalette.heroChgDown,
     fgOnHeroSpot: PorestPalette.slate0,
