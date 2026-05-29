@@ -219,6 +219,10 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
     );
     final categoriesAsync = ref.watch(categoriesProvider);
     final complianceAsync = ref.watch(budgetComplianceProvider(6));
+    // 경고 게이지 임계값 — 사용자 설정값(웹 정합). 미설정/로딩 시 _warnThreshold(85).
+    final warnThreshold =
+        ref.watch(budgetAlertThresholdProvider).value?.toDouble() ??
+            _warnThreshold;
 
     return Scaffold(
       backgroundColor: t.bgCanvas,
@@ -327,7 +331,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                   if (cid == null) return false;
                   final spent = spentByCategory[cid] ?? 0;
                   return b.budgetAmount > 0 &&
-                      (spent / b.budgetAmount) * 100 <= _warnThreshold;
+                      (spent / b.budgetAmount) * 100 <= warnThreshold;
                 }).toList();
 
                 final hasNoData =
@@ -343,6 +347,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                       overallLimit: overallLimit,
                       categoryLimitSum: categoryLimitSum,
                       pct: pct,
+                      warnThreshold: warnThreshold,
                       allocable: allocable,
                       overAllocated: overAllocated,
                       masked: settings.hideAmounts,
@@ -393,6 +398,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                         budgets: categoryBudgets,
                         categories: categories,
                         spentByCategory: spentByCategory,
+                        warnThreshold: warnThreshold,
                         masked: settings.hideAmounts,
                         loading: summaryAsync.isLoading,
                         tokens: t,
@@ -724,6 +730,7 @@ class _HeaderCard extends StatelessWidget {
     required this.masked,
     required this.tokens,
     required this.onTap,
+    this.warnThreshold = _warnThreshold,
   });
   final int month;
   final Budget? overallBudget;
@@ -737,6 +744,7 @@ class _HeaderCard extends StatelessWidget {
   final bool masked;
   final PorestTokens tokens;
   final VoidCallback onTap;
+  final double warnThreshold;
 
   @override
   Widget build(BuildContext context) {
@@ -744,7 +752,7 @@ class _HeaderCard extends StatelessWidget {
     // *Fg 토큰은 dark에서 light variant 자동 분기.
     final color = pct > 100
         ? tokens.statusDangerFg
-        : pct > _warnThreshold
+        : pct > warnThreshold
         ? tokens.statusWarningFg
         : tokens.statusInfoFg;
 
@@ -1325,10 +1333,12 @@ class _CategoryListCard extends StatelessWidget {
     required this.tokens,
     required this.onAdd,
     required this.onTap,
+    this.warnThreshold = _warnThreshold,
   });
   final List<Budget> budgets;
   final List<ExpenseCategory> categories;
   final Map<int, int> spentByCategory;
+  final double warnThreshold;
   final bool masked;
   final bool loading;
   final PorestTokens tokens;
@@ -1409,6 +1419,7 @@ class _CategoryListCard extends StatelessWidget {
                 masked: masked,
                 tokens: tokens,
                 onTap: () => onTap(budgets[i]),
+                warnThreshold: warnThreshold,
               ),
               if (i < budgets.length - 1) const SizedBox(height: PSpace.x16),
             ],
@@ -1426,6 +1437,7 @@ class _CategoryRow extends StatelessWidget {
     required this.masked,
     required this.tokens,
     required this.onTap,
+    this.warnThreshold = _warnThreshold,
   });
   final Budget budget;
   final ExpenseCategory? category;
@@ -1433,13 +1445,14 @@ class _CategoryRow extends StatelessWidget {
   final bool masked;
   final PorestTokens tokens;
   final VoidCallback onTap;
+  final double warnThreshold;
 
   @override
   Widget build(BuildContext context) {
     final limit = budget.budgetAmount;
     final p = limit > 0 ? (spent / limit) * 100 : 0.0;
     final over = p > 100;
-    final warn = p > _warnThreshold && !over;
+    final warn = p > warnThreshold && !over;
     // 예산 상태 = semantic 색 (초과=error / 경고=warning / 일반=info).
     // *Fg 토큰은 dark에서 light variant 자동 분기.
     final stateColor = over

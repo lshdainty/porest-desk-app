@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/auth/auth_notifier.dart';
 import '../../../core/network/dio_provider.dart';
 import '../data/budget_repository.dart';
 import '../domain/budget.dart';
@@ -8,6 +9,13 @@ import '../domain/budget_compliance.dart';
 final budgetRepositoryProvider = FutureProvider<BudgetRepository>((ref) async {
   final dio = await ref.watch(dioProvider.future);
   return BudgetRepository(dio);
+});
+
+/// 예산 경고 임계값(%) — 사용자 설정값. 게이지 경고색 시작점.
+/// 웹 BudgetPage `budgetAlertThreshold ?? 85` 정합. 미설정/실패 시 85 기본.
+final budgetAlertThresholdProvider = FutureProvider<int>((ref) async {
+  final repo = await ref.watch(authRepositoryProvider.future);
+  return (await repo.getBudgetAlertThreshold()) ?? 85;
 });
 
 typedef BudgetMonthKey = ({int year, int month});

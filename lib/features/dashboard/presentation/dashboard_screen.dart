@@ -117,6 +117,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             categoriesAsync: categoriesAsync,
             summary: summaryRangeAsync.value,
             masked: settings.hideAmounts,
+            warnThreshold:
+                ref.watch(budgetAlertThresholdProvider).value?.toDouble() ?? 85,
           ),
           const SizedBox(height: 16),
           _UpcomingCard(async: dashboardAsync),
@@ -1027,11 +1029,13 @@ class _BudgetCard extends StatelessWidget {
     required this.categoriesAsync,
     required this.summary,
     required this.masked,
+    this.warnThreshold = 85,
   });
   final AsyncValue<List<Budget>> budgetsAsync;
   final AsyncValue<List<ExpenseCategory>> categoriesAsync;
   final RangeSummary? summary;
   final bool masked;
+  final double warnThreshold;
 
   @override
   Widget build(BuildContext context) {
@@ -1139,6 +1143,7 @@ class _BudgetCard extends StatelessWidget {
                           : (spentByCat[items[i].categoryRowId!] ?? 0),
                       masked: masked,
                       tokens: t,
+                      warnThreshold: warnThreshold,
                     ),
                     if (i < items.length - 1)
                       const SizedBox(height: PSpace.x16),
@@ -1159,12 +1164,14 @@ class _BudgetRow extends StatelessWidget {
     required this.spent,
     required this.masked,
     required this.tokens,
+    this.warnThreshold = 85,
   });
   final Budget budget;
   final ExpenseCategory? category;
   final int spent;
   final bool masked;
   final PorestTokens tokens;
+  final double warnThreshold;
 
   @override
   Widget build(BuildContext context) {
@@ -1172,7 +1179,7 @@ class _BudgetRow extends StatelessWidget {
         ? (spent / budget.budgetAmount) * 100
         : 0.0;
     final over = p > 100;
-    final warn = p > 85 && !over;
+    final warn = p > warnThreshold && !over;
     // 예산 상태 = semantic 색 (초과=error / 경고=warning / 일반=info).
     // *Fg 토큰은 dark에서 light variant 자동 분기.
     final stateColor = over
