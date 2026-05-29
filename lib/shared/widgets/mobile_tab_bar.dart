@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
+import '../../app/theme/colors.dart';
 import '../../app/theme/radius.dart';
+import '../../app/theme/shadow.dart';
 import '../../app/theme/spacing.dart';
 import '../../app/theme/tokens.dart';
 import '../../app/theme/typography.dart';
@@ -136,17 +138,25 @@ class _CenterFab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Material(
-        color: tokens.bgBrand,
-        shape: const CircleBorder(),
-        elevation: 2,
-        child: InkWell(
-          onTap: onTap,
-          customBorder: const CircleBorder(),
-          child: SizedBox(
-            width: 46,
-            height: 46,
-            child: Icon(LucideIcons.plus, color: tokens.fgOnBrand, size: 26),
+      // + 버튼은 light/dark 무관하게 primary(#0147AD) 고정 — bgBrand는 dark에서
+      // primary-light(cobalt400)로 밝아지므로 palette 직접 참조. card shadow(sm) 적용.
+      child: Container(
+        width: 46,
+        height: 46,
+        decoration: BoxDecoration(
+          color: PorestPalette.cobalt500, // primary 고정
+          shape: BoxShape.circle,
+          boxShadow: PShadow.sm,
+        ),
+        child: Material(
+          color: Colors.transparent,
+          shape: const CircleBorder(),
+          child: InkWell(
+            onTap: onTap,
+            customBorder: const CircleBorder(),
+            child: Center(
+              child: Icon(LucideIcons.plus, color: tokens.fgOnBrand, size: 26),
+            ),
           ),
         ),
       ),
