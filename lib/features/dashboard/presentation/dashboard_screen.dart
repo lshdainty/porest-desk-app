@@ -1173,11 +1173,13 @@ class _BudgetRow extends StatelessWidget {
         : 0.0;
     final over = p > 100;
     final warn = p > 85 && !over;
+    // 예산 상태 = semantic 색 (초과=error / 경고=warning / 일반=info).
+    // *Fg 토큰은 dark에서 light variant 자동 분기.
     final stateColor = over
-        ? tokens.fgExpense
+        ? tokens.statusDangerFg
         : warn
-            ? tokens.statusWarning
-            : tokens.fgBrand;
+            ? tokens.statusWarningFg
+            : tokens.statusInfoFg;
     final fg = resolveChartColor(context, category?.color, fallback: tokens.fgBrand);
     final bg = softBg(fg);
     final name = category?.categoryName ??

@@ -740,11 +740,13 @@ class _HeaderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 예산 상태 = semantic 색 (초과=error / 경고=warning / 일반=info).
+    // *Fg 토큰은 dark에서 light variant 자동 분기.
     final color = pct > 100
-        ? tokens.statusDanger
+        ? tokens.statusDangerFg
         : pct > _warnThreshold
-        ? tokens.statusWarning
-        : tokens.fgBrand;
+        ? tokens.statusWarningFg
+        : tokens.statusInfoFg;
 
     return PCard(
       variant: PCardVariant.shadow,
@@ -1438,11 +1440,13 @@ class _CategoryRow extends StatelessWidget {
     final p = limit > 0 ? (spent / limit) * 100 : 0.0;
     final over = p > 100;
     final warn = p > _warnThreshold && !over;
+    // 예산 상태 = semantic 색 (초과=error / 경고=warning / 일반=info).
+    // *Fg 토큰은 dark에서 light variant 자동 분기.
     final stateColor = over
-        ? tokens.fgExpense
+        ? tokens.statusDangerFg
         : warn
-        ? tokens.statusWarning
-        : tokens.fgBrand;
+        ? tokens.statusWarningFg
+        : tokens.statusInfoFg;
     final iconRaw = category?.icon;
     final colorRaw = category?.color;
     final fg = parseColor(colorRaw, fallback: tokens.fgBrand);
