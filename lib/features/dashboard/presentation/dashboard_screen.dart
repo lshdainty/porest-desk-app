@@ -95,8 +95,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           _BalanceHero(
               summaryAsync: summaryAsync, masked: settings.hideAmounts),
           const SizedBox(height: 16),
-          const _QuickActions(),
-          const SizedBox(height: 16),
           _MonthExpenseCard(
             month: _month,
             expensesAsync: expensesAsync,
@@ -549,86 +547,6 @@ class _HeroSplitCol extends StatelessWidget {
             ),
           ),
       ],
-    );
-  }
-}
-
-// ─── Quick actions 4-grid ──────────────────────────────────
-
-class _QuickActions extends StatelessWidget {
-  const _QuickActions();
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    final items = <(IconData, String, String)>[
-      (LucideIcons.wallet, '자산', '/assets'),
-      (LucideIcons.receipt, '가계부', '/expense'),
-      (LucideIcons.target, '예산', '/budget'),
-      (LucideIcons.users, '더치페이', '/dutch-pay'),
-    ];
-    return Row(
-      children: [
-        for (int i = 0; i < items.length; i++) ...[
-          Expanded(
-            child: _QuickAction(
-              icon: items[i].$1,
-              label: items[i].$2,
-              onTap: () => context.push(items[i].$3),
-              tokens: t,
-            ),
-          ),
-          if (i < items.length - 1) const SizedBox(width: 8),
-        ],
-      ],
-    );
-  }
-}
-
-class _QuickAction extends StatelessWidget {
-  const _QuickAction({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-    required this.tokens,
-  });
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-  final PorestTokens tokens;
-
-  @override
-  Widget build(BuildContext context) {
-    // desk-front DashboardPage quick action 미러:
-    // PCard.shadow (bg-surface + shadow-sm, no border) — _MonthExpenseCard와 동일 톤
-    // 아이콘 컨테이너 radius-tile 10px / bg-brand-subtle / fg-brand-strong
-    return PCard(
-      variant: PCardVariant.shadow,
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
-      // desk-front --radius-card(14px) 미러 — spec 외 desk custom 카드 톤
-      borderRadius: const BorderRadius.all(Radius.circular(14)),
-      onTap: onTap,
-      child: Column(
-        children: [
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: tokens.bgBrandSubtle,
-              borderRadius: PRadius.brLg,
-            ),
-            child: Icon(icon, size: 18, color: tokens.fgBrandStrong),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            label,
-            style: TextStyle(
-              color: tokens.fgPrimary,
-              fontSize: PFontSize.caption,
-              fontWeight: PFontWeight.semi,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }
