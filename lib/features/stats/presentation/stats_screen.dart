@@ -398,6 +398,8 @@ class _CategoryTab extends ConsumerWidget {
     final heatmapAsync = ref.watch(heatmapProvider(state._range));
     // 가맹점 대표 카테고리 아이콘 역산용 원시 거래
     final expensesAsync = ref.watch(rangeExpensesProvider(state._range));
+    // 하루 평균 전월 대비용 이전 기간
+    final prevRangeAsync = ref.watch(rangeSummaryProvider(state._prevRangeKey));
 
     return RefreshIndicator(
       color: t.bgBrand,
@@ -435,6 +437,7 @@ class _CategoryTab extends ConsumerWidget {
             categoriesAsync: categoriesAsync,
             merchantAsync: merchantAsync,
             expensesAsync: expensesAsync,
+            prevRangeAsync: prevRangeAsync,
             masked: settings.hideAmounts,
           ),
         ],
@@ -1412,6 +1415,7 @@ class _HighlightsGrid extends StatelessWidget {
     required this.categoriesAsync,
     required this.merchantAsync,
     required this.expensesAsync,
+    required this.prevRangeAsync,
     required this.masked,
   });
   final _StatsScreenState state;
@@ -1419,6 +1423,7 @@ class _HighlightsGrid extends StatelessWidget {
   final AsyncValue<List<dynamic>> categoriesAsync;
   final AsyncValue<List<MerchantSummary>> merchantAsync;
   final AsyncValue<List<Expense>> expensesAsync;
+  final AsyncValue<RangeSummary> prevRangeAsync;
   final bool masked;
 
   @override
@@ -1497,11 +1502,39 @@ class _HighlightsGrid extends StatelessWidget {
     final avgValue = divisor > 0 ? periodTotal ~/ divisor : 0;
     final avgLabel = s._avgLabel;
 
-    String avgSub;
+    // 하루 평균 부제 — 월 모드는 전월 대비(증가=지출색 / 감소=수입색, _CompareTab 동일
+    // 컨벤션), 그 외 기간은 합계 표시
+    String avgSub = '';
+    Widget? avgSubWidget;
     if (s._segMode != _SegMode.month) {
       avgSub = '$rangeDays일 합계 ${krwMasked(periodTotal, masked)}원';
     } else {
-      avgSub = '${s._periodLabel} 합계';
+      final prevTotal = prevRangeAsync.value?.totalExpense ?? 0;
+      if (prevTotal > 0) {
+        final diff = periodTotal - prevTotal;
+        final up = diff >= 0;
+        final pct = ((diff.abs() / prevTotal) * 100).toStringAsFixed(0);
+        avgSubWidget = Text.rich(
+          TextSpan(
+            style: PTypo.caption.copyWith(color: t.fgTertiary),
+            children: [
+              const TextSpan(text: '전월 대비 '),
+              TextSpan(
+                text: '${up ? '↑' : '↓'}$pct%',
+                style: TextStyle(
+                  color: up ? t.fgExpense : t.fgIncome,
+                  fontWeight: PFontWeight.semi,
+                ),
+              ),
+            ],
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        );
+      } else {
+        avgSub =
+            prevRangeAsync.isLoading ? '전월 대비 계산 중…' : '전월 비교 불가';
+      }
     }
 
     return Column(
@@ -1532,6 +1565,7 @@ class _HighlightsGrid extends StatelessWidget {
           label: avgLabel,
           value: '${krwMasked(avgValue, masked)}원',
           sub: avgSub,
+          subWidget: avgSubWidget,
           valueIsAmount: true,
           icon: LucideIcons.calendarDays,
           iconFg: t.fgBrand,
@@ -1545,14 +1579,16 @@ class _HighlightCard extends StatelessWidget {
   const _HighlightCard({
     required this.label,
     required this.value,
-    required this.sub,
+    this.sub,
+    this.subWidget,
     required this.icon,
     required this.iconFg,
     this.valueIsAmount = false,
   });
   final String label;
   final String value;
-  final String sub;
+  final String? sub;
+  final Widget? subWidget;
   final IconData icon;
   final Color iconFg;
   final bool valueIsAmount;
@@ -1600,12 +1636,13 @@ class _HighlightCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 2),
-                    Text(
-                      sub,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: PTypo.caption.copyWith(color: t.fgTertiary),
-                    ),
+                    subWidget ??
+                        Text(
+                          sub ?? '',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: PTypo.caption.copyWith(color: t.fgTertiary),
+                        ),
                   ],
                 ),
               ),
