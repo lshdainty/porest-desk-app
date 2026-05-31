@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../app/theme/radius.dart';
-import '../../app/theme/shadow.dart';
 import '../../app/theme/spacing.dart';
 import '../../app/theme/tokens.dart';
 import '../../app/theme/typography.dart';
@@ -74,7 +73,7 @@ class PCard extends StatelessWidget {
         color: color ?? defaultBg,
         borderRadius: borderRadius,
         border: border ?? defaultBorder,
-        boxShadow: useShadow ? PShadow.sm : null,
+        boxShadow: useShadow ? t.shadowSm : null,
       ),
       child: child,
     );

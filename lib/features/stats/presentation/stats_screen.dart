@@ -14,7 +14,6 @@ import '../../../core/format/color_parse.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../../../app/theme/chart_palette.dart';
-import '../../../app/theme/shadow.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_card.dart';
 import '../../../shared/widgets/p_chip.dart';
@@ -1800,7 +1799,7 @@ class _ChartTooltipBox extends StatelessWidget {
           color: t.bgSurface,
           border: Border.all(color: t.borderSubtle, width: 1),
           borderRadius: PRadius.brLg,
-          boxShadow: PShadow.sm,
+          boxShadow: t.shadowSm,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,

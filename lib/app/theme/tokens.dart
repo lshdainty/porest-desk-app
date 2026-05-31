@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'colors.dart';
+import 'shadow.dart';
 
 /// POREST 의미론적 토큰 (light/dark 분기 적용된 의미 단위).
 ///
@@ -82,6 +83,10 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     required this.fgOnHeroChgUp,
     required this.fgOnHeroChgDown,
     required this.fgOnHeroSpot,
+    required this.shadowSm,
+    required this.shadowMd,
+    required this.shadowLg,
+    required this.shadowXl,
   });
 
   // Backgrounds
@@ -172,6 +177,15 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
   final Color fgOnHeroChgDown;
   final Color fgOnHeroSpot;
 
+  // Elevation — theme-aware. 소비처는 PShadow.* 직접 참조 대신 이 게터 사용.
+  // (PShadow.sm 직접 사용 시 다크에서도 라이트 그림자(5%)가 적용돼 거의 안 보임 —
+  //  웹은 `.dark` 에서 --shadow-sm → --shadow-sm-dark 자동 swap.)
+  // light: 두 레이어 cool-neutral / dark: 순흑 drop + inset 화이트 하이라이트.
+  final List<BoxShadow> shadowSm;
+  final List<BoxShadow> shadowMd;
+  final List<BoxShadow> shadowLg;
+  final List<BoxShadow> shadowXl;
+
   /// Light 모드 의미론 토큰 (DESIGN.desk.md spec 매핑).
   static const PorestTokens light = PorestTokens(
     bgCanvas: PorestPalette.slate50,
@@ -252,6 +266,10 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     fgOnHeroChgDown: PorestPalette.heroChgDown,
     // desk-front .balance-hero::after: radial gradient(fg-on-brand 22%, transparent 70%) — 흰색 광원
     fgOnHeroSpot: PorestPalette.slate0,
+    shadowSm: PShadow.sm,
+    shadowMd: PShadow.md,
+    shadowLg: PShadow.lg,
+    shadowXl: PShadow.xl,
   );
 
   /// Dark 모드 의미론 토큰 (DESIGN.desk.md spec 매핑).
@@ -336,6 +354,10 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     fgOnHeroChgUp: PorestPalette.heroChgUp,
     fgOnHeroChgDown: PorestPalette.heroChgDown,
     fgOnHeroSpot: PorestPalette.slate0,
+    shadowSm: PShadow.smDark,
+    shadowMd: PShadow.mdDark,
+    shadowLg: PShadow.lgDark,
+    shadowXl: PShadow.xlDark,
   );
 
   @override
@@ -407,6 +429,10 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     Color? fgOnHeroChgUp,
     Color? fgOnHeroChgDown,
     Color? fgOnHeroSpot,
+    List<BoxShadow>? shadowSm,
+    List<BoxShadow>? shadowMd,
+    List<BoxShadow>? shadowLg,
+    List<BoxShadow>? shadowXl,
   }) {
     return PorestTokens(
       bgCanvas: bgCanvas ?? this.bgCanvas,
@@ -476,6 +502,10 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
       fgOnHeroChgUp: fgOnHeroChgUp ?? this.fgOnHeroChgUp,
       fgOnHeroChgDown: fgOnHeroChgDown ?? this.fgOnHeroChgDown,
       fgOnHeroSpot: fgOnHeroSpot ?? this.fgOnHeroSpot,
+      shadowSm: shadowSm ?? this.shadowSm,
+      shadowMd: shadowMd ?? this.shadowMd,
+      shadowLg: shadowLg ?? this.shadowLg,
+      shadowXl: shadowXl ?? this.shadowXl,
     );
   }
 
@@ -551,6 +581,10 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
       fgOnHeroChgUp: l(fgOnHeroChgUp, other.fgOnHeroChgUp),
       fgOnHeroChgDown: l(fgOnHeroChgDown, other.fgOnHeroChgDown),
       fgOnHeroSpot: l(fgOnHeroSpot, other.fgOnHeroSpot),
+      shadowSm: BoxShadow.lerpList(shadowSm, other.shadowSm, t) ?? shadowSm,
+      shadowMd: BoxShadow.lerpList(shadowMd, other.shadowMd, t) ?? shadowMd,
+      shadowLg: BoxShadow.lerpList(shadowLg, other.shadowLg, t) ?? shadowLg,
+      shadowXl: BoxShadow.lerpList(shadowXl, other.shadowXl, t) ?? shadowXl,
     );
   }
 }

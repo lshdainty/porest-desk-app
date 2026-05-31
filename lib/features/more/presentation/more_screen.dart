@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../../app/theme/radius.dart';
-import '../../../app/theme/shadow.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
@@ -207,7 +206,7 @@ class _ShortcutGrid extends StatelessWidget {
                     color: t.bgSurface,
                     borderRadius: PRadius.brMd,
                     border: Border.all(color: t.borderSubtle),
-                    boxShadow: PShadow.sm,
+                    boxShadow: t.shadowSm,
                   ),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(

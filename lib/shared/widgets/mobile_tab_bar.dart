@@ -3,7 +3,6 @@ import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../app/theme/colors.dart';
 import '../../app/theme/radius.dart';
-import '../../app/theme/shadow.dart';
 import '../../app/theme/spacing.dart';
 import '../../app/theme/tokens.dart';
 import '../../app/theme/typography.dart';
@@ -146,7 +145,7 @@ class _CenterFab extends StatelessWidget {
         decoration: BoxDecoration(
           color: PorestPalette.cobalt500, // primary 고정
           shape: BoxShape.circle,
-          boxShadow: PShadow.sm,
+          boxShadow: tokens.shadowSm,
         ),
         child: Material(
           color: Colors.transparent,
