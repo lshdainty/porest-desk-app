@@ -396,6 +396,8 @@ class _CategoryTab extends ConsumerWidget {
       )),
     );
     final heatmapAsync = ref.watch(heatmapProvider(state._range));
+    // 가맹점 대표 카테고리 아이콘 역산용 원시 거래
+    final expensesAsync = ref.watch(rangeExpensesProvider(state._range));
 
     return RefreshIndicator(
       color: t.bgBrand,
@@ -408,6 +410,7 @@ class _CategoryTab extends ConsumerWidget {
           )),
         );
         ref.invalidate(heatmapProvider(state._range));
+        ref.invalidate(rangeExpensesProvider(state._range));
       },
       child: ListView(
         padding: const EdgeInsets.symmetric(
@@ -431,6 +434,7 @@ class _CategoryTab extends ConsumerWidget {
             rangeAsync: rangeAsync,
             categoriesAsync: categoriesAsync,
             merchantAsync: merchantAsync,
+            expensesAsync: expensesAsync,
             masked: settings.hideAmounts,
           ),
         ],
@@ -1407,22 +1411,25 @@ class _HighlightsGrid extends StatelessWidget {
     required this.rangeAsync,
     required this.categoriesAsync,
     required this.merchantAsync,
+    required this.expensesAsync,
     required this.masked,
   });
   final _StatsScreenState state;
   final AsyncValue<RangeSummary> rangeAsync;
   final AsyncValue<List<dynamic>> categoriesAsync;
   final AsyncValue<List<MerchantSummary>> merchantAsync;
+  final AsyncValue<List<Expense>> expensesAsync;
   final bool masked;
 
   @override
   Widget build(BuildContext context) {
     final s = state;
+    final t = context.tokens;
 
     // 카테고리 Top — 부모 카테고리 단위 합계
     final bd =
         rangeAsync.value?.categoryBreakdown ?? const <CategoryBreakdown>[];
-    final groupTotals = <int, ({String name, int amount})>{};
+    final groupTotals = <int, ({int id, String name, int amount})>{};
     for (final c in bd) {
       if (c.expenseType != 'EXPENSE') continue;
       final id = c.parentCategoryRowId ?? c.categoryRowId;
@@ -1430,18 +1437,54 @@ class _HighlightsGrid extends StatelessWidget {
       final name = c.parentCategoryName ?? c.categoryName ?? '미지정';
       final cur = groupTotals[id];
       groupTotals[id] = cur == null
-          ? (name: name, amount: c.totalAmount)
-          : (name: cur.name, amount: cur.amount + c.totalAmount);
+          ? (id: id, name: name, amount: c.totalAmount)
+          : (id: id, name: cur.name, amount: cur.amount + c.totalAmount);
     }
     final topCat = groupTotals.values.toList()
       ..sort((a, b) => b.amount.compareTo(a.amount));
     final topCategory = topCat.firstOrNull;
+
+    // 카테고리 아이콘/색 룩업 — 도넛(_aggregateParent)과 동일 방식
+    final cats = (categoriesAsync.value ?? const []).cast<dynamic>();
+    final topCatMeta = topCategory == null
+        ? null
+        : cats.where((x) => x.rowId == topCategory.id).firstOrNull;
+    final catFg = parseColor(topCatMeta?.color as String?, fallback: t.fgBrand);
+    final catIcon =
+        lucideByName(topCatMeta?.icon as String?, fallback: LucideIcons.tag);
 
     // 가맹점 Top
     final merchants =
         (merchantAsync.value ?? const <MerchantSummary>[]).toList()
           ..sort((a, b) => b.totalAmount.compareTo(a.totalAmount));
     final topMerchant = merchants.firstOrNull;
+
+    // 가맹점 대표 카테고리 아이콘 — 원시 거래에서 해당 가맹점의
+    // 지배적(최다 지출) 카테고리를 역산. 못 찾으면 상점 아이콘 fallback.
+    IconData merchantIcon = LucideIcons.store;
+    Color merchantFg = t.fgBrand;
+    final mName = topMerchant?.merchant;
+    if (mName != null) {
+      final exps = expensesAsync.value ?? const <Expense>[];
+      final catTotals = <int, ({int amount, String? icon, String? color})>{};
+      for (final e in exps) {
+        if (e.merchant != mName || e.expenseType != 'EXPENSE') continue;
+        final cid = e.categoryRowId;
+        if (cid == null) continue;
+        final cur = catTotals[cid];
+        catTotals[cid] = cur == null
+            ? (amount: e.amount, icon: e.categoryIcon, color: e.categoryColor)
+            : (amount: cur.amount + e.amount, icon: cur.icon, color: cur.color);
+      }
+      ({int amount, String? icon, String? color})? best;
+      for (final v in catTotals.values) {
+        if (best == null || v.amount > best.amount) best = v;
+      }
+      if (best != null) {
+        merchantFg = parseColor(best.color, fallback: t.fgBrand);
+        merchantIcon = lucideByName(best.icon, fallback: LucideIcons.store);
+      }
+    }
 
     // 평균 계산 — 단일 월 또는 사용자 지정 기간이면 일평균, 그 외엔 월평균
     final periodTotal = rangeAsync.value?.totalExpense ?? 0;
@@ -1470,6 +1513,8 @@ class _HighlightsGrid extends StatelessWidget {
           sub: topCategory != null
               ? '${krwMasked(topCategory.amount, masked)}원'
               : '데이터 없음',
+          icon: catIcon,
+          iconFg: catFg,
         ),
         const SizedBox(height: 10),
         _HighlightCard(
@@ -1478,6 +1523,9 @@ class _HighlightsGrid extends StatelessWidget {
           sub: topMerchant != null
               ? '${topMerchant.count}회 · ${krwMasked(topMerchant.totalAmount, masked)}원'
               : '데이터 없음',
+          // 가맹점이 속한 대표 카테고리 아이콘(역산), 없으면 상점 아이콘
+          icon: merchantIcon,
+          iconFg: merchantFg,
         ),
         const SizedBox(height: 10),
         _HighlightCard(
@@ -1485,6 +1533,8 @@ class _HighlightsGrid extends StatelessWidget {
           value: '${krwMasked(avgValue, masked)}원',
           sub: avgSub,
           valueIsAmount: true,
+          icon: LucideIcons.calendarDays,
+          iconFg: t.fgBrand,
         ),
       ],
     );
@@ -1496,11 +1546,15 @@ class _HighlightCard extends StatelessWidget {
     required this.label,
     required this.value,
     required this.sub,
+    required this.icon,
+    required this.iconFg,
     this.valueIsAmount = false,
   });
   final String label;
   final String value;
   final String sub;
+  final IconData icon;
+  final Color iconFg;
   final bool valueIsAmount;
   @override
   Widget build(BuildContext context) {
@@ -1517,19 +1571,46 @@ class _HighlightCard extends StatelessWidget {
               fontWeight: PFontWeight.medium,
             ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: PTypo.h4.copyWith(
-              color: t.fgPrimary,
-              fontWeight: PFontWeight.bold,
-              fontFamily: valueIsAmount ? 'monospace' : null,
-            ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: cp.softBg(context, iconFg),
+                  borderRadius: PRadius.brLg,
+                ),
+                alignment: Alignment.center,
+                child: Icon(icon, size: 18, color: iconFg),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      value,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: PTypo.h4.copyWith(
+                        color: t.fgPrimary,
+                        fontWeight: PFontWeight.bold,
+                        fontFamily: valueIsAmount ? 'monospace' : null,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      sub,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: PTypo.caption.copyWith(color: t.fgTertiary),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 4),
-          Text(sub, style: PTypo.caption.copyWith(color: t.fgTertiary)),
         ],
       ),
     );
