@@ -9,7 +9,6 @@ import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/format/chart_palette.dart';
-import '../../../core/format/color_parse.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/settings/hide_amounts_unlock_dialog.dart';
 import '../../../core/settings/settings_notifier.dart';
@@ -135,7 +134,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
     final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
     final masked = settings.hideAmounts;
     final meta = AssetTypeMeta.of(asset.assetType);
-    final brandFg = parseColor(asset.color, fallback: t.fgBrand);
+    final brandFg = resolveChartColor(context, asset.color, fallback: t.fgBrand);
 
     final isCard =
         asset.assetType == 'CREDIT_CARD' || asset.assetType == 'CHECK_CARD';
@@ -683,7 +682,7 @@ class _ExpenseRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isIncome = expense.expenseType == 'INCOME';
-    final color = parseColor(expense.categoryColor, fallback: tokens.fgBrand);
+    final color = resolveChartColor(context, expense.categoryColor, fallback: tokens.fgBrand);
     final bg = softBg(context, color);
     final title =
         expense.merchant ??

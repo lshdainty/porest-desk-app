@@ -8,7 +8,6 @@ import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/format/chart_palette.dart';
-import '../../../core/format/color_parse.dart';
 import '../../../core/format/date.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
@@ -1463,7 +1462,7 @@ class _CategoryRow extends StatelessWidget {
         : tokens.statusInfoFg;
     final iconRaw = category?.icon;
     final colorRaw = category?.color;
-    final fg = parseColor(colorRaw, fallback: tokens.fgBrand);
+    final fg = resolveChartColor(context, colorRaw, fallback: tokens.fgBrand);
     final bg = softBg(context, fg);
     final name =
         category?.categoryName ??

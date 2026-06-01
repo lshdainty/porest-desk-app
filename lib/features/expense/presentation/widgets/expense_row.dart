@@ -6,7 +6,6 @@ import '../../../../app/theme/spacing.dart';
 import '../../../../app/theme/tokens.dart';
 import '../../../../app/theme/typography.dart';
 import '../../../../core/format/chart_palette.dart';
-import '../../../../core/format/color_parse.dart';
 import '../../../../core/format/krw.dart';
 import '../../../../shared/icons/lucide_icon_map.dart';
 import '../../domain/expense.dart';
@@ -38,7 +37,7 @@ class ExpenseRow extends StatelessWidget {
     final iconRaw = category?.icon ?? expense.categoryIcon;
     final cName = category?.categoryName ?? expense.categoryName ?? '미지정';
 
-    final fg = parseColor(colorRaw, fallback: t.fgBrand);
+    final fg = resolveChartColor(context, colorRaw, fallback: t.fgBrand);
     final bg = softBg(context, fg);
     final icon = lucideByName(iconRaw, fallback: LucideIcons.tag);
 

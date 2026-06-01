@@ -9,7 +9,6 @@ import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/format/chart_palette.dart';
-import '../../../core/format/color_parse.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
@@ -211,7 +210,7 @@ class _UpcomingCard extends StatelessWidget {
                       width: 8,
                       height: 8,
                       decoration: BoxDecoration(
-                          color: parseColor(e.color, fallback: t.fgBrand),
+                          color: resolveChartColor(context, e.color, fallback: t.fgBrand),
                           shape: BoxShape.circle),
                     ),
                     const SizedBox(width: 8),

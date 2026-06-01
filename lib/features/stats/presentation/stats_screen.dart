@@ -10,7 +10,6 @@ import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/format/chart_palette.dart' as cp;
-import '../../../core/format/color_parse.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../../../app/theme/chart_palette.dart';
@@ -1453,7 +1452,11 @@ class _HighlightsGrid extends StatelessWidget {
     final topCatMeta = topCategory == null
         ? null
         : cats.where((x) => x.rowId == topCategory.id).firstOrNull;
-    final catFg = parseColor(topCatMeta?.color as String?, fallback: t.fgBrand);
+    final catFg = cp.resolveChartColor(
+      context,
+      topCatMeta?.color as String?,
+      fallback: t.fgBrand,
+    );
     final catIcon =
         lucideByName(topCatMeta?.icon as String?, fallback: LucideIcons.tag);
 
@@ -1485,7 +1488,11 @@ class _HighlightsGrid extends StatelessWidget {
         if (best == null || v.amount > best.amount) best = v;
       }
       if (best != null) {
-        merchantFg = parseColor(best.color, fallback: t.fgBrand);
+        merchantFg = cp.resolveChartColor(
+          context,
+          best.color,
+          fallback: t.fgBrand,
+        );
         merchantIcon = lucideByName(best.icon, fallback: LucideIcons.store);
       }
     }
@@ -2770,7 +2777,7 @@ class _CompareRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final fg = parseColor(row.color, fallback: t.fgBrand);
+    final fg = cp.resolveChartColor(context, row.color, fallback: t.fgBrand);
     final iconData = lucideByName(row.icon ?? 'tag');
     final diff = row.now - row.prev;
     final up = diff > 0;

@@ -9,7 +9,6 @@ import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/format/chart_palette.dart';
-import '../../../core/format/color_parse.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_card.dart';
@@ -231,7 +230,7 @@ class _GroupRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color =
-        parseColor(group.groupTypeColor, fallback: tokens.fgBrand);
+        resolveChartColor(context, group.groupTypeColor, fallback: tokens.fgBrand);
     final bg = softBg(context, color);
     return InkWell(
       onTap: () => context.push('/groups/${group.rowId}'),
