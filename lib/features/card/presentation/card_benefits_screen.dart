@@ -49,12 +49,30 @@ class CardBenefitsScreen extends ConsumerStatefulWidget {
 
 class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
   final _kwCtrl = TextEditingController();
+  final _scroll = ScrollController();
   int _typeIndex = 0;
   int _benefitIndex = 0;
   bool _includeDiscontinued = false;
   Timer? _debounce;
   CardSearchKey _searchKey = defaultCardSearchKey();
 
+  // ─── 누적식 인피니티 스크롤 상태 ──────────────────────────
+  final List<CardCatalogSummary> _cards = [];
+  int _page = 0;
+  bool _hasMore = true;
+  bool _loadingMore = false;
+  bool _initialLoading = true;
+  Object? _error;
+  int _totalElements = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _scroll.addListener(_onScroll);
+    _loadMore(initial: true);
+  }
+
+  /// 검색 키를 현재 필터 상태로 갱신. (page/size 제외)
   void _rebuildKey() {
     _searchKey = defaultCardSearchKey(
       keyword: _kwCtrl.text.trim().isEmpty ? null : _kwCtrl.text.trim(),
@@ -64,42 +82,95 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
     );
   }
 
+  /// 특정 page 의 검색 키 파생 (record typedef 라 copyWith 대체).
+  CardSearchKey _keyForPage(int page) => (
+        keyword: _searchKey.keyword,
+        cardType: _searchKey.cardType,
+        benefitType: _searchKey.benefitType,
+        includeDiscontinued: _searchKey.includeDiscontinued,
+        page: page,
+        size: _searchKey.size,
+      );
+
+  /// 필터/검색 변경 → 누적 리셋 후 첫 페이지부터 다시 로드.
+  void _reset() {
+    setState(() {
+      _cards.clear();
+      _page = 0;
+      _hasMore = true;
+      _initialLoading = true;
+      _error = null;
+    });
+    _loadMore(initial: true);
+  }
+
+  Future<void> _loadMore({bool initial = false}) async {
+    if (_loadingMore || (!initial && !_hasMore)) return;
+    setState(() => _loadingMore = true);
+    final key = _keyForPage(_page);
+    try {
+      // 새 페이지는 항상 최신 데이터를 받도록 캐시 무효화.
+      ref.invalidate(cardCatalogPageProvider(key));
+      final p = await ref.read(cardCatalogPageProvider(key).future);
+      if (!mounted) return;
+      setState(() {
+        _cards.addAll(p.content);
+        _totalElements = p.totalElements;
+        _hasMore = !p.last;
+        _page += 1;
+        _initialLoading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _error = e;
+        _initialLoading = false;
+      });
+    } finally {
+      if (mounted) setState(() => _loadingMore = false);
+    }
+  }
+
+  void _onScroll() {
+    if (_scroll.position.pixels >=
+            _scroll.position.maxScrollExtent - 300 &&
+        _hasMore &&
+        !_loadingMore) {
+      _loadMore();
+    }
+  }
+
   void _onSearchChanged(String _) {
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 350), () {
-      setState(_rebuildKey);
+      _rebuildKey();
+      _reset();
     });
   }
 
-  void _setType(int i) => setState(() {
-        _typeIndex = i;
-        _rebuildKey();
-      });
+  void _setType(int i) {
+    setState(() => _typeIndex = i);
+    _rebuildKey();
+    _reset();
+  }
 
-  void _setBenefit(int i) => setState(() {
-        _benefitIndex = i;
-        _rebuildKey();
-      });
+  void _setBenefit(int i) {
+    setState(() => _benefitIndex = i);
+    _rebuildKey();
+    _reset();
+  }
 
-  void _toggleDiscontinued(bool? v) => setState(() {
-        _includeDiscontinued = v ?? false;
-        _rebuildKey();
-      });
-
-  void _goPage(int delta) => setState(() {
-        _searchKey = (
-          keyword: _searchKey.keyword,
-          cardType: _searchKey.cardType,
-          benefitType: _searchKey.benefitType,
-          includeDiscontinued: _searchKey.includeDiscontinued,
-          page: _searchKey.page + delta,
-          size: _searchKey.size,
-        );
-      });
+  void _toggleDiscontinued(bool? v) {
+    setState(() => _includeDiscontinued = v ?? false);
+    _rebuildKey();
+    _reset();
+  }
 
   @override
   void dispose() {
     _kwCtrl.dispose();
+    _scroll.removeListener(_onScroll);
+    _scroll.dispose();
     _debounce?.cancel();
     super.dispose();
   }
@@ -107,7 +178,6 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final pageAsync = ref.watch(cardCatalogPageProvider(_searchKey));
 
     return Scaffold(
       backgroundColor: t.bgCanvas,
@@ -123,11 +193,9 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
       ),
       body: RefreshIndicator(
         color: t.bgBrand,
-        onRefresh: () async {
-          ref.invalidate(cardCatalogPageProvider(_searchKey));
-          await ref.read(cardCatalogPageProvider(_searchKey).future);
-        },
+        onRefresh: () async => _reset(),
         child: ListView(
+          controller: _scroll,
           padding: const EdgeInsets.fromLTRB(
               PSpace.x16, PSpace.x16, PSpace.x16, PSpace.x40),
           children: [
@@ -184,66 +252,79 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
             ),
             const SizedBox(height: PSpace.x8),
 
-            // 결과 카운트 + 리스트
-            pageAsync.when(
-              loading: () => const Padding(
-                padding: EdgeInsets.only(top: PSpace.x8),
-                child: PListSkeleton(rows: 6, showAvatar: true),
-              ),
-              error: (e, _) => Padding(
-                padding: const EdgeInsets.only(top: PSpace.x16),
-                child: Text('카드 로드 실패\n$e',
-                    style:
-                        PTypo.bodySm.copyWith(color: t.statusDanger)),
-              ),
-              data: (page) {
-                final cards = page.content;
-                if (cards.isEmpty) {
-                  return const Padding(
-                    padding: EdgeInsets.only(top: PSpace.x32),
-                    child: PEmptyState(
-                      icon: LucideIcons.searchX,
-                      message: '결과가 없어요',
-                      subMessage: '다른 검색어를 시도해보세요',
-                    ),
-                  );
-                }
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(
-                          left: PSpace.x4, bottom: PSpace.x8),
-                      child: Text('총 ${page.totalElements}건',
-                          style: PTypo.caption
-                              .copyWith(color: t.fgTertiary)),
-                    ),
-                    for (int i = 0; i < cards.length; i++) ...[
-                      if (i > 0) const SizedBox(height: PSpace.x8),
-                      _CardTile(
-                        card: cards[i],
-                        onTap: () => showCardBenefitDetailSheet(
-                            context, cards[i].rowId),
-                        tokens: t,
-                      ),
-                    ],
-                    if (page.totalPages > 1) ...[
-                      const SizedBox(height: PSpace.x16),
-                      _Paginator(
-                        page: page,
-                        onPrev: page.first ? null : () => _goPage(-1),
-                        onNext: page.last ? null : () => _goPage(1),
-                        tokens: t,
-                      ),
-                    ],
-                  ],
-                );
-              },
-            ),
+            // 결과 카운트 + 리스트 (누적식 인피니티 스크롤)
+            ..._buildResults(t),
           ],
         ),
       ),
     );
+  }
+
+  /// 결과 영역 — 초기로딩 / 에러 / 빈상태 / 누적 리스트 + 하단 인디케이터.
+  List<Widget> _buildResults(PorestTokens t) {
+    // 초기 로딩 (첫 페이지 fetch 중, 누적 없음)
+    if (_initialLoading) {
+      return const [
+        Padding(
+          padding: EdgeInsets.only(top: PSpace.x8),
+          child: PListSkeleton(rows: 6, showAvatar: true),
+        ),
+      ];
+    }
+
+    // 에러 (누적된 카드가 없을 때만 전체 에러 표시)
+    if (_error != null && _cards.isEmpty) {
+      return [
+        Padding(
+          padding: const EdgeInsets.only(top: PSpace.x16),
+          child: Text('카드 로드 실패\n$_error',
+              style: PTypo.bodySm.copyWith(color: t.statusDanger)),
+        ),
+      ];
+    }
+
+    // 빈 상태
+    if (_cards.isEmpty) {
+      return const [
+        Padding(
+          padding: EdgeInsets.only(top: PSpace.x32),
+          child: PEmptyState(
+            icon: LucideIcons.searchX,
+            message: '결과가 없어요',
+            subMessage: '다른 검색어를 시도해보세요',
+          ),
+        ),
+      ];
+    }
+
+    return [
+      Padding(
+        padding: const EdgeInsets.only(left: PSpace.x4, bottom: PSpace.x8),
+        child: Text('총 $_totalElements건',
+            style: PTypo.caption.copyWith(color: t.fgTertiary)),
+      ),
+      for (int i = 0; i < _cards.length; i++) ...[
+        if (i > 0) const SizedBox(height: PSpace.x8),
+        _CardTile(
+          card: _cards[i],
+          onTap: () =>
+              showCardBenefitDetailSheet(context, _cards[i].rowId),
+          tokens: t,
+        ),
+      ],
+      // 추가 페이지 로딩 인디케이터
+      if (_loadingMore) ...[
+        const SizedBox(height: PSpace.x16),
+        Center(
+          child: SizedBox(
+            width: 24,
+            height: 24,
+            child: CircularProgressIndicator(
+                strokeWidth: 2.5, color: t.bgBrand),
+          ),
+        ),
+      ],
+    ];
   }
 }
 
@@ -435,65 +516,4 @@ String _performanceLabel(CardPerformance? perf) {
   final amount = perf.requiredAmount;
   if (amount == null || amount == 0) return '실적 무관';
   return '실적 ${krw(amount)}원/월';
-}
-
-class _Paginator extends StatelessWidget {
-  const _Paginator({
-    required this.page,
-    required this.onPrev,
-    required this.onNext,
-    required this.tokens,
-  });
-  final dynamic page;
-  final VoidCallback? onPrev;
-  final VoidCallback? onNext;
-  final PorestTokens tokens;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = tokens;
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        _PageArrow(
-            icon: LucideIcons.chevronLeft, onTap: onPrev, tokens: t),
-        const SizedBox(width: 12),
-        Text(
-          '${(page.number as int) + 1} / ${page.totalPages == 0 ? 1 : page.totalPages}',
-          style: PTypo.bodySm.copyWith(
-              color: t.fgPrimary, fontWeight: PFontWeight.semi),
-        ),
-        const SizedBox(width: 12),
-        _PageArrow(
-            icon: LucideIcons.chevronRight, onTap: onNext, tokens: t),
-      ],
-    );
-  }
-}
-
-class _PageArrow extends StatelessWidget {
-  const _PageArrow(
-      {required this.icon, required this.onTap, required this.tokens});
-  final IconData icon;
-  final VoidCallback? onTap;
-  final PorestTokens tokens;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = tokens;
-    final disabled = onTap == null;
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: PRadius.brFull,
-        child: SizedBox(
-          width: 36,
-          height: 36,
-          child: Icon(icon,
-              size: 18, color: disabled ? t.fgDisabled : t.fgSecondary),
-        ),
-      ),
-    );
-  }
 }
