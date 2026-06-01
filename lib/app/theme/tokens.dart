@@ -250,7 +250,7 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     bgIncomeSubtle: PorestPalette.cobalt50,
     bgTransferSubtle: Color(0x1F1D6FCB),
     // Interaction tints
-    bgBrandTint: PorestPalette.cobalt50,
+    bgBrandTint: Color(0xFFEAF2FB),       // 디자인 p-card--brand 라이트(mossy-50) — alphaBlend 시 그대로
     bgBrandTintStrong: PorestPalette.cobalt100,
     bgTableHead: PorestPalette.slate100,
     // Border 변형
