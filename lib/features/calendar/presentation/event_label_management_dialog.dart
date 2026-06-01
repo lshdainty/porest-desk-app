@@ -95,7 +95,7 @@ class _BodyState extends ConsumerState<_Body> {
           Row(
             children: [
               _ColorDot(
-                color: resolveChartColor(context, _newColor, fallback: t.fgBrand),
+                color: solidSwatchColor(context, _newColor, fallback: t.fgBrand),
                 size: 28,
               ),
               const SizedBox(width: PSpace.x8),
@@ -233,7 +233,7 @@ class _LabelRowState extends ConsumerState<_LabelRow> {
   @override
   Widget build(BuildContext context) {
     final t = widget.tokens;
-    final color = resolveChartColor(context, _color, fallback: t.fgBrand);
+    final color = solidSwatchColor(context, _color, fallback: t.fgBrand);
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -324,7 +324,7 @@ class _PaletteRow extends StatelessWidget {
               width: 28,
               height: 28,
               decoration: BoxDecoration(
-                color: resolveChartColor(context, c, fallback: tokens.fgBrand),
+                color: solidSwatchColor(context, c, fallback: tokens.fgBrand),
                 shape: BoxShape.circle,
                 border: Border.all(
                   color:
@@ -333,7 +333,14 @@ class _PaletteRow extends StatelessWidget {
                 ),
               ),
               child: c == selected
-                  ? const Icon(LucideIcons.check, size: 14, color: Colors.white)
+                  ? Icon(LucideIcons.check,
+                      size: 14,
+                      // light fill(다크모드) 위에서도 보이도록 명도 기준 대비 색.
+                      color: ThemeData.estimateBrightnessForColor(solidSwatchColor(
+                                  context, c, fallback: tokens.fgBrand)) ==
+                              Brightness.dark
+                          ? Colors.white
+                          : const Color(0xFF1A1F2E))
                   : null,
             ),
           ),

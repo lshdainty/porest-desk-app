@@ -88,7 +88,7 @@ class _BodyState extends ConsumerState<_Body> {
               Container(
                 width: 28, height: 28,
                 decoration: BoxDecoration(
-                  color: resolveChartColor(context, _newColor, fallback: t.fgBrand),
+                  color: solidSwatchColor(context, _newColor, fallback: t.fgBrand),
                   shape: BoxShape.circle,
                 ),
               ),
@@ -121,7 +121,7 @@ class _BodyState extends ConsumerState<_Body> {
                   child: Container(
                     width: 26, height: 26,
                     decoration: BoxDecoration(
-                      color: resolveChartColor(context, c, fallback: t.fgBrand),
+                      color: solidSwatchColor(context, c, fallback: t.fgBrand),
                       shape: BoxShape.circle,
                       border: Border.all(
                         color: c == _newColor
@@ -218,7 +218,7 @@ class _RowState extends ConsumerState<_Row> {
   @override
   Widget build(BuildContext context) {
     final t = widget.tokens;
-    final color = resolveChartColor(context, widget.cal.color, fallback: t.fgBrand);
+    final color = solidSwatchColor(context, widget.cal.color, fallback: t.fgBrand);
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),

@@ -288,7 +288,7 @@ class _BodyState extends ConsumerState<_Body> {
                   width: PSpace.x12,
                   height: PSpace.x12,
                   decoration: BoxDecoration(
-                    color: resolveChartColor(sheetCtx, c.color, fallback: t.fgBrand),
+                    color: solidSwatchColor(sheetCtx, c.color, fallback: t.fgBrand),
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -376,7 +376,7 @@ class _BodyState extends ConsumerState<_Body> {
                         width: PSpace.x12,
                         height: PSpace.x12,
                         decoration: BoxDecoration(
-                          color: resolveChartColor(context, selectedCalendar.color,
+                          color: solidSwatchColor(context, selectedCalendar.color,
                               fallback: t.fgBrand),
                           shape: BoxShape.circle,
                         ),
@@ -426,8 +426,8 @@ class _BodyState extends ConsumerState<_Body> {
                       for (final l in labels)
                         PChip(
                           label: l.labelName,
-                          color: resolveChartColor(context, l.color, fallback: t.fgBrand),
-                          dotColor: resolveChartColor(context, l.color, fallback: t.fgBrand),
+                          color: solidSwatchColor(context, l.color, fallback: t.fgBrand),
+                          dotColor: solidSwatchColor(context, l.color, fallback: t.fgBrand),
                           variant: PChipVariant.subtle,
                           selected: _labelRowId == l.rowId,
                           onTap: () =>
@@ -447,7 +447,7 @@ class _BodyState extends ConsumerState<_Body> {
             children: [
               for (final c in _colorOptions)
                 _ColorSphere(
-                  color: resolveChartColor(context, c, fallback: t.fgBrand),
+                  color: solidSwatchColor(context, c, fallback: t.fgBrand),
                   selected: _color.toLowerCase() == c.toLowerCase(),
                   onTap: () => setState(() => _color = c),
                   tokens: t,

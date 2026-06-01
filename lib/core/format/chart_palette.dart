@@ -96,6 +96,26 @@ Color resolveChartColor(
   return parseColor(rawHex, fallback: fb);
 }
 
+/// 캘린더/라벨 **솔리드 스와치**(체크박스·점·색 미리보기)용 색 — 다크에서 light 톤.
+///
+/// 이벤트 칩처럼 surface 와 혼합(chipFill/chipText)하지 않고 색을 그대로 칠하는 곳
+/// (다중 캘린더 선택 체크박스, 색 점 등)에서 다크모드 가독성을 위해 밝게 변환한다.
+/// - 차트 팔레트 색 → 정확한 light variant (resolveChartColor)
+/// - 팔레트 밖 커스텀 색(예: 캘린더 기본 `#2563eb` 등) → HSL 명도를 올려
+///   디자인 light variant(명도 ~0.68) 근사 (이미 밝은 색은 유지)
+/// 라이트 모드는 base 그대로.
+Color solidSwatchColor(BuildContext context, String? rawHex, {Color? fallback}) {
+  final resolved = resolveChartColor(context, rawHex, fallback: fallback);
+  if (Theme.of(context).brightness != Brightness.dark) return resolved;
+  final norm = rawHex?.trim().toLowerCase();
+  if (norm != null && _kBaseHexToPair.containsKey(norm)) {
+    return resolved; // 팔레트 색 → resolveChartColor 가 이미 light variant 반환
+  }
+  final hsl = HSLColor.fromColor(resolved);
+  if (hsl.lightness >= 0.62) return resolved; // 이미 밝으면 유지
+  return hsl.withLightness(0.68).toColor();
+}
+
 /// 캘린더 이벤트 칩 **배경** — base 색을 surface 와 불투명 혼합.
 ///
 /// 웹 `color-mix(in oklab, <색> 17%, var(--bg-surface))` 정합.

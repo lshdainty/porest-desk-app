@@ -43,7 +43,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     final visibleCount = calendars.where((c) => c.isVisible).length;
     final dotColors = calendars
         .take(3)
-        .map((c) => resolveChartColor(context, c.color, fallback: t.fgBrand))
+        .map((c) => solidSwatchColor(context, c.color, fallback: t.fgBrand))
         .toList();
 
     final lastDay = DateTime(_key.year, _key.month + 1, 0).day;
@@ -439,7 +439,12 @@ class _CalendarFilterRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = tokens;
-    final color = resolveChartColor(context, calendar.color, fallback: t.fgBrand);
+    final color = solidSwatchColor(context, calendar.color, fallback: t.fgBrand);
+    // light fill(다크모드 light variant) 위에서도 체크가 보이도록 fill 명도 기준 대비 색.
+    final checkColor =
+        ThemeData.estimateBrightnessForColor(color) == Brightness.dark
+            ? Colors.white
+            : const Color(0xFF1A1F2E);
     return InkWell(
       onTap: onToggle,
       borderRadius: PRadius.brMd,
@@ -461,7 +466,7 @@ class _CalendarFilterRow extends StatelessWidget {
                 borderRadius: PRadius.brSm,
               ),
               child: calendar.isVisible
-                  ? Icon(LucideIcons.check, size: 13, color: t.fgOnBrand)
+                  ? Icon(LucideIcons.check, size: 13, color: checkColor)
                   : null,
             ),
             const SizedBox(width: PSpace.x12),
