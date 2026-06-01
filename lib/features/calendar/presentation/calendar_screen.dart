@@ -319,7 +319,7 @@ class _MonthHeader extends StatelessWidget {
                   ],
                   if (dotColors.isNotEmpty) const SizedBox(width: PSpace.x4),
                   Text(
-                    '$calendarCount',
+                    '$calendarCount개',
                     style: PTypo.caption.copyWith(
                       color: t.fgSecondary,
                       fontWeight: PFontWeight.semi,
