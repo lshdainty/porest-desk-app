@@ -50,9 +50,14 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     final hStart = '${_key.year.toString().padLeft(4, '0')}-${_key.month.toString().padLeft(2, '0')}-01';
     final hEnd = '${_key.year.toString().padLeft(4, '0')}-${_key.month.toString().padLeft(2, '0')}-${lastDay.toString().padLeft(2, '0')}';
     final holidaysAsync = ref.watch(holidayListProvider((startDate: hStart, endDate: hEnd)));
-    final holidayMap = <String, String>{
-      for (final h in (holidaysAsync.value ?? const <Holiday>[])) h.holidayDate: h.holidayName,
-    };
+    final holidayVisible = ref.watch(holidayVisibleProvider);
+    // 기타 소스 > 공휴일 토글 off 면 빈 맵 → 달력에 공휴일 라벨/색 미표시.
+    final holidayMap = holidayVisible
+        ? <String, String>{
+            for (final h in (holidaysAsync.value ?? const <Holiday>[]))
+              h.holidayDate: h.holidayName,
+          }
+        : const <String, String>{};
 
     // 첫 로딩(이벤트/캘린더 아직 없음) — 웹 CalendarMonthViewSkeleton 정합.
     final firstLoading = (eventsAsync.isLoading && !eventsAsync.hasValue) ||
@@ -187,8 +192,8 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     showPSheet<void>(
       context,
       title: '캘린더',
-      contentBuilder: (ctx, scrollCtrl) => _CalendarFilterSheetBody(
-        scrollController: scrollCtrl,
+      shrinkWrap: true, // 컨텐츠 높이에 맞춤(아래 빈 공간 제거)
+      contentBuilder: (ctx, _) => _CalendarFilterSheetBody(
         onManage: () {
           Navigator.of(context).pop();
           showUserCalendarManagementDialog(context);
@@ -341,10 +346,8 @@ class _MonthHeader extends StatelessWidget {
 
 class _CalendarFilterSheetBody extends ConsumerWidget {
   const _CalendarFilterSheetBody({
-    required this.scrollController,
     required this.onManage,
   });
-  final ScrollController scrollController;
   final VoidCallback onManage;
 
   @override
@@ -352,94 +355,119 @@ class _CalendarFilterSheetBody extends ConsumerWidget {
     final t = context.tokens;
     final async = ref.watch(userCalendarListProvider);
     final calendars = async.value ?? const <UserCalendar>[];
+    final holidayVisible = ref.watch(holidayVisibleProvider);
 
-    return ListView(
-      controller: scrollController,
-      padding: const EdgeInsets.fromLTRB(
-          PSpace.x20, PSpace.x4, PSpace.x20, PSpace.x24),
-      children: [
-        // 내 캘린더 섹션
-        Padding(
-          padding: const EdgeInsets.only(
-              top: PSpace.x8, bottom: PSpace.x8),
+    Widget sectionLabel(String text) => Padding(
+          padding: const EdgeInsets.only(top: PSpace.x8, bottom: PSpace.x8),
           child: Text(
-            '내 캘린더',
+            text,
             style: PTypo.caption.copyWith(
               color: t.fgTertiary,
               fontWeight: PFontWeight.semi,
               letterSpacing: 0.3,
             ),
           ),
-        ),
-        if (calendars.isEmpty)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: PSpace.x12),
-            child: Text(
-              '캘린더가 없습니다',
-              style: PTypo.bodySm.copyWith(color: t.fgTertiary),
-            ),
-          )
-        else
-          for (final cal in calendars)
-            _CalendarFilterRow(
-              calendar: cal,
-              onToggle: () async {
-                try {
-                  final repo =
-                      await ref.read(userCalendarRepositoryProvider.future);
-                  await repo.toggleVisibility(cal.rowId);
-                  ref.invalidate(userCalendarListProvider);
-                } catch (_) {
-                  if (context.mounted) {
-                    showPSnackBar(context, '변경 실패', severity: PSnackSeverity.error);
+        );
+
+    // 컨텐츠 높이에 맞춰 wrap (showPSheet shrinkWrap 모드) → Column 사용.
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+          PSpace.x20, PSpace.x4, PSpace.x20, PSpace.x24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // 내 캘린더 섹션
+          sectionLabel('내 캘린더'),
+          if (calendars.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: PSpace.x12),
+              child: Text(
+                '캘린더가 없습니다',
+                style: PTypo.bodySm.copyWith(color: t.fgTertiary),
+              ),
+            )
+          else
+            for (final cal in calendars)
+              _FilterRow(
+                colorHex: cal.color,
+                name: cal.calendarName,
+                checked: cal.isVisible,
+                onToggle: () async {
+                  try {
+                    final repo =
+                        await ref.read(userCalendarRepositoryProvider.future);
+                    await repo.toggleVisibility(cal.rowId);
+                    ref.invalidate(userCalendarListProvider);
+                  } catch (_) {
+                    if (context.mounted) {
+                      showPSnackBar(context, '변경 실패',
+                          severity: PSnackSeverity.error);
+                    }
                   }
-                }
-              },
-              tokens: t,
-            ),
-        const SizedBox(height: PSpace.x16),
-        PDivider(),
-        // 관리 버튼
-        InkWell(
-          onTap: onManage,
-          borderRadius: PRadius.brMd,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: PSpace.x12),
-            child: Row(
-              children: [
-                Icon(LucideIcons.settings2,
-                    size: 15, color: t.fgBrand),
-                const SizedBox(width: PSpace.x8),
-                Text(
-                  '캘린더 관리 · 공유 설정',
-                  style: PTypo.body.copyWith(
-                    color: t.fgBrand,
-                    fontWeight: PFontWeight.semi,
+                },
+                tokens: t,
+              ),
+          const SizedBox(height: PSpace.x8),
+          PDivider(),
+          // 기타 소스 섹션 — 공휴일 on/off (웹 정합)
+          sectionLabel('기타 소스'),
+          _FilterRow(
+            colorHex: '#c73838',
+            name: '공휴일',
+            checked: holidayVisible,
+            onToggle: () =>
+                ref.read(holidayVisibleProvider.notifier).toggle(),
+            tokens: t,
+          ),
+          const SizedBox(height: PSpace.x8),
+          PDivider(),
+          // 관리 버튼
+          InkWell(
+            onTap: onManage,
+            borderRadius: PRadius.brMd,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: PSpace.x12),
+              child: Row(
+                children: [
+                  Icon(LucideIcons.settings2, size: 15, color: t.fgBrand),
+                  const SizedBox(width: PSpace.x8),
+                  Text(
+                    '캘린더 관리 · 공유 설정',
+                    style: PTypo.body.copyWith(
+                      color: t.fgBrand,
+                      fontWeight: PFontWeight.semi,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
 
-class _CalendarFilterRow extends StatelessWidget {
-  const _CalendarFilterRow({
-    required this.calendar,
+/// 캘린더/기타소스 공용 필터 행 — 체크박스(색 채움) + 색 점 + 이름. 웹 정합.
+class _FilterRow extends StatelessWidget {
+  const _FilterRow({
+    required this.colorHex,
+    required this.name,
+    required this.checked,
     required this.onToggle,
     required this.tokens,
   });
-  final UserCalendar calendar;
+  final String? colorHex;
+  final String name;
+  final bool checked;
   final VoidCallback onToggle;
   final PorestTokens tokens;
 
   @override
   Widget build(BuildContext context) {
     final t = tokens;
-    final color = solidSwatchColor(context, calendar.color, fallback: t.fgBrand);
+    final color = solidSwatchColor(context, colorHex, fallback: t.fgBrand);
     // light fill(다크모드 light variant) 위에서도 체크가 보이도록 fill 명도 기준 대비 색.
     final checkColor =
         ThemeData.estimateBrightnessForColor(color) == Brightness.dark
@@ -452,30 +480,37 @@ class _CalendarFilterRow extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: PSpace.x12),
         child: Row(
           children: [
-            // 체크박스 (isVisible 상태)
+            // 체크박스 (checked 상태)
             AnimatedContainer(
               duration: const Duration(milliseconds: 150),
               width: 20,
               height: 20,
               decoration: BoxDecoration(
-                color: calendar.isVisible ? color : Colors.transparent,
+                color: checked ? color : Colors.transparent,
                 border: Border.all(
-                  color: calendar.isVisible ? color : t.borderSubtle,
+                  color: checked ? color : t.borderSubtle,
                   width: 1.5,
                 ),
                 borderRadius: PRadius.brSm,
               ),
-              child: calendar.isVisible
+              child: checked
                   ? Icon(LucideIcons.check, size: 13, color: checkColor)
                   : null,
             ),
             const SizedBox(width: PSpace.x12),
-            // 캘린더 이름
+            // 색 점 (웹 정합)
+            Container(
+              width: 8,
+              height: 8,
+              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+            ),
+            const SizedBox(width: PSpace.x8),
+            // 이름
             Expanded(
               child: Text(
-                calendar.calendarName,
+                name,
                 style: PTypo.body.copyWith(
-                  color: calendar.isVisible ? t.fgPrimary : t.fgTertiary,
+                  color: checked ? t.fgPrimary : t.fgTertiary,
                 ),
               ),
             ),

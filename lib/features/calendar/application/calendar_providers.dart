@@ -78,6 +78,16 @@ final holidayListProvider =
   return repo.list(startDate: key.startDate, endDate: key.endDate);
 });
 
+/// 캘린더 "기타 소스 > 공휴일" 표시 on/off (세션 상태). 웹 builtin source toggle 정합.
+class HolidayVisibleNotifier extends Notifier<bool> {
+  @override
+  bool build() => true;
+  void toggle() => state = !state;
+}
+
+final holidayVisibleProvider =
+    NotifierProvider<HolidayVisibleNotifier, bool>(HolidayVisibleNotifier.new);
+
 // ─── UserCalendar (#302) ────────────────────────────────────
 
 final userCalendarRepositoryProvider =
