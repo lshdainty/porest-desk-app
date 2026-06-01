@@ -209,6 +209,7 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
               controller: _kwCtrl,
               onChanged: _onSearchChanged,
               placeholder: '카드명, 브랜드, 혜택으로 검색',
+              search: true,
               prefix:
                   Icon(LucideIcons.search, size: 16, color: t.fgTertiary),
             ),

@@ -41,6 +41,7 @@ class PTextInput extends StatelessWidget {
     this.focusNode,
     this.inputFormatters,
     this.autofillHints,
+    this.search = false,
   });
 
   final TextEditingController? controller;
@@ -67,9 +68,15 @@ class PTextInput extends StatelessWidget {
   final List<TextInputFormatter>? inputFormatters;
   final Iterable<String>? autofillHints;
 
+  /// true 면 헤더 검색(top__search) 정합 외형 — 테두리 없음 + radius-md + compact(36) + bodySm.
+  final bool search;
+
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final radius = search ? PRadius.brMd : PRadius.brSm;
+    final restSide = search ? BorderSide.none : BorderSide(color: t.borderDefault);
+    final baseFont = search ? PTypo.bodySm : PTypo.bodyLg;
     final isMultiLine = (maxLines ?? 1) > 1;
     final formatters = inputFormatters ??
         (numbersOnly ? [FilteringTextInputFormatter.digitsOnly] : null);
@@ -89,10 +96,10 @@ class PTextInput extends StatelessWidget {
       textAlign: textAlign,
       textInputAction: textInputAction,
       autofillHints: autofillHints,
-      style: (style ?? PTypo.bodyLg).copyWith(color: t.fgPrimary),
+      style: (style ?? baseFont).copyWith(color: t.fgPrimary),
       decoration: InputDecoration(
         hintText: placeholder,
-        hintStyle: PTypo.bodyLg.copyWith(color: t.fgTertiary),
+        hintStyle: baseFont.copyWith(color: t.fgTertiary),
         filled: true,
         fillColor: t.bgMuted, // surface-input
         isDense: true,
@@ -105,28 +112,28 @@ class PTextInput extends StatelessWidget {
         suffixStyle: PTypo.bodySm.copyWith(color: t.fgTertiary),
         errorText: errorText,
         border: OutlineInputBorder(
-          borderRadius: PRadius.brSm,
-          borderSide: BorderSide(color: t.borderDefault),
+          borderRadius: radius,
+          borderSide: restSide,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: PRadius.brSm,
-          borderSide: BorderSide(color: t.borderDefault),
+          borderRadius: radius,
+          borderSide: restSide,
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: PRadius.brSm,
+          borderRadius: radius,
           borderSide: BorderSide(color: t.borderFocus),
         ),
         disabledBorder: OutlineInputBorder(
-          borderRadius: PRadius.brSm,
-          borderSide: BorderSide(color: t.borderDefault),
+          borderRadius: radius,
+          borderSide: restSide,
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: PRadius.brSm,
+          borderRadius: radius,
           borderSide: BorderSide(color: t.statusDanger),
         ),
       ),
     );
     if (isMultiLine) return field;
-    return SizedBox(height: 40, child: field);
+    return SizedBox(height: search ? 36 : 40, child: field);
   }
 }
