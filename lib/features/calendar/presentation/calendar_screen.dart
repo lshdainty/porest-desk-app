@@ -9,7 +9,6 @@ import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/format/chart_palette.dart';
-import '../../../core/format/color_parse.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_divider.dart';
 import '../../../shared/widgets/p_modal.dart';
@@ -44,7 +43,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     final visibleCount = calendars.where((c) => c.isVisible).length;
     final dotColors = calendars
         .take(3)
-        .map((c) => parseColor(c.color, fallback: t.fgBrand))
+        .map((c) => resolveChartColor(context, c.color, fallback: t.fgBrand))
         .toList();
 
     final lastDay = DateTime(_key.year, _key.month + 1, 0).day;
@@ -440,7 +439,7 @@ class _CalendarFilterRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = tokens;
-    final color = parseColor(calendar.color, fallback: t.fgBrand);
+    final color = resolveChartColor(context, calendar.color, fallback: t.fgBrand);
     return InkWell(
       onTap: onToggle,
       borderRadius: PRadius.brMd,
@@ -661,7 +660,7 @@ class _CellEventLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final base = parseColor(event.labelColor ?? event.calendarColor ?? event.color,
+    final base = resolveChartColor(context, event.labelColor ?? event.calendarColor ?? event.color,
         fallback: tokens.fgBrand);
     // 클로드 디자인 정합: surface 와 섞은 불투명 bg + fg-primary 와 섞은 적응형 텍스트.
     // border 없음 · radius-sm. 이월(outside) 셀은 Opacity 로 약화(웹 opacity-50 정합).
@@ -811,7 +810,7 @@ class _DaySheetEventRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = tokens;
     final color =
-        parseColor(event.labelColor ?? event.calendarColor ?? event.color, fallback: t.fgBrand);
+        resolveChartColor(context, event.labelColor ?? event.calendarColor ?? event.color, fallback: t.fgBrand);
     final timeLabel = event.isAllDayBool ? '종일' : _hhmm(event.start);
     return InkWell(
       onTap: onTap,

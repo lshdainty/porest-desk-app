@@ -6,7 +6,7 @@ import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
-import '../../../core/format/color_parse.dart';
+import '../../../core/format/chart_palette.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_badge.dart';
 import '../../../shared/widgets/p_button.dart';
@@ -88,7 +88,7 @@ class _BodyState extends ConsumerState<_Body> {
               Container(
                 width: 28, height: 28,
                 decoration: BoxDecoration(
-                  color: parseColor(_newColor, fallback: t.fgBrand),
+                  color: resolveChartColor(context, _newColor, fallback: t.fgBrand),
                   shape: BoxShape.circle,
                 ),
               ),
@@ -121,7 +121,7 @@ class _BodyState extends ConsumerState<_Body> {
                   child: Container(
                     width: 26, height: 26,
                     decoration: BoxDecoration(
-                      color: parseColor(c, fallback: t.fgBrand),
+                      color: resolveChartColor(context, c, fallback: t.fgBrand),
                       shape: BoxShape.circle,
                       border: Border.all(
                         color: c == _newColor
@@ -218,7 +218,7 @@ class _RowState extends ConsumerState<_Row> {
   @override
   Widget build(BuildContext context) {
     final t = widget.tokens;
-    final color = parseColor(widget.cal.color, fallback: t.fgBrand);
+    final color = resolveChartColor(context, widget.cal.color, fallback: t.fgBrand);
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),

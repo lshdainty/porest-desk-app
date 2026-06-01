@@ -6,7 +6,7 @@ import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
-import '../../../core/format/color_parse.dart';
+import '../../../core/format/chart_palette.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_chip.dart';
 import '../../../shared/widgets/p_date_input.dart';
@@ -288,7 +288,7 @@ class _BodyState extends ConsumerState<_Body> {
                   width: PSpace.x12,
                   height: PSpace.x12,
                   decoration: BoxDecoration(
-                    color: parseColor(c.color, fallback: t.fgBrand),
+                    color: resolveChartColor(sheetCtx, c.color, fallback: t.fgBrand),
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -376,7 +376,7 @@ class _BodyState extends ConsumerState<_Body> {
                         width: PSpace.x12,
                         height: PSpace.x12,
                         decoration: BoxDecoration(
-                          color: parseColor(selectedCalendar.color,
+                          color: resolveChartColor(context, selectedCalendar.color,
                               fallback: t.fgBrand),
                           shape: BoxShape.circle,
                         ),
@@ -426,8 +426,8 @@ class _BodyState extends ConsumerState<_Body> {
                       for (final l in labels)
                         PChip(
                           label: l.labelName,
-                          color: parseColor(l.color, fallback: t.fgBrand),
-                          dotColor: parseColor(l.color, fallback: t.fgBrand),
+                          color: resolveChartColor(context, l.color, fallback: t.fgBrand),
+                          dotColor: resolveChartColor(context, l.color, fallback: t.fgBrand),
                           variant: PChipVariant.subtle,
                           selected: _labelRowId == l.rowId,
                           onTap: () =>
@@ -447,7 +447,7 @@ class _BodyState extends ConsumerState<_Body> {
             children: [
               for (final c in _colorOptions)
                 _ColorSphere(
-                  color: parseColor(c, fallback: t.fgBrand),
+                  color: resolveChartColor(context, c, fallback: t.fgBrand),
                   selected: _color.toLowerCase() == c.toLowerCase(),
                   onTap: () => setState(() => _color = c),
                   tokens: t,

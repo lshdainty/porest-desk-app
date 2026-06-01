@@ -6,7 +6,7 @@ import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
-import '../../../core/format/color_parse.dart';
+import '../../../core/format/chart_palette.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_divider.dart';
@@ -95,7 +95,7 @@ class _BodyState extends ConsumerState<_Body> {
           Row(
             children: [
               _ColorDot(
-                color: parseColor(_newColor, fallback: t.fgBrand),
+                color: resolveChartColor(context, _newColor, fallback: t.fgBrand),
                 size: 28,
               ),
               const SizedBox(width: PSpace.x8),
@@ -233,7 +233,7 @@ class _LabelRowState extends ConsumerState<_LabelRow> {
   @override
   Widget build(BuildContext context) {
     final t = widget.tokens;
-    final color = parseColor(_color, fallback: t.fgBrand);
+    final color = resolveChartColor(context, _color, fallback: t.fgBrand);
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -324,7 +324,7 @@ class _PaletteRow extends StatelessWidget {
               width: 28,
               height: 28,
               decoration: BoxDecoration(
-                color: parseColor(c, fallback: tokens.fgBrand),
+                color: resolveChartColor(context, c, fallback: tokens.fgBrand),
                 shape: BoxShape.circle,
                 border: Border.all(
                   color:
