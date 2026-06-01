@@ -338,8 +338,8 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     bgIncomeSubtle: Color(0x80001A42),    // cobalt900 @ 50%
     bgTransferSubtle: Color(0x2E1D6FCB),
     // Interaction tints — cobalt 근사 hex+alpha
-    bgBrandTint: Color(0x4D001A42),       // cobalt900 @ 30%
-    bgBrandTintStrong: Color(0x80001A42), // cobalt900 @ 50%
+    bgBrandTint: Color(0x1F5FA0E5),       // cobalt400(primary-light) @ 12% — 디자인 p-card--brand 정합
+    bgBrandTintStrong: Color(0x385FA0E5), // cobalt400 @ 22%
     bgTableHead: Color(0x0AFFFFFF),       // oklch(1 0 0 / 0.04)
     // Border 변형 — cobalt brand
     borderBrandSoft: Color(0x665FA0E5),   // cobalt400 @ 40%
