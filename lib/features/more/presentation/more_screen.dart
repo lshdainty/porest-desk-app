@@ -196,18 +196,20 @@ class _ShortcutGrid extends StatelessWidget {
         return Expanded(
           child: Padding(
             padding: EdgeInsets.only(left: i == 0 ? 0 : 8),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () => item.onTap(context),
+            // card(PCard shadow)와 동일하게 Container 에 shadow → Ink decoration 은
+            // Material 경계에 그림자가 클리핑돼 약하게 나오므로, 그림자는 바깥 Container 가
+            // 온전히 렌더하고 ink ripple 만 Material/InkWell 이 담당(위 타일 = 아래 카드 그림자 일치).
+            child: Container(
+              decoration: BoxDecoration(
+                color: t.bgSurface,
                 borderRadius: PRadius.brMd,
-                child: Ink(
-                  decoration: BoxDecoration(
-                    // card 와 동일: border 없이 shadow 만 (t.shadowSm 가 다크/라이트 자동 swap)
-                    color: t.bgSurface,
-                    borderRadius: PRadius.brMd,
-                    boxShadow: t.shadowSm,
-                  ),
+                boxShadow: t.shadowSm,
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () => item.onTap(context),
+                  borderRadius: PRadius.brMd,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
                         vertical: 12, horizontal: 8),
