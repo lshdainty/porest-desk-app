@@ -184,9 +184,20 @@ class _NotiRow extends StatelessWidget {
         _ => LucideIcons.bell,
       };
 
+  /// notificationType 별 (배경, 전경) tone 토큰 쌍.
+  (Color, Color) _typeTone(PorestTokens t) => switch (noti.notificationType) {
+        'BUDGET' => (t.statusWarningSubtle, t.statusWarningFg),
+        'EXPENSE' => (t.bgBrandSubtle, t.fgBrandStrong),
+        'CALENDAR' => (t.statusInfoSubtle, t.statusInfoFg),
+        'TODO' => (t.statusSuccessSubtle, t.statusSuccessFg),
+        'GROUP' => (t.statusInfoSubtle, t.statusInfoFg),
+        _ => (t.bgMuted, t.fgSecondary),
+      };
+
   @override
   Widget build(BuildContext context) {
     final unread = !noti.isRead;
+    final (toneBg, toneFg) = _typeTone(tokens);
     return InkWell(
       onTap: onTap,
       child: Container(
@@ -199,9 +210,9 @@ class _NotiRow extends StatelessWidget {
               width: 36,
               height: 36,
               decoration: BoxDecoration(
-                  color: tokens.bgMuted, borderRadius: PRadius.brSm),
+                  color: toneBg, borderRadius: PRadius.brMd),
               alignment: Alignment.center,
-              child: Icon(_typeIcon(), size: 18, color: tokens.fgSecondary),
+              child: Icon(_typeIcon(), size: 18, color: toneFg),
             ),
             const SizedBox(width: PSpace.x12),
             Expanded(
