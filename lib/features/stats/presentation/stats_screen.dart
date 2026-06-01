@@ -2026,7 +2026,7 @@ class _TrendBigCardState extends ConsumerState<_TrendBigCard> {
                               child: Text(
                                 _fmtTick(v),
                                 style: PTypo.micro.copyWith(
-                                  color: useDualAxis ? t.fgBrand : t.fgTertiary,
+                                  color: useDualAxis ? t.statusInfoFg : t.fgTertiary,
                                   fontSize: PFontSize.micro,
                                 ),
                               ),
@@ -2096,20 +2096,20 @@ class _TrendBigCardState extends ConsumerState<_TrendBigCard> {
                               FlSpot(i.toDouble(), data[i].income.toDouble()),
                           ],
                           isCurved: true,
-                          color: t.fgIncome,
+                          color: t.statusInfoFg,
                           barWidth: 2,
                           dotData: FlDotData(
                             show: true,
                             getDotPainter: (s, _, _, _) => FlDotCirclePainter(
                               radius: 2.5,
-                              color: t.fgIncome,
+                              color: t.statusInfoFg,
                               strokeWidth: 2,
                               strokeColor: t.bgSurface,
                             ),
                           ),
                           belowBarData: BarAreaData(
                             show: true,
-                            color: t.fgIncome.withValues(alpha: 0.18),
+                            color: t.statusInfoFg.withValues(alpha: 0.18),
                           ),
                         ),
                         // 지출 — 좌축에 함께 그리되 시각적 비율은 수입 max 에 맞춰 스케일링
@@ -2146,7 +2146,7 @@ class _TrendBigCardState extends ConsumerState<_TrendBigCard> {
                         title: data[_touchedIdx!].label,
                         rows: [
                           _ChartTooltipRowData(
-                            color: t.fgIncome,
+                            color: t.statusInfoFg,
                             label: '수입',
                             amount: '${krw(data[_touchedIdx!].income)}원',
                           ),
@@ -2164,7 +2164,7 @@ class _TrendBigCardState extends ConsumerState<_TrendBigCard> {
             const SizedBox(height: 12),
             Row(
               children: [
-                _LegendChip(color: t.fgIncome, label: '수입'),
+                _LegendChip(color: t.statusInfoFg, label: '수입'),
                 const SizedBox(width: 16),
                 _LegendChip(color: t.fgExpense, label: '지출'),
               ],
@@ -2446,7 +2446,7 @@ class _SavingsBarsCardState extends ConsumerState<_SavingsBarsCard> {
                               BarChartRodData(
                                 toY: data[i].savings.toDouble(),
                                 color: data[i].savings >= 0
-                                    ? t.fgIncome
+                                    ? t.statusInfoFg
                                     : t.fgExpense,
                                 width: data.length > 20 ? 4 : 12,
                                 borderRadius: PRadius.brXs,
@@ -2469,10 +2469,10 @@ class _SavingsBarsCardState extends ConsumerState<_SavingsBarsCard> {
                             title: p.label,
                             rows: [
                               _ChartTooltipRowData(
-                                color: v >= 0 ? t.fgIncome : t.fgExpense,
+                                color: v >= 0 ? t.statusInfoFg : t.fgExpense,
                                 label: '순저축',
                                 amount: '$sign${krw(v.abs())}원',
-                                amountColor: v >= 0 ? t.fgIncome : t.fgExpense,
+                                amountColor: v >= 0 ? t.statusInfoFg : t.fgExpense,
                               ),
                             ],
                           );
