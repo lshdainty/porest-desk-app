@@ -60,7 +60,7 @@ List<_NavGroup> _buildGroups(BuildContext ctx) => [
   ]),
   _NavGroup(label: '계정·시스템', items: [
     _NavItem(label: '설정', icon: LucideIcons.settings, desc: '전체 설정 메뉴', onTap: (c) => c.push('/settings')),
-    _NavItem(label: '알림', icon: LucideIcons.bell, desc: '푸시 · 방해 금지', onTap: (c) => c.push('/notifications')),
+    _NavItem(label: '알림', icon: LucideIcons.bell, desc: '푸시 · 방해 금지', onTap: (c) => c.push('/settings/notifications')),
     _NavItem(label: '데이터 내보내기', icon: LucideIcons.download, desc: 'CSV · 자동 백업', onTap: (c) => showExportDialog(c)),
     _NavItem(label: '계정', icon: LucideIcons.user, desc: '프로필 · 보안 · 구독', onTap: (c) => c.push('/account')),
   ]),

@@ -76,6 +76,18 @@ List<_SettingsGroup> _buildGroups(BuildContext ctx) => [
       onTap: (c) => c.push('/groups'),
     ),
     _SettingsItem(
+      icon: LucideIcons.calendarRange,
+      label: '캘린더 관리·공유',
+      desc: '내 캘린더 · 멤버 권한 · 초대 코드',
+      onTap: (c) => c.push('/settings/calendar-share'),
+    ),
+    _SettingsItem(
+      icon: LucideIcons.tag,
+      label: '캘린더 라벨',
+      desc: '일정 라벨 추가·편집·삭제',
+      onTap: (c) => c.push('/settings/calendar-labels'),
+    ),
+    _SettingsItem(
       icon: LucideIcons.divide,
       label: '더치페이',
       desc: '정산 · 친구 · 송금 요청',
@@ -93,7 +105,7 @@ List<_SettingsGroup> _buildGroups(BuildContext ctx) => [
       icon: LucideIcons.bell,
       label: '알림',
       desc: '결제 예정·예산 초과 알림',
-      onTap: (c) => c.push('/notifications'),
+      onTap: (c) => c.push('/settings/notifications'),
     ),
   ]),
   _SettingsGroup(label: '데이터', items: [

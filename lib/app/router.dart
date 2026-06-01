@@ -6,16 +6,19 @@ import '../core/auth/auth_notifier.dart';
 import '../features/asset/presentation/account_card_manage_screen.dart';
 import '../features/asset/presentation/asset_screen.dart';
 import '../features/budget/presentation/budget_screen.dart';
+import '../features/calendar/presentation/calendar_labels_screen.dart';
 import '../features/calendar/presentation/calendar_screen.dart';
 import '../features/card/presentation/card_benefits_screen.dart';
 import '../features/card/presentation/card_detail_screen.dart';
 import '../features/card/presentation/card_screen.dart';
 import '../features/category/presentation/category_screen.dart';
 import '../features/dutch_pay/presentation/dutch_pay_screen.dart';
+import '../features/group/presentation/calendar_share_screen.dart';
 import '../features/group/presentation/group_detail_screen.dart';
 import '../features/group/presentation/group_screen.dart';
 import '../features/memo/presentation/memo_screen.dart';
 import '../features/notification/presentation/notification_screen.dart';
+import '../features/notification/presentation/notification_settings_screen.dart';
 import '../features/preset/presentation/preset_screen.dart';
 import '../features/saving_goal/presentation/saving_goal_screen.dart';
 import '../features/search/presentation/search_screen.dart';
@@ -75,6 +78,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/todos', builder: (_, _) => const TodoScreen()),
       GoRoute(path: '/groups', builder: (_, _) => const GroupScreen()),
       GoRoute(
+          path: '/settings/calendar-share',
+          builder: (_, _) => const CalendarShareScreen()),
+      GoRoute(
+          path: '/settings/calendar-labels',
+          builder: (_, _) => const CalendarLabelsScreen()),
+      GoRoute(
         path: '/groups/:id',
         builder: (_, state) => GroupDetailScreen(
           groupId: int.parse(state.pathParameters['id']!),
@@ -82,6 +91,9 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(path: '/dutch-pay', builder: (_, _) => const DutchPayScreen()),
       GoRoute(path: '/notifications', builder: (_, _) => const NotificationScreen()),
+      GoRoute(
+          path: '/settings/notifications',
+          builder: (_, _) => const NotificationSettingsScreen()),
       GoRoute(path: '/saving-goals', builder: (_, _) => const SavingGoalScreen()),
       GoRoute(path: '/cards', builder: (_, _) => const CardScreen()),
       GoRoute(
