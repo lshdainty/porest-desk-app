@@ -2656,7 +2656,6 @@ class _CompareCategoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
     final s = state;
     final loading = rangeAsync.isLoading || prevRangeAsync.isLoading;
 
@@ -2743,9 +2742,12 @@ class _CompareCategoryCard extends StatelessWidget {
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                _LegendChip(color: t.fgBrand, label: s._periodNow),
+                _LegendChip(
+                    color: cp.resolveChartColor(context, '#2c70bf'),
+                    label: s._periodNow),
                 const SizedBox(width: 10),
-                _LegendChip(color: t.bgBrandMuted, label: s._periodPrev),
+                _LegendChip(
+                    color: const Color(0xFFABC8EE), label: s._periodPrev),
               ],
             ),
           ),
@@ -2842,13 +2844,13 @@ class _CompareRow extends StatelessWidget {
               _RoundedBar(
                 value: row.now / maxAmt,
                 height: 10,
-                color: t.fgBrand,
+                color: cp.resolveChartColor(context, '#2c70bf'),
               ),
               const SizedBox(height: 4),
               _RoundedBar(
                 value: row.prev / maxAmt,
                 height: 6,
-                color: t.bgBrandMuted,
+                color: const Color(0xFFABC8EE),
               ),
             ],
           ),
