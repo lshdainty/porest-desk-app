@@ -85,7 +85,7 @@ class PBadge extends StatelessWidget {
         color: bg,
         border:
             borderColor != null ? Border.all(color: borderColor, width: 1) : null,
-        borderRadius: PRadius.brXs,
+        borderRadius: PRadius.brFull, // pill — badge.md SoT(모든 badge pill, square 는 spec 외)
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
