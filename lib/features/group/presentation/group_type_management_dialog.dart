@@ -6,7 +6,7 @@ import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
-import '../../../core/format/color_parse.dart';
+import '../../../core/format/chart_palette.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_divider.dart';
@@ -26,10 +26,7 @@ void showGroupTypeManagementDialog(BuildContext context) {
   );
 }
 
-const _palette = <String>[
-  '#16a34a', '#2563eb', '#f59e0b', '#ef4444',
-  '#a855f7', '#ec4899', '#06b6d4', '#64748b',
-];
+const _palette = kChartBaseHexes;
 
 class _Body extends ConsumerStatefulWidget {
   const _Body({required this.scrollController});
@@ -87,7 +84,7 @@ class _BodyState extends ConsumerState<_Body> {
               Container(
                 width: 28, height: 28,
                 decoration: BoxDecoration(
-                  color: parseColor(_newColor, fallback: t.fgBrand),
+                  color: solidSwatchColor(context, _newColor, fallback: t.fgBrand),
                   shape: BoxShape.circle,
                 ),
               ),
@@ -225,7 +222,7 @@ class _RowState extends ConsumerState<_Row> {
   @override
   Widget build(BuildContext context) {
     final t = widget.tokens;
-    final color = parseColor(_color, fallback: t.fgBrand);
+    final color = solidSwatchColor(context, _color, fallback: t.fgBrand);
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -316,7 +313,7 @@ class _Palette extends StatelessWidget {
             child: Container(
               width: 28, height: 28,
               decoration: BoxDecoration(
-                color: parseColor(c, fallback: tokens.fgBrand),
+                color: solidSwatchColor(context, c, fallback: tokens.fgBrand),
                 shape: BoxShape.circle,
                 border: Border.all(
                   color:

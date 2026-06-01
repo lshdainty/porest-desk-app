@@ -27,10 +27,7 @@ void showUserCalendarManagementDialog(BuildContext context) {
   );
 }
 
-const _palette = <String>[
-  '#16a34a', '#2563eb', '#f59e0b', '#ef4444',
-  '#a855f7', '#ec4899', '#06b6d4', '#64748b',
-];
+const _palette = kChartBaseHexes;
 
 class _Body extends ConsumerStatefulWidget {
   const _Body({required this.scrollController});

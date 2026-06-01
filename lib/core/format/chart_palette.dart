@@ -43,6 +43,24 @@ const kChartPairs = <ChartPair>[
   ChartPair(key: 'gray',   baseHex: '#6b7484', lightHex: '#b5bbc5', base: Color(0xFF6B7484), light: Color(0xFFB5BBC5)),
 ];
 
+/// 색상 picker 가 노출해야 하는 **차트 10색 base hex** 목록.
+///
+/// DB(라벨/카테고리/캘린더/태그/프로젝트/그룹타입 color)는 이 10색 중 하나만
+/// 저장해야 토큰 매핑(resolveChartColor/softBg)이 라이트·다크 swap 된다.
+/// `kChartPairs` 의 baseHex 순서와 1:1 미러(const 제약상 리터럴로 선언).
+const kChartBaseHexes = <String>[
+  '#c73838', // red
+  '#b36418', // orange
+  '#8c7400', // yellow
+  '#2d8060', // green
+  '#2c70bf', // blue
+  '#5e60c8', // indigo
+  '#8b4dba', // violet
+  '#b83b7a', // pink
+  '#9a6536', // brown
+  '#6b7484', // gray
+];
+
 final Map<String, ChartPair> _kBaseHexToPair = {
   for (final p in kChartPairs) p.baseHex.toLowerCase(): p,
 };

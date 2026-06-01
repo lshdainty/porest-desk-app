@@ -42,16 +42,11 @@ void showCalendarEventDialog(
   ).whenComplete(controller.dispose);
 }
 
-const _colorOptions = <String>[
-  '#3b82f6',
-  '#ef4444',
-  '#22c55e',
-  '#f59e0b',
-  '#8b5cf6',
-  '#ec4899',
-  '#06b6d4',
-  '#f97316',
-];
+/// 차트 10색(공유 `kChartBaseHexes`)만 노출 — base hex 만 DB 저장.
+const _colorOptions = kChartBaseHexes;
+
+/// 신규 일정 기본 색 = violet (`kChartBaseHexes[6]`).
+const _kDefaultEventColor = '#8b4dba';
 
 enum _RecurrenceOption { none, daily, weekly, monthly, yearly }
 
@@ -129,7 +124,7 @@ class _BodyState extends ConsumerState<_Body> {
   late bool _allDay;
   int? _labelRowId;
   int? _userCalendarRowId;
-  String _color = _colorOptions[4]; // violet 기본
+  String _color = _kDefaultEventColor; // violet 기본
   _RecurrenceOption _recurrence = _RecurrenceOption.none;
   final Set<int> _reminders = <int>{};
   bool _submitting = false;
@@ -149,7 +144,7 @@ class _BodyState extends ConsumerState<_Body> {
       _allDay = e.isAllDayBool;
       _labelRowId = e.labelRowId;
       _userCalendarRowId = e.userRowId;
-      _color = e.color ?? _colorOptions[4];
+      _color = e.color ?? _kDefaultEventColor;
       _recurrence = _rruleToRecurrence(e.rrule);
     } else {
       final d = widget.defaultDate ?? DateTime.now();

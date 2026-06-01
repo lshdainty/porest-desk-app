@@ -3,13 +3,10 @@ import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../app/theme/radius.dart';
 import '../../app/theme/tokens.dart';
-import '../../core/format/color_parse.dart';
+import '../../core/format/chart_palette.dart';
 
-/// 색 팔레트 picker — 8색 기본 팔레트.
-const kPDefaultPalette = <String>[
-  '#16a34a', '#2563eb', '#f59e0b', '#ef4444',
-  '#a855f7', '#ec4899', '#06b6d4', '#64748b',
-];
+/// 색 팔레트 picker — 차트 10색(공유 `kChartBaseHexes`)만 노출.
+const kPDefaultPalette = kChartBaseHexes;
 
 class PColorPicker extends StatelessWidget {
   const PColorPicker({
@@ -39,7 +36,7 @@ class PColorPicker extends StatelessWidget {
               width: dotSize,
               height: dotSize,
               decoration: BoxDecoration(
-                color: parseColor(c, fallback: t.fgBrand),
+                color: solidSwatchColor(context, c, fallback: t.fgBrand),
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: c == selected ? t.fgPrimary : Colors.transparent,

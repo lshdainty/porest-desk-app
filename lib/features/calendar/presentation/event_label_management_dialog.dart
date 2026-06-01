@@ -29,16 +29,7 @@ void showEventLabelManagementDialog(BuildContext context) {
   );
 }
 
-const _palette = <String>[
-  '#16a34a', // green
-  '#2563eb', // blue
-  '#f59e0b', // amber
-  '#ef4444', // red
-  '#a855f7', // purple
-  '#ec4899', // pink
-  '#06b6d4', // cyan
-  '#64748b', // slate
-];
+const _palette = kChartBaseHexes;
 
 class _Body extends ConsumerStatefulWidget {
   const _Body({required this.scrollController});
