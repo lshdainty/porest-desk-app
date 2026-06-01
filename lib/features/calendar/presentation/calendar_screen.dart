@@ -608,6 +608,17 @@ class _DayCell extends StatelessWidget {
       ),
     );
 
+    // 멀티데이 바 연속성: 멀티데이 이벤트를 (멀티 우선·시작·기간) 안정 정렬해 상단 lane 고정
+    // → 인접 셀에서 같은 행에 위치(웹 eventPositions 정합의 경량 버전).
+    final ordered = [...events]
+      ..sort((a, b) {
+        final am = _isMulti(a), bm = _isMulti(b);
+        if (am != bm) return am ? -1 : 1;
+        final c = a.start.compareTo(b.start);
+        if (c != 0) return c;
+        return b.end.difference(b.start).compareTo(a.end.difference(a.start));
+      });
+
     return LayoutBuilder(
       builder: (context, constraints) {
         const dayNumberArea = PSpace.x24 + PSpace.x4 + PSpace.x4 + PSpace.x4;
@@ -615,25 +626,38 @@ class _DayCell extends StatelessWidget {
         final available = constraints.maxHeight - dayNumberArea;
         final totalSlots = available > 0 ? (available / labelRowHeight).floor() : 0;
         final holidaySlot = isHoliday ? 1 : 0;
-        final eventSlots = (totalSlots - holidaySlot).clamp(0, events.length);
-        final reserveOverflow = events.length > eventSlots;
+        final eventSlots = (totalSlots - holidaySlot).clamp(0, ordered.length);
+        final reserveOverflow = ordered.length > eventSlots;
         final visibleCount =
             reserveOverflow && eventSlots > 0 ? eventSlots - 1 : eventSlots;
-        final visible = events.take(visibleCount).toList();
-        final overflow = events.length - visible.length;
+        final visible = ordered.take(visibleCount).toList();
+        final overflow = ordered.length - visible.length;
 
         return Padding(
-          padding: const EdgeInsets.all(PSpace.x4),
+          // 멀티데이 바가 셀 가로 끝까지 이어지도록 세로 padding 만; 가로는 요소별 적용.
+          padding: const EdgeInsets.symmetric(vertical: PSpace.x4),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Align(alignment: Alignment.centerLeft, child: dayNumber),
+              Padding(
+                padding: const EdgeInsets.only(left: PSpace.x4),
+                child: Align(alignment: Alignment.centerLeft, child: dayNumber),
+              ),
               const SizedBox(height: PSpace.x4),
               if (isHoliday)
-                _CellHolidayLabel(name: holidayName!, dimmed: isOutside, tokens: t),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: PSpace.x4),
+                  child: _CellHolidayLabel(
+                      name: holidayName!, dimmed: isOutside, tokens: t),
+                ),
               for (final ev in visible)
-                _CellEventLabel(event: ev, dimmed: isOutside, tokens: t),
+                _CellEventLabel(
+                  event: ev,
+                  position: _segPos(ev, day),
+                  dimmed: isOutside,
+                  tokens: t,
+                ),
               if (overflow > 0)
                 Padding(
                   padding: const EdgeInsets.only(left: PSpace.x4),
@@ -648,39 +672,80 @@ class _DayCell extends StatelessWidget {
   }
 }
 
+/// 이벤트가 한 날짜 셀에서 차지하는 멀티데이 바 위치 — 단일/시작/중간/종료.
+enum _SegPos { none, first, middle, last }
+
+/// 날짜만 비교해 멀티데이(2일 이상) 여부.
+bool _isMulti(CalendarEvent e) {
+  final sd = DateTime(e.start.year, e.start.month, e.start.day);
+  final ed = DateTime(e.end.year, e.end.month, e.end.day);
+  return ed.isAfter(sd);
+}
+
+/// [day] 에서 이벤트 [e] 의 세그먼트 위치.
+_SegPos _segPos(CalendarEvent e, DateTime day) {
+  final sd = DateTime(e.start.year, e.start.month, e.start.day);
+  final ed = DateTime(e.end.year, e.end.month, e.end.day);
+  if (!ed.isAfter(sd)) return _SegPos.none;
+  final d = DateTime(day.year, day.month, day.day);
+  if (d == sd) return _SegPos.first;
+  if (d == ed) return _SegPos.last;
+  return _SegPos.middle;
+}
+
 class _CellEventLabel extends StatelessWidget {
   const _CellEventLabel({
     required this.event,
+    required this.position,
     required this.dimmed,
     required this.tokens,
   });
   final CalendarEvent event;
+  final _SegPos position;
   final bool dimmed;
   final PorestTokens tokens;
 
   @override
   Widget build(BuildContext context) {
-    final base = resolveChartColor(context, event.labelColor ?? event.calendarColor ?? event.color,
+    final base = resolveChartColor(
+        context, event.labelColor ?? event.calendarColor ?? event.color,
         fallback: tokens.fgBrand);
-    // 클로드 디자인 정합: surface 와 섞은 불투명 bg + fg-primary 와 섞은 적응형 텍스트.
-    // border 없음 · radius-sm. 이월(outside) 셀은 Opacity 로 약화(웹 opacity-50 정합).
+    // 멀티데이 연속 바: 시작=좌측만 round, 종료=우측만 round, 중간=square + full-bleed
+    // (인접 셀과 이어지도록 연결 변은 가로 inset 0). 제목은 시작(first)/단일(none) 만(웹 정합).
+    // 색은 dark-aware(resolveChartColor) + 불투명(chipFill/chipText). 이월 셀은 Opacity.
+    const r = Radius.circular(PRadius.sm);
+    final radius = switch (position) {
+      _SegPos.none => PRadius.brSm,
+      _SegPos.first => const BorderRadius.horizontal(left: r),
+      _SegPos.last => const BorderRadius.horizontal(right: r),
+      _SegPos.middle => BorderRadius.zero,
+    };
+    final showText = position == _SegPos.none || position == _SegPos.first;
+    final leftInset = position == _SegPos.none || position == _SegPos.first;
+    final rightInset = position == _SegPos.none || position == _SegPos.last;
     return Opacity(
       opacity: dimmed ? 0.5 : 1.0,
-      child: Container(
-        padding: const EdgeInsets.symmetric(
-            horizontal: PSpace.x4, vertical: PSpace.x0),
-        decoration: BoxDecoration(
-          color: chipFill(context, base),
-          borderRadius: PRadius.brSm,
+      child: Padding(
+        padding: EdgeInsets.only(
+          left: leftInset ? PSpace.x4 : 0.0,
+          right: rightInset ? PSpace.x4 : 0.0,
         ),
-        child: Text(
-          event.title,
-          maxLines: 1,
-          overflow: TextOverflow.clip,
-          softWrap: false,
-          style: PTypo.micro.copyWith(
-            color: chipText(context, base),
-            fontWeight: PFontWeight.semi,
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+              horizontal: PSpace.x4, vertical: PSpace.x0),
+          decoration: BoxDecoration(
+            color: chipFill(context, base),
+            borderRadius: radius,
+          ),
+          child: Text(
+            showText ? event.title : '',
+            maxLines: 1,
+            overflow: TextOverflow.clip,
+            softWrap: false,
+            style: PTypo.micro.copyWith(
+              color: chipText(context, base),
+              fontWeight: PFontWeight.semi,
+            ),
           ),
         ),
       ),
