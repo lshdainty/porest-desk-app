@@ -686,7 +686,7 @@ class _SheetTile extends StatelessWidget {
               width: 36,
               height: 36,
               alignment: Alignment.center,
-              decoration: BoxDecoration(color: bg, borderRadius: PRadius.brMd),
+              decoration: BoxDecoration(color: bg, borderRadius: PRadius.tile(36)),
               child: Icon(icon, size: 18, color: fg),
             ),
             const SizedBox(width: PSpace.x12),
@@ -1484,7 +1484,7 @@ class _CategoryRow extends StatelessWidget {
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   color: bg,
-                  borderRadius: PRadius.brMd,
+                  borderRadius: PRadius.tile(36),
                 ),
                 child: Icon(lucideByName(iconRaw), size: 18, color: fg),
               ),

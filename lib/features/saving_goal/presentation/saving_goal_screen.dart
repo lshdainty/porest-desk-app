@@ -253,7 +253,7 @@ class _GoalCard extends StatelessWidget {
                     width: 36,
                     height: 36,
                     decoration: BoxDecoration(
-                        color: bg, borderRadius: PRadius.brSm),
+                        color: bg, borderRadius: PRadius.tile(36)),
                     alignment: Alignment.center,
                     child: Icon(lucideByName(goal.icon, fallback: LucideIcons.piggyBank),
                         size: 18, color: color),

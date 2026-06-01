@@ -243,7 +243,7 @@ class _GroupRow extends StatelessWidget {
             Container(
               width: 40,
               height: 40,
-              decoration: BoxDecoration(color: bg, borderRadius: PRadius.brMd),
+              decoration: BoxDecoration(color: bg, borderRadius: PRadius.tile(40)),
               alignment: Alignment.center,
               child: Icon(LucideIcons.users, size: 20, color: color),
             ),

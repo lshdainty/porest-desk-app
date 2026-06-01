@@ -52,7 +52,7 @@ class ExpenseRow extends StatelessWidget {
               width: 40,
               height: 40,
               decoration:
-                  BoxDecoration(color: bg, borderRadius: PRadius.brLg),
+                  BoxDecoration(color: bg, borderRadius: PRadius.tile(40)),
               alignment: Alignment.center,
               child: Icon(icon, size: 18, color: fg),
             ),

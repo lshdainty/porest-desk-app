@@ -587,7 +587,7 @@ class _PresetChip extends StatelessWidget {
                 height: 18,
                 decoration: BoxDecoration(
                   color: softBg(context, catColor),
-                  borderRadius: PRadius.brSm,
+                  borderRadius: PRadius.tile(18),
                 ),
                 alignment: Alignment.center,
                 child: Icon(iconData, size: 11, color: catColor),

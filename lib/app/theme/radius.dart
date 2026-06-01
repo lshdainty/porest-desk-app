@@ -20,4 +20,11 @@ abstract final class PRadius {
   static const BorderRadius brXl = BorderRadius.all(Radius.circular(xl));
   static const BorderRadius brXl2 = BorderRadius.all(Radius.circular(xl2));
   static const BorderRadius brFull = BorderRadius.all(Radius.circular(full));
+
+  /// 카테고리/자산 아이콘 타일 corner radius — 크기 비례(round(size×0.3))로 어느
+  /// 크기에서나 동일한 둥글기 유지. 기준 40px→12px(=lg). 고정 radius 를 작은 타일에
+  /// 쓰면 원에 가까워져 더 둥글어 보이는 문제 방지. 웹 `tileRadius(size)` 정합.
+  /// 28→8 / 32→10 / 36→11 / 38→11 / 40→12 / 44→13 / 48→14.
+  static BorderRadius tile(double size) =>
+      BorderRadius.all(Radius.circular((size * 0.3).roundToDouble()));
 }

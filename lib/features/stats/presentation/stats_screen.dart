@@ -1614,7 +1614,7 @@ class _HighlightCard extends StatelessWidget {
                 height: 40,
                 decoration: BoxDecoration(
                   color: cp.softBg(context, iconFg),
-                  borderRadius: PRadius.brLg,
+                  borderRadius: PRadius.tile(40),
                 ),
                 alignment: Alignment.center,
                 child: Icon(icon, size: 18, color: iconFg),
@@ -2786,7 +2786,7 @@ class _CompareRow extends StatelessWidget {
               height: 32,
               decoration: BoxDecoration(
                 color: fg.withValues(alpha: 0.12),
-                borderRadius: PRadius.brLg,
+                borderRadius: PRadius.tile(32),
               ),
               alignment: Alignment.center,
               child: Icon(iconData, size: 16, color: fg),

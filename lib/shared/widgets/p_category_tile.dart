@@ -46,7 +46,7 @@ class PCategoryTile extends StatelessWidget {
               height: 32,
               decoration: BoxDecoration(
                 color: softBg(context, color),
-                borderRadius: PRadius.brLg,
+                borderRadius: PRadius.tile(32),
               ),
               alignment: Alignment.center,
               child: Icon(icon, size: 18, color: color),

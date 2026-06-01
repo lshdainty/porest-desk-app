@@ -1121,7 +1121,7 @@ class _BudgetRow extends StatelessWidget {
               height: 28,
               alignment: Alignment.center,
               decoration:
-                  BoxDecoration(color: bg, borderRadius: PRadius.brLg),
+                  BoxDecoration(color: bg, borderRadius: PRadius.tile(28)),
               child: Icon(lucideByName(category?.icon),
                   size: 14, color: fg),
             ),

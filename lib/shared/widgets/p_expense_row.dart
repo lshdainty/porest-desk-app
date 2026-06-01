@@ -79,7 +79,7 @@ class PExpenseRow extends StatelessWidget {
           Container(
             width: 40,
             height: 40,
-            decoration: BoxDecoration(color: bg, borderRadius: PRadius.brMd),
+            decoration: BoxDecoration(color: bg, borderRadius: PRadius.tile(40)),
             alignment: Alignment.center,
             child: Icon(iconData, size: 18, color: fg),
           ),

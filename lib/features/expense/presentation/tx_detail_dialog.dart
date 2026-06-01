@@ -225,7 +225,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                 height: 40,
                 decoration: BoxDecoration(
                   color: fg.withValues(alpha: 0.14),
-                  borderRadius: PRadius.brLg,
+                  borderRadius: PRadius.tile(40),
                 ),
                 alignment: Alignment.center,
                 child: Icon(icon, size: 20, color: fg),

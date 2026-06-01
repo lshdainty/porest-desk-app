@@ -325,7 +325,7 @@ class _HeroCard extends StatelessWidget {
                 height: 48,
                 decoration: BoxDecoration(
                   color: brandFg,
-                  borderRadius: PRadius.brLg,
+                  borderRadius: PRadius.tile(48),
                 ),
                 alignment: Alignment.center,
                 child: Icon(meta.icon, size: 22, color: t.fgOnBrand),
@@ -704,7 +704,7 @@ class _ExpenseRow extends StatelessWidget {
             Container(
               width: 36,
               height: 36,
-              decoration: BoxDecoration(color: bg, borderRadius: PRadius.brSm),
+              decoration: BoxDecoration(color: bg, borderRadius: PRadius.tile(36)),
               alignment: Alignment.center,
               child: Icon(
                 lucideByName(expense.categoryIcon),

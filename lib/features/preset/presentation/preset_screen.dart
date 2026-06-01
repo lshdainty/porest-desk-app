@@ -189,7 +189,7 @@ class _PresetRow extends StatelessWidget {
             Container(
               width: 36,
               height: 36,
-              decoration: BoxDecoration(color: bg, borderRadius: PRadius.brSm),
+              decoration: BoxDecoration(color: bg, borderRadius: PRadius.tile(36)),
               alignment: Alignment.center,
               child: Icon(lucideByName(category?.icon), size: 18, color: fg),
             ),

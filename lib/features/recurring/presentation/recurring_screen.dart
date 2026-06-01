@@ -570,7 +570,7 @@ class _UpcomingRow extends StatelessWidget {
           Container(
             width: 28,
             height: 28,
-            decoration: BoxDecoration(color: bg, borderRadius: PRadius.brSm),
+            decoration: BoxDecoration(color: bg, borderRadius: PRadius.tile(28)),
             alignment: Alignment.center,
             child: Icon(lucideByName(category?.icon), size: 14, color: fg),
           ),
@@ -652,7 +652,7 @@ class _RecurringRow extends StatelessWidget {
             Container(
               width: 36,
               height: 36,
-              decoration: BoxDecoration(color: bg, borderRadius: PRadius.brSm),
+              decoration: BoxDecoration(color: bg, borderRadius: PRadius.tile(36)),
               alignment: Alignment.center,
               child: Icon(lucideByName(category?.icon), size: 18, color: fg),
             ),
