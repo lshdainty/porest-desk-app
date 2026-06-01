@@ -88,6 +88,7 @@ class _CardPickerSheetState extends ConsumerState<_CardPickerSheet> {
               autofocus: true,
               onChanged: _onChange,
               placeholder: '카드명 / 회사 검색',
+              search: true,
               prefix:
                   Icon(LucideIcons.search, size: 16, color: t.fgTertiary),
             ),

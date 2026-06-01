@@ -307,6 +307,7 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
                 PTextInput(
                   controller: _queryCtrl,
                   placeholder: '은행명 또는 증권사 검색',
+                  search: true,
                   prefix: Padding(
                     padding: const EdgeInsets.only(left: 10, right: 6),
                     child: Icon(LucideIcons.search,

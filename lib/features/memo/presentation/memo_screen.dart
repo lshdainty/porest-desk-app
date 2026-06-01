@@ -69,6 +69,7 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
             child: PTextInput(
               controller: _searchCtrl,
               placeholder: '메모 검색',
+              search: true,
               prefix:
                   Icon(LucideIcons.search, size: 16, color: t.fgTertiary),
               suffix: hasQuery

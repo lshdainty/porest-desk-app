@@ -261,6 +261,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           textInputAction: TextInputAction.search,
           onSubmitted: (_) => _runSearch(),
           placeholder: '거래 검색...',
+          search: true,
+          prefix:
+              Icon(LucideIcons.search, size: 16, color: t.fgTertiary),
           suffix: _ctrl.text.isEmpty
               ? null
               : PButton.icon(
@@ -272,7 +275,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                     _runSearch();
                   },
                 ),
-          style: PTypo.body,
         ),
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,

@@ -241,6 +241,7 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
                 PTextInput(
                   controller: _keywordCtrl,
                   placeholder: '카드명 또는 발급사 검색',
+                  search: true,
                   prefix: Padding(
                     padding: const EdgeInsets.only(left: 10, right: 6),
                     child: Icon(LucideIcons.search,

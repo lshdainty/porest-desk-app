@@ -112,6 +112,7 @@ class _CardScreenState extends ConsumerState<CardScreen> {
                   controller: _kwCtrl,
                   onChanged: _onChange,
                   placeholder: '카드명 검색',
+                  search: true,
                   prefix:
                       Icon(LucideIcons.search, size: 16, color: t.fgTertiary),
                 ),

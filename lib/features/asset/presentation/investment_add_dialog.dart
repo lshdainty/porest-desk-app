@@ -259,6 +259,7 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
                 PTextInput(
                   controller: _queryCtrl,
                   placeholder: '증권사·가상자산거래소·상품거래소 검색',
+                  search: true,
                   prefix: Padding(
                     padding: const EdgeInsets.only(left: 10, right: 6),
                     child: Icon(LucideIcons.search,
