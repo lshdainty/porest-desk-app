@@ -203,9 +203,9 @@ class _ShortcutGrid extends StatelessWidget {
                 borderRadius: PRadius.brMd,
                 child: Ink(
                   decoration: BoxDecoration(
+                    // card 와 동일: border 없이 shadow 만 (t.shadowSm 가 다크/라이트 자동 swap)
                     color: t.bgSurface,
                     borderRadius: PRadius.brMd,
-                    border: Border.all(color: t.borderSubtle),
                     boxShadow: t.shadowSm,
                   ),
                   child: Padding(
