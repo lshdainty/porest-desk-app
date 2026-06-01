@@ -122,7 +122,9 @@ class PButton extends StatelessWidget {
     BorderSide border;
     switch (variant) {
       case PButtonVariant.primary:
-        bg = t.bgBrand;
+        // 채운 primary 버튼은 solid 고정 (다크에서도 primary). bgBrand 는 다크에서
+        // primary-light 로 밝아져 흰 글씨 채움 버튼엔 부적합 — 웹 --bg-brand 정합.
+        bg = t.bgBrandSolid;
         fg = t.fgOnBrand;
         border = BorderSide.none;
         break;

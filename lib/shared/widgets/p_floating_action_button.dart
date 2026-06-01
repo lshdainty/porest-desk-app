@@ -27,7 +27,8 @@ class PFloatingActionButton extends StatelessWidget {
     return FloatingActionButton(
       heroTag: heroTag,
       tooltip: tooltip,
-      backgroundColor: t.bgBrand,
+      // 채운 액션 버튼 — solid 고정 (다크에서도 primary, bgBrand 는 light 라 부적합)
+      backgroundColor: t.bgBrandSolid,
       foregroundColor: t.fgOnBrand,
       onPressed: onPressed,
       child: Icon(icon),

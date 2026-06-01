@@ -27,6 +27,7 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     required this.bgBrandPress,
     required this.bgBrandSubtle,
     required this.bgBrandMuted,
+    required this.bgBrandSolid,
     required this.bgHoverSubtle,
     required this.bgHoverStrong,
     required this.bgRowHover,
@@ -101,6 +102,9 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
   final Color bgBrandPress;
   final Color bgBrandSubtle;
   final Color bgBrandMuted;
+  /// 채운 브랜드 버튼용 solid fill — 웹 `--bg-brand` 정합으로 light/dark 모두 primary 고정.
+  /// (bgBrand 는 다크에서 primary-light 로 밝아져 흰 글씨 채움 버튼엔 부적합 — 버튼은 이 토큰 사용.)
+  final Color bgBrandSolid;
   final Color bgHoverSubtle;
   final Color bgHoverStrong;
   final Color bgRowHover;
@@ -201,6 +205,7 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     // = cobalt500(#0147AD) @ 8% alpha. solid cobalt50 사용 시 톤이 짙어 web 정합 X.
     bgBrandSubtle: Color(0x140147AD), // cobalt500 @ 8% alpha (0x14 ≈ 0.078)
     bgBrandMuted: Color(0x240147AD),  // cobalt500 @ 14% alpha (0x24 ≈ 0.141)
+    bgBrandSolid: PorestPalette.cobalt500, // 버튼 채움 — primary 고정
     bgHoverSubtle: PorestPalette.slate50,
     bgHoverStrong: PorestPalette.slate100,
     bgRowHover: PorestPalette.slate50,
@@ -287,6 +292,7 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     // = cobalt500(#0147AD) @ 12% alpha. solid cobalt900 사용 시 거의 검정이라 web 정합 X.
     bgBrandSubtle: Color(0x1F0147AD), // cobalt500 @ 12% alpha (0x1F ≈ 0.122)
     bgBrandMuted: Color(0x380147AD),  // cobalt500 @ 22% alpha (0x38 ≈ 0.220)
+    bgBrandSolid: PorestPalette.cobalt500, // 버튼 채움 — 다크에서도 primary 고정(light 아님)
     bgHoverSubtle: Color(0x0AFFFFFF),
     bgHoverStrong: Color(0x14FFFFFF),
     bgRowHover: Color(0x08FFFFFF),
@@ -373,6 +379,7 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     Color? bgBrandPress,
     Color? bgBrandSubtle,
     Color? bgBrandMuted,
+    Color? bgBrandSolid,
     Color? bgHoverSubtle,
     Color? bgHoverStrong,
     Color? bgRowHover,
@@ -446,6 +453,7 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
       bgBrandPress: bgBrandPress ?? this.bgBrandPress,
       bgBrandSubtle: bgBrandSubtle ?? this.bgBrandSubtle,
       bgBrandMuted: bgBrandMuted ?? this.bgBrandMuted,
+      bgBrandSolid: bgBrandSolid ?? this.bgBrandSolid,
       bgHoverSubtle: bgHoverSubtle ?? this.bgHoverSubtle,
       bgHoverStrong: bgHoverStrong ?? this.bgHoverStrong,
       bgRowHover: bgRowHover ?? this.bgRowHover,
@@ -525,6 +533,7 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
       bgBrandPress: l(bgBrandPress, other.bgBrandPress),
       bgBrandSubtle: l(bgBrandSubtle, other.bgBrandSubtle),
       bgBrandMuted: l(bgBrandMuted, other.bgBrandMuted),
+      bgBrandSolid: l(bgBrandSolid, other.bgBrandSolid),
       bgHoverSubtle: l(bgHoverSubtle, other.bgHoverSubtle),
       bgHoverStrong: l(bgHoverStrong, other.bgHoverStrong),
       bgRowHover: l(bgRowHover, other.bgRowHover),

@@ -122,7 +122,8 @@ abstract final class PorestTheme {
       // h=40 / padding y·x (8·12) / font body-md(15) weight-medium(500) / radius-sm(4)
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          backgroundColor: tokens.bgBrand,
+          // 채운 버튼은 solid 고정 — 다크에서도 primary (bgBrand 는 light 라 부적합)
+          backgroundColor: tokens.bgBrandSolid,
           foregroundColor: tokens.fgOnBrand,
           disabledBackgroundColor: tokens.bgDisabled,
           disabledForegroundColor: tokens.fgDisabled,

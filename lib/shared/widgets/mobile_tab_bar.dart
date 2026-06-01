@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
-import '../../app/theme/colors.dart';
 import '../../app/theme/radius.dart';
 import '../../app/theme/spacing.dart';
 import '../../app/theme/tokens.dart';
@@ -143,7 +142,7 @@ class _CenterFab extends StatelessWidget {
         width: 46,
         height: 46,
         decoration: BoxDecoration(
-          color: PorestPalette.cobalt500, // primary 고정
+          color: tokens.bgBrandSolid, // 채운 버튼 solid — primary 고정
           shape: BoxShape.circle,
           boxShadow: tokens.shadowSm,
         ),

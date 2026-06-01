@@ -581,7 +581,7 @@ class _FilterRow extends StatelessWidget {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: t.bgBrand,
+              color: t.bgBrandSolid,
               borderRadius: PRadius.brSm,
             ),
             child: Icon(LucideIcons.plus, size: 18, color: t.fgOnBrand),
