@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../app/theme/tokens.dart';
 import 'color_parse.dart';
 
 /// porest-design chart palette base ↔ light variant 매핑.
@@ -93,4 +94,22 @@ Color resolveChartColor(
         : pair.base;
   }
   return parseColor(rawHex, fallback: fb);
+}
+
+/// 캘린더 이벤트 칩 **배경** — base 색을 surface 와 불투명 혼합.
+///
+/// 웹 `color-mix(in oklab, <색> 17%, var(--bg-surface))` 정합.
+/// 알파(투명) 대신 [Color.lerp] 로 surface 와 섞어 **불투명** 틴트를 만든다
+/// (다크에서 뒷배경이 비치지 않음). [t] = base 색 비중(기본 0.17).
+Color chipFill(BuildContext context, Color base, {double t = 0.17}) {
+  return Color.lerp(context.tokens.bgSurface, base, t)!;
+}
+
+/// 캘린더 이벤트 칩 **텍스트** — base 색을 fg-primary 와 혼합.
+///
+/// 웹 `color-mix(in oklab, <색> 70%, var(--fg-primary))` 정합.
+/// 다크에선 fg-primary(밝음)와 섞여 자동으로 light → 어두운 칩 위 가독성 확보.
+/// [t] = base 색 비중(기본 0.70).
+Color chipText(BuildContext context, Color base, {double t = 0.70}) {
+  return Color.lerp(context.tokens.fgPrimary, base, t)!;
 }

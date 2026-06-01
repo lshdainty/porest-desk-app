@@ -8,6 +8,7 @@ import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
+import '../../../core/format/chart_palette.dart';
 import '../../../core/format/color_parse.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_divider.dart';
@@ -107,9 +108,9 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
               dowBuilder: (ctx, day) {
                 final Color color;
                 if (day.weekday == DateTime.sunday) {
-                  color = t.statusDanger;
+                  color = t.fgExpense;
                 } else if (day.weekday == DateTime.saturday) {
-                  color = t.statusInfo;
+                  color = t.fgBrand;
                 } else {
                   color = t.fgSecondary;
                 }
@@ -581,9 +582,9 @@ class _DayCell extends StatelessWidget {
     } else if (isToday) {
       dayColor = t.fgBrandStrong;
     } else if (isHoliday || day.weekday == DateTime.sunday) {
-      dayColor = t.statusDanger;
+      dayColor = t.fgExpense;
     } else if (day.weekday == DateTime.saturday) {
-      dayColor = t.statusInfo;
+      dayColor = t.fgBrand;
     } else {
       dayColor = t.fgPrimary;
     }
@@ -660,27 +661,28 @@ class _CellEventLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color =
-        parseColor(event.labelColor ?? event.calendarColor ?? event.color, fallback: tokens.fgBrand);
-    final bgAlpha = dimmed ? 0.08 : 0.15;
-    final borderAlpha = dimmed ? 0.18 : 0.35;
-    final textAlpha = dimmed ? 0.55 : 1.0;
-    return Container(
-      padding: const EdgeInsets.symmetric(
-          horizontal: PSpace.x4, vertical: PSpace.x0),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: bgAlpha),
-        border: Border.all(color: color.withValues(alpha: borderAlpha)),
-        borderRadius: PRadius.brXs,
-      ),
-      child: Text(
-        event.title,
-        maxLines: 1,
-        overflow: TextOverflow.clip,
-        softWrap: false,
-        style: PTypo.micro.copyWith(
-          color: color.withValues(alpha: textAlpha),
-          fontWeight: PFontWeight.semi,
+    final base = parseColor(event.labelColor ?? event.calendarColor ?? event.color,
+        fallback: tokens.fgBrand);
+    // 클로드 디자인 정합: surface 와 섞은 불투명 bg + fg-primary 와 섞은 적응형 텍스트.
+    // border 없음 · radius-sm. 이월(outside) 셀은 Opacity 로 약화(웹 opacity-50 정합).
+    return Opacity(
+      opacity: dimmed ? 0.5 : 1.0,
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+            horizontal: PSpace.x4, vertical: PSpace.x0),
+        decoration: BoxDecoration(
+          color: chipFill(context, base),
+          borderRadius: PRadius.brSm,
+        ),
+        child: Text(
+          event.title,
+          maxLines: 1,
+          overflow: TextOverflow.clip,
+          softWrap: false,
+          style: PTypo.micro.copyWith(
+            color: chipText(context, base),
+            fontWeight: PFontWeight.semi,
+          ),
         ),
       ),
     );
@@ -699,23 +701,26 @@ class _CellHolidayLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = tokens.statusDanger;
-    return Container(
-      padding: const EdgeInsets.symmetric(
-          horizontal: PSpace.x4, vertical: PSpace.x0),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: dimmed ? 0.08 : 0.15),
-        border: Border.all(color: color.withValues(alpha: dimmed ? 0.18 : 0.35)),
-        borderRadius: PRadius.brXs,
-      ),
-      child: Text(
-        name,
-        maxLines: 1,
-        overflow: TextOverflow.clip,
-        softWrap: false,
-        style: PTypo.micro.copyWith(
-          color: color.withValues(alpha: dimmed ? 0.55 : 1.0),
-          fontWeight: PFontWeight.semi,
+    final base = tokens.statusDanger;
+    // 이벤트 칩과 동일 톤: 불투명 bg + 적응형 텍스트 · border 없음 · radius-sm.
+    return Opacity(
+      opacity: dimmed ? 0.5 : 1.0,
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+            horizontal: PSpace.x4, vertical: PSpace.x0),
+        decoration: BoxDecoration(
+          color: chipFill(context, base),
+          borderRadius: PRadius.brSm,
+        ),
+        child: Text(
+          name,
+          maxLines: 1,
+          overflow: TextOverflow.clip,
+          softWrap: false,
+          style: PTypo.micro.copyWith(
+            color: chipText(context, base),
+            fontWeight: PFontWeight.semi,
+          ),
         ),
       ),
     );
