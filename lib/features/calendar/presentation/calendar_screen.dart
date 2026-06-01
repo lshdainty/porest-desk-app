@@ -647,7 +647,8 @@ class _DayCell extends StatelessWidget {
               const SizedBox(height: PSpace.x4),
               if (isHoliday)
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: PSpace.x4),
+                  padding: const EdgeInsets.only(
+                      left: PSpace.x4, right: PSpace.x4, bottom: PSpace.x4),
                   child: _CellHolidayLabel(
                       name: holidayName!, dimmed: isOutside, tokens: t),
                 ),
@@ -729,6 +730,7 @@ class _CellEventLabel extends StatelessWidget {
         padding: EdgeInsets.only(
           left: leftInset ? PSpace.x4 : 0.0,
           right: rightInset ? PSpace.x4 : 0.0,
+          bottom: PSpace.x4, // 세로로 쌓인 이벤트 바 사이 간격(웹 gap-1 정합)
         ),
         child: Container(
           padding: const EdgeInsets.symmetric(
