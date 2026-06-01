@@ -15,6 +15,7 @@ import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_skeleton.dart';
 import '../application/card_providers.dart';
 import '../domain/card_catalog.dart';
+import 'widgets/card_brand.dart';
 
 /// 카드 혜택 상세 — front `CardBenefitDialog` 미러 (모바일 바텀시트).
 ///
@@ -267,10 +268,18 @@ class _CardHero extends StatelessWidget {
                 Image.network(
                   summary.imgUrl!,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, _, _) => _HeroFallback(tokens: t),
+                  errorBuilder: (_, _, _) => _HeroFallback(
+                    company: summary.company?.name,
+                    cardName: summary.cardName,
+                    tokens: t,
+                  ),
                 )
               else
-                _HeroFallback(tokens: t),
+                _HeroFallback(
+                  company: summary.company?.name,
+                  cardName: summary.cardName,
+                  tokens: t,
+                ),
               if (discontinued)
                 Positioned(
                   top: PSpace.x12,
@@ -286,24 +295,86 @@ class _CardHero extends StatelessWidget {
   }
 }
 
-/// imgUrl 없거나 로드 실패 시 — 중립 그라데이션 + 카드 아이콘.
+/// 상세 hero fallback — 3단계 중 2·3단계.
+/// 브랜드 매칭 → 카드사 색 그라데이션 + 브랜드명/카드명 오버레이.
+/// 미상 → 중립 그라데이션(bgMuted~bgSunken) + 카드 아이콘.
 class _HeroFallback extends StatelessWidget {
-  const _HeroFallback({required this.tokens});
+  const _HeroFallback({
+    required this.company,
+    required this.cardName,
+    required this.tokens,
+  });
+  final String? company;
+  final String? cardName;
   final PorestTokens tokens;
 
   @override
   Widget build(BuildContext context) {
     final t = tokens;
+    final brand = getCardBrand(company);
+
+    if (!brand.known) {
+      return DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [t.bgMuted, t.bgSunken],
+          ),
+        ),
+        child: Center(
+          child: Icon(LucideIcons.creditCard, size: 48, color: t.fgTertiary),
+        ),
+      );
+    }
+
     return DecoratedBox(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [t.bgMuted, t.bgSunken],
+          colors: [brand.bg1, brand.bg2],
         ),
       ),
-      child: Center(
-        child: Icon(LucideIcons.creditCard, size: 48, color: t.fgTertiary),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          // 135deg 광택 — 그라데이션 위 부드러운 하이라이트.
+          const DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0x26FFFFFF), Color(0x00FFFFFF)],
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(PSpace.x20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                if ((company ?? '').trim().isNotEmpty)
+                  Text(company!.trim(),
+                      style: PTypo.bodySm.copyWith(
+                          color: brand.fg,
+                          fontWeight: PFontWeight.semi),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis),
+                if ((cardName ?? '').trim().isNotEmpty) ...[
+                  const SizedBox(height: 2),
+                  Text(cardName!.trim(),
+                      style: PTypo.body.copyWith(
+                          color: brand.fg,
+                          fontWeight: PFontWeight.bold),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis),
+                ],
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

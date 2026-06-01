@@ -20,6 +20,7 @@ import '../../../shared/widgets/p_text_input.dart';
 import '../application/card_providers.dart';
 import '../domain/card_catalog.dart';
 import 'card_benefit_detail_sheet.dart';
+import 'widgets/card_brand.dart';
 
 /// 종류 필터 옵션 — (라벨, cardType). cardType=null 이면 전체.
 const _typeOptions = <(String, String?)>[
@@ -395,7 +396,8 @@ class _CardTile extends StatelessWidget {
         onTap: onTap,
         child: Row(
           children: [
-            _CardVisual(imgUrl: card.imgUrl, tokens: t),
+            _CardVisual(
+                imgUrl: card.imgUrl, company: card.company?.name, tokens: t),
             const SizedBox(width: 14),
             Expanded(
               child: Column(
@@ -461,16 +463,26 @@ class _CardTile extends StatelessWidget {
   }
 }
 
-/// 56×36 카드 비주얼 — imgUrl 실제 이미지, 실패/없음 시 중립 그라데이션.
+/// 56×36 카드 비주얼 — 3단계 fallback.
+/// 1) imgUrl 로드 성공 → 실제 이미지.
+/// 2) imgUrl 없음/로드 실패 + 브랜드 매칭 → 카드사 색 그라데이션 + 브랜드 약자.
+/// 3) 브랜드 미상 → 중립 그라데이션(bgMuted~bgSunken) + 카드 아이콘.
 class _CardVisual extends StatelessWidget {
-  const _CardVisual({required this.imgUrl, required this.tokens});
+  const _CardVisual({
+    required this.imgUrl,
+    required this.company,
+    required this.tokens,
+  });
   final String? imgUrl;
+  final String? company;
   final PorestTokens tokens;
 
   @override
   Widget build(BuildContext context) {
     final t = tokens;
-    Widget fallback() => DecoratedBox(
+    final brand = getCardBrand(company);
+
+    Widget neutralFallback() => DecoratedBox(
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
@@ -483,6 +495,45 @@ class _CardVisual extends StatelessWidget {
                 Icon(LucideIcons.creditCard, size: 16, color: t.fgTertiary),
           ),
         );
+
+    // 브랜드명 약자 — company.name 첫 글자.
+    Widget brandFallback() => DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [brand.bg1, brand.bg2],
+            ),
+          ),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              // 135deg 광택 — 기존 그라데이션 위 부드러운 하이라이트.
+              const DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [Color(0x26FFFFFF), Color(0x00FFFFFF)],
+                  ),
+                ),
+              ),
+              Center(
+                child: Text(
+                  _brandInitial(company),
+                  style: PTypo.caption.copyWith(
+                    color: brand.fg,
+                    fontWeight: PFontWeight.bold,
+                    letterSpacing: 0,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+
+    Widget fallback() => brand.known ? brandFallback() : neutralFallback();
+
     return ClipRRect(
       borderRadius: PRadius.brSm,
       child: SizedBox(
@@ -496,6 +547,13 @@ class _CardVisual extends StatelessWidget {
       ),
     );
   }
+}
+
+/// 브랜드명 약자 — company.name 첫 글자(공백 제거). 비면 'C'.
+String _brandInitial(String? company) {
+  final n = (company ?? '').trim();
+  if (n.isEmpty) return 'C';
+  return n.characters.first;
 }
 
 /// 연회비 라벨 — label 우선, 없으면 amount 0=없음 / N원.
