@@ -713,12 +713,13 @@ class _CellEventLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final base = resolveChartColor(
+    final base = solidSwatchColor(
         context, event.labelColor ?? event.calendarColor ?? event.color,
         fallback: tokens.fgBrand);
     // 멀티데이 연속 바: 시작=좌측만 round, 종료=우측만 round, 중간=square + full-bleed
     // (인접 셀과 이어지도록 연결 변은 가로 inset 0). 제목은 시작(first)/단일(none) 만(웹 정합).
-    // 색은 dark-aware(resolveChartColor) + 불투명(chipFill/chipText). 이월 셀은 Opacity.
+    // 색은 dark-aware(solidSwatchColor: 체크박스와 동일 base) + 불투명(chipFill/chipText).
+    // 이월 셀은 Opacity. 웹은 동일하게 getPaletteByColor 한 함수로 통일.
     const r = Radius.circular(PRadius.sm);
     final radius = switch (position) {
       _SegPos.none => PRadius.brSm,
@@ -882,7 +883,7 @@ class _DaySheetEventRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = tokens;
     final color =
-        resolveChartColor(context, event.labelColor ?? event.calendarColor ?? event.color, fallback: t.fgBrand);
+        solidSwatchColor(context, event.labelColor ?? event.calendarColor ?? event.color, fallback: t.fgBrand);
     final timeLabel = event.isAllDayBool ? '종일' : _hhmm(event.start);
     return InkWell(
       onTap: onTap,
