@@ -7,6 +7,7 @@ import '../features/asset/presentation/account_card_manage_screen.dart';
 import '../features/asset/presentation/asset_screen.dart';
 import '../features/budget/presentation/budget_screen.dart';
 import '../features/calendar/presentation/calendar_screen.dart';
+import '../features/card/presentation/card_benefits_screen.dart';
 import '../features/card/presentation/card_detail_screen.dart';
 import '../features/card/presentation/card_screen.dart';
 import '../features/category/presentation/category_screen.dart';
@@ -83,6 +84,9 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/notifications', builder: (_, _) => const NotificationScreen()),
       GoRoute(path: '/saving-goals', builder: (_, _) => const SavingGoalScreen()),
       GoRoute(path: '/cards', builder: (_, _) => const CardScreen()),
+      GoRoute(
+          path: '/card-benefits',
+          builder: (_, _) => const CardBenefitsScreen()),
       GoRoute(
         path: '/cards/:id',
         builder: (_, state) => CardDetailScreen(

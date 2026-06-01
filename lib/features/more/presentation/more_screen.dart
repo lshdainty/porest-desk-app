@@ -51,6 +51,7 @@ List<_NavGroup> _buildGroups(BuildContext ctx) => [
     _NavItem(label: '할 일', icon: LucideIcons.checkSquare, desc: '마감 · 우선순위 · 태그', onTap: (c) => c.push('/todos')),
     _NavItem(label: '메모', icon: LucideIcons.fileText, desc: '분류 · 고정 · 검색', onTap: (c) => c.push('/memos')),
     _NavItem(label: '더치페이', icon: LucideIcons.users, desc: '정산 · 친구 · 송금 요청', onTap: (c) => c.push('/dutch-pay')),
+    _NavItem(label: '카드 혜택', icon: LucideIcons.creditCard, desc: '신용·체크 카드 검색', onTap: (c) => c.push('/card-benefits')),
   ]),
   _NavGroup(label: '개인화', items: [
     _NavItem(label: '카테고리', icon: LucideIcons.tag, desc: '지출 · 수입', onTap: (c) => c.push('/categories')),
