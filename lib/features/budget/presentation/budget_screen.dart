@@ -757,8 +757,9 @@ class _HeaderCard extends StatelessWidget {
         : tokens.statusInfoFg;
 
     return PCard(
-      // 디자인 정합: 틴트 없이 중립 surface(다른 카드와 동일) — shadow 로 elevation.
+      // 디자인 p-card--brand 정합: cobalt @12% 알파 → canvas(#1A1F2E) 위 합성 시 #222E44.
       variant: PCardVariant.shadow,
+      color: tokens.bgBrandTint,
       padding: const EdgeInsets.all(PSpace.x16),
       onTap: onTap,
       child: overallBudget == null
