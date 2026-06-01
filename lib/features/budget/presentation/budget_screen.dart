@@ -510,8 +510,9 @@ class _MonthBar extends StatelessWidget {
         ),
         const Spacer(),
         PButton(
-          label: '예산 설정',
+          label: '설정',
           icon: LucideIcons.settings,
+          variant: PButtonVariant.accent,
           size: PButtonSize.sm,
           onPressed: onSettings,
         ),
