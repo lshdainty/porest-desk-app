@@ -113,28 +113,18 @@ class _NotificationBell extends ConsumerWidget {
             alignment: Alignment.center,
             children: [
               Icon(LucideIcons.bell, size: 20, color: tokens.fgPrimary),
+              // front NotificationBell 정합 — 숫자 대신 작은 점(dot)으로 표시.
+              // (count 배지가 아이콘을 가리던 문제 해소)
               if (unread > 0)
                 Positioned(
-                  top: 6,
-                  right: 6,
+                  top: 8,
+                  right: 8,
                   child: Container(
-                    constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    width: 7,
+                    height: 7,
                     decoration: BoxDecoration(
-                      color: tokens.statusDanger,
-                      borderRadius: PRadius.brFull,
-                      border: Border.all(color: tokens.bgSurface, width: 1.5),
-                    ),
-                    child: Center(
-                      child: Text(
-                        unread > 99 ? '99+' : '$unread',
-                        style: TextStyle(
-                          color: tokens.fgOnDanger,
-                          fontSize: PFontSize.micro,
-                          fontWeight: PFontWeight.bold,
-                          height: PLineHeight.tight,
-                        ),
-                      ),
+                      color: tokens.fgExpense,
+                      shape: BoxShape.circle,
                     ),
                   ),
                 ),
