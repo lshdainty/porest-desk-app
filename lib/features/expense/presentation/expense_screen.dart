@@ -136,11 +136,12 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
     // min-h-0 과 동일 패턴.
     return LayoutBuilder(
       builder: (context, constraints) {
-        // ListView padding 48 + Summary card(~130) + gap(12) = 190 차감
-        // AssetFilterBadge 있으면 추가 52 차감
+        // 차감 = ListView 상하 padding 48(24+24) + Summary card 실측 ~114 + gap 12 = 174.
+        // (기존 190 은 summary 를 130 으로 과대평가 → 캘린더가 짧아져 하단 여백이 상단보다 컸음)
+        // 결과: 상단 24 == 하단 24 (web flex 정합).
         final hasAssetBadge = _assetIdFilter != null;
         final calendarH = (constraints.maxHeight -
-                190 -
+                174 -
                 (hasAssetBadge ? 52 : 0))
             .clamp(280.0, double.infinity);
         return RefreshIndicator(
