@@ -206,10 +206,6 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
           padding: const EdgeInsets.fromLTRB(
               PSpace.x16, PSpace.x16, PSpace.x16, PSpace.x40),
           children: [
-            // 안내 배너
-            const _HeroBanner(),
-            const SizedBox(height: PSpace.x12),
-
             // 검색
             PTextInput(
               controller: _kwCtrl,
@@ -333,49 +329,6 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
         ),
       ],
     ];
-  }
-}
-
-/// 카드 혜택 라이브러리 안내 배너 — front hero 카드 미러.
-class _HeroBanner extends StatelessWidget {
-  const _HeroBanner();
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    return PCard(
-      padding: const EdgeInsets.all(PSpace.x16),
-      child: Row(
-        children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: t.bgBrandSubtle,
-              borderRadius: PRadius.brMd,
-            ),
-            child: Icon(LucideIcons.creditCard,
-                size: 20, color: t.fgBrand),
-          ),
-          const SizedBox(width: PSpace.x12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text('카드 혜택 라이브러리',
-                    style: PTypo.body.copyWith(
-                        color: t.fgPrimary,
-                        fontWeight: PFontWeight.bold)),
-                const SizedBox(height: 2),
-                Text('신용·체크 카드의 혜택을 한 번에',
-                    style: PTypo.caption.copyWith(color: t.fgTertiary)),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }
 
@@ -566,19 +519,24 @@ String _brandInitial(String? company) {
 /// 연회비 라벨 — label 우선, 없으면 amount 0=없음 / N원.
 String _feeLabel(CardAnnualFee? fee) {
   if (fee == null) return '없음';
-  if (fee.label != null && fee.label!.isNotEmpty) return fee.label!;
+  // front annualFeeText 정합: amount>0 → "N원" 우선, 아니면 label, 둘 다 없으면 "없음".
   final amount = fee.amount;
-  if (amount == null || amount == 0) return '없음';
-  return '${krw(amount)}원';
+  if (amount != null && amount > 0) return '${krw(amount)}원';
+  if (fee.label != null && fee.label!.isNotEmpty) return fee.label!;
+  return '없음';
 }
 
 /// 전월 실적 라벨 — requiredText 우선, 없으면 amount 0=실적 무관 / N원/월.
 String _performanceLabel(CardPerformance? perf) {
   if (perf == null) return '실적 무관';
+  // front performanceText 정합: isRequired='Y'일 때만, amount>0 → "실적 N원/월" 우선,
+  // 없으면 requiredText. 그 외(미필수)는 항상 "실적 무관".
+  final required = perf.isRequired == 'Y';
+  if (!required) return '실적 무관';
+  final amount = perf.requiredAmount;
+  if (amount != null && amount > 0) return '실적 ${krw(amount)}원/월';
   if (perf.requiredText != null && perf.requiredText!.isNotEmpty) {
     return perf.requiredText!;
   }
-  final amount = perf.requiredAmount;
-  if (amount == null || amount == 0) return '실적 무관';
-  return '실적 ${krw(amount)}원/월';
+  return '실적 무관';
 }
