@@ -22,13 +22,9 @@ class AssetLogo extends StatelessWidget {
     final brand = getBrandColor([asset.institution, asset.assetName]);
     final bg = _parseHex(asset.color) ?? brand?.bg ?? hashColor(asset.assetName);
     final fg = brand?.fg ?? Colors.white;
-    final iconChar = (asset.icon ?? '').trim().isNotEmpty
-        ? asset.icon!.trim().characters.first
-        : null;
-    final fallbackChar = ((asset.institution ?? asset.assetName).trim().isEmpty
+    final char = (asset.institution ?? asset.assetName).trim().isEmpty
         ? '?'
-        : (asset.institution ?? asset.assetName).trim().characters.first);
-    final char = iconChar ?? fallbackChar;
+        : (asset.institution ?? asset.assetName).trim().characters.first;
     return Container(
       width: size,
       height: size,
