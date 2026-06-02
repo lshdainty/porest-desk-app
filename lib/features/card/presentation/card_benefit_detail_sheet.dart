@@ -88,6 +88,17 @@ class _CardBenefitDetailContentState
         final benefits = d.benefits;
         final allOpen =
             benefits.isNotEmpty && _expanded.length == benefits.length;
+        // front flattenTopTags 정합 — topBenefits[].tags flatten + 중복 제거.
+        // (그룹마다 '10%'·'청구할인' 같은 공통 태그가 들어 있어 dedup 안 하면 중복 노출)
+        final topTags = <String>[];
+        final seenTags = <String>{};
+        for (final g in d.topBenefits) {
+          for (final tag in g.tags) {
+            if (tag.isNotEmpty && seenTags.add(tag)) topTags.add(tag);
+          }
+        }
+        // front 상세 조건 badge — 카드 전월 실적(requiredText ?? '실적 무관'). 모든 혜택 공통.
+        final benefitCondition = _benefitCondition(s.performance);
 
         return ListView(
           controller: widget.scrollController,
@@ -120,8 +131,8 @@ class _CardBenefitDetailContentState
             ),
             const SizedBox(height: PSpace.x20),
 
-            // 주요 혜택 태그
-            if (d.topBenefits.isNotEmpty) ...[
+            // 주요 혜택 태그 (중복 제거)
+            if (topTags.isNotEmpty) ...[
               Text('주요 혜택 태그',
                   style: PTypo.bodySm.copyWith(
                       color: t.fgPrimary, fontWeight: PFontWeight.bold)),
@@ -130,10 +141,8 @@ class _CardBenefitDetailContentState
                 spacing: 6,
                 runSpacing: 6,
                 children: [
-                  for (final g in d.topBenefits)
-                    for (final tag in g.tags)
-                      PBadge(
-                          label: tag, variant: PBadgeVariant.softBrand),
+                  for (final tag in topTags)
+                    PBadge(label: tag, variant: PBadgeVariant.softBrand),
                 ],
               ),
               const SizedBox(height: PSpace.x20),
@@ -173,6 +182,7 @@ class _CardBenefitDetailContentState
                 if (i > 0) const SizedBox(height: PSpace.x8),
                 _BenefitAccordion(
                   benefit: benefits[i],
+                  condition: benefitCondition,
                   open: _expanded.contains(i),
                   onToggle: () => setState(() {
                     _expanded.contains(i)
@@ -244,6 +254,17 @@ String _performanceText(CardPerformance? perf) {
   final amount = perf.requiredAmount;
   if (amount == null || amount == 0) return '실적 무관';
   return '${krw(amount)}원 이상';
+}
+
+/// 혜택 상세 항목 조건 badge — front CardBenefitDialog 정합.
+/// requiredText 있으면 그대로, 없으면 (필수=Y → badge 숨김 / 미필수 → '실적 무관').
+String? _benefitCondition(CardPerformance? perf) {
+  if (perf == null) return '실적 무관';
+  if (perf.requiredText != null && perf.requiredText!.isNotEmpty) {
+    return perf.requiredText;
+  }
+  if (perf.isRequired == 'Y') return null;
+  return '실적 무관';
 }
 
 class _CardHero extends StatelessWidget {
@@ -415,11 +436,15 @@ class _InfoCell extends StatelessWidget {
 class _BenefitAccordion extends StatelessWidget {
   const _BenefitAccordion({
     required this.benefit,
+    required this.condition,
     required this.open,
     required this.onToggle,
     required this.tokens,
   });
   final CardBenefit benefit;
+
+  /// 카드 전월 실적 조건 라벨(예: "300,000원 이상" / "실적 무관"). null이면 badge 숨김.
+  final String? condition;
   final bool open;
   final VoidCallback onToggle;
   final PorestTokens tokens;
@@ -447,22 +472,27 @@ class _BenefitAccordion extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        if ((benefit.title ?? '').isNotEmpty)
-                          Text(benefit.title!,
+                        // front: 제목 = 혜택 카테고리(예: "온라인쇼핑")
+                        if ((benefit.category ?? '').isNotEmpty)
+                          Text(benefit.category!,
                               style: PTypo.body.copyWith(
                                   color: t.fgPrimary,
                                   fontWeight: PFontWeight.bold)),
-                        if ((benefit.summary ?? '').isNotEmpty) ...[
+                        if ((benefit.summary ?? benefit.title ?? '')
+                            .isNotEmpty) ...[
                           const SizedBox(height: 4),
                           Row(
                             children: [
                               Flexible(
-                                child: Text(benefit.summary!,
+                                child: Text(
+                                    benefit.summary ?? benefit.title ?? '',
                                     style: PTypo.bodySm.copyWith(
                                         color: t.fgBrand,
                                         fontWeight: PFontWeight.bold)),
                               ),
-                              if ((benefit.category ?? '').isNotEmpty) ...[
+                              // front: badge = 카드 전월 실적 조건(카테고리 아님)
+                              if (condition != null &&
+                                  condition!.isNotEmpty) ...[
                                 const SizedBox(width: 8),
                                 Container(
                                   padding: const EdgeInsets.symmetric(
@@ -471,7 +501,7 @@ class _BenefitAccordion extends StatelessWidget {
                                     color: t.bgSunken,
                                     borderRadius: PRadius.brFull,
                                   ),
-                                  child: Text(benefit.category!,
+                                  child: Text(condition!,
                                       style: PTypo.micro.copyWith(
                                           color: t.fgTertiary,
                                           fontWeight: PFontWeight.semi,
