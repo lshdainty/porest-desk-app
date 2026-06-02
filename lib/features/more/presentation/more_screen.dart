@@ -30,13 +30,6 @@ class _NavGroup {
   final List<_NavItem> items;
 }
 
-final _shortcuts = <_NavItem>[
-  _NavItem(label: '가계부', icon: LucideIcons.receipt, desc: '', onTap: (c) => c.go('/expense')),
-  _NavItem(label: '자산', icon: LucideIcons.wallet, desc: '', onTap: (c) => c.go('/assets')),
-  _NavItem(label: '캘린더', icon: LucideIcons.calendarDays, desc: '', onTap: (c) => c.go('/calendar')),
-  _NavItem(label: '통계', icon: LucideIcons.pieChart, desc: '', onTap: (c) => c.go('/stats')),
-];
-
 List<_NavGroup> _buildGroups(BuildContext ctx) => [
   _NavGroup(label: '돈 관리', items: [
     _NavItem(label: '가계부', icon: LucideIcons.receipt, desc: '지출 · 수입 · 이체', onTap: (c) => c.go('/expense')),
@@ -135,12 +128,6 @@ class _MoreScreenState extends ConsumerState<MoreScreen> {
         ),
         const SizedBox(height: PSpace.x20),
 
-        // 바로가기 (검색 비활성일 때만)
-        if (!isSearching) ...[
-          _ShortcutGrid(shortcuts: _shortcuts),
-          const SizedBox(height: PSpace.x24),
-        ],
-
         // 검색 결과
         if (isSearching) ...[
           if (filtered == null || filtered.isEmpty)
@@ -180,64 +167,6 @@ class _MoreScreenState extends ConsumerState<MoreScreen> {
 
         const SizedBox(height: PSpace.x32),
       ],
-    );
-  }
-}
-
-class _ShortcutGrid extends StatelessWidget {
-  const _ShortcutGrid({required this.shortcuts});
-  final List<_NavItem> shortcuts;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    return Row(
-      children: List.generate(shortcuts.length, (i) {
-        final item = shortcuts[i];
-        return Expanded(
-          child: Padding(
-            padding: EdgeInsets.only(left: i == 0 ? 0 : 8),
-            // card(PCard shadow)와 동일하게 Container 에 shadow → Ink decoration 은
-            // Material 경계에 그림자가 클리핑돼 약하게 나오므로, 그림자는 바깥 Container 가
-            // 온전히 렌더하고 ink ripple 만 Material/InkWell 이 담당(위 타일 = 아래 카드 그림자 일치).
-            child: Container(
-              decoration: BoxDecoration(
-                color: t.bgSurface,
-                borderRadius: PRadius.brMd,
-                boxShadow: t.shadowSm,
-              ),
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: () => item.onTap(context),
-                  borderRadius: PRadius.brMd,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 18, horizontal: 8),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(item.icon, size: 20, color: t.fgBrandStrong),
-                        const SizedBox(height: 8),
-                        Text(
-                          item.label,
-                          style: TextStyle(
-                            fontFamily: PTypo.sans,
-                            fontSize: 12,
-                            fontWeight: PFontWeight.medium,
-                            color: t.fgSecondary,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        );
-      }),
     );
   }
 }
