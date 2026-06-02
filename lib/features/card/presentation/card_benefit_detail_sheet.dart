@@ -163,7 +163,8 @@ class _CardBenefitDetailContentState
                     icon: allOpen
                         ? LucideIcons.chevronsDownUp
                         : LucideIcons.chevronsUpDown,
-                    variant: PButtonVariant.ghost,
+                    // front: accent(brand 강조) — 텍스트 fgBrand(다크 primary-light)
+                    variant: PButtonVariant.accent,
                     size: PButtonSize.sm,
                     onPressed: () => setState(() {
                       if (allOpen) {
@@ -481,34 +482,29 @@ class _BenefitAccordion extends StatelessWidget {
                         if ((benefit.summary ?? benefit.title ?? '')
                             .isNotEmpty) ...[
                           const SizedBox(height: 4),
-                          Row(
-                            children: [
-                              Flexible(
-                                child: Text(
-                                    benefit.summary ?? benefit.title ?? '',
-                                    style: PTypo.bodySm.copyWith(
-                                        color: t.fgBrand,
-                                        fontWeight: PFontWeight.bold)),
+                          Text(benefit.summary ?? benefit.title ?? '',
+                              style: PTypo.bodySm.copyWith(
+                                  color: t.fgBrand,
+                                  fontWeight: PFontWeight.bold)),
+                        ],
+                        // front: badge = 카드 전월 실적 조건 — 요약 아래 별도 줄(좌측 정렬)
+                        if (condition != null && condition!.isNotEmpty) ...[
+                          const SizedBox(height: 6),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 7, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: t.bgSunken,
+                                borderRadius: PRadius.brFull,
                               ),
-                              // front: badge = 카드 전월 실적 조건(카테고리 아님)
-                              if (condition != null &&
-                                  condition!.isNotEmpty) ...[
-                                const SizedBox(width: 8),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 7, vertical: 2),
-                                  decoration: BoxDecoration(
-                                    color: t.bgSunken,
-                                    borderRadius: PRadius.brFull,
-                                  ),
-                                  child: Text(condition!,
-                                      style: PTypo.micro.copyWith(
-                                          color: t.fgTertiary,
-                                          fontWeight: PFontWeight.semi,
-                                          letterSpacing: 0)),
-                                ),
-                              ],
-                            ],
+                              child: Text(condition!,
+                                  style: PTypo.micro.copyWith(
+                                      color: t.fgTertiary,
+                                      fontWeight: PFontWeight.semi,
+                                      letterSpacing: 0)),
+                            ),
                           ),
                         ],
                       ],
