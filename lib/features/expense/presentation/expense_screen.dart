@@ -1179,17 +1179,19 @@ class _CalendarGrid extends StatelessWidget {
                           final expense = items
                               .where((e) => e.expenseType == 'EXPENSE')
                               .fold<int>(0, (s, e) => s + e.amount);
+                          // 요일 기본색(일=빨강, 토=파랑, 평일=primary) — in/out-of-month 공통.
+                          final weekdayColor = dow == 0
+                              ? t.fgExpense // 일요일 빨강
+                              : dow == 6
+                              ? t.fgBrand // 토요일 파랑
+                              : t.fgPrimary;
+                          // web 정합: 이전/다음 달 셀도 요일색 유지 + opacity 음영만
+                          // (요일 무관 회색 아님). 당월 오늘만 onBrand(원형 강조).
                           final dayColor = !inMonth
-                              ? t.fgTertiary.withValues(alpha: 0.5)
+                              ? weekdayColor.withValues(alpha: 0.4)
                               : isToday
                               ? t.fgOnBrand
-                              : dow == 0
-                              ? t
-                                    .fgExpense // 일요일 빨강
-                              : dow == 6
-                              ? t
-                                    .fgBrand // 토요일 파랑
-                              : t.fgPrimary;
+                              : weekdayColor;
                           // 모바일 — 셀 사이 grid 선 제거 (사용자 요청).
                           // 외곽 Container 의 border 만 남아 카드 외형 유지.
                           return DecoratedBox(
