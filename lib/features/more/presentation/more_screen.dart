@@ -213,12 +213,12 @@ class _ShortcutGrid extends StatelessWidget {
                   borderRadius: PRadius.brMd,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
-                        vertical: 12, horizontal: 8),
+                        vertical: 18, horizontal: 8),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(item.icon, size: 20, color: t.fgBrandStrong),
-                        const SizedBox(height: 6),
+                        const SizedBox(height: 8),
                         Text(
                           item.label,
                           style: TextStyle(
