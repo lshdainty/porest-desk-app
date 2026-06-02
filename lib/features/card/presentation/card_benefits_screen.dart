@@ -227,6 +227,7 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
                     PChip(
                       label: _typeOptions[i].$1,
                       selected: _typeIndex == i,
+                      variant: PChipVariant.neutral,
                       onTap: () => _setType(i),
                     ),
                   ],
@@ -245,6 +246,7 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
                     PChip(
                       label: _benefitOptions[i].$1,
                       selected: _benefitIndex == i,
+                      variant: PChipVariant.neutral,
                       onTap: () => _setBenefit(i),
                     ),
                   ],

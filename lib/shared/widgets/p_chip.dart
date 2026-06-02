@@ -10,14 +10,17 @@ import '../../app/theme/typography.dart';
 /// desk-app inline `_Chip` 13변종에서 추출한 공통 인터페이스로 정의.
 ///
 /// - [variant]: solid = active 시 brand 채움(fgOnBrand 텍스트) /
-///   subtle = active 시 brandSubtle bg(fgPrimary 텍스트, 약한 강조)
+///   subtle = active 시 brandSubtle bg(fgPrimary 텍스트, 약한 강조) /
+///   neutral = active 시 surface-input(bgMuted) 중립 채움 + off transparent(ghost)
+///     — front toggle-group `subtle` / Button `secondary` 정합. 주변에 카드 등 강조
+///     요소가 있어 토글 자체는 절제할 때(카드 혜택 필터 등). color override 무시.
 /// - [shape]: pill = brFull(기본) / rounded = brMd
 /// - [color]: 동적 색 override — category/brand chip에서 brand 톤 대신 사용.
 ///   subtle 모드: bg = color@16% alpha, fg = color
 ///   solid 모드: bg = color, fg = onColor(자동 contrast)
 /// - [icon] + [iconColor]: 좌측 아이콘
 /// - [trailing]: 우측 위젯 (count 등)
-enum PChipVariant { solid, subtle }
+enum PChipVariant { solid, subtle, neutral }
 
 enum PChipShape { pill, rounded }
 
@@ -129,6 +132,10 @@ class PChip extends StatelessWidget {
 
   (Color, Color, Color?, double) _colors(PorestTokens t) {
     if (!selected) {
+      // neutral(=front subtle): off 는 transparent ghost(테두리 없음).
+      if (variant == PChipVariant.neutral) {
+        return (Colors.transparent, t.fgSecondary, null, 1);
+      }
       return (t.bgSurface, t.fgSecondary, t.borderSubtle, 1);
     }
     final custom = color;
@@ -143,6 +150,9 @@ class PChip extends StatelessWidget {
             custom.withValues(alpha: 0.5),
             1.5,
           );
+        case PChipVariant.neutral:
+          // 중립 variant 는 brand/custom 톤 무시 — surface-input 채움.
+          return (t.bgMuted, t.fgPrimary, null, 1);
       }
     }
     switch (variant) {
@@ -150,6 +160,8 @@ class PChip extends StatelessWidget {
         return (t.bgBrand, t.fgOnBrand, null, 1);
       case PChipVariant.subtle:
         return (t.bgBrandSubtle, t.fgPrimary, t.borderBrand, 1.5);
+      case PChipVariant.neutral:
+        return (t.bgMuted, t.fgPrimary, null, 1);
     }
   }
 
