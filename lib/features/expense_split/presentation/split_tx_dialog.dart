@@ -7,7 +7,6 @@ import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/format/chart_palette.dart';
-import '../../../core/format/color_parse.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_button.dart';
@@ -601,7 +600,8 @@ class _RatioBar extends StatelessWidget {
                 Flexible(
                   flex: r.amount,
                   child: Container(
-                    color: parseColor(
+                    // 카테고리 색도 light/dark 테마 적응(base↔light) — legend dot 과 동일.
+                    color: resolveChartColor(context,
                         _catColor(r.categoryRowId),
                         fallback: tokens.fgBrand),
                   ),
