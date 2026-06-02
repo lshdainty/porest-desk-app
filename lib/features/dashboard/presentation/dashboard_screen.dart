@@ -380,15 +380,18 @@ class _BalanceHero extends StatelessWidget {
                         fontFeatures: const [FontFeature.tabularFigures()],
                       ),
                     ),
-                    const SizedBox(width: 4),
-                    Text(
-                      '원',
-                      style: TextStyle(
-                        color: t.fgOnBrand.withValues(alpha: 0.8),
-                        fontSize: PFontSize.h4,
-                        fontWeight: PFontWeight.semi,
+                    // 금액 숨김 시 '원' 단위도 숨김(web HideUnit 정합)
+                    if (!masked) ...[
+                      const SizedBox(width: 4),
+                      Text(
+                        '원',
+                        style: TextStyle(
+                          color: t.fgOnBrand.withValues(alpha: 0.8),
+                          fontSize: PFontSize.h4,
+                          fontWeight: PFontWeight.semi,
+                        ),
                       ),
-                    ),
+                    ],
                   ],
                 ),
               const SizedBox(height: 8),
@@ -453,7 +456,7 @@ class _BalanceHero extends StatelessWidget {
                           padding: const EdgeInsets.only(left: 16),
                           child: _HeroSplitCol(
                             label: '부채',
-                            value: '-${krwMasked(totalDebt, masked)}',
+                            value: krwSigned(totalDebt, masked, sign: '-'),
                             loading: loading,
                           ),
                         ),
@@ -614,14 +617,14 @@ class _MonthExpenseCard extends StatelessWidget {
                       Expanded(
                         child: _IncomeExpenseCol(
                           label: '수입',
-                          value: '+${krwMasked(income, masked)}',
+                          value: krwSigned(income, masked, sign: '+'),
                           color: t.fgIncome,
                         ),
                       ),
                       Expanded(
                         child: _IncomeExpenseCol(
                           label: '지출',
-                          value: '-${krwMasked(expense, masked)}',
+                          value: krwSigned(expense, masked, sign: '-'),
                           color: t.fgExpense,
                         ),
                       ),
@@ -644,7 +647,7 @@ class _MonthExpenseCard extends StatelessWidget {
                           fontFeatures: const [FontFeature.tabularFigures()],
                         ),
                       ),
-                      const TextSpan(text: '원 썼어요.'),
+                      TextSpan(text: masked ? ' 썼어요.' : '원 썼어요.'),
                       if (prevExpense > 0) ...[
                         const TextSpan(text: ' 전월 대비 '),
                         TextSpan(
@@ -1216,7 +1219,7 @@ class _TodaySpendCard extends StatelessWidget {
                 if (todayTotal > 0) ...[
                   const SizedBox(width: PSpace.x8),
                   Text(
-                    '-${krwMasked(todayTotal, masked)}원',
+                    krwSigned(todayTotal, masked, sign: '-', unit: true),
                     style: PTypo.caption.copyWith(
                       color: t.fgExpense,
                       fontWeight: PFontWeight.bold,

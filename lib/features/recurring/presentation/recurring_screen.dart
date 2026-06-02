@@ -389,7 +389,7 @@ class _SummaryCard extends StatelessWidget {
                 child: _Stat(
                   label: '매월 고정 지출',
                   icon: LucideIcons.trendingDown,
-                  value: '-${krwMasked(monthlyExpense, masked)}',
+                  value: krwSigned(monthlyExpense, masked, sign: '-'),
                   color: tokens.statusDanger,
                   tokens: tokens,
                 ),
@@ -398,7 +398,7 @@ class _SummaryCard extends StatelessWidget {
                 child: _Stat(
                   label: '매월 고정 수입',
                   icon: LucideIcons.trendingUp,
-                  value: '+${krwMasked(monthlyIncome, masked)}',
+                  value: krwSigned(monthlyIncome, masked, sign: '+'),
                   color: tokens.fgIncome,
                   tokens: tokens,
                 ),
@@ -597,7 +597,7 @@ class _UpcomingRow extends StatelessWidget {
           ),
           const SizedBox(width: PSpace.x8),
           Text(
-            '${isExpense ? '-' : '+'}${krwMasked(item.amount.abs(), masked)}',
+            krwSigned(item.amount.abs(), masked, sign: isExpense ? '-' : '+'),
             style: PTypo.bodySm.copyWith(
               color: isExpense ? tokens.fgExpense : tokens.fgIncome,
               fontWeight: PFontWeight.bold,
@@ -718,7 +718,7 @@ class _RecurringRow extends StatelessWidget {
             ),
             const SizedBox(width: PSpace.x8),
             Text(
-              '${isExpense ? '-' : '+'}${krwMasked(item.amount.abs(), masked)}',
+              krwSigned(item.amount.abs(), masked, sign: isExpense ? '-' : '+'),
               style: PTypo.bodySm.copyWith(
                 color: isExpense ? tokens.statusDanger : tokens.fgIncome,
                 fontWeight: PFontWeight.bold,

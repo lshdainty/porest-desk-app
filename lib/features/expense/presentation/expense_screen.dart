@@ -649,9 +649,7 @@ class _DayGroup extends ConsumerWidget {
                 const Spacer(),
                 if (dayExpense > 0)
                   Text(
-                    masked
-                        ? '−${krwMasked(dayExpense, masked)}'
-                        : '−${krwMasked(dayExpense, masked)}원',
+                    krwSigned(dayExpense, masked, sign: '−', unit: true),
                     style: PTypo.caption.copyWith(
                       color: t.fgExpense,
                       fontWeight: PFontWeight.semi,
@@ -660,9 +658,7 @@ class _DayGroup extends ConsumerWidget {
                 if (dayIncome > 0) ...[
                   if (dayExpense > 0) const SizedBox(width: PSpace.x8),
                   Text(
-                    masked
-                        ? '+${krwMasked(dayIncome, masked)}'
-                        : '+${krwMasked(dayIncome, masked)}원',
+                    krwSigned(dayIncome, masked, sign: '+', unit: true),
                     style: PTypo.caption.copyWith(
                       color: t.fgIncome,
                       fontWeight: PFontWeight.semi,
@@ -1242,7 +1238,7 @@ class _CalendarGrid extends StatelessWidget {
                                           fit: BoxFit.scaleDown,
                                           alignment: Alignment.centerLeft,
                                           child: Text(
-                                            '−${_compact(expense, masked)}',
+                                            '${masked ? '' : '−'}${_compact(expense, masked)}',
                                             maxLines: 1,
                                             style: PTypo.micro.copyWith(
                                               color: t.fgExpense,
@@ -1259,7 +1255,7 @@ class _CalendarGrid extends StatelessWidget {
                                           fit: BoxFit.scaleDown,
                                           alignment: Alignment.centerLeft,
                                           child: Text(
-                                            '+${_compact(income, masked)}',
+                                            '${masked ? '' : '+'}${_compact(income, masked)}',
                                             maxLines: 1,
                                             style: PTypo.micro.copyWith(
                                               color: t.fgIncome,
@@ -1354,7 +1350,7 @@ class _DayDetailBody extends StatelessWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        '+${krwMasked(income, masked)}원',
+                        krwSigned(income, masked, sign: '+', unit: true),
                         style: PTypo.bodySm.copyWith(
                           color: t.fgIncome,
                           fontWeight: PFontWeight.bold,
@@ -1373,7 +1369,7 @@ class _DayDetailBody extends StatelessWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        '−${krwMasked(expense, masked)}원',
+                        krwSigned(expense, masked, sign: '−', unit: true),
                         style: PTypo.bodySm.copyWith(
                           color: t.fgExpense,
                           fontWeight: PFontWeight.bold,

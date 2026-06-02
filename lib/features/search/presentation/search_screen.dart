@@ -510,7 +510,7 @@ class _ResultRow extends StatelessWidget {
             ),
             const SizedBox(width: PSpace.x8),
             Text(
-              '${isExpense ? '-' : '+'}${krwMasked(expense.amount, masked)}',
+              krwSigned(expense.amount, masked, sign: isExpense ? '-' : '+'),
               style: PTypo.bodySm.copyWith(
                   color: isExpense
                       ? tokens.fgPrimary

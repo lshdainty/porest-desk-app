@@ -813,7 +813,9 @@ class _HeaderCard extends StatelessWidget {
         if (categoryLimitSum > 0) ...[
           const SizedBox(height: PSpace.x8),
           Text(
-            '현재 카테고리 한도 합계: ${krwMasked(categoryLimitSum, masked)}원',
+            masked
+                ? '현재 카테고리 한도 합계: ${krwMasked(categoryLimitSum, masked)}'
+                : '현재 카테고리 한도 합계: ${krwMasked(categoryLimitSum, masked)}원',
             style: PTypo.caption.copyWith(color: tokens.fgTertiary),
           ),
         ],
@@ -856,7 +858,9 @@ class _HeaderCard extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(bottom: 4),
               child: Text(
-                ' / ${krwMasked(totalLimit, masked)}원',
+                masked
+                    ? ' / ${krwMasked(totalLimit, masked)}'
+                    : ' / ${krwMasked(totalLimit, masked)}원',
                 style: PTypo.bodySm.copyWith(color: tokens.fgSecondary),
               ),
             ),
@@ -880,8 +884,12 @@ class _HeaderCard extends StatelessWidget {
             const Spacer(),
             Text(
               remaining >= 0
-                  ? '남은 예산 ${krwMasked(remaining, masked)}원'
-                  : '한도 ${krwMasked(-remaining, masked)}원 초과',
+                  ? (masked
+                        ? '남은 예산 ${krwMasked(remaining, masked)}'
+                        : '남은 예산 ${krwMasked(remaining, masked)}원')
+                  : (masked
+                        ? '한도 ${krwMasked(-remaining, masked)} 초과'
+                        : '한도 ${krwMasked(-remaining, masked)}원 초과'),
               style: PTypo.caption.copyWith(
                 color: remaining >= 0 ? tokens.fgSecondary : tokens.fgExpense,
               ),
@@ -899,7 +907,7 @@ class _HeaderCard extends StatelessWidget {
               Expanded(
                 child: _MiniStat(
                   label: '전체 상한',
-                  value: '${krwMasked(overallLimit, masked)}원',
+                  value: krwSigned(overallLimit, masked, unit: true),
                   color: tokens.fgPrimary,
                   tokens: tokens,
                 ),
@@ -907,7 +915,7 @@ class _HeaderCard extends StatelessWidget {
               Expanded(
                 child: _MiniStat(
                   label: '카테고리 할당',
-                  value: '${krwMasked(categoryLimitSum, masked)}원',
+                  value: krwSigned(categoryLimitSum, masked, unit: true),
                   color: tokens.fgPrimary,
                   tokens: tokens,
                 ),
@@ -915,8 +923,12 @@ class _HeaderCard extends StatelessWidget {
               Expanded(
                 child: _MiniStat(
                   label: '할당 가능',
-                  value:
-                      '${overAllocated ? '−' : '+'}${krwMasked(allocable.abs(), masked)}원',
+                  value: krwSigned(
+                    allocable.abs(),
+                    masked,
+                    sign: overAllocated ? '−' : '+',
+                    unit: true,
+                  ),
                   color: overAllocated ? tokens.fgExpense : tokens.fgIncome,
                   tokens: tokens,
                 ),
@@ -949,7 +961,9 @@ class _HeaderCard extends StatelessWidget {
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(
-                    '카테고리 한도 합이 전체 상한을 ${krwMasked(categoryLimitSum - overallLimit, masked)}원 초과했어요. 전체 상한을 올리거나 카테고리 한도를 줄여주세요.',
+                    masked
+                        ? '카테고리 한도 합이 전체 상한을 ${krwMasked(categoryLimitSum - overallLimit, masked)} 초과했어요. 전체 상한을 올리거나 카테고리 한도를 줄여주세요.'
+                        : '카테고리 한도 합이 전체 상한을 ${krwMasked(categoryLimitSum - overallLimit, masked)}원 초과했어요. 전체 상한을 올리거나 카테고리 한도를 줄여주세요.',
                     style: PTypo.caption.copyWith(color: tokens.statusDangerFg),
                   ),
                 ),
@@ -1171,17 +1185,19 @@ class _PaceStat extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            const SizedBox(width: 2),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 2),
-              child: Text(
-                '원',
-                style: PTypo.caption.copyWith(
-                  color: tokens.fgTertiary,
-                  fontWeight: PFontWeight.semi,
+            if (!masked) ...[
+              const SizedBox(width: 2),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 2),
+                child: Text(
+                  '원',
+                  style: PTypo.caption.copyWith(
+                    color: tokens.fgTertiary,
+                    fontWeight: PFontWeight.semi,
+                  ),
                 ),
               ),
-            ),
+            ],
           ],
         ),
       ],
@@ -1506,8 +1522,12 @@ class _CategoryRow extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       over
-                          ? '한도 ${krwMasked(spent - limit, masked)}원 초과'
-                          : '남은 예산 ${krwMasked((limit - spent).clamp(0, limit), masked)}원',
+                          ? (masked
+                                ? '한도 ${krwMasked(spent - limit, masked)} 초과'
+                                : '한도 ${krwMasked(spent - limit, masked)}원 초과')
+                          : (masked
+                                ? '남은 예산 ${krwMasked((limit - spent).clamp(0, limit), masked)}'
+                                : '남은 예산 ${krwMasked((limit - spent).clamp(0, limit), masked)}원'),
                       style: PTypo.caption.copyWith(
                         color: over ? tokens.fgExpense : tokens.fgTertiary,
                       ),

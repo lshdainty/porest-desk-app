@@ -980,7 +980,7 @@ class _DonutCardState extends ConsumerState<_DonutCard> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '${krwMasked(total, widget.masked)}원',
+                        krwSigned(total, widget.masked, unit: true),
                         style: PTypo.h4.copyWith(
                           color: t.fgPrimary,
                           fontWeight: PFontWeight.bold,
@@ -1152,7 +1152,7 @@ class _TopMerchantsCard extends StatelessWidget {
                             const SizedBox(width: 8),
                             // 고정폭 우측 정렬 — 모든 행 amount 가 같은 X 에서 끝나도록
                             Text(
-                              '${krwMasked(top[i].totalAmount, masked)}원',
+                              krwSigned(top[i].totalAmount, masked, unit: true),
                               textAlign: TextAlign.right,
                               style: PTypo.bodySm.copyWith(
                                 color: t.fgPrimary,
@@ -1513,7 +1513,9 @@ class _HighlightsGrid extends StatelessWidget {
     String avgSub = '';
     Widget? avgSubWidget;
     if (s._segMode != _SegMode.month) {
-      avgSub = '$rangeDays일 합계 ${krwMasked(periodTotal, masked)}원';
+      avgSub = masked
+          ? '$rangeDays일 합계 ${krwMasked(periodTotal, masked)}'
+          : '$rangeDays일 합계 ${krwMasked(periodTotal, masked)}원';
     } else {
       final prevTotal = prevRangeAsync.value?.totalExpense ?? 0;
       if (prevTotal > 0) {
@@ -1550,7 +1552,7 @@ class _HighlightsGrid extends StatelessWidget {
           label: '가장 많이 쓴 카테고리',
           value: topCategory?.name ?? '—',
           sub: topCategory != null
-              ? '${krwMasked(topCategory.amount, masked)}원'
+              ? krwSigned(topCategory.amount, masked, unit: true)
               : '데이터 없음',
           icon: catIcon,
           iconFg: catFg,
@@ -1560,7 +1562,9 @@ class _HighlightsGrid extends StatelessWidget {
           label: '가장 많이 쓴 가맹점',
           value: topMerchant?.merchant ?? '—',
           sub: topMerchant != null
-              ? '${topMerchant.count}회 · ${krwMasked(topMerchant.totalAmount, masked)}원'
+              ? (masked
+                    ? '${topMerchant.count}회 · ${krwMasked(topMerchant.totalAmount, masked)}'
+                    : '${topMerchant.count}회 · ${krwMasked(topMerchant.totalAmount, masked)}원')
               : '데이터 없음',
           // 가맹점이 속한 대표 카테고리 아이콘(역산), 없으면 상점 아이콘
           icon: merchantIcon,
@@ -1569,7 +1573,7 @@ class _HighlightsGrid extends StatelessWidget {
         const SizedBox(height: 10),
         _HighlightCard(
           label: avgLabel,
-          value: '${krwMasked(avgValue, masked)}원',
+          value: krwSigned(avgValue, masked, unit: true),
           sub: avgSub,
           subWidget: avgSubWidget,
           valueIsAmount: true,
@@ -2235,15 +2239,15 @@ class _TrendStatsGrid extends StatelessWidget {
       children: [
         _StatCard(
           label: isSingle ? '수입' : '평균 수입',
-          value: '${krwMasked(avgIn, masked)}원',
+          value: krwSigned(avgIn, masked, unit: true),
         ),
         _StatCard(
           label: isSingle ? '지출' : '평균 지출',
-          value: '${krwMasked(avgOut, masked)}원',
+          value: krwSigned(avgOut, masked, unit: true),
         ),
         _StatCard(
           label: isSingle ? '순저축' : '평균 저축',
-          value: '${krwMasked(avgSave, masked)}원',
+          value: krwSigned(avgSave, masked, unit: true),
         ),
         _StatCard(label: '저축률', value: saveRate),
       ],
@@ -2520,12 +2524,12 @@ class _CompareSummaryGrid extends StatelessWidget {
       children: [
         _CompareCard(
           label: '${s._periodNow} 지출',
-          amount: '${krwMasked(now, masked)}원',
+          amount: krwSigned(now, masked, unit: true),
         ),
         const SizedBox(height: 10),
         _CompareCard(
           label: '${s._periodPrev} 지출',
-          amount: '${krwMasked(prev, masked)}원',
+          amount: krwSigned(prev, masked, unit: true),
           muted: true,
         ),
         const SizedBox(height: 10),
@@ -2554,7 +2558,7 @@ class _CompareSummaryGrid extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 prev > 0
-                    ? '${up ? '+' : '−'}${krwMasked(diff.abs(), masked)}원'
+                    ? krwSigned(diff.abs(), masked, sign: up ? '+' : '−', unit: true)
                     : '${s._momLabel.replaceFirst(' 대비', '')} 데이터 없음',
                 style: PTypo.caption.copyWith(color: t.fgTertiary),
               ),
@@ -2813,7 +2817,7 @@ class _CompareRow extends StatelessWidget {
               ),
             ),
             Text(
-              '${krwMasked(row.now, masked)}원',
+              krwSigned(row.now, masked, unit: true),
               style: PTypo.bodySm.copyWith(
                 color: t.fgPrimary,
                 fontWeight: PFontWeight.bold,

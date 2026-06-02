@@ -16,6 +16,15 @@ String krwMasked(int n, bool masked, {bool sign = false, bool abs = false}) {
   return krw(n, sign: sign, abs: abs);
 }
 
+/// 부호(±)·단위(원) 포함 금액 표기. masked면 부호·원 없이 마스크 점만 노출.
+///
+/// web `MaskAmount`(부호를 마스크 안에 포함) + `HideUnit`(원) 정합 —
+/// 금액을 숨겼을 때 `+`/`-`·`원` 이 같이 사라지고 점만 남도록.
+String krwSigned(int n, bool masked, {String sign = '', bool unit = false}) {
+  if (masked) return krwMasked(n, masked);
+  return '$sign${krw(n)}${unit ? '원' : ''}';
+}
+
 /// 차트 Y축 라벨 — 한국어 단위 축약 (억/만) + 100만 단위 round.
 /// 음수도 부호 prepend (`−` 가운데 dash). Web `formatChartAxis` 와 정합.
 /// 예: -51,750,000 → '−5,200만', 1,200,000,000 → '12.0억'.

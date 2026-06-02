@@ -229,7 +229,7 @@ class _PresetRow extends StatelessWidget {
             ),
             const SizedBox(width: PSpace.x8),
             Text(
-              '${isExpense ? '-' : '+'}${krwMasked(template.amount, masked)}',
+              krwSigned(template.amount, masked, sign: isExpense ? '-' : '+'),
               style: PTypo.bodySm.copyWith(
                   color: isExpense
                       ? tokens.statusDanger

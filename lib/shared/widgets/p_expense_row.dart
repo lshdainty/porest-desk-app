@@ -115,7 +115,8 @@ class PExpenseRow extends StatelessWidget {
           const SizedBox(width: PSpace.x8),
           right ??
               Text(
-                '${isIncome ? '+' : '-'}${krwMasked(expense.amount, masked)}원',
+                krwSigned(expense.amount, masked,
+                    sign: isIncome ? '+' : '-', unit: true),
                 style: PTypo.body.copyWith(
                   color: isIncome ? t.fgIncome : t.fgExpense,
                   fontWeight: PFontWeight.bold,
