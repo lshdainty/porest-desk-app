@@ -329,10 +329,11 @@ class _ManageRow extends StatelessWidget {
                 ? Border(top: BorderSide(color: t.borderSubtle))
                 : null,
           ),
-          padding: const EdgeInsets.symmetric(horizontal: PSpace.x16, vertical: PSpace.x16),
+          // web MANAGE_ROW(계좌·카테고리 공용) 정합 — py 12 / 아이콘 36 / 금액 bodySm
+          padding: const EdgeInsets.symmetric(horizontal: PSpace.x16, vertical: PSpace.x12),
           child: Row(
             children: [
-              AssetLogo(asset: asset),
+              AssetLogo(asset: asset, size: 36),
               const SizedBox(width: PSpace.x12),
               Expanded(
                 child: Column(
@@ -369,7 +370,7 @@ class _ManageRow extends StatelessWidget {
                         : '${krw(balance)}원',
                 style: TextStyle(
                   color: t.fgPrimary,
-                  fontSize: PFontSize.bodyLg,
+                  fontSize: PFontSize.bodySm,
                   fontWeight: PFontWeight.bold,
                   letterSpacing: -0.32,
                 ),
