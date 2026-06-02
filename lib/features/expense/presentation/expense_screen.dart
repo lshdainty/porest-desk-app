@@ -1325,11 +1325,12 @@ class _DayDetailBody extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // 합계 카드 — bordered + 좌측 '건수' + 우측 수입/지출
+          // 합계 카드 — muted(subtle bg 로 돋보임) + 테두리 없음(border 1px 만큼 밀리던
+          // 콘텐츠 inset 을 ExpenseRow(h:16)와 정확히 일치). 좌측 '건수' + 우측 수입/지출.
           PCard(
-            variant: PCardVariant.bordered,
+            variant: PCardVariant.muted,
             padding: const EdgeInsets.symmetric(
-              horizontal: PSpace.lg,
+              horizontal: PSpace.x16,
               vertical: PSpace.md,
             ),
             child: Row(
