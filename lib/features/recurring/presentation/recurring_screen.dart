@@ -694,7 +694,7 @@ class _RecurringRow extends StatelessWidget {
                         Icon(
                           LucideIcons.zap,
                           size: 12,
-                          color: tokens.statusSuccess,
+                          color: tokens.fgBrandStrong,
                         ),
                       ],
                       if (item.notifyDayBefore) ...[
