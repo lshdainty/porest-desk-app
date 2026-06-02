@@ -69,11 +69,20 @@ class MoreScreen extends ConsumerStatefulWidget {
 
 class _MoreScreenState extends ConsumerState<MoreScreen> {
   final _ctrl = TextEditingController();
+  final _searchFocus = FocusNode();
   String _query = '';
+
+  @override
+  void initState() {
+    super.initState();
+    // web search Input: focus 시 bg muted→surface swap — rebuild 필요.
+    _searchFocus.addListener(() => setState(() {}));
+  }
 
   @override
   void dispose() {
     _ctrl.dispose();
+    _searchFocus.dispose();
     super.dispose();
   }
 
@@ -104,25 +113,39 @@ class _MoreScreenState extends ConsumerState<MoreScreen> {
         // 검색바
         TextField(
           controller: _ctrl,
+          focusNode: _searchFocus,
           onChanged: (v) => setState(() => _query = v),
+          style: TextStyle(
+              fontFamily: PTypo.sans,
+              fontSize: PFontSize.bodySm,
+              color: t.fgPrimary),
           decoration: InputDecoration(
+            isDense: true,
             hintText: '메뉴 검색',
             hintStyle: TextStyle(
                 fontFamily: PTypo.sans,
-                fontSize: PFontSize.body,
+                fontSize: PFontSize.bodySm,
                 color: t.fgTertiary),
             prefixIcon: Icon(LucideIcons.search, size: 16, color: t.fgTertiary),
+            prefixIconConstraints:
+                const BoxConstraints(minWidth: 38, minHeight: 38),
             filled: true,
-            fillColor: t.bgSurface,
+            // web Input search 변형 정합 — bg-muted 채움 + 테두리 없음,
+            // focus 시 bg-surface 로 swap(ring/border 없음).
+            fillColor: _searchFocus.hasFocus ? t.bgSurface : t.bgMuted,
             contentPadding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            border: OutlineInputBorder(
+              borderRadius: PRadius.brMd,
+              borderSide: BorderSide.none,
+            ),
             enabledBorder: OutlineInputBorder(
               borderRadius: PRadius.brMd,
-              borderSide: BorderSide(color: t.borderSubtle),
+              borderSide: BorderSide.none,
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: PRadius.brMd,
-              borderSide: BorderSide(color: t.borderFocus),
+              borderSide: BorderSide.none,
             ),
           ),
         ),
