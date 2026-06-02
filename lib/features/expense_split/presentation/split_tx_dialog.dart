@@ -284,8 +284,9 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
                     Text(
                       '${_isIncome ? '+' : '-'}${krw(_totalAbs)}',
                       style: PTypo.h3.copyWith(
+                          // 수입 금액 = primary(다크 primary-light). success(초록) 아님 — web 정합
                           color: _isIncome
-                              ? t.statusSuccess
+                              ? t.fgBrandStrong
                               : t.fgPrimary,
                           fontWeight: PFontWeight.bold),
                     ),
