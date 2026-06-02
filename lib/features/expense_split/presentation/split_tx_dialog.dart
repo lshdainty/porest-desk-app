@@ -10,7 +10,6 @@ import '../../../core/format/chart_palette.dart';
 import '../../../core/format/color_parse.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
-import '../../../shared/widgets/p_badge.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_progress.dart';
@@ -690,15 +689,31 @@ class _MatchPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PBadge(
-      label: matched
-          ? '합계 일치'
-          : (remainder > 0
-              ? '${krw(remainder)}원 부족'
-              : '${krw(-remainder)}원 초과'),
-      variant:
-          matched ? PBadgeVariant.softSuccess : PBadgeVariant.softError,
-      icon: matched ? LucideIcons.check : LucideIcons.alertTriangle,
+    final label = matched
+        ? '합계 일치'
+        : (remainder > 0
+            ? '${krw(remainder)}원 부족'
+            : '${krw(-remainder)}원 초과');
+    // web SplitTxDialog 정합 — 합계 일치=success / 불일치=error,
+    // 크기도 web 과 동일(padding 10/4 + caption + bold). 표준 PBadge(micro)보다 큰 검증 pill.
+    final fg = matched ? tokens.statusSuccessFg : tokens.statusDangerFg;
+    final bg = matched ? tokens.statusSuccessSubtle : tokens.statusDangerSubtle;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(color: bg, borderRadius: PRadius.brFull),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(matched ? LucideIcons.check : LucideIcons.alertTriangle,
+              size: 12, color: fg),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style:
+                PTypo.caption.copyWith(color: fg, fontWeight: PFontWeight.bold),
+          ),
+        ],
+      ),
     );
   }
 }
