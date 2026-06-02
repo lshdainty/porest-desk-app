@@ -572,10 +572,8 @@ class _PresetChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
         decoration: BoxDecoration(
-          color: active ? tokens.bgBrandSubtle : tokens.bgSurface,
-          border: Border.all(
-            color: active ? tokens.borderBrand : tokens.borderSubtle,
-          ),
+          // border 사각형 제거 — 아이콘+글씨만 노출. active 만 subtle 채움으로 강조.
+          color: active ? tokens.bgBrandSubtle : Colors.transparent,
           borderRadius: PRadius.brFull,
         ),
         child: Row(

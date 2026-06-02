@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../app/theme/colors.dart';
 import '../../app/theme/motion.dart';
 import '../../app/theme/radius.dart';
 import '../../app/theme/tokens.dart';
@@ -279,7 +280,9 @@ class _GroupItem<T> extends StatelessWidget {
         ? (isSolid ? t.fgOnBrand : t.fgPrimary)
         : t.fgSecondary;
     final bg = selected
-        ? (isSolid ? t.bgBrand : t.bgMuted)
+        // solid active = primary 고정(cobalt500) — web --bg-brand(=--color-primary
+        // 양모드 고정) 정합. bgBrand 는 다크에서 cobalt400(light)이라 더 밝아 어긋났음.
+        ? (isSolid ? PorestPalette.cobalt500 : t.bgMuted)
         : Colors.transparent;
     final selectedWeight = isSolid ? PFontWeight.bold : PFontWeight.semi;
     final (padX, padY, minH) = _metrics;
