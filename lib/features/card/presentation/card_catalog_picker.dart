@@ -13,7 +13,7 @@ import '../../../shared/widgets/p_chip.dart';
 import '../../../shared/widgets/p_divider.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_progress.dart';
-import '../../../shared/widgets/p_text_input.dart';
+import '../../../shared/widgets/p_search_field.dart';
 import '../application/card_providers.dart';
 import '../domain/card_catalog.dart';
 
@@ -83,14 +83,11 @@ class _CardPickerSheetState extends ConsumerState<_CardPickerSheet> {
       padding: const EdgeInsets.fromLTRB(
           PSpace.x16, 0, PSpace.x16, PSpace.x16),
       children: [
-            PTextInput(
+            PSearchField(
+              hint: '카드명 / 회사 검색',
               controller: _ctrl,
               autofocus: true,
               onChanged: _onChange,
-              placeholder: '카드명 / 회사 검색',
-              search: true,
-              prefix:
-                  Icon(LucideIcons.search, size: 16, color: t.fgTertiary),
             ),
             const SizedBox(height: 8),
             Row(

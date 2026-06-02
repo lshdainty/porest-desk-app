@@ -15,8 +15,8 @@ import '../../../shared/widgets/p_card.dart';
 import '../../../shared/widgets/p_checkbox.dart';
 import '../../../shared/widgets/p_chip.dart';
 import '../../../shared/widgets/p_empty_state.dart';
+import '../../../shared/widgets/p_search_field.dart';
 import '../../../shared/widgets/p_skeleton.dart';
-import '../../../shared/widgets/p_text_input.dart';
 import '../application/card_providers.dart';
 import '../domain/card_catalog.dart';
 import 'card_benefit_detail_sheet.dart';
@@ -207,13 +207,10 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
               PSpace.x16, PSpace.x16, PSpace.x16, PSpace.x40),
           children: [
             // 검색
-            PTextInput(
+            PSearchField(
+              hint: '카드명, 브랜드, 혜택으로 검색',
               controller: _kwCtrl,
               onChanged: _onSearchChanged,
-              placeholder: '카드명, 브랜드, 혜택으로 검색',
-              search: true,
-              prefix:
-                  Icon(LucideIcons.search, size: 16, color: t.fgTertiary),
             ),
             const SizedBox(height: PSpace.x12),
 

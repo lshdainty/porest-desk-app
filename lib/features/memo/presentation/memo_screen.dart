@@ -11,9 +11,9 @@ import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_empty_state.dart';
 import '../../../shared/widgets/p_floating_action_button.dart';
+import '../../../shared/widgets/p_search_field.dart';
 import '../../../shared/widgets/p_skeleton.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
-import '../../../shared/widgets/p_text_input.dart';
 import '../application/memo_providers.dart';
 import '../domain/memo.dart';
 import 'memo_edit_dialog.dart';
@@ -66,13 +66,10 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
           child: Padding(
             padding: const EdgeInsets.fromLTRB(
                 PSpace.x16, 0, PSpace.x16, PSpace.x12),
-            child: PTextInput(
+            child: PSearchField(
               controller: _searchCtrl,
-              placeholder: '메모 검색',
-              search: true,
-              prefix:
-                  Icon(LucideIcons.search, size: 16, color: t.fgTertiary),
-              suffix: hasQuery
+              hint: '메모 검색',
+              trailing: hasQuery
                   ? PButton.icon(
                       icon: LucideIcons.x,
                       size: PButtonSize.sm,

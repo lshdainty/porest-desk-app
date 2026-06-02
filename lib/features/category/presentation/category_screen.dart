@@ -12,6 +12,7 @@ import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_card.dart';
 import '../../../shared/widgets/p_empty_state.dart';
+import '../../../shared/widgets/p_search_field.dart';
 import '../../../shared/widgets/p_skeleton.dart';
 import '../../../shared/widgets/p_tabs.dart';
 import '../../expense/application/expense_providers.dart';
@@ -28,33 +29,12 @@ class CategoryScreen extends ConsumerStatefulWidget {
 class _CategoryScreenState extends ConsumerState<CategoryScreen> {
   int _tabIndex = 0;
   String _query = '';
-  final FocusNode _searchFocusNode = FocusNode();
-  bool _searchFocused = false;
   final Set<int> _collapsed = <int>{};
 
   static const _kinds = [
     ('EXPENSE', '지출'),
     ('INCOME', '수입'),
   ];
-
-  @override
-  void initState() {
-    super.initState();
-    _searchFocusNode.addListener(_handleSearchFocusChange);
-  }
-
-  @override
-  void dispose() {
-    _searchFocusNode.removeListener(_handleSearchFocusChange);
-    _searchFocusNode.dispose();
-    super.dispose();
-  }
-
-  void _handleSearchFocusChange() {
-    if (_searchFocusNode.hasFocus != _searchFocused) {
-      setState(() => _searchFocused = _searchFocusNode.hasFocus);
-    }
-  }
 
   void _toggleCollapse(int parentRowId) {
     setState(() {
@@ -121,67 +101,10 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
             child: Row(
               children: [
                 Expanded(
-                  // 웹 manager 검색 input 톤 미러 (raw input + inline 토큰, h≈32, 13px).
-                  // spec PTextInput(h40, body-lg) 가 아닌 manager-layout searchInputStyle 정합.
-                  // 외부 Container 가 시각 전담 — focus 시 border 색(borderFocus) + 두께(2px) 로
-                  // 웹 manager 검색 input 의 focus 톤(input 전체 둘레 감쌈) 미러.
-                  child: Container(
-                    height: 32,
-                    decoration: BoxDecoration(
-                      color: t.bgSurface,
-                      border: Border.all(
-                        color: _searchFocused
-                            ? t.borderFocus
-                            : t.borderSubtle,
-                        width: _searchFocused ? 2 : 1,
-                      ),
-                      borderRadius: BorderRadius.circular(PRadius.md),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: PSpace.x12,
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          LucideIcons.search,
-                          size: 14,
-                          color: t.fgTertiary,
-                        ),
-                        const SizedBox(width: PSpace.x8),
-                        Expanded(
-                          // InputDecoration.collapsed 는 border 만 None 으로 두고 focusedBorder/
-                          // enabledBorder 는 null → Theme.inputDecorationTheme 기본값(Material
-                          // primary 2px) 이 적용돼서 focus 시 안쪽에 박스가 그려짐. 모든 border
-                          // field 를 InputBorder.none 으로 명시해서 차단.
-                          child: TextField(
-                            focusNode: _searchFocusNode,
-                            onChanged: (v) => setState(() => _query = v),
-                            cursorColor: t.fgBrand,
-                            cursorWidth: 1.5,
-                            decoration: InputDecoration(
-                              border: InputBorder.none,
-                              enabledBorder: InputBorder.none,
-                              focusedBorder: InputBorder.none,
-                              errorBorder: InputBorder.none,
-                              focusedErrorBorder: InputBorder.none,
-                              disabledBorder: InputBorder.none,
-                              isCollapsed: true,
-                              contentPadding: EdgeInsets.zero,
-                              filled: false,
-                              hintText: '카테고리 검색',
-                              hintStyle: TextStyle(
-                                fontSize: 13,
-                                color: t.fgTertiary,
-                              ),
-                            ),
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: t.fgPrimary,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                  // 공용 검색바 — 테두리/모양 통일(PSearchField canonical).
+                  child: PSearchField(
+                    hint: '카테고리 검색',
+                    onChanged: (v) => setState(() => _query = v),
                   ),
                 ),
                 const SizedBox(width: PSpace.x8),

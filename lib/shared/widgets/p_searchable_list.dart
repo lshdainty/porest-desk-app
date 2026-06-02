@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../app/theme/radius.dart';
 import '../../app/theme/tokens.dart';
 import '../../app/theme/typography.dart';
+import 'p_search_field.dart';
 import 'p_skeleton.dart';
-import 'p_text_input.dart';
 
 /// specs/components/searchable-list.md 미러.
 ///
@@ -103,10 +102,9 @@ class _PSearchableListState<T> extends State<PSearchableList<T>> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: [
-        PTextInput(
+        PSearchField(
+          hint: widget.searchPlaceholder,
           controller: _ctrl,
-          placeholder: widget.searchPlaceholder,
-          prefix: Icon(LucideIcons.search, size: 16, color: t.fgTertiary),
           autofocus: widget.autoFocus,
           onChanged: (v) => setState(() => _query = v.trim().toLowerCase()),
         ),

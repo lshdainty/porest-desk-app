@@ -20,6 +20,7 @@ import '../../../shared/widgets/p_chip.dart';
 import '../../../shared/widgets/p_date_input.dart';
 import '../../../shared/widgets/p_divider.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_search_field.dart';
 import '../../../shared/widgets/p_skeleton.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../../expense/application/expense_providers.dart';
@@ -254,17 +255,12 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           icon: LucideIcons.arrowLeft,
           onPressed: () => context.pop(),
         ),
-        title: PTextInput(
+        title: PSearchField(
+          hint: '거래 검색...',
           controller: _ctrl,
           focusNode: _focus,
           onChanged: _onChanged,
-          textInputAction: TextInputAction.search,
-          onSubmitted: (_) => _runSearch(),
-          placeholder: '거래 검색...',
-          search: true,
-          prefix:
-              Icon(LucideIcons.search, size: 16, color: t.fgTertiary),
-          suffix: _ctrl.text.isEmpty
+          trailing: _ctrl.text.isEmpty
               ? null
               : PButton.icon(
                   icon: LucideIcons.x,

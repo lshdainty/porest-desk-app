@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
@@ -11,6 +10,7 @@ import '../../../core/network/api_exception.dart';
 import '../../../shared/brand/bank_colors.dart';
 import '../../../shared/widgets/p_chip.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_search_field.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../application/asset_providers.dart';
@@ -304,15 +304,9 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
                   ],
                 ),
                 const SizedBox(height: PSpace.x8),
-                PTextInput(
+                PSearchField(
+                  hint: '은행명 또는 증권사 검색',
                   controller: _queryCtrl,
-                  placeholder: '은행명 또는 증권사 검색',
-                  search: true,
-                  prefix: Padding(
-                    padding: const EdgeInsets.only(left: 10, right: 6),
-                    child: Icon(LucideIcons.search,
-                        size: 14, color: t.fgTertiary),
-                  ),
                 ),
                 const SizedBox(height: PSpace.x8),
                 _BrandPicker(

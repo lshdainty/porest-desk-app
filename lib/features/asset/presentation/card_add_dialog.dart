@@ -11,6 +11,7 @@ import '../../../shared/brand/bank_colors.dart';
 import '../../../shared/widgets/p_divider.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_progress.dart';
+import '../../../shared/widgets/p_search_field.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_switch.dart';
 import '../../../shared/widgets/p_text_input.dart';
@@ -238,15 +239,9 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
                   ],
                 ),
                 const SizedBox(height: PSpace.x8),
-                PTextInput(
+                PSearchField(
+                  hint: '카드명 또는 발급사 검색',
                   controller: _keywordCtrl,
-                  placeholder: '카드명 또는 발급사 검색',
-                  search: true,
-                  prefix: Padding(
-                    padding: const EdgeInsets.only(left: 10, right: 6),
-                    child: Icon(LucideIcons.search,
-                        size: 14, color: t.fgTertiary),
-                  ),
                 ),
                 const SizedBox(height: PSpace.x8),
                 _CatalogList(

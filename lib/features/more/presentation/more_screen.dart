@@ -3,13 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
-import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../expense/presentation/export_dialog.dart';
 import '../../../shared/widgets/p_card.dart';
 import '../../../shared/widgets/p_divider.dart';
+import '../../../shared/widgets/p_search_field.dart';
 
 class _NavItem {
   const _NavItem({
@@ -73,13 +73,6 @@ class _MoreScreenState extends ConsumerState<MoreScreen> {
   String _query = '';
 
   @override
-  void initState() {
-    super.initState();
-    // web search Input: focus 시 bg muted→surface swap — rebuild 필요.
-    _searchFocus.addListener(() => setState(() {}));
-  }
-
-  @override
   void dispose() {
     _ctrl.dispose();
     _searchFocus.dispose();
@@ -111,43 +104,11 @@ class _MoreScreenState extends ConsumerState<MoreScreen> {
           horizontal: PSpace.x20, vertical: PSpace.x20),
       children: [
         // 검색바
-        TextField(
+        PSearchField(
+          hint: '메뉴 검색',
           controller: _ctrl,
           focusNode: _searchFocus,
           onChanged: (v) => setState(() => _query = v),
-          style: TextStyle(
-              fontFamily: PTypo.sans,
-              fontSize: PFontSize.bodySm,
-              color: t.fgPrimary),
-          decoration: InputDecoration(
-            isDense: true,
-            hintText: '메뉴 검색',
-            hintStyle: TextStyle(
-                fontFamily: PTypo.sans,
-                fontSize: PFontSize.bodySm,
-                color: t.fgTertiary),
-            prefixIcon: Icon(LucideIcons.search, size: 16, color: t.fgTertiary),
-            prefixIconConstraints:
-                const BoxConstraints(minWidth: 38, minHeight: 38),
-            filled: true,
-            // web Input search 변형 정합 — bg-muted 채움 + 테두리 없음,
-            // focus 시 bg-surface 로 swap(ring/border 없음).
-            fillColor: _searchFocus.hasFocus ? t.bgSurface : t.bgMuted,
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            border: OutlineInputBorder(
-              borderRadius: PRadius.brMd,
-              borderSide: BorderSide.none,
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: PRadius.brMd,
-              borderSide: BorderSide.none,
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: PRadius.brMd,
-              borderSide: BorderSide.none,
-            ),
-          ),
         ),
         const SizedBox(height: PSpace.x20),
 
