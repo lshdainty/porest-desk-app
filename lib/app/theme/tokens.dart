@@ -357,8 +357,9 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     // end는 primary(cobalt500)로 흘려 하단 split 영역 대비 확보.
     bgHeroGradientStart: PorestPalette.cobalt400, // primary-light #5FA0E5
     bgHeroGradientEnd: PorestPalette.cobalt500,    // primary #0147AD
-    fgOnHeroChgUp: PorestPalette.heroChgUp,
-    fgOnHeroChgDown: PorestPalette.heroChgDown,
+    // 다크 = 더 밝은 코발트 그라데이션 → 50% 혼합으로 더 옅게(웹 .dark .chg 정합)
+    fgOnHeroChgUp: PorestPalette.heroChgUpDark,
+    fgOnHeroChgDown: PorestPalette.heroChgDownDark,
     fgOnHeroSpot: PorestPalette.slate0,
     shadowSm: PShadow.smDark,
     shadowMd: PShadow.mdDark,
