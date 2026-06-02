@@ -427,7 +427,7 @@ class _CategoryTab extends ConsumerWidget {
           const SizedBox(height: PSpace.x12),
           _TopMerchantsCard(async: merchantAsync, masked: settings.hideAmounts),
           const SizedBox(height: PSpace.x12),
-          _HeatmapCard(async: heatmapAsync),
+          _HeatmapCard(async: heatmapAsync, masked: settings.hideAmounts),
           const SizedBox(height: PSpace.x12),
           _HighlightsGrid(
             state: state,
@@ -1222,8 +1222,9 @@ int _heatBucket(int v, int max) {
 }
 
 class _HeatmapCard extends StatelessWidget {
-  const _HeatmapCard({required this.async});
+  const _HeatmapCard({required this.async, required this.masked});
   final AsyncValue<List<HeatmapCell>> async;
+  final bool masked;
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
@@ -1348,7 +1349,10 @@ class _HeatmapCard extends StatelessWidget {
                             ),
                             alignment: Alignment.center,
                             child: Text(
-                              _shortAmount(matrix[r][c]),
+                              // 금액 숨김 — web MaskAmount(value>0?••:—) 정합
+                              masked
+                                  ? (matrix[r][c] > 0 ? '••' : '—')
+                                  : _shortAmount(matrix[r][c]),
                               style: PTypo.micro.copyWith(
                                 color: fgFor(_heatBucket(matrix[r][c], maxV)),
                                 fontWeight: PFontWeight.bold,
@@ -1383,7 +1387,7 @@ class _HeatmapCard extends StatelessWidget {
                 Text('많음', style: PTypo.caption.copyWith(color: t.fgTertiary)),
                 const Spacer(),
                 Text(
-                  '총 ${krw(total)}원',
+                  masked ? '총 ••••••' : '총 ${krw(total)}원',
                   style: PTypo.caption.copyWith(
                     color: t.fgSecondary,
                     fontWeight: PFontWeight.semi,
