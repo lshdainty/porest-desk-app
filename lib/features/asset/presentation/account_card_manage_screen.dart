@@ -132,7 +132,7 @@ class _AccountCardManageScreenState
                     Row(
                       children: [
                         Text(
-                          masked ? '총 •••' : '총 ${krw(total)}원',
+                          masked ? '총 ••••••' : '총 ${krw(total)}원',
                           style: PTypo.caption.copyWith(color: t.fgTertiary),
                         ),
                         const Spacer(),
@@ -363,7 +363,7 @@ class _ManageRow extends StatelessWidget {
               const SizedBox(width: PSpace.x8),
               Text(
                 masked
-                    ? '•••'
+                    ? '••••'
                     : negative
                         ? '−${krw(balance.abs())}원'
                         : '${krw(balance)}원',

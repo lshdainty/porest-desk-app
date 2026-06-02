@@ -428,6 +428,7 @@ class _GroupExpensesTab extends ConsumerWidget {
                             e.signedAmount,
                             settings.hideAmounts,
                             sign: true,
+                            mask: '••••',
                           ),
                           style: PTypo.bodySm.copyWith(
                             color: e.expenseType == 'EXPENSE'

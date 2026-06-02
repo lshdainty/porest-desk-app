@@ -1283,9 +1283,9 @@ class _CalendarGrid extends StatelessWidget {
 }
 
 /// 캘린더 셀용 짧은 금액 표기 — 천 단위 콤마 유지하되 dialog 의 풀 표시와 별개로
-/// 셀 폭이 좁아서 약식 표기. masked 면 '•••'.
+/// 셀 폭이 좁아서 약식 표기. masked 면 '••••'(compact 4점 — web 캘린더 셀 fallback).
 String _compact(int amount, bool masked) {
-  if (masked) return '•••';
+  if (masked) return '••••';
   // amount 가 양수만 — formatter 가 부호는 caller 가 붙임.
   return krwMasked(amount, false);
 }

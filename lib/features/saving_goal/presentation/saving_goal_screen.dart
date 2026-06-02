@@ -298,14 +298,14 @@ class _GoalCard extends StatelessWidget {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text(krwMasked(goal.currentAmount, masked),
+                  Text(krwMasked(goal.currentAmount, masked, mask: '••••'),
                       style: PTypo.h4.copyWith(
                           color: tokens.fgPrimary,
                           fontWeight: PFontWeight.bold)),
                   const SizedBox(width: 4),
                   Padding(
                     padding: const EdgeInsets.only(bottom: 2),
-                    child: Text('/ ${krwMasked(goal.targetAmount, masked)}',
+                    child: Text('/ ${krwMasked(goal.targetAmount, masked, mask: '••••')}',
                         style: PTypo.caption
                             .copyWith(color: tokens.fgTertiary)),
                   ),

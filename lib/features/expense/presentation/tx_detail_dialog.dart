@@ -195,7 +195,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
     // 웹 TxDetailDialog 매칭: 수입=fg-brand (초록), 지출=fg-primary (검정)
     final amountColor = isIncome ? t.fgIncome : t.fgPrimary;
     final amountText = masked
-        ? '••••'
+        ? '••••••'
         : '${isIncome ? '+' : '−'}${krw(e.amount, abs: true)}';
 
     return ListView(
@@ -496,7 +496,7 @@ class _MerchantHistorySection extends ConsumerWidget {
                       const TextSpan(text: '이번 달 '),
                       TextSpan(
                         text: masked
-                            ? '$monthCount회 · ••••원'
+                            ? '$monthCount회 · ••••••원'
                             : '$monthCount회 · ${krw(monthTotal)}원',
                         style: PTypo.caption.copyWith(
                           color: t.fgSecondary,

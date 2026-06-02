@@ -374,7 +374,7 @@ class _HeroCard extends StatelessWidget {
               children: [
                 TextSpan(
                   text: masked
-                      ? '•••'
+                      ? '••••••'
                       : '${isCard && absBalance > 0 ? '−' : ''}${krw(absBalance)}',
                   style: PTypo.h1.copyWith(
                     color: isCard ? t.statusDangerFg : t.fgPrimary,
@@ -480,7 +480,7 @@ class _BalanceTrendChart extends StatelessWidget {
               getTitlesWidget: (v, _) => Padding(
                 padding: const EdgeInsets.only(right: 6),
                 child: Text(
-                  masked ? '•••' : formatChartAxis(v),
+                  masked ? '••••' : formatChartAxis(v),
                   maxLines: 1,
                   softWrap: false,
                   overflow: TextOverflow.visible,
@@ -560,7 +560,7 @@ class _BalanceTrendChart extends StatelessWidget {
                         ),
                       ),
                       TextSpan(
-                        text: masked ? '•••' : '${krw(spots[i].y.round())}원',
+                        text: masked ? '••••••' : '${krw(spots[i].y.round())}원',
                         style: PTypo.bodySm.copyWith(
                           color: tokens.fgPrimary,
                           fontWeight: PFontWeight.bold,
@@ -738,7 +738,7 @@ class _ExpenseRow extends StatelessWidget {
             ),
             const SizedBox(width: 12),
             Text(
-              masked ? '•••' : '${krw(expense.signedAmount, sign: true)}원',
+              masked ? '••••••' : '${krw(expense.signedAmount, sign: true)}원',
               style: PTypo.bodySm.copyWith(
                 color: isIncome ? tokens.fgIncome : tokens.fgExpense,
                 fontWeight: PFontWeight.bold,

@@ -316,7 +316,7 @@ class _DutchPayCard extends StatelessWidget {
                                   ? TextDecoration.lineThrough
                                   : null)),
                     ),
-                    Text(krwMasked(p.amount, masked),
+                    Text(krwMasked(p.amount, masked, mask: '••••'),
                         style: PTypo.bodySm.copyWith(
                             color: tokens.fgPrimary,
                             fontWeight: PFontWeight.semi)),

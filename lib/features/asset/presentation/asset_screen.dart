@@ -273,7 +273,7 @@ class _SummaryCard extends StatelessWidget {
           // Big amount
           RichText(
             text: TextSpan(
-              text: masked ? '•••' : krw(netWorth),
+              text: masked ? '••••••' : krw(netWorth),
               style: TextStyle(
                 color: t.fgPrimary,
                 fontSize: PFontSize.h1,
@@ -412,7 +412,7 @@ class _SummaryCol extends StatelessWidget {
         const SizedBox(height: 2),
         Text(
           masked
-              ? '•••'
+              ? '••••••'
               : negative
               ? '−${krw(amount.abs())}'
               : krw(amount),
@@ -470,7 +470,7 @@ class _TypeGroup extends StatelessWidget {
               const Spacer(),
               Text(
                 masked
-                    ? '•••'
+                    ? '••••••'
                     : negativeTotal
                     ? '−${krw(total.abs())}원'
                     : '${krw(total)}원',
@@ -600,7 +600,7 @@ class _AssetCard extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 masked
-                    ? '•••'
+                    ? '••••••'
                     : negativeAmount
                     ? '−${krw(balance.abs())}원'
                     : '${krw(balance)}원',

@@ -1062,7 +1062,7 @@ class _DonutLegendRow extends StatelessWidget {
             ),
             const SizedBox(width: 12),
             Text(
-              krwMasked(row.amount, masked),
+              krwMasked(row.amount, masked, mask: '••••'),
               style: PTypo.bodySm.copyWith(
                 color: t.fgPrimary,
                 fontWeight: PFontWeight.bold,

@@ -597,7 +597,8 @@ class _UpcomingRow extends StatelessWidget {
           ),
           const SizedBox(width: PSpace.x8),
           Text(
-            krwSigned(item.amount.abs(), masked, sign: isExpense ? '-' : '+'),
+            krwSigned(item.amount.abs(), masked,
+                sign: isExpense ? '-' : '+', mask: '••••'),
             style: PTypo.bodySm.copyWith(
               color: isExpense ? tokens.fgExpense : tokens.fgIncome,
               fontWeight: PFontWeight.bold,
@@ -718,7 +719,8 @@ class _RecurringRow extends StatelessWidget {
             ),
             const SizedBox(width: PSpace.x8),
             Text(
-              krwSigned(item.amount.abs(), masked, sign: isExpense ? '-' : '+'),
+              krwSigned(item.amount.abs(), masked,
+                  sign: isExpense ? '-' : '+', mask: '••••'),
               style: PTypo.bodySm.copyWith(
                 color: isExpense ? tokens.statusDanger : tokens.fgIncome,
                 fontWeight: PFontWeight.bold,

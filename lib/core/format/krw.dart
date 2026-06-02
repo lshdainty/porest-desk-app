@@ -10,18 +10,23 @@ String krw(int n, {bool sign = false, bool abs = false}) {
   return formatted;
 }
 
-/// 금액 숨김(마스킹) 토글이 켜진 경우 `•••` 로 대체.
-String krwMasked(int n, bool masked, {bool sign = false, bool abs = false}) {
-  if (masked) return '•••';
+/// web `HIDE_AMOUNTS_MASK` 정합 — 기본 마스크는 점 6개. 작은/compact 표기는 `mask: '••••'`(4개).
+const String kHideMask = '••••••';
+
+/// 금액 숨김(마스킹) 토글이 켜진 경우 [mask] 점으로 대체.
+String krwMasked(int n, bool masked,
+    {bool sign = false, bool abs = false, String mask = kHideMask}) {
+  if (masked) return mask;
   return krw(n, sign: sign, abs: abs);
 }
 
-/// 부호(±)·단위(원) 포함 금액 표기. masked면 부호·원 없이 마스크 점만 노출.
+/// 부호(±)·단위(원) 포함 금액 표기. masked면 부호·원 없이 [mask] 점만 노출.
 ///
 /// web `MaskAmount`(부호를 마스크 안에 포함) + `HideUnit`(원) 정합 —
 /// 금액을 숨겼을 때 `+`/`-`·`원` 이 같이 사라지고 점만 남도록.
-String krwSigned(int n, bool masked, {String sign = '', bool unit = false}) {
-  if (masked) return krwMasked(n, masked);
+String krwSigned(int n, bool masked,
+    {String sign = '', bool unit = false, String mask = kHideMask}) {
+  if (masked) return mask;
   return '$sign${krw(n)}${unit ? '원' : ''}';
 }
 

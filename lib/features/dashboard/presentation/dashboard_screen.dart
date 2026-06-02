@@ -443,7 +443,7 @@ class _BalanceHero extends StatelessWidget {
                       Expanded(
                         child: _HeroSplitCol(
                           label: '자산',
-                          value: krwMasked(totalAssets, masked),
+                          value: krwMasked(totalAssets, masked, mask: '••••'),
                           loading: loading,
                         ),
                       ),
@@ -456,7 +456,7 @@ class _BalanceHero extends StatelessWidget {
                           padding: const EdgeInsets.only(left: 16),
                           child: _HeroSplitCol(
                             label: '부채',
-                            value: krwSigned(totalDebt, masked, sign: '-'),
+                            value: krwSigned(totalDebt, masked, sign: '-', mask: '••••'),
                             loading: loading,
                           ),
                         ),
@@ -869,7 +869,7 @@ class _CategoryDonutCard extends StatelessWidget {
                                   fontSize: PFontSize.micro)),
                           const SizedBox(height: 2),
                           Text(
-                            krwMasked(total, masked),
+                            krwMasked(total, masked, mask: '••••'),
                             style: TextStyle(
                                 color: t.fgPrimary,
                                 fontSize: PFontSize.caption,
@@ -913,7 +913,7 @@ class _CategoryDonutCard extends StatelessWidget {
                                 ),
                               ),
                               Text(
-                                krwMasked(topSegs[i].totalAmount, masked),
+                                krwMasked(topSegs[i].totalAmount, masked, mask: '••••'),
                                 style: TextStyle(
                                   color: t.fgPrimary,
                                   fontSize: PFontSize.caption,
@@ -1146,9 +1146,9 @@ class _BudgetRow extends StatelessWidget {
                   fontFeatures: const [FontFeature.tabularFigures()],
                 ),
                 children: [
-                  TextSpan(text: krwMasked(spent, masked)),
+                  TextSpan(text: krwMasked(spent, masked, mask: '••••')),
                   TextSpan(
-                    text: ' / ${krwMasked(budget.budgetAmount, masked)}',
+                    text: ' / ${krwMasked(budget.budgetAmount, masked, mask: '••••')}',
                     style: TextStyle(
                       color: tokens.fgTertiary,
                       fontWeight: PFontWeight.medium,
@@ -1219,7 +1219,7 @@ class _TodaySpendCard extends StatelessWidget {
                 if (todayTotal > 0) ...[
                   const SizedBox(width: PSpace.x8),
                   Text(
-                    krwSigned(todayTotal, masked, sign: '-', unit: true),
+                    krwSigned(todayTotal, masked, sign: '-', unit: true, mask: '••••'),
                     style: PTypo.caption.copyWith(
                       color: t.fgExpense,
                       fontWeight: PFontWeight.bold,

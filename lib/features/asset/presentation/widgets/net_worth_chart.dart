@@ -94,7 +94,7 @@ class NetWorthChart extends ConsumerWidget {
                     getTitlesWidget: (v, _) => Padding(
                       padding: const EdgeInsets.only(right: 6),
                       child: Text(
-                        masked ? '•••' : formatChartAxis(v),
+                        masked ? '••••' : formatChartAxis(v),
                         maxLines: 1,
                         softWrap: false,
                         overflow: TextOverflow.visible,
@@ -178,7 +178,7 @@ class NetWorthChart extends ConsumerWidget {
                               ),
                             ),
                             TextSpan(
-                              text: masked ? '•••' : _fmtFull(spots[i].y),
+                              text: masked ? '••••••' : _fmtFull(spots[i].y),
                               style: PTypo.bodySm.copyWith(
                                 color: spots[i].y < 0
                                     ? t.statusDangerFg
