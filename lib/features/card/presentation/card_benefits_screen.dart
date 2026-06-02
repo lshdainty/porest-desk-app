@@ -70,7 +70,13 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
   void initState() {
     super.initState();
     _scroll.addListener(_onScroll);
-    _loadMore(initial: true);
+    // ref(Provider)·inherited widget 접근은 initState 완료 후로 미룸.
+    // initState 안에서 동기 호출하면 _loadMore 의 ref.invalidate/ref.read 가
+    // dependOnInheritedWidgetOfExactType<_UncontrolledProviderScope> 를 initState 완료 전에
+    // 호출해 "카드 로드 실패" 에러가 발생함.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _loadMore(initial: true);
+    });
   }
 
   /// 검색 키를 현재 필터 상태로 갱신. (page/size 제외)
