@@ -217,7 +217,7 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
             ),
             const SizedBox(height: PSpace.x12),
 
-            // 종류 필터 (3) + 혜택 필터 (5)
+            // 종류 필터 (전체/신용/체크) — 1행 (front 정합: 타입·혜택 별도 행)
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
@@ -230,7 +230,16 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
                       onTap: () => _setType(i),
                     ),
                   ],
-                  const SizedBox(width: 14),
+                ],
+              ),
+            ),
+            const SizedBox(height: PSpace.x8),
+
+            // 혜택 필터 (혜택 전체/할인/적립/캐시백/마일리지) — 2행
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
                   for (int i = 0; i < _benefitOptions.length; i++) ...[
                     if (i > 0) const SizedBox(width: 6),
                     PChip(
@@ -242,11 +251,11 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: PSpace.x4),
+            const SizedBox(height: PSpace.x8),
 
-            // 단종 카드 포함
+            // 단종 카드 포함 — 우측 정렬 (front 정합)
             Align(
-              alignment: Alignment.centerLeft,
+              alignment: Alignment.centerRight,
               child: PCheckbox(
                 value: _includeDiscontinued,
                 onChanged: _toggleDiscontinued,
