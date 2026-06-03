@@ -479,9 +479,29 @@ class _ThresholdCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 2),
-          Text(
-            '예산의 이 비율에 도달하면 알려드려요.',
-            style: PTypo.caption.copyWith(color: t.fgTertiary),
+          Text.rich(
+            TextSpan(
+              style: PTypo.caption.copyWith(color: t.fgTertiary),
+              children: [
+                const TextSpan(text: '예산 사용률이 이 값을 넘으면 '),
+                TextSpan(
+                  text: '경고',
+                  style: TextStyle(
+                    color: t.statusWarningFg,
+                    fontWeight: PFontWeight.bold,
+                  ),
+                ),
+                const TextSpan(text: ' 상태로 표시되고 알림을 받습니다. 100%는 '),
+                TextSpan(
+                  text: '초과',
+                  style: TextStyle(
+                    color: t.statusDangerFg,
+                    fontWeight: PFontWeight.bold,
+                  ),
+                ),
+                const TextSpan(text: '로 별도 알림이 발생합니다.'),
+              ],
+            ),
           ),
           const SizedBox(height: PSpace.x8),
           PSlider(
