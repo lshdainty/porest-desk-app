@@ -95,8 +95,10 @@ Color softBg(BuildContext context, Color base) {
 /// 카테고리 fg Color 결정 — 라이트/다크 자동 분기.
 ///
 /// - hex 가 chart palette base hex 이면 다크모드일 때 light variant 반환
-/// - 그 외 hex 는 raw 파싱 (사용자 커스텀 색)
-/// - null / 빈 값 / 잘못된 형식 → fallback
+/// - 그 외 hex(사용자 커스텀/브랜드 색)는 다크모드일 때 white 38% 혼합으로 lift
+///   — 웹 `--swatch-lift`(라이트 0% / 다크 38%, getPaletteByColor 커스텀 분기) 정합.
+///   삼성 네이비(#1428A0)처럼 어두운 브랜드 색이 다크 배경에 묻히는 것 방지.
+/// - null / 빈 값 / 잘못된 형식 → fallback (테마 인지 토큰이므로 lift 없음)
 Color resolveChartColor(
   BuildContext context,
   String? rawHex, {
@@ -106,32 +108,23 @@ Color resolveChartColor(
   if (rawHex == null || rawHex.trim().isEmpty) return fb;
   final norm = rawHex.trim().toLowerCase();
   final pair = _kBaseHexToPair[norm];
+  final isDark = Theme.of(context).brightness == Brightness.dark;
   if (pair != null) {
-    return Theme.of(context).brightness == Brightness.dark
-        ? pair.light
-        : pair.base;
+    return isDark ? pair.light : pair.base;
   }
-  return parseColor(rawHex, fallback: fb);
+  final parsed = parseColor(rawHex, fallback: fb);
+  if (isDark && parsed != fb) {
+    return Color.lerp(parsed, Colors.white, 0.38)!;
+  }
+  return parsed;
 }
 
 /// 캘린더/라벨 **솔리드 스와치**(체크박스·점·색 미리보기)용 색 — 다크에서 light 톤.
 ///
-/// 이벤트 칩처럼 surface 와 혼합(chipFill/chipText)하지 않고 색을 그대로 칠하는 곳
-/// (다중 캘린더 선택 체크박스, 색 점 등)에서 다크모드 가독성을 위해 밝게 변환한다.
-/// - 차트 팔레트 색 → 정확한 light variant (resolveChartColor)
-/// - 팔레트 밖 커스텀 색(예: 캘린더 기본 `#2563eb` 등) → HSL 명도를 올려
-///   디자인 light variant(명도 ~0.68) 근사 (이미 밝은 색은 유지)
-/// 라이트 모드는 base 그대로.
+/// [resolveChartColor] 가 팔레트 색(light variant)·커스텀 색(white 38% lift) 모두
+/// 웹 `--swatch-lift` 정합으로 처리하므로 그대로 위임한다 (과거 HSL 명도 근사 폐기).
 Color solidSwatchColor(BuildContext context, String? rawHex, {Color? fallback}) {
-  final resolved = resolveChartColor(context, rawHex, fallback: fallback);
-  if (Theme.of(context).brightness != Brightness.dark) return resolved;
-  final norm = rawHex?.trim().toLowerCase();
-  if (norm != null && _kBaseHexToPair.containsKey(norm)) {
-    return resolved; // 팔레트 색 → resolveChartColor 가 이미 light variant 반환
-  }
-  final hsl = HSLColor.fromColor(resolved);
-  if (hsl.lightness >= 0.62) return resolved; // 이미 밝으면 유지
-  return hsl.withLightness(0.68).toColor();
+  return resolveChartColor(context, rawHex, fallback: fallback);
 }
 
 /// 캘린더 이벤트 칩 **배경** — base 색을 surface 와 불투명 혼합.
