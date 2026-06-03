@@ -594,6 +594,30 @@ class _AssetCard extends StatelessWidget {
                           ),
                         ),
                       ),
+                    if (asset.assetType == 'CREDIT_CARD' &&
+                        asset.paymentDay != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 1),
+                        child: Text(
+                          '${asset.paymentDay}일 결제',
+                          style: TextStyle(
+                            color: t.fgTertiary,
+                            fontSize: PFontSize.caption,
+                            fontFeatures: const [FontFeature.tabularFigures()],
+                          ),
+                        ),
+                      ),
+                    if (asset.assetType == 'CREDIT_CARD' &&
+                        (asset.creditLimit ?? 0) > 0)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 6),
+                        child: _CardUsageGauge(
+                          used: balance.abs(),
+                          limit: asset.creditLimit!,
+                          masked: masked,
+                          tokens: t,
+                        ),
+                      ),
                   ],
                 ),
               ),
@@ -616,6 +640,71 @@ class _AssetCard extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// 신용카드 사용률 게이지 — abs(balance)/creditLimit.
+/// 70%↑ warning, 90%↑ danger 색. card_performance_bar 와 동일한
+/// LinearProgressIndicator(ClipRRect) 패턴 재활용.
+class _CardUsageGauge extends StatelessWidget {
+  const _CardUsageGauge({
+    required this.used,
+    required this.limit,
+    required this.masked,
+    required this.tokens,
+  });
+  final int used;
+  final int limit;
+  final bool masked;
+  final PorestTokens tokens;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = tokens;
+    final ratio = limit > 0 ? used / limit : 0.0;
+    final pct = (ratio * 100).round();
+    final barColor = ratio >= 0.9
+        ? t.statusDanger
+        : ratio >= 0.7
+        ? t.statusWarning
+        : t.fgBrand;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        ClipRRect(
+          borderRadius: PRadius.brXs,
+          child: LinearProgressIndicator(
+            value: ratio.clamp(0.0, 1.0),
+            minHeight: 6,
+            backgroundColor: t.bgTrack,
+            color: barColor,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Row(
+          children: [
+            Text(
+              masked ? '••• / •••' : '${krw(used)} / ${krw(limit)}원',
+              style: TextStyle(
+                color: t.fgTertiary,
+                fontSize: PFontSize.micro,
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
+            ),
+            const Spacer(),
+            Text(
+              '$pct%',
+              style: TextStyle(
+                color: barColor,
+                fontSize: PFontSize.micro,
+                fontWeight: PFontWeight.bold,
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

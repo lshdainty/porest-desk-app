@@ -19,6 +19,10 @@ abstract class Asset with _$Asset {
     String? memo,
     int? sortOrder,
     String? isIncludedInTotal, // 'Y' | 'N'
+    // 신용카드 청구 사이클 (CREDIT_CARD 전용, nullable).
+    int? creditLimit, // 신용 한도
+    int? paymentDay, // 결제일 (1~31)
+    int? paymentAssetRowId, // 결제 출금계좌 자산 rowId
   }) = _Asset;
 
   factory Asset.fromJson(Map<String, dynamic> json) => _$AssetFromJson(json);

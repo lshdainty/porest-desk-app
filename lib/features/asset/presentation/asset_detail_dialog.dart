@@ -12,12 +12,16 @@ import '../../../core/format/chart_palette.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/settings/hide_amounts_unlock_dialog.dart';
 import '../../../core/settings/settings_notifier.dart';
+import '../../../core/network/api_exception.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
+import '../../../shared/widgets/p_badge.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_card.dart';
+import '../../../shared/widgets/p_divider.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_progress.dart';
 import '../../../shared/widgets/p_skeleton.dart';
+import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_toggle.dart';
 import '../../card/presentation/card_performance_bar.dart';
 import '../../expense/application/expense_providers.dart';
@@ -26,6 +30,7 @@ import '../../expense/presentation/tx_detail_dialog.dart';
 import '../application/asset_providers.dart';
 import '../domain/asset.dart';
 import '../domain/asset_transfer.dart';
+import '../domain/card_billing.dart';
 import '../domain/asset_type_meta.dart';
 
 /// 자산 상세 — front `AssetDetailDialog` 모바일 미러.
@@ -183,6 +188,10 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
             yearMonth: _currentYearMonth(),
             masked: masked,
           ),
+          const SizedBox(height: PSpace.x16),
+        ],
+        if (asset.assetType == 'CREDIT_CARD') ...[
+          _CardBillingSection(asset: asset, masked: masked),
           const SizedBox(height: PSpace.x16),
         ],
 
@@ -749,6 +758,218 @@ class _ExpenseRow extends StatelessWidget {
       ),
     );
   }
+}
+
+/// 신용카드 청구 사이클 — 결제예정액·예정일 + '지금 결제' + 청구이력.
+/// GET /asset/{id}/billing 사용. '지금 결제' 후 billing/assets invalidate.
+class _CardBillingSection extends ConsumerStatefulWidget {
+  const _CardBillingSection({required this.asset, required this.masked});
+  final Asset asset;
+  final bool masked;
+  @override
+  ConsumerState<_CardBillingSection> createState() =>
+      _CardBillingSectionState();
+}
+
+class _CardBillingSectionState extends ConsumerState<_CardBillingSection> {
+  bool _paying = false;
+
+  Future<void> _pay() async {
+    if (_paying) return;
+    setState(() => _paying = true);
+    try {
+      final repo = await ref.read(assetRepositoryProvider.future);
+      await repo.payCard(widget.asset.rowId);
+      ref
+        ..invalidate(cardBillingProvider(widget.asset.rowId))
+        ..invalidate(assetsProvider)
+        ..invalidate(assetByIdProvider(widget.asset.rowId));
+      if (!mounted) return;
+      showPSnackBar(context, '결제가 기록되었습니다', severity: PSnackSeverity.success);
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      showPSnackBar(context, '결제 실패: ${e.message}',
+          severity: PSnackSeverity.error);
+    } finally {
+      if (mounted) setState(() => _paying = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final masked = widget.masked;
+    final async = ref.watch(cardBillingProvider(widget.asset.rowId));
+    return async.when(
+      loading: () => PCard(
+        variant: PCardVariant.bordered,
+        padding: const EdgeInsets.symmetric(vertical: 24),
+        child: const Center(child: PCircularProgressIndicator(size: 24)),
+      ),
+      error: (e, _) => PCard(
+        variant: PCardVariant.bordered,
+        padding: const EdgeInsets.all(PSpace.x16),
+        child: Text('청구 정보를 불러오지 못했어요',
+            style: PTypo.bodySm.copyWith(color: t.fgTertiary)),
+      ),
+      data: (b) {
+        final canPay = b.upcomingAmount > 0 && !_paying;
+        return PCard(
+          variant: PCardVariant.bordered,
+          padding: const EdgeInsets.all(PSpace.x16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Text('결제 예정',
+                      style: PTypo.bodySm.copyWith(
+                          color: t.fgPrimary, fontWeight: PFontWeight.bold)),
+                  const Spacer(),
+                  if (b.nextPaymentDate != null)
+                    Text(_fmtDate(b.nextPaymentDate!),
+                        style: PTypo.caption.copyWith(color: t.fgTertiary)),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: masked ? '••••••' : krw(b.upcomingAmount),
+                          style: PTypo.h2.copyWith(
+                            color: b.upcomingAmount > 0
+                                ? t.statusDangerFg
+                                : t.fgPrimary,
+                            fontWeight: PFontWeight.bold,
+                            letterSpacing: -0.4,
+                          ),
+                        ),
+                        if (!masked)
+                          TextSpan(
+                            text: '원',
+                            style: PTypo.bodySm.copyWith(
+                              color: b.upcomingAmount > 0
+                                  ? t.statusDangerFg
+                                  : t.fgPrimary,
+                              fontWeight: PFontWeight.bold,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                  const Spacer(),
+                  PButton(
+                    label: '지금 결제',
+                    icon: LucideIcons.wallet,
+                    size: PButtonSize.sm,
+                    loading: _paying,
+                    onPressed: canPay ? _pay : null,
+                  ),
+                ],
+              ),
+              if (b.paymentDay != null) ...[
+                const SizedBox(height: 6),
+                Text('매월 ${b.paymentDay}일 결제',
+                    style: PTypo.caption.copyWith(color: t.fgTertiary)),
+              ],
+              if (b.history.isNotEmpty) ...[
+                const SizedBox(height: PSpace.x12),
+                PDivider(),
+                const SizedBox(height: PSpace.x8),
+                Text('청구 이력',
+                    style: PTypo.caption.copyWith(
+                        color: t.fgSecondary, fontWeight: PFontWeight.bold)),
+                const SizedBox(height: PSpace.x4),
+                for (final item in b.history)
+                  _BillingHistoryRow(item: item, masked: masked),
+              ],
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _BillingHistoryRow extends StatelessWidget {
+  const _BillingHistoryRow({required this.item, required this.masked});
+  final BillingItem item;
+  final bool masked;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      masked ? '••••••' : '${krw(item.billingAmount)}원',
+                      style: PTypo.bodySm.copyWith(
+                        color: t.fgPrimary,
+                        fontWeight: PFontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    _StatusBadge(status: item.status),
+                  ],
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '${_fmtDate(item.periodStart)} ~ ${_fmtDate(item.periodEnd)} · 결제일 ${_fmtDate(item.paymentDate)}',
+                  style: PTypo.micro.copyWith(color: t.fgTertiary),
+                ),
+                if ((item.failureReason ?? '').isNotEmpty) ...[
+                  const SizedBox(height: 2),
+                  Text(item.failureReason!,
+                      style:
+                          PTypo.micro.copyWith(color: t.statusDangerFg)),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StatusBadge extends StatelessWidget {
+  const _StatusBadge({required this.status});
+  final String status;
+
+  @override
+  Widget build(BuildContext context) {
+    final (label, variant) = switch (status) {
+      'COMPLETED' => ('완료', PBadgeVariant.softSuccess),
+      'PENDING' => ('대기', PBadgeVariant.softWarning),
+      'FAILED' => ('실패', PBadgeVariant.softError),
+      'SKIPPED' => ('건너뜀', PBadgeVariant.secondary),
+      _ => (status, PBadgeVariant.secondary),
+    };
+    return PBadge(label: label, variant: variant);
+  }
+}
+
+/// 'yyyy-MM-dd' → 'M.d' 표기.
+String _fmtDate(String iso) {
+  final parts = iso.split('-');
+  if (parts.length != 3) return iso;
+  final m = int.tryParse(parts[1]);
+  final d = int.tryParse(parts[2]);
+  if (m == null || d == null) return iso;
+  return '$m.$d';
 }
 
 /// stats 차트와 동일한 만/억 단위 — 한글 단위가 KRW 와 어울리고

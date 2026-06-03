@@ -12,12 +12,14 @@ import '../../../shared/widgets/p_divider.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_progress.dart';
 import '../../../shared/widgets/p_search_field.dart';
+import '../../../shared/widgets/p_select.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_switch.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../../card/application/card_providers.dart';
 import '../../card/domain/card_catalog.dart';
 import '../application/asset_providers.dart';
+import '../domain/asset.dart';
 import 'include_in_total_card.dart';
 
 /// 카드 추가 다이얼로그 — front `CardAddDialog` 미러.
@@ -79,11 +81,14 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
   late final TextEditingController _keywordCtrl;
   late final TextEditingController _nicknameCtrl;
   late final TextEditingController _balanceCtrl;
+  late final TextEditingController _creditLimitCtrl;
 
   _CardType _cardType = _CardType.credit;
   bool _includeDiscontinued = false;
   bool _includeInTotal = true;
   CardCatalogSummary? _selected;
+  int? _paymentDay; // 결제일 1~31
+  int? _paymentAssetRowId; // 결제 출금계좌 자산 rowId
   bool _submitting = false;
 
   @override
@@ -92,6 +97,7 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
     _keywordCtrl = TextEditingController()..addListener(_onChanged);
     _nicknameCtrl = TextEditingController()..addListener(_onChanged);
     _balanceCtrl = TextEditingController(text: '0');
+    _creditLimitCtrl = TextEditingController();
     widget.controller.onSubmit = _submit;
   }
 
@@ -110,6 +116,7 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
     _keywordCtrl.dispose();
     _nicknameCtrl.dispose();
     _balanceCtrl.dispose();
+    _creditLimitCtrl.dispose();
     super.dispose();
   }
 
@@ -121,6 +128,11 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
     final outstanding =
         int.tryParse(_balanceCtrl.text.replaceAll(',', '')) ?? 0;
     final company = selected.company?.name;
+    // 청구 사이클 필드는 신용카드일 때만. 빈 한도는 null 로 전송.
+    final isCredit = _cardType == _CardType.credit;
+    final creditLimit = isCredit
+        ? int.tryParse(_creditLimitCtrl.text.replaceAll(',', ''))
+        : null;
 
     _setSubmitting(true);
     try {
@@ -133,6 +145,9 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
         institution: company,
         isIncludedInTotal: _includeInTotal ? 'Y' : 'N',
         cardCatalogRowId: selected.rowId,
+        creditLimit: creditLimit,
+        paymentDay: isCredit ? _paymentDay : null,
+        paymentAssetRowId: isCredit ? _paymentAssetRowId : null,
       );
       // brand color hex 는 모바일 측에선 별도 파싱이라 institution 으로 추후 매칭.
       // (web 의 color 필드는 같은 효과를 내는 보조 정보)
@@ -161,6 +176,11 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
       size: 40,
     );
     final pageAsync = ref.watch(cardCatalogPageProvider(searchKey));
+    final isCredit = _cardType == _CardType.credit;
+    // 결제 출금계좌 후보 — 본인 소유 BANK_ACCOUNT 자산.
+    final bankAccounts = (ref.watch(assetsProvider).value ?? const <Asset>[])
+        .where((a) => a.assetType == 'BANK_ACCOUNT')
+        .toList(growable: false);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         widget.controller.setCanSubmit(_selected != null && !_submitting);
@@ -280,6 +300,68 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
                 const SizedBox(height: 6),
                 Text('청구될 금액을 입력하세요. 총 부채에 반영됩니다.',
                     style: PTypo.micro.copyWith(color: t.fgTertiary)),
+
+                // 청구 사이클 (신용카드 전용) ──────────────
+                if (isCredit) ...[
+                  const SizedBox(height: PSpace.x20),
+                  // 신용한도 (원)
+                  Text('신용한도 (원, 선택)',
+                      style: PTypo.caption.copyWith(
+                          color: t.fgPrimary, fontWeight: PFontWeight.medium)),
+                  const SizedBox(height: PSpace.x8),
+                  PTextInput(
+                    controller: _creditLimitCtrl,
+                    keyboardType: TextInputType.number,
+                    placeholder: '예: 5,000,000',
+                  ),
+                  const SizedBox(height: 6),
+                  Text('한도를 입력하면 사용률 게이지가 표시됩니다.',
+                      style: PTypo.micro.copyWith(color: t.fgTertiary)),
+                  const SizedBox(height: PSpace.x20),
+                  // 결제일 (1~31)
+                  Text('결제일 (선택)',
+                      style: PTypo.caption.copyWith(
+                          color: t.fgPrimary, fontWeight: PFontWeight.medium)),
+                  const SizedBox(height: PSpace.x8),
+                  PSelect<int>(
+                    value: _paymentDay,
+                    placeholder: '결제일 선택',
+                    title: '결제일',
+                    items: [
+                      for (var d = 1; d <= 31; d++)
+                        PSelectItem(value: d, label: '$d일'),
+                    ],
+                    onChanged: (v) => setState(() => _paymentDay = v),
+                  ),
+                  const SizedBox(height: PSpace.x20),
+                  // 결제 출금계좌
+                  Text('결제 출금계좌 (선택)',
+                      style: PTypo.caption.copyWith(
+                          color: t.fgPrimary, fontWeight: PFontWeight.medium)),
+                  const SizedBox(height: PSpace.x8),
+                  PSelect<int>(
+                    value: _paymentAssetRowId,
+                    placeholder: bankAccounts.isEmpty
+                        ? '등록된 입출금계좌가 없어요'
+                        : '결제계좌 선택',
+                    title: '결제 출금계좌',
+                    enabled: bankAccounts.isNotEmpty,
+                    items: [
+                      for (final a in bankAccounts)
+                        PSelectItem(
+                          value: a.rowId,
+                          label: a.institution != null &&
+                                  a.institution!.isNotEmpty
+                              ? '${a.assetName} · ${a.institution}'
+                              : a.assetName,
+                        ),
+                    ],
+                    onChanged: (v) => setState(() => _paymentAssetRowId = v),
+                  ),
+                  const SizedBox(height: 6),
+                  Text('결제일에 이 계좌에서 청구액이 출금됩니다.',
+                      style: PTypo.micro.copyWith(color: t.fgTertiary)),
+                ],
 
                 // 전체 자산 합계 포함 토글 ──────────────
                 const SizedBox(height: PSpace.x20),

@@ -5,6 +5,7 @@ import '../data/asset_repository.dart';
 import '../domain/asset.dart';
 import '../domain/asset_summary.dart';
 import '../domain/asset_transfer.dart';
+import '../domain/card_billing.dart';
 import '../domain/net_worth_point.dart';
 
 final assetRepositoryProvider = FutureProvider<AssetRepository>((ref) async {
@@ -57,6 +58,14 @@ final assetTransfersProvider = FutureProvider.family<List<AssetTransfer>,
     AssetTransfersKey>((ref, key) async {
   final repo = await ref.watch(assetRepositoryProvider.future);
   return repo.listTransfers(startDate: key.startDate, endDate: key.endDate);
+});
+
+/// 신용카드 청구 사이클 (결제예정액·예정일·청구이력).
+/// 카드 상세 진입 시 조회. `payCard` 후 invalidate.
+final cardBillingProvider =
+    FutureProvider.family<CardBilling, int>((ref, assetId) async {
+  final repo = await ref.watch(assetRepositoryProvider.future);
+  return repo.getCardBilling(assetId);
 });
 
 extension AssetListX on List<Asset> {

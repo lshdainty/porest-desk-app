@@ -18,6 +18,9 @@ _Asset _$AssetFromJson(Map<String, dynamic> json) => _Asset(
   memo: json['memo'] as String?,
   sortOrder: (json['sortOrder'] as num?)?.toInt(),
   isIncludedInTotal: json['isIncludedInTotal'] as String?,
+  creditLimit: (json['creditLimit'] as num?)?.toInt(),
+  paymentDay: (json['paymentDay'] as num?)?.toInt(),
+  paymentAssetRowId: (json['paymentAssetRowId'] as num?)?.toInt(),
 );
 
 Map<String, dynamic> _$AssetToJson(_Asset instance) => <String, dynamic>{
@@ -32,4 +35,7 @@ Map<String, dynamic> _$AssetToJson(_Asset instance) => <String, dynamic>{
   'memo': instance.memo,
   'sortOrder': instance.sortOrder,
   'isIncludedInTotal': instance.isIncludedInTotal,
+  'creditLimit': instance.creditLimit,
+  'paymentDay': instance.paymentDay,
+  'paymentAssetRowId': instance.paymentAssetRowId,
 };
