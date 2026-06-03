@@ -9,6 +9,7 @@ import '../../../app/theme/typography.dart';
 import '../../../core/format/chart_palette.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_chip.dart';
+import '../../../shared/widgets/p_color_picker.dart';
 import '../../../shared/widgets/p_date_input.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_progress.dart';
@@ -41,9 +42,6 @@ void showCalendarEventDialog(
     ),
   ).whenComplete(controller.dispose);
 }
-
-/// 차트 10색(공유 `kChartBaseHexes`)만 노출 — base hex 만 DB 저장.
-const _colorOptions = kChartBaseHexes;
 
 /// 신규 일정 기본 색 = violet (`kChartBaseHexes[6]`).
 const _kDefaultEventColor = '#8b4dba';
@@ -436,18 +434,9 @@ class _BodyState extends ConsumerState<_Body> {
           // 색상
           PSectionLabel('색상', variant: PSectionLabelVariant.header),
           const SizedBox(height: PSpace.x8),
-          Wrap(
-            spacing: PSpace.x12,
-            runSpacing: PSpace.x8,
-            children: [
-              for (final c in _colorOptions)
-                _ColorSphere(
-                  color: solidSwatchColor(context, c, fallback: t.fgBrand),
-                  selected: _color.toLowerCase() == c.toLowerCase(),
-                  onTap: () => setState(() => _color = c),
-                  tokens: t,
-                ),
-            ],
+          PColorPicker(
+            selected: _color,
+            onChanged: (hex) => setState(() => _color = hex),
           ),
           const SizedBox(height: PSpace.x16),
 
@@ -558,36 +547,6 @@ class _BodyState extends ConsumerState<_Body> {
             ],
           ),
       ],
-    );
-  }
-}
-
-class _ColorSphere extends StatelessWidget {
-  const _ColorSphere({
-    required this.color,
-    required this.selected,
-    required this.onTap,
-    required this.tokens,
-  });
-  final Color color;
-  final bool selected;
-  final VoidCallback onTap;
-  final PorestTokens tokens;
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: PSpace.x32,
-        height: PSpace.x32,
-        decoration: BoxDecoration(
-          color: color,
-          shape: BoxShape.circle,
-          border: selected
-              ? Border.all(color: tokens.fgBrand, width: 2.5)
-              : null,
-        ),
-      ),
     );
   }
 }

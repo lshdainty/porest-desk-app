@@ -11,6 +11,7 @@ import '../../../core/format/chart_palette.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_card.dart';
+import '../../../shared/widgets/p_color_picker.dart';
 import '../../../shared/widgets/p_divider.dart';
 import '../../../shared/widgets/p_empty_state.dart';
 import '../../../shared/widgets/p_modal.dart';
@@ -246,7 +247,7 @@ void _showLabelEditor(
   final nameCtrl = TextEditingController(text: existing?.labelName ?? '');
   final controller = PSheetController();
   controller.setCanSubmit((existing?.labelName ?? '').trim().isNotEmpty);
-  String selectedColor = existing?.color ?? kLabelPaletteHex.first;
+  String selectedColor = existing?.color ?? '#2c70bf';
 
   Future<void> submit() async {
     final name = nameCtrl.text.trim();
@@ -380,63 +381,13 @@ class _LabelEditorBodyState extends State<_LabelEditorBody> {
         // 색상
         Text('색상', style: PTypo.caption.copyWith(color: t.fgSecondary)),
         const SizedBox(height: PSpace.x8),
-        _PaletteRow(
+        PColorPicker(
           selected: _color,
-          tokens: t,
-          onChanged: (c) {
-            setState(() => _color = c);
-            widget.onColorChanged(c);
+          onChanged: (hex) {
+            setState(() => _color = hex);
+            widget.onColorChanged(hex);
           },
         ),
-      ],
-    );
-  }
-}
-
-class _PaletteRow extends StatelessWidget {
-  const _PaletteRow({
-    required this.selected,
-    required this.onChanged,
-    required this.tokens,
-  });
-  final String selected;
-  final ValueChanged<String> onChanged;
-  final PorestTokens tokens;
-
-  @override
-  Widget build(BuildContext context) {
-    return Wrap(
-      spacing: PSpace.x8,
-      runSpacing: PSpace.x8,
-      children: [
-        for (final hex in kLabelPaletteHex)
-          GestureDetector(
-            onTap: () => onChanged(hex),
-            child: Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: solidSwatchColor(context, hex, fallback: tokens.fgBrand),
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: hex == selected
-                      ? tokens.fgPrimary
-                      : Colors.transparent,
-                  width: 2,
-                ),
-              ),
-              child: hex == selected
-                  ? Icon(LucideIcons.check,
-                      size: 16,
-                      color: ThemeData.estimateBrightnessForColor(
-                                  solidSwatchColor(context, hex,
-                                      fallback: tokens.fgBrand)) ==
-                              Brightness.dark
-                          ? Colors.white
-                          : const Color(0xFF1A1F2E))
-                  : null,
-            ),
-          ),
       ],
     );
   }
@@ -468,15 +419,3 @@ Future<void> _confirmDelete(
         severity: PSnackSeverity.error);
   }
 }
-
-/// 라벨/캘린더 색 palette — chart palette base hex (라이트/다크 자동 swap).
-const kLabelPaletteHex = <String>[
-  '#2c70bf', // blue
-  '#2d8060', // green
-  '#b36418', // orange
-  '#c73838', // red
-  '#8b4dba', // violet
-  '#b83b7a', // pink
-  '#5e60c8', // indigo
-  '#6b7484', // gray
-];

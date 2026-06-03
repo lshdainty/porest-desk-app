@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
+import '../../../core/format/chart_palette.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_date_input.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_color_picker.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_text_input.dart';
-import '../../category/presentation/category_palette.dart';
 import '../application/saving_goal_providers.dart';
 import '../domain/saving_goal.dart';
 
@@ -49,7 +49,7 @@ class _BodyState extends ConsumerState<_Body> {
   late final TextEditingController _amountCtrl;
   late final TextEditingController _descCtrl;
   DateTime? _deadline;
-  late int _paletteIdx;
+  late String _color;
   bool _submitting = false;
   bool get _isEdit => widget.edit != null;
 
@@ -63,7 +63,10 @@ class _BodyState extends ConsumerState<_Body> {
     _deadline = widget.edit?.deadlineDate == null
         ? null
         : DateTime.tryParse(widget.edit!.deadlineDate!);
-    _paletteIdx = CatPalette.indexByColor(widget.edit?.color) ?? 0;
+    final editColor = widget.edit?.color?.toLowerCase();
+    _color = editColor != null && kChartBaseHexes.contains(editColor)
+        ? editColor
+        : kChartBaseHexes.first;
     widget.controller.onSubmit = _submit;
     if (_isEdit) widget.controller.onDelete = _delete;
   }
@@ -96,7 +99,7 @@ class _BodyState extends ConsumerState<_Body> {
     try {
       final repo = await ref.read(savingGoalRepositoryProvider.future);
       final amt = int.parse(_amountCtrl.text.replaceAll(',', ''));
-      final color = CatPalette.all[_paletteIdx].toHex();
+      final color = _color;
       if (_isEdit) {
         await repo.update(
           id: widget.edit!.rowId,
@@ -200,32 +203,9 @@ class _BodyState extends ConsumerState<_Body> {
           Text('색상',
               style: PTypo.caption.copyWith(color: t.fgSecondary)),
           const SizedBox(height: PSpace.x8),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              for (int i = 0; i < CatPalette.all.length; i++)
-                GestureDetector(
-                  onTap: () => setState(() => _paletteIdx = i),
-                  child: Container(
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      color: CatPalette.all[i].color,
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                          color: i == _paletteIdx
-                              ? t.fgPrimary
-                              : Colors.transparent,
-                          width: 2),
-                    ),
-                    child: i == _paletteIdx
-                        ? const Icon(LucideIcons.check,
-                            size: 16, color: Colors.white)
-                        : null,
-                  ),
-                ),
-            ],
+          PColorPicker(
+            selected: _color,
+            onChanged: (hex) => setState(() => _color = hex),
           ),
           const SizedBox(height: PSpace.x12),
           Text('설명 (선택)',

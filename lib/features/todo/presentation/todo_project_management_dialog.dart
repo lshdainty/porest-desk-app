@@ -9,6 +9,7 @@ import '../../../app/theme/typography.dart';
 import '../../../core/format/chart_palette.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_button.dart';
+import '../../../shared/widgets/p_color_picker.dart';
 import '../../../shared/widgets/p_divider.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_skeleton.dart';
@@ -29,8 +30,6 @@ void showTodoProjectManagementDialog(BuildContext context) {
   );
 }
 
-const _palette = kChartBaseHexes;
-
 class _Body extends ConsumerStatefulWidget {
   const _Body({required this.scrollController});
   final ScrollController scrollController;
@@ -41,7 +40,7 @@ class _Body extends ConsumerStatefulWidget {
 class _BodyState extends ConsumerState<_Body> {
   final _nameCtrl = TextEditingController();
   final _descCtrl = TextEditingController();
-  String _color = _palette.first;
+  String _color = kChartBaseHexes.first;
   bool _adding = false;
 
   @override
@@ -67,7 +66,7 @@ class _BodyState extends ConsumerState<_Body> {
       _nameCtrl.clear();
       _descCtrl.clear();
       setState(() {
-        _color = _palette.first;
+        _color = kChartBaseHexes.first;
         _adding = false;
       });
     } on ApiException catch (e) {
@@ -103,10 +102,9 @@ class _BodyState extends ConsumerState<_Body> {
             placeholder: '설명 (선택)',
           ),
           const SizedBox(height: PSpace.x8),
-          _Palette(
+          PColorPicker(
             selected: _color,
-            onChanged: (c) => setState(() => _color = c),
-            tokens: t,
+            onChanged: (hex) => setState(() => _color = hex),
           ),
           const SizedBox(height: PSpace.x8),
           PButton(
@@ -175,7 +173,7 @@ class _ProjectRowState extends ConsumerState<_ProjectRow> {
     super.initState();
     _nameCtrl = TextEditingController(text: widget.project.projectName);
     _descCtrl = TextEditingController(text: widget.project.description ?? '');
-    _color = widget.project.color ?? _palette.first;
+    _color = widget.project.color ?? kChartBaseHexes.first;
   }
 
   @override
@@ -288,7 +286,7 @@ class _ProjectRowState extends ConsumerState<_ProjectRow> {
                           if (!_expanded) {
                             _nameCtrl.text = widget.project.projectName;
                             _descCtrl.text = widget.project.description ?? '';
-                            _color = widget.project.color ?? _palette.first;
+                            _color = widget.project.color ?? kChartBaseHexes.first;
                           }
                         }),
               ),
@@ -302,10 +300,9 @@ class _ProjectRowState extends ConsumerState<_ProjectRow> {
           ),
           if (_expanded) ...[
             const SizedBox(height: 8),
-            _Palette(
+            PColorPicker(
               selected: _color,
-              onChanged: (c) => setState(() => _color = c),
-              tokens: t,
+              onChanged: (hex) => setState(() => _color = hex),
             ),
             const SizedBox(height: 8),
             Align(
@@ -319,46 +316,6 @@ class _ProjectRowState extends ConsumerState<_ProjectRow> {
           ],
         ],
       ),
-    );
-  }
-}
-
-class _Palette extends StatelessWidget {
-  const _Palette({
-    required this.selected,
-    required this.onChanged,
-    required this.tokens,
-  });
-  final String selected;
-  final ValueChanged<String> onChanged;
-  final PorestTokens tokens;
-  @override
-  Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: [
-        for (final c in _palette)
-          GestureDetector(
-            onTap: () => onChanged(c),
-            child: Container(
-              width: 28, height: 28,
-              decoration: BoxDecoration(
-                color: solidSwatchColor(context, c, fallback: tokens.fgBrand),
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color:
-                      c == selected ? tokens.fgPrimary : Colors.transparent,
-                  width: 2,
-                ),
-              ),
-              child: c == selected
-                  ? const Icon(LucideIcons.check,
-                      size: 14, color: Colors.white)
-                  : null,
-            ),
-          ),
-      ],
     );
   }
 }

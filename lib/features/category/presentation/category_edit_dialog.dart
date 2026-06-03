@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
+import '../../../core/format/chart_palette.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
+import '../../../shared/widgets/p_color_picker.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_text_input.dart';
@@ -57,7 +58,7 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
   late final TextEditingController _nameCtrl;
   late String _expenseType;
   late String _icon;
-  late int _paletteIdx;
+  late String _color;
   bool _submitting = false;
 
   bool get _isEdit => widget.edit != null;
@@ -69,7 +70,9 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
     _nameCtrl = TextEditingController(text: c?.categoryName ?? '');
     _expenseType = c?.expenseType ?? widget.defaultExpenseType;
     _icon = c?.icon ?? 'tag';
-    _paletteIdx = CatPalette.indexByColor(c?.color) ?? 0;
+    _color = (c?.color != null && c!.color!.trim().isNotEmpty)
+        ? c.color!
+        : kChartBaseHexes.first;
     widget.controller.onSubmit = _submit;
     if (_isEdit) widget.controller.onDelete = _delete;
   }
@@ -93,7 +96,7 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
   Future<void> _submit() async {
     if (!_canSubmit) return;
     final name = _nameCtrl.text.trim();
-    final color = CatPalette.all[_paletteIdx].toHex();
+    final color = _color;
     _setSubmitting(true);
     try {
       final repo = await ref.read(expenseRepositoryProvider.future);
@@ -152,7 +155,7 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final palette = CatPalette.all[_paletteIdx];
+    final previewColor = resolveChartColor(context, _color, fallback: t.fgBrand);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) widget.controller.setCanSubmit(_canSubmit);
     });
@@ -168,11 +171,11 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
               width: 64,
               height: 64,
               decoration: BoxDecoration(
-                color: palette.color.withValues(alpha: 0.13),
+                color: previewColor.withValues(alpha: 0.13),
                 borderRadius: PRadius.brLg,
               ),
               alignment: Alignment.center,
-              child: Icon(lucideByName(_icon), size: 28, color: palette.color),
+              child: Icon(lucideByName(_icon), size: 28, color: previewColor),
             ),
           ),
           const SizedBox(height: PSpace.x16),
@@ -204,33 +207,9 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
           Text('색상',
               style: PTypo.caption.copyWith(color: t.fgSecondary)),
           const SizedBox(height: PSpace.x8),
-          Wrap(
-            spacing: PSpace.x8,
-            runSpacing: PSpace.x8,
-            children: [
-              for (int i = 0; i < CatPalette.all.length; i++)
-                GestureDetector(
-                  onTap: () => setState(() => _paletteIdx = i),
-                  child: Container(
-                    width: 36,
-                    height: 36,
-                    decoration: BoxDecoration(
-                      color: CatPalette.all[i].color,
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: i == _paletteIdx
-                            ? t.fgPrimary
-                            : Colors.transparent,
-                        width: 2,
-                      ),
-                    ),
-                    child: i == _paletteIdx
-                        ? const Icon(LucideIcons.check,
-                            size: 18, color: Colors.white)
-                        : null,
-                  ),
-                ),
-            ],
+          PColorPicker(
+            selected: _color,
+            onChanged: (hex) => setState(() => _color = hex),
           ),
           const SizedBox(height: PSpace.x16),
 

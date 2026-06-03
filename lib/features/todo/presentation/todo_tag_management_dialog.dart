@@ -9,6 +9,7 @@ import '../../../app/theme/typography.dart';
 import '../../../core/format/chart_palette.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_button.dart';
+import '../../../shared/widgets/p_color_picker.dart';
 import '../../../shared/widgets/p_divider.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_skeleton.dart';
@@ -108,10 +109,9 @@ class _BodyState extends ConsumerState<_Body> {
             ],
           ),
           const SizedBox(height: PSpace.x8),
-          _Palette(
+          PColorPicker(
             selected: _newColor,
             onChanged: (c) => setState(() => _newColor = c),
-            tokens: t,
           ),
           const SizedBox(height: PSpace.x20),
           PDivider(),
@@ -269,10 +269,9 @@ class _TagRowState extends ConsumerState<_TagRow> {
           ),
           if (_expanded) ...[
             const SizedBox(height: 8),
-            _Palette(
+            PColorPicker(
               selected: _color,
               onChanged: (c) => setState(() => _color = c),
-              tokens: t,
             ),
             const SizedBox(height: 8),
             Align(
@@ -290,42 +289,3 @@ class _TagRowState extends ConsumerState<_TagRow> {
   }
 }
 
-class _Palette extends StatelessWidget {
-  const _Palette({
-    required this.selected,
-    required this.onChanged,
-    required this.tokens,
-  });
-  final String selected;
-  final ValueChanged<String> onChanged;
-  final PorestTokens tokens;
-  @override
-  Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: [
-        for (final c in _palette)
-          GestureDetector(
-            onTap: () => onChanged(c),
-            child: Container(
-              width: 28, height: 28,
-              decoration: BoxDecoration(
-                color: solidSwatchColor(context, c, fallback: tokens.fgBrand),
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color:
-                      c == selected ? tokens.fgPrimary : Colors.transparent,
-                  width: 2,
-                ),
-              ),
-              child: c == selected
-                  ? const Icon(LucideIcons.check,
-                      size: 14, color: Colors.white)
-                  : null,
-            ),
-          ),
-      ],
-    );
-  }
-}
