@@ -592,8 +592,26 @@ class _BalanceTrendChart extends StatelessWidget {
                 strokeWidth: 1.5,
               ),
             ),
+            // web recharts 정합 — fill 은 차트 바닥이 아니라 0 기준선을 향해 채움.
+            // 양수 구간은 라인 아래(belowBarData), 음수 구간은 라인 위(aboveBarData)로
+            // cutOffY=0 에서 잘라 채운다 (카드 사용 추이처럼 전부 음수면 위쪽 fill).
             belowBarData: BarAreaData(
               show: true,
+              applyCutOffY: true,
+              cutOffY: 0,
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  brandFg.withValues(alpha: 0.28),
+                  brandFg.withValues(alpha: 0),
+                ],
+              ),
+            ),
+            aboveBarData: BarAreaData(
+              show: true,
+              applyCutOffY: true,
+              cutOffY: 0,
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
