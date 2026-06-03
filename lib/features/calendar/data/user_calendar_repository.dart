@@ -75,6 +75,56 @@ class UserCalendarRepository {
     }
   }
 
+  // ── 공유 ──
+
+  Future<List<CalendarMember>> members(int id) async {
+    try {
+      final res = await _dio.get<Map<String, dynamic>>('/calendar/calendars/$id/members');
+      return _unwrapList(res, 'members', CalendarMember.fromJson);
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  Future<void> regenerateInviteCode(int id) async {
+    try {
+      await _dio.patch<dynamic>('/calendar/calendars/$id/regenerate-invite-code');
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  Future<UserCalendar> joinByCode(String inviteCode) async {
+    try {
+      final res = await _dio.post<Map<String, dynamic>>(
+        '/calendar/calendars/join',
+        data: {'inviteCode': inviteCode},
+      );
+      return _unwrap(res, UserCalendar.fromJson);
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  Future<void> removeMember(int id, int memberId) async {
+    try {
+      await _dio.delete<void>('/calendar/calendars/$id/member/$memberId');
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  Future<void> changeMemberRole(int id, int memberId, String permission) async {
+    try {
+      await _dio.patch<dynamic>(
+        '/calendar/calendars/$id/member/$memberId/role',
+        data: {'permission': permission},
+      );
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
   T _unwrap<T>(
     Response<Map<String, dynamic>> res,
     T Function(Map<String, dynamic>) fromJson,
