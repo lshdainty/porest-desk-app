@@ -25,6 +25,12 @@ class AssetLogo extends StatelessWidget {
     final char = (asset.institution ?? asset.assetName).trim().isEmpty
         ? '?'
         : (asset.institution ?? asset.assetName).trim().characters.first;
+    // web AssetLogo font 분기 정합: ≤32 caption / ≥48 bodyLg / else bodySm
+    final fontSize = size <= 32
+        ? PFontSize.caption
+        : size >= 48
+            ? PFontSize.bodyLg
+            : PFontSize.bodySm;
     return Container(
       width: size,
       height: size,
@@ -37,7 +43,7 @@ class AssetLogo extends StatelessWidget {
         char,
         style: TextStyle(
           color: fg,
-          fontSize: PFontSize.body,
+          fontSize: fontSize,
           fontWeight: PFontWeight.bold,
           letterSpacing: -0.28,
           height: PLineHeight.tight,

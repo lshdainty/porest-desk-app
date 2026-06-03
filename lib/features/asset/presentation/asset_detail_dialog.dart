@@ -32,6 +32,7 @@ import '../domain/asset.dart';
 import '../domain/asset_transfer.dart';
 import '../domain/card_billing.dart';
 import '../domain/asset_type_meta.dart';
+import 'widgets/asset_logo.dart';
 
 /// 자산 상세 — front `AssetDetailDialog` 모바일 미러.
 ///
@@ -328,16 +329,8 @@ class _HeroCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: brandFg,
-                  borderRadius: PRadius.tile(48),
-                ),
-                alignment: Alignment.center,
-                child: Icon(meta.icon, size: 22, color: t.fgOnBrand),
-              ),
+              // web hero 정합 — 타입 글리프 대신 AssetLogo 모노그램 (icon 제거 마이그 잔재 정리)
+              AssetLogo(asset: asset, size: 48),
               const SizedBox(width: 14),
               Expanded(
                 child: Column(
