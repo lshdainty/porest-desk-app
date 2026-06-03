@@ -234,19 +234,6 @@ class _CategoryList extends StatelessWidget {
       );
     }
 
-    // visible flatten — [parent, (expanded 시) child, child, parent, ...]
-    final visible = <ExpenseCategory>[];
-    final hasChildrenMap = <int, bool>{};
-    for (final entry in tree) {
-      visible.add(entry.parent);
-      hasChildrenMap[entry.parent.rowId] = entry.children.isNotEmpty;
-      if (!collapsed.contains(entry.parent.rowId)) {
-        for (final c in entry.children) {
-          visible.add(c);
-        }
-      }
-    }
-
     return ListView(
       padding: const EdgeInsets.fromLTRB(
         PSpace.x20,
@@ -258,56 +245,98 @@ class _CategoryList extends StatelessWidget {
         PCard(
           variant: PCardVariant.shadow,
           padding: EdgeInsets.zero,
+          // 웹 CategoryManager 미러: 부모 reorder(외곽) + 부모별 자식 reorder(내부) 분리.
+          // 자식은 자기 부모 그룹 안에서만 드래그 가능 — 다른 부모로 넘어가지 않음.
           child: ReorderableListView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             buildDefaultDragHandles: false,
-            itemCount: visible.length,
-            itemBuilder: (ctx, i) {
-              final c = visible[i];
-              final isParent = c.parentRowId == null;
-              final hasChildren =
-                  isParent && (hasChildrenMap[c.rowId] ?? false);
-              return _CategoryRow(
-                key: ValueKey(c.rowId),
-                index: i,
-                category: c,
-                isParent: isParent,
-                hasChildren: hasChildren,
-                isCollapsed: isParent && collapsed.contains(c.rowId),
-                onToggle: hasChildren ? () => onToggleCollapse(c.rowId) : null,
-                isLast: i == visible.length - 1,
-                tokens: tokens,
-              );
-            },
+            itemCount: tree.length,
             onReorder: (oldIndex, newIndex) {
-              // Flutter ReorderableListView quirk
               if (newIndex > oldIndex) newIndex -= 1;
               if (oldIndex == newIndex) return;
-              final from = visible[oldIndex];
-              final to = visible[newIndex];
-              // level guard — 같은 부모/같은 level 끼리만 reorder 허용
-              if (from.parentRowId != to.parentRowId) return;
-              final parentRowId = from.parentRowId;
-              final siblings = visible
-                  .where((v) => v.parentRowId == parentRowId)
-                  .toList(growable: false);
-              final sibOldIdx = siblings.indexOf(from);
-              final sibNewIdx = siblings.indexOf(to);
-              if (sibOldIdx < 0 || sibNewIdx < 0) return;
-              final reordered = [...siblings];
-              final moved = reordered.removeAt(sibOldIdx);
-              reordered.insert(sibNewIdx, moved);
+              final reordered = [for (final e in tree) e.parent];
+              final moved = reordered.removeAt(oldIndex);
+              reordered.insert(newIndex, moved);
               final items =
                   <({int categoryRowId, int sortOrder, int? parentRowId})>[];
               for (var idx = 0; idx < reordered.length; idx++) {
                 items.add((
                   categoryRowId: reordered[idx].rowId,
                   sortOrder: idx,
-                  parentRowId: parentRowId,
+                  parentRowId: null,
                 ));
               }
               onReorderSiblings(items);
+            },
+            itemBuilder: (ctx, pi) {
+              final entry = tree[pi];
+              final parent = entry.parent;
+              final hasChildren = entry.children.isNotEmpty;
+              final showChildren =
+                  hasChildren && !collapsed.contains(parent.rowId);
+              final isLastParent = pi == tree.length - 1;
+              return Column(
+                key: ValueKey('p-${parent.rowId}'),
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _CategoryRow(
+                    index: pi,
+                    category: parent,
+                    isParent: true,
+                    hasChildren: hasChildren,
+                    isCollapsed: collapsed.contains(parent.rowId),
+                    onToggle: hasChildren
+                        ? () => onToggleCollapse(parent.rowId)
+                        : null,
+                    isLast: isLastParent && !showChildren,
+                    tokens: tokens,
+                  ),
+                  if (showChildren)
+                    ReorderableListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      buildDefaultDragHandles: false,
+                      itemCount: entry.children.length,
+                      onReorder: (oldIndex, newIndex) {
+                        if (newIndex > oldIndex) newIndex -= 1;
+                        if (oldIndex == newIndex) return;
+                        final reordered = [...entry.children];
+                        final moved = reordered.removeAt(oldIndex);
+                        reordered.insert(newIndex, moved);
+                        final items = <({
+                          int categoryRowId,
+                          int sortOrder,
+                          int? parentRowId
+                        })>[];
+                        for (var idx = 0; idx < reordered.length; idx++) {
+                          items.add((
+                            categoryRowId: reordered[idx].rowId,
+                            sortOrder: idx,
+                            parentRowId: parent.rowId,
+                          ));
+                        }
+                        onReorderSiblings(items);
+                      },
+                      itemBuilder: (ctx, ci) {
+                        final child = entry.children[ci];
+                        final isLastChild = isLastParent &&
+                            ci == entry.children.length - 1;
+                        return _CategoryRow(
+                          key: ValueKey('c-${child.rowId}'),
+                          index: ci,
+                          category: child,
+                          isParent: false,
+                          hasChildren: false,
+                          isCollapsed: false,
+                          onToggle: null,
+                          isLast: isLastChild,
+                          tokens: tokens,
+                        );
+                      },
+                    ),
+                ],
+              );
             },
           ),
         ),
