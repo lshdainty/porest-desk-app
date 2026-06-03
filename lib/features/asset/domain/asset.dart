@@ -14,7 +14,6 @@ abstract class Asset with _$Asset {
     required String assetType, // 'CASH' | 'BANK_ACCOUNT' | 'CARD' | 'INVESTMENT' | ...
     int? balance,
     String? currency,
-    String? icon,
     String? color,
     String? institution,
     String? memo,
