@@ -12,12 +12,9 @@ import '../../../shared/widgets/p_badge.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_date_input.dart';
 import '../../../shared/widgets/p_modal.dart';
-import '../../../shared/widgets/p_progress.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../../expense/domain/expense.dart' show Expense;
-import '../../group/application/group_providers.dart';
-import '../../group/domain/group_member.dart';
 import '../application/dutch_pay_providers.dart';
 
 /// 더치페이 만들기 시트.
@@ -124,122 +121,6 @@ class _BodyState extends ConsumerState<_Body> {
 
   String _fmtDate(DateTime d) =>
       '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
-
-  /// 같은 그룹 멤버에서 다중 선택해 참여자 추가 (#291).
-  Future<void> _showSiblingPicker(BuildContext context) async {
-    final selected = <int>{};
-    final controller = PSheetController();
-    List<SiblingMember> resolvedMembers = const [];
-    List<SiblingMember>? picked;
-
-    controller.onSubmit = () async {
-      if (selected.isEmpty) return;
-      picked = resolvedMembers
-          .where((m) => selected.contains(m.userRowId))
-          .toList();
-      if (context.mounted) Navigator.of(context).pop();
-    };
-
-    await showPSheet<void>(
-      context,
-      title: '그룹 멤버에서 추가',
-      contentBuilder: (sheetCtx, scrollCtrl) {
-        return Consumer(builder: (ctx, ref, _) {
-          final async = ref.watch(siblingMembersProvider);
-          final t = ctx.tokens;
-          return StatefulBuilder(builder: (ctx, setSheetState) {
-            return async.when(
-              loading: () => const Center(child: PCircularProgressIndicator()),
-              error: (e, _) => Padding(
-                padding: const EdgeInsets.all(PSpace.x16),
-                child: Text('멤버 로드 실패: $e',
-                    style: PTypo.caption.copyWith(color: t.statusDanger)),
-              ),
-              data: (members) {
-                resolvedMembers = members;
-                if (members.isEmpty) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: PSpace.x32),
-                    child: Center(
-                      child: Text('같은 그룹의 다른 멤버가 없습니다',
-                          style: PTypo.caption.copyWith(color: t.fgTertiary)),
-                    ),
-                  );
-                }
-                return ListView.builder(
-                  controller: scrollCtrl,
-                  padding: const EdgeInsets.fromLTRB(
-                      PSpace.x8, 0, PSpace.x8, PSpace.x16),
-                  itemCount: members.length,
-                  itemBuilder: (_, i) {
-                    final m = members[i];
-                    final isSel = selected.contains(m.userRowId);
-                    return CheckboxListTile(
-                      value: isSel,
-                      title: Text(m.userName),
-                      subtitle: m.userEmail == null
-                          ? null
-                          : Text(m.userEmail!,
-                              style: PTypo.caption
-                                  .copyWith(color: t.fgTertiary)),
-                      contentPadding: EdgeInsets.zero,
-                      onChanged: (v) => setSheetState(() {
-                        if (v == true) {
-                          selected.add(m.userRowId);
-                        } else {
-                          selected.remove(m.userRowId);
-                        }
-                        controller.setCanSubmit(selected.isNotEmpty);
-                        controller.bump();
-                      }),
-                    );
-                  },
-                );
-              },
-            );
-          });
-        });
-      },
-      footerBuilder: (sheetCtx) => AnimatedBuilder(
-        animation: controller,
-        builder: (ctx, _) => Row(
-          children: [
-            const Spacer(),
-            PButton(
-              label: '취소',
-              variant: PButtonVariant.ghost,
-              onPressed: controller.submitting
-                  ? null
-                  : () => Navigator.of(ctx).pop(),
-            ),
-            const SizedBox(width: PSpace.x8),
-            PButton(
-              label: '${selected.length}명 추가',
-              loading: controller.submitting,
-              onPressed: controller.canSubmit && !controller.submitting
-                  ? controller.onSubmit
-                  : null,
-            ),
-          ],
-        ),
-      ),
-    );
-    if (picked == null || !mounted) return;
-    setState(() {
-      // 빈 슬롯부터 채우고 부족하면 새 슬롯 추가.
-      for (final m in picked!) {
-        final empty = _participants.firstWhere(
-          (p) => p.name.trim().isEmpty,
-          orElse: () {
-            final p = _Pname(name: '');
-            _participants.add(p);
-            return p;
-          },
-        );
-        empty.name = m.userName;
-      }
-    });
-  }
 
   Future<void> _submit() async {
     _setSubmitting(true);
@@ -351,13 +232,6 @@ class _BodyState extends ConsumerState<_Body> {
                       color: t.fgSecondary,
                       fontWeight: PFontWeight.bold)),
               const Spacer(),
-              PButton(
-                label: '멤버에서',
-                icon: LucideIcons.users,
-                variant: PButtonVariant.ghost,
-                size: PButtonSize.sm,
-                onPressed: () => _showSiblingPicker(context),
-              ),
               PButton(
                 label: '추가',
                 icon: LucideIcons.plus,

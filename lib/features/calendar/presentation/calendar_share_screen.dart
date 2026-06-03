@@ -19,8 +19,8 @@ import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_skeleton.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_text_input.dart';
-import '../../calendar/application/calendar_providers.dart';
-import '../../calendar/domain/user_calendar.dart';
+import '../application/calendar_providers.dart';
+import '../domain/user_calendar.dart';
 
 /// 설정 진입 — 캘린더 관리·공유 (user_calendar 기반).
 ///

@@ -65,19 +65,6 @@ final expensesByTodoProvider =
   return repo.listByTodo(todoId);
 });
 
-/// 그룹별 거래 (#362).
-typedef GroupExpensesKey = ({int groupId, String? startDate, String? endDate});
-
-final expensesByGroupProvider =
-    FutureProvider.family<List<Expense>, GroupExpensesKey>((ref, key) async {
-  final repo = await ref.watch(expenseRepositoryProvider.future);
-  return repo.listByGroup(
-    groupId: key.groupId,
-    startDate: key.startDate,
-    endDate: key.endDate,
-  );
-});
-
 /// 자산 ID 로만 필터링한 거래 목록 (#254 — ExpenseScreen 자산 필터 배지용).
 /// front `?assetId=N` 쿼리 미러: 빈 list 일 수 있음.
 final expensesByAssetIdProvider =

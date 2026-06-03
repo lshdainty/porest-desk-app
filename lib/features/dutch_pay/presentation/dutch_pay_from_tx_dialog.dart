@@ -15,11 +15,9 @@ import '../../../core/network/api_exception.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_badge.dart';
 import '../../../shared/widgets/p_button.dart';
-import '../../../shared/widgets/p_chip.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../expense/application/expense_providers.dart';
 import '../../expense/domain/expense.dart';
-import '../../group/application/group_providers.dart';
 import '../application/dutch_pay_providers.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_text_input.dart';
@@ -235,20 +233,6 @@ class _BodyState extends ConsumerState<_Body> {
     });
   }
 
-  void _addFromSibling(int? userRowId, String name) {
-    setState(() {
-      _others.add(_Participant(
-        uid: _newUid(),
-        userRowId: userRowId,
-        name: name,
-        isMe: false,
-        customAmount: _perPerson(
-                _totalAbs, _includeMyself ? _others.length + 2 : _others.length + 1)
-            .toString(),
-      ));
-    });
-  }
-
   Future<void> _submit(List<_Participant> participants) async {
     if (_submitting) return;
     _setSubmitting(true);
@@ -307,18 +291,6 @@ class _BodyState extends ConsumerState<_Body> {
         ? t.fgBrand
         : resolveChartColor(context, cat.color, fallback: t.fgBrand);
     final iconData = lucideByName(cat?.icon ?? 'tag');
-
-    final siblingsAsync = ref.watch(siblingMembersProvider);
-    final siblings = siblingsAsync.value ?? const [];
-    final usedUserIds = _others
-        .map((o) => o.userRowId)
-        .whereType<int>()
-        .toSet();
-    final quickAdd = siblings
-        .where((m) => !usedUserIds.contains(m.userRowId))
-        .where((m) => m.userRowId != meRowId)
-        .take(8)
-        .toList();
 
     final participants = _composeParticipants(meRowId, meName);
     final amounts = [
@@ -594,28 +566,6 @@ class _BodyState extends ConsumerState<_Body> {
                     ),
                   ],
                 ),
-
-                if (quickAdd.isNotEmpty) ...[
-                  const SizedBox(height: 10),
-                  Wrap(
-                    spacing: 6,
-                    runSpacing: 6,
-                    children: [
-                      for (var i = 0; i < quickAdd.length; i++)
-                        PChip(
-                          dotColor: parseColor(
-                              _participantPaletteOklch[i % _participantPaletteOklch.length],
-                              fallback: t.fgBrand),
-                          label: quickAdd[i].userName,
-                          size: PChipSize.sm,
-                          trailing: Icon(LucideIcons.plus,
-                              size: 12, color: t.fgTertiary),
-                          onTap: () => _addFromSibling(
-                              quickAdd[i].userRowId, quickAdd[i].userName),
-                        ),
-                    ],
-                  ),
-                ],
 
                 const SizedBox(height: 16),
 

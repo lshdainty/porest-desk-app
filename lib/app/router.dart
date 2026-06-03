@@ -13,7 +13,7 @@ import '../features/card/presentation/card_detail_screen.dart';
 import '../features/card/presentation/card_screen.dart';
 import '../features/category/presentation/category_screen.dart';
 import '../features/dutch_pay/presentation/dutch_pay_screen.dart';
-import '../features/group/presentation/calendar_share_screen.dart';
+import '../features/calendar/presentation/calendar_share_screen.dart';
 import '../features/memo/presentation/memo_screen.dart';
 import '../features/notification/presentation/notification_screen.dart';
 import '../features/notification/presentation/notification_settings_screen.dart';
