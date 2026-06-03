@@ -208,8 +208,10 @@ class _BudgetEditBodyState extends ConsumerState<_BudgetEditBody> {
               spacing: PSpace.x8,
               runSpacing: PSpace.x8,
               children: [
-                for (final c in categories
-                    .where((c) => c.expenseType != 'INCOME'))
+                // 웹 기준 통일: 예산 가능 카테고리 = EXPENSE 최상위(부모)만.
+                // 자식 지출은 부모로 roll-up 집계되므로 leaf 는 제외.
+                for (final c in categories.where(
+                    (c) => c.expenseType == 'EXPENSE' && c.parentRowId == null))
                   Opacity(
                     opacity: widget.usedCategoryIds.contains(c.rowId)
                         ? 0.4

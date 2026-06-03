@@ -1369,8 +1369,10 @@ class _CategoryListCard extends StatelessWidget {
   Widget build(BuildContext context) {
     // 추가 가능 카테고리(비-INCOME) 전부 예산 보유 시 "예산 추가" 버튼 비활성화.
     final usedIds = budgets.map((b) => b.categoryRowId).whereType<int>().toSet();
-    final selectable =
-        categories.where((c) => c.expenseType != 'INCOME').toList();
+    // 웹 기준 통일: 예산 가능 카테고리 = EXPENSE 최상위(부모)만 (자식 제외).
+    final selectable = categories
+        .where((c) => c.expenseType == 'EXPENSE' && c.parentRowId == null)
+        .toList();
     final allBudgeted = selectable.isNotEmpty &&
         selectable.every((c) => usedIds.contains(c.rowId));
     return Column(
