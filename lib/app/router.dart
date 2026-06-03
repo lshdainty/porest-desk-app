@@ -14,8 +14,6 @@ import '../features/card/presentation/card_screen.dart';
 import '../features/category/presentation/category_screen.dart';
 import '../features/dutch_pay/presentation/dutch_pay_screen.dart';
 import '../features/group/presentation/calendar_share_screen.dart';
-import '../features/group/presentation/group_detail_screen.dart';
-import '../features/group/presentation/group_screen.dart';
 import '../features/memo/presentation/memo_screen.dart';
 import '../features/notification/presentation/notification_screen.dart';
 import '../features/notification/presentation/notification_settings_screen.dart';
@@ -76,19 +74,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/search', builder: (_, _) => const SearchScreen()),
       GoRoute(path: '/memos', builder: (_, _) => const MemoScreen()),
       GoRoute(path: '/todos', builder: (_, _) => const TodoScreen()),
-      GoRoute(path: '/groups', builder: (_, _) => const GroupScreen()),
       GoRoute(
           path: '/settings/calendar-share',
           builder: (_, _) => const CalendarShareScreen()),
       GoRoute(
           path: '/settings/calendar-labels',
           builder: (_, _) => const CalendarLabelsScreen()),
-      GoRoute(
-        path: '/groups/:id',
-        builder: (_, state) => GroupDetailScreen(
-          groupId: int.parse(state.pathParameters['id']!),
-        ),
-      ),
       GoRoute(path: '/dutch-pay', builder: (_, _) => const DutchPayScreen()),
       GoRoute(path: '/notifications', builder: (_, _) => const NotificationScreen()),
       GoRoute(

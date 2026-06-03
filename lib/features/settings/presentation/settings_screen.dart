@@ -70,12 +70,6 @@ List<_SettingsGroup> _buildGroups(BuildContext ctx) => [
   ]),
   _SettingsGroup(label: '공유·소통', items: [
     _SettingsItem(
-      icon: LucideIcons.users,
-      label: '그룹',
-      desc: '공유 캘린더 · 멤버 초대',
-      onTap: (c) => c.push('/groups'),
-    ),
-    _SettingsItem(
       icon: LucideIcons.calendarRange,
       label: '캘린더 관리·공유',
       desc: '내 캘린더 · 멤버 권한 · 초대 코드',
