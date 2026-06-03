@@ -16,7 +16,7 @@ T _$identity<T>(T value) => value;
 mixin _$Asset {
 
  int get rowId; int? get userRowId; String get assetName; String get assetType;// 'CASH' | 'BANK_ACCOUNT' | 'CARD' | 'INVESTMENT' | ...
- int? get balance; String? get currency; String? get icon; String? get color; String? get institution; String? get memo; int? get sortOrder; String? get isIncludedInTotal;
+ int? get balance; String? get currency; String? get color; String? get institution; String? get memo; int? get sortOrder; String? get isIncludedInTotal;
 /// Create a copy of Asset
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -29,16 +29,16 @@ $AssetCopyWith<Asset> get copyWith => _$AssetCopyWithImpl<Asset>(this as Asset, 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Asset&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.userRowId, userRowId) || other.userRowId == userRowId)&&(identical(other.assetName, assetName) || other.assetName == assetName)&&(identical(other.assetType, assetType) || other.assetType == assetType)&&(identical(other.balance, balance) || other.balance == balance)&&(identical(other.currency, currency) || other.currency == currency)&&(identical(other.icon, icon) || other.icon == icon)&&(identical(other.color, color) || other.color == color)&&(identical(other.institution, institution) || other.institution == institution)&&(identical(other.memo, memo) || other.memo == memo)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder)&&(identical(other.isIncludedInTotal, isIncludedInTotal) || other.isIncludedInTotal == isIncludedInTotal));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Asset&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.userRowId, userRowId) || other.userRowId == userRowId)&&(identical(other.assetName, assetName) || other.assetName == assetName)&&(identical(other.assetType, assetType) || other.assetType == assetType)&&(identical(other.balance, balance) || other.balance == balance)&&(identical(other.currency, currency) || other.currency == currency)&&(identical(other.color, color) || other.color == color)&&(identical(other.institution, institution) || other.institution == institution)&&(identical(other.memo, memo) || other.memo == memo)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder)&&(identical(other.isIncludedInTotal, isIncludedInTotal) || other.isIncludedInTotal == isIncludedInTotal));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,rowId,userRowId,assetName,assetType,balance,currency,icon,color,institution,memo,sortOrder,isIncludedInTotal);
+int get hashCode => Object.hash(runtimeType,rowId,userRowId,assetName,assetType,balance,currency,color,institution,memo,sortOrder,isIncludedInTotal);
 
 @override
 String toString() {
-  return 'Asset(rowId: $rowId, userRowId: $userRowId, assetName: $assetName, assetType: $assetType, balance: $balance, currency: $currency, icon: $icon, color: $color, institution: $institution, memo: $memo, sortOrder: $sortOrder, isIncludedInTotal: $isIncludedInTotal)';
+  return 'Asset(rowId: $rowId, userRowId: $userRowId, assetName: $assetName, assetType: $assetType, balance: $balance, currency: $currency, color: $color, institution: $institution, memo: $memo, sortOrder: $sortOrder, isIncludedInTotal: $isIncludedInTotal)';
 }
 
 
@@ -49,7 +49,7 @@ abstract mixin class $AssetCopyWith<$Res>  {
   factory $AssetCopyWith(Asset value, $Res Function(Asset) _then) = _$AssetCopyWithImpl;
 @useResult
 $Res call({
- int rowId, int? userRowId, String assetName, String assetType, int? balance, String? currency, String? icon, String? color, String? institution, String? memo, int? sortOrder, String? isIncludedInTotal
+ int rowId, int? userRowId, String assetName, String assetType, int? balance, String? currency, String? color, String? institution, String? memo, int? sortOrder, String? isIncludedInTotal
 });
 
 
@@ -66,7 +66,7 @@ class _$AssetCopyWithImpl<$Res>
 
 /// Create a copy of Asset
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? rowId = null,Object? userRowId = freezed,Object? assetName = null,Object? assetType = null,Object? balance = freezed,Object? currency = freezed,Object? icon = freezed,Object? color = freezed,Object? institution = freezed,Object? memo = freezed,Object? sortOrder = freezed,Object? isIncludedInTotal = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? rowId = null,Object? userRowId = freezed,Object? assetName = null,Object? assetType = null,Object? balance = freezed,Object? currency = freezed,Object? color = freezed,Object? institution = freezed,Object? memo = freezed,Object? sortOrder = freezed,Object? isIncludedInTotal = freezed,}) {
   return _then(_self.copyWith(
 rowId: null == rowId ? _self.rowId : rowId // ignore: cast_nullable_to_non_nullable
 as int,userRowId: freezed == userRowId ? _self.userRowId : userRowId // ignore: cast_nullable_to_non_nullable
@@ -74,7 +74,6 @@ as int?,assetName: null == assetName ? _self.assetName : assetName // ignore: ca
 as String,assetType: null == assetType ? _self.assetType : assetType // ignore: cast_nullable_to_non_nullable
 as String,balance: freezed == balance ? _self.balance : balance // ignore: cast_nullable_to_non_nullable
 as int?,currency: freezed == currency ? _self.currency : currency // ignore: cast_nullable_to_non_nullable
-as String?,icon: freezed == icon ? _self.icon : icon // ignore: cast_nullable_to_non_nullable
 as String?,color: freezed == color ? _self.color : color // ignore: cast_nullable_to_non_nullable
 as String?,institution: freezed == institution ? _self.institution : institution // ignore: cast_nullable_to_non_nullable
 as String?,memo: freezed == memo ? _self.memo : memo // ignore: cast_nullable_to_non_nullable
@@ -165,10 +164,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int rowId,  int? userRowId,  String assetName,  String assetType,  int? balance,  String? currency,  String? icon,  String? color,  String? institution,  String? memo,  int? sortOrder,  String? isIncludedInTotal)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int rowId,  int? userRowId,  String assetName,  String assetType,  int? balance,  String? currency,  String? color,  String? institution,  String? memo,  int? sortOrder,  String? isIncludedInTotal)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Asset() when $default != null:
-return $default(_that.rowId,_that.userRowId,_that.assetName,_that.assetType,_that.balance,_that.currency,_that.icon,_that.color,_that.institution,_that.memo,_that.sortOrder,_that.isIncludedInTotal);case _:
+return $default(_that.rowId,_that.userRowId,_that.assetName,_that.assetType,_that.balance,_that.currency,_that.color,_that.institution,_that.memo,_that.sortOrder,_that.isIncludedInTotal);case _:
   return orElse();
 
 }
@@ -186,10 +185,10 @@ return $default(_that.rowId,_that.userRowId,_that.assetName,_that.assetType,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int rowId,  int? userRowId,  String assetName,  String assetType,  int? balance,  String? currency,  String? icon,  String? color,  String? institution,  String? memo,  int? sortOrder,  String? isIncludedInTotal)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int rowId,  int? userRowId,  String assetName,  String assetType,  int? balance,  String? currency,  String? color,  String? institution,  String? memo,  int? sortOrder,  String? isIncludedInTotal)  $default,) {final _that = this;
 switch (_that) {
 case _Asset():
-return $default(_that.rowId,_that.userRowId,_that.assetName,_that.assetType,_that.balance,_that.currency,_that.icon,_that.color,_that.institution,_that.memo,_that.sortOrder,_that.isIncludedInTotal);case _:
+return $default(_that.rowId,_that.userRowId,_that.assetName,_that.assetType,_that.balance,_that.currency,_that.color,_that.institution,_that.memo,_that.sortOrder,_that.isIncludedInTotal);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -206,10 +205,10 @@ return $default(_that.rowId,_that.userRowId,_that.assetName,_that.assetType,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int rowId,  int? userRowId,  String assetName,  String assetType,  int? balance,  String? currency,  String? icon,  String? color,  String? institution,  String? memo,  int? sortOrder,  String? isIncludedInTotal)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int rowId,  int? userRowId,  String assetName,  String assetType,  int? balance,  String? currency,  String? color,  String? institution,  String? memo,  int? sortOrder,  String? isIncludedInTotal)?  $default,) {final _that = this;
 switch (_that) {
 case _Asset() when $default != null:
-return $default(_that.rowId,_that.userRowId,_that.assetName,_that.assetType,_that.balance,_that.currency,_that.icon,_that.color,_that.institution,_that.memo,_that.sortOrder,_that.isIncludedInTotal);case _:
+return $default(_that.rowId,_that.userRowId,_that.assetName,_that.assetType,_that.balance,_that.currency,_that.color,_that.institution,_that.memo,_that.sortOrder,_that.isIncludedInTotal);case _:
   return null;
 
 }
@@ -221,7 +220,7 @@ return $default(_that.rowId,_that.userRowId,_that.assetName,_that.assetType,_tha
 @JsonSerializable()
 
 class _Asset implements Asset {
-  const _Asset({required this.rowId, this.userRowId, required this.assetName, required this.assetType, this.balance, this.currency, this.icon, this.color, this.institution, this.memo, this.sortOrder, this.isIncludedInTotal});
+  const _Asset({required this.rowId, this.userRowId, required this.assetName, required this.assetType, this.balance, this.currency, this.color, this.institution, this.memo, this.sortOrder, this.isIncludedInTotal});
   factory _Asset.fromJson(Map<String, dynamic> json) => _$AssetFromJson(json);
 
 @override final  int rowId;
@@ -231,7 +230,6 @@ class _Asset implements Asset {
 // 'CASH' | 'BANK_ACCOUNT' | 'CARD' | 'INVESTMENT' | ...
 @override final  int? balance;
 @override final  String? currency;
-@override final  String? icon;
 @override final  String? color;
 @override final  String? institution;
 @override final  String? memo;
@@ -251,16 +249,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Asset&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.userRowId, userRowId) || other.userRowId == userRowId)&&(identical(other.assetName, assetName) || other.assetName == assetName)&&(identical(other.assetType, assetType) || other.assetType == assetType)&&(identical(other.balance, balance) || other.balance == balance)&&(identical(other.currency, currency) || other.currency == currency)&&(identical(other.icon, icon) || other.icon == icon)&&(identical(other.color, color) || other.color == color)&&(identical(other.institution, institution) || other.institution == institution)&&(identical(other.memo, memo) || other.memo == memo)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder)&&(identical(other.isIncludedInTotal, isIncludedInTotal) || other.isIncludedInTotal == isIncludedInTotal));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Asset&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.userRowId, userRowId) || other.userRowId == userRowId)&&(identical(other.assetName, assetName) || other.assetName == assetName)&&(identical(other.assetType, assetType) || other.assetType == assetType)&&(identical(other.balance, balance) || other.balance == balance)&&(identical(other.currency, currency) || other.currency == currency)&&(identical(other.color, color) || other.color == color)&&(identical(other.institution, institution) || other.institution == institution)&&(identical(other.memo, memo) || other.memo == memo)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder)&&(identical(other.isIncludedInTotal, isIncludedInTotal) || other.isIncludedInTotal == isIncludedInTotal));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,rowId,userRowId,assetName,assetType,balance,currency,icon,color,institution,memo,sortOrder,isIncludedInTotal);
+int get hashCode => Object.hash(runtimeType,rowId,userRowId,assetName,assetType,balance,currency,color,institution,memo,sortOrder,isIncludedInTotal);
 
 @override
 String toString() {
-  return 'Asset(rowId: $rowId, userRowId: $userRowId, assetName: $assetName, assetType: $assetType, balance: $balance, currency: $currency, icon: $icon, color: $color, institution: $institution, memo: $memo, sortOrder: $sortOrder, isIncludedInTotal: $isIncludedInTotal)';
+  return 'Asset(rowId: $rowId, userRowId: $userRowId, assetName: $assetName, assetType: $assetType, balance: $balance, currency: $currency, color: $color, institution: $institution, memo: $memo, sortOrder: $sortOrder, isIncludedInTotal: $isIncludedInTotal)';
 }
 
 
@@ -271,7 +269,7 @@ abstract mixin class _$AssetCopyWith<$Res> implements $AssetCopyWith<$Res> {
   factory _$AssetCopyWith(_Asset value, $Res Function(_Asset) _then) = __$AssetCopyWithImpl;
 @override @useResult
 $Res call({
- int rowId, int? userRowId, String assetName, String assetType, int? balance, String? currency, String? icon, String? color, String? institution, String? memo, int? sortOrder, String? isIncludedInTotal
+ int rowId, int? userRowId, String assetName, String assetType, int? balance, String? currency, String? color, String? institution, String? memo, int? sortOrder, String? isIncludedInTotal
 });
 
 
@@ -288,7 +286,7 @@ class __$AssetCopyWithImpl<$Res>
 
 /// Create a copy of Asset
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? rowId = null,Object? userRowId = freezed,Object? assetName = null,Object? assetType = null,Object? balance = freezed,Object? currency = freezed,Object? icon = freezed,Object? color = freezed,Object? institution = freezed,Object? memo = freezed,Object? sortOrder = freezed,Object? isIncludedInTotal = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? rowId = null,Object? userRowId = freezed,Object? assetName = null,Object? assetType = null,Object? balance = freezed,Object? currency = freezed,Object? color = freezed,Object? institution = freezed,Object? memo = freezed,Object? sortOrder = freezed,Object? isIncludedInTotal = freezed,}) {
   return _then(_Asset(
 rowId: null == rowId ? _self.rowId : rowId // ignore: cast_nullable_to_non_nullable
 as int,userRowId: freezed == userRowId ? _self.userRowId : userRowId // ignore: cast_nullable_to_non_nullable
@@ -296,7 +294,6 @@ as int?,assetName: null == assetName ? _self.assetName : assetName // ignore: ca
 as String,assetType: null == assetType ? _self.assetType : assetType // ignore: cast_nullable_to_non_nullable
 as String,balance: freezed == balance ? _self.balance : balance // ignore: cast_nullable_to_non_nullable
 as int?,currency: freezed == currency ? _self.currency : currency // ignore: cast_nullable_to_non_nullable
-as String?,icon: freezed == icon ? _self.icon : icon // ignore: cast_nullable_to_non_nullable
 as String?,color: freezed == color ? _self.color : color // ignore: cast_nullable_to_non_nullable
 as String?,institution: freezed == institution ? _self.institution : institution // ignore: cast_nullable_to_non_nullable
 as String?,memo: freezed == memo ? _self.memo : memo // ignore: cast_nullable_to_non_nullable
