@@ -774,6 +774,20 @@ class _CardBillingSection extends ConsumerStatefulWidget {
 class _CardBillingSectionState extends ConsumerState<_CardBillingSection> {
   bool _paying = false;
 
+  /// 결제 전 확인 — web ConfirmDialog 미러 (제목/문구/'결제하기' 동일).
+  Future<void> _confirmAndPay(CardBilling b) async {
+    final dateSuffix =
+        b.nextPaymentDate != null ? ' 결제일은 ${b.nextPaymentDate} 입니다.' : '';
+    final ok = await showPConfirmDialog(
+      context,
+      title: '지금 결제',
+      message: '결제 예정액 ${krw(b.upcomingAmount)}원을 지금 결제 처리할까요?$dateSuffix',
+      confirmLabel: '결제하기',
+    );
+    if (!ok || !mounted) return;
+    await _pay();
+  }
+
   Future<void> _pay() async {
     if (_paying) return;
     setState(() => _paying = true);
@@ -867,7 +881,7 @@ class _CardBillingSectionState extends ConsumerState<_CardBillingSection> {
                     icon: LucideIcons.wallet,
                     size: PButtonSize.sm,
                     loading: _paying,
-                    onPressed: canPay ? _pay : null,
+                    onPressed: canPay ? () => _confirmAndPay(b) : null,
                   ),
                 ],
               ),

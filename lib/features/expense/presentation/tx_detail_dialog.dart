@@ -495,8 +495,9 @@ class _MerchantHistorySection extends ConsumerWidget {
                     children: [
                       const TextSpan(text: '이번 달 '),
                       TextSpan(
+                        // 마스킹 시 '원' 미노출 — web MaskAmount+HideUnit 컨벤션
                         text: masked
-                            ? '$monthCount회 · ••••••원'
+                            ? '$monthCount회 · ••••••'
                             : '$monthCount회 · ${krw(monthTotal)}원',
                         style: PTypo.caption.copyWith(
                           color: t.fgSecondary,

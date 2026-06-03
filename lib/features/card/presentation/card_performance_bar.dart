@@ -79,8 +79,9 @@ class CardPerformanceBar extends ConsumerWidget {
               Row(
                 children: [
                   Text(
+                    // 마스킹 시 '원' 미노출 — web MaskAmount+HideUnit 컨벤션
                     masked
-                        ? '••• / •••원'
+                        ? '••• / •••'
                         : '${krw(p.currentAmount)} / ${krw(p.requiredAmount ?? 0)}원',
                     style: PTypo.caption.copyWith(color: t.fgTertiary),
                   ),
@@ -88,7 +89,7 @@ class CardPerformanceBar extends ConsumerWidget {
                   if (!p.isAchieved && p.remainingAmount != null)
                     Text(
                       masked
-                          ? '남은 •••원'
+                          ? '남은 •••'
                           : '남은 ${krw(p.remainingAmount!)}원',
                       style: PTypo.caption.copyWith(color: t.fgTertiary),
                     )
