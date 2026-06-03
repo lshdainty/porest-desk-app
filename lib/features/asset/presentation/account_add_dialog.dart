@@ -11,6 +11,7 @@ import '../../../shared/brand/bank_colors.dart';
 import '../../../shared/widgets/p_chip.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_search_field.dart';
+import '../../../shared/widgets/p_select.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../application/asset_providers.dart';
@@ -114,14 +115,21 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
   late final TextEditingController _accountNumberCtrl;
   late final TextEditingController _balanceCtrl;
   late final TextEditingController _memoCtrl;
+  late final TextEditingController _creditLimitCtrl;
 
   late String _brand;
   late _SubType _subType;
   late bool _includeInTotal;
+  int? _paymentDay; // 결제일 1~31
+  int? _paymentAssetRowId; // 결제 출금계좌 자산 rowId
   bool _submitting = false;
   bool _deleting = false;
 
   bool get _isEdit => widget.edit != null;
+
+  /// 편집 중인 자산이 신용카드면 한도/결제일/결제계좌 블록을 노출.
+  /// `_SubType` 에는 CREDIT_CARD 매핑이 없으므로 원본 자산 타입으로 판정한다.
+  bool get _isCreditCard => widget.edit?.assetType == 'CREDIT_CARD';
 
   /// 계좌 추가에 노출할 카테고리 — 증권사·가상자산 제외.
   List<MapEntry<BankCategory, List<BankEntry>>> get _filteredByCategory {
@@ -176,6 +184,11 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
     _balanceCtrl =
         TextEditingController(text: (e?.balance ?? 0).toString());
     _memoCtrl = TextEditingController(text: e?.memo ?? '');
+    // 신용카드 청구 사이클 — 편집 진입 시 기존 값으로 초기화.
+    _creditLimitCtrl =
+        TextEditingController(text: e?.creditLimit?.toString() ?? '');
+    _paymentDay = e?.paymentDay;
+    _paymentAssetRowId = e?.paymentAssetRowId;
     _includeInTotal = e == null ? true : e.isIncludedInTotal == 'Y';
     widget.controller.onSubmit = _submit;
     if (widget.edit != null) widget.controller.onDelete = _delete;
@@ -203,6 +216,7 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
     _accountNumberCtrl.dispose();
     _balanceCtrl.dispose();
     _memoCtrl.dispose();
+    _creditLimitCtrl.dispose();
     super.dispose();
   }
 
@@ -219,6 +233,14 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
     final memoForApi = _isEdit
         ? (memo.isEmpty ? (accountNumber.isEmpty ? null : accountNumber) : memo)
         : (accountNumber.isEmpty ? null : accountNumber);
+    // 신용카드 편집은 원본 assetType(CREDIT_CARD)을 유지 — _SubType 매핑엔 없음.
+    final assetType = _isCreditCard ? 'CREDIT_CARD' : _subType.assetType;
+    // 청구 사이클 필드는 신용카드일 때만 전송. 빈 한도는 null.
+    final creditLimit = _isCreditCard
+        ? int.tryParse(_creditLimitCtrl.text.replaceAll(',', ''))
+        : null;
+    final paymentDay = _isCreditCard ? _paymentDay : null;
+    final paymentAssetRowId = _isCreditCard ? _paymentAssetRowId : null;
 
     _setSubmitting(true);
     try {
@@ -227,22 +249,28 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
         await repo.update(
           id: widget.edit!.rowId,
           assetName: name,
-          assetType: _subType.assetType,
+          assetType: assetType,
           balance: balance,
           currency: 'KRW',
           institution: brand,
           memo: memoForApi,
           isIncludedInTotal: _includeInTotal ? 'Y' : 'N',
+          creditLimit: creditLimit,
+          paymentDay: paymentDay,
+          paymentAssetRowId: paymentAssetRowId,
         );
       } else {
         await repo.create(
           assetName: name,
-          assetType: _subType.assetType,
+          assetType: assetType,
           balance: balance,
           currency: 'KRW',
           institution: brand,
           memo: memoForApi,
           isIncludedInTotal: _includeInTotal ? 'Y' : 'N',
+          creditLimit: creditLimit,
+          paymentDay: paymentDay,
+          paymentAssetRowId: paymentAssetRowId,
         );
       }
       ref.invalidate(assetsProvider);
@@ -286,6 +314,10 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    // 결제 출금계좌 후보 — 본인 소유 BANK_ACCOUNT 자산.
+    final bankAccounts = (ref.watch(assetsProvider).value ?? const <Asset>[])
+        .where((a) => a.assetType == 'BANK_ACCOUNT')
+        .toList(growable: false);
     return ListView(
       controller: widget.scrollController,
       padding: const EdgeInsets.fromLTRB(
@@ -398,6 +430,68 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
                     controller: _memoCtrl,
                     placeholder: '계좌번호 뒷자리, 결제일, 한도 등 메모하세요',
                   ),
+                ],
+
+                // 청구 사이클 (신용카드 전용) ──────────────
+                if (_isCreditCard) ...[
+                  const SizedBox(height: PSpace.x20),
+                  // 신용한도 (원)
+                  Text('신용한도 (원, 선택)',
+                      style: PTypo.caption.copyWith(
+                          color: t.fgPrimary, fontWeight: PFontWeight.medium)),
+                  const SizedBox(height: PSpace.x8),
+                  PTextInput(
+                    controller: _creditLimitCtrl,
+                    keyboardType: TextInputType.number,
+                    placeholder: '예: 5,000,000',
+                  ),
+                  const SizedBox(height: 6),
+                  Text('한도를 입력하면 사용률 게이지가 표시됩니다.',
+                      style: PTypo.micro.copyWith(color: t.fgTertiary)),
+                  const SizedBox(height: PSpace.x20),
+                  // 결제일 (1~31)
+                  Text('결제일 (선택)',
+                      style: PTypo.caption.copyWith(
+                          color: t.fgPrimary, fontWeight: PFontWeight.medium)),
+                  const SizedBox(height: PSpace.x8),
+                  PSelect<int>(
+                    value: _paymentDay,
+                    placeholder: '결제일 선택',
+                    title: '결제일',
+                    items: [
+                      for (var d = 1; d <= 31; d++)
+                        PSelectItem(value: d, label: '$d일'),
+                    ],
+                    onChanged: (v) => setState(() => _paymentDay = v),
+                  ),
+                  const SizedBox(height: PSpace.x20),
+                  // 결제 출금계좌
+                  Text('결제 출금계좌 (선택)',
+                      style: PTypo.caption.copyWith(
+                          color: t.fgPrimary, fontWeight: PFontWeight.medium)),
+                  const SizedBox(height: PSpace.x8),
+                  PSelect<int>(
+                    value: _paymentAssetRowId,
+                    placeholder: bankAccounts.isEmpty
+                        ? '등록된 입출금계좌가 없어요'
+                        : '결제계좌 선택',
+                    title: '결제 출금계좌',
+                    enabled: bankAccounts.isNotEmpty,
+                    items: [
+                      for (final a in bankAccounts)
+                        PSelectItem(
+                          value: a.rowId,
+                          label: a.institution != null &&
+                                  a.institution!.isNotEmpty
+                              ? '${a.assetName} · ${a.institution}'
+                              : a.assetName,
+                        ),
+                    ],
+                    onChanged: (v) => setState(() => _paymentAssetRowId = v),
+                  ),
+                  const SizedBox(height: 6),
+                  Text('결제일에 이 계좌에서 청구액이 출금됩니다.',
+                      style: PTypo.micro.copyWith(color: t.fgTertiary)),
                 ],
 
                 // 전체 자산 합계 포함 토글 ──────────────
