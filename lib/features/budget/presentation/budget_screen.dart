@@ -1367,84 +1367,101 @@ class _CategoryListCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PCard(
-      padding: const EdgeInsets.all(PSpace.x16),
-      variant: PCardVariant.shadow,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // 헤더(카드 밖) — "카테고리별 예산 · N개" + accent "추가" 버튼 (web 모바일 레이아웃 정합)
+        Row(
+          children: [
+            Text(
+              '카테고리별 예산 · ${budgets.length}개',
+              style: PTypo.body.copyWith(
+                color: tokens.fgPrimary,
+                fontWeight: PFontWeight.bold,
+              ),
+            ),
+            const Spacer(),
+            PButton(
+              label: '추가',
+              icon: LucideIcons.plus,
+              variant: PButtonVariant.accent,
+              size: PButtonSize.sm,
+              onPressed: onAdd,
+            ),
+          ],
+        ),
+        const SizedBox(height: PSpace.x8),
+        // 카드 — 행 리스트(구분선으로 분리)
+        PCard(
+          padding: const EdgeInsets.all(PSpace.x16),
+          variant: PCardVariant.shadow,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                '카테고리별 예산',
-                style: PTypo.body.copyWith(
-                  color: tokens.fgPrimary,
-                  fontWeight: PFontWeight.bold,
-                ),
-              ),
-              const Spacer(),
-              Text(
-                '${budgets.length}개 설정됨',
-                style: PTypo.caption.copyWith(color: tokens.fgTertiary),
-              ),
+              if (loading && budgets.isEmpty)
+                // 예산 list placeholder — 3 rows (label + progress).
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: PSpace.x8),
+                  child: Column(
+                    children: [
+                      for (var i = 0; i < 3; i++) ...[
+                        if (i > 0) const SizedBox(height: PSpace.x16),
+                        Row(
+                          children: const [
+                            PSkeleton.line(width: 96, height: 13),
+                            Spacer(),
+                            PSkeleton.line(width: 80, height: 13),
+                          ],
+                        ),
+                        const SizedBox(height: PSpace.x8),
+                        PSkeleton(height: 6, borderRadius: PRadius.brFull),
+                      ],
+                    ],
+                  ),
+                )
+              else if (budgets.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: PSpace.x16),
+                  child: Column(
+                    children: [
+                      Text(
+                        '카테고리별 예산이 없어요',
+                        style: PTypo.bodySm.copyWith(color: tokens.fgTertiary),
+                      ),
+                      const SizedBox(height: PSpace.x8),
+                      PButton(
+                        label: '예산 설정하러 가기 →',
+                        variant: PButtonVariant.ghost,
+                        size: PButtonSize.sm,
+                        onPressed: onAdd,
+                      ),
+                    ],
+                  ),
+                )
+              else
+                for (int i = 0; i < budgets.length; i++) ...[
+                  if (i > 0) ...[
+                    const SizedBox(height: PSpace.x12),
+                    Divider(
+                        height: 1,
+                        thickness: 1,
+                        color: tokens.borderSubtle),
+                    const SizedBox(height: PSpace.x12),
+                  ],
+                  _CategoryRow(
+                    budget: budgets[i],
+                    category: categories.byRowId(budgets[i].categoryRowId!),
+                    spent: spentByCategory[budgets[i].categoryRowId] ?? 0,
+                    masked: masked,
+                    tokens: tokens,
+                    onTap: () => onTap(budgets[i]),
+                    warnThreshold: warnThreshold,
+                  ),
+                ],
             ],
           ),
-          const SizedBox(height: PSpace.x12),
-          if (loading && budgets.isEmpty)
-            // 예산 list placeholder — 3 rows (label + progress).
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: PSpace.x8),
-              child: Column(
-                children: [
-                  for (var i = 0; i < 3; i++) ...[
-                    if (i > 0) const SizedBox(height: PSpace.x16),
-                    Row(
-                      children: const [
-                        PSkeleton.line(width: 96, height: 13),
-                        Spacer(),
-                        PSkeleton.line(width: 80, height: 13),
-                      ],
-                    ),
-                    const SizedBox(height: PSpace.x8),
-                    PSkeleton(height: 6, borderRadius: PRadius.brFull),
-                  ],
-                ],
-              ),
-            )
-          else if (budgets.isEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: PSpace.x16),
-              child: Column(
-                children: [
-                  Text(
-                    '카테고리별 예산이 없어요',
-                    style: PTypo.bodySm.copyWith(color: tokens.fgTertiary),
-                  ),
-                  const SizedBox(height: PSpace.x8),
-                  PButton(
-                    label: '예산 설정하러 가기 →',
-                    variant: PButtonVariant.ghost,
-                    size: PButtonSize.sm,
-                    onPressed: onAdd,
-                  ),
-                ],
-              ),
-            )
-          else
-            for (int i = 0; i < budgets.length; i++) ...[
-              _CategoryRow(
-                budget: budgets[i],
-                category: categories.byRowId(budgets[i].categoryRowId!),
-                spent: spentByCategory[budgets[i].categoryRowId] ?? 0,
-                masked: masked,
-                tokens: tokens,
-                onTap: () => onTap(budgets[i]),
-                warnThreshold: warnThreshold,
-              ),
-              if (i < budgets.length - 1) const SizedBox(height: PSpace.x16),
-            ],
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
