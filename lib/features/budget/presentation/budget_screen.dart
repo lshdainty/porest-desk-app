@@ -1367,10 +1367,16 @@ class _CategoryListCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 추가 가능 카테고리(비-INCOME) 전부 예산 보유 시 "예산 추가" 버튼 비활성화.
+    final usedIds = budgets.map((b) => b.categoryRowId).whereType<int>().toSet();
+    final selectable =
+        categories.where((c) => c.expenseType != 'INCOME').toList();
+    final allBudgeted = selectable.isNotEmpty &&
+        selectable.every((c) => usedIds.contains(c.rowId));
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // 헤더(카드 밖) — "카테고리별 예산 · N개" + accent "추가" 버튼 (web 모바일 레이아웃 정합)
+        // 헤더(카드 밖) — "카테고리별 예산 · N개" + accent "예산 추가" 버튼 (web 모바일 레이아웃 정합)
         Row(
           children: [
             Text(
@@ -1382,11 +1388,11 @@ class _CategoryListCard extends StatelessWidget {
             ),
             const Spacer(),
             PButton(
-              label: '추가',
+              label: '예산 추가',
               icon: LucideIcons.plus,
               variant: PButtonVariant.accent,
               size: PButtonSize.sm,
-              onPressed: onAdd,
+              onPressed: allBudgeted ? null : onAdd,
             ),
           ],
         ),
