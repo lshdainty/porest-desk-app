@@ -13,6 +13,7 @@ import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_badge.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_card.dart';
+import '../../../shared/widgets/p_color_picker.dart';
 import '../../../shared/widgets/p_divider.dart';
 import '../../../shared/widgets/p_dropdown_menu.dart';
 import '../../../shared/widgets/p_modal.dart';
@@ -348,7 +349,7 @@ void _showCreateDialog(BuildContext context, WidgetRef ref) {
             const SizedBox(height: PSpace.x12),
             Text('색상', style: PTypo.caption.copyWith(color: t.fgSecondary)),
             const SizedBox(height: PSpace.x8),
-            _ColorSwatchRow(selected: selectedColor, onSelect: (hex) => setSheet(() => selectedColor = hex)),
+            PColorPicker(selected: selectedColor, onChanged: (hex) => setSheet(() => selectedColor = hex)),
           ],
         ),
       );
@@ -544,7 +545,7 @@ class _ManageBodyState extends ConsumerState<_ManageBody> {
           const SizedBox(height: PSpace.x12),
           Text('색상', style: PTypo.caption.copyWith(color: t.fgSecondary)),
           const SizedBox(height: PSpace.x8),
-          _ColorSwatchRow(selected: _color, onSelect: (hex) => setState(() => _color = hex)),
+          PColorPicker(selected: _color, onChanged: (hex) => setState(() => _color = hex)),
           const SizedBox(height: PSpace.x12),
           Align(
             alignment: Alignment.centerLeft,
@@ -688,38 +689,5 @@ class _MemberRow extends StatelessWidget {
       'EDIT' => t.statusSuccess,
       _ => t.fgTertiary,
     };
-  }
-}
-
-class _ColorSwatchRow extends StatelessWidget {
-  const _ColorSwatchRow({required this.selected, required this.onSelect});
-  final String selected;
-  final void Function(String hex) onSelect;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    return Wrap(
-      spacing: PSpace.x8,
-      runSpacing: PSpace.x8,
-      children: [
-        for (final p in kChartPairs)
-          GestureDetector(
-            onTap: () => onSelect(p.baseHex),
-            child: Container(
-              width: 30,
-              height: 30,
-              decoration: BoxDecoration(
-                color: p.base,
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: selected == p.baseHex ? t.fgPrimary : Colors.transparent,
-                  width: 2,
-                ),
-              ),
-            ),
-          ),
-      ],
-    );
   }
 }

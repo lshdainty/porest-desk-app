@@ -37,15 +37,21 @@ class PColorPicker extends StatelessWidget {
               height: dotSize,
               decoration: BoxDecoration(
                 color: solidSwatchColor(context, c, fallback: t.fgBrand),
-                shape: BoxShape.circle,
+                borderRadius: PRadius.brLg,
                 border: Border.all(
                   color: c == selected ? t.fgPrimary : Colors.transparent,
                   width: 2,
                 ),
               ),
               child: c == selected
-                  ? const Icon(LucideIcons.check,
-                      size: 14, color: Colors.white)
+                  ? Icon(LucideIcons.check,
+                      size: 14,
+                      // light fill(다크모드) 위에서도 보이도록 명도 기준 대비 색.
+                      color: ThemeData.estimateBrightnessForColor(solidSwatchColor(
+                                  context, c, fallback: t.fgBrand)) ==
+                              Brightness.dark
+                          ? Colors.white
+                          : const Color(0xFF1A1F2E))
                   : null,
             ),
           ),
