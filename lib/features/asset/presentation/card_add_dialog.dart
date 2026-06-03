@@ -18,6 +18,7 @@ import '../../../shared/widgets/p_text_input.dart';
 import '../../card/application/card_providers.dart';
 import '../../card/domain/card_catalog.dart';
 import '../application/asset_providers.dart';
+import 'include_in_total_card.dart';
 
 /// 카드 추가 다이얼로그 — front `CardAddDialog` 미러.
 ///
@@ -81,6 +82,7 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
 
   _CardType _cardType = _CardType.credit;
   bool _includeDiscontinued = false;
+  bool _includeInTotal = true;
   CardCatalogSummary? _selected;
   bool _submitting = false;
 
@@ -129,6 +131,7 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
         balance: outstanding,
         currency: 'KRW',
         institution: company,
+        isIncludedInTotal: _includeInTotal ? 'Y' : 'N',
         cardCatalogRowId: selected.rowId,
       );
       // brand color hex 는 모바일 측에선 별도 파싱이라 institution 으로 추후 매칭.
@@ -277,6 +280,13 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
                 const SizedBox(height: 6),
                 Text('청구될 금액을 입력하세요. 총 부채에 반영됩니다.',
                     style: PTypo.micro.copyWith(color: t.fgTertiary)),
+
+                // 전체 자산 합계 포함 토글 ──────────────
+                const SizedBox(height: PSpace.x20),
+                IncludeInTotalCard(
+                  value: _includeInTotal,
+                  onChanged: (v) => setState(() => _includeInTotal = v),
+                ),
               ],
             );
   }

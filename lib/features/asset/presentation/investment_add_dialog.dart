@@ -14,6 +14,7 @@ import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../application/asset_providers.dart';
 import '../domain/asset.dart';
+import 'include_in_total_card.dart';
 
 /// 투자 추가/편집 다이얼로그 — front `InvestmentAddDialog` / `AssetEditDialog`
 /// (editingGroup === 'invest') 미러.
@@ -77,6 +78,7 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
   late final TextEditingController _memoCtrl;
 
   late String _brand;
+  late bool _includeInTotal;
   bool _submitting = false;
   bool _deleting = false;
 
@@ -135,6 +137,7 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
     _balanceCtrl =
         TextEditingController(text: (e?.balance ?? 0).toString());
     _memoCtrl = TextEditingController(text: e?.memo ?? '');
+    _includeInTotal = e == null ? true : e.isIncludedInTotal == 'Y';
     widget.controller.onSubmit = _submit;
     if (widget.edit != null) widget.controller.onDelete = _delete;
     WidgetsBinding.instance
@@ -182,6 +185,7 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
           currency: 'KRW',
           institution: brand,
           memo: memo.isEmpty ? null : memo,
+          isIncludedInTotal: _includeInTotal ? 'Y' : 'N',
         );
       } else {
         await repo.create(
@@ -190,6 +194,7 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
           balance: balance,
           currency: 'KRW',
           institution: brand,
+          isIncludedInTotal: _includeInTotal ? 'Y' : 'N',
         );
       }
       ref.invalidate(assetsProvider);
@@ -306,6 +311,13 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
                     placeholder: '계좌번호 뒷자리, 결제일, 한도 등 메모하세요',
                   ),
                 ],
+
+                // 전체 자산 합계 포함 토글 ──────────────
+                const SizedBox(height: PSpace.x20),
+                IncludeInTotalCard(
+                  value: _includeInTotal,
+                  onChanged: (v) => setState(() => _includeInTotal = v),
+                ),
               ],
             );
   }

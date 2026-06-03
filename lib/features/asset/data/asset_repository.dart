@@ -102,6 +102,7 @@ class AssetRepository {
     String? color,
     String? institution,
     String? memo,
+    String? isIncludedInTotal, // 'Y' | 'N'
     int? sortOrder,
     int? cardCatalogRowId,
   }) async {
@@ -116,6 +117,7 @@ class AssetRepository {
           'color': ?color,
           'institution': ?institution,
           'memo': ?memo,
+          'isIncludedInTotal': ?isIncludedInTotal,
           'sortOrder': ?sortOrder,
           'cardCatalogRowId': ?cardCatalogRowId,
         },
