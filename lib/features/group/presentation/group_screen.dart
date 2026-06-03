@@ -229,8 +229,9 @@ class _GroupRow extends StatelessWidget {
   final PorestTokens tokens;
   @override
   Widget build(BuildContext context) {
-    final color =
-        resolveChartColor(context, group.groupTypeColor, fallback: tokens.fgBrand);
+    final color = resolveChartColor(
+        context, group.color ?? group.groupTypeColor,
+        fallback: tokens.fgBrand);
     final bg = softBg(context, color);
     return InkWell(
       onTap: () => context.push('/groups/${group.rowId}'),

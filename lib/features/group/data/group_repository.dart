@@ -22,6 +22,7 @@ class GroupRepository {
     required String groupName,
     String? description,
     int? groupTypeId,
+    String? color,
   }) async {
     try {
       final res = await _dio.post<Map<String, dynamic>>(
@@ -30,6 +31,7 @@ class GroupRepository {
           'groupName': groupName,
           'description': ?description,
           'groupTypeId': ?groupTypeId,
+          'color': ?color,
         },
       );
       return _unwrap(res, Group.fromJson);
@@ -43,6 +45,7 @@ class GroupRepository {
     required String groupName,
     String? description,
     int? groupTypeId,
+    String? color,
   }) async {
     try {
       final res = await _dio.put<Map<String, dynamic>>(
@@ -51,6 +54,7 @@ class GroupRepository {
           'groupName': groupName,
           'description': ?description,
           'groupTypeId': ?groupTypeId,
+          'color': ?color,
         },
       );
       return _unwrap(res, Group.fromJson);
@@ -117,7 +121,7 @@ class GroupRepository {
     }
   }
 
-  /// 멤버 권한 변경 (OWNER/ADMIN/MEMBER).
+  /// 멤버 권한 변경 (OWNER/EDIT/READ).
   Future<void> changeMemberRole(int groupId, int memberId, String role) async {
     try {
       await _dio.patch<dynamic>(

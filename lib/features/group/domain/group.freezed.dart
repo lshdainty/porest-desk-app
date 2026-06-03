@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Group {
 
- int get rowId; String get groupName; String? get description; int? get groupTypeId; String? get groupTypeName; String? get groupTypeColor; String? get inviteCode; int get memberCount; String? get createAt;
+ int get rowId; String get groupName; String? get description; int? get groupTypeId; String? get groupTypeName; String? get groupTypeColor; String? get color; String? get inviteCode; int get memberCount; String? get createAt;
 /// Create a copy of Group
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $GroupCopyWith<Group> get copyWith => _$GroupCopyWithImpl<Group>(this as Group, 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Group&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.groupName, groupName) || other.groupName == groupName)&&(identical(other.description, description) || other.description == description)&&(identical(other.groupTypeId, groupTypeId) || other.groupTypeId == groupTypeId)&&(identical(other.groupTypeName, groupTypeName) || other.groupTypeName == groupTypeName)&&(identical(other.groupTypeColor, groupTypeColor) || other.groupTypeColor == groupTypeColor)&&(identical(other.inviteCode, inviteCode) || other.inviteCode == inviteCode)&&(identical(other.memberCount, memberCount) || other.memberCount == memberCount)&&(identical(other.createAt, createAt) || other.createAt == createAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Group&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.groupName, groupName) || other.groupName == groupName)&&(identical(other.description, description) || other.description == description)&&(identical(other.groupTypeId, groupTypeId) || other.groupTypeId == groupTypeId)&&(identical(other.groupTypeName, groupTypeName) || other.groupTypeName == groupTypeName)&&(identical(other.groupTypeColor, groupTypeColor) || other.groupTypeColor == groupTypeColor)&&(identical(other.color, color) || other.color == color)&&(identical(other.inviteCode, inviteCode) || other.inviteCode == inviteCode)&&(identical(other.memberCount, memberCount) || other.memberCount == memberCount)&&(identical(other.createAt, createAt) || other.createAt == createAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,rowId,groupName,description,groupTypeId,groupTypeName,groupTypeColor,inviteCode,memberCount,createAt);
+int get hashCode => Object.hash(runtimeType,rowId,groupName,description,groupTypeId,groupTypeName,groupTypeColor,color,inviteCode,memberCount,createAt);
 
 @override
 String toString() {
-  return 'Group(rowId: $rowId, groupName: $groupName, description: $description, groupTypeId: $groupTypeId, groupTypeName: $groupTypeName, groupTypeColor: $groupTypeColor, inviteCode: $inviteCode, memberCount: $memberCount, createAt: $createAt)';
+  return 'Group(rowId: $rowId, groupName: $groupName, description: $description, groupTypeId: $groupTypeId, groupTypeName: $groupTypeName, groupTypeColor: $groupTypeColor, color: $color, inviteCode: $inviteCode, memberCount: $memberCount, createAt: $createAt)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $GroupCopyWith<$Res>  {
   factory $GroupCopyWith(Group value, $Res Function(Group) _then) = _$GroupCopyWithImpl;
 @useResult
 $Res call({
- int rowId, String groupName, String? description, int? groupTypeId, String? groupTypeName, String? groupTypeColor, String? inviteCode, int memberCount, String? createAt
+ int rowId, String groupName, String? description, int? groupTypeId, String? groupTypeName, String? groupTypeColor, String? color, String? inviteCode, int memberCount, String? createAt
 });
 
 
@@ -65,7 +65,7 @@ class _$GroupCopyWithImpl<$Res>
 
 /// Create a copy of Group
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? rowId = null,Object? groupName = null,Object? description = freezed,Object? groupTypeId = freezed,Object? groupTypeName = freezed,Object? groupTypeColor = freezed,Object? inviteCode = freezed,Object? memberCount = null,Object? createAt = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? rowId = null,Object? groupName = null,Object? description = freezed,Object? groupTypeId = freezed,Object? groupTypeName = freezed,Object? groupTypeColor = freezed,Object? color = freezed,Object? inviteCode = freezed,Object? memberCount = null,Object? createAt = freezed,}) {
   return _then(_self.copyWith(
 rowId: null == rowId ? _self.rowId : rowId // ignore: cast_nullable_to_non_nullable
 as int,groupName: null == groupName ? _self.groupName : groupName // ignore: cast_nullable_to_non_nullable
@@ -73,6 +73,7 @@ as String,description: freezed == description ? _self.description : description 
 as String?,groupTypeId: freezed == groupTypeId ? _self.groupTypeId : groupTypeId // ignore: cast_nullable_to_non_nullable
 as int?,groupTypeName: freezed == groupTypeName ? _self.groupTypeName : groupTypeName // ignore: cast_nullable_to_non_nullable
 as String?,groupTypeColor: freezed == groupTypeColor ? _self.groupTypeColor : groupTypeColor // ignore: cast_nullable_to_non_nullable
+as String?,color: freezed == color ? _self.color : color // ignore: cast_nullable_to_non_nullable
 as String?,inviteCode: freezed == inviteCode ? _self.inviteCode : inviteCode // ignore: cast_nullable_to_non_nullable
 as String?,memberCount: null == memberCount ? _self.memberCount : memberCount // ignore: cast_nullable_to_non_nullable
 as int,createAt: freezed == createAt ? _self.createAt : createAt // ignore: cast_nullable_to_non_nullable
@@ -161,10 +162,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int rowId,  String groupName,  String? description,  int? groupTypeId,  String? groupTypeName,  String? groupTypeColor,  String? inviteCode,  int memberCount,  String? createAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int rowId,  String groupName,  String? description,  int? groupTypeId,  String? groupTypeName,  String? groupTypeColor,  String? color,  String? inviteCode,  int memberCount,  String? createAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Group() when $default != null:
-return $default(_that.rowId,_that.groupName,_that.description,_that.groupTypeId,_that.groupTypeName,_that.groupTypeColor,_that.inviteCode,_that.memberCount,_that.createAt);case _:
+return $default(_that.rowId,_that.groupName,_that.description,_that.groupTypeId,_that.groupTypeName,_that.groupTypeColor,_that.color,_that.inviteCode,_that.memberCount,_that.createAt);case _:
   return orElse();
 
 }
@@ -182,10 +183,10 @@ return $default(_that.rowId,_that.groupName,_that.description,_that.groupTypeId,
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int rowId,  String groupName,  String? description,  int? groupTypeId,  String? groupTypeName,  String? groupTypeColor,  String? inviteCode,  int memberCount,  String? createAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int rowId,  String groupName,  String? description,  int? groupTypeId,  String? groupTypeName,  String? groupTypeColor,  String? color,  String? inviteCode,  int memberCount,  String? createAt)  $default,) {final _that = this;
 switch (_that) {
 case _Group():
-return $default(_that.rowId,_that.groupName,_that.description,_that.groupTypeId,_that.groupTypeName,_that.groupTypeColor,_that.inviteCode,_that.memberCount,_that.createAt);case _:
+return $default(_that.rowId,_that.groupName,_that.description,_that.groupTypeId,_that.groupTypeName,_that.groupTypeColor,_that.color,_that.inviteCode,_that.memberCount,_that.createAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -202,10 +203,10 @@ return $default(_that.rowId,_that.groupName,_that.description,_that.groupTypeId,
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int rowId,  String groupName,  String? description,  int? groupTypeId,  String? groupTypeName,  String? groupTypeColor,  String? inviteCode,  int memberCount,  String? createAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int rowId,  String groupName,  String? description,  int? groupTypeId,  String? groupTypeName,  String? groupTypeColor,  String? color,  String? inviteCode,  int memberCount,  String? createAt)?  $default,) {final _that = this;
 switch (_that) {
 case _Group() when $default != null:
-return $default(_that.rowId,_that.groupName,_that.description,_that.groupTypeId,_that.groupTypeName,_that.groupTypeColor,_that.inviteCode,_that.memberCount,_that.createAt);case _:
+return $default(_that.rowId,_that.groupName,_that.description,_that.groupTypeId,_that.groupTypeName,_that.groupTypeColor,_that.color,_that.inviteCode,_that.memberCount,_that.createAt);case _:
   return null;
 
 }
@@ -217,7 +218,7 @@ return $default(_that.rowId,_that.groupName,_that.description,_that.groupTypeId,
 @JsonSerializable()
 
 class _Group implements Group {
-  const _Group({required this.rowId, required this.groupName, this.description, this.groupTypeId, this.groupTypeName, this.groupTypeColor, this.inviteCode, this.memberCount = 0, this.createAt});
+  const _Group({required this.rowId, required this.groupName, this.description, this.groupTypeId, this.groupTypeName, this.groupTypeColor, this.color, this.inviteCode, this.memberCount = 0, this.createAt});
   factory _Group.fromJson(Map<String, dynamic> json) => _$GroupFromJson(json);
 
 @override final  int rowId;
@@ -226,6 +227,7 @@ class _Group implements Group {
 @override final  int? groupTypeId;
 @override final  String? groupTypeName;
 @override final  String? groupTypeColor;
+@override final  String? color;
 @override final  String? inviteCode;
 @override@JsonKey() final  int memberCount;
 @override final  String? createAt;
@@ -243,16 +245,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Group&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.groupName, groupName) || other.groupName == groupName)&&(identical(other.description, description) || other.description == description)&&(identical(other.groupTypeId, groupTypeId) || other.groupTypeId == groupTypeId)&&(identical(other.groupTypeName, groupTypeName) || other.groupTypeName == groupTypeName)&&(identical(other.groupTypeColor, groupTypeColor) || other.groupTypeColor == groupTypeColor)&&(identical(other.inviteCode, inviteCode) || other.inviteCode == inviteCode)&&(identical(other.memberCount, memberCount) || other.memberCount == memberCount)&&(identical(other.createAt, createAt) || other.createAt == createAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Group&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.groupName, groupName) || other.groupName == groupName)&&(identical(other.description, description) || other.description == description)&&(identical(other.groupTypeId, groupTypeId) || other.groupTypeId == groupTypeId)&&(identical(other.groupTypeName, groupTypeName) || other.groupTypeName == groupTypeName)&&(identical(other.groupTypeColor, groupTypeColor) || other.groupTypeColor == groupTypeColor)&&(identical(other.color, color) || other.color == color)&&(identical(other.inviteCode, inviteCode) || other.inviteCode == inviteCode)&&(identical(other.memberCount, memberCount) || other.memberCount == memberCount)&&(identical(other.createAt, createAt) || other.createAt == createAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,rowId,groupName,description,groupTypeId,groupTypeName,groupTypeColor,inviteCode,memberCount,createAt);
+int get hashCode => Object.hash(runtimeType,rowId,groupName,description,groupTypeId,groupTypeName,groupTypeColor,color,inviteCode,memberCount,createAt);
 
 @override
 String toString() {
-  return 'Group(rowId: $rowId, groupName: $groupName, description: $description, groupTypeId: $groupTypeId, groupTypeName: $groupTypeName, groupTypeColor: $groupTypeColor, inviteCode: $inviteCode, memberCount: $memberCount, createAt: $createAt)';
+  return 'Group(rowId: $rowId, groupName: $groupName, description: $description, groupTypeId: $groupTypeId, groupTypeName: $groupTypeName, groupTypeColor: $groupTypeColor, color: $color, inviteCode: $inviteCode, memberCount: $memberCount, createAt: $createAt)';
 }
 
 
@@ -263,7 +265,7 @@ abstract mixin class _$GroupCopyWith<$Res> implements $GroupCopyWith<$Res> {
   factory _$GroupCopyWith(_Group value, $Res Function(_Group) _then) = __$GroupCopyWithImpl;
 @override @useResult
 $Res call({
- int rowId, String groupName, String? description, int? groupTypeId, String? groupTypeName, String? groupTypeColor, String? inviteCode, int memberCount, String? createAt
+ int rowId, String groupName, String? description, int? groupTypeId, String? groupTypeName, String? groupTypeColor, String? color, String? inviteCode, int memberCount, String? createAt
 });
 
 
@@ -280,7 +282,7 @@ class __$GroupCopyWithImpl<$Res>
 
 /// Create a copy of Group
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? rowId = null,Object? groupName = null,Object? description = freezed,Object? groupTypeId = freezed,Object? groupTypeName = freezed,Object? groupTypeColor = freezed,Object? inviteCode = freezed,Object? memberCount = null,Object? createAt = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? rowId = null,Object? groupName = null,Object? description = freezed,Object? groupTypeId = freezed,Object? groupTypeName = freezed,Object? groupTypeColor = freezed,Object? color = freezed,Object? inviteCode = freezed,Object? memberCount = null,Object? createAt = freezed,}) {
   return _then(_Group(
 rowId: null == rowId ? _self.rowId : rowId // ignore: cast_nullable_to_non_nullable
 as int,groupName: null == groupName ? _self.groupName : groupName // ignore: cast_nullable_to_non_nullable
@@ -288,6 +290,7 @@ as String,description: freezed == description ? _self.description : description 
 as String?,groupTypeId: freezed == groupTypeId ? _self.groupTypeId : groupTypeId // ignore: cast_nullable_to_non_nullable
 as int?,groupTypeName: freezed == groupTypeName ? _self.groupTypeName : groupTypeName // ignore: cast_nullable_to_non_nullable
 as String?,groupTypeColor: freezed == groupTypeColor ? _self.groupTypeColor : groupTypeColor // ignore: cast_nullable_to_non_nullable
+as String?,color: freezed == color ? _self.color : color // ignore: cast_nullable_to_non_nullable
 as String?,inviteCode: freezed == inviteCode ? _self.inviteCode : inviteCode // ignore: cast_nullable_to_non_nullable
 as String?,memberCount: null == memberCount ? _self.memberCount : memberCount // ignore: cast_nullable_to_non_nullable
 as int,createAt: freezed == createAt ? _self.createAt : createAt // ignore: cast_nullable_to_non_nullable

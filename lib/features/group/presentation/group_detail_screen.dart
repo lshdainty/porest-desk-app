@@ -70,7 +70,7 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen> {
             final me = detail.members.firstWhere(
               (m) => m.userRowId == myUser?.rowId,
               orElse: () =>
-                  const GroupMember(rowId: 0, userName: '', role: 'MEMBER'),
+                  const GroupMember(rowId: 0, userName: '', role: 'READ'),
             );
             if (!me.isOwner) return null;
             return [
@@ -111,9 +111,10 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen> {
             (m) => m.userRowId == myUser?.rowId,
             orElse: () => detail.members.isNotEmpty
                 ? detail.members.first
-                : const GroupMember(rowId: 0, userName: '', role: 'MEMBER'),
+                : const GroupMember(rowId: 0, userName: '', role: 'READ'),
           );
-          final canManage = me.isOwner || me.isAdmin;
+          // 멤버 관리(권한변경·퇴출)는 소유자만.
+          final canManage = me.isOwner;
           return Column(
             children: [
               Padding(
@@ -841,20 +842,20 @@ class _MemberRow extends ConsumerWidget {
               ],
             ),
           ),
-          _RoleBadge(role: member.role, tokens: tokens),
+          _RoleBadge(role: member.role),
           if (canManage)
             PDropdownMenu(
               iconColor: tokens.fgTertiary,
               entries: [
-                if (member.role != 'ADMIN')
+                if (member.role != 'EDIT')
                   PDropdownItem(
-                    label: '관리자로 지정',
-                    onTap: () => _handleAction(context, ref, 'ADMIN'),
+                    label: '편집 가능으로',
+                    onTap: () => _handleAction(context, ref, 'EDIT'),
                   ),
-                if (member.role != 'MEMBER')
+                if (member.role != 'READ')
                   PDropdownItem(
-                    label: '일반 멤버로',
-                    onTap: () => _handleAction(context, ref, 'MEMBER'),
+                    label: '읽기 전용으로',
+                    onTap: () => _handleAction(context, ref, 'READ'),
                   ),
                 PDropdownItem(
                   label: '내보내기',
@@ -902,20 +903,19 @@ class _MemberRow extends ConsumerWidget {
 }
 
 class _RoleBadge extends StatelessWidget {
-  const _RoleBadge({required this.role, required this.tokens});
+  const _RoleBadge({required this.role});
   final String role;
-  final PorestTokens tokens;
 
   @override
   Widget build(BuildContext context) {
-    final (label, color) = switch (role) {
-      'OWNER' => ('소유자', tokens.fgBrand),
-      'ADMIN' => ('관리자', tokens.statusInfo),
-      _ => ('멤버', tokens.fgTertiary),
+    final (label, variant, icon) = switch (role) {
+      'OWNER' => ('소유자', PBadgeVariant.outlineInfo, LucideIcons.crown),
+      'EDIT' => ('편집 가능', PBadgeVariant.outlineSuccess, LucideIcons.pencil),
+      _ => ('읽기 전용', PBadgeVariant.outline, LucideIcons.eye),
     };
     return Padding(
       padding: const EdgeInsets.only(right: 4),
-      child: PBadge.softColor(label: label, color: color),
+      child: PBadge(label: label, variant: variant, icon: icon),
     );
   }
 }

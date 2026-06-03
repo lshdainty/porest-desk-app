@@ -277,8 +277,9 @@ class _CalendarRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = tokens;
-    final color =
-        resolveChartColor(context, group.groupTypeColor, fallback: t.fgBrand);
+    final color = resolveChartColor(
+        context, group.color ?? group.groupTypeColor,
+        fallback: t.fgBrand);
     return InkWell(
       onTap: () => context.push('/groups/${group.rowId}'),
       child: Padding(
@@ -384,6 +385,7 @@ void _showCreateDialog(BuildContext context, WidgetRef ref) {
   final nameCtrl = TextEditingController();
   final descCtrl = TextEditingController();
   final controller = PSheetController();
+  var selectedColor = '#2c70bf'; // 기본 blue (chart blue)
 
   Future<void> submit() async {
     if (nameCtrl.text.trim().isEmpty) return;
@@ -394,6 +396,7 @@ void _showCreateDialog(BuildContext context, WidgetRef ref) {
         groupName: nameCtrl.text.trim(),
         description:
             descCtrl.text.trim().isEmpty ? null : descCtrl.text.trim(),
+        color: selectedColor,
       );
       ref.invalidate(groupListProvider);
       if (!context.mounted) return;
@@ -414,28 +417,57 @@ void _showCreateDialog(BuildContext context, WidgetRef ref) {
     title: '새 캘린더',
     contentBuilder: (ctx, scrollCtrl) {
       final t = ctx.tokens;
-      return ListView(
-        controller: scrollCtrl,
-        padding:
-            const EdgeInsets.fromLTRB(PSpace.x16, 0, PSpace.x16, PSpace.x16),
-        children: [
-          Text('이름', style: PTypo.caption.copyWith(color: t.fgSecondary)),
-          const SizedBox(height: PSpace.x4),
-          PTextInput(
-            controller: nameCtrl,
-            placeholder: '예: 가족, 업무, 운동 일정',
-            onChanged: (v) => controller.setCanSubmit(v.trim().isNotEmpty),
-          ),
-          const SizedBox(height: PSpace.x12),
-          Text('설명 (선택)',
-              style: PTypo.caption.copyWith(color: t.fgSecondary)),
-          const SizedBox(height: PSpace.x4),
-          PTextInput(
-            controller: descCtrl,
-            maxLines: 3,
-            placeholder: '캘린더 설명',
-          ),
-        ],
+      return StatefulBuilder(
+        builder: (ctx, setSheet) => ListView(
+          controller: scrollCtrl,
+          padding:
+              const EdgeInsets.fromLTRB(PSpace.x16, 0, PSpace.x16, PSpace.x16),
+          children: [
+            Text('이름', style: PTypo.caption.copyWith(color: t.fgSecondary)),
+            const SizedBox(height: PSpace.x4),
+            PTextInput(
+              controller: nameCtrl,
+              placeholder: '예: 가족, 업무, 운동 일정',
+              onChanged: (v) => controller.setCanSubmit(v.trim().isNotEmpty),
+            ),
+            const SizedBox(height: PSpace.x12),
+            Text('색상', style: PTypo.caption.copyWith(color: t.fgSecondary)),
+            const SizedBox(height: PSpace.x8),
+            Wrap(
+              spacing: PSpace.x8,
+              runSpacing: PSpace.x8,
+              children: [
+                for (final p in kChartPairs)
+                  GestureDetector(
+                    onTap: () => setSheet(() => selectedColor = p.baseHex),
+                    child: Container(
+                      width: 30,
+                      height: 30,
+                      decoration: BoxDecoration(
+                        color: p.base,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: selectedColor == p.baseHex
+                              ? t.fgPrimary
+                              : Colors.transparent,
+                          width: 2,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(height: PSpace.x12),
+            Text('설명 (선택)',
+                style: PTypo.caption.copyWith(color: t.fgSecondary)),
+            const SizedBox(height: PSpace.x4),
+            PTextInput(
+              controller: descCtrl,
+              maxLines: 3,
+              placeholder: '캘린더 설명',
+            ),
+          ],
+        ),
       );
     },
     footerBuilder: (ctx) =>

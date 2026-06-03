@@ -8,7 +8,7 @@ class GroupMember {
     this.userRowId,
     required this.userName,
     this.userEmail,
-    required this.role, // 'OWNER' | 'ADMIN' | 'MEMBER'
+    required this.role, // 'OWNER' | 'EDIT' | 'READ'
     this.joinedAt,
   });
 
@@ -20,7 +20,8 @@ class GroupMember {
   final String? joinedAt;
 
   bool get isOwner => role == 'OWNER';
-  bool get isAdmin => role == 'ADMIN';
+  // 편집 가능 여부 — 읽기전용(READ) 외에는 쓰기 가능.
+  bool get canEdit => role == 'OWNER' || role == 'EDIT';
 
   factory GroupMember.fromJson(Map<String, dynamic> json) {
     return GroupMember(
@@ -28,7 +29,7 @@ class GroupMember {
       userRowId: (json['userRowId'] as num?)?.toInt(),
       userName: (json['userName'] as String?) ?? '',
       userEmail: json['userEmail'] as String?,
-      role: (json['role'] as String?) ?? 'MEMBER',
+      role: (json['role'] as String?) ?? 'EDIT',
       joinedAt: json['joinedAt'] as String?,
     );
   }
@@ -69,6 +70,7 @@ class GroupDetail {
     this.groupTypeId,
     this.groupTypeName,
     this.groupTypeColor,
+    this.color,
     this.inviteCode,
     required this.members,
     this.createAt,
@@ -80,6 +82,7 @@ class GroupDetail {
   final int? groupTypeId;
   final String? groupTypeName;
   final String? groupTypeColor;
+  final String? color;
   final String? inviteCode;
   final List<GroupMember> members;
   final String? createAt;
@@ -93,6 +96,7 @@ class GroupDetail {
       groupTypeId: (json['groupTypeId'] as num?)?.toInt(),
       groupTypeName: json['groupTypeName'] as String?,
       groupTypeColor: json['groupTypeColor'] as String?,
+      color: json['color'] as String?,
       inviteCode: json['inviteCode'] as String?,
       members: raw
           .map((e) => GroupMember.fromJson(e as Map<String, dynamic>))

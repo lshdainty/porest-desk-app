@@ -12,6 +12,7 @@ abstract class Group with _$Group {
     int? groupTypeId,
     String? groupTypeName,
     String? groupTypeColor,
+    String? color,
     String? inviteCode,
     @Default(0) int memberCount,
     String? createAt,
