@@ -12,10 +12,12 @@ import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_date_input.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_progress.dart';
+import '../../../shared/widgets/p_select.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../application/todo_providers.dart';
 import '../domain/todo.dart';
+import '../domain/todo_meta.dart';
 
 void showTodoEditDialog(BuildContext context, {Todo? edit}) {
   final controller = PSheetController();
@@ -51,7 +53,10 @@ class _BodyState extends ConsumerState<_Body> {
   late final TextEditingController _titleCtrl;
   late final TextEditingController _contentCtrl;
   bool _previewContent = false;
-  late final TextEditingController _categoryCtrl;
+  // 제목 입력 인터랙션 후에만 인라인 에러 노출.
+  bool _titleTouched = false;
+  // 태그 = 기존 category 필드(자유 텍스트 → select 7종). 저장은 category 로.
+  late String _tag;
   late String _priority;
   DateTime? _due;
   bool _submitting = false;
@@ -62,7 +67,7 @@ class _BodyState extends ConsumerState<_Body> {
     super.initState();
     _titleCtrl = TextEditingController(text: widget.edit?.title ?? '');
     _contentCtrl = TextEditingController(text: widget.edit?.content ?? '');
-    _categoryCtrl = TextEditingController(text: widget.edit?.category ?? '');
+    _tag = todoTagOrDefault(widget.edit?.category);
     _priority = widget.edit?.priority ?? 'MEDIUM';
     _due = widget.edit?.due;
     widget.controller.onSubmit = _submit;
@@ -81,7 +86,6 @@ class _BodyState extends ConsumerState<_Body> {
   void dispose() {
     _titleCtrl.dispose();
     _contentCtrl.dispose();
-    _categoryCtrl.dispose();
     super.dispose();
   }
 
@@ -102,9 +106,7 @@ class _BodyState extends ConsumerState<_Body> {
           content:
               _contentCtrl.text.trim().isEmpty ? null : _contentCtrl.text.trim(),
           priority: _priority,
-          category: _categoryCtrl.text.trim().isEmpty
-              ? null
-              : _categoryCtrl.text.trim(),
+          category: _tag, // 태그 7종을 기존 category 필드에 저장
           dueDate: _due == null ? null : _fmtDate(_due!),
         );
       } else {
@@ -113,9 +115,7 @@ class _BodyState extends ConsumerState<_Body> {
           content:
               _contentCtrl.text.trim().isEmpty ? null : _contentCtrl.text.trim(),
           priority: _priority,
-          category: _categoryCtrl.text.trim().isEmpty
-              ? null
-              : _categoryCtrl.text.trim(),
+          category: _tag,
           dueDate: _due == null ? null : _fmtDate(_due!),
         );
       }
@@ -171,8 +171,60 @@ class _BodyState extends ConsumerState<_Body> {
           const SizedBox(height: PSpace.x4),
           PTextInput(
             controller: _titleCtrl,
-            placeholder: '예: 보고서 작성',
-            onChanged: (_) => setState(() {}),
+            placeholder: '할 일을 적어주세요',
+            onChanged: (_) => setState(() => _titleTouched = true),
+            errorText: _titleCtrl.text.trim().isEmpty && _titleTouched
+                ? '제목을 입력해주세요'
+                : null,
+          ),
+          const SizedBox(height: PSpace.x12),
+
+          // 마감일 + 태그 2열.
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('마감일',
+                        style:
+                            PTypo.caption.copyWith(color: t.fgSecondary)),
+                    const SizedBox(height: PSpace.x4),
+                    PDateInput(
+                      value: _due,
+                      onChanged: (d) => setState(() => _due = d),
+                      firstDate: DateTime(2020),
+                      lastDate: DateTime(2030),
+                      placeholder: '미설정',
+                      allowClear: true,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: PSpace.x12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('태그',
+                        style:
+                            PTypo.caption.copyWith(color: t.fgSecondary)),
+                    const SizedBox(height: PSpace.x4),
+                    PSelect<String>(
+                      value: _tag,
+                      title: '태그 선택',
+                      items: [
+                        for (final tag in kTodoTags)
+                          PSelectItem<String>(value: tag, label: tag),
+                      ],
+                      onChanged: (v) =>
+                          setState(() => _tag = v ?? kTodoDefaultTag),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: PSpace.x12),
 
@@ -183,28 +235,6 @@ class _BodyState extends ConsumerState<_Body> {
               value: _priority,
               onChanged: (v) => setState(() => _priority = v),
               tokens: t),
-          const SizedBox(height: PSpace.x12),
-
-          Text('마감일 (선택)',
-              style: PTypo.caption.copyWith(color: t.fgSecondary)),
-          const SizedBox(height: PSpace.x4),
-          PDateInput(
-            value: _due,
-            onChanged: (d) => setState(() => _due = d),
-            firstDate: DateTime(2020),
-            lastDate: DateTime(2030),
-            placeholder: '미설정',
-            allowClear: true,
-          ),
-          const SizedBox(height: PSpace.x12),
-
-          Text('카테고리 (선택)',
-              style: PTypo.caption.copyWith(color: t.fgSecondary)),
-          const SizedBox(height: PSpace.x4),
-          PTextInput(
-            controller: _categoryCtrl,
-            placeholder: '예: 업무, 개인',
-          ),
           const SizedBox(height: PSpace.x12),
 
           Row(
@@ -278,7 +308,7 @@ class _PriSeg extends StatelessWidget {
   final PorestTokens tokens;
   @override
   Widget build(BuildContext context) {
-    const opts = [('HIGH', '높음'), ('MEDIUM', '보통'), ('LOW', '낮음')];
+    const opts = [('HIGH', '중요'), ('MEDIUM', '보통'), ('LOW', '여유')];
     return Container(
       padding: const EdgeInsets.all(4),
       decoration:
