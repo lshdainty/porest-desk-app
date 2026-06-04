@@ -316,6 +316,9 @@ class _ManageRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = tokens;
     final balance = asset.balance ?? 0;
+    // 카드 사용액은 음수 표기 컨벤션, 계좌는 실제 부호(대출 등 음수 잔액).
+    // 음수만 fg-expense 강조, 0 은 부호·강조 없이 '0원' (−0원 방지) — web 정합.
+    final isNeg = (negative ? -balance.abs() : balance) < 0;
     final sub = [asset.institution, asset.memo]
         .where((s) => s != null && s.isNotEmpty)
         .join(' · ');
@@ -368,11 +371,11 @@ class _ManageRow extends StatelessWidget {
                   Text(
                     masked
                         ? '••••'
-                        : negative
+                        : isNeg
                             ? '−${krw(balance.abs())}원'
-                            : '${krw(balance)}원',
+                            : '${krw(balance.abs())}원',
                     style: TextStyle(
-                      color: t.fgPrimary,
+                      color: isNeg ? t.fgExpense : t.fgPrimary,
                       fontSize: PFontSize.bodySm,
                       fontWeight: PFontWeight.bold,
                       letterSpacing: -0.32,
