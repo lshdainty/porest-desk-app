@@ -11,7 +11,6 @@ import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_chip.dart';
 import '../../../shared/widgets/p_empty_state.dart';
-import '../../../shared/widgets/p_floating_action_button.dart';
 import '../../../shared/widgets/p_search_field.dart';
 import '../../../shared/widgets/p_skeleton.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
@@ -61,11 +60,7 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
         foregroundColor: t.fgPrimary,
         elevation: 0,
       ),
-      floatingActionButton: PFloatingActionButton(
-        icon: LucideIcons.plus,
-        tooltip: '메모 추가',
-        onPressed: () => showMemoEditDialog(context),
-      ),
+      // FAB 제거 — 칩 행 우측 + 추가 버튼이 새 메모 진입점 (web 정합).
       body: RefreshIndicator(
         color: t.bgBrand,
         onRefresh: () async => ref.invalidate(memoListProvider),
