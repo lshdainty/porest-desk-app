@@ -427,12 +427,15 @@ class _MemoCard extends StatelessWidget {
     );
   }
 
-  /// 'YYYY-MM-DD HH:MM(:SS)' → 'MM/DD · HH:MM' (web updated.slice(5,16) 미러).
+  /// 'YYYY-MM-DD(T| )HH:MM(:SS)' → 'MM/DD · HH:MM' (web 정합).
+  /// 서버 modifyAt 은 ISO('T' 구분)라 'T'도 처리 — 'T' 잔존 버그 fix.
   static String _fmtUpdated(String? raw) {
     if (raw == null || raw.length < 16) return '';
-    // 5..16 → 'MM-DD HH:MM'
+    // 5..16 → 'MM-DD(T| )HH:MM'
     final seg = raw.substring(5, 16);
-    return seg.replaceFirst('-', '/').replaceFirst(' ', ' · ');
+    return seg
+        .replaceFirst('-', '/')
+        .replaceFirst(RegExp(r'[T ]'), ' · ');
   }
 }
 
