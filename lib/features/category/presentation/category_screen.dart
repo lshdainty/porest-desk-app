@@ -395,10 +395,11 @@ class _CatRowSkel extends StatelessWidget {
       ),
       child: Row(
         children: [
+          // 자식 들여쓰기 — web paddingLeft:28 미러 (grip 앞)
+          if (!isParent) const SizedBox(width: 28),
           // drag handle 자리 (Padding(all:4) + Icon(16) = 24px)
           const SizedBox(width: 24),
-          // 자식: 들여쓰기 20px / 부모: chevron 자리(24) + gap(4)
-          if (!isParent) const SizedBox(width: PSpace.x20),
+          // 부모: chevron 자리(24) + gap(4)
           if (isParent) ...[
             const SizedBox(width: 24),
             const SizedBox(width: PSpace.x4),
@@ -475,6 +476,8 @@ class _CategoryRow extends StatelessWidget {
             ),
             child: Row(
               children: [
+                // 자식 들여쓰기 — web paddingLeft:28 미러 (grip 앞, 행 전체가 밀림)
+                if (!isParent) const SizedBox(width: 28),
                 // drag handle (좌측 GripVertical, 웹 CategoryManager 미러)
                 ReorderableDragStartListener(
                   index: index,
@@ -487,8 +490,6 @@ class _CategoryRow extends StatelessWidget {
                     ),
                   ),
                 ),
-                // 자식 들여쓰기 (좌측 20px)
-                if (!isParent) const SizedBox(width: PSpace.x20),
                 // 부모 expand chevron (또는 chevron 자리)
                 if (isParent) ...[
                   if (hasChildren && onToggle != null)

@@ -63,11 +63,15 @@ class _PSearchFieldState extends State<PSearchField> {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final focused = _node.hasFocus;
-    return TextField(
+    // web Input h-9(36px) 고정 — TextField 자체 최소높이로 두꺼워지지 않게 강제
+    return SizedBox(
+      height: 36,
+      child: TextField(
       controller: widget.controller,
       focusNode: _node,
       autofocus: widget.autofocus,
       onChanged: widget.onChanged,
+      textAlignVertical: TextAlignVertical.center,
       style: TextStyle(
         fontFamily: PTypo.sans,
         fontSize: PFontSize.bodySm,
@@ -83,14 +87,14 @@ class _PSearchFieldState extends State<PSearchField> {
         ),
         prefixIcon: Icon(LucideIcons.search, size: 16, color: t.fgTertiary),
         prefixIconConstraints:
-            const BoxConstraints(minWidth: 38, minHeight: 38),
+            const BoxConstraints(minWidth: 36, minHeight: 36),
         suffixIcon: widget.trailing,
         suffixIconConstraints:
-            const BoxConstraints(minWidth: 38, minHeight: 38),
+            const BoxConstraints(minWidth: 36, minHeight: 36),
         filled: true,
         // resting = bg-muted, focus = bg-surface (web 정합)
         fillColor: focused ? t.bgSurface : t.bgMuted,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         // resting = 테두리 없음, focus = 코발트(border-focus) — web .top__search 정합
         border: OutlineInputBorder(
           borderRadius: PRadius.brMd,
@@ -104,6 +108,7 @@ class _PSearchFieldState extends State<PSearchField> {
           borderRadius: PRadius.brMd,
           borderSide: BorderSide(color: t.borderFocus, width: 1.5),
         ),
+      ),
       ),
     );
   }
