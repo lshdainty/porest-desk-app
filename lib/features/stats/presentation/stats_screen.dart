@@ -1346,7 +1346,8 @@ class _HeatmapCard extends StatelessWidget {
                           child: Container(
                             decoration: BoxDecoration(
                               color: bgFor(_heatBucket(matrix[r][c], maxV)),
-                              borderRadius: PRadius.brMd,
+                              // web 히트맵 셀 radius-sm 정합 (md 는 과하게 둥글었음)
+                              borderRadius: PRadius.brSm,
                             ),
                             alignment: Alignment.center,
                             child: Text(
