@@ -15,6 +15,7 @@ import '../../../core/settings/settings_notifier.dart';
 import '../../../app/theme/chart_palette.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_card.dart';
+import '../../../shared/widgets/p_chart_tooltip.dart';
 import '../../../shared/widgets/p_chip.dart';
 import '../../../shared/widgets/p_date_input.dart';
 import '../../../shared/widgets/p_modal.dart';
@@ -1792,110 +1793,8 @@ bool _showXLabel(int i, int n) {
 }
 
 /// fl_chart 툴팁 한 줄 ─ 색 스왓치(유니코드) + 레이블 + 금액.
-/// 차트 위에 떠있는 커스텀 오버레이 툴팁.
-///
-/// fl_chart 1.2.0 의 RichText 기반 툴팁(`LineTooltipItem`/`BarTooltipItem`)은
-/// 모든 자식이 `TextSpan` 이어야 해서 `SizedBox + textAlign:right` 같은
-/// 레이아웃 기반 정렬이 불가능. `WidgetSpan` 은 placeholder dimensions 미설정
-/// 으로 assertion 실패. → 기본 툴팁을 끄고 Stack 위에 직접 렌더한다.
-class _ChartTooltipBox extends StatelessWidget {
-  const _ChartTooltipBox({required this.title, required this.rows});
-  final String title;
-  final List<_ChartTooltipRowData> rows;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    return IgnorePointer(
-      ignoring: true,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        decoration: BoxDecoration(
-          color: t.bgSurface,
-          border: Border.all(color: t.borderSubtle, width: 1),
-          borderRadius: PRadius.brLg,
-          boxShadow: t.shadowSm,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: PTypo.micro.copyWith(
-                color: t.fgTertiary,
-                fontWeight: PFontWeight.semi,
-              ),
-            ),
-            const SizedBox(height: 6),
-            for (final r in rows) ...[
-              _ChartTooltipRow(data: r),
-              if (r != rows.last) const SizedBox(height: 4),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ChartTooltipRowData {
-  const _ChartTooltipRowData({
-    required this.color,
-    required this.label,
-    required this.amount,
-    this.amountColor,
-  });
-  final Color color;
-  final String label;
-  final String amount;
-  final Color? amountColor;
-}
-
-class _ChartTooltipRow extends StatelessWidget {
-  const _ChartTooltipRow({required this.data});
-  final _ChartTooltipRowData data;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 9,
-          height: 9,
-          decoration: BoxDecoration(
-            color: data.color,
-            borderRadius: PRadius.brXs,
-          ),
-        ),
-        const SizedBox(width: 8),
-        // 라벨 폭 고정 — 한글 폭 차이 무시하고 amount 시작 위치를 고정.
-        SizedBox(
-          width: 36,
-          child: Text(
-            data.label,
-            style: PTypo.caption.copyWith(color: t.fgSecondary),
-          ),
-        ),
-        const SizedBox(width: 12),
-        // amount 는 우측 정렬된 고정폭 박스 안에 둬서 행 간 우측 끝점 일치.
-        SizedBox(
-          width: 110,
-          child: Text(
-            data.amount,
-            textAlign: TextAlign.right,
-            style: PTypo.bodySm.copyWith(
-              color: data.amountColor ?? t.fgPrimary,
-              fontWeight: PFontWeight.bold,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
+// 차트 커스텀 오버레이 툴팁은 shared/widgets/p_chart_tooltip.dart 로 공용화
+// (PChartTooltipBox / PChartTooltipRowData — 자산 상세·순자산 차트와 공유).
 
 class _TrendBigCard extends ConsumerStatefulWidget {
   const _TrendBigCard({
@@ -2150,15 +2049,15 @@ class _TrendBigCardState extends ConsumerState<_TrendBigCard> {
                     Positioned(
                       top: 0,
                       right: 0,
-                      child: _ChartTooltipBox(
+                      child: PChartTooltipBox(
                         title: data[_touchedIdx!].label,
                         rows: [
-                          _ChartTooltipRowData(
+                          PChartTooltipRowData(
                             color: t.statusInfoFg,
                             label: '수입',
                             amount: '${krw(data[_touchedIdx!].income)}원',
                           ),
-                          _ChartTooltipRowData(
+                          PChartTooltipRowData(
                             color: t.fgExpense,
                             label: '지출',
                             amount: '${krw(data[_touchedIdx!].expense)}원',
@@ -2473,10 +2372,10 @@ class _SavingsBarsCardState extends ConsumerState<_SavingsBarsCard> {
                           final p = data[_touchedIdx!];
                           final v = p.savings;
                           final sign = v >= 0 ? '+' : '−';
-                          return _ChartTooltipBox(
+                          return PChartTooltipBox(
                             title: p.label,
                             rows: [
-                              _ChartTooltipRowData(
+                              PChartTooltipRowData(
                                 color: v >= 0 ? t.statusInfoFg : t.fgExpense,
                                 label: '순저축',
                                 amount: '$sign${krw(v.abs())}원',

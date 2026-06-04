@@ -7,19 +7,29 @@ import '../../../../app/theme/tokens.dart';
 import '../../../../app/theme/typography.dart';
 import '../../../../core/format/krw.dart';
 import '../../../../core/settings/settings_notifier.dart';
+import '../../../../shared/widgets/p_chart_tooltip.dart';
 import '../../../../shared/widgets/p_skeleton.dart';
 import '../../application/asset_providers.dart';
 
 /// 12개월 순자산 추이 area chart. front `NetWorthChart` 미러.
-class NetWorthChart extends ConsumerWidget {
+class NetWorthChart extends ConsumerStatefulWidget {
   const NetWorthChart({super.key, this.height = 140, this.months = 12});
 
   final double height;
   final int months;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<NetWorthChart> createState() => _NetWorthChartState();
+}
+
+class _NetWorthChartState extends ConsumerState<NetWorthChart> {
+  int? _touchedIdx;
+
+  @override
+  Widget build(BuildContext context) {
     final t = context.tokens;
+    final height = widget.height;
+    final months = widget.months;
     final trendAsync = ref.watch(netWorthTrendProvider(months));
     final masked = ref.watch(settingsProvider).value?.hideAmounts ?? false;
     return SizedBox(
@@ -57,7 +67,7 @@ class NetWorthChart extends ConsumerWidget {
           final yMin = minV - pad;
           final yMax = maxV + pad;
 
-          return LineChart(
+          final chart = LineChart(
             LineChartData(
               minX: 0,
               maxX: (points.length - 1).toDouble(),
@@ -135,62 +145,40 @@ class NetWorthChart extends ConsumerWidget {
               ),
               borderData: FlBorderData(show: false),
               lineTouchData: LineTouchData(
+                enabled: true,
+                handleBuiltInTouches: true,
+                touchCallback: (event, response) {
+                  if (event is FlTapUpEvent ||
+                      event is FlPanEndEvent ||
+                      event is FlPanCancelEvent ||
+                      event is FlLongPressEnd ||
+                      event is FlPointerExitEvent) {
+                    if (_touchedIdx != null) {
+                      setState(() => _touchedIdx = null);
+                    }
+                    return;
+                  }
+                  final touched = response?.lineBarSpots;
+                  if (touched == null || touched.isEmpty) {
+                    if (_touchedIdx != null) {
+                      setState(() => _touchedIdx = null);
+                    }
+                    return;
+                  }
+                  final i = touched.first.x.toInt();
+                  if (i != _touchedIdx && i >= 0 && i < points.length) {
+                    setState(() => _touchedIdx = i);
+                  }
+                },
+                // 기본 RichText 툴팁 OFF — web 라운드 사각 인디케이터 정합을 위해
+                // Stack 위 PChartTooltipBox 로 직접 렌더 (아래 Positioned).
                 touchTooltipData: LineTouchTooltipData(
-                  getTooltipColor: (_) => t.bgSurface,
-                  tooltipBorder: BorderSide(color: t.borderSubtle),
-                  tooltipBorderRadius: PRadius.brLg,
-                  tooltipPadding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 8,
-                  ),
-                  getTooltipItems: (spots) => [
-                    for (int i = 0; i < spots.length; i++)
-                      if (i == 0)
-                        LineTooltipItem(
-                          '',
-                          const TextStyle(),
-                          textAlign: TextAlign.left,
-                          children: [
-                            TextSpan(
-                              text: () {
-                                final ix = spots[i].x.toInt();
-                                if (ix < 0 || ix >= points.length) return '\n';
-                                return '${points[ix].month.toString().padLeft(2, '0')}월\n';
-                              }(),
-                              style: PTypo.micro.copyWith(
-                                color: t.fgTertiary,
-                                fontWeight: PFontWeight.semi,
-                                height: 1.6,
-                              ),
-                            ),
-                            TextSpan(
-                              text: '●  ',
-                              style: TextStyle(
-                                color: t.bgBrand,
-                                fontSize: PFontSize.caption,
-                                height: 1.0,
-                              ),
-                            ),
-                            TextSpan(
-                              text: '순자산  ',
-                              style: PTypo.caption.copyWith(
-                                color: t.fgSecondary,
-                              ),
-                            ),
-                            TextSpan(
-                              text: masked ? '••••••' : _fmtFull(spots[i].y),
-                              style: PTypo.bodySm.copyWith(
-                                color: spots[i].y < 0
-                                    ? t.statusDangerFg
-                                    : t.fgPrimary,
-                                fontWeight: PFontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        )
-                      else
-                        null,
-                  ],
+                  getTooltipColor: (_) => Colors.transparent,
+                  tooltipBorder: BorderSide.none,
+                  tooltipPadding: EdgeInsets.zero,
+                  tooltipMargin: 0,
+                  getTooltipItems: (touched) =>
+                      List<LineTooltipItem?>.filled(touched.length, null),
                 ),
               ),
               lineBarsData: [
@@ -224,6 +212,34 @@ class NetWorthChart extends ConsumerWidget {
                 ),
               ],
             ),
+          );
+
+          return Stack(
+            children: [
+              chart,
+              if (_touchedIdx != null && _touchedIdx! < points.length)
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: PChartTooltipBox(
+                    title:
+                        '${points[_touchedIdx!].month.toString().padLeft(2, '0')}월',
+                    labelWidth: 40,
+                    rows: [
+                      PChartTooltipRowData(
+                        color: t.bgBrand,
+                        label: '순자산',
+                        amount: masked
+                            ? '••••••'
+                            : _fmtFull(points[_touchedIdx!].netWorth.toDouble()),
+                        amountColor: points[_touchedIdx!].netWorth < 0
+                            ? t.statusDangerFg
+                            : t.fgPrimary,
+                      ),
+                    ],
+                  ),
+                ),
+            ],
           );
         },
       ),

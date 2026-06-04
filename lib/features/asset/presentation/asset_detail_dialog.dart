@@ -31,6 +31,7 @@ import '../application/asset_providers.dart';
 import '../domain/asset.dart';
 import '../domain/asset_transfer.dart';
 import '../domain/card_billing.dart';
+import '../../../shared/widgets/p_chart_tooltip.dart';
 import '../domain/asset_type_meta.dart';
 import 'widgets/asset_logo.dart';
 
@@ -401,7 +402,7 @@ class _HeroCard extends StatelessWidget {
   }
 }
 
-class _BalanceTrendChart extends StatelessWidget {
+class _BalanceTrendChart extends StatefulWidget {
   const _BalanceTrendChart({
     required this.async,
     required this.tokens,
@@ -416,9 +417,20 @@ class _BalanceTrendChart extends StatelessWidget {
   final bool masked;
 
   @override
+  State<_BalanceTrendChart> createState() => _BalanceTrendChartState();
+}
+
+class _BalanceTrendChartState extends State<_BalanceTrendChart> {
+  int? _touchedIdx;
+
+  @override
   Widget build(BuildContext context) {
-    final list = async.value ?? const <AssetBalancePoint>[];
-    if (async.isLoading && list.isEmpty) {
+    final tokens = widget.tokens;
+    final brandFg = widget.brandFg;
+    final seriesLabel = widget.seriesLabel;
+    final masked = widget.masked;
+    final list = widget.async.value ?? const <AssetBalancePoint>[];
+    if (widget.async.isLoading && list.isEmpty) {
       // 차트 영역 전체 PSkeleton — 부모 SizedBox(height:160) 의 영역에 fill.
       return SizedBox.expand(child: PSkeleton(borderRadius: PRadius.brLg));
     }
@@ -450,7 +462,7 @@ class _BalanceTrendChart extends StatelessWidget {
     final yInterval = ((yMax - yMin) / 3).clamp(1.0, double.infinity);
     final xInterval = (n / 6).clamp(1.0, double.infinity);
 
-    return LineChart(
+    final chart = LineChart(
       LineChartData(
         minX: 0,
         maxX: (n - 1).toDouble(),
@@ -523,56 +535,39 @@ class _BalanceTrendChart extends StatelessWidget {
         ),
         lineTouchData: LineTouchData(
           enabled: true,
+          handleBuiltInTouches: true,
+          touchCallback: (event, response) {
+            if (event is FlTapUpEvent ||
+                event is FlPanEndEvent ||
+                event is FlPanCancelEvent ||
+                event is FlLongPressEnd ||
+                event is FlPointerExitEvent) {
+              if (_touchedIdx != null) {
+                setState(() => _touchedIdx = null);
+              }
+              return;
+            }
+            final touched = response?.lineBarSpots;
+            if (touched == null || touched.isEmpty) {
+              if (_touchedIdx != null) {
+                setState(() => _touchedIdx = null);
+              }
+              return;
+            }
+            final i = touched.first.x.toInt();
+            if (i != _touchedIdx && i >= 0 && i < list.length) {
+              setState(() => _touchedIdx = i);
+            }
+          },
+          // 기본 RichText 툴팁 OFF — web 라운드 사각 인디케이터 정합을 위해
+          // Stack 위 PChartTooltipBox 로 직접 렌더 (아래 Positioned).
           touchTooltipData: LineTouchTooltipData(
-            getTooltipColor: (_) => tokens.bgSurface,
-            tooltipBorder: BorderSide(color: tokens.borderSubtle),
-            tooltipBorderRadius: PRadius.brLg,
-            tooltipPadding: const EdgeInsets.symmetric(
-              horizontal: 10,
-              vertical: 8,
-            ),
-            getTooltipItems: (spots) => [
-              for (int i = 0; i < spots.length; i++)
-                if (i == 0)
-                  LineTooltipItem(
-                    '',
-                    const TextStyle(),
-                    textAlign: TextAlign.left,
-                    children: [
-                      TextSpan(
-                        text: '${spots[i].x.toInt() + 1}주\n',
-                        style: PTypo.micro.copyWith(
-                          color: tokens.fgTertiary,
-                          fontWeight: PFontWeight.semi,
-                          height: 1.6,
-                        ),
-                      ),
-                      TextSpan(
-                        text: '●  ',
-                        style: TextStyle(
-                          color: brandFg,
-                          fontSize: PFontSize.caption,
-                          height: 1.0,
-                        ),
-                      ),
-                      TextSpan(
-                        text: '$seriesLabel  ',
-                        style: PTypo.caption.copyWith(
-                          color: tokens.fgSecondary,
-                        ),
-                      ),
-                      TextSpan(
-                        text: masked ? '••••••' : '${krw(spots[i].y.round())}원',
-                        style: PTypo.bodySm.copyWith(
-                          color: tokens.fgPrimary,
-                          fontWeight: PFontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  )
-                else
-                  null,
-            ],
+            getTooltipColor: (_) => Colors.transparent,
+            tooltipBorder: BorderSide.none,
+            tooltipPadding: EdgeInsets.zero,
+            tooltipMargin: 0,
+            getTooltipItems: (touched) =>
+                List<LineTooltipItem?>.filled(touched.length, null),
           ),
         ),
         lineBarsData: [
@@ -625,8 +620,37 @@ class _BalanceTrendChart extends StatelessWidget {
         ],
       ),
     );
+
+    return Stack(
+      children: [
+        chart,
+        if (_touchedIdx != null && _touchedIdx! < list.length)
+          Positioned(
+            top: 0,
+            right: 0,
+            child: PChartTooltipBox(
+              // web BalanceTooltip 정합 — 'N주 · MM-DD'
+              title:
+                  '${_touchedIdx! + 1}주 · ${_fmtWeekStart(list[_touchedIdx!].weekStart)}',
+              labelWidth: 40,
+              rows: [
+                PChartTooltipRowData(
+                  color: brandFg,
+                  label: seriesLabel,
+                  amount: masked
+                      ? '••••••'
+                      : '${krw(list[_touchedIdx!].balance)}원',
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
   }
 }
+
+/// 'YYYY-MM-DD' → 'MM-DD' (web weekStart.slice(5) 정합).
+String _fmtWeekStart(String iso) => iso.length >= 10 ? iso.substring(5) : iso;
 
 class _ChartPlaceholder extends StatelessWidget {
   const _ChartPlaceholder({required this.text, required this.tokens});
