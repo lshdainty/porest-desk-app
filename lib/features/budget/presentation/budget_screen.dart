@@ -1714,14 +1714,13 @@ class _ComplianceBarChartState extends State<_ComplianceBarChart> {
           enabled: true,
           handleBuiltInTouches: false,
           touchCallback: (event, response) {
+            // tap-up 등 종료 이벤트로 닫으면 탭 직후 바로 사라져 안 보임 →
+            // 종료 이벤트는 무시하고, 막대 탭이면 표시 유지 / 빈 영역 탭이면 닫기.
             if (event is FlTapUpEvent ||
                 event is FlPanEndEvent ||
                 event is FlPanCancelEvent ||
                 event is FlLongPressEnd ||
                 event is FlPointerExitEvent) {
-              if (_touchedIdx != null) {
-                setState(() => _touchedIdx = null);
-              }
               return;
             }
             final i = response?.spot?.touchedBarGroupIndex;
