@@ -1688,38 +1688,21 @@ class _ComplianceBarChart extends StatelessWidget {
         alignment: BarChartAlignment.spaceAround,
         maxY: yMax,
         minY: 0,
-        groupsSpace: 18,
+        // % 라벨을 각 막대 바로 위에 표시 — web LabelList(position top) 정합.
+        // fl_chart 공식 패턴: 터치 OFF + 투명 툴팁을 showingTooltipIndicators 로 상시 노출.
         barTouchData: BarTouchData(
-          enabled: true,
+          enabled: false,
           touchTooltipData: BarTouchTooltipData(
-            getTooltipColor: (_) => tokens.bgSurface,
-            tooltipBorder: BorderSide(color: tokens.borderSubtle),
-            tooltipPadding: const EdgeInsets.symmetric(
-              horizontal: 10,
-              vertical: 6,
+            getTooltipColor: (_) => Colors.transparent,
+            tooltipPadding: EdgeInsets.zero,
+            tooltipMargin: 4,
+            getTooltipItem: (group, groupIdx, rod, rodIdx) => BarTooltipItem(
+              '${rod.toY.toStringAsFixed(0)}%',
+              PTypo.micro.copyWith(
+                color: tokens.fgPrimary,
+                fontWeight: PFontWeight.bold,
+              ),
             ),
-            tooltipMargin: 8,
-            getTooltipItem: (group, groupIdx, rod, rodIdx) {
-              final r = rows[group.x];
-              return BarTooltipItem(
-                '${r.month}월\n',
-                PTypo.micro.copyWith(
-                  color: tokens.fgTertiary,
-                  fontWeight: PFontWeight.semi,
-                ),
-                children: [
-                  TextSpan(
-                    text: '${r.compliancePercent.toStringAsFixed(1)}%',
-                    style: PTypo.caption.copyWith(
-                      color: r.compliancePercent > 100
-                          ? tokens.fgExpense
-                          : tokens.fgPrimary,
-                      fontWeight: PFontWeight.bold,
-                    ),
-                  ),
-                ],
-              );
-            },
           ),
         ),
         gridData: FlGridData(
@@ -1739,28 +1722,9 @@ class _ComplianceBarChart extends StatelessWidget {
           rightTitles: const AxisTitles(
             sideTitles: SideTitles(showTitles: false),
           ),
-          topTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              reservedSize: 22,
-              getTitlesWidget: (v, meta) {
-                final i = v.toInt();
-                if (i < 0 || i >= rows.length) {
-                  return const SizedBox.shrink();
-                }
-                final r = rows[i];
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 2),
-                  child: Text(
-                    '${r.compliancePercent.toStringAsFixed(0)}%',
-                    style: PTypo.micro.copyWith(
-                      color: tokens.fgPrimary,
-                      fontWeight: PFontWeight.bold,
-                    ),
-                  ),
-                );
-              },
-            ),
+          // % 라벨은 막대 위 상시 툴팁으로 이동 (web 정합) — 고정 top 행 제거.
+          topTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
           ),
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(
@@ -1791,18 +1755,22 @@ class _ComplianceBarChart extends StatelessWidget {
           for (int i = 0; i < rows.length; i++)
             BarChartGroupData(
               x: i,
+              // 상시 % 라벨 (위 barTouchData 투명 툴팁)
+              showingTooltipIndicators: const [0],
               barRods: [
                 BarChartRodData(
                   toY: rows[i].compliancePercent,
+                  // web Cell 정합 — 초과 fg-expense / 이번 달 bg-brand / 과거 border-strong
                   color: rows[i].compliancePercent > 100
                       ? tokens.fgExpense
                       : (rows[i].year == currentYear &&
                             rows[i].month == currentMonth)
                       ? tokens.bgBrand
-                      : tokens.borderSubtle,
-                  width: 20,
+                      : tokens.borderStrong,
+                  // web bar 두께(band 75%)·round([6,6,0,0] 리터럴) 정합
+                  width: 36,
                   borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(PRadius.xs),
+                    top: Radius.circular(6),
                   ),
                 ),
               ],
