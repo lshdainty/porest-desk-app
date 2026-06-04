@@ -8,11 +8,11 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/format/chart_palette.dart';
 import '../../../core/network/api_exception.dart';
-import '../../../shared/widgets/p_chip.dart';
 import '../../../shared/widgets/p_color_picker.dart';
 import '../../../shared/widgets/p_date_input.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_progress.dart';
+import '../../../shared/widgets/p_select.dart';
 import '../../../shared/widgets/p_section_label.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_switch.dart';
@@ -395,39 +395,32 @@ class _BodyState extends ConsumerState<_Body> {
           // 라벨
           PSectionLabel('라벨', variant: PSectionLabelVariant.header, icon: LucideIcons.tag),
           const SizedBox(height: PSpace.x8),
+          // web EventForm 정합 — chip 나열 대신 Select ('라벨이 없습니다' + 색 점)
           labelsAsync.when(
             loading: () => const SizedBox(
                 height: PSpace.x32,
                 child: Center(child: PCircularProgressIndicator())),
             error: (_, _) => Text('라벨 로드 실패',
                 style: PTypo.caption.copyWith(color: t.statusDanger)),
-            data: (labels) => labels.isEmpty
-                ? Text('라벨이 없습니다',
-                    style: PTypo.caption.copyWith(color: t.fgTertiary))
-                : Wrap(
-                    spacing: PSpace.x8,
-                    runSpacing: PSpace.x8,
-                    children: [
-                      PChip(
-                        label: '없음',
-                        color: t.fgTertiary,
-                        dotColor: t.fgTertiary,
-                        variant: PChipVariant.subtle,
-                        selected: _labelRowId == null,
-                        onTap: () => setState(() => _labelRowId = null),
-                      ),
-                      for (final l in labels)
-                        PChip(
-                          label: l.labelName,
-                          color: solidSwatchColor(context, l.color, fallback: t.fgBrand),
-                          dotColor: solidSwatchColor(context, l.color, fallback: t.fgBrand),
-                          variant: PChipVariant.subtle,
-                          selected: _labelRowId == l.rowId,
-                          onTap: () =>
-                              setState(() => _labelRowId = l.rowId),
-                        ),
-                    ],
+            data: (labels) => PSelect<int>(
+              value: _labelRowId ?? 0,
+              onChanged: (v) =>
+                  setState(() => _labelRowId = v == 0 ? null : v),
+              items: [
+                PSelectItem(
+                  value: 0,
+                  label: '라벨이 없습니다',
+                  leading: _labelDot(t.fgTertiary.withValues(alpha: 0.3)),
+                ),
+                for (final l in labels)
+                  PSelectItem(
+                    value: l.rowId,
+                    label: l.labelName,
+                    leading: _labelDot(solidSwatchColor(context, l.color,
+                        fallback: t.fgBrand)),
                   ),
+              ],
+            ),
           ),
           const SizedBox(height: PSpace.x16),
 
@@ -440,13 +433,20 @@ class _BodyState extends ConsumerState<_Body> {
           ),
           const SizedBox(height: PSpace.x16),
 
-          // 종일
-          PSwitchTile(
-            title: '종일',
-            value: _allDay,
-            onChanged: (v) => setState(() => _allDay = v),
+          // 종일 — web 정합: [토글][라벨] 좌측 정렬
+          Row(
+            children: [
+              PSwitch(
+                value: _allDay,
+                onChanged: (v) => setState(() => _allDay = v),
+                semanticLabel: '종일',
+              ),
+              const SizedBox(width: PSpace.x8),
+              Text('종일',
+                  style: PTypo.bodySm.copyWith(color: t.fgPrimary)),
+            ],
           ),
-          const SizedBox(height: PSpace.x4),
+          const SizedBox(height: PSpace.x12),
 
           // 시작
           PSectionLabel('시작일', variant: PSectionLabelVariant.header),
@@ -514,13 +514,12 @@ class _BodyState extends ConsumerState<_Body> {
           PSectionLabel('반복', variant: PSectionLabelVariant.header, icon: LucideIcons.repeat),
           const SizedBox(height: PSpace.x8),
           Wrap(
-            spacing: PSpace.x8,
-            runSpacing: PSpace.x8,
+            spacing: PSpace.x4,
+            runSpacing: PSpace.x4,
             children: [
               for (final r in _RecurrenceOption.values)
-                PChip(
+                _PlainToggle(
                   label: _recurrenceLabels[r]!,
-                  variant: PChipVariant.subtle,
                   selected: _recurrence == r,
                   onTap: () => setState(() => _recurrence = r),
                 ),
@@ -532,14 +531,14 @@ class _BodyState extends ConsumerState<_Body> {
           PSectionLabel('알림', variant: PSectionLabelVariant.header, icon: LucideIcons.bell),
           const SizedBox(height: PSpace.x8),
           Wrap(
-            spacing: PSpace.x8,
-            runSpacing: PSpace.x8,
+            spacing: PSpace.x4,
+            runSpacing: PSpace.x4,
             children: [
               for (final m in _reminderOptions)
-                PChip(
+                _PlainToggle(
                   label: _reminderLabel(m),
-                  variant: PChipVariant.subtle,
                   selected: _reminders.contains(m),
+                  showCheck: true,
                   onTap: () => setState(() {
                     if (!_reminders.add(m)) _reminders.remove(m);
                   }),
@@ -547,6 +546,64 @@ class _BodyState extends ConsumerState<_Body> {
             ],
           ),
       ],
+    );
+  }
+}
+
+/// 라벨 select 항목 좌측 색 점 — web `h-3 w-3 rounded-full` 정합.
+Widget _labelDot(Color color) => Container(
+      width: 12,
+      height: 12,
+      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+    );
+
+/// web ToggleGroup(default variant, sm) 미러 — 테두리 없는 텍스트 옵션.
+/// 선택 시 surface-input(bgSunken) 채움 + fgPrimary 600 (+옵션 체크 아이콘).
+/// PChip(pill 테두리)과 다른 톤 — 반복/알림 선택 그룹 전용.
+class _PlainToggle extends StatelessWidget {
+  const _PlainToggle({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+    this.showCheck = false,
+  });
+
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+  final bool showCheck;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: PRadius.brMd,
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+            horizontal: PSpace.x12, vertical: PSpace.x8),
+        decoration: BoxDecoration(
+          color: selected ? t.bgSunken : Colors.transparent,
+          borderRadius: PRadius.brMd,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (showCheck && selected) ...[
+              Icon(LucideIcons.check, size: 12, color: t.fgPrimary),
+              const SizedBox(width: PSpace.x4),
+            ],
+            Text(
+              label,
+              style: PTypo.bodySm.copyWith(
+                color: selected ? t.fgPrimary : t.fgSecondary,
+                fontWeight:
+                    selected ? PFontWeight.semi : PFontWeight.medium,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

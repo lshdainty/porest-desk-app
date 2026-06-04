@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../app/theme/radius.dart';
+import '../../app/theme/spacing.dart';
 import '../../app/theme/tokens.dart';
 import '../../core/format/chart_palette.dart';
 
@@ -9,52 +10,55 @@ import '../../core/format/chart_palette.dart';
 const kPDefaultPalette = kChartBaseHexes;
 
 class PColorPicker extends StatelessWidget {
+  // web `ColorSwatchGroup`(spec color-swatch.md) 정합:
+  // 5열 grid + aspect-square 타일 / soft 틴트 bg + fg 색 체크(14) /
+  // 선택 시 fg 색(currentColor) 2px border / radius-tile(=lg 12).
+  // (구 28px solid 채움 + fgPrimary border 타일은 spec 일탈이라 폐기)
   const PColorPicker({
     super.key,
     required this.selected,
     required this.onChanged,
     this.palette = kPDefaultPalette,
-    this.dotSize = 28,
+    this.columns = 5,
   });
 
   final String selected;
   final ValueChanged<String> onChanged;
   final List<String> palette;
-  final double dotSize;
+  final int columns;
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
+    return GridView.count(
+      crossAxisCount: columns,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      mainAxisSpacing: PSpace.x8,
+      crossAxisSpacing: PSpace.x8,
       children: [
         for (final c in palette)
-          GestureDetector(
-            onTap: () => onChanged(c),
-            child: Container(
-              width: dotSize,
-              height: dotSize,
-              decoration: BoxDecoration(
-                color: solidSwatchColor(context, c, fallback: t.fgBrand),
-                borderRadius: PRadius.brLg,
-                border: Border.all(
-                  color: c == selected ? t.fgPrimary : Colors.transparent,
-                  width: 2,
+          Builder(builder: (context) {
+            final fg = resolveChartColor(context, c, fallback: t.fgBrand);
+            final isSelected = c == selected;
+            return GestureDetector(
+              onTap: () => onChanged(c),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: softBg(context, fg),
+                  borderRadius: PRadius.brLg,
+                  border: Border.all(
+                    color: isSelected ? fg : Colors.transparent,
+                    width: 2,
+                  ),
                 ),
+                child: isSelected
+                    ? Center(
+                        child: Icon(LucideIcons.check, size: 14, color: fg))
+                    : null,
               ),
-              child: c == selected
-                  ? Icon(LucideIcons.check,
-                      size: 14,
-                      // light fill(다크모드) 위에서도 보이도록 명도 기준 대비 색.
-                      color: ThemeData.estimateBrightnessForColor(solidSwatchColor(
-                                  context, c, fallback: t.fgBrand)) ==
-                              Brightness.dark
-                          ? Colors.white
-                          : const Color(0xFF1A1F2E))
-                  : null,
-            ),
-          ),
+            );
+          }),
       ],
     );
   }

@@ -16,7 +16,10 @@ import '../../app/theme/typography.dart';
 /// Content (모바일 친화):
 /// - showModalBottomSheet 로 띄움. 각 item h-44 + 선택 시 checkmark.
 class PSelectItem<T> {
-  const PSelectItem({required this.value, required this.label});
+  const PSelectItem({required this.value, required this.label, this.leading});
+
+  /// 항목 좌측 위젯(라벨 색 점 등) — web SelectItem 내 dot 정합 (선택).
+  final Widget? leading;
   final T value;
   final String label;
 }
@@ -101,6 +104,10 @@ class PSelect<T> extends StatelessWidget {
                             horizontal: PSpace.lg),
                         child: Row(
                           children: [
+                            if (it.leading != null) ...[
+                              it.leading!,
+                              const SizedBox(width: PSpace.x8),
+                            ],
                             Expanded(
                               child: Text(it.label,
                                   style: PTypo.bodyLg.copyWith(
@@ -134,14 +141,13 @@ class PSelect<T> extends StatelessWidget {
     final t = context.tokens;
     final hasValue = value != null;
     final hasError = errorText != null;
-    final label = hasValue
-        ? items
-            .firstWhere(
-              (i) => i.value == value,
-              orElse: () => PSelectItem<T>(value: value as T, label: ''),
-            )
-            .label
-        : placeholder;
+    final selectedItem = hasValue
+        ? items.firstWhere(
+            (i) => i.value == value,
+            orElse: () => PSelectItem<T>(value: value as T, label: ''),
+          )
+        : null;
+    final label = selectedItem?.label ?? placeholder;
     final trigger = Material(
       color: enabled ? t.bgMuted : t.bgDisabled,
       borderRadius: PRadius.brSm,
@@ -161,6 +167,10 @@ class PSelect<T> extends StatelessWidget {
           ),
           child: Row(
             children: [
+              if (selectedItem?.leading != null) ...[
+                selectedItem!.leading!,
+                const SizedBox(width: PSpace.x8),
+              ],
               Expanded(
                 child: Text(
                   label,
