@@ -2133,27 +2133,39 @@ class _TrendStatsGrid extends StatelessWidget {
         ? '${((avgSave / avgIn) * 100).toStringAsFixed(1)}%'
         : '—';
 
-    return GridView.count(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      crossAxisCount: 2,
-      childAspectRatio: 2.0,
-      mainAxisSpacing: 10,
-      crossAxisSpacing: 10,
+    // web TrendStats 정합 — 고정 비율 GridView 대신 content 높이 2×2, gap 12
+    final tiles = [
+      _StatCard(
+        label: isSingle ? '수입' : '평균 수입',
+        value: krwSigned(avgIn, masked, unit: true),
+      ),
+      _StatCard(
+        label: isSingle ? '지출' : '평균 지출',
+        value: krwSigned(avgOut, masked, unit: true),
+      ),
+      _StatCard(
+        label: isSingle ? '순저축' : '평균 저축',
+        value: krwSigned(avgSave, masked, unit: true),
+      ),
+      _StatCard(label: '저축률', value: saveRate),
+    ];
+    return Column(
       children: [
-        _StatCard(
-          label: isSingle ? '수입' : '평균 수입',
-          value: krwSigned(avgIn, masked, unit: true),
+        Row(
+          children: [
+            Expanded(child: tiles[0]),
+            const SizedBox(width: 12),
+            Expanded(child: tiles[1]),
+          ],
         ),
-        _StatCard(
-          label: isSingle ? '지출' : '평균 지출',
-          value: krwSigned(avgOut, masked, unit: true),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(child: tiles[2]),
+            const SizedBox(width: 12),
+            Expanded(child: tiles[3]),
+          ],
         ),
-        _StatCard(
-          label: isSingle ? '순저축' : '평균 저축',
-          value: krwSigned(avgSave, masked, unit: true),
-        ),
-        _StatCard(label: '저축률', value: saveRate),
       ],
     );
   }
@@ -2166,15 +2178,16 @@ class _StatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    // web stat 타일 정합 — padding 16 / 라벨 badge(11)·500·gap6 / 값 16·bold
     return _Card(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(PSpace.x16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Text(
             label,
-            style: PTypo.caption.copyWith(
+            style: PTypo.micro.copyWith(
               color: t.fgTertiary,
               fontWeight: PFontWeight.medium,
             ),
@@ -2184,9 +2197,10 @@ class _StatCard extends StatelessWidget {
             value,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: PTypo.h4.copyWith(
+            style: PTypo.bodyLg.copyWith(
               color: t.fgPrimary,
               fontWeight: PFontWeight.bold,
+              letterSpacing: -0.35,
             ),
           ),
         ],
