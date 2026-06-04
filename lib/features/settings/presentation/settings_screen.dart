@@ -36,94 +36,109 @@ class _SettingsGroup {
 }
 
 List<_SettingsGroup> _buildGroups(BuildContext ctx) => [
-  _SettingsGroup(label: '데이터 관리', items: [
-    _SettingsItem(
-      icon: LucideIcons.tag,
-      label: '카테고리 관리',
-      desc: '지출·수입 카테고리 추가·수정·삭제',
-      onTap: (c) => c.push('/categories'),
-    ),
-    _SettingsItem(
-      icon: LucideIcons.wallet,
-      label: '계좌·카드 관리',
-      desc: '계좌·카드 추가·편집',
-      onTap: (c) => c.push('/account-card-manage'),
-    ),
-    _SettingsItem(
-      icon: LucideIcons.target,
-      label: '예산 설정',
-      desc: '월간 예산 및 카테고리별 한도',
-      onTap: (c) => c.push('/budget'),
-    ),
-    _SettingsItem(
-      icon: LucideIcons.repeat,
-      label: '반복 거래 관리',
-      desc: '구독·고정 결제·정기 수입',
-      onTap: (c) => c.push('/recurring'),
-    ),
-    _SettingsItem(
-      icon: LucideIcons.bookmark,
-      label: '프리셋 관리',
-      desc: '자주 쓰는 내역 한 번 탭으로 채우기',
-      onTap: (c) => c.push('/presets'),
-    ),
-  ]),
-  _SettingsGroup(label: '공유·소통', items: [
-    _SettingsItem(
-      icon: LucideIcons.calendarRange,
-      label: '캘린더 관리·공유',
-      desc: '내 캘린더 · 멤버 권한 · 초대 코드',
-      onTap: (c) => c.push('/settings/calendar-share'),
-    ),
-    _SettingsItem(
-      icon: LucideIcons.tag,
-      label: '캘린더 라벨',
-      desc: '일정 라벨 추가·편집·삭제',
-      onTap: (c) => c.push('/settings/calendar-labels'),
-    ),
-    _SettingsItem(
-      icon: LucideIcons.divide,
-      label: '더치페이',
-      desc: '정산 · 친구 · 송금 요청',
-      onTap: (c) => c.push('/dutch-pay'),
-    ),
-  ]),
-  _SettingsGroup(label: '앱 환경', items: [
-    _SettingsItem(
-      icon: LucideIcons.palette,
-      label: '표시 설정',
-      desc: '테마 · 밀도 · 통화',
-      onTap: null, // inline 섹션으로 처리
-    ),
-    _SettingsItem(
-      icon: LucideIcons.bell,
-      label: '알림',
-      desc: '결제 예정·예산 초과 알림',
-      onTap: (c) => c.push('/settings/notifications'),
-    ),
-  ]),
-  _SettingsGroup(label: '데이터', items: [
-    _SettingsItem(
-      icon: LucideIcons.download,
-      label: '데이터 내보내기',
-      desc: 'CSV 로 거래 내역 백업',
-      onTap: (c) => showExportDialog(c),
-    ),
-    _SettingsItem(
-      icon: LucideIcons.hardDrive,
-      label: '저장공간',
-      desc: '준비중',
-      onTap: null,
-    ),
-  ]),
-  _SettingsGroup(label: '계정', items: [
-    _SettingsItem(
-      icon: LucideIcons.user,
-      label: '계정 관리',
-      desc: '프로필 · 보안 · 구독',
-      onTap: (c) => c.push('/account'),
-    ),
-  ]),
+  _SettingsGroup(
+    label: '데이터 관리',
+    items: [
+      _SettingsItem(
+        icon: LucideIcons.tag,
+        label: '카테고리 관리',
+        desc: '지출·수입 카테고리 추가·수정·삭제',
+        onTap: (c) => c.push('/categories'),
+      ),
+      _SettingsItem(
+        icon: LucideIcons.wallet,
+        label: '계좌·카드 관리',
+        desc: '계좌·카드 추가·편집',
+        onTap: (c) => c.push('/account-card-manage'),
+      ),
+      _SettingsItem(
+        icon: LucideIcons.target,
+        label: '예산 설정',
+        desc: '월간 예산 및 카테고리별 한도',
+        onTap: (c) => c.push('/budget'),
+      ),
+      _SettingsItem(
+        icon: LucideIcons.repeat,
+        label: '반복 거래 관리',
+        desc: '구독·고정 결제·정기 수입',
+        onTap: (c) => c.push('/recurring'),
+      ),
+      _SettingsItem(
+        icon: LucideIcons.bookmark,
+        label: '프리셋 관리',
+        desc: '자주 쓰는 내역 한 번 탭으로 채우기',
+        onTap: (c) => c.push('/presets'),
+      ),
+    ],
+  ),
+  _SettingsGroup(
+    label: '공유·소통',
+    items: [
+      _SettingsItem(
+        icon: LucideIcons.calendarRange,
+        label: '캘린더 관리·공유',
+        desc: '내 캘린더 · 멤버 권한 · 초대 코드',
+        onTap: (c) => c.push('/settings/calendar-share'),
+      ),
+      _SettingsItem(
+        icon: LucideIcons.tag,
+        label: '캘린더 라벨',
+        desc: '일정 라벨 추가·편집·삭제',
+        onTap: (c) => c.push('/settings/calendar-labels'),
+      ),
+      _SettingsItem(
+        icon: LucideIcons.divide,
+        label: '더치페이',
+        desc: '정산 · 친구 · 송금 요청',
+        onTap: (c) => c.push('/dutch-pay'),
+      ),
+    ],
+  ),
+  _SettingsGroup(
+    label: '앱 환경',
+    items: [
+      _SettingsItem(
+        icon: LucideIcons.palette,
+        label: '표시 설정',
+        desc: '테마 · 밀도 · 통화',
+        onTap: null, // inline 섹션으로 처리
+      ),
+      _SettingsItem(
+        icon: LucideIcons.bell,
+        label: '알림',
+        desc: '결제 예정·예산 초과 알림',
+        onTap: (c) => c.push('/settings/notifications'),
+      ),
+    ],
+  ),
+  _SettingsGroup(
+    label: '데이터',
+    items: [
+      _SettingsItem(
+        icon: LucideIcons.download,
+        label: '데이터 내보내기',
+        desc: 'CSV 로 거래 내역 백업',
+        onTap: (c) => showExportDialog(c),
+      ),
+      _SettingsItem(
+        icon: LucideIcons.hardDrive,
+        label: '저장공간',
+        desc: '준비중',
+        onTap: null,
+      ),
+    ],
+  ),
+  _SettingsGroup(
+    label: '계정',
+    items: [
+      _SettingsItem(
+        icon: LucideIcons.user,
+        label: '계정 관리',
+        desc: '프로필 · 보안 · 구독',
+        onTap: (c) => c.push('/account'),
+      ),
+    ],
+  ),
 ];
 
 /// 설정 화면 — 프로필 카드 + 5개 그룹 카드 + 표시 설정 inline.
@@ -151,12 +166,16 @@ class SettingsScreen extends ConsumerWidget {
       ),
       body: ListView(
         padding: const EdgeInsets.symmetric(
-            horizontal: PSpace.x20, vertical: PSpace.x24),
+          horizontal: PSpace.x20,
+          vertical: PSpace.x24,
+        ),
         children: [
           // 프로필 카드
           if (user != null) ...[
             PCard(
               variant: PCardVariant.shadow,
+              // shadow 기본 padding(16)과 내부 Padding(x16)이 겹쳐 과대 인셋 — zero (web 정합).
+              padding: EdgeInsets.zero,
               child: InkWell(
                 onTap: () => context.push('/account'),
                 borderRadius: PRadius.brLg,
@@ -176,25 +195,32 @@ class SettingsScreen extends ConsumerWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(user.userName,
+                            Text(
+                              user.userName,
+                              style: TextStyle(
+                                fontFamily: PTypo.sans,
+                                fontSize: PFontSize.body,
+                                fontWeight: PFontWeight.semi,
+                                color: t.fgPrimary,
+                              ),
+                            ),
+                            if (user.userEmail.isNotEmpty)
+                              Text(
+                                user.userEmail,
                                 style: TextStyle(
                                   fontFamily: PTypo.sans,
-                                  fontSize: PFontSize.body,
-                                  fontWeight: PFontWeight.semi,
-                                  color: t.fgPrimary,
-                                )),
-                            if (user.userEmail.isNotEmpty)
-                              Text(user.userEmail,
-                                  style: TextStyle(
-                                    fontFamily: PTypo.sans,
-                                    fontSize: PFontSize.caption,
-                                    color: t.fgTertiary,
-                                  )),
+                                  fontSize: PFontSize.caption,
+                                  color: t.fgTertiary,
+                                ),
+                              ),
                           ],
                         ),
                       ),
-                      Icon(LucideIcons.chevronRight,
-                          size: 16, color: t.fgTertiary),
+                      Icon(
+                        LucideIcons.chevronRight,
+                        size: 16,
+                        color: t.fgTertiary,
+                      ),
                     ],
                   ),
                 ),
@@ -217,16 +243,17 @@ class SettingsScreen extends ConsumerWidget {
               const SizedBox(height: PSpace.x8),
               PCard(
                 variant: PCardVariant.shadow,
+                // list shell — 카드 자체 padding 제거, row 가 14/16 보유 (web 정합).
+                padding: EdgeInsets.zero,
                 child: Column(
                   children: () {
-                    final items = groups[gi]
-                        .items
+                    final items = groups[gi].items
                         .where((i) => i.label != '표시 설정')
                         .toList();
                     return [
                       for (int i = 0; i < items.length; i++) ...[
                         _SettingsRow(item: items[i], tokens: t),
-                        if (i < items.length - 1) PDivider(indent: 56),
+                        if (i < items.length - 1) const PDivider(),
                       ],
                     ];
                   }(),
@@ -237,12 +264,13 @@ class SettingsScreen extends ConsumerWidget {
               const SizedBox(height: PSpace.x8),
               PCard(
                 variant: PCardVariant.shadow,
+                // list shell — 카드 자체 padding 제거, row 가 14/16 보유 (web 정합).
+                padding: EdgeInsets.zero,
                 child: Column(
                   children: [
                     for (int i = 0; i < groups[gi].items.length; i++) ...[
                       _SettingsRow(item: groups[gi].items[i], tokens: t),
-                      if (i < groups[gi].items.length - 1)
-                        PDivider(indent: 56),
+                      if (i < groups[gi].items.length - 1) const PDivider(),
                     ],
                   ],
                 ),
@@ -267,13 +295,15 @@ class _GroupLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(left: 2),
-      child: Text(label,
-          style: TextStyle(
-            fontFamily: PTypo.sans,
-            fontSize: PFontSize.caption,
-            fontWeight: PFontWeight.bold,
-            color: tokens.fgPrimary,
-          )),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontFamily: PTypo.sans,
+          fontSize: PFontSize.caption,
+          fontWeight: PFontWeight.bold,
+          color: tokens.fgPrimary,
+        ),
+      ),
     );
   }
 }
@@ -289,41 +319,42 @@ class _SettingsRow extends StatelessWidget {
     return InkWell(
       onTap: enabled ? () => item.onTap!(context) : null,
       child: Padding(
+        // web row '14px 16px' 정합.
         padding: const EdgeInsets.symmetric(
-            horizontal: PSpace.x16, vertical: PSpace.x12),
+          horizontal: PSpace.x16,
+          vertical: 14,
+        ),
         child: Row(
           children: [
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: enabled ? tokens.bgMuted : tokens.bgMuted,
-                borderRadius: PRadius.brSm,
-              ),
-              alignment: Alignment.center,
-              child: Icon(item.icon,
-                  size: 16,
-                  color: enabled ? tokens.fgSecondary : tokens.fgDisabled),
+            // 아이콘 네모 배경 제거 — 아이콘만 (web 동일 처리).
+            Icon(
+              item.icon,
+              size: 16,
+              color: enabled ? tokens.fgSecondary : tokens.fgDisabled,
             ),
             const SizedBox(width: PSpace.x12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(item.label,
-                      style: TextStyle(
-                        fontFamily: PTypo.sans,
-                        fontSize: PFontSize.body,
-                        fontWeight: PFontWeight.semi,
-                        color: enabled ? tokens.fgPrimary : tokens.fgDisabled,
-                      )),
+                  Text(
+                    item.label,
+                    style: TextStyle(
+                      fontFamily: PTypo.sans,
+                      fontSize: PFontSize.body,
+                      fontWeight: PFontWeight.semi,
+                      color: enabled ? tokens.fgPrimary : tokens.fgDisabled,
+                    ),
+                  ),
                   const SizedBox(height: 1),
-                  Text(item.desc,
-                      style: TextStyle(
-                        fontFamily: PTypo.sans,
-                        fontSize: PFontSize.caption,
-                        color: tokens.fgTertiary,
-                      )),
+                  Text(
+                    item.desc,
+                    style: TextStyle(
+                      fontFamily: PTypo.sans,
+                      fontSize: PFontSize.caption,
+                      color: tokens.fgTertiary,
+                    ),
+                  ),
                 ],
               ),
             ),
