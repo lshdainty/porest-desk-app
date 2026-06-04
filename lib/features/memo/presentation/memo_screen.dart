@@ -89,6 +89,10 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
   Widget _buildBody(BuildContext context, PorestTokens t, List<Memo> all) {
     final hasQuery = _query.trim().isNotEmpty;
 
+    // 태그 정규화 — web `memo.tag || '개인'` 정합. raw tag 만 세면
+    // null 태그 메모가 칩 카운트에서 빠져 web(개인 8)과 app(개인 2)이 어긋난다.
+    String tagOf(Memo m) => (m.tag ?? '').isNotEmpty ? m.tag! : '개인';
+
     // 검색 필터 (제목+내용 case-insensitive).
     var visible = all;
     if (hasQuery) {
@@ -101,9 +105,9 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
           )
           .toList();
     }
-    // 태그 필터.
+    // 태그 필터 (정규화 태그 기준 — web 정합).
     if (_tagFilter != null) {
-      visible = visible.where((m) => (m.tag ?? '') == _tagFilter).toList();
+      visible = visible.where((m) => tagOf(m) == _tagFilter).toList();
     }
     // 정렬: 핀 우선 → modifyAt desc.
     visible = [...visible]
@@ -115,11 +119,8 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
     final pinned = visible.where((m) => m.pinned).toList();
     final others = visible.where((m) => !m.pinned).toList();
 
-    // 태그 칩: 데이터에 존재하는 태그 + 카운트(항상 전체 기준).
-    final tags = <String>{
-      for (final m in all)
-        if ((m.tag ?? '').isNotEmpty) m.tag!,
-    }.toList();
+    // 태그 칩: 데이터에 존재하는 정규화 태그 + 카운트(항상 전체 기준, web 정합).
+    final tags = <String>{for (final m in all) tagOf(m)}.toList();
 
     return ListView(
       // EdgeInsets.zero 미지정 시 safe-area 가 흡수돼 좌우 간격 어긋남 방지.
@@ -149,43 +150,57 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
         ),
         const SizedBox(height: PSpace.x12),
 
-        // 태그 칩 가로 스크롤.
-        SizedBox(
-          height: 32,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            padding: EdgeInsets.zero,
-            itemCount: tags.length + 1,
-            separatorBuilder: (_, _) => const SizedBox(width: 6),
-            itemBuilder: (_, i) {
-              if (i == 0) {
-                return PChip(
-                  label: '전체',
-                  size: PChipSize.sm,
-                  selected: _tagFilter == null,
-                  trailing: _CountBadge(
-                    count: all.length,
-                    selected: _tagFilter == null,
-                    t: t,
-                  ),
-                  onTap: () => setState(() => _tagFilter = null),
-                );
-              }
-              final tag = tags[i - 1];
-              final n = all.where((m) => (m.tag ?? '') == tag).length;
-              return PChip(
-                label: tag,
-                size: PChipSize.sm,
-                selected: _tagFilter == tag,
-                trailing: _CountBadge(
-                  count: n,
-                  selected: _tagFilter == tag,
-                  t: t,
+        // 태그 칩 가로 스크롤 + 우측 끝 + 추가 (web 칩 행 accent 추가 버튼 정합).
+        Row(
+          children: [
+            Expanded(
+              child: SizedBox(
+                height: 32,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  padding: EdgeInsets.zero,
+                  itemCount: tags.length + 1,
+                  separatorBuilder: (_, _) => const SizedBox(width: 6),
+                  itemBuilder: (_, i) {
+                    if (i == 0) {
+                      return PChip(
+                        label: '전체',
+                        size: PChipSize.sm,
+                        selected: _tagFilter == null,
+                        trailing: _CountBadge(
+                          count: all.length,
+                          selected: _tagFilter == null,
+                          t: t,
+                        ),
+                        onTap: () => setState(() => _tagFilter = null),
+                      );
+                    }
+                    final tag = tags[i - 1];
+                    final n = all.where((m) => tagOf(m) == tag).length;
+                    return PChip(
+                      label: tag,
+                      size: PChipSize.sm,
+                      selected: _tagFilter == tag,
+                      trailing: _CountBadge(
+                        count: n,
+                        selected: _tagFilter == tag,
+                        t: t,
+                      ),
+                      onTap: () => setState(() => _tagFilter = tag),
+                    );
+                  },
                 ),
-                onTap: () => setState(() => _tagFilter = tag),
-              );
-            },
-          ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            PButton(
+              label: '추가',
+              icon: LucideIcons.plus,
+              variant: PButtonVariant.accent,
+              size: PButtonSize.sm,
+              onPressed: () => showMemoEditDialog(context),
+            ),
+          ],
         ),
         const SizedBox(height: PSpace.x16),
 
