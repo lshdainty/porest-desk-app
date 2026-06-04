@@ -24,6 +24,7 @@ class NetWorthChart extends ConsumerStatefulWidget {
 
 class _NetWorthChartState extends ConsumerState<NetWorthChart> {
   int? _touchedIdx;
+  Offset? _touchPos;
 
   @override
   Widget build(BuildContext context) {
@@ -166,8 +167,14 @@ class _NetWorthChartState extends ConsumerState<NetWorthChart> {
                     return;
                   }
                   final i = touched.first.x.toInt();
-                  if (i != _touchedIdx && i >= 0 && i < points.length) {
-                    setState(() => _touchedIdx = i);
+                  final pos = event.localPosition;
+                  if (i >= 0 &&
+                      i < points.length &&
+                      (i != _touchedIdx || pos != _touchPos)) {
+                    setState(() {
+                      _touchedIdx = i;
+                      if (pos != null) _touchPos = pos;
+                    });
                   }
                 },
                 // 기본 RichText 툴팁 OFF — web 라운드 사각 인디케이터 정합을 위해
@@ -217,10 +224,11 @@ class _NetWorthChartState extends ConsumerState<NetWorthChart> {
           return Stack(
             children: [
               chart,
-              if (_touchedIdx != null && _touchedIdx! < points.length)
-                Positioned(
-                  top: 0,
-                  right: 0,
+              if (_touchedIdx != null &&
+                  _touchedIdx! < points.length &&
+                  _touchPos != null)
+                PChartTooltipLayer(
+                  anchor: _touchPos!,
                   child: PChartTooltipBox(
                     title:
                         '${points[_touchedIdx!].month.toString().padLeft(2, '0')}월',

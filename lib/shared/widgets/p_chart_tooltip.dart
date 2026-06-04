@@ -1,8 +1,67 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../../app/theme/radius.dart';
 import '../../app/theme/tokens.dart';
 import '../../app/theme/typography.dart';
+
+/// 터치 좌표 기준 동적 툴팁 배치 — web recharts 정합.
+///
+/// 코너 고정이 아니라 포인터(터치) 바로 옆에 띄우되, 툴팁 실제 크기를 받아
+/// 차트 영역을 벗어나지 않게 상하좌우 clamp/flip 한다.
+/// 차트를 감싼 Stack 안에서 사용: `if (pos != null) PChartTooltipLayer(anchor: pos, child: ...)`.
+class PChartTooltipLayer extends StatelessWidget {
+  const PChartTooltipLayer({
+    super.key,
+    required this.anchor,
+    required this.child,
+  });
+
+  /// 차트 로컬 좌표 (fl_chart touchCallback 의 event.localPosition).
+  final Offset anchor;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned.fill(
+      child: IgnorePointer(
+        child: CustomSingleChildLayout(
+          delegate: _PChartTooltipLayoutDelegate(anchor),
+          child: child,
+        ),
+      ),
+    );
+  }
+}
+
+class _PChartTooltipLayoutDelegate extends SingleChildLayoutDelegate {
+  _PChartTooltipLayoutDelegate(this.anchor);
+  final Offset anchor;
+  static const double _gap = 12;
+
+  @override
+  BoxConstraints getConstraintsForChild(BoxConstraints constraints) =>
+      constraints.loosen();
+
+  @override
+  Offset getPositionForChild(Size size, Size childSize) {
+    // 가로: 포인터 우측 우선, 공간 부족 시 좌측으로 flip (recharts 동작)
+    double x = anchor.dx + _gap;
+    if (x + childSize.width > size.width) {
+      x = anchor.dx - _gap - childSize.width;
+    }
+    x = x.clamp(0.0, math.max(0.0, size.width - childSize.width));
+    // 세로: 포인터 높이에 중앙 정렬 후 상하 clamp
+    double y = anchor.dy - childSize.height / 2;
+    y = y.clamp(0.0, math.max(0.0, size.height - childSize.height));
+    return Offset(x, y);
+  }
+
+  @override
+  bool shouldRelayout(_PChartTooltipLayoutDelegate oldDelegate) =>
+      oldDelegate.anchor != anchor;
+}
 
 /// 차트 위에 떠있는 커스텀 오버레이 툴팁 — web ChartTooltip 미러.
 ///

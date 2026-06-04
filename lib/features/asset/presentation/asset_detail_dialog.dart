@@ -422,6 +422,7 @@ class _BalanceTrendChart extends StatefulWidget {
 
 class _BalanceTrendChartState extends State<_BalanceTrendChart> {
   int? _touchedIdx;
+  Offset? _touchPos;
 
   @override
   Widget build(BuildContext context) {
@@ -555,8 +556,12 @@ class _BalanceTrendChartState extends State<_BalanceTrendChart> {
               return;
             }
             final i = touched.first.x.toInt();
-            if (i != _touchedIdx && i >= 0 && i < list.length) {
-              setState(() => _touchedIdx = i);
+            final pos = event.localPosition;
+            if (i >= 0 && i < list.length && (i != _touchedIdx || pos != _touchPos)) {
+              setState(() {
+                _touchedIdx = i;
+                if (pos != null) _touchPos = pos;
+              });
             }
           },
           // 기본 RichText 툴팁 OFF — web 라운드 사각 인디케이터 정합을 위해
@@ -624,10 +629,9 @@ class _BalanceTrendChartState extends State<_BalanceTrendChart> {
     return Stack(
       children: [
         chart,
-        if (_touchedIdx != null && _touchedIdx! < list.length)
-          Positioned(
-            top: 0,
-            right: 0,
+        if (_touchedIdx != null && _touchedIdx! < list.length && _touchPos != null)
+          PChartTooltipLayer(
+            anchor: _touchPos!,
             child: PChartTooltipBox(
               // web BalanceTooltip 정합 — 'N주 · MM-DD'
               title:

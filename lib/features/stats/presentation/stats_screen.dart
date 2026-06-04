@@ -1813,6 +1813,7 @@ class _TrendBigCard extends ConsumerStatefulWidget {
 
 class _TrendBigCardState extends ConsumerState<_TrendBigCard> {
   int? _touchedIdx;
+  Offset? _touchPos;
 
   @override
   Widget build(BuildContext context) {
@@ -1893,8 +1894,14 @@ class _TrendBigCardState extends ConsumerState<_TrendBigCard> {
                             return;
                           }
                           final i = spots.first.x.toInt();
-                          if (i != _touchedIdx && i >= 0 && i < data.length) {
-                            setState(() => _touchedIdx = i);
+                          final pos = event.localPosition;
+                          if (i >= 0 &&
+                              i < data.length &&
+                              (i != _touchedIdx || pos != _touchPos)) {
+                            setState(() {
+                              _touchedIdx = i;
+                              if (pos != null) _touchPos = pos;
+                            });
                           }
                         },
                         touchTooltipData: LineTouchTooltipData(
@@ -2046,10 +2053,11 @@ class _TrendBigCardState extends ConsumerState<_TrendBigCard> {
                       ],
                     ),
                   ),
-                  if (_touchedIdx != null && _touchedIdx! < data.length)
-                    Positioned(
-                      top: 0,
-                      right: 0,
+                  if (_touchedIdx != null &&
+                      _touchedIdx! < data.length &&
+                      _touchPos != null)
+                    PChartTooltipLayer(
+                      anchor: _touchPos!,
                       child: PChartTooltipBox(
                         title: data[_touchedIdx!].label,
                         rows: [
@@ -2225,6 +2233,7 @@ class _SavingsBarsCard extends ConsumerStatefulWidget {
 
 class _SavingsBarsCardState extends ConsumerState<_SavingsBarsCard> {
   int? _touchedIdx;
+  Offset? _touchPos;
 
   @override
   Widget build(BuildContext context) {
@@ -2285,8 +2294,14 @@ class _SavingsBarsCardState extends ConsumerState<_SavingsBarsCard> {
                             return;
                           }
                           final i = spot.touchedBarGroup.x;
-                          if (i != _touchedIdx && i >= 0 && i < data.length) {
-                            setState(() => _touchedIdx = i);
+                          final pos = event.localPosition;
+                          if (i >= 0 &&
+                              i < data.length &&
+                              (i != _touchedIdx || pos != _touchPos)) {
+                            setState(() {
+                              _touchedIdx = i;
+                              if (pos != null) _touchPos = pos;
+                            });
                           }
                         },
                         touchTooltipData: BarTouchTooltipData(
@@ -2378,10 +2393,11 @@ class _SavingsBarsCardState extends ConsumerState<_SavingsBarsCard> {
                       ],
                     ),
                   ),
-                  if (_touchedIdx != null && _touchedIdx! < data.length)
-                    Positioned(
-                      top: 0,
-                      right: 0,
+                  if (_touchedIdx != null &&
+                      _touchedIdx! < data.length &&
+                      _touchPos != null)
+                    PChartTooltipLayer(
+                      anchor: _touchPos!,
                       child: Builder(
                         builder: (_) {
                           final p = data[_touchedIdx!];

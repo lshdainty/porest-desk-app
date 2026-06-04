@@ -1688,6 +1688,7 @@ class _ComplianceBarChart extends StatefulWidget {
 
 class _ComplianceBarChartState extends State<_ComplianceBarChart> {
   int? _touchedIdx;
+  Offset? _touchPos;
 
   @override
   Widget build(BuildContext context) {
@@ -1730,8 +1731,12 @@ class _ComplianceBarChartState extends State<_ComplianceBarChart> {
               }
               return;
             }
-            if (i != _touchedIdx && i >= 0 && i < rows.length) {
-              setState(() => _touchedIdx = i);
+            final pos = event.localPosition;
+            if (i >= 0 && i < rows.length && (i != _touchedIdx || pos != _touchPos)) {
+              setState(() {
+                _touchedIdx = i;
+                if (pos != null) _touchPos = pos;
+              });
             }
           },
           touchTooltipData: BarTouchTooltipData(
@@ -1821,14 +1826,14 @@ class _ComplianceBarChartState extends State<_ComplianceBarChart> {
       ),
     );
 
-    // 터치 상세 툴팁 — web ComplianceTooltip 미러 (한도 대비 % + 지출/한도)
+    // 터치 상세 툴팁 — web ComplianceTooltip 미러 (한도 대비 % + 지출/한도).
+    // 위치는 터치 좌표 기준 동적 배치 (PChartTooltipLayer — 화면 밖 clamp/flip).
     return Stack(
       children: [
         chart,
-        if (_touchedIdx != null && _touchedIdx! < rows.length)
-          Positioned(
-            top: 0,
-            right: 0,
+        if (_touchedIdx != null && _touchedIdx! < rows.length && _touchPos != null)
+          PChartTooltipLayer(
+            anchor: _touchPos!,
             child: Builder(
               builder: (_) {
                 final r = rows[_touchedIdx!];
