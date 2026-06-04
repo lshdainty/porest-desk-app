@@ -17,12 +17,16 @@ class PChartTooltipBox extends StatelessWidget {
     required this.title,
     required this.rows,
     this.labelWidth = 36,
+    this.footer = const [],
   });
   final String title;
   final List<PChartTooltipRowData> rows;
 
   /// 라벨 고정폭 — 한글 폭 차이 무시하고 amount 시작 위치 고정 (2자 36 / 3자 40).
   final double labelWidth;
+
+  /// divider 아래 보조 행 (인디케이터 없는 label-value) — web 툴팁 지출/한도 영역 정합.
+  final List<PChartTooltipFooterRowData> footer;
 
   @override
   Widget build(BuildContext context) {
@@ -53,11 +57,51 @@ class PChartTooltipBox extends StatelessWidget {
               _PChartTooltipRow(data: r, labelWidth: labelWidth),
               if (r != rows.last) const SizedBox(height: 4),
             ],
+            if (footer.isNotEmpty) ...[
+              Container(
+                margin: const EdgeInsets.only(top: 6),
+                padding: const EdgeInsets.only(top: 6),
+                decoration: BoxDecoration(
+                  border: Border(top: BorderSide(color: t.borderSubtle)),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    for (final f in footer) ...[
+                      Row(
+                        children: [
+                          Text(
+                            f.label,
+                            style: PTypo.micro.copyWith(color: t.fgSecondary),
+                          ),
+                          const Spacer(),
+                          Text(
+                            f.value,
+                            style: PTypo.micro.copyWith(
+                              color: t.fgSecondary,
+                              fontWeight: PFontWeight.semi,
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (f != footer.last) const SizedBox(height: 3),
+                    ],
+                  ],
+                ),
+              ),
+            ],
           ],
         ),
       ),
     );
   }
+}
+
+/// footer 보조 행 데이터 — label 좌측 / value 우측 (인디케이터 없음).
+class PChartTooltipFooterRowData {
+  const PChartTooltipFooterRowData({required this.label, required this.value});
+  final String label;
+  final String value;
 }
 
 class PChartTooltipRowData {

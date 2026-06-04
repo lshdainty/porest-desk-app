@@ -16,6 +16,7 @@ import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_badge.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_card.dart';
+import '../../../shared/widgets/p_chart_tooltip.dart';
 import '../../../shared/widgets/p_empty_state.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../expense/application/expense_providers.dart';
@@ -420,6 +421,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                         currentYear: _month.year,
                         currentMonth: _month.month,
                         tokens: t,
+                        masked: settings.hideAmounts,
                       ),
                     ],
                   ],
@@ -1603,11 +1605,13 @@ class _ComplianceCard extends StatelessWidget {
     required this.currentYear,
     required this.currentMonth,
     required this.tokens,
+    required this.masked,
   });
   final AsyncValue<List<BudgetComplianceMonth>> async;
   final int currentYear;
   final int currentMonth;
   final PorestTokens tokens;
+  final bool masked;
 
   @override
   Widget build(BuildContext context) {
@@ -1655,6 +1659,7 @@ class _ComplianceCard extends StatelessWidget {
                 currentYear: currentYear,
                 currentMonth: currentMonth,
                 tokens: tokens,
+                masked: masked,
               ),
             ),
         ],
@@ -1663,35 +1668,73 @@ class _ComplianceCard extends StatelessWidget {
   }
 }
 
-class _ComplianceBarChart extends StatelessWidget {
+class _ComplianceBarChart extends StatefulWidget {
   const _ComplianceBarChart({
     required this.rows,
     required this.currentYear,
     required this.currentMonth,
     required this.tokens,
+    required this.masked,
   });
   final List<BudgetComplianceMonth> rows;
   final int currentYear;
   final int currentMonth;
   final PorestTokens tokens;
+  final bool masked;
+
+  @override
+  State<_ComplianceBarChart> createState() => _ComplianceBarChartState();
+}
+
+class _ComplianceBarChartState extends State<_ComplianceBarChart> {
+  int? _touchedIdx;
 
   @override
   Widget build(BuildContext context) {
+    final rows = widget.rows;
+    final tokens = widget.tokens;
+    final currentYear = widget.currentYear;
+    final currentMonth = widget.currentMonth;
+    final masked = widget.masked;
     final maxY = rows.fold<double>(
       100,
       (m, r) => r.compliancePercent > m ? r.compliancePercent : m,
     );
     final yMax = (maxY * 1.15).clamp(100, 1000).toDouble();
 
-    return BarChart(
+    final chart = BarChart(
       BarChartData(
         alignment: BarChartAlignment.spaceAround,
         maxY: yMax,
         minY: 0,
-        // % 라벨을 각 막대 바로 위에 표시 — web LabelList(position top) 정합.
-        // fl_chart 공식 패턴: 터치 OFF + 투명 툴팁을 showingTooltipIndicators 로 상시 노출.
+        // % 라벨을 각 막대 바로 위에 상시 표시 — web LabelList(position top) 정합.
+        // 툴팁 메커니즘은 상시 라벨에 사용하고(handleBuiltInTouches:false 로 터치가
+        // 라벨을 덮지 않게), 터치 상세는 touchCallback → Stack 위 PChartTooltipBox.
         barTouchData: BarTouchData(
-          enabled: false,
+          enabled: true,
+          handleBuiltInTouches: false,
+          touchCallback: (event, response) {
+            if (event is FlTapUpEvent ||
+                event is FlPanEndEvent ||
+                event is FlPanCancelEvent ||
+                event is FlLongPressEnd ||
+                event is FlPointerExitEvent) {
+              if (_touchedIdx != null) {
+                setState(() => _touchedIdx = null);
+              }
+              return;
+            }
+            final i = response?.spot?.touchedBarGroupIndex;
+            if (i == null) {
+              if (_touchedIdx != null) {
+                setState(() => _touchedIdx = null);
+              }
+              return;
+            }
+            if (i != _touchedIdx && i >= 0 && i < rows.length) {
+              setState(() => _touchedIdx = i);
+            }
+          },
           touchTooltipData: BarTouchTooltipData(
             getTooltipColor: (_) => Colors.transparent,
             tooltipPadding: EdgeInsets.zero,
@@ -1767,8 +1810,8 @@ class _ComplianceBarChart extends StatelessWidget {
                             rows[i].month == currentMonth)
                       ? tokens.bgBrand
                       : tokens.borderStrong,
-                  // web bar 두께(band 75%)·round([6,6,0,0] 리터럴) 정합
-                  width: 36,
+                  // web bar round([6,6,0,0] 리터럴) 정합 — 두께는 모바일 시각 보정 28
+                  width: 28,
                   borderRadius: const BorderRadius.vertical(
                     top: Radius.circular(6),
                   ),
@@ -1777,6 +1820,46 @@ class _ComplianceBarChart extends StatelessWidget {
             ),
         ],
       ),
+    );
+
+    // 터치 상세 툴팁 — web ComplianceTooltip 미러 (한도 대비 % + 지출/한도)
+    return Stack(
+      children: [
+        chart,
+        if (_touchedIdx != null && _touchedIdx! < rows.length)
+          Positioned(
+            top: 0,
+            right: 0,
+            child: Builder(
+              builder: (_) {
+                final r = rows[_touchedIdx!];
+                final over = r.compliancePercent > 100;
+                return PChartTooltipBox(
+                  title: '${r.month}월',
+                  labelWidth: 56,
+                  rows: [
+                    PChartTooltipRowData(
+                      color: over ? tokens.fgExpense : tokens.bgBrand,
+                      label: '한도 대비',
+                      amount: '${r.compliancePercent.toStringAsFixed(1)}%',
+                      amountColor: over ? tokens.fgExpense : tokens.fgPrimary,
+                    ),
+                  ],
+                  footer: [
+                    PChartTooltipFooterRowData(
+                      label: '지출',
+                      value: masked ? '••••' : '${krw(r.totalSpent)}원',
+                    ),
+                    PChartTooltipFooterRowData(
+                      label: '한도',
+                      value: masked ? '••••' : '${krw(r.totalLimit)}원',
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+      ],
     );
   }
 }
