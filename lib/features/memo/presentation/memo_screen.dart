@@ -60,29 +60,6 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,
         elevation: 0,
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(56),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(
-                PSpace.x16, 0, PSpace.x16, PSpace.x12),
-            child: PSearchField(
-              controller: _searchCtrl,
-              hint: '메모 검색',
-              trailing: _query.trim().isNotEmpty
-                  ? PButton.icon(
-                      icon: LucideIcons.x,
-                      size: PButtonSize.sm,
-                      iconColor: t.fgTertiary,
-                      onPressed: () {
-                        _searchCtrl.clear();
-                        setState(() => _query = '');
-                      },
-                    )
-                  : null,
-              onChanged: (v) => setState(() => _query = v),
-            ),
-          ),
-        ),
       ),
       floatingActionButton: PFloatingActionButton(
         icon: LucideIcons.plus,
@@ -144,6 +121,25 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
       padding: const EdgeInsets.fromLTRB(
           PSpace.x16, PSpace.x16, PSpace.x16, 96),
       children: [
+        // 검색 — web mobile 정합: AppBar 고정이 아니라 본문 스크롤 첫 항목.
+        PSearchField(
+          controller: _searchCtrl,
+          hint: '메모 검색',
+          trailing: _query.trim().isNotEmpty
+              ? PButton.icon(
+                  icon: LucideIcons.x,
+                  size: PButtonSize.sm,
+                  iconColor: t.fgTertiary,
+                  onPressed: () {
+                    _searchCtrl.clear();
+                    setState(() => _query = '');
+                  },
+                )
+              : null,
+          onChanged: (v) => setState(() => _query = v),
+        ),
+        const SizedBox(height: PSpace.x12),
+
         // 태그 칩 가로 스크롤.
         SizedBox(
           height: 32,
@@ -376,18 +372,20 @@ class _MemoCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: onPin,
-                    child: Padding(
-                      padding: const EdgeInsets.all(4),
-                      child: Icon(
-                        LucideIcons.pin,
-                        size: 13,
-                        color: memo.pinned ? swatch : t.fgTertiary,
+                  // 핀 마크는 고정 메모에만 — 비고정 카드 노이즈 제거 (고정 설정은 편집 다이얼로그).
+                  if (memo.pinned)
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: onPin,
+                      child: Padding(
+                        padding: const EdgeInsets.all(4),
+                        child: Icon(
+                          LucideIcons.pin,
+                          size: 13,
+                          color: swatch,
+                        ),
                       ),
                     ),
-                  ),
                 ],
               ),
               const SizedBox(height: 8),
@@ -452,6 +450,9 @@ class _MemoSkeleton extends StatelessWidget {
           PSpace.x16, PSpace.x16, PSpace.x16, 96),
       physics: const NeverScrollableScrollPhysics(),
       children: [
+        // 검색바(36) + 태그 칩 placeholder — 실화면 구조 동일.
+        const PSkeleton.line(height: 36),
+        const SizedBox(height: PSpace.x12),
         const PSkeleton.line(width: 200, height: 28),
         const SizedBox(height: PSpace.x16),
         GridView.builder(
