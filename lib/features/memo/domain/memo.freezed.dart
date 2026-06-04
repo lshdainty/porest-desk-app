@@ -15,7 +15,9 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Memo {
 
- int get rowId; int? get userRowId; int? get folderId; String? get title; String? get content; String? get isPinned;// 'Y' | 'N'
+ int get rowId; int? get userRowId; int? get folderId; String? get title; String? get content; String? get tag;// 분류 태그 (가계부/자산/업무/개인/건강/결제/고정비 등)
+ String? get color;// 카드 색 — chart palette base hex (#2c70bf 등). null=blue
+ String? get isPinned;// 'Y' | 'N'
  String? get createAt; String? get modifyAt;
 /// Create a copy of Memo
 /// with the given fields replaced by the non-null parameter values.
@@ -29,16 +31,16 @@ $MemoCopyWith<Memo> get copyWith => _$MemoCopyWithImpl<Memo>(this as Memo, _$ide
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Memo&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.userRowId, userRowId) || other.userRowId == userRowId)&&(identical(other.folderId, folderId) || other.folderId == folderId)&&(identical(other.title, title) || other.title == title)&&(identical(other.content, content) || other.content == content)&&(identical(other.isPinned, isPinned) || other.isPinned == isPinned)&&(identical(other.createAt, createAt) || other.createAt == createAt)&&(identical(other.modifyAt, modifyAt) || other.modifyAt == modifyAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Memo&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.userRowId, userRowId) || other.userRowId == userRowId)&&(identical(other.folderId, folderId) || other.folderId == folderId)&&(identical(other.title, title) || other.title == title)&&(identical(other.content, content) || other.content == content)&&(identical(other.tag, tag) || other.tag == tag)&&(identical(other.color, color) || other.color == color)&&(identical(other.isPinned, isPinned) || other.isPinned == isPinned)&&(identical(other.createAt, createAt) || other.createAt == createAt)&&(identical(other.modifyAt, modifyAt) || other.modifyAt == modifyAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,rowId,userRowId,folderId,title,content,isPinned,createAt,modifyAt);
+int get hashCode => Object.hash(runtimeType,rowId,userRowId,folderId,title,content,tag,color,isPinned,createAt,modifyAt);
 
 @override
 String toString() {
-  return 'Memo(rowId: $rowId, userRowId: $userRowId, folderId: $folderId, title: $title, content: $content, isPinned: $isPinned, createAt: $createAt, modifyAt: $modifyAt)';
+  return 'Memo(rowId: $rowId, userRowId: $userRowId, folderId: $folderId, title: $title, content: $content, tag: $tag, color: $color, isPinned: $isPinned, createAt: $createAt, modifyAt: $modifyAt)';
 }
 
 
@@ -49,7 +51,7 @@ abstract mixin class $MemoCopyWith<$Res>  {
   factory $MemoCopyWith(Memo value, $Res Function(Memo) _then) = _$MemoCopyWithImpl;
 @useResult
 $Res call({
- int rowId, int? userRowId, int? folderId, String? title, String? content, String? isPinned, String? createAt, String? modifyAt
+ int rowId, int? userRowId, int? folderId, String? title, String? content, String? tag, String? color, String? isPinned, String? createAt, String? modifyAt
 });
 
 
@@ -66,13 +68,15 @@ class _$MemoCopyWithImpl<$Res>
 
 /// Create a copy of Memo
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? rowId = null,Object? userRowId = freezed,Object? folderId = freezed,Object? title = freezed,Object? content = freezed,Object? isPinned = freezed,Object? createAt = freezed,Object? modifyAt = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? rowId = null,Object? userRowId = freezed,Object? folderId = freezed,Object? title = freezed,Object? content = freezed,Object? tag = freezed,Object? color = freezed,Object? isPinned = freezed,Object? createAt = freezed,Object? modifyAt = freezed,}) {
   return _then(_self.copyWith(
 rowId: null == rowId ? _self.rowId : rowId // ignore: cast_nullable_to_non_nullable
 as int,userRowId: freezed == userRowId ? _self.userRowId : userRowId // ignore: cast_nullable_to_non_nullable
 as int?,folderId: freezed == folderId ? _self.folderId : folderId // ignore: cast_nullable_to_non_nullable
 as int?,title: freezed == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String?,content: freezed == content ? _self.content : content // ignore: cast_nullable_to_non_nullable
+as String?,tag: freezed == tag ? _self.tag : tag // ignore: cast_nullable_to_non_nullable
+as String?,color: freezed == color ? _self.color : color // ignore: cast_nullable_to_non_nullable
 as String?,isPinned: freezed == isPinned ? _self.isPinned : isPinned // ignore: cast_nullable_to_non_nullable
 as String?,createAt: freezed == createAt ? _self.createAt : createAt // ignore: cast_nullable_to_non_nullable
 as String?,modifyAt: freezed == modifyAt ? _self.modifyAt : modifyAt // ignore: cast_nullable_to_non_nullable
@@ -161,10 +165,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int rowId,  int? userRowId,  int? folderId,  String? title,  String? content,  String? isPinned,  String? createAt,  String? modifyAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int rowId,  int? userRowId,  int? folderId,  String? title,  String? content,  String? tag,  String? color,  String? isPinned,  String? createAt,  String? modifyAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Memo() when $default != null:
-return $default(_that.rowId,_that.userRowId,_that.folderId,_that.title,_that.content,_that.isPinned,_that.createAt,_that.modifyAt);case _:
+return $default(_that.rowId,_that.userRowId,_that.folderId,_that.title,_that.content,_that.tag,_that.color,_that.isPinned,_that.createAt,_that.modifyAt);case _:
   return orElse();
 
 }
@@ -182,10 +186,10 @@ return $default(_that.rowId,_that.userRowId,_that.folderId,_that.title,_that.con
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int rowId,  int? userRowId,  int? folderId,  String? title,  String? content,  String? isPinned,  String? createAt,  String? modifyAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int rowId,  int? userRowId,  int? folderId,  String? title,  String? content,  String? tag,  String? color,  String? isPinned,  String? createAt,  String? modifyAt)  $default,) {final _that = this;
 switch (_that) {
 case _Memo():
-return $default(_that.rowId,_that.userRowId,_that.folderId,_that.title,_that.content,_that.isPinned,_that.createAt,_that.modifyAt);case _:
+return $default(_that.rowId,_that.userRowId,_that.folderId,_that.title,_that.content,_that.tag,_that.color,_that.isPinned,_that.createAt,_that.modifyAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -202,10 +206,10 @@ return $default(_that.rowId,_that.userRowId,_that.folderId,_that.title,_that.con
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int rowId,  int? userRowId,  int? folderId,  String? title,  String? content,  String? isPinned,  String? createAt,  String? modifyAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int rowId,  int? userRowId,  int? folderId,  String? title,  String? content,  String? tag,  String? color,  String? isPinned,  String? createAt,  String? modifyAt)?  $default,) {final _that = this;
 switch (_that) {
 case _Memo() when $default != null:
-return $default(_that.rowId,_that.userRowId,_that.folderId,_that.title,_that.content,_that.isPinned,_that.createAt,_that.modifyAt);case _:
+return $default(_that.rowId,_that.userRowId,_that.folderId,_that.title,_that.content,_that.tag,_that.color,_that.isPinned,_that.createAt,_that.modifyAt);case _:
   return null;
 
 }
@@ -217,7 +221,7 @@ return $default(_that.rowId,_that.userRowId,_that.folderId,_that.title,_that.con
 @JsonSerializable()
 
 class _Memo implements Memo {
-  const _Memo({required this.rowId, this.userRowId, this.folderId, this.title, this.content, this.isPinned, this.createAt, this.modifyAt});
+  const _Memo({required this.rowId, this.userRowId, this.folderId, this.title, this.content, this.tag, this.color, this.isPinned, this.createAt, this.modifyAt});
   factory _Memo.fromJson(Map<String, dynamic> json) => _$MemoFromJson(json);
 
 @override final  int rowId;
@@ -225,6 +229,10 @@ class _Memo implements Memo {
 @override final  int? folderId;
 @override final  String? title;
 @override final  String? content;
+@override final  String? tag;
+// 분류 태그 (가계부/자산/업무/개인/건강/결제/고정비 등)
+@override final  String? color;
+// 카드 색 — chart palette base hex (#2c70bf 등). null=blue
 @override final  String? isPinned;
 // 'Y' | 'N'
 @override final  String? createAt;
@@ -243,16 +251,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Memo&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.userRowId, userRowId) || other.userRowId == userRowId)&&(identical(other.folderId, folderId) || other.folderId == folderId)&&(identical(other.title, title) || other.title == title)&&(identical(other.content, content) || other.content == content)&&(identical(other.isPinned, isPinned) || other.isPinned == isPinned)&&(identical(other.createAt, createAt) || other.createAt == createAt)&&(identical(other.modifyAt, modifyAt) || other.modifyAt == modifyAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Memo&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.userRowId, userRowId) || other.userRowId == userRowId)&&(identical(other.folderId, folderId) || other.folderId == folderId)&&(identical(other.title, title) || other.title == title)&&(identical(other.content, content) || other.content == content)&&(identical(other.tag, tag) || other.tag == tag)&&(identical(other.color, color) || other.color == color)&&(identical(other.isPinned, isPinned) || other.isPinned == isPinned)&&(identical(other.createAt, createAt) || other.createAt == createAt)&&(identical(other.modifyAt, modifyAt) || other.modifyAt == modifyAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,rowId,userRowId,folderId,title,content,isPinned,createAt,modifyAt);
+int get hashCode => Object.hash(runtimeType,rowId,userRowId,folderId,title,content,tag,color,isPinned,createAt,modifyAt);
 
 @override
 String toString() {
-  return 'Memo(rowId: $rowId, userRowId: $userRowId, folderId: $folderId, title: $title, content: $content, isPinned: $isPinned, createAt: $createAt, modifyAt: $modifyAt)';
+  return 'Memo(rowId: $rowId, userRowId: $userRowId, folderId: $folderId, title: $title, content: $content, tag: $tag, color: $color, isPinned: $isPinned, createAt: $createAt, modifyAt: $modifyAt)';
 }
 
 
@@ -263,7 +271,7 @@ abstract mixin class _$MemoCopyWith<$Res> implements $MemoCopyWith<$Res> {
   factory _$MemoCopyWith(_Memo value, $Res Function(_Memo) _then) = __$MemoCopyWithImpl;
 @override @useResult
 $Res call({
- int rowId, int? userRowId, int? folderId, String? title, String? content, String? isPinned, String? createAt, String? modifyAt
+ int rowId, int? userRowId, int? folderId, String? title, String? content, String? tag, String? color, String? isPinned, String? createAt, String? modifyAt
 });
 
 
@@ -280,13 +288,15 @@ class __$MemoCopyWithImpl<$Res>
 
 /// Create a copy of Memo
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? rowId = null,Object? userRowId = freezed,Object? folderId = freezed,Object? title = freezed,Object? content = freezed,Object? isPinned = freezed,Object? createAt = freezed,Object? modifyAt = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? rowId = null,Object? userRowId = freezed,Object? folderId = freezed,Object? title = freezed,Object? content = freezed,Object? tag = freezed,Object? color = freezed,Object? isPinned = freezed,Object? createAt = freezed,Object? modifyAt = freezed,}) {
   return _then(_Memo(
 rowId: null == rowId ? _self.rowId : rowId // ignore: cast_nullable_to_non_nullable
 as int,userRowId: freezed == userRowId ? _self.userRowId : userRowId // ignore: cast_nullable_to_non_nullable
 as int?,folderId: freezed == folderId ? _self.folderId : folderId // ignore: cast_nullable_to_non_nullable
 as int?,title: freezed == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String?,content: freezed == content ? _self.content : content // ignore: cast_nullable_to_non_nullable
+as String?,tag: freezed == tag ? _self.tag : tag // ignore: cast_nullable_to_non_nullable
+as String?,color: freezed == color ? _self.color : color // ignore: cast_nullable_to_non_nullable
 as String?,isPinned: freezed == isPinned ? _self.isPinned : isPinned // ignore: cast_nullable_to_non_nullable
 as String?,createAt: freezed == createAt ? _self.createAt : createAt // ignore: cast_nullable_to_non_nullable
 as String?,modifyAt: freezed == modifyAt ? _self.modifyAt : modifyAt // ignore: cast_nullable_to_non_nullable

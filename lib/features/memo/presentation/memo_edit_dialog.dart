@@ -2,19 +2,29 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme/spacing.dart';
+import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../shared/widgets/p_color_picker.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_section_label.dart';
+import '../../../shared/widgets/p_select.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
+import '../../../shared/widgets/p_switch.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../application/memo_providers.dart';
 import '../domain/memo.dart';
+import '../domain/memo_colors.dart';
+
+/// 태그 select 옵션 7종 고정 (web `MemoEditDialog` select 미러). 기본값 '개인'.
+const kMemoTags = <String>['가계부', '자산', '업무', '개인', '건강', '결제', '고정비'];
+const kMemoDefaultTag = '개인';
 
 void showMemoEditDialog(BuildContext context, {Memo? edit}) {
   final controller = PSheetController();
   showPSheet<void>(
     context,
-    title: edit == null ? '메모 추가' : '메모 수정',
+    title: edit == null ? '새 메모' : '메모 수정',
     contentBuilder: (ctx, scrollCtrl) => _Body(
       edit: edit,
       scrollController: scrollCtrl,
@@ -22,7 +32,7 @@ void showMemoEditDialog(BuildContext context, {Memo? edit}) {
     ),
     footerBuilder: (ctx) => PSheetFooter(
       controller: controller,
-      submitLabel: edit == null ? '저장' : '수정',
+      submitLabel: '저장',
     ),
   );
 }
@@ -43,14 +53,22 @@ class _Body extends ConsumerStatefulWidget {
 class _BodyState extends ConsumerState<_Body> {
   late final TextEditingController _titleCtrl;
   late final TextEditingController _contentCtrl;
+  late String _tag;
+  late String _color;
+  late bool _pinned;
   bool _submitting = false;
+  bool _titleError = false;
   bool get _isEdit => widget.edit != null;
 
   @override
   void initState() {
     super.initState();
-    _titleCtrl = TextEditingController(text: widget.edit?.title ?? '');
-    _contentCtrl = TextEditingController(text: widget.edit?.content ?? '');
+    final e = widget.edit;
+    _titleCtrl = TextEditingController(text: e?.title ?? '');
+    _contentCtrl = TextEditingController(text: e?.content ?? '');
+    _tag = (e?.tag ?? '').isNotEmpty ? e!.tag! : kMemoDefaultTag;
+    _color = memoColorOrDefault(e?.color);
+    _pinned = e?.pinned ?? false;
     widget.controller.onSubmit = _submit;
     if (_isEdit) widget.controller.onDelete = _delete;
   }
@@ -67,37 +85,48 @@ class _BodyState extends ConsumerState<_Body> {
     widget.controller.setSubmitting(v);
   }
 
-  bool get _canSubmit {
-    final title = _titleCtrl.text.trim();
-    final content = _contentCtrl.text.trim();
-    return !_submitting && (title.isNotEmpty || content.isNotEmpty);
-  }
+  // 저장 버튼은 항상 활성 — 제목 검증은 submit 시 인라인 에러로 처리(web 동작 미러).
+  bool get _canSubmit => !_submitting;
 
   Future<void> _submit() async {
-    if (!_canSubmit) return;
+    if (_submitting) return;
     final title = _titleCtrl.text.trim();
+    if (title.isEmpty) {
+      setState(() => _titleError = true);
+      return;
+    }
     final content = _contentCtrl.text.trim();
     _setSubmitting(true);
     try {
       final repo = await ref.read(memoRepositoryProvider.future);
+      // 새 UI 는 폴더 폐기 — folderId 미전송.
+      final pinChanged = (widget.edit?.pinned ?? false) != _pinned;
       if (_isEdit) {
         await repo.update(
           id: widget.edit!.rowId,
-          title: title.isEmpty ? null : title,
+          title: title,
           content: content.isEmpty ? null : content,
+          tag: _tag,
+          color: _color,
         );
+        // pin 은 별도 토글 엔드포인트 — 변경 시에만 호출.
+        if (pinChanged) await repo.pin(widget.edit!.rowId);
       } else {
-        await repo.create(
-          title: title.isEmpty ? null : title,
+        final created = await repo.create(
+          title: title,
           content: content.isEmpty ? null : content,
+          tag: _tag,
+          color: _color,
         );
+        if (_pinned) await repo.pin(created.rowId);
       }
       ref.invalidate(memoListProvider);
       if (!mounted) return;
       Navigator.of(context).pop();
     } on ApiException catch (e) {
       if (!mounted) return;
-      showPSnackBar(context, '실패: ${e.message}', severity: PSnackSeverity.error);
+      showPSnackBar(context, '실패: ${e.message}',
+          severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setSubmitting(false);
     }
@@ -121,7 +150,8 @@ class _BodyState extends ConsumerState<_Body> {
       Navigator.of(context).pop();
     } on ApiException catch (e) {
       if (!mounted) return;
-      showPSnackBar(context, '삭제 실패: ${e.message}', severity: PSnackSeverity.error);
+      showPSnackBar(context, '삭제 실패: ${e.message}',
+          severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setSubmitting(false);
     }
@@ -129,6 +159,7 @@ class _BodyState extends ConsumerState<_Body> {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.tokens;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) widget.controller.setCanSubmit(_canSubmit);
     });
@@ -137,21 +168,100 @@ class _BodyState extends ConsumerState<_Body> {
       padding: const EdgeInsets.fromLTRB(
           PSpace.x16, 0, PSpace.x16, PSpace.x16),
       children: [
+        // 제목 (필수).
+        const PSectionLabel('제목'),
+        const SizedBox(height: PSpace.x4),
         PTextInput(
           controller: _titleCtrl,
           placeholder: '제목',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: PFontWeight.bold),
-          onChanged: (_) => setState(() {}),
+          autofocus: !_isEdit,
+          errorText: _titleError ? '제목을 입력해주세요' : null,
+          style: Theme.of(context)
+              .textTheme
+              .titleMedium
+              ?.copyWith(fontWeight: PFontWeight.bold),
+          onChanged: (_) {
+            if (_titleError) setState(() => _titleError = false);
+          },
         ),
-        const SizedBox(height: PSpace.x8),
+        const SizedBox(height: PSpace.x16),
+
+        // 내용.
+        const PSectionLabel('내용'),
+        const SizedBox(height: PSpace.x4),
         PTextInput(
           controller: _contentCtrl,
-          placeholder: '내용을 입력하세요...',
+          placeholder: '여기에 메모를 작성해주세요',
           maxLines: 12,
-          minLines: 6,
+          minLines: 8,
           style: Theme.of(context).textTheme.bodyMedium,
-          onChanged: (_) => setState(() {}),
+        ),
+        const SizedBox(height: PSpace.x16),
+
+        // 태그 + 고정 2열.
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const PSectionLabel('태그'),
+                  const SizedBox(height: PSpace.x4),
+                  PSelect<String>(
+                    value: _tag,
+                    title: '태그',
+                    items: [
+                      for (final tag in kMemoTags)
+                        PSelectItem<String>(value: tag, label: tag),
+                    ],
+                    onChanged: (v) =>
+                        setState(() => _tag = v ?? kMemoDefaultTag),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: PSpace.x12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const PSectionLabel('고정'),
+                  const SizedBox(height: PSpace.x4),
+                  SizedBox(
+                    height: 40,
+                    child: Row(
+                      children: [
+                        PSwitch(
+                          value: _pinned,
+                          semanticLabel: '상단에 고정',
+                          onChanged: (v) => setState(() => _pinned = v),
+                        ),
+                        Expanded(
+                          child: Text(
+                            '상단에 고정',
+                            style:
+                                PTypo.body.copyWith(color: t.fgPrimary),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: PSpace.x16),
+
+        // 색상 — chart palette base hex 저장.
+        const PSectionLabel('색상'),
+        const SizedBox(height: PSpace.x8),
+        PColorPicker(
+          selected: _color,
+          onChanged: (c) => setState(() => _color = c),
         ),
       ],
     );
