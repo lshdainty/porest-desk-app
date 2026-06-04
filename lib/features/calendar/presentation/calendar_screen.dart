@@ -128,28 +128,24 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
               defaultBuilder: (ctx, day, _) => _DayCell(
                   day: day,
                   events: _eventsOnDay(events, day),
-                  selected: _selected,
                   isOutside: false,
                   holidayName: holidayMap[_dateKey(day)],
                   tokens: t),
               todayBuilder: (ctx, day, _) => _DayCell(
                   day: day,
                   events: _eventsOnDay(events, day),
-                  selected: _selected,
                   isOutside: false,
                   holidayName: holidayMap[_dateKey(day)],
                   tokens: t),
               selectedBuilder: (ctx, day, _) => _DayCell(
                   day: day,
                   events: _eventsOnDay(events, day),
-                  selected: _selected,
                   isOutside: false,
                   holidayName: holidayMap[_dateKey(day)],
                   tokens: t),
               outsideBuilder: (ctx, day, _) => _DayCell(
                   day: day,
                   events: _eventsOnDay(events, day),
-                  selected: _selected,
                   isOutside: true,
                   holidayName: holidayMap[_dateKey(day)],
                   tokens: t),
@@ -589,14 +585,12 @@ class _DayCell extends StatelessWidget {
   const _DayCell({
     required this.day,
     required this.events,
-    required this.selected,
     required this.isOutside,
     required this.tokens,
     this.holidayName,
   });
   final DateTime day;
   final List<CalendarEvent> events;
-  final DateTime selected;
   final bool isOutside;
   final PorestTokens tokens;
   final String? holidayName;
@@ -608,18 +602,14 @@ class _DayCell extends StatelessWidget {
     final isToday = today.year == day.year &&
         today.month == day.month &&
         today.day == day.day;
-    final isSelected = selected.year == day.year &&
-        selected.month == day.month &&
-        selected.day == day.day;
     final isHoliday = holidayName != null && !isOutside;
 
     final Color dayColor;
     if (isOutside) {
       dayColor = t.fgTertiary.withValues(alpha: 0.4);
-    } else if (isSelected) {
-      dayColor = t.fgOnBrand;
     } else if (isToday) {
-      dayColor = t.fgBrandStrong;
+      // 오늘 — web 정합: 항상 오늘에만 solid 원 (선택 날짜 표시는 하지 않음)
+      dayColor = t.fgOnBrand;
     } else if (isHoliday || day.weekday == DateTime.sunday) {
       dayColor = t.fgExpense;
     } else if (day.weekday == DateTime.saturday) {
@@ -632,18 +622,15 @@ class _DayCell extends StatelessWidget {
       width: PSpace.x24,
       height: PSpace.x24,
       alignment: Alignment.center,
-      decoration: isSelected
-          ? BoxDecoration(color: t.bgBrand, shape: BoxShape.circle)
-          : isToday
-              ? BoxDecoration(color: t.bgBrandSubtle, shape: BoxShape.circle)
-              : null,
+      // web 오늘 셀 정합 — bg-[var(--fg-brand)] solid 원 (다크 primary-light 자동)
+      decoration: (isToday && !isOutside)
+          ? BoxDecoration(color: t.fgBrand, shape: BoxShape.circle)
+          : null,
       child: Text(
         '${day.day}',
         style: PTypo.bodySm.copyWith(
           color: dayColor,
-          fontWeight: (isSelected || isToday)
-              ? PFontWeight.bold
-              : PFontWeight.medium,
+          fontWeight: isToday ? PFontWeight.bold : PFontWeight.medium,
         ),
       ),
     );
