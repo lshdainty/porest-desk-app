@@ -34,6 +34,8 @@ class PColorPicker extends StatelessWidget {
       crossAxisCount: columns,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
+      // 미지정 시 MediaQuery(safe-area) 패딩이 자동 적용돼 아래 간격이 벌어짐
+      padding: EdgeInsets.zero,
       mainAxisSpacing: PSpace.x8,
       crossAxisSpacing: PSpace.x8,
       children: [
