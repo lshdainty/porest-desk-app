@@ -362,18 +362,34 @@ class _ManageRow extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: PSpace.x8),
-              Text(
-                masked
-                    ? '••••'
-                    : negative
-                        ? '−${krw(balance.abs())}원'
-                        : '${krw(balance)}원',
-                style: TextStyle(
-                  color: t.fgPrimary,
-                  fontSize: PFontSize.bodySm,
-                  fontWeight: PFontWeight.bold,
-                  letterSpacing: -0.32,
-                ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    masked
+                        ? '••••'
+                        : negative
+                            ? '−${krw(balance.abs())}원'
+                            : '${krw(balance)}원',
+                    style: TextStyle(
+                      color: t.fgPrimary,
+                      fontSize: PFontSize.bodySm,
+                      fontWeight: PFontWeight.bold,
+                      letterSpacing: -0.32,
+                    ),
+                  ),
+                  // web 정합 — 총액 미포함 자산은 금액 아래 작은 '총액 제외' 표기
+                  if (asset.isIncludedInTotal == 'N') ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      '총액 제외',
+                      style: TextStyle(
+                        color: t.fgTertiary,
+                        fontSize: PFontSize.micro,
+                      ),
+                    ),
+                  ],
+                ],
               ),
               const SizedBox(width: PSpace.x8),
               Icon(LucideIcons.chevronRight, size: 18, color: t.fgTertiary),
