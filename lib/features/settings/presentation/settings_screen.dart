@@ -17,15 +17,9 @@ import '../../../shared/widgets/p_card.dart';
 import '../../../shared/widgets/p_divider.dart';
 
 class _SettingsItem {
-  const _SettingsItem({
-    required this.icon,
-    required this.label,
-    required this.desc,
-    this.onTap,
-  });
+  const _SettingsItem({required this.icon, required this.label, this.onTap});
   final IconData icon;
   final String label;
-  final String desc;
   final void Function(BuildContext ctx)? onTap;
 }
 
@@ -42,31 +36,26 @@ List<_SettingsGroup> _buildGroups(BuildContext ctx) => [
       _SettingsItem(
         icon: LucideIcons.tag,
         label: '카테고리 관리',
-        desc: '지출·수입 카테고리 추가·수정·삭제',
         onTap: (c) => c.push('/categories'),
       ),
       _SettingsItem(
         icon: LucideIcons.wallet,
         label: '계좌·카드 관리',
-        desc: '계좌·카드 추가·편집',
         onTap: (c) => c.push('/account-card-manage'),
       ),
       _SettingsItem(
         icon: LucideIcons.target,
         label: '예산 설정',
-        desc: '월간 예산 및 카테고리별 한도',
         onTap: (c) => c.push('/budget'),
       ),
       _SettingsItem(
         icon: LucideIcons.repeat,
         label: '반복 거래 관리',
-        desc: '구독·고정 결제·정기 수입',
         onTap: (c) => c.push('/recurring'),
       ),
       _SettingsItem(
         icon: LucideIcons.bookmark,
         label: '프리셋 관리',
-        desc: '자주 쓰는 내역 한 번 탭으로 채우기',
         onTap: (c) => c.push('/presets'),
       ),
     ],
@@ -77,19 +66,16 @@ List<_SettingsGroup> _buildGroups(BuildContext ctx) => [
       _SettingsItem(
         icon: LucideIcons.calendarRange,
         label: '캘린더 관리·공유',
-        desc: '내 캘린더 · 멤버 권한 · 초대 코드',
         onTap: (c) => c.push('/settings/calendar-share'),
       ),
       _SettingsItem(
         icon: LucideIcons.tag,
         label: '캘린더 라벨',
-        desc: '일정 라벨 추가·편집·삭제',
         onTap: (c) => c.push('/settings/calendar-labels'),
       ),
       _SettingsItem(
         icon: LucideIcons.divide,
         label: '더치페이',
-        desc: '정산 · 친구 · 송금 요청',
         onTap: (c) => c.push('/dutch-pay'),
       ),
     ],
@@ -100,13 +86,11 @@ List<_SettingsGroup> _buildGroups(BuildContext ctx) => [
       _SettingsItem(
         icon: LucideIcons.palette,
         label: '표시 설정',
-        desc: '테마 · 밀도 · 통화',
         onTap: null, // inline 섹션으로 처리
       ),
       _SettingsItem(
         icon: LucideIcons.bell,
         label: '알림',
-        desc: '결제 예정·예산 초과 알림',
         onTap: (c) => c.push('/settings/notifications'),
       ),
     ],
@@ -117,15 +101,9 @@ List<_SettingsGroup> _buildGroups(BuildContext ctx) => [
       _SettingsItem(
         icon: LucideIcons.download,
         label: '데이터 내보내기',
-        desc: 'CSV 로 거래 내역 백업',
         onTap: (c) => showExportDialog(c),
       ),
-      _SettingsItem(
-        icon: LucideIcons.hardDrive,
-        label: '저장공간',
-        desc: '준비중',
-        onTap: null,
-      ),
+      _SettingsItem(icon: LucideIcons.hardDrive, label: '저장공간', onTap: null),
     ],
   ),
   _SettingsGroup(
@@ -134,7 +112,6 @@ List<_SettingsGroup> _buildGroups(BuildContext ctx) => [
       _SettingsItem(
         icon: LucideIcons.user,
         label: '계정 관리',
-        desc: '프로필 · 보안 · 구독',
         onTap: (c) => c.push('/account'),
       ),
     ],
@@ -333,29 +310,16 @@ class _SettingsRow extends StatelessWidget {
               color: enabled ? tokens.fgSecondary : tokens.fgDisabled,
             ),
             const SizedBox(width: PSpace.x12),
+            // 부가 설명 없이 라벨만 — web 메뉴 행 정합.
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.label,
-                    style: TextStyle(
-                      fontFamily: PTypo.sans,
-                      fontSize: PFontSize.body,
-                      fontWeight: PFontWeight.semi,
-                      color: enabled ? tokens.fgPrimary : tokens.fgDisabled,
-                    ),
-                  ),
-                  const SizedBox(height: 1),
-                  Text(
-                    item.desc,
-                    style: TextStyle(
-                      fontFamily: PTypo.sans,
-                      fontSize: PFontSize.caption,
-                      color: tokens.fgTertiary,
-                    ),
-                  ),
-                ],
+              child: Text(
+                item.label,
+                style: TextStyle(
+                  fontFamily: PTypo.sans,
+                  fontSize: PFontSize.body,
+                  fontWeight: PFontWeight.semi,
+                  color: enabled ? tokens.fgPrimary : tokens.fgDisabled,
+                ),
               ),
             ),
             if (enabled)
