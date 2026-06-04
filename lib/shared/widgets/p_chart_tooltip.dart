@@ -59,6 +59,9 @@ class PChartTooltipBox extends StatelessWidget {
             ],
             if (footer.isNotEmpty) ...[
               Container(
+                // 본문 행(인디케이터9+8+label+12+amount110) 폭과 동일한 고정 폭.
+                // Positioned 오버레이는 폭이 unbounded 라 Spacer 사용을 위해 필수.
+                width: labelWidth + 139,
                 margin: const EdgeInsets.only(top: 6),
                 padding: const EdgeInsets.only(top: 6),
                 decoration: BoxDecoration(
