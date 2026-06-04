@@ -74,8 +74,10 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
           error: (e, _) => ListView(
             padding: const EdgeInsets.all(PSpace.x16),
             children: [
-              Text('메모 로드 실패\n$e',
-                  style: PTypo.bodySm.copyWith(color: t.statusDanger)),
+              Text(
+                '메모 로드 실패\n$e',
+                style: PTypo.bodySm.copyWith(color: t.statusDanger),
+              ),
             ],
           ),
           data: (all) => _buildBody(context, t, all),
@@ -92,9 +94,11 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
     if (hasQuery) {
       final q = _query.trim().toLowerCase();
       visible = visible
-          .where((m) =>
-              (m.title ?? '').toLowerCase().contains(q) ||
-              (m.content ?? '').toLowerCase().contains(q))
+          .where(
+            (m) =>
+                (m.title ?? '').toLowerCase().contains(q) ||
+                (m.content ?? '').toLowerCase().contains(q),
+          )
           .toList();
     }
     // 태그 필터.
@@ -102,7 +106,8 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
       visible = visible.where((m) => (m.tag ?? '') == _tagFilter).toList();
     }
     // 정렬: 핀 우선 → modifyAt desc.
-    visible = [...visible]..sort((a, b) {
+    visible = [...visible]
+      ..sort((a, b) {
         if (a.pinned != b.pinned) return a.pinned ? -1 : 1;
         return (b.modifyAt ?? '').compareTo(a.modifyAt ?? '');
       });
@@ -119,7 +124,11 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
     return ListView(
       // EdgeInsets.zero 미지정 시 safe-area 가 흡수돼 좌우 간격 어긋남 방지.
       padding: const EdgeInsets.fromLTRB(
-          PSpace.x16, PSpace.x16, PSpace.x16, 96),
+        PSpace.x16,
+        PSpace.x16,
+        PSpace.x16,
+        96,
+      ),
       children: [
         // 검색 — web mobile 정합: AppBar 고정이 아니라 본문 스크롤 첫 항목.
         PSearchField(
@@ -155,7 +164,10 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
                   size: PChipSize.sm,
                   selected: _tagFilter == null,
                   trailing: _CountBadge(
-                      count: all.length, selected: _tagFilter == null, t: t),
+                    count: all.length,
+                    selected: _tagFilter == null,
+                    t: t,
+                  ),
                   onTap: () => setState(() => _tagFilter = null),
                 );
               }
@@ -165,8 +177,11 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
                 label: tag,
                 size: PChipSize.sm,
                 selected: _tagFilter == tag,
-                trailing:
-                    _CountBadge(count: n, selected: _tagFilter == tag, t: t),
+                trailing: _CountBadge(
+                  count: n,
+                  selected: _tagFilter == tag,
+                  t: t,
+                ),
                 onTap: () => setState(() => _tagFilter = tag),
               );
             },
@@ -179,7 +194,10 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
         else ...[
           if (pinned.isNotEmpty) ...[
             _SectionHeader(
-                icon: LucideIcons.pin, label: '고정 · ${pinned.length}', t: t),
+              icon: LucideIcons.pin,
+              label: '고정 · ${pinned.length}',
+              t: t,
+            ),
             const SizedBox(height: PSpace.x12),
             _CardGrid(memos: pinned, onPin: _togglePin),
           ],
@@ -187,9 +205,10 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
             if (pinned.isNotEmpty) ...[
               const SizedBox(height: PSpace.x20),
               _SectionHeader(
-                  icon: LucideIcons.stickyNote,
-                  label: '모든 메모 · ${others.length}',
-                  t: t),
+                icon: LucideIcons.stickyNote,
+                label: '모든 메모 · ${others.length}',
+                t: t,
+              ),
               const SizedBox(height: PSpace.x12),
             ],
             _CardGrid(memos: others, onPin: _togglePin),
@@ -206,8 +225,11 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
       ref.invalidate(memoListProvider);
     } on ApiException catch (e) {
       if (!mounted) return;
-      showPSnackBar(context, '실패: ${e.message}',
-          severity: PSnackSeverity.error);
+      showPSnackBar(
+        context,
+        '실패: ${e.message}',
+        severity: PSnackSeverity.error,
+      );
     }
   }
 }
@@ -224,9 +246,7 @@ class _EmptyMemo extends StatelessWidget {
       child: PEmptyState(
         icon: hasQuery ? LucideIcons.searchX : LucideIcons.stickyNote,
         message: hasQuery ? '결과가 없어요' : '메모가 없어요',
-        subMessage: hasQuery
-            ? '다른 검색어를 입력해보세요.'
-            : '생각이 떠오를 때, 새 메모를 만들어보세요.',
+        subMessage: hasQuery ? '다른 검색어를 입력해보세요.' : '생각이 떠오를 때, 새 메모를 만들어보세요.',
         action: hasQuery
             ? null
             : PButton(
@@ -242,8 +262,11 @@ class _EmptyMemo extends StatelessWidget {
 
 /// 칩 우측 카운트 — active 시 onBrand 톤.
 class _CountBadge extends StatelessWidget {
-  const _CountBadge(
-      {required this.count, required this.selected, required this.t});
+  const _CountBadge({
+    required this.count,
+    required this.selected,
+    required this.t,
+  });
   final int count;
   final bool selected;
   final PorestTokens t;
@@ -262,8 +285,11 @@ class _CountBadge extends StatelessWidget {
 
 /// 섹션 라벨 — eyebrow 톤 + leading 아이콘 (web SectionLabel 미러).
 class _SectionHeader extends StatelessWidget {
-  const _SectionHeader(
-      {required this.icon, required this.label, required this.t});
+  const _SectionHeader({
+    required this.icon,
+    required this.label,
+    required this.t,
+  });
   final IconData icon;
   final String label;
   final PorestTokens t;
@@ -335,90 +361,95 @@ class _MemoCard extends StatelessWidget {
     final hasTitle = (memo.title ?? '').isNotEmpty;
     final tag = (memo.tag ?? '').isNotEmpty ? memo.tag! : '개인';
 
-    return Material(
-      color: bg,
-      borderRadius: PRadius.brLg,
-      child: InkWell(
-        onTap: onTap,
+    // 주의: BoxDecoration 의 boxShadow 는 박스 본체를 그림자색으로 채워 블러하는
+    // 방식이라 decoration 에 color 가 없으면 그림자 내부(라이트 5%/다크 30% 검정)가
+    // 카드 전체에 베일로 남는다 — bg 가 web 보다 어둡고 칙칙해 보이던 버그 fix.
+    // color 를 같은 decoration 에 두면 그림자 본체를 덮어 외곽선만 남는다.
+    return Container(
+      decoration: BoxDecoration(
+        color: bg,
         borderRadius: PRadius.brLg,
-        child: Container(
-          padding: const EdgeInsets.all(18),
-          decoration: BoxDecoration(
-            borderRadius: PRadius.brLg,
-            boxShadow: t.shadowSm,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 상단 행: dot + 태그 + 핀.
-              Row(
-                children: [
-                  Container(
-                    width: 8,
-                    height: 8,
-                    decoration:
-                        BoxDecoration(color: swatch, shape: BoxShape.circle),
-                  ),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Text(
-                      tag,
-                      style: PTypo.micro.copyWith(
-                        color: tagFg,
-                        fontWeight: PFontWeight.semi,
-                        letterSpacing: 0.2,
+        boxShadow: t.shadowSm,
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: PRadius.brLg,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: PRadius.brLg,
+          child: Padding(
+            padding: const EdgeInsets.all(18),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 상단 행: dot + 태그 + 핀.
+                Row(
+                  children: [
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: swatch,
+                        shape: BoxShape.circle,
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
                     ),
-                  ),
-                  // 핀 마크는 고정 메모에만 — 비고정 카드 노이즈 제거 (고정 설정은 편집 다이얼로그).
-                  if (memo.pinned)
-                    GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: onPin,
-                      child: Padding(
-                        padding: const EdgeInsets.all(4),
-                        child: Icon(
-                          LucideIcons.pin,
-                          size: 13,
-                          color: swatch,
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        tag,
+                        style: PTypo.micro.copyWith(
+                          color: tagFg,
+                          fontWeight: PFontWeight.semi,
+                          letterSpacing: 0.2,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    // 핀 마크는 고정 메모에만 — 비고정 카드 노이즈 제거 (고정 설정은 편집 다이얼로그).
+                    if (memo.pinned)
+                      GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: onPin,
+                        child: Padding(
+                          padding: const EdgeInsets.all(4),
+                          child: Icon(LucideIcons.pin, size: 13, color: swatch),
                         ),
                       ),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Text(
-                hasTitle ? memo.title! : '(제목 없음)',
-                style: PTypo.body.copyWith(
-                  fontSize: PFontSize.bodyMd, // 15px title (web 15/700)
-                  color: hasTitle ? t.fgPrimary : t.fgTertiary,
-                  fontWeight: PFontWeight.bold,
-                  height: 1.3,
-                  letterSpacing: -0.2,
+                  ],
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 8),
-              Expanded(
-                child: Text(
-                  memo.content ?? '',
-                  style: PTypo.bodySm.copyWith(
-                    color: t.fgSecondary,
-                    height: 1.45,
+                const SizedBox(height: 8),
+                Text(
+                  hasTitle ? memo.title! : '(제목 없음)',
+                  style: PTypo.body.copyWith(
+                    fontSize: PFontSize.bodyMd, // 15px title (web 15/700)
+                    color: hasTitle ? t.fgPrimary : t.fgTertiary,
+                    fontWeight: PFontWeight.bold,
+                    height: 1.3,
+                    letterSpacing: -0.2,
                   ),
-                  maxLines: 4,
+                  maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                _fmtUpdated(memo.modifyAt),
-                style: PTypo.micro.copyWith(color: t.fgTertiary),
-              ),
-            ],
+                const SizedBox(height: 8),
+                Expanded(
+                  child: Text(
+                    memo.content ?? '',
+                    style: PTypo.bodySm.copyWith(
+                      color: t.fgSecondary,
+                      height: 1.45,
+                    ),
+                    maxLines: 4,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  _fmtUpdated(memo.modifyAt),
+                  style: PTypo.micro.copyWith(color: t.fgTertiary),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -431,9 +462,7 @@ class _MemoCard extends StatelessWidget {
     if (raw == null || raw.length < 16) return '';
     // 5..16 → 'MM-DD(T| )HH:MM'
     final seg = raw.substring(5, 16);
-    return seg
-        .replaceFirst('-', '/')
-        .replaceFirst(RegExp(r'[T ]'), ' · ');
+    return seg.replaceFirst('-', '/').replaceFirst(RegExp(r'[T ]'), ' · ');
   }
 }
 
@@ -447,7 +476,11 @@ class _MemoSkeleton extends StatelessWidget {
     final t = tokens;
     return ListView(
       padding: const EdgeInsets.fromLTRB(
-          PSpace.x16, PSpace.x16, PSpace.x16, 96),
+        PSpace.x16,
+        PSpace.x16,
+        PSpace.x16,
+        96,
+      ),
       physics: const NeverScrollableScrollPhysics(),
       children: [
         // 검색바(36) + 태그 칩 placeholder — 실화면 구조 동일.
