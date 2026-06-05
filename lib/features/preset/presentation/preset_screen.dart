@@ -167,9 +167,10 @@ class _PresetScreenState extends ConsumerState<PresetScreen> {
         ),
         const SizedBox(height: PSpace.x16),
 
-        // (4) 리스트 카드
+        // (4) 리스트 카드 — web 은 shadow Card (border 없음)
         PCard(
-          variant: PCardVariant.bordered,
+          variant: PCardVariant.shadow,
+          padding: EdgeInsets.zero,
           child: isLoading
               ? const _ListSkeleton()
               : (sorted.isEmpty
@@ -317,7 +318,9 @@ class _StatCard extends StatelessWidget {
     final t = context.tokens;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(color: t.bgSunken, borderRadius: PRadius.brMd),
+      // web 다크 --bg-sunken = surface-input — 앱 등가는 bgMuted.
+      // (앱 bgSunken 다크는 canvas 와 동일색이라 카드가 배경에 묻힘)
+      decoration: BoxDecoration(color: t.bgMuted, borderRadius: PRadius.brMd),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -360,7 +363,7 @@ class _StatSkeleton extends StatelessWidget {
     final t = context.tokens;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(color: t.bgSunken, borderRadius: PRadius.brMd),
+      decoration: BoxDecoration(color: t.bgMuted, borderRadius: PRadius.brMd),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
