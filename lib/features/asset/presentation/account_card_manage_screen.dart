@@ -91,7 +91,10 @@ class _AccountCardManageScreenState
           final filtered = assets
               .where((a) => _groupTypes[_tab]!.contains(a.assetType))
               .toList();
-          final total = filtered.fold<int>(0, (s, a) => s + (a.balance ?? 0));
+          // '총액 제외'(isIncludedInTotal == 'N') 자산은 탭 합계에서 제외 (web 정합).
+          final total = filtered
+              .where((a) => a.isIncludedInTotal != 'N')
+              .fold<int>(0, (s, a) => s + (a.balance ?? 0));
           final isCard = _tab == _Group.card;
 
           return Column(
