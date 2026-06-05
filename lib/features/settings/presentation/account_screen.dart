@@ -166,15 +166,20 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                   tokens: t,
                   onTap: () => showPasswordChangeDialog(context),
                 ),
-                const PDivider(),
+                // web 정합 — 비밀번호 변경 아래 구분선 없음.
                 _AccountRow(
                   icon: LucideIcons.monitor,
                   label: '2단계 인증',
                   desc: _twoFa ? '사용 중' : '사용 안 함',
                   tokens: t,
-                  trailing: PSwitch(
-                    value: _twoFa,
-                    onChanged: (v) => setState(() => _twoFa = v),
+                  // PSwitch 의 44px 탭 타깃이 행을 키우지 않게 트랙 높이(24)로 제한
+                  // — 다른 행과 동일 높이 (web 정합).
+                  trailing: SizedBox(
+                    height: 24,
+                    child: PSwitch(
+                      value: _twoFa,
+                      onChanged: (v) => setState(() => _twoFa = v),
+                    ),
                   ),
                 ),
                 const PDivider(),
@@ -279,7 +284,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                   tokens: t,
                   onTap: () => _confirmLogout(context, ref),
                 ),
-                const PDivider(),
+                // web 정합 — 로그아웃 아래 구분선 없음.
                 _AccountRow(
                   icon: LucideIcons.trash2,
                   label: '회원 탈퇴',
