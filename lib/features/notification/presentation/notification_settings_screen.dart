@@ -257,7 +257,9 @@ enum _Tone { expense, warning, info, brand, success }
   _Tone.expense => (t.bgExpenseSubtle, t.fgExpense),
   _Tone.warning => (t.statusWarningSubtle, t.statusWarningFg),
   _Tone.info => (t.statusInfoSubtle, t.statusInfoFg),
-  _Tone.brand => (t.bgBrandSubtle, t.fgBrandStrong),
+  // brand: bgBrandSubtle 은 다크에서 surface 와 거의 같아 박스가 묻힘 —
+  // fgBrand(다크=primary-light 자동 swap) 15% 틴트로 양 모드 가시성 확보.
+  _Tone.brand => (t.fgBrand.withValues(alpha: 0.15), t.fgBrand),
   _Tone.success => (t.statusSuccessSubtle, t.statusSuccessFg),
 };
 
