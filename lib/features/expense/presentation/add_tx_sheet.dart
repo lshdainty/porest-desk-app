@@ -144,7 +144,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
       _appliedPresetId = p.rowId;
       _input.type = p.expenseType;
       // 웹과 동일: lockAmount === 'Y' 일 때만 금액 채움, 아니면 비워둠
-      _input.amountCtrl.text = locked ? p.amount.toString() : '';
+      _input.amountCtrl.text = locked ? (p.amount ?? 0).toString() : '';
       _input.categoryRowId = p.categoryRowId;
       _input.assetRowId = p.assetRowId;
       _input.memoCtrl.text = p.description ?? '';
@@ -462,8 +462,11 @@ class _PresetSection extends StatelessWidget {
                 if (i == top.length) return _MorePresetsHint(tokens: tokens);
                 final p = top[i];
                 final active = p.rowId == appliedId;
-                final showAmount = (p.lockAmount ?? 'N') == 'Y' && p.amount > 0;
-                final cat = categories.byRowId(p.categoryRowId);
+                final showAmount =
+                    (p.lockAmount ?? 'N') == 'Y' && (p.amount ?? 0) > 0;
+                final cat = p.categoryRowId == null
+                    ? null
+                    : categories.byRowId(p.categoryRowId!);
                 return _PresetChip(
                   preset: p,
                   category: cat,
@@ -603,7 +606,7 @@ class _PresetChip extends StatelessWidget {
             if (showAmount) ...[
               const SizedBox(width: 7),
               Text(
-                _shortAmount(preset.amount),
+                _shortAmount(preset.amount ?? 0),
                 style: TextStyle(
                   fontSize: PFontSize.micro,
                   color: active ? tokens.fgBrandStrong : tokens.fgTertiary,
@@ -818,12 +821,12 @@ class _TxInputController {
     this.paymentMethod = '',
     DateTime? date,
     TimeOfDay? time,
-  })  : date = date ?? DateTime.now(),
-        time = time ?? TimeOfDay.now(),
-        amountCtrl = TextEditingController(text: amount),
-        merchantCtrl = TextEditingController(text: merchant),
-        memoCtrl = TextEditingController(text: memo),
-        feeCtrl = TextEditingController();
+  }) : date = date ?? DateTime.now(),
+       time = time ?? TimeOfDay.now(),
+       amountCtrl = TextEditingController(text: amount),
+       merchantCtrl = TextEditingController(text: merchant),
+       memoCtrl = TextEditingController(text: memo),
+       feeCtrl = TextEditingController();
 
   final TextEditingController amountCtrl;
   final TextEditingController merchantCtrl;
