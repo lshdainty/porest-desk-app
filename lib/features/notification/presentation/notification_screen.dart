@@ -280,10 +280,18 @@ class _NotiRow extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
-        // SoT: unread 좌측 엣지 바 3px(border-brand) + 배경 하이라이트(bg-brand-subtle 100%).
-        // read 행은 기본 상태(엣지 transparent / 배경 없음).
+        // 클로드 디자인: unread 배경 = fgBrand(다크=primary-light 자동 swap) 틴트의
+        // 좌→우 그라데이션(16%→6%) — bgBrandSubtle(다크=primary 8%)은 배경에 묻힘.
+        // 엣지 바 3px borderBrand(다크=cobalt400 light) + read 행은 기본 상태.
         decoration: BoxDecoration(
-          color: unread ? tokens.bgBrandSubtle : null,
+          gradient: unread
+              ? LinearGradient(
+                  colors: [
+                    tokens.fgBrand.withValues(alpha: 0.16),
+                    tokens.fgBrand.withValues(alpha: 0.06),
+                  ],
+                )
+              : null,
           border: Border(
             left: BorderSide(
               color: unread ? tokens.borderBrand : Colors.transparent,
