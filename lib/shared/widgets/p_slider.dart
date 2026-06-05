@@ -36,7 +36,9 @@ class PSlider extends StatelessWidget {
         thumbColor: t.fgOnBrand,
         overlayColor: t.bgBrandSolid.withValues(alpha: 0.12),
         thumbShape: _PrimaryRingThumb(borderColor: t.bgBrandSolid),
-        trackShape: const RoundedRectSliderTrackShape(),
+        // 좌우 인셋 없는 full-width 트랙 — web slider(컨테이너 전체 폭) 정합.
+        // 기본 RoundedRect 는 thumb 반경만큼 양옆을 비워 눈금 라벨과 어긋난다.
+        trackShape: const _FullWidthTrackShape(),
       ),
       child: Slider(
         value: value,
@@ -46,6 +48,29 @@ class PSlider extends StatelessWidget {
         divisions: divisions,
         label: semanticLabel,
       ),
+    );
+  }
+}
+
+/// 좌우 인셋 없이 위젯 전체 폭을 쓰는 트랙 — web slider 정합.
+class _FullWidthTrackShape extends RoundedRectSliderTrackShape {
+  const _FullWidthTrackShape();
+
+  @override
+  Rect getPreferredRect({
+    required RenderBox parentBox,
+    Offset offset = Offset.zero,
+    required SliderThemeData sliderTheme,
+    bool isEnabled = false,
+    bool isDiscrete = false,
+  }) {
+    final trackHeight = sliderTheme.trackHeight ?? 4;
+    final trackTop = offset.dy + (parentBox.size.height - trackHeight) / 2;
+    return Rect.fromLTWH(
+      offset.dx,
+      trackTop,
+      parentBox.size.width,
+      trackHeight,
     );
   }
 }
