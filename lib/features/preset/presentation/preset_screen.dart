@@ -286,8 +286,10 @@ class _StatsRow extends StatelessWidget {
         ],
       );
     }
+    // 주의: ListView 자식은 높이 unbounded — Row 에 stretch 를 주면 자식 높이가
+    // Infinity 로 강제돼 'BoxConstraints forces an infinite height' 크래시
+    // (+semantics parentDataDirty 스팸). 카드 3장은 한 줄 값이라 자연 높이 동일.
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Expanded(
           child: _StatCard(label: '저장된 프리셋', value: '$presetCount'),
