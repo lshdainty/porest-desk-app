@@ -329,10 +329,14 @@ class _MasterCard extends StatelessWidget {
             ),
           ),
           const SizedBox(width: PSpace.x12),
-          PSwitch(
-            value: pushEnabled,
-            onChanged: onChanged,
-            semanticLabel: '푸시 알림',
+          // 44px 탭 타깃이 행 높이를 키우지 않게 트랙 높이(24)로 클램프 — web 행 높이 정합.
+          SizedBox(
+            height: 24,
+            child: PSwitch(
+              value: pushEnabled,
+              onChanged: onChanged,
+              semanticLabel: '푸시 알림',
+            ),
           ),
         ],
       ),
@@ -385,7 +389,8 @@ class _SectionCard extends StatelessWidget {
             ),
           ),
           child,
-          const SizedBox(height: PSpace.sm),
+          // 마지막 행 패딩 12 + 4 = 16 — web CardContent 하단 여백 정합.
+          const SizedBox(height: 4),
         ],
       ),
     );
@@ -454,10 +459,14 @@ class _ToggleRow extends StatelessWidget {
             ),
           ),
           const SizedBox(width: PSpace.x12),
-          PSwitch(
-            value: value,
-            onChanged: enabled ? onChanged : null,
-            semanticLabel: title,
+          // 44px 탭 타깃이 행 높이를 키우지 않게 트랙 높이(24)로 클램프 — web 행 높이 정합.
+          SizedBox(
+            height: 24,
+            child: PSwitch(
+              value: value,
+              onChanged: enabled ? onChanged : null,
+              semanticLabel: title,
+            ),
           ),
         ],
       ),
@@ -491,11 +500,20 @@ class _ThresholdCard extends StatelessWidget {
                   ),
                 ),
               ),
-              Text(
-                '$value%',
-                style: PTypo.bodyLg.copyWith(
-                  color: t.fgBrand,
-                  fontWeight: PFontWeight.bold,
+              // web 정합 — '현재 N%' (caption tertiary + brand strong).
+              Text.rich(
+                TextSpan(
+                  style: PTypo.caption.copyWith(color: t.fgTertiary),
+                  children: [
+                    const TextSpan(text: '현재 '),
+                    TextSpan(
+                      text: '$value%',
+                      style: TextStyle(
+                        color: t.fgBrandStrong,
+                        fontWeight: PFontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -530,7 +548,8 @@ class _ThresholdCard extends StatelessWidget {
             value: value.toDouble().clamp(50, 100),
             min: 50,
             max: 100,
-            divisions: 50,
+            // web step=5 정합 — 71% 같은 1단위 값 방지.
+            divisions: 10,
             semanticLabel: '$value%',
             onChanged: (v) => onChanged(v.round()),
           ),
@@ -604,10 +623,14 @@ class _QuietHoursCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: PSpace.x12),
-                PSwitch(
-                  value: enabled,
-                  onChanged: onEnabledChanged,
-                  semanticLabel: '방해 금지 사용',
+                // 44px 탭 타깃이 행 높이를 키우지 않게 트랙 높이(24)로 클램프 — web 행 높이 정합.
+                SizedBox(
+                  height: 24,
+                  child: PSwitch(
+                    value: enabled,
+                    onChanged: onEnabledChanged,
+                    semanticLabel: '방해 금지 사용',
+                  ),
                 ),
               ],
             ),
@@ -830,10 +853,14 @@ class _SoundCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: PSpace.x12),
-                PSwitch(
-                  value: vibration,
-                  onChanged: onVibrationChanged,
-                  semanticLabel: '진동',
+                // 44px 탭 타깃이 행 높이를 키우지 않게 트랙 높이(24)로 클램프 — web 행 높이 정합.
+                SizedBox(
+                  height: 24,
+                  child: PSwitch(
+                    value: vibration,
+                    onChanged: onVibrationChanged,
+                    semanticLabel: '진동',
+                  ),
                 ),
               ],
             ),
@@ -899,10 +926,14 @@ class _EmailCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: PSpace.x12),
-                PSwitch(
-                  value: enabled,
-                  onChanged: onEnabledChanged,
-                  semanticLabel: '이메일 받기',
+                // 44px 탭 타깃이 행 높이를 키우지 않게 트랙 높이(24)로 클램프 — web 행 높이 정합.
+                SizedBox(
+                  height: 24,
+                  child: PSwitch(
+                    value: enabled,
+                    onChanged: onEnabledChanged,
+                    semanticLabel: '이메일 받기',
+                  ),
                 ),
               ],
             ),

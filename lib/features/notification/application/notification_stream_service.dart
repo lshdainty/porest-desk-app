@@ -46,9 +46,7 @@ class NotificationStreamService {
       }
       final lastSeen = int.tryParse(_lastSeenId!) ?? 0;
       // _lastSeenId 보다 큰 모든 새 알림을 emit (오래된 순).
-      final fresh = list
-          .where((n) => n.rowId > lastSeen)
-          .toList()
+      final fresh = list.where((n) => n.rowId > lastSeen).toList()
         ..sort((a, b) => a.rowId.compareTo(b.rowId));
       for (final n in fresh) {
         _newController.add(n);
@@ -71,16 +69,16 @@ class NotificationStreamService {
 }
 
 /// 단일 인스턴스 — 앱 lifecycle 에서 [start]/[stop] 호출.
-final notificationStreamServiceProvider =
-    Provider<NotificationStreamService>((ref) {
+final notificationStreamServiceProvider = Provider<NotificationStreamService>((
+  ref,
+) {
   final svc = NotificationStreamService(ref);
   ref.onDispose(svc.dispose);
   return svc;
 });
 
 /// 새 알림 stream — UI 에서 listen 해 toast 등 표시.
-final newNotificationStreamProvider =
-    StreamProvider<AppNotification>((ref) {
+final newNotificationStreamProvider = StreamProvider<AppNotification>((ref) {
   final svc = ref.watch(notificationStreamServiceProvider);
   return svc.newNotifications;
 });

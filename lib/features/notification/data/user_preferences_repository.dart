@@ -87,7 +87,8 @@ class UserPreferences {
       quietHoursStart: json['quietHoursStart'] as String? ?? '22:00',
       quietHoursEnd: json['quietHoursEnd'] as String? ?? '07:00',
       notificationSound:
-          json['notificationSound'] as String? ?? NotificationSound.defaultSound,
+          json['notificationSound'] as String? ??
+          NotificationSound.defaultSound,
       vibrationEnabled: json['vibrationEnabled'] as bool? ?? true,
       emailEnabled: json['emailEnabled'] as bool? ?? false,
       emailFrequency:
