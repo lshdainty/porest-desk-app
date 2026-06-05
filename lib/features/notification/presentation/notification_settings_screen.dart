@@ -81,16 +81,16 @@ class _Content extends ConsumerWidget {
     final pushOn = prefs.pushEnabled;
     return ListView(
       padding: const EdgeInsets.symmetric(
-          horizontal: PSpace.x20, vertical: PSpace.x24),
+        horizontal: PSpace.x20,
+        vertical: PSpace.x24,
+      ),
       children: [
         // 1) 푸시 알림 (마스터)
         _MasterCard(
           pushEnabled: pushOn,
-          onChanged: (v) => _patch(
-            ref,
-            {'pushEnabled': v},
-            (p) => p.copyWith(pushEnabled: v),
-          ),
+          onChanged: (v) => _patch(ref, {
+            'pushEnabled': v,
+          }, (p) => p.copyWith(pushEnabled: v)),
         ),
         const SizedBox(height: PSpace.x20),
 
@@ -107,19 +107,22 @@ class _Content extends ConsumerWidget {
                 desc: '결제 예정일 D-1, 결제일 당일 알림',
                 value: prefs.notifyPayment,
                 enabled: pushOn,
-                onChanged: (v) => _patch(ref, {'notifyPayment': v},
-                    (p) => p.copyWith(notifyPayment: v)),
+                onChanged: (v) => _patch(ref, {
+                  'notifyPayment': v,
+                }, (p) => p.copyWith(notifyPayment: v)),
               ),
               const _RowDivider(),
               _ToggleRow(
                 icon: LucideIcons.target,
                 tone: _Tone.warning,
                 title: '예산 알림',
-                desc: '카테고리 예산 50%·80%·100% 도달',
+                // DB(budget_alert_threshold) 기반 — 아래 임계값 카드와 동일 값.
+                desc: '카테고리 예산 ${prefs.budgetAlertThreshold}%·100% 도달',
                 value: prefs.notifyBudget,
                 enabled: pushOn,
-                onChanged: (v) => _patch(ref, {'notifyBudget': v},
-                    (p) => p.copyWith(notifyBudget: v)),
+                onChanged: (v) => _patch(ref, {
+                  'notifyBudget': v,
+                }, (p) => p.copyWith(notifyBudget: v)),
               ),
               const _RowDivider(),
               _ToggleRow(
@@ -129,8 +132,9 @@ class _Content extends ConsumerWidget {
                 desc: '반복 거래가 자동으로 기록되었을 때',
                 value: prefs.notifyAutoRecord,
                 enabled: pushOn,
-                onChanged: (v) => _patch(ref, {'notifyAutoRecord': v},
-                    (p) => p.copyWith(notifyAutoRecord: v)),
+                onChanged: (v) => _patch(ref, {
+                  'notifyAutoRecord': v,
+                }, (p) => p.copyWith(notifyAutoRecord: v)),
               ),
               const _RowDivider(),
               _ToggleRow(
@@ -140,8 +144,9 @@ class _Content extends ConsumerWidget {
                 desc: '송금 요청 / 정산 완료 알림',
                 value: prefs.notifyDutchPay,
                 enabled: pushOn,
-                onChanged: (v) => _patch(ref, {'notifyDutchPay': v},
-                    (p) => p.copyWith(notifyDutchPay: v)),
+                onChanged: (v) => _patch(ref, {
+                  'notifyDutchPay': v,
+                }, (p) => p.copyWith(notifyDutchPay: v)),
               ),
               const _RowDivider(),
               _ToggleRow(
@@ -151,8 +156,9 @@ class _Content extends ConsumerWidget {
                 desc: '캘린더 이벤트 시작 15분 전',
                 value: prefs.notifyCalendar,
                 enabled: pushOn,
-                onChanged: (v) => _patch(ref, {'notifyCalendar': v},
-                    (p) => p.copyWith(notifyCalendar: v)),
+                onChanged: (v) => _patch(ref, {
+                  'notifyCalendar': v,
+                }, (p) => p.copyWith(notifyCalendar: v)),
               ),
               const _RowDivider(),
               _ToggleRow(
@@ -162,8 +168,9 @@ class _Content extends ConsumerWidget {
                 desc: '매주 월요일 오전 9시',
                 value: prefs.notifyWeeklyReport,
                 enabled: pushOn,
-                onChanged: (v) => _patch(ref, {'notifyWeeklyReport': v},
-                    (p) => p.copyWith(notifyWeeklyReport: v)),
+                onChanged: (v) => _patch(ref, {
+                  'notifyWeeklyReport': v,
+                }, (p) => p.copyWith(notifyWeeklyReport: v)),
               ),
               const _RowDivider(),
               _ToggleRow(
@@ -173,8 +180,9 @@ class _Content extends ConsumerWidget {
                 desc: '매월 1일 오전 9시',
                 value: prefs.notifyMonthlyReport,
                 enabled: pushOn,
-                onChanged: (v) => _patch(ref, {'notifyMonthlyReport': v},
-                    (p) => p.copyWith(notifyMonthlyReport: v)),
+                onChanged: (v) => _patch(ref, {
+                  'notifyMonthlyReport': v,
+                }, (p) => p.copyWith(notifyMonthlyReport: v)),
               ),
             ],
           ),
@@ -184,8 +192,9 @@ class _Content extends ConsumerWidget {
         // 3) 예산 알림 임계값
         _ThresholdCard(
           value: prefs.budgetAlertThreshold,
-          onChanged: (v) => _patch(ref, {'budgetAlertThreshold': v},
-              (p) => p.copyWith(budgetAlertThreshold: v)),
+          onChanged: (v) => _patch(ref, {
+            'budgetAlertThreshold': v,
+          }, (p) => p.copyWith(budgetAlertThreshold: v)),
         ),
         const SizedBox(height: PSpace.x20),
 
@@ -194,12 +203,15 @@ class _Content extends ConsumerWidget {
           enabled: prefs.quietHoursEnabled,
           start: prefs.quietHoursStart,
           end: prefs.quietHoursEnd,
-          onEnabledChanged: (v) => _patch(ref, {'quietHoursEnabled': v},
-              (p) => p.copyWith(quietHoursEnabled: v)),
-          onStartChanged: (v) => _patch(ref, {'quietHoursStart': v},
-              (p) => p.copyWith(quietHoursStart: v)),
-          onEndChanged: (v) => _patch(ref, {'quietHoursEnd': v},
-              (p) => p.copyWith(quietHoursEnd: v)),
+          onEnabledChanged: (v) => _patch(ref, {
+            'quietHoursEnabled': v,
+          }, (p) => p.copyWith(quietHoursEnabled: v)),
+          onStartChanged: (v) => _patch(ref, {
+            'quietHoursStart': v,
+          }, (p) => p.copyWith(quietHoursStart: v)),
+          onEndChanged: (v) => _patch(ref, {
+            'quietHoursEnd': v,
+          }, (p) => p.copyWith(quietHoursEnd: v)),
         ),
         const SizedBox(height: PSpace.x20),
 
@@ -207,10 +219,12 @@ class _Content extends ConsumerWidget {
         _SoundCard(
           sound: prefs.notificationSound,
           vibration: prefs.vibrationEnabled,
-          onSoundChanged: (v) => _patch(ref, {'notificationSound': v},
-              (p) => p.copyWith(notificationSound: v)),
-          onVibrationChanged: (v) => _patch(ref, {'vibrationEnabled': v},
-              (p) => p.copyWith(vibrationEnabled: v)),
+          onSoundChanged: (v) => _patch(ref, {
+            'notificationSound': v,
+          }, (p) => p.copyWith(notificationSound: v)),
+          onVibrationChanged: (v) => _patch(ref, {
+            'vibrationEnabled': v,
+          }, (p) => p.copyWith(vibrationEnabled: v)),
         ),
         const SizedBox(height: PSpace.x20),
 
@@ -219,10 +233,12 @@ class _Content extends ConsumerWidget {
           enabled: prefs.emailEnabled,
           email: email,
           frequency: prefs.emailFrequency,
-          onEnabledChanged: (v) => _patch(ref, {'emailEnabled': v},
-              (p) => p.copyWith(emailEnabled: v)),
-          onFrequencyChanged: (v) => _patch(ref, {'emailFrequency': v},
-              (p) => p.copyWith(emailFrequency: v)),
+          onEnabledChanged: (v) => _patch(ref, {
+            'emailEnabled': v,
+          }, (p) => p.copyWith(emailEnabled: v)),
+          onFrequencyChanged: (v) => _patch(ref, {
+            'emailFrequency': v,
+          }, (p) => p.copyWith(emailFrequency: v)),
         ),
 
         const SizedBox(height: PSpace.x32),
@@ -237,18 +253,21 @@ class _Content extends ConsumerWidget {
 /// (brand 는 brand-subtle + brandStrong — 별도 purple 토큰 없음, 브랜드 톤 사용.)
 enum _Tone { expense, warning, info, brand, success }
 
-(Color bg, Color fg) _toneColors(_Tone tone, PorestTokens t) =>
-    switch (tone) {
-      _Tone.expense => (t.bgExpenseSubtle, t.fgExpense),
-      _Tone.warning => (t.statusWarningSubtle, t.statusWarningFg),
-      _Tone.info => (t.statusInfoSubtle, t.statusInfoFg),
-      _Tone.brand => (t.bgBrandSubtle, t.fgBrandStrong),
-      _Tone.success => (t.statusSuccessSubtle, t.statusSuccessFg),
-    };
+(Color bg, Color fg) _toneColors(_Tone tone, PorestTokens t) => switch (tone) {
+  _Tone.expense => (t.bgExpenseSubtle, t.fgExpense),
+  _Tone.warning => (t.statusWarningSubtle, t.statusWarningFg),
+  _Tone.info => (t.statusInfoSubtle, t.statusInfoFg),
+  _Tone.brand => (t.bgBrandSubtle, t.fgBrandStrong),
+  _Tone.success => (t.statusSuccessSubtle, t.statusSuccessFg),
+};
 
 /// 행 좌측 tone 아이콘 박스 — layout + tone색은 Container 로 직접 구성(OK).
 class _ToneIcon extends StatelessWidget {
-  const _ToneIcon({required this.icon, required this.tone, this.enabled = true});
+  const _ToneIcon({
+    required this.icon,
+    required this.tone,
+    this.enabled = true,
+  });
   final IconData icon;
   final _Tone tone;
   final bool enabled;
@@ -301,9 +320,7 @@ class _MasterCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  pushEnabled
-                      ? '모든 알림이 활성화되어 있어요'
-                      : '알림이 꺼져 있어요',
+                  pushEnabled ? '모든 알림이 활성화되어 있어요' : '알림이 꺼져 있어요',
                   style: PTypo.caption.copyWith(color: t.fgSecondary),
                 ),
               ],
@@ -324,11 +341,7 @@ class _MasterCard extends StatelessWidget {
 // ── 공용: 섹션 카드 (제목 + 소제목 + child) ──────────────────────────────────
 
 class _SectionCard extends StatelessWidget {
-  const _SectionCard({
-    required this.title,
-    required this.child,
-    this.subtitle,
-  });
+  const _SectionCard({required this.title, required this.child, this.subtitle});
   final String title;
   final String? subtitle;
   final Widget child;
@@ -344,7 +357,11 @@ class _SectionCard extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(
-                PSpace.lg, PSpace.lg, PSpace.lg, PSpace.sm),
+              PSpace.lg,
+              PSpace.lg,
+              PSpace.lg,
+              PSpace.sm,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -376,7 +393,8 @@ class _SectionCard extends StatelessWidget {
 class _RowDivider extends StatelessWidget {
   const _RowDivider();
   @override
-  Widget build(BuildContext context) => PDivider(indent: 64);
+  // 아이콘 밑에서부터 행 전체 폭 — indent 없는 full-width 구분선 (web 정합).
+  Widget build(BuildContext context) => const PDivider();
 }
 
 // ── 알림 종류 토글 행 ─────────────────────────────────────────────────────────
@@ -404,7 +422,9 @@ class _ToggleRow extends StatelessWidget {
     final t = context.tokens;
     return Padding(
       padding: const EdgeInsets.symmetric(
-          horizontal: PSpace.x16, vertical: PSpace.x12),
+        horizontal: PSpace.x16,
+        vertical: PSpace.x12,
+      ),
       child: Row(
         children: [
           _ToneIcon(icon: icon, tone: tone, enabled: enabled),
@@ -512,13 +532,12 @@ class _ThresholdCard extends StatelessWidget {
             semanticLabel: '$value%',
             onChanged: (v) => onChanged(v.round()),
           ),
+          // web 정합 — 50~100 을 10단위 눈금으로 상세 표시 (text-badge/fg-tertiary).
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('50%',
-                  style: PTypo.caption.copyWith(color: t.fgTertiary)),
-              Text('100%',
-                  style: PTypo.caption.copyWith(color: t.fgTertiary)),
+              for (final tick in const [50, 60, 70, 80, 90, 100])
+                Text('$tick', style: PTypo.micro.copyWith(color: t.fgTertiary)),
             ],
           ),
         ],
@@ -555,7 +574,9 @@ class _QuietHoursCard extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(
-                horizontal: PSpace.x16, vertical: PSpace.x12),
+              horizontal: PSpace.x16,
+              vertical: PSpace.x12,
+            ),
             child: Row(
               children: [
                 const _ToneIcon(icon: LucideIcons.moon, tone: _Tone.info),
@@ -592,7 +613,11 @@ class _QuietHoursCard extends StatelessWidget {
           if (enabled)
             Padding(
               padding: const EdgeInsets.fromLTRB(
-                  PSpace.x16, 0, PSpace.x16, PSpace.x12),
+                PSpace.x16,
+                0,
+                PSpace.x16,
+                PSpace.x12,
+              ),
               child: Row(
                 children: [
                   Expanded(
@@ -635,8 +660,9 @@ class _TimeField extends StatefulWidget {
 }
 
 class _TimeFieldState extends State<_TimeField> {
-  late final TextEditingController _ctrl =
-      TextEditingController(text: widget.value);
+  late final TextEditingController _ctrl = TextEditingController(
+    text: widget.value,
+  );
 
   @override
   void didUpdateWidget(_TimeField old) {
@@ -721,7 +747,9 @@ class _SoundCard extends StatelessWidget {
           // 행1 — 알림음 (Select)
           Padding(
             padding: const EdgeInsets.symmetric(
-                horizontal: PSpace.x16, vertical: PSpace.x12),
+              horizontal: PSpace.x16,
+              vertical: PSpace.x12,
+            ),
             child: Row(
               children: [
                 const _ToneIcon(icon: LucideIcons.volume2, tone: _Tone.info),
@@ -756,12 +784,12 @@ class _SoundCard extends StatelessWidget {
                       if (v != null) onSoundChanged(v);
                     },
                     items: const [
+                      PSelectItem(value: NotificationSound.chime, label: '차임'),
                       PSelectItem(
-                          value: NotificationSound.chime, label: '차임'),
-                      PSelectItem(
-                          value: NotificationSound.defaultSound, label: '기본'),
-                      PSelectItem(
-                          value: NotificationSound.none, label: '무음'),
+                        value: NotificationSound.defaultSound,
+                        label: '기본',
+                      ),
+                      PSelectItem(value: NotificationSound.none, label: '무음'),
                     ],
                   ),
                 ),
@@ -772,7 +800,9 @@ class _SoundCard extends StatelessWidget {
           // 행2 — 진동 (Switch)
           Padding(
             padding: const EdgeInsets.symmetric(
-                horizontal: PSpace.x16, vertical: PSpace.x12),
+              horizontal: PSpace.x16,
+              vertical: PSpace.x12,
+            ),
             child: Row(
               children: [
                 const _ToneIcon(icon: LucideIcons.vibrate, tone: _Tone.brand),
@@ -838,7 +868,9 @@ class _EmailCard extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(
-                horizontal: PSpace.x16, vertical: PSpace.x12),
+              horizontal: PSpace.x16,
+              vertical: PSpace.x12,
+            ),
             child: Row(
               children: [
                 const _ToneIcon(icon: LucideIcons.mail, tone: _Tone.info),
@@ -876,7 +908,11 @@ class _EmailCard extends StatelessWidget {
           if (enabled)
             Padding(
               padding: const EdgeInsets.fromLTRB(
-                  PSpace.x16, 0, PSpace.x16, PSpace.x12),
+                PSpace.x16,
+                0,
+                PSpace.x16,
+                PSpace.x12,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -886,12 +922,12 @@ class _EmailCard extends StatelessWidget {
                     value: frequency,
                     onChanged: onFrequencyChanged,
                     options: const [
+                      PSegmentOption(value: EmailFrequency.daily, label: '매일'),
+                      PSegmentOption(value: EmailFrequency.weekly, label: '매주'),
                       PSegmentOption(
-                          value: EmailFrequency.daily, label: '매일'),
-                      PSegmentOption(
-                          value: EmailFrequency.weekly, label: '매주'),
-                      PSegmentOption(
-                          value: EmailFrequency.monthly, label: '매월'),
+                        value: EmailFrequency.monthly,
+                        label: '매월',
+                      ),
                     ],
                   ),
                 ],
@@ -912,14 +948,17 @@ class _PrefsSkeleton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView(
       padding: const EdgeInsets.symmetric(
-          horizontal: PSpace.x20, vertical: PSpace.x24),
+        horizontal: PSpace.x20,
+        vertical: PSpace.x24,
+      ),
       physics: const NeverScrollableScrollPhysics(),
       children: [
         for (int i = 0; i < 4; i++) ...[
           const PSkeleton(
-              width: double.infinity,
-              height: 96,
-              borderRadius: PRadius.brLg),
+            width: double.infinity,
+            height: 96,
+            borderRadius: PRadius.brLg,
+          ),
           const SizedBox(height: PSpace.x20),
         ],
       ],

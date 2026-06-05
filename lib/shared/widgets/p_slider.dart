@@ -5,7 +5,7 @@ import '../../app/theme/tokens.dart';
 /// specs/components/slider.md 미러.
 ///
 /// 연속/단계적 숫자 값 선택 — 볼륨/밝기/가격 범위. Track 4px `bgMuted` +
-/// fill `bgBrand` + thumb 16×16 흰색(`fgOnBrand` 고정) + 2px primary 외곽선.
+/// fill `bgBrandSolid`(web fill=primary 솔리드, 다크 동일) + thumb 16×16 흰색(`fgOnBrand` 고정) + 2px primary 외곽선.
 /// 다크 모드에서도 thumb은 흰색 유지.
 class PSlider extends StatelessWidget {
   const PSlider({
@@ -31,11 +31,11 @@ class PSlider extends StatelessWidget {
     return SliderTheme(
       data: SliderTheme.of(context).copyWith(
         trackHeight: 4,
-        activeTrackColor: t.bgBrand,
+        activeTrackColor: t.bgBrandSolid,
         inactiveTrackColor: t.bgMuted,
         thumbColor: t.fgOnBrand,
-        overlayColor: t.bgBrand.withValues(alpha: 0.12),
-        thumbShape: _PrimaryRingThumb(borderColor: t.bgBrand),
+        overlayColor: t.bgBrandSolid.withValues(alpha: 0.12),
+        thumbShape: _PrimaryRingThumb(borderColor: t.bgBrandSolid),
         trackShape: const RoundedRectSliderTrackShape(),
       ),
       child: Slider(
@@ -111,11 +111,13 @@ class PRangeSlider extends StatelessWidget {
     return SliderTheme(
       data: SliderTheme.of(context).copyWith(
         trackHeight: 4,
-        activeTrackColor: t.bgBrand,
+        activeTrackColor: t.bgBrandSolid,
         inactiveTrackColor: t.bgMuted,
-        rangeThumbShape: const RoundRangeSliderThumbShape(enabledThumbRadius: 8),
+        rangeThumbShape: const RoundRangeSliderThumbShape(
+          enabledThumbRadius: 8,
+        ),
         thumbColor: t.fgOnBrand,
-        overlayColor: t.bgBrand.withValues(alpha: 0.12),
+        overlayColor: t.bgBrandSolid.withValues(alpha: 0.12),
       ),
       child: RangeSlider(
         values: values,

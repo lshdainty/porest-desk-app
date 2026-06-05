@@ -10,7 +10,7 @@ import '../../app/theme/typography.dart';
 /// binary 입력은 [PCheckbox], 3+ 옵션은 [PRadio]/SegmentedControl.
 ///
 /// iOS 스타일 — Track 44×24 + Thumb 20×20 흰색. unchecked=borderStrong /
-/// checked=bgBrand. thumb은 다크모드에서도 흰색 유지(`fgOnBrand` 고정).
+/// checked=bgBrandSolid(web on=primary 솔리드, 다크 동일). thumb은 다크모드에서도 흰색 유지(`fgOnBrand` 고정).
 class PSwitch extends StatelessWidget {
   const PSwitch({
     super.key,
@@ -34,7 +34,8 @@ class PSwitch extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final disabled = onChanged == null;
-    final trackBg = value ? t.bgBrand : t.borderStrong;
+    // web switch on=primary 솔리드(다크 동일) 정합 — bgBrand(다크=light)가 아닌 solid.
+    final trackBg = value ? t.bgBrandSolid : t.borderStrong;
 
     final track = AnimatedContainer(
       duration: PMotion.fast,
@@ -69,11 +70,7 @@ class PSwitch extends StatelessWidget {
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: disabled ? null : () => onChanged!(!value),
-        child: SizedBox(
-          height: 44,
-          width: 56,
-          child: Center(child: track),
-        ),
+        child: SizedBox(height: 44, width: 56, child: Center(child: track)),
       ),
     );
   }
