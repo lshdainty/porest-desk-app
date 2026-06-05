@@ -8,8 +8,6 @@ import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/auth/auth_notifier.dart';
-import '../../../shared/widgets/p_avatar.dart';
-import '../../../shared/widgets/p_badge.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_card.dart';
 import '../../../shared/widgets/p_divider.dart';
@@ -17,10 +15,11 @@ import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_switch.dart';
 import 'password_change_dialog.dart';
 
-/// 계정 상세 화면 — web AccountSection 미러.
+/// 계정 상세 화면 — web AccountSection 1:1 미러.
 ///
+/// 프로필(중앙 정렬 헤더) + 보안 + 연결된 계정 + 구독·결제 + 계정 관리.
 /// 기능 연동: 프로필 표시, 비밀번호 변경, 로그아웃.
-/// UI only: 2FA, 생체인증, 기기목록, 소셜 연결, 구독/결제, 회원탈퇴.
+/// UI only: 2FA, 생체인증, 기기/기록, 소셜 연결, 구독/결제, 회원탈퇴.
 class AccountScreen extends ConsumerStatefulWidget {
   const AccountScreen({super.key});
 
@@ -35,6 +34,9 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final user = ref.watch(authProvider).value;
+    final nameInitial = user != null && user.userName.isNotEmpty
+        ? user.userName[0].toUpperCase()
+        : '?';
 
     return Scaffold(
       backgroundColor: t.bgCanvas,
@@ -50,196 +52,240 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
       ),
       body: ListView(
         padding: const EdgeInsets.symmetric(
-            horizontal: PSpace.x20, vertical: PSpace.x24),
+          horizontal: PSpace.x20,
+          vertical: PSpace.x24,
+        ),
         children: [
-          // 프로필 카드
+          // ── 프로필 헤더 — web: 중앙 정렬 avatar 72 + 이름 + 이메일 + 편집/Pro + 가입 시기
           PCard(
             variant: PCardVariant.shadow,
-            child: Padding(
-              padding: const EdgeInsets.all(PSpace.x16),
-              child: Row(
-                children: [
-                  PAvatar(
-                    size: PAvatarSize.xl,
-                    fill: PAvatarFill.primary,
-                    fallbackText: user != null && user.userName.isNotEmpty
-                        ? user.userName[0].toUpperCase()
-                        : '?',
+            padding: const EdgeInsets.symmetric(
+              vertical: 28,
+              horizontal: PSpace.x24,
+            ),
+            child: Column(
+              children: [
+                Container(
+                  width: 72,
+                  height: 72,
+                  decoration: BoxDecoration(
+                    color: t.bgBrand,
+                    shape: BoxShape.circle,
                   ),
-                  const SizedBox(width: PSpace.x16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Text(
-                              user?.userName ?? '-',
-                              style: TextStyle(
-                                fontFamily: PTypo.sans,
-                                fontSize: PFontSize.titleMd,
-                                fontWeight: PFontWeight.bold,
-                                color: t.fgPrimary,
-                              ),
-                            ),
-                            const SizedBox(width: PSpace.xs),
-                            PBadge(
-                              label: 'Free',
-                              variant: PBadgeVariant.secondary,
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          user?.userEmail ?? '-',
-                          style: TextStyle(
-                            fontFamily: PTypo.sans,
-                            fontSize: PFontSize.bodySm,
-                            color: t.fgTertiary,
-                          ),
-                        ),
-                      ],
+                  alignment: Alignment.center,
+                  child: Text(
+                    nameInitial,
+                    style: TextStyle(
+                      fontFamily: PTypo.sans,
+                      fontSize: 24,
+                      fontWeight: PFontWeight.bold,
+                      color: t.fgOnBrand,
                     ),
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(height: PSpace.x12),
+                Text(
+                  user?.userName ?? '사용자',
+                  style: TextStyle(
+                    fontFamily: PTypo.sans,
+                    fontSize: 17,
+                    fontWeight: PFontWeight.bold,
+                    color: t.fgPrimary,
+                    letterSpacing: -0.34,
+                  ),
+                ),
+                const SizedBox(height: PSpace.x8),
+                Text(
+                  user?.userEmail ?? '',
+                  style: TextStyle(
+                    fontFamily: PTypo.sans,
+                    fontSize: 13,
+                    color: t.fgTertiary,
+                  ),
+                ),
+                const SizedBox(height: PSpace.x12),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    PButton(
+                      label: '✎ 편집',
+                      variant: PButtonVariant.ghost,
+                      size: PButtonSize.sm,
+                      onPressed: () => showPSnackBar(context, '프로필 편집은 준비중입니다'),
+                    ),
+                    const SizedBox(width: PSpace.x8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: t.bgBrandSubtle,
+                        borderRadius: PRadius.brSm,
+                      ),
+                      child: Text(
+                        'Pro',
+                        style: TextStyle(
+                          fontFamily: PTypo.sans,
+                          fontSize: 11,
+                          fontWeight: PFontWeight.bold,
+                          color: t.fgBrandStrong,
+                          letterSpacing: 0.22,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: PSpace.x8),
+                Text(
+                  '가입 2024년 11월',
+                  style: TextStyle(
+                    fontFamily: PTypo.sans,
+                    fontSize: 12,
+                    color: t.fgTertiary,
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: PSpace.x24),
+          const SizedBox(height: PSpace.x20),
 
-          // 보안
+          // ── 보안 — web: desc 우측 정렬 + chevron/switch
           _SectionLabel(label: '보안', tokens: t),
           const SizedBox(height: PSpace.x8),
           PCard(
             variant: PCardVariant.shadow,
+            padding: EdgeInsets.zero,
             child: Column(
               children: [
-                _ActionRow(
+                _AccountRow(
                   icon: LucideIcons.key,
                   label: '비밀번호 변경',
+                  desc: '최근 변경 없음',
+                  chevron: true,
                   tokens: t,
                   onTap: () => showPasswordChangeDialog(context),
                 ),
-                PDivider(indent: 46),
-                PSwitchTile(
-                  title: '2단계 인증',
-                  subtitle: '로그인 시 추가 인증 요구 (준비중)',
-                  value: _twoFa,
-                  onChanged: (v) => setState(() => _twoFa = v),
-                  leading: Icon(LucideIcons.shieldCheck,
-                      size: 18, color: t.fgSecondary),
-                ),
-                PDivider(indent: 46),
-                PSwitchTile(
-                  title: '생체 인증',
-                  subtitle: '준비중',
-                  value: false,
-                  onChanged: null,
-                  leading:
-                      Icon(LucideIcons.fingerprint, size: 18, color: t.fgDisabled),
-                ),
-                PDivider(indent: 46),
-                _ActionRow(
+                const PDivider(),
+                _AccountRow(
                   icon: LucideIcons.monitor,
-                  label: '기기 · 로그인 기록',
-                  desc: '준비중',
+                  label: '2단계 인증',
+                  desc: _twoFa ? '사용 중' : '사용 안 함',
                   tokens: t,
-                  onTap: null,
+                  trailing: PSwitch(
+                    value: _twoFa,
+                    onChanged: (v) => setState(() => _twoFa = v),
+                  ),
+                ),
+                const PDivider(),
+                _AccountRow(
+                  icon: LucideIcons.fingerprint,
+                  label: '생체 인증',
+                  desc: '준비중',
+                  dimmed: true,
+                  tokens: t,
+                ),
+                const PDivider(),
+                _AccountRow(
+                  icon: LucideIcons.monitor,
+                  label: '로그인된 기기',
+                  desc: '현재 기기',
+                  chevron: true,
+                  tokens: t,
+                ),
+                const PDivider(),
+                _AccountRow(
+                  icon: LucideIcons.calendarDays,
+                  label: '로그인 기록',
+                  desc: '최근 30일',
+                  chevron: true,
+                  tokens: t,
                 ),
               ],
             ),
           ),
-          const SizedBox(height: PSpace.x24),
+          const SizedBox(height: PSpace.x20),
 
-          // 연결된 계정
+          // ── 연결된 계정 — web: 레터 아이콘 + '연결 안 됨' + 연결 버튼
           _SectionLabel(label: '연결된 계정', tokens: t),
           const SizedBox(height: PSpace.x8),
           PCard(
             variant: PCardVariant.shadow,
+            padding: EdgeInsets.zero,
             child: Column(
               children: [
                 for (final social in _socialItems) ...[
-                  if (social != _socialItems.first) PDivider(indent: 46),
-                  _SocialRow(item: social, tokens: t),
+                  if (social != _socialItems.first) const PDivider(),
+                  _AccountRow(
+                    letter: social.letter,
+                    label: social.name,
+                    desc: '연결 안 됨',
+                    tokens: t,
+                    trailing: PButton(
+                      label: '연결',
+                      variant: PButtonVariant.outline,
+                      size: PButtonSize.sm,
+                      onPressed: () =>
+                          showPSnackBar(context, '${social.name} 연결은 준비중입니다'),
+                    ),
+                  ),
                 ],
               ],
             ),
           ),
-          const SizedBox(height: PSpace.x24),
+          const SizedBox(height: PSpace.x20),
 
-          // 구독·결제
+          // ── 구독·결제 — web: Porest Free / 플랜 업그레이드 2행
           _SectionLabel(label: '구독·결제', tokens: t),
           const SizedBox(height: PSpace.x8),
           PCard(
             variant: PCardVariant.shadow,
-            child: Padding(
-              padding: const EdgeInsets.all(PSpace.x16),
-              child: Row(
-                children: [
-                  Container(
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      color: t.bgBrandSubtle,
-                      borderRadius: PRadius.brSm,
-                    ),
-                    alignment: Alignment.center,
-                    child: Icon(LucideIcons.star, size: 16, color: t.fgBrand),
-                  ),
-                  const SizedBox(width: PSpace.x12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Porest Free',
-                            style: TextStyle(
-                              fontFamily: PTypo.sans,
-                              fontSize: PFontSize.body,
-                              fontWeight: PFontWeight.semi,
-                              color: t.fgPrimary,
-                            )),
-                        Text('현재 플랜',
-                            style: TextStyle(
-                              fontFamily: PTypo.sans,
-                              fontSize: PFontSize.caption,
-                              color: t.fgTertiary,
-                            )),
-                      ],
-                    ),
-                  ),
-                  PButton(
-                    label: '업그레이드',
-                    variant: PButtonVariant.outline,
-                    size: PButtonSize.sm,
-                    onPressed: () => showPSnackBar(context, '구독 기능은 준비중입니다'),
-                  ),
-                ],
-              ),
+            padding: EdgeInsets.zero,
+            child: Column(
+              children: [
+                _AccountRow(
+                  icon: LucideIcons.bookmark,
+                  label: 'Porest Free',
+                  desc: '무료 플랜 사용 중',
+                  tokens: t,
+                ),
+                const PDivider(),
+                _AccountRow(
+                  icon: LucideIcons.target,
+                  label: '플랜 업그레이드',
+                  desc: 'Pro 9,900원/월',
+                  chevron: true,
+                  tokens: t,
+                  onTap: () => showPSnackBar(context, '구독 기능은 준비중입니다'),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: PSpace.x24),
+          const SizedBox(height: PSpace.x20),
 
-          // 계정 관리
+          // ── 계정 관리 — web: 로그아웃(일반) / 회원 탈퇴(danger)
           _SectionLabel(label: '계정 관리', tokens: t),
           const SizedBox(height: PSpace.x8),
           PCard(
             variant: PCardVariant.shadow,
+            padding: EdgeInsets.zero,
             child: Column(
               children: [
-                _ActionRow(
+                _AccountRow(
                   icon: LucideIcons.logOut,
                   label: '로그아웃',
-                  iconColor: t.statusDanger,
-                  labelColor: t.statusDanger,
+                  desc: '이 기기에서만',
+                  chevron: true,
                   tokens: t,
                   onTap: () => _confirmLogout(context, ref),
                 ),
-                PDivider(indent: 46),
-                _ActionRow(
-                  icon: LucideIcons.userX,
-                  label: '회원탈퇴',
-                  iconColor: t.fgTertiary,
-                  labelColor: t.fgTertiary,
+                const PDivider(),
+                _AccountRow(
+                  icon: LucideIcons.trash2,
+                  label: '회원 탈퇴',
+                  desc: '영구 삭제',
+                  iconColor: t.statusDanger,
+                  labelColor: t.statusDanger,
                   tokens: t,
                   onTap: () => _confirmWithdraw(context),
                 ),
@@ -261,11 +307,13 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
         content: const Text('정말 로그아웃 하시겠어요?'),
         actions: [
           TextButton(
-              onPressed: () => Navigator.of(ctx).pop(false),
-              child: const Text('취소')),
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('취소'),
+          ),
           TextButton(
-              onPressed: () => Navigator.of(ctx).pop(true),
-              child: const Text('로그아웃')),
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('로그아웃'),
+          ),
         ],
       ),
     );
@@ -278,12 +326,13 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
     await showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('회원탈퇴'),
-        content: const Text('탈퇴 시 모든 데이터가 영구 삭제됩니다.\n이 기능은 현재 준비중입니다.'),
+        title: const Text('정말 탈퇴하시겠습니까?'),
+        content: const Text('회원 탈퇴 시 모든 데이터가 영구적으로 삭제됩니다.\n이 작업은 되돌릴 수 없습니다.'),
         actions: [
           TextButton(
-              onPressed: () => Navigator.of(ctx).pop(),
-              child: const Text('확인')),
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('확인'),
+          ),
         ],
       ),
     );
@@ -291,112 +340,103 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
 }
 
 const _socialItems = [
-  _SocialItem(icon: LucideIcons.chrome, name: 'Google'),
-  _SocialItem(icon: LucideIcons.apple, name: 'Apple'),
-  _SocialItem(icon: LucideIcons.messageCircle, name: '카카오'),
-  _SocialItem(icon: LucideIcons.navigation, name: '네이버'),
+  _SocialItem(letter: 'G', name: 'Google'),
+  _SocialItem(letter: 'A', name: 'Apple ID'),
+  _SocialItem(letter: 'K', name: '카카오'),
+  _SocialItem(letter: 'N', name: '네이버'),
 ];
 
 class _SocialItem {
-  const _SocialItem({required this.icon, required this.name});
-  final IconData icon;
+  const _SocialItem({required this.letter, required this.name});
+  final String letter;
   final String name;
 }
 
-class _SocialRow extends StatelessWidget {
-  const _SocialRow({required this.item, required this.tokens});
-  final _SocialItem item;
-  final PorestTokens tokens;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-          horizontal: PSpace.x16, vertical: PSpace.x12),
-      child: Row(
-        children: [
-          Icon(item.icon, size: 18, color: tokens.fgSecondary),
-          const SizedBox(width: PSpace.x12),
-          Expanded(
-            child: Text(item.name,
-                style: TextStyle(
-                  fontFamily: PTypo.sans,
-                  fontSize: PFontSize.body,
-                  fontWeight: PFontWeight.semi,
-                  color: tokens.fgPrimary,
-                )),
-          ),
-          PButton(
-            label: '연결',
-            variant: PButtonVariant.outline,
-            size: PButtonSize.sm,
-            onPressed: () => showPSnackBar(context, '${item.name} 연결은 준비중입니다'),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ActionRow extends StatelessWidget {
-  const _ActionRow({
-    required this.icon,
+/// web AccountRow 미러 — [icon|letter] + 라벨(flex) + desc(우측 정렬) + trailing.
+class _AccountRow extends StatelessWidget {
+  const _AccountRow({
     required this.label,
     required this.tokens,
+    this.icon,
+    this.letter,
     this.desc,
+    this.trailing,
+    this.chevron = false,
+    this.dimmed = false,
     this.iconColor,
     this.labelColor,
     this.onTap,
   });
-  final IconData icon;
+
+  final IconData? icon;
+  final String? letter;
   final String label;
   final String? desc;
-  final PorestTokens tokens;
+  final Widget? trailing;
+  final bool chevron;
+  final bool dimmed;
   final Color? iconColor;
   final Color? labelColor;
+  final PorestTokens tokens;
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    final enabled = onTap != null;
+    final t = tokens;
+    final fgIcon = dimmed ? t.fgDisabled : (iconColor ?? t.fgSecondary);
+    final fgLabel = dimmed ? t.fgDisabled : (labelColor ?? t.fgPrimary);
     return InkWell(
       onTap: onTap,
       child: Padding(
+        // web row '14px 16px' 정합.
         padding: const EdgeInsets.symmetric(
-            horizontal: PSpace.x16, vertical: PSpace.x12),
+          horizontal: PSpace.x16,
+          vertical: 14,
+        ),
         child: Row(
           children: [
-            Icon(icon,
-                size: 18,
-                color: enabled
-                    ? (iconColor ?? tokens.fgSecondary)
-                    : tokens.fgDisabled),
-            const SizedBox(width: PSpace.x12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(label,
+            // web: 24px 아이콘 슬롯 (레터 아이콘은 15/700 텍스트)
+            SizedBox(
+              width: 24,
+              child: letter != null
+                  ? Text(
+                      letter!,
+                      textAlign: TextAlign.center,
                       style: TextStyle(
                         fontFamily: PTypo.sans,
-                        fontSize: PFontSize.body,
-                        fontWeight: PFontWeight.semi,
-                        color: enabled
-                            ? (labelColor ?? tokens.fgPrimary)
-                            : tokens.fgDisabled,
-                      )),
-                  if (desc != null)
-                    Text(desc!,
-                        style: TextStyle(
-                          fontFamily: PTypo.sans,
-                          fontSize: PFontSize.caption,
-                          color: tokens.fgTertiary,
-                        )),
-                ],
+                        fontSize: 15,
+                        fontWeight: PFontWeight.bold,
+                        color: fgIcon,
+                      ),
+                    )
+                  : Icon(icon, size: 18, color: fgIcon),
+            ),
+            const SizedBox(width: PSpace.x12),
+            Expanded(
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontFamily: PTypo.sans,
+                  fontSize: PFontSize.body,
+                  fontWeight: PFontWeight.semi,
+                  color: fgLabel,
+                ),
               ),
             ),
-            if (enabled)
-              Icon(LucideIcons.chevronRight, size: 14, color: tokens.fgTertiary),
+            if (desc != null) ...[
+              Text(
+                desc!,
+                style: TextStyle(
+                  fontFamily: PTypo.sans,
+                  fontSize: PFontSize.caption,
+                  color: t.fgTertiary,
+                ),
+              ),
+              if (trailing != null || chevron) const SizedBox(width: PSpace.x8),
+            ],
+            ?trailing,
+            if (chevron)
+              Icon(LucideIcons.chevronRight, size: 16, color: t.fgTertiary),
           ],
         ),
       ),
@@ -413,13 +453,15 @@ class _SectionLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(left: 2),
-      child: Text(label,
-          style: TextStyle(
-            fontFamily: PTypo.sans,
-            fontSize: PFontSize.caption,
-            fontWeight: PFontWeight.bold,
-            color: tokens.fgPrimary,
-          )),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontFamily: PTypo.sans,
+          fontSize: PFontSize.caption,
+          fontWeight: PFontWeight.bold,
+          color: tokens.fgPrimary,
+        ),
+      ),
     );
   }
 }
