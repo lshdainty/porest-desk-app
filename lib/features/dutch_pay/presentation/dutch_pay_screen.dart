@@ -14,7 +14,6 @@ import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_card.dart';
 import '../../../shared/widgets/p_floating_action_button.dart';
-import '../../../shared/widgets/p_segmented.dart';
 import '../../../shared/widgets/p_skeleton.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 import '../application/dutch_pay_providers.dart';
@@ -144,15 +143,18 @@ class _DutchPayScreenState extends ConsumerState<DutchPayScreen> {
         ),
         const SizedBox(height: PSpace.md),
 
-        // ── 탭 3종 ──
-        PSegmented<_DutchTab>(
-          value: _tab,
-          onChanged: (v) => setState(() => _tab = v),
-          options: [
-            PSegmentOption(value: _DutchTab.active, label: '진행 중 · ${active.length}'),
-            PSegmentOption(value: _DutchTab.past, label: '완료 · ${past.length}'),
-            const PSegmentOption(value: _DutchTab.friends, label: '친구'),
-          ],
+        // ── 탭 3종 (중립 세그 — sunken 바 + active raised surface, 콘텐츠 너비) ──
+        Align(
+          alignment: Alignment.centerLeft,
+          child: _DutchSegTabs(
+            value: _tab,
+            onChanged: (v) => setState(() => _tab = v),
+            options: [
+              (_DutchTab.active, '진행 중 · ${active.length}'),
+              (_DutchTab.past, '완료 · ${past.length}'),
+              (_DutchTab.friends, '친구'),
+            ],
+          ),
         ),
         const SizedBox(height: PSpace.md),
 
@@ -327,6 +329,77 @@ class _FriendAgg {
 }
 
 // ─────────────────────────────────────────────────────────────
+// 날짜 포맷 — 'YYYY-MM-DD'(또는 datetime) → 'M월 D일'
+// ─────────────────────────────────────────────────────────────
+
+String dutchKDate(String? iso) {
+  if (iso == null || iso.isEmpty) return '';
+  final s = iso.length >= 10 ? iso.substring(0, 10) : iso;
+  final parts = s.split('-');
+  if (parts.length < 3) return iso;
+  final m = int.tryParse(parts[1]);
+  final d = int.tryParse(parts[2]);
+  if (m == null || d == null) return iso;
+  return '$m월 $d일';
+}
+
+// ─────────────────────────────────────────────────────────────
+// 중립 세그 탭 — sunken 바 위에 active 만 raised surface(bg-surface + shadow).
+// brand 색을 쓰지 않는 중립 토글(클로드 더치페이 탭 미러). 콘텐츠 너비.
+// ─────────────────────────────────────────────────────────────
+
+class _DutchSegTabs extends StatelessWidget {
+  const _DutchSegTabs({
+    required this.value,
+    required this.onChanged,
+    required this.options,
+  });
+  final _DutchTab value;
+  final ValueChanged<_DutchTab> onChanged;
+  final List<(_DutchTab, String)> options;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return Container(
+      padding: const EdgeInsets.all(3),
+      decoration: BoxDecoration(
+        color: t.bgSunken,
+        borderRadius: PRadius.brMd,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (final (tab, label) in options)
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => onChanged(tab),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 150),
+                curve: Curves.easeOut,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                decoration: BoxDecoration(
+                  color: tab == value ? t.bgSurface : Colors.transparent,
+                  borderRadius: PRadius.brSm,
+                  boxShadow: tab == value ? t.shadowSm : null,
+                ),
+                child: Text(
+                  label,
+                  style: PTypo.caption.copyWith(
+                    color: tab == value ? t.fgPrimary : t.fgSecondary,
+                    fontWeight: PFontWeight.semi,
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
 // 아바타 팔레트 — 이름 기반 chart 10색 순환 (라이트/다크 자동 swap).
 // ─────────────────────────────────────────────────────────────
 
@@ -367,7 +440,7 @@ class DutchAvatar extends StatelessWidget {
         width: size,
         height: size,
         decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.18),
+          color: color,
           shape: BoxShape.circle,
           border: borderColor == null
               ? null
@@ -377,7 +450,7 @@ class DutchAvatar extends StatelessWidget {
         child: Text(
           ch,
           style: PTypo.caption.copyWith(
-            color: color,
+            color: Colors.white,
             fontWeight: PFontWeight.bold,
             fontSize: size * 0.38,
           ),
@@ -512,7 +585,7 @@ class _SessionCard extends StatelessWidget {
     final progress = total == 0 ? 0.0 : paid / total;
     final perPerson = total == 0 ? 0 : dp.totalAmount ~/ total;
     final place = (dp.description ?? '').trim();
-    final date = dp.dutchPayDate ?? '';
+    final date = dutchKDate(dp.dutchPayDate);
     final sub = place.isEmpty ? date : '$place · $date';
 
     return PCard(
@@ -687,7 +760,7 @@ class _PastRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final n = dp.participants.length;
-    final date = dp.dutchPayDate ?? '';
+    final date = dutchKDate(dp.dutchPayDate);
     return InkWell(
       onTap: onTap,
       child: Container(

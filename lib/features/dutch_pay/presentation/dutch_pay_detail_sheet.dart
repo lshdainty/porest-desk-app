@@ -14,7 +14,7 @@ import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_snack_bar.dart';
 import '../application/dutch_pay_providers.dart';
 import '../domain/dutch_pay.dart';
-import 'dutch_pay_screen.dart' show DutchAvatar;
+import 'dutch_pay_screen.dart' show DutchAvatar, dutchKDate;
 
 /// 더치페이 세션 상세 시트 (web `DutchDetailDialog` 미러).
 ///
@@ -80,7 +80,7 @@ class _Body extends ConsumerWidget {
     final paid = dp.participants.where((p) => p.isPaid).length;
     final perPerson = total == 0 ? 0 : dp.totalAmount ~/ total;
     final place = (dp.description ?? '').trim();
-    final date = dp.dutchPayDate ?? '';
+    final date = dutchKDate(dp.dutchPayDate);
     final heroSub = place.isEmpty ? date : '$place · $date';
     final allPaid = total > 0 && paid == total;
 
