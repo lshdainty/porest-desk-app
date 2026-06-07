@@ -24,9 +24,10 @@ void showTodoEditDialog(BuildContext context, {Todo? edit}) {
   showPSheet<void>(
     context,
     title: edit == null ? '할 일 추가' : '할 일 수정',
-    contentBuilder: (ctx, scrollCtrl) => _Body(
+    // 컨텐츠 높이에 맞춰 wrap (web 다이얼로그처럼) — 기본 0.85 강제 높이 사용 X.
+    shrinkWrap: true,
+    contentBuilder: (ctx, _) => _Body(
       edit: edit,
-      scrollController: scrollCtrl,
       controller: controller,
     ),
     footerBuilder: (ctx) => PSheetFooter(
@@ -39,11 +40,9 @@ void showTodoEditDialog(BuildContext context, {Todo? edit}) {
 class _Body extends ConsumerStatefulWidget {
   const _Body({
     this.edit,
-    required this.scrollController,
     required this.controller,
   });
   final Todo? edit;
-  final ScrollController scrollController;
   final PSheetController controller;
   @override
   ConsumerState<_Body> createState() => _BodyState();
@@ -162,11 +161,12 @@ class _BodyState extends ConsumerState<_Body> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) widget.controller.setCanSubmit(_canSubmit);
     });
-    return ListView(
-      controller: widget.scrollController,
+    return Padding(
       padding: const EdgeInsets.fromLTRB(
           PSpace.x16, 0, PSpace.x16, PSpace.x16),
-      children: [
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
           Text('제목', style: PTypo.caption.copyWith(color: t.fgSecondary)),
           const SizedBox(height: PSpace.x4),
           PTextInput(
@@ -295,7 +295,8 @@ class _BodyState extends ConsumerState<_Body> {
             const SizedBox(height: PSpace.x16),
             _SubtaskSection(parentId: widget.edit!.rowId, tokens: t),
           ],
-      ],
+        ],
+      ),
     );
   }
 }

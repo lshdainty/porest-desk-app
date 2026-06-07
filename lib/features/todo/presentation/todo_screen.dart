@@ -426,7 +426,10 @@ class _StatCard extends StatelessWidget {
 }
 
 /// 퀵추가 카드 — plus 아이콘 + 투명 input + 추가/자세히 버튼.
-class _QuickAdd extends StatelessWidget {
+///
+/// input 자체엔 박스(테두리/배경) 없이 투명 처리하고, 포커스 시 바깥쪽 카드
+/// 전체에 border-focus 보더를 입혀 포커스 상태를 표시(web `:focus-within` 정합).
+class _QuickAdd extends StatefulWidget {
   const _QuickAdd({
     required this.controller,
     required this.adding,
@@ -443,13 +446,42 @@ class _QuickAdd extends StatelessWidget {
   final PorestTokens t;
 
   @override
+  State<_QuickAdd> createState() => _QuickAddState();
+}
+
+class _QuickAddState extends State<_QuickAdd> {
+  final _focusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode.addListener(_onFocusChange);
+  }
+
+  void _onFocusChange() => setState(() {});
+
+  @override
+  void dispose() {
+    _focusNode.removeListener(_onFocusChange);
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final t = widget.t;
+    final focused = _focusNode.hasFocus;
     return Container(
       padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
         color: t.bgSurface,
         borderRadius: PRadius.brLg,
         boxShadow: t.shadowSm,
+        // 항상 1.5px 보더를 예약(transparent)해 포커스 전환 시 레이아웃 흔들림 방지.
+        border: Border.all(
+          color: focused ? t.borderFocus : Colors.transparent,
+          width: 1.5,
+        ),
       ),
       child: Row(
         children: [
@@ -460,35 +492,44 @@ class _QuickAdd extends StatelessWidget {
           ),
           Expanded(
             child: TextField(
-              controller: controller,
-              enabled: !adding,
+              controller: widget.controller,
+              focusNode: _focusNode,
+              enabled: !widget.adding,
               style: PTypo.body.copyWith(color: t.fgPrimary),
               cursorColor: t.fgBrand,
               decoration: InputDecoration(
                 isCollapsed: true,
                 contentPadding: const EdgeInsets.symmetric(vertical: 8),
+                // input 자체는 박스 없이 완전 투명 — 포커스 표시는 바깥 카드가 담당.
+                filled: false,
                 border: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                disabledBorder: InputBorder.none,
+                errorBorder: InputBorder.none,
+                focusedErrorBorder: InputBorder.none,
                 hintText: '할 일을 입력하고 Enter',
                 hintStyle: PTypo.body.copyWith(color: t.fgPlaceholder),
               ),
-              onChanged: (_) => onChanged(),
-              onSubmitted: (_) => onAdd(),
+              onChanged: (_) => widget.onChanged(),
+              onSubmitted: (_) => widget.onAdd(),
             ),
           ),
           const SizedBox(width: 4),
           PButton(
             label: '추가',
             size: PButtonSize.sm,
-            loading: adding,
-            onPressed: adding ? null : onAdd,
+            loading: widget.adding,
+            onPressed: widget.adding ? null : widget.onAdd,
           ),
           const SizedBox(width: 4),
-          PButton.icon(
+          PButton(
+            label: '자세히',
             icon: LucideIcons.settings2,
             size: PButtonSize.sm,
             variant: PButtonVariant.outline,
             tooltip: '자세히',
-            onPressed: onDetail,
+            onPressed: widget.onDetail,
           ),
         ],
       ),
