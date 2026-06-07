@@ -300,35 +300,39 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
         ),
         const SizedBox(height: PSpace.md),
 
-        // ── 리스트 (마감일 그룹) or 빈 상태 ──
-        if (filtered.isEmpty)
-          _EmptyTodo(tab: _tab)
-        else
-          PCard(
-            variant: PCardVariant.bordered,
-            padding: const EdgeInsets.symmetric(horizontal: PSpace.x16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                for (final key in groupKeys) ...[
-                  _GroupHeader(
-                    label: todoGroupLabel(
-                      key.isEmpty ? null : DateTime.parse(key),
-                      groups[key]!.length,
-                    ),
-                    t: t,
-                  ),
-                  for (final todo in groups[key]!)
-                    _TodoRow(
-                      todo: todo,
-                      today: today,
-                      onToggle: () => _toggleDone(todo),
-                      onTap: () => showTodoEditDialog(context, edit: todo),
-                    ),
-                ],
-              ],
-            ),
-          ),
+        // ── 리스트 (마감일 그룹) or 빈 상태 — 둘 다 카드 안에 (web 정합) ──
+        PCard(
+          variant: PCardVariant.bordered,
+          padding: filtered.isEmpty
+              ? EdgeInsets.zero
+              : const EdgeInsets.symmetric(horizontal: PSpace.x16),
+          child: filtered.isEmpty
+              ? SizedBox(
+                  width: double.infinity,
+                  child: _EmptyTodo(tab: _tab),
+                )
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    for (final key in groupKeys) ...[
+                      _GroupHeader(
+                        label: todoGroupLabel(
+                          key.isEmpty ? null : DateTime.parse(key),
+                          groups[key]!.length,
+                        ),
+                        t: t,
+                      ),
+                      for (final todo in groups[key]!)
+                        _TodoRow(
+                          todo: todo,
+                          today: today,
+                          onToggle: () => _toggleDone(todo),
+                          onTap: () => showTodoEditDialog(context, edit: todo),
+                        ),
+                    ],
+                  ],
+                ),
+        ),
       ],
     );
   }
