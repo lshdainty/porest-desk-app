@@ -64,7 +64,7 @@ List<_SettingsGroup> _buildGroups(BuildContext ctx) => [
     label: '공유·소통',
     items: [
       _SettingsItem(
-        icon: LucideIcons.calendar1,
+        icon: LucideIcons.calendarCog,
         label: '캘린더 관리·공유',
         onTap: (c) => c.push('/settings/calendar-share'),
       ),
