@@ -1,5 +1,5 @@
 {
   "APP_ENV": "prod",
-  "API_BASE": "https://REPLACE-WITH-PROD-API-HOST",
-  "SSO_URL": "https://REPLACE-WITH-PROD-SSO-HOST"
+  "API_BASE": "https://desk.porest.cloud",
+  "SSO_URL": "https://sso.porest.cloud"
 }
