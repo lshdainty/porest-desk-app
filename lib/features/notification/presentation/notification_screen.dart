@@ -258,7 +258,7 @@ class _NotiRow extends StatelessWidget {
   /// EVENT_REMINDER→CalendarClock / SYSTEM·default→Bell.
   IconData _typeIcon() => switch (noti.notificationType) {
     'BUDGET_ALERT' => LucideIcons.alertTriangle,
-    'TODO_REMINDER' => LucideIcons.listChecks,
+    'TODO_REMINDER' => LucideIcons.squareCheckBig,
     'EVENT_REMINDER' => LucideIcons.calendarClock,
     _ => LucideIcons.bell,
   };

@@ -41,7 +41,7 @@ List<_NavGroup> _buildGroups(BuildContext ctx) => [
   ]),
   _NavGroup(label: '일상', items: [
     _NavItem(label: '캘린더', icon: LucideIcons.calendar1, desc: '일정 · 반복 · 알림', onTap: (c) => c.go('/calendar')),
-    _NavItem(label: '할 일', icon: LucideIcons.listChecks, desc: '마감 · 우선순위 · 태그', onTap: (c) => c.push('/todos')),
+    _NavItem(label: '할 일', icon: LucideIcons.squareCheckBig, desc: '마감 · 우선순위 · 태그', onTap: (c) => c.push('/todos')),
     _NavItem(label: '메모', icon: LucideIcons.fileText, desc: '분류 · 고정 · 검색', onTap: (c) => c.push('/memos')),
     _NavItem(label: '더치페이', icon: LucideIcons.users, desc: '정산 · 친구 · 송금 요청', onTap: (c) => c.push('/dutch-pay')),
     _NavItem(label: '카드 혜택', icon: LucideIcons.creditCard, desc: '신용·체크 카드 검색', onTap: (c) => c.push('/card-benefits')),
