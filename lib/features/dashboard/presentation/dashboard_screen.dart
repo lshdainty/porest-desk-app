@@ -237,7 +237,7 @@ class _UpcomingCard extends StatelessWidget {
           if (todos.isNotEmpty) ...[
             Row(
               children: [
-                Icon(LucideIcons.checkSquare,
+                Icon(LucideIcons.listChecks,
                     size: 16, color: t.fgSecondary),
                 const SizedBox(width: 6),
                 Text('최근 할 일',
