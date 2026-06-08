@@ -9,7 +9,6 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/auth/auth_notifier.dart';
 import '../../../l10n/generated/app_localizations.dart';
-import '../../expense/presentation/export_dialog.dart';
 import '../../../shared/widgets/p_avatar.dart';
 import '../../../shared/widgets/p_back_button.dart';
 import '../../../shared/widgets/p_card.dart';
@@ -95,7 +94,7 @@ List<_SettingsGroup> _buildGroups(BuildContext ctx) => [
       _SettingsItem(
         icon: LucideIcons.download,
         label: '데이터 내보내기',
-        onTap: (c) => showExportDialog(c),
+        onTap: (c) => c.push('/settings/export-data'),
       ),
       _SettingsItem(icon: LucideIcons.hardDrive, label: '저장공간', onTap: null),
     ],

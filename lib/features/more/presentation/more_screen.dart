@@ -6,7 +6,6 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
-import '../../expense/presentation/export_dialog.dart';
 import '../../../shared/widgets/p_card.dart';
 import '../../../shared/widgets/p_divider.dart';
 import '../../../shared/widgets/p_search_field.dart';
@@ -54,7 +53,7 @@ List<_NavGroup> _buildGroups(BuildContext ctx) => [
   _NavGroup(label: '계정·시스템', items: [
     _NavItem(label: '설정', icon: LucideIcons.settings, desc: '전체 설정 메뉴', onTap: (c) => c.push('/settings')),
     _NavItem(label: '알림', icon: LucideIcons.bell, desc: '푸시 · 방해 금지', onTap: (c) => c.push('/settings/notifications')),
-    _NavItem(label: '데이터 내보내기', icon: LucideIcons.download, desc: 'CSV · 자동 백업', onTap: (c) => showExportDialog(c)),
+    _NavItem(label: '데이터 내보내기', icon: LucideIcons.download, desc: 'CSV · Excel · JSON', onTap: (c) => c.push('/settings/export-data')),
     _NavItem(label: '계정', icon: LucideIcons.user, desc: '프로필 · 보안 · 구독', onTap: (c) => c.push('/account')),
   ]),
 ];

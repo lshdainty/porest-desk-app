@@ -1,0 +1,536 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:share_plus/share_plus.dart';
+
+import '../../../app/theme/radius.dart';
+import '../../../app/theme/spacing.dart';
+import '../../../app/theme/tokens.dart';
+import '../../../app/theme/typography.dart';
+import '../../../core/network/api_exception.dart';
+import '../../../shared/widgets/p_back_button.dart';
+import '../../../shared/widgets/p_button.dart';
+import '../../../shared/widgets/p_card.dart';
+import '../../../shared/widgets/p_checkbox.dart';
+import '../../../shared/widgets/p_date_input.dart';
+import '../../../shared/widgets/p_snack_bar.dart';
+import '../../../shared/widgets/p_switch.dart';
+import '../data/export_repository.dart';
+
+typedef _TypeMeta = ({String name, String slug, String label, IconData icon});
+typedef _FormatMeta = ({String value, String label, String ext, String desc, IconData icon});
+typedef _PeriodMeta = ({String value, String label});
+
+const List<_TypeMeta> _types = [
+  (name: 'EXPENSE', slug: 'expense', label: '거래 내역', icon: LucideIcons.receipt),
+  (name: 'ASSET', slug: 'asset', label: '자산·계좌', icon: LucideIcons.wallet),
+  (name: 'BUDGET', slug: 'budget', label: '예산 설정', icon: LucideIcons.target),
+  (name: 'CATEGORY', slug: 'category', label: '카테고리', icon: LucideIcons.tag),
+  (name: 'MEMO', slug: 'memo', label: '메모', icon: LucideIcons.fileText),
+  (name: 'CALENDAR', slug: 'calendar', label: '캘린더 일정', icon: LucideIcons.calendar),
+  (name: 'TODO', slug: 'todo', label: '할 일', icon: LucideIcons.squareCheckBig),
+];
+
+const List<_FormatMeta> _formats = [
+  (value: 'CSV', label: 'CSV', ext: '.csv', desc: '엑셀·구글시트', icon: LucideIcons.fileText),
+  (value: 'EXCEL', label: 'Excel', ext: '.xlsx', desc: 'Microsoft Excel', icon: LucideIcons.sheet),
+  (value: 'JSON', label: 'JSON', ext: '.json', desc: '개발자·백업', icon: LucideIcons.braces),
+];
+
+const List<_PeriodMeta> _periods = [
+  (value: 'THIS_MONTH', label: '이번 달'),
+  (value: 'LAST_MONTH', label: '지난 달'),
+  (value: 'LAST_3_MONTHS', label: '최근 3개월'),
+  (value: 'THIS_YEAR', label: '올해'),
+  (value: 'CUSTOM', label: '사용자 지정'),
+];
+
+String _slugOf(String name) => _types.firstWhere((t) => t.name == name).slug;
+
+String _two(int n) => n.toString().padLeft(2, '0');
+String _iso(DateTime d) => '${d.year}-${_two(d.month)}-${_two(d.day)}';
+String _krLabel(String isoDate) {
+  final parts = isoDate.split('-');
+  if (parts.length < 3) return isoDate;
+  return '${int.parse(parts[1])}월 ${int.parse(parts[2])}일';
+}
+
+/// 데이터 내보내기 풀스크린 — 설정 > 데이터 내보내기.
+class ExportScreen extends ConsumerStatefulWidget {
+  const ExportScreen({super.key});
+
+  @override
+  ConsumerState<ExportScreen> createState() => _ExportScreenState();
+}
+
+class _ExportScreenState extends ConsumerState<ExportScreen> {
+  String _format = 'CSV';
+  String _period = 'THIS_MONTH';
+  DateTime? _customFrom = DateTime(DateTime.now().year, DateTime.now().month, 1);
+  DateTime? _customTo = DateTime.now();
+  List<String> _selected = ['EXPENSE', 'ASSET', 'BUDGET'];
+  bool _mask = false;
+
+  Map<String, int> _counts = {};
+  bool _downloading = false;
+  bool _previewing = false;
+  List<ExportPreviewTable>? _preview;
+  String? _previewTab;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCounts();
+  }
+
+  bool get _customInvalid =>
+      _period == 'CUSTOM' &&
+      (_customFrom == null || _customTo == null || _customFrom!.isAfter(_customTo!));
+
+  ({String start, String end}) _resolveRange(String period) {
+    final now = DateTime.now();
+    DateTime firstOf(int y, int m) => DateTime(y, m, 1);
+    DateTime lastOf(int y, int m) => DateTime(y, m + 1, 0);
+    switch (period) {
+      case 'THIS_MONTH':
+        return (start: _iso(firstOf(now.year, now.month)), end: _iso(lastOf(now.year, now.month)));
+      case 'LAST_MONTH':
+        final d = DateTime(now.year, now.month - 1, 1);
+        return (start: _iso(firstOf(d.year, d.month)), end: _iso(lastOf(d.year, d.month)));
+      case 'LAST_3_MONTHS':
+        final d = DateTime(now.year, now.month - 2, 1);
+        return (start: _iso(firstOf(d.year, d.month)), end: _iso(lastOf(now.year, now.month)));
+      case 'THIS_YEAR':
+        return (start: '${now.year}-01-01', end: _iso(lastOf(now.year, now.month)));
+      default:
+        return (start: _customFrom != null ? _iso(_customFrom!) : '', end: _customTo != null ? _iso(_customTo!) : '');
+    }
+  }
+
+  Map<String, dynamic> _queryBody(List<String> types) {
+    final r = _resolveRange(_period);
+    return {
+      'period': _period,
+      if (_period == 'CUSTOM') 'startDate': r.start,
+      if (_period == 'CUSTOM') 'endDate': r.end,
+      'types': types,
+    };
+  }
+
+  String _buildFilename(String format, List<String> types, ({String start, String end}) r) {
+    final ext = format == 'EXCEL' ? 'xlsx' : format == 'JSON' ? 'json' : 'csv';
+    final rangePart = '${r.start}_${r.end}';
+    if (format != 'EXCEL' && types.length > 1) return 'porest-export-$rangePart.zip';
+    final namePart = types.length == 1 ? _slugOf(types.first) : 'export';
+    return 'porest-$namePart-$rangePart.$ext';
+  }
+
+  String _mimeType(String format, List<String> types) {
+    if (format != 'EXCEL' && types.length > 1) return 'application/zip';
+    switch (format) {
+      case 'EXCEL':
+        return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+      case 'JSON':
+        return 'application/json';
+      default:
+        return 'text/csv';
+    }
+  }
+
+  Future<void> _loadCounts() async {
+    if (_customInvalid) return;
+    try {
+      final repo = await ref.read(exportRepositoryProvider.future);
+      final list = await repo.counts(_queryBody(_types.map((t) => t.name).toList()));
+      if (!mounted) return;
+      setState(() => _counts = {for (final c in list) c.type: c.count});
+    } catch (_) {/* ignore — 화면 진입 건수는 best-effort */}
+  }
+
+  void _changePeriod(String p) {
+    setState(() => _period = p);
+    _loadCounts();
+  }
+
+  void _toggleType(String name) {
+    setState(() {
+      _selected = _selected.contains(name)
+          ? (_selected.where((x) => x != name).toList())
+          : [..._selected, name];
+    });
+  }
+
+  Future<void> _runPreview() async {
+    if (_selected.isEmpty || _customInvalid) return;
+    setState(() => _previewing = true);
+    try {
+      final repo = await ref.read(exportRepositoryProvider.future);
+      final tables = await repo.preview(_queryBody(_orderedSelected()));
+      if (!mounted) return;
+      setState(() {
+        _preview = tables;
+        _previewTab = tables.isNotEmpty ? tables.first.type : null;
+      });
+    } on ApiException catch (e) {
+      if (mounted) showPSnackBar(context, '실패: ${e.message}', severity: PSnackSeverity.error);
+    } finally {
+      if (mounted) setState(() => _previewing = false);
+    }
+  }
+
+  Future<void> _runExport() async {
+    if (_selected.isEmpty || _customInvalid) return;
+    setState(() => _downloading = true);
+    try {
+      final repo = await ref.read(exportRepositoryProvider.future);
+      final r = _resolveRange(_period);
+      final types = _orderedSelected();
+      final body = {..._queryBody(types), 'format': _format, 'mask': _mask};
+      final filename = _buildFilename(_format, types, r);
+      final file = await repo.download(body: body, filename: filename);
+      await Share.shareXFiles(
+        [XFile(file.path, name: filename, mimeType: _mimeType(_format, types))],
+        text: '데이터 내보내기 (${r.start} ~ ${r.end})',
+      );
+      if (mounted) showPSnackBar(context, '내보내기를 완료했어요', severity: PSnackSeverity.success);
+    } on ApiException catch (e) {
+      if (mounted) showPSnackBar(context, '실패: ${e.message}', severity: PSnackSeverity.error);
+    } finally {
+      if (mounted) setState(() => _downloading = false);
+    }
+  }
+
+  /// 선언 순서 정렬 (백엔드와 일관).
+  List<String> _orderedSelected() =>
+      _types.where((t) => _selected.contains(t.name)).map((t) => t.name).toList();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return Scaffold(
+      backgroundColor: t.bgCanvas,
+      appBar: AppBar(
+        leadingWidth: PBackButton.leadingWidth,
+        titleSpacing: 0,
+        leading: PBackButton(onPressed: () => context.pop()),
+        title: const Text('데이터 내보내기'),
+        backgroundColor: t.bgSurface,
+        foregroundColor: t.fgPrimary,
+        elevation: 0,
+      ),
+      body: ListView(
+        padding: const EdgeInsets.symmetric(horizontal: PSpace.x20, vertical: PSpace.x24),
+        children: [
+          _periodCard(t),
+          const SizedBox(height: PSpace.x16),
+          _typesCard(t),
+          const SizedBox(height: PSpace.x16),
+          _formatCard(t),
+          const SizedBox(height: PSpace.x16),
+          _maskRow(t),
+          const SizedBox(height: PSpace.x12),
+          _actions(),
+          if (_preview != null) ...[
+            const SizedBox(height: PSpace.x16),
+            _previewCard(t),
+          ],
+          const SizedBox(height: PSpace.x32),
+        ],
+      ),
+    );
+  }
+
+  // ── 카드들 ────────────────────────────────────────────────
+
+  Widget _cardShell(PorestTokens t, {required String title, String? desc, required Widget child}) {
+    return PCard(
+      variant: PCardVariant.shadow,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: PTypo.body.copyWith(color: t.fgPrimary, fontWeight: PFontWeight.bold)),
+          if (desc != null) ...[
+            const SizedBox(height: 2),
+            Text(desc, style: PTypo.caption.copyWith(color: t.fgTertiary)),
+          ],
+          const SizedBox(height: PSpace.x12),
+          child,
+        ],
+      ),
+    );
+  }
+
+  Widget _periodCard(PorestTokens t) {
+    return _cardShell(
+      t,
+      title: '기간 선택',
+      child: Column(
+        children: [
+          _grid2(_periods.map((p) {
+            final active = _period == p.value;
+            final r = _resolveRange(p.value);
+            final sub = p.value == 'CUSTOM' ? '직접 선택' : '${_krLabel(r.start)} — ${_krLabel(r.end)}';
+            return _tile(t, active: active, onTap: () => _changePeriod(p.value), children: [
+              Text(p.label,
+                  style: PTypo.bodySm.copyWith(
+                      color: active ? t.fgBrand : t.fgPrimary, fontWeight: PFontWeight.bold)),
+              const SizedBox(height: 3),
+              Text(sub, style: PTypo.micro.copyWith(color: t.fgTertiary)),
+            ]);
+          }).toList()),
+          if (_period == 'CUSTOM') ...[
+            const SizedBox(height: PSpace.x12),
+            Row(
+              children: [
+                Expanded(
+                  child: PDateInput(
+                    value: _customFrom,
+                    onChanged: (d) {
+                      setState(() => _customFrom = d);
+                      _loadCounts();
+                    },
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: PSpace.x8),
+                  child: Text('~'),
+                ),
+                Expanded(
+                  child: PDateInput(
+                    value: _customTo,
+                    onChanged: (d) {
+                      setState(() => _customTo = d);
+                      _loadCounts();
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ],
+          if (_customInvalid) ...[
+            const SizedBox(height: PSpace.x8),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text('시작일이 종료일보다 늦을 수 없어요.',
+                  style: PTypo.caption.copyWith(color: t.statusDanger)),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _typesCard(PorestTokens t) {
+    return _cardShell(
+      t,
+      title: '데이터 종류 — ${_selected.length}개 선택됨',
+      desc: '내보낼 데이터를 골라주세요. 여러 종류는 ZIP으로 묶입니다.',
+      child: Column(
+        children: [
+          for (int i = 0; i < _types.length; i++)
+            InkWell(
+              onTap: () => _toggleType(_types[i].name),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: PSpace.x12),
+                child: Row(
+                  children: [
+                    PCheckbox(
+                      value: _selected.contains(_types[i].name),
+                      onChanged: (_) => _toggleType(_types[i].name),
+                    ),
+                    const SizedBox(width: PSpace.x12),
+                    Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(color: t.bgMuted, borderRadius: PRadius.brMd),
+                      alignment: Alignment.center,
+                      child: Icon(_types[i].icon, size: 16, color: t.fgSecondary),
+                    ),
+                    const SizedBox(width: PSpace.x12),
+                    Expanded(
+                      child: Text(_types[i].label,
+                          style: PTypo.bodySm.copyWith(color: t.fgPrimary, fontWeight: PFontWeight.semi)),
+                    ),
+                    Text(
+                      _counts.containsKey(_types[i].slug) ? '${_counts[_types[i].slug]}건' : '…',
+                      style: PTypo.caption.copyWith(color: t.fgTertiary),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _formatCard(PorestTokens t) {
+    return _cardShell(
+      t,
+      title: '파일 형식',
+      child: _grid2(_formats.map((f) {
+        final active = _format == f.value;
+        return _tile(t, active: active, onTap: () => setState(() => _format = f.value), children: [
+          Row(
+            children: [
+              Icon(f.icon, size: 16, color: active ? t.fgBrand : t.fgSecondary),
+              const SizedBox(width: PSpace.x4),
+              Text(f.label,
+                  style: PTypo.bodySm.copyWith(
+                      color: active ? t.fgBrand : t.fgPrimary, fontWeight: PFontWeight.bold)),
+              const Spacer(),
+              Text(f.ext, style: PTypo.micro.copyWith(color: t.fgTertiary)),
+            ],
+          ),
+          const SizedBox(height: PSpace.x4),
+          Text(f.desc, style: PTypo.micro.copyWith(color: t.fgTertiary)),
+        ]);
+      }).toList()),
+    );
+  }
+
+  Widget _maskRow(PorestTokens t) {
+    return Row(
+      children: [
+        PSwitch(value: _mask, onChanged: (v) => setState(() => _mask = v)),
+        const SizedBox(width: PSpace.x8),
+        Expanded(
+          child: Text('민감 정보 가리기 (잔액·금액·기관)',
+              style: PTypo.bodySm.copyWith(color: t.fgSecondary)),
+        ),
+      ],
+    );
+  }
+
+  Widget _actions() {
+    final disabled = _selected.isEmpty || _customInvalid;
+    return Row(
+      children: [
+        Expanded(
+          child: PButton(
+            label: '미리보기',
+            icon: LucideIcons.eye,
+            variant: PButtonVariant.outline,
+            loading: _previewing,
+            onPressed: disabled ? null : _runPreview,
+          ),
+        ),
+        const SizedBox(width: PSpace.x8),
+        Expanded(
+          child: PButton(
+            label: '내보내기',
+            icon: LucideIcons.download,
+            loading: _downloading,
+            onPressed: disabled ? null : _runExport,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _previewCard(PorestTokens t) {
+    final tables = _preview!;
+    final active = tables.firstWhere(
+      (x) => x.type == _previewTab,
+      orElse: () => tables.isNotEmpty ? tables.first : const ExportPreviewTable(
+          type: '', displayName: '', headers: [], rows: [], totalCount: 0),
+    );
+    return _cardShell(
+      t,
+      title: '미리보기',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: tables.map((tb) {
+              final on = tb.type == active.type;
+              return InkWell(
+                onTap: () => setState(() => _previewTab = tb.type),
+                borderRadius: PRadius.brFull,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: on ? t.bgBrandSubtle : t.bgSurface,
+                    borderRadius: PRadius.brFull,
+                    border: Border.all(color: on ? t.borderBrand : t.borderSubtle),
+                  ),
+                  child: Text('${tb.displayName} ${tb.totalCount}',
+                      style: PTypo.caption.copyWith(
+                          color: on ? t.fgBrand : t.fgSecondary, fontWeight: PFontWeight.semi)),
+                ),
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: PSpace.x12),
+          if (active.rows.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: PSpace.x20),
+              child: Center(
+                child: Text('이 기간에 내보낼 데이터가 없어요.',
+                    style: PTypo.bodySm.copyWith(color: t.fgTertiary)),
+              ),
+            )
+          else
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: DataTable(
+                headingRowHeight: 36,
+                dataRowMinHeight: 32,
+                dataRowMaxHeight: 40,
+                columnSpacing: 20,
+                columns: active.headers
+                    .map((h) => DataColumn(
+                        label: Text(h,
+                            style: PTypo.caption.copyWith(color: t.fgSecondary, fontWeight: PFontWeight.bold))))
+                    .toList(),
+                rows: active.rows
+                    .map((row) => DataRow(
+                        cells: List.generate(
+                            active.headers.length,
+                            (ci) => DataCell(Text(ci < row.length ? row[ci] : '',
+                                style: PTypo.caption.copyWith(color: t.fgPrimary))))))
+                    .toList(),
+              ),
+            ),
+          const SizedBox(height: PSpace.x8),
+          Text('상위 ${active.rows.length}행 미리보기',
+              style: PTypo.micro.copyWith(color: t.fgTertiary)),
+        ],
+      ),
+    );
+  }
+
+  // ── 보조 위젯 ─────────────────────────────────────────────
+
+  /// 2열 그리드 (LayoutBuilder 로 타일 폭 계산).
+  Widget _grid2(List<Widget> tiles) {
+    return LayoutBuilder(builder: (ctx, c) {
+      final w = (c.maxWidth - PSpace.x8) / 2;
+      return Wrap(
+        spacing: PSpace.x8,
+        runSpacing: PSpace.x8,
+        children: tiles.map((t) => SizedBox(width: w, child: t)).toList(),
+      );
+    });
+  }
+
+  Widget _tile(PorestTokens t,
+      {required bool active, required VoidCallback onTap, required List<Widget> children}) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: PRadius.brLg,
+      child: Container(
+        padding: const EdgeInsets.all(PSpace.x12),
+        decoration: BoxDecoration(
+          color: active ? t.bgBrandSubtle : t.bgSurface,
+          borderRadius: PRadius.brLg,
+          border: Border.all(color: active ? t.borderBrand : t.borderSubtle),
+        ),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: children),
+      ),
+    );
+  }
+}
