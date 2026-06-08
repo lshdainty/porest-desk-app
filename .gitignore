@@ -124,3 +124,5 @@ app.*.symbols
 .idea/
 *.iml
 .vscode/
+# macOS
+.DS_Store
