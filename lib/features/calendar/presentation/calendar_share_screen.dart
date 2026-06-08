@@ -249,7 +249,8 @@ class _CalendarRow extends ConsumerWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(calendar.memberCount <= 1 ? '나만 사용' : '멤버 ${calendar.memberCount}명',
-                      style: PTypo.caption.copyWith(color: t.fgTertiary)),
+                      style: PTypo.caption
+                          .copyWith(color: t.fgTertiary, fontWeight: PFontWeight.regular)),
                 ],
               ),
             ),
