@@ -34,7 +34,7 @@ List<_NavGroup> _buildGroups(BuildContext ctx) => [
   _NavGroup(label: '돈 관리', items: [
     _NavItem(label: '가계부', icon: LucideIcons.receiptText, desc: '지출 · 수입 · 이체', onTap: (c) => c.go('/expense')),
     _NavItem(label: '자산', icon: LucideIcons.wallet, desc: '계좌 · 카드 · 투자 · 부채', onTap: (c) => c.go('/assets')),
-    _NavItem(label: '예산', icon: LucideIcons.target, desc: '월간 · 카테고리별', onTap: (c) => c.go('/budget')),
+    _NavItem(label: '예산', icon: LucideIcons.filePen, desc: '월간 · 카테고리별', onTap: (c) => c.go('/budget')),
     _NavItem(label: '통계·분석', icon: LucideIcons.pieChart, desc: '카테고리 · 트렌드 · 비교', onTap: (c) => c.go('/stats')),
     _NavItem(label: '반복 거래', icon: LucideIcons.repeat, desc: '구독 · 고정비', onTap: (c) => c.push('/recurring')),
     _NavItem(label: '카드·계좌 관리', icon: LucideIcons.creditCard, desc: '계좌·카드 추가·편집', onTap: (c) => c.push('/account-card-manage')),
