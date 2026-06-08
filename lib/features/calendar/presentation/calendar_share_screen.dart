@@ -179,14 +179,18 @@ class _Section extends StatelessWidget {
         if (calendars.isEmpty)
           PCard(
             variant: PCardVariant.shadow,
+            // 기본 padding(16) 래핑 제거 — 안에서 직접 28/16 지정(web 정합, 비어보임 완화).
+            padding: EdgeInsets.zero,
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: PSpace.x20),
+              padding: const EdgeInsets.symmetric(vertical: 28, horizontal: PSpace.x16),
               child: Center(child: Text(emptyText, style: PTypo.bodySm.copyWith(color: t.fgTertiary))),
             ),
           )
         else
           PCard(
             variant: PCardVariant.shadow,
+            // 기본 padding(16) 제거 — row 가 자체 16/12 보유(web CardContent padding:0 정합).
+            padding: EdgeInsets.zero,
             child: Column(
               children: [
                 for (int i = 0; i < calendars.length; i++) ...[
