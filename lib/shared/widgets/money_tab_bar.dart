@@ -83,7 +83,7 @@ class MoneyTabBar extends StatelessWidget {
                 ),
                 Expanded(
                   child: _MoneyTabItem(
-                    icon: LucideIcons.filePen,
+                    icon: LucideIcons.sheet,
                     label: '예산',
                     selected: current == MoneyTab.budget,
                     onTap: () => onTap(MoneyTab.budget),
