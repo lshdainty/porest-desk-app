@@ -32,7 +32,7 @@ class MobileTabBar extends StatelessWidget {
     final mq = MediaQuery.of(context);
     final slots = <_Slot>[
       _Slot(icon: LucideIcons.home, label: l.navHome, branch: 0),
-      _Slot(icon: LucideIcons.banknote, label: l.navExpense, branch: 1),
+      _Slot(icon: LucideIcons.receipt, label: l.navExpense, branch: 1),
       const _Slot.fab(),
       _Slot(icon: LucideIcons.calendar, label: l.navCalendar, branch: 2),
       _Slot(icon: LucideIcons.menu, label: l.navMore, branch: 3),

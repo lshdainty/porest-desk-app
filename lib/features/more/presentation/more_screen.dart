@@ -32,7 +32,7 @@ class _NavGroup {
 
 List<_NavGroup> _buildGroups(BuildContext ctx) => [
   _NavGroup(label: '돈 관리', items: [
-    _NavItem(label: '가계부', icon: LucideIcons.banknote, desc: '지출 · 수입 · 이체', onTap: (c) => c.go('/expense')),
+    _NavItem(label: '가계부', icon: LucideIcons.receipt, desc: '지출 · 수입 · 이체', onTap: (c) => c.go('/expense')),
     _NavItem(label: '자산', icon: LucideIcons.wallet, desc: '계좌 · 카드 · 투자 · 부채', onTap: (c) => c.go('/assets')),
     _NavItem(label: '예산', icon: LucideIcons.target, desc: '월간 · 카테고리별', onTap: (c) => c.go('/budget')),
     _NavItem(label: '통계·분석', icon: LucideIcons.pieChart, desc: '카테고리 · 트렌드 · 비교', onTap: (c) => c.go('/stats')),
