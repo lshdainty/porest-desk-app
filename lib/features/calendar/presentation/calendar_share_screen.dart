@@ -195,7 +195,8 @@ class _Section extends StatelessWidget {
               children: [
                 for (int i = 0; i < calendars.length; i++) ...[
                   _CalendarRow(calendar: calendars[i], tokens: t),
-                  if (i < calendars.length - 1) PDivider(indent: 56),
+                  // 전체폭 구분선 (web borderTop 정합 — indent 0).
+                  if (i < calendars.length - 1) const PDivider(),
                 ],
               ],
             ),
