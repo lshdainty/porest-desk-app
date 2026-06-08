@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
@@ -32,7 +32,7 @@ class _NavGroup {
 
 List<_NavGroup> _buildGroups(BuildContext ctx) => [
   _NavGroup(label: '돈 관리', items: [
-    _NavItem(label: '가계부', icon: LucideIcons.receipt, desc: '지출 · 수입 · 이체', onTap: (c) => c.go('/expense')),
+    _NavItem(label: '가계부', icon: LucideIcons.receiptText, desc: '지출 · 수입 · 이체', onTap: (c) => c.go('/expense')),
     _NavItem(label: '자산', icon: LucideIcons.wallet, desc: '계좌 · 카드 · 투자 · 부채', onTap: (c) => c.go('/assets')),
     _NavItem(label: '예산', icon: LucideIcons.target, desc: '월간 · 카테고리별', onTap: (c) => c.go('/budget')),
     _NavItem(label: '통계·분석', icon: LucideIcons.pieChart, desc: '카테고리 · 트렌드 · 비교', onTap: (c) => c.go('/stats')),
@@ -40,7 +40,7 @@ List<_NavGroup> _buildGroups(BuildContext ctx) => [
     _NavItem(label: '카드·계좌 관리', icon: LucideIcons.creditCard, desc: '계좌·카드 추가·편집', onTap: (c) => c.push('/account-card-manage')),
   ]),
   _NavGroup(label: '일상', items: [
-    _NavItem(label: '캘린더', icon: LucideIcons.calendar, desc: '일정 · 반복 · 알림', onTap: (c) => c.go('/calendar')),
+    _NavItem(label: '캘린더', icon: LucideIcons.calendar1, desc: '일정 · 반복 · 알림', onTap: (c) => c.go('/calendar')),
     _NavItem(label: '할 일', icon: LucideIcons.checkSquare, desc: '마감 · 우선순위 · 태그', onTap: (c) => c.push('/todos')),
     _NavItem(label: '메모', icon: LucideIcons.fileText, desc: '분류 · 고정 · 검색', onTap: (c) => c.push('/memos')),
     _NavItem(label: '더치페이', icon: LucideIcons.users, desc: '정산 · 친구 · 송금 요청', onTap: (c) => c.push('/dutch-pay')),

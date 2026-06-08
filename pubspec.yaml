@@ -38,7 +38,7 @@ dependencies:
   # UI
   fl_chart: ^1.2.0
   table_calendar: ^3.2.0
-  lucide_icons: ^0.257.0
+  lucide_icons_flutter: ^3.1.14
 
   # 기타
   connectivity_plus: ^7.1.1

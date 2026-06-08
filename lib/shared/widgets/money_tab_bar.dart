@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../app/theme/radius.dart';
 import '../../app/theme/spacing.dart';
@@ -56,7 +56,7 @@ class MoneyTabBar extends StatelessWidget {
                 ),
                 Expanded(
                   child: _MoneyTabItem(
-                    icon: LucideIcons.receipt,
+                    icon: LucideIcons.receiptText,
                     label: '가계부',
                     selected: current == MoneyTab.expense,
                     onTap: () => onTap(MoneyTab.expense),
