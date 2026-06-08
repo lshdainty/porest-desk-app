@@ -10,7 +10,7 @@ import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/format/krw.dart';
-import '../../../shared/widgets/p_button.dart';
+import '../../../shared/widgets/p_back_button.dart';
 import '../../../shared/widgets/p_card.dart';
 import '../../../shared/widgets/p_checkbox.dart';
 import '../../../shared/widgets/p_chip.dart';
@@ -189,10 +189,9 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
     return Scaffold(
       backgroundColor: t.bgCanvas,
       appBar: AppBar(
-        leading: PButton.icon(
-          icon: LucideIcons.arrowLeft,
-          onPressed: () => context.pop(),
-        ),
+        leadingWidth: PBackButton.leadingWidth,
+        titleSpacing: 0,
+        leading: PBackButton(onPressed: () => context.pop()),
         title: const Text('카드 혜택'),
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,

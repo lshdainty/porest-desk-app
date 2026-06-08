@@ -9,6 +9,7 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../l10n/generated/app_localizations.dart';
+import '../../../shared/widgets/p_back_button.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_empty_state.dart';
 import '../application/notification_providers.dart';
@@ -28,10 +29,9 @@ class NotificationScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: t.bgCanvas,
       appBar: AppBar(
-        leading: PButton.icon(
-          icon: LucideIcons.arrowLeft,
-          onPressed: () => context.pop(),
-        ),
+        leadingWidth: PBackButton.leadingWidth,
+        titleSpacing: 0,
+        leading: PBackButton(onPressed: () => context.pop()),
         title: Text(l.notiTitle),
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,

@@ -12,6 +12,7 @@ import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
+import '../../../shared/widgets/p_back_button.dart';
 import '../../../shared/widgets/p_badge.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_card.dart';
@@ -102,10 +103,9 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
     return Scaffold(
       backgroundColor: t.bgCanvas,
       appBar: AppBar(
-        leading: PButton.icon(
-          icon: LucideIcons.arrowLeft,
-          onPressed: () => context.pop(),
-        ),
+        leadingWidth: PBackButton.leadingWidth,
+        titleSpacing: 0,
+        leading: PBackButton(onPressed: () => context.pop()),
         title: const Text('반복 거래'),
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,

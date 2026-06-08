@@ -9,6 +9,7 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/format/chart_palette.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../shared/widgets/p_back_button.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_card.dart';
 import '../../../shared/widgets/p_color_picker.dart';
@@ -39,10 +40,9 @@ class CalendarLabelsScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: t.bgCanvas,
       appBar: AppBar(
-        leading: PButton.icon(
-          icon: LucideIcons.arrowLeft,
-          onPressed: () => context.pop(),
-        ),
+        leadingWidth: PBackButton.leadingWidth,
+        titleSpacing: 0,
+        leading: PBackButton(onPressed: () => context.pop()),
         title: const Text('캘린더 라벨'),
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,

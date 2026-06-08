@@ -10,6 +10,7 @@ import '../../../app/theme/typography.dart';
 import '../../../core/auth/auth_notifier.dart';
 import '../../../core/format/chart_palette.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../shared/widgets/p_back_button.dart';
 import '../../../shared/widgets/p_badge.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_card.dart';
@@ -38,10 +39,9 @@ class CalendarShareScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: t.bgCanvas,
       appBar: AppBar(
-        leading: PButton.icon(
-          icon: LucideIcons.arrowLeft,
-          onPressed: () => Navigator.of(context).maybePop(),
-        ),
+        leadingWidth: PBackButton.leadingWidth,
+        titleSpacing: 0,
+        leading: PBackButton(onPressed: () => Navigator.of(context).maybePop()),
         title: const Text('캘린더 관리·공유'),
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,

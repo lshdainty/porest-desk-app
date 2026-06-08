@@ -8,6 +8,7 @@ import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../shared/widgets/p_back_button.dart';
 import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_dropdown_menu.dart';
 import '../../../shared/widgets/p_card.dart';
@@ -99,10 +100,9 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
     return Scaffold(
       backgroundColor: t.bgCanvas,
       appBar: AppBar(
-        leading: PButton.icon(
-          icon: LucideIcons.arrowLeft,
-          onPressed: () => context.pop(),
-        ),
+        leadingWidth: PBackButton.leadingWidth,
+        titleSpacing: 0,
+        leading: PBackButton(onPressed: () => context.pop()),
         title: const Text('할 일'),
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,
