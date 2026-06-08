@@ -10,7 +10,6 @@ import '../../../app/theme/typography.dart';
 import '../../../core/auth/auth_notifier.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../../expense/presentation/export_dialog.dart';
-import 'appearance_section.dart';
 import '../../../shared/widgets/p_avatar.dart';
 import '../../../shared/widgets/p_back_button.dart';
 import '../../../shared/widgets/p_card.dart';
@@ -73,11 +72,6 @@ List<_SettingsGroup> _buildGroups(BuildContext ctx) => [
         label: '캘린더 라벨',
         onTap: (c) => c.push('/settings/calendar-labels'),
       ),
-      _SettingsItem(
-        icon: LucideIcons.divide,
-        label: '더치페이',
-        onTap: (c) => c.push('/dutch-pay'),
-      ),
     ],
   ),
   _SettingsGroup(
@@ -86,7 +80,7 @@ List<_SettingsGroup> _buildGroups(BuildContext ctx) => [
       _SettingsItem(
         icon: LucideIcons.palette,
         label: '표시 설정',
-        onTap: null, // inline 섹션으로 처리
+        onTap: (c) => c.push('/settings/appearance'),
       ),
       _SettingsItem(
         icon: LucideIcons.bell,
@@ -205,53 +199,23 @@ class SettingsScreen extends ConsumerWidget {
             const SizedBox(height: PSpace.x24),
           ],
 
-          // 표시 설정 inline
-          _GroupLabel(label: '표시 설정', tokens: t),
-          const SizedBox(height: PSpace.x8),
-          const AppearanceSection(),
-          const SizedBox(height: PSpace.x24),
-
-          // 나머지 그룹 카드 (표시설정 그룹 제외 — inline으로 처리)
+          // 그룹 카드 (표시 설정 포함 — 전부 메뉴 항목, 별도 화면 이동)
           for (int gi = 0; gi < groups.length; gi++) ...[
-            if (groups[gi].label == '앱 환경') ...[
-              // 앱 환경: 표시 설정 항목 제외하고 알림만 표시
-              _GroupLabel(label: groups[gi].label, tokens: t),
-              const SizedBox(height: PSpace.x8),
-              PCard(
-                variant: PCardVariant.shadow,
-                // list shell — 카드 자체 padding 제거, row 가 14/16 보유 (web 정합).
-                padding: EdgeInsets.zero,
-                child: Column(
-                  children: () {
-                    final items = groups[gi].items
-                        .where((i) => i.label != '표시 설정')
-                        .toList();
-                    return [
-                      for (int i = 0; i < items.length; i++) ...[
-                        _SettingsRow(item: items[i], tokens: t),
-                        if (i < items.length - 1) const PDivider(),
-                      ],
-                    ];
-                  }(),
-                ),
-              ),
-            ] else ...[
-              _GroupLabel(label: groups[gi].label, tokens: t),
-              const SizedBox(height: PSpace.x8),
-              PCard(
-                variant: PCardVariant.shadow,
-                // list shell — 카드 자체 padding 제거, row 가 14/16 보유 (web 정합).
-                padding: EdgeInsets.zero,
-                child: Column(
-                  children: [
-                    for (int i = 0; i < groups[gi].items.length; i++) ...[
-                      _SettingsRow(item: groups[gi].items[i], tokens: t),
-                      if (i < groups[gi].items.length - 1) const PDivider(),
-                    ],
+            _GroupLabel(label: groups[gi].label, tokens: t),
+            const SizedBox(height: PSpace.x8),
+            PCard(
+              variant: PCardVariant.shadow,
+              // list shell — 카드 자체 padding 제거, row 가 14/16 보유 (web 정합).
+              padding: EdgeInsets.zero,
+              child: Column(
+                children: [
+                  for (int i = 0; i < groups[gi].items.length; i++) ...[
+                    _SettingsRow(item: groups[gi].items[i], tokens: t),
+                    if (i < groups[gi].items.length - 1) const PDivider(),
                   ],
-                ),
+                ],
               ),
-            ],
+            ),
             if (gi < groups.length - 1) const SizedBox(height: PSpace.x20),
           ],
 

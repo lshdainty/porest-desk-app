@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../app/theme/density.dart';
@@ -9,7 +10,37 @@ import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/widgets/p_radio_list.dart';
 import '../../../shared/widgets/p_section_label.dart';
 import '../../../shared/widgets/p_toggle.dart';
+import '../../../shared/widgets/p_back_button.dart';
 import '../../../shared/widgets/p_tile.dart';
+
+/// 표시 설정 화면 — AppBar + AppearanceSection (설정 메뉴 '표시 설정' 진입).
+class AppearanceScreen extends StatelessWidget {
+  const AppearanceScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return Scaffold(
+      backgroundColor: t.bgCanvas,
+      appBar: AppBar(
+        leadingWidth: PBackButton.leadingWidth,
+        titleSpacing: 0,
+        leading: PBackButton(onPressed: () => context.pop()),
+        title: const Text('표시 설정'),
+        backgroundColor: t.bgSurface,
+        foregroundColor: t.fgPrimary,
+        elevation: 0,
+      ),
+      body: ListView(
+        padding: const EdgeInsets.symmetric(
+          horizontal: PSpace.x20,
+          vertical: PSpace.x24,
+        ),
+        children: const [AppearanceSection()],
+      ),
+    );
+  }
+}
 
 /// porest-desk-front `AppearanceSection.tsx` 의 모바일 이식.
 ///

@@ -28,6 +28,7 @@ import '../features/expense/presentation/expense_screen.dart';
 import '../features/more/presentation/more_screen.dart';
 import '../features/recurring/presentation/recurring_screen.dart';
 import '../features/settings/presentation/account_screen.dart';
+import '../features/settings/presentation/appearance_section.dart';
 import '../features/settings/presentation/settings_screen.dart';
 import '../features/stats/presentation/stats_screen.dart';
 import '../shared/widgets/mobile_scaffold.dart';
@@ -80,6 +81,9 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
           path: '/settings/calendar-labels',
           builder: (_, _) => const CalendarLabelsScreen()),
+      GoRoute(
+          path: '/settings/appearance',
+          builder: (_, _) => const AppearanceScreen()),
       GoRoute(path: '/dutch-pay', builder: (_, _) => const DutchPayScreen()),
       GoRoute(path: '/notifications', builder: (_, _) => const NotificationScreen()),
       GoRoute(
