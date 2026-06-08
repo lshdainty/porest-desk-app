@@ -39,12 +39,12 @@ List<_SettingsGroup> _buildGroups(BuildContext ctx) => [
         onTap: (c) => c.push('/categories'),
       ),
       _SettingsItem(
-        icon: LucideIcons.wallet,
+        icon: LucideIcons.creditCard,
         label: '계좌·카드 관리',
         onTap: (c) => c.push('/account-card-manage'),
       ),
       _SettingsItem(
-        icon: LucideIcons.target,
+        icon: LucideIcons.filePen,
         label: '예산 설정',
         onTap: (c) => c.push('/budget'),
       ),
@@ -64,7 +64,7 @@ List<_SettingsGroup> _buildGroups(BuildContext ctx) => [
     label: '공유·소통',
     items: [
       _SettingsItem(
-        icon: LucideIcons.calendarRange,
+        icon: LucideIcons.calendar1,
         label: '캘린더 관리·공유',
         onTap: (c) => c.push('/settings/calendar-share'),
       ),
