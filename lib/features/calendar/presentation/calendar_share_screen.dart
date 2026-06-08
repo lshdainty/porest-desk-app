@@ -415,17 +415,37 @@ void _showJoinDialog(BuildContext context, WidgetRef ref) {
 // ─── 관리 (편집/공유/멤버/삭제) ──────────────────────────────
 
 void _showManageSheet(BuildContext context, WidgetRef ref, UserCalendar calendar) {
+  final controller = PSheetController();
   showPSheet<void>(
     context,
     title: '${calendar.calendarName} · 관리',
-    contentBuilder: (ctx, scrollCtrl) => _ManageBody(calendar: calendar, scrollController: scrollCtrl),
+    // 컨텐츠 높이만큼 wrap (아래 빈 공간 제거).
+    shrinkWrap: true,
+    contentBuilder: (ctx, _) => _ManageBody(calendar: calendar, controller: controller),
+    footerBuilder: (ctx) => calendar.isOwner
+        ? PSheetFooter(
+            controller: controller,
+            submitLabel: '저장',
+            cancelLabel: '닫기',
+            deleteLabel: '캘린더 삭제',
+          )
+        : Row(
+            children: [
+              const Spacer(),
+              PButton(
+                label: '닫기',
+                variant: PButtonVariant.ghost,
+                onPressed: () => Navigator.of(ctx).pop(),
+              ),
+            ],
+          ),
   );
 }
 
 class _ManageBody extends ConsumerStatefulWidget {
-  const _ManageBody({required this.calendar, required this.scrollController});
+  const _ManageBody({required this.calendar, required this.controller});
   final UserCalendar calendar;
-  final ScrollController scrollController;
+  final PSheetController controller;
 
   @override
   ConsumerState<_ManageBody> createState() => _ManageBodyState();
@@ -434,16 +454,27 @@ class _ManageBody extends ConsumerStatefulWidget {
 class _ManageBodyState extends ConsumerState<_ManageBody> {
   late final TextEditingController _nameCtrl;
   late String _color;
-  bool _saving = false;
+  late String _baseName;
+  late String _baseColor;
 
   UserCalendar get cal => widget.calendar;
   bool get isOwner => cal.isOwner;
+  // 이름/색상이 저장된 값과 달라졌는지 — footer 저장 버튼 활성 기준.
+  bool get _dirty =>
+      _nameCtrl.text.trim() != _baseName || _color != _baseColor;
 
   @override
   void initState() {
     super.initState();
     _nameCtrl = TextEditingController(text: cal.calendarName);
     _color = cal.color ?? '#2c70bf';
+    _baseName = cal.calendarName;
+    _baseColor = _color;
+    // 소유자만 footer 의 저장/삭제 액션을 가짐 — content 가 controller 에 연결.
+    if (isOwner) {
+      widget.controller.onSubmit = _saveMeta;
+      if (!cal.isDefault) widget.controller.onDelete = _delete;
+    }
   }
 
   @override
@@ -454,16 +485,19 @@ class _ManageBodyState extends ConsumerState<_ManageBody> {
 
   Future<void> _saveMeta() async {
     if (_nameCtrl.text.trim().isEmpty) return;
-    setState(() => _saving = true);
+    widget.controller.setSubmitting(true);
     try {
       final repo = await ref.read(userCalendarRepositoryProvider.future);
       await repo.update(id: cal.rowId, calendarName: _nameCtrl.text.trim(), color: _color);
       ref.invalidate(userCalendarListProvider);
+      _baseName = _nameCtrl.text.trim();
+      _baseColor = _color;
+      widget.controller.setCanSubmit(false);
       if (mounted) showPSnackBar(context, '캘린더를 수정했어요', severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (mounted) showPSnackBar(context, '실패: ${e.message}', severity: PSnackSeverity.error);
     } finally {
-      if (mounted) setState(() => _saving = false);
+      widget.controller.setSubmitting(false);
     }
   }
 
@@ -538,30 +572,29 @@ class _ManageBodyState extends ConsumerState<_ManageBody> {
     final membersAsync = ref.watch(calendarMembersProvider(cal.rowId));
     final myId = ref.watch(authProvider).value?.rowId;
 
-    return ListView(
-      controller: widget.scrollController,
+    return Padding(
       padding: const EdgeInsets.fromLTRB(PSpace.x16, 0, PSpace.x16, PSpace.x16),
-      children: [
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
         if (isOwner) ...[
           Text('이름', style: PTypo.caption.copyWith(color: t.fgSecondary)),
           const SizedBox(height: PSpace.x4),
-          PTextInput(controller: _nameCtrl, placeholder: '캘린더 이름', onChanged: (_) => setState(() {})),
+          PTextInput(
+            controller: _nameCtrl,
+            placeholder: '캘린더 이름',
+            onChanged: (_) => widget.controller.setCanSubmit(_dirty),
+          ),
           const SizedBox(height: PSpace.x12),
           Text('색상', style: PTypo.caption.copyWith(color: t.fgSecondary)),
           const SizedBox(height: PSpace.x8),
-          PColorPicker(selected: _color, onChanged: (hex) => setState(() => _color = hex)),
-          const SizedBox(height: PSpace.x12),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: PButton(
-              label: '변경 저장',
-              size: PButtonSize.sm,
-              variant: PButtonVariant.accent,
-              onPressed: (_saving ||
-                      (_nameCtrl.text.trim() == cal.calendarName && _color == (cal.color ?? '#2c70bf')))
-                  ? null
-                  : _saveMeta,
-            ),
+          PColorPicker(
+            selected: _color,
+            onChanged: (hex) {
+              setState(() => _color = hex);
+              widget.controller.setCanSubmit(_dirty);
+            },
           ),
           const SizedBox(height: PSpace.x16),
           Text('초대 코드', style: PTypo.caption.copyWith(color: t.fgSecondary)),
@@ -600,17 +633,8 @@ class _ManageBodyState extends ConsumerState<_ManageBody> {
             ],
           ),
         ),
-        if (isOwner && !cal.isDefault) ...[
-          const SizedBox(height: PSpace.x16),
-          PButton(
-            label: '캘린더 삭제',
-            icon: LucideIcons.trash2,
-            variant: PButtonVariant.secondary,
-            dangerous: true,
-            onPressed: _delete,
-          ),
         ],
-      ],
+      ),
     );
   }
 }
@@ -679,7 +703,7 @@ class _MemberRow extends StatelessWidget {
           else
             Padding(
               padding: const EdgeInsets.only(right: 4),
-              child: PBadge(label: roleLabel, variant: roleVariant),
+              child: PBadge(label: roleLabel, variant: roleVariant, icon: roleIcon),
             ),
         ],
       ),
