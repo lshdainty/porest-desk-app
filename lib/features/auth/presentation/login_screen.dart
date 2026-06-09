@@ -35,7 +35,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   void initState() {
     super.initState();
+    final ssoOrigin = Uri.tryParse(Env.ssoUrl);
+    // 비-local 환경에서 SSO 가 HTTPS 가 아니면 로드 거부 (cleartext 자격증명 전송/MITM 방지).
+    if (Env.appEnv != 'local' && ssoOrigin?.scheme != 'https') {
+      _controller = WebViewController();
+      _loading = false;
+      _error = '보안 오류: SSO 서버가 HTTPS 가 아닙니다 (${Env.ssoUrl}).';
+      return;
+    }
+    final allowedHost = ssoOrigin?.host;
     _controller = WebViewController()
+      // React SSO 로그인 페이지 동작에 JS 필요 — 대신 네비게이션을 SSO 오리진으로 제한.
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setNavigationDelegate(
         NavigationDelegate(
@@ -48,6 +58,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           onNavigationRequest: (req) {
             if (req.url.startsWith(Env.authCallbackUri)) {
               _handleCallback(req.url);
+              return NavigationDecision.prevent;
+            }
+            // SSO 오리진 밖 http/https 메인프레임 네비게이션 차단 (오리진 이탈/피싱 방지).
+            final target = Uri.tryParse(req.url);
+            if (target != null &&
+                (target.scheme == 'http' || target.scheme == 'https') &&
+                target.host != allowedHost) {
               return NavigationDecision.prevent;
             }
             return NavigationDecision.navigate;

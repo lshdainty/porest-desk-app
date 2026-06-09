@@ -26,6 +26,8 @@ dependencies:
   cookie_jar: ^4.0.9
   path_provider: ^2.1.5
   webview_flutter: ^4.13.1
+  # 토큰/쿠키 암호화 저장 (Android Keystore / iOS Keychain)
+  flutter_secure_storage: ^9.2.4
 
   # 모델
   freezed_annotation: ^3.1.0

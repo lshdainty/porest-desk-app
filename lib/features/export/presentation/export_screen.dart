@@ -189,10 +189,15 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
       final body = {..._queryBody(types), 'format': _format, 'mask': _mask};
       final filename = _buildFilename(_format, types, r);
       final file = await repo.download(body: body, filename: filename);
-      await Share.shareXFiles(
-        [XFile(file.path, name: filename, mimeType: _mimeType(_format, types))],
-        text: '데이터 내보내기 (${r.start} ~ ${r.end})',
-      );
+      try {
+        await Share.shareXFiles(
+          [XFile(file.path, name: filename, mimeType: _mimeType(_format, types))],
+          text: '데이터 내보내기 (${r.start} ~ ${r.end})',
+        );
+      } finally {
+        // 금융 데이터 평문 임시파일 — 공유 완료 후 즉시 삭제(복구 방지).
+        if (await file.exists()) await file.delete();
+      }
       if (mounted) showPSnackBar(context, '내보내기를 완료했어요', severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (mounted) showPSnackBar(context, '실패: ${e.message}', severity: PSnackSeverity.error);

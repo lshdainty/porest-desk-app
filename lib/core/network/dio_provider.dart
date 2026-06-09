@@ -1,27 +1,23 @@
-import 'dart:io';
-
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logger/logger.dart';
-import 'package:path_provider/path_provider.dart';
 
 import '../../app/env.dart';
 import '../auth/auth_notifier.dart';
 import 'interceptors/auth_interceptor.dart';
 import 'interceptors/lang_interceptor.dart';
 import 'interceptors/log_interceptor.dart';
+import 'secure_cookie_storage.dart';
 
-/// 디스크 영속 cookie_jar (`desk_access_token` 보존).
-/// 단일 인스턴스를 dio 와 로그아웃 헬퍼가 공유한다.
+/// 영속 cookie_jar (`desk_access_token` 보존) — OS 보안 저장소(Keystore/Keychain)에
+/// 암호화 저장(SecureCookieStorage). 단일 인스턴스를 dio 와 로그아웃 헬퍼가 공유.
 final cookieJarProvider = FutureProvider<PersistCookieJar>((ref) async {
-  final docs = await getApplicationDocumentsDirectory();
-  final cookiePath = '${docs.path}/.cookies';
-  await Directory(cookiePath).create(recursive: true);
   return PersistCookieJar(
     ignoreExpires: true,
-    storage: FileStorage(cookiePath),
+    storage: SecureCookieStorage(),
   );
 });
 
@@ -47,7 +43,11 @@ final dioProvider = FutureProvider<Dio>((ref) async {
       },
     ))
     ..interceptors.add(LangInterceptor())
-    ..interceptors.add(AppLogInterceptor(Logger(printer: SimplePrinter(printTime: true))));
+    ..interceptors.add(AppLogInterceptor(Logger(
+      // release 빌드는 debug 로그(요청/응답 URL 등) 출력 차단 — warning 이상만.
+      level: kDebugMode ? Level.debug : Level.warning,
+      printer: SimplePrinter(printTime: true),
+    )));
 
   ref.onDispose(dio.close);
   return dio;

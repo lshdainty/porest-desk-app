@@ -58,7 +58,13 @@ class AuthNotifier extends AsyncNotifier<User?> {
     try {
       await repo.logout();
     } on ApiException {
-      // 서버 응답 실패해도 클라이언트 세션은 비움
+      // transient 실패 대비 1회 재시도 — 서버 세션이 살아있는 채 클라만 비는 상황 최소화.
+      try {
+        await repo.logout();
+      } on ApiException {
+        // 그래도 실패하면 클라이언트 세션만 정리(UI 로그아웃 보장).
+        // 서버 세션 무효화는 토큰 만료 시점에 처리됨.
+      }
     }
     await jar.deleteAll();
     state = const AsyncData(null);

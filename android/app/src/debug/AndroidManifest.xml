@@ -4,4 +4,7 @@
          to allow setting breakpoints, to provide hot reload, etc.
     -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- cleartext(HTTP) 는 디버그 빌드에서만 허용 — 로컬 도커(localhost:8002 / 10.0.2.2).
+         release/main manifest 에는 없어 프로덕션은 HTTPS 강제. -->
+    <application android:usesCleartextTraffic="true" />
 </manifest>
