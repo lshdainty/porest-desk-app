@@ -535,6 +535,9 @@ class _AssetCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = tokens;
     final balance = asset.balance ?? 0;
+    // 음수(빚)만 fg-expense 빨강 + 부호(−), 0 은 부호·강조 없이 '0원' (−0원 방지)
+    // — 관리 화면(account_card_manage_screen) 과 동일 로직.
+    final isNeg = (negativeAmount ? -balance.abs() : balance) < 0;
     // list item — 자체 round/border 없음. 부모 list 가 큰 카드, item 사이 border-top
     // 1px (첫 item 제외) 으로 구분. 클로드 디자인 톤.
     return Material(
@@ -633,11 +636,11 @@ class _AssetCard extends StatelessWidget {
                   Text(
                     masked
                         ? '••••••'
-                        : negativeAmount
+                        : isNeg
                         ? '−${krw(balance.abs())}원'
-                        : '${krw(balance)}원',
+                        : '${krw(balance.abs())}원',
                     style: TextStyle(
-                      color: t.fgPrimary,
+                      color: isNeg ? t.fgExpense : t.fgPrimary,
                       fontSize: PFontSize.bodyLg,
                       fontWeight: PFontWeight.bold,
                       letterSpacing: -0.32,
