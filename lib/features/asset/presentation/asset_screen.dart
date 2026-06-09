@@ -413,11 +413,12 @@ class _SummaryCol extends StatelessWidget {
         Text(
           masked
               ? '••••••'
-              : negative
+              : (negative && amount != 0)
               ? '−${krw(amount.abs())}'
               : krw(amount),
           style: TextStyle(
-            color: valueColor ?? tokens.fgPrimary,
+            // 0원이면 음수 색(빨강) 대신 중립색
+            color: amount == 0 ? tokens.fgPrimary : (valueColor ?? tokens.fgPrimary),
             fontSize: PFontSize.body,
             fontWeight: PFontWeight.bold,
             fontFeatures: const [FontFeature.tabularFigures()],
@@ -452,6 +453,14 @@ class _TypeGroup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 총액이 0원이면 음수 표기(−)·빨강 없이 중립색으로 표시 (web 정합)
+    final isZeroTotal = total == 0;
+    final totalText = masked
+        ? '••••••'
+        : (negativeTotal && !isZeroTotal)
+        ? '−${krw(total.abs())}원'
+        : '${krw(total)}원';
+    final effectiveTotalColor = isZeroTotal ? tokens.fgPrimary : (totalColor ?? tokens.fgPrimary);
     return PCard(
       padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
       child: Column(
@@ -469,13 +478,9 @@ class _TypeGroup extends StatelessWidget {
               ),
               const Spacer(),
               Text(
-                masked
-                    ? '••••••'
-                    : negativeTotal
-                    ? '−${krw(total.abs())}원'
-                    : '${krw(total)}원',
+                totalText,
                 style: TextStyle(
-                  color: totalColor ?? tokens.fgPrimary,
+                  color: effectiveTotalColor,
                   fontSize: PFontSize.bodySm,
                   fontWeight: PFontWeight.bold,
                   fontFeatures: const [FontFeature.tabularFigures()],
@@ -622,19 +627,35 @@ class _AssetCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              Text(
-                masked
-                    ? '••••••'
-                    : negativeAmount
-                    ? '−${krw(balance.abs())}원'
-                    : '${krw(balance)}원',
-                style: TextStyle(
-                  color: t.fgPrimary,
-                  fontSize: PFontSize.bodyLg,
-                  fontWeight: PFontWeight.bold,
-                  letterSpacing: -0.32,
-                  fontFeatures: const [FontFeature.tabularFigures()],
-                ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    masked
+                        ? '••••••'
+                        : negativeAmount
+                        ? '−${krw(balance.abs())}원'
+                        : '${krw(balance)}원',
+                    style: TextStyle(
+                      color: t.fgPrimary,
+                      fontSize: PFontSize.bodyLg,
+                      fontWeight: PFontWeight.bold,
+                      letterSpacing: -0.32,
+                      fontFeatures: const [FontFeature.tabularFigures()],
+                    ),
+                  ),
+                  // 총액에서 제외된 자산이면 금액 아래 '총액 제외' 표기 (관리 화면 정합)
+                  if (asset.isIncludedInTotal == 'N') ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      '총액 제외',
+                      style: TextStyle(
+                        color: t.fgTertiary,
+                        fontSize: PFontSize.micro,
+                      ),
+                    ),
+                  ],
+                ],
               ),
             ],
           ),
