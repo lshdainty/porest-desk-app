@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/theme/radius.dart';
 import '../../../../app/theme/tokens.dart';
 import '../../../../app/theme/typography.dart';
+import '../../../../core/format/chart_axis.dart';
 import '../../../../core/format/krw.dart';
 import '../../../../core/settings/settings_notifier.dart';
 import '../../../../shared/widgets/p_chart_tooltip.dart';
@@ -68,7 +67,7 @@ class _NetWorthChartState extends ConsumerState<NetWorthChart> {
           final dataMin = values.reduce((a, b) => a < b ? a : b);
           // 웹 Recharts 의 auto-nice 축을 이식 — 0 기준 + 1·2·2.5·5×10ⁿ 눈금.
           // fl_chart 는 auto-nice 가 없어 직접 계산해야 0-base·딱떨어지는 눈금·라벨 겹침해소가 된다.
-          final axis = _niceAxis(dataMin, dataMax);
+          final axis = niceAxis(dataMin, dataMax);
           final yMin = axis.min;
           final yMax = axis.max;
           final yInterval = axis.interval;
@@ -266,46 +265,4 @@ String _fmtFull(double v) {
     buf.write(body[i]);
   }
   return '${neg ? '-' : ''}${buf.toString()}원';
-}
-
-/// 웹 Recharts 의 auto-nice Y축을 fl_chart 로 이식한다.
-///
-/// fl_chart 는 min/max/interval 을 직접 줘야 하므로, 데이터 범위를 받아
-/// ① 항상 0 을 포함하고(양수 추이는 0 부터, 음수면 0 아래로 확장),
-/// ② 끝점·간격을 1·2·2.5·5×10ⁿ "딱 떨어지는" 값으로 맞춘 축을 돌려준다.
-/// 예) max 60,881,200 → (min 0, max 80,000,000, interval 20,000,000)
-///     = 0 / 2,000만 / 4,000만 / 6,000만 / 8,000만 (웹 화면과 동일).
-({double min, double max, double interval}) _niceAxis(
-  double dataMin,
-  double dataMax,
-) {
-  var lo = math.min(0.0, dataMin);
-  var hi = math.max(0.0, dataMax);
-  if (lo == hi) hi = lo + 1; // 전부 0/동일값일 때 0 division 방지
-  const targetSteps = 4; // 구간 4 → 라벨 약 5개 (140px 높이에서 겹치지 않음)
-  final step = _niceStep((hi - lo) / targetSteps);
-  final niceMin = (lo / step).floorToDouble() * step;
-  final niceMax = (hi / step).ceilToDouble() * step;
-  return (min: niceMin, max: niceMax, interval: step);
-}
-
-/// [rough] 이상이 되는 가장 가까운 "깔끔한" 간격 (1·2·2.5·5×10ⁿ).
-double _niceStep(double rough) {
-  if (rough <= 0) return 1;
-  final exp = (math.log(rough) / math.ln10).floorToDouble();
-  final pow10 = math.pow(10, exp).toDouble();
-  final frac = rough / pow10; // [1, 10)
-  final double niceFrac;
-  if (frac <= 1) {
-    niceFrac = 1;
-  } else if (frac <= 2) {
-    niceFrac = 2;
-  } else if (frac <= 2.5) {
-    niceFrac = 2.5;
-  } else if (frac <= 5) {
-    niceFrac = 5;
-  } else {
-    niceFrac = 10;
-  }
-  return niceFrac * pow10;
 }

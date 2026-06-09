@@ -9,6 +9,7 @@ import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
+import '../../../core/format/chart_axis.dart';
 import '../../../core/format/chart_palette.dart' as cp;
 import '../../../core/format/krw.dart';
 import '../../../core/settings/settings_notifier.dart';
@@ -2248,6 +2249,11 @@ class _SavingsBarsCardState extends ConsumerState<_SavingsBarsCard> {
     final useDaily = widget.state.useDailyTrend(
       widget.rangeAsync.value?.monthlyBuckets.length ?? 0,
     );
+    // Y축: 웹 정합 0기준 nice 눈금 (순저축은 음수 가능 → 0 아래로도 nice 확장).
+    final savingsVals = data.map((p) => p.savings.toDouble()).toList();
+    final savingsAxis = savingsVals.isEmpty
+        ? (min: 0.0, max: 1.0, interval: 1.0)
+        : niceAxis(savingsVals.reduce(math.min), savingsVals.reduce(math.max));
     return _Card(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -2272,6 +2278,8 @@ class _SavingsBarsCardState extends ConsumerState<_SavingsBarsCard> {
                   BarChart(
                     BarChartData(
                       alignment: BarChartAlignment.spaceAround,
+                      minY: savingsAxis.min,
+                      maxY: savingsAxis.max,
                       barTouchData: BarTouchData(
                         enabled: true,
                         handleBuiltInTouches: true,
@@ -2316,6 +2324,7 @@ class _SavingsBarsCardState extends ConsumerState<_SavingsBarsCard> {
                       gridData: FlGridData(
                         show: true,
                         drawVerticalLine: false,
+                        horizontalInterval: savingsAxis.interval,
                         getDrawingHorizontalLine: (_) => FlLine(
                           color: t.borderSubtle,
                           strokeWidth: 1,
@@ -2328,6 +2337,7 @@ class _SavingsBarsCardState extends ConsumerState<_SavingsBarsCard> {
                           sideTitles: SideTitles(
                             showTitles: true,
                             reservedSize: 44,
+                            interval: savingsAxis.interval,
                             getTitlesWidget: (v, _) => Padding(
                               padding: const EdgeInsets.only(right: 6),
                               child: Text(

@@ -8,6 +8,7 @@ import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
+import '../../../core/format/chart_axis.dart';
 import '../../../core/format/chart_palette.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/settings/hide_amounts_unlock_dialog.dart';
@@ -443,24 +444,15 @@ class _BalanceTrendChartState extends State<_BalanceTrendChart> {
       for (int i = 0; i < n; i++)
         FlSpot(i.toDouble(), list[i].balance.toDouble()),
     ];
-    // 데이터 실제 min/max — 첫 값으로 시작해서 양쪽 비교 (하드코딩 0 사용 X).
-    final values = list.map((p) => p.balance).toList(growable: false);
-    final maxRaw = values
-        .fold<int>(values.first, (m, v) => v > m ? v : m)
-        .toDouble();
-    final minRaw = values
-        .fold<int>(values.first, (m, v) => v < m ? v : m)
-        .toDouble();
-
-    // 모두 양수면 yMin 을 0 으로 클램프 (음수 영역 표시 방지 — web recharts 동작).
-    // pad 는 시각 여유.
-    final span = (maxRaw - minRaw).abs();
-    final pad = (span * 0.12).clamp(1.0, double.infinity);
-    final allNonNeg = minRaw >= 0;
-    final yMin = allNonNeg ? 0.0 : minRaw - pad;
-    final yMax = maxRaw + pad;
-    // 라벨은 최대 4개. fl_chart interval 은 데이터 거리 기반.
-    final yInterval = ((yMax - yMin) / 3).clamp(1.0, double.infinity);
+    // Y축: 웹 Recharts auto-nice 와 동일한 0기준 nice 눈금 (공유 niceAxis).
+    // 대출 등 음수 잔액이면 0 아래로도 nice 확장 → 눈금이 딱 떨어지고 겹치지 않음.
+    final values = list.map((p) => p.balance.toDouble()).toList(growable: false);
+    final maxRaw = values.reduce((a, b) => a > b ? a : b);
+    final minRaw = values.reduce((a, b) => a < b ? a : b);
+    final yAxis = niceAxis(minRaw, maxRaw);
+    final yMin = yAxis.min;
+    final yMax = yAxis.max;
+    final yInterval = yAxis.interval;
     final xInterval = (n / 6).clamp(1.0, double.infinity);
 
     final chart = LineChart(
