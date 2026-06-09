@@ -6,7 +6,8 @@ abstract final class PFontWeight {
   static const FontWeight medium = FontWeight.w500;  // --fw-medium
   static const FontWeight semi = FontWeight.w600;    // --fw-semi
   static const FontWeight bold = FontWeight.w700;    // --fw-bold
-  static const FontWeight heavy = FontWeight.w800;   // --fw-heavy
+  // heavy (800) 제거됨 — SoT 최대 700 (bold). 옛 위젯 PFontWeight.heavy 호출
+  // 26 places 모두 PFontWeight.bold 로 마이그 (display heading 가벼움 800→700).
 }
 
 /// 폰트 크기 토큰 — 웹 `--fs-*` 와 1:1 매핑 (px).
@@ -15,14 +16,17 @@ abstract final class PFontSize {
   static const double caption = 12;     // --fs-caption
   static const double bodySm = 13;      // --fs-body-sm
   static const double body = 14;        // --fs-body
+  static const double bodyMd = 15;      // --fs-body-md (spec body-md)
   static const double bodyLg = 16;      // --fs-body-lg
-  static const double h4 = 17;          // --fs-h4
-  static const double h3 = 20;          // --fs-h3
-  static const double h2 = 24;          // --fs-h2
+  static const double titleSm = 16;     // spec title-sm (== body-lg)
+  static const double h4 = 18;          // SoT title-md
+  static const double titleMd = 18;     // SoT title-md
+  static const double h3 = 20;          // --fs-h3 (== title-lg)
+  static const double h2 = 24;          // --fs-h2 (== display-sm)
   static const double h1 = 30;          // --fs-h1
-  static const double displayMd = 36;   // --fs-display-md
-  static const double displayLg = 44;   // --fs-display-lg
-  static const double displayXl = 56;   // --fs-display-xl
+  static const double displayMd = 32;   // SoT display-md
+  static const double displayLg = 40;   // SoT display-lg
+  static const double displayXl = 56;   // SoT display-xl
 }
 
 /// 라인 하이트 토큰 — 웹 `--lh-*` 와 1:1 매핑 (Flutter `height` 속성).
@@ -62,41 +66,41 @@ abstract final class PTypo {
   static const String sans = 'Pretendard';
   static const String mono = 'JetBrainsMono';
 
-  // Display
+  // Display — porest-design SoT (DESIGN.desk.md L92-109) 정합
   static const TextStyle displayXl = TextStyle(
-    fontFamily: sans, fontSize: 56, height: 1.15, letterSpacing: -1.232,
-    fontWeight: FontWeight.w800,
+    fontFamily: sans, fontSize: 56, height: 1.05, letterSpacing: -1.12,
+    fontWeight: FontWeight.w700, // SoT 정합
   );
   static const TextStyle displayLg = TextStyle(
-    fontFamily: sans, fontSize: 44, height: 1.15, letterSpacing: -0.968,
-    fontWeight: FontWeight.w700,
+    fontFamily: sans, fontSize: 40, height: 1.1, letterSpacing: -0.4,
+    fontWeight: FontWeight.w700, // SoT 정합
   );
   static const TextStyle displayMd = TextStyle(
-    fontFamily: sans, fontSize: 36, height: 1.15, letterSpacing: -0.792,
-    fontWeight: FontWeight.w700,
+    fontFamily: sans, fontSize: 32, height: 1.2, letterSpacing: -0.32,
+    fontWeight: FontWeight.w700, // SoT 정합
   );
 
   // Headings
   static const TextStyle h1 = TextStyle(
-    fontFamily: sans, fontSize: 30, height: 1.3, letterSpacing: -0.66,
-    fontWeight: FontWeight.w700,
+    fontFamily: sans, fontSize: 30, height: 1.15, letterSpacing: -0.66,
+    fontWeight: FontWeight.w700, // bold, lh-tight (spec 일치)
   );
   static const TextStyle h2 = TextStyle(
     fontFamily: sans, fontSize: 24, height: 1.3, letterSpacing: -0.288,
     fontWeight: FontWeight.w700,
   );
   static const TextStyle h3 = TextStyle(
-    fontFamily: sans, fontSize: 20, height: 1.3, letterSpacing: -0.24,
-    fontWeight: FontWeight.w600,
+    fontFamily: sans, fontSize: 20, height: 1.4, letterSpacing: -0.24,
+    fontWeight: FontWeight.w600, // SoT title-lg lh 1.4
   );
   static const TextStyle h4 = TextStyle(
-    fontFamily: sans, fontSize: 17, height: 1.3, letterSpacing: -0.204,
-    fontWeight: FontWeight.w600,
+    fontFamily: sans, fontSize: 18, height: 1.4, letterSpacing: -0.216,
+    fontWeight: FontWeight.w600, // SoT title-md 18/1.4
   );
 
-  // Body
+  // Body — SoT body-lg lh 1.6
   static const TextStyle bodyLg = TextStyle(
-    fontFamily: sans, fontSize: 16, height: 1.5,
+    fontFamily: sans, fontSize: 16, height: 1.6,
     fontWeight: FontWeight.w400,
   );
   static const TextStyle body = TextStyle(

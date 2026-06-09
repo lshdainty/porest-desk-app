@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
@@ -8,18 +8,26 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/widgets/markdown_preview.dart';
+import '../../../shared/widgets/p_button.dart';
+import '../../../shared/widgets/p_date_input.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_progress.dart';
+import '../../../shared/widgets/p_select.dart';
+import '../../../shared/widgets/p_snack_bar.dart';
+import '../../../shared/widgets/p_text_input.dart';
 import '../application/todo_providers.dart';
 import '../domain/todo.dart';
+import '../domain/todo_meta.dart';
 
 void showTodoEditDialog(BuildContext context, {Todo? edit}) {
   final controller = PSheetController();
   showPSheet<void>(
     context,
     title: edit == null ? '할 일 추가' : '할 일 수정',
-    contentBuilder: (ctx, scrollCtrl) => _Body(
+    // 컨텐츠 높이에 맞춰 wrap (web 다이얼로그처럼) — 기본 0.85 강제 높이 사용 X.
+    shrinkWrap: true,
+    contentBuilder: (ctx, _) => _Body(
       edit: edit,
-      scrollController: scrollCtrl,
       controller: controller,
     ),
     footerBuilder: (ctx) => PSheetFooter(
@@ -32,11 +40,9 @@ void showTodoEditDialog(BuildContext context, {Todo? edit}) {
 class _Body extends ConsumerStatefulWidget {
   const _Body({
     this.edit,
-    required this.scrollController,
     required this.controller,
   });
   final Todo? edit;
-  final ScrollController scrollController;
   final PSheetController controller;
   @override
   ConsumerState<_Body> createState() => _BodyState();
@@ -46,7 +52,10 @@ class _BodyState extends ConsumerState<_Body> {
   late final TextEditingController _titleCtrl;
   late final TextEditingController _contentCtrl;
   bool _previewContent = false;
-  late final TextEditingController _categoryCtrl;
+  // 제목 입력 인터랙션 후에만 인라인 에러 노출.
+  bool _titleTouched = false;
+  // 태그 = 기존 category 필드(자유 텍스트 → select 7종). 저장은 category 로.
+  late String _tag;
   late String _priority;
   DateTime? _due;
   bool _submitting = false;
@@ -57,7 +66,7 @@ class _BodyState extends ConsumerState<_Body> {
     super.initState();
     _titleCtrl = TextEditingController(text: widget.edit?.title ?? '');
     _contentCtrl = TextEditingController(text: widget.edit?.content ?? '');
-    _categoryCtrl = TextEditingController(text: widget.edit?.category ?? '');
+    _tag = todoTagOrDefault(widget.edit?.category);
     _priority = widget.edit?.priority ?? 'MEDIUM';
     _due = widget.edit?.due;
     widget.controller.onSubmit = _submit;
@@ -76,7 +85,6 @@ class _BodyState extends ConsumerState<_Body> {
   void dispose() {
     _titleCtrl.dispose();
     _contentCtrl.dispose();
-    _categoryCtrl.dispose();
     super.dispose();
   }
 
@@ -97,9 +105,7 @@ class _BodyState extends ConsumerState<_Body> {
           content:
               _contentCtrl.text.trim().isEmpty ? null : _contentCtrl.text.trim(),
           priority: _priority,
-          category: _categoryCtrl.text.trim().isEmpty
-              ? null
-              : _categoryCtrl.text.trim(),
+          category: _tag, // 태그 7종을 기존 category 필드에 저장
           dueDate: _due == null ? null : _fmtDate(_due!),
         );
       } else {
@@ -108,9 +114,7 @@ class _BodyState extends ConsumerState<_Body> {
           content:
               _contentCtrl.text.trim().isEmpty ? null : _contentCtrl.text.trim(),
           priority: _priority,
-          category: _categoryCtrl.text.trim().isEmpty
-              ? null
-              : _categoryCtrl.text.trim(),
+          category: _tag,
           dueDate: _due == null ? null : _fmtDate(_due!),
         );
       }
@@ -121,9 +125,7 @@ class _BodyState extends ConsumerState<_Body> {
       Navigator.of(context).pop();
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('실패: ${e.message}')),
-      );
+      showPSnackBar(context, '실패: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setSubmitting(false);
     }
@@ -147,9 +149,7 @@ class _BodyState extends ConsumerState<_Body> {
       Navigator.of(context).pop();
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('삭제 실패: ${e.message}')),
-      );
+      showPSnackBar(context, '삭제 실패: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setSubmitting(false);
     }
@@ -161,17 +161,70 @@ class _BodyState extends ConsumerState<_Body> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) widget.controller.setCanSubmit(_canSubmit);
     });
-    return ListView(
-      controller: widget.scrollController,
+    return Padding(
       padding: const EdgeInsets.fromLTRB(
           PSpace.x16, 0, PSpace.x16, PSpace.x16),
-      children: [
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
           Text('제목', style: PTypo.caption.copyWith(color: t.fgSecondary)),
           const SizedBox(height: PSpace.x4),
-          TextField(
+          PTextInput(
             controller: _titleCtrl,
-            decoration: const InputDecoration(hintText: '예: 보고서 작성'),
-            onChanged: (_) => setState(() {}),
+            placeholder: '할 일을 적어주세요',
+            onChanged: (_) => setState(() => _titleTouched = true),
+            errorText: _titleCtrl.text.trim().isEmpty && _titleTouched
+                ? '제목을 입력해주세요'
+                : null,
+          ),
+          const SizedBox(height: PSpace.x12),
+
+          // 마감일 + 태그 2열.
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('마감일',
+                        style:
+                            PTypo.caption.copyWith(color: t.fgSecondary)),
+                    const SizedBox(height: PSpace.x4),
+                    PDateInput(
+                      value: _due,
+                      onChanged: (d) => setState(() => _due = d),
+                      firstDate: DateTime(2020),
+                      lastDate: DateTime(2030),
+                      placeholder: '미설정',
+                      allowClear: true,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: PSpace.x12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('태그',
+                        style:
+                            PTypo.caption.copyWith(color: t.fgSecondary)),
+                    const SizedBox(height: PSpace.x4),
+                    PSelect<String>(
+                      value: _tag,
+                      title: '태그 선택',
+                      items: [
+                        for (final tag in kTodoTags)
+                          PSelectItem<String>(value: tag, label: tag),
+                      ],
+                      onChanged: (v) =>
+                          setState(() => _tag = v ?? kTodoDefaultTag),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: PSpace.x12),
 
@@ -182,65 +235,6 @@ class _BodyState extends ConsumerState<_Body> {
               value: _priority,
               onChanged: (v) => setState(() => _priority = v),
               tokens: t),
-          const SizedBox(height: PSpace.x12),
-
-          Text('마감일 (선택)',
-              style: PTypo.caption.copyWith(color: t.fgSecondary)),
-          const SizedBox(height: PSpace.x4),
-          Row(
-            children: [
-              Expanded(
-                child: InkWell(
-                  onTap: () async {
-                    final d = await showDatePicker(
-                      context: context,
-                      initialDate: _due ?? DateTime.now(),
-                      firstDate: DateTime(2020),
-                      lastDate: DateTime(2030),
-                    );
-                    if (d != null) setState(() => _due = d);
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 12),
-                    decoration: BoxDecoration(
-                      color: t.bgMuted,
-                      borderRadius: PRadius.brMd,
-                      border: Border.all(color: t.borderDefault),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(LucideIcons.calendar,
-                            size: 16, color: t.fgSecondary),
-                        const SizedBox(width: 6),
-                        Text(_due == null ? '미설정' : _fmtDate(_due!),
-                            style: PTypo.bodySm.copyWith(
-                                color: _due == null
-                                    ? t.fgPlaceholder
-                                    : t.fgPrimary)),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              if (_due != null)
-                IconButton(
-                  onPressed: () => setState(() => _due = null),
-                  icon: Icon(LucideIcons.x,
-                      size: 16, color: t.fgTertiary),
-                  tooltip: '마감일 제거',
-                ),
-            ],
-          ),
-          const SizedBox(height: PSpace.x12),
-
-          Text('카테고리 (선택)',
-              style: PTypo.caption.copyWith(color: t.fgSecondary)),
-          const SizedBox(height: PSpace.x4),
-          TextField(
-            controller: _categoryCtrl,
-            decoration: const InputDecoration(hintText: '예: 업무, 개인'),
-          ),
           const SizedBox(height: PSpace.x12),
 
           Row(
@@ -291,19 +285,18 @@ class _BodyState extends ConsumerState<_Body> {
                   : MarkdownPreview(_contentCtrl.text),
             )
           else
-            TextField(
+            PTextInput(
               controller: _contentCtrl,
               maxLines: 6,
-              decoration: const InputDecoration(
-                hintText: '예: # 제목 / **굵게** / - 항목 / - [ ] 체크',
-              ),
+              placeholder: '예: # 제목 / **굵게** / - 항목 / - [ ] 체크',
             ),
 
           if (_isEdit) ...[
             const SizedBox(height: PSpace.x16),
             _SubtaskSection(parentId: widget.edit!.rowId, tokens: t),
           ],
-      ],
+        ],
+      ),
     );
   }
 }
@@ -316,7 +309,7 @@ class _PriSeg extends StatelessWidget {
   final PorestTokens tokens;
   @override
   Widget build(BuildContext context) {
-    const opts = [('HIGH', '높음'), ('MEDIUM', '보통'), ('LOW', '낮음')];
+    const opts = [('HIGH', '중요'), ('MEDIUM', '보통'), ('LOW', '여유')];
     return Container(
       padding: const EdgeInsets.all(4),
       decoration:
@@ -385,9 +378,7 @@ class _SubtaskSectionState extends ConsumerState<_SubtaskSection> {
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() => _adding = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('추가 실패: ${e.message}')),
-      );
+      showPSnackBar(context, '추가 실패: ${e.message}', severity: PSnackSeverity.error);
     }
   }
 
@@ -400,9 +391,7 @@ class _SubtaskSectionState extends ConsumerState<_SubtaskSection> {
       ref.invalidate(todoSubtasksProvider(widget.parentId));
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('상태 변경 실패: ${e.message}')),
-      );
+      showPSnackBar(context, '상태 변경 실패: ${e.message}', severity: PSnackSeverity.error);
     }
   }
 
@@ -413,9 +402,7 @@ class _SubtaskSectionState extends ConsumerState<_SubtaskSection> {
       ref.invalidate(todoSubtasksProvider(widget.parentId));
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('삭제 실패: ${e.message}')),
-      );
+      showPSnackBar(context, '삭제 실패: ${e.message}', severity: PSnackSeverity.error);
     }
   }
 
@@ -432,7 +419,7 @@ class _SubtaskSectionState extends ConsumerState<_SubtaskSection> {
         async.when(
           loading: () => const Padding(
             padding: EdgeInsets.symmetric(vertical: 8),
-            child: Center(child: CircularProgressIndicator()),
+            child: Center(child: PCircularProgressIndicator()),
           ),
           error: (e, _) => Text('하위 작업 로드 실패',
               style: PTypo.caption.copyWith(color: t.statusDanger)),
@@ -445,18 +432,15 @@ class _SubtaskSectionState extends ConsumerState<_SubtaskSection> {
                     padding: const EdgeInsets.symmetric(vertical: 2),
                     child: Row(
                       children: [
-                        IconButton(
-                          icon: Icon(
-                            s.status == 'COMPLETED'
-                                ? LucideIcons.checkCircle
-                                : LucideIcons.circle,
-                            size: 16,
-                            color: s.status == 'COMPLETED'
-                                ? t.statusSuccess
-                                : t.fgTertiary,
-                          ),
+                        PButton.icon(
+                          icon: s.status == 'COMPLETED'
+                              ? LucideIcons.checkCircle
+                              : LucideIcons.circle,
+                          size: PButtonSize.sm,
+                          iconColor: s.status == 'COMPLETED'
+                              ? t.statusSuccess
+                              : t.fgTertiary,
                           onPressed: () => _toggleStatus(s),
-                          visualDensity: VisualDensity.compact,
                         ),
                         Expanded(
                           child: Text(
@@ -469,11 +453,11 @@ class _SubtaskSectionState extends ConsumerState<_SubtaskSection> {
                             ),
                           ),
                         ),
-                        IconButton(
-                          icon: Icon(LucideIcons.x,
-                              size: 14, color: t.fgTertiary),
+                        PButton.icon(
+                          icon: LucideIcons.x,
+                          size: PButtonSize.sm,
+                          iconColor: t.fgTertiary,
                           onPressed: () => _deleteSubtask(s.rowId),
-                          visualDensity: VisualDensity.compact,
                         ),
                       ],
                     ),
@@ -486,24 +470,20 @@ class _SubtaskSectionState extends ConsumerState<_SubtaskSection> {
         Row(
           children: [
             Expanded(
-              child: TextField(
+              child: PTextInput(
                 controller: _ctrl,
                 enabled: !_adding,
-                decoration: const InputDecoration(
-                    hintText: '+ 하위 작업 추가', isDense: true),
+                placeholder: '+ 하위 작업 추가',
                 onSubmitted: (_) => _addSubtask(),
                 onChanged: (_) => setState(() {}),
               ),
             ),
             const SizedBox(width: 6),
-            FilledButton(
+            PButton(
+              label: '추가',
+              loading: _adding,
               onPressed:
                   (_ctrl.text.trim().isEmpty || _adding) ? null : _addSubtask,
-              child: _adding
-                  ? const SizedBox(
-                      width: 14, height: 14,
-                      child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Text('추가'),
             ),
           ],
         ),

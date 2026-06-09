@@ -4,48 +4,101 @@ import '../../app/theme/radius.dart';
 import '../../app/theme/spacing.dart';
 import '../../app/theme/tokens.dart';
 import '../../app/theme/typography.dart';
+import 'p_tooltip.dart';
 
 /// front `<Button>` (shadcn) 미러 — variant 별 일관 스타일.
 ///
-/// variants: primary / secondary / outline / ghost / danger
+/// variants: primary / secondary / outline / ghost(중립) / accent(brand 강조) / danger
 /// size: sm / md / lg
-enum PButtonVariant { primary, secondary, outline, ghost, danger }
+enum PButtonVariant { primary, secondary, outline, ghost, accent, danger }
 
 enum PButtonSize { sm, md, lg }
 
 class PButton extends StatelessWidget {
   const PButton({
     super.key,
-    required this.label,
+    this.label,
     this.onPressed,
     this.icon,
     this.variant = PButtonVariant.primary,
     this.size = PButtonSize.md,
     this.loading = false,
     this.fullWidth = false,
-  });
+    this.tooltip,
+    this.iconColor,
+    this.dangerous = false,
+  }) : assert(label != null || icon != null,
+            'PButton requires either a label or an icon');
 
-  final String label;
+  /// icon-only 생성자 — front `<Button size="icon" variant="ghost">` 대응.
+  /// 가로 = 높이 (정사각), padding 작게.
+  const PButton.icon({
+    super.key,
+    required IconData this.icon,
+    this.onPressed,
+    this.variant = PButtonVariant.ghost,
+    this.size = PButtonSize.md,
+    this.loading = false,
+    this.tooltip,
+    this.iconColor,
+    this.dangerous = false,
+  })  : label = null,
+        fullWidth = false;
+
+  final String? label;
   final VoidCallback? onPressed;
   final IconData? icon;
   final PButtonVariant variant;
   final PButtonSize size;
   final bool loading;
   final bool fullWidth;
+  final String? tooltip;
+  /// icon-only ghost 버튼에서 아이콘 색만 override (예: trash danger).
+  /// label 모드에서도 icon 만 분리 색 적용.
+  final Color? iconColor;
+  /// ghost variant 에 위험(파괴적) 액션 색을 입힌다 — fg/icon → statusDangerFg.
+  /// dialog footer 의 "삭제" 같이 filled `danger` 보다 절제된 표현이 필요한 곳.
+  /// 다른 variant 와 함께 쓰면 무시.
+  final bool dangerous;
+
+  // DESIGN.desk.md / specs/components/button.md spec:
+  // sm: h=32, padY=4 padX=8, font=caption(12), radius=sm(4), icon=14
+  // md: h=40, padY=8 padX=12, font=body-md(15), radius=sm(4), icon=16
+  // lg: h=48, padY=12 padX=16, font=title-sm(16), radius=md(8), icon=18
+  double _height() => switch (size) {
+        PButtonSize.sm => 32,
+        PButtonSize.md => 40,
+        PButtonSize.lg => 48,
+      };
 
   EdgeInsetsGeometry _padding() => switch (size) {
         PButtonSize.sm =>
-          const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         PButtonSize.md =>
-          const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         PButtonSize.lg =>
-          const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+          const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       };
 
   TextStyle _textStyle(PorestTokens t) => switch (size) {
-        PButtonSize.sm => PTypo.caption.copyWith(fontWeight: PFontWeight.semi),
-        PButtonSize.md => PTypo.bodySm.copyWith(fontWeight: PFontWeight.semi),
-        PButtonSize.lg => PTypo.body.copyWith(fontWeight: PFontWeight.bold),
+        PButtonSize.sm => TextStyle(
+              fontFamily: PTypo.sans,
+              fontSize: PFontSize.caption,
+              fontWeight: PFontWeight.medium,
+              height: 1.0,
+            ),
+        PButtonSize.md => TextStyle(
+              fontFamily: PTypo.sans,
+              fontSize: PFontSize.bodyMd,
+              fontWeight: PFontWeight.medium,
+              height: 1.0,
+            ),
+        PButtonSize.lg => TextStyle(
+              fontFamily: PTypo.sans,
+              fontSize: PFontSize.titleSm,
+              fontWeight: PFontWeight.medium,
+              height: 1.0,
+            ),
       };
 
   double _iconSize() => switch (size) {
@@ -54,15 +107,24 @@ class PButton extends StatelessWidget {
         PButtonSize.lg => 18,
       };
 
+  BorderRadius _radius() => switch (size) {
+        PButtonSize.sm => PRadius.brSm,
+        PButtonSize.md => PRadius.brSm,
+        PButtonSize.lg => PRadius.brMd,
+      };
+
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final iconOnly = label == null;
     Color bg;
     Color fg;
     BorderSide border;
     switch (variant) {
       case PButtonVariant.primary:
-        bg = t.bgBrand;
+        // 채운 primary 버튼은 solid 고정 (다크에서도 primary). bgBrand 는 다크에서
+        // primary-light 로 밝아져 흰 글씨 채움 버튼엔 부적합 — 웹 --bg-brand 정합.
+        bg = t.bgBrandSolid;
         fg = t.fgOnBrand;
         border = BorderSide.none;
         break;
@@ -78,7 +140,15 @@ class PButton extends StatelessWidget {
         break;
       case PButtonVariant.ghost:
         bg = Colors.transparent;
-        fg = t.fgSecondary;
+        // icon-only ghost(아이콘 액션)는 보조톤 fgSecondary — front button.md v96 정합.
+        fg = dangerous
+            ? t.statusDangerFg
+            : (iconOnly ? t.fgSecondary : t.fgPrimary);
+        border = BorderSide.none;
+        break;
+      case PButtonVariant.accent:
+        bg = Colors.transparent;
+        fg = dangerous ? t.statusDangerFg : t.fgBrand;
         border = BorderSide.none;
         break;
       case PButtonVariant.danger:
@@ -89,40 +159,52 @@ class PButton extends StatelessWidget {
     }
 
     final disabled = onPressed == null || loading;
+    // icon-only는 radius-md 둥근 박스 (정사각 + 또렷한 hover/splash) — front button.md v96 정합.
+    final radius = iconOnly ? PRadius.brMd : _radius();
+    final h = _height();
     final btn = Material(
       color: disabled ? bg.withValues(alpha: 0.5) : bg,
       shape: RoundedRectangleBorder(
-        borderRadius: PRadius.brMd,
+        borderRadius: radius,
         side: border,
       ),
       child: InkWell(
         onTap: disabled ? null : onPressed,
-        borderRadius: PRadius.brMd,
-        child: Padding(
-          padding: _padding(),
-          child: Row(
-            mainAxisSize: fullWidth ? MainAxisSize.max : MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (loading)
-                SizedBox(
-                  width: _iconSize(),
-                  height: _iconSize(),
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: fg,
-                  ),
-                )
-              else if (icon != null)
-                Icon(icon, size: _iconSize(), color: fg),
-              if ((loading || icon != null)) const SizedBox(width: 6),
-              Text(label, style: _textStyle(t).copyWith(color: fg)),
-            ],
+        borderRadius: radius,
+        child: SizedBox(
+          height: h,
+          width: iconOnly ? h : null,
+          child: Padding(
+            padding: iconOnly ? EdgeInsets.zero : _padding(),
+            child: Row(
+              mainAxisSize: fullWidth ? MainAxisSize.max : MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (loading)
+                  SizedBox(
+                    width: _iconSize(),
+                    height: _iconSize(),
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: fg,
+                    ),
+                  )
+                else if (icon != null)
+                  Icon(icon, size: _iconSize(), color: iconColor ?? fg),
+                if (!iconOnly && (loading || icon != null))
+                  const SizedBox(width: PSpace.sm),
+                if (!iconOnly)
+                  Text(label!, style: _textStyle(t).copyWith(color: fg)),
+              ],
+            ),
           ),
         ),
       ),
     );
-    return fullWidth ? SizedBox(width: double.infinity, child: btn) : btn;
+    final tipped = tooltip != null
+        ? PTooltip(message: tooltip!, child: btn)
+        : btn;
+    return fullWidth ? SizedBox(width: double.infinity, child: tipped) : tipped;
   }
 }
 

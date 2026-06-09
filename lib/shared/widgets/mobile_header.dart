@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../app/theme/radius.dart';
 import '../../app/theme/tokens.dart';
 import '../../app/theme/typography.dart';
+import 'p_tooltip.dart';
 import '../../core/settings/hide_amounts_unlock_dialog.dart';
 import '../../core/settings/settings_notifier.dart';
 import '../../features/notification/application/notification_providers.dart';
@@ -99,11 +100,11 @@ class _NotificationBell extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final unread = ref.watch(unreadCountProvider).value ?? 0;
-    return Tooltip(
+    return PTooltip(
       message: '알림',
       child: InkWell(
         onTap: () => context.push('/notifications'),
-        borderRadius: PRadius.brPill,
+        borderRadius: PRadius.brFull,
         child: SizedBox(
           width: 36,
           height: 36,
@@ -112,28 +113,18 @@ class _NotificationBell extends ConsumerWidget {
             alignment: Alignment.center,
             children: [
               Icon(LucideIcons.bell, size: 20, color: tokens.fgPrimary),
+              // front NotificationBell 정합 — 숫자 대신 작은 점(dot)으로 표시.
+              // (count 배지가 아이콘을 가리던 문제 해소)
               if (unread > 0)
                 Positioned(
-                  top: 6,
-                  right: 6,
+                  top: 8,
+                  right: 8,
                   child: Container(
-                    constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    width: 7,
+                    height: 7,
                     decoration: BoxDecoration(
-                      color: tokens.statusDanger,
-                      borderRadius: PRadius.brPill,
-                      border: Border.all(color: tokens.bgSurface, width: 1.5),
-                    ),
-                    child: Center(
-                      child: Text(
-                        unread > 99 ? '99+' : '$unread',
-                        style: TextStyle(
-                          color: tokens.fgOnDanger,
-                          fontSize: PFontSize.micro,
-                          fontWeight: PFontWeight.bold,
-                          height: PLineHeight.tight,
-                        ),
-                      ),
+                      color: tokens.fgExpense,
+                      shape: BoxShape.circle,
                     ),
                   ),
                 ),
@@ -155,11 +146,11 @@ class _IcoBtn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Tooltip(
+    return PTooltip(
       message: tooltip ?? '',
       child: InkWell(
         onTap: onPressed,
-        borderRadius: PRadius.brPill,
+        borderRadius: PRadius.brFull,
         child: SizedBox(
           width: 36,
           height: 36,

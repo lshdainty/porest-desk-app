@@ -13,12 +13,14 @@ _Asset _$AssetFromJson(Map<String, dynamic> json) => _Asset(
   assetType: json['assetType'] as String,
   balance: (json['balance'] as num?)?.toInt(),
   currency: json['currency'] as String?,
-  icon: json['icon'] as String?,
   color: json['color'] as String?,
   institution: json['institution'] as String?,
   memo: json['memo'] as String?,
   sortOrder: (json['sortOrder'] as num?)?.toInt(),
   isIncludedInTotal: json['isIncludedInTotal'] as String?,
+  creditLimit: (json['creditLimit'] as num?)?.toInt(),
+  paymentDay: (json['paymentDay'] as num?)?.toInt(),
+  paymentAssetRowId: (json['paymentAssetRowId'] as num?)?.toInt(),
 );
 
 Map<String, dynamic> _$AssetToJson(_Asset instance) => <String, dynamic>{
@@ -28,10 +30,12 @@ Map<String, dynamic> _$AssetToJson(_Asset instance) => <String, dynamic>{
   'assetType': instance.assetType,
   'balance': instance.balance,
   'currency': instance.currency,
-  'icon': instance.icon,
   'color': instance.color,
   'institution': instance.institution,
   'memo': instance.memo,
   'sortOrder': instance.sortOrder,
   'isIncludedInTotal': instance.isIncludedInTotal,
+  'creditLimit': instance.creditLimit,
+  'paymentDay': instance.paymentDay,
+  'paymentAssetRowId': instance.paymentAssetRowId,
 };

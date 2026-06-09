@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../shared/widgets/p_badge.dart';
+import '../../../shared/widgets/p_button.dart';
+import '../../../shared/widgets/p_divider.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_progress.dart';
+import '../../../shared/widgets/p_select.dart';
+import '../../../shared/widgets/p_snack_bar.dart';
+import '../../../shared/widgets/p_text_input.dart';
 import '../../expense/application/expense_providers.dart';
 import '../application/card_providers.dart';
 import '../domain/card_benefit_mapping.dart';
@@ -58,9 +65,7 @@ class _BodyState extends ConsumerState<_Body> {
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() => _adding = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('추가 실패: ${e.message}')),
-      );
+      showPSnackBar(context, '추가 실패: ${e.message}', severity: PSnackSeverity.error);
     }
   }
 
@@ -85,11 +90,10 @@ class _BodyState extends ConsumerState<_Body> {
             children: [
               Expanded(
                 flex: 4,
-                child: TextField(
+                child: PTextInput(
                   controller: _benefitCtrl,
                   enabled: !_adding,
-                  decoration:
-                      const InputDecoration(hintText: '혜택 카테고리'),
+                  placeholder: '혜택 카테고리',
                   onChanged: (_) => setState(() {}),
                 ),
               ),
@@ -104,17 +108,16 @@ class _BodyState extends ConsumerState<_Body> {
                         .where((c) =>
                             (c.expenseType ?? 'EXPENSE') == 'EXPENSE')
                         .toList();
-                    return DropdownButton<int?>(
-                      isExpanded: true,
+                    return PSelect<int?>(
                       value: _selectedCategoryId,
-                      hint: const Text('가계부 카테고리'),
-                      onChanged: _adding
-                          ? null
-                          : (v) => setState(() => _selectedCategoryId = v),
+                      placeholder: '가계부 카테고리',
+                      enabled: !_adding,
+                      onChanged: (v) =>
+                          setState(() => _selectedCategoryId = v),
                       items: [
                         for (final c in exp)
-                          DropdownMenuItem(
-                              value: c.rowId, child: Text(c.categoryName)),
+                          PSelectItem<int?>(
+                              value: c.rowId, label: c.categoryName),
                       ],
                     );
                   },
@@ -123,31 +126,26 @@ class _BodyState extends ConsumerState<_Body> {
             ],
           ),
           const SizedBox(height: 8),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton(
-              onPressed:
-                  (_benefitCtrl.text.trim().isEmpty ||
-                          _selectedCategoryId == null ||
-                          _adding)
-                      ? null
-                      : _add,
-              child: _adding
-                  ? const SizedBox(
-                      width: 14, height: 14,
-                      child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Text('매핑 추가'),
-            ),
+          PButton(
+            label: '매핑 추가',
+            loading: _adding,
+            fullWidth: true,
+            onPressed:
+                (_benefitCtrl.text.trim().isEmpty ||
+                        _selectedCategoryId == null ||
+                        _adding)
+                    ? null
+                    : _add,
           ),
           const SizedBox(height: PSpace.x16),
-          Divider(height: 1, color: t.borderSubtle),
+          PDivider(),
           const SizedBox(height: PSpace.x16),
           Text('등록된 매핑',
               style: PTypo.bodySm.copyWith(
                   color: t.fgPrimary, fontWeight: PFontWeight.bold)),
           const SizedBox(height: PSpace.x8),
           mappingsAsync.when(
-            loading: () => const Center(child: CircularProgressIndicator()),
+            loading: () => const Center(child: PCircularProgressIndicator()),
             error: (e, _) => Text('매핑 로드 실패: $e',
                 style: PTypo.caption.copyWith(color: t.statusDanger)),
             data: (mappings) {
@@ -195,9 +193,7 @@ class _RowState extends ConsumerState<_Row> {
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() => _busy = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('삭제 실패: ${e.message}')),
-      );
+      showPSnackBar(context, '삭제 실패: ${e.message}', severity: PSnackSeverity.error);
     }
   }
 
@@ -241,21 +237,13 @@ class _RowState extends ConsumerState<_Row> {
             ),
           ),
           if (!m.isCustom)
-            Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(
-                color: t.bgBrandSubtle,
-                borderRadius: PRadius.brXs,
-              ),
-              child: Text('기본',
-                  style: PTypo.micro.copyWith(
-                      color: t.fgBrand, fontWeight: PFontWeight.bold)),
-            )
+            const PBadge(
+                label: '기본', variant: PBadgeVariant.softBrand)
           else
-            IconButton(
-              icon: Icon(LucideIcons.trash2,
-                  size: 14, color: t.statusDanger),
+            PButton.icon(
+              icon: LucideIcons.trash2,
+              size: PButtonSize.sm,
+              iconColor: t.statusDanger,
               onPressed: _busy ? null : _delete,
             ),
         ],

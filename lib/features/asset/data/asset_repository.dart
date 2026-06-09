@@ -5,6 +5,7 @@ import '../../../core/network/api_response.dart';
 import '../domain/asset.dart';
 import '../domain/asset_summary.dart';
 import '../domain/asset_transfer.dart';
+import '../domain/card_billing.dart';
 import '../domain/net_worth_point.dart';
 
 class AssetRepository {
@@ -99,12 +100,15 @@ class AssetRepository {
     required String assetType,
     int? balance,
     String? currency,
-    String? icon,
     String? color,
     String? institution,
     String? memo,
+    String? isIncludedInTotal, // 'Y' | 'N'
     int? sortOrder,
     int? cardCatalogRowId,
+    int? creditLimit,
+    int? paymentDay,
+    int? paymentAssetRowId,
   }) async {
     try {
       final res = await _dio.post<Map<String, dynamic>>(
@@ -114,12 +118,15 @@ class AssetRepository {
           'assetType': assetType,
           'balance': ?balance,
           'currency': ?currency,
-          'icon': ?icon,
           'color': ?color,
           'institution': ?institution,
           'memo': ?memo,
+          'isIncludedInTotal': ?isIncludedInTotal,
           'sortOrder': ?sortOrder,
           'cardCatalogRowId': ?cardCatalogRowId,
+          'creditLimit': ?creditLimit,
+          'paymentDay': ?paymentDay,
+          'paymentAssetRowId': ?paymentAssetRowId,
         },
       );
       return _unwrap(res, Asset.fromJson);
@@ -134,12 +141,14 @@ class AssetRepository {
     required String assetType,
     int? balance,
     String? currency,
-    String? icon,
     String? color,
     String? institution,
     String? memo,
     String? isIncludedInTotal, // 'Y' | 'N'
     int? cardCatalogRowId,
+    int? creditLimit,
+    int? paymentDay,
+    int? paymentAssetRowId,
   }) async {
     try {
       final res = await _dio.put<Map<String, dynamic>>(
@@ -149,12 +158,14 @@ class AssetRepository {
           'assetType': assetType,
           'balance': ?balance,
           'currency': ?currency,
-          'icon': ?icon,
           'color': ?color,
           'institution': ?institution,
           'memo': ?memo,
           'isIncludedInTotal': ?isIncludedInTotal,
           'cardCatalogRowId': ?cardCatalogRowId,
+          'creditLimit': ?creditLimit,
+          'paymentDay': ?paymentDay,
+          'paymentAssetRowId': ?paymentAssetRowId,
         },
       );
       return _unwrap(res, Asset.fromJson);
@@ -166,6 +177,32 @@ class AssetRepository {
   Future<void> delete(int id) async {
     try {
       await _dio.delete<void>('/asset/$id');
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  // ─────────────────────────────────────────────
+  // Credit Card Billing
+  // ─────────────────────────────────────────────
+
+  /// 신용카드 청구 사이클 조회. GET /asset/{id}/billing.
+  /// 이번 결제예정액·예정일·결제일·결제계좌 + 청구이력.
+  Future<CardBilling> getCardBilling(int id) async {
+    try {
+      final res = await _dio.get<Map<String, dynamic>>('/asset/$id/billing');
+      return _unwrap(res, CardBilling.fromJson);
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  /// 지금 결제 — 이번 청구액을 결제 출금계좌에서 이체. POST /asset/{id}/pay.
+  /// 방금 기록된 청구 1건을 반환.
+  Future<BillingItem> payCard(int id) async {
+    try {
+      final res = await _dio.post<Map<String, dynamic>>('/asset/$id/pay');
+      return _unwrap(res, BillingItem.fromJson);
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }

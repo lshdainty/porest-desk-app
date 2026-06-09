@@ -12,10 +12,7 @@ class NotificationRepository {
     try {
       final res = await _dio.get<Map<String, dynamic>>(
         '/notifications',
-        queryParameters: {
-          'unread': ?unread,
-          'limit': ?limit,
-        },
+        queryParameters: {'unread': ?unread, 'limit': ?limit},
       );
       return _unwrapList(res, 'notifications', AppNotification.fromJson);
     } on DioException catch (e) {

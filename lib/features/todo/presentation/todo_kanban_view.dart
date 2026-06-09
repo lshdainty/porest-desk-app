@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../shared/widgets/p_badge.dart';
 import '../application/todo_providers.dart';
 import '../domain/todo.dart';
 import 'todo_edit_dialog.dart';
+import '../../../shared/widgets/p_skeleton.dart';
+import '../../../shared/widgets/p_snack_bar.dart';
 
 /// Todo 칸반 보드 — front `KanbanBoard` 미러.
 ///
@@ -38,9 +41,7 @@ class _TodoKanbanViewState extends ConsumerState<TodoKanbanView> {
       ref.invalidate(todoListProvider);
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('이동 실패: ${e.message}')),
-      );
+      showPSnackBar(context, '이동 실패: ${e.message}', severity: PSnackSeverity.error);
     }
   }
 
@@ -52,7 +53,7 @@ class _TodoKanbanViewState extends ConsumerState<TodoKanbanView> {
         todoListProvider((status: null, priority: widget.priority)));
 
     return async.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading: () => _KanbanSkeleton(tokens: t),
       error: (e, _) => Padding(
         padding: const EdgeInsets.all(PSpace.x16),
         child: Text('할 일 로드 실패\n$e',
@@ -92,6 +93,71 @@ class _TodoKanbanViewState extends ConsumerState<TodoKanbanView> {
           ),
         );
       },
+    );
+  }
+}
+
+/// 칸반 보드 skeleton — 3컬럼(헤더+카드 2개) 가로 스크롤.
+class _KanbanSkeleton extends StatelessWidget {
+  const _KanbanSkeleton({required this.tokens});
+  final PorestTokens tokens;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = tokens;
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.fromLTRB(
+        PSpace.x12,
+        PSpace.x12,
+        PSpace.x12,
+        PSpace.x80,
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (int c = 0; c < 3; c++)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 6),
+              child: SizedBox(
+                width: 280,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: PSpace.x8),
+                      child: Row(
+                        children: [
+                          const PSkeleton(width: 16, height: 16),
+                          const SizedBox(width: PSpace.x8),
+                          PSkeleton.line(width: 56),
+                        ],
+                      ),
+                    ),
+                    for (int i = 0; i < 2; i++)
+                      Container(
+                        margin: const EdgeInsets.only(bottom: PSpace.x8),
+                        padding: const EdgeInsets.all(PSpace.x12),
+                        decoration: BoxDecoration(
+                          color: t.bgSurface,
+                          borderRadius: PRadius.brMd,
+                          border: Border.all(color: t.borderSubtle),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            PSkeleton.line(width: i == 0 ? 160 : 120),
+                            const SizedBox(height: 6),
+                            PSkeleton.line(width: 80, height: 12),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
@@ -140,17 +206,9 @@ class _Column extends StatelessWidget {
                           color: tokens.fgPrimary,
                           fontWeight: PFontWeight.bold)),
                   const Spacer(),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: tokens.bgSurface,
-                      borderRadius: PRadius.brXs,
-                    ),
-                    child: Text('${items.length}',
-                        style: PTypo.caption.copyWith(
-                            color: tokens.fgSecondary,
-                            fontWeight: PFontWeight.bold)),
+                  PBadge(
+                    label: '${items.length}',
+                    variant: PBadgeVariant.secondary,
                   ),
                 ],
               ),

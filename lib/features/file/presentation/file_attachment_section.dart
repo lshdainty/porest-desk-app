@@ -2,14 +2,18 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../app/theme/radius.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../shared/widgets/p_button.dart';
+import '../../../shared/widgets/p_modal.dart';
 import '../application/file_providers.dart';
 import '../domain/file_attachment.dart';
+import '../../../shared/widgets/p_progress.dart';
+import '../../../shared/widgets/p_snack_bar.dart';
 
 /// 첨부 파일 섹션 — 거래/할일/메모/이벤트 상세에 embed.
 ///
@@ -76,39 +80,24 @@ class _FileAttachmentSectionState
       );
       ref.invalidate(filesByReferenceProvider(_key));
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('$name 업로드 완료')),
-      );
+      showPSnackBar(context, '$name 업로드 완료', severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('업로드 실패: ${e.message}')),
-      );
+      showPSnackBar(context, '업로드 실패: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) setState(() => _busy = false);
     }
   }
 
   Future<void> _delete(FileAttachment f) async {
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('파일 삭제'),
-        content: Text('${f.originalName} 삭제할까요?'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('취소')),
-          FilledButton(
-            style: FilledButton.styleFrom(
-                backgroundColor: context.tokens.statusDanger),
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('삭제'),
-          ),
-        ],
-      ),
+    final ok = await showPConfirmDialog(
+      context,
+      title: '파일 삭제',
+      message: '${f.originalName} 삭제할까요?',
+      confirmLabel: '삭제',
+      destructive: true,
     );
-    if (ok != true || !mounted) return;
+    if (!ok || !mounted) return;
     setState(() => _busy = true);
     try {
       final repo = await ref.read(fileRepositoryProvider.future);
@@ -116,9 +105,7 @@ class _FileAttachmentSectionState
       ref.invalidate(filesByReferenceProvider(_key));
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('삭제 실패: ${e.message}')),
-      );
+      showPSnackBar(context, '삭제 실패: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -146,23 +133,23 @@ class _FileAttachmentSectionState
                 style: PTypo.caption.copyWith(
                     color: t.fgPrimary, fontWeight: PFontWeight.bold)),
             const Spacer(),
-            IconButton(
-              icon: Icon(LucideIcons.image, size: 16, color: t.fgSecondary),
+            PButton.icon(
+              icon: LucideIcons.image,
+              size: PButtonSize.sm,
               tooltip: '갤러리',
               onPressed: _busy ? null : _pickImage,
-              visualDensity: VisualDensity.compact,
             ),
-            IconButton(
-              icon: Icon(LucideIcons.camera, size: 16, color: t.fgSecondary),
+            PButton.icon(
+              icon: LucideIcons.camera,
+              size: PButtonSize.sm,
               tooltip: '카메라',
               onPressed: _busy ? null : _pickCamera,
-              visualDensity: VisualDensity.compact,
             ),
-            IconButton(
-              icon: Icon(LucideIcons.file, size: 16, color: t.fgSecondary),
+            PButton.icon(
+              icon: LucideIcons.file,
+              size: PButtonSize.sm,
               tooltip: '파일',
               onPressed: _busy ? null : _pickFile,
-              visualDensity: VisualDensity.compact,
             ),
           ],
         ),
@@ -170,7 +157,7 @@ class _FileAttachmentSectionState
         async.when(
           loading: () => const Padding(
             padding: EdgeInsets.symmetric(vertical: 8),
-            child: Center(child: CircularProgressIndicator()),
+            child: Center(child: PCircularProgressIndicator()),
           ),
           error: (e, _) => Text('첨부 로드 실패',
               style: PTypo.caption.copyWith(color: t.statusDanger)),
@@ -222,11 +209,11 @@ class _FileAttachmentSectionState
                             ],
                           ),
                         ),
-                        IconButton(
-                          icon: Icon(LucideIcons.x,
-                              size: 14, color: t.fgTertiary),
+                        PButton.icon(
+                          icon: LucideIcons.x,
+                          size: PButtonSize.sm,
+                          iconColor: t.fgTertiary,
                           onPressed: _busy ? null : () => _delete(f),
-                          visualDensity: VisualDensity.compact,
                         ),
                       ],
                     ),

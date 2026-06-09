@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../app/theme/radius.dart';
 import '../../app/theme/spacing.dart';
@@ -7,7 +7,7 @@ import '../../app/theme/tokens.dart';
 import '../../app/theme/typography.dart';
 import '../../l10n/generated/app_localizations.dart';
 
-/// 5칸 탭바 (홈 / 가계부 / [중앙 FAB +] / 통계 / 전체).
+/// 5칸 탭바 (홈 / 가계부 / [중앙 FAB +] / 캘린더 / 전체).
 ///
 /// porest-desk-front `MobileTabBar.tsx` 매핑.
 /// - 일반 탭 4개는 [currentBranch] 와 비교해 활성 표시
@@ -32,9 +32,9 @@ class MobileTabBar extends StatelessWidget {
     final mq = MediaQuery.of(context);
     final slots = <_Slot>[
       _Slot(icon: LucideIcons.home, label: l.navHome, branch: 0),
-      _Slot(icon: LucideIcons.receipt, label: l.navExpense, branch: 1),
+      _Slot(icon: LucideIcons.receiptText, label: l.navExpense, branch: 1),
       const _Slot.fab(),
-      _Slot(icon: LucideIcons.pieChart, label: l.navStats, branch: 2),
+      _Slot(icon: LucideIcons.calendar1, label: l.navCalendar, branch: 2),
       _Slot(icon: LucideIcons.menu, label: l.navMore, branch: 3),
     ];
     return Material(
@@ -78,12 +78,8 @@ class MobileTabBar extends StatelessWidget {
 
 class _Slot {
   const _Slot({required this.icon, required this.label, required this.branch})
-      : isFab = false;
-  const _Slot.fab()
-      : icon = null,
-        label = null,
-        branch = null,
-        isFab = true;
+    : isFab = false;
+  const _Slot.fab() : icon = null, label = null, branch = null, isFab = true;
 
   final IconData? icon;
   final String? label;
@@ -140,17 +136,25 @@ class _CenterFab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Material(
-        color: tokens.bgBrand,
-        shape: const CircleBorder(),
-        elevation: 2,
-        child: InkWell(
-          onTap: onTap,
-          customBorder: const CircleBorder(),
-          child: SizedBox(
-            width: 46,
-            height: 46,
-            child: Icon(LucideIcons.plus, color: tokens.fgOnBrand, size: 26),
+      // + 버튼은 light/dark 무관하게 primary(#0147AD) 고정 — bgBrand는 dark에서
+      // primary-light(cobalt400)로 밝아지므로 palette 직접 참조. card shadow(sm) 적용.
+      child: Container(
+        width: 46,
+        height: 46,
+        decoration: BoxDecoration(
+          color: tokens.bgBrandSolid, // 채운 버튼 solid — primary 고정
+          shape: BoxShape.circle,
+          boxShadow: tokens.shadowSm,
+        ),
+        child: Material(
+          color: Colors.transparent,
+          shape: const CircleBorder(),
+          child: InkWell(
+            onTap: onTap,
+            customBorder: const CircleBorder(),
+            child: Center(
+              child: Icon(LucideIcons.plus, color: tokens.fgOnBrand, size: 26),
+            ),
           ),
         ),
       ),

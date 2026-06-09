@@ -1,13 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../shared/widgets/p_badge.dart';
+import '../../../shared/widgets/p_button.dart';
+import '../../../shared/widgets/p_checkbox.dart';
+import '../../../shared/widgets/p_date_input.dart';
+import '../../../shared/widgets/p_divider.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_progress.dart';
+import '../../../shared/widgets/p_snack_bar.dart';
+import '../../../shared/widgets/p_text_input.dart';
 import '../application/calendar_providers.dart';
 import '../domain/holiday.dart';
 
@@ -68,9 +76,7 @@ class _BodyState extends ConsumerState<_Body> {
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() => _adding = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('추가 실패: ${e.message}')),
-      );
+      showPSnackBar(context, '추가 실패: ${e.message}', severity: PSnackSeverity.error);
     }
   }
 
@@ -89,9 +95,9 @@ class _BodyState extends ConsumerState<_Body> {
           // 연도 선택
           Row(
             children: [
-              IconButton(
+              PButton.icon(
+                icon: LucideIcons.chevronLeft,
                 onPressed: () => setState(() => _year -= 1),
-                icon: Icon(LucideIcons.chevronLeft, color: t.fgSecondary),
               ),
               Expanded(
                 child: Center(
@@ -99,9 +105,9 @@ class _BodyState extends ConsumerState<_Body> {
                       style: PTypo.h4.copyWith(color: t.fgPrimary)),
                 ),
               ),
-              IconButton(
+              PButton.icon(
+                icon: LucideIcons.chevronRight,
                 onPressed: () => setState(() => _year += 1),
-                icon: Icon(LucideIcons.chevronRight, color: t.fgSecondary),
               ),
             ],
           ),
@@ -116,46 +122,23 @@ class _BodyState extends ConsumerState<_Body> {
             children: [
               Expanded(
                 flex: 4,
-                child: TextField(
+                child: PTextInput(
                   controller: _nameCtrl,
                   enabled: !_adding,
-                  decoration:
-                      const InputDecoration(hintText: '휴일 이름'),
+                  placeholder: '휴일 이름',
                   onChanged: (_) => setState(() {}),
                 ),
               ),
               const SizedBox(width: 8),
               Expanded(
                 flex: 3,
-                child: InkWell(
-                  onTap: () async {
-                    final p = await showDatePicker(
-                      context: context,
-                      initialDate: _newDate,
-                      firstDate: DateTime(_year, 1, 1),
-                      lastDate: DateTime(_year, 12, 31),
-                    );
-                    if (p != null) setState(() => _newDate = p);
+                child: PDateInput(
+                  value: _newDate,
+                  onChanged: (d) {
+                    if (d != null) setState(() => _newDate = d);
                   },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 12),
-                    decoration: BoxDecoration(
-                      color: t.bgMuted,
-                      borderRadius: PRadius.brMd,
-                      border: Border.all(color: t.borderDefault),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(LucideIcons.calendar,
-                            size: 14, color: t.fgSecondary),
-                        const SizedBox(width: 4),
-                        Text(_fmt(_newDate),
-                            style:
-                                PTypo.caption.copyWith(color: t.fgPrimary)),
-                      ],
-                    ),
-                  ),
+                  firstDate: DateTime(_year, 1, 1),
+                  lastDate: DateTime(_year, 12, 31),
                 ),
               ),
             ],
@@ -163,7 +146,7 @@ class _BodyState extends ConsumerState<_Body> {
           const SizedBox(height: 8),
           Row(
             children: [
-              Checkbox(
+              PCheckbox(
                 value: _newRecurring,
                 onChanged: (v) =>
                     setState(() => _newRecurring = v ?? false),
@@ -171,19 +154,16 @@ class _BodyState extends ConsumerState<_Body> {
               Text('매년 반복',
                   style: PTypo.caption.copyWith(color: t.fgSecondary)),
               const Spacer(),
-              FilledButton(
+              PButton(
+                label: '추가',
+                loading: _adding,
                 onPressed:
                     (_nameCtrl.text.trim().isEmpty || _adding) ? null : _add,
-                child: _adding
-                    ? const SizedBox(
-                        width: 14, height: 14,
-                        child: CircularProgressIndicator(strokeWidth: 2))
-                    : const Text('추가'),
               ),
             ],
           ),
           const SizedBox(height: PSpace.x16),
-          Divider(height: 1, color: t.borderSubtle),
+          PDivider(),
           const SizedBox(height: PSpace.x16),
 
           Text('$_year년 휴일',
@@ -191,7 +171,7 @@ class _BodyState extends ConsumerState<_Body> {
                   color: t.fgPrimary, fontWeight: PFontWeight.bold)),
           const SizedBox(height: PSpace.x8),
           async.when(
-            loading: () => const Center(child: CircularProgressIndicator()),
+            loading: () => const Center(child: PCircularProgressIndicator()),
             error: (e, _) => Text('휴일 로드 실패: $e',
                 style: PTypo.caption.copyWith(color: t.statusDanger)),
             data: (list) {
@@ -249,9 +229,7 @@ class _RowState extends ConsumerState<_Row> {
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() => _busy = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('삭제 실패: ${e.message}')),
-      );
+      showPSnackBar(context, '삭제 실패: ${e.message}', severity: PSnackSeverity.error);
     }
   }
 
@@ -298,23 +276,13 @@ class _RowState extends ConsumerState<_Row> {
             Icon(LucideIcons.repeat, size: 12, color: t.fgTertiary),
             const SizedBox(width: 6),
           ],
-          Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-            decoration: BoxDecoration(
-              color: badgeColor.withValues(alpha: 0.15),
-              borderRadius: PRadius.brXs,
-            ),
-            child: Text(typeLabel,
-                style: PTypo.micro.copyWith(
-                    color: badgeColor, fontWeight: PFontWeight.bold)),
-          ),
+          PBadge.softColor(label: typeLabel, color: badgeColor),
           if (h.holidayType == 'CUSTOM')
-            IconButton(
-              icon: Icon(LucideIcons.trash2,
-                  size: 13, color: t.statusDanger),
+            PButton.icon(
+              icon: LucideIcons.trash2,
+              size: PButtonSize.sm,
+              iconColor: t.statusDanger,
               onPressed: _busy ? null : _delete,
-              visualDensity: VisualDensity.compact,
             ),
         ],
       ),

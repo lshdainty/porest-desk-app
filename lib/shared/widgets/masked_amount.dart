@@ -17,7 +17,7 @@ class MaskedAmount extends ConsumerWidget {
     this.sign = false,
     this.abs = false,
     this.style,
-    this.maskedText = '•••',
+    this.maskedText = '••••••',
   });
 
   final int amount;
@@ -55,7 +55,7 @@ class MaskedBlock extends ConsumerWidget {
     final hidden = ref.watch(settingsProvider).value?.hideAmounts ?? false;
     if (!hidden) return child;
     return placeholder ??
-        const Text('•••', style: TextStyle(fontWeight: PFontWeight.bold));
+        const Text('••••••', style: TextStyle(fontWeight: PFontWeight.bold));
   }
 }
 
@@ -64,7 +64,7 @@ class MaskedBlock extends ConsumerWidget {
 String formatMaybeMasked(
   WidgetRef ref, {
   required String Function() unmasked,
-  String masked = '•••',
+  String masked = '••••••',
 }) {
   final hidden = ref.read(settingsProvider).value?.hideAmounts ?? false;
   return hidden ? masked : unmasked();

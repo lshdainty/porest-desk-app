@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
@@ -9,10 +8,15 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/brand/bank_colors.dart';
+import '../../../shared/widgets/p_chip.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_search_field.dart';
+import '../../../shared/widgets/p_select.dart';
+import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../application/asset_providers.dart';
 import '../domain/asset.dart';
+import 'include_in_total_card.dart';
 
 /// 계좌 추가/편집 다이얼로그 — front `AssetAddDialog` / `AssetEditDialog` 미러.
 ///
@@ -111,13 +115,21 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
   late final TextEditingController _accountNumberCtrl;
   late final TextEditingController _balanceCtrl;
   late final TextEditingController _memoCtrl;
+  late final TextEditingController _creditLimitCtrl;
 
   late String _brand;
   late _SubType _subType;
+  late bool _includeInTotal;
+  int? _paymentDay; // 결제일 1~31
+  int? _paymentAssetRowId; // 결제 출금계좌 자산 rowId
   bool _submitting = false;
   bool _deleting = false;
 
   bool get _isEdit => widget.edit != null;
+
+  /// 편집 중인 자산이 신용카드면 한도/결제일/결제계좌 블록을 노출.
+  /// `_SubType` 에는 CREDIT_CARD 매핑이 없으므로 원본 자산 타입으로 판정한다.
+  bool get _isCreditCard => widget.edit?.assetType == 'CREDIT_CARD';
 
   /// 계좌 추가에 노출할 카테고리 — 증권사·가상자산 제외.
   List<MapEntry<BankCategory, List<BankEntry>>> get _filteredByCategory {
@@ -172,6 +184,12 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
     _balanceCtrl =
         TextEditingController(text: (e?.balance ?? 0).toString());
     _memoCtrl = TextEditingController(text: e?.memo ?? '');
+    // 신용카드 청구 사이클 — 편집 진입 시 기존 값으로 초기화.
+    _creditLimitCtrl =
+        TextEditingController(text: e?.creditLimit?.toString() ?? '');
+    _paymentDay = e?.paymentDay;
+    _paymentAssetRowId = e?.paymentAssetRowId;
+    _includeInTotal = e == null ? true : e.isIncludedInTotal == 'Y';
     widget.controller.onSubmit = _submit;
     if (widget.edit != null) widget.controller.onDelete = _delete;
     WidgetsBinding.instance.addPostFrameCallback(
@@ -198,6 +216,7 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
     _accountNumberCtrl.dispose();
     _balanceCtrl.dispose();
     _memoCtrl.dispose();
+    _creditLimitCtrl.dispose();
     super.dispose();
   }
 
@@ -214,6 +233,14 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
     final memoForApi = _isEdit
         ? (memo.isEmpty ? (accountNumber.isEmpty ? null : accountNumber) : memo)
         : (accountNumber.isEmpty ? null : accountNumber);
+    // 신용카드 편집은 원본 assetType(CREDIT_CARD)을 유지 — _SubType 매핑엔 없음.
+    final assetType = _isCreditCard ? 'CREDIT_CARD' : _subType.assetType;
+    // 청구 사이클 필드는 신용카드일 때만 전송. 빈 한도는 null.
+    final creditLimit = _isCreditCard
+        ? int.tryParse(_creditLimitCtrl.text.replaceAll(',', ''))
+        : null;
+    final paymentDay = _isCreditCard ? _paymentDay : null;
+    final paymentAssetRowId = _isCreditCard ? _paymentAssetRowId : null;
 
     _setSubmitting(true);
     try {
@@ -222,34 +249,37 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
         await repo.update(
           id: widget.edit!.rowId,
           assetName: name,
-          assetType: _subType.assetType,
+          assetType: assetType,
           balance: balance,
           currency: 'KRW',
           institution: brand,
           memo: memoForApi,
+          isIncludedInTotal: _includeInTotal ? 'Y' : 'N',
+          creditLimit: creditLimit,
+          paymentDay: paymentDay,
+          paymentAssetRowId: paymentAssetRowId,
         );
       } else {
         await repo.create(
           assetName: name,
-          assetType: _subType.assetType,
+          assetType: assetType,
           balance: balance,
           currency: 'KRW',
           institution: brand,
           memo: memoForApi,
+          isIncludedInTotal: _includeInTotal ? 'Y' : 'N',
+          creditLimit: creditLimit,
+          paymentDay: paymentDay,
+          paymentAssetRowId: paymentAssetRowId,
         );
       }
       ref.invalidate(assetsProvider);
       if (!mounted) return;
       Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(_isEdit ? '계좌가 수정되었습니다' : '계좌가 추가되었습니다')),
-      );
+      showPSnackBar(context, _isEdit ? '계좌가 수정되었습니다' : '계좌가 추가되었습니다', severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('실패: ${e.message}')),
-      );
+      showPSnackBar(context, '실패: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setSubmitting(false);
     }
@@ -257,25 +287,14 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
 
   Future<void> _delete() async {
     if (_deleting || widget.edit == null) return;
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('계좌 삭제'),
-        content: const Text('이 계좌를 삭제하시겠습니까? 연결된 거래는 유지됩니다.'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('취소')),
-          FilledButton(
-            style: FilledButton.styleFrom(
-                backgroundColor: context.tokens.statusDanger),
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('삭제'),
-          ),
-        ],
-      ),
+    final ok = await showPConfirmDialog(
+      context,
+      title: '계좌 삭제',
+      message: '이 계좌를 삭제하시겠습니까? 연결된 거래는 유지됩니다.',
+      confirmLabel: '삭제',
+      destructive: true,
     );
-    if (ok != true || !mounted) return;
+    if (!ok || !mounted) return;
     _setDeleting(true);
     try {
       final repo = await ref.read(assetRepositoryProvider.future);
@@ -283,14 +302,10 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
       ref.invalidate(assetsProvider);
       if (!mounted) return;
       Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('계좌가 삭제되었습니다')),
-      );
+      showPSnackBar(context, '계좌가 삭제되었습니다', severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('삭제 실패: ${e.message}')),
-      );
+      showPSnackBar(context, '삭제 실패: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setDeleting(false);
     }
@@ -299,6 +314,10 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    // 결제 출금계좌 후보 — 본인 소유 BANK_ACCOUNT 자산.
+    final bankAccounts = (ref.watch(assetsProvider).value ?? const <Asset>[])
+        .where((a) => a.assetType == 'BANK_ACCOUNT')
+        .toList(growable: false);
     return ListView(
       controller: widget.scrollController,
       padding: const EdgeInsets.fromLTRB(
@@ -322,14 +341,9 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
                   ],
                 ),
                 const SizedBox(height: PSpace.x8),
-                PTextInput(
+                PSearchField(
+                  hint: '은행명 또는 증권사 검색',
                   controller: _queryCtrl,
-                  placeholder: '은행명 또는 증권사 검색',
-                  prefix: Padding(
-                    padding: const EdgeInsets.only(left: 10, right: 6),
-                    child: Icon(LucideIcons.search,
-                        size: 14, color: t.fgTertiary),
-                  ),
                 ),
                 const SizedBox(height: PSpace.x8),
                 _BrandPicker(
@@ -417,6 +431,75 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
                     placeholder: '계좌번호 뒷자리, 결제일, 한도 등 메모하세요',
                   ),
                 ],
+
+                // 청구 사이클 (신용카드 전용) ──────────────
+                if (_isCreditCard) ...[
+                  const SizedBox(height: PSpace.x20),
+                  // 신용한도 (원)
+                  Text('신용한도 (원, 선택)',
+                      style: PTypo.caption.copyWith(
+                          color: t.fgPrimary, fontWeight: PFontWeight.medium)),
+                  const SizedBox(height: PSpace.x8),
+                  PTextInput(
+                    controller: _creditLimitCtrl,
+                    keyboardType: TextInputType.number,
+                    placeholder: '예: 5,000,000',
+                  ),
+                  const SizedBox(height: 6),
+                  Text('한도를 입력하면 사용률 게이지가 표시됩니다.',
+                      style: PTypo.micro.copyWith(color: t.fgTertiary)),
+                  const SizedBox(height: PSpace.x20),
+                  // 결제일 (1~31)
+                  Text('결제일 (선택)',
+                      style: PTypo.caption.copyWith(
+                          color: t.fgPrimary, fontWeight: PFontWeight.medium)),
+                  const SizedBox(height: PSpace.x8),
+                  PSelect<int>(
+                    value: _paymentDay,
+                    placeholder: '결제일 선택',
+                    title: '결제일',
+                    items: [
+                      for (var d = 1; d <= 31; d++)
+                        PSelectItem(value: d, label: '$d일'),
+                    ],
+                    onChanged: (v) => setState(() => _paymentDay = v),
+                  ),
+                  const SizedBox(height: PSpace.x20),
+                  // 결제 출금계좌
+                  Text('결제 출금계좌 (선택)',
+                      style: PTypo.caption.copyWith(
+                          color: t.fgPrimary, fontWeight: PFontWeight.medium)),
+                  const SizedBox(height: PSpace.x8),
+                  PSelect<int>(
+                    value: _paymentAssetRowId,
+                    placeholder: bankAccounts.isEmpty
+                        ? '등록된 입출금계좌가 없어요'
+                        : '결제계좌 선택',
+                    title: '결제 출금계좌',
+                    enabled: bankAccounts.isNotEmpty,
+                    items: [
+                      for (final a in bankAccounts)
+                        PSelectItem(
+                          value: a.rowId,
+                          label: a.institution != null &&
+                                  a.institution!.isNotEmpty
+                              ? '${a.assetName} · ${a.institution}'
+                              : a.assetName,
+                        ),
+                    ],
+                    onChanged: (v) => setState(() => _paymentAssetRowId = v),
+                  ),
+                  const SizedBox(height: 6),
+                  Text('결제일에 이 계좌에서 청구액이 출금됩니다.',
+                      style: PTypo.micro.copyWith(color: t.fgTertiary)),
+                ],
+
+                // 전체 자산 합계 포함 토글 ──────────────
+                const SizedBox(height: PSpace.x20),
+                IncludeInTotalCard(
+                  value: _includeInTotal,
+                  onChanged: (v) => setState(() => _includeInTotal = v),
+                ),
               ],
             );
   }
@@ -543,59 +626,15 @@ class _BrandPicker extends StatelessWidget {
                   runSpacing: 6,
                   children: [
                     for (final e in categories[i].value)
-                      _BrandChip(
-                        entry: e,
+                      PChip(
+                        label: e.name,
                         selected: e.name == selectedName,
                         onTap: () => onPick(e.name),
+                        color: e.color.bg,
                       ),
                   ],
                 ),
               ],
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _BrandChip extends StatelessWidget {
-  const _BrandChip({
-    required this.entry,
-    required this.selected,
-    required this.onTap,
-  });
-  final BankEntry entry;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    // ⚠️ Container 에 alignment 를 주면 부모(Wrap)가 unbounded 일 때
-    //    width 를 다 차지 → chip 이 행 전체로 stretched. Material+InkWell
-    //    + Padding + Row(MainAxisSize.min) 으로 intrinsic 폭 강제.
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(999),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-          decoration: BoxDecoration(
-            color: selected ? entry.color.bg : t.bgMuted,
-            borderRadius: BorderRadius.circular(999),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                entry.name,
-                style: PTypo.bodySm.copyWith(
-                  color: selected ? entry.color.fg : t.fgSecondary,
-                  fontWeight: PFontWeight.medium,
-                ),
-              ),
             ],
           ),
         ),

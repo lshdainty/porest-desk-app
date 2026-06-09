@@ -1,14 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
-import '../../../core/format/color_parse.dart';
+import '../../../core/format/chart_palette.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../shared/widgets/p_color_picker.dart';
+import '../../../shared/widgets/p_date_input.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_progress.dart';
+import '../../../shared/widgets/p_select.dart';
+import '../../../shared/widgets/p_section_label.dart';
+import '../../../shared/widgets/p_snack_bar.dart';
+import '../../../shared/widgets/p_switch.dart';
+import '../../../shared/widgets/p_text_input.dart';
 import '../application/calendar_providers.dart';
 import '../domain/calendar_event.dart';
 import '../domain/user_calendar.dart';
@@ -35,16 +43,8 @@ void showCalendarEventDialog(
   ).whenComplete(controller.dispose);
 }
 
-const _colorOptions = <String>[
-  '#3b82f6',
-  '#ef4444',
-  '#22c55e',
-  '#f59e0b',
-  '#8b5cf6',
-  '#ec4899',
-  '#06b6d4',
-  '#f97316',
-];
+/// 신규 일정 기본 색 = violet (`kChartBaseHexes[6]`).
+const _kDefaultEventColor = '#8b4dba';
 
 enum _RecurrenceOption { none, daily, weekly, monthly, yearly }
 
@@ -91,9 +91,7 @@ Future<void> _confirmDelete(BuildContext ctx, CalendarEvent edit) async {
         (year: edit.start.year, month: edit.start.month)));
   } on ApiException catch (e) {
     if (!ctx.mounted) return;
-    ScaffoldMessenger.of(ctx).showSnackBar(
-      SnackBar(content: Text('삭제 실패: ${e.message}')),
-    );
+    showPSnackBar(ctx, '삭제 실패: ${e.message}', severity: PSnackSeverity.error);
     return;
   }
   if (!ctx.mounted) return;
@@ -124,7 +122,7 @@ class _BodyState extends ConsumerState<_Body> {
   late bool _allDay;
   int? _labelRowId;
   int? _userCalendarRowId;
-  String _color = _colorOptions[4]; // violet 기본
+  String _color = _kDefaultEventColor; // violet 기본
   _RecurrenceOption _recurrence = _RecurrenceOption.none;
   final Set<int> _reminders = <int>{};
   bool _submitting = false;
@@ -144,7 +142,7 @@ class _BodyState extends ConsumerState<_Body> {
       _allDay = e.isAllDayBool;
       _labelRowId = e.labelRowId;
       _userCalendarRowId = e.userRowId;
-      _color = e.color ?? _colorOptions[4];
+      _color = e.color ?? _kDefaultEventColor;
       _recurrence = _rruleToRecurrence(e.rrule);
     } else {
       final d = widget.defaultDate ?? DateTime.now();
@@ -225,14 +223,10 @@ class _BodyState extends ConsumerState<_Body> {
       }
       if (!mounted) return;
       Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(_isEdit ? '일정이 수정되었습니다' : '일정이 추가되었습니다')),
-      );
+      showPSnackBar(context, _isEdit ? '일정이 수정되었습니다' : '일정이 추가되었습니다', severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('실패: ${e.message}')),
-      );
+      showPSnackBar(context, '실패: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) {
         setState(() => _submitting = false);
@@ -241,16 +235,10 @@ class _BodyState extends ConsumerState<_Body> {
     }
   }
 
-  Future<void> _pickDate(bool isStart) async {
-    final cur = isStart ? _start : _end;
-    final d = await showDatePicker(
-      context: context,
-      initialDate: cur,
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2030),
-    );
-    if (d == null || !mounted) return;
+  void _onPickDate(bool isStart, DateTime? d) {
+    if (d == null) return;
     setState(() {
+      final cur = isStart ? _start : _end;
       final next = DateTime(d.year, d.month, d.day, cur.hour, cur.minute);
       if (isStart) {
         _start = next;
@@ -261,12 +249,10 @@ class _BodyState extends ConsumerState<_Body> {
     });
   }
 
-  Future<void> _pickTime(bool isStart) async {
-    final cur = isStart ? _start : _end;
-    final picked = await showTimePicker(
-        context: context, initialTime: TimeOfDay.fromDateTime(cur));
-    if (picked == null || !mounted) return;
+  void _onPickTime(bool isStart, TimeOfDay? picked) {
+    if (picked == null) return;
     setState(() {
+      final cur = isStart ? _start : _end;
       final next =
           DateTime(cur.year, cur.month, cur.day, picked.hour, picked.minute);
       if (isStart) {
@@ -295,7 +281,7 @@ class _BodyState extends ConsumerState<_Body> {
                   width: PSpace.x12,
                   height: PSpace.x12,
                   decoration: BoxDecoration(
-                    color: parseColor(c.color, fallback: t.fgBrand),
+                    color: solidSwatchColor(sheetCtx, c.color, fallback: t.fgBrand),
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -333,11 +319,11 @@ class _BodyState extends ConsumerState<_Body> {
       padding: const EdgeInsets.fromLTRB(
           PSpace.x16, PSpace.x8, PSpace.x16, PSpace.x16),
       children: [
-          _SectionLabel('제목', tokens: t),
+          PSectionLabel('제목', variant: PSectionLabelVariant.header),
           const SizedBox(height: PSpace.x4),
-          TextField(
+          PTextInput(
             controller: _titleCtrl,
-            decoration: const InputDecoration(hintText: '예: 가족 식사'),
+            placeholder: '예: 가족 식사',
             onChanged: (_) {
               setState(() {});
               _syncController();
@@ -345,23 +331,23 @@ class _BodyState extends ConsumerState<_Body> {
           ),
           const SizedBox(height: PSpace.x16),
 
-          _SectionLabel('설명', tokens: t),
+          PSectionLabel('설명', variant: PSectionLabelVariant.header),
           const SizedBox(height: PSpace.x4),
-          TextField(
+          PTextInput(
             controller: _descCtrl,
             maxLines: 3,
-            decoration: const InputDecoration(hintText: '추가 설명 (선택)'),
+            placeholder: '추가 설명 (선택)',
           ),
           const SizedBox(height: PSpace.x16),
 
           // 캘린더
-          _SectionLabel('캘린더', tokens: t),
+          PSectionLabel('캘린더', variant: PSectionLabelVariant.header),
           const SizedBox(height: PSpace.x4),
           calendarsAsync.when(
             loading: () => const Padding(
               padding: EdgeInsets.symmetric(vertical: PSpace.x8),
               child:
-                  Center(child: SizedBox(height: PSpace.x16, width: PSpace.x16, child: CircularProgressIndicator(strokeWidth: 2))),
+                  Center(child: SizedBox(height: PSpace.x16, width: PSpace.x16, child: PCircularProgressIndicator(strokeWidth: 2))),
             ),
             error: (_, _) => Text('캘린더 로드 실패',
                 style: PTypo.caption.copyWith(color: t.statusDanger)),
@@ -383,7 +369,7 @@ class _BodyState extends ConsumerState<_Body> {
                         width: PSpace.x12,
                         height: PSpace.x12,
                         decoration: BoxDecoration(
-                          color: parseColor(selectedCalendar.color,
+                          color: solidSwatchColor(context, selectedCalendar.color,
                               fallback: t.fgBrand),
                           shape: BoxShape.circle,
                         ),
@@ -407,94 +393,81 @@ class _BodyState extends ConsumerState<_Body> {
           const SizedBox(height: PSpace.x16),
 
           // 라벨
-          _SectionLabel('라벨', tokens: t, icon: LucideIcons.tag),
+          PSectionLabel('라벨', variant: PSectionLabelVariant.header, icon: LucideIcons.tag),
           const SizedBox(height: PSpace.x8),
+          // web EventForm 정합 — chip 나열 대신 Select ('라벨이 없습니다' + 색 점)
           labelsAsync.when(
             loading: () => const SizedBox(
                 height: PSpace.x32,
-                child: Center(child: CircularProgressIndicator())),
+                child: Center(child: PCircularProgressIndicator())),
             error: (_, _) => Text('라벨 로드 실패',
                 style: PTypo.caption.copyWith(color: t.statusDanger)),
-            data: (labels) => labels.isEmpty
-                ? Text('라벨이 없습니다',
-                    style: PTypo.caption.copyWith(color: t.fgTertiary))
-                : Wrap(
-                    spacing: PSpace.x8,
-                    runSpacing: PSpace.x8,
-                    children: [
-                      _ChipPill(
-                        label: '없음',
-                        color: t.fgTertiary,
-                        selected: _labelRowId == null,
-                        onTap: () => setState(() => _labelRowId = null),
-                        tokens: t,
-                      ),
-                      for (final l in labels)
-                        _ChipPill(
-                          label: l.labelName,
-                          color: parseColor(l.color, fallback: t.fgBrand),
-                          selected: _labelRowId == l.rowId,
-                          onTap: () =>
-                              setState(() => _labelRowId = l.rowId),
-                          tokens: t,
-                        ),
-                    ],
+            data: (labels) => PSelect<int>(
+              value: _labelRowId ?? 0,
+              onChanged: (v) =>
+                  setState(() => _labelRowId = v == 0 ? null : v),
+              items: [
+                PSelectItem(
+                  value: 0,
+                  label: '라벨이 없습니다',
+                  leading: _labelDot(t.fgTertiary.withValues(alpha: 0.3)),
+                ),
+                for (final l in labels)
+                  PSelectItem(
+                    value: l.rowId,
+                    label: l.labelName,
+                    leading: _labelDot(solidSwatchColor(context, l.color,
+                        fallback: t.fgBrand)),
                   ),
+              ],
+            ),
           ),
           const SizedBox(height: PSpace.x16),
 
           // 색상
-          _SectionLabel('색상', tokens: t),
+          PSectionLabel('색상', variant: PSectionLabelVariant.header),
           const SizedBox(height: PSpace.x8),
-          Wrap(
-            spacing: PSpace.x12,
-            runSpacing: PSpace.x8,
-            children: [
-              for (final c in _colorOptions)
-                _ColorSphere(
-                  color: parseColor(c, fallback: t.fgBrand),
-                  selected: _color.toLowerCase() == c.toLowerCase(),
-                  onTap: () => setState(() => _color = c),
-                  tokens: t,
-                ),
-            ],
+          PColorPicker(
+            selected: _color,
+            onChanged: (hex) => setState(() => _color = hex),
           ),
           const SizedBox(height: PSpace.x16),
 
-          // 종일
-          SwitchListTile.adaptive(
-            contentPadding: EdgeInsets.zero,
-            title: Text('종일',
-                style: PTypo.body.copyWith(color: t.fgPrimary)),
-            value: _allDay,
-            onChanged: (v) => setState(() => _allDay = v),
+          // 종일 — web 정합: [토글][라벨] 좌측 정렬
+          Row(
+            children: [
+              PSwitch(
+                value: _allDay,
+                onChanged: (v) => setState(() => _allDay = v),
+                semanticLabel: '종일',
+              ),
+              const SizedBox(width: PSpace.x8),
+              Text('종일',
+                  style: PTypo.bodySm.copyWith(color: t.fgPrimary)),
+            ],
           ),
-          const SizedBox(height: PSpace.x4),
+          const SizedBox(height: PSpace.x12),
 
           // 시작
-          _SectionLabel('시작일', tokens: t),
+          PSectionLabel('시작일', variant: PSectionLabelVariant.header),
           const SizedBox(height: PSpace.x4),
           Row(
             children: [
               Expanded(
-                child: _DateTimeBox(
-                  icon: LucideIcons.calendar,
-                  label:
-                      '${_start.year}-${_start.month.toString().padLeft(2, '0')}-${_start.day.toString().padLeft(2, '0')}',
-                  onTap: () => _pickDate(true),
-                  tokens: t,
+                child: PDateInput(
+                  value: _start,
+                  onChanged: (d) => _onPickDate(true, d),
+                  firstDate: DateTime(2020),
+                  lastDate: DateTime(2030),
                 ),
               ),
               if (!_allDay) ...[
                 const SizedBox(width: PSpace.x8),
                 SizedBox(
                   width: PSpace.x80 + PSpace.x20,
-                  child: _DateTimeBox(
-                    icon: LucideIcons.clock,
-                    label:
-                        '${_start.hour.toString().padLeft(2, '0')}:${_start.minute.toString().padLeft(2, '0')}',
-                    onTap: () => _pickTime(true),
-                    tokens: t,
+                  child: PTimeInput(
+                    value: TimeOfDay.fromDateTime(_start),
+                    onChanged: (tm) => _onPickTime(true, tm),
                   ),
                 ),
               ],
@@ -502,29 +475,25 @@ class _BodyState extends ConsumerState<_Body> {
           ),
           const SizedBox(height: PSpace.x12),
 
-          _SectionLabel('종료일', tokens: t),
+          PSectionLabel('종료일', variant: PSectionLabelVariant.header),
           const SizedBox(height: PSpace.x4),
           Row(
             children: [
               Expanded(
-                child: _DateTimeBox(
-                  icon: LucideIcons.calendar,
-                  label:
-                      '${_end.year}-${_end.month.toString().padLeft(2, '0')}-${_end.day.toString().padLeft(2, '0')}',
-                  onTap: () => _pickDate(false),
-                  tokens: t,
+                child: PDateInput(
+                  value: _end,
+                  onChanged: (d) => _onPickDate(false, d),
+                  firstDate: DateTime(2020),
+                  lastDate: DateTime(2030),
                 ),
               ),
               if (!_allDay) ...[
                 const SizedBox(width: PSpace.x8),
                 SizedBox(
                   width: PSpace.x80 + PSpace.x20,
-                  child: _DateTimeBox(
-                    icon: LucideIcons.clock,
-                    label:
-                        '${_end.hour.toString().padLeft(2, '0')}:${_end.minute.toString().padLeft(2, '0')}',
-                    onTap: () => _pickTime(false),
-                    tokens: t,
+                  child: PTimeInput(
+                    value: TimeOfDay.fromDateTime(_end),
+                    onChanged: (tm) => _onPickTime(false, tm),
                   ),
                 ),
               ],
@@ -533,51 +502,46 @@ class _BodyState extends ConsumerState<_Body> {
           const SizedBox(height: PSpace.x16),
 
           // 장소
-          _SectionLabel('장소', tokens: t, icon: LucideIcons.mapPin),
+          PSectionLabel('장소', variant: PSectionLabelVariant.header, icon: LucideIcons.mapPin),
           const SizedBox(height: PSpace.x4),
-          TextField(
+          PTextInput(
             controller: _locationCtrl,
-            decoration: const InputDecoration(hintText: '장소를 입력하세요'),
+            placeholder: '장소를 입력하세요',
           ),
           const SizedBox(height: PSpace.x16),
 
           // 반복
-          _SectionLabel('반복', tokens: t, icon: LucideIcons.repeat),
+          PSectionLabel('반복', variant: PSectionLabelVariant.header, icon: LucideIcons.repeat),
           const SizedBox(height: PSpace.x8),
           Wrap(
-            spacing: PSpace.x8,
-            runSpacing: PSpace.x8,
+            spacing: PSpace.x4,
+            runSpacing: PSpace.x4,
             children: [
               for (final r in _RecurrenceOption.values)
-                _ChipPill(
+                _PlainToggle(
                   label: _recurrenceLabels[r]!,
-                  color: t.fgBrand,
                   selected: _recurrence == r,
                   onTap: () => setState(() => _recurrence = r),
-                  tokens: t,
-                  withDot: false,
                 ),
             ],
           ),
           const SizedBox(height: PSpace.x16),
 
           // 알림
-          _SectionLabel('알림', tokens: t, icon: LucideIcons.bell),
+          PSectionLabel('알림', variant: PSectionLabelVariant.header, icon: LucideIcons.bell),
           const SizedBox(height: PSpace.x8),
           Wrap(
-            spacing: PSpace.x8,
-            runSpacing: PSpace.x8,
+            spacing: PSpace.x4,
+            runSpacing: PSpace.x4,
             children: [
               for (final m in _reminderOptions)
-                _ChipPill(
+                _PlainToggle(
                   label: _reminderLabel(m),
-                  color: t.fgBrand,
                   selected: _reminders.contains(m),
+                  showCheck: true,
                   onTap: () => setState(() {
                     if (!_reminders.add(m)) _reminders.remove(m);
                   }),
-                  tokens: t,
-                  withDot: false,
                 ),
             ],
           ),
@@ -586,143 +550,58 @@ class _BodyState extends ConsumerState<_Body> {
   }
 }
 
-class _SectionLabel extends StatelessWidget {
-  const _SectionLabel(this.label, {required this.tokens, this.icon});
-  final String label;
-  final PorestTokens tokens;
-  final IconData? icon;
-  @override
-  Widget build(BuildContext context) {
-    final style = PTypo.bodySm
-        .copyWith(color: tokens.fgPrimary, fontWeight: PFontWeight.semi);
-    if (icon == null) return Text(label, style: style);
-    return Row(
-      children: [
-        Icon(icon, size: PSpace.x16, color: tokens.fgSecondary),
-        const SizedBox(width: PSpace.x4),
-        Text(label, style: style),
-      ],
+/// 라벨 select 항목 좌측 색 점 — web `h-3 w-3 rounded-full` 정합.
+Widget _labelDot(Color color) => Container(
+      width: 12,
+      height: 12,
+      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
     );
-  }
-}
 
-class _DateTimeBox extends StatelessWidget {
-  const _DateTimeBox({
-    required this.icon,
+/// web ToggleGroup(default variant, sm) 미러 — 테두리 없는 텍스트 옵션.
+/// 선택 시 surface-input(bgSunken) 채움 + fgPrimary 600 (+옵션 체크 아이콘).
+/// PChip(pill 테두리)과 다른 톤 — 반복/알림 선택 그룹 전용.
+class _PlainToggle extends StatelessWidget {
+  const _PlainToggle({
     required this.label,
+    required this.selected,
     required this.onTap,
-    required this.tokens,
+    this.showCheck = false,
   });
-  final IconData icon;
+
   final String label;
+  final bool selected;
   final VoidCallback onTap;
-  final PorestTokens tokens;
+  final bool showCheck;
+
   @override
   Widget build(BuildContext context) {
+    final t = context.tokens;
     return InkWell(
       onTap: onTap,
       borderRadius: PRadius.brMd,
       child: Container(
         padding: const EdgeInsets.symmetric(
-            horizontal: PSpace.x12, vertical: PSpace.x12),
-        decoration: BoxDecoration(
-          color: tokens.bgMuted,
-          borderRadius: PRadius.brMd,
-          border: Border.all(color: tokens.borderDefault),
-        ),
-        child: Row(
-          children: [
-            Icon(icon, size: PSpace.x16, color: tokens.fgSecondary),
-            const SizedBox(width: PSpace.x4),
-            Expanded(
-              child: Text(label,
-                  style: PTypo.bodySm.copyWith(color: tokens.fgPrimary)),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ChipPill extends StatelessWidget {
-  const _ChipPill({
-    required this.label,
-    required this.color,
-    required this.selected,
-    required this.onTap,
-    required this.tokens,
-    this.withDot = true,
-  });
-  final String label;
-  final Color color;
-  final bool selected;
-  final VoidCallback onTap;
-  final PorestTokens tokens;
-  final bool withDot;
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(
             horizontal: PSpace.x12, vertical: PSpace.x8),
         decoration: BoxDecoration(
-          color:
-              selected ? color.withValues(alpha: 0.12) : tokens.bgMuted,
-          border: Border.all(
-              color: selected ? color : tokens.borderDefault,
-              width: selected ? 1.5 : 1),
-          borderRadius: PRadius.brPill,
+          color: selected ? t.bgSunken : Colors.transparent,
+          borderRadius: PRadius.brMd,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (withDot) ...[
-              Container(
-                width: PSpace.x8,
-                height: PSpace.x8,
-                decoration:
-                    BoxDecoration(color: color, shape: BoxShape.circle),
-              ),
+            if (showCheck && selected) ...[
+              Icon(LucideIcons.check, size: 12, color: t.fgPrimary),
               const SizedBox(width: PSpace.x4),
             ],
-            Text(label,
-                style: PTypo.caption.copyWith(
-                    color: tokens.fgPrimary,
-                    fontWeight:
-                        selected ? PFontWeight.bold : PFontWeight.medium)),
+            Text(
+              label,
+              style: PTypo.bodySm.copyWith(
+                color: selected ? t.fgPrimary : t.fgSecondary,
+                fontWeight:
+                    selected ? PFontWeight.semi : PFontWeight.medium,
+              ),
+            ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ColorSphere extends StatelessWidget {
-  const _ColorSphere({
-    required this.color,
-    required this.selected,
-    required this.onTap,
-    required this.tokens,
-  });
-  final Color color;
-  final bool selected;
-  final VoidCallback onTap;
-  final PorestTokens tokens;
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: PSpace.x32,
-        height: PSpace.x32,
-        decoration: BoxDecoration(
-          color: color,
-          shape: BoxShape.circle,
-          border: selected
-              ? Border.all(color: tokens.fgBrand, width: 2.5)
-              : null,
         ),
       ),
     );

@@ -1,22 +1,29 @@
-/// 빌드 시 `--dart-define` 으로 주입되는 환경변수.
+/// 빌드/실행 시 `--dart-define-from-file=config/<env>.json` 으로 주입되는 환경변수.
 ///
-/// 예) Android 에뮬레이터 (호스트 Mac 가리키기):
-///   `fvm flutter run --dart-define=API_BASE=http://10.0.2.2:8002 \
-///                    --dart-define=SSO_URL=http://10.0.2.2:3000`
+/// 환경별 설정 파일: `config/local.json` · `config/dev.json` · `config/prod.json`
+///   fvm flutter run                       --dart-define-from-file=config/dev.json
+///   fvm flutter build apk --release       --dart-define-from-file=config/prod.json
 ///
-/// 미지정 시 로컬 개발 기본값 (iOS 시뮬용 — localhost 가 호스트 Mac).
+/// 미지정 시 기본값 = **dev** (실기기에서 localhost 를 부르지 않도록 안전한 dev 서버).
+/// localhost 는 로컬 도커용이라 `config/local.json` 에서만 사용한다.
 abstract final class Env {
-  /// Desk 백엔드 base URL (Spring Boot, 기본 :8002).
-  static const String apiBase = String.fromEnvironment(
-    'API_BASE',
-    defaultValue: 'http://localhost:8002',
+  /// 현재 환경 식별자 (local | dev | prod).
+  static const String appEnv = String.fromEnvironment(
+    'APP_ENV',
+    defaultValue: 'dev',
   );
 
-  /// SSO **프론트** URL (React 로그인 페이지, 기본 :3000).
-  /// SSO 백엔드(:8000)가 아님 — WebView 가 띄우는 건 ID/PW 폼이 있는 프론트 페이지다.
+  /// Desk 백엔드 base URL (dio 가 뒤에 `/api/v1` 부착). 기본 = dev 게이트웨이.
+  static const String apiBase = String.fromEnvironment(
+    'API_BASE',
+    defaultValue: 'https://desk-dev.porest.cloud:10443',
+  );
+
+  /// SSO **프론트** URL (React 로그인 페이지, WebView 가 띄우는 ID/PW 폼). 기본 = dev.
+  /// SSO 백엔드가 아님.
   static const String ssoUrl = String.fromEnvironment(
     'SSO_URL',
-    defaultValue: 'http://localhost:3000',
+    defaultValue: 'https://sso-dev.porest.cloud:10443',
   );
 
   /// SSO 로그인 후 캐치할 모바일 전용 redirect_uri.

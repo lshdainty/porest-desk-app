@@ -16,6 +16,8 @@ abstract class CalendarEvent with _$CalendarEvent {
     required String startDate, // ISO LocalDateTime
     required String endDate,
     String? isAllDay, // 'Y'|'N'
+    int? calendarRowId,
+    String? calendarColor,
     int? labelRowId,
     String? labelName,
     String? labelColor,

@@ -1,0 +1,5 @@
+{
+  "APP_ENV": "prod",
+  "API_BASE": "https://desk.porest.cloud",
+  "SSO_URL": "https://sso.porest.cloud"
+}

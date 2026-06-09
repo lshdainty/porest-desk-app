@@ -1,7 +1,21 @@
-/// porest-desk-front `--space-*` 토큰 1:1 매핑.
+/// DESIGN.desk.md `spacing.*` spec 매핑.
 ///
-/// 사용 예: `EdgeInsets.all(PSpace.x16)`, `SizedBox(height: PSpace.x8)`.
+/// Spec 의미명 (semantic): xs(4) / sm(8) / md(12) / lg(16) / xl(24) / xl2(32) / xl3(48).
+/// 픽셀명 (legacy): x0/x4/x8/x12/x16/x20/x24/x28/x32/x40/x48/x64/x80 — 신규 코드는
+/// semantic 명 우선 사용 권장.
+///
+/// 사용 예: `EdgeInsets.all(PSpace.lg)`, `SizedBox(height: PSpace.sm)`.
 abstract final class PSpace {
+  // Spec semantic (DESIGN.desk.md)
+  static const double xs = 4;
+  static const double sm = 8;
+  static const double md = 12;
+  static const double lg = 16;
+  static const double xl = 24;
+  static const double xl2 = 32;
+  static const double xl3 = 48;
+
+  // Pixel-named (legacy, 호환성 유지)
   static const double x0 = 0;
   static const double x4 = 4;
   static const double x8 = 8;

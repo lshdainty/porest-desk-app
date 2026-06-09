@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme/radius.dart';
@@ -9,7 +8,12 @@ import '../../../app/theme/typography.dart';
 import '../../../core/format/color_parse.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
+import '../../../shared/widgets/p_chip.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_progress.dart';
+import '../../../shared/widgets/p_section_label.dart';
+import '../../../shared/widgets/p_snack_bar.dart';
+import '../../../shared/widgets/p_text_input.dart';
 import '../../expense/application/expense_providers.dart';
 import '../../expense/domain/expense_category.dart';
 import '../application/budget_providers.dart';
@@ -128,14 +132,10 @@ class _BudgetEditBodyState extends ConsumerState<_BudgetEditBody> {
           (year: widget.year, month: widget.month)));
       if (!mounted) return;
       Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(_isEdit ? '예산이 수정되었습니다' : '예산이 추가되었습니다')),
-      );
+      showPSnackBar(context, _isEdit ? '예산이 수정되었습니다' : '예산이 추가되었습니다', severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('실패: ${e.message}')),
-      );
+      showPSnackBar(context, '실패: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setSubmitting(false);
     }
@@ -160,9 +160,7 @@ class _BudgetEditBodyState extends ConsumerState<_BudgetEditBody> {
       Navigator.of(context).pop();
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('삭제 실패: ${e.message}')),
-      );
+      showPSnackBar(context, '삭제 실패: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setSubmitting(false);
     }
@@ -184,7 +182,7 @@ class _BudgetEditBodyState extends ConsumerState<_BudgetEditBody> {
             style: PTypo.caption.copyWith(color: t.fgTertiary)),
         const SizedBox(height: PSpace.x12),
 
-        _Label('카테고리'),
+        PSectionLabel('카테고리'),
         const SizedBox(height: PSpace.x8),
         if (widget.overallNew)
           _LockedCategory(
@@ -203,51 +201,48 @@ class _BudgetEditBodyState extends ConsumerState<_BudgetEditBody> {
         else
           categoriesAsync.when(
             loading: () =>
-                const Center(child: CircularProgressIndicator()),
+                const Center(child: PCircularProgressIndicator()),
             error: (e, _) => Text('카테고리 로드 실패',
                 style: PTypo.caption.copyWith(color: t.statusDanger)),
             data: (categories) => Wrap(
               spacing: PSpace.x8,
               runSpacing: PSpace.x8,
               children: [
-                for (final c in categories
-                    .where((c) => c.expenseType != 'INCOME'))
-                  _CatChip(
-                    label: c.categoryName,
-                    icon: lucideByName(c.icon),
-                    fg: parseColor(c.color, fallback: t.fgBrand),
-                    selected: _categoryRowId == c.rowId,
-                    disabled: widget.usedCategoryIds.contains(c.rowId),
-                    onTap: () => setState(() => _categoryRowId = c.rowId),
-                    tokens: t,
+                // 웹 기준 통일: 예산 가능 카테고리 = EXPENSE 최상위(부모)만.
+                // 자식 지출은 부모로 roll-up 집계되므로 leaf 는 제외.
+                for (final c in categories.where(
+                    (c) => c.expenseType == 'EXPENSE' && c.parentRowId == null))
+                  Opacity(
+                    opacity: widget.usedCategoryIds.contains(c.rowId)
+                        ? 0.4
+                        : 1.0,
+                    child: PChip(
+                      label: c.categoryName,
+                      icon: lucideByName(c.icon),
+                      iconColor: parseColor(c.color, fallback: t.fgBrand),
+                      variant: PChipVariant.subtle,
+                      selected: _categoryRowId == c.rowId,
+                      onTap: widget.usedCategoryIds.contains(c.rowId)
+                          ? () {}
+                          : () => setState(() => _categoryRowId = c.rowId),
+                    ),
                   ),
               ],
             ),
           ),
         const SizedBox(height: PSpace.x16),
 
-        _Label('월 예산 한도'),
+        PSectionLabel('월 예산 한도'),
         const SizedBox(height: PSpace.x4),
-        TextField(
+        PTextInput(
           controller: _amountCtrl,
-          keyboardType: TextInputType.number,
-          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-          style: PTypo.h3.copyWith(color: t.fgPrimary),
-          decoration: const InputDecoration(hintText: '0'),
+          numbersOnly: true,
+          style: PTypo.h3,
+          placeholder: '0',
           onChanged: (_) => setState(() {}),
         ),
       ],
     );
-  }
-}
-
-class _Label extends StatelessWidget {
-  const _Label(this.text);
-  final String text;
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    return Text(text, style: PTypo.caption.copyWith(color: t.fgSecondary));
   }
 }
 
@@ -279,54 +274,3 @@ class _LockedCategory extends StatelessWidget {
   }
 }
 
-class _CatChip extends StatelessWidget {
-  const _CatChip({
-    required this.label,
-    required this.icon,
-    required this.fg,
-    required this.selected,
-    required this.disabled,
-    required this.onTap,
-    required this.tokens,
-  });
-  final String label;
-  final IconData icon;
-  final Color fg;
-  final bool selected;
-  final bool disabled;
-  final VoidCallback onTap;
-  final PorestTokens tokens;
-
-  @override
-  Widget build(BuildContext context) {
-    return Opacity(
-      opacity: disabled ? 0.4 : 1.0,
-      child: GestureDetector(
-        onTap: disabled ? null : onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-          decoration: BoxDecoration(
-            color: selected ? tokens.bgBrandSubtle : tokens.bgSurface,
-            border: Border.all(
-              color: selected ? tokens.borderBrand : tokens.borderDefault,
-              width: selected ? 1.5 : 1,
-            ),
-            borderRadius: PRadius.brPill,
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, size: 14, color: fg),
-              const SizedBox(width: 6),
-              Text(label,
-                  style: PTypo.bodySm.copyWith(
-                    color: selected ? tokens.fgPrimary : tokens.fgSecondary,
-                    fontWeight: selected ? PFontWeight.semi : PFontWeight.medium,
-                  )),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}

@@ -23,8 +23,6 @@ abstract class Expense with _$Expense {
     String? paymentMethod,
     int? calendarEventRowId,
     int? todoRowId,
-    int? groupRowId,
-    String? groupName,
     String? createAt,
     String? modifyAt,
   }) = _Expense;

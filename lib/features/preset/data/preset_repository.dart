@@ -10,8 +10,7 @@ class PresetRepository {
 
   Future<List<ExpenseTemplate>> list() async {
     try {
-      final res =
-          await _dio.get<Map<String, dynamic>>('/expense-templates');
+      final res = await _dio.get<Map<String, dynamic>>('/expense-templates');
       return _unwrapList(res, 'templates', ExpenseTemplate.fromJson);
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
@@ -20,10 +19,10 @@ class PresetRepository {
 
   Future<ExpenseTemplate> create({
     required String templateName,
-    required int categoryRowId,
-    required int assetRowId,
+    int? categoryRowId,
+    int? assetRowId,
     required String expenseType,
-    required int amount,
+    int? amount,
     String? description,
     String? merchant,
     String? paymentMethod,
@@ -35,10 +34,10 @@ class PresetRepository {
         '/expense-template',
         data: {
           'templateName': templateName,
-          'categoryRowId': categoryRowId,
-          'assetRowId': assetRowId,
+          'categoryRowId': ?categoryRowId,
+          'assetRowId': ?assetRowId,
           'expenseType': expenseType,
-          'amount': amount,
+          'amount': ?amount,
           'description': ?description,
           'merchant': ?merchant,
           'paymentMethod': ?paymentMethod,
@@ -55,10 +54,10 @@ class PresetRepository {
   Future<ExpenseTemplate> update({
     required int id,
     required String templateName,
-    required int categoryRowId,
-    required int assetRowId,
+    int? categoryRowId,
+    int? assetRowId,
     required String expenseType,
-    required int amount,
+    int? amount,
     String? description,
     String? merchant,
     String? paymentMethod,
@@ -69,10 +68,10 @@ class PresetRepository {
         '/expense-template/$id',
         data: {
           'templateName': templateName,
-          'categoryRowId': categoryRowId,
-          'assetRowId': assetRowId,
+          'categoryRowId': ?categoryRowId,
+          'assetRowId': ?assetRowId,
           'expenseType': expenseType,
-          'amount': amount,
+          'amount': ?amount,
           'description': ?description,
           'merchant': ?merchant,
           'paymentMethod': ?paymentMethod,

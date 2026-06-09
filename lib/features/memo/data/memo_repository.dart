@@ -23,7 +23,13 @@ class MemoRepository {
     }
   }
 
-  Future<Memo> create({String? title, String? content, int? folderId}) async {
+  Future<Memo> create({
+    String? title,
+    String? content,
+    String? tag,
+    String? color,
+    int? folderId,
+  }) async {
     try {
       final res = await _dio.post<Map<String, dynamic>>(
         '/memo',
@@ -31,6 +37,8 @@ class MemoRepository {
           'folderId': ?folderId,
           'title': ?title,
           'content': ?content,
+          'tag': ?tag,
+          'color': ?color,
         },
       );
       return _unwrap(res, Memo.fromJson);
@@ -43,6 +51,8 @@ class MemoRepository {
     required int id,
     String? title,
     String? content,
+    String? tag,
+    String? color,
     int? folderId,
   }) async {
     try {
@@ -52,6 +62,8 @@ class MemoRepository {
           'folderId': ?folderId,
           'title': ?title,
           'content': ?content,
+          'tag': ?tag,
+          'color': ?color,
         },
       );
       return _unwrap(res, Memo.fromJson);

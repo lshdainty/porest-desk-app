@@ -6,14 +6,15 @@ import '../../app/theme/spacing.dart';
 import '../../app/theme/tokens.dart';
 import '../../app/theme/typography.dart';
 
-/// front shadcn `<Input>` 미러 — bgSurface 배경, height 36, semantic 토큰 일관 사용.
+/// specs/components/input.md 미러 — single size md.
 ///
-/// 다이얼로그·시트의 입력란은 이 위젯을 통해서만 사용. 기본값:
-/// - 높이 36
-/// - 배경 `bgSurface` (white/dark surface)
-/// - 보더 `borderSubtle`
-/// - radius `brSm` (=6)
-/// - padding 좌우 12
+/// Spec:
+/// - Height: 40px
+/// - Padding (Y · X): 8 · 12 (`spacing-sm` · `spacing-md`)
+/// - Font: body-lg (16px / 400)
+/// - Radius: sm (4px)
+/// - Border: 1px `border-default`
+/// - Background: `surface-input` (light #F0F2F7, dark #2D3346)
 class PTextInput extends StatelessWidget {
   const PTextInput({
     super.key,
@@ -25,13 +26,22 @@ class PTextInput extends StatelessWidget {
     this.numbersOnly = false,
     this.obscureText = false,
     this.maxLines = 1,
+    this.minLines,
     this.textAlign = TextAlign.start,
+    this.textInputAction,
     this.enabled = true,
     this.autofocus = false,
     this.suffix,
     this.prefix,
+    this.prefixText,
+    this.suffixText,
+    this.errorText,
     this.style,
     this.onSubmitted,
+    this.focusNode,
+    this.inputFormatters,
+    this.autofillHints,
+    this.search = false,
   });
 
   final TextEditingController? controller;
@@ -42,61 +52,88 @@ class PTextInput extends StatelessWidget {
   final bool numbersOnly;
   final bool obscureText;
   final int? maxLines;
+  final int? minLines;
   final TextAlign textAlign;
+  final TextInputAction? textInputAction;
   final bool enabled;
   final bool autofocus;
   final Widget? suffix;
   final Widget? prefix;
+  final String? prefixText;
+  final String? suffixText;
+  final String? errorText;
   final TextStyle? style;
   final ValueChanged<String>? onSubmitted;
+  final FocusNode? focusNode;
+  final List<TextInputFormatter>? inputFormatters;
+  final Iterable<String>? autofillHints;
+
+  /// true 면 헤더 검색(top__search) 정합 외형 — 테두리 없음 + radius-md + compact(36) + bodySm.
+  final bool search;
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final radius = search ? PRadius.brMd : PRadius.brSm;
+    final restSide = search ? BorderSide.none : BorderSide(color: t.borderDefault);
+    final baseFont = search ? PTypo.bodySm : PTypo.bodyLg;
     final isMultiLine = (maxLines ?? 1) > 1;
+    final formatters = inputFormatters ??
+        (numbersOnly ? [FilteringTextInputFormatter.digitsOnly] : null);
     final field = TextField(
       controller: controller,
+      focusNode: focusNode,
       onChanged: onChanged,
       onSubmitted: onSubmitted,
       autofocus: autofocus,
       enabled: enabled,
       keyboardType:
           keyboardType ?? (numbersOnly ? TextInputType.number : null),
-      inputFormatters:
-          numbersOnly ? [FilteringTextInputFormatter.digitsOnly] : null,
+      inputFormatters: formatters,
       obscureText: obscureText,
       maxLines: obscureText ? 1 : maxLines,
+      minLines: obscureText ? 1 : minLines,
       textAlign: textAlign,
-      style: (style ?? PTypo.bodySm).copyWith(color: t.fgPrimary),
+      textInputAction: textInputAction,
+      autofillHints: autofillHints,
+      style: (style ?? baseFont).copyWith(color: t.fgPrimary),
       decoration: InputDecoration(
         hintText: placeholder,
-        hintStyle: PTypo.bodySm.copyWith(color: t.fgTertiary),
+        hintStyle: baseFont.copyWith(color: t.fgTertiary),
         filled: true,
-        fillColor: t.bgSurface,
+        fillColor: t.bgMuted, // surface-input
         isDense: true,
-        contentPadding: EdgeInsets.symmetric(
-            horizontal: PSpace.x12, vertical: isMultiLine ? 10 : 8),
+        contentPadding: const EdgeInsets.symmetric(
+            horizontal: PSpace.md, vertical: PSpace.sm),
         prefixIcon: prefix,
         suffixIcon: suffix,
+        prefixText: prefixText,
+        suffixText: suffixText,
+        suffixStyle: PTypo.bodySm.copyWith(color: t.fgTertiary),
+        errorText: errorText,
         border: OutlineInputBorder(
-          borderRadius: PRadius.brSm,
-          borderSide: BorderSide(color: t.borderSubtle),
+          borderRadius: radius,
+          borderSide: restSide,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: PRadius.brSm,
-          borderSide: BorderSide(color: t.borderSubtle),
+          borderRadius: radius,
+          borderSide: restSide,
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: PRadius.brSm,
-          borderSide: BorderSide(color: t.borderBrand),
+          borderRadius: radius,
+          borderSide: BorderSide(color: t.borderFocus),
         ),
         disabledBorder: OutlineInputBorder(
-          borderRadius: PRadius.brSm,
-          borderSide: BorderSide(color: t.borderSubtle),
+          borderRadius: radius,
+          borderSide: restSide,
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: radius,
+          borderSide: BorderSide(color: t.statusDanger),
         ),
       ),
     );
     if (isMultiLine) return field;
-    return SizedBox(height: 36, child: field);
+    return SizedBox(height: search ? 36 : 40, child: field);
   }
 }

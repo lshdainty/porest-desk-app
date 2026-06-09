@@ -1,14 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
-import '../../../core/format/color_parse.dart';
+import '../../../core/format/chart_palette.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../shared/widgets/p_button.dart';
+import '../../../shared/widgets/p_color_picker.dart';
+import '../../../shared/widgets/p_divider.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_skeleton.dart';
+import '../../../shared/widgets/p_snack_bar.dart';
+import '../../../shared/widgets/p_text_input.dart';
 import '../application/todo_providers.dart';
 import '../domain/todo_tag.dart';
 
@@ -21,10 +27,7 @@ void showTodoTagManagementDialog(BuildContext context) {
   );
 }
 
-const _palette = <String>[
-  '#16a34a', '#2563eb', '#f59e0b', '#ef4444',
-  '#a855f7', '#ec4899', '#06b6d4', '#64748b',
-];
+const _palette = kChartBaseHexes;
 
 class _Body extends ConsumerStatefulWidget {
   const _Body({required this.scrollController});
@@ -60,9 +63,7 @@ class _BodyState extends ConsumerState<_Body> {
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() => _adding = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('추가 실패: ${e.message}')),
-      );
+      showPSnackBar(context, '추가 실패: ${e.message}', severity: PSnackSeverity.error);
     }
   }
 
@@ -84,47 +85,46 @@ class _BodyState extends ConsumerState<_Body> {
               Container(
                 width: 28, height: 28,
                 decoration: BoxDecoration(
-                  color: parseColor(_newColor, fallback: t.fgBrand),
+                  color: solidSwatchColor(context, _newColor, fallback: t.fgBrand),
                   shape: BoxShape.circle,
                 ),
               ),
               const SizedBox(width: PSpace.x8),
               Expanded(
-                child: TextField(
+                child: PTextInput(
                   controller: _newCtrl,
                   enabled: !_adding,
-                  decoration: const InputDecoration(hintText: '태그 이름'),
+                  placeholder: '태그 이름',
                   onSubmitted: (_) => _create(),
                   onChanged: (_) => setState(() {}),
                 ),
               ),
               const SizedBox(width: PSpace.x8),
-              FilledButton(
+              PButton(
+                label: '추가',
+                loading: _adding,
                 onPressed:
                     (_newCtrl.text.trim().isEmpty || _adding) ? null : _create,
-                child: _adding
-                    ? const SizedBox(
-                        width: 14, height: 14,
-                        child: CircularProgressIndicator(strokeWidth: 2))
-                    : const Text('추가'),
               ),
             ],
           ),
           const SizedBox(height: PSpace.x8),
-          _Palette(
+          PColorPicker(
             selected: _newColor,
             onChanged: (c) => setState(() => _newColor = c),
-            tokens: t,
           ),
           const SizedBox(height: PSpace.x20),
-          Divider(height: 1, color: t.borderSubtle),
+          PDivider(),
           const SizedBox(height: PSpace.x16),
           Text('등록된 태그',
               style: PTypo.bodySm.copyWith(
                   color: t.fgPrimary, fontWeight: PFontWeight.bold)),
           const SizedBox(height: PSpace.x8),
           tagsAsync.when(
-            loading: () => const Center(child: CircularProgressIndicator()),
+            loading: () => const Padding(
+              padding: EdgeInsets.symmetric(vertical: PSpace.x8),
+              child: PListSkeleton(rows: 3),
+            ),
             error: (e, _) => Text('태그 로드 실패: $e',
                 style: PTypo.caption.copyWith(color: t.statusDanger)),
             data: (tags) {
@@ -192,9 +192,7 @@ class _TagRowState extends ConsumerState<_TagRow> {
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() => _busy = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('수정 실패: ${e.message}')),
-      );
+      showPSnackBar(context, '수정 실패: ${e.message}', severity: PSnackSeverity.error);
     }
   }
 
@@ -215,16 +213,14 @@ class _TagRowState extends ConsumerState<_TagRow> {
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() => _busy = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('삭제 실패: ${e.message}')),
-      );
+      showPSnackBar(context, '삭제 실패: ${e.message}', severity: PSnackSeverity.error);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final t = widget.tokens;
-    final color = parseColor(_color, fallback: t.fgBrand);
+    final color = solidSwatchColor(context, _color, fallback: t.fgBrand);
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -244,20 +240,15 @@ class _TagRowState extends ConsumerState<_TagRow> {
                       BoxDecoration(color: color, shape: BoxShape.circle)),
               const SizedBox(width: 10),
               Expanded(
-                child: TextField(
+                child: PTextInput(
                   controller: _ctrl,
                   enabled: _expanded && !_busy,
-                  decoration: const InputDecoration(
-                    isDense: true,
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                  style: PTypo.bodySm.copyWith(color: t.fgPrimary),
+                  style: PTypo.bodySm,
                 ),
               ),
-              IconButton(
-                icon: Icon(_expanded ? LucideIcons.x : LucideIcons.pencil,
-                    size: 16, color: t.fgSecondary),
+              PButton.icon(
+                icon: _expanded ? LucideIcons.x : LucideIcons.pencil,
+                size: PButtonSize.sm,
                 onPressed: _busy
                     ? null
                     : () => setState(() {
@@ -268,30 +259,27 @@ class _TagRowState extends ConsumerState<_TagRow> {
                           }
                         }),
               ),
-              IconButton(
-                icon: Icon(LucideIcons.trash2,
-                    size: 16, color: t.statusDanger),
+              PButton.icon(
+                icon: LucideIcons.trash2,
+                size: PButtonSize.sm,
+                iconColor: t.statusDanger,
                 onPressed: _busy ? null : _delete,
               ),
             ],
           ),
           if (_expanded) ...[
             const SizedBox(height: 8),
-            _Palette(
+            PColorPicker(
               selected: _color,
               onChanged: (c) => setState(() => _color = c),
-              tokens: t,
             ),
             const SizedBox(height: 8),
             Align(
               alignment: Alignment.centerRight,
-              child: FilledButton(
+              child: PButton(
+                label: '저장',
+                loading: _busy,
                 onPressed: _busy ? null : _save,
-                child: _busy
-                    ? const SizedBox(
-                        width: 14, height: 14,
-                        child: CircularProgressIndicator(strokeWidth: 2))
-                    : const Text('저장'),
               ),
             ),
           ],
@@ -301,42 +289,3 @@ class _TagRowState extends ConsumerState<_TagRow> {
   }
 }
 
-class _Palette extends StatelessWidget {
-  const _Palette({
-    required this.selected,
-    required this.onChanged,
-    required this.tokens,
-  });
-  final String selected;
-  final ValueChanged<String> onChanged;
-  final PorestTokens tokens;
-  @override
-  Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: [
-        for (final c in _palette)
-          GestureDetector(
-            onTap: () => onChanged(c),
-            child: Container(
-              width: 28, height: 28,
-              decoration: BoxDecoration(
-                color: parseColor(c, fallback: tokens.fgBrand),
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color:
-                      c == selected ? tokens.fgPrimary : Colors.transparent,
-                  width: 2,
-                ),
-              ),
-              child: c == selected
-                  ? const Icon(LucideIcons.check,
-                      size: 14, color: Colors.white)
-                  : null,
-            ),
-          ),
-      ],
-    );
-  }
-}

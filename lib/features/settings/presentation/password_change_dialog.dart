@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/auth/auth_notifier.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../shared/widgets/p_button.dart';
+import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_section_label.dart';
+import '../../../shared/widgets/p_snack_bar.dart';
+import '../../../shared/widgets/p_text_input.dart';
 
 /// 비밀번호 변경 다이얼로그 — front `PasswordChangeDialog` 미러.
 ///
@@ -64,9 +69,7 @@ class _PasswordChangeDialogState extends ConsumerState<_PasswordChangeDialog> {
       );
       if (!mounted) return;
       Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('비밀번호가 변경되었습니다')),
-      );
+      showPSnackBar(context, '비밀번호가 변경되었습니다');
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() {
@@ -79,50 +82,42 @@ class _PasswordChangeDialogState extends ConsumerState<_PasswordChangeDialog> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    return AlertDialog(
-      backgroundColor: t.bgSurface,
-      title: Row(
-        children: [
-          Icon(LucideIcons.key, size: 18, color: t.fgBrand),
-          const SizedBox(width: PSpace.x8),
-          const Text('비밀번호 변경'),
-        ],
-      ),
+    return PFormAlertDialog(
+      title: '비밀번호 변경',
+      titleLeading: Icon(LucideIcons.key, size: 18, color: t.fgBrand),
       content: SizedBox(
         width: 400,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _Label('현재 비밀번호', tokens: t),
+            PSectionLabel('현재 비밀번호'),
             const SizedBox(height: PSpace.x4),
-            TextField(
+            PTextInput(
               controller: _currentCtrl,
               obscureText: true,
               enabled: !_submitting,
-              decoration: const InputDecoration(hintText: '현재 비밀번호'),
+              placeholder: '현재 비밀번호',
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: PSpace.x12),
-            _Label('새 비밀번호', tokens: t),
+            PSectionLabel('새 비밀번호'),
             const SizedBox(height: PSpace.x4),
-            TextField(
+            PTextInput(
               controller: _newCtrl,
               obscureText: true,
               enabled: !_submitting,
-              decoration: const InputDecoration(
-                hintText: '8자 이상',
-              ),
+              placeholder: '8자 이상',
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: PSpace.x12),
-            _Label('새 비밀번호 확인', tokens: t),
+            PSectionLabel('새 비밀번호 확인'),
             const SizedBox(height: PSpace.x4),
-            TextField(
+            PTextInput(
               controller: _confirmCtrl,
               obscureText: true,
               enabled: !_submitting,
-              decoration: const InputDecoration(hintText: '한 번 더 입력'),
+              placeholder: '한 번 더 입력',
               onChanged: (_) => setState(() {}),
             ),
             if (_newCtrl.text.isNotEmpty &&
@@ -145,33 +140,19 @@ class _PasswordChangeDialogState extends ConsumerState<_PasswordChangeDialog> {
         ),
       ),
       actions: [
-        TextButton(
+        PButton(
+          label: '취소',
+          variant: PButtonVariant.ghost,
           onPressed:
               _submitting ? null : () => Navigator.of(context).pop(),
-          child: const Text('취소'),
         ),
-        FilledButton(
+        PButton(
+          label: '변경',
+          loading: _submitting,
           onPressed: _canSubmit ? _submit : null,
-          child: _submitting
-              ? const SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2))
-              : const Text('변경'),
         ),
       ],
     );
   }
 }
 
-class _Label extends StatelessWidget {
-  const _Label(this.text, {required this.tokens});
-  final String text;
-  final PorestTokens tokens;
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(text,
-        style: PTypo.caption.copyWith(color: tokens.fgSecondary));
-  }
-}

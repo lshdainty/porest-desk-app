@@ -1,22 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/auth/auth_notifier.dart';
+import '../../../core/format/chart_palette.dart';
 import '../../../core/format/color_parse.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
+import '../../../shared/widgets/p_badge.dart';
+import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../expense/application/expense_providers.dart';
 import '../../expense/domain/expense.dart';
-import '../../group/application/group_providers.dart';
 import '../application/dutch_pay_providers.dart';
+import '../../../shared/widgets/p_snack_bar.dart';
+import '../../../shared/widgets/p_text_input.dart';
 
 /// 거래 → 더치페이 시작 다이얼로그 (front `DutchPayFromTxDialog` 미러).
 void showDutchPayFromTxDialog(BuildContext context, Expense expense) {
@@ -229,20 +233,6 @@ class _BodyState extends ConsumerState<_Body> {
     });
   }
 
-  void _addFromSibling(int? userRowId, String name) {
-    setState(() {
-      _others.add(_Participant(
-        uid: _newUid(),
-        userRowId: userRowId,
-        name: name,
-        isMe: false,
-        customAmount: _perPerson(
-                _totalAbs, _includeMyself ? _others.length + 2 : _others.length + 1)
-            .toString(),
-      ));
-    });
-  }
-
   Future<void> _submit(List<_Participant> participants) async {
     if (_submitting) return;
     _setSubmitting(true);
@@ -276,14 +266,10 @@ class _BodyState extends ConsumerState<_Body> {
       ref.invalidate(dutchPayListProvider);
       if (!mounted) return;
       Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('더치페이가 생성되었습니다')),
-      );
+      showPSnackBar(context, '더치페이가 생성되었습니다');
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('실패: ${e.message}')),
-      );
+      showPSnackBar(context, '실패: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setSubmitting(false);
     }
@@ -303,20 +289,8 @@ class _BodyState extends ConsumerState<_Body> {
         : cats.where((c) => c.rowId == e.categoryRowId).firstOrNull;
     final fg = cat == null
         ? t.fgBrand
-        : parseColor(cat.color, fallback: t.fgBrand);
+        : resolveChartColor(context, cat.color, fallback: t.fgBrand);
     final iconData = lucideByName(cat?.icon ?? 'tag');
-
-    final siblingsAsync = ref.watch(siblingMembersProvider);
-    final siblings = siblingsAsync.value ?? const [];
-    final usedUserIds = _others
-        .map((o) => o.userRowId)
-        .whereType<int>()
-        .toSet();
-    final quickAdd = siblings
-        .where((m) => !usedUserIds.contains(m.userRowId))
-        .where((m) => m.userRowId != meRowId)
-        .take(8)
-        .toList();
 
     final participants = _composeParticipants(meRowId, meName);
     final amounts = [
@@ -365,7 +339,7 @@ class _BodyState extends ConsumerState<_Body> {
                         height: 38,
                         decoration: BoxDecoration(
                           color: fg.withValues(alpha: 0.14),
-                          borderRadius: PRadius.brTile,
+                          borderRadius: PRadius.brLg,
                         ),
                         alignment: Alignment.center,
                         child: Icon(iconData, size: 18, color: fg),
@@ -395,14 +369,13 @@ class _BodyState extends ConsumerState<_Body> {
                             text: krw(_totalAbs),
                             style: PTypo.body.copyWith(
                                 color: t.fgPrimary,
-                                fontWeight: PFontWeight.heavy,
-                                fontFamily: 'monospace'),
+                                fontWeight: PFontWeight.bold),
                           ),
                           TextSpan(
                             text: '원',
                             style: PTypo.bodySm.copyWith(
                                 color: t.fgPrimary,
-                                fontWeight: PFontWeight.heavy),
+                                fontWeight: PFontWeight.bold),
                           ),
                         ]),
                       ),
@@ -575,67 +548,35 @@ class _BodyState extends ConsumerState<_Body> {
                 Row(
                   children: [
                     Expanded(
-                      child: SizedBox(
-                        height: 36,
-                        child: TextField(
-                          controller: _manualNameCtrl,
-                          textInputAction: TextInputAction.done,
-                          onSubmitted: (_) => _addManual(),
-                          decoration: InputDecoration(
-                            hintText: '이름 입력 후 추가',
-                            isDense: true,
-                            filled: true,
-                            fillColor: t.bgSurface,
-                            contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 8),
-                          ),
-                          enabled: !_submitting,
-                        ),
+                      child: PTextInput(
+                        controller: _manualNameCtrl,
+                        textInputAction: TextInputAction.done,
+                        onSubmitted: (_) => _addManual(),
+                        placeholder: '이름 입력 후 추가',
+                        enabled: !_submitting,
                       ),
                     ),
                     const SizedBox(width: 8),
-                    OutlinedButton.icon(
+                    PButton(
+                      label: '추가',
+                      icon: LucideIcons.userPlus,
+                      variant: PButtonVariant.outline,
+                      size: PButtonSize.sm,
                       onPressed: _submitting ? null : _addManual,
-                      icon: const Icon(LucideIcons.userPlus, size: 14),
-                      label: const Text('추가'),
                     ),
                   ],
                 ),
-
-                if (quickAdd.isNotEmpty) ...[
-                  const SizedBox(height: 10),
-                  Wrap(
-                    spacing: 6,
-                    runSpacing: 6,
-                    children: [
-                      for (var i = 0; i < quickAdd.length; i++)
-                        _QuickChip(
-                          color: parseColor(
-                              _participantPaletteOklch[i % _participantPaletteOklch.length],
-                              fallback: t.fgBrand),
-                          label: quickAdd[i].userName,
-                          onTap: () => _addFromSibling(
-                              quickAdd[i].userRowId, quickAdd[i].userName),
-                          tokens: t,
-                        ),
-                    ],
-                  ),
-                ],
 
                 const SizedBox(height: 16),
 
                 // 요청 메시지
                 _Section(
                   title: '요청 메시지 (선택)',
-                  child: TextField(
+                  child: PTextInput(
                     controller: _msgCtrl,
                     maxLines: 3,
                     minLines: 3,
-                    decoration: InputDecoration(
-                      hintText: '참여자에게 함께 보낼 한마디를 적어주세요',
-                      filled: true,
-                      fillColor: t.bgSurface,
-                    ),
+                    placeholder: '참여자에게 함께 보낼 한마디를 적어주세요',
                     enabled: !_submitting,
                   ),
                 ),
@@ -682,31 +623,26 @@ class _DutchPayFooter extends StatelessWidget {
                     text: '${krw(perPerson)}원',
                     style: PTypo.bodySm.copyWith(
                         color: t.fgPrimary,
-                        fontWeight: PFontWeight.heavy,
-                        fontFamily: 'monospace'),
+                        fontWeight: PFontWeight.bold),
                   ),
                 ]),
               ),
             ),
-            TextButton(
+            PButton(
+              label: '취소',
+              variant: PButtonVariant.ghost,
               onPressed: controller.submitting
                   ? null
                   : () => Navigator.of(ctx).pop(),
-              child: const Text('취소'),
             ),
             const SizedBox(width: PSpace.x4),
-            FilledButton.icon(
+            PButton(
+              label: '정산 만들기',
+              icon: LucideIcons.send,
+              loading: controller.submitting,
               onPressed: matched && !controller.submitting
                   ? controller.onSubmit
                   : null,
-              icon: controller.submitting
-                  ? const SizedBox(
-                      width: PSpace.x16,
-                      height: PSpace.x16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(LucideIcons.send, size: 14),
-              label: const Text('정산 만들기'),
             ),
           ],
         );
@@ -875,19 +811,7 @@ class _ParticipantRow extends StatelessWidget {
                 ),
                 if (participant.isMe) ...[
                   const SizedBox(width: 6),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 7, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: tokens.fgBrand.withValues(alpha: 0.12),
-                      borderRadius: PRadius.brPill,
-                    ),
-                    child: Text('나',
-                        style: PTypo.caption.copyWith(
-                            color: tokens.fgBrand,
-                            fontWeight: PFontWeight.bold,
-                            fontSize: PFontSize.micro)),
-                  ),
+                  const PBadge(label: '나', variant: PBadgeVariant.softBrand),
                 ],
               ],
             ),
@@ -895,18 +819,12 @@ class _ParticipantRow extends StatelessWidget {
           if (splitMethod == _Split.custom && !participant.isMe) ...[
             SizedBox(
               width: 110,
-              child: TextField(
+              child: PTextInput(
                 controller: amountCtrl,
-                keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                numbersOnly: true,
                 textAlign: TextAlign.right,
-                decoration: const InputDecoration(
-                  isDense: true,
-                  hintText: '0',
-                  suffixText: '원',
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                ),
+                placeholder: '0',
+                suffixText: '원',
                 onChanged: onCustomChanged,
               ),
             ),
@@ -914,13 +832,12 @@ class _ParticipantRow extends StatelessWidget {
             Text('${krw(amount)}원',
                 style: PTypo.bodySm.copyWith(
                     color: tokens.fgPrimary,
-                    fontWeight: PFontWeight.bold,
-                    fontFamily: 'monospace')),
+                    fontWeight: PFontWeight.bold)),
           ] else if (splitMethod == _Split.ratio) ...[
             if (!participant.isMe) ...[
               SizedBox(
                 width: 76,
-                child: TextField(
+                child: PTextInput(
                   controller: ratioCtrl,
                   keyboardType:
                       const TextInputType.numberWithOptions(decimal: true),
@@ -928,13 +845,8 @@ class _ParticipantRow extends StatelessWidget {
                     FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))
                   ],
                   textAlign: TextAlign.right,
-                  decoration: const InputDecoration(
-                    isDense: true,
-                    hintText: '1',
-                    suffixText: '%',
-                    contentPadding:
-                        EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                  ),
+                  placeholder: '1',
+                  suffixText: '%',
                   onChanged: onRatioChanged,
                 ),
               ),
@@ -946,23 +858,20 @@ class _ParticipantRow extends StatelessWidget {
                   textAlign: TextAlign.right,
                   style: PTypo.bodySm.copyWith(
                       color: tokens.fgPrimary,
-                      fontWeight: PFontWeight.bold,
-                      fontFamily: 'monospace')),
+                      fontWeight: PFontWeight.bold)),
             ),
           ] else ...[
             Text('${krw(amount)}원',
                 style: PTypo.bodySm.copyWith(
                     color: tokens.fgPrimary,
-                    fontWeight: PFontWeight.bold,
-                    fontFamily: 'monospace')),
+                    fontWeight: PFontWeight.bold)),
           ],
           if (onRemove != null)
-            IconButton(
+            PButton.icon(
+              icon: LucideIcons.x,
+              size: PButtonSize.sm,
+              iconColor: tokens.fgTertiary,
               onPressed: onRemove,
-              icon: Icon(LucideIcons.x, size: 14, color: tokens.fgTertiary),
-              visualDensity: VisualDensity.compact,
-              constraints: const BoxConstraints.tightFor(width: 28, height: 28),
-              padding: EdgeInsets.zero,
             )
           else
             const SizedBox(width: 28, height: 28),
@@ -972,51 +881,3 @@ class _ParticipantRow extends StatelessWidget {
   }
 }
 
-class _QuickChip extends StatelessWidget {
-  const _QuickChip({
-    required this.color,
-    required this.label,
-    required this.onTap,
-    required this.tokens,
-  });
-  final Color color;
-  final String label;
-  final VoidCallback onTap;
-  final PorestTokens tokens;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: PRadius.brPill,
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(8, 5, 10, 5),
-        decoration: BoxDecoration(
-          color: tokens.bgSurface,
-          border: Border.all(color: tokens.borderSubtle),
-          borderRadius: PRadius.brPill,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 8,
-              height: 8,
-              decoration: BoxDecoration(
-                color: color,
-                shape: BoxShape.circle,
-              ),
-            ),
-            const SizedBox(width: 6),
-            Text(label,
-                style: PTypo.caption.copyWith(
-                    color: tokens.fgPrimary,
-                    fontWeight: PFontWeight.semi)),
-            const SizedBox(width: 4),
-            Icon(LucideIcons.plus, size: 12, color: tokens.fgTertiary),
-          ],
-        ),
-      ),
-    );
-  }
-}

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
@@ -8,11 +8,19 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/brand/bank_colors.dart';
+import '../../../shared/widgets/p_divider.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_progress.dart';
+import '../../../shared/widgets/p_search_field.dart';
+import '../../../shared/widgets/p_select.dart';
+import '../../../shared/widgets/p_snack_bar.dart';
+import '../../../shared/widgets/p_switch.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../../card/application/card_providers.dart';
 import '../../card/domain/card_catalog.dart';
 import '../application/asset_providers.dart';
+import '../domain/asset.dart';
+import 'include_in_total_card.dart';
 
 /// 카드 추가 다이얼로그 — front `CardAddDialog` 미러.
 ///
@@ -73,10 +81,14 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
   late final TextEditingController _keywordCtrl;
   late final TextEditingController _nicknameCtrl;
   late final TextEditingController _balanceCtrl;
+  late final TextEditingController _creditLimitCtrl;
 
   _CardType _cardType = _CardType.credit;
   bool _includeDiscontinued = false;
+  bool _includeInTotal = true;
   CardCatalogSummary? _selected;
+  int? _paymentDay; // 결제일 1~31
+  int? _paymentAssetRowId; // 결제 출금계좌 자산 rowId
   bool _submitting = false;
 
   @override
@@ -85,6 +97,7 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
     _keywordCtrl = TextEditingController()..addListener(_onChanged);
     _nicknameCtrl = TextEditingController()..addListener(_onChanged);
     _balanceCtrl = TextEditingController(text: '0');
+    _creditLimitCtrl = TextEditingController();
     widget.controller.onSubmit = _submit;
   }
 
@@ -103,6 +116,7 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
     _keywordCtrl.dispose();
     _nicknameCtrl.dispose();
     _balanceCtrl.dispose();
+    _creditLimitCtrl.dispose();
     super.dispose();
   }
 
@@ -114,6 +128,11 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
     final outstanding =
         int.tryParse(_balanceCtrl.text.replaceAll(',', '')) ?? 0;
     final company = selected.company?.name;
+    // 청구 사이클 필드는 신용카드일 때만. 빈 한도는 null 로 전송.
+    final isCredit = _cardType == _CardType.credit;
+    final creditLimit = isCredit
+        ? int.tryParse(_creditLimitCtrl.text.replaceAll(',', ''))
+        : null;
 
     _setSubmitting(true);
     try {
@@ -124,21 +143,21 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
         balance: outstanding,
         currency: 'KRW',
         institution: company,
+        isIncludedInTotal: _includeInTotal ? 'Y' : 'N',
         cardCatalogRowId: selected.rowId,
+        creditLimit: creditLimit,
+        paymentDay: isCredit ? _paymentDay : null,
+        paymentAssetRowId: isCredit ? _paymentAssetRowId : null,
       );
       // brand color hex 는 모바일 측에선 별도 파싱이라 institution 으로 추후 매칭.
       // (web 의 color 필드는 같은 효과를 내는 보조 정보)
       ref.invalidate(assetsProvider);
       if (!mounted) return;
       Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('카드가 추가되었습니다')),
-      );
+      showPSnackBar(context, '카드가 추가되었습니다', severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('실패: ${e.message}')),
-      );
+      showPSnackBar(context, '실패: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setSubmitting(false);
     }
@@ -157,6 +176,11 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
       size: 40,
     );
     final pageAsync = ref.watch(cardCatalogPageProvider(searchKey));
+    final isCredit = _cardType == _CardType.credit;
+    // 결제 출금계좌 후보 — 본인 소유 BANK_ACCOUNT 자산.
+    final bankAccounts = (ref.watch(assetsProvider).value ?? const <Asset>[])
+        .where((a) => a.assetType == 'BANK_ACCOUNT')
+        .toList(growable: false);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         widget.controller.setCanSubmit(_selected != null && !_submitting);
@@ -201,7 +225,7 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
                     InkWell(
                       onTap: () => setState(
                           () => _includeDiscontinued = !_includeDiscontinued),
-                      borderRadius: BorderRadius.circular(4),
+                      borderRadius: PRadius.brSm,
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 2),
                         child: Row(
@@ -211,13 +235,13 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
                                 style: PTypo.caption
                                     .copyWith(color: t.fgTertiary)),
                             const SizedBox(width: 6),
-                            // Material Switch.adaptive 의 기본 폭이 커서 60% 로 축소.
+                            // PSwitch(44×24) 를 60%로 축소 — toolbar dense 화면.
                             SizedBox(
                               width: 36,
                               height: 22,
                               child: FittedBox(
                                 fit: BoxFit.contain,
-                                child: Switch(
+                                child: PSwitch(
                                   value: _includeDiscontinued,
                                   onChanged: (v) => setState(
                                       () => _includeDiscontinued = v),
@@ -238,14 +262,9 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
                   ],
                 ),
                 const SizedBox(height: PSpace.x8),
-                PTextInput(
+                PSearchField(
+                  hint: '카드명 또는 발급사 검색',
                   controller: _keywordCtrl,
-                  placeholder: '카드명 또는 발급사 검색',
-                  prefix: Padding(
-                    padding: const EdgeInsets.only(left: 10, right: 6),
-                    child: Icon(LucideIcons.search,
-                        size: 14, color: t.fgTertiary),
-                  ),
                 ),
                 const SizedBox(height: PSpace.x8),
                 _CatalogList(
@@ -281,6 +300,75 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
                 const SizedBox(height: 6),
                 Text('청구될 금액을 입력하세요. 총 부채에 반영됩니다.',
                     style: PTypo.micro.copyWith(color: t.fgTertiary)),
+
+                // 청구 사이클 (신용카드 전용) ──────────────
+                if (isCredit) ...[
+                  const SizedBox(height: PSpace.x20),
+                  // 신용한도 (원)
+                  Text('신용한도 (원, 선택)',
+                      style: PTypo.caption.copyWith(
+                          color: t.fgPrimary, fontWeight: PFontWeight.medium)),
+                  const SizedBox(height: PSpace.x8),
+                  PTextInput(
+                    controller: _creditLimitCtrl,
+                    keyboardType: TextInputType.number,
+                    placeholder: '예: 5,000,000',
+                  ),
+                  const SizedBox(height: 6),
+                  Text('한도를 입력하면 사용률 게이지가 표시됩니다.',
+                      style: PTypo.micro.copyWith(color: t.fgTertiary)),
+                  const SizedBox(height: PSpace.x20),
+                  // 결제일 (1~31)
+                  Text('결제일 (선택)',
+                      style: PTypo.caption.copyWith(
+                          color: t.fgPrimary, fontWeight: PFontWeight.medium)),
+                  const SizedBox(height: PSpace.x8),
+                  PSelect<int>(
+                    value: _paymentDay,
+                    placeholder: '결제일 선택',
+                    title: '결제일',
+                    items: [
+                      for (var d = 1; d <= 31; d++)
+                        PSelectItem(value: d, label: '$d일'),
+                    ],
+                    onChanged: (v) => setState(() => _paymentDay = v),
+                  ),
+                  const SizedBox(height: PSpace.x20),
+                  // 결제 출금계좌
+                  Text('결제 출금계좌 (선택)',
+                      style: PTypo.caption.copyWith(
+                          color: t.fgPrimary, fontWeight: PFontWeight.medium)),
+                  const SizedBox(height: PSpace.x8),
+                  PSelect<int>(
+                    value: _paymentAssetRowId,
+                    placeholder: bankAccounts.isEmpty
+                        ? '등록된 입출금계좌가 없어요'
+                        : '결제계좌 선택',
+                    title: '결제 출금계좌',
+                    enabled: bankAccounts.isNotEmpty,
+                    items: [
+                      for (final a in bankAccounts)
+                        PSelectItem(
+                          value: a.rowId,
+                          label: a.institution != null &&
+                                  a.institution!.isNotEmpty
+                              ? '${a.assetName} · ${a.institution}'
+                              : a.assetName,
+                        ),
+                    ],
+                    onChanged: (v) => setState(() => _paymentAssetRowId = v),
+                  ),
+                  const SizedBox(height: 6),
+                  Text('결제일에 이 계좌에서 청구액이 출금됩니다.',
+                      style: PTypo.micro.copyWith(color: t.fgTertiary)),
+                ],
+
+                // 전체 자산 합계 포함 토글 ──────────────
+                const SizedBox(height: PSpace.x20),
+                IncludeInTotalCard(
+                  value: _includeInTotal,
+                  onChanged: (v) => setState(() => _includeInTotal = v),
+                ),
               ],
             );
   }
@@ -439,7 +527,7 @@ class _CatalogList extends StatelessWidget {
       child: async.when(
         loading: () => const Padding(
           padding: EdgeInsets.symmetric(vertical: 24),
-          child: Center(child: CircularProgressIndicator()),
+          child: Center(child: PCircularProgressIndicator()),
         ),
         error: (_, _) => Padding(
           padding: const EdgeInsets.symmetric(vertical: 24),
@@ -464,7 +552,7 @@ class _CatalogList extends StatelessWidget {
               padding: EdgeInsets.zero,
               itemCount: items.length,
               separatorBuilder: (_, _) =>
-                  Divider(height: 1, color: t.borderSubtle),
+                  PDivider(),
               itemBuilder: (_, i) {
                 final c = items[i];
                 final active = c.rowId == selectedId;
@@ -519,7 +607,7 @@ class _CatalogRow extends StatelessWidget {
                 width: 44,
                 height: 28,
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(4),
+                  borderRadius: PRadius.brSm,
                   child: item.imgUrl != null && item.imgUrl!.isNotEmpty
                       ? Image.network(
                           item.imgUrl!,
@@ -564,7 +652,7 @@ class _CatalogRow extends StatelessWidget {
                                 horizontal: 6, vertical: 1),
                             decoration: BoxDecoration(
                               color: t.bgDisabled,
-                              borderRadius: BorderRadius.circular(3),
+                              borderRadius: PRadius.brXs,
                             ),
                             child: Text(
                               '단종',

@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
-import '../../../core/format/color_parse.dart';
+import '../../../core/format/chart_palette.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
+import '../../../shared/widgets/p_button.dart';
 import '../../../shared/widgets/p_category_tile.dart';
+import '../../../shared/widgets/p_date_input.dart';
 import '../../../shared/widgets/p_modal.dart';
 import '../../../shared/widgets/p_segmented.dart';
 import '../../../shared/widgets/p_text_input.dart';
@@ -89,24 +91,23 @@ Future<ExpenseFilter?> showFilterDialog(
     footerBuilder: (ctx) => AnimatedBuilder(
       animation: controller,
       builder: (_, _) {
-        final t = ctx.tokens;
         return Row(
           children: [
-            TextButton(
+            PButton(
+              label: '초기화',
+              variant: PButtonVariant.ghost,
               onPressed: () => formKey.currentState?._reset(),
-              child: Text('초기화',
-                  style: PTypo.body.copyWith(color: t.fgSecondary)),
             ),
             const Spacer(),
-            TextButton(
+            PButton(
+              label: '취소',
+              variant: PButtonVariant.ghost,
               onPressed: () => Navigator.of(ctx).pop(),
-              child: Text('취소',
-                  style: PTypo.body.copyWith(color: t.fgSecondary)),
             ),
             const SizedBox(width: PSpace.x8),
-            FilledButton(
+            PButton(
+              label: '필터 적용',
               onPressed: controller.canSubmit ? controller.onSubmit : null,
-              child: const Text('필터 적용'),
             ),
           ],
         );
@@ -274,16 +275,40 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
           Row(
             children: [
               Expanded(
-                  child: _datePill(
-                      t, _startDate, (v) => setState(() => _startDate = v),
-                      '시작일')),
+                child: PDateInput(
+                  value: (_startDate?.isNotEmpty ?? false)
+                      ? DateTime.tryParse(_startDate!)
+                      : null,
+                  onChanged: (d) {
+                    if (d != null) {
+                      setState(() => _startDate =
+                          '${d.year}-${_pad(d.month)}-${_pad(d.day)}');
+                    }
+                  },
+                  firstDate: DateTime(2000),
+                  lastDate: DateTime(2100),
+                  placeholder: '시작일',
+                ),
+              ),
               const SizedBox(width: 8),
               Text('~', style: PTypo.body.copyWith(color: t.fgTertiary)),
               const SizedBox(width: 8),
               Expanded(
-                  child: _datePill(
-                      t, _endDate, (v) => setState(() => _endDate = v),
-                      '종료일')),
+                child: PDateInput(
+                  value: (_endDate?.isNotEmpty ?? false)
+                      ? DateTime.tryParse(_endDate!)
+                      : null,
+                  onChanged: (d) {
+                    if (d != null) {
+                      setState(() => _endDate =
+                          '${d.year}-${_pad(d.month)}-${_pad(d.day)}');
+                    }
+                  },
+                  firstDate: DateTime(2000),
+                  lastDate: DateTime(2100),
+                  placeholder: '종료일',
+                ),
+              ),
             ],
           ),
           if (_customInvalid)
@@ -295,48 +320,6 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
             ),
         ],
       ],
-    );
-  }
-
-  Widget _datePill(PorestTokens t, String? value, ValueChanged<String> onChanged,
-      String hint) {
-    return InkWell(
-      onTap: () async {
-        final init = DateTime.tryParse(value ?? '') ?? DateTime.now();
-        final picked = await showDatePicker(
-          context: context,
-          initialDate: init,
-          firstDate: DateTime(2000),
-          lastDate: DateTime(2100),
-        );
-        if (picked != null) {
-          onChanged(
-              '${picked.year}-${_pad(picked.month)}-${_pad(picked.day)}');
-        }
-      },
-      borderRadius: PRadius.brSm,
-      child: Container(
-        height: 36,
-        padding: const EdgeInsets.symmetric(horizontal: PSpace.x12),
-        decoration: BoxDecoration(
-          color: t.bgSurface,
-          borderRadius: PRadius.brSm,
-          border: Border.all(color: t.borderSubtle),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(
-                (value ?? '').isEmpty ? hint : value!,
-                style: PTypo.bodySm.copyWith(
-                    color:
-                        (value ?? '').isEmpty ? t.fgTertiary : t.fgPrimary),
-              ),
-            ),
-            Icon(LucideIcons.calendar, size: 14, color: t.fgSecondary),
-          ],
-        ),
-      ),
     );
   }
 
@@ -358,7 +341,7 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
               child: PTypeChip(
                 label: '지출',
                 active: _types.contains('EXPENSE'),
-                activeColor: t.statusDangerFg,
+                activeColor: t.fgExpense,
                 onTap: () => toggle('EXPENSE'),
               ),
             ),
@@ -367,7 +350,7 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
               child: PTypeChip(
                 label: '수입',
                 active: _types.contains('INCOME'),
-                activeColor: t.statusSuccessFg,
+                activeColor: t.fgIncome,
                 onTap: () => toggle('INCOME'),
               ),
             ),
@@ -388,29 +371,37 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
         _label('카테고리', t,
             badge:
                 _categoryIds.isEmpty ? null : '· ${_categoryIds.length}개 선택'),
-        GridView.count(
-          crossAxisCount: 5,
-          mainAxisSpacing: 6,
-          crossAxisSpacing: 6,
-          childAspectRatio: 0.85,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          children: [
-            for (final c in parents)
-              PCategoryTile(
-                name: c.categoryName,
-                color: parseColor(c.color, fallback: t.fgBrand),
-                icon: lucideByName(c.icon, fallback: LucideIcons.tag),
-                active: _categoryIds.contains(c.rowId),
-                onTap: () => setState(() {
-                  if (_categoryIds.contains(c.rowId)) {
-                    _categoryIds.remove(c.rowId);
-                  } else {
-                    _categoryIds.add(c.rowId);
-                  }
-                }),
-              ),
-          ],
+        LayoutBuilder(
+          builder: (context, constraints) {
+            const gap = 6.0;
+            const columns = 5;
+            final cellWidth =
+                (constraints.maxWidth - gap * (columns - 1)) / columns;
+            return Wrap(
+              spacing: gap,
+              runSpacing: gap,
+              children: [
+                for (final c in parents)
+                  SizedBox(
+                    width: cellWidth,
+                    child: PCategoryTile(
+                      name: c.categoryName,
+                      color: resolveChartColor(context, c.color,
+                          fallback: t.fgBrand),
+                      icon: lucideByName(c.icon, fallback: LucideIcons.tag),
+                      active: _categoryIds.contains(c.rowId),
+                      onTap: () => setState(() {
+                        if (_categoryIds.contains(c.rowId)) {
+                          _categoryIds.remove(c.rowId);
+                        } else {
+                          _categoryIds.add(c.rowId);
+                        }
+                      }),
+                    ),
+                  ),
+              ],
+            );
+          },
         ),
       ],
     );
@@ -439,21 +430,17 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
                 }),
                 child: Container(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: PSpace.x12, vertical: 8),
+                      horizontal: PSpace.sm, vertical: PSpace.xs),
                   decoration: BoxDecoration(
                     color: _assetIds.contains(a.rowId)
-                        ? t.bgBrandSubtle
-                        : t.bgMuted,
-                    border: Border.all(
-                        color: _assetIds.contains(a.rowId)
-                            ? t.borderBrand
-                            : t.borderSubtle),
-                    borderRadius: PRadius.brPill,
+                        ? t.bgMuted
+                        : Colors.transparent,
+                    borderRadius: PRadius.brFull,
                   ),
                   child: Text(a.assetName,
                       style: PTypo.caption.copyWith(
                         color: _assetIds.contains(a.rowId)
-                            ? t.fgBrandStrong
+                            ? t.fgPrimary
                             : t.fgSecondary,
                         fontWeight: PFontWeight.semi,
                       )),

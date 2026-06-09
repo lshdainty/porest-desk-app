@@ -3,13 +3,19 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/format/krw.dart';
+import '../../../shared/widgets/p_back_button.dart';
+import '../../../shared/widgets/p_button.dart';
+import '../../../shared/widgets/p_chip.dart';
+import '../../../shared/widgets/p_empty_state.dart';
+import '../../../shared/widgets/p_search_field.dart';
+import '../../../shared/widgets/p_skeleton.dart';
 import '../application/card_providers.dart';
 import '../domain/card_catalog.dart';
 import 'card_benefit_mapping_dialog.dart';
@@ -80,94 +86,79 @@ class _CardScreenState extends ConsumerState<CardScreen> {
     return Scaffold(
       backgroundColor: t.bgCanvas,
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(LucideIcons.arrowLeft),
-          onPressed: () => context.pop(),
-        ),
+        leadingWidth: PBackButton.leadingWidth,
+        titleSpacing: 0,
+        leading: PBackButton(onPressed: () => context.pop()),
         title: const Text('카드 관리'),
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,
         elevation: 0,
         actions: [
-          IconButton(
+          PButton.icon(
+            icon: LucideIcons.settings,
             tooltip: '혜택 매핑',
-            icon: Icon(LucideIcons.settings,
-                size: 20, color: t.fgSecondary),
             onPressed: () => showCardBenefitMappingDialog(context),
           ),
         ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(140),
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(
-                PSpace.x16, 0, PSpace.x16, PSpace.x12),
+            padding: const EdgeInsets.symmetric(
+            horizontal: PSpace.x20, vertical: PSpace.x24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TextField(
+                PSearchField(
                   controller: _kwCtrl,
                   onChanged: _onChange,
-                  decoration: InputDecoration(
-                    hintText: '카드명 검색',
-                    isDense: true,
-                    prefixIcon: Icon(LucideIcons.search,
-                        size: 16, color: t.fgTertiary),
-                    border: OutlineInputBorder(
-                      borderRadius: PRadius.brMd,
-                      borderSide: BorderSide(color: t.borderDefault),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: PRadius.brMd,
-                      borderSide: BorderSide(color: t.borderDefault),
-                    ),
-                  ),
+                  hint: '카드명 검색',
                 ),
                 const SizedBox(height: PSpace.x8),
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
-                      _Chip(
+                      PChip(
                           label: '전체',
                           selected: _typeFilter == null,
                           onTap: () => _setType(null),
-                          tokens: t),
+                          ),
                       const SizedBox(width: 6),
-                      _Chip(
+                      PChip(
                           label: '신용',
                           selected: _typeFilter == 'CREDIT',
                           onTap: () => _setType('CREDIT'),
-                          tokens: t),
+                          ),
                       const SizedBox(width: 6),
-                      _Chip(
+                      PChip(
                           label: '체크',
                           selected: _typeFilter == 'CHECK',
                           onTap: () => _setType('CHECK'),
-                          tokens: t),
+                          ),
                       const SizedBox(width: 14),
-                      _Chip(
+                      PChip(
                           label: '혜택 전체',
                           selected: _benefitFilter == null,
                           onTap: () => _setBenefit(null),
-                          tokens: t),
+                          ),
                       const SizedBox(width: 6),
-                      _Chip(
+                      PChip(
                           label: '할인',
                           selected: _benefitFilter == 'DISCOUNT',
                           onTap: () => _setBenefit('DISCOUNT'),
-                          tokens: t),
+                          ),
                       const SizedBox(width: 6),
-                      _Chip(
+                      PChip(
                           label: '적립',
                           selected: _benefitFilter == 'POINT',
                           onTap: () => _setBenefit('POINT'),
-                          tokens: t),
+                          ),
                       const SizedBox(width: 6),
-                      _Chip(
+                      PChip(
                           label: '캐시백',
                           selected: _benefitFilter == 'CASHBACK',
                           onTap: () => _setBenefit('CASHBACK'),
-                          tokens: t),
+                          ),
                     ],
                   ),
                 ),
@@ -208,7 +199,10 @@ class _CardScreenState extends ConsumerState<CardScreen> {
           await ref.read(cardCatalogPageProvider(_searchKey).future);
         },
         child: pageAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const Padding(
+            padding: EdgeInsets.all(PSpace.x16),
+            child: PListSkeleton(rows: 6, showAvatar: true),
+          ),
           error: (e, _) => Padding(
             padding: const EdgeInsets.all(PSpace.x16),
             child: Text('카드 로드 실패\n$e',
@@ -217,16 +211,10 @@ class _CardScreenState extends ConsumerState<CardScreen> {
           data: (page) {
             final cards = page.content;
             if (cards.isEmpty) {
-              return ListView(children: [
-                Padding(
-                  padding: const EdgeInsets.all(PSpace.x32),
-                  child: Column(children: [
-                    Icon(LucideIcons.creditCard,
-                        size: 48, color: t.fgDisabled),
-                    const SizedBox(height: PSpace.x12),
-                    Text('카드가 없습니다',
-                        style: PTypo.body.copyWith(color: t.fgTertiary)),
-                  ]),
+              return ListView(children: const [
+                PEmptyState(
+                  icon: LucideIcons.creditCard,
+                  message: '카드가 없습니다',
                 ),
               ]);
             }
@@ -303,11 +291,9 @@ class _Paginator extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        IconButton(
+        PButton.icon(
+          icon: LucideIcons.chevronLeft,
           onPressed: onPrev,
-          icon: const Icon(LucideIcons.chevronLeft, size: 18),
-          color: tokens.fgSecondary,
-          disabledColor: tokens.fgDisabled,
         ),
         const SizedBox(width: 8),
         Text(
@@ -316,45 +302,11 @@ class _Paginator extends StatelessWidget {
               color: tokens.fgPrimary, fontWeight: PFontWeight.semi),
         ),
         const SizedBox(width: 8),
-        IconButton(
+        PButton.icon(
+          icon: LucideIcons.chevronRight,
           onPressed: onNext,
-          icon: const Icon(LucideIcons.chevronRight, size: 18),
-          color: tokens.fgSecondary,
-          disabledColor: tokens.fgDisabled,
         ),
       ],
-    );
-  }
-}
-
-class _Chip extends StatelessWidget {
-  const _Chip({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-    required this.tokens,
-  });
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-  final PorestTokens tokens;
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: selected ? tokens.bgBrand : tokens.bgSurface,
-          border: Border.all(
-              color: selected ? tokens.borderBrand : tokens.borderSubtle),
-          borderRadius: PRadius.brPill,
-        ),
-        child: Text(label,
-            style: PTypo.caption.copyWith(
-                color: selected ? tokens.fgOnBrand : tokens.fgSecondary,
-                fontWeight: PFontWeight.semi)),
-      ),
     );
   }
 }

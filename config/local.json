@@ -1,0 +1,5 @@
+{
+  "APP_ENV": "local",
+  "API_BASE": "http://localhost:8002",
+  "SSO_URL": "http://localhost:3000"
+}

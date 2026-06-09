@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../app/theme/radius.dart';
 import '../../app/theme/tokens.dart';
@@ -110,7 +110,8 @@ class _PSpeedDialState extends State<PSpeedDial>
             _PSpeedDialChildBuilt(child: c, onClose: _close, tokens: t),
         const SizedBox(height: 6),
         FloatingActionButton(
-          backgroundColor: t.bgBrand,
+          // 채운 액션 버튼 — solid 고정 (다크에서도 primary)
+          backgroundColor: t.bgBrandSolid,
           foregroundColor: t.fgOnBrand,
           tooltip: widget.tooltip,
           onPressed: _toggle,

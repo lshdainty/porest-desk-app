@@ -4,14 +4,16 @@ import '../../../core/network/dio_provider.dart';
 import '../data/notification_repository.dart';
 import '../domain/notification.dart';
 
-final notificationRepositoryProvider =
-    FutureProvider<NotificationRepository>((ref) async {
+final notificationRepositoryProvider = FutureProvider<NotificationRepository>((
+  ref,
+) async {
   final dio = await ref.watch(dioProvider.future);
   return NotificationRepository(dio);
 });
 
-final notificationListProvider =
-    FutureProvider<List<AppNotification>>((ref) async {
+final notificationListProvider = FutureProvider<List<AppNotification>>((
+  ref,
+) async {
   final repo = await ref.watch(notificationRepositoryProvider.future);
   return repo.list();
 });

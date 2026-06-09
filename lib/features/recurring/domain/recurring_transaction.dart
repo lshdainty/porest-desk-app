@@ -15,13 +15,13 @@ abstract class RecurringTransaction with _$RecurringTransaction {
   const factory RecurringTransaction({
     required int rowId,
     int? userRowId,
-    required int categoryRowId,
+    @Default(0) int categoryRowId,
     String? categoryName,
-    required int assetRowId,
+    @Default(0) int assetRowId,
     String? assetName,
     int? sourceExpenseRowId,
     required String expenseType,
-    required int amount,
+    @Default(0) int amount,
     String? description,
     String? merchant,
     String? paymentMethod,
@@ -31,6 +31,8 @@ abstract class RecurringTransaction with _$RecurringTransaction {
     int? dayOfMonth,
     String? startDate, // 'YYYY-MM-DD'
     String? endDate,
+    int? maxOccurrences,
+    @Default(0) int executedCount,
     String? nextExecutionDate,
     String? lastExecutedAt,
     String? isActive, // 'Y' | 'N'

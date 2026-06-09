@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../shared/widgets/p_date_input.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_progress.dart';
+import '../../../shared/widgets/p_section_label.dart';
+import '../../../shared/widgets/p_select.dart';
+import '../../../shared/widgets/p_snack_bar.dart';
+import '../../../shared/widgets/p_text_input.dart';
 import '../application/asset_providers.dart';
 import '../domain/asset.dart';
 
@@ -97,14 +101,10 @@ class _TransferBodyState extends ConsumerState<_TransferBody> {
       ref.invalidate(assetsProvider);
       if (!mounted) return;
       Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('이체가 완료되었습니다')),
-      );
+      showPSnackBar(context, '이체가 완료되었습니다', severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('실패: ${e.message}')),
-      );
+      showPSnackBar(context, '실패: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setSubmitting(false);
     }
@@ -119,7 +119,7 @@ class _TransferBodyState extends ConsumerState<_TransferBody> {
     });
 
     return assetsAsync.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading: () => const Center(child: PCircularProgressIndicator()),
       error: (e, _) => Padding(
         padding: const EdgeInsets.all(PSpace.x16),
         child: Text('자산 로드 실패: $e',
@@ -140,7 +140,7 @@ class _TransferBodyState extends ConsumerState<_TransferBody> {
           padding: const EdgeInsets.fromLTRB(
               PSpace.x16, 0, PSpace.x16, PSpace.x16),
           children: [
-              _Label('출금 자산'),
+              PSectionLabel('출금 자산'),
               const SizedBox(height: PSpace.x4),
               _AssetSelector(
                   assets: assets,
@@ -152,7 +152,7 @@ class _TransferBodyState extends ConsumerState<_TransferBody> {
                   child:
                       Icon(LucideIcons.arrowDown, size: 20, color: t.fgTertiary)),
               const SizedBox(height: PSpace.x12),
-              _Label('입금 자산'),
+              PSectionLabel('입금 자산'),
               const SizedBox(height: PSpace.x4),
               _AssetSelector(
                   assets: assets,
@@ -167,80 +167,48 @@ class _TransferBodyState extends ConsumerState<_TransferBody> {
                 ),
               const SizedBox(height: PSpace.x16),
 
-              _Label('금액'),
+              PSectionLabel('금액'),
               const SizedBox(height: PSpace.x4),
-              TextField(
+              PTextInput(
                 controller: _amountCtrl,
-                keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                style: PTypo.h3.copyWith(color: t.fgPrimary),
-                decoration: const InputDecoration(hintText: '0'),
+                numbersOnly: true,
+                style: PTypo.h3,
+                placeholder: '0',
                 onChanged: (_) => setState(() {}),
               ),
               const SizedBox(height: PSpace.x16),
 
-              _Label('수수료 (선택)'),
+              PSectionLabel('수수료 (선택)'),
               const SizedBox(height: PSpace.x4),
-              TextField(
+              PTextInput(
                 controller: _feeCtrl,
-                keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                decoration: const InputDecoration(hintText: '0'),
+                numbersOnly: true,
+                placeholder: '0',
               ),
               const SizedBox(height: PSpace.x16),
 
-              _Label('날짜'),
+              PSectionLabel('날짜'),
               const SizedBox(height: PSpace.x4),
-              InkWell(
-                onTap: () async {
-                  final p = await showDatePicker(
-                    context: context,
-                    initialDate: _date,
-                    firstDate: DateTime(2020),
-                    lastDate: DateTime(2030, 12, 31),
-                  );
-                  if (p != null) setState(() => _date = p);
+              PDateInput(
+                value: _date,
+                onChanged: (d) {
+                  if (d != null) setState(() => _date = d);
                 },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                  decoration: BoxDecoration(
-                    color: t.bgMuted,
-                    borderRadius: PRadius.brMd,
-                    border: Border.all(color: t.borderDefault),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(LucideIcons.calendar, size: 18, color: t.fgSecondary),
-                      const SizedBox(width: PSpace.x8),
-                      Text(
-                          '${_date.year}-${_date.month.toString().padLeft(2, '0')}-${_date.day.toString().padLeft(2, '0')}',
-                          style: PTypo.body.copyWith(color: t.fgPrimary)),
-                    ],
-                  ),
-                ),
+                firstDate: DateTime(2020),
+                lastDate: DateTime(2030, 12, 31),
               ),
               const SizedBox(height: PSpace.x16),
 
-              _Label('메모 (선택)'),
+              PSectionLabel('메모 (선택)'),
               const SizedBox(height: PSpace.x4),
-              TextField(
+              PTextInput(
                 controller: _descCtrl,
-                decoration: const InputDecoration(hintText: '메모'),
+                placeholder: '메모',
               ),
             ],
           );
         },
       );
-  }
-}
-
-class _Label extends StatelessWidget {
-  const _Label(this.text);
-  final String text;
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    return Text(text, style: PTypo.caption.copyWith(color: t.fgSecondary));
   }
 }
 
@@ -258,12 +226,12 @@ class _AssetSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DropdownButtonFormField<int>(
-      initialValue: selectedId,
-      decoration: const InputDecoration(),
+    return PSelect<int>(
+      value: selectedId,
+      placeholder: '자산 선택',
       items: [
         for (final a in assets)
-          DropdownMenuItem(value: a.rowId, child: Text(a.assetName)),
+          PSelectItem<int>(value: a.rowId, label: a.assetName),
       ],
       onChanged: (v) {
         if (v != null) onChanged(v);

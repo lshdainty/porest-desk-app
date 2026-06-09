@@ -6,31 +6,41 @@ import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
-import '../../../core/format/color_parse.dart';
+import '../../../core/format/chart_palette.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
+import '../../../shared/widgets/p_category_tile.dart';
+import '../../../shared/widgets/p_checkbox.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_select.dart';
+import '../../../shared/widgets/p_skeleton.dart';
+import '../../../shared/widgets/p_snack_bar.dart';
+import '../../../shared/widgets/p_text_input.dart';
+import '../../../shared/widgets/p_toggle.dart';
 import '../../asset/application/asset_providers.dart';
 import '../../expense/application/expense_providers.dart';
+import '../../expense/domain/expense_category.dart';
 import '../application/preset_providers.dart';
 import '../domain/expense_template.dart';
 
-void showPresetEditDialog(
-  BuildContext context, {
-  ExpenseTemplate? edit,
-}) {
+/// 웹 `PresetEditDialog` 미러 — 결제 수단 목록.
+const _kPaymentMethods = <(String, String)>[
+  ('CASH', '현금'),
+  ('CARD', '카드'),
+  ('TRANSFER', '계좌이체'),
+  ('OTHER', '기타'),
+];
+
+void showPresetEditDialog(BuildContext context, {ExpenseTemplate? edit}) {
   final controller = PSheetController();
   showPSheet<void>(
     context,
     title: edit == null ? '프리셋 추가' : '프리셋 수정',
-    contentBuilder: (ctx, scrollCtrl) => _Body(
-      edit: edit,
-      scrollController: scrollCtrl,
-      controller: controller,
-    ),
+    contentBuilder: (ctx, scrollCtrl) =>
+        _Body(edit: edit, scrollController: scrollCtrl, controller: controller),
     footerBuilder: (ctx) => PSheetFooter(
       controller: controller,
-      submitLabel: edit == null ? '추가' : '수정',
+      submitLabel: edit == null ? '추가' : '저장',
     ),
   );
 }
@@ -50,12 +60,12 @@ class _Body extends ConsumerStatefulWidget {
 
 class _BodyState extends ConsumerState<_Body> {
   late final TextEditingController _nameCtrl;
-  late final TextEditingController _amountCtrl;
   late final TextEditingController _merchantCtrl;
-  late final TextEditingController _descCtrl;
-  late String _expenseType;
+  late final TextEditingController _amountCtrl;
+  late String _type;
   int? _categoryRowId;
   int? _assetRowId;
+  late String _paymentMethod;
   late bool _lockAmount;
   bool _submitting = false;
 
@@ -65,16 +75,17 @@ class _BodyState extends ConsumerState<_Body> {
   void initState() {
     super.initState();
     final t = widget.edit;
+    _type = t?.expenseType ?? 'EXPENSE';
     _nameCtrl = TextEditingController(text: t?.templateName ?? '');
-    _amountCtrl = TextEditingController(text: t?.amount.toString() ?? '');
-    _merchantCtrl = TextEditingController(text: t?.merchant ?? '');
-    _descCtrl = TextEditingController(text: t?.description ?? '');
-    _expenseType = t?.expenseType ?? 'EXPENSE';
     _categoryRowId = t?.categoryRowId;
+    _merchantCtrl = TextEditingController(text: t?.merchant ?? '');
+    _paymentMethod = t?.paymentMethod ?? '';
     _assetRowId = t?.assetRowId;
     _lockAmount = (t?.lockAmount ?? 'N') == 'Y';
+    _amountCtrl = TextEditingController(
+      text: t?.amount != null ? '${t!.amount}' : '',
+    );
     widget.controller.onSubmit = _submit;
-    if (_isEdit) widget.controller.onDelete = _delete;
   }
 
   void _setSubmitting(bool v) {
@@ -85,21 +96,29 @@ class _BodyState extends ConsumerState<_Body> {
   @override
   void dispose() {
     _nameCtrl.dispose();
-    _amountCtrl.dispose();
     _merchantCtrl.dispose();
-    _descCtrl.dispose();
+    _amountCtrl.dispose();
     super.dispose();
   }
 
-  bool get _canSubmit {
-    final name = _nameCtrl.text.trim();
-    final amount = int.tryParse(_amountCtrl.text.replaceAll(',', ''));
-    return !_submitting &&
-        name.isNotEmpty &&
-        amount != null &&
-        amount > 0 &&
-        _categoryRowId != null &&
-        _assetRowId != null;
+  // 웹 canSave: name.trim().length > 0 && categoryRowId != null
+  bool get _canSubmit =>
+      !_submitting &&
+      _nameCtrl.text.trim().isNotEmpty &&
+      _categoryRowId != null;
+
+  /// 타입 변경 시 현재 카테고리가 새 타입과 안 맞으면 리셋 (웹 effect 정합).
+  void _onTypeChanged(String next, List<ExpenseCategory> categories) {
+    setState(() {
+      _type = next;
+      final id = _categoryRowId;
+      if (id != null) {
+        final cat = categories.byRowId(id);
+        if (cat == null || cat.expenseType != next) {
+          _categoryRowId = null;
+        }
+      }
+    });
   }
 
   Future<void> _submit() async {
@@ -107,73 +126,51 @@ class _BodyState extends ConsumerState<_Body> {
     _setSubmitting(true);
     try {
       final repo = await ref.read(presetRepositoryProvider.future);
-      final amount = int.parse(_amountCtrl.text.replaceAll(',', ''));
+      final name = _nameCtrl.text.trim();
+      final merchant = _merchantCtrl.text.trim();
+      // 웹: amount = lockAmount ? Number(amount||0) : undefined
+      final amount = _lockAmount
+          ? (int.tryParse(_amountCtrl.text.replaceAll(RegExp(r'[^0-9]'), '')) ??
+                0)
+          : null;
       if (_isEdit) {
         await repo.update(
           id: widget.edit!.rowId,
-          templateName: _nameCtrl.text.trim(),
-          categoryRowId: _categoryRowId!,
-          assetRowId: _assetRowId!,
-          expenseType: _expenseType,
+          templateName: name,
+          categoryRowId: _categoryRowId,
+          assetRowId: _assetRowId,
+          expenseType: _type,
           amount: amount,
-          description:
-              _descCtrl.text.trim().isEmpty ? null : _descCtrl.text.trim(),
-          merchant: _merchantCtrl.text.trim().isEmpty
-              ? null
-              : _merchantCtrl.text.trim(),
+          merchant: merchant.isEmpty ? null : merchant,
+          paymentMethod: _paymentMethod.isEmpty ? null : _paymentMethod,
           lockAmount: _lockAmount,
         );
       } else {
         await repo.create(
-          templateName: _nameCtrl.text.trim(),
-          categoryRowId: _categoryRowId!,
-          assetRowId: _assetRowId!,
-          expenseType: _expenseType,
+          templateName: name,
+          categoryRowId: _categoryRowId,
+          assetRowId: _assetRowId,
+          expenseType: _type,
           amount: amount,
-          description:
-              _descCtrl.text.trim().isEmpty ? null : _descCtrl.text.trim(),
-          merchant: _merchantCtrl.text.trim().isEmpty
-              ? null
-              : _merchantCtrl.text.trim(),
+          merchant: merchant.isEmpty ? null : merchant,
+          paymentMethod: _paymentMethod.isEmpty ? null : _paymentMethod,
           lockAmount: _lockAmount,
         );
       }
       ref.invalidate(presetListProvider);
       if (!mounted) return;
       Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(_isEdit ? '프리셋이 수정되었습니다' : '프리셋이 추가되었습니다')),
+      showPSnackBar(
+        context,
+        _isEdit ? '프리셋이 수정되었습니다' : '프리셋이 추가되었습니다',
+        severity: PSnackSeverity.success,
       );
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('실패: ${e.message}')),
-      );
-    } finally {
-      if (mounted) _setSubmitting(false);
-    }
-  }
-
-  Future<void> _delete() async {
-    final ok = await showPConfirmDialog(
-      context,
-      title: '프리셋 삭제',
-      message: '"${widget.edit!.templateName}" 프리셋을 삭제할까요?',
-      confirmLabel: '삭제',
-      destructive: true,
-    );
-    if (!ok || !mounted) return;
-    _setSubmitting(true);
-    try {
-      final repo = await ref.read(presetRepositoryProvider.future);
-      await repo.delete(widget.edit!.rowId);
-      ref.invalidate(presetListProvider);
-      if (!mounted) return;
-      Navigator.of(context).pop();
-    } on ApiException catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('삭제 실패: ${e.message}')),
+      showPSnackBar(
+        context,
+        '실패: ${e.message}',
+        severity: PSnackSeverity.error,
       );
     } finally {
       if (mounted) _setSubmitting(false);
@@ -185,253 +182,349 @@ class _BodyState extends ConsumerState<_Body> {
     final t = context.tokens;
     final categoriesAsync = ref.watch(categoriesProvider);
     final assetsAsync = ref.watch(assetsProvider);
+    final categories = categoriesAsync.value ?? const <ExpenseCategory>[];
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) widget.controller.setCanSubmit(_canSubmit);
     });
 
     return ListView(
       controller: widget.scrollController,
-      padding: const EdgeInsets.fromLTRB(
-          PSpace.x16, 0, PSpace.x16, PSpace.x16),
+      padding: const EdgeInsets.fromLTRB(PSpace.lg, 0, PSpace.lg, PSpace.lg),
       children: [
-          // 유형
-          _Seg(
-            options: const [
-              ('EXPENSE', '지출'),
-              ('INCOME', '수입'),
+        // ① 지출/수입 세그먼트
+        PToggleGroupSingle<String>(
+          value: _type,
+          expanded: true,
+          items: const [
+            PToggleGroupItem(value: 'EXPENSE', label: '지출'),
+            PToggleGroupItem(value: 'INCOME', label: '수입'),
+          ],
+          onChanged: (v) => _onTypeChanged(v, categories),
+        ),
+        const SizedBox(height: PSpace.lg),
+
+        // ② 프리셋 이름
+        _FieldLabel('프리셋 이름'),
+        const SizedBox(height: PSpace.x4),
+        PTextInput(
+          controller: _nameCtrl,
+          placeholder: '예: 점심 도시락',
+          autofocus: true,
+          onChanged: (_) => setState(() {}),
+        ),
+        const SizedBox(height: 14),
+
+        // ③ 카테고리 (5열 그룹 타일 grid)
+        _FieldLabel('카테고리'),
+        const SizedBox(height: PSpace.x8),
+        categoriesAsync.when(
+          loading: () => _categoryGridSkeleton(),
+          error: (e, _) => Text(
+            '카테고리 로드 실패',
+            style: PTypo.caption.copyWith(color: t.statusDanger),
+          ),
+          data: (cats) => _CategoryGrid(
+            categories: cats,
+            type: _type,
+            categoryRowId: _categoryRowId,
+            onSelect: (id) => setState(() => _categoryRowId = id),
+          ),
+        ),
+        const SizedBox(height: 14),
+
+        // ④ 기본 내역
+        _FieldLabel('기본 내역'),
+        const SizedBox(height: PSpace.x4),
+        PTextInput(controller: _merchantCtrl, placeholder: '예: 한솥 도시락'),
+        const SizedBox(height: 14),
+
+        // ⑤ 결제 수단
+        _FieldLabel('결제 수단'),
+        const SizedBox(height: PSpace.x4),
+        PSelect<String>(
+          value: _paymentMethod.isEmpty ? null : _paymentMethod,
+          placeholder: '선택 안 함',
+          title: '결제 수단',
+          items: [
+            const PSelectItem(value: '', label: '선택 안 함'),
+            for (final (v, l) in _kPaymentMethods)
+              PSelectItem(value: v, label: l),
+          ],
+          onChanged: (v) => setState(() => _paymentMethod = v ?? ''),
+        ),
+        const SizedBox(height: 14),
+
+        // ⑥ 계좌·카드
+        _FieldLabel('계좌·카드'),
+        const SizedBox(height: PSpace.x4),
+        assetsAsync.when(
+          loading: () => const PSkeleton(width: double.infinity, height: 40),
+          error: (e, _) => Text(
+            '자산 로드 실패',
+            style: PTypo.caption.copyWith(color: t.statusDanger),
+          ),
+          data: (assets) => PSelect<int>(
+            value: _assetRowId,
+            placeholder: '선택 안 함',
+            title: '계좌·카드',
+            items: [
+              const PSelectItem(value: -1, label: '선택 안 함'),
+              for (final a in assets)
+                PSelectItem(
+                  value: a.rowId,
+                  label: a.institution != null && a.institution!.isNotEmpty
+                      ? '${a.institution} · ${a.assetName}'
+                      : a.assetName,
+                ),
             ],
-            value: _expenseType,
-            onChanged: (v) => setState(() => _expenseType = v),
-            tokens: t,
+            onChanged: (v) =>
+                setState(() => _assetRowId = (v == null || v == -1) ? null : v),
           ),
-          const SizedBox(height: PSpace.x16),
+        ),
+        const SizedBox(height: 14),
 
-          Text('프리셋 이름',
-              style: PTypo.caption.copyWith(color: t.fgSecondary)),
-          const SizedBox(height: PSpace.x4),
-          TextField(
-            controller: _nameCtrl,
-            maxLength: 20,
-            decoration: const InputDecoration(
-              hintText: '예: 점심 김밥',
-              counterText: '',
-            ),
-            onChanged: (_) => setState(() {}),
-          ),
-          const SizedBox(height: PSpace.x12),
-
-          Text('금액', style: PTypo.caption.copyWith(color: t.fgSecondary)),
-          const SizedBox(height: PSpace.x4),
-          TextField(
-            controller: _amountCtrl,
-            keyboardType: TextInputType.number,
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            decoration: const InputDecoration(hintText: '0'),
-            onChanged: (_) => setState(() {}),
-          ),
-          SwitchListTile.adaptive(
-            contentPadding: EdgeInsets.zero,
-            title: Text('금액 잠금',
-                style: PTypo.bodySm.copyWith(color: t.fgPrimary)),
-            subtitle: Text('체크 시 사용할 때 금액 변경 불가',
-                style: PTypo.caption.copyWith(color: t.fgTertiary)),
-            value: _lockAmount,
-            onChanged: (v) => setState(() => _lockAmount = v),
-          ),
-          const SizedBox(height: PSpace.x8),
-
-          Text('카테고리',
-              style: PTypo.caption.copyWith(color: t.fgSecondary)),
-          const SizedBox(height: PSpace.x8),
-          categoriesAsync.when(
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (e, _) => Text('카테고리 로드 실패',
-                style: PTypo.caption.copyWith(color: t.statusDanger)),
-            data: (categories) => Wrap(
-              spacing: PSpace.x8,
-              runSpacing: PSpace.x8,
-              children: [
-                for (final c in categories
-                    .where((c) =>
-                        c.expenseType == null ||
-                        c.expenseType == _expenseType))
-                  _CatChip(
-                    label: c.categoryName,
-                    icon: lucideByName(c.icon),
-                    fg: parseColor(c.color, fallback: t.fgBrand),
-                    selected: _categoryRowId == c.rowId,
-                    onTap: () => setState(() => _categoryRowId = c.rowId),
-                    tokens: t,
-                  ),
-              ],
-            ),
-          ),
-          const SizedBox(height: PSpace.x12),
-
-          Text('자산', style: PTypo.caption.copyWith(color: t.fgSecondary)),
-          const SizedBox(height: PSpace.x8),
-          assetsAsync.when(
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (e, _) => Text('자산 로드 실패',
-                style: PTypo.caption.copyWith(color: t.statusDanger)),
-            data: (assets) => Wrap(
-              spacing: PSpace.x8,
-              runSpacing: PSpace.x8,
-              children: [
-                for (final a in assets)
-                  _PlainChip(
-                    label: a.assetName,
-                    selected: _assetRowId == a.rowId,
-                    onTap: () => setState(() => _assetRowId = a.rowId),
-                    tokens: t,
-                  ),
-              ],
-            ),
-          ),
-          const SizedBox(height: PSpace.x12),
-
-          Text('가맹점 (선택)',
-              style: PTypo.caption.copyWith(color: t.fgSecondary)),
-          const SizedBox(height: PSpace.x4),
-          TextField(
-            controller: _merchantCtrl,
-            decoration: const InputDecoration(hintText: '예: 김밥천국'),
-          ),
-          const SizedBox(height: PSpace.x12),
-
-          Text('메모 (선택)',
-              style: PTypo.caption.copyWith(color: t.fgSecondary)),
-          const SizedBox(height: PSpace.x4),
-          TextField(
-            controller: _descCtrl,
-            decoration: const InputDecoration(hintText: '메모'),
-          ),
+        // ⑦ '고정 금액 사용' 체크 카드
+        _LockAmountCard(
+          lockAmount: _lockAmount,
+          amountCtrl: _amountCtrl,
+          onToggle: (v) => setState(() => _lockAmount = v),
+        ),
       ],
     );
   }
-}
 
-class _Seg extends StatelessWidget {
-  const _Seg(
-      {required this.options,
-      required this.value,
-      required this.onChanged,
-      required this.tokens});
-  final List<(String, String)> options;
-  final String value;
-  final ValueChanged<String> onChanged;
-  final PorestTokens tokens;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(4),
-      decoration:
-          BoxDecoration(color: tokens.bgMuted, borderRadius: PRadius.brMd),
-      child: Row(
-        children: [
-          for (final o in options)
-            Expanded(
-              child: GestureDetector(
-                onTap: () => onChanged(o.$1),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  decoration: BoxDecoration(
-                    color:
-                        o.$1 == value ? tokens.bgSurface : Colors.transparent,
-                    borderRadius: PRadius.brSm,
-                  ),
-                  child: Text(o.$2,
-                      textAlign: TextAlign.center,
-                      style: PTypo.bodySm.copyWith(
-                          color: o.$1 == value
-                              ? tokens.fgPrimary
-                              : tokens.fgTertiary,
-                          fontWeight: o.$1 == value
-                              ? PFontWeight.bold
-                              : PFontWeight.medium)),
+  Widget _categoryGridSkeleton() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        const gap = 6.0;
+        const columns = 5;
+        final cell = (constraints.maxWidth - gap * (columns - 1)) / columns;
+        return Wrap(
+          spacing: gap,
+          runSpacing: gap,
+          children: [
+            for (int i = 0; i < 10; i++)
+              SizedBox(
+                width: cell,
+                height: 64,
+                child: const PSkeleton(
+                  width: double.infinity,
+                  height: 64,
+                  borderRadius: PRadius.brLg,
                 ),
               ),
-            ),
-        ],
-      ),
-    );
-  }
-}
-
-class _CatChip extends StatelessWidget {
-  const _CatChip(
-      {required this.label,
-      required this.icon,
-      required this.fg,
-      required this.selected,
-      required this.onTap,
-      required this.tokens});
-  final String label;
-  final IconData icon;
-  final Color fg;
-  final bool selected;
-  final VoidCallback onTap;
-  final PorestTokens tokens;
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        decoration: BoxDecoration(
-          color: selected ? tokens.bgBrandSubtle : tokens.bgSurface,
-          border: Border.all(
-            color: selected ? tokens.borderBrand : tokens.borderDefault,
-            width: selected ? 1.5 : 1,
-          ),
-          borderRadius: PRadius.brPill,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 14, color: fg),
-            const SizedBox(width: 6),
-            Text(label,
-                style: PTypo.bodySm.copyWith(
-                  color: selected ? tokens.fgPrimary : tokens.fgSecondary,
-                  fontWeight: selected ? PFontWeight.semi : PFontWeight.medium,
-                )),
           ],
-        ),
+        );
+      },
+    );
+  }
+}
+
+/// 웹 `FieldLabel` 미러 — text-label-sm(13) / fg-secondary / 600.
+class _FieldLabel extends StatelessWidget {
+  const _FieldLabel(this.text);
+  final String text;
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return Text(
+      text,
+      style: TextStyle(
+        fontFamily: PTypo.sans,
+        fontSize: PFontSize.bodySm, // --text-label-sm = 13
+        fontWeight: PFontWeight.semi,
+        color: t.fgSecondary,
       ),
     );
   }
 }
 
-class _PlainChip extends StatelessWidget {
-  const _PlainChip(
-      {required this.label,
-      required this.selected,
-      required this.onTap,
-      required this.tokens});
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-  final PorestTokens tokens;
+/// 5열 그룹 타일 grid + 첫 자식 매핑 (웹 `topCategories`/`childrenByParent` 정합).
+class _CategoryGrid extends StatelessWidget {
+  const _CategoryGrid({
+    required this.categories,
+    required this.type,
+    required this.categoryRowId,
+    required this.onSelect,
+  });
+
+  final List<ExpenseCategory> categories;
+  final String type;
+  final int? categoryRowId;
+  final ValueChanged<int> onSelect;
+
+  bool _isTop(ExpenseCategory c) => c.parentRowId == null || c.parentRowId == 0;
+
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: selected ? tokens.bgBrandSubtle : tokens.bgSurface,
-          border: Border.all(
-            color: selected ? tokens.borderBrand : tokens.borderDefault,
-            width: selected ? 1.5 : 1,
+    final t = context.tokens;
+
+    final topCategories =
+        categories.where((c) => c.expenseType == type && _isTop(c)).toList()
+          ..sort((a, b) => (a.sortOrder ?? 0).compareTo(b.sortOrder ?? 0));
+
+    if (topCategories.isEmpty) {
+      return Text(
+        '이 타입에 해당하는 카테고리가 없습니다',
+        style: PTypo.caption.copyWith(color: t.fgTertiary),
+      );
+    }
+
+    final childrenByParent = <int, List<ExpenseCategory>>{};
+    for (final c in categories) {
+      if (_isTop(c) || c.expenseType != type) continue;
+      childrenByParent.putIfAbsent(c.parentRowId!, () => []).add(c);
+    }
+    for (final list in childrenByParent.values) {
+      list.sort((a, b) => (a.sortOrder ?? 0).compareTo(b.sortOrder ?? 0));
+    }
+
+    // 선택된 카테고리를 부모로 환원해 active 타일 판정.
+    final selectedCat = categoryRowId == null
+        ? null
+        : categories.byRowId(categoryRowId!);
+    final selectedParentId = selectedCat == null
+        ? null
+        : (_isTop(selectedCat) ? selectedCat.rowId : selectedCat.parentRowId);
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        const gap = 6.0;
+        const columns = 5;
+        final cell = (constraints.maxWidth - gap * (columns - 1)) / columns;
+        return Wrap(
+          spacing: gap,
+          runSpacing: gap,
+          children: [
+            for (final c in topCategories)
+              SizedBox(
+                width: cell,
+                child: PCategoryTile(
+                  name: c.categoryName,
+                  color: resolveChartColor(
+                    context,
+                    c.color,
+                    fallback: t.fgBrand,
+                  ),
+                  icon: lucideByName(c.icon),
+                  active: selectedParentId == c.rowId,
+                  onTap: () {
+                    final firstChild = childrenByParent[c.rowId]?.first;
+                    onSelect(firstChild != null ? firstChild.rowId : c.rowId);
+                  },
+                ),
+              ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+/// '고정 금액 사용' 체크 카드 + 조건부 금액 입력.
+class _LockAmountCard extends StatelessWidget {
+  const _LockAmountCard({
+    required this.lockAmount,
+    required this.amountCtrl,
+    required this.onToggle,
+  });
+  final bool lockAmount;
+  final TextEditingController amountCtrl;
+  final ValueChanged<bool> onToggle;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return Container(
+      padding: const EdgeInsets.all(PSpace.md),
+      decoration: BoxDecoration(
+        color: t.bgSunken,
+        borderRadius: PRadius.brLg, // --radius-tile = 12
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              PCheckbox(
+                size: PCheckboxSize.sm,
+                value: lockAmount,
+                semanticLabel: '고정 금액 사용',
+                onChanged: (v) => onToggle(v == true),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => onToggle(!lockAmount),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '고정 금액 사용',
+                        style: TextStyle(
+                          fontFamily: PTypo.sans,
+                          fontSize: PFontSize.bodySm, // --text-label-sm
+                          fontWeight: PFontWeight.bold,
+                          color: t.fgPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        '꺼두면 불러올 때 금액이 비어있어요. 매번 다른 금액일 때 편해요.',
+                        style: PTypo.caption.copyWith(color: t.fgTertiary),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
-          borderRadius: PRadius.brMd,
-        ),
-        child: Text(label,
-            style: PTypo.bodySm.copyWith(
-                color: selected ? tokens.fgPrimary : tokens.fgSecondary,
-                fontWeight: selected ? PFontWeight.semi : PFontWeight.medium)),
+          if (lockAmount) ...[
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.only(top: 10),
+              decoration: BoxDecoration(
+                border: Border(top: BorderSide(color: t.borderSubtle)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _FieldLabel('고정 금액'),
+                  const SizedBox(height: PSpace.x4),
+                  PTextInput(
+                    controller: amountCtrl,
+                    numbersOnly: true,
+                    placeholder: '0',
+                    textAlign: TextAlign.right,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    style: TextStyle(
+                      fontFamily: PTypo.sans,
+                      fontSize: PFontSize.bodyLg, // --text-body-lg
+                      fontWeight: PFontWeight.bold,
+                      color: t.fgPrimary,
+                    ),
+                    // 우측 '원' 접미사 (웹 absolute 접미사 정합).
+                    suffix: Padding(
+                      padding: const EdgeInsets.only(right: 12, left: 4),
+                      child: Text(
+                        '원',
+                        style: TextStyle(
+                          fontFamily: PTypo.sans,
+                          fontSize: PFontSize.bodySm, // --text-label-sm
+                          fontWeight: PFontWeight.bold,
+                          color: t.fgTertiary,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
       ),
     );
   }

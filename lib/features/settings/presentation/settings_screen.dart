@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
@@ -9,14 +9,109 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/auth/auth_notifier.dart';
 import '../../../l10n/generated/app_localizations.dart';
-import '../../expense/presentation/export_dialog.dart';
-import 'appearance_section.dart';
-import 'password_change_dialog.dart';
+import '../../../shared/widgets/p_avatar.dart';
+import '../../../shared/widgets/p_back_button.dart';
+import '../../../shared/widgets/p_card.dart';
+import '../../../shared/widgets/p_divider.dart';
 
-/// 설정 화면 — front `SettingsPage` 9개 섹션 미러.
-///
-/// 모바일에서는 메뉴 리스트로 보여주고 일부 섹션은 별도 라우트로 push,
-/// 표시 설정·계정·알림·데이터 등은 inline 또는 dialog 로 처리.
+class _SettingsItem {
+  const _SettingsItem({required this.icon, required this.label, this.onTap});
+  final IconData icon;
+  final String label;
+  final void Function(BuildContext ctx)? onTap;
+}
+
+class _SettingsGroup {
+  const _SettingsGroup({required this.label, required this.items});
+  final String label;
+  final List<_SettingsItem> items;
+}
+
+List<_SettingsGroup> _buildGroups(BuildContext ctx) => [
+  _SettingsGroup(
+    label: '데이터 관리',
+    items: [
+      _SettingsItem(
+        icon: LucideIcons.tag,
+        label: '카테고리 관리',
+        onTap: (c) => c.push('/categories'),
+      ),
+      _SettingsItem(
+        icon: LucideIcons.creditCard,
+        label: '계좌·카드 관리',
+        onTap: (c) => c.push('/account-card-manage'),
+      ),
+      _SettingsItem(
+        icon: LucideIcons.filePen,
+        label: '예산 설정',
+        onTap: (c) => c.push('/budget'),
+      ),
+      _SettingsItem(
+        icon: LucideIcons.repeat,
+        label: '반복 거래 관리',
+        onTap: (c) => c.push('/recurring'),
+      ),
+      _SettingsItem(
+        icon: LucideIcons.bookmark,
+        label: '프리셋 관리',
+        onTap: (c) => c.push('/presets'),
+      ),
+    ],
+  ),
+  _SettingsGroup(
+    label: '공유·소통',
+    items: [
+      _SettingsItem(
+        icon: LucideIcons.calendarCog,
+        label: '캘린더 관리·공유',
+        onTap: (c) => c.push('/settings/calendar-share'),
+      ),
+      _SettingsItem(
+        icon: LucideIcons.tag,
+        label: '캘린더 라벨',
+        onTap: (c) => c.push('/settings/calendar-labels'),
+      ),
+    ],
+  ),
+  _SettingsGroup(
+    label: '앱 환경',
+    items: [
+      _SettingsItem(
+        icon: LucideIcons.palette,
+        label: '표시 설정',
+        onTap: (c) => c.push('/settings/appearance'),
+      ),
+      _SettingsItem(
+        icon: LucideIcons.bell,
+        label: '알림',
+        onTap: (c) => c.push('/settings/notifications'),
+      ),
+    ],
+  ),
+  _SettingsGroup(
+    label: '데이터',
+    items: [
+      _SettingsItem(
+        icon: LucideIcons.download,
+        label: '데이터 내보내기',
+        onTap: (c) => c.push('/settings/export-data'),
+      ),
+      _SettingsItem(icon: LucideIcons.hardDrive, label: '저장공간', onTap: null),
+    ],
+  ),
+  _SettingsGroup(
+    label: '계정',
+    items: [
+      _SettingsItem(
+        icon: LucideIcons.user,
+        label: '계정 관리',
+        onTap: (c) => c.push('/account'),
+      ),
+    ],
+  ),
+];
+
+/// 설정 화면 — 프로필 카드 + 5개 그룹 카드 + 표시 설정 inline.
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
@@ -25,188 +120,104 @@ class SettingsScreen extends ConsumerWidget {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
     final user = ref.watch(authProvider).value;
-
-    final sections = <_SettingsSection>[
-      _SettingsSection(
-        icon: LucideIcons.tag,
-        label: '카테고리 관리',
-        desc: '지출·수입 카테고리 추가·수정·삭제',
-        onTap: (ctx) => ctx.push('/categories'),
-      ),
-      _SettingsSection(
-        icon: LucideIcons.wallet,
-        label: '계좌·카드 관리',
-        desc: '연결된 계좌와 카드 관리',
-        onTap: (ctx) => ctx.push('/assets'),
-      ),
-      _SettingsSection(
-        icon: LucideIcons.target,
-        label: '예산 설정',
-        desc: '월간 예산 및 카테고리별 한도',
-        onTap: (ctx) => ctx.push('/budget'),
-      ),
-      _SettingsSection(
-        icon: LucideIcons.repeat,
-        label: '반복 거래 관리',
-        desc: '구독·고정 결제·정기 수입 일괄 관리',
-        onTap: (ctx) => ctx.push('/recurring'),
-      ),
-      _SettingsSection(
-        icon: LucideIcons.bookmark,
-        label: '프리셋 관리',
-        desc: '자주 쓰는 내역을 한 번 탭으로 채우기',
-        onTap: (ctx) => ctx.push('/presets'),
-      ),
-      _SettingsSection(
-        icon: LucideIcons.bell,
-        label: '알림',
-        desc: '결제 예정·예산 초과 알림',
-        onTap: (ctx) => ctx.push('/notifications'),
-      ),
-      _SettingsSection(
-        icon: LucideIcons.download,
-        label: '데이터 내보내기',
-        desc: 'CSV 로 거래 내역 백업',
-        onTap: (ctx) => showExportDialog(ctx),
-      ),
-    ];
+    final groups = _buildGroups(context);
 
     return Scaffold(
       backgroundColor: t.bgCanvas,
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(LucideIcons.arrowLeft),
-          onPressed: () => context.pop(),
-        ),
+        leadingWidth: PBackButton.leadingWidth,
+        titleSpacing: 0,
+        leading: PBackButton(onPressed: () => context.pop()),
         title: Text(l.navSettings),
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,
         elevation: 0,
       ),
       body: ListView(
-        padding: const EdgeInsets.all(PSpace.x20),
+        padding: const EdgeInsets.symmetric(
+          horizontal: PSpace.x20,
+          vertical: PSpace.x24,
+        ),
         children: [
-          // 표시 설정 (inline)
-          _SectionHeader(title: '표시 설정', subtitle: '테마·밀도·통화', tokens: t),
-          const SizedBox(height: PSpace.x12),
-          const AppearanceSection(),
-          const SizedBox(height: PSpace.x24),
-
-          // 메뉴 그룹
-          _SectionHeader(title: '관리', subtitle: '관련 기능 바로가기', tokens: t),
-          const SizedBox(height: PSpace.x12),
-          Container(
-            decoration: BoxDecoration(
-              color: t.bgSurface,
-              borderRadius: PRadius.brLg,
-              border: Border.all(color: t.borderSubtle),
+          // 프로필 카드
+          if (user != null) ...[
+            PCard(
+              variant: PCardVariant.shadow,
+              // shadow 기본 padding(16)과 내부 Padding(x16)이 겹쳐 과대 인셋 — zero (web 정합).
+              padding: EdgeInsets.zero,
+              child: InkWell(
+                onTap: () => context.push('/account'),
+                borderRadius: PRadius.brLg,
+                child: Padding(
+                  padding: const EdgeInsets.all(PSpace.x16),
+                  child: Row(
+                    children: [
+                      PAvatar(
+                        size: PAvatarSize.md,
+                        fill: PAvatarFill.primary,
+                        fallbackText: user.userName.isNotEmpty
+                            ? user.userName[0].toUpperCase()
+                            : '?',
+                      ),
+                      const SizedBox(width: PSpace.x12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              user.userName,
+                              style: TextStyle(
+                                fontFamily: PTypo.sans,
+                                fontSize: PFontSize.body,
+                                fontWeight: PFontWeight.semi,
+                                color: t.fgPrimary,
+                              ),
+                            ),
+                            if (user.userEmail.isNotEmpty)
+                              Text(
+                                user.userEmail,
+                                style: TextStyle(
+                                  fontFamily: PTypo.sans,
+                                  fontSize: PFontSize.caption,
+                                  color: t.fgTertiary,
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                      Icon(
+                        LucideIcons.chevronRight,
+                        size: 16,
+                        color: t.fgTertiary,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
-            child: Column(
-              children: [
-                for (int i = 0; i < sections.length; i++) ...[
-                  _SectionRow(section: sections[i], tokens: t),
-                  if (i < sections.length - 1)
-                    Divider(height: 1, color: t.borderSubtle, indent: 56),
+            const SizedBox(height: PSpace.x24),
+          ],
+
+          // 그룹 카드 (표시 설정 포함 — 전부 메뉴 항목, 별도 화면 이동)
+          for (int gi = 0; gi < groups.length; gi++) ...[
+            _GroupLabel(label: groups[gi].label, tokens: t),
+            const SizedBox(height: PSpace.x8),
+            PCard(
+              variant: PCardVariant.shadow,
+              // list shell — 카드 자체 padding 제거, row 가 14/16 보유 (web 정합).
+              padding: EdgeInsets.zero,
+              child: Column(
+                children: [
+                  for (int i = 0; i < groups[gi].items.length; i++) ...[
+                    _SettingsRow(item: groups[gi].items[i], tokens: t),
+                    if (i < groups[gi].items.length - 1) const PDivider(),
+                  ],
                 ],
-              ],
+              ),
             ),
-          ),
-          const SizedBox(height: PSpace.x24),
+            if (gi < groups.length - 1) const SizedBox(height: PSpace.x20),
+          ],
 
-          // 계정 섹션
-          _SectionHeader(title: '계정', subtitle: '프로필·로그아웃', tokens: t),
-          const SizedBox(height: PSpace.x12),
-          Container(
-            decoration: BoxDecoration(
-              color: t.bgSurface,
-              borderRadius: PRadius.brLg,
-              border: Border.all(color: t.borderSubtle),
-            ),
-            child: Column(
-              children: [
-                if (user != null)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: PSpace.x16, vertical: PSpace.x12),
-                    child: Row(
-                      children: [
-                        CircleAvatar(
-                          radius: 20,
-                          backgroundColor: t.bgBrandSubtle,
-                          child: Text(
-                            (user.userName.isNotEmpty
-                                    ? user.userName[0]
-                                    : '?')
-                                .toUpperCase(),
-                            style: PTypo.body.copyWith(
-                                color: t.fgBrand, fontWeight: PFontWeight.bold),
-                          ),
-                        ),
-                        const SizedBox(width: PSpace.x12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(user.userName,
-                                  style: PTypo.body.copyWith(
-                                      color: t.fgPrimary,
-                                      fontWeight: PFontWeight.semi)),
-                              if (user.userEmail.isNotEmpty)
-                                Text(user.userEmail,
-                                    style: PTypo.caption
-                                        .copyWith(color: t.fgTertiary)),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                if (user != null)
-                  Divider(height: 1, color: t.borderSubtle, indent: 56),
-                InkWell(
-                  onTap: () => showPasswordChangeDialog(context),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: PSpace.x16, vertical: PSpace.x12),
-                    child: Row(
-                      children: [
-                        Icon(LucideIcons.key,
-                            size: 20, color: t.fgSecondary),
-                        const SizedBox(width: PSpace.x12),
-                        Expanded(
-                          child: Text(l.navChangePassword,
-                              style: PTypo.body.copyWith(
-                                  color: t.fgPrimary,
-                                  fontWeight: PFontWeight.semi)),
-                        ),
-                        Icon(LucideIcons.chevronRight,
-                            size: 16, color: t.fgTertiary),
-                      ],
-                    ),
-                  ),
-                ),
-                Divider(height: 1, color: t.borderSubtle, indent: 56),
-                InkWell(
-                  onTap: () => ref.read(authProvider.notifier).logout(),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: PSpace.x16, vertical: PSpace.x12),
-                    child: Row(
-                      children: [
-                        Icon(LucideIcons.logOut,
-                            size: 20, color: t.statusDanger),
-                        const SizedBox(width: PSpace.x12),
-                        Text(l.navLogout,
-                            style: PTypo.body.copyWith(
-                                color: t.statusDanger,
-                                fontWeight: PFontWeight.semi)),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
           const SizedBox(height: PSpace.x32),
         ],
       ),
@@ -214,80 +225,69 @@ class SettingsScreen extends ConsumerWidget {
   }
 }
 
-class _SettingsSection {
-  const _SettingsSection({
-    required this.icon,
-    required this.label,
-    required this.desc,
-    required this.onTap,
-  });
-  final IconData icon;
+class _GroupLabel extends StatelessWidget {
+  const _GroupLabel({required this.label, required this.tokens});
   final String label;
-  final String desc;
-  final void Function(BuildContext) onTap;
-}
-
-class _SectionHeader extends StatelessWidget {
-  const _SectionHeader(
-      {required this.title, required this.subtitle, required this.tokens});
-  final String title;
-  final String subtitle;
   final PorestTokens tokens;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(title, style: PTypo.h3.copyWith(color: tokens.fgPrimary)),
-        const SizedBox(height: 2),
-        Text(subtitle, style: PTypo.bodySm.copyWith(color: tokens.fgTertiary)),
-      ],
+    return Padding(
+      padding: const EdgeInsets.only(left: 2),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontFamily: PTypo.sans,
+          fontSize: PFontSize.caption,
+          fontWeight: PFontWeight.bold,
+          color: tokens.fgPrimary,
+        ),
+      ),
     );
   }
 }
 
-class _SectionRow extends StatelessWidget {
-  const _SectionRow({required this.section, required this.tokens});
-  final _SettingsSection section;
+class _SettingsRow extends StatelessWidget {
+  const _SettingsRow({required this.item, required this.tokens});
+  final _SettingsItem item;
   final PorestTokens tokens;
 
   @override
   Widget build(BuildContext context) {
+    final enabled = item.onTap != null;
     return InkWell(
-      onTap: () => section.onTap(context),
+      onTap: enabled ? () => item.onTap!(context) : null,
       child: Padding(
+        // web row '14px 16px' 정합.
         padding: const EdgeInsets.symmetric(
-            horizontal: PSpace.x16, vertical: PSpace.x12),
+          horizontal: PSpace.x16,
+          vertical: 14,
+        ),
         child: Row(
           children: [
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: tokens.bgMuted,
-                borderRadius: PRadius.brSm,
-              ),
-              alignment: Alignment.center,
-              child: Icon(section.icon, size: 16, color: tokens.fgSecondary),
+            // 아이콘 네모 배경 제거 — 아이콘만 (web 동일 처리).
+            Icon(
+              item.icon,
+              size: 16,
+              color: enabled ? tokens.fgSecondary : tokens.fgDisabled,
             ),
             const SizedBox(width: PSpace.x12),
+            // 부가 설명 없이 라벨만 — web 메뉴 행 정합.
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(section.label,
-                      style: PTypo.body.copyWith(
-                          color: tokens.fgPrimary,
-                          fontWeight: PFontWeight.semi)),
-                  const SizedBox(height: 1),
-                  Text(section.desc,
-                      style: PTypo.caption.copyWith(color: tokens.fgTertiary)),
-                ],
+              child: Text(
+                item.label,
+                style: TextStyle(
+                  fontFamily: PTypo.sans,
+                  fontSize: PFontSize.body,
+                  fontWeight: PFontWeight.semi,
+                  color: enabled ? tokens.fgPrimary : tokens.fgDisabled,
+                ),
               ),
             ),
-            Icon(LucideIcons.chevronRight,
-                size: 16, color: tokens.fgTertiary),
+            if (enabled)
+              Icon(LucideIcons.chevronRight, size: 16, color: tokens.fgTertiary)
+            else
+              const SizedBox(width: 16),
           ],
         ),
       ),

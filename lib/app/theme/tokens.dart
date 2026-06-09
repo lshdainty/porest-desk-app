@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'colors.dart';
+import 'shadow.dart';
 
 /// POREST 의미론적 토큰 (light/dark 분기 적용된 의미 단위).
 ///
@@ -20,13 +21,13 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     required this.bgSurfaceRaised,
     required this.bgSunken,
     required this.bgMuted,
-    required this.bgSectionWarm,
     required this.bgInverse,
     required this.bgBrand,
     required this.bgBrandHover,
     required this.bgBrandPress,
     required this.bgBrandSubtle,
     required this.bgBrandMuted,
+    required this.bgBrandSolid,
     required this.bgHoverSubtle,
     required this.bgHoverStrong,
     required this.bgRowHover,
@@ -38,7 +39,6 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     required this.fgDisabled,
     required this.fgPlaceholder,
     required this.fgOnBrand,
-    required this.fgOnWarm,
     required this.fgBrand,
     required this.fgBrandStrong,
     required this.fgLink,
@@ -50,7 +50,6 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     required this.borderStrong,
     required this.borderFocus,
     required this.borderBrand,
-    required this.borderWarm,
     required this.statusSuccess,
     required this.statusSuccessSubtle,
     required this.statusSuccessFg,
@@ -72,10 +71,6 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     required this.bgBrandTint,
     required this.bgBrandTintStrong,
     required this.bgTableHead,
-    required this.bgWarmTint,
-    required this.bgWarmTintStrong,
-    required this.bgWarmPress,
-    required this.fgOnWarmStrong,
     required this.borderBrandSoft,
     required this.borderBrandMid,
     required this.statusSuccessBorder,
@@ -84,6 +79,15 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     required this.statusDangerPress,
     required this.statusInfoBorder,
     required this.surfaceHero,
+    required this.bgHeroGradientStart,
+    required this.bgHeroGradientEnd,
+    required this.fgOnHeroChgUp,
+    required this.fgOnHeroChgDown,
+    required this.fgOnHeroSpot,
+    required this.shadowSm,
+    required this.shadowMd,
+    required this.shadowLg,
+    required this.shadowXl,
   });
 
   // Backgrounds
@@ -92,13 +96,15 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
   final Color bgSurfaceRaised;
   final Color bgSunken;
   final Color bgMuted;
-  final Color bgSectionWarm;
   final Color bgInverse;
   final Color bgBrand;
   final Color bgBrandHover;
   final Color bgBrandPress;
   final Color bgBrandSubtle;
   final Color bgBrandMuted;
+  /// 채운 브랜드 버튼용 solid fill — 웹 `--bg-brand` 정합으로 light/dark 모두 primary 고정.
+  /// (bgBrand 는 다크에서 primary-light 로 밝아져 흰 글씨 채움 버튼엔 부적합 — 버튼은 이 토큰 사용.)
+  final Color bgBrandSolid;
   final Color bgHoverSubtle;
   final Color bgHoverStrong;
   final Color bgRowHover;
@@ -112,7 +118,6 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
   final Color fgDisabled;
   final Color fgPlaceholder;
   final Color fgOnBrand;
-  final Color fgOnWarm;
   final Color fgBrand;
   final Color fgBrandStrong;
   final Color fgLink;
@@ -126,7 +131,6 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
   final Color borderStrong;
   final Color borderFocus;
   final Color borderBrand;
-  final Color borderWarm;
 
   // Status
   final Color statusSuccess;
@@ -155,10 +159,6 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
   final Color bgBrandTint;        // brand 약한 톤
   final Color bgBrandTintStrong;  // brand 진한 톤
   final Color bgTableHead;        // 테이블 헤더 행 배경
-  final Color bgWarmTint;         // warm 약한 톤
-  final Color bgWarmTintStrong;   // warm 진한 톤
-  final Color bgWarmPress;        // warm press 상태
-  final Color fgOnWarmStrong;     // warm bg 위 강한 텍스트
 
   // Border 변형
   final Color borderBrandSoft;    // brand 보더 약한 톤
@@ -171,161 +171,200 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
   final Color statusDangerPress;
   final Color statusInfoBorder;
 
-  // Hero
+  // Hero — "always-on-dark" balance card.
+  // 그라데이션은 light/dark 모드 무관하게 깊은 cobalt 톤 유지(hero 자체가 어두운
+  // 배경). fg* 페어는 그 위에 올라가는 chg/spot 색.
   final Color surfaceHero;
+  final Color bgHeroGradientStart;
+  final Color bgHeroGradientEnd;
+  final Color fgOnHeroChgUp;
+  final Color fgOnHeroChgDown;
+  final Color fgOnHeroSpot;
 
-  /// Light 모드 의미론 토큰 (CSS `:root` 매핑).
+  // Elevation — theme-aware. 소비처는 PShadow.* 직접 참조 대신 이 게터 사용.
+  // (PShadow.sm 직접 사용 시 다크에서도 라이트 그림자(5%)가 적용돼 거의 안 보임 —
+  //  웹은 `.dark` 에서 --shadow-sm → --shadow-sm-dark 자동 swap.)
+  // light: 두 레이어 cool-neutral / dark: 순흑 drop + inset 화이트 하이라이트.
+  final List<BoxShadow> shadowSm;
+  final List<BoxShadow> shadowMd;
+  final List<BoxShadow> shadowLg;
+  final List<BoxShadow> shadowXl;
+
+  /// Light 모드 의미론 토큰 (DESIGN.desk.md spec 매핑).
   static const PorestTokens light = PorestTokens(
-    bgCanvas: PorestPalette.mist100,
-    bgSurface: PorestPalette.mist0,
-    bgSurfaceRaised: PorestPalette.mist0,
-    bgSunken: PorestPalette.mist200,
-    bgMuted: PorestPalette.mist100,
-    bgSectionWarm: PorestPalette.bark100,
-    bgInverse: PorestPalette.mossy900,
-    bgBrand: PorestPalette.mossy500,
-    bgBrandHover: PorestPalette.mossy600,
-    bgBrandPress: PorestPalette.mossy700,
-    bgBrandSubtle: PorestPalette.mossy50,
-    bgBrandMuted: PorestPalette.mossy100,
-    bgHoverSubtle: PorestPalette.mist100,
-    bgHoverStrong: PorestPalette.mist200,
-    bgRowHover: PorestPalette.mist50,
-    bgDisabled: PorestPalette.mist100,
-    bgTrack: PorestPalette.mist300,
-    fgPrimary: PorestPalette.mist950,
-    fgSecondary: PorestPalette.mist700,
-    fgTertiary: PorestPalette.mist600,
-    fgDisabled: PorestPalette.mist400,
-    fgPlaceholder: PorestPalette.mist500,
-    fgOnBrand: PorestPalette.mist0,
-    fgOnWarm: PorestPalette.bark900,
-    fgBrand: PorestPalette.mossy700,
-    fgBrandStrong: PorestPalette.mossy800,
-    fgLink: PorestPalette.mossy700,
-    fgLinkHover: PorestPalette.mossy800,
-    fgOnDanger: PorestPalette.mist0,
-    fgOnSuccess: PorestPalette.mist0,
-    borderSubtle: PorestPalette.mist200,
-    borderDefault: PorestPalette.mist300,
-    borderStrong: PorestPalette.mist400,
-    borderFocus: PorestPalette.mossy500,
-    borderBrand: PorestPalette.mossy500,
-    borderWarm: PorestPalette.bark300,
-    statusSuccess: PorestPalette.mossy600,
-    statusSuccessSubtle: PorestPalette.mossy50,
-    statusSuccessFg: PorestPalette.mossy800,
-    statusWarning: PorestPalette.sunlit500,
-    statusWarningSubtle: PorestPalette.sunlit100,
-    statusWarningFg: PorestPalette.sunlit700,
-    statusDanger: PorestPalette.berry500,
-    statusDangerSubtle: PorestPalette.berry100,
-    statusDangerFg: PorestPalette.berry700,
-    statusInfo: PorestPalette.sky500,
-    statusInfoSubtle: PorestPalette.sky100,
-    statusInfoFg: PorestPalette.sky700,
-    // Tx semantic — 웹 --fg-expense / --fg-income / --fg-transfer 미러
-    fgExpense: PorestPalette.berry700,
-    fgIncome: PorestPalette.mossy700,
-    fgTransfer: PorestPalette.sky700,
-    bgExpenseSubtle: PorestPalette.berry100,
-    bgIncomeSubtle: PorestPalette.mossy50,
-    bgTransferSubtle: PorestPalette.sky100,
+    bgCanvas: PorestPalette.slate50,
+    bgSurface: PorestPalette.slate0,
+    bgSurfaceRaised: PorestPalette.slate0,
+    bgSunken: PorestPalette.slate100,
+    bgMuted: PorestPalette.slate100,
+    bgInverse: PorestPalette.slate950,
+    bgBrand: PorestPalette.cobalt500,
+    bgBrandHover: PorestPalette.cobalt600,
+    bgBrandPress: PorestPalette.cobalt700,
+    // desk-front `--bg-brand-subtle: color-mix(srgb, --color-primary 8%, transparent)`
+    // = cobalt500(#0147AD) @ 8% alpha. solid cobalt50 사용 시 톤이 짙어 web 정합 X.
+    bgBrandSubtle: Color(0x140147AD), // cobalt500 @ 8% alpha (0x14 ≈ 0.078)
+    bgBrandMuted: Color(0x240147AD),  // cobalt500 @ 14% alpha (0x24 ≈ 0.141)
+    bgBrandSolid: PorestPalette.cobalt500, // 버튼 채움 — primary 고정
+    bgHoverSubtle: PorestPalette.slate50,
+    bgHoverStrong: PorestPalette.slate100,
+    bgRowHover: PorestPalette.slate50,
+    bgDisabled: PorestPalette.slate100,
+    bgTrack: PorestPalette.slate200,
+    fgPrimary: PorestPalette.slate950,
+    fgSecondary: PorestPalette.slate700,
+    fgTertiary: PorestPalette.slate600,
+    fgDisabled: PorestPalette.slate400,
+    fgPlaceholder: PorestPalette.slate500,
+    fgOnBrand: PorestPalette.slate0,
+    // desk-front `--fg-brand`/`--fg-brand-strong`/`--fg-link` 전부 light=--color-primary
+    // (cobalt500 #0147AD). 더 진한 톤(cobalt700/800) 쓰면 web과 톤 불일치.
+    fgBrand: PorestPalette.cobalt500,
+    fgBrandStrong: PorestPalette.cobalt500,
+    fgLink: PorestPalette.cobalt500,
+    fgLinkHover: PorestPalette.cobalt500,
+    fgOnDanger: PorestPalette.slate0,
+    fgOnSuccess: PorestPalette.slate0,
+    borderSubtle: PorestPalette.slate200,
+    borderDefault: PorestPalette.slate200,
+    borderStrong: PorestPalette.slate500,
+    borderFocus: PorestPalette.cobalt500,
+    borderBrand: PorestPalette.cobalt500,
+    statusSuccess: PorestPalette.statusSuccessBase,
+    statusSuccessSubtle: Color(0x1F16803F), // success @ 12% alpha
+    statusSuccessFg: PorestPalette.statusSuccessBase,
+    statusWarning: PorestPalette.statusWarningBase,
+    statusWarningSubtle: Color(0x1FC84D0E), // warning @ 12% alpha
+    statusWarningFg: PorestPalette.statusWarningBase,
+    statusDanger: PorestPalette.statusErrorBase,
+    statusDangerSubtle: Color(0x1FDC2626), // error @ 12% alpha
+    statusDangerFg: PorestPalette.statusErrorBase,
+    statusInfo: PorestPalette.statusInfoBase,
+    statusInfoSubtle: Color(0x1F1D6FCB), // info @ 12% alpha
+    statusInfoFg: PorestPalette.statusInfoBase,
+    // Tx semantic — desk-front fg-expense=danger-fg, fg-income=fg-brand, fg-transfer=info-fg
+    fgExpense: PorestPalette.statusErrorBase,
+    fgIncome: PorestPalette.cobalt700,
+    fgTransfer: PorestPalette.statusInfoBase,
+    bgExpenseSubtle: Color(0x1FDC2626),
+    bgIncomeSubtle: PorestPalette.cobalt50,
+    bgTransferSubtle: Color(0x1F1D6FCB),
     // Interaction tints
-    bgBrandTint: PorestPalette.mossy50,
-    bgBrandTintStrong: PorestPalette.mossy100,
-    bgTableHead: PorestPalette.mist100,
-    bgWarmTint: PorestPalette.bark100,
-    bgWarmTintStrong: PorestPalette.bark200,
-    bgWarmPress: PorestPalette.bark300,
-    fgOnWarmStrong: PorestPalette.bark900,
+    bgBrandTint: Color(0xFFEAF2FB),       // 디자인 p-card--brand 라이트(mossy-50) — alphaBlend 시 그대로
+    bgBrandTintStrong: PorestPalette.cobalt100,
+    bgTableHead: PorestPalette.slate100,
     // Border 변형
-    borderBrandSoft: PorestPalette.mossy200,
-    borderBrandMid: PorestPalette.mossy300,
-    // Status 변형
-    statusSuccessBorder: PorestPalette.mossy300,
-    statusWarningBorder: PorestPalette.sunlit500,
-    statusDangerBorder: PorestPalette.berry500,
-    statusDangerPress: PorestPalette.berry700,
-    statusInfoBorder: PorestPalette.sky500,
-    surfaceHero: PorestPalette.mossy50,
+    borderBrandSoft: PorestPalette.cobalt200,
+    borderBrandMid: PorestPalette.cobalt300,
+    // Status 변형 (spec border = base color)
+    statusSuccessBorder: PorestPalette.statusSuccessBase,
+    statusWarningBorder: PorestPalette.statusWarningBase,
+    statusDangerBorder: PorestPalette.statusErrorBase,
+    statusDangerPress: PorestPalette.statusErrorBase,
+    statusInfoBorder: PorestPalette.statusInfoBase,
+    surfaceHero: PorestPalette.cobalt50,
+    // desk-front .balance-hero: linear-gradient(135deg, bg-brand 0%, color-mix(srgb, bg-brand 60%, #000) 100%)
+    // bg-brand=cobalt500 #0147AD, end ≈ #012B68 (60% × cobalt500 on black)
+    bgHeroGradientStart: PorestPalette.cobalt500,
+    bgHeroGradientEnd: Color(0xFF012B68),
+    fgOnHeroChgUp: PorestPalette.heroChgUp,
+    fgOnHeroChgDown: PorestPalette.heroChgDown,
+    // desk-front .balance-hero::after: radial gradient(fg-on-brand 22%, transparent 70%) — 흰색 광원
+    fgOnHeroSpot: PorestPalette.slate0,
+    shadowSm: PShadow.sm,
+    shadowMd: PShadow.md,
+    shadowLg: PShadow.lg,
+    shadowXl: PShadow.xl,
   );
 
-  /// Dark 모드 의미론 토큰 (CSS `.dark` 오버라이드 매핑).
+  /// Dark 모드 의미론 토큰 (DESIGN.desk.md spec 매핑).
   static const PorestTokens dark = PorestTokens(
-    bgCanvas: PorestPalette.mossy950,
-    bgSurface: PorestPalette.darkSurface,
-    bgSurfaceRaised: PorestPalette.darkSurfaceRaised,
-    bgSunken: PorestPalette.darkSunken,
-    bgMuted: PorestPalette.darkMuted,
-    bgSectionWarm: PorestPalette.darkSectionWarm,
-    bgInverse: PorestPalette.mist100,
-    bgBrand: PorestPalette.mossy400,
-    bgBrandHover: PorestPalette.mossy300,
-    bgBrandPress: PorestPalette.mossy200,
-    bgBrandSubtle: Color(0x80453F1A), // oklch(0.28 0.045 110 / 0.5) 근사
-    bgBrandMuted: PorestPalette.darkBrandMuted,
+    bgCanvas: PorestPalette.slate950,
+    bgSurface: PorestPalette.slate900,
+    bgSurfaceRaised: PorestPalette.slate900,
+    bgSunken: PorestPalette.slate950,
+    bgMuted: PorestPalette.slate850,
+    bgInverse: PorestPalette.slate50,
+    bgBrand: PorestPalette.cobalt400,
+    bgBrandHover: PorestPalette.cobalt300,
+    bgBrandPress: PorestPalette.cobalt200,
+    // desk-front dark: `--bg-brand-subtle: color-mix(srgb, --color-primary 12%, transparent)`
+    // = cobalt500(#0147AD) @ 12% alpha. solid cobalt900 사용 시 거의 검정이라 web 정합 X.
+    bgBrandSubtle: Color(0x1F0147AD), // cobalt500 @ 12% alpha (0x1F ≈ 0.122)
+    bgBrandMuted: Color(0x380147AD),  // cobalt500 @ 22% alpha (0x38 ≈ 0.220)
+    bgBrandSolid: PorestPalette.cobalt500, // 버튼 채움 — 다크에서도 primary 고정(light 아님)
     bgHoverSubtle: Color(0x0AFFFFFF),
     bgHoverStrong: Color(0x14FFFFFF),
     bgRowHover: Color(0x08FFFFFF),
     bgDisabled: Color(0x0DFFFFFF),
     bgTrack: Color(0x24FFFFFF),
-    fgPrimary: PorestPalette.mist100,
-    fgSecondary: PorestPalette.mist400,
-    fgTertiary: PorestPalette.mist500,
-    fgDisabled: PorestPalette.mist700,
-    fgPlaceholder: PorestPalette.mist600,
-    fgOnBrand: PorestPalette.mossy950,
-    fgOnWarm: PorestPalette.bark100,
-    fgBrand: PorestPalette.mossy300,
-    fgBrandStrong: PorestPalette.mossy200,
-    fgLink: PorestPalette.mossy300,
-    fgLinkHover: PorestPalette.mossy200,
-    fgOnDanger: PorestPalette.mist0,
-    fgOnSuccess: PorestPalette.mossy950,
-    borderSubtle: Color(0x12FFFFFF),
-    borderDefault: Color(0x1FFFFFFF),
-    borderStrong: Color(0x33FFFFFF),
-    borderFocus: PorestPalette.mossy400,
-    borderBrand: PorestPalette.mossy400,
-    borderWarm: Color(0x1AFFFFFF),
-    statusSuccess: PorestPalette.mossy400,
-    statusSuccessSubtle: Color(0x66453F1A),
-    statusSuccessFg: PorestPalette.mossy200,
-    statusWarning: PorestPalette.sunlit500,
-    statusWarningSubtle: Color(0x59635022),
-    statusWarningFg: PorestPalette.sunlit300,
-    statusDanger: PorestPalette.berry500,
-    statusDangerSubtle: Color(0x595A2926),
-    statusDangerFg: PorestPalette.berry300,
-    statusInfo: PorestPalette.sky500,
-    statusInfoSubtle: Color(0x59243C5C),
-    statusInfoFg: PorestPalette.sky300,
-    // Tx semantic — 다크 모드 변형
-    fgExpense: PorestPalette.berry300,
-    fgIncome: PorestPalette.mossy300,
-    fgTransfer: PorestPalette.sky300,
-    bgExpenseSubtle: Color(0x595A2926),
-    bgIncomeSubtle: Color(0x80453F1A),
-    bgTransferSubtle: Color(0x59243C5C),
-    // Interaction tints — oklch 근사 hex+alpha
-    bgBrandTint: Color(0x4D453F1A),       // oklch(0.28 0.045 110 / 0.30)
-    bgBrandTintStrong: Color(0x80453F1A), // oklch(0.28 0.045 110 / 0.50)
+    fgPrimary: PorestPalette.slate50,
+    fgSecondary: PorestPalette.slateDarkText2,
+    fgTertiary: PorestPalette.slateDarkText3,
+    fgDisabled: PorestPalette.slateDarkTextDisabled,
+    fgPlaceholder: PorestPalette.slateDarkText3,
+    fgOnBrand: PorestPalette.slate0,
+    // desk-front dark: 전부 --color-primary-light (#5FA0E5 = cobalt400) 사용.
+    fgBrand: PorestPalette.cobalt400,
+    fgBrandStrong: PorestPalette.cobalt400,
+    fgLink: PorestPalette.cobalt400,
+    fgLinkHover: PorestPalette.cobalt400,
+    fgOnDanger: PorestPalette.slate0,
+    fgOnSuccess: PorestPalette.slate0,
+    borderSubtle: PorestPalette.slate800,
+    borderDefault: PorestPalette.slate800,
+    borderStrong: PorestPalette.slateDarkBorderStrong,
+    borderFocus: PorestPalette.cobalt400,
+    borderBrand: PorestPalette.cobalt400,
+    statusSuccess: PorestPalette.statusSuccessBase,
+    statusSuccessSubtle: Color(0x2E16803F), // success @ 18% alpha
+    statusSuccessFg: PorestPalette.statusSuccessLight,
+    statusWarning: PorestPalette.statusWarningBase,
+    statusWarningSubtle: Color(0x2EC84D0E),
+    statusWarningFg: PorestPalette.statusWarningLight,
+    statusDanger: PorestPalette.statusErrorBase,
+    statusDangerSubtle: Color(0x2EDC2626),
+    statusDangerFg: PorestPalette.statusErrorLight,
+    statusInfo: PorestPalette.statusInfoBase,
+    statusInfoSubtle: Color(0x2E1D6FCB),
+    statusInfoFg: PorestPalette.statusInfoLight,
+    // Tx semantic — desk-front 다크 미러
+    // 지출=error-light(#F87171), 수입=primary-light(cobalt400 #5FA0E5).
+    // 웹 --fg-income(=fg-brand=primary-light)와 정합. cobalt300은 한 톤 밝아 어긋났음.
+    fgExpense: PorestPalette.statusErrorLight,
+    fgIncome: PorestPalette.cobalt400,
+    fgTransfer: PorestPalette.statusInfoLight,
+    bgExpenseSubtle: Color(0x2EDC2626),
+    bgIncomeSubtle: Color(0x80001A42),    // cobalt900 @ 50%
+    bgTransferSubtle: Color(0x2E1D6FCB),
+    // Interaction tints — cobalt 근사 hex+alpha
+    bgBrandTint: Color(0x1F5FA0E5),       // cobalt400 @12% — canvas(#1A1F2E) 위 합성 시 #222E44 (디자인 정합)
+    bgBrandTintStrong: Color(0x385FA0E5), // cobalt400 @22%
     bgTableHead: Color(0x0AFFFFFF),       // oklch(1 0 0 / 0.04)
-    bgWarmTint: Color(0x8C483C23),        // oklch(0.260 0.030 65 / 0.55)
-    bgWarmTintStrong: Color(0xA6534629),  // oklch(0.300 0.035 60 / 0.65)
-    bgWarmPress: Color(0xBF635433),       // oklch(0.350 0.038 55 / 0.75)
-    fgOnWarmStrong: PorestPalette.bark100,
-    // Border 변형
-    borderBrandSoft: Color(0x666A7A49),   // oklch(0.45 0.05 110 / 0.4)
-    borderBrandMid: Color(0x8084995F),    // oklch(0.55 0.06 110 / 0.5)
-    // Status 변형
-    statusSuccessBorder: PorestPalette.mossy400,
-    statusWarningBorder: PorestPalette.sunlit500,
-    statusDangerBorder: PorestPalette.berry500,
-    statusDangerPress: PorestPalette.berry300,
-    statusInfoBorder: PorestPalette.sky500,
-    surfaceHero: Color(0x80453F1A),
+    // Border 변형 — cobalt brand
+    borderBrandSoft: Color(0x665FA0E5),   // cobalt400 @ 40%
+    borderBrandMid: Color(0x8097C2EE),    // cobalt300 @ 50%
+    // Status 변형 (dark mode = base color border)
+    statusSuccessBorder: PorestPalette.statusSuccessBase,
+    statusWarningBorder: PorestPalette.statusWarningBase,
+    statusDangerBorder: PorestPalette.statusErrorBase,
+    statusDangerPress: PorestPalette.statusErrorLight,
+    statusInfoBorder: PorestPalette.statusInfoBase,
+    surfaceHero: Color(0x80001A42),       // cobalt900 @ 50%
+    // Hero gradient (dark) — primary-light(cobalt400 #5FA0E5) 기반.
+    // 어두운 페이지 배경에서 카드를 밝게 도드라지게 + 디자인 시스템 dark brand 원칙
+    // (fgBrand/border 등 전부 cobalt400=primary-light) 정합. start는 primary-light,
+    // end는 primary(cobalt500)로 흘려 하단 split 영역 대비 확보.
+    bgHeroGradientStart: PorestPalette.cobalt400, // primary-light #5FA0E5
+    bgHeroGradientEnd: PorestPalette.cobalt500,    // primary #0147AD
+    // 다크 = 더 밝은 코발트 그라데이션 → 50% 혼합으로 더 옅게(웹 .dark .chg 정합)
+    fgOnHeroChgUp: PorestPalette.heroChgUpDark,
+    fgOnHeroChgDown: PorestPalette.heroChgDownDark,
+    fgOnHeroSpot: PorestPalette.slate0,
+    shadowSm: PShadow.smDark,
+    shadowMd: PShadow.mdDark,
+    shadowLg: PShadow.lgDark,
+    shadowXl: PShadow.xlDark,
   );
 
   @override
@@ -335,13 +374,13 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     Color? bgSurfaceRaised,
     Color? bgSunken,
     Color? bgMuted,
-    Color? bgSectionWarm,
     Color? bgInverse,
     Color? bgBrand,
     Color? bgBrandHover,
     Color? bgBrandPress,
     Color? bgBrandSubtle,
     Color? bgBrandMuted,
+    Color? bgBrandSolid,
     Color? bgHoverSubtle,
     Color? bgHoverStrong,
     Color? bgRowHover,
@@ -353,7 +392,6 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     Color? fgDisabled,
     Color? fgPlaceholder,
     Color? fgOnBrand,
-    Color? fgOnWarm,
     Color? fgBrand,
     Color? fgBrandStrong,
     Color? fgLink,
@@ -365,7 +403,6 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     Color? borderStrong,
     Color? borderFocus,
     Color? borderBrand,
-    Color? borderWarm,
     Color? statusSuccess,
     Color? statusSuccessSubtle,
     Color? statusSuccessFg,
@@ -387,10 +424,6 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     Color? bgBrandTint,
     Color? bgBrandTintStrong,
     Color? bgTableHead,
-    Color? bgWarmTint,
-    Color? bgWarmTintStrong,
-    Color? bgWarmPress,
-    Color? fgOnWarmStrong,
     Color? borderBrandSoft,
     Color? borderBrandMid,
     Color? statusSuccessBorder,
@@ -399,6 +432,15 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     Color? statusDangerPress,
     Color? statusInfoBorder,
     Color? surfaceHero,
+    Color? bgHeroGradientStart,
+    Color? bgHeroGradientEnd,
+    Color? fgOnHeroChgUp,
+    Color? fgOnHeroChgDown,
+    Color? fgOnHeroSpot,
+    List<BoxShadow>? shadowSm,
+    List<BoxShadow>? shadowMd,
+    List<BoxShadow>? shadowLg,
+    List<BoxShadow>? shadowXl,
   }) {
     return PorestTokens(
       bgCanvas: bgCanvas ?? this.bgCanvas,
@@ -406,13 +448,13 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
       bgSurfaceRaised: bgSurfaceRaised ?? this.bgSurfaceRaised,
       bgSunken: bgSunken ?? this.bgSunken,
       bgMuted: bgMuted ?? this.bgMuted,
-      bgSectionWarm: bgSectionWarm ?? this.bgSectionWarm,
       bgInverse: bgInverse ?? this.bgInverse,
       bgBrand: bgBrand ?? this.bgBrand,
       bgBrandHover: bgBrandHover ?? this.bgBrandHover,
       bgBrandPress: bgBrandPress ?? this.bgBrandPress,
       bgBrandSubtle: bgBrandSubtle ?? this.bgBrandSubtle,
       bgBrandMuted: bgBrandMuted ?? this.bgBrandMuted,
+      bgBrandSolid: bgBrandSolid ?? this.bgBrandSolid,
       bgHoverSubtle: bgHoverSubtle ?? this.bgHoverSubtle,
       bgHoverStrong: bgHoverStrong ?? this.bgHoverStrong,
       bgRowHover: bgRowHover ?? this.bgRowHover,
@@ -424,7 +466,6 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
       fgDisabled: fgDisabled ?? this.fgDisabled,
       fgPlaceholder: fgPlaceholder ?? this.fgPlaceholder,
       fgOnBrand: fgOnBrand ?? this.fgOnBrand,
-      fgOnWarm: fgOnWarm ?? this.fgOnWarm,
       fgBrand: fgBrand ?? this.fgBrand,
       fgBrandStrong: fgBrandStrong ?? this.fgBrandStrong,
       fgLink: fgLink ?? this.fgLink,
@@ -436,7 +477,6 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
       borderStrong: borderStrong ?? this.borderStrong,
       borderFocus: borderFocus ?? this.borderFocus,
       borderBrand: borderBrand ?? this.borderBrand,
-      borderWarm: borderWarm ?? this.borderWarm,
       statusSuccess: statusSuccess ?? this.statusSuccess,
       statusSuccessSubtle: statusSuccessSubtle ?? this.statusSuccessSubtle,
       statusSuccessFg: statusSuccessFg ?? this.statusSuccessFg,
@@ -458,10 +498,6 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
       bgBrandTint: bgBrandTint ?? this.bgBrandTint,
       bgBrandTintStrong: bgBrandTintStrong ?? this.bgBrandTintStrong,
       bgTableHead: bgTableHead ?? this.bgTableHead,
-      bgWarmTint: bgWarmTint ?? this.bgWarmTint,
-      bgWarmTintStrong: bgWarmTintStrong ?? this.bgWarmTintStrong,
-      bgWarmPress: bgWarmPress ?? this.bgWarmPress,
-      fgOnWarmStrong: fgOnWarmStrong ?? this.fgOnWarmStrong,
       borderBrandSoft: borderBrandSoft ?? this.borderBrandSoft,
       borderBrandMid: borderBrandMid ?? this.borderBrandMid,
       statusSuccessBorder: statusSuccessBorder ?? this.statusSuccessBorder,
@@ -470,6 +506,15 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
       statusDangerPress: statusDangerPress ?? this.statusDangerPress,
       statusInfoBorder: statusInfoBorder ?? this.statusInfoBorder,
       surfaceHero: surfaceHero ?? this.surfaceHero,
+      bgHeroGradientStart: bgHeroGradientStart ?? this.bgHeroGradientStart,
+      bgHeroGradientEnd: bgHeroGradientEnd ?? this.bgHeroGradientEnd,
+      fgOnHeroChgUp: fgOnHeroChgUp ?? this.fgOnHeroChgUp,
+      fgOnHeroChgDown: fgOnHeroChgDown ?? this.fgOnHeroChgDown,
+      fgOnHeroSpot: fgOnHeroSpot ?? this.fgOnHeroSpot,
+      shadowSm: shadowSm ?? this.shadowSm,
+      shadowMd: shadowMd ?? this.shadowMd,
+      shadowLg: shadowLg ?? this.shadowLg,
+      shadowXl: shadowXl ?? this.shadowXl,
     );
   }
 
@@ -483,13 +528,13 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
       bgSurfaceRaised: l(bgSurfaceRaised, other.bgSurfaceRaised),
       bgSunken: l(bgSunken, other.bgSunken),
       bgMuted: l(bgMuted, other.bgMuted),
-      bgSectionWarm: l(bgSectionWarm, other.bgSectionWarm),
       bgInverse: l(bgInverse, other.bgInverse),
       bgBrand: l(bgBrand, other.bgBrand),
       bgBrandHover: l(bgBrandHover, other.bgBrandHover),
       bgBrandPress: l(bgBrandPress, other.bgBrandPress),
       bgBrandSubtle: l(bgBrandSubtle, other.bgBrandSubtle),
       bgBrandMuted: l(bgBrandMuted, other.bgBrandMuted),
+      bgBrandSolid: l(bgBrandSolid, other.bgBrandSolid),
       bgHoverSubtle: l(bgHoverSubtle, other.bgHoverSubtle),
       bgHoverStrong: l(bgHoverStrong, other.bgHoverStrong),
       bgRowHover: l(bgRowHover, other.bgRowHover),
@@ -501,7 +546,6 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
       fgDisabled: l(fgDisabled, other.fgDisabled),
       fgPlaceholder: l(fgPlaceholder, other.fgPlaceholder),
       fgOnBrand: l(fgOnBrand, other.fgOnBrand),
-      fgOnWarm: l(fgOnWarm, other.fgOnWarm),
       fgBrand: l(fgBrand, other.fgBrand),
       fgBrandStrong: l(fgBrandStrong, other.fgBrandStrong),
       fgLink: l(fgLink, other.fgLink),
@@ -513,7 +557,6 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
       borderStrong: l(borderStrong, other.borderStrong),
       borderFocus: l(borderFocus, other.borderFocus),
       borderBrand: l(borderBrand, other.borderBrand),
-      borderWarm: l(borderWarm, other.borderWarm),
       statusSuccess: l(statusSuccess, other.statusSuccess),
       statusSuccessSubtle: l(statusSuccessSubtle, other.statusSuccessSubtle),
       statusSuccessFg: l(statusSuccessFg, other.statusSuccessFg),
@@ -535,10 +578,6 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
       bgBrandTint: l(bgBrandTint, other.bgBrandTint),
       bgBrandTintStrong: l(bgBrandTintStrong, other.bgBrandTintStrong),
       bgTableHead: l(bgTableHead, other.bgTableHead),
-      bgWarmTint: l(bgWarmTint, other.bgWarmTint),
-      bgWarmTintStrong: l(bgWarmTintStrong, other.bgWarmTintStrong),
-      bgWarmPress: l(bgWarmPress, other.bgWarmPress),
-      fgOnWarmStrong: l(fgOnWarmStrong, other.fgOnWarmStrong),
       borderBrandSoft: l(borderBrandSoft, other.borderBrandSoft),
       borderBrandMid: l(borderBrandMid, other.borderBrandMid),
       statusSuccessBorder: l(statusSuccessBorder, other.statusSuccessBorder),
@@ -547,6 +586,15 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
       statusDangerPress: l(statusDangerPress, other.statusDangerPress),
       statusInfoBorder: l(statusInfoBorder, other.statusInfoBorder),
       surfaceHero: l(surfaceHero, other.surfaceHero),
+      bgHeroGradientStart: l(bgHeroGradientStart, other.bgHeroGradientStart),
+      bgHeroGradientEnd: l(bgHeroGradientEnd, other.bgHeroGradientEnd),
+      fgOnHeroChgUp: l(fgOnHeroChgUp, other.fgOnHeroChgUp),
+      fgOnHeroChgDown: l(fgOnHeroChgDown, other.fgOnHeroChgDown),
+      fgOnHeroSpot: l(fgOnHeroSpot, other.fgOnHeroSpot),
+      shadowSm: BoxShadow.lerpList(shadowSm, other.shadowSm, t) ?? shadowSm,
+      shadowMd: BoxShadow.lerpList(shadowMd, other.shadowMd, t) ?? shadowMd,
+      shadowLg: BoxShadow.lerpList(shadowLg, other.shadowLg, t) ?? shadowLg,
+      shadowXl: BoxShadow.lerpList(shadowXl, other.shadowXl, t) ?? shadowXl,
     );
   }
 }

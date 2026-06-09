@@ -1,0 +1,11 @@
+# 릴리스 서명 키 설정 예시. 실제 값으로 채워 `android/key.properties` 로 저장.
+# (key.properties · *.jks · *.keystore 는 .gitignore 처리됨 — 절대 커밋 금지)
+#
+# 1) 키스토어 생성:
+#    keytool -genkey -v -keystore ~/porest-desk-upload.jks \
+#      -keyalg RSA -keysize 2048 -validity 10000 -alias upload
+# 2) 아래 값 채워 android/key.properties 로 저장:
+storePassword=YOUR_STORE_PASSWORD
+keyPassword=YOUR_KEY_PASSWORD
+keyAlias=upload
+storeFile=/absolute/path/to/porest-desk-upload.jks

@@ -23,8 +23,6 @@ _Expense _$ExpenseFromJson(Map<String, dynamic> json) => _Expense(
   paymentMethod: json['paymentMethod'] as String?,
   calendarEventRowId: (json['calendarEventRowId'] as num?)?.toInt(),
   todoRowId: (json['todoRowId'] as num?)?.toInt(),
-  groupRowId: (json['groupRowId'] as num?)?.toInt(),
-  groupName: json['groupName'] as String?,
   createAt: json['createAt'] as String?,
   modifyAt: json['modifyAt'] as String?,
 );
@@ -46,8 +44,6 @@ Map<String, dynamic> _$ExpenseToJson(_Expense instance) => <String, dynamic>{
   'paymentMethod': instance.paymentMethod,
   'calendarEventRowId': instance.calendarEventRowId,
   'todoRowId': instance.todoRowId,
-  'groupRowId': instance.groupRowId,
-  'groupName': instance.groupName,
   'createAt': instance.createAt,
   'modifyAt': instance.modifyAt,
 };

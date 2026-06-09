@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
@@ -8,10 +7,14 @@ import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../shared/brand/bank_colors.dart';
+import '../../../shared/widgets/p_chip.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_search_field.dart';
+import '../../../shared/widgets/p_snack_bar.dart';
 import '../../../shared/widgets/p_text_input.dart';
 import '../application/asset_providers.dart';
 import '../domain/asset.dart';
+import 'include_in_total_card.dart';
 
 /// 투자 추가/편집 다이얼로그 — front `InvestmentAddDialog` / `AssetEditDialog`
 /// (editingGroup === 'invest') 미러.
@@ -75,6 +78,7 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
   late final TextEditingController _memoCtrl;
 
   late String _brand;
+  late bool _includeInTotal;
   bool _submitting = false;
   bool _deleting = false;
 
@@ -133,6 +137,7 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
     _balanceCtrl =
         TextEditingController(text: (e?.balance ?? 0).toString());
     _memoCtrl = TextEditingController(text: e?.memo ?? '');
+    _includeInTotal = e == null ? true : e.isIncludedInTotal == 'Y';
     widget.controller.onSubmit = _submit;
     if (widget.edit != null) widget.controller.onDelete = _delete;
     WidgetsBinding.instance
@@ -180,6 +185,7 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
           currency: 'KRW',
           institution: brand,
           memo: memo.isEmpty ? null : memo,
+          isIncludedInTotal: _includeInTotal ? 'Y' : 'N',
         );
       } else {
         await repo.create(
@@ -188,21 +194,16 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
           balance: balance,
           currency: 'KRW',
           institution: brand,
+          isIncludedInTotal: _includeInTotal ? 'Y' : 'N',
         );
       }
       ref.invalidate(assetsProvider);
       if (!mounted) return;
       Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content:
-                Text(_isEdit ? '투자가 수정되었습니다' : '투자가 추가되었습니다')),
-      );
+      showPSnackBar(context, _isEdit ? '투자가 수정되었습니다' : '투자가 추가되었습니다', severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('실패: ${e.message}')),
-      );
+      showPSnackBar(context, '실패: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setSubmitting(false);
     }
@@ -210,25 +211,14 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
 
   Future<void> _delete() async {
     if (_deleting || widget.edit == null) return;
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('투자 삭제'),
-        content: const Text('이 투자 자산을 삭제하시겠습니까? 연결된 거래는 유지됩니다.'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('취소')),
-          FilledButton(
-            style: FilledButton.styleFrom(
-                backgroundColor: context.tokens.statusDanger),
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('삭제'),
-          ),
-        ],
-      ),
+    final ok = await showPConfirmDialog(
+      context,
+      title: '투자 삭제',
+      message: '이 투자 자산을 삭제하시겠습니까? 연결된 거래는 유지됩니다.',
+      confirmLabel: '삭제',
+      destructive: true,
     );
-    if (ok != true || !mounted) return;
+    if (!ok || !mounted) return;
     _setDeleting(true);
     try {
       final repo = await ref.read(assetRepositoryProvider.future);
@@ -236,14 +226,10 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
       ref.invalidate(assetsProvider);
       if (!mounted) return;
       Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('투자가 삭제되었습니다')),
-      );
+      showPSnackBar(context, '투자가 삭제되었습니다', severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('삭제 실패: ${e.message}')),
-      );
+      showPSnackBar(context, '삭제 실패: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setDeleting(false);
     }
@@ -275,14 +261,9 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
                   ],
                 ),
                 const SizedBox(height: PSpace.x8),
-                PTextInput(
+                PSearchField(
                   controller: _queryCtrl,
-                  placeholder: '증권사·가상자산거래소·상품거래소 검색',
-                  prefix: Padding(
-                    padding: const EdgeInsets.only(left: 10, right: 6),
-                    child: Icon(LucideIcons.search,
-                        size: 14, color: t.fgTertiary),
-                  ),
+                  hint: '증권사·가상자산거래소·상품거래소 검색',
                 ),
                 const SizedBox(height: PSpace.x8),
                 _BrandPicker(
@@ -330,6 +311,13 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
                     placeholder: '계좌번호 뒷자리, 결제일, 한도 등 메모하세요',
                   ),
                 ],
+
+                // 전체 자산 합계 포함 토글 ──────────────
+                const SizedBox(height: PSpace.x20),
+                IncludeInTotalCard(
+                  value: _includeInTotal,
+                  onChanged: (v) => setState(() => _includeInTotal = v),
+                ),
               ],
             );
   }
@@ -457,10 +445,11 @@ class _BrandPicker extends StatelessWidget {
                   runSpacing: 6,
                   children: [
                     for (final e in categories[i].value)
-                      _BrandChip(
-                        entry: e,
+                      PChip(
+                        label: e.name,
                         selected: e.name == selectedName,
                         onTap: () => onPick(e.name),
+                        color: e.color.bg,
                       ),
                   ],
                 ),
@@ -473,44 +462,3 @@ class _BrandPicker extends StatelessWidget {
   }
 }
 
-class _BrandChip extends StatelessWidget {
-  const _BrandChip({
-    required this.entry,
-    required this.selected,
-    required this.onTap,
-  });
-  final BankEntry entry;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(999),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-          decoration: BoxDecoration(
-            color: selected ? entry.color.bg : t.bgMuted,
-            borderRadius: BorderRadius.circular(999),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                entry.name,
-                style: PTypo.bodySm.copyWith(
-                  color: selected ? entry.color.fg : t.fgSecondary,
-                  fontWeight: PFontWeight.medium,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}

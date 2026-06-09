@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
 import '../../../core/format/krw.dart';
+import '../../../shared/widgets/p_back_button.dart';
+import '../../../shared/widgets/p_badge.dart';
+import '../../../shared/widgets/p_card.dart';
+import '../../../shared/widgets/p_divider.dart';
+import '../../../shared/widgets/p_skeleton.dart';
 import '../application/card_providers.dart';
 
 class CardDetailScreen extends ConsumerWidget {
@@ -21,17 +26,16 @@ class CardDetailScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: t.bgCanvas,
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(LucideIcons.arrowLeft),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
+        leadingWidth: PBackButton.leadingWidth,
+        titleSpacing: 0,
+        leading: PBackButton(onPressed: () => Navigator.of(context).pop()),
         title: const Text('카드 상세'),
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,
         elevation: 0,
       ),
       body: detailAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => _CardDetailSkeleton(tokens: t),
         error: (e, _) => Padding(
           padding: const EdgeInsets.all(PSpace.x16),
           child: Text('카드 상세 로드 실패\n$e',
@@ -40,8 +44,8 @@ class CardDetailScreen extends ConsumerWidget {
         data: (d) {
           final s = d.summary;
           return ListView(
-            padding: const EdgeInsets.fromLTRB(
-                PSpace.x16, PSpace.x16, PSpace.x16, PSpace.x40),
+            padding: const EdgeInsets.symmetric(
+            horizontal: PSpace.x20, vertical: PSpace.x24),
             children: [
               // 카드 이미지
               if (s.imgUrl != null)
@@ -62,7 +66,7 @@ class CardDetailScreen extends ConsumerWidget {
 
               Text(s.cardName,
                   style: PTypo.h3.copyWith(
-                      color: t.fgPrimary, fontWeight: PFontWeight.heavy)),
+                      color: t.fgPrimary, fontWeight: PFontWeight.bold)),
               const SizedBox(height: 4),
               Text(
                 [
@@ -112,19 +116,7 @@ class CardDetailScreen extends ConsumerWidget {
                   children: [
                     for (final g in d.topBenefits)
                       for (final tag in g.tags)
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: t.bgBrandSubtle,
-                            borderRadius: PRadius.brPill,
-                            border: Border.all(color: t.borderBrand),
-                          ),
-                          child: Text(tag,
-                              style: PTypo.caption.copyWith(
-                                  color: t.fgBrandStrong,
-                                  fontWeight: PFontWeight.semi)),
-                        ),
+                        PBadge(label: tag, variant: PBadgeVariant.softBrand),
                   ],
                 ),
                 const SizedBox(height: PSpace.x20),
@@ -135,12 +127,8 @@ class CardDetailScreen extends ConsumerWidget {
                     style: PTypo.body.copyWith(
                         color: t.fgPrimary, fontWeight: PFontWeight.bold)),
                 const SizedBox(height: PSpace.x8),
-                Container(
-                  decoration: BoxDecoration(
-                    color: t.bgSurface,
-                    borderRadius: PRadius.brLg,
-                    border: Border.all(color: t.borderSubtle),
-                  ),
+                PCard(
+                  variant: PCardVariant.bordered,
                   child: Column(
                     children: [
                       for (int i = 0; i < d.benefits.length; i++) ...[
@@ -170,7 +158,7 @@ class CardDetailScreen extends ConsumerWidget {
                           ),
                         ),
                         if (i < d.benefits.length - 1)
-                          Divider(height: 1, color: t.borderSubtle),
+                          PDivider(),
                       ],
                     ],
                   ),
@@ -224,6 +212,97 @@ class CardDetailScreen extends ConsumerWidget {
   }
 }
 
+/// 카드 상세 skeleton — 이미지 + 이름/서브텍스트 + 연회비/실적 카드 + 혜택 리스트.
+class _CardDetailSkeleton extends StatelessWidget {
+  const _CardDetailSkeleton({required this.tokens});
+  final PorestTokens tokens;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = tokens;
+    return ListView(
+      padding: const EdgeInsets.symmetric(
+        horizontal: PSpace.x20,
+        vertical: PSpace.x24,
+      ),
+      children: [
+        AspectRatio(
+          aspectRatio: 1.6,
+          child: PSkeleton(width: double.infinity, borderRadius: PRadius.brLg),
+        ),
+        const SizedBox(height: PSpace.x16),
+        const PSkeleton.line(width: 200),
+        const SizedBox(height: 4),
+        PSkeleton.line(width: 120, height: 12),
+        const SizedBox(height: PSpace.x16),
+        Row(
+          children: [
+            Expanded(
+              child: PCard(
+                variant: PCardVariant.bordered,
+                padding: const EdgeInsets.all(PSpace.x12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    PSkeleton.line(width: 40, height: 12),
+                    const SizedBox(height: 4),
+                    const PSkeleton.line(width: 60),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(width: PSpace.x8),
+            Expanded(
+              child: PCard(
+                variant: PCardVariant.bordered,
+                padding: const EdgeInsets.all(PSpace.x12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    PSkeleton.line(width: 48, height: 12),
+                    const SizedBox(height: 4),
+                    const PSkeleton.line(width: 56),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: PSpace.x20),
+        const PSkeleton.line(width: 56),
+        const SizedBox(height: PSpace.x8),
+        PCard(
+          variant: PCardVariant.bordered,
+          padding: EdgeInsets.zero,
+          child: Column(
+            children: [
+              for (int i = 0; i < 4; i++)
+                Container(
+                  decoration: BoxDecoration(
+                    border: i < 3
+                        ? Border(bottom: BorderSide(color: t.borderSubtle))
+                        : null,
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: PSpace.x16,
+                    vertical: PSpace.x12,
+                  ),
+                  child: Row(
+                    children: [
+                      PSkeleton.line(width: i.isEven ? 120 : 100),
+                      const Spacer(),
+                      PSkeleton.line(width: 56, height: 12),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _InfoCard extends StatelessWidget {
   const _InfoCard(
       {required this.label, required this.value, required this.tokens});
@@ -232,13 +311,9 @@ class _InfoCard extends StatelessWidget {
   final PorestTokens tokens;
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return PCard(
       padding: const EdgeInsets.all(PSpace.x12),
-      decoration: BoxDecoration(
-        color: tokens.bgSurface,
-        borderRadius: PRadius.brLg,
-        border: Border.all(color: tokens.borderSubtle),
-      ),
+      variant: PCardVariant.bordered,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

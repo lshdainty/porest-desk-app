@@ -22,27 +22,29 @@ class AssetLogo extends StatelessWidget {
     final brand = getBrandColor([asset.institution, asset.assetName]);
     final bg = _parseHex(asset.color) ?? brand?.bg ?? hashColor(asset.assetName);
     final fg = brand?.fg ?? Colors.white;
-    final iconChar = (asset.icon ?? '').trim().isNotEmpty
-        ? asset.icon!.trim().characters.first
-        : null;
-    final fallbackChar = ((asset.institution ?? asset.assetName).trim().isEmpty
+    final char = (asset.institution ?? asset.assetName).trim().isEmpty
         ? '?'
-        : (asset.institution ?? asset.assetName).trim().characters.first);
-    final char = iconChar ?? fallbackChar;
+        : (asset.institution ?? asset.assetName).trim().characters.first;
+    // web AssetLogo font 분기 정합: ≤32 caption / ≥48 bodyLg / else bodySm
+    final fontSize = size <= 32
+        ? PFontSize.caption
+        : size >= 48
+            ? PFontSize.bodyLg
+            : PFontSize.bodySm;
     return Container(
       width: size,
       height: size,
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: bg,
-        borderRadius: PRadius.brTile,
+        borderRadius: PRadius.brLg,
       ),
       child: Text(
         char,
         style: TextStyle(
           color: fg,
-          fontSize: PFontSize.body,
-          fontWeight: PFontWeight.heavy,
+          fontSize: fontSize,
+          fontWeight: PFontWeight.bold,
           letterSpacing: -0.28,
           height: PLineHeight.tight,
         ),

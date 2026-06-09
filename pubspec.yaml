@@ -26,6 +26,8 @@ dependencies:
   cookie_jar: ^4.0.9
   path_provider: ^2.1.5
   webview_flutter: ^4.13.1
+  # 토큰/쿠키 암호화 저장 (Android Keystore / iOS Keychain)
+  flutter_secure_storage: ^9.2.4
 
   # 모델
   freezed_annotation: ^3.1.0
@@ -38,7 +40,7 @@ dependencies:
   # UI
   fl_chart: ^1.2.0
   table_calendar: ^3.2.0
-  lucide_icons: ^0.257.0
+  lucide_icons_flutter: ^3.1.14
 
   # 기타
   connectivity_plus: ^7.1.1

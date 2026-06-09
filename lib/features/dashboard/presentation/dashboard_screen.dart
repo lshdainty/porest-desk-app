@@ -2,38 +2,31 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import '../../../app/theme/colors.dart';
 import '../../../app/theme/radius.dart';
+import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
-import '../../../core/format/color_parse.dart';
+import '../../../core/format/chart_palette.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_card.dart';
+import '../../../shared/widgets/p_expense_row.dart';
+import '../../../shared/widgets/p_divider.dart';
+import '../../../shared/widgets/p_skeleton.dart';
 import '../../asset/application/asset_providers.dart';
 import '../../budget/application/budget_providers.dart';
 import '../../budget/domain/budget.dart';
 import '../../expense/application/expense_providers.dart';
+import '../../../app/theme/chart_palette.dart';
 import '../../expense/domain/expense.dart';
 import '../../expense/domain/expense_category.dart';
 import '../../stats/application/stats_providers.dart';
 import '../../stats/domain/stats_models.dart';
 import '../application/dashboard_providers.dart';
 import '../domain/dashboard_summary.dart';
-
-const _categoryPalette = <Color>[
-  Color(0xFFB48A4A), // mossy/orange-ish (cf. CSS oklch palette)
-  Color(0xFFB04F8A),
-  Color(0xFF5C9F6E),
-  Color(0xFF8C6BB4),
-  Color(0xFF5A8FB7),
-  Color(0xFFC75A4F),
-  Color(0xFF4F8A98),
-  Color(0xFF8B7B5A),
-];
 
 /// 홈 / 대시보드 — porest-desk-front HomeMobile 정확 미러.
 class DashboardScreen extends ConsumerStatefulWidget {
@@ -95,12 +88,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         ref.invalidate(monthBudgetsProvider(monthKey));
       },
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
+        padding: const EdgeInsets.symmetric(
+            horizontal: PSpace.x20, vertical: PSpace.x24),
         children: [
           _BalanceHero(
               summaryAsync: summaryAsync, masked: settings.hideAmounts),
-          const SizedBox(height: 16),
-          const _QuickActions(),
           const SizedBox(height: 16),
           _MonthExpenseCard(
             month: _month,
@@ -112,6 +104,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           const SizedBox(height: 16),
           _CategoryDonutCard(
             summary: summaryRangeAsync.value,
+            categoriesAsync: categoriesAsync,
             loading: summaryRangeAsync.isLoading,
             masked: settings.hideAmounts,
           ),
@@ -121,6 +114,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             categoriesAsync: categoriesAsync,
             summary: summaryRangeAsync.value,
             masked: settings.hideAmounts,
+            warnThreshold:
+                ref.watch(budgetAlertThresholdProvider).value?.toDouble() ?? 85,
           ),
           const SizedBox(height: 16),
           _UpcomingCard(async: dashboardAsync),
@@ -146,9 +141,36 @@ class _UpcomingCard extends StatelessWidget {
     final t = context.tokens;
     if (async.isLoading && !async.hasValue) {
       return PCard(
-        padding: const EdgeInsets.all(18),
-        child: const SizedBox(
-            height: 80, child: Center(child: CircularProgressIndicator())),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const PSkeleton(width: 16, height: 16),
+                const SizedBox(width: 6),
+                const PSkeleton.line(width: 80),
+              ],
+            ),
+            const SizedBox(height: 8),
+            for (int i = 0; i < 2; i++)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Row(
+                  children: [
+                    PSkeleton(
+                      width: 8,
+                      height: 8,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    const SizedBox(width: 8),
+                    PSkeleton.line(width: i == 0 ? 120 : 96),
+                    const Spacer(),
+                    PSkeleton.line(width: 40, height: 12),
+                  ],
+                ),
+              ),
+          ],
+        ),
       );
     }
     final s = async.value;
@@ -158,7 +180,6 @@ class _UpcomingCard extends StatelessWidget {
     if (events.isEmpty && todos.isEmpty) return const SizedBox.shrink();
 
     return PCard(
-      padding: const EdgeInsets.fromLTRB(18, 18, 18, 14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -189,7 +210,7 @@ class _UpcomingCard extends StatelessWidget {
                       width: 8,
                       height: 8,
                       decoration: BoxDecoration(
-                          color: parseColor(e.color, fallback: t.fgBrand),
+                          color: resolveChartColor(context, e.color, fallback: t.fgBrand),
                           shape: BoxShape.circle),
                     ),
                     const SizedBox(width: 8),
@@ -216,7 +237,7 @@ class _UpcomingCard extends StatelessWidget {
           if (todos.isNotEmpty) ...[
             Row(
               children: [
-                Icon(LucideIcons.checkSquare,
+                Icon(LucideIcons.squareCheckBig,
                     size: 16, color: t.fgSecondary),
                 const SizedBox(width: 6),
                 Text('최근 할 일',
@@ -294,10 +315,10 @@ class _BalanceHero extends StatelessWidget {
         Container(
           padding: const EdgeInsets.fromLTRB(24, 24, 24, 20),
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
+            gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [PorestPalette.mossy700, PorestPalette.mossy900],
+              colors: [t.bgHeroGradientStart, t.bgHeroGradientEnd],
             ),
             borderRadius: PRadius.brXl2,
           ),
@@ -337,63 +358,76 @@ class _BalanceHero extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 6),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.baseline,
-                textBaseline: TextBaseline.alphabetic,
-                children: [
-                  Text(
-                    loading ? '—' : krwMasked(netWorth, masked),
-                    style: TextStyle(
-                      color: t.fgOnBrand,
-                      fontSize: PFontSize.displayMd,
-                      fontWeight: PFontWeight.heavy,
-                      letterSpacing: -1.02,
-                      height: PLineHeight.tight,
-                      fontFeatures: const [FontFeature.tabularFigures()],
+              // 큰 금액 — 로딩 중 흰 반투명 skeleton 박스 (gradient 위 PSkeleton 색 부적합)
+              if (loading)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: _heroSkelBar(t, width: 180, height: 34),
+                )
+              else
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
+                  children: [
+                    Text(
+                      krwMasked(netWorth, masked),
+                      style: TextStyle(
+                        color: t.fgOnBrand,
+                        fontSize: PFontSize.displayMd,
+                        fontWeight: PFontWeight.bold,
+                        letterSpacing: -1.02,
+                        height: PLineHeight.tight,
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    '원',
-                    style: TextStyle(
-                      color: t.fgOnBrand.withValues(alpha: 0.8),
-                      fontSize: PFontSize.h4,
-                      fontWeight: PFontWeight.semi,
-                    ),
-                  ),
-                ],
-              ),
+                    // 금액 숨김 시 '원' 단위도 숨김(web HideUnit 정합)
+                    if (!masked) ...[
+                      const SizedBox(width: 4),
+                      Text(
+                        '원',
+                        style: TextStyle(
+                          color: t.fgOnBrand.withValues(alpha: 0.8),
+                          fontSize: PFontSize.h4,
+                          fontWeight: PFontWeight.semi,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
               const SizedBox(height: 8),
-              Row(
-                children: [
-                  Text(
-                    '지난달 대비',
-                    style: TextStyle(
-                      color: t.fgOnBrand.withValues(alpha: 0.78),
-                      fontSize: PFontSize.bodySm,
+              if (loading)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 2),
+                  child: _heroSkelBar(t, width: 120, height: 14),
+                )
+              else
+                Row(
+                  children: [
+                    Text(
+                      '지난달 대비',
+                      style: TextStyle(
+                        color: t.fgOnBrand.withValues(alpha: 0.78),
+                        fontSize: PFontSize.bodySm,
+                        fontWeight: PFontWeight.regular,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 6),
-                  Icon(
-                    isUp ? LucideIcons.trendingUp : LucideIcons.trendingDown,
-                    size: 13,
-                    color: isUp
-                        ? PorestPalette.heroChgUp
-                        : PorestPalette.heroChgDown,
-                  ),
-                  const SizedBox(width: 2),
-                  Text(
-                    '${isUp ? '+' : ''}${changePct.toStringAsFixed(1)}%',
-                    style: TextStyle(
-                      color: isUp
-                          ? PorestPalette.heroChgUp
-                          : PorestPalette.heroChgDown,
-                      fontSize: PFontSize.bodySm,
-                      fontWeight: PFontWeight.semi,
+                    const SizedBox(width: 6),
+                    Icon(
+                      isUp ? LucideIcons.trendingUp : LucideIcons.trendingDown,
+                      size: 14,
+                      color: isUp ? t.fgOnHeroChgUp : t.fgOnHeroChgDown,
                     ),
-                  ),
-                ],
-              ),
+                    const SizedBox(width: 2),
+                    Text(
+                      '${isUp ? '+' : ''}${changePct.toStringAsFixed(1)}%',
+                      style: TextStyle(
+                        color: isUp ? t.fgOnHeroChgUp : t.fgOnHeroChgDown,
+                        fontSize: PFontSize.bodySm,
+                        fontWeight: PFontWeight.semi,
+                      ),
+                    ),
+                  ],
+                ),
               const SizedBox(height: 20),
               Container(
                 padding: const EdgeInsets.only(top: 18),
@@ -409,7 +443,8 @@ class _BalanceHero extends StatelessWidget {
                       Expanded(
                         child: _HeroSplitCol(
                           label: '자산',
-                          value: krwMasked(totalAssets, masked),
+                          value: krwMasked(totalAssets, masked, mask: '••••'),
+                          loading: loading,
                         ),
                       ),
                       Container(
@@ -421,7 +456,8 @@ class _BalanceHero extends StatelessWidget {
                           padding: const EdgeInsets.only(left: 16),
                           child: _HeroSplitCol(
                             label: '부채',
-                            value: '-${krwMasked(totalDebt, masked)}',
+                            value: krwSigned(totalDebt, masked, sign: '-', mask: '••••'),
+                            loading: loading,
                           ),
                         ),
                       ),
@@ -442,8 +478,11 @@ class _BalanceHero extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
+                  // CSS radial-gradient 기본 익스텐트는 `farthest-corner`(=side×√2/2 ≈ 0.707).
+                  // Flutter RadialGradient.radius 기본 0.5(closest-side)와 다름 — 명시적 정합.
+                  radius: 0.707,
                   colors: [
-                    PorestPalette.heroSpot.withValues(alpha: 0.25),
+                    t.fgOnHeroSpot.withValues(alpha: 0.22),
                     Colors.transparent,
                   ],
                   stops: const [0.0, 0.7],
@@ -457,10 +496,27 @@ class _BalanceHero extends StatelessWidget {
   }
 }
 
+/// hero gradient 위 흰 반투명 skeleton 박스 (PSkeleton bgMuted 색이 gradient 위 부적합).
+Widget _heroSkelBar(PorestTokens t, {required double width, required double height}) {
+  return Container(
+    width: width,
+    height: height,
+    decoration: BoxDecoration(
+      color: t.fgOnBrand.withValues(alpha: 0.18),
+      borderRadius: BorderRadius.circular(6),
+    ),
+  );
+}
+
 class _HeroSplitCol extends StatelessWidget {
-  const _HeroSplitCol({required this.label, required this.value});
+  const _HeroSplitCol({
+    required this.label,
+    required this.value,
+    this.loading = false,
+  });
   final String label;
   final String value;
+  final bool loading;
 
   @override
   Widget build(BuildContext context) {
@@ -476,92 +532,23 @@ class _HeroSplitCol extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 4),
-        Text(
-          value,
-          style: TextStyle(
-            color: t.fgOnBrand,
-            fontSize: PFontSize.bodyLg,
-            fontWeight: PFontWeight.bold,
-            letterSpacing: -0.24,
-            fontFeatures: const [FontFeature.tabularFigures()],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-// ─── Quick actions 4-grid ──────────────────────────────────
-
-class _QuickActions extends StatelessWidget {
-  const _QuickActions();
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    final items = <(IconData, String, String)>[
-      (LucideIcons.wallet, '자산', '/assets'),
-      (LucideIcons.receipt, '가계부', '/expense'),
-      (LucideIcons.target, '예산', '/budget'),
-      (LucideIcons.users, '더치페이', '/dutch-pay'),
-    ];
-    return Row(
-      children: [
-        for (int i = 0; i < items.length; i++) ...[
-          Expanded(
-            child: _QuickAction(
-              icon: items[i].$1,
-              label: items[i].$2,
-              onTap: () => context.push(items[i].$3),
-              tokens: t,
-            ),
-          ),
-          if (i < items.length - 1) const SizedBox(width: 8),
-        ],
-      ],
-    );
-  }
-}
-
-class _QuickAction extends StatelessWidget {
-  const _QuickAction({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-    required this.tokens,
-  });
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-  final PorestTokens tokens;
-
-  @override
-  Widget build(BuildContext context) {
-    return PCard(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
-      borderRadius: PRadius.brXl,
-      onTap: onTap,
-      child: Column(
-        children: [
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: tokens.bgBrandSubtle,
-              borderRadius: PRadius.brTile,
-            ),
-            child: Icon(icon, size: 18, color: tokens.fgBrandStrong),
-          ),
-          const SizedBox(height: 6),
+        if (loading)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 2),
+            child: _heroSkelBar(t, width: 80, height: 16),
+          )
+        else
           Text(
-            label,
+            value,
             style: TextStyle(
-              color: tokens.fgPrimary,
-              fontSize: PFontSize.caption,
-              fontWeight: PFontWeight.semi,
+              color: t.fgOnBrand,
+              fontSize: PFontSize.bodyLg,
+              fontWeight: PFontWeight.bold,
+              letterSpacing: -0.24,
+              fontFeatures: const [FontFeature.tabularFigures()],
             ),
           ),
-        ],
-      ),
+      ],
     );
   }
 }
@@ -609,83 +596,80 @@ class _MonthExpenseCard extends StatelessWidget {
     final saving = savingsPct > 0;
 
     return PCard(
-      padding: const EdgeInsets.all(18),
+      padding: EdgeInsets.zero,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            '${month.month}월 가계부',
-            style: TextStyle(
-              color: t.fgPrimary,
-              fontSize: PFontSize.bodyLg,
-              fontWeight: PFontWeight.bold,
-              letterSpacing: -0.225,
-            ),
-          ),
-          const SizedBox(height: 14),
-          if (hasError)
-            Text(
-              '이번달 거래를 불러오지 못했습니다',
-              style: TextStyle(
-                  color: t.statusDanger, fontSize: PFontSize.bodySm),
-            )
-          else
-            Row(
+          PCardHeader(child: PCardTitle('${month.month}월 가계부')),
+          PCardContent(
+            afterHeader: true,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: _IncomeExpenseCol(
-                    label: '수입',
-                    value: '+${krwMasked(income, masked)}',
-                    color: t.statusSuccessFg,
+                if (hasError)
+                  Text(
+                    '이번달 거래를 불러오지 못했습니다',
+                    style: PTypo.bodySm.copyWith(color: t.statusDanger),
+                  )
+                else
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _IncomeExpenseCol(
+                          label: '수입',
+                          value: krwSigned(income, masked, sign: '+'),
+                          color: t.fgIncome,
+                        ),
+                      ),
+                      Expanded(
+                        child: _IncomeExpenseCol(
+                          label: '지출',
+                          value: krwSigned(expense, masked, sign: '-'),
+                          color: t.fgExpense,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                Expanded(
-                  child: _IncomeExpenseCol(
-                    label: '지출',
-                    value: '-${krwMasked(expense, masked)}',
-                    color: t.statusDangerFg,
+                const SizedBox(height: PSpace.x16),
+                const PDivider(),
+                const SizedBox(height: PSpace.x16),
+                RichText(
+                  text: TextSpan(
+                    style: PTypo.caption.copyWith(
+                        color: t.fgSecondary, height: 1.5),
+                    children: [
+                      const TextSpan(text: '하루 평균 '),
+                      TextSpan(
+                        text: krwMasked(dailyAvg, masked),
+                        style: TextStyle(
+                          color: t.fgPrimary,
+                          fontWeight: PFontWeight.bold,
+                          fontFeatures: const [FontFeature.tabularFigures()],
+                        ),
+                      ),
+                      TextSpan(text: masked ? ' 썼어요.' : '원 썼어요.'),
+                      if (prevExpense > 0) ...[
+                        const TextSpan(text: ' 전월 대비 '),
+                        TextSpan(
+                          text:
+                              '${savingsPct.abs().toStringAsFixed(0)}%',
+                          style: TextStyle(
+                            color:
+                                saving ? t.fgBrandStrong : t.fgExpense,
+                            fontWeight: PFontWeight.bold,
+                          ),
+                        ),
+                        TextSpan(
+                            text: saving
+                                ? ' 절약 중이에요.'
+                                : (savingsPct < 0
+                                    ? ' 더 썼어요.'
+                                    : ' 동일해요.')),
+                      ],
+                    ],
                   ),
                 ),
               ],
-            ),
-          const SizedBox(height: 14),
-          Container(
-            padding: const EdgeInsets.only(top: 12),
-            decoration: BoxDecoration(
-              border: Border(
-                  top: BorderSide(color: t.borderSubtle)),
-            ),
-            child: RichText(
-              text: TextSpan(
-                style: PTypo.caption.copyWith(
-                    color: t.fgSecondary, height: 1.5),
-                children: [
-                  const TextSpan(text: '하루 평균 '),
-                  TextSpan(
-                    text: krwMasked(dailyAvg, masked),
-                    style: TextStyle(
-                      color: t.fgPrimary,
-                      fontWeight: PFontWeight.bold,
-                      fontFeatures: const [FontFeature.tabularFigures()],
-                    ),
-                  ),
-                  const TextSpan(text: '원 썼어요.'),
-                  if (prevExpense > 0) ...[
-                    const TextSpan(text: ' 전월 대비 '),
-                    TextSpan(
-                      text: '${savingsPct.abs().toStringAsFixed(0)}%',
-                      style: TextStyle(
-                        color: saving ? t.fgBrandStrong : t.fgExpense,
-                        fontWeight: PFontWeight.bold,
-                      ),
-                    ),
-                    TextSpan(
-                        text: saving
-                            ? ' 절약 중이에요.'
-                            : (savingsPct < 0 ? ' 더 썼어요.' : ' 동일해요.')),
-                  ],
-                ],
-              ),
             ),
           ),
         ],
@@ -729,12 +713,30 @@ class _IncomeExpenseCol extends StatelessWidget {
 class _CategoryDonutCard extends StatelessWidget {
   const _CategoryDonutCard({
     required this.summary,
+    required this.categoriesAsync,
     required this.loading,
     required this.masked,
   });
   final RangeSummary? summary;
+  final AsyncValue<List<ExpenseCategory>> categoriesAsync;
   final bool loading;
   final bool masked;
+
+  /// 카테고리 자체 색을 1순위로 사용, 없으면 [PorestChartPalette] fallback.
+  /// chart base hex 면 라이트/다크 variant 자동 swap (resolveChartColor).
+  /// desk-front DashboardPage `donutSegs` 정합.
+  Color _segmentColor(BuildContext context, int rowId, int fallbackIdx) {
+    final cat = categoriesAsync.value?.byRowId(rowId);
+    final raw = cat?.color;
+    if (raw != null && raw.trim().isNotEmpty) {
+      return resolveChartColor(
+        context,
+        raw,
+        fallback: PorestChartPalette.category(context, fallbackIdx),
+      );
+    }
+    return PorestChartPalette.category(context, fallbackIdx);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -761,44 +763,73 @@ class _CategoryDonutCard extends StatelessWidget {
     final total = topSegs.fold<int>(0, (s, c) => s + c.totalAmount);
 
     return PCard(
-      padding: const EdgeInsets.all(18),
+      padding: EdgeInsets.zero,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Text('카테고리',
-                  style: TextStyle(
-                    color: t.fgPrimary,
-                    fontSize: PFontSize.bodyLg,
-                    fontWeight: PFontWeight.bold,
-                    letterSpacing: -0.225,
-                  )),
-              const Spacer(),
-              GestureDetector(
-                onTap: () => context.go('/stats'),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text('자세히',
-                        style: TextStyle(
-                            color: t.fgTertiary,
-                            fontSize: PFontSize.bodySm)),
-                    const SizedBox(width: 2),
-                    Icon(LucideIcons.chevronRight,
-                        size: 14, color: t.fgTertiary),
-                  ],
+          PCardHeader(
+            child: Row(
+              children: [
+                const PCardTitle('카테고리'),
+                const Spacer(),
+                GestureDetector(
+                  onTap: () => context.go('/stats'),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('자세히',
+                          style: PTypo.bodySm
+                              .copyWith(color: t.fgTertiary)),
+                      const SizedBox(width: 2),
+                      Icon(LucideIcons.chevronRight,
+                          size: 14, color: t.fgTertiary),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-          const SizedBox(height: 14),
-          if (topSegs.isEmpty)
+          PCardContent(
+            afterHeader: true,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+          if (loading && topSegs.isEmpty)
+            // 도넛 카드 placeholder — Web stats CategorySkeleton 미러 (작은 사이즈).
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  PSkeleton.circle(size: 120),
+                  const SizedBox(width: PSpace.lg),
+                  Expanded(
+                    child: Column(
+                      children: [
+                        for (var i = 0; i < 4; i++) ...[
+                          if (i > 0) const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              PSkeleton.circle(size: 8),
+                              const SizedBox(width: PSpace.sm),
+                              const Expanded(child: PSkeleton.line(height: 11)),
+                              const SizedBox(width: PSpace.sm),
+                              const PSkeleton.line(width: 48, height: 11),
+                            ],
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            )
+          else if (topSegs.isEmpty)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 12),
               child: Center(
                 child: Text(
-                    loading ? '불러오는 중…' : '카테고리 데이터가 없어요',
+                    '카테고리 데이터가 없어요',
                     style: TextStyle(
                         color: t.fgTertiary, fontSize: PFontSize.caption)),
               ),
@@ -822,8 +853,7 @@ class _CategoryDonutCard extends StatelessWidget {
                             for (var i = 0; i < topSegs.length; i++)
                               PieChartSectionData(
                                 value: topSegs[i].totalAmount.toDouble(),
-                                color:
-                                    _categoryPalette[i % _categoryPalette.length],
+                                color: _segmentColor(context, topSegs[i].rowId, i),
                                 radius: 18,
                                 showTitle: false,
                               ),
@@ -839,11 +869,11 @@ class _CategoryDonutCard extends StatelessWidget {
                                   fontSize: PFontSize.micro)),
                           const SizedBox(height: 2),
                           Text(
-                            krwMasked(total, masked),
+                            krwMasked(total, masked, mask: '••••'),
                             style: TextStyle(
                                 color: t.fgPrimary,
                                 fontSize: PFontSize.caption,
-                                fontWeight: PFontWeight.heavy,
+                                fontWeight: PFontWeight.bold,
                                 fontFeatures: const [
                                   FontFeature.tabularFigures()
                                 ]),
@@ -867,8 +897,7 @@ class _CategoryDonutCard extends StatelessWidget {
                                 width: 8,
                                 height: 8,
                                 decoration: BoxDecoration(
-                                  color:
-                                      _categoryPalette[i % _categoryPalette.length],
+                                  color: _segmentColor(context, topSegs[i].rowId, i),
                                   shape: BoxShape.circle,
                                 ),
                               ),
@@ -884,7 +913,7 @@ class _CategoryDonutCard extends StatelessWidget {
                                 ),
                               ),
                               Text(
-                                krwMasked(topSegs[i].totalAmount, masked),
+                                krwMasked(topSegs[i].totalAmount, masked, mask: '••••'),
                                 style: TextStyle(
                                   color: t.fgPrimary,
                                   fontSize: PFontSize.caption,
@@ -903,6 +932,9 @@ class _CategoryDonutCard extends StatelessWidget {
                 ),
               ],
             ),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -917,11 +949,13 @@ class _BudgetCard extends StatelessWidget {
     required this.categoriesAsync,
     required this.summary,
     required this.masked,
+    this.warnThreshold = 85,
   });
   final AsyncValue<List<Budget>> budgetsAsync;
   final AsyncValue<List<ExpenseCategory>> categoriesAsync;
   final RangeSummary? summary;
   final bool masked;
+  final double warnThreshold;
 
   @override
   Widget build(BuildContext context) {
@@ -947,63 +981,96 @@ class _BudgetCard extends StatelessWidget {
     final items = budgets;
 
     return PCard(
-      padding: const EdgeInsets.all(18),
+      padding: EdgeInsets.zero,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Text('예산',
-                  style: TextStyle(
-                    color: t.fgPrimary,
-                    fontSize: PFontSize.bodyLg,
-                    fontWeight: PFontWeight.bold,
-                    letterSpacing: -0.225,
-                  )),
-              const Spacer(),
-              GestureDetector(
-                onTap: () => context.push('/budget'),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text('전체',
-                        style: TextStyle(
-                            color: t.fgTertiary,
-                            fontSize: PFontSize.bodySm)),
-                    const SizedBox(width: 2),
-                    Icon(LucideIcons.chevronRight,
-                        size: 14, color: t.fgTertiary),
-                  ],
+          PCardHeader(
+            child: Row(
+              children: [
+                const PCardTitle('예산'),
+                const Spacer(),
+                GestureDetector(
+                  onTap: () => context.push('/budget'),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('전체',
+                          style: PTypo.bodySm
+                              .copyWith(color: t.fgTertiary)),
+                      const SizedBox(width: 2),
+                      Icon(LucideIcons.chevronRight,
+                          size: 14, color: t.fgTertiary),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-          const SizedBox(height: 14),
-          if (items.isEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              child: Center(
-                child: Text(
-                    budgetsAsync.isLoading ? '불러오는 중…' : '등록된 예산이 없어요',
-                    style: TextStyle(
-                        color: t.fgTertiary, fontSize: PFontSize.caption)),
-              ),
-            )
-          else
-            for (var i = 0; i < items.length; i++) ...[
-              _BudgetRow(
-                budget: items[i],
-                category: items[i].categoryRowId == null
-                    ? null
-                    : categories.byRowId(items[i].categoryRowId!),
-                spent: items[i].categoryRowId == null
-                    ? totalEx
-                    : (spentByCat[items[i].categoryRowId!] ?? 0),
-                masked: masked,
-                tokens: t,
-              ),
-              if (i < items.length - 1) const SizedBox(height: 14),
-            ],
+          PCardContent(
+            afterHeader: true,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (budgetsAsync.isLoading && items.isEmpty)
+                  // 예산 카드 placeholder — 3 rows (label + progress + amount).
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: PSpace.x8),
+                    child: Column(
+                      children: [
+                        for (var i = 0; i < 3; i++) ...[
+                          if (i > 0) const SizedBox(height: PSpace.x16),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Row(
+                                children: const [
+                                  PSkeleton.line(width: 80, height: 12),
+                                  Spacer(),
+                                  PSkeleton.line(width: 96, height: 12),
+                                ],
+                              ),
+                              const SizedBox(height: PSpace.x8),
+                              PSkeleton(
+                                height: 6,
+                                borderRadius: PRadius.brFull,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ],
+                    ),
+                  )
+                else if (items.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: PSpace.x12),
+                    child: Center(
+                      child: Text(
+                          '등록된 예산이 없어요',
+                          style: PTypo.caption.copyWith(color: t.fgTertiary)),
+                    ),
+                  )
+                else
+                  for (var i = 0; i < items.length; i++) ...[
+                    _BudgetRow(
+                      budget: items[i],
+                      category: items[i].categoryRowId == null
+                          ? null
+                          : categories.byRowId(items[i].categoryRowId!),
+                      spent: items[i].categoryRowId == null
+                          ? totalEx
+                          : (spentByCat[items[i].categoryRowId!] ?? 0),
+                      masked: masked,
+                      tokens: t,
+                      warnThreshold: warnThreshold,
+                    ),
+                    if (i < items.length - 1)
+                      const SizedBox(height: PSpace.x16),
+                  ],
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -1017,12 +1084,14 @@ class _BudgetRow extends StatelessWidget {
     required this.spent,
     required this.masked,
     required this.tokens,
+    this.warnThreshold = 85,
   });
   final Budget budget;
   final ExpenseCategory? category;
   final int spent;
   final bool masked;
   final PorestTokens tokens;
+  final double warnThreshold;
 
   @override
   Widget build(BuildContext context) {
@@ -1030,14 +1099,16 @@ class _BudgetRow extends StatelessWidget {
         ? (spent / budget.budgetAmount) * 100
         : 0.0;
     final over = p > 100;
-    final warn = p > 85 && !over;
+    final warn = p > warnThreshold && !over;
+    // 예산 상태 = semantic 색 (초과=error / 경고=warning / 일반=info).
+    // *Fg 토큰은 dark에서 light variant 자동 분기.
     final stateColor = over
-        ? tokens.fgExpense
+        ? tokens.statusDangerFg
         : warn
-            ? tokens.statusWarning
-            : tokens.fgBrand;
-    final fg = parseColor(category?.color, fallback: tokens.fgBrand);
-    final bg = softBg(fg);
+            ? tokens.statusWarningFg
+            : tokens.statusInfoFg;
+    final fg = resolveChartColor(context, category?.color, fallback: tokens.fgBrand);
+    final bg = softBg(context, fg);
     final name = category?.categoryName ??
         budget.categoryName ??
         (budget.categoryRowId == null ? '전체' : '카테고리');
@@ -1052,7 +1123,7 @@ class _BudgetRow extends StatelessWidget {
               height: 28,
               alignment: Alignment.center,
               decoration:
-                  BoxDecoration(color: bg, borderRadius: PRadius.brTile),
+                  BoxDecoration(color: bg, borderRadius: PRadius.tile(28)),
               child: Icon(lucideByName(category?.icon),
                   size: 14, color: fg),
             ),
@@ -1075,9 +1146,9 @@ class _BudgetRow extends StatelessWidget {
                   fontFeatures: const [FontFeature.tabularFigures()],
                 ),
                 children: [
-                  TextSpan(text: krwMasked(spent, masked)),
+                  TextSpan(text: krwMasked(spent, masked, mask: '••••')),
                   TextSpan(
-                    text: ' / ${krwMasked(budget.budgetAmount, masked)}',
+                    text: ' / ${krwMasked(budget.budgetAmount, masked, mask: '••••')}',
                     style: TextStyle(
                       color: tokens.fgTertiary,
                       fontWeight: PFontWeight.medium,
@@ -1089,14 +1160,12 @@ class _BudgetRow extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 6),
-        ClipRRect(
-          borderRadius: PRadius.brSm,
-          child: LinearProgressIndicator(
-            value: (p / 100).clamp(0, 1).toDouble(),
-            minHeight: 6,
-            backgroundColor: tokens.bgTrack,
-            color: stateColor,
-          ),
+        LinearProgressIndicator(
+          borderRadius: PRadius.brFull,
+          value: (p / 100).clamp(0, 1).toDouble(),
+          minHeight: 6,
+          backgroundColor: tokens.bgTrack,
+          color: stateColor,
         ),
       ],
     );
@@ -1138,69 +1207,77 @@ class _TodaySpendCard extends StatelessWidget {
         .fold<int>(0, (s, e) => s + e.amount);
 
     return PCard(
-      padding: const EdgeInsets.all(18),
+      padding: EdgeInsets.zero,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                '오늘 쓴 돈',
-                style: TextStyle(
-                  color: t.fgPrimary,
-                  fontSize: PFontSize.bodyLg,
-                  fontWeight: PFontWeight.bold,
-                  letterSpacing: -0.225,
-                ),
-              ),
-              if (todayTotal > 0) ...[
-                const SizedBox(width: 8),
-                Text(
-                  '-${krwMasked(todayTotal, masked)}원',
-                  style: TextStyle(
-                    color: t.statusDangerFg,
-                    fontSize: PFontSize.caption,
-                    fontWeight: PFontWeight.bold,
-                    fontFeatures: const [FontFeature.tabularFigures()],
+          PCardHeader(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const PCardTitle('오늘 쓴 돈'),
+                if (todayTotal > 0) ...[
+                  const SizedBox(width: PSpace.x8),
+                  Text(
+                    krwSigned(todayTotal, masked, sign: '-', unit: true, mask: '••••'),
+                    style: PTypo.caption.copyWith(
+                      color: t.fgExpense,
+                      fontWeight: PFontWeight.bold,
+                      fontFeatures: const [FontFeature.tabularFigures()],
+                    ),
+                  ),
+                ],
+                const Spacer(),
+                GestureDetector(
+                  onTap: () => context.go('/expense'),
+                  child: Text(
+                    '전체',
+                    style: PTypo.bodySm.copyWith(color: t.fgTertiary),
                   ),
                 ),
               ],
-              const Spacer(),
-              GestureDetector(
-                onTap: () => context.go('/expense'),
-                child: Text(
-                  '전체',
-                  style: TextStyle(
-                    color: t.fgTertiary,
-                    fontSize: PFontSize.bodySm,
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
-          const SizedBox(height: 6),
-          if (todayTx.isEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              child: Center(
-                child: Text(
-                    expensesAsync.hasError
-                        ? '거래를 불러오지 못했습니다'
-                        : '오늘은 아직 쓴 돈이 없어요',
-                    style: TextStyle(
-                        color: t.fgTertiary,
-                        fontSize: PFontSize.caption)),
-              ),
-            )
-          else
-            for (final e in todayTx)
-              _ExpenseRow(
-                expense: e,
-                category: _findCategory(categories, e.categoryRowId),
-                masked: masked,
-                tokens: t,
-              ),
+          PCardContent(
+            afterHeader: true,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (todayTx.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: PSpace.x12),
+                    child: Center(
+                      child: Text(
+                          expensesAsync.hasError
+                              ? '거래를 불러오지 못했습니다'
+                              : '오늘은 아직 쓴 돈이 없어요',
+                          style: PTypo.caption.copyWith(color: t.fgTertiary)),
+                    ),
+                  )
+                else
+                  for (final e in todayTx)
+                    PExpenseRow(
+                      expense: e,
+                      masked: masked,
+                      categoryColorOverride:
+                          _findCategory(categories, e.categoryRowId)?.color
+                              as String?,
+                      categoryIconOverride:
+                          _findCategory(categories, e.categoryRowId)?.icon
+                              as String?,
+                      onTap: () {
+                        final dateStr = e.expenseDate?.substring(0, 7);
+                        if (dateStr != null && dateStr.length == 7) {
+                          context.go('/expense?month=$dateStr&txId=${e.rowId}');
+                        } else {
+                          context.go('/expense?txId=${e.rowId}');
+                        }
+                      },
+                    ),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -1217,103 +1294,3 @@ class _TodaySpendCard extends StatelessWidget {
   }
 }
 
-class _ExpenseRow extends StatelessWidget {
-  const _ExpenseRow({
-    required this.expense,
-    required this.category,
-    required this.masked,
-    required this.tokens,
-  });
-  final Expense expense;
-  final dynamic category;
-  final bool masked;
-  final PorestTokens tokens;
-
-  @override
-  Widget build(BuildContext context) {
-    final fg = parseColor((category?.color as String?) ?? expense.categoryColor,
-        fallback: tokens.fgBrand);
-    final bg = softBg(fg);
-    final isExpense = expense.expenseType == 'EXPENSE';
-    // 오늘 쓴 돈 카드는 모두 오늘 거래라 날짜 대신 시각만 표시
-    final time = expense.expenseDate != null && expense.expenseDate!.length >= 16
-        ? expense.expenseDate!.substring(11, 16)
-        : null;
-
-    return InkWell(
-      onTap: () {
-        final dateStr = expense.expenseDate?.substring(0, 7);
-        if (dateStr != null && dateStr.length == 7) {
-          context.go('/expense?month=$dateStr&txId=${expense.rowId}');
-        } else {
-          context.go('/expense?txId=${expense.rowId}');
-        }
-      },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        child: Row(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration:
-                  BoxDecoration(color: bg, borderRadius: PRadius.brLg),
-              alignment: Alignment.center,
-              child: Icon(
-                lucideByName(
-                    (category?.icon as String?) ?? expense.categoryIcon,
-                    fallback: LucideIcons.tag),
-                size: 18,
-                color: fg,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    expense.merchant ??
-                        expense.description ??
-                        expense.categoryName ??
-                        '거래',
-                    style: TextStyle(
-                      color: tokens.fgPrimary,
-                      fontSize: PFontSize.body,
-                      fontWeight: PFontWeight.semi,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    [
-                      expense.categoryName,
-                      expense.assetName,
-                      ?time,
-                    ].whereType<String>().where((s) => s.isNotEmpty).join(' · '),
-                    style: PTypo.caption.copyWith(color: tokens.fgTertiary),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              '${isExpense ? '-' : '+'}${krwMasked(expense.amount, masked)}원',
-              style: TextStyle(
-                color: isExpense
-                    ? tokens.statusDangerFg
-                    : tokens.statusSuccessFg,
-                fontSize: PFontSize.bodySm,
-                fontWeight: PFontWeight.bold,
-                fontFeatures: const [FontFeature.tabularFigures()],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}

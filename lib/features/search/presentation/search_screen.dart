@@ -3,19 +3,27 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../app/theme/radius.dart';
 import '../../../app/theme/spacing.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
-import '../../../core/format/color_parse.dart';
+import '../../../core/format/chart_palette.dart';
 import '../../../core/format/date.dart';
 import '../../../core/format/krw.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/settings/settings_notifier.dart';
 import '../../../shared/icons/lucide_icon_map.dart';
+import '../../../shared/widgets/p_back_button.dart';
+import '../../../shared/widgets/p_button.dart';
+import '../../../shared/widgets/p_chip.dart';
+import '../../../shared/widgets/p_date_input.dart';
+import '../../../shared/widgets/p_divider.dart';
 import '../../../shared/widgets/p_modal.dart';
+import '../../../shared/widgets/p_search_field.dart';
+import '../../../shared/widgets/p_skeleton.dart';
+import '../../../shared/widgets/p_text_input.dart';
 import '../../expense/application/expense_providers.dart';
 import '../../expense/domain/expense.dart';
 import '../../expense/presentation/tx_detail_dialog.dart';
@@ -92,13 +100,11 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
               Row(
                 children: [
                   Expanded(
-                    child: TextField(
+                    child: PTextInput(
                       controller: minCtrl,
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        hintText: '최소',
-                        suffixText: '원',
-                      ),
+                      numbersOnly: true,
+                      placeholder: '최소',
+                      suffixText: '원',
                       onChanged: (v) => min = int.tryParse(v),
                     ),
                   ),
@@ -106,13 +112,11 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   const Text('~'),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: TextField(
+                    child: PTextInput(
                       controller: maxCtrl,
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        hintText: '최대',
-                        suffixText: '원',
-                      ),
+                      numbersOnly: true,
+                      placeholder: '최대',
+                      suffixText: '원',
                       onChanged: (v) => max = int.tryParse(v),
                     ),
                   ),
@@ -125,34 +129,26 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
               Row(
                 children: [
                   Expanded(
-                    child: OutlinedButton.icon(
-                      icon: const Icon(LucideIcons.calendar, size: 14),
-                      label: Text(start == null ? '시작' : _fmtDate(start!)),
-                      onPressed: () async {
-                        final p = await showDatePicker(
-                          context: ctx,
-                          initialDate: start ?? DateTime.now(),
-                          firstDate: DateTime(2020),
-                          lastDate: DateTime(2030, 12, 31),
-                        );
-                        if (p != null) setSheet(() => start = p);
+                    child: PDateInput(
+                      value: start,
+                      onChanged: (d) {
+                        if (d != null) setSheet(() => start = d);
                       },
+                      firstDate: DateTime(2020),
+                      lastDate: DateTime(2030, 12, 31),
+                      placeholder: '시작',
                     ),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: OutlinedButton.icon(
-                      icon: const Icon(LucideIcons.calendar, size: 14),
-                      label: Text(end == null ? '종료' : _fmtDate(end!)),
-                      onPressed: () async {
-                        final p = await showDatePicker(
-                          context: ctx,
-                          initialDate: end ?? DateTime.now(),
-                          firstDate: DateTime(2020),
-                          lastDate: DateTime(2030, 12, 31),
-                        );
-                        if (p != null) setSheet(() => end = p);
+                    child: PDateInput(
+                      value: end,
+                      onChanged: (d) {
+                        if (d != null) setSheet(() => end = d);
                       },
+                      firstDate: DateTime(2020),
+                      lastDate: DateTime(2030, 12, 31),
+                      placeholder: '종료',
                     ),
                   ),
                 ],
@@ -161,7 +157,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
               Row(
                 children: [
                   Expanded(
-                    child: OutlinedButton(
+                    child: PButton(
+                      label: '초기화',
+                      variant: PButtonVariant.outline,
+                      fullWidth: true,
                       onPressed: () {
                         setSheet(() {
                           min = null;
@@ -172,12 +171,13 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                           maxCtrl.clear();
                         });
                       },
-                      child: const Text('초기화'),
                     ),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: FilledButton(
+                    child: PButton(
+                      label: '적용',
+                      fullWidth: true,
                       onPressed: () {
                         Navigator.pop(sheetCtx);
                         setState(() {
@@ -188,7 +188,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                         });
                         _runSearch();
                       },
-                      child: const Text('적용'),
                     ),
                   ),
                 ],
@@ -253,31 +252,25 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     return Scaffold(
       backgroundColor: t.bgCanvas,
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(LucideIcons.arrowLeft),
-          onPressed: () => context.pop(),
-        ),
-        title: TextField(
+        leadingWidth: PBackButton.leadingWidth,
+        titleSpacing: 0,
+        leading: PBackButton(onPressed: () => context.pop()),
+        title: PSearchField(
+          hint: '거래 검색...',
           controller: _ctrl,
           focusNode: _focus,
           onChanged: _onChanged,
-          textInputAction: TextInputAction.search,
-          onSubmitted: (_) => _runSearch(),
-          decoration: InputDecoration(
-            hintText: '거래 검색...',
-            border: InputBorder.none,
-            hintStyle: PTypo.body.copyWith(color: t.fgPlaceholder),
-            suffixIcon: _ctrl.text.isEmpty
-                ? null
-                : IconButton(
-                    icon: Icon(LucideIcons.x, size: 16, color: t.fgTertiary),
-                    onPressed: () {
-                      _ctrl.clear();
-                      _runSearch();
-                    },
-                  ),
-          ),
-          style: PTypo.body.copyWith(color: t.fgPrimary),
+          trailing: _ctrl.text.isEmpty
+              ? null
+              : PButton.icon(
+                  icon: LucideIcons.x,
+                  size: PButtonSize.sm,
+                  iconColor: t.fgTertiary,
+                  onPressed: () {
+                    _ctrl.clear();
+                    _runSearch();
+                  },
+                ),
         ),
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,
@@ -316,34 +309,31 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                 PSpace.x16, 0, PSpace.x16, PSpace.x8),
             child: Row(
               children: [
-                _TypeChip(
+                PChip(
                   label: '전체',
                   selected: _typeFilter == null,
                   onTap: () {
                     setState(() => _typeFilter = null);
                     _runSearch();
                   },
-                  tokens: t,
                 ),
                 const SizedBox(width: 6),
-                _TypeChip(
+                PChip(
                   label: '지출',
                   selected: _typeFilter == 'EXPENSE',
                   onTap: () {
                     setState(() => _typeFilter = 'EXPENSE');
                     _runSearch();
                   },
-                  tokens: t,
                 ),
                 const SizedBox(width: 6),
-                _TypeChip(
+                PChip(
                   label: '수입',
                   selected: _typeFilter == 'INCOME',
                   onTap: () {
                     setState(() => _typeFilter = 'INCOME');
                     _runSearch();
                   },
-                  tokens: t,
                 ),
               ],
             ),
@@ -356,7 +346,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
   Widget _buildBody(PorestTokens t, AppSettings settings, List categories) {
     if (_loading) {
-      return const Center(child: CircularProgressIndicator());
+      return const _SearchLoadingSkeleton();
     }
     if (_error != null) {
       return Padding(
@@ -383,10 +373,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     }
     return ListView.separated(
       padding: const EdgeInsets.symmetric(
-          horizontal: PSpace.x16, vertical: PSpace.x8),
+          horizontal: PSpace.x20, vertical: PSpace.x24),
       itemCount: _results.length,
       separatorBuilder: (_, _) =>
-          Divider(height: 1, color: t.borderSubtle, indent: 60),
+          PDivider(indent: 60),
       itemBuilder: (_, i) => _ResultRow(
         expense: _results[i],
         category: _findCategory(categories, _results[i].categoryRowId),
@@ -407,33 +397,38 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   }
 }
 
-class _TypeChip extends StatelessWidget {
-  const _TypeChip({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-    required this.tokens,
-  });
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-  final PorestTokens tokens;
+/// 검색 결과 로딩 skeleton — 아이콘+제목+날짜 + 금액 행 × 6.
+class _SearchLoadingSkeleton extends StatelessWidget {
+  const _SearchLoadingSkeleton();
+
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: selected ? tokens.bgBrand : tokens.bgSurface,
-          border: Border.all(
-              color: selected ? tokens.borderBrand : tokens.borderSubtle),
-          borderRadius: PRadius.brPill,
+    return ListView.separated(
+      padding: const EdgeInsets.symmetric(vertical: PSpace.x8),
+      itemCount: 6,
+      separatorBuilder: (_, _) => PDivider(),
+      itemBuilder: (_, i) => Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: PSpace.x20,
+          vertical: PSpace.x12,
         ),
-        child: Text(label,
-            style: PTypo.caption.copyWith(
-                color: selected ? tokens.fgOnBrand : tokens.fgSecondary,
-                fontWeight: PFontWeight.semi)),
+        child: Row(
+          children: [
+            const PSkeleton(width: 36, height: 36),
+            const SizedBox(width: PSpace.x12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  PSkeleton.line(width: i.isEven ? 120 : 96),
+                  const SizedBox(height: 4),
+                  PSkeleton.line(width: 72, height: 12),
+                ],
+              ),
+            ),
+            const PSkeleton.line(width: 60),
+          ],
+        ),
       ),
     );
   }
@@ -453,9 +448,10 @@ class _ResultRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = parseColor(category?.color as String? ?? expense.categoryColor,
+    final color = resolveChartColor(
+        context, category?.color as String? ?? expense.categoryColor,
         fallback: tokens.fgBrand);
-    final bg = softBg(color);
+    final bg = softBg(context, color);
     final isExpense = expense.expenseType == 'EXPENSE';
     final dayLabel = expense.expenseDate != null
         ? formatDay(parseIsoDate(expense.expenseDate!.substring(0, 10)))
@@ -470,7 +466,7 @@ class _ResultRow extends StatelessWidget {
             Container(
               width: 36,
               height: 36,
-              decoration: BoxDecoration(color: bg, borderRadius: PRadius.brSm),
+              decoration: BoxDecoration(color: bg, borderRadius: PRadius.tile(36)),
               alignment: Alignment.center,
               child: Icon(
                   lucideByName(
@@ -510,7 +506,7 @@ class _ResultRow extends StatelessWidget {
             ),
             const SizedBox(width: PSpace.x8),
             Text(
-              '${isExpense ? '-' : '+'}${krwMasked(expense.amount, masked)}',
+              krwSigned(expense.amount, masked, sign: isExpense ? '-' : '+'),
               style: PTypo.bodySm.copyWith(
                   color: isExpense
                       ? tokens.fgPrimary
