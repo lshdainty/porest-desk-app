@@ -20,7 +20,6 @@ import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_card.dart';
 import 'package:porest_desk_app/shared/widgets/p_divider.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
-import 'package:porest_desk_app/shared/widgets/p_progress.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
 import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/shared/widgets/p_toggle.dart';
@@ -679,10 +678,37 @@ class _RecentExpenses extends StatelessWidget {
   Widget build(BuildContext context) {
     final list = async.value ?? const <Expense>[];
     if (async.isLoading && list.isEmpty) {
+      // 서버 거래내역 로딩 중 — 실제 _ExpenseRow(아이콘 36 + 2줄 + 금액) 그대로 스켈레톤.
       return PCard(
-        padding: const EdgeInsets.symmetric(vertical: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
         variant: PCardVariant.bordered,
-        child: const Center(child: PCircularProgressIndicator()),
+        child: Column(
+          children: [
+            for (int i = 0; i < 4; i++)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                child: Row(
+                  children: [
+                    PSkeleton(width: 36, height: 36, borderRadius: PRadius.tile(36)),
+                    const SizedBox(width: 12),
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          PSkeleton.line(width: 120, height: 14),
+                          SizedBox(height: 4),
+                          PSkeleton.line(width: 80, height: 11),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    const PSkeleton.line(width: 56, height: 14),
+                  ],
+                ),
+              ),
+          ],
+        ),
       );
     }
     if (list.isEmpty) {
@@ -846,10 +872,28 @@ class _CardBillingSectionState extends ConsumerState<_CardBillingSection> {
     final masked = widget.masked;
     final async = ref.watch(cardBillingProvider(widget.asset.rowId));
     return async.when(
+      // 서버 청구정보 로딩 중 — 실제 청구 카드(결제예정 라벨/금액·결제버튼/결제일) 스켈레톤.
       loading: () => PCard(
         variant: PCardVariant.bordered,
-        padding: const EdgeInsets.symmetric(vertical: 24),
-        child: const Center(child: PCircularProgressIndicator(size: 24)),
+        padding: const EdgeInsets.all(PSpace.x16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: const [
+            Row(children: [
+              PSkeleton.line(width: 64, height: 14),
+              Spacer(),
+              PSkeleton.line(width: 40, height: 11),
+            ]),
+            SizedBox(height: 10),
+            Row(children: [
+              PSkeleton.line(width: 112, height: 22),
+              Spacer(),
+              PSkeleton(width: 88, height: 32, borderRadius: PRadius.brMd),
+            ]),
+            SizedBox(height: 8),
+            PSkeleton.line(width: 96, height: 11),
+          ],
+        ),
       ),
       error: (e, _) => PCard(
         variant: PCardVariant.bordered,

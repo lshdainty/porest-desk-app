@@ -8,6 +8,7 @@ import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/features/card/application/card_providers.dart';
+import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
 
 /// 카드(자산) 월 실적 진척 바 — front `CardPerformanceBar` 미러.
 ///
@@ -31,7 +32,33 @@ class CardPerformanceBar extends ConsumerWidget {
     final async = ref.watch(cardPerformanceProvider(
         (assetRowId: assetRowId, yearMonth: yearMonth)));
     return async.when(
-      loading: () => const SizedBox.shrink(),
+      // 서버 실적 로딩 중 — 실제 바 레이아웃(헤더/진행바/금액 행) 그대로 스켈레톤.
+      loading: () => Container(
+        padding: const EdgeInsets.all(PSpace.x12),
+        decoration: BoxDecoration(
+          color: t.bgSurface,
+          borderRadius: PRadius.brMd,
+          border: Border.all(color: t.borderSubtle),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: const [
+            Row(children: [
+              PSkeleton.line(width: 90, height: 12),
+              Spacer(),
+              PSkeleton.line(width: 28, height: 12),
+            ]),
+            SizedBox(height: 6),
+            PSkeleton(width: double.infinity, height: 8, borderRadius: PRadius.brXs),
+            SizedBox(height: 6),
+            Row(children: [
+              PSkeleton.line(width: 120, height: 12),
+              Spacer(),
+              PSkeleton.line(width: 64, height: 12),
+            ]),
+          ],
+        ),
+      ),
       error: (_, _) => const SizedBox.shrink(),
       data: (p) {
         if (!p.isRequired || p.requiredAmount == null) {
