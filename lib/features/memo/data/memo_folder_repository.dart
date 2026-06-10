@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 
-import '../../../core/network/api_exception.dart';
-import '../../../core/network/api_response.dart';
-import '../domain/memo_folder.dart';
+import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/core/network/api_response.dart';
+import 'package:porest_desk_app/features/memo/domain/memo_folder.dart';
 
 /// 메모 폴더 — front `memoFolderApi` 미러.
 class MemoFolderRepository {

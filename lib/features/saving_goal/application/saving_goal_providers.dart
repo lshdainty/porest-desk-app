@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/network/dio_provider.dart';
-import '../data/saving_goal_repository.dart';
-import '../domain/saving_goal.dart';
+import 'package:porest_desk_app/core/network/dio_provider.dart';
+import 'package:porest_desk_app/features/saving_goal/data/saving_goal_repository.dart';
+import 'package:porest_desk_app/features/saving_goal/domain/saving_goal.dart';
 
 final savingGoalRepositoryProvider =
     FutureProvider<SavingGoalRepository>((ref) async {

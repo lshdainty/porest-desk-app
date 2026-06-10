@@ -9,6 +9,13 @@
 # packages, and plugins designed to encourage good coding practices.
 include: package:flutter_lints/flutter.yaml
 
+analyzer:
+  # 생성 코드는 분석/룰 대상에서 제외 (build_runner·gen-l10n 재생성 시 상대경로로 돌아가도 무방).
+  exclude:
+    - "lib/**/*.g.dart"
+    - "lib/**/*.freezed.dart"
+    - "lib/l10n/generated/**"
+
 linter:
   # The lint rules applied to this project can be customized in the
   # section below to disable rules from the `package:flutter_lints/flutter.yaml`
@@ -21,6 +28,9 @@ linter:
   # `// ignore_for_file: name_of_lint` syntax on the line or in the file
   # producing the lint.
   rules:
+    # 내부(lib) import 는 package:porest_desk_app/ 절대경로 강제 — 상대경로 금지.
+    # (웹 desk-front 의 @/ alias 와 멘탈모델 정합, 파일 이동 시 import 안 깨짐)
+    always_use_package_imports: true
     # avoid_print: false  # Uncomment to disable the `avoid_print` rule
     # prefer_single_quotes: true  # Uncomment to enable the `prefer_single_quotes` rule
 

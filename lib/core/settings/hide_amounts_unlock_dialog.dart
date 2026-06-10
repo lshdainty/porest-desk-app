@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import '../../app/theme/spacing.dart';
-import '../../app/theme/tokens.dart';
-import '../../app/theme/typography.dart';
-import '../../shared/widgets/p_modal.dart';
-import '../auth/auth_notifier.dart';
-import '../network/api_exception.dart';
-import 'settings_notifier.dart';
+import 'package:porest_desk_app/app/theme/spacing.dart';
+import 'package:porest_desk_app/app/theme/tokens.dart';
+import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/shared/widgets/p_modal.dart';
+import 'package:porest_desk_app/core/auth/auth_notifier.dart';
+import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/core/settings/settings_notifier.dart';
 
 /// 금액 숨김 잠금해제 다이얼로그.
 ///

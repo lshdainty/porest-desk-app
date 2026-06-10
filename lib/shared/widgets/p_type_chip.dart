@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import '../../app/theme/radius.dart';
-import '../../app/theme/tokens.dart';
-import '../../app/theme/typography.dart';
+import 'package:porest_desk_app/app/theme/radius.dart';
+import 'package:porest_desk_app/app/theme/tokens.dart';
+import 'package:porest_desk_app/app/theme/typography.dart';
 
 /// 지출/수입/이체 같은 토글 chip — front FilterDialog 의 거래 종류 칸 미러.
 ///

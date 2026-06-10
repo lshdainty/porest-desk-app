@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/network/dio_provider.dart';
-import '../data/notification_repository.dart';
-import '../domain/notification.dart';
+import 'package:porest_desk_app/core/network/dio_provider.dart';
+import 'package:porest_desk_app/features/notification/data/notification_repository.dart';
+import 'package:porest_desk_app/features/notification/domain/notification.dart';
 
 final notificationRepositoryProvider = FutureProvider<NotificationRepository>((
   ref,

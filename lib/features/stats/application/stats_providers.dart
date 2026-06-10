@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/network/dio_provider.dart';
-import '../data/stats_repository.dart';
-import '../domain/stats_models.dart';
-import '../domain/stats_summaries.dart';
+import 'package:porest_desk_app/core/network/dio_provider.dart';
+import 'package:porest_desk_app/features/stats/data/stats_repository.dart';
+import 'package:porest_desk_app/features/stats/domain/stats_models.dart';
+import 'package:porest_desk_app/features/stats/domain/stats_summaries.dart';
 
 final statsRepositoryProvider = FutureProvider<StatsRepository>((ref) async {
   final dio = await ref.watch(dioProvider.future);

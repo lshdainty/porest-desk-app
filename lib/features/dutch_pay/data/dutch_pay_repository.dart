@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 
-import '../../../core/network/api_exception.dart';
-import '../../../core/network/api_response.dart';
-import '../domain/dutch_pay.dart';
+import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/core/network/api_response.dart';
+import 'package:porest_desk_app/features/dutch_pay/domain/dutch_pay.dart';
 
 class DutchPayRepository {
   DutchPayRepository(this._dio);

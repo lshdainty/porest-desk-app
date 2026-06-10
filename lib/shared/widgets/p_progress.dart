@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../app/theme/tokens.dart';
+import 'package:porest_desk_app/app/theme/tokens.dart';
 
 /// 표준 로딩 인디케이터 — `fgBrand` 토큰 사용.
 ///

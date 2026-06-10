@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/network/dio_provider.dart';
-import '../data/dashboard_repository.dart';
-import '../domain/dashboard_summary.dart';
+import 'package:porest_desk_app/core/network/dio_provider.dart';
+import 'package:porest_desk_app/features/dashboard/data/dashboard_repository.dart';
+import 'package:porest_desk_app/features/dashboard/domain/dashboard_summary.dart';
 
 final dashboardRepositoryProvider =
     FutureProvider<DashboardRepository>((ref) async {

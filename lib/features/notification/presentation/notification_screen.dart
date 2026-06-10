@@ -3,19 +3,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import '../../../app/theme/radius.dart';
-import '../../../app/theme/spacing.dart';
-import '../../../app/theme/tokens.dart';
-import '../../../app/theme/typography.dart';
-import '../../../core/network/api_exception.dart';
-import '../../../l10n/generated/app_localizations.dart';
-import '../../../shared/widgets/p_back_button.dart';
-import '../../../shared/widgets/p_button.dart';
-import '../../../shared/widgets/p_empty_state.dart';
-import '../application/notification_providers.dart';
-import '../domain/notification.dart';
-import '../../../shared/widgets/p_skeleton.dart';
-import '../../../shared/widgets/p_snack_bar.dart';
+import 'package:porest_desk_app/app/theme/radius.dart';
+import 'package:porest_desk_app/app/theme/spacing.dart';
+import 'package:porest_desk_app/app/theme/tokens.dart';
+import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
+import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
+import 'package:porest_desk_app/shared/widgets/p_button.dart';
+import 'package:porest_desk_app/shared/widgets/p_empty_state.dart';
+import 'package:porest_desk_app/features/notification/application/notification_providers.dart';
+import 'package:porest_desk_app/features/notification/domain/notification.dart';
+import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
+import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 
 class NotificationScreen extends ConsumerWidget {
   const NotificationScreen({super.key});

@@ -3,21 +3,21 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import '../../../app/theme/radius.dart';
-import '../../../app/theme/spacing.dart';
-import '../../../app/theme/tokens.dart';
-import '../../../app/theme/typography.dart';
-import '../../../core/auth/auth_notifier.dart';
-import '../../../core/format/krw.dart';
-import '../../../core/network/api_exception.dart';
-import '../../../shared/widgets/p_button.dart';
-import '../../../shared/widgets/p_date_input.dart';
-import '../../../shared/widgets/p_modal.dart';
-import '../../../shared/widgets/p_snack_bar.dart';
-import '../../../shared/widgets/p_text_input.dart';
-import '../../expense/domain/expense.dart' show Expense;
-import '../application/dutch_pay_providers.dart';
-import 'dutch_pay_screen.dart' show DutchAvatar;
+import 'package:porest_desk_app/app/theme/radius.dart';
+import 'package:porest_desk_app/app/theme/spacing.dart';
+import 'package:porest_desk_app/app/theme/tokens.dart';
+import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/core/auth/auth_notifier.dart';
+import 'package:porest_desk_app/core/format/krw.dart';
+import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/shared/widgets/p_button.dart';
+import 'package:porest_desk_app/shared/widgets/p_date_input.dart';
+import 'package:porest_desk_app/shared/widgets/p_modal.dart';
+import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
+import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
+import 'package:porest_desk_app/features/expense/domain/expense.dart' show Expense;
+import 'package:porest_desk_app/features/dutch_pay/application/dutch_pay_providers.dart';
+import 'package:porest_desk_app/features/dutch_pay/presentation/dutch_pay_screen.dart' show DutchAvatar;
 
 /// 더치페이 만들기 — 2단계 마법사 (web `DutchCreateDialog` 미러).
 ///

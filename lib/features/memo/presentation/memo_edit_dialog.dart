@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../app/theme/spacing.dart';
-import '../../../app/theme/tokens.dart';
-import '../../../app/theme/typography.dart';
-import '../../../core/network/api_exception.dart';
-import '../../../shared/widgets/p_color_picker.dart';
-import '../../../shared/widgets/p_modal.dart';
-import '../../../shared/widgets/p_section_label.dart';
-import '../../../shared/widgets/p_select.dart';
-import '../../../shared/widgets/p_snack_bar.dart';
-import '../../../shared/widgets/p_switch.dart';
-import '../../../shared/widgets/p_text_input.dart';
-import '../application/memo_providers.dart';
-import '../domain/memo.dart';
-import '../domain/memo_colors.dart';
+import 'package:porest_desk_app/app/theme/spacing.dart';
+import 'package:porest_desk_app/app/theme/tokens.dart';
+import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/shared/widgets/p_color_picker.dart';
+import 'package:porest_desk_app/shared/widgets/p_modal.dart';
+import 'package:porest_desk_app/shared/widgets/p_section_label.dart';
+import 'package:porest_desk_app/shared/widgets/p_select.dart';
+import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
+import 'package:porest_desk_app/shared/widgets/p_switch.dart';
+import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
+import 'package:porest_desk_app/features/memo/application/memo_providers.dart';
+import 'package:porest_desk_app/features/memo/domain/memo.dart';
+import 'package:porest_desk_app/features/memo/domain/memo_colors.dart';
 
 /// 태그 select 옵션 7종 고정 (web `MemoEditDialog` select 미러). 기본값 '개인'.
 const kMemoTags = <String>['가계부', '자산', '업무', '개인', '건강', '결제', '고정비'];

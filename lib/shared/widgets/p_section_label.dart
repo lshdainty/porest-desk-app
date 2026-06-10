@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../app/theme/spacing.dart';
-import '../../app/theme/tokens.dart';
-import '../../app/theme/typography.dart';
+import 'package:porest_desk_app/app/theme/spacing.dart';
+import 'package:porest_desk_app/app/theme/tokens.dart';
+import 'package:porest_desk_app/app/theme/typography.dart';
 
 /// 폼·섹션 위의 작은 텍스트 라벨. 9+ private `_Label`/`_SectionLabel` 변종에서
 /// 추출. 시각 위계는 [PSectionLabelVariant] 로 분기.

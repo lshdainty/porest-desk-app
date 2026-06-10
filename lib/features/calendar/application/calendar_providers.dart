@@ -1,16 +1,16 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/network/dio_provider.dart';
-import '../data/calendar_repository.dart';
-import '../data/event_comment_repository.dart';
-import '../data/holiday_repository.dart';
-import '../data/user_calendar_repository.dart';
-import '../domain/calendar_aggregate.dart';
-import '../domain/calendar_event.dart';
-import '../domain/event_comment.dart';
-import '../domain/event_label.dart';
-import '../domain/holiday.dart';
-import '../domain/user_calendar.dart';
+import 'package:porest_desk_app/core/network/dio_provider.dart';
+import 'package:porest_desk_app/features/calendar/data/calendar_repository.dart';
+import 'package:porest_desk_app/features/calendar/data/event_comment_repository.dart';
+import 'package:porest_desk_app/features/calendar/data/holiday_repository.dart';
+import 'package:porest_desk_app/features/calendar/data/user_calendar_repository.dart';
+import 'package:porest_desk_app/features/calendar/domain/calendar_aggregate.dart';
+import 'package:porest_desk_app/features/calendar/domain/calendar_event.dart';
+import 'package:porest_desk_app/features/calendar/domain/event_comment.dart';
+import 'package:porest_desk_app/features/calendar/domain/event_label.dart';
+import 'package:porest_desk_app/features/calendar/domain/holiday.dart';
+import 'package:porest_desk_app/features/calendar/domain/user_calendar.dart';
 
 final calendarRepositoryProvider =
     FutureProvider<CalendarRepository>((ref) async {

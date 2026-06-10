@@ -3,23 +3,23 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import '../../../app/theme/radius.dart';
-import '../../../app/theme/spacing.dart';
-import '../../../app/theme/tokens.dart';
-import '../../../app/theme/typography.dart';
-import '../../../core/format/chart_palette.dart';
-import '../../../core/format/krw.dart';
-import '../../../core/network/api_exception.dart';
-import '../../../core/settings/settings_notifier.dart';
-import '../../../shared/widgets/p_back_button.dart';
-import '../../../shared/widgets/p_card.dart';
-import '../../../shared/widgets/p_floating_action_button.dart';
-import '../../../shared/widgets/p_skeleton.dart';
-import '../../../shared/widgets/p_snack_bar.dart';
-import '../application/dutch_pay_providers.dart';
-import '../domain/dutch_pay.dart';
-import 'dutch_pay_create_dialog.dart';
-import 'dutch_pay_detail_sheet.dart';
+import 'package:porest_desk_app/app/theme/radius.dart';
+import 'package:porest_desk_app/app/theme/spacing.dart';
+import 'package:porest_desk_app/app/theme/tokens.dart';
+import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/core/format/chart_palette.dart';
+import 'package:porest_desk_app/core/format/krw.dart';
+import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/core/settings/settings_notifier.dart';
+import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
+import 'package:porest_desk_app/shared/widgets/p_card.dart';
+import 'package:porest_desk_app/shared/widgets/p_floating_action_button.dart';
+import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
+import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
+import 'package:porest_desk_app/features/dutch_pay/application/dutch_pay_providers.dart';
+import 'package:porest_desk_app/features/dutch_pay/domain/dutch_pay.dart';
+import 'package:porest_desk_app/features/dutch_pay/presentation/dutch_pay_create_dialog.dart';
+import 'package:porest_desk_app/features/dutch_pay/presentation/dutch_pay_detail_sheet.dart';
 
 /// 더치페이 — 토스 톤 요약 2카드 + 진행/완료/친구 탭 (web `DutchScreen` mobile 미러).
 ///

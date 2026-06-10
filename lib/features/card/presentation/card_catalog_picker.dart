@@ -4,18 +4,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import '../../../app/theme/radius.dart';
-import '../../../app/theme/spacing.dart';
-import '../../../app/theme/tokens.dart';
-import '../../../app/theme/typography.dart';
-import '../../../shared/widgets/p_badge.dart';
-import '../../../shared/widgets/p_chip.dart';
-import '../../../shared/widgets/p_divider.dart';
-import '../../../shared/widgets/p_modal.dart';
-import '../../../shared/widgets/p_progress.dart';
-import '../../../shared/widgets/p_search_field.dart';
-import '../application/card_providers.dart';
-import '../domain/card_catalog.dart';
+import 'package:porest_desk_app/app/theme/radius.dart';
+import 'package:porest_desk_app/app/theme/spacing.dart';
+import 'package:porest_desk_app/app/theme/tokens.dart';
+import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/shared/widgets/p_badge.dart';
+import 'package:porest_desk_app/shared/widgets/p_chip.dart';
+import 'package:porest_desk_app/shared/widgets/p_divider.dart';
+import 'package:porest_desk_app/shared/widgets/p_modal.dart';
+import 'package:porest_desk_app/shared/widgets/p_progress.dart';
+import 'package:porest_desk_app/shared/widgets/p_search_field.dart';
+import 'package:porest_desk_app/features/card/application/card_providers.dart';
+import 'package:porest_desk_app/features/card/domain/card_catalog.dart';
 
 /// 카드 카탈로그 검색 picker — front `CardCatalogCombobox` 미러.
 ///

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../app/theme/density.dart';
-import '../storage/prefs_provider.dart';
-import 'user_locale.dart';
+import 'package:porest_desk_app/app/theme/density.dart';
+import 'package:porest_desk_app/core/storage/prefs_provider.dart';
+import 'package:porest_desk_app/core/settings/user_locale.dart';
 
 /// 사용자 표시 설정 모음.
 class AppSettings {

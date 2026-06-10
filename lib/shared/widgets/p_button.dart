@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../../app/theme/radius.dart';
-import '../../app/theme/spacing.dart';
-import '../../app/theme/tokens.dart';
-import '../../app/theme/typography.dart';
-import 'p_tooltip.dart';
+import 'package:porest_desk_app/app/theme/radius.dart';
+import 'package:porest_desk_app/app/theme/spacing.dart';
+import 'package:porest_desk_app/app/theme/tokens.dart';
+import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/shared/widgets/p_tooltip.dart';
 
 /// front `<Button>` (shadcn) 미러 — variant 별 일관 스타일.
 ///

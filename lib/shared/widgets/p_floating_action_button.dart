@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../app/theme/tokens.dart';
+import 'package:porest_desk_app/app/theme/tokens.dart';
 
 /// 단일 primary FAB — brand 색 채움 + onBrand 아이콘.
 ///

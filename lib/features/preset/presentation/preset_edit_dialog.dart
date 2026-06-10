@@ -2,26 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../app/theme/radius.dart';
-import '../../../app/theme/spacing.dart';
-import '../../../app/theme/tokens.dart';
-import '../../../app/theme/typography.dart';
-import '../../../core/format/chart_palette.dart';
-import '../../../core/network/api_exception.dart';
-import '../../../shared/icons/lucide_icon_map.dart';
-import '../../../shared/widgets/p_category_tile.dart';
-import '../../../shared/widgets/p_checkbox.dart';
-import '../../../shared/widgets/p_modal.dart';
-import '../../../shared/widgets/p_select.dart';
-import '../../../shared/widgets/p_skeleton.dart';
-import '../../../shared/widgets/p_snack_bar.dart';
-import '../../../shared/widgets/p_text_input.dart';
-import '../../../shared/widgets/p_toggle.dart';
-import '../../asset/application/asset_providers.dart';
-import '../../expense/application/expense_providers.dart';
-import '../../expense/domain/expense_category.dart';
-import '../application/preset_providers.dart';
-import '../domain/expense_template.dart';
+import 'package:porest_desk_app/app/theme/radius.dart';
+import 'package:porest_desk_app/app/theme/spacing.dart';
+import 'package:porest_desk_app/app/theme/tokens.dart';
+import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/core/format/chart_palette.dart';
+import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
+import 'package:porest_desk_app/shared/widgets/p_category_tile.dart';
+import 'package:porest_desk_app/shared/widgets/p_checkbox.dart';
+import 'package:porest_desk_app/shared/widgets/p_modal.dart';
+import 'package:porest_desk_app/shared/widgets/p_select.dart';
+import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
+import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
+import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
+import 'package:porest_desk_app/shared/widgets/p_toggle.dart';
+import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
+import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
+import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
+import 'package:porest_desk_app/features/preset/application/preset_providers.dart';
+import 'package:porest_desk_app/features/preset/domain/expense_template.dart';
 
 /// 웹 `PresetEditDialog` 미러 — 결제 수단 목록.
 const _kPaymentMethods = <(String, String)>[

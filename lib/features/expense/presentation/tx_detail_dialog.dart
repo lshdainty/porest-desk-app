@@ -2,26 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import '../../../app/theme/radius.dart';
-import '../../../app/theme/spacing.dart';
-import '../../../app/theme/tokens.dart';
-import '../../../app/theme/typography.dart';
-import '../../../core/format/color_parse.dart';
-import '../../../core/format/krw.dart';
-import '../../../core/network/api_exception.dart';
-import '../../../core/settings/settings_notifier.dart';
-import '../../../shared/icons/lucide_icon_map.dart';
-import '../../../shared/widgets/p_button.dart';
-import '../../../shared/widgets/p_modal.dart';
-import '../../asset/application/asset_providers.dart';
-import '../../dutch_pay/presentation/dutch_pay_from_tx_dialog.dart';
-import '../../expense_split/presentation/split_tx_dialog.dart';
-import '../../recurring/presentation/recurring_settings_drawer.dart';
-import '../application/expense_providers.dart';
-import '../domain/expense.dart';
-import 'add_tx_sheet.dart';
-import 'widgets/expense_row.dart';
-import '../../../shared/widgets/p_snack_bar.dart';
+import 'package:porest_desk_app/app/theme/radius.dart';
+import 'package:porest_desk_app/app/theme/spacing.dart';
+import 'package:porest_desk_app/app/theme/tokens.dart';
+import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/core/format/color_parse.dart';
+import 'package:porest_desk_app/core/format/krw.dart';
+import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/core/settings/settings_notifier.dart';
+import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
+import 'package:porest_desk_app/shared/widgets/p_button.dart';
+import 'package:porest_desk_app/shared/widgets/p_modal.dart';
+import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
+import 'package:porest_desk_app/features/dutch_pay/presentation/dutch_pay_from_tx_dialog.dart';
+import 'package:porest_desk_app/features/expense_split/presentation/split_tx_dialog.dart';
+import 'package:porest_desk_app/features/recurring/presentation/recurring_settings_drawer.dart';
+import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
+import 'package:porest_desk_app/features/expense/domain/expense.dart';
+import 'package:porest_desk_app/features/expense/presentation/add_tx_sheet.dart';
+import 'package:porest_desk_app/features/expense/presentation/widgets/expense_row.dart';
+import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 
 /// 거래 상세 다이얼로그 — front `TxDetailDialog` 미러.
 ///

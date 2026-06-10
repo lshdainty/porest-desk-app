@@ -5,21 +5,21 @@ import 'package:intl/intl.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-import '../../../app/theme/radius.dart';
-import '../../../app/theme/spacing.dart';
-import '../../../app/theme/tokens.dart';
-import '../../../app/theme/typography.dart';
-import '../../../core/format/chart_palette.dart';
-import '../../../shared/widgets/p_button.dart';
-import '../../../shared/widgets/p_divider.dart';
-import '../../../shared/widgets/p_modal.dart';
-import '../../../shared/widgets/p_skeleton.dart';
-import '../../../shared/widgets/p_snack_bar.dart';
-import '../application/calendar_providers.dart';
-import '../domain/calendar_event.dart';
-import '../domain/holiday.dart';
-import '../domain/user_calendar.dart';
-import 'calendar_event_dialog.dart';
+import 'package:porest_desk_app/app/theme/radius.dart';
+import 'package:porest_desk_app/app/theme/spacing.dart';
+import 'package:porest_desk_app/app/theme/tokens.dart';
+import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/core/format/chart_palette.dart';
+import 'package:porest_desk_app/shared/widgets/p_button.dart';
+import 'package:porest_desk_app/shared/widgets/p_divider.dart';
+import 'package:porest_desk_app/shared/widgets/p_modal.dart';
+import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
+import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
+import 'package:porest_desk_app/features/calendar/application/calendar_providers.dart';
+import 'package:porest_desk_app/features/calendar/domain/calendar_event.dart';
+import 'package:porest_desk_app/features/calendar/domain/holiday.dart';
+import 'package:porest_desk_app/features/calendar/domain/user_calendar.dart';
+import 'package:porest_desk_app/features/calendar/presentation/calendar_event_dialog.dart';
 
 class CalendarScreen extends ConsumerStatefulWidget {
   const CalendarScreen({super.key});

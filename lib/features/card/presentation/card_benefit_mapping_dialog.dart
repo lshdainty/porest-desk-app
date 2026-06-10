@@ -2,22 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import '../../../app/theme/radius.dart';
-import '../../../app/theme/spacing.dart';
-import '../../../app/theme/tokens.dart';
-import '../../../app/theme/typography.dart';
-import '../../../core/network/api_exception.dart';
-import '../../../shared/widgets/p_badge.dart';
-import '../../../shared/widgets/p_button.dart';
-import '../../../shared/widgets/p_divider.dart';
-import '../../../shared/widgets/p_modal.dart';
-import '../../../shared/widgets/p_progress.dart';
-import '../../../shared/widgets/p_select.dart';
-import '../../../shared/widgets/p_snack_bar.dart';
-import '../../../shared/widgets/p_text_input.dart';
-import '../../expense/application/expense_providers.dart';
-import '../application/card_providers.dart';
-import '../domain/card_benefit_mapping.dart';
+import 'package:porest_desk_app/app/theme/radius.dart';
+import 'package:porest_desk_app/app/theme/spacing.dart';
+import 'package:porest_desk_app/app/theme/tokens.dart';
+import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/shared/widgets/p_badge.dart';
+import 'package:porest_desk_app/shared/widgets/p_button.dart';
+import 'package:porest_desk_app/shared/widgets/p_divider.dart';
+import 'package:porest_desk_app/shared/widgets/p_modal.dart';
+import 'package:porest_desk_app/shared/widgets/p_progress.dart';
+import 'package:porest_desk_app/shared/widgets/p_select.dart';
+import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
+import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
+import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
+import 'package:porest_desk_app/features/card/application/card_providers.dart';
+import 'package:porest_desk_app/features/card/domain/card_benefit_mapping.dart';
 
 /// 카드 혜택 ↔ 가계부 카테고리 매핑 관리 — front `CardSettingsPage` 핵심 패널 미러.
 void showCardBenefitMappingDialog(BuildContext context) {

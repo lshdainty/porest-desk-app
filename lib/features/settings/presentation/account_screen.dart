@@ -3,18 +3,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import '../../../app/theme/radius.dart';
-import '../../../app/theme/spacing.dart';
-import '../../../app/theme/tokens.dart';
-import '../../../app/theme/typography.dart';
-import '../../../core/auth/auth_notifier.dart';
-import '../../../shared/widgets/p_back_button.dart';
-import '../../../shared/widgets/p_button.dart';
-import '../../../shared/widgets/p_card.dart';
-import '../../../shared/widgets/p_divider.dart';
-import '../../../shared/widgets/p_snack_bar.dart';
-import '../../../shared/widgets/p_switch.dart';
-import 'password_change_dialog.dart';
+import 'package:porest_desk_app/app/theme/radius.dart';
+import 'package:porest_desk_app/app/theme/spacing.dart';
+import 'package:porest_desk_app/app/theme/tokens.dart';
+import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/core/auth/auth_notifier.dart';
+import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
+import 'package:porest_desk_app/shared/widgets/p_button.dart';
+import 'package:porest_desk_app/shared/widgets/p_card.dart';
+import 'package:porest_desk_app/shared/widgets/p_divider.dart';
+import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
+import 'package:porest_desk_app/shared/widgets/p_switch.dart';
+import 'package:porest_desk_app/features/settings/presentation/password_change_dialog.dart';
 
 /// 계정 상세 화면 — web AccountSection 1:1 미러.
 ///

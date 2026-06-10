@@ -3,22 +3,22 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import '../../../app/theme/radius.dart';
-import '../../../app/theme/spacing.dart';
-import '../../../app/theme/tokens.dart';
-import '../../../app/theme/typography.dart';
-import '../../../core/network/api_exception.dart';
-import '../../../shared/widgets/p_back_button.dart';
-import '../../../shared/widgets/p_button.dart';
-import '../../../shared/widgets/p_chip.dart';
-import '../../../shared/widgets/p_empty_state.dart';
-import '../../../shared/widgets/p_search_field.dart';
-import '../../../shared/widgets/p_skeleton.dart';
-import '../../../shared/widgets/p_snack_bar.dart';
-import '../application/memo_providers.dart';
-import '../domain/memo.dart';
-import '../domain/memo_colors.dart';
-import 'memo_edit_dialog.dart';
+import 'package:porest_desk_app/app/theme/radius.dart';
+import 'package:porest_desk_app/app/theme/spacing.dart';
+import 'package:porest_desk_app/app/theme/tokens.dart';
+import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
+import 'package:porest_desk_app/shared/widgets/p_button.dart';
+import 'package:porest_desk_app/shared/widgets/p_chip.dart';
+import 'package:porest_desk_app/shared/widgets/p_empty_state.dart';
+import 'package:porest_desk_app/shared/widgets/p_search_field.dart';
+import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
+import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
+import 'package:porest_desk_app/features/memo/application/memo_providers.dart';
+import 'package:porest_desk_app/features/memo/domain/memo.dart';
+import 'package:porest_desk_app/features/memo/domain/memo_colors.dart';
+import 'package:porest_desk_app/features/memo/presentation/memo_edit_dialog.dart';
 
 /// 메모 — 토스 톤 색틴트 카드 그리드 (web `MemoScreen` mobile 미러).
 ///

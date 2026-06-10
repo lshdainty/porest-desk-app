@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import '../../app/theme/radius.dart';
-import '../../app/theme/tokens.dart';
-import '../../app/theme/typography.dart';
+import 'package:porest_desk_app/app/theme/radius.dart';
+import 'package:porest_desk_app/app/theme/tokens.dart';
+import 'package:porest_desk_app/app/theme/typography.dart';
 
 /// 빠른 액션 SpeedDial — 메인 FAB 탭 시 자식 액션이 펼쳐지는 패턴.
 ///

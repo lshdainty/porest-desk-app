@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-import 'colors.dart';
-import 'radius.dart';
-import 'spacing.dart';
-import 'tokens.dart';
-import 'typography.dart';
+import 'package:porest_desk_app/app/theme/colors.dart';
+import 'package:porest_desk_app/app/theme/radius.dart';
+import 'package:porest_desk_app/app/theme/spacing.dart';
+import 'package:porest_desk_app/app/theme/tokens.dart';
+import 'package:porest_desk_app/app/theme/typography.dart';
 
 /// POREST Desk 모바일 앱의 light/dark ThemeData 빌더.
 ///

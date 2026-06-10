@@ -2,24 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import '../../../app/theme/radius.dart';
-import '../../../app/theme/spacing.dart';
-import '../../../app/theme/tokens.dart';
-import '../../../app/theme/typography.dart';
-import '../../../core/format/chart_palette.dart';
-import '../../../core/network/api_exception.dart';
-import '../../../shared/widgets/p_color_picker.dart';
-import '../../../shared/widgets/p_date_input.dart';
-import '../../../shared/widgets/p_modal.dart';
-import '../../../shared/widgets/p_progress.dart';
-import '../../../shared/widgets/p_select.dart';
-import '../../../shared/widgets/p_section_label.dart';
-import '../../../shared/widgets/p_snack_bar.dart';
-import '../../../shared/widgets/p_switch.dart';
-import '../../../shared/widgets/p_text_input.dart';
-import '../application/calendar_providers.dart';
-import '../domain/calendar_event.dart';
-import '../domain/user_calendar.dart';
+import 'package:porest_desk_app/app/theme/radius.dart';
+import 'package:porest_desk_app/app/theme/spacing.dart';
+import 'package:porest_desk_app/app/theme/tokens.dart';
+import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/core/format/chart_palette.dart';
+import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/shared/widgets/p_color_picker.dart';
+import 'package:porest_desk_app/shared/widgets/p_date_input.dart';
+import 'package:porest_desk_app/shared/widgets/p_modal.dart';
+import 'package:porest_desk_app/shared/widgets/p_progress.dart';
+import 'package:porest_desk_app/shared/widgets/p_select.dart';
+import 'package:porest_desk_app/shared/widgets/p_section_label.dart';
+import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
+import 'package:porest_desk_app/shared/widgets/p_switch.dart';
+import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
+import 'package:porest_desk_app/features/calendar/application/calendar_providers.dart';
+import 'package:porest_desk_app/features/calendar/domain/calendar_event.dart';
+import 'package:porest_desk_app/features/calendar/domain/user_calendar.dart';
 
 void showCalendarEventDialog(
   BuildContext context, {

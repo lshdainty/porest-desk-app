@@ -1,12 +1,12 @@
 import 'package:dio/dio.dart';
 
-import '../../../core/network/api_exception.dart';
-import '../../../core/network/api_response.dart';
-import '../domain/asset.dart';
-import '../domain/asset_summary.dart';
-import '../domain/asset_transfer.dart';
-import '../domain/card_billing.dart';
-import '../domain/net_worth_point.dart';
+import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/core/network/api_response.dart';
+import 'package:porest_desk_app/features/asset/domain/asset.dart';
+import 'package:porest_desk_app/features/asset/domain/asset_summary.dart';
+import 'package:porest_desk_app/features/asset/domain/asset_transfer.dart';
+import 'package:porest_desk_app/features/asset/domain/card_billing.dart';
+import 'package:porest_desk_app/features/asset/domain/net_worth_point.dart';
 
 class AssetRepository {
   AssetRepository(this._dio);

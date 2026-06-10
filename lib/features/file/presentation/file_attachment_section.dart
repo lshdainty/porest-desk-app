@@ -4,16 +4,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import '../../../app/theme/radius.dart';
-import '../../../app/theme/tokens.dart';
-import '../../../app/theme/typography.dart';
-import '../../../core/network/api_exception.dart';
-import '../../../shared/widgets/p_button.dart';
-import '../../../shared/widgets/p_modal.dart';
-import '../application/file_providers.dart';
-import '../domain/file_attachment.dart';
-import '../../../shared/widgets/p_progress.dart';
-import '../../../shared/widgets/p_snack_bar.dart';
+import 'package:porest_desk_app/app/theme/radius.dart';
+import 'package:porest_desk_app/app/theme/tokens.dart';
+import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/shared/widgets/p_button.dart';
+import 'package:porest_desk_app/shared/widgets/p_modal.dart';
+import 'package:porest_desk_app/features/file/application/file_providers.dart';
+import 'package:porest_desk_app/features/file/domain/file_attachment.dart';
+import 'package:porest_desk_app/shared/widgets/p_progress.dart';
+import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 
 /// 첨부 파일 섹션 — 거래/할일/메모/이벤트 상세에 embed.
 ///

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../app/theme/tokens.dart';
-import '../../../core/format/chart_palette.dart';
+import 'package:porest_desk_app/app/theme/tokens.dart';
+import 'package:porest_desk_app/core/format/chart_palette.dart';
 
 /// 메모 카드 색 슬롯 — chart palette base hex 기반.
 ///

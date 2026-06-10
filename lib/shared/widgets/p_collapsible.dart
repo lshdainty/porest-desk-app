@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../app/theme/motion.dart';
+import 'package:porest_desk_app/app/theme/motion.dart';
 
 /// specs/components/collapsible.md 미러.
 ///

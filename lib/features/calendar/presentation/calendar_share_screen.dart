@@ -3,26 +3,26 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import '../../../app/theme/radius.dart';
-import '../../../app/theme/spacing.dart';
-import '../../../app/theme/tokens.dart';
-import '../../../app/theme/typography.dart';
-import '../../../core/auth/auth_notifier.dart';
-import '../../../core/format/chart_palette.dart';
-import '../../../core/network/api_exception.dart';
-import '../../../shared/widgets/p_back_button.dart';
-import '../../../shared/widgets/p_badge.dart';
-import '../../../shared/widgets/p_button.dart';
-import '../../../shared/widgets/p_card.dart';
-import '../../../shared/widgets/p_color_picker.dart';
-import '../../../shared/widgets/p_divider.dart';
-import '../../../shared/widgets/p_dropdown_menu.dart';
-import '../../../shared/widgets/p_modal.dart';
-import '../../../shared/widgets/p_skeleton.dart';
-import '../../../shared/widgets/p_snack_bar.dart';
-import '../../../shared/widgets/p_text_input.dart';
-import '../application/calendar_providers.dart';
-import '../domain/user_calendar.dart';
+import 'package:porest_desk_app/app/theme/radius.dart';
+import 'package:porest_desk_app/app/theme/spacing.dart';
+import 'package:porest_desk_app/app/theme/tokens.dart';
+import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/core/auth/auth_notifier.dart';
+import 'package:porest_desk_app/core/format/chart_palette.dart';
+import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
+import 'package:porest_desk_app/shared/widgets/p_badge.dart';
+import 'package:porest_desk_app/shared/widgets/p_button.dart';
+import 'package:porest_desk_app/shared/widgets/p_card.dart';
+import 'package:porest_desk_app/shared/widgets/p_color_picker.dart';
+import 'package:porest_desk_app/shared/widgets/p_divider.dart';
+import 'package:porest_desk_app/shared/widgets/p_dropdown_menu.dart';
+import 'package:porest_desk_app/shared/widgets/p_modal.dart';
+import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
+import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
+import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
+import 'package:porest_desk_app/features/calendar/application/calendar_providers.dart';
+import 'package:porest_desk_app/features/calendar/domain/user_calendar.dart';
 
 /// 설정 진입 — 캘린더 관리·공유 (user_calendar 기반).
 ///

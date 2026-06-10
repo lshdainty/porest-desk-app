@@ -1,9 +1,9 @@
 import 'package:dio/dio.dart';
 
-import '../../../core/network/api_exception.dart';
-import '../../../core/network/api_response.dart';
-import '../domain/todo.dart';
-import '../domain/todo_stats.dart';
+import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/core/network/api_response.dart';
+import 'package:porest_desk_app/features/todo/domain/todo.dart';
+import 'package:porest_desk_app/features/todo/domain/todo_stats.dart';
 
 class TodoRepository {
   TodoRepository(this._dio);

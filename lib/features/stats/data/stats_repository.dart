@@ -1,9 +1,9 @@
 import 'package:dio/dio.dart';
 
-import '../../../core/network/api_exception.dart';
-import '../../../core/network/api_response.dart';
-import '../domain/stats_models.dart';
-import '../domain/stats_summaries.dart';
+import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/core/network/api_response.dart';
+import 'package:porest_desk_app/features/stats/domain/stats_models.dart';
+import 'package:porest_desk_app/features/stats/domain/stats_summaries.dart';
 
 class StatsRepository {
   StatsRepository(this._dio);

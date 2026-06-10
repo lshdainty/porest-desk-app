@@ -5,12 +5,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logger/logger.dart';
 
-import '../../app/env.dart';
-import '../auth/auth_notifier.dart';
-import 'interceptors/auth_interceptor.dart';
-import 'interceptors/lang_interceptor.dart';
-import 'interceptors/log_interceptor.dart';
-import 'secure_cookie_storage.dart';
+import 'package:porest_desk_app/app/env.dart';
+import 'package:porest_desk_app/core/auth/auth_notifier.dart';
+import 'package:porest_desk_app/core/network/interceptors/auth_interceptor.dart';
+import 'package:porest_desk_app/core/network/interceptors/lang_interceptor.dart';
+import 'package:porest_desk_app/core/network/interceptors/log_interceptor.dart';
+import 'package:porest_desk_app/core/network/secure_cookie_storage.dart';
 
 /// 영속 cookie_jar (`desk_access_token` 보존) — OS 보안 저장소(Keystore/Keychain)에
 /// 암호화 저장(SecureCookieStorage). 단일 인스턴스를 dio 와 로그아웃 헬퍼가 공유.

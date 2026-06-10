@@ -5,20 +5,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import '../../../app/theme/radius.dart';
-import '../../../app/theme/spacing.dart';
-import '../../../app/theme/tokens.dart';
-import '../../../app/theme/typography.dart';
-import '../../../core/format/krw.dart';
-import '../../../shared/widgets/p_back_button.dart';
-import '../../../shared/widgets/p_button.dart';
-import '../../../shared/widgets/p_chip.dart';
-import '../../../shared/widgets/p_empty_state.dart';
-import '../../../shared/widgets/p_search_field.dart';
-import '../../../shared/widgets/p_skeleton.dart';
-import '../application/card_providers.dart';
-import '../domain/card_catalog.dart';
-import 'card_benefit_mapping_dialog.dart';
+import 'package:porest_desk_app/app/theme/radius.dart';
+import 'package:porest_desk_app/app/theme/spacing.dart';
+import 'package:porest_desk_app/app/theme/tokens.dart';
+import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/core/format/krw.dart';
+import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
+import 'package:porest_desk_app/shared/widgets/p_button.dart';
+import 'package:porest_desk_app/shared/widgets/p_chip.dart';
+import 'package:porest_desk_app/shared/widgets/p_empty_state.dart';
+import 'package:porest_desk_app/shared/widgets/p_search_field.dart';
+import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
+import 'package:porest_desk_app/features/card/application/card_providers.dart';
+import 'package:porest_desk_app/features/card/domain/card_catalog.dart';
+import 'package:porest_desk_app/features/card/presentation/card_benefit_mapping_dialog.dart';
 
 class CardScreen extends ConsumerStatefulWidget {
   const CardScreen({super.key});

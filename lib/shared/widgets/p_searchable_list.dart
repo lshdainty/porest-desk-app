@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../../app/theme/radius.dart';
-import '../../app/theme/tokens.dart';
-import '../../app/theme/typography.dart';
-import 'p_search_field.dart';
-import 'p_skeleton.dart';
+import 'package:porest_desk_app/app/theme/radius.dart';
+import 'package:porest_desk_app/app/theme/tokens.dart';
+import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/shared/widgets/p_search_field.dart';
+import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
 
 /// specs/components/searchable-list.md 미러.
 ///

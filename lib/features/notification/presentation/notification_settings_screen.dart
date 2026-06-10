@@ -3,23 +3,23 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import '../../../app/theme/radius.dart';
-import '../../../app/theme/spacing.dart';
-import '../../../app/theme/tokens.dart';
-import '../../../app/theme/typography.dart';
-import '../../../core/auth/auth_notifier.dart';
-import '../../../shared/widgets/p_back_button.dart';
-import '../../../shared/widgets/p_card.dart';
-import '../../../shared/widgets/p_divider.dart';
-import '../../../shared/widgets/p_section_label.dart';
-import '../../../shared/widgets/p_segmented.dart';
-import '../../../shared/widgets/p_select.dart';
-import '../../../shared/widgets/p_skeleton.dart';
-import '../../../shared/widgets/p_slider.dart';
-import '../../../shared/widgets/p_switch.dart';
-import '../../../shared/widgets/p_text_input.dart';
-import '../application/user_preferences_providers.dart';
-import '../data/user_preferences_repository.dart';
+import 'package:porest_desk_app/app/theme/radius.dart';
+import 'package:porest_desk_app/app/theme/spacing.dart';
+import 'package:porest_desk_app/app/theme/tokens.dart';
+import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/core/auth/auth_notifier.dart';
+import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
+import 'package:porest_desk_app/shared/widgets/p_card.dart';
+import 'package:porest_desk_app/shared/widgets/p_divider.dart';
+import 'package:porest_desk_app/shared/widgets/p_section_label.dart';
+import 'package:porest_desk_app/shared/widgets/p_segmented.dart';
+import 'package:porest_desk_app/shared/widgets/p_select.dart';
+import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
+import 'package:porest_desk_app/shared/widgets/p_slider.dart';
+import 'package:porest_desk_app/shared/widgets/p_switch.dart';
+import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
+import 'package:porest_desk_app/features/notification/application/user_preferences_providers.dart';
+import 'package:porest_desk_app/features/notification/data/user_preferences_repository.dart';
 
 /// 알림 "설정" 화면 — 6개 섹션 (푸시 마스터 / 알림 종류 / 예산 임계값 /
 /// 방해 금지 / 소리·진동 / 이메일). 각 컨트롤 변경 시 즉시 부분 PATCH(낙관적).

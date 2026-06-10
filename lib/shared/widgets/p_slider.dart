@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../app/theme/tokens.dart';
+import 'package:porest_desk_app/app/theme/tokens.dart';
 
 /// specs/components/slider.md 미러.
 ///

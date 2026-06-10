@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'colors.dart';
+import 'package:porest_desk_app/app/theme/colors.dart';
 
 /// 카테고리 fallback 차트 팔레트 10색 — desk-front `CATEGORY_PALETTE` 정확 미러.
 ///

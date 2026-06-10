@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 
-import '../../../core/network/api_exception.dart';
-import '../../../core/network/api_response.dart';
-import '../domain/holiday.dart';
+import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/core/network/api_response.dart';
+import 'package:porest_desk_app/features/calendar/domain/holiday.dart';
 
 /// 공휴일/사용자 정의 휴일 — front `holidayApi` 미러.
 class HolidayRepository {

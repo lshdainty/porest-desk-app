@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../network/api_exception.dart';
-import '../network/dio_provider.dart';
-import 'auth_repository.dart';
-import 'user.dart';
+import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/core/network/dio_provider.dart';
+import 'package:porest_desk_app/core/auth/auth_repository.dart';
+import 'package:porest_desk_app/core/auth/user.dart';
 
 final authRepositoryProvider = FutureProvider<AuthRepository>((ref) async {
   final dio = await ref.watch(dioProvider.future);

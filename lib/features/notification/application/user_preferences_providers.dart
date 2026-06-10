@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/network/dio_provider.dart';
-import '../data/user_preferences_repository.dart';
+import 'package:porest_desk_app/core/network/dio_provider.dart';
+import 'package:porest_desk_app/features/notification/data/user_preferences_repository.dart';
 
 final userPreferencesRepositoryProvider =
     FutureProvider<UserPreferencesRepository>((ref) async {

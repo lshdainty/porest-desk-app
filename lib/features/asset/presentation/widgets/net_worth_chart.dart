@@ -2,15 +2,15 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../app/theme/radius.dart';
-import '../../../../app/theme/tokens.dart';
-import '../../../../app/theme/typography.dart';
-import '../../../../core/format/chart_axis.dart';
-import '../../../../core/format/krw.dart';
-import '../../../../core/settings/settings_notifier.dart';
-import '../../../../shared/widgets/p_chart_tooltip.dart';
-import '../../../../shared/widgets/p_skeleton.dart';
-import '../../application/asset_providers.dart';
+import 'package:porest_desk_app/app/theme/radius.dart';
+import 'package:porest_desk_app/app/theme/tokens.dart';
+import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/core/format/chart_axis.dart';
+import 'package:porest_desk_app/core/format/krw.dart';
+import 'package:porest_desk_app/core/settings/settings_notifier.dart';
+import 'package:porest_desk_app/shared/widgets/p_chart_tooltip.dart';
+import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
+import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
 
 /// 12개월 순자산 추이 area chart. front `NetWorthChart` 미러.
 class NetWorthChart extends ConsumerStatefulWidget {

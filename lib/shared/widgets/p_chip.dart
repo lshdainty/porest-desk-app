@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../app/theme/radius.dart';
-import '../../app/theme/tokens.dart';
-import '../../app/theme/typography.dart';
+import 'package:porest_desk_app/app/theme/radius.dart';
+import 'package:porest_desk_app/app/theme/tokens.dart';
+import 'package:porest_desk_app/app/theme/typography.dart';
 
 /// Chip — pill 형태 단일선택 토글. 필터/카테고리/태그/타입 선택 등에 사용.
 ///

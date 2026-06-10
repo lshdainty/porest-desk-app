@@ -3,15 +3,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import '../../../app/theme/density.dart';
-import '../../../app/theme/spacing.dart';
-import '../../../app/theme/tokens.dart';
-import '../../../core/settings/settings_notifier.dart';
-import '../../../shared/widgets/p_radio_list.dart';
-import '../../../shared/widgets/p_section_label.dart';
-import '../../../shared/widgets/p_toggle.dart';
-import '../../../shared/widgets/p_back_button.dart';
-import '../../../shared/widgets/p_tile.dart';
+import 'package:porest_desk_app/app/theme/density.dart';
+import 'package:porest_desk_app/app/theme/spacing.dart';
+import 'package:porest_desk_app/app/theme/tokens.dart';
+import 'package:porest_desk_app/core/settings/settings_notifier.dart';
+import 'package:porest_desk_app/shared/widgets/p_radio_list.dart';
+import 'package:porest_desk_app/shared/widgets/p_section_label.dart';
+import 'package:porest_desk_app/shared/widgets/p_toggle.dart';
+import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
+import 'package:porest_desk_app/shared/widgets/p_tile.dart';
 
 /// 표시 설정 화면 — AppBar + AppearanceSection (설정 메뉴 '표시 설정' 진입).
 class AppearanceScreen extends StatelessWidget {

@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 
-import '../../../core/network/api_exception.dart';
-import '../../../core/network/api_response.dart';
-import '../domain/file_attachment.dart';
+import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/core/network/api_response.dart';
+import 'package:porest_desk_app/features/file/domain/file_attachment.dart';
 
 /// 파일 첨부 — front `fileApi` 미러.
 ///

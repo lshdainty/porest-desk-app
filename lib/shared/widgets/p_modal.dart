@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import '../../app/theme/radius.dart';
-import '../../app/theme/spacing.dart';
-import '../../app/theme/tokens.dart';
-import '../../app/theme/typography.dart';
-import 'p_button.dart';
+import 'package:porest_desk_app/app/theme/radius.dart';
+import 'package:porest_desk_app/app/theme/spacing.dart';
+import 'package:porest_desk_app/app/theme/tokens.dart';
+import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/shared/widgets/p_button.dart';
 
 /// 표준 footer — 좌측 삭제(편집 모드만) / 우측 취소 + 저장. controller listen.
 class PSheetFooter extends StatelessWidget {

@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 
-import '../../../core/network/api_exception.dart';
-import '../../../core/network/api_response.dart';
-import '../domain/recurring_transaction.dart';
+import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/core/network/api_response.dart';
+import 'package:porest_desk_app/features/recurring/domain/recurring_transaction.dart';
 
 class RecurringRepository {
   RecurringRepository(this._dio);

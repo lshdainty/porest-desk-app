@@ -2,25 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import '../../../app/theme/radius.dart';
-import '../../../app/theme/spacing.dart';
-import '../../../app/theme/tokens.dart';
-import '../../../app/theme/typography.dart';
-import '../../../core/format/chart_palette.dart';
-import '../../../core/format/krw.dart';
-import '../../../core/network/api_exception.dart';
-import '../../../shared/widgets/p_button.dart';
-import '../../../shared/widgets/p_modal.dart';
-import '../../../shared/widgets/p_progress.dart';
-import '../../../shared/widgets/p_select.dart';
-import '../../../shared/widgets/p_text_input.dart';
-import '../../expense/application/expense_providers.dart';
-import '../../expense/domain/expense.dart';
-import '../../expense/domain/expense_category.dart';
-import '../application/expense_split_providers.dart';
-import '../data/expense_split_repository.dart';
-import '../domain/expense_split.dart';
-import '../../../shared/widgets/p_snack_bar.dart';
+import 'package:porest_desk_app/app/theme/radius.dart';
+import 'package:porest_desk_app/app/theme/spacing.dart';
+import 'package:porest_desk_app/app/theme/tokens.dart';
+import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/core/format/chart_palette.dart';
+import 'package:porest_desk_app/core/format/krw.dart';
+import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/shared/widgets/p_button.dart';
+import 'package:porest_desk_app/shared/widgets/p_modal.dart';
+import 'package:porest_desk_app/shared/widgets/p_progress.dart';
+import 'package:porest_desk_app/shared/widgets/p_select.dart';
+import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
+import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
+import 'package:porest_desk_app/features/expense/domain/expense.dart';
+import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
+import 'package:porest_desk_app/features/expense_split/application/expense_split_providers.dart';
+import 'package:porest_desk_app/features/expense_split/data/expense_split_repository.dart';
+import 'package:porest_desk_app/features/expense_split/domain/expense_split.dart';
+import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 
 /// 거래 분할 다이얼로그.
 void showSplitTxDialog(BuildContext context, Expense expense) {

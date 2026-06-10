@@ -1,12 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/network/dio_provider.dart';
-import '../data/asset_repository.dart';
-import '../domain/asset.dart';
-import '../domain/asset_summary.dart';
-import '../domain/asset_transfer.dart';
-import '../domain/card_billing.dart';
-import '../domain/net_worth_point.dart';
+import 'package:porest_desk_app/core/network/dio_provider.dart';
+import 'package:porest_desk_app/features/asset/data/asset_repository.dart';
+import 'package:porest_desk_app/features/asset/domain/asset.dart';
+import 'package:porest_desk_app/features/asset/domain/asset_summary.dart';
+import 'package:porest_desk_app/features/asset/domain/asset_transfer.dart';
+import 'package:porest_desk_app/features/asset/domain/card_billing.dart';
+import 'package:porest_desk_app/features/asset/domain/net_worth_point.dart';
 
 final assetRepositoryProvider = FutureProvider<AssetRepository>((ref) async {
   final dio = await ref.watch(dioProvider.future);

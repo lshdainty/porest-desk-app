@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../domain/notification.dart';
-import 'notification_providers.dart';
+import 'package:porest_desk_app/features/notification/domain/notification.dart';
+import 'package:porest_desk_app/features/notification/application/notification_providers.dart';
 
 /// 알림 스트림 서비스 — front `useNotificationSSE` 의 모바일 폴백.
 ///

@@ -3,24 +3,24 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import '../../../app/theme/colors.dart';
-import '../../../app/theme/radius.dart';
-import '../../../app/theme/spacing.dart';
-import '../../../app/theme/tokens.dart';
-import '../../../app/theme/typography.dart';
-import '../../../core/format/chart_palette.dart';
-import '../../../core/format/krw.dart';
-import '../../../core/settings/settings_notifier.dart';
-import '../../../shared/widgets/p_back_button.dart';
-import '../../../shared/widgets/p_button.dart';
-import '../../../shared/widgets/p_card.dart';
-import '../../../shared/widgets/p_chip.dart';
-import '../../../shared/widgets/p_modal.dart';
-import '../../../shared/widgets/p_search_field.dart';
-import '../../../shared/widgets/p_segmented.dart';
-import '../../../shared/widgets/p_snack_bar.dart';
-import '../data/stocks_mock.dart';
-import '../domain/stock.dart';
+import 'package:porest_desk_app/app/theme/colors.dart';
+import 'package:porest_desk_app/app/theme/radius.dart';
+import 'package:porest_desk_app/app/theme/spacing.dart';
+import 'package:porest_desk_app/app/theme/tokens.dart';
+import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/core/format/chart_palette.dart';
+import 'package:porest_desk_app/core/format/krw.dart';
+import 'package:porest_desk_app/core/settings/settings_notifier.dart';
+import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
+import 'package:porest_desk_app/shared/widgets/p_button.dart';
+import 'package:porest_desk_app/shared/widgets/p_card.dart';
+import 'package:porest_desk_app/shared/widgets/p_chip.dart';
+import 'package:porest_desk_app/shared/widgets/p_modal.dart';
+import 'package:porest_desk_app/shared/widgets/p_search_field.dart';
+import 'package:porest_desk_app/shared/widgets/p_segmented.dart';
+import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
+import 'package:porest_desk_app/features/stocks/data/stocks_mock.dart';
+import 'package:porest_desk_app/features/stocks/domain/stock.dart';
 
 /// 증권 — 시세 · 보유 · 관심 · 호가 (토스증권 Open API 연동 가정, mock 시세).
 /// 웹 `pages/stocks/ui/StocksPage.tsx` 미러.

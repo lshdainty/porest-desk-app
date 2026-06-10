@@ -3,26 +3,26 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import '../../../app/theme/radius.dart';
-import '../../../app/theme/spacing.dart';
-import '../../../app/theme/tokens.dart';
-import '../../../app/theme/typography.dart';
-import '../../../core/format/date.dart';
-import '../../../core/format/krw.dart';
-import '../../../core/settings/settings_notifier.dart';
-import '../../../shared/widgets/p_badge.dart';
-import '../../../shared/widgets/p_button.dart';
-import '../../../shared/widgets/p_card.dart';
-import '../../../shared/widgets/p_chip.dart';
-import '../../../shared/widgets/p_divider.dart';
-import '../../../shared/widgets/p_modal.dart';
-import '../../../shared/widgets/p_skeleton.dart';
-import '../../asset/application/asset_providers.dart';
-import '../application/expense_providers.dart';
-import '../domain/expense.dart';
-import 'add_tx_sheet.dart';
-import 'filter_dialog.dart';
-import 'widgets/expense_row.dart';
+import 'package:porest_desk_app/app/theme/radius.dart';
+import 'package:porest_desk_app/app/theme/spacing.dart';
+import 'package:porest_desk_app/app/theme/tokens.dart';
+import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/core/format/date.dart';
+import 'package:porest_desk_app/core/format/krw.dart';
+import 'package:porest_desk_app/core/settings/settings_notifier.dart';
+import 'package:porest_desk_app/shared/widgets/p_badge.dart';
+import 'package:porest_desk_app/shared/widgets/p_button.dart';
+import 'package:porest_desk_app/shared/widgets/p_card.dart';
+import 'package:porest_desk_app/shared/widgets/p_chip.dart';
+import 'package:porest_desk_app/shared/widgets/p_divider.dart';
+import 'package:porest_desk_app/shared/widgets/p_modal.dart';
+import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
+import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
+import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
+import 'package:porest_desk_app/features/expense/domain/expense.dart';
+import 'package:porest_desk_app/features/expense/presentation/add_tx_sheet.dart';
+import 'package:porest_desk_app/features/expense/presentation/filter_dialog.dart';
+import 'package:porest_desk_app/features/expense/presentation/widgets/expense_row.dart';
 
 /// 가계부 화면 — 백엔드 `/expenses` 직접 호출.
 class ExpenseScreen extends ConsumerStatefulWidget {

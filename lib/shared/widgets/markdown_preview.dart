@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../app/theme/tokens.dart';
-import '../../app/theme/typography.dart';
+import 'package:porest_desk_app/app/theme/tokens.dart';
+import 'package:porest_desk_app/app/theme/typography.dart';
 
 /// 가벼운 마크다운 라이크 미리보기 — 외부 패키지 없이 line-based 처리.
 ///

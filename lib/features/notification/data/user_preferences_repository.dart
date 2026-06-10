@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 
-import '../../../core/network/api_exception.dart';
-import '../../../core/network/api_response.dart';
+import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/core/network/api_response.dart';
 
 /// 알림음 옵션 — 백엔드 enum 미러.
 class NotificationSound {

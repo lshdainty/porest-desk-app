@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'colors.dart';
-import 'shadow.dart';
+import 'package:porest_desk_app/app/theme/colors.dart';
+import 'package:porest_desk_app/app/theme/shadow.dart';
 
 /// POREST 의미론적 토큰 (light/dark 분기 적용된 의미 단위).
 ///

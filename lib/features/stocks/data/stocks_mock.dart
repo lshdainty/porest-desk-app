@@ -3,7 +3,7 @@
 /// 연동 시 이 모듈만 API repository 로 교체한다.
 library;
 
-import '../domain/stock.dart';
+import 'package:porest_desk_app/features/stocks/domain/stock.dart';
 
 const double kFxUsdKrw = 1383.5;
 

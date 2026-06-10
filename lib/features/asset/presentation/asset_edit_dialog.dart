@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../domain/asset.dart';
-import 'account_add_dialog.dart';
-import 'asset_detail_dialog.dart';
-import 'card_add_dialog.dart' as card;
-import 'investment_add_dialog.dart' as inv;
+import 'package:porest_desk_app/features/asset/domain/asset.dart';
+import 'package:porest_desk_app/features/asset/presentation/account_add_dialog.dart';
+import 'package:porest_desk_app/features/asset/presentation/asset_detail_dialog.dart';
+import 'package:porest_desk_app/features/asset/presentation/card_add_dialog.dart' as card;
+import 'package:porest_desk_app/features/asset/presentation/investment_add_dialog.dart' as inv;
 
 /// 자산 다이얼로그 진입점 모음 — 신규 다이얼로그 4종으로 위임만 한다.
 ///

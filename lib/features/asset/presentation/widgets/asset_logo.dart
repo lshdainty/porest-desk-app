@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../../../../app/theme/radius.dart';
-import '../../../../app/theme/typography.dart';
-import '../../../../shared/brand/bank_colors.dart';
-import '../../domain/asset.dart';
+import 'package:porest_desk_app/app/theme/radius.dart';
+import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/shared/brand/bank_colors.dart';
+import 'package:porest_desk_app/features/asset/domain/asset.dart';
 
 /// 40×40 round-rect 자산 로고. front `AssetLogo` 1:1 미러.
 ///

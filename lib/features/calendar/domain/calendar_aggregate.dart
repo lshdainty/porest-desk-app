@@ -1,6 +1,6 @@
-import '../../expense/domain/expense.dart';
-import '../../todo/domain/todo.dart';
-import 'calendar_event.dart';
+import 'package:porest_desk_app/features/expense/domain/expense.dart';
+import 'package:porest_desk_app/features/todo/domain/todo.dart';
+import 'package:porest_desk_app/features/calendar/domain/calendar_event.dart';
 
 /// 캘린더 통합 집계 응답 — `CalendarAggregateApiDto.AggregateResponse` 매핑.
 ///

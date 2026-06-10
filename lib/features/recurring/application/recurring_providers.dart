@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/network/dio_provider.dart';
-import '../data/recurring_repository.dart';
-import '../domain/recurring_transaction.dart';
+import 'package:porest_desk_app/core/network/dio_provider.dart';
+import 'package:porest_desk_app/features/recurring/data/recurring_repository.dart';
+import 'package:porest_desk_app/features/recurring/domain/recurring_transaction.dart';
 
 final recurringRepositoryProvider =
     FutureProvider<RecurringRepository>((ref) async {

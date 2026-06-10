@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../app/theme/tokens.dart';
-import '../../features/calendar/presentation/calendar_event_dialog.dart';
-import '../../features/expense/presentation/add_tx_sheet.dart';
-import 'mobile_header.dart';
-import 'mobile_tab_bar.dart';
-import 'money_tab_bar.dart';
+import 'package:porest_desk_app/app/theme/tokens.dart';
+import 'package:porest_desk_app/features/calendar/presentation/calendar_event_dialog.dart';
+import 'package:porest_desk_app/features/expense/presentation/add_tx_sheet.dart';
+import 'package:porest_desk_app/shared/widgets/mobile_header.dart';
+import 'package:porest_desk_app/shared/widgets/mobile_tab_bar.dart';
+import 'package:porest_desk_app/shared/widgets/money_tab_bar.dart';
 
 /// 모바일 셸 — 헤더 + 본문(navigationShell) + 5칸 탭바.
 /// FAB 는 [MobileTabBar] 안에 인라인.

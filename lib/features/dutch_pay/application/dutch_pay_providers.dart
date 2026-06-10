@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/network/dio_provider.dart';
-import '../data/dutch_pay_repository.dart';
-import '../domain/dutch_pay.dart';
+import 'package:porest_desk_app/core/network/dio_provider.dart';
+import 'package:porest_desk_app/features/dutch_pay/data/dutch_pay_repository.dart';
+import 'package:porest_desk_app/features/dutch_pay/domain/dutch_pay.dart';
 
 final dutchPayRepositoryProvider =
     FutureProvider<DutchPayRepository>((ref) async {

@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 
-import '../../../core/network/api_exception.dart';
-import '../../../core/network/api_response.dart';
-import '../domain/event_comment.dart';
+import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/core/network/api_response.dart';
+import 'package:porest_desk_app/features/calendar/domain/event_comment.dart';
 
 /// 캘린더 이벤트 코멘트 — front `eventCommentApi` 미러.
 class EventCommentRepository {

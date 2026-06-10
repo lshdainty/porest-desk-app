@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../core/auth/auth_notifier.dart';
-import '../core/settings/settings_notifier.dart';
-import '../features/notification/application/notification_stream_service.dart';
-import '../l10n/generated/app_localizations.dart';
-import 'router.dart';
-import 'theme/theme_data.dart';
+import 'package:porest_desk_app/core/auth/auth_notifier.dart';
+import 'package:porest_desk_app/core/settings/settings_notifier.dart';
+import 'package:porest_desk_app/features/notification/application/notification_stream_service.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
+import 'package:porest_desk_app/app/router.dart';
+import 'package:porest_desk_app/app/theme/theme_data.dart';
 
 class PorestDeskApp extends ConsumerStatefulWidget {
   const PorestDeskApp({super.key});

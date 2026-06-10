@@ -1,4 +1,4 @@
-import 'card_catalog.dart';
+import 'package:porest_desk_app/features/card/domain/card_catalog.dart';
 
 /// 카드 카탈로그 페이지 — Spring Page 응답을 클라이언트 측에서 사용하는 형태로 풀어냄.
 class CardCatalogPage {

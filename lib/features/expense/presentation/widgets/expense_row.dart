@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import '../../../../app/theme/radius.dart';
-import '../../../../app/theme/spacing.dart';
-import '../../../../app/theme/tokens.dart';
-import '../../../../app/theme/typography.dart';
-import '../../../../core/format/chart_palette.dart';
-import '../../../../core/format/krw.dart';
-import '../../../../shared/icons/lucide_icon_map.dart';
-import '../../domain/expense.dart';
-import '../../domain/expense_category.dart';
-import '../tx_detail_dialog.dart';
+import 'package:porest_desk_app/app/theme/radius.dart';
+import 'package:porest_desk_app/app/theme/spacing.dart';
+import 'package:porest_desk_app/app/theme/tokens.dart';
+import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/core/format/chart_palette.dart';
+import 'package:porest_desk_app/core/format/krw.dart';
+import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
+import 'package:porest_desk_app/features/expense/domain/expense.dart';
+import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
+import 'package:porest_desk_app/features/expense/presentation/tx_detail_dialog.dart';
 
 class ExpenseRow extends StatelessWidget {
   const ExpenseRow({

@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/network/dio_provider.dart';
-import '../data/expense_repository.dart';
-import '../domain/expense.dart';
-import '../domain/expense_category.dart';
+import 'package:porest_desk_app/core/network/dio_provider.dart';
+import 'package:porest_desk_app/features/expense/data/expense_repository.dart';
+import 'package:porest_desk_app/features/expense/domain/expense.dart';
+import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
 
 /// Repository provider — Dio 가 준비되면 ExpenseRepository 반환.
 final expenseRepositoryProvider = FutureProvider<ExpenseRepository>((ref) async {

@@ -1,10 +1,10 @@
 import 'package:dio/dio.dart';
 
-import '../../../core/network/api_exception.dart';
-import '../../../core/network/api_response.dart';
-import '../domain/calendar_aggregate.dart';
-import '../domain/calendar_event.dart';
-import '../domain/event_label.dart';
+import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/core/network/api_response.dart';
+import 'package:porest_desk_app/features/calendar/domain/calendar_aggregate.dart';
+import 'package:porest_desk_app/features/calendar/domain/calendar_event.dart';
+import 'package:porest_desk_app/features/calendar/domain/event_label.dart';
 
 class CalendarRepository {
   CalendarRepository(this._dio);

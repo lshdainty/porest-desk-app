@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../app/theme/tokens.dart';
-import 'color_parse.dart';
+import 'package:porest_desk_app/app/theme/tokens.dart';
+import 'package:porest_desk_app/core/format/color_parse.dart';
 
 /// porest-design chart palette base ↔ light variant 매핑.
 ///

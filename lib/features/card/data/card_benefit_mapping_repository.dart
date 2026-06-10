@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 
-import '../../../core/network/api_exception.dart';
-import '../../../core/network/api_response.dart';
-import '../domain/card_benefit_mapping.dart';
+import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/core/network/api_response.dart';
+import 'package:porest_desk_app/features/card/domain/card_benefit_mapping.dart';
 
 /// 카드 혜택 ↔ 가계부 카테고리 매핑 — front `cardBenefitMappingApi` 미러.
 class CardBenefitMappingRepository {

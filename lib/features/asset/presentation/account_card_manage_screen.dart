@@ -3,21 +3,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import '../../../app/theme/spacing.dart';
-import '../../../app/theme/tokens.dart';
-import '../../../app/theme/typography.dart';
-import '../../../core/format/krw.dart';
-import '../../../core/settings/settings_notifier.dart';
-import '../../../shared/widgets/p_back_button.dart';
-import '../../../shared/widgets/p_button.dart';
-import '../../../shared/widgets/p_card.dart';
-import '../../../shared/widgets/p_skeleton.dart';
-import '../../../shared/widgets/p_tabs.dart';
-import '../application/asset_providers.dart';
-import '../domain/asset.dart';
-import 'asset_detail_dialog.dart';
-import 'asset_edit_dialog.dart';
-import 'widgets/asset_logo.dart';
+import 'package:porest_desk_app/app/theme/spacing.dart';
+import 'package:porest_desk_app/app/theme/tokens.dart';
+import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/core/format/krw.dart';
+import 'package:porest_desk_app/core/settings/settings_notifier.dart';
+import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
+import 'package:porest_desk_app/shared/widgets/p_button.dart';
+import 'package:porest_desk_app/shared/widgets/p_card.dart';
+import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
+import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
+import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
+import 'package:porest_desk_app/features/asset/domain/asset.dart';
+import 'package:porest_desk_app/features/asset/presentation/asset_detail_dialog.dart';
+import 'package:porest_desk_app/features/asset/presentation/asset_edit_dialog.dart';
+import 'package:porest_desk_app/features/asset/presentation/widgets/asset_logo.dart';
 
 /// 계좌·카드 관리 — web AccountManager 미러. 설정 단일 진입점에서 자산 추가/편집.
 /// 탭(계좌·예금/카드/투자) + 총액 + 리스트(항목 → 편집) + 그룹별 추가.

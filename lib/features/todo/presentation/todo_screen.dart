@@ -3,26 +3,26 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import '../../../app/theme/radius.dart';
-import '../../../app/theme/spacing.dart';
-import '../../../app/theme/tokens.dart';
-import '../../../app/theme/typography.dart';
-import '../../../core/network/api_exception.dart';
-import '../../../shared/widgets/p_back_button.dart';
-import '../../../shared/widgets/p_button.dart';
-import '../../../shared/widgets/p_dropdown_menu.dart';
-import '../../../shared/widgets/p_card.dart';
-import '../../../shared/widgets/p_chip.dart';
-import '../../../shared/widgets/p_floating_action_button.dart';
-import '../../../shared/widgets/p_skeleton.dart';
-import '../../../shared/widgets/p_snack_bar.dart';
-import '../application/todo_providers.dart';
-import '../domain/todo.dart';
-import '../domain/todo_meta.dart';
-import 'todo_edit_dialog.dart';
-import 'todo_kanban_view.dart';
-import 'todo_project_management_dialog.dart';
-import 'todo_tag_management_dialog.dart';
+import 'package:porest_desk_app/app/theme/radius.dart';
+import 'package:porest_desk_app/app/theme/spacing.dart';
+import 'package:porest_desk_app/app/theme/tokens.dart';
+import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
+import 'package:porest_desk_app/shared/widgets/p_button.dart';
+import 'package:porest_desk_app/shared/widgets/p_dropdown_menu.dart';
+import 'package:porest_desk_app/shared/widgets/p_card.dart';
+import 'package:porest_desk_app/shared/widgets/p_chip.dart';
+import 'package:porest_desk_app/shared/widgets/p_floating_action_button.dart';
+import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
+import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
+import 'package:porest_desk_app/features/todo/application/todo_providers.dart';
+import 'package:porest_desk_app/features/todo/domain/todo.dart';
+import 'package:porest_desk_app/features/todo/domain/todo_meta.dart';
+import 'package:porest_desk_app/features/todo/presentation/todo_edit_dialog.dart';
+import 'package:porest_desk_app/features/todo/presentation/todo_kanban_view.dart';
+import 'package:porest_desk_app/features/todo/presentation/todo_project_management_dialog.dart';
+import 'package:porest_desk_app/features/todo/presentation/todo_tag_management_dialog.dart';
 
 /// 할일 — 토스 톤 통계/퀵추가/필터/마감일 그룹 리스트 (web `TodoScreen` mobile 미러).
 ///
