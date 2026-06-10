@@ -40,7 +40,11 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     final events = eventsAsync.value ?? const <CalendarEvent>[];
     final calendarsAsync = ref.watch(userCalendarListProvider);
     final calendars = calendarsAsync.value ?? const <UserCalendar>[];
-    final visibleCount = calendars.where((c) => c.isVisible).length;
+    final holidayVisible = ref.watch(holidayVisibleProvider);
+    // 표시 개수 = 활성 사용자 캘린더 + 활성 내장 소스(공휴일). 웹 CalendarSourceToggle
+    // totalCount(visible 캘린더 + enabled builtin) 정합 — 공휴일 누락으로 웹보다 1 적던 버그 fix.
+    final visibleCount =
+        calendars.where((c) => c.isVisible).length + (holidayVisible ? 1 : 0);
     final dotColors = calendars
         .take(3)
         .map((c) => solidSwatchColor(context, c.color, fallback: t.fgBrand))
@@ -50,7 +54,6 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     final hStart = '${_key.year.toString().padLeft(4, '0')}-${_key.month.toString().padLeft(2, '0')}-01';
     final hEnd = '${_key.year.toString().padLeft(4, '0')}-${_key.month.toString().padLeft(2, '0')}-${lastDay.toString().padLeft(2, '0')}';
     final holidaysAsync = ref.watch(holidayListProvider((startDate: hStart, endDate: hEnd)));
-    final holidayVisible = ref.watch(holidayVisibleProvider);
     // 기타 소스 > 공휴일 토글 off 면 빈 맵 → 달력에 공휴일 라벨/색 미표시.
     final holidayMap = holidayVisible
         ? <String, String>{
