@@ -10,6 +10,7 @@ import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
+import 'package:porest_desk_app/core/settings/hide_amounts_unlock_dialog.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
 import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
 import 'package:porest_desk_app/shared/widgets/p_card.dart';
@@ -92,7 +93,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             horizontal: PSpace.x20, vertical: PSpace.x24),
         children: [
           _BalanceHero(
-              summaryAsync: summaryAsync, masked: settings.hideAmounts),
+              summaryAsync: summaryAsync,
+              masked: settings.hideAmounts,
+              // 헤더 eye 버튼과 동일 — 숨김 해제 시 unlock 다이얼로그.
+              onToggleMask: () => toggleHideAmountsWithUnlock(context, ref)),
           const SizedBox(height: 16),
           _MonthExpenseCard(
             month: _month,
@@ -297,9 +301,14 @@ class _UpcomingCard extends StatelessWidget {
 // ─── BalanceHero (gradient olive card) ─────────────────────
 
 class _BalanceHero extends StatelessWidget {
-  const _BalanceHero({required this.summaryAsync, required this.masked});
+  const _BalanceHero({
+    required this.summaryAsync,
+    required this.masked,
+    required this.onToggleMask,
+  });
   final AsyncValue summaryAsync;
   final bool masked;
+  final VoidCallback onToggleMask;
 
   @override
   Widget build(BuildContext context) {
@@ -342,19 +351,28 @@ class _BalanceHero extends StatelessWidget {
                     ),
                   ),
                   const Spacer(),
-                  Container(
-                    width: 26,
-                    height: 26,
-                    decoration: BoxDecoration(
-                      color: t.fgOnBrand.withValues(alpha: 0.12),
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                          color: t.fgOnBrand.withValues(alpha: 0.15)),
-                    ),
-                    child: Icon(
-                      masked ? LucideIcons.eyeOff : LucideIcons.eye,
-                      size: 13,
-                      color: t.fgOnBrand,
+                  // 헤더 eye 버튼과 동일 기능 — 금액 숨김 토글.
+                  GestureDetector(
+                    onTap: onToggleMask,
+                    behavior: HitTestBehavior.opaque,
+                    child: Tooltip(
+                      message: masked ? '금액 표시' : '금액 숨김',
+                      child: Container(
+                        width: 26,
+                        height: 26,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: t.fgOnBrand.withValues(alpha: 0.12),
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                              color: t.fgOnBrand.withValues(alpha: 0.15)),
+                        ),
+                        child: Icon(
+                          masked ? LucideIcons.eyeOff : LucideIcons.eye,
+                          size: 13,
+                          color: t.fgOnBrand,
+                        ),
+                      ),
                     ),
                   ),
                 ],
