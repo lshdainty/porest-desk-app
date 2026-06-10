@@ -190,7 +190,7 @@ class _NotiSettingsFooter extends StatelessWidget {
       ),
       child: PButton(
         label: '알림 설정',
-        icon: LucideIcons.chevronRight,
+        trailingIcon: LucideIcons.chevronRight,
         variant: PButtonVariant.ghost,
         size: PButtonSize.sm,
         fullWidth: true,

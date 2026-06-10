@@ -20,6 +20,7 @@ class PButton extends StatelessWidget {
     this.label,
     this.onPressed,
     this.icon,
+    this.trailingIcon,
     this.variant = PButtonVariant.primary,
     this.size = PButtonSize.md,
     this.loading = false,
@@ -43,11 +44,14 @@ class PButton extends StatelessWidget {
     this.iconColor,
     this.dangerous = false,
   })  : label = null,
-        fullWidth = false;
+        fullWidth = false,
+        trailingIcon = null;
 
   final String? label;
   final VoidCallback? onPressed;
   final IconData? icon;
+  /// 라벨 우측 아이콘 (chevron / external-link 등) — spec button.md ⓓ trailing icon.
+  final IconData? trailingIcon;
   final PButtonVariant variant;
   final PButtonSize size;
   final bool loading;
@@ -195,6 +199,10 @@ class PButton extends StatelessWidget {
                   const SizedBox(width: PSpace.sm),
                 if (!iconOnly)
                   Text(label!, style: _textStyle(t).copyWith(color: fg)),
+                if (!iconOnly && trailingIcon != null) ...[
+                  const SizedBox(width: PSpace.sm),
+                  Icon(trailingIcon, size: _iconSize(), color: iconColor ?? fg),
+                ],
               ],
             ),
           ),
