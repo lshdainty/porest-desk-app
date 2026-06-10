@@ -1351,15 +1351,21 @@ class _HeatmapCard extends StatelessWidget {
                               borderRadius: PRadius.brSm,
                             ),
                             alignment: Alignment.center,
-                            child: Text(
-                              // 금액 숨김 — web MaskAmount(value>0?••:—) 정합
-                              masked
-                                  ? (matrix[r][c] > 0 ? '••' : '—')
-                                  : _shortAmount(matrix[r][c]),
-                              style: PTypo.micro.copyWith(
-                                color: fgFor(_heatBucket(matrix[r][c], maxV)),
-                                fontWeight: PFontWeight.bold,
-                                fontSize: PFontSize.micro,
+                            padding: const EdgeInsets.all(3),
+                            // 셀 폭 초과 시 폰트 자동 축소(한 줄 유지) — 가계부 캘린더형 FittedBox 정합
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                // 금액 숨김 — web MaskAmount(value>0?••:—) 정합
+                                masked
+                                    ? (matrix[r][c] > 0 ? '••' : '—')
+                                    : _shortAmount(matrix[r][c]),
+                                maxLines: 1,
+                                style: PTypo.micro.copyWith(
+                                  color: fgFor(_heatBucket(matrix[r][c], maxV)),
+                                  fontWeight: PFontWeight.bold,
+                                  fontSize: PFontSize.micro,
+                                ),
                               ),
                             ),
                           ),
