@@ -202,6 +202,24 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     final events =
         ref.read(monthEventsProvider(_key)).value ?? const <CalendarEvent>[];
     final dayEvents = _eventsOnDay(events, day);
+    // 공휴일 — 그리드와 동일하게 holidayVisible 게이트 + 월 범위에서 해당일 필터.
+    // 웹 상세처럼 종일 항목으로 함께 노출.
+    final holidayVisible = ref.read(holidayVisibleProvider);
+    final lastDay = DateTime(_key.year, _key.month + 1, 0).day;
+    final hStart =
+        '${_key.year.toString().padLeft(4, '0')}-${_key.month.toString().padLeft(2, '0')}-01';
+    final hEnd =
+        '${_key.year.toString().padLeft(4, '0')}-${_key.month.toString().padLeft(2, '0')}-${lastDay.toString().padLeft(2, '0')}';
+    final dayKey = _dateKey(day);
+    final dayHolidays = holidayVisible
+        ? (ref
+                    .read(holidayListProvider(
+                        (startDate: hStart, endDate: hEnd)))
+                    .value ??
+                const <Holiday>[])
+            .where((h) => h.holidayDate == dayKey)
+            .toList()
+        : const <Holiday>[];
     final weekday =
         const ['월', '화', '수', '목', '금', '토', '일'][day.weekday - 1];
     final title = '${day.month}월 ${day.day}일 $weekday요일';
@@ -211,6 +229,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       contentBuilder: (ctx, scrollCtrl) => _DayEventsSheetBody(
         day: day,
         events: dayEvents,
+        holidays: dayHolidays,
         scrollController: scrollCtrl,
         onAdd: () {
           Navigator.of(context).pop();
@@ -862,12 +881,14 @@ class _DayEventsSheetBody extends StatelessWidget {
   const _DayEventsSheetBody({
     required this.day,
     required this.events,
+    required this.holidays,
     required this.scrollController,
     required this.onAdd,
     required this.onTapEvent,
   });
   final DateTime day;
   final List<CalendarEvent> events;
+  final List<Holiday> holidays;
   final ScrollController scrollController;
   final VoidCallback onAdd;
   final void Function(CalendarEvent) onTapEvent;
@@ -875,6 +896,7 @@ class _DayEventsSheetBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final total = holidays.length + events.length;
     return ListView(
       controller: scrollController,
       padding: const EdgeInsets.symmetric(
@@ -883,7 +905,7 @@ class _DayEventsSheetBody extends StatelessWidget {
         Row(
           children: [
             Text(
-              '${events.length}건',
+              '$total건',
               style: PTypo.bodySm.copyWith(color: t.fgTertiary),
             ),
             const Spacer(),
@@ -896,7 +918,7 @@ class _DayEventsSheetBody extends StatelessWidget {
           ],
         ),
         const SizedBox(height: PSpace.x4),
-        if (events.isEmpty)
+        if (total == 0)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: PSpace.x32),
             child: Center(
@@ -906,7 +928,12 @@ class _DayEventsSheetBody extends StatelessWidget {
               ),
             ),
           )
-        else
+        else ...[
+          // 공휴일(종일) 먼저 — 웹 상세 정합.
+          for (int i = 0; i < holidays.length; i++) ...[
+            _DaySheetHolidayRow(holiday: holidays[i], tokens: t),
+            if (i < holidays.length - 1 || events.isNotEmpty) PDivider(),
+          ],
           for (int i = 0; i < events.length; i++) ...[
             _DaySheetEventRow(
               event: events[i],
@@ -916,7 +943,54 @@ class _DayEventsSheetBody extends StatelessWidget {
             ),
             if (i < events.length - 1) PDivider(),
           ],
+        ],
       ],
+    );
+  }
+}
+
+// 공휴일 행 — 종일 + 빨강(fgExpense) 바 + 이름 (_DaySheetEventRow 스타일 정합).
+class _DaySheetHolidayRow extends StatelessWidget {
+  const _DaySheetHolidayRow({required this.holiday, required this.tokens});
+  final Holiday holiday;
+  final PorestTokens tokens;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = tokens;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: PSpace.x12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          SizedBox(
+            width: PSpace.x40,
+            child: Text(
+              '종일',
+              style: PTypo.caption.copyWith(color: t.fgSecondary),
+            ),
+          ),
+          const SizedBox(width: PSpace.x8),
+          Container(
+            width: PSpace.x4,
+            height: PSpace.x24,
+            decoration: BoxDecoration(
+              color: t.fgExpense,
+              borderRadius: PRadius.brXs,
+            ),
+          ),
+          const SizedBox(width: PSpace.x12),
+          Expanded(
+            child: Text(
+              holiday.holidayName,
+              style: PTypo.body
+                  .copyWith(color: t.fgPrimary, fontWeight: PFontWeight.semi),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
