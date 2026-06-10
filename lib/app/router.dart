@@ -32,6 +32,7 @@ import '../features/settings/presentation/account_screen.dart';
 import '../features/settings/presentation/appearance_section.dart';
 import '../features/settings/presentation/settings_screen.dart';
 import '../features/stats/presentation/stats_screen.dart';
+import '../features/stocks/presentation/stocks_screen.dart';
 import '../shared/widgets/mobile_scaffold.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -98,6 +99,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
           path: '/card-benefits',
           builder: (_, _) => const CardBenefitsScreen()),
+      // 증권 — 카드 혜택과 동일하게 전체(more)에서 push 진입, 뒤로가기로 복귀
+      GoRoute(path: '/stocks', builder: (_, _) => const StocksScreen()),
       GoRoute(
         path: '/cards/:id',
         builder: (_, state) => CardDetailScreen(
