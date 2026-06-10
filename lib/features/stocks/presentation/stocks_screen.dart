@@ -89,27 +89,11 @@ class _StocksScreenState extends ConsumerState<StocksScreen> {
         children: [
           _SummaryCard(masked: masked),
           const SizedBox(height: PSpace.x16),
-          // 종목 검색 트리거
-          InkWell(
+          // 종목 검색 트리거 — 공통 PSearchField 시각(36px) 그대로, 탭 시 검색 시트
+          GestureDetector(
             onTap: _openSearch,
-            borderRadius: PRadius.brMd,
-            child: Container(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 14, vertical: PSpace.x12),
-              decoration: BoxDecoration(
-                color: t.bgMuted,
-                borderRadius: PRadius.brMd,
-              ),
-              child: Row(
-                children: [
-                  Icon(LucideIcons.search, size: 17, color: t.fgTertiary),
-                  const SizedBox(width: 10),
-                  Text(
-                    '종목 검색',
-                    style: PTypo.bodySm.copyWith(color: t.fgTertiary),
-                  ),
-                ],
-              ),
+            child: const AbsorbPointer(
+              child: PSearchField(hint: '종목 검색'),
             ),
           ),
           const SizedBox(height: 14),
