@@ -766,11 +766,11 @@ class _AssetSummaryCardSkeleton extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Row: 라벨 + eye + Spacer + 이체 button
+          // Row: 라벨 + eye(6 gap) + Spacer + 이체 button(sm, brSm)
           Row(
             children: const [
               PSkeleton.line(width: 56, height: 12),
-              SizedBox(width: PSpace.x4),
+              SizedBox(width: 6),
               PSkeleton(width: 14, height: 14, borderRadius: PRadius.brXs),
               Spacer(),
               PSkeleton(width: 56, height: 28, borderRadius: PRadius.brSm),
@@ -790,17 +790,17 @@ class _AssetSummaryCardSkeleton extends StatelessWidget {
               PSkeleton.line(width: 100, height: 14),
             ],
           ),
-          const SizedBox(height: PSpace.x12),
-          // NetWorthChart placeholder
+          const SizedBox(height: 14),
+          // NetWorthChart placeholder — 실제 차트 자체 로딩 스켈레톤(brLg) 정합.
           const PSkeleton(
             width: double.infinity,
             height: 140,
-            borderRadius: PRadius.brSm,
+            borderRadius: PRadius.brLg,
           ),
-          const SizedBox(height: PSpace.x12),
+          const SizedBox(height: 14),
           // 3-col border-top section
           Container(
-            padding: const EdgeInsets.only(top: PSpace.x12),
+            padding: const EdgeInsets.only(top: 14),
             decoration: BoxDecoration(
               border: Border(top: BorderSide(color: t.borderSubtle)),
             ),
@@ -825,8 +825,9 @@ class _AssetSummaryColPlaceholder extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: const [
+        // 실제 _SummaryCol: label(micro) + 2px gap + amount(body)
         PSkeleton.line(width: 48, height: 11),
-        SizedBox(height: PSpace.x8),
+        SizedBox(height: 2),
         PSkeleton.line(width: 72, height: 14),
       ],
     );
@@ -841,21 +842,22 @@ class _AssetTypeGroupSkeleton extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.tokens;
     return PCard(
+      padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // header: title + total + add button
+          // header: title(bodyLg) + Spacer + total(bodySm) — 실제 _TypeGroup
+          // 헤더엔 추가 버튼 없음(title + total 만).
           Row(
             children: const [
               PSkeleton.line(width: 80, height: 16),
               Spacer(),
               PSkeleton.line(width: 96, height: 14),
-              SizedBox(width: PSpace.x8),
-              PSkeleton(width: 48, height: 28, borderRadius: PRadius.brSm),
             ],
           ),
           const SizedBox(height: PSpace.x12),
-          // rows — item 사이 border-top
+          // rows — 실제 _AssetCard 정합: logo(40, brLg) + 14 gap + 2 line +
+          // amount(bodyLg). item 사이 border-top, padding (h4 / v14).
           for (int i = 0; i < rows; i++)
             Container(
               decoration: BoxDecoration(
@@ -865,16 +867,16 @@ class _AssetTypeGroupSkeleton extends StatelessWidget {
               ),
               padding: const EdgeInsets.symmetric(
                 horizontal: PSpace.x4,
-                vertical: PSpace.x12,
+                vertical: 14,
               ),
               child: Row(
                 children: [
                   const PSkeleton(
                     width: 40,
                     height: 40,
-                    borderRadius: PRadius.brSm,
+                    borderRadius: PRadius.brLg,
                   ),
-                  const SizedBox(width: PSpace.x12),
+                  const SizedBox(width: 14),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

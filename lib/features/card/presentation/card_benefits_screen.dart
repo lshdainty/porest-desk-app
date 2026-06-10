@@ -274,12 +274,17 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
   /// 결과 영역 — 초기로딩 / 에러 / 빈상태 / 누적 리스트 + 하단 인디케이터.
   List<Widget> _buildResults(PorestTokens t) {
     // 초기 로딩 (첫 페이지 fetch 중, 누적 없음)
+    // 실제 결과 영역(총 N건 + _CardTile 카드들)과 1:1 구조 정합.
     if (_initialLoading) {
-      return const [
-        Padding(
-          padding: EdgeInsets.only(top: PSpace.x8),
-          child: PListSkeleton(rows: 6, showAvatar: true),
+      return [
+        const Padding(
+          padding: EdgeInsets.only(left: PSpace.x4, bottom: PSpace.x8),
+          child: PSkeleton.line(width: 56, height: 12),
         ),
+        for (int i = 0; i < 6; i++) ...[
+          if (i > 0) const SizedBox(height: PSpace.x8),
+          const _CardTileSkeleton(),
+        ],
       ];
     }
 
@@ -336,6 +341,49 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
         ),
       ],
     ];
+  }
+}
+
+/// `_CardTile` 로딩 placeholder — 실제 타일과 1:1 구조 정합.
+/// PCard(shadow, padding 14) + 56×36 비주얼(brSm) + 이름/메타/실적 3줄 + chevron 자리.
+class _CardTileSkeleton extends StatelessWidget {
+  const _CardTileSkeleton();
+  @override
+  Widget build(BuildContext context) {
+    return PCard(
+      variant: PCardVariant.shadow,
+      padding: const EdgeInsets.all(14),
+      child: Row(
+        children: const [
+          PSkeleton(width: 56, height: 36, borderRadius: PRadius.brSm),
+          SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                FractionallySizedBox(
+                    alignment: Alignment.centerLeft,
+                    widthFactor: 0.55,
+                    child: PSkeleton.line(height: 14)),
+                SizedBox(height: 6),
+                FractionallySizedBox(
+                    alignment: Alignment.centerLeft,
+                    widthFactor: 0.85,
+                    child: PSkeleton.line(height: 12)),
+                SizedBox(height: 5),
+                FractionallySizedBox(
+                    alignment: Alignment.centerLeft,
+                    widthFactor: 0.4,
+                    child: PSkeleton.line(height: 12)),
+              ],
+            ),
+          ),
+          SizedBox(width: PSpace.x8),
+          PSkeleton(width: 14, height: 14, borderRadius: PRadius.brSm),
+        ],
+      ),
+    );
   }
 }
 

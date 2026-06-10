@@ -67,7 +67,11 @@ class _DutchPayScreenState extends ConsumerState<DutchPayScreen> {
           await ref.read(dutchPayListProvider.future);
         },
         child: listAsync.when(
-          loading: () => _DutchPaySkeleton(tokens: t),
+          loading: () => _DutchPaySkeleton(
+            tokens: t,
+            tab: _tab,
+            onTabChanged: (v) => setState(() => _tab = v),
+          ),
           error: (e, _) => ListView(
             padding: const EdgeInsets.all(PSpace.x16),
             children: [
@@ -946,78 +950,144 @@ class _DutchEmpty extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────
 
 class _DutchPaySkeleton extends StatelessWidget {
-  const _DutchPaySkeleton({required this.tokens});
+  const _DutchPaySkeleton({
+    required this.tokens,
+    required this.tab,
+    required this.onTabChanged,
+  });
   final PorestTokens tokens;
+  final _DutchTab tab;
+  final ValueChanged<_DutchTab> onTabChanged;
 
   @override
   Widget build(BuildContext context) {
-    final t = tokens;
     return ListView(
       padding: const EdgeInsets.fromLTRB(
           PSpace.x16, PSpace.x16, PSpace.x16, 96),
       physics: const NeverScrollableScrollPhysics(),
       children: [
+        // ── 요약 2카드 (데이터) — _SummaryCard 구조/shadow 정합 ──
         Row(
-          children: [
-            for (var i = 0; i < 2; i++) ...[
-              Expanded(
-                child: Container(
-                  height: 96,
-                  decoration: BoxDecoration(
-                    color: t.bgSurface,
-                    borderRadius: PRadius.brLg,
-                    boxShadow: t.shadowSm,
-                  ),
-                ),
-              ),
-              if (i < 1) const SizedBox(width: PSpace.sm),
-            ],
+          children: const [
+            Expanded(child: _SummaryCardSkeleton()),
+            SizedBox(width: PSpace.sm),
+            Expanded(child: _SummaryCardSkeleton()),
           ],
         ),
         const SizedBox(height: PSpace.md),
-        Container(
-          height: 32,
-          decoration: BoxDecoration(
-            color: t.bgSunken,
-            borderRadius: PRadius.brMd,
-            border: Border.all(color: t.borderDefault),
+
+        // ── 탭 세그먼트 (정적 틀) — 실제 _DutchSegTabs 렌더 ──
+        Align(
+          alignment: Alignment.centerLeft,
+          child: _DutchSegTabs(
+            value: tab,
+            onChanged: onTabChanged,
+            options: const [
+              (_DutchTab.active, '진행 중'),
+              (_DutchTab.past, '완료'),
+              (_DutchTab.friends, '친구'),
+            ],
           ),
         ),
         const SizedBox(height: PSpace.md),
+
+        // ── 진행 중 탭 콘텐츠 (데이터) — _SessionCard 구조 정합 ──
         for (var i = 0; i < 3; i++) ...[
-          PCard(
-            variant: PCardVariant.bordered,
-            padding: const EdgeInsets.all(18),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const PSkeleton.line(width: 120),
-                          const SizedBox(height: 4),
-                          PSkeleton.line(width: 80, height: 12),
-                        ],
-                      ),
-                    ),
-                    const PSkeleton.line(width: 72),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                PSkeleton(
-                  width: double.infinity,
-                  height: 6,
-                  borderRadius: BorderRadius.circular(3),
-                ),
-              ],
-            ),
-          ),
+          const _SessionCardSkeleton(),
           if (i < 2) const SizedBox(height: PSpace.x12),
         ],
       ],
+    );
+  }
+}
+
+/// _SummaryCard placeholder — shadow surface(border 없음) + 아이콘박스/라벨/금액/푸터.
+class _SummaryCardSkeleton extends StatelessWidget {
+  const _SummaryCardSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: t.bgSurface,
+        borderRadius: PRadius.brLg,
+        boxShadow: t.shadowSm,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const PSkeleton(width: 28, height: 28),
+              const SizedBox(width: 8),
+              PSkeleton.line(width: 44, height: 13),
+            ],
+          ),
+          const SizedBox(height: 10),
+          PSkeleton.line(width: 88, height: 22),
+          const SizedBox(height: 6),
+          PSkeleton.line(width: 56, height: 11),
+        ],
+      ),
+    );
+  }
+}
+
+/// _SessionCard placeholder — bordered card + 제목/금액 + 아바타스택/진행바/비율.
+class _SessionCardSkeleton extends StatelessWidget {
+  const _SessionCardSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return PCard(
+      variant: PCardVariant.bordered,
+      padding: const EdgeInsets.all(18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const PSkeleton.line(width: 120),
+                    const SizedBox(height: 4),
+                    PSkeleton.line(width: 80, height: 13),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  const PSkeleton.line(width: 72),
+                  const SizedBox(height: 4),
+                  PSkeleton.line(width: 56, height: 11),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              PSkeleton.circle(size: 28),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: PSkeleton(
+                  height: 6,
+                  borderRadius: PRadius.brFull,
+                ),
+              ),
+              const SizedBox(width: 10),
+              PSkeleton.line(width: 28, height: 13),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

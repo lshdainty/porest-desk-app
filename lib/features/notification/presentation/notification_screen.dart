@@ -220,20 +220,30 @@ class _NotiSkeleton extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const PSkeleton(width: 36, height: 36),
+            // 아이콘 박스 — 실제 _NotiRow tone 박스(36x36, brMd) 정합.
+            const PSkeleton(width: 36, height: 36, borderRadius: PRadius.brMd),
             const SizedBox(width: PSpace.x12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  PSkeleton.line(width: i.isEven ? 140 : 100),
-                  const SizedBox(height: 4),
+                  // 제목(bodySm) 자리.
+                  PSkeleton.line(width: i.isEven ? 140 : 100, height: 14),
+                  const SizedBox(height: 3),
+                  // 메시지(caption) 자리.
                   const PSkeleton.line(width: double.infinity, height: 12),
                 ],
               ),
             ),
-            const SizedBox(width: PSpace.x12),
-            const PSkeleton.line(width: 36, height: 11),
+            // 상대시간(micro) 자리 — 우측 상단.
+            const SizedBox(width: PSpace.x8),
+            const Padding(
+              padding: EdgeInsets.only(top: 2),
+              child: PSkeleton.line(width: 36, height: 11),
+            ),
+            // 삭제 버튼(PButton.icon sm = 32x32) 자리.
+            const SizedBox(width: PSpace.x4),
+            const PSkeleton(width: 32, height: 32, borderRadius: PRadius.brSm),
           ],
         ),
       ),

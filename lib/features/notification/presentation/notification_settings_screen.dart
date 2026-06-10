@@ -978,22 +978,171 @@ class _PrefsSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 실제 _Content 6카드 정합 — 모두 shadow/brand PCard. 스켈레톤도 PCard(shadow)
+    // 셸 안에 PSkeleton 프리미티브로 구조(아이콘 박스/제목·소제목/토글·슬라이더)를 미러.
     return ListView(
       padding: const EdgeInsets.symmetric(
         horizontal: PSpace.x20,
         vertical: PSpace.x24,
       ),
       physics: const NeverScrollableScrollPhysics(),
-      children: [
-        for (int i = 0; i < 4; i++) ...[
-          const PSkeleton(
-            width: double.infinity,
-            height: 96,
-            borderRadius: PRadius.brLg,
-          ),
-          const SizedBox(height: PSpace.x20),
-        ],
+      children: const [
+        // 1) 마스터 카드 — 아이콘(36) + 제목/소제목 + 스위치 행.
+        _SkeletonRowCard(),
+        SizedBox(height: PSpace.x20),
+        // 2) 알림 종류 — 제목/소제목 헤더 + 토글 행 ×7.
+        _SkeletonSectionCard(rows: 7),
+        SizedBox(height: PSpace.x20),
+        // 3) 예산 임계값 — 제목 + 본문 2줄 + 슬라이더 트랙.
+        _SkeletonThresholdCard(),
+        SizedBox(height: PSpace.x20),
+        // 4) 방해 금지 — 제목/소제목 헤더 + 행 ×1.
+        _SkeletonSectionCard(rows: 1),
+        SizedBox(height: PSpace.x20),
+        // 5) 소리·진동 — 제목 + 행 ×2.
+        _SkeletonSectionCard(rows: 2, showSubtitle: false),
+        SizedBox(height: PSpace.x20),
+        // 6) 이메일 — 제목/소제목 헤더 + 행 ×1.
+        _SkeletonSectionCard(rows: 1),
+        SizedBox(height: PSpace.x32),
       ],
+    );
+  }
+}
+
+/// 마스터 카드 스켈레톤 — _MasterCard(아이콘 36 + 제목/소제목 + 스위치) 정합.
+class _SkeletonRowCard extends StatelessWidget {
+  const _SkeletonRowCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return PCard(
+      variant: PCardVariant.shadow,
+      padding: const EdgeInsets.all(PSpace.lg),
+      child: Row(
+        children: const [
+          PSkeleton(width: 36, height: 36, borderRadius: PRadius.brMd),
+          SizedBox(width: PSpace.x12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                PSkeleton.line(width: 96, height: 16),
+                SizedBox(height: 4),
+                PSkeleton.line(width: 160, height: 12),
+              ],
+            ),
+          ),
+          SizedBox(width: PSpace.x12),
+          // 스위치(트랙 44x24) 자리.
+          PSkeleton(width: 44, height: 24, borderRadius: PRadius.brFull),
+        ],
+      ),
+    );
+  }
+}
+
+/// 섹션 카드 스켈레톤 — _SectionCard(제목/소제목 헤더 + 토글 행 ×N + 구분선) 정합.
+class _SkeletonSectionCard extends StatelessWidget {
+  const _SkeletonSectionCard({required this.rows, this.showSubtitle = true});
+  final int rows;
+  final bool showSubtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    return PCard(
+      variant: PCardVariant.shadow,
+      padding: EdgeInsets.zero,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 헤더 — 제목(bodyLg) + 소제목(caption).
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              PSpace.lg,
+              PSpace.lg,
+              PSpace.lg,
+              PSpace.sm,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const PSkeleton.line(width: 80, height: 16),
+                if (showSubtitle) ...const [
+                  SizedBox(height: 4),
+                  PSkeleton.line(width: 180, height: 12),
+                ],
+              ],
+            ),
+          ),
+          // 토글 행 — 아이콘(36) + 제목/설명 2줄 + 스위치, 사이 PDivider.
+          for (int i = 0; i < rows; i++) ...[
+            if (i > 0) const PDivider(),
+            const Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: PSpace.x16,
+                vertical: PSpace.x12,
+              ),
+              child: Row(
+                children: [
+                  PSkeleton(width: 36, height: 36, borderRadius: PRadius.brMd),
+                  SizedBox(width: PSpace.x12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        PSkeleton.line(width: 88, height: 14),
+                        SizedBox(height: 4),
+                        PSkeleton.line(width: 150, height: 12),
+                      ],
+                    ),
+                  ),
+                  SizedBox(width: PSpace.x12),
+                  PSkeleton(
+                    width: 44,
+                    height: 24,
+                    borderRadius: PRadius.brFull,
+                  ),
+                ],
+              ),
+            ),
+          ],
+          const SizedBox(height: 4),
+        ],
+      ),
+    );
+  }
+}
+
+/// 임계값 카드 스켈레톤 — _ThresholdCard(제목+'현재 N%' / 본문 2줄 / 슬라이더 트랙) 정합.
+class _SkeletonThresholdCard extends StatelessWidget {
+  const _SkeletonThresholdCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return PCard(
+      variant: PCardVariant.shadow,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: const [
+          Row(
+            children: [
+              PSkeleton.line(width: 112, height: 16),
+              Spacer(),
+              PSkeleton.line(width: 48, height: 12),
+            ],
+          ),
+          SizedBox(height: 6),
+          PSkeleton.line(width: double.infinity, height: 12),
+          SizedBox(height: 4),
+          PSkeleton.line(width: 220, height: 12),
+          SizedBox(height: PSpace.x8),
+          // 슬라이더 트랙 자리.
+          PSkeleton(width: double.infinity, height: 4, borderRadius: PRadius.brFull),
+        ],
+      ),
     );
   }
 }

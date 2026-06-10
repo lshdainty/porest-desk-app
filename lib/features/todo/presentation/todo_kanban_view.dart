@@ -53,7 +53,7 @@ class _TodoKanbanViewState extends ConsumerState<TodoKanbanView> {
         todoListProvider((status: null, priority: widget.priority)));
 
     return async.when(
-      loading: () => _KanbanSkeleton(tokens: t),
+      loading: () => _KanbanSkeleton(columns: _columns, tokens: t),
       error: (e, _) => Padding(
         padding: const EdgeInsets.all(PSpace.x16),
         child: Text('할 일 로드 실패\n$e',
@@ -97,9 +97,12 @@ class _TodoKanbanViewState extends ConsumerState<TodoKanbanView> {
   }
 }
 
-/// 칸반 보드 skeleton — 3컬럼(헤더+카드 2개) 가로 스크롤.
+/// 칸반 보드 skeleton — 정적 보드 틀(컬럼 shell + 실제 헤더 아이콘/라벨)은
+/// 그대로 렌더하고, 데이터 영역(카운트 배지 + 카드 목록)만 placeholder.
+/// 컬럼 shell·카드 치수는 로딩 후 [_Column]/[_Card]와 1:1 정합.
 class _KanbanSkeleton extends StatelessWidget {
-  const _KanbanSkeleton({required this.tokens});
+  const _KanbanSkeleton({required this.columns, required this.tokens});
+  final List<(String code, String label, IconData icon)> columns;
   final PorestTokens tokens;
 
   @override
@@ -116,43 +119,81 @@ class _KanbanSkeleton extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          for (int c = 0; c < 3; c++)
+          for (final col in columns)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 6),
               child: SizedBox(
                 width: 280,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: PSpace.x8),
-                      child: Row(
+                // 실제 _Column shell 정합: bgMuted + borderSubtle + brMd, padding 10.
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: t.bgMuted,
+                    borderRadius: PRadius.brMd,
+                    border: Border.all(color: t.borderSubtle),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // 정적 헤더 틀: 실제 아이콘 + 라벨 텍스트(서버 무관) 렌더.
+                      Row(
                         children: [
-                          const PSkeleton(width: 16, height: 16),
-                          const SizedBox(width: PSpace.x8),
-                          PSkeleton.line(width: 56),
+                          Icon(col.$3, size: 14, color: t.fgSecondary),
+                          const SizedBox(width: 6),
+                          Text(col.$2,
+                              style: PTypo.bodySm.copyWith(
+                                  color: t.fgPrimary,
+                                  fontWeight: PFontWeight.bold)),
+                          const Spacer(),
+                          // 카운트만 데이터 의존 → placeholder.
+                          const PSkeleton(width: 18, height: 16),
                         ],
                       ),
-                    ),
-                    for (int i = 0; i < 2; i++)
-                      Container(
-                        margin: const EdgeInsets.only(bottom: PSpace.x8),
-                        padding: const EdgeInsets.all(PSpace.x12),
-                        decoration: BoxDecoration(
-                          color: t.bgSurface,
-                          borderRadius: PRadius.brMd,
-                          border: Border.all(color: t.borderSubtle),
+                      const SizedBox(height: 8),
+                      // 데이터 영역: 카드 placeholder (실제 _Card 치수 정합).
+                      for (int i = 0; i < 2; i++)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 10),
+                            decoration: BoxDecoration(
+                              color: t.bgSurface,
+                              borderRadius: PRadius.brSm,
+                              border: Border.all(color: t.borderSubtle),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // 우선순위 dot(6) + 제목 라인(bodySm 16).
+                                Row(
+                                  children: [
+                                    PSkeleton.circle(size: 6),
+                                    const SizedBox(width: 6),
+                                    Expanded(
+                                      child: Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: PSkeleton.line(
+                                            width: i == 0 ? 160 : 120),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                // 마감일 행: 아이콘(11) + micro 텍스트.
+                                Row(
+                                  children: [
+                                    const PSkeleton(width: 11, height: 11),
+                                    const SizedBox(width: 4),
+                                    PSkeleton.line(width: 64, height: 11),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            PSkeleton.line(width: i == 0 ? 160 : 120),
-                            const SizedBox(height: 6),
-                            PSkeleton.line(width: 80, height: 12),
-                          ],
-                        ),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),

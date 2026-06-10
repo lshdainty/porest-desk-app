@@ -661,26 +661,31 @@ class _DonutCardSkeleton extends StatelessWidget {
   const _DonutCardSkeleton();
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      child: Column(
-        children: [
-          Center(child: PSkeleton.circle(size: 180)),
-          const SizedBox(height: PSpace.x20),
-          for (var i = 0; i < 5; i++) ...[
-            if (i > 0) const SizedBox(height: 10),
-            Row(
+    // 실제: SizedBox(height:200) 도넛(centerSpace 60 + radius 28 → ø176) +
+    // SizedBox(height:14) + N _DonutLegendRow(padding h4/v8: dot10 / 10 /
+    // Expanded(name) / pct / 12 / amount).
+    return Column(
+      children: [
+        SizedBox(
+          height: 200,
+          child: Center(child: PSkeleton.circle(size: 176)),
+        ),
+        const SizedBox(height: 14),
+        for (var i = 0; i < 5; i++)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+            child: Row(
               children: [
                 PSkeleton.circle(size: 10),
-                const SizedBox(width: PSpace.sm),
-                const Expanded(child: PSkeleton.line(height: 12)),
-                const SizedBox(width: PSpace.sm),
-                const PSkeleton.line(width: 48, height: 12),
+                const SizedBox(width: 10),
+                const Expanded(child: PSkeleton.line(height: 14)),
+                const PSkeleton.line(width: 36, height: 12),
+                const SizedBox(width: 12),
+                const PSkeleton.line(width: 56, height: 14),
               ],
             ),
-          ],
-        ],
-      ),
+          ),
+      ],
     );
   }
 }
@@ -689,33 +694,89 @@ class _MerchantListSkeleton extends StatelessWidget {
   const _MerchantListSkeleton();
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 8, bottom: 12),
-      child: Column(
-        children: [
-          for (var i = 0; i < 5; i++) ...[
-            if (i > 0) const SizedBox(height: 14),
-            Row(
-              children: [
-                PSkeleton.circle(size: 24),
-                const SizedBox(width: PSpace.md),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const PSkeleton.line(width: 120, height: 14),
-                      const SizedBox(height: 6),
-                      PSkeleton(height: 4, borderRadius: PRadius.brFull),
-                    ],
-                  ),
+    // 실제 _TopMerchantsCard 행: rank(width24·텍스트, 원 아님) / 8 /
+    // Expanded(Row[name+count … amount] + 6 + LinearProgress minHeight4 brFull).
+    return Column(
+      children: [
+        for (var i = 0; i < 5; i++) ...[
+          if (i > 0) const SizedBox(height: 14),
+          Row(
+            children: [
+              const SizedBox(
+                width: 24,
+                child: Center(child: PSkeleton.line(width: 12, height: 12)),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: const [
+                        Expanded(child: PSkeleton.line(width: 120, height: 14)),
+                        SizedBox(width: 8),
+                        PSkeleton.line(width: 64, height: 14),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    PSkeleton(height: 4, borderRadius: PRadius.brFull),
+                  ],
                 ),
-                const SizedBox(width: PSpace.md),
-                const PSkeleton.line(width: 64, height: 14),
-              ],
-            ),
-          ],
+              ),
+            ],
+          ),
         ],
-      ),
+      ],
+    );
+  }
+}
+
+/// _CompareCategoryCard 의 _CompareRow placeholder — icon tile(32) + name +
+/// amount + pct, 그 아래 좌측 42 들여쓴 2 stacked 막대(10 / 6). 행간 16.
+class _CompareListSkeleton extends StatelessWidget {
+  const _CompareListSkeleton();
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        for (var i = 0; i < 5; i++) ...[
+          if (i > 0) const SizedBox(height: 16),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  PSkeleton(
+                    width: 32,
+                    height: 32,
+                    borderRadius: PRadius.tile(32),
+                  ),
+                  const SizedBox(width: 10),
+                  const Expanded(child: PSkeleton.line(height: 14)),
+                  const SizedBox(width: 10),
+                  const PSkeleton.line(width: 64, height: 14),
+                  const SizedBox(width: 10),
+                  const SizedBox(
+                    width: 56,
+                    child: PSkeleton.line(height: 12),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              const Padding(
+                padding: EdgeInsets.only(left: 42),
+                child: Column(
+                  children: [
+                    PSkeleton(height: 10, borderRadius: PRadius.brFull),
+                    SizedBox(height: 4),
+                    PSkeleton(height: 6, borderRadius: PRadius.brFull),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ],
     );
   }
 }
@@ -724,44 +785,106 @@ class _HeatmapSkeleton extends StatelessWidget {
   const _HeatmapSkeleton();
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: GridView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: 56,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 8,
-          mainAxisSpacing: 6,
-          crossAxisSpacing: 6,
-          childAspectRatio: 1,
+    // 실제 히트맵: 헤더(56 spacer + 7 요일) + 6행(56 라벨열 + 7 셀 AspectRatio1
+    // padding all2 radius brSm, 행간 4) + 범례행.
+    Widget cellRow() => Row(
+          children: [
+            // 라벨열(56) — 실제는 label+sub 2줄
+            const SizedBox(
+              width: 56,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  PSkeleton.line(width: 28, height: 12),
+                  SizedBox(height: 2),
+                  PSkeleton.line(width: 40, height: 9),
+                ],
+              ),
+            ),
+            for (var c = 0; c < _heatCols.length; c++)
+              const Expanded(
+                child: Padding(
+                  padding: EdgeInsets.all(2),
+                  child: AspectRatio(aspectRatio: 1, child: PSkeleton()),
+                ),
+              ),
+          ],
+        );
+    return Column(
+      children: [
+        // 헤더 행 — 56 코너 + 7 요일 라벨
+        Row(
+          children: [
+            const SizedBox(width: 56),
+            for (var c = 0; c < _heatCols.length; c++)
+              const Expanded(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 2),
+                  child: Center(child: PSkeleton.line(width: 12, height: 12)),
+                ),
+              ),
+          ],
         ),
-        itemBuilder: (_, _) => const PSkeleton(),
-      ),
+        const SizedBox(height: 6),
+        for (var r = 0; r < _heatRows.length; r++) ...[
+          cellRow(),
+          if (r < _heatRows.length - 1) const SizedBox(height: 4),
+        ],
+        const SizedBox(height: 14),
+        // 범례 행
+        Row(
+          children: const [
+            PSkeleton.line(width: 130, height: 14),
+            Spacer(),
+            PSkeleton.line(width: 70, height: 12),
+          ],
+        ),
+      ],
     );
   }
 }
 
 class _ChartSkeleton extends StatelessWidget {
-  const _ChartSkeleton({required this.height});
+  const _ChartSkeleton({required this.height, this.showLegend = true});
   final double height;
+
+  /// 추이 카드는 차트 아래 2개 _LegendChip 범례가 있음(showLegend). 순저축
+  /// 카드는 범례가 헤더 trailing 에 있어 차트 영역만(showLegend:false).
+  final bool showLegend;
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Column(
-        children: [
-          PSkeleton(height: height),
-          const SizedBox(height: PSpace.x12),
+    return Column(
+      children: [
+        PSkeleton(height: height),
+        if (showLegend) ...[
+          const SizedBox(height: 12),
           Row(
             children: const [
-              PSkeleton.line(width: 48, height: 12),
-              SizedBox(width: PSpace.md),
-              PSkeleton.line(width: 48, height: 12),
+              // _LegendChip(swatch 10 brXs + 6 + label) ×2, gap 16
+              _LegendChipSkeleton(),
+              SizedBox(width: 16),
+              _LegendChipSkeleton(),
             ],
           ),
         ],
-      ),
+      ],
+    );
+  }
+}
+
+/// _LegendChip placeholder — swatch(10·brXs) + 6 + label line.
+class _LegendChipSkeleton extends StatelessWidget {
+  const _LegendChipSkeleton();
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: const [
+        PSkeleton(width: 10, height: 10, borderRadius: PRadius.brXs),
+        SizedBox(width: 6),
+        PSkeleton.line(width: 28, height: 12),
+      ],
     );
   }
 }
@@ -2272,7 +2395,7 @@ class _SavingsBarsCardState extends ConsumerState<_SavingsBarsCard> {
             ),
           ),
           if (loading && data.isEmpty)
-            const _ChartSkeleton(height: 180)
+            const _ChartSkeleton(height: 180, showLegend: false)
           else if (data.isEmpty)
             const _EmptyBox(text: '데이터가 없습니다')
           else
@@ -2706,7 +2829,7 @@ class _CompareCategoryCard extends StatelessWidget {
             ),
           ),
           if (loading && top.isEmpty)
-            const _MerchantListSkeleton()
+            const _CompareListSkeleton()
           else if (top.isEmpty)
             const _EmptyBox(text: '비교할 데이터가 없습니다')
           else

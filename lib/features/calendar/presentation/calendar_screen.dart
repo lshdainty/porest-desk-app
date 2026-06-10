@@ -519,16 +519,29 @@ class _FilterRow extends StatelessWidget {
 
 // ─── 날짜 셀 ──────────────────────────────────────────────────────────────────
 
-/// 캘린더 첫 로딩 skeleton — 요일 헤더 + 6주 × 7일 그리드(날짜+이벤트 점 placeholder).
+/// 캘린더 첫 로딩 skeleton — 정적 요일 헤더(실제 라벨) + 6주 × 7일 데이터 그리드.
+///
+/// 요일 헤더는 서버 무관 정적 틀이라 스켈레톤화하지 않고 실제 텍스트 렌더(TableCalendar
+/// dowBuilder 정합). 셀 내부 날짜 숫자(24px 박스 좌측 정렬)와 이벤트 바(full-bleed,
+/// micro 높이, brSm)만 데이터 placeholder 로 그려 로딩-후 _DayCell 과 1:1 정합.
 class _CalendarGridSkeleton extends StatelessWidget {
   const _CalendarGridSkeleton({required this.tokens});
   final PorestTokens tokens;
 
   @override
   Widget build(BuildContext context) {
+    final t = tokens;
+    // 월~일 — TableCalendar daysOfWeekStyle/dowBuilder 정합(주말 색 포함, 실제 텍스트).
+    const dow = ['월', '화', '수', '목', '금', '토', '일'];
+    Color dowColor(int i) {
+      if (i == 6) return t.fgExpense; // 일
+      if (i == 5) return t.fgBrand; // 토
+      return t.fgSecondary;
+    }
+
     return Column(
       children: [
-        // 요일 헤더 (월~일)
+        // 정적 요일 헤더 (월~일) — 실제 라벨 렌더, 스켈레톤화 안 함.
         Padding(
           padding: const EdgeInsets.symmetric(vertical: PSpace.x8),
           child: Row(
@@ -536,13 +549,16 @@ class _CalendarGridSkeleton extends StatelessWidget {
               for (int i = 0; i < 7; i++)
                 Expanded(
                   child: Center(
-                    child: PSkeleton.line(width: 16, height: 12),
+                    child: Text(
+                      dow[i],
+                      style: PTypo.caption.copyWith(color: dowColor(i)),
+                    ),
                   ),
                 ),
             ],
           ),
         ),
-        // 6주 그리드
+        // 6주 데이터 그리드 — _DayCell 레이아웃(상단 24px 날짜 + full-bleed 이벤트 바) 정합.
         Expanded(
           child: Column(
             children: [
@@ -553,18 +569,37 @@ class _CalendarGridSkeleton extends StatelessWidget {
                       for (int d = 0; d < 7; d++)
                         Expanded(
                           child: Padding(
-                            padding: const EdgeInsets.all(4),
+                            // _DayCell 바깥 vertical: x4 정합.
+                            padding: const EdgeInsets.symmetric(
+                                vertical: PSpace.x4),
                             child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
-                                const PSkeleton(width: 18, height: 14),
-                                const SizedBox(height: 4),
-                                // 일부 셀에만 이벤트 점 placeholder (시각 다양성)
+                                // 날짜 숫자 자리 — 24×24 박스, 좌측 x4 정렬(_DayCell dayNumber).
+                                const Padding(
+                                  padding: EdgeInsets.only(left: PSpace.x4),
+                                  child: Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: PSkeleton(
+                                      width: PSpace.x24,
+                                      height: PSpace.x24,
+                                      borderRadius: PRadius.brSm,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: PSpace.x4),
+                                // 일부 셀에만 이벤트 바 placeholder — _CellEventLabel 정합
+                                // (full-bleed, 좌우 x4 inset, micro 높이 16, brSm).
                                 if ((w + d) % 3 == 0)
-                                  PSkeleton(
-                                    width: 28,
-                                    height: 8,
-                                    borderRadius: PRadius.brXs,
+                                  const Padding(
+                                    padding: EdgeInsets.only(
+                                        left: PSpace.x4,
+                                        right: PSpace.x4,
+                                        bottom: PSpace.x4),
+                                    child: PSkeleton(
+                                      height: 16,
+                                      borderRadius: PRadius.brSm,
+                                    ),
                                   ),
                               ],
                             ),

@@ -199,9 +199,20 @@ class _CardScreenState extends ConsumerState<CardScreen> {
           await ref.read(cardCatalogPageProvider(_searchKey).future);
         },
         child: pageAsync.when(
-          loading: () => const Padding(
-            padding: EdgeInsets.all(PSpace.x16),
-            child: PListSkeleton(rows: 6, showAvatar: true),
+          loading: () => ListView(
+            padding: const EdgeInsets.fromLTRB(
+                PSpace.x16, PSpace.x12, PSpace.x16, PSpace.x40),
+            children: [
+              // '총 N건' 카운트 자리
+              Padding(
+                padding: const EdgeInsets.only(bottom: PSpace.x8),
+                child: PSkeleton.line(width: 56, height: 12),
+              ),
+              for (int i = 0; i < 6; i++) ...[
+                if (i > 0) const SizedBox(height: PSpace.x8),
+                _CardRowSkeleton(tokens: t),
+              ],
+            ],
           ),
           error: (e, _) => Padding(
             padding: const EdgeInsets.all(PSpace.x16),
@@ -307,6 +318,50 @@ class _Paginator extends StatelessWidget {
           onPressed: onNext,
         ),
       ],
+    );
+  }
+}
+
+/// `_CardRow` 로딩 placeholder — 실제 행과 1:1 구조 정합.
+/// bordered 박스(radius brLg, border borderSubtle, padding 12) + 56×36 비주얼(brSm)
+/// + 이름/메타 2줄 + chevron 자리.
+class _CardRowSkeleton extends StatelessWidget {
+  const _CardRowSkeleton({required this.tokens});
+  final PorestTokens tokens;
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(PSpace.x12),
+      decoration: BoxDecoration(
+        color: tokens.bgSurface,
+        borderRadius: PRadius.brLg,
+        border: Border.all(color: tokens.borderSubtle),
+      ),
+      child: Row(
+        children: [
+          const PSkeleton(width: 56, height: 36, borderRadius: PRadius.brSm),
+          const SizedBox(width: PSpace.x12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                FractionallySizedBox(
+                    alignment: Alignment.centerLeft,
+                    widthFactor: 0.6,
+                    child: PSkeleton.line(height: 14)),
+                SizedBox(height: 6),
+                FractionallySizedBox(
+                    alignment: Alignment.centerLeft,
+                    widthFactor: 0.85,
+                    child: PSkeleton.line(height: 12)),
+              ],
+            ),
+          ),
+          const SizedBox(width: PSpace.x12),
+          const PSkeleton(width: 16, height: 16, borderRadius: PRadius.brSm),
+        ],
+      ),
     );
   }
 }

@@ -1640,7 +1640,7 @@ class _ComplianceCard extends StatelessWidget {
           ),
           const SizedBox(height: PSpace.x16),
           if (async.isLoading && list.isEmpty)
-            const PSkeleton(width: double.infinity, height: 140)
+            const PSkeleton(width: double.infinity, height: 200)
           else if (list.isEmpty)
             SizedBox(
               height: 80,
@@ -1898,7 +1898,9 @@ class _EmptyState extends StatelessWidget {
   }
 }
 
-/// 예산 리스트 로딩 skeleton — 요약 헤더 카드 + 카테고리 예산 행 4개.
+/// 예산 로딩 skeleton — 로딩-후 실제 렌더 구조(_HeaderCard → _PaceCard →
+/// _StatusTiles → _CategoryListCard → _ComplianceCard)와 1:1 정합.
+/// 모든 카드는 shadow variant(실제와 동일), 회색 박스는 PSkeleton 프리미티브.
 class _BudgetLoadingSkeleton extends StatelessWidget {
   const _BudgetLoadingSkeleton();
 
@@ -1907,75 +1909,239 @@ class _BudgetLoadingSkeleton extends StatelessWidget {
     final t = context.tokens;
     return Column(
       children: [
-        // 헤더 요약 카드
+        // _HeaderCard — brand-tint surface(실제와 동일 합성).
         PCard(
           variant: PCardVariant.shadow,
+          color: Color.alphaBlend(t.bgBrandTint, t.bgSurface),
+          padding: const EdgeInsets.all(PSpace.x16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // title caption
+              const PSkeleton.line(width: 96, height: 13),
+              const SizedBox(height: 6),
+              // description line
+              PSkeleton.line(width: double.infinity, height: 12),
+              const SizedBox(height: PSpace.x12),
+              // 큰 금액 / 상한 (h2 baseline)
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: const [
+                  PSkeleton.line(width: 132, height: 28),
+                  SizedBox(width: 8),
+                  PSkeleton.line(width: 80, height: 14),
+                ],
+              ),
+              const SizedBox(height: PSpace.x12),
+              // progress (minHeight 10)
+              PSkeleton(height: 10, borderRadius: PRadius.brFull),
+              const SizedBox(height: PSpace.x8),
+              // %/남은 예산 행
+              Row(
+                children: const [
+                  PSkeleton.line(width: 64, height: 12),
+                  Spacer(),
+                  PSkeleton.line(width: 96, height: 12),
+                ],
+              ),
+              const SizedBox(height: PSpace.x12),
+              // 3-column MiniStat (전체 상한 / 카테고리 할당 / 할당 가능)
+              Container(
+                padding: const EdgeInsets.only(top: PSpace.x12),
+                decoration: BoxDecoration(
+                  border: Border(top: BorderSide(color: t.borderSubtle)),
+                ),
+                child: Row(
+                  children: [
+                    for (int i = 0; i < 3; i++) ...[
+                      if (i > 0) const SizedBox(width: PSpace.x8),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: const [
+                            PSkeleton.line(width: 48, height: 10),
+                            SizedBox(height: 4),
+                            PSkeleton.line(width: 64, height: 14),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: PSpace.x12),
+        // _PaceCard — header + 게이지 + %경과 행 + 2-column PaceStat.
+        PCard(
+          variant: PCardVariant.shadow,
+          padding: const EdgeInsets.all(PSpace.x16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
-                  const PSkeleton.line(width: 80),
+                  const PSkeleton.line(width: 72, height: 14),
                   const Spacer(),
-                  PSkeleton.line(width: 56, height: 12),
+                  PSkeleton.line(width: 64, height: 22),
                 ],
               ),
-              const SizedBox(height: PSpace.x8),
-              PSkeleton(
-                width: double.infinity,
-                height: 8,
-                borderRadius: PRadius.brXs,
-              ),
+              const SizedBox(height: PSpace.x12),
+              // 페이스 게이지 (minHeight 12)
+              PSkeleton(height: 12, borderRadius: PRadius.brFull),
               const SizedBox(height: PSpace.x8),
               Row(
+                children: const [
+                  PSkeleton.line(width: 56, height: 12),
+                  Spacer(),
+                  PSkeleton.line(width: 112, height: 12),
+                ],
+              ),
+              const SizedBox(height: PSpace.x12),
+              Container(
+                padding: const EdgeInsets.only(top: PSpace.x12),
+                decoration: BoxDecoration(
+                  border: Border(top: BorderSide(color: t.borderSubtle)),
+                ),
+                child: Row(
+                  children: [
+                    for (int i = 0; i < 2; i++) ...[
+                      if (i > 0) const SizedBox(width: PSpace.x8),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: const [
+                            PSkeleton.line(width: 72, height: 10),
+                            SizedBox(height: 4),
+                            PSkeleton.line(width: 88, height: 20),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: PSpace.x12),
+        // _StatusTiles — '예산 현황' + 2칸(초과/여유) box.
+        PCard(
+          variant: PCardVariant.shadow,
+          padding: const EdgeInsets.all(PSpace.x16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const PSkeleton.line(width: 72, height: 14),
+              const SizedBox(height: PSpace.x12),
+              Row(
                 children: [
-                  const PSkeleton.line(width: 60),
-                  const Spacer(),
-                  PSkeleton.line(width: 48, height: 12),
+                  for (int i = 0; i < 2; i++) ...[
+                    if (i > 0) const SizedBox(width: PSpace.x8),
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.all(PSpace.x12),
+                        decoration: BoxDecoration(
+                          color: t.bgSurface,
+                          borderRadius: PRadius.brLg,
+                          border: Border.all(color: t.borderSubtle),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: const [
+                            PSkeleton.line(width: 48, height: 12),
+                            SizedBox(height: PSpace.x4),
+                            PSkeleton.line(width: 64, height: 24),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ],
           ),
         ),
         const SizedBox(height: PSpace.x12),
-        // 카테고리 예산 행
-        PCard(
-          variant: PCardVariant.bordered,
-          padding: EdgeInsets.zero,
-          child: Column(
-            children: [
-              for (int i = 0; i < 4; i++)
-                Container(
-                  decoration: BoxDecoration(
-                    border: i < 3
-                        ? Border(bottom: BorderSide(color: t.borderSubtle))
-                        : null,
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: PSpace.x16,
-                    vertical: PSpace.x12,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          const PSkeleton(width: 24, height: 24),
-                          const SizedBox(width: PSpace.x8),
-                          const PSkeleton.line(width: 80),
-                          const Spacer(),
-                          PSkeleton.line(width: 60, height: 12),
-                        ],
-                      ),
-                      const SizedBox(height: 6),
-                      PSkeleton(
-                        width: double.infinity,
-                        height: 4,
-                        borderRadius: PRadius.brXs,
-                      ),
+        // _CategoryListCard — 헤더(카드 밖) + shadow 카드 내 행 리스트(Divider 분리).
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const PSkeleton.line(width: 128, height: 14),
+                const Spacer(),
+                PSkeleton.line(width: 72, height: 22),
+              ],
+            ),
+            const SizedBox(height: PSpace.x8),
+            PCard(
+              variant: PCardVariant.shadow,
+              padding: const EdgeInsets.all(PSpace.x16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  for (int i = 0; i < 4; i++) ...[
+                    if (i > 0) ...[
+                      const SizedBox(height: PSpace.x12),
+                      Divider(
+                          height: 1,
+                          thickness: 1,
+                          color: t.borderSubtle),
+                      const SizedBox(height: PSpace.x12),
                     ],
-                  ),
-                ),
+                    // _CategoryRow — 아이콘(36) + 이름/남은예산 + 금액/한도, progress.
+                    Row(
+                      children: [
+                        const PSkeleton(width: 36, height: 36),
+                        const SizedBox(width: PSpace.x12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: const [
+                              PSkeleton.line(width: 96, height: 14),
+                              SizedBox(height: 2),
+                              PSkeleton.line(width: 72, height: 12),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: PSpace.x8),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: const [
+                            PSkeleton.line(width: 56, height: 14),
+                            SizedBox(height: 2),
+                            PSkeleton.line(width: 40, height: 10),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: PSpace.x8),
+                    PSkeleton(height: 7, borderRadius: PRadius.brFull),
+                  ],
+                ],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: PSpace.x12),
+        // _ComplianceCard — header + 차트 영역(height 200).
+        PCard(
+          variant: PCardVariant.shadow,
+          padding: const EdgeInsets.all(PSpace.x16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const PSkeleton.line(width: 144, height: 14),
+                  const Spacer(),
+                  PSkeleton.line(width: 80, height: 12),
+                ],
+              ),
+              const SizedBox(height: PSpace.x16),
+              const PSkeleton(width: double.infinity, height: 200),
             ],
           ),
         ),

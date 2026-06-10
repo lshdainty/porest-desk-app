@@ -370,9 +370,10 @@ class _StatSkeleton extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: const [
-          PSkeleton(width: 64, height: 12),
-          SizedBox(height: 6),
-          PSkeleton(width: 48, height: 24),
+          // 실제 _StatCard: label(11) + 4px gap + value(18). 치수 정합.
+          PSkeleton(width: 64, height: 11),
+          SizedBox(height: 4),
+          PSkeleton(width: 48, height: 18),
         ],
       ),
     );
@@ -738,18 +739,20 @@ class _ListSkeleton extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             child: Row(
               children: [
-                const PSkeleton(
+                // 실제 _PresetRow 아이콘 박스: 40×40, PRadius.tile(40)=12.
+                PSkeleton(
                   width: 40,
                   height: 40,
-                  borderRadius: PRadius.brMd,
+                  borderRadius: PRadius.tile(40),
                 ),
                 const SizedBox(width: PSpace.md),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: const [
-                      PSkeleton(width: 128, height: 16),
-                      SizedBox(height: 6),
+                      // 이름(14 bold) → 2px → 메타(caption). _PresetRow 정합.
+                      PSkeleton(width: 128, height: 14),
+                      SizedBox(height: 2),
                       FractionallySizedBox(
                         alignment: Alignment.centerLeft,
                         widthFactor: 0.66,
@@ -762,9 +765,10 @@ class _ListSkeleton extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: const [
-                    PSkeleton(width: 56, height: 16),
-                    SizedBox(height: 6),
-                    PSkeleton(width: 32, height: 12),
+                    // 금액(12.5 bold) → 2px → 사용횟수(10). _PresetRow 정합.
+                    PSkeleton(width: 56, height: 12),
+                    SizedBox(height: 2),
+                    PSkeleton(width: 32, height: 10),
                   ],
                 ),
                 const SizedBox(width: PSpace.x8),

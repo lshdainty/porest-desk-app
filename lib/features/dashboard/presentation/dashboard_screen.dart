@@ -149,6 +149,8 @@ class _UpcomingCard extends StatelessWidget {
                 const PSkeleton(width: 16, height: 16),
                 const SizedBox(width: 6),
                 const PSkeleton.line(width: 80),
+                const Spacer(),
+                const PSkeleton(width: 14, height: 14),
               ],
             ),
             const SizedBox(height: 8),
@@ -1013,33 +1015,38 @@ class _BudgetCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (budgetsAsync.isLoading && items.isEmpty)
-                  // 예산 카드 placeholder — 3 rows (label + progress + amount).
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: PSpace.x8),
-                    child: Column(
-                      children: [
-                        for (var i = 0; i < 3; i++) ...[
-                          if (i > 0) const SizedBox(height: PSpace.x16),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Row(
-                                children: const [
-                                  PSkeleton.line(width: 80, height: 12),
-                                  Spacer(),
-                                  PSkeleton.line(width: 96, height: 12),
-                                ],
-                              ),
-                              const SizedBox(height: PSpace.x8),
-                              PSkeleton(
-                                height: 6,
-                                borderRadius: PRadius.brFull,
-                              ),
-                            ],
-                          ),
-                        ],
+                  // 예산 카드 placeholder — _BudgetRow 1:1: 28 icon + name + amount, 6px progress.
+                  Column(
+                    children: [
+                      for (var i = 0; i < 3; i++) ...[
+                        if (i > 0) const SizedBox(height: PSpace.x16),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Row(
+                              children: [
+                                PSkeleton(
+                                  width: 28,
+                                  height: 28,
+                                  borderRadius: PRadius.tile(28),
+                                ),
+                                const SizedBox(width: 8),
+                                const Expanded(
+                                  child: PSkeleton.line(width: 80, height: 14),
+                                ),
+                                const SizedBox(width: 6),
+                                const PSkeleton.line(width: 96, height: 12),
+                              ],
+                            ),
+                            const SizedBox(height: 6),
+                            PSkeleton(
+                              height: 6,
+                              borderRadius: PRadius.brFull,
+                            ),
+                          ],
+                        ),
                       ],
-                    ),
+                    ],
                   )
                 else if (items.isEmpty)
                   Padding(

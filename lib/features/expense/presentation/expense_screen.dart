@@ -838,18 +838,24 @@ class _ExpenseCalendarSkeleton extends StatelessWidget {
                         children: [
                           for (int d = 0; d < 7; d++)
                             Expanded(
+                              // _CalendarGrid 셀 padding 정합 (v:4, h:6).
                               child: Padding(
-                                padding: const EdgeInsets.all(PSpace.x4),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 4,
+                                  horizontal: 6,
+                                ),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: const [
+                                    // 날짜 숫자 자리 — 셀의 22x22 date 박스 정합.
                                     PSkeleton(
-                                      width: 16,
-                                      height: 16,
+                                      width: 22,
+                                      height: 22,
                                       borderRadius: PRadius.brFull,
                                     ),
-                                    Spacer(),
-                                    PSkeleton.line(width: 32, height: 8),
+                                    SizedBox(height: 2),
+                                    // 금액 줄 — micro 텍스트 자리.
+                                    PSkeleton.line(width: 32, height: 9),
                                   ],
                                 ),
                               ),
@@ -877,17 +883,22 @@ class _ExpenseSummarySkeleton extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 월 헤더 (arrow + label + arrow)
+          // 월 헤더 — _SummaryCard 정합: arrow(28 원형) + label(bodyLg) + arrow
+          //  + 우측 headerRight(view-mode toggle 버튼) 자리.
           Row(
             children: const [
-              PSkeleton(width: 28, height: 28, borderRadius: PRadius.brSm),
+              PSkeleton(width: 28, height: 28, borderRadius: PRadius.brFull),
               SizedBox(width: PSpace.x8),
               PSkeleton.line(width: 96, height: 18),
               SizedBox(width: PSpace.x8),
-              PSkeleton(width: 28, height: 28, borderRadius: PRadius.brSm),
+              PSkeleton(width: 28, height: 28, borderRadius: PRadius.brFull),
+              Spacer(),
+              // view-mode toggle (ghost sm 버튼) 자리.
+              PSkeleton(width: 56, height: 28, borderRadius: PRadius.brSm),
             ],
           ),
-          const SizedBox(height: PSpace.x16),
+          // _SummaryCard 의 header→stats gap 14 정합.
+          const SizedBox(height: 14),
           // 3-col (수입/지출/합계)
           Row(
             children: const [
@@ -909,8 +920,9 @@ class _Stat3Placeholder extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: const [
+        // _Stat 정합 — micro label(11) + 2px gap + bodyLg value(16).
         PSkeleton.line(width: 32, height: 11),
-        SizedBox(height: PSpace.x8),
+        SizedBox(height: 2),
         PSkeleton.line(width: 80, height: 16),
       ],
     );
@@ -922,25 +934,26 @@ class _ExpenseChipsSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // _FilterRow 정합 — sm pill chip 3개(gap 6) + 우측 filter/add 36x36 brSm 2개(gap 6).
     return Row(
-      children: [
-        // chips (3개) — 좌측 flex
+      children: const [
+        // chips (전체/지출/수입) — 좌측 flex. sm chip ≈ caption + v5 → 약 24h pill.
         Expanded(
           child: Row(
-            children: const [
-              PSkeleton(width: 56, height: 28, borderRadius: PRadius.brFull),
-              SizedBox(width: PSpace.x4),
-              PSkeleton(width: 56, height: 28, borderRadius: PRadius.brFull),
-              SizedBox(width: PSpace.x4),
-              PSkeleton(width: 56, height: 28, borderRadius: PRadius.brFull),
+            children: [
+              PSkeleton(width: 48, height: 24, borderRadius: PRadius.brFull),
+              SizedBox(width: 6),
+              PSkeleton(width: 48, height: 24, borderRadius: PRadius.brFull),
+              SizedBox(width: 6),
+              PSkeleton(width: 48, height: 24, borderRadius: PRadius.brFull),
             ],
           ),
         ),
-        const SizedBox(width: PSpace.x8),
-        // 우측 icon button 2개 (view-mode + filter)
-        const PSkeleton(width: 32, height: 32, borderRadius: PRadius.brSm),
-        const SizedBox(width: PSpace.x4),
-        const PSkeleton(width: 32, height: 32, borderRadius: PRadius.brSm),
+        SizedBox(width: 6),
+        // 우측 icon button 2개 — 고급 필터(sliders) + 거래 추가(+).
+        PSkeleton(width: 36, height: 36, borderRadius: PRadius.brSm),
+        SizedBox(width: 6),
+        PSkeleton(width: 36, height: 36, borderRadius: PRadius.brSm),
       ],
     );
   }
@@ -953,11 +966,10 @@ class _ExpenseDayGroupSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // 날짜 헤더 — 카드 밖 평문
+        // 날짜 헤더 — 카드 밖 평문 (_DayGroup header 정합: bodySm/caption 높이).
         Padding(
           padding: const EdgeInsets.symmetric(
             horizontal: PSpace.x4,
@@ -965,55 +977,54 @@ class _ExpenseDayGroupSkeleton extends StatelessWidget {
           ),
           child: Row(
             children: const [
-              PSkeleton.line(width: 48, height: 14),
+              PSkeleton.line(width: 48, height: 13),
               SizedBox(width: PSpace.x8),
-              PSkeleton.line(width: 24, height: 14),
+              PSkeleton.line(width: 24, height: 11),
               Spacer(),
-              PSkeleton.line(width: 60, height: 12),
+              PSkeleton.line(width: 60, height: 11),
               SizedBox(width: PSpace.x8),
-              PSkeleton.line(width: 60, height: 12),
+              PSkeleton.line(width: 60, height: 11),
             ],
           ),
         ),
-        // 거래 카드 — rows 만큼 row 들 + 사이 border
+        // 거래 카드 — _DayGroup 정합: PCard(shadow) + 행 사이 PDivider.
+        // 행 placeholder 는 ExpenseRow 치수 (icon 40 tile / pad 16·12 / 2px gap).
         PCard(
           padding: EdgeInsets.zero,
           child: Column(
             children: [
-              for (int i = 0; i < rows; i++)
-                Container(
-                  decoration: BoxDecoration(
-                    border: i > 0
-                        ? Border(top: BorderSide(color: t.borderSubtle))
-                        : null,
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: PSpace.x12,
+              for (int i = 0; i < rows; i++) ...[
+                if (i > 0) const PDivider(),
+                const Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: PSpace.x16,
                     vertical: PSpace.x12,
                   ),
                   child: Row(
                     children: [
-                      const PSkeleton(
-                        width: 36,
-                        height: 36,
-                        borderRadius: PRadius.brSm,
+                      // ExpenseRow icon tile 정합 — 40px → tile(40)=12=brLg.
+                      PSkeleton(
+                        width: 40,
+                        height: 40,
+                        borderRadius: PRadius.brLg,
                       ),
-                      const SizedBox(width: PSpace.x12),
+                      SizedBox(width: PSpace.x12),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
+                          children: [
                             PSkeleton.line(width: 120, height: 14),
-                            SizedBox(height: PSpace.x4),
+                            SizedBox(height: 2),
                             PSkeleton.line(width: 80, height: 11),
                           ],
                         ),
                       ),
-                      const SizedBox(width: PSpace.x8),
-                      const PSkeleton.line(width: 80, height: 14),
+                      SizedBox(width: PSpace.x8),
+                      PSkeleton.line(width: 80, height: 14),
                     ],
                   ),
                 ),
+              ],
             ],
           ),
         ),

@@ -15,6 +15,7 @@ import '../../../shared/icons/lucide_icon_map.dart';
 import '../../../shared/widgets/p_back_button.dart';
 import '../../../shared/widgets/p_badge.dart';
 import '../../../shared/widgets/p_button.dart';
+import '../../../shared/widgets/p_card.dart';
 import '../../../shared/widgets/p_empty_state.dart';
 import '../../../shared/widgets/p_floating_action_button.dart';
 import '../../../shared/widgets/p_modal.dart';
@@ -56,7 +57,7 @@ class SavingGoalScreen extends ConsumerWidget {
           await ref.read(savingGoalListProvider.future);
         },
         child: listAsync.when(
-          loading: () => _SavingGoalSkeleton(tokens: t),
+          loading: () => const _SavingGoalSkeleton(),
           error: (e, _) => Padding(
             padding: const EdgeInsets.all(PSpace.x16),
             child: Text('저금 목표 로드 실패\n$e',
@@ -147,12 +148,10 @@ class SavingGoalScreen extends ConsumerWidget {
 
 /// 저금 목표 skeleton — 카드(아이콘+제목+기한+진행바) × 3.
 class _SavingGoalSkeleton extends StatelessWidget {
-  const _SavingGoalSkeleton({required this.tokens});
-  final PorestTokens tokens;
+  const _SavingGoalSkeleton();
 
   @override
   Widget build(BuildContext context) {
-    final t = tokens;
     return ListView.separated(
       padding: const EdgeInsets.symmetric(
         horizontal: PSpace.x20,
@@ -162,19 +161,15 @@ class _SavingGoalSkeleton extends StatelessWidget {
       shrinkWrap: true,
       itemCount: 3,
       separatorBuilder: (_, _) => const SizedBox(height: PSpace.x8),
-      itemBuilder: (_, _) => Container(
+      itemBuilder: (_, _) => PCard(
+        variant: PCardVariant.bordered,
         padding: const EdgeInsets.all(PSpace.x12),
-        decoration: BoxDecoration(
-          color: t.bgSurface,
-          borderRadius: PRadius.brLg,
-          border: Border.all(color: t.borderSubtle),
-        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                const PSkeleton(width: 36, height: 36),
+                PSkeleton(width: 36, height: 36, borderRadius: PRadius.tile(36)),
                 const SizedBox(width: PSpace.x12),
                 Expanded(
                   child: Column(
@@ -182,21 +177,22 @@ class _SavingGoalSkeleton extends StatelessWidget {
                     children: [
                       const PSkeleton.line(width: 120),
                       const SizedBox(height: 4),
-                      PSkeleton.line(width: 72, height: 12),
+                      const PSkeleton.line(width: 72, height: 12),
                     ],
                   ),
                 ),
-                const PSkeleton(width: 28, height: 28),
+                PSkeleton(width: 32, height: 32, borderRadius: PRadius.brMd),
               ],
             ),
             const SizedBox(height: PSpace.x12),
             Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                const PSkeleton.line(width: 80),
+                const PSkeleton.line(width: 80, height: 18),
                 const SizedBox(width: 4),
-                PSkeleton.line(width: 60, height: 12),
+                const PSkeleton.line(width: 60, height: 12),
                 const Spacer(),
-                PSkeleton.line(width: 36, height: 12),
+                const PSkeleton.line(width: 36, height: 12),
               ],
             ),
             const SizedBox(height: PSpace.x8),

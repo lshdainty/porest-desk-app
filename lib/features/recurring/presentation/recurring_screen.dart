@@ -755,7 +755,13 @@ class _RecurringRow extends StatelessWidget {
   }
 }
 
-/// 반복 거래 skeleton — 통계 카드 + 예정 카드 + 리스트 행 4개.
+/// 반복 거래 skeleton — 데이터 영역만 placeholder.
+///
+/// 실제 로딩-후와 1:1 정합:
+/// - 통계 카드 = shadow PCard, 2×2 그리드(가운데 PDivider) — 각 칸 `_Stat`
+///   (icon12+label / 값 h4).
+/// - 리스트 카드 = shadow PCard. 헤더의 "전체 목록"/"추가" 버튼은 정적 틀이라
+///   실제 렌더, 데이터에 의존하는 필터 칩 카운트와 행은 placeholder.
 class _RecurringSkeleton extends StatelessWidget {
   const _RecurringSkeleton();
 
@@ -768,79 +774,152 @@ class _RecurringSkeleton extends StatelessWidget {
         vertical: PSpace.x24,
       ),
       children: [
-        // 통계 카드 (활성/일시중지/월 지출·수입 4열)
+        // 통계 카드 — 실제 _SummaryCard 와 동일한 2×2 그리드 + 중앙 PDivider.
         PCard(
           variant: PCardVariant.shadow,
           padding: const EdgeInsets.all(PSpace.x16),
           child: Column(
             children: [
               Row(
-                children: [
-                  for (int i = 0; i < 4; i++) ...[
-                    Expanded(
-                      child: Column(
-                        children: [
-                          const PSkeleton(width: 24, height: 24),
-                          const SizedBox(height: 4),
-                          PSkeleton.line(width: 48, height: 12),
-                          const SizedBox(height: 2),
-                          PSkeleton.line(width: 32, height: 10),
-                        ],
-                      ),
-                    ),
-                    if (i < 3) Container(width: 1, height: 36, color: t.borderSubtle),
-                  ],
+                children: const [
+                  Expanded(child: _StatSkeleton()),
+                  Expanded(child: _StatSkeleton()),
+                ],
+              ),
+              const SizedBox(height: PSpace.x12),
+              const PDivider(),
+              const SizedBox(height: PSpace.x12),
+              Row(
+                children: const [
+                  Expanded(child: _StatSkeleton()),
+                  Expanded(child: _StatSkeleton()),
                 ],
               ),
             ],
           ),
         ),
         const SizedBox(height: PSpace.x12),
-        // 반복 거래 리스트
+        // 반복 거래 리스트 — 실제 카드는 shadow(border 없음).
         PCard(
-          variant: PCardVariant.bordered,
+          variant: PCardVariant.shadow,
           padding: EdgeInsets.zero,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              for (int i = 0; i < 4; i++)
-                Container(
-                  decoration: BoxDecoration(
-                    border: i < 3
-                        ? Border(bottom: BorderSide(color: t.borderSubtle))
-                        : null,
-                  ),
+              // 헤더: "전체 목록"(정적) + "추가"(정적) — 실제 렌더.
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  PSpace.x16,
+                  PSpace.x12,
+                  PSpace.x16,
+                  0,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          '전체 목록',
+                          style: PTypo.bodySm.copyWith(
+                            color: t.fgPrimary,
+                            fontWeight: PFontWeight.bold,
+                          ),
+                        ),
+                        const Spacer(),
+                        PButton(
+                          label: '추가',
+                          icon: LucideIcons.plus,
+                          variant: PButtonVariant.accent,
+                          size: PButtonSize.sm,
+                          onPressed: null,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: PSpace.x8),
+                    // 필터 칩(카운트=데이터) placeholder — 칩 4개, sm toggle 높이 32.
+                    Row(
+                      children: const [
+                        PSkeleton(width: 56, height: 32, borderRadius: PRadius.brSm),
+                        SizedBox(width: PSpace.x4),
+                        PSkeleton(width: 56, height: 32, borderRadius: PRadius.brSm),
+                        SizedBox(width: PSpace.x4),
+                        PSkeleton(width: 56, height: 32, borderRadius: PRadius.brSm),
+                        SizedBox(width: PSpace.x4),
+                        PSkeleton(width: 56, height: 32, borderRadius: PRadius.brSm),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              // 행 4개 — 실제 _RecurringRow 와 동일 구조/치수, PDivider 구분.
+              for (int i = 0; i < 4; i++) ...[
+                Padding(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: PSpace.x16,
+                    horizontal: PSpace.x12,
                     vertical: PSpace.x12,
                   ),
                   child: Row(
                     children: [
-                      const PSkeleton(width: 36, height: 36),
+                      // 아이콘 36×36, PRadius.tile(36)=11.
+                      PSkeleton(
+                        width: 36,
+                        height: 36,
+                        borderRadius: PRadius.tile(36),
+                      ),
                       const SizedBox(width: PSpace.x12),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            PSkeleton.line(width: i.isEven ? 120 : 100),
-                            const SizedBox(height: 4),
-                            PSkeleton.line(width: 80, height: 12),
+                            // 제목(body 14) → 2px → 메타(caption 12).
+                            PSkeleton.line(width: i.isEven ? 120 : 100, height: 14),
+                            const SizedBox(height: 2),
+                            PSkeleton.line(width: 140, height: 12),
                           ],
                         ),
                       ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          const PSkeleton.line(width: 72),
-                          const SizedBox(height: 4),
-                          PSkeleton.line(width: 48, height: 12),
-                        ],
+                      const SizedBox(width: PSpace.x8),
+                      // 금액(bodySm 13 bold).
+                      const PSkeleton.line(width: 64, height: 13),
+                      const SizedBox(width: PSpace.x8),
+                      // 더보기 메뉴 아이콘 버튼(32×32 brMd).
+                      const PSkeleton(
+                        width: 32,
+                        height: 32,
+                        borderRadius: PRadius.brMd,
                       ),
                     ],
                   ),
                 ),
+                if (i < 3) const PDivider(),
+              ],
             ],
           ),
         ),
+      ],
+    );
+  }
+}
+
+/// _SummaryCard 의 단일 `_Stat` placeholder — icon12+label / 값 h4(18).
+class _StatSkeleton extends StatelessWidget {
+  const _StatSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: const [
+            PSkeleton(width: 12, height: 12),
+            SizedBox(width: 4),
+            PSkeleton.line(width: 48, height: 12),
+          ],
+        ),
+        const SizedBox(height: 4),
+        const PSkeleton.line(width: 64, height: 18),
       ],
     );
   }

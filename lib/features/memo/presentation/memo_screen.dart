@@ -65,7 +65,15 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
         color: t.bgBrand,
         onRefresh: () async => ref.invalidate(memoListProvider),
         child: listAsync.when(
-          loading: () => _MemoSkeleton(tokens: t),
+          // 검색바·칩 행·추가 버튼은 정적 UI 틀 → 항상 실제 렌더(스켈레톤화 금지).
+          // 데이터 영역(칩 카운트·카드 그리드)만 스켈레톤.
+          loading: () => _buildShell(
+            context,
+            t,
+            // 칩 카운트는 데이터 의존 → 로딩 중 칩 행은 스켈레톤 pill.
+            chips: const _ChipRowSkeleton(),
+            body: const _MemoGridSkeleton(),
+          ),
           error: (e, _) => ListView(
             padding: const EdgeInsets.all(PSpace.x16),
             children: [
@@ -78,6 +86,64 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
           data: (all) => _buildBody(context, t, all),
         ),
       ),
+    );
+  }
+
+  /// 정적 UI 틀(검색바 + 칩 행 + 추가 버튼) + 본문. 로딩/데이터 공통 셸.
+  /// [chips] 는 칩 가로 스크롤 영역(데이터 시 실제 PChip / 로딩 시 스켈레톤),
+  /// [body] 는 칩 행 아래 콘텐츠(섹션+그리드 / 그리드 스켈레톤).
+  Widget _buildShell(
+    BuildContext context,
+    PorestTokens t, {
+    required Widget chips,
+    required Widget body,
+  }) {
+    return ListView(
+      // EdgeInsets.zero 미지정 시 safe-area 가 흡수돼 좌우 간격 어긋남 방지.
+      padding: const EdgeInsets.fromLTRB(
+        PSpace.x16,
+        PSpace.x16,
+        PSpace.x16,
+        96,
+      ),
+      children: [
+        // 검색 — web mobile 정합: AppBar 고정이 아니라 본문 스크롤 첫 항목.
+        PSearchField(
+          controller: _searchCtrl,
+          hint: '메모 검색',
+          trailing: _query.trim().isNotEmpty
+              ? PButton.icon(
+                  icon: LucideIcons.x,
+                  size: PButtonSize.sm,
+                  iconColor: t.fgTertiary,
+                  onPressed: () {
+                    _searchCtrl.clear();
+                    setState(() => _query = '');
+                  },
+                )
+              : null,
+          onChanged: (v) => setState(() => _query = v),
+        ),
+        const SizedBox(height: PSpace.x12),
+
+        // 태그 칩 가로 스크롤 + 우측 끝 + 추가 (web 칩 행 accent 추가 버튼 정합).
+        Row(
+          children: [
+            Expanded(child: SizedBox(height: 32, child: chips)),
+            const SizedBox(width: 8),
+            PButton(
+              label: '추가',
+              icon: LucideIcons.plus,
+              variant: PButtonVariant.accent,
+              size: PButtonSize.sm,
+              onPressed: () => showMemoEditDialog(context),
+            ),
+          ],
+        ),
+        const SizedBox(height: PSpace.x16),
+
+        body,
+      ],
     );
   }
 
@@ -117,114 +183,71 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
     // 태그 칩: 데이터에 존재하는 정규화 태그 + 카운트(항상 전체 기준, web 정합).
     final tags = <String>{for (final m in all) tagOf(m)}.toList();
 
-    return ListView(
-      // EdgeInsets.zero 미지정 시 safe-area 가 흡수돼 좌우 간격 어긋남 방지.
-      padding: const EdgeInsets.fromLTRB(
-        PSpace.x16,
-        PSpace.x16,
-        PSpace.x16,
-        96,
-      ),
-      children: [
-        // 검색 — web mobile 정합: AppBar 고정이 아니라 본문 스크롤 첫 항목.
-        PSearchField(
-          controller: _searchCtrl,
-          hint: '메모 검색',
-          trailing: _query.trim().isNotEmpty
-              ? PButton.icon(
-                  icon: LucideIcons.x,
-                  size: PButtonSize.sm,
-                  iconColor: t.fgTertiary,
-                  onPressed: () {
-                    _searchCtrl.clear();
-                    setState(() => _query = '');
-                  },
-                )
-              : null,
-          onChanged: (v) => setState(() => _query = v),
-        ),
-        const SizedBox(height: PSpace.x12),
-
-        // 태그 칩 가로 스크롤 + 우측 끝 + 추가 (web 칩 행 accent 추가 버튼 정합).
-        Row(
-          children: [
-            Expanded(
-              child: SizedBox(
-                height: 32,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  padding: EdgeInsets.zero,
-                  itemCount: tags.length + 1,
-                  separatorBuilder: (_, _) => const SizedBox(width: 6),
-                  itemBuilder: (_, i) {
-                    if (i == 0) {
-                      return PChip(
-                        label: '전체',
-                        size: PChipSize.sm,
-                        selected: _tagFilter == null,
-                        trailing: _CountBadge(
-                          count: all.length,
-                          selected: _tagFilter == null,
-                          t: t,
-                        ),
-                        onTap: () => setState(() => _tagFilter = null),
-                      );
-                    }
-                    final tag = tags[i - 1];
-                    final n = all.where((m) => tagOf(m) == tag).length;
-                    return PChip(
-                      label: tag,
-                      size: PChipSize.sm,
-                      selected: _tagFilter == tag,
-                      trailing: _CountBadge(
-                        count: n,
-                        selected: _tagFilter == tag,
-                        t: t,
-                      ),
-                      onTap: () => setState(() => _tagFilter = tag),
-                    );
-                  },
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            PButton(
-              label: '추가',
-              icon: LucideIcons.plus,
-              variant: PButtonVariant.accent,
-              size: PButtonSize.sm,
-              onPressed: () => showMemoEditDialog(context),
-            ),
-          ],
-        ),
-        const SizedBox(height: PSpace.x16),
-
-        if (visible.isEmpty)
-          _EmptyMemo(hasQuery: hasQuery)
-        else ...[
-          if (pinned.isNotEmpty) ...[
-            _SectionHeader(
-              icon: LucideIcons.pin,
-              label: '고정 · ${pinned.length}',
-              t: t,
-            ),
-            const SizedBox(height: PSpace.x12),
-            _CardGrid(memos: pinned, onPin: _togglePin),
-          ],
-          if (others.isNotEmpty) ...[
-            if (pinned.isNotEmpty) ...[
-              const SizedBox(height: PSpace.x20),
-              _SectionHeader(
-                icon: LucideIcons.stickyNote,
-                label: '모든 메모 · ${others.length}',
+    return _buildShell(
+      context,
+      t,
+      chips: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: EdgeInsets.zero,
+        itemCount: tags.length + 1,
+        separatorBuilder: (_, _) => const SizedBox(width: 6),
+        itemBuilder: (_, i) {
+          if (i == 0) {
+            return PChip(
+              label: '전체',
+              size: PChipSize.sm,
+              selected: _tagFilter == null,
+              trailing: _CountBadge(
+                count: all.length,
+                selected: _tagFilter == null,
                 t: t,
               ),
-              const SizedBox(height: PSpace.x12),
-            ],
-            _CardGrid(memos: others, onPin: _togglePin),
-          ],
-        ],
-      ],
+              onTap: () => setState(() => _tagFilter = null),
+            );
+          }
+          final tag = tags[i - 1];
+          final n = all.where((m) => tagOf(m) == tag).length;
+          return PChip(
+            label: tag,
+            size: PChipSize.sm,
+            selected: _tagFilter == tag,
+            trailing: _CountBadge(
+              count: n,
+              selected: _tagFilter == tag,
+              t: t,
+            ),
+            onTap: () => setState(() => _tagFilter = tag),
+          );
+        },
+      ),
+      body: visible.isEmpty
+          ? _EmptyMemo(hasQuery: hasQuery)
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (pinned.isNotEmpty) ...[
+                  _SectionHeader(
+                    icon: LucideIcons.pin,
+                    label: '고정 · ${pinned.length}',
+                    t: t,
+                  ),
+                  const SizedBox(height: PSpace.x12),
+                  _CardGrid(memos: pinned, onPin: _togglePin),
+                ],
+                if (others.isNotEmpty) ...[
+                  if (pinned.isNotEmpty) ...[
+                    const SizedBox(height: PSpace.x20),
+                    _SectionHeader(
+                      icon: LucideIcons.stickyNote,
+                      label: '모든 메모 · ${others.length}',
+                      t: t,
+                    ),
+                    const SizedBox(height: PSpace.x12),
+                  ],
+                  _CardGrid(memos: others, onPin: _togglePin),
+                ],
+              ],
+            ),
     );
   }
 
@@ -476,48 +499,97 @@ class _MemoCard extends StatelessWidget {
   }
 }
 
-/// 메모 목록 skeleton — 2열 그리드 placeholder.
-class _MemoSkeleton extends StatelessWidget {
-  const _MemoSkeleton({required this.tokens});
-  final PorestTokens tokens;
+/// 태그 칩 행 skeleton — 칩 카운트가 데이터 의존이라 로딩 중 pill placeholder.
+/// 실제 PChip(sm) 높이(약 24)·pill radius·가로 간격(6) 정합.
+class _ChipRowSkeleton extends StatelessWidget {
+  const _ChipRowSkeleton();
+
+  // sm chip 폭 mock — '전체' + 태그 칩 가변 폭 흉내(결정적 시퀀스).
+  static const _widths = [54.0, 64.0, 58.0, 72.0, 50.0];
 
   @override
   Widget build(BuildContext context) {
-    final t = tokens;
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(
-        PSpace.x16,
-        PSpace.x16,
-        PSpace.x16,
-        96,
-      ),
-      physics: const NeverScrollableScrollPhysics(),
-      children: [
-        // 검색바(36) + 태그 칩 placeholder — 실화면 구조 동일.
-        const PSkeleton.line(height: 36),
-        const SizedBox(height: PSpace.x12),
-        const PSkeleton.line(width: 200, height: 28),
-        const SizedBox(height: PSpace.x16),
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          padding: EdgeInsets.zero,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: PSpace.x12,
-            mainAxisSpacing: PSpace.x12,
-            mainAxisExtent: 168,
-          ),
-          itemCount: 6,
-          itemBuilder: (_, _) => Container(
-            decoration: BoxDecoration(
-              color: t.bgSurface,
-              borderRadius: PRadius.brLg,
-              border: Border.all(color: t.borderSubtle),
-            ),
-          ),
+    return ListView.separated(
+      scrollDirection: Axis.horizontal,
+      padding: EdgeInsets.zero,
+      itemCount: _widths.length,
+      separatorBuilder: (_, _) => const SizedBox(width: 6),
+      itemBuilder: (_, i) => Center(
+        child: PSkeleton(
+          width: _widths[i],
+          height: 24,
+          borderRadius: PRadius.brFull,
         ),
-      ],
+      ),
+    );
+  }
+}
+
+/// 메모 그리드 skeleton — 2열 카드 placeholder.
+/// 실제 [_MemoCard] 구조 1:1: shadow 카드(border 없음, color-tinted 대신 surface),
+/// padding 18, 상단 dot+태그 행 / 제목 줄 / 본문 4줄 / 날짜 줄.
+class _MemoGridSkeleton extends StatelessWidget {
+  const _MemoGridSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      padding: EdgeInsets.zero,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: PSpace.x12,
+        mainAxisSpacing: PSpace.x12,
+        mainAxisExtent: 168,
+      ),
+      itemCount: 6,
+      itemBuilder: (_, _) => const _MemoCardSkeleton(),
+    );
+  }
+}
+
+/// 단일 메모 카드 skeleton — 실제 [_MemoCard] 내부 구조 미러.
+class _MemoCardSkeleton extends StatelessWidget {
+  const _MemoCardSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    // 실제 카드는 shadow(boxShadow: shadowSm) + radius-lg, border 없음.
+    return Container(
+      decoration: BoxDecoration(
+        color: t.bgSurface,
+        borderRadius: PRadius.brLg,
+        boxShadow: t.shadowSm,
+      ),
+      child: const Padding(
+        padding: EdgeInsets.all(18),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 상단 행: 8×8 dot + 태그 라인.
+            Row(
+              children: [
+                PSkeleton(width: 8, height: 8, borderRadius: PRadius.brFull),
+                SizedBox(width: 6),
+                PSkeleton.line(width: 56, height: 10),
+              ],
+            ),
+            SizedBox(height: 8),
+            // 제목(15/700 → 19px line) — 1줄.
+            PSkeleton.line(width: 96, height: 15),
+            SizedBox(height: 8),
+            // 본문 4줄.
+            Expanded(
+              child: PSkeletonLines(lines: 3, lineHeight: 11),
+            ),
+            SizedBox(height: 8),
+            // 날짜(micro) 줄.
+            PSkeleton.line(width: 64, height: 10),
+          ],
+        ),
+      ),
     );
   }
 }
