@@ -23,8 +23,8 @@ import '../data/stocks_mock.dart';
 import '../domain/stock.dart';
 
 /// 증권 — 시세 · 보유 · 관심 · 호가 (토스증권 Open API 연동 가정, mock 시세).
-/// 웹 `pages/stocks/ui/StocksPage.tsx` 미러. porest-design DESIGN.desk.md
-/// '증권(Stocks) 페이지'(v83) spec 정합 — 상승=statusDangerFg / 하락=fgBrand.
+/// 웹 `pages/stocks/ui/StocksPage.tsx` 미러.
+/// 상승=statusDangerFg / 하락=fgBrand (국내 증권 통념, 기존 시맨틱 토큰 재활용).
 class StocksScreen extends ConsumerStatefulWidget {
   const StocksScreen({super.key});
 
@@ -298,7 +298,6 @@ Color _trendColor(PorestTokens t, double pct) =>
     pct >= 0 ? t.statusDangerFg : t.fgBrand;
 
 /// 종목 심볼 배지 tone — KR=chart-blue / US=chart-violet (다크 light swap).
-/// chart palette raw 인용은 DESIGN.desk.md '증권 페이지' spec 명시 영역.
 Color _marketTone(BuildContext context, Stock s) {
   final dark = Theme.of(context).brightness == Brightness.dark;
   if (s.isUs) {
