@@ -347,16 +347,6 @@ class _NotiRow extends StatelessWidget {
                           ),
                         ),
                       ],
-                      if ((noti.createAt ?? '').isNotEmpty) ...[
-                        const SizedBox(width: PSpace.x8),
-                        Text(
-                          _relativeTime(noti.createAt!),
-                          style: PTypo.micro.copyWith(
-                            color: tokens.fgTertiary,
-                            letterSpacing: 0,
-                          ),
-                        ),
-                      ],
                     ],
                   ),
                   if ((noti.message ?? '').isNotEmpty) ...[
@@ -371,6 +361,21 @@ class _NotiRow extends StatelessWidget {
                 ],
               ),
             ),
+            // 날짜는 우측 상단(웹 정합 — 좌측=내용, 우측=날짜+X).
+            if ((noti.createAt ?? '').isNotEmpty) ...[
+              const SizedBox(width: PSpace.x8),
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: Text(
+                  _relativeTime(noti.createAt!),
+                  style: PTypo.micro.copyWith(
+                    color: tokens.fgTertiary,
+                    letterSpacing: 0,
+                  ),
+                ),
+              ),
+            ],
+            const SizedBox(width: PSpace.x4),
             PButton.icon(
               icon: LucideIcons.x,
               size: PButtonSize.sm,
