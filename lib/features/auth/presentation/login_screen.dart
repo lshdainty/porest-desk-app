@@ -9,6 +9,7 @@ import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/auth/auth_notifier.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/shared/widgets/p_progress.dart';
 
 /// SSO 로그인 화면.
 ///
@@ -126,7 +127,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    CircularProgressIndicator(color: t.bgBrand),
+                    PCircularProgressIndicator(color: t.bgBrand),
                     if (_exchanging) ...[
                       const SizedBox(height: PSpace.x16),
                       Text('토큰 교환 중…',

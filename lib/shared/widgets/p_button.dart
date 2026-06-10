@@ -4,6 +4,7 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/shared/widgets/p_progress.dart';
 import 'package:porest_desk_app/shared/widgets/p_tooltip.dart';
 
 /// front `<Button>` (shadcn) 미러 — variant 별 일관 스타일.
@@ -185,13 +186,10 @@ class PButton extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 if (loading)
-                  SizedBox(
-                    width: _iconSize(),
-                    height: _iconSize(),
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: fg,
-                    ),
+                  PCircularProgressIndicator(
+                    size: _iconSize(),
+                    strokeWidth: 2,
+                    color: fg,
                   )
                 else if (icon != null)
                   Icon(icon, size: _iconSize(), color: iconColor ?? fg),

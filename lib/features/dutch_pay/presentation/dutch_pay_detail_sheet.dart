@@ -11,6 +11,7 @@ import 'package:porest_desk_app/core/settings/settings_notifier.dart';
 import 'package:porest_desk_app/shared/widgets/p_badge.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
+import 'package:porest_desk_app/shared/widgets/p_progress.dart';
 import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/features/dutch_pay/application/dutch_pay_providers.dart';
 import 'package:porest_desk_app/features/dutch_pay/domain/dutch_pay.dart';
@@ -72,7 +73,7 @@ class _Body extends ConsumerWidget {
     if (dp == null) {
       return const Padding(
         padding: EdgeInsets.all(PSpace.x24),
-        child: Center(child: CircularProgressIndicator()),
+        child: Center(child: PCircularProgressIndicator()),
       );
     }
 

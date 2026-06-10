@@ -15,6 +15,7 @@ import 'package:porest_desk_app/shared/widgets/p_card.dart';
 import 'package:porest_desk_app/shared/widgets/p_checkbox.dart';
 import 'package:porest_desk_app/shared/widgets/p_chip.dart';
 import 'package:porest_desk_app/shared/widgets/p_empty_state.dart';
+import 'package:porest_desk_app/shared/widgets/p_progress.dart';
 import 'package:porest_desk_app/shared/widgets/p_search_field.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
 import 'package:porest_desk_app/features/card/application/card_providers.dart';
@@ -332,12 +333,8 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
       if (_loadingMore) ...[
         const SizedBox(height: PSpace.x16),
         Center(
-          child: SizedBox(
-            width: 24,
-            height: 24,
-            child: CircularProgressIndicator(
-                strokeWidth: 2.5, color: t.bgBrand),
-          ),
+          child: PCircularProgressIndicator(
+              size: 24, strokeWidth: 2.5, color: t.bgBrand),
         ),
       ],
     ];

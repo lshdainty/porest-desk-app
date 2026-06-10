@@ -6,6 +6,7 @@ import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
+import 'package:porest_desk_app/shared/widgets/p_progress.dart';
 import 'package:porest_desk_app/core/auth/auth_notifier.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
@@ -135,9 +136,7 @@ class _HideAmountsUnlockDialogState
         FilledButton(
           onPressed: (_ctrl.text.trim().isEmpty || _submitting) ? null : _submit,
           child: _submitting
-              ? const SizedBox(
-                  width: 16, height: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2))
+              ? const PCircularProgressIndicator(size: 16, strokeWidth: 2)
               : const Text('확인'),
         ),
       ],
