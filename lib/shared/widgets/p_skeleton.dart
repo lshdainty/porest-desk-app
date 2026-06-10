@@ -220,10 +220,11 @@ class PCardSkeleton extends StatelessWidget {
     final t = context.tokens;
     return Container(
       padding: padding,
+      // 실제 PCard 는 shadow variant(border 없음) — 스켈레톤도 동일하게.
       decoration: BoxDecoration(
         color: t.bgSurface,
         borderRadius: PRadius.brLg,
-        border: Border.all(color: t.borderSubtle),
+        boxShadow: t.shadowSm,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -264,10 +265,11 @@ class PChartSkeleton extends StatelessWidget {
     final t = context.tokens;
     return Container(
       padding: const EdgeInsets.all(16),
+      // 실제 PCard 는 shadow variant(border 없음) — 스켈레톤도 동일하게.
       decoration: BoxDecoration(
         color: t.bgSurface,
         borderRadius: PRadius.brLg,
-        border: Border.all(color: t.borderSubtle),
+        boxShadow: t.shadowSm,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
