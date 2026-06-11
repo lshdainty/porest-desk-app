@@ -16,6 +16,7 @@ import 'package:porest_desk_app/shared/widgets/p_card.dart';
 import 'package:porest_desk_app/shared/widgets/p_floating_action_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
 import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
+import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/features/dutch_pay/application/dutch_pay_providers.dart';
 import 'package:porest_desk_app/features/dutch_pay/domain/dutch_pay.dart';
 import 'package:porest_desk_app/features/dutch_pay/presentation/dutch_pay_create_dialog.dart';
@@ -146,16 +147,19 @@ class _DutchPayScreenState extends ConsumerState<DutchPayScreen> {
         ),
         const SizedBox(height: PSpace.md),
 
-        // ── 탭 3종 (중립 세그 — sunken 바 + active raised surface, 콘텐츠 너비) ──
+        // ── 탭 3종 (중립 세그 — container sm, 콘텐츠 너비) ──
         Align(
           alignment: Alignment.centerLeft,
-          child: _DutchSegTabs(
+          child: PTabs<_DutchTab>(
             value: _tab,
             onChanged: (v) => setState(() => _tab = v),
-            options: [
-              (_DutchTab.active, '진행 중 · ${active.length}'),
-              (_DutchTab.past, '완료 · ${past.length}'),
-              (_DutchTab.friends, '친구'),
+            variant: PTabsVariant.container,
+            size: PTabsSize.sm,
+            expand: true,
+            items: [
+              PTabItem(value: _DutchTab.active, label: '진행 중 · ${active.length}'),
+              PTabItem(value: _DutchTab.past, label: '완료 · ${past.length}'),
+              const PTabItem(value: _DutchTab.friends, label: '친구'),
             ],
           ),
         ),
@@ -344,62 +348,6 @@ String dutchKDate(String? iso) {
   final d = int.tryParse(parts[2]);
   if (m == null || d == null) return iso;
   return '$m월 $d일';
-}
-
-// ─────────────────────────────────────────────────────────────
-// 중립 세그 탭 — sunken 바 위에 active 만 raised surface(bg-surface + shadow).
-// brand 색을 쓰지 않는 중립 토글(클로드 더치페이 탭 미러). 콘텐츠 너비.
-// ─────────────────────────────────────────────────────────────
-
-class _DutchSegTabs extends StatelessWidget {
-  const _DutchSegTabs({
-    required this.value,
-    required this.onChanged,
-    required this.options,
-  });
-  final _DutchTab value;
-  final ValueChanged<_DutchTab> onChanged;
-  final List<(_DutchTab, String)> options;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    return Container(
-      padding: const EdgeInsets.all(3),
-      decoration: BoxDecoration(
-        color: t.bgSunken,
-        borderRadius: PRadius.brMd,
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          for (final (tab, label) in options)
-            GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () => onChanged(tab),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 150),
-                curve: Curves.easeOut,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                decoration: BoxDecoration(
-                  color: tab == value ? t.bgSurface : Colors.transparent,
-                  borderRadius: PRadius.brSm,
-                  boxShadow: tab == value ? t.shadowSm : null,
-                ),
-                child: Text(
-                  label,
-                  style: PTypo.caption.copyWith(
-                    color: tab == value ? t.fgPrimary : t.fgSecondary,
-                    fontWeight: PFontWeight.semi,
-                  ),
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -976,16 +924,19 @@ class _DutchPaySkeleton extends StatelessWidget {
         ),
         const SizedBox(height: PSpace.md),
 
-        // ── 탭 세그먼트 (정적 틀) — 실제 _DutchSegTabs 렌더 ──
+        // ── 탭 세그먼트 (정적 틀) — 실제 PTabs container sm 렌더 ──
         Align(
           alignment: Alignment.centerLeft,
-          child: _DutchSegTabs(
+          child: PTabs<_DutchTab>(
             value: tab,
             onChanged: onTabChanged,
-            options: const [
-              (_DutchTab.active, '진행 중'),
-              (_DutchTab.past, '완료'),
-              (_DutchTab.friends, '친구'),
+            variant: PTabsVariant.container,
+            size: PTabsSize.sm,
+            expand: true,
+            items: const [
+              PTabItem(value: _DutchTab.active, label: '진행 중'),
+              PTabItem(value: _DutchTab.past, label: '완료'),
+              PTabItem(value: _DutchTab.friends, label: '친구'),
             ],
           ),
         ),
