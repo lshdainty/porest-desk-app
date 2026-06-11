@@ -17,6 +17,9 @@ import 'package:porest_desk_app/app/theme/typography.dart';
 ///   on-accent 흰색 600. 모바일 navigation (큰 hit area).
 enum PTabsVariant { container, underline, pills }
 
+/// container 전용 size (tabs.md Container size variant). underline/pills 미적용.
+enum PTabsSize { defaultSize, sm }
+
 class PTabItem<T> {
   const PTabItem({required this.value, required this.label, this.icon, this.disabled = false});
   final T value;
@@ -32,6 +35,7 @@ class PTabs<T> extends StatelessWidget {
     required this.value,
     required this.onChanged,
     this.variant = PTabsVariant.container,
+    this.size = PTabsSize.defaultSize,
     this.expand = false,
   });
 
@@ -39,6 +43,9 @@ class PTabs<T> extends StatelessWidget {
   final T value;
   final ValueChanged<T> onChanged;
   final PTabsVariant variant;
+
+  /// container 전용 size (default 40 / sm 32). underline/pills 무시.
+  final PTabsSize size;
 
   /// `true` 면 trigger 균등 분배 (`Expanded`로 wrap).
   final bool expand;
@@ -57,13 +64,21 @@ class PTabs<T> extends StatelessWidget {
   }
 
   Widget _container(PorestTokens t) {
+    // tabs.md Container size variant — default(list 40 / trigger 32 · 4×12 · 14) ·
+    //   sm(list 32 / trigger 28 · 4×8 · 13). track=surface-input(bgMuted), active=surface-default+shadow-sm.
+    final sm = size == PTabsSize.sm;
     final children = [
       for (final it in items)
-        _trigger(t, it, padX: 12, padY: 4, radius: PRadius.brXs),
+        _trigger(t, it,
+            padX: sm ? 8 : 12,
+            padY: 4,
+            radius: PRadius.brXs,
+            fontSize: sm ? PFontSize.bodySm : PFontSize.body,
+            height: sm ? 28 : 32),
     ];
     return Container(
-      height: 40,
-      padding: const EdgeInsets.all(4),
+      height: sm ? 32 : 40,
+      padding: EdgeInsets.all(sm ? 2 : 4),
       decoration: BoxDecoration(
         color: t.bgMuted,
         borderRadius: PRadius.brSm,
@@ -111,6 +126,8 @@ class PTabs<T> extends StatelessWidget {
     required double padX,
     required double padY,
     required BorderRadius radius,
+    double fontSize = PFontSize.body,
+    double? height,
   }) {
     final active = item.value == value;
     final disabled = item.disabled;
@@ -169,7 +186,7 @@ class PTabs<T> extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontFamily: PTypo.sans,
-                fontSize: PFontSize.body,
+                fontSize: fontSize,
                 fontWeight: weight,
                 color: textColor,
               ),
@@ -182,6 +199,7 @@ class PTabs<T> extends StatelessWidget {
     return AnimatedContainer(
       duration: PMotion.fast,
       curve: PMotion.standard,
+      height: height,
       decoration: decoration,
       child: Opacity(
         opacity: disabled ? 0.5 : 1,
@@ -207,6 +225,7 @@ class PTabsView<T> extends StatelessWidget {
     required this.onChanged,
     required this.valueToContent,
     this.variant = PTabsVariant.container,
+    this.size = PTabsSize.defaultSize,
     this.expand = false,
     this.contentTopGap,
   });
@@ -216,6 +235,7 @@ class PTabsView<T> extends StatelessWidget {
   final ValueChanged<T> onChanged;
   final Widget Function(BuildContext, T) valueToContent;
   final PTabsVariant variant;
+  final PTabsSize size;
   final bool expand;
   final double? contentTopGap;
 
@@ -235,6 +255,7 @@ class PTabsView<T> extends StatelessWidget {
           value: value,
           onChanged: onChanged,
           variant: variant,
+          size: size,
           expand: expand,
         ),
         SizedBox(height: gap),
