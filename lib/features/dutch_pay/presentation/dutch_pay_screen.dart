@@ -612,13 +612,23 @@ class _SessionCard extends StatelessWidget {
               _AvatarStack(participants: dp.participants),
               const SizedBox(width: 12),
               Expanded(
-                child: ClipRRect(
-                  borderRadius: PRadius.brFull,
-                  child: LinearProgressIndicator(
-                    value: progress,
-                    minHeight: 6,
-                    backgroundColor: t.bgSunken,
-                    valueColor: AlwaysStoppedAnimation<Color>(t.fgBrand),
+                // track + fill 양끝 round (웹 정합). 고정폭 _AvatarStack 덕에 바 길이 일정.
+                child: Container(
+                  height: 6,
+                  clipBehavior: Clip.antiAlias,
+                  alignment: Alignment.centerLeft,
+                  decoration: BoxDecoration(
+                    color: t.bgSunken,
+                    borderRadius: PRadius.brFull,
+                  ),
+                  child: FractionallySizedBox(
+                    widthFactor: progress.clamp(0.0, 1.0),
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: t.fgBrand,
+                        borderRadius: PRadius.brFull,
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -638,7 +648,8 @@ class _SessionCard extends StatelessWidget {
   }
 }
 
-/// 참여자 아바타 겹침 스택 — 28px, marginLeft -8, 미지불 dim.
+/// 참여자 아바타 겹침 스택 — 28px, 최대 4개 고정폭(88), 미지불 dim.
+/// 인원수 무관하게 폭 고정 → 진행바 길이 항상 동일. 5+면 3개 + +N 배지.
 class _AvatarStack extends StatelessWidget {
   const _AvatarStack({required this.participants});
   final List<DutchPayParticipant> participants;
@@ -646,30 +657,36 @@ class _AvatarStack extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    const max = 4;
-    final shown = participants.take(max).toList();
+    const max = 4; // 최대 4 슬롯 고정
+    const size = 28.0;
+    const step = 20.0; // 28 - 8 overlap
+    const fixedWidth = size + step * (max - 1); // 88 — 고정폭(바 길이 일정)
+    final overflow = participants.length > max;
+    final shown =
+        (overflow ? participants.take(max - 1) : participants.take(max)).toList();
     final extra = participants.length - shown.length;
     return SizedBox(
-      height: 28,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
+      width: fixedWidth,
+      height: size,
+      child: Stack(
+        clipBehavior: Clip.none,
         children: [
           for (var i = 0; i < shown.length; i++)
-            Transform.translate(
-              offset: Offset(i == 0 ? 0 : -8.0 * i, 0),
+            Positioned(
+              left: step * i,
               child: DutchAvatar(
                 name: shown[i].participantName ?? '?',
-                size: 28,
+                size: size,
                 dimmed: !shown[i].isPaid,
                 borderColor: t.bgSurface,
               ),
             ),
           if (extra > 0)
-            Transform.translate(
-              offset: Offset(-8.0 * shown.length, 0),
+            Positioned(
+              left: step * shown.length,
               child: Container(
-                width: 28,
-                height: 28,
+                width: size,
+                height: size,
                 decoration: BoxDecoration(
                   color: t.bgSunken,
                   shape: BoxShape.circle,
