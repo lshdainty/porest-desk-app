@@ -21,7 +21,6 @@ import 'package:porest_desk_app/shared/widgets/p_chip.dart';
 import 'package:porest_desk_app/shared/widgets/p_date_input.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
-import 'package:porest_desk_app/shared/widgets/p_toggle.dart';
 import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
@@ -238,15 +237,16 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  PToggleGroupSingle<_SegMode>(
+                  PTabs<_SegMode>(
                     value: draftSeg,
-                    expanded: true,
-                    visual: PToggleGroupVisual.solid,
+                    variant: PTabsVariant.container,
+                    size: PTabsSize.sm,
+                    expand: true,
                     items: const [
-                      PToggleGroupItem(value: _SegMode.month, label: '월'),
-                      PToggleGroupItem(value: _SegMode.quarter, label: '분기'),
-                      PToggleGroupItem(value: _SegMode.year, label: '년'),
-                      PToggleGroupItem(value: _SegMode.custom, label: '직접'),
+                      PTabItem(value: _SegMode.month, label: '월'),
+                      PTabItem(value: _SegMode.quarter, label: '분기'),
+                      PTabItem(value: _SegMode.year, label: '년'),
+                      PTabItem(value: _SegMode.custom, label: '직접'),
                     ],
                     onChanged: setSeg,
                   ),

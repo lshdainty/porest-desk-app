@@ -12,7 +12,7 @@ import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_category_tile.dart';
 import 'package:porest_desk_app/shared/widgets/p_date_input.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
-import 'package:porest_desk_app/shared/widgets/p_segmented.dart';
+import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
 import 'package:porest_desk_app/shared/widgets/p_type_chip.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
@@ -258,16 +258,17 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _label('기간', t),
-        PSegmented<FilterPeriod>(
+        PTabs<FilterPeriod>(
           value: _period,
           onChanged: (v) => setState(() => _period = v),
-          options: const [
-            PSegmentOption(value: FilterPeriod.week, label: '이번 주'),
-            PSegmentOption(value: FilterPeriod.month, label: '이번 달'),
-            PSegmentOption(
-                value: FilterPeriod.threeMonth, label: '3개월'),
-            PSegmentOption(
-                value: FilterPeriod.custom, label: '직접 선택'),
+          variant: PTabsVariant.container,
+          size: PTabsSize.sm,
+          expand: true,
+          items: const [
+            PTabItem(value: FilterPeriod.week, label: '이번 주'),
+            PTabItem(value: FilterPeriod.month, label: '이번 달'),
+            PTabItem(value: FilterPeriod.threeMonth, label: '3개월'),
+            PTabItem(value: FilterPeriod.custom, label: '직접 선택'),
           ],
         ),
         if (_period == FilterPeriod.custom) ...[

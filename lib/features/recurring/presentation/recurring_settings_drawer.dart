@@ -18,8 +18,8 @@ import 'package:porest_desk_app/shared/widgets/p_progress.dart';
 import 'package:porest_desk_app/shared/widgets/p_section_label.dart';
 import 'package:porest_desk_app/shared/widgets/p_select.dart';
 import 'package:porest_desk_app/shared/widgets/p_switch.dart';
+import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
-import 'package:porest_desk_app/shared/widgets/p_toggle.dart';
 import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
@@ -369,15 +369,16 @@ class _RecurringSettingsBodyState
 
         _Section(
           title: '반복 주기',
-          child: PToggleGroupSingle<String>(
+          child: PTabs<String>(
             value: _frequency,
-            expanded: true,
-            visual: PToggleGroupVisual.solid,
+            variant: PTabsVariant.container,
+            size: PTabsSize.sm,
+            expand: true,
             items: const [
-              PToggleGroupItem(value: 'DAILY', label: '매일'),
-              PToggleGroupItem(value: 'WEEKLY', label: '매주'),
-              PToggleGroupItem(value: 'MONTHLY', label: '매월'),
-              PToggleGroupItem(value: 'YEARLY', label: '매년'),
+              PTabItem(value: 'DAILY', label: '매일'),
+              PTabItem(value: 'WEEKLY', label: '매주'),
+              PTabItem(value: 'MONTHLY', label: '매월'),
+              PTabItem(value: 'YEARLY', label: '매년'),
             ],
             onChanged: (v) => setState(() => _frequency = v),
           ),
@@ -1050,14 +1051,15 @@ class _TxFields extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // 타입 (지출/수입)
-        PToggleGroupSingle<String>(
-          expanded: true,
-          visual: PToggleGroupVisual.solid,
+        PTabs<String>(
+          variant: PTabsVariant.container,
+          size: PTabsSize.sm,
+          expand: true,
           value: c.type,
           onChanged: (v) => _set(() => c.type = v),
           items: const [
-            PToggleGroupItem(value: 'EXPENSE', label: '지출'),
-            PToggleGroupItem(value: 'INCOME', label: '수입'),
+            PTabItem(value: 'EXPENSE', label: '지출'),
+            PTabItem(value: 'INCOME', label: '수입'),
           ],
         ),
         const SizedBox(height: PSpace.x12),

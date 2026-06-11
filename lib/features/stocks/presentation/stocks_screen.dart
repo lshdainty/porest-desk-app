@@ -17,8 +17,8 @@ import 'package:porest_desk_app/shared/widgets/p_card.dart';
 import 'package:porest_desk_app/shared/widgets/p_chip.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_search_field.dart';
-import 'package:porest_desk_app/shared/widgets/p_segmented.dart';
 import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
+import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/features/stocks/data/stocks_mock.dart';
 import 'package:porest_desk_app/features/stocks/domain/stock.dart';
 
@@ -97,14 +97,17 @@ class _StocksScreenState extends ConsumerState<StocksScreen> {
             ),
           ),
           const SizedBox(height: 14),
-          PSegmented<_Seg>(
+          PTabs<_Seg>(
             value: _seg,
             onChanged: (v) => setState(() => _seg = v),
-            options: [
-              PSegmentOption(
+            variant: PTabsVariant.container,
+            size: PTabsSize.sm,
+            expand: true,
+            items: [
+              PTabItem(
                   value: _Seg.holdings,
                   label: '보유 ${kStockHoldings.length}'),
-              PSegmentOption(
+              PTabItem(
                   value: _Seg.watch, label: '관심 ${_watchedTickers.length}'),
             ],
           ),
@@ -786,12 +789,15 @@ class _StockDetailBodyState extends State<_StockDetailBody> {
             children: [
               _Sparkline(values: s.spark, color: trend, height: 150, fill: true),
               const SizedBox(height: PSpace.x8),
-              PSegmented<String>(
+              PTabs<String>(
                 value: _range,
                 onChanged: (v) => setState(() => _range = v),
-                options: [
+                variant: PTabsVariant.container,
+                size: PTabsSize.sm,
+                expand: true,
+                items: [
                   for (final r in _kRanges)
-                    PSegmentOption(value: r, label: r),
+                    PTabItem(value: r, label: r),
                 ],
               ),
             ],

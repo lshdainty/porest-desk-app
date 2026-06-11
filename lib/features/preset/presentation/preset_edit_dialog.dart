@@ -15,8 +15,8 @@ import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_select.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
 import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
+import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
-import 'package:porest_desk_app/shared/widgets/p_toggle.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
 import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
@@ -192,12 +192,14 @@ class _BodyState extends ConsumerState<_Body> {
       padding: const EdgeInsets.fromLTRB(PSpace.lg, 0, PSpace.lg, PSpace.lg),
       children: [
         // ① 지출/수입 세그먼트
-        PToggleGroupSingle<String>(
+        PTabs<String>(
           value: _type,
-          expanded: true,
+          variant: PTabsVariant.container,
+          size: PTabsSize.sm,
+          expand: true,
           items: const [
-            PToggleGroupItem(value: 'EXPENSE', label: '지출'),
-            PToggleGroupItem(value: 'INCOME', label: '수입'),
+            PTabItem(value: 'EXPENSE', label: '지출'),
+            PTabItem(value: 'INCOME', label: '수입'),
           ],
           onChanged: (v) => _onTypeChanged(v, categories),
         ),

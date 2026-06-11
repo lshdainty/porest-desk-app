@@ -9,7 +9,7 @@ import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
 import 'package:porest_desk_app/shared/widgets/p_radio_list.dart';
 import 'package:porest_desk_app/shared/widgets/p_section_label.dart';
-import 'package:porest_desk_app/shared/widgets/p_toggle.dart';
+import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_tile.dart';
 
@@ -104,13 +104,15 @@ class AppearanceSection extends ConsumerWidget {
         const SizedBox(height: PSpace.x24),
         PSectionLabel('표시 밀도'),
         const SizedBox(height: PSpace.x8),
-        PToggleGroupSingle<PDensity>(
+        PTabs<PDensity>(
           value: settings.density,
-          expanded: true,
+          variant: PTabsVariant.container,
+          size: PTabsSize.sm,
+          expand: true,
           items: const [
-            PToggleGroupItem(value: PDensity.compact, label: '컴팩트'),
-            PToggleGroupItem(value: PDensity.comfortable, label: '편안'),
-            PToggleGroupItem(value: PDensity.spacious, label: '여유'),
+            PTabItem(value: PDensity.compact, label: '컴팩트'),
+            PTabItem(value: PDensity.comfortable, label: '편안'),
+            PTabItem(value: PDensity.spacious, label: '여유'),
           ],
           onChanged: (d) => ref.read(settingsProvider.notifier).setDensity(d),
         ),
@@ -118,13 +120,15 @@ class AppearanceSection extends ConsumerWidget {
         const SizedBox(height: PSpace.x24),
         PSectionLabel('언어'),
         const SizedBox(height: PSpace.x8),
-        PToggleGroupSingle<String>(
+        PTabs<String>(
           value: settings.locale?.languageCode ?? 'system',
-          expanded: true,
+          variant: PTabsVariant.container,
+          size: PTabsSize.sm,
+          expand: true,
           items: const [
-            PToggleGroupItem(value: 'system', label: '시스템'),
-            PToggleGroupItem(value: 'ko', label: '한국어'),
-            PToggleGroupItem(value: 'en', label: 'English'),
+            PTabItem(value: 'system', label: '시스템'),
+            PTabItem(value: 'ko', label: '한국어'),
+            PTabItem(value: 'en', label: 'English'),
           ],
           onChanged: (v) {
             final notifier = ref.read(settingsProvider.notifier);

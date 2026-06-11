@@ -18,7 +18,7 @@ import 'package:porest_desk_app/shared/widgets/p_card.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
 import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
-import 'package:porest_desk_app/shared/widgets/p_toggle.dart';
+import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
 import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
 import 'package:porest_desk_app/features/preset/application/preset_providers.dart';
@@ -399,13 +399,14 @@ class _Toolbar extends StatelessWidget {
       runSpacing: PSpace.x8,
       spacing: PSpace.x8,
       children: [
-        PToggleGroupSingle<_SortKey>(
+        PTabs<_SortKey>(
           value: sortBy,
-          size: PToggleSize.sm,
+          variant: PTabsVariant.container,
+          size: PTabsSize.sm,
           items: const [
-            PToggleGroupItem(value: _SortKey.used, label: '사용 많은 순'),
-            PToggleGroupItem(value: _SortKey.recent, label: '최근 사용'),
-            PToggleGroupItem(value: _SortKey.name, label: '이름순'),
+            PTabItem(value: _SortKey.used, label: '사용 많은 순'),
+            PTabItem(value: _SortKey.recent, label: '최근 사용'),
+            PTabItem(value: _SortKey.name, label: '이름순'),
           ],
           onChanged: onSort,
         ),

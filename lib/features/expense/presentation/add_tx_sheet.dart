@@ -21,8 +21,8 @@ import 'package:porest_desk_app/shared/widgets/p_progress.dart';
 import 'package:porest_desk_app/shared/widgets/p_section_label.dart';
 import 'package:porest_desk_app/shared/widgets/p_select.dart';
 import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
+import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
-import 'package:porest_desk_app/shared/widgets/p_toggle.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
 import 'package:porest_desk_app/features/preset/application/preset_providers.dart';
 import 'package:porest_desk_app/features/preset/domain/expense_template.dart';
@@ -901,24 +901,25 @@ class _TxInputForm extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // 타입 토글
-        PToggleGroupSingle<String>(
-          expanded: true,
-          visual: PToggleGroupVisual.solid,
+        PTabs<String>(
+          variant: PTabsVariant.container,
+          size: PTabsSize.sm,
+          expand: true,
           value: c.type,
           onChanged: typeReadOnly ? (_) {} : (v) => _set(() => c.type = v),
           items: [
-            PToggleGroupItem(
+            PTabItem(
               value: 'EXPENSE',
               label: '지출',
               disabled: typeReadOnly && typeDisabledFor != 'EXPENSE',
             ),
-            PToggleGroupItem(
+            PTabItem(
               value: 'INCOME',
               label: '수입',
               disabled: typeReadOnly && typeDisabledFor != 'INCOME',
             ),
             if (!typeReadOnly || c.type == 'TRANSFER')
-              PToggleGroupItem(
+              PTabItem(
                 value: 'TRANSFER',
                 label: '이체',
                 disabled: typeReadOnly && typeDisabledFor != 'TRANSFER',

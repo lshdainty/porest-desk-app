@@ -12,11 +12,11 @@ import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_card.dart';
 import 'package:porest_desk_app/shared/widgets/p_divider.dart';
 import 'package:porest_desk_app/shared/widgets/p_section_label.dart';
-import 'package:porest_desk_app/shared/widgets/p_segmented.dart';
 import 'package:porest_desk_app/shared/widgets/p_select.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
 import 'package:porest_desk_app/shared/widgets/p_slider.dart';
 import 'package:porest_desk_app/shared/widgets/p_switch.dart';
+import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
 import 'package:porest_desk_app/features/notification/application/user_preferences_providers.dart';
 import 'package:porest_desk_app/features/notification/data/user_preferences_repository.dart';
@@ -950,13 +950,16 @@ class _EmailCard extends StatelessWidget {
                 children: [
                   PSectionLabel('발송 주기'),
                   const SizedBox(height: PSpace.x8),
-                  PSegmented<String>(
+                  PTabs<String>(
                     value: frequency,
                     onChanged: onFrequencyChanged,
-                    options: const [
-                      PSegmentOption(value: EmailFrequency.daily, label: '매일'),
-                      PSegmentOption(value: EmailFrequency.weekly, label: '매주'),
-                      PSegmentOption(
+                    variant: PTabsVariant.container,
+                    size: PTabsSize.sm,
+                    expand: true,
+                    items: const [
+                      PTabItem(value: EmailFrequency.daily, label: '매일'),
+                      PTabItem(value: EmailFrequency.weekly, label: '매주'),
+                      PTabItem(
                         value: EmailFrequency.monthly,
                         label: '매월',
                       ),
