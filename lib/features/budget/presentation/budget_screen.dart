@@ -1,6 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:porest_desk_app/app/theme/radius.dart';
@@ -10,7 +11,6 @@ import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/core/format/date.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
-import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
 import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
 import 'package:porest_desk_app/shared/widgets/p_badge.dart';
@@ -28,7 +28,6 @@ import 'package:porest_desk_app/features/budget/domain/budget.dart';
 import 'package:porest_desk_app/features/budget/domain/budget_compliance.dart';
 import 'package:porest_desk_app/features/budget/presentation/budget_edit_dialog.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
-import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 
 const double _warnThreshold = 85;
 
@@ -50,165 +49,6 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
     _month.month,
     DateTime(_month.year, _month.month + 1, 0).day,
   );
-
-  Future<void> _copyFromPreviousMonth() async {
-    final prevMonth = DateTime(_month.year, _month.month - 1, 1);
-    final prevKey = (year: prevMonth.year, month: prevMonth.month);
-    final repo = await ref.read(budgetRepositoryProvider.future);
-    try {
-      final prev = await repo.list(year: prevKey.year, month: prevKey.month);
-      if (prev.isEmpty) {
-        if (!mounted) return;
-        showPSnackBar(context, '${prevKey.month}월에 등록된 예산이 없습니다');
-        return;
-      }
-      final cur = await repo.list(year: _key.year, month: _key.month);
-      final existingCats = cur.map((b) => b.categoryRowId).toSet();
-      final toCreate = prev
-          .where((b) => !existingCats.contains(b.categoryRowId))
-          .toList();
-      if (toCreate.isEmpty) {
-        if (!mounted) return;
-        showPSnackBar(context, '이미 모든 카테고리가 복사되어 있습니다');
-        return;
-      }
-      if (!mounted) return;
-      final ok = await showPConfirmDialog(
-        context,
-        title: '전월 예산 복사',
-        message:
-            '${prevKey.month}월의 ${toCreate.length}개 카테고리를 ${_key.month}월로 복사할까요?',
-        confirmLabel: '복사',
-      );
-      if (!ok || !mounted) return;
-      for (final b in toCreate) {
-        await repo.create(
-          categoryRowId: b.categoryRowId,
-          budgetAmount: b.budgetAmount,
-          budgetYear: _key.year,
-          budgetMonth: _key.month,
-        );
-      }
-      ref.invalidate(monthBudgetsProvider(_key));
-      ref.invalidate(budgetComplianceProvider(6));
-      if (!mounted) return;
-      showPSnackBar(
-        context,
-        '${toCreate.length}개 예산을 복사했습니다',
-        severity: PSnackSeverity.success,
-      );
-    } on ApiException catch (e) {
-      if (!mounted) return;
-      showPSnackBar(
-        context,
-        '복사 실패: ${e.message}',
-        severity: PSnackSeverity.error,
-      );
-    }
-  }
-
-  Future<void> _clearMonth() async {
-    final ok = await showPConfirmDialog(
-      context,
-      title: '이번 달 전체 삭제',
-      message: '${_key.month}월에 등록된 예산을 모두 삭제할까요?',
-      confirmLabel: '삭제',
-      destructive: true,
-    );
-    if (!ok || !mounted) return;
-    try {
-      final repo = await ref.read(budgetRepositoryProvider.future);
-      final list = await repo.list(year: _key.year, month: _key.month);
-      for (final b in list) {
-        await repo.delete(b.rowId);
-      }
-      ref.invalidate(monthBudgetsProvider(_key));
-      ref.invalidate(budgetComplianceProvider(6));
-      if (!mounted) return;
-      showPSnackBar(context, '${list.length}개 예산을 삭제했습니다');
-    } on ApiException catch (e) {
-      if (!mounted) return;
-      showPSnackBar(
-        context,
-        '삭제 실패: ${e.message}',
-        severity: PSnackSeverity.error,
-      );
-    }
-  }
-
-  void _openSettings(List<Budget> budgets) {
-    final overall = budgets.where((b) => b.categoryRowId == null).toList();
-    final hasOverall = overall.isNotEmpty;
-    showPSheet<void>(
-      context,
-      title: '예산 설정',
-      contentBuilder: (ctx, scrollCtrl) => ListView(
-        controller: scrollCtrl,
-        padding: const EdgeInsets.symmetric(
-          horizontal: PSpace.x20,
-          vertical: PSpace.x24,
-        ),
-        children: [
-          _SheetTile(
-            icon: LucideIcons.target,
-            label: hasOverall ? '월 전체 상한 수정' : '월 전체 상한 설정',
-            description: '${_key.month}월 전체 지출 상한을 정해요',
-            onTap: () {
-              Navigator.of(ctx).pop();
-              showBudgetEditDialog(
-                context,
-                year: _key.year,
-                month: _key.month,
-                edit: hasOverall ? overall.first : null,
-                overallNew: !hasOverall,
-              );
-            },
-          ),
-          const SizedBox(height: PSpace.x8),
-          _SheetTile(
-            icon: LucideIcons.plus,
-            label: '카테고리 예산 추가',
-            description: '카테고리별 한도를 설정해요',
-            onTap: () {
-              Navigator.of(ctx).pop();
-              showBudgetEditDialog(
-                context,
-                year: _key.year,
-                month: _key.month,
-                usedCategoryIds: budgets
-                    .map((b) => b.categoryRowId)
-                    .whereType<int>()
-                    .toSet(),
-              );
-            },
-          ),
-          const Divider(height: PSpace.x24),
-          _SheetTile(
-            icon: LucideIcons.copy,
-            label: '전월 예산 복사',
-            description: '지난달 예산을 그대로 가져와요',
-            onTap: () {
-              Navigator.of(ctx).pop();
-              _copyFromPreviousMonth();
-            },
-          ),
-          const SizedBox(height: PSpace.x8),
-          _SheetTile(
-            icon: LucideIcons.trash2,
-            label: '이번 달 전체 삭제',
-            description: '이 달의 모든 예산을 삭제해요',
-            destructive: true,
-            onTap: () {
-              Navigator.of(ctx).pop();
-              _clearMonth();
-            },
-          ),
-        ],
-      ),
-      initialChildSize: 0.55,
-      minChildSize: 0.4,
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -257,7 +97,8 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                 () => _month = DateTime(_month.year, _month.month + 1, 1),
               ),
               onPickMonth: (m) => setState(() => _month = m),
-              onSettings: () => _openSettings(budgetsAsync.value ?? []),
+              // 웹 정합: 설정 버튼 → 예산 설정 페이지 push (drawer 폐기).
+              onSettings: () => context.push('/budget/settings'),
             ),
             const SizedBox(height: PSpace.x12),
             budgetsAsync.when(
@@ -375,7 +216,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                       const SizedBox(height: PSpace.x12),
                       _EmptyState(
                         tokens: t,
-                        onAdd: () => _openSettings(budgets),
+                        onAdd: () => context.push('/budget/settings'),
                       ),
                     ] else ...[
                       const SizedBox(height: PSpace.x12),
@@ -403,7 +244,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                         masked: settings.hideAmounts,
                         loading: summaryAsync.isLoading,
                         tokens: t,
-                        onAdd: () => _openSettings(budgets),
+                        onAdd: () => context.push('/budget/settings'),
                         onTap: (b) => showBudgetEditDialog(
                           context,
                           year: _key.year,
@@ -649,70 +490,6 @@ class _MonthGridButton extends StatelessWidget {
               fontWeight: selected ? PFontWeight.bold : PFontWeight.medium,
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _SheetTile extends StatelessWidget {
-  const _SheetTile({
-    required this.icon,
-    required this.label,
-    required this.description,
-    required this.onTap,
-    this.destructive = false,
-  });
-  final IconData icon;
-  final String label;
-  final String description;
-  final VoidCallback onTap;
-  final bool destructive;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    final fg = destructive ? t.statusDangerFg : t.fgPrimary;
-    final bg = destructive ? t.statusDangerSubtle : t.bgMuted;
-    return InkWell(
-      onTap: onTap,
-      borderRadius: PRadius.brMd,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: PSpace.x4,
-          vertical: PSpace.x8,
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 36,
-              height: 36,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(color: bg, borderRadius: PRadius.tile(36)),
-              child: Icon(icon, size: 18, color: fg),
-            ),
-            const SizedBox(width: PSpace.x12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    label,
-                    style: PTypo.body.copyWith(
-                      color: fg,
-                      fontWeight: PFontWeight.semi,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    description,
-                    style: PTypo.caption.copyWith(color: t.fgTertiary),
-                  ),
-                ],
-              ),
-            ),
-            Icon(LucideIcons.chevronRight, size: 16, color: t.fgTertiary),
-          ],
         ),
       ),
     );

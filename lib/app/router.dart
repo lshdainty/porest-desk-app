@@ -6,6 +6,7 @@ import 'package:porest_desk_app/core/auth/auth_notifier.dart';
 import 'package:porest_desk_app/features/asset/presentation/account_card_manage_screen.dart';
 import 'package:porest_desk_app/features/asset/presentation/asset_screen.dart';
 import 'package:porest_desk_app/features/budget/presentation/budget_screen.dart';
+import 'package:porest_desk_app/features/budget/presentation/budget_settings_screen.dart';
 import 'package:porest_desk_app/features/calendar/presentation/calendar_labels_screen.dart';
 import 'package:porest_desk_app/features/calendar/presentation/calendar_screen.dart';
 import 'package:porest_desk_app/features/card/presentation/card_benefits_screen.dart';
@@ -74,6 +75,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/recurring', builder: (_, _) => const RecurringScreen()),
       GoRoute(path: '/categories', builder: (_, _) => const CategoryScreen()),
       GoRoute(path: '/presets', builder: (_, _) => const PresetScreen()),
+      // 예산 설정(웹 BudgetManager 정합) — 예산 개요 설정 버튼·설정 메뉴에서 push.
+      GoRoute(
+          path: '/budget/settings',
+          builder: (_, _) => const BudgetSettingsScreen()),
       GoRoute(path: '/search', builder: (_, _) => const SearchScreen()),
       GoRoute(path: '/memos', builder: (_, _) => const MemoScreen()),
       GoRoute(path: '/todos', builder: (_, _) => const TodoScreen()),
