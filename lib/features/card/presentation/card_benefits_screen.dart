@@ -13,11 +13,11 @@ import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_card.dart';
 import 'package:porest_desk_app/shared/widgets/p_checkbox.dart';
-import 'package:porest_desk_app/shared/widgets/p_chip.dart';
 import 'package:porest_desk_app/shared/widgets/p_empty_state.dart';
 import 'package:porest_desk_app/shared/widgets/p_progress.dart';
 import 'package:porest_desk_app/shared/widgets/p_search_field.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
+import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/features/card/application/card_providers.dart';
 import 'package:porest_desk_app/features/card/domain/card_catalog.dart';
 import 'package:porest_desk_app/features/card/presentation/card_benefit_detail_sheet.dart';
@@ -217,17 +217,14 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
             // 종류 필터 (전체/신용/체크) — 1행 (front 정합: 타입·혜택 별도 행)
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  for (int i = 0; i < _typeOptions.length; i++) ...[
-                    if (i > 0) const SizedBox(width: 6),
-                    PChip(
-                      label: _typeOptions[i].$1,
-                      selected: _typeIndex == i,
-                      variant: PChipVariant.neutral,
-                      onTap: () => _setType(i),
-                    ),
-                  ],
+              child: PTabs<int>(
+                value: _typeIndex,
+                onChanged: _setType,
+                variant: PTabsVariant.pills,
+                size: PTabsSize.sm,
+                items: [
+                  for (int i = 0; i < _typeOptions.length; i++)
+                    PTabItem(value: i, label: _typeOptions[i].$1),
                 ],
               ),
             ),
@@ -236,17 +233,14 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
             // 혜택 필터 (혜택 전체/할인/적립/캐시백/마일리지) — 2행
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  for (int i = 0; i < _benefitOptions.length; i++) ...[
-                    if (i > 0) const SizedBox(width: 6),
-                    PChip(
-                      label: _benefitOptions[i].$1,
-                      selected: _benefitIndex == i,
-                      variant: PChipVariant.neutral,
-                      onTap: () => _setBenefit(i),
-                    ),
-                  ],
+              child: PTabs<int>(
+                value: _benefitIndex,
+                onChanged: _setBenefit,
+                variant: PTabsVariant.pills,
+                size: PTabsSize.sm,
+                items: [
+                  for (int i = 0; i < _benefitOptions.length; i++)
+                    PTabItem(value: i, label: _benefitOptions[i].$1),
                 ],
               ),
             ),

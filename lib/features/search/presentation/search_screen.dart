@@ -17,12 +17,12 @@ import 'package:porest_desk_app/core/settings/settings_notifier.dart';
 import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_chip.dart';
 import 'package:porest_desk_app/shared/widgets/p_date_input.dart';
 import 'package:porest_desk_app/shared/widgets/p_divider.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_search_field.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
+import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
@@ -307,35 +307,22 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           child: Padding(
             padding: const EdgeInsets.fromLTRB(
                 PSpace.x16, 0, PSpace.x16, PSpace.x8),
-            child: Row(
-              children: [
-                PChip(
-                  label: '전체',
-                  selected: _typeFilter == null,
-                  onTap: () {
-                    setState(() => _typeFilter = null);
-                    _runSearch();
-                  },
-                ),
-                const SizedBox(width: 6),
-                PChip(
-                  label: '지출',
-                  selected: _typeFilter == 'EXPENSE',
-                  onTap: () {
-                    setState(() => _typeFilter = 'EXPENSE');
-                    _runSearch();
-                  },
-                ),
-                const SizedBox(width: 6),
-                PChip(
-                  label: '수입',
-                  selected: _typeFilter == 'INCOME',
-                  onTap: () {
-                    setState(() => _typeFilter = 'INCOME');
-                    _runSearch();
-                  },
-                ),
-              ],
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: PTabs<String?>(
+                value: _typeFilter,
+                onChanged: (v) {
+                  setState(() => _typeFilter = v);
+                  _runSearch();
+                },
+                variant: PTabsVariant.pills,
+                size: PTabsSize.sm,
+                items: const [
+                  PTabItem(value: null, label: '전체'),
+                  PTabItem(value: 'EXPENSE', label: '지출'),
+                  PTabItem(value: 'INCOME', label: '수입'),
+                ],
+              ),
             ),
           ),
         ),

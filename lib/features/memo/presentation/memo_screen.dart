@@ -10,7 +10,7 @@ import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_chip.dart';
+import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/shared/widgets/p_empty_state.dart';
 import 'package:porest_desk_app/shared/widgets/p_search_field.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
@@ -186,39 +186,24 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
     return _buildShell(
       context,
       t,
-      chips: ListView.separated(
+      chips: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         padding: EdgeInsets.zero,
-        itemCount: tags.length + 1,
-        separatorBuilder: (_, _) => const SizedBox(width: 6),
-        itemBuilder: (_, i) {
-          if (i == 0) {
-            return PChip(
-              label: '전체',
-              size: PChipSize.sm,
-              selected: _tagFilter == null,
-              trailing: _CountBadge(
-                count: all.length,
-                selected: _tagFilter == null,
-                t: t,
+        child: PTabs<String?>(
+          value: _tagFilter,
+          onChanged: (v) => setState(() => _tagFilter = v),
+          variant: PTabsVariant.pills,
+          size: PTabsSize.sm,
+          // count 는 PTabItem trailing 미지원 → 라벨에 병합('전체 N' / '태그 N')
+          items: [
+            PTabItem(value: null, label: '전체 ${all.length}'),
+            for (final tag in tags)
+              PTabItem(
+                value: tag,
+                label: '$tag ${all.where((m) => tagOf(m) == tag).length}',
               ),
-              onTap: () => setState(() => _tagFilter = null),
-            );
-          }
-          final tag = tags[i - 1];
-          final n = all.where((m) => tagOf(m) == tag).length;
-          return PChip(
-            label: tag,
-            size: PChipSize.sm,
-            selected: _tagFilter == tag,
-            trailing: _CountBadge(
-              count: n,
-              selected: _tagFilter == tag,
-              t: t,
-            ),
-            onTap: () => setState(() => _tagFilter = tag),
-          );
-        },
+          ],
+        ),
       ),
       body: visible.isEmpty
           ? _EmptyMemo(hasQuery: hasQuery)
@@ -288,29 +273,6 @@ class _EmptyMemo extends StatelessWidget {
                 size: PButtonSize.sm,
                 onPressed: () => showMemoEditDialog(context),
               ),
-      ),
-    );
-  }
-}
-
-/// 칩 우측 카운트 — active 시 onBrand 톤.
-class _CountBadge extends StatelessWidget {
-  const _CountBadge({
-    required this.count,
-    required this.selected,
-    required this.t,
-  });
-  final int count;
-  final bool selected;
-  final PorestTokens t;
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      '$count',
-      style: PTypo.caption.copyWith(
-        color: (selected ? t.fgOnBrand : t.fgSecondary).withValues(alpha: 0.6),
-        fontWeight: PFontWeight.medium,
       ),
     );
   }

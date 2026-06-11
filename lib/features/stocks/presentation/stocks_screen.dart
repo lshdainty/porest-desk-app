@@ -14,7 +14,6 @@ import 'package:porest_desk_app/core/settings/settings_notifier.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_card.dart';
-import 'package:porest_desk_app/shared/widgets/p_chip.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_search_field.dart';
 import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
@@ -156,16 +155,14 @@ class _StocksScreenState extends ConsumerState<StocksScreen> {
               ),
             )
           else ...[
-            Wrap(
-              spacing: 6,
-              runSpacing: 6,
-              children: [
+            PTabs<String>(
+              value: _activeGroup,
+              onChanged: (v) => setState(() => _activeGroup = v),
+              variant: PTabsVariant.pills,
+              size: PTabsSize.sm,
+              items: [
                 for (final g in _watchGroups)
-                  PChip(
-                    label: '${g.name} ${g.tickers.length}',
-                    selected: g.id == _activeGroup,
-                    onTap: () => setState(() => _activeGroup = g.id),
-                  ),
+                  PTabItem(value: g.id, label: '${g.name} ${g.tickers.length}'),
               ],
             ),
             const SizedBox(height: 14),

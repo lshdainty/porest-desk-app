@@ -12,10 +12,10 @@ import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_chip.dart';
 import 'package:porest_desk_app/shared/widgets/p_empty_state.dart';
 import 'package:porest_desk_app/shared/widgets/p_search_field.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
+import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/features/card/application/card_providers.dart';
 import 'package:porest_desk_app/features/card/domain/card_catalog.dart';
 import 'package:porest_desk_app/features/card/presentation/card_benefit_mapping_dialog.dart';
@@ -118,47 +118,30 @@ class _CardScreenState extends ConsumerState<CardScreen> {
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
-                      PChip(
-                          label: '전체',
-                          selected: _typeFilter == null,
-                          onTap: () => _setType(null),
-                          ),
-                      const SizedBox(width: 6),
-                      PChip(
-                          label: '신용',
-                          selected: _typeFilter == 'CREDIT',
-                          onTap: () => _setType('CREDIT'),
-                          ),
-                      const SizedBox(width: 6),
-                      PChip(
-                          label: '체크',
-                          selected: _typeFilter == 'CHECK',
-                          onTap: () => _setType('CHECK'),
-                          ),
+                      PTabs<String?>(
+                        value: _typeFilter,
+                        onChanged: _setType,
+                        variant: PTabsVariant.pills,
+                        size: PTabsSize.sm,
+                        items: const [
+                          PTabItem(value: null, label: '전체'),
+                          PTabItem(value: 'CREDIT', label: '신용'),
+                          PTabItem(value: 'CHECK', label: '체크'),
+                        ],
+                      ),
                       const SizedBox(width: 14),
-                      PChip(
-                          label: '혜택 전체',
-                          selected: _benefitFilter == null,
-                          onTap: () => _setBenefit(null),
-                          ),
-                      const SizedBox(width: 6),
-                      PChip(
-                          label: '할인',
-                          selected: _benefitFilter == 'DISCOUNT',
-                          onTap: () => _setBenefit('DISCOUNT'),
-                          ),
-                      const SizedBox(width: 6),
-                      PChip(
-                          label: '적립',
-                          selected: _benefitFilter == 'POINT',
-                          onTap: () => _setBenefit('POINT'),
-                          ),
-                      const SizedBox(width: 6),
-                      PChip(
-                          label: '캐시백',
-                          selected: _benefitFilter == 'CASHBACK',
-                          onTap: () => _setBenefit('CASHBACK'),
-                          ),
+                      PTabs<String?>(
+                        value: _benefitFilter,
+                        onChanged: _setBenefit,
+                        variant: PTabsVariant.pills,
+                        size: PTabsSize.sm,
+                        items: const [
+                          PTabItem(value: null, label: '혜택 전체'),
+                          PTabItem(value: 'DISCOUNT', label: '할인'),
+                          PTabItem(value: 'POINT', label: '적립'),
+                          PTabItem(value: 'CASHBACK', label: '캐시백'),
+                        ],
+                      ),
                     ],
                   ),
                 ),

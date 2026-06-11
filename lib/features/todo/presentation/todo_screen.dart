@@ -12,9 +12,9 @@ import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_dropdown_menu.dart';
 import 'package:porest_desk_app/shared/widgets/p_card.dart';
-import 'package:porest_desk_app/shared/widgets/p_chip.dart';
 import 'package:porest_desk_app/shared/widgets/p_floating_action_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
+import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/features/todo/application/todo_providers.dart';
 import 'package:porest_desk_app/features/todo/domain/todo.dart';
@@ -276,25 +276,20 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
         ),
         const SizedBox(height: PSpace.md),
 
-        // ── 필터 칩 4종 ──
-        SizedBox(
-          height: 32,
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            padding: EdgeInsets.zero,
-            children: [
-              for (final tab in _TodoFilterTab.values) ...[
-                PChip(
-                  label: _tabLabel(tab),
-                  selected: _tab == tab,
-                  trailing: _CountBadge(
-                      count: counts[tab] ?? 0,
-                      selected: _tab == tab,
-                      t: t),
-                  onTap: () => setState(() => _tab = tab),
+        // ── 필터 칩 4종 → PTabs(pills, sm) (가계부 필터 선례 동일) ──
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: PTabs<_TodoFilterTab>(
+            value: _tab,
+            onChanged: (tab) => setState(() => _tab = tab),
+            variant: PTabsVariant.pills,
+            size: PTabsSize.sm,
+            items: [
+              for (final tab in _TodoFilterTab.values)
+                PTabItem(
+                  value: tab,
+                  label: '${_tabLabel(tab)} ${counts[tab] ?? 0}',
                 ),
-                const SizedBox(width: 6),
-              ],
             ],
           ),
         ),
@@ -532,27 +527,6 @@ class _QuickAddState extends State<_QuickAdd> {
             onPressed: widget.onDetail,
           ),
         ],
-      ),
-    );
-  }
-}
-
-/// 칩 우측 카운트 — active 시 onBrand 톤 (메모 패턴 정합).
-class _CountBadge extends StatelessWidget {
-  const _CountBadge(
-      {required this.count, required this.selected, required this.t});
-  final int count;
-  final bool selected;
-  final PorestTokens t;
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      '$count',
-      style: PTypo.micro.copyWith(
-        color: (selected ? t.fgOnBrand : t.fgSecondary)
-            .withValues(alpha: selected ? 0.85 : 0.55),
-        fontWeight: PFontWeight.bold,
       ),
     );
   }
