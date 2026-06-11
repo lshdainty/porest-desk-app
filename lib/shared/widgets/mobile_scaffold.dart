@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/features/calendar/presentation/calendar_event_dialog.dart';
@@ -44,7 +45,11 @@ class MobileScaffold extends StatelessWidget {
         : _titles[idx];
     return Scaffold(
       backgroundColor: t.bgCanvas,
-      appBar: MobileHeader(title: title),
+      // 헤더 아이콘은 페이지당 1개 — 홈=알림 벨, 그 외=검색 (클로드 디자인 정합).
+      appBar: MobileHeader(
+        title: title,
+        trailingIcon: idx == 0 ? LucideIcons.bell : LucideIcons.search,
+      ),
       body: navigationShell,
       bottomNavigationBar: isMoneyBranch
           ? MoneyTabBar(

@@ -7,6 +7,7 @@ import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
+import 'package:porest_desk_app/core/settings/hide_amounts_unlock_dialog.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_card.dart';
@@ -63,6 +64,7 @@ class AssetScreen extends ConsumerWidget {
               assets: assets,
               summary: summary,
               masked: settings.hideAmounts,
+              onToggleMask: () => toggleHideAmountsWithUnlock(context, ref),
               tokens: t,
             );
           },
@@ -77,12 +79,14 @@ class _AssetBody extends StatelessWidget {
     required this.assets,
     required this.summary,
     required this.masked,
+    required this.onToggleMask,
     required this.tokens,
   });
 
   final List<Asset> assets;
   final AssetSummary? summary;
   final bool masked;
+  final VoidCallback onToggleMask;
   final PorestTokens tokens;
 
   @override
@@ -161,6 +165,7 @@ class _AssetBody extends StatelessWidget {
           investmentsTotal: investmentsTotal,
           cardsTotal: cardsTotal,
           masked: masked,
+          onToggleMask: onToggleMask,
           tokens: tokens,
         ),
         const SizedBox(height: PSpace.x16),
@@ -221,6 +226,7 @@ class _SummaryCard extends StatelessWidget {
     required this.investmentsTotal,
     required this.cardsTotal,
     required this.masked,
+    required this.onToggleMask,
     required this.tokens,
   });
 
@@ -231,6 +237,9 @@ class _SummaryCard extends StatelessWidget {
   final int investmentsTotal;
   final int cardsTotal;
   final bool masked;
+
+  /// 눈 아이콘 탭 — 금액 가리기 토글 (헤더 눈 버튼 제거 후 유일한 자산 진입점).
+  final VoidCallback onToggleMask;
   final PorestTokens tokens;
 
   @override
@@ -253,10 +262,17 @@ class _SummaryCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 6),
-              Icon(
-                masked ? LucideIcons.eyeOff : LucideIcons.eye,
-                size: 14,
-                color: t.fgTertiary,
+              InkWell(
+                onTap: onToggleMask,
+                borderRadius: PRadius.brFull,
+                child: Padding(
+                  padding: const EdgeInsets.all(2),
+                  child: Icon(
+                    masked ? LucideIcons.eyeOff : LucideIcons.eye,
+                    size: 14,
+                    color: t.fgTertiary,
+                  ),
+                ),
               ),
               const Spacer(),
               // 자산 간 이체 — 헤더 아이콘에서 옮겨옴 (web 와 동일 패턴: 본문 안 액션).

@@ -7,8 +7,6 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/shared/widgets/p_tooltip.dart';
-import 'package:porest_desk_app/core/settings/hide_amounts_unlock_dialog.dart';
-import 'package:porest_desk_app/core/settings/settings_notifier.dart';
 import 'package:porest_desk_app/features/notification/application/notification_providers.dart';
 
 /// 모바일 셸 상단 바 — front `.m-header` 미러.
@@ -18,11 +16,11 @@ import 'package:porest_desk_app/features/notification/application/notification_p
 ///   h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
 ///   .ico-btn { 36×36 round, fg-primary }
 ///
-/// 우측 액션:
-///  - moon/sun (테마 전환)
-///  - eye/eyeOff (금액 숨김 토글)
-///  - search 또는 bell (페이지마다 다름; 기본은 search)
-class MobileHeader extends ConsumerWidget implements PreferredSizeWidget {
+/// 우측 액션 — 페이지당 1개 (클로드 디자인 MHeader 정합):
+///  - 홈: 알림 벨 (+unread dot) — [trailingIcon]=bell
+///  - 그 외: 검색 등 컨텍스트 아이콘 (기본 search)
+/// 테마 전환은 설정>표시 설정, 금액 가리기는 홈·자산 순자산 카드 눈 버튼으로 이동.
+class MobileHeader extends StatelessWidget implements PreferredSizeWidget {
   const MobileHeader({
     required this.title,
     this.trailingIcon = LucideIcons.search,
@@ -38,10 +36,8 @@ class MobileHeader extends ConsumerWidget implements PreferredSizeWidget {
   Size get preferredSize => const Size.fromHeight(56);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final t = context.tokens;
-    final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Material(
       color: t.bgSurface,
       child: SafeArea(
@@ -62,27 +58,15 @@ class MobileHeader extends ConsumerWidget implements PreferredSizeWidget {
                   ),
                 ),
               ),
-              _IcoBtn(
-                isDark ? LucideIcons.sun : LucideIcons.moon,
-                onPressed: () => ref
-                    .read(settingsProvider.notifier)
-                    .setThemeMode(isDark ? ThemeMode.light : ThemeMode.dark),
-                tokens: t,
-                tooltip: '테마 전환',
-              ),
-              _IcoBtn(
-                settings.hideAmounts ? LucideIcons.eyeOff : LucideIcons.eye,
-                onPressed: () => toggleHideAmountsWithUnlock(context, ref),
-                tokens: t,
-                tooltip: settings.hideAmounts ? '금액 표시' : '금액 숨김',
-              ),
-              _NotificationBell(tokens: t),
-              _IcoBtn(
-                trailingIcon,
-                onPressed: onTrailingTap ?? () => context.push('/search'),
-                tokens: t,
-                tooltip: trailingIcon == LucideIcons.bell ? '알림' : '검색',
-              ),
+              if (trailingIcon == LucideIcons.bell)
+                _NotificationBell(tokens: t)
+              else
+                _IcoBtn(
+                  trailingIcon,
+                  onPressed: onTrailingTap ?? () => context.push('/search'),
+                  tokens: t,
+                  tooltip: '검색',
+                ),
             ],
           ),
         ),
