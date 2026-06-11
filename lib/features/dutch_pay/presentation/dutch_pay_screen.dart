@@ -155,7 +155,7 @@ class _DutchPayScreenState extends ConsumerState<DutchPayScreen> {
             onChanged: (v) => setState(() => _tab = v),
             variant: PTabsVariant.container,
             size: PTabsSize.sm,
-            expand: true,
+            expand: false,
             items: [
               PTabItem(value: _DutchTab.active, label: '진행 중 · ${active.length}'),
               PTabItem(value: _DutchTab.past, label: '완료 · ${past.length}'),
@@ -932,7 +932,7 @@ class _DutchPaySkeleton extends StatelessWidget {
             onChanged: onTabChanged,
             variant: PTabsVariant.container,
             size: PTabsSize.sm,
-            expand: true,
+            expand: false,
             items: const [
               PTabItem(value: _DutchTab.active, label: '진행 중'),
               PTabItem(value: _DutchTab.past, label: '완료'),
