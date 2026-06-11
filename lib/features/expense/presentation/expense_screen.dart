@@ -521,6 +521,7 @@ class _FilterRow extends StatelessWidget {
               value: value,
               onChanged: onChanged,
               variant: PTabsVariant.pills,
+              size: PTabsSize.sm,
               items: [
                 for (final f in _Filter.values)
                   PTabItem(

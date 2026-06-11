@@ -17,7 +17,7 @@ import 'package:porest_desk_app/app/theme/typography.dart';
 ///   on-accent 흰색 600. 모바일 navigation (큰 hit area).
 enum PTabsVariant { container, underline, pills }
 
-/// container 전용 size (tabs.md Container size variant). underline/pills 미적용.
+/// container / pills size (tabs.md). sm = 얇은 pill(모바일). underline 미적용.
 enum PTabsSize { defaultSize, sm }
 
 class PTabItem<T> {
@@ -44,7 +44,7 @@ class PTabs<T> extends StatelessWidget {
   final ValueChanged<T> onChanged;
   final PTabsVariant variant;
 
-  /// container 전용 size (default 40 / sm 32). underline/pills 무시.
+  /// container/pills size. container sm=32 / pills sm=얇은 pill(min-h 28). underline 무시.
   final PTabsSize size;
 
   /// `true` 면 trigger 균등 분배 (`Expanded`로 wrap).
@@ -105,9 +105,16 @@ class PTabs<T> extends StatelessWidget {
   }
 
   Widget _pills(PorestTokens t) {
+    // default: px-md py-sm label-md. sm: px-sm py-xs min-h-7 label-sm (모바일 얇은 pill, toggle-single 톤).
+    final sm = size == PTabsSize.sm;
     final children = [
       for (final it in items)
-        _trigger(t, it, padX: 12, padY: 8, radius: PRadius.brMd),
+        _trigger(t, it,
+            padX: sm ? 8 : 12,
+            padY: sm ? 4 : 8,
+            radius: PRadius.brMd,
+            fontSize: sm ? PFontSize.bodySm : PFontSize.body,
+            height: sm ? 28 : null),
     ];
     return Row(
       mainAxisSize: expand ? MainAxisSize.max : MainAxisSize.min,
@@ -161,9 +168,8 @@ class PTabs<T> extends StatelessWidget {
         break;
       case PTabsVariant.pills:
         textColor = active ? t.fgOnBrand : t.fgSecondary;
-        // active fill = primary 고정(bgBrandSolid cobalt500). t.bgBrand 은 다크에서
-        // cobalt400(light)이라 흰글씨 대비 약함 — web --bg-brand·PToggleGroup solid 정합.
-        bgColor = active ? t.bgBrandSolid : Colors.transparent;
+        // active fill = bgBrand — 다크에서 cobalt400(primary-light) swap (web --fg-brand 정합).
+        bgColor = active ? t.bgBrand : Colors.transparent;
         decoration = BoxDecoration(
           color: bgColor,
           borderRadius: radius,
