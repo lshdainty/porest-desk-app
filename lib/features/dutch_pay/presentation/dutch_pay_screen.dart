@@ -212,7 +212,7 @@ class _DutchPayScreenState extends ConsumerState<DutchPayScreen> {
         }
         return [
           PCard(
-            variant: PCardVariant.bordered,
+            variant: PCardVariant.shadow,
             padding: const EdgeInsets.symmetric(horizontal: PSpace.x16),
             child: Column(
               children: [
@@ -239,7 +239,7 @@ class _DutchPayScreenState extends ConsumerState<DutchPayScreen> {
         }
         return [
           PCard(
-            variant: PCardVariant.bordered,
+            variant: PCardVariant.shadow,
             padding: const EdgeInsets.symmetric(horizontal: PSpace.x16),
             child: Column(
               children: [
@@ -540,7 +540,7 @@ class _SessionCard extends StatelessWidget {
     final sub = place.isEmpty ? date : '$place · $date';
 
     return PCard(
-      variant: PCardVariant.bordered,
+      variant: PCardVariant.shadow,
       padding: const EdgeInsets.all(18),
       onTap: onTap,
       child: Column(
@@ -1011,7 +1011,7 @@ class _SessionCardSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PCard(
-      variant: PCardVariant.bordered,
+      variant: PCardVariant.shadow,
       padding: const EdgeInsets.all(18),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
