@@ -246,19 +246,28 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
             ),
             const SizedBox(height: PSpace.x8),
 
-            // 단종 카드 포함 — 우측 정렬 (front 정합)
-            Align(
-              alignment: Alignment.centerRight,
-              child: PCheckbox(
-                value: _includeDiscontinued,
-                onChanged: _toggleDiscontinued,
-                size: PCheckboxSize.sm,
-                label: '단종 카드 포함',
-              ),
+            // 총 N건(좌) + 단종 카드 포함(우) — 한 줄 (front 정합, 줄 절약)
+            Row(
+              children: [
+                Expanded(
+                  child: _initialLoading
+                      ? const PSkeleton.line(width: 56, height: 12)
+                      : _cards.isNotEmpty
+                          ? Text('총 $_totalElements건',
+                              style: PTypo.caption.copyWith(color: t.fgTertiary))
+                          : const SizedBox.shrink(),
+                ),
+                PCheckbox(
+                  value: _includeDiscontinued,
+                  onChanged: _toggleDiscontinued,
+                  size: PCheckboxSize.sm,
+                  label: '단종 카드 포함',
+                ),
+              ],
             ),
             const SizedBox(height: PSpace.x8),
 
-            // 결과 카운트 + 리스트 (누적식 인피니티 스크롤)
+            // 결과 리스트 (누적식 인피니티 스크롤). 총 N건은 위 Row 로 이동.
             ..._buildResults(t),
           ],
         ),
@@ -268,14 +277,9 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
 
   /// 결과 영역 — 초기로딩 / 에러 / 빈상태 / 누적 리스트 + 하단 인디케이터.
   List<Widget> _buildResults(PorestTokens t) {
-    // 초기 로딩 (첫 페이지 fetch 중, 누적 없음)
-    // 실제 결과 영역(총 N건 + _CardTile 카드들)과 1:1 구조 정합.
+    // 초기 로딩 (첫 페이지 fetch 중, 누적 없음) — _CardTile 카드 스켈레톤만.
     if (_initialLoading) {
       return [
-        const Padding(
-          padding: EdgeInsets.only(left: PSpace.x4, bottom: PSpace.x8),
-          child: PSkeleton.line(width: 56, height: 12),
-        ),
         for (int i = 0; i < 6; i++) ...[
           if (i > 0) const SizedBox(height: PSpace.x8),
           const _CardTileSkeleton(),
@@ -309,11 +313,6 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
     }
 
     return [
-      Padding(
-        padding: const EdgeInsets.only(left: PSpace.x4, bottom: PSpace.x8),
-        child: Text('총 $_totalElements건',
-            style: PTypo.caption.copyWith(color: t.fgTertiary)),
-      ),
       for (int i = 0; i < _cards.length; i++) ...[
         if (i > 0) const SizedBox(height: PSpace.x8),
         _CardTile(
