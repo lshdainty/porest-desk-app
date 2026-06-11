@@ -44,7 +44,8 @@ List<_SettingsGroup> _buildGroups(BuildContext ctx) => [
       _SettingsItem(
         icon: LucideIcons.filePen,
         label: '예산 설정',
-        onTap: (c) => c.push('/budget'),
+        // 웹 정합: 전체 > 설정 > 예산 설정 → BudgetManager 페이지 (개요 /budget 아님).
+        onTap: (c) => c.push('/budget/settings'),
       ),
       _SettingsItem(
         icon: LucideIcons.repeat,
