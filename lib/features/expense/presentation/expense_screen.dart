@@ -13,7 +13,7 @@ import 'package:porest_desk_app/core/settings/settings_notifier.dart';
 import 'package:porest_desk_app/shared/widgets/p_badge.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_card.dart';
-import 'package:porest_desk_app/shared/widgets/p_chip.dart';
+import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/shared/widgets/p_divider.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
@@ -517,21 +517,20 @@ class _FilterRow extends StatelessWidget {
         Expanded(
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                for (final f in _Filter.values) ...[
-                  PChip(
+            child: PTabs<_Filter>(
+              value: value,
+              onChanged: onChanged,
+              variant: PTabsVariant.pills,
+              items: [
+                for (final f in _Filter.values)
+                  PTabItem(
+                    value: f,
                     label: switch (f) {
                       _Filter.all => '전체',
                       _Filter.expense => '지출',
                       _Filter.income => '수입',
                     },
-                    selected: f == value,
-                    size: PChipSize.sm,
-                    onTap: () => onChanged(f),
                   ),
-                  const SizedBox(width: 6),
-                ],
               ],
             ),
           ),
