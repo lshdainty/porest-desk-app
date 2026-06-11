@@ -390,7 +390,7 @@ class _SummaryCard extends StatelessWidget {
                   label: '매월 고정 지출',
                   icon: LucideIcons.trendingDown,
                   value: krwSigned(monthlyExpense, masked, sign: '-'),
-                  color: tokens.statusDanger,
+                  color: tokens.fgExpense,
                   tokens: tokens,
                 ),
               ),
@@ -722,7 +722,7 @@ class _RecurringRow extends StatelessWidget {
               krwSigned(item.amount.abs(), masked,
                   sign: isExpense ? '-' : '+', mask: '••••'),
               style: PTypo.bodySm.copyWith(
-                color: isExpense ? tokens.statusDanger : tokens.fgIncome,
+                color: isExpense ? tokens.fgExpense : tokens.fgIncome,
                 fontWeight: PFontWeight.bold,
               ),
             ),

@@ -15,6 +15,7 @@ import 'package:porest_desk_app/shared/widgets/p_search_field.dart';
 import 'package:porest_desk_app/shared/widgets/p_select.dart';
 import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/shared/widgets/p_switch.dart';
+import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
 import 'package:porest_desk_app/features/card/application/card_providers.dart';
 import 'package:porest_desk_app/features/card/domain/card_catalog.dart';
@@ -204,12 +205,19 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
                     style: PTypo.caption.copyWith(
                         color: t.fgPrimary, fontWeight: PFontWeight.medium)),
                 const SizedBox(height: PSpace.x8),
-                _CardTypeRow(
+                PTabs<_CardType>(
+                  items: [
+                    for (final c in _CardType.values)
+                      PTabItem(value: c, label: c.label),
+                  ],
                   value: _cardType,
                   onChanged: (v) => setState(() {
                     _cardType = v;
                     _selected = null; // 종류 바뀌면 선택 초기화
                   }),
+                  variant: PTabsVariant.container,
+                  size: PTabsSize.sm,
+                  expand: true,
                 ),
                 const SizedBox(height: PSpace.x20),
 
@@ -451,51 +459,6 @@ class _PlaceholderBox extends StatelessWidget {
       alignment: Alignment.center,
       child: Icon(LucideIcons.creditCard,
           size: 18, color: brand?.fg ?? tokens.fgPrimary),
-    );
-  }
-}
-
-/// 2칸 segmented row — 신용카드 / 체크카드.
-class _CardTypeRow extends StatelessWidget {
-  const _CardTypeRow({required this.value, required this.onChanged});
-  final _CardType value;
-  final ValueChanged<_CardType> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    return Container(
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: t.bgSunken,
-        borderRadius: PRadius.brMd,
-        border: Border.all(color: t.borderSubtle),
-      ),
-      child: Row(
-        children: [
-          for (final c in _CardType.values)
-            Expanded(
-              child: GestureDetector(
-                onTap: () => onChanged(c),
-                child: Container(
-                  height: 36,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: c == value ? t.fgBrandStrong : Colors.transparent,
-                    borderRadius: PRadius.brSm,
-                  ),
-                  child: Text(
-                    c.label,
-                    style: PTypo.bodySm.copyWith(
-                      color: c == value ? t.fgOnBrand : t.fgSecondary,
-                      fontWeight: PFontWeight.semi,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-        ],
-      ),
     );
   }
 }

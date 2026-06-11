@@ -13,6 +13,7 @@ import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_search_field.dart';
 import 'package:porest_desk_app/shared/widgets/p_select.dart';
 import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
+import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
 import 'package:porest_desk_app/features/asset/domain/asset.dart';
@@ -369,9 +370,16 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
                     style: PTypo.caption.copyWith(
                         color: t.fgPrimary, fontWeight: PFontWeight.medium)),
                 const SizedBox(height: PSpace.x8),
-                _SubTypeRow(
+                PTabs<_SubType>(
+                  items: [
+                    for (final s in _SubType.values)
+                      PTabItem(value: s, label: s.label),
+                  ],
                   value: _subType,
                   onChanged: (v) => setState(() => _subType = v),
+                  variant: PTabsVariant.container,
+                  size: PTabsSize.sm,
+                  expand: true,
                 ),
                 const SizedBox(height: PSpace.x20),
 
@@ -638,51 +646,6 @@ class _BrandPicker extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-/// 5칸 segmented row — 입출금/적금/예금/현금/대출.
-class _SubTypeRow extends StatelessWidget {
-  const _SubTypeRow({required this.value, required this.onChanged});
-  final _SubType value;
-  final ValueChanged<_SubType> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    return Container(
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: t.bgSunken,
-        borderRadius: PRadius.brMd,
-        border: Border.all(color: t.borderSubtle),
-      ),
-      child: Row(
-        children: [
-          for (final s in _SubType.values)
-            Expanded(
-              child: GestureDetector(
-                onTap: () => onChanged(s),
-                child: Container(
-                  height: 32,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: s == value ? t.fgBrandStrong : Colors.transparent,
-                    borderRadius: PRadius.brSm,
-                  ),
-                  child: Text(
-                    s.label,
-                    style: PTypo.bodySm.copyWith(
-                      color: s == value ? t.fgOnBrand : t.fgSecondary,
-                      fontWeight: PFontWeight.semi,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-        ],
       ),
     );
   }

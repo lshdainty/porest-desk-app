@@ -22,7 +22,7 @@ import 'package:porest_desk_app/shared/widgets/p_divider.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
 import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
-import 'package:porest_desk_app/shared/widgets/p_toggle.dart';
+import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/features/card/presentation/card_performance_bar.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
@@ -211,12 +211,12 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            PToggleGroupSingle<_Period>(
+            PTabs<_Period>(
               value: _period,
-              size: PToggleSize.sm,
+              size: PTabsSize.sm,
               items: [
                 for (final p in _Period.values)
-                  PToggleGroupItem(value: p, label: p.label),
+                  PTabItem(value: p, label: p.label),
               ],
               onChanged: (p) => setState(() => _period = p),
             ),
