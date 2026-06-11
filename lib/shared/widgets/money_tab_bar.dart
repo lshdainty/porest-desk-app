@@ -108,6 +108,8 @@ class _BackItem extends StatelessWidget {
   Widget build(BuildContext context) {
     // back 버튼 — 라벨 없어 비어 보이는 현상 fix. 클로드 시각 정합 (mid-gray icon).
     // 클로드 토큰은 var(--fg-primary) 지만 값이 우리와 달라 시각 정합 위해 fgSecondary 사용.
+    // 배경은 front `.m-tab__back-pill` 의 --bg-sunken(=surface-input) 정합 —
+    // 앱 bgSunken 다크는 slate950(canvas 동일색)이라 bgMuted(surface-input 매핑) 사용.
     return InkWell(
       onTap: onTap,
       borderRadius: const BorderRadius.all(Radius.circular(PRadius.md)),
@@ -116,7 +118,7 @@ class _BackItem extends StatelessWidget {
           width: 36,
           height: 36,
           decoration: BoxDecoration(
-            color: tokens.bgSunken,
+            color: tokens.bgMuted,
             shape: BoxShape.circle,
           ),
           alignment: Alignment.center,
