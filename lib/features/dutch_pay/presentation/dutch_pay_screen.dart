@@ -623,6 +623,7 @@ class _SessionCard extends StatelessWidget {
                   ),
                   child: FractionallySizedBox(
                     widthFactor: progress.clamp(0.0, 1.0),
+                    heightFactor: 1, // 없으면 fill 높이 0으로 collapse → 안 칠해짐
                     child: DecoratedBox(
                       decoration: BoxDecoration(
                         color: t.fgBrand,
