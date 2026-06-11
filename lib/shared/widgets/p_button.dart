@@ -10,10 +10,10 @@ import 'package:porest_desk_app/shared/widgets/p_tooltip.dart';
 /// front `<Button>` (shadcn) 미러 — variant 별 일관 스타일.
 ///
 /// variants: primary / secondary / outline / ghost(중립) / accent(brand 강조) / danger
-/// size: sm / md / lg
+/// size: sm / md / lg / iconLg(모바일 크롬 헤더 icon-only 전용 — 36×36 원형, glyph 20px)
 enum PButtonVariant { primary, secondary, outline, ghost, accent, danger }
 
-enum PButtonSize { sm, md, lg }
+enum PButtonSize { sm, md, lg, iconLg }
 
 class PButton extends StatelessWidget {
   const PButton({
@@ -29,8 +29,10 @@ class PButton extends StatelessWidget {
     this.tooltip,
     this.iconColor,
     this.dangerous = false,
-  }) : assert(label != null || icon != null,
-            'PButton requires either a label or an icon');
+  })  : assert(label != null || icon != null,
+            'PButton requires either a label or an icon'),
+        assert(size != PButtonSize.iconLg || label == null,
+            'iconLg는 icon-only 전용 (모바일 크롬 헤더)');
 
   /// icon-only 생성자 — front `<Button size="icon" variant="ghost">` 대응.
   /// 가로 = 높이 (정사각), padding 작게.
@@ -70,10 +72,12 @@ class PButton extends StatelessWidget {
   // sm: h=32, padY=4 padX=8, font=caption(12), radius=sm(4), icon=14
   // md: h=40, padY=8 padX=12, font=body-md(15), radius=sm(4), icon=16
   // lg: h=48, padY=12 padX=16, font=title-sm(16), radius=md(8), icon=18
+  // iconLg: 36×36, radius=full, glyph=20 — 모바일 크롬 헤더 icon-only (v97)
   double _height() => switch (size) {
         PButtonSize.sm => 32,
         PButtonSize.md => 40,
         PButtonSize.lg => 48,
+        PButtonSize.iconLg => 36,
       };
 
   EdgeInsetsGeometry _padding() => switch (size) {
@@ -83,6 +87,8 @@ class PButton extends StatelessWidget {
           const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         PButtonSize.lg =>
           const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        // icon-only 전용이라 build()에서 EdgeInsets.zero 경로만 탐 — 도달 불가.
+        PButtonSize.iconLg => EdgeInsets.zero,
       };
 
   TextStyle _textStyle(PorestTokens t) => switch (size) {
@@ -104,18 +110,27 @@ class PButton extends StatelessWidget {
               fontWeight: PFontWeight.medium,
               height: 1.0,
             ),
+        // icon-only 전용 (label 금지 assert) — 도달 불가, md와 동일값.
+        PButtonSize.iconLg => TextStyle(
+              fontFamily: PTypo.sans,
+              fontSize: PFontSize.bodyMd,
+              fontWeight: PFontWeight.medium,
+              height: 1.0,
+            ),
       };
 
   double _iconSize() => switch (size) {
         PButtonSize.sm => 14,
         PButtonSize.md => 16,
         PButtonSize.lg => 18,
+        PButtonSize.iconLg => 20,
       };
 
   BorderRadius _radius() => switch (size) {
         PButtonSize.sm => PRadius.brSm,
         PButtonSize.md => PRadius.brSm,
         PButtonSize.lg => PRadius.brMd,
+        PButtonSize.iconLg => PRadius.brFull,
       };
 
   @override
@@ -146,9 +161,12 @@ class PButton extends StatelessWidget {
       case PButtonVariant.ghost:
         bg = Colors.transparent;
         // icon-only ghost(아이콘 액션)는 보조톤 fgSecondary — front button.md v96 정합.
+        // iconLg(모바일 크롬 헤더)는 페이지당 1개 주 액션 — 약화 없이 중립 fgPrimary (v97).
         fg = dangerous
             ? t.statusDangerFg
-            : (iconOnly ? t.fgSecondary : t.fgPrimary);
+            : (iconOnly && size != PButtonSize.iconLg
+                ? t.fgSecondary
+                : t.fgPrimary);
         border = BorderSide.none;
         break;
       case PButtonVariant.accent:
@@ -165,7 +183,10 @@ class PButton extends StatelessWidget {
 
     final disabled = onPressed == null || loading;
     // icon-only는 radius-md 둥근 박스 (정사각 + 또렷한 hover/splash) — front button.md v96 정합.
-    final radius = iconOnly ? PRadius.brMd : _radius();
+    // iconLg는 원형(radius-full) — 모바일 크롬 헤더 (v97).
+    final radius = iconOnly
+        ? (size == PButtonSize.iconLg ? PRadius.brFull : PRadius.brMd)
+        : _radius();
     final h = _height();
     final btn = Material(
       color: disabled ? bg.withValues(alpha: 0.5) : bg,
