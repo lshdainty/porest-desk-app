@@ -200,7 +200,9 @@ class _UpcomingCard extends StatelessWidget {
                         color: t.fgPrimary, fontWeight: PFontWeight.bold)),
                 const Spacer(),
                 GestureDetector(
-                  onTap: () => context.push('/calendar'),
+                  // 셸 브랜치 라우트는 push 금지 — push 하면 홈 브랜치 위에 얹혀
+                  // 헤더/하단 nav 가 '홈'으로 남음. go 로 브랜치 전환 (web 정합).
+                  onTap: () => context.go('/calendar'),
                   child: Icon(LucideIcons.chevronRight,
                       size: 14, color: t.fgTertiary),
                 ),
@@ -1011,7 +1013,8 @@ class _BudgetCard extends StatelessWidget {
                 const PCardTitle('예산'),
                 const Spacer(),
                 GestureDetector(
-                  onTap: () => context.push('/budget'),
+                  // 셸 브랜치 라우트 — push 가 아닌 go 로 브랜치 전환 (가계부 nav 활성).
+                  onTap: () => context.go('/budget'),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
