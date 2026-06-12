@@ -48,8 +48,6 @@ class BudgetSettingsScreen extends ConsumerStatefulWidget {
 
 class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
   late DateTime _month = monthStart(DateTime.now());
-  // 지난달 복사 진행 중 — 버튼 스피너 표시 (웹 ConfirmDialog loading 정합).
-  bool _copying = false;
 
   BudgetMonthKey get _key => (year: _month.year, month: _month.month);
 
@@ -63,30 +61,37 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
   /// 지난달 예산 복사 — 웹 BudgetManager `copyFromLastMonth` 정합.
   ///
   /// 클릭 즉시(이미 로드된 [prevBudgets] 사용, 재조회 없음) 확인 다이얼로그를 띄우고,
-  /// 확인 시 버튼에 스피너(`_copying`)를 표시한 채 복사한다. 같은 key(전체 상한 |
-  /// 카테고리)의 이번 달 예산은 **덮어쓰기**(update), 없으면 생성(create).
-  Future<void> _copyFromPreviousMonth(
+  /// 확인 버튼에 스피너를 표시한 채 [_runCopyFromPreviousMonth] 를 실행한다(다이얼로그
+  /// 유지, 완료 시 닫힘 — 웹 ConfirmDialog loading 정합).
+  void _confirmCopyFromPreviousMonth(
     List<Budget> prevBudgets,
     List<Budget> curBudgets,
-  ) async {
+  ) {
     if (prevBudgets.isEmpty) return; // 버튼이 비활성이라 도달 불가 — 방어.
     final prevMonth = DateTime(_month.year, _month.month - 1, 1);
-    final ok = await showPConfirmDialog(
+    showPConfirmDialog(
       context,
       title: '지난달 예산 복사',
       message:
           '${prevMonth.year}년 ${prevMonth.month}월 예산 한도(${prevBudgets.length}개)를 '
           '${_key.year}년 ${_key.month}월로 복사해요. 이번 달에 이미 있는 예산은 덮어써집니다.',
       confirmLabel: '복사',
+      onConfirm: () => _runCopyFromPreviousMonth(prevBudgets, curBudgets),
     );
-    if (!ok || !mounted) return;
-    setState(() => _copying = true);
+  }
+
+  /// 실제 복사 — 같은 key(전체 상한 | 카테고리)의 이번 달 예산은 **덮어쓰기**(update),
+  /// 없으면 생성(create). 실패 시 스낵바 후 rethrow 하여 다이얼로그를 유지한다.
+  Future<void> _runCopyFromPreviousMonth(
+    List<Budget> prevBudgets,
+    List<Budget> curBudgets,
+  ) async {
+    final repo = await ref.read(budgetRepositoryProvider.future);
+    // 이번 달 기존 예산 key(overall|categoryRowId) → 같은 key 는 덮어쓰기.
+    final existingByKey = <String, Budget>{
+      for (final b in curBudgets) '${b.categoryRowId ?? 'overall'}': b,
+    };
     try {
-      final repo = await ref.read(budgetRepositoryProvider.future);
-      // 이번 달 기존 예산 key(overall|categoryRowId) → 같은 key 는 덮어쓰기.
-      final existingByKey = <String, Budget>{
-        for (final b in curBudgets) '${b.categoryRowId ?? 'overall'}': b,
-      };
       for (final p in prevBudgets) {
         final existing = existingByKey['${p.categoryRowId ?? 'overall'}'];
         if (existing != null) {
@@ -100,23 +105,24 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
           );
         }
       }
-      ref.invalidate(monthBudgetsProvider(_key));
-      ref.invalidate(budgetComplianceProvider(6));
-      if (!mounted) return;
+    } on ApiException catch (e) {
+      if (mounted) {
+        showPSnackBar(
+          context,
+          '복사 실패: ${e.message}',
+          severity: PSnackSeverity.error,
+        );
+      }
+      rethrow; // 다이얼로그 유지 (showPConfirmDialog 가 catch).
+    }
+    ref.invalidate(monthBudgetsProvider(_key));
+    ref.invalidate(budgetComplianceProvider(6));
+    if (mounted) {
       showPSnackBar(
         context,
         '${prevBudgets.length}개 예산을 복사했습니다',
         severity: PSnackSeverity.success,
       );
-    } on ApiException catch (e) {
-      if (!mounted) return;
-      showPSnackBar(
-        context,
-        '복사 실패: ${e.message}',
-        severity: PSnackSeverity.error,
-      );
-    } finally {
-      if (mounted) setState(() => _copying = false);
     }
   }
 
@@ -216,9 +222,8 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
               ),
               onPickMonth: (m) => setState(() => _month = m),
               copyEnabled: copyEnabled,
-              copying: _copying,
               onCopyPrev: () =>
-                  _copyFromPreviousMonth(prevBudgets, curBudgets),
+                  _confirmCopyFromPreviousMonth(prevBudgets, curBudgets),
             ),
             const SizedBox(height: PSpace.x12),
             budgetsAsync.when(
@@ -322,7 +327,6 @@ class _MonthBar extends StatelessWidget {
     required this.onNext,
     required this.onPickMonth,
     required this.copyEnabled,
-    required this.copying,
     required this.onCopyPrev,
   });
   final DateTime month;
@@ -330,7 +334,6 @@ class _MonthBar extends StatelessWidget {
   final VoidCallback onNext;
   final ValueChanged<DateTime> onPickMonth;
   final bool copyEnabled;
-  final bool copying;
   final VoidCallback onCopyPrev;
 
   @override
@@ -381,7 +384,6 @@ class _MonthBar extends StatelessWidget {
           icon: LucideIcons.copy,
           variant: PButtonVariant.secondary,
           size: PButtonSize.sm,
-          loading: copying,
           onPressed: copyEnabled ? onCopyPrev : null,
         ),
       ],
