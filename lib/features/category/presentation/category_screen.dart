@@ -70,7 +70,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
         leading: PBackButton(onPressed: () => context.pop()),
-        title: const Text('카테고리'),
+        title: const Text('카테고리 관리'),
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,
         elevation: 0,
