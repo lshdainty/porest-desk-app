@@ -298,9 +298,9 @@ class PFormAlertDialog extends StatelessWidget {
 /// 확인 다이얼로그. [onConfirm] 미제공 시 확인 탭 즉시 닫고 true 반환(기존 동작).
 ///
 /// [onConfirm] 제공 시(웹 ConfirmDialog `loading` 정합): 확인 탭 → 다이얼로그를
-/// 연 채 확인 버튼에 스피너를 표시하며 [onConfirm] 을 실행하고, 성공하면 닫고 true.
-/// 예외가 발생하면 다이얼로그를 유지(스피너만 해제) — 에러 메시지는 [onConfirm]
-/// 내부에서 처리. 실행 중에는 취소·바깥 탭으로 닫히지 않는다.
+/// 연 채 **확인(저장) 버튼에만** 스피너를 표시하며 [onConfirm] 을 실행하고, 성공하면
+/// 닫고 true. 예외가 발생하면 다이얼로그를 유지(스피너만 해제) — 에러 메시지는
+/// [onConfirm] 내부에서 처리. 취소 버튼·바깥 탭은 실행 중에도 원래대로 동작한다.
 Future<bool> showPConfirmDialog(
   BuildContext context, {
   required String title,
@@ -312,7 +312,6 @@ Future<bool> showPConfirmDialog(
 }) async {
   final ok = await showDialog<bool>(
     context: context,
-    barrierDismissible: onConfirm == null,
     builder: (ctx) => _PConfirmDialog(
       title: title,
       message: message,
@@ -372,10 +371,11 @@ class _PConfirmDialogState extends State<_PConfirmDialog> {
       title: Text(widget.title),
       content: Text(widget.message),
       actions: [
+        // 취소는 작업 중에도 원래 상태 유지 — 비동기 작업은 확인(저장) 버튼 스피너로만 표시.
         PButton(
           label: widget.cancelLabel,
           variant: PButtonVariant.ghost,
-          onPressed: _busy ? null : () => Navigator.pop(context, false),
+          onPressed: () => Navigator.pop(context, false),
         ),
         PButton(
           label: widget.confirmLabel,
