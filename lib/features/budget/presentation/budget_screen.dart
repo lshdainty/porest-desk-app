@@ -26,7 +26,6 @@ import 'package:porest_desk_app/features/stats/domain/stats_models.dart';
 import 'package:porest_desk_app/features/budget/application/budget_providers.dart';
 import 'package:porest_desk_app/features/budget/domain/budget.dart';
 import 'package:porest_desk_app/features/budget/domain/budget_compliance.dart';
-import 'package:porest_desk_app/features/budget/presentation/budget_edit_dialog.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
 
 const double _warnThreshold = 85;
@@ -194,23 +193,6 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                       overAllocated: overAllocated,
                       masked: settings.hideAmounts,
                       tokens: t,
-                      onTap: () {
-                        if (overallBudget != null) {
-                          showBudgetEditDialog(
-                            context,
-                            year: _key.year,
-                            month: _key.month,
-                            edit: overallBudget,
-                          );
-                        } else {
-                          showBudgetEditDialog(
-                            context,
-                            year: _key.year,
-                            month: _key.month,
-                            overallNew: true,
-                          );
-                        }
-                      },
                     ),
                     if (hasNoData) ...[
                       const SizedBox(height: PSpace.x12),
@@ -499,7 +481,6 @@ class _HeaderCard extends StatelessWidget {
     required this.overAllocated,
     required this.masked,
     required this.tokens,
-    required this.onTap,
     this.warnThreshold = _warnThreshold,
   });
   final int month;
@@ -513,7 +494,6 @@ class _HeaderCard extends StatelessWidget {
   final bool overAllocated;
   final bool masked;
   final PorestTokens tokens;
-  final VoidCallback onTap;
   final double warnThreshold;
 
   @override
@@ -526,13 +506,13 @@ class _HeaderCard extends StatelessWidget {
         ? tokens.statusWarningFg
         : tokens.statusInfoFg;
 
+    // 조회 전용 (web BudgetPage hero 정합) — 상한 수정은 예산 설정 페이지에서.
     return PCard(
       // 디자인 p-card--brand: surface(#242938) 위에 cobalt @12% 알파 합성 → #2B374D.
       // alphaBlend(틴트, surface) 로 "surface 위 알파"를 명시(라이트/다크 자동).
       variant: PCardVariant.shadow,
       color: Color.alphaBlend(tokens.bgBrandTint, tokens.bgSurface),
       padding: const EdgeInsets.all(PSpace.x16),
-      onTap: onTap,
       child: overallBudget == null
           ? _emptyOverall(context)
           : _filledOverall(color),
@@ -572,7 +552,7 @@ class _HeaderCard extends StatelessWidget {
               const SizedBox(width: 6),
               Expanded(
                 child: Text(
-                  '전체 상한이 아직 설정되지 않았어요. 탭해서 한도를 지정하세요.',
+                  '전체 상한이 아직 설정되지 않았어요. 우측 상단 설정 버튼으로 이번 달 최대 지출 한도를 지정할 수 있어요.',
                   style: PTypo.bodySm.copyWith(color: tokens.fgSecondary),
                 ),
               ),
@@ -1203,9 +1183,11 @@ class _CategoryListCard extends StatelessWidget {
                     style: PTypo.bodySm.copyWith(color: tokens.fgTertiary),
                   ),
                   const SizedBox(height: PSpace.x8),
+                  // 웹은 ghost + fg-brand-strong override — 앱은 brand quiet 의
+                  // 정규 변형인 accent 사용 (fgBrand = fgBrandStrong, 같은 값).
                   PButton(
                     label: '예산 설정하러 가기 →',
-                    variant: PButtonVariant.ghost,
+                    variant: PButtonVariant.accent,
                     size: PButtonSize.sm,
                     onPressed: onGoSettings,
                   ),
