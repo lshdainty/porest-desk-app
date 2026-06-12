@@ -63,7 +63,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
     // 경고 게이지 임계값 — 사용자 설정값(웹 정합). 미설정/로딩 시 _warnThreshold(85).
     final warnThreshold =
         ref.watch(budgetAlertThresholdProvider).value?.toDouble() ??
-            _warnThreshold;
+        _warnThreshold;
 
     return Scaffold(
       backgroundColor: t.bgCanvas,
@@ -244,17 +244,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                         masked: settings.hideAmounts,
                         loading: summaryAsync.isLoading,
                         tokens: t,
-                        onAdd: () => context.push('/budget/settings'),
-                        onTap: (b) => showBudgetEditDialog(
-                          context,
-                          year: _key.year,
-                          month: _key.month,
-                          edit: b,
-                          usedCategoryIds: budgets
-                              .map((bb) => bb.categoryRowId)
-                              .whereType<int>()
-                              .toSet(),
-                        ),
+                        onGoSettings: () => context.push('/budget/settings'),
                       ),
                       const SizedBox(height: PSpace.x12),
                       _ComplianceCard(
@@ -686,7 +676,12 @@ class _HeaderCard extends StatelessWidget {
               Expanded(
                 child: _MiniStat(
                   label: '전체 상한',
-                  value: krwSigned(overallLimit, masked, unit: true, mask: '••••'),
+                  value: krwSigned(
+                    overallLimit,
+                    masked,
+                    unit: true,
+                    mask: '••••',
+                  ),
                   color: tokens.fgPrimary,
                   tokens: tokens,
                 ),
@@ -694,7 +689,12 @@ class _HeaderCard extends StatelessWidget {
               Expanded(
                 child: _MiniStat(
                   label: '카테고리 할당',
-                  value: krwSigned(categoryLimitSum, masked, unit: true, mask: '••••'),
+                  value: krwSigned(
+                    categoryLimitSum,
+                    masked,
+                    unit: true,
+                    mask: '••••',
+                  ),
                   color: tokens.fgPrimary,
                   tokens: tokens,
                 ),
@@ -1122,6 +1122,10 @@ class _StatusBox extends StatelessWidget {
   }
 }
 
+/// 카테고리별 예산 카드 — 웹 BudgetPage `ListCard` 정합.
+///
+/// 개요 페이지는 조회 전용: 헤더는 카드 안('카테고리별 예산' + 'N개 설정됨'),
+/// '예산 추가' 버튼·행 탭 편집 없음 — 관리는 상단 설정 버튼 → 예산 설정 페이지에서.
 class _CategoryListCard extends StatelessWidget {
   const _CategoryListCard({
     required this.budgets,
@@ -1130,8 +1134,7 @@ class _CategoryListCard extends StatelessWidget {
     required this.masked,
     required this.loading,
     required this.tokens,
-    required this.onAdd,
-    required this.onTap,
+    required this.onGoSettings,
     this.warnThreshold = _warnThreshold,
   });
   final List<Budget> budgets;
@@ -1141,114 +1144,89 @@ class _CategoryListCard extends StatelessWidget {
   final bool masked;
   final bool loading;
   final PorestTokens tokens;
-  final VoidCallback onAdd;
-  final void Function(Budget) onTap;
+  final VoidCallback onGoSettings;
 
   @override
   Widget build(BuildContext context) {
-    // 추가 가능 카테고리(비-INCOME) 전부 예산 보유 시 "예산 추가" 버튼 비활성화.
-    final usedIds = budgets.map((b) => b.categoryRowId).whereType<int>().toSet();
-    // 웹 기준 통일: 예산 가능 카테고리 = EXPENSE 최상위(부모)만 (자식 제외).
-    final selectable = categories
-        .where((c) => c.expenseType == 'EXPENSE' && c.parentRowId == null)
-        .toList();
-    final allBudgeted = selectable.isNotEmpty &&
-        selectable.every((c) => usedIds.contains(c.rowId));
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // 헤더(카드 밖) — "카테고리별 예산 · N개" + accent "예산 추가" 버튼 (web 모바일 레이아웃 정합)
-        Row(
-          children: [
-            Text(
-              '카테고리별 예산 · ${budgets.length}개',
-              style: PTypo.body.copyWith(
-                color: tokens.fgPrimary,
-                fontWeight: PFontWeight.bold,
-              ),
-            ),
-            const Spacer(),
-            PButton(
-              label: '예산 추가',
-              icon: LucideIcons.plus,
-              variant: PButtonVariant.accent,
-              size: PButtonSize.sm,
-              onPressed: allBudgeted ? null : onAdd,
-            ),
-          ],
-        ),
-        const SizedBox(height: PSpace.x8),
-        // 카드 — 행 리스트(구분선으로 분리)
-        PCard(
-          padding: const EdgeInsets.all(PSpace.x16),
-          variant: PCardVariant.shadow,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return PCard(
+      padding: const EdgeInsets.all(PSpace.x16),
+      variant: PCardVariant.shadow,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 카드 안 헤더 — web CardHeader(타이틀 body-lg + 우측 'N개 설정됨' caption).
+          Row(
             children: [
-              if (loading && budgets.isEmpty)
-                // 예산 list placeholder — 3 rows (label + progress).
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: PSpace.x8),
-                  child: Column(
-                    children: [
-                      for (var i = 0; i < 3; i++) ...[
-                        if (i > 0) const SizedBox(height: PSpace.x16),
-                        Row(
-                          children: const [
-                            PSkeleton.line(width: 96, height: 13),
-                            Spacer(),
-                            PSkeleton.line(width: 80, height: 13),
-                          ],
-                        ),
-                        const SizedBox(height: PSpace.x8),
-                        PSkeleton(height: 6, borderRadius: PRadius.brFull),
-                      ],
-                    ],
-                  ),
-                )
-              else if (budgets.isEmpty)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: PSpace.x16),
-                  child: Column(
-                    children: [
-                      Text(
-                        '카테고리별 예산이 없어요',
-                        style: PTypo.bodySm.copyWith(color: tokens.fgTertiary),
-                      ),
-                      const SizedBox(height: PSpace.x8),
-                      PButton(
-                        label: '예산 설정하러 가기 →',
-                        variant: PButtonVariant.ghost,
-                        size: PButtonSize.sm,
-                        onPressed: onAdd,
-                      ),
-                    ],
-                  ),
-                )
-              else
-                for (int i = 0; i < budgets.length; i++) ...[
-                  if (i > 0) ...[
-                    const SizedBox(height: PSpace.x12),
-                    Divider(
-                        height: 1,
-                        thickness: 1,
-                        color: tokens.borderSubtle),
-                    const SizedBox(height: PSpace.x12),
-                  ],
-                  _CategoryRow(
-                    budget: budgets[i],
-                    category: categories.byRowId(budgets[i].categoryRowId!),
-                    spent: spentByCategory[budgets[i].categoryRowId] ?? 0,
-                    masked: masked,
-                    tokens: tokens,
-                    onTap: () => onTap(budgets[i]),
-                    warnThreshold: warnThreshold,
-                  ),
-                ],
+              Text(
+                '카테고리별 예산',
+                style: PTypo.bodyLg.copyWith(
+                  color: tokens.fgPrimary,
+                  fontWeight: PFontWeight.bold,
+                ),
+              ),
+              const Spacer(),
+              Text(
+                '${budgets.length}개 설정됨',
+                style: PTypo.caption.copyWith(color: tokens.fgTertiary),
+              ),
             ],
           ),
-        ),
-      ],
+          const SizedBox(height: PSpace.x16),
+          if (loading && budgets.isEmpty)
+            // 예산 list placeholder — 3 rows (label + progress).
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: PSpace.x8),
+              child: Column(
+                children: [
+                  for (var i = 0; i < 3; i++) ...[
+                    if (i > 0) const SizedBox(height: PSpace.x16),
+                    Row(
+                      children: const [
+                        PSkeleton.line(width: 96, height: 13),
+                        Spacer(),
+                        PSkeleton.line(width: 80, height: 13),
+                      ],
+                    ),
+                    const SizedBox(height: PSpace.x8),
+                    PSkeleton(height: 6, borderRadius: PRadius.brFull),
+                  ],
+                ],
+              ),
+            )
+          else if (budgets.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: PSpace.x16),
+              child: Column(
+                children: [
+                  Text(
+                    '카테고리별 예산이 없어요',
+                    style: PTypo.bodySm.copyWith(color: tokens.fgTertiary),
+                  ),
+                  const SizedBox(height: PSpace.x8),
+                  PButton(
+                    label: '예산 설정하러 가기 →',
+                    variant: PButtonVariant.ghost,
+                    size: PButtonSize.sm,
+                    onPressed: onGoSettings,
+                  ),
+                ],
+              ),
+            )
+          else
+            // 행 리스트 — 구분선 없이 간격 분리 (web rows gap 18 → x16 토큰 보정).
+            for (int i = 0; i < budgets.length; i++) ...[
+              if (i > 0) const SizedBox(height: PSpace.x16),
+              _CategoryRow(
+                budget: budgets[i],
+                category: categories.byRowId(budgets[i].categoryRowId!),
+                spent: spentByCategory[budgets[i].categoryRowId] ?? 0,
+                masked: masked,
+                tokens: tokens,
+                warnThreshold: warnThreshold,
+              ),
+            ],
+        ],
+      ),
     );
   }
 }
@@ -1260,7 +1238,6 @@ class _CategoryRow extends StatelessWidget {
     required this.spent,
     required this.masked,
     required this.tokens,
-    required this.onTap,
     this.warnThreshold = _warnThreshold,
   });
   final Budget budget;
@@ -1268,7 +1245,6 @@ class _CategoryRow extends StatelessWidget {
   final int spent;
   final bool masked;
   final PorestTokens tokens;
-  final VoidCallback onTap;
   final double warnThreshold;
 
   @override
@@ -1293,85 +1269,82 @@ class _CategoryRow extends StatelessWidget {
         budget.categoryName ??
         '카테고리 #${budget.categoryRowId}';
 
-    return InkWell(
-      onTap: onTap,
-      borderRadius: PRadius.brSm,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 36,
-                height: 36,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: bg,
-                  borderRadius: PRadius.tile(36),
-                ),
-                child: Icon(lucideByName(iconRaw), size: 18, color: fg),
+    // 조회 전용 행 (web BudgetPage 정합) — 편집은 예산 설정 페이지에서.
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: bg,
+                borderRadius: PRadius.tile(36),
               ),
-              const SizedBox(width: PSpace.x12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      name,
-                      style: PTypo.body.copyWith(
-                        color: tokens.fgPrimary,
-                        fontWeight: PFontWeight.semi,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      over
-                          ? (masked
-                                ? '한도 ${krwMasked(spent - limit, masked, mask: '••••')} 초과'
-                                : '한도 ${krwMasked(spent - limit, masked)}원 초과')
-                          : (masked
-                                ? '남은 예산 ${krwMasked((limit - spent).clamp(0, limit), masked, mask: '••••')}'
-                                : '남은 예산 ${krwMasked((limit - spent).clamp(0, limit), masked)}원'),
-                      style: PTypo.caption.copyWith(
-                        color: over ? tokens.fgExpense : tokens.fgTertiary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: PSpace.x8),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
+              child: Icon(lucideByName(iconRaw), size: 18, color: fg),
+            ),
+            const SizedBox(width: PSpace.x12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    krwMasked(spent, masked, mask: '••••'),
+                    name,
                     style: PTypo.body.copyWith(
-                      color: over ? tokens.fgExpense : tokens.fgPrimary,
-                      fontWeight: PFontWeight.bold,
+                      color: tokens.fgPrimary,
+                      fontWeight: PFontWeight.semi,
                     ),
+                    overflow: TextOverflow.ellipsis,
                   ),
+                  const SizedBox(height: 2),
                   Text(
-                    '/ ${krwMasked(limit, masked, mask: '••••')}',
-                    style: PTypo.micro.copyWith(
-                      color: tokens.fgTertiary,
-                      fontWeight: PFontWeight.medium,
+                    over
+                        ? (masked
+                              ? '한도 ${krwMasked(spent - limit, masked, mask: '••••')} 초과'
+                              : '한도 ${krwMasked(spent - limit, masked)}원 초과')
+                        : (masked
+                              ? '남은 예산 ${krwMasked((limit - spent).clamp(0, limit), masked, mask: '••••')}'
+                              : '남은 예산 ${krwMasked((limit - spent).clamp(0, limit), masked)}원'),
+                    style: PTypo.caption.copyWith(
+                      color: over ? tokens.fgExpense : tokens.fgTertiary,
                     ),
                   ),
                 ],
               ),
-            ],
-          ),
-          const SizedBox(height: PSpace.x8),
-          LinearProgressIndicator(
-            borderRadius: PRadius.brFull,
-            value: (p / 100).clamp(0, 1).toDouble(),
-            minHeight: 7,
-            backgroundColor: tokens.bgTrack,
-            color: stateColor,
-          ),
-        ],
-      ),
+            ),
+            const SizedBox(width: PSpace.x8),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  krwMasked(spent, masked, mask: '••••'),
+                  style: PTypo.body.copyWith(
+                    color: over ? tokens.fgExpense : tokens.fgPrimary,
+                    fontWeight: PFontWeight.bold,
+                  ),
+                ),
+                Text(
+                  '/ ${krwMasked(limit, masked, mask: '••••')}',
+                  style: PTypo.micro.copyWith(
+                    color: tokens.fgTertiary,
+                    fontWeight: PFontWeight.medium,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+        const SizedBox(height: PSpace.x8),
+        LinearProgressIndicator(
+          borderRadius: PRadius.brFull,
+          value: (p / 100).clamp(0, 1).toDouble(),
+          minHeight: 7,
+          backgroundColor: tokens.bgTrack,
+          color: stateColor,
+        ),
+      ],
     );
   }
 }
@@ -1509,7 +1482,9 @@ class _ComplianceBarChartState extends State<_ComplianceBarChart> {
               return;
             }
             final pos = event.localPosition;
-            if (i >= 0 && i < rows.length && (i != _touchedIdx || pos != _touchPos)) {
+            if (i >= 0 &&
+                i < rows.length &&
+                (i != _touchedIdx || pos != _touchPos)) {
               setState(() {
                 _touchedIdx = i;
                 if (pos != null) _touchPos = pos;
@@ -1608,7 +1583,9 @@ class _ComplianceBarChartState extends State<_ComplianceBarChart> {
     return Stack(
       children: [
         chart,
-        if (_touchedIdx != null && _touchedIdx! < rows.length && _touchPos != null)
+        if (_touchedIdx != null &&
+            _touchedIdx! < rows.length &&
+            _touchPos != null)
           PChartTooltipLayer(
             anchor: _touchPos!,
             child: Builder(
@@ -1841,66 +1818,55 @@ class _BudgetLoadingSkeleton extends StatelessWidget {
           ),
         ),
         const SizedBox(height: PSpace.x12),
-        // _CategoryListCard — 헤더(카드 밖) + shadow 카드 내 행 리스트(Divider 분리).
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                const PSkeleton.line(width: 128, height: 14),
-                const Spacer(),
-                PSkeleton.line(width: 72, height: 22),
-              ],
-            ),
-            const SizedBox(height: PSpace.x8),
-            PCard(
-              variant: PCardVariant.shadow,
-              padding: const EdgeInsets.all(PSpace.x16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  for (int i = 0; i < 4; i++) ...[
-                    if (i > 0) ...[
-                      const SizedBox(height: PSpace.x12),
-                      Divider(
-                          height: 1,
-                          thickness: 1,
-                          color: t.borderSubtle),
-                      const SizedBox(height: PSpace.x12),
-                    ],
-                    // _CategoryRow — 아이콘(36) + 이름/남은예산 + 금액/한도, progress.
-                    Row(
-                      children: [
-                        const PSkeleton(width: 36, height: 36),
-                        const SizedBox(width: PSpace.x12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: const [
-                              PSkeleton.line(width: 96, height: 14),
-                              SizedBox(height: 2),
-                              PSkeleton.line(width: 72, height: 12),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: PSpace.x8),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: const [
-                            PSkeleton.line(width: 56, height: 14),
-                            SizedBox(height: 2),
-                            PSkeleton.line(width: 40, height: 10),
-                          ],
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: PSpace.x8),
-                    PSkeleton(height: 7, borderRadius: PRadius.brFull),
-                  ],
+        // _CategoryListCard — 카드 안 헤더('카테고리별 예산' + 'N개 설정됨') +
+        // 구분선 없는 행 리스트(x16 간격) — web ListCard 정합.
+        PCard(
+          variant: PCardVariant.shadow,
+          padding: const EdgeInsets.all(PSpace.x16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: const [
+                  PSkeleton.line(width: 128, height: 16),
+                  Spacer(),
+                  PSkeleton.line(width: 56, height: 12),
                 ],
               ),
-            ),
-          ],
+              const SizedBox(height: PSpace.x16),
+              for (int i = 0; i < 4; i++) ...[
+                if (i > 0) const SizedBox(height: PSpace.x16),
+                // _CategoryRow — 아이콘(36) + 이름/남은예산 + 금액/한도, progress.
+                Row(
+                  children: [
+                    const PSkeleton(width: 36, height: 36),
+                    const SizedBox(width: PSpace.x12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: const [
+                          PSkeleton.line(width: 96, height: 14),
+                          SizedBox(height: 2),
+                          PSkeleton.line(width: 72, height: 12),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: PSpace.x8),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: const [
+                        PSkeleton.line(width: 56, height: 14),
+                        SizedBox(height: 2),
+                        PSkeleton.line(width: 40, height: 10),
+                      ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: PSpace.x8),
+                PSkeleton(height: 7, borderRadius: PRadius.brFull),
+              ],
+            ],
+          ),
         ),
         const SizedBox(height: PSpace.x12),
         // _ComplianceCard — header + 차트 영역(height 200).
