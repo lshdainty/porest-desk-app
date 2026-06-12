@@ -19,7 +19,6 @@ import 'package:porest_desk_app/shared/widgets/p_card.dart';
 import 'package:porest_desk_app/shared/widgets/p_dropdown_menu.dart';
 import 'package:porest_desk_app/shared/widgets/p_toggle.dart';
 import 'package:porest_desk_app/shared/widgets/p_divider.dart';
-import 'package:porest_desk_app/shared/widgets/p_empty_state.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
 import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
@@ -212,7 +211,7 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
                                   ),
                                   (
                                     _Filter.paused,
-                                    '정지 ${items.where((i) => i.isActive != 'Y').length}',
+                                    '일시정지 ${items.where((i) => i.isActive != 'Y').length}',
                                   ),
                                 ]) ...[
                                   PToggle(
@@ -229,7 +228,7 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
                         ),
                       ),
                       if (filtered.isEmpty)
-                        _EmptyState(filter: _filter, tokens: t)
+                        _EmptyState(tokens: t)
                       else
                         Column(
                           children: [
@@ -925,23 +924,20 @@ class _StatSkeleton extends StatelessWidget {
   }
 }
 
+/// 빈 상태 — 웹 RecurringManager 정합: 아이콘·서브문구 없이 중앙 단문(필터 공통).
 class _EmptyState extends StatelessWidget {
-  const _EmptyState({required this.filter, required this.tokens});
-  final _Filter filter;
+  const _EmptyState({required this.tokens});
   final PorestTokens tokens;
   @override
   Widget build(BuildContext context) {
-    final msg = switch (filter) {
-      _Filter.all => '아직 등록된 반복 거래가 없습니다',
-      _Filter.expense => '활성 반복 지출이 없습니다',
-      _Filter.income => '활성 반복 수입이 없습니다',
-      _Filter.paused => '일시정지된 반복 거래가 없습니다',
-    };
-    return PEmptyState(
-      icon: LucideIcons.repeat,
-      message: msg,
-      subMessage: '우하단 + 버튼으로 새 반복 거래를 등록하세요',
-      padding: const EdgeInsets.symmetric(vertical: PSpace.x32),
+    return Padding(
+      padding: const EdgeInsets.all(PSpace.x40),
+      child: Center(
+        child: Text(
+          '해당하는 반복 거래가 없어요',
+          style: PTypo.bodySm.copyWith(color: tokens.fgTertiary),
+        ),
+      ),
     );
   }
 }
