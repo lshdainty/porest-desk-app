@@ -14,8 +14,10 @@ import 'package:porest_desk_app/shared/widgets/p_select.dart';
 import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
+import 'package:porest_desk_app/features/dashboard/application/dashboard_providers.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
 import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
+import 'package:porest_desk_app/features/stats/application/stats_providers.dart';
 import 'package:porest_desk_app/features/category/presentation/category_palette.dart';
 
 /// 카테고리 추가/편집 시트 — 웹 `CategoryEditDialog.tsx` 미러.
@@ -134,6 +136,17 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
   /// touched 후엔 valid 일 때만 활성.
   bool get _canSubmit => !_submitting && (!_touched || _valid);
 
+  /// 카테고리 변경(특히 상위 재배치) 후 집계 캐시 무효화 — 웹 expenseKeys.all 정합.
+  ///
+  /// rangeSummaryProvider 등 family FutureProvider 는 non-autoDispose 라 세션 내내
+  /// 캐시가 살아 있어, categoriesProvider 만 무효화하면 예산 게이지·통계 도넛의
+  /// categoryBreakdown(부모 귀속)이 stale 로 남는다 (pull-to-refresh 전까지).
+  void _invalidateAggregates() {
+    ref.invalidate(categoriesProvider);
+    ref.invalidate(rangeSummaryProvider);
+    ref.invalidate(dashboardSummaryProvider);
+  }
+
   Future<void> _submit() async {
     setState(() => _touched = true);
     if (_submitting || !_valid) return;
@@ -163,7 +176,7 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
           parentRowId: _parentRowId,
         );
       }
-      ref.invalidate(categoriesProvider);
+      _invalidateAggregates();
       if (!mounted) return;
       Navigator.of(context).pop();
       showPSnackBar(context, _isEdit ? '카테고리가 수정되었습니다' : '카테고리가 추가되었습니다', severity: PSnackSeverity.success);
@@ -199,7 +212,7 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
     try {
       final repo = await ref.read(expenseRepositoryProvider.future);
       await repo.deleteCategory(widget.edit!.rowId);
-      ref.invalidate(categoriesProvider);
+      _invalidateAggregates();
       if (!mounted) return;
       Navigator.of(context).pop();
     } on ApiException catch (e) {
