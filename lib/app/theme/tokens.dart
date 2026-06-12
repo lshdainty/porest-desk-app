@@ -210,7 +210,8 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     bgHoverStrong: PorestPalette.slate100,
     bgRowHover: PorestPalette.slate50,
     bgDisabled: PorestPalette.slate100,
-    bgTrack: PorestPalette.slate200,
+    // progress.md track = surface-input — 웹 .budget-bar(--bg-sunken) 정합.
+    bgTrack: PorestPalette.slate100,
     fgPrimary: PorestPalette.slate950,
     fgSecondary: PorestPalette.slate700,
     fgTertiary: PorestPalette.slate600,
@@ -297,7 +298,9 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
     bgHoverStrong: Color(0x14FFFFFF),
     bgRowHover: Color(0x08FFFFFF),
     bgDisabled: Color(0x0DFFFFFF),
-    bgTrack: Color(0x24FFFFFF),
+    // progress.md track = surface-input-dark(#2D3346) — 종전 흰색 14% 알파는
+    // 스펙 근거 없는 임의 값(웹 .budget-bar 보다 밝게 보이던 원인).
+    bgTrack: PorestPalette.slate850,
     fgPrimary: PorestPalette.slate50,
     fgSecondary: PorestPalette.slateDarkText2,
     fgTertiary: PorestPalette.slateDarkText3,
