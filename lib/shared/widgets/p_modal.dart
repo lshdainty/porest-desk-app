@@ -295,6 +295,12 @@ class PFormAlertDialog extends StatelessWidget {
 }
 
 /// 표준 확인 다이얼로그 — 위험 액션이면 [destructive]=true.
+/// 확인 다이얼로그. [onConfirm] 미제공 시 확인 탭 즉시 닫고 true 반환(기존 동작).
+///
+/// [onConfirm] 제공 시(웹 ConfirmDialog `loading` 정합): 확인 탭 → 다이얼로그를
+/// 연 채 **확인(저장) 버튼에만** 스피너를 표시하며 [onConfirm] 을 실행하고, 성공하면
+/// 닫고 true. 예외가 발생하면 다이얼로그를 유지(스피너만 해제) — 에러 메시지는
+/// [onConfirm] 내부에서 처리. 취소 버튼·바깥 탭은 실행 중에도 원래대로 동작한다.
 Future<bool> showPConfirmDialog(
   BuildContext context, {
   required String title,
@@ -302,31 +308,84 @@ Future<bool> showPConfirmDialog(
   String confirmLabel = '확인',
   String cancelLabel = '취소',
   bool destructive = false,
+  Future<void> Function()? onConfirm,
 }) async {
   final ok = await showDialog<bool>(
     context: context,
-    builder: (ctx) {
-      final t = ctx.tokens;
-      return AlertDialog(
-        backgroundColor: t.bgSurface,
-        title: Text(title),
-        content: Text(message),
-        actions: [
-          PButton(
-            label: cancelLabel,
-            variant: PButtonVariant.ghost,
-            onPressed: () => Navigator.pop(ctx, false),
-          ),
-          PButton(
-            label: confirmLabel,
-            variant: destructive
-                ? PButtonVariant.danger
-                : PButtonVariant.primary,
-            onPressed: () => Navigator.pop(ctx, true),
-          ),
-        ],
-      );
-    },
+    builder: (ctx) => _PConfirmDialog(
+      title: title,
+      message: message,
+      confirmLabel: confirmLabel,
+      cancelLabel: cancelLabel,
+      destructive: destructive,
+      onConfirm: onConfirm,
+    ),
   );
   return ok == true;
+}
+
+class _PConfirmDialog extends StatefulWidget {
+  const _PConfirmDialog({
+    required this.title,
+    required this.message,
+    required this.confirmLabel,
+    required this.cancelLabel,
+    required this.destructive,
+    this.onConfirm,
+  });
+  final String title;
+  final String message;
+  final String confirmLabel;
+  final String cancelLabel;
+  final bool destructive;
+  final Future<void> Function()? onConfirm;
+
+  @override
+  State<_PConfirmDialog> createState() => _PConfirmDialogState();
+}
+
+class _PConfirmDialogState extends State<_PConfirmDialog> {
+  bool _busy = false;
+
+  Future<void> _confirm() async {
+    final action = widget.onConfirm;
+    if (action == null) {
+      Navigator.pop(context, true);
+      return;
+    }
+    setState(() => _busy = true);
+    try {
+      await action();
+      if (mounted) Navigator.pop(context, true);
+    } catch (_) {
+      // 실패 — 다이얼로그 유지, 스피너만 해제 (에러 표시는 onConfirm 내부에서).
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return AlertDialog(
+      backgroundColor: t.bgSurface,
+      title: Text(widget.title),
+      content: Text(widget.message),
+      actions: [
+        // 취소는 작업 중에도 원래 상태 유지 — 비동기 작업은 확인(저장) 버튼 스피너로만 표시.
+        PButton(
+          label: widget.cancelLabel,
+          variant: PButtonVariant.ghost,
+          onPressed: () => Navigator.pop(context, false),
+        ),
+        PButton(
+          label: widget.confirmLabel,
+          variant: widget.destructive
+              ? PButtonVariant.danger
+              : PButtonVariant.primary,
+          loading: _busy,
+          onPressed: _busy ? null : _confirm,
+        ),
+      ],
+    );
+  }
 }

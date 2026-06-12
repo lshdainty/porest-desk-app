@@ -189,7 +189,11 @@ class PButton extends StatelessWidget {
         : _radius();
     final h = _height();
     final btn = Material(
-      color: disabled ? bg.withValues(alpha: 0.5) : bg,
+      // disabled 약화는 아래 Opacity(0.5)로 버튼 전체(글자·아이콘 포함)에 적용
+      // — button.md States(disabled = opacity 0.5) + 웹 disabled:opacity-50 정합.
+      // bg.withValues(alpha)는 transparent(ghost/accent/outline)에서 RGB 0,0,0이
+      // 남아 50% 검정으로 깔리고, 글자색은 안 흐려져 disabled 구분이 안 되던 버그.
+      color: bg,
       shape: RoundedRectangleBorder(
         borderRadius: radius,
         side: border,
@@ -228,9 +232,10 @@ class PButton extends StatelessWidget {
         ),
       ),
     );
+    final dimmed = disabled ? Opacity(opacity: 0.5, child: btn) : btn;
     final tipped = tooltip != null
-        ? PTooltip(message: tooltip!, child: btn)
-        : btn;
+        ? PTooltip(message: tooltip!, child: dimmed)
+        : dimmed;
     return fullWidth ? SizedBox(width: double.infinity, child: tipped) : tipped;
   }
 }
