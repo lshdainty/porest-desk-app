@@ -206,7 +206,12 @@ class ExpenseRepository {
     required String categoryName,
     String? icon,
     String? color,
+    String? expenseType,
     int? sortOrder,
+    // parentRowId 는 null 자체가 의미("최상위로 이동")라 ?-skip 불가 —
+    // [includeParentRowId] 로 명시 전송 여부를 구분 (웹은 항상 포함 전송).
+    bool includeParentRowId = false,
+    int? parentRowId,
   }) async {
     try {
       final res = await _dio.put<Map<String, dynamic>>(
@@ -215,7 +220,9 @@ class ExpenseRepository {
           'categoryName': categoryName,
           'icon': ?icon,
           'color': ?color,
+          'expenseType': ?expenseType,
           'sortOrder': ?sortOrder,
+          if (includeParentRowId) 'parentRowId': parentRowId,
         },
       );
       return _unwrap(res, ExpenseCategory.fromJson);

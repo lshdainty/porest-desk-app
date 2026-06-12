@@ -18,10 +18,14 @@ IconData lucideByName(String? name, {IconData fallback = LucideIcons.tag}) {
 String _normalize(String s) =>
     s.toLowerCase().replaceAll(RegExp(r'[-_\s]'), '');
 
-/// lucide_icons 패키지(현재 0.257.0)에 아직 없는 lucide-react 아이콘 → 가장 가까운
-/// 대체. 패키지 업그레이드로 해당 아이콘이 추가되면 제거 가능.
+/// `_byName` 생성 당시 패키지에 없던 lucide-react 아이콘 → 직접 매핑/대체.
+/// 패키지 재생성 시 `_byName` 에 흡수되면 제거 가능.
 const Map<String, IconData> _aliases = {
-  'handcoins': LucideIcons.coins, // hand-coins (소득/용돈) — 0.257.0 미존재
+  // lucide_icons_flutter 3.x 에 존재하지만 _byName(구버전 생성분)에 누락된 이름들
+  // — 웹 카테고리 ICON_CHOICES 정합.
+  'handcoins': LucideIcons.handCoins, // hand-coins (소득/용돈)
+  'receipttext': LucideIcons.receiptText, // receipt-text (공과금/영수증)
+  'pawprint': LucideIcons.pawPrint, // paw-print (반려동물)
 };
 
 final Map<String, IconData> _byName = {
