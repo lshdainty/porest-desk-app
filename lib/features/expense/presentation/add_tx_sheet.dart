@@ -10,6 +10,7 @@ import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/core/format/date.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/core/sync/keep_alive_refresh.dart';
 import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
 import 'package:porest_desk_app/shared/widgets/p_badge.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
@@ -209,8 +210,8 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
           description: desc,
           transferDate: isoDate,
         );
-        ref.invalidate(assetsProvider);
         ref.invalidate(monthExpensesProvider((year: d.year, month: d.month)));
+        invalidateAssetsAfterExpense(ref);
         if (!mounted) return;
         Navigator.of(context).pop();
         showPSnackBar(context, '이체가 완료되었습니다', severity: PSnackSeverity.success);
@@ -274,6 +275,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
         }
       }
       ref.invalidate(monthExpensesProvider((year: d.year, month: d.month)));
+      invalidateAssetsAfterExpense(ref);
       if (!mounted) return;
       Navigator.of(context).pop();
       showPSnackBar(
@@ -312,6 +314,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
           monthExpensesProvider((year: orig.year, month: orig.month)),
         );
       }
+      invalidateAssetsAfterExpense(ref);
       if (!mounted) return;
       Navigator.of(context).pop();
       showPSnackBar(context, '거래가 삭제되었습니다', severity: PSnackSeverity.success);

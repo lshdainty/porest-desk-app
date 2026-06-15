@@ -10,6 +10,7 @@ import 'package:porest_desk_app/core/format/color_parse.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
+import 'package:porest_desk_app/core/sync/keep_alive_refresh.dart';
 import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
@@ -139,6 +140,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
         final m = int.parse(parts[1]);
         ref.invalidate(monthExpensesProvider((year: y, month: m)));
       }
+      invalidateAssetsAfterExpense(ref);
       if (!mounted) return;
       Navigator.of(context).pop();
       showPSnackBar(context, '거래가 삭제되었습니다', severity: PSnackSeverity.success);
