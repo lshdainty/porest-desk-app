@@ -6,6 +6,7 @@ import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart';
+import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
 import 'package:porest_desk_app/shared/widgets/p_color_picker.dart';
@@ -14,6 +15,7 @@ import 'package:porest_desk_app/shared/widgets/p_select.dart';
 import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
+import 'package:porest_desk_app/features/budget/application/budget_providers.dart';
 import 'package:porest_desk_app/features/dashboard/application/dashboard_providers.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
 import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
@@ -147,11 +149,68 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
     ref.invalidate(dashboardSummaryProvider);
   }
 
+  /// 자식 이동 시 새 부모 예산 초과 확인 — 초과면 다이얼로그 1회(승인=true) (룰3).
+  /// 예산 없음·미초과면 true(그대로 진행), 사용자가 취소하면 false.
+  Future<bool> _confirmMoveIfExceedsBudget(int newParentRowId) async {
+    final now = DateTime.now();
+    final key = (year: now.year, month: now.month);
+    final start =
+        '${now.year.toString().padLeft(4, '0')}-${now.month.toString().padLeft(2, '0')}-01';
+    final lastDay = DateTime(now.year, now.month + 1, 0).day;
+    final end =
+        '${now.year.toString().padLeft(4, '0')}-${now.month.toString().padLeft(2, '0')}-${lastDay.toString().padLeft(2, '0')}';
+
+    final budgets = await ref.read(monthBudgetsProvider(key).future);
+    final parentBudget = budgets
+        .where((b) => b.categoryRowId == newParentRowId)
+        .map((b) => b.budgetAmount)
+        .firstOrNull;
+    if (parentBudget == null) return true; // 새 부모에 예산 없음 → 경고 불필요
+
+    final summary = await ref
+        .read(rangeSummaryProvider((startDate: start, endDate: end)).future);
+    final breakdown = summary.categoryBreakdown;
+    final parentRollup = breakdown
+        .where((c) =>
+            c.categoryRowId == newParentRowId ||
+            c.parentCategoryRowId == newParentRowId)
+        .fold<int>(0, (s, c) => s + c.totalAmount);
+    final movingSpent = breakdown
+        .where((c) => c.categoryRowId == widget.edit!.rowId)
+        .fold<int>(0, (s, c) => s + c.totalAmount);
+    final projected = parentRollup + movingSpent;
+    if (projected <= parentBudget) return true;
+
+    if (!mounted) return false;
+    final parentName = _categories
+        .where((c) => c.rowId == newParentRowId)
+        .map((c) => c.categoryName)
+        .firstOrNull ??
+        '상위 카테고리';
+    return showPConfirmDialog(
+      context,
+      title: '예산 초과 확인',
+      message:
+          '이동하면 "$parentName" 예산을 ${krw(projected - parentBudget)}원 초과합니다. 그래도 이동할까요?',
+      confirmLabel: '이동',
+    );
+  }
+
   Future<void> _submit() async {
     setState(() => _touched = true);
     if (_submitting || !_valid) return;
     final name = _nameTrim;
     final parentDisabled = _selfHasChildren;
+
+    // 자식을 다른 부모로 이동 — 새 부모 예산 초과 시 한 번 확인 (룰3).
+    if (_isEdit &&
+        !parentDisabled &&
+        _parentRowId != null &&
+        _parentRowId != widget.edit!.parentRowId) {
+      final ok = await _confirmMoveIfExceedsBudget(_parentRowId!);
+      if (!ok || !mounted) return;
+    }
+
     _setSubmitting(true);
     try {
       final repo = await ref.read(expenseRepositoryProvider.future);
@@ -200,10 +259,19 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
       );
       return;
     }
+    // 예산이 걸린 카테고리면 함께 삭제됨을 안내 (백엔드 cascade).
+    final now = DateTime.now();
+    final budgets = await ref
+        .read(monthBudgetsProvider((year: now.year, month: now.month)).future);
+    if (!mounted) return;
+    final hasBudget =
+        budgets.any((b) => b.categoryRowId == widget.edit!.rowId);
     final ok = await showPConfirmDialog(
       context,
       title: '카테고리 삭제',
-      message: '"${widget.edit!.categoryName}" 카테고리를 삭제하시겠어요?',
+      message: hasBudget
+          ? '예산이 설정되어 있는 카테고리입니다. 삭제 시 예산도 함께 삭제됩니다. "${widget.edit!.categoryName}" 카테고리를 삭제하시겠습니까?'
+          : '"${widget.edit!.categoryName}" 카테고리를 삭제하시겠어요?',
       confirmLabel: '삭제',
       destructive: true,
     );
@@ -238,7 +306,6 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
             c.parentRowId == null &&
             c.rowId != widget.edit?.rowId)
         .toList();
-    final parentDisabled = _selfHasChildren;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) widget.controller.setCanSubmit(_canSubmit);
@@ -311,36 +378,44 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
         ),
         const SizedBox(height: PSpace.x16),
 
-        // 상위 카테고리 (선택)
-        Text.rich(
-          TextSpan(
-            text: '상위 카테고리',
-            style: PTypo.caption.copyWith(color: t.fgSecondary),
-            children: [
-              TextSpan(
-                text: ' (선택)',
-                style: PTypo.caption.copyWith(color: t.fgTertiary),
-              ),
-            ],
+        // 상위 카테고리 정책 (웹 정합):
+        //  - 신규: 최상위 또는 특정 부모 아래로 생성(루트 옵션 포함).
+        //  - 자식 편집: 다른 부모로만 이동(승격='최상위로 두기' 금지 → 루트 옵션 제거).
+        //  - 최상위 편집: 강등 불가 → 필드 숨김.
+        if (!_isEdit || widget.edit!.parentRowId != null) ...[
+          Text.rich(
+            TextSpan(
+              text: '상위 카테고리',
+              style: PTypo.caption.copyWith(color: t.fgSecondary),
+              children: [
+                if (!_isEdit)
+                  TextSpan(
+                    text: ' (선택)',
+                    style: PTypo.caption.copyWith(color: t.fgTertiary),
+                  ),
+              ],
+            ),
           ),
-        ),
-        const SizedBox(height: PSpace.x8),
-        PSelect<int>(
-          value: _parentRowId ?? _kRootParent,
-          title: '상위 카테고리',
-          enabled: !parentDisabled && parentOptions.isNotEmpty,
-          helperText:
-              parentDisabled ? '하위 카테고리가 있어 상위를 변경할 수 없어요.' : null,
-          items: [
-            const PSelectItem(
-                value: _kRootParent, label: '— 최상위 카테고리로 두기 —'),
-            for (final p in parentOptions)
-              PSelectItem(value: p.rowId, label: p.categoryName),
-          ],
-          onChanged: (v) => setState(
-              () => _parentRowId = (v == null || v == _kRootParent) ? null : v),
-        ),
-        const SizedBox(height: PSpace.x16),
+          const SizedBox(height: PSpace.x8),
+          PSelect<int>(
+            value: _parentRowId ?? _kRootParent,
+            title: '상위 카테고리',
+            enabled: parentOptions.isNotEmpty,
+            helperText: _isEdit
+                ? '다른 상위로 이동할 수 있어요. 최상위로 올리려면 연결된 거래를 옮긴 뒤 새로 만들어 주세요.'
+                : null,
+            items: [
+              if (!_isEdit)
+                const PSelectItem(
+                    value: _kRootParent, label: '— 최상위 카테고리로 두기 —'),
+              for (final p in parentOptions)
+                PSelectItem(value: p.rowId, label: p.categoryName),
+            ],
+            onChanged: (v) => setState(
+                () => _parentRowId = (v == null || v == _kRootParent) ? null : v),
+          ),
+          const SizedBox(height: PSpace.x16),
+        ],
 
         // 이름 — 카운터 N/12 또는 에러 (웹 정합).
         Text('이름', style: PTypo.caption.copyWith(color: t.fgSecondary)),
