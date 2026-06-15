@@ -26,3 +26,28 @@ void invalidateKeepAliveProviders(WidgetRef ref) {
   ref.invalidate(memoFolderListProvider);
   ref.invalidate(budgetComplianceProvider);
 }
+
+/// 셸(IndexedStack) 화면 진입 갱신.
+///
+/// `/expense`·`/assets`·`/budget`·`/calendar` 등은 셸에 계속 mount 되어
+/// `initState` 가 재실행되지 않으므로, 라우트가 바뀔 때 진입하는 경로가 watch 하는
+/// keepAlive provider 만 골라 무효화한다(다른 탭은 건드리지 않아 불필요한 refetch 방지).
+void invalidateKeepAliveForRoute(WidgetRef ref, String path) {
+  switch (path) {
+    case '/home':
+      ref.invalidate(categoriesProvider);
+    case '/expense':
+      ref.invalidate(categoriesProvider);
+      ref.invalidate(assetsProvider);
+    case '/assets':
+      ref.invalidate(assetsProvider);
+      ref.invalidate(netWorthTrendProvider);
+    case '/stats':
+      ref.invalidate(categoriesProvider);
+    case '/budget':
+      ref.invalidate(budgetComplianceProvider);
+    case '/calendar':
+      ref.invalidate(userCalendarListProvider);
+      ref.invalidate(eventLabelsProvider);
+  }
+}

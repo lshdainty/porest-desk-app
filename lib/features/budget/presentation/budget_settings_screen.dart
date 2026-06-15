@@ -49,6 +49,15 @@ class BudgetSettingsScreen extends ConsumerStatefulWidget {
 class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
   late DateTime _month = monthStart(DateTime.now());
 
+  @override
+  void initState() {
+    super.initState();
+    // 진입 시 갱신 — budgetCompliance 는 keepAlive 라 다른 클라이언트 변경 반영 위해 무효화.
+    Future.microtask(() {
+      if (mounted) ref.invalidate(budgetComplianceProvider(6));
+    });
+  }
+
   BudgetMonthKey get _key => (year: _month.year, month: _month.month);
 
   String get _monthStartStr => _ymd(_month.year, _month.month, 1);
