@@ -29,11 +29,26 @@ import 'package:porest_desk_app/features/calendar/domain/event_label.dart';
 ///
 /// 백엔드 `EventLabel` 에 icon 필드가 없으므로 design 의 icon picker 는 생략 —
 /// 라벨은 "이름 + 색"만 영속한다. 색은 chart palette tone(base hex).
-class CalendarLabelsScreen extends ConsumerWidget {
+class CalendarLabelsScreen extends ConsumerStatefulWidget {
   const CalendarLabelsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CalendarLabelsScreen> createState() =>
+      _CalendarLabelsScreenState();
+}
+
+class _CalendarLabelsScreenState extends ConsumerState<CalendarLabelsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // 진입 시 갱신 — eventLabels 는 keepAlive 라 다른 클라이언트 변경 반영 위해 무효화.
+    Future.microtask(() {
+      if (mounted) ref.invalidate(eventLabelsProvider);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final t = context.tokens;
     final labelsAsync = ref.watch(eventLabelsProvider);
 

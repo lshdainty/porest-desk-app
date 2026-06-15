@@ -42,6 +42,15 @@ class _BodyState extends ConsumerState<_Body> {
   bool _adding = false;
 
   @override
+  void initState() {
+    super.initState();
+    // 진입 시 갱신 — keepAlive provider 라 다른 클라이언트 변경 반영 위해 무효화.
+    Future.microtask(() {
+      if (mounted) ref.invalidate(todoTagListProvider);
+    });
+  }
+
+  @override
   void dispose() {
     _newCtrl.dispose();
     super.dispose();

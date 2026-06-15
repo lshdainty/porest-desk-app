@@ -28,11 +28,26 @@ import 'package:porest_desk_app/features/calendar/domain/user_calendar.dart';
 ///
 /// 개인 캘린더 자체를 공유 단위로: 생성(개인~공유)·이름/색 편집·삭제·공유(초대코드/멤버권한)를
 /// 모두 이 화면에서 관리. 소유 = isOwner, 공유받음 = 그 외.
-class CalendarShareScreen extends ConsumerWidget {
+class CalendarShareScreen extends ConsumerStatefulWidget {
   const CalendarShareScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CalendarShareScreen> createState() =>
+      _CalendarShareScreenState();
+}
+
+class _CalendarShareScreenState extends ConsumerState<CalendarShareScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // 진입 시 갱신 — userCalendarList 는 keepAlive 라 다른 클라이언트 변경 반영 위해 무효화.
+    Future.microtask(() {
+      if (mounted) ref.invalidate(userCalendarListProvider);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final t = context.tokens;
     final listAsync = ref.watch(userCalendarListProvider);
 
