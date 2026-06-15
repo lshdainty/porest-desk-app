@@ -9,6 +9,7 @@ import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/core/sync/keep_alive_refresh.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_progress.dart';
@@ -177,6 +178,18 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
     });
   }
 
+  /// 분할은 실제 금액(자산 잔액)·거래 목록에 영향 — 관련 캐시 무효화.
+  void _invalidateExpenseAndAssets() {
+    final iso = widget.expense.expenseDate;
+    if (iso != null && iso.length >= 10) {
+      final p = iso.substring(0, 10).split('-');
+      ref.invalidate(
+        monthExpensesProvider((year: int.parse(p[0]), month: int.parse(p[1]))),
+      );
+    }
+    invalidateAssetsAfterExpense(ref);
+  }
+
   Future<void> _save() async {
     if (!_matched || _submitting) return;
     _setSubmitting(true);
@@ -197,6 +210,7 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
         ],
       );
       ref.invalidate(expenseSplitsProvider(widget.expense.rowId));
+      _invalidateExpenseAndAssets();
       if (!mounted) return;
       Navigator.of(context).pop();
       showPSnackBar(context, '분할이 저장되었습니다', severity: PSnackSeverity.success);
@@ -223,6 +237,7 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
       final repo = await ref.read(expenseSplitRepositoryProvider.future);
       await repo.deleteAll(widget.expense.rowId);
       ref.invalidate(expenseSplitsProvider(widget.expense.rowId));
+      _invalidateExpenseAndAssets();
       if (!mounted) return;
       Navigator.of(context).pop();
     } on ApiException catch (e) {
