@@ -16,7 +16,6 @@ import 'package:porest_desk_app/features/asset/application/asset_providers.dart'
 import 'package:porest_desk_app/features/asset/domain/asset.dart';
 import 'package:porest_desk_app/features/asset/domain/asset_summary.dart';
 import 'package:porest_desk_app/features/asset/presentation/asset_edit_dialog.dart';
-import 'package:porest_desk_app/features/asset/presentation/asset_transfer_dialog.dart';
 import 'package:porest_desk_app/features/asset/presentation/widgets/asset_logo.dart';
 import 'package:porest_desk_app/features/asset/presentation/widgets/net_worth_chart.dart';
 
@@ -273,15 +272,6 @@ class _SummaryCard extends StatelessWidget {
                     color: t.fgTertiary,
                   ),
                 ),
-              ),
-              const Spacer(),
-              // 자산 간 이체 — 헤더 아이콘에서 옮겨옴 (web 와 동일 패턴: 본문 안 액션).
-              PButton(
-                label: '이체',
-                icon: LucideIcons.arrowRightLeft,
-                variant: PButtonVariant.ghost,
-                size: PButtonSize.sm,
-                onPressed: () => showAssetTransferDialog(context),
               ),
             ],
           ),
@@ -782,14 +772,12 @@ class _AssetSummaryCardSkeleton extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Row: 라벨 + eye(6 gap) + Spacer + 이체 button(sm, brSm)
+          // Row: 라벨 + eye(6 gap)
           Row(
             children: const [
               PSkeleton.line(width: 56, height: 12),
               SizedBox(width: 6),
               PSkeleton(width: 14, height: 14, borderRadius: PRadius.brXs),
-              Spacer(),
-              PSkeleton(width: 56, height: 28, borderRadius: PRadius.brSm),
             ],
           ),
           const SizedBox(height: 6),
