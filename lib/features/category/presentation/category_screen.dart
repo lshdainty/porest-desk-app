@@ -31,6 +31,8 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
   int _tabIndex = 0;
   String _query = '';
   final Set<int> _collapsed = <int>{};
+  // 낙관적 재정렬 오버레이: 드롭 즉시 로컬 순서를 반영하고 refetch가 끝나면 비운다.
+  final Map<int, ({int sortOrder, int? parentRowId})> _optimistic = {};
 
   static const _kinds = [
     ('EXPENSE', '지출'),
@@ -50,12 +52,23 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
   Future<void> _handleReorder(
     List<({int categoryRowId, int sortOrder, int? parentRowId})> items,
   ) async {
+    // 낙관적 업데이트: 드롭 즉시 로컬 순서를 반영(스냅백 방지).
+    setState(() {
+      for (final it in items) {
+        _optimistic[it.categoryRowId] =
+            (sortOrder: it.sortOrder, parentRowId: it.parentRowId);
+      }
+    });
     try {
       final repo = await ref.read(expenseRepositoryProvider.future);
       await repo.reorderCategories(items);
+      // 서버 권위 데이터로 재동기 후 오버레이 제거 — refetch 완료를 기다려 깜빡임 방지.
       ref.invalidate(categoriesProvider);
+      await ref.read(categoriesProvider.future);
     } catch (e) {
       debugPrint('reorderCategories failed: $e');
+    } finally {
+      if (mounted) setState(() => _optimistic.clear());
     }
   }
 
@@ -146,12 +159,24 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                 ),
               ),
               data: (categories) {
+                // 낙관적 오버레이 적용 — 진행 중인 재정렬을 즉시 반영.
+                final effective = _optimistic.isEmpty
+                    ? categories
+                    : categories.map((c) {
+                        final o = _optimistic[c.rowId];
+                        return o == null
+                            ? c
+                            : c.copyWith(
+                                sortOrder: o.sortOrder,
+                                parentRowId: o.parentRowId,
+                              );
+                      }).toList(growable: false);
                 return IndexedStack(
                   index: _tabIndex,
                   children: [
                     for (final k in _kinds)
                       _CategoryList(
-                        categories: categories
+                        categories: effective
                             .where((c) =>
                                 (c.expenseType ?? 'EXPENSE') == k.$1)
                             .toList(growable: false),
