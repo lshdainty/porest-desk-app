@@ -39,6 +39,16 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
     ('INCOME', '수입'),
   ];
 
+  @override
+  void initState() {
+    super.initState();
+    // 화면 진입 시 갱신 — categoriesProvider 는 keepAlive 라 자동 refetch 되지
+    // 않으므로, 다른 클라이언트(웹 등) 변경을 따라잡기 위해 진입할 때 무효화한다.
+    Future.microtask(() {
+      if (mounted) ref.invalidate(categoriesProvider);
+    });
+  }
+
   void _toggleCollapse(int parentRowId) {
     setState(() {
       if (_collapsed.contains(parentRowId)) {
