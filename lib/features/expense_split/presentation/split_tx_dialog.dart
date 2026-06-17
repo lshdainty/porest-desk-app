@@ -596,6 +596,7 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
                 _SplitRowCard(
                   index: i,
                   row: _rows![i],
+                  total: _totalAbs,
                   categories: categories,
                   canRemove: _rows!.length > 1,
                   disabled: _submitting,
@@ -702,6 +703,7 @@ class _SplitRowCard extends StatefulWidget {
   const _SplitRowCard({
     required this.index,
     required this.row,
+    required this.total,
     required this.categories,
     required this.canRemove,
     required this.disabled,
@@ -711,6 +713,7 @@ class _SplitRowCard extends StatefulWidget {
   });
   final int index;
   final _Row row;
+  final int total;
   final List<ExpenseCategory> categories;
   final bool canRemove;
   final bool disabled;
@@ -756,82 +759,107 @@ class _SplitRowCardState extends State<_SplitRowCard> {
     super.dispose();
   }
 
+  String? _catColor() {
+    final id = widget.row.categoryRowId;
+    if (id == null) return null;
+    for (final c in widget.categories) {
+      if (c.rowId == id) return c.color;
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = widget.tokens;
-    // front 1행 layout 미러: [# circle] [label] [category dropdown] [amount + 원] [X]
+    // 스택형 카드 layout(front 미러): 헤더(색 점·항목N·비율%·삭제) / 라벨 / 카테고리+금액
+    final pct =
+        widget.total > 0 ? ((widget.row.amount / widget.total) * 100).round() : 0;
+    final dotColor =
+        resolveChartColor(context, _catColor(), fallback: t.fgBrand);
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      padding: const EdgeInsets.all(PSpace.x12),
       decoration: BoxDecoration(
         color: t.bgSurface,
-        borderRadius: PRadius.brMd,
+        borderRadius: PRadius.brLg,
         border: Border.all(color: t.borderSubtle),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 24,
-            height: 24,
-            decoration: BoxDecoration(
-                color: t.bgMuted, borderRadius: PRadius.brFull),
-            alignment: Alignment.center,
-            child: Text('${widget.index + 1}',
-                style: PTypo.caption.copyWith(
-                    color: t.fgSecondary, fontWeight: PFontWeight.bold)),
+          // 헤더: 색 점 + 항목 N + 비율% + 삭제
+          Row(
+            children: [
+              Container(
+                width: 8,
+                height: 8,
+                decoration:
+                    BoxDecoration(color: dotColor, borderRadius: PRadius.brXs),
+              ),
+              const SizedBox(width: 6),
+              Text('항목 ${widget.index + 1}',
+                  style: PTypo.caption.copyWith(
+                      color: t.fgSecondary, fontWeight: PFontWeight.semi)),
+              const Spacer(),
+              Text('$pct%',
+                  style: PTypo.caption.copyWith(
+                      color: t.fgTertiary, fontWeight: PFontWeight.bold)),
+              const SizedBox(width: 4),
+              PButton.icon(
+                icon: LucideIcons.x,
+                size: PButtonSize.sm,
+                iconColor: t.fgTertiary,
+                tooltip: '항목 삭제',
+                onPressed: widget.disabled || !widget.canRemove
+                    ? null
+                    : widget.onRemove,
+              ),
+            ],
           ),
-          const SizedBox(width: 8),
-          Expanded(
-            flex: 14,
-            child: PTextInput(
-              controller: _labelCtrl,
-              style: PTypo.caption,
-              placeholder: '항목 이름',
-              enabled: !widget.disabled,
-              onChanged: (v) {
-                widget.row.label = v;
-              },
-            ),
+          const SizedBox(height: 8),
+          // 항목 이름 — 전체폭
+          PTextInput(
+            controller: _labelCtrl,
+            placeholder: '항목 이름 (선택)',
+            enabled: !widget.disabled,
+            onChanged: (v) {
+              widget.row.label = v;
+            },
           ),
-          const SizedBox(width: 6),
-          Expanded(
-            flex: 10,
-            child: _CategoryDropdown(
-              value: widget.row.categoryRowId,
-              categories: widget.categories,
-              onChanged: widget.disabled
-                  ? null
-                  : (v) {
-                      widget.row.categoryRowId = v;
-                      widget.onChange();
-                    },
-              tokens: t,
-            ),
-          ),
-          const SizedBox(width: 6),
-          Expanded(
-            flex: 11,
-            child: PTextInput(
-              controller: _amountCtrl,
-              numbersOnly: true,
-              textAlign: TextAlign.right,
-              enabled: !widget.disabled,
-              style: PTypo.caption,
-              placeholder: '0',
-              suffixText: '원',
-              onChanged: (v) {
-                widget.row.amount = int.tryParse(v) ?? 0;
-                widget.onChange();
-              },
-            ),
-          ),
-          PButton.icon(
-            icon: LucideIcons.x,
-            size: PButtonSize.sm,
-            iconColor: t.fgTertiary,
-            tooltip: '항목 삭제',
-            onPressed: widget.disabled || !widget.canRemove
-                ? null
-                : widget.onRemove,
+          const SizedBox(height: 8),
+          // 카테고리 + 금액
+          Row(
+            children: [
+              Expanded(
+                flex: 10,
+                child: _CategoryDropdown(
+                  value: widget.row.categoryRowId,
+                  categories: widget.categories,
+                  onChanged: widget.disabled
+                      ? null
+                      : (v) {
+                          widget.row.categoryRowId = v;
+                          widget.onChange();
+                        },
+                  tokens: t,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                flex: 14,
+                child: PTextInput(
+                  controller: _amountCtrl,
+                  numbersOnly: true,
+                  textAlign: TextAlign.right,
+                  enabled: !widget.disabled,
+                  placeholder: '0',
+                  suffixText: '원',
+                  onChanged: (v) {
+                    widget.row.amount = int.tryParse(v) ?? 0;
+                    widget.onChange();
+                  },
+                ),
+              ),
+            ],
           ),
         ],
       ),
