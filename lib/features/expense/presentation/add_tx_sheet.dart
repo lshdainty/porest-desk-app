@@ -30,6 +30,9 @@ import 'package:porest_desk_app/features/preset/domain/expense_template.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
 import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
+import 'package:porest_desk_app/features/expense_split/application/expense_split_providers.dart';
+import 'package:porest_desk_app/features/expense_split/data/expense_split_repository.dart';
+import 'package:porest_desk_app/features/expense_split/presentation/split_tx_dialog.dart';
 
 String _formatTime(TimeOfDay t) =>
     '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
@@ -82,6 +85,19 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
 
   /// 프리셋을 통해 폼이 초기화된 경우 해당 프리셋 ID — 저장 성공 후 /touch.
   int? _appliedPresetId;
+
+  // 편집 모드 분할 일치화: 서버 분할(build 에서 적재) + 이번 세션에서 맞춘 분할.
+  List<SplitInput> _serverSplits = const [];
+  List<SplitInput>? _reconciledSplits;
+  List<SplitInput> get _effectiveSplits => _reconciledSplits ?? _serverSplits;
+  int get _splitSum => _effectiveSplits.fold<int>(0, (s, x) => s + x.amount);
+  // 금액을 바꿔 분할 합과 어긋남(편집·지출/수입만). 이때 저장을 막고 일치화 유도.
+  bool get _splitMismatch =>
+      _isEdit &&
+      _input.type != 'TRANSFER' &&
+      _input.amountInt > 0 &&
+      _effectiveSplits.isNotEmpty &&
+      _input.amountInt != _splitSum;
 
   bool get _isEdit => widget.edit != null;
 
@@ -185,7 +201,10 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
           _input.toAssetRowId != null &&
           _input.assetRowId != _input.toAssetRowId;
     }
-    return _input.categoryRowId != null && _input.assetRowId != null;
+    if (_input.categoryRowId == null || _input.assetRowId == null) return false;
+    // 분할 합 불일치 시 저장 보류 — 배너의 '분할 내역 맞추기'로 먼저 일치화.
+    if (_splitMismatch) return false;
+    return true;
   }
 
   Future<void> _submit() async {
@@ -242,7 +261,11 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
           description: desc,
           merchant: merchant,
           paymentMethod: payment,
+          // 일치화한 분할이 있으면 금액과 함께 원자적으로 교체(백엔드가 합==금액 검증).
+          splits: _reconciledSplits,
         );
+        // 분할이 교체됐을 수 있으니 분할 쿼리도 무효화.
+        ref.invalidate(expenseSplitsProvider(widget.edit!.rowId));
       } else {
         await repo.create(
           categoryRowId: _input.categoryRowId!,
@@ -338,6 +361,22 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
         : ref.watch(presetListProvider);
     final categoriesAsync = ref.watch(categoriesProvider);
 
+    // 편집 모드: 기존 분할을 적재해 금액↔분할 합 불일치 판정(일치화 유도).
+    if (_isEdit) {
+      final sp = ref.watch(expenseSplitsProvider(widget.edit!.rowId)).value;
+      _serverSplits = sp == null
+          ? const []
+          : [
+              for (final s in sp)
+                SplitInput(
+                  categoryRowId: s.categoryRowId,
+                  amount: s.amount,
+                  label: s.label,
+                  sortOrder: s.sortOrder,
+                ),
+            ];
+    }
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) widget.controller.setCanSubmit(_canSubmit);
     });
@@ -364,7 +403,71 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
                   tokens: t,
                 ),
         ),
+        if (_splitMismatch) ...[
+          const SizedBox(height: PSpace.x16),
+          _splitMismatchBanner(t),
+        ],
       ],
+    );
+  }
+
+  /// 분할 합 불일치 경고 — 금액을 바꿔 기존 분할 합과 어긋날 때. '분할 내역 맞추기'로 일치화 진입.
+  Widget _splitMismatchBanner(PorestTokens t) {
+    final amount = _input.amountInt;
+    final diff = amount - _splitSum;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 13),
+      decoration: BoxDecoration(
+        color: t.statusWarningSubtle,
+        borderRadius: PRadius.brMd,
+        border: Border.all(color: t.statusWarningBorder),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(LucideIcons.alertTriangle, size: 16, color: t.statusWarningFg),
+          const SizedBox(width: PSpace.x12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('분할 내역과 금액이 달라요',
+                    style: PTypo.bodySm.copyWith(
+                        color: t.fgPrimary, fontWeight: PFontWeight.bold)),
+                const SizedBox(height: 3),
+                Text(
+                  '새 총액 ${krw(amount)}원 · 분할 합계 ${krw(_splitSum)}원 · '
+                  '${diff > 0 ? '+' : '-'}${krw(diff.abs())}원 차이',
+                  style: PTypo.caption.copyWith(
+                      color: t.fgSecondary, height: PLineHeight.normal),
+                ),
+                const SizedBox(height: PSpace.x8),
+                PButton(
+                  label: '분할 내역 맞추기',
+                  icon: LucideIcons.scissors,
+                  size: PButtonSize.sm,
+                  onPressed: _submitting ? null : _openReconcile,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _openReconcile() {
+    showSplitTxDialog(
+      context,
+      widget.edit!,
+      overrideTotal: _input.amountInt,
+      recordedTotal: widget.edit!.amount.abs(),
+      initialSplits: _effectiveSplits,
+      onReconciled: (splits) {
+        if (!mounted) return;
+        setState(() => _reconciledSplits = splits);
+        _syncController();
+      },
     );
   }
 }
