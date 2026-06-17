@@ -120,13 +120,13 @@ abstract final class PTypo {
     fontWeight: FontWeight.w500,
   );
 
-  // Mono — 금액·숫자
+  // 금액·숫자 — 라벨과 동일 sans(Pretendard) + tabular figures(정렬용). 웹(.num: sans+tnum) 정합.
   static const TextStyle moneyLg = TextStyle(
-    fontFamily: mono, fontSize: 22, height: 1.2,
+    fontFamily: sans, fontSize: 22, height: 1.2,
     fontWeight: FontWeight.w500, fontFeatures: [FontFeature.tabularFigures()],
   );
   static const TextStyle money = TextStyle(
-    fontFamily: mono, fontSize: 14, height: 1.4,
+    fontFamily: sans, fontSize: 14, height: 1.4,
     fontWeight: FontWeight.w500, fontFeatures: [FontFeature.tabularFigures()],
   );
 }
