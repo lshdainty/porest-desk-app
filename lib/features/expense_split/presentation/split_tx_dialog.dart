@@ -562,7 +562,7 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
                           const SizedBox(width: 4),
                           Icon(LucideIcons.arrowRight, size: 12, color: t.fgTertiary),
                           const SizedBox(width: 4),
-                          Text('${_isIncome ? '+' : '-'}${krw(_totalAbs)}',
+                          Text('${_isIncome ? '+' : '-'}${krw(_totalAbs)}원',
                               style: PTypo.h3.copyWith(
                                   color: t.statusWarningFg,
                                   fontWeight: PFontWeight.bold)),
@@ -570,7 +570,7 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
                       )
                     else
                       Text(
-                        '${_isIncome ? '+' : '-'}${krw(_totalAbs)}',
+                        '${_isIncome ? '+' : '-'}${krw(_totalAbs)}원',
                         style: PTypo.h3.copyWith(
                             // 수입 금액 = primary(다크 primary-light). success(초록) 아님 — web 정합
                             color: _isIncome ? t.fgBrandStrong : t.fgPrimary,
