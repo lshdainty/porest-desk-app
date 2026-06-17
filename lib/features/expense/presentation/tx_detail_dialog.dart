@@ -22,6 +22,8 @@ import 'package:porest_desk_app/features/expense_split/presentation/split_tx_dia
 import 'package:porest_desk_app/features/recurring/presentation/recurring_settings_drawer.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
+import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
+import 'package:porest_desk_app/features/expense_split/domain/expense_split.dart';
 import 'package:porest_desk_app/features/expense/presentation/add_tx_sheet.dart';
 import 'package:porest_desk_app/features/expense/presentation/widgets/expense_row.dart';
 import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
@@ -109,6 +111,7 @@ class _DetailBody extends ConsumerStatefulWidget {
 
 class _DetailBodyState extends ConsumerState<_DetailBody> {
   bool _deleting = false;
+  bool _splitExpanded = true; // 분할 요약 카드 펼침 상태
 
   @override
   void initState() {
@@ -173,8 +176,10 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
     final masked = settings.hideAmounts;
     final e = widget.expense;
     final isIncome = e.expenseType == 'INCOME';
-    // '내역 분할' 퀵액션 배지용 분할 개수 (웹 TxDetailDialog splitCount 정합).
-    final splitCount = ref.watch(expenseSplitsProvider(e.rowId)).value?.length ?? 0;
+    // 분할 내역 — 퀵액션 배지 개수 + 요약 카드(내역·비율) 표시용.
+    final splits = ref.watch(expenseSplitsProvider(e.rowId)).value ?? const <ExpenseSplit>[];
+    final splitCount = splits.length;
+    final categories = ref.watch(categoriesProvider).value ?? const <ExpenseCategory>[];
 
     // 카테고리 색은 다크에서 light variant 로 swap(웹 getPaletteByColor 정합) — parseColor(raw) 금지.
     final fg = resolveChartColor(context, e.categoryColor, fallback: t.fgBrand);
@@ -428,6 +433,19 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
             ),
           ],
         ),
+        // 분할 내역 요약 — 분할이 있으면 접을 수 있는 카드로 항목·비율 표시(쉬운 확인)
+        if (splits.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          _SplitSummaryCard(
+            splits: splits,
+            isIncome: isIncome,
+            total: e.amount.abs(),
+            categories: categories,
+            expanded: _splitExpanded,
+            onToggle: () => setState(() => _splitExpanded = !_splitExpanded),
+            tokens: t,
+          ),
+        ],
         // Merchant history — 같은 가맹점·같은 달 이전 거래
         if ((e.merchant ?? '').isNotEmpty && dayStr != null)
           _MerchantHistorySection(
@@ -644,6 +662,145 @@ class _QuickBtn extends StatelessWidget {
               right: 6,
               child: PBadge(label: badge!, variant: PBadgeVariant.softBrand),
             ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 분할 내역 요약 카드 — 헤더(개수·합계·펼침) + 비율 바 + 항목별(이름·카테고리·비율·금액).
+/// 거래에 분할이 있을 때 거래 상세에서 한눈에 확인용(웹 TxDetailDialog 분할 요약 정합).
+class _SplitSummaryCard extends StatelessWidget {
+  const _SplitSummaryCard({
+    required this.splits,
+    required this.isIncome,
+    required this.total,
+    required this.categories,
+    required this.expanded,
+    required this.onToggle,
+    required this.tokens,
+  });
+  final List<ExpenseSplit> splits;
+  final bool isIncome;
+  final int total;
+  final List<ExpenseCategory> categories;
+  final bool expanded;
+  final VoidCallback onToggle;
+  final PorestTokens tokens;
+
+  Color _colorFor(BuildContext context, int categoryRowId) => resolveChartColor(
+      context, categories.byRowId(categoryRowId)?.color,
+      fallback: tokens.fgBrand);
+
+  @override
+  Widget build(BuildContext context) {
+    final t = tokens;
+    return Container(
+      decoration: BoxDecoration(
+        color: t.bgSurface,
+        border: Border.all(color: t.borderSubtle),
+        borderRadius: PRadius.brLg,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          InkWell(
+            onTap: onToggle,
+            borderRadius: PRadius.brLg,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              child: Row(
+                children: [
+                  Icon(LucideIcons.split, size: 16, color: t.fgBrand),
+                  const SizedBox(width: 8),
+                  Text('내역 분할 ${splits.length}개',
+                      style: PTypo.bodySm.copyWith(
+                          color: t.fgPrimary, fontWeight: PFontWeight.bold)),
+                  const SizedBox(width: 8),
+                  Text('합계 ${krw(total)}원',
+                      style: PTypo.caption.copyWith(color: t.fgTertiary)),
+                  const Spacer(),
+                  Icon(
+                      expanded
+                          ? LucideIcons.chevronUp
+                          : LucideIcons.chevronDown,
+                      size: 18,
+                      color: t.fgTertiary),
+                ],
+              ),
+            ),
+          ),
+          if (expanded) ...[
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 0, 14, 12),
+              child: ClipRRect(
+                borderRadius: PRadius.brFull,
+                child: SizedBox(
+                  height: 8,
+                  child: Row(
+                    children: [
+                      for (final s in splits)
+                        if (total > 0 && s.amount > 0)
+                          Flexible(
+                            flex: s.amount,
+                            child: Container(
+                                color: _colorFor(context, s.categoryRowId)),
+                          ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            for (int i = 0; i < splits.length; i++)
+              Padding(
+                padding: EdgeInsets.fromLTRB(
+                    14, 0, 14, i == splits.length - 1 ? 12 : 10),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: _colorFor(context, splits[i].categoryRowId),
+                        borderRadius: PRadius.brXs,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            (splits[i].label?.trim().isNotEmpty ?? false)
+                                ? splits[i].label!
+                                : (splits[i].categoryName ?? '항목'),
+                            style: PTypo.bodySm.copyWith(
+                                color: t.fgPrimary,
+                                fontWeight: PFontWeight.semi),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(
+                            '${splits[i].categoryName ?? '-'} · '
+                            '${total > 0 ? ((splits[i].amount / total) * 100).round() : 0}%',
+                            style: PTypo.caption.copyWith(color: t.fgTertiary),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '${isIncome ? '+' : '−'}${krw(splits[i].amount)}원',
+                      style: PTypo.bodySm.copyWith(
+                          color: isIncome ? t.fgIncome : t.fgExpense,
+                          fontWeight: PFontWeight.bold),
+                    ),
+                  ],
+                ),
+              ),
+          ],
         ],
       ),
     );
