@@ -12,9 +12,11 @@ import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
 import 'package:porest_desk_app/core/sync/keep_alive_refresh.dart';
 import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
+import 'package:porest_desk_app/shared/widgets/p_badge.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
+import 'package:porest_desk_app/features/expense_split/application/expense_split_providers.dart';
 import 'package:porest_desk_app/features/dutch_pay/presentation/dutch_pay_from_tx_dialog.dart';
 import 'package:porest_desk_app/features/expense_split/presentation/split_tx_dialog.dart';
 import 'package:porest_desk_app/features/recurring/presentation/recurring_settings_drawer.dart';
@@ -171,6 +173,8 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
     final masked = settings.hideAmounts;
     final e = widget.expense;
     final isIncome = e.expenseType == 'INCOME';
+    // '내역 분할' 퀵액션 배지용 분할 개수 (웹 TxDetailDialog splitCount 정합).
+    final splitCount = ref.watch(expenseSplitsProvider(e.rowId)).value?.length ?? 0;
 
     final fg = parseColor(e.categoryColor, fallback: t.fgBrand);
     final icon = lucideByName(e.categoryIcon, fallback: LucideIcons.tag);
@@ -384,6 +388,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                 icon: LucideIcons.scissors,
                 label: '내역 분할',
                 tokens: t,
+                badge: splitCount > 0 ? '$splitCount개' : null,
                 onTap: _deleting
                     ? null
                     : () {
@@ -589,41 +594,54 @@ class _QuickBtn extends StatelessWidget {
     required this.label,
     required this.tokens,
     required this.onTap,
+    this.badge,
   });
   final IconData icon;
   final String label;
   final PorestTokens tokens;
   final VoidCallback? onTap;
+  /// 우상단 배지(예: 분할 개수 'N개'). null 이면 미표시.
+  final String? badge;
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
       borderRadius: PRadius.brLg,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 16),
-        decoration: BoxDecoration(
-          color: tokens.bgSurface,
-          border: Border.all(color: tokens.borderSubtle),
-          borderRadius: PRadius.brLg,
-        ),
-        child: Column(
-          children: [
-            Icon(
-              icon,
-              size: 18,
-              color: onTap == null ? tokens.fgTertiary : tokens.fgSecondary,
+      child: Stack(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 16),
+            decoration: BoxDecoration(
+              color: tokens.bgSurface,
+              border: Border.all(color: tokens.borderSubtle),
+              borderRadius: PRadius.brLg,
             ),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              style: PTypo.caption.copyWith(
-                color: onTap == null ? tokens.fgTertiary : tokens.fgSecondary,
-                fontWeight: PFontWeight.semi,
-              ),
+            child: Column(
+              children: [
+                Icon(
+                  icon,
+                  size: 18,
+                  color: onTap == null ? tokens.fgTertiary : tokens.fgSecondary,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  label,
+                  style: PTypo.caption.copyWith(
+                    color: onTap == null ? tokens.fgTertiary : tokens.fgSecondary,
+                    fontWeight: PFontWeight.semi,
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+          if (badge != null)
+            Positioned(
+              top: 6,
+              right: 6,
+              child: PBadge(label: badge!, variant: PBadgeVariant.softBrand),
+            ),
+        ],
       ),
     );
   }
