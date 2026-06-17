@@ -6,7 +6,7 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/core/format/color_parse.dart';
+import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
@@ -176,7 +176,8 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
     // '내역 분할' 퀵액션 배지용 분할 개수 (웹 TxDetailDialog splitCount 정합).
     final splitCount = ref.watch(expenseSplitsProvider(e.rowId)).value?.length ?? 0;
 
-    final fg = parseColor(e.categoryColor, fallback: t.fgBrand);
+    // 카테고리 색은 다크에서 light variant 로 swap(웹 getPaletteByColor 정합) — parseColor(raw) 금지.
+    final fg = resolveChartColor(context, e.categoryColor, fallback: t.fgBrand);
     final icon = lucideByName(e.categoryIcon, fallback: LucideIcons.tag);
 
     final assets = ref.watch(assetsProvider).value ?? const [];
@@ -216,7 +217,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                Color.alphaBlend(fg.withValues(alpha: 0.14), t.bgSurface),
+                Color.alphaBlend(fg.withValues(alpha: 0.18), t.bgSurface),
                 t.bgSurface,
               ],
               stops: const [0.0, 0.85],
@@ -230,7 +231,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: fg.withValues(alpha: 0.14),
+                  color: fg.withValues(alpha: 0.18),
                   borderRadius: PRadius.tile(40),
                 ),
                 alignment: Alignment.center,
