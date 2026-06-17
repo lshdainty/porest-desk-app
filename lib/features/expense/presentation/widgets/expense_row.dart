@@ -60,13 +60,30 @@ class ExpenseRow extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    expense.merchant ?? expense.description ?? cName,
-                    style: PTypo.body.copyWith(
-                        color: t.fgPrimary,
-                        fontWeight: PFontWeight.semi,
-                        letterSpacing: -0.07),
-                    maxLines: 1, overflow: TextOverflow.ellipsis,
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          expense.merchant ?? expense.description ?? cName,
+                          style: PTypo.body.copyWith(
+                              color: t.fgPrimary,
+                              fontWeight: PFontWeight.semi,
+                              letterSpacing: -0.07),
+                          maxLines: 1, overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      // 분할 거래 표시 — 분할 아이콘 + 개수(쉬운 식별).
+                      if (expense.splitCategoryRowIds.isNotEmpty) ...[
+                        const SizedBox(width: 5),
+                        Icon(LucideIcons.split, size: 12, color: t.fgBrand),
+                        const SizedBox(width: 2),
+                        Text(
+                          '${expense.splitCategoryRowIds.length}',
+                          style: PTypo.caption.copyWith(
+                              color: t.fgBrand, fontWeight: PFontWeight.bold),
+                        ),
+                      ],
+                    ],
                   ),
                   const SizedBox(height: 2),
                   Text(
