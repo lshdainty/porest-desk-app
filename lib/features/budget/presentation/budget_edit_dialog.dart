@@ -5,7 +5,7 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/core/format/color_parse.dart';
+import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
 import 'package:porest_desk_app/shared/widgets/p_chip.dart';
@@ -219,7 +219,7 @@ class _BudgetEditBodyState extends ConsumerState<_BudgetEditBody> {
                     child: PChip(
                       label: c.categoryName,
                       icon: lucideByName(c.icon),
-                      iconColor: parseColor(c.color, fallback: t.fgBrand),
+                      iconColor: resolveChartColor(context, c.color, fallback: t.fgBrand),
                       variant: PChipVariant.subtle,
                       selected: _categoryRowId == c.rowId,
                       onTap: widget.usedCategoryIds.contains(c.rowId)
@@ -263,7 +263,7 @@ class _LockedCategory extends StatelessWidget {
         children: [
           Icon(lucideByName(category!.icon),
               size: 16,
-              color: parseColor(category!.color, fallback: tokens.fgBrand)),
+              color: resolveChartColor(context, category!.color, fallback: tokens.fgBrand)),
           const SizedBox(width: 6),
           Text(category!.categoryName,
               style: PTypo.bodySm.copyWith(
