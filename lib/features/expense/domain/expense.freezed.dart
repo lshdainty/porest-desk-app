@@ -17,7 +17,8 @@ mixin _$Expense {
 
  int get rowId; int? get userRowId; int? get categoryRowId; String? get categoryName; String? get categoryIcon; String? get categoryColor; int? get assetRowId; String? get assetName; String get expenseType;// 'EXPENSE' | 'INCOME'
  int get amount; String? get description; String? get expenseDate;// ISO LocalDateTime ('YYYY-MM-DDTHH:mm:ss')
- String? get merchant; String? get paymentMethod; int? get calendarEventRowId; int? get todoRowId; String? get createAt; String? get modifyAt;
+ String? get merchant; String? get paymentMethod; int? get calendarEventRowId; int? get todoRowId;// 활성 분할 항목들의 카테고리 id (없으면 빈 리스트). 목록 카테고리 필터를 split-aware 하게 매칭.
+ List<int> get splitCategoryRowIds; String? get createAt; String? get modifyAt;
 /// Create a copy of Expense
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -30,16 +31,16 @@ $ExpenseCopyWith<Expense> get copyWith => _$ExpenseCopyWithImpl<Expense>(this as
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Expense&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.userRowId, userRowId) || other.userRowId == userRowId)&&(identical(other.categoryRowId, categoryRowId) || other.categoryRowId == categoryRowId)&&(identical(other.categoryName, categoryName) || other.categoryName == categoryName)&&(identical(other.categoryIcon, categoryIcon) || other.categoryIcon == categoryIcon)&&(identical(other.categoryColor, categoryColor) || other.categoryColor == categoryColor)&&(identical(other.assetRowId, assetRowId) || other.assetRowId == assetRowId)&&(identical(other.assetName, assetName) || other.assetName == assetName)&&(identical(other.expenseType, expenseType) || other.expenseType == expenseType)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.description, description) || other.description == description)&&(identical(other.expenseDate, expenseDate) || other.expenseDate == expenseDate)&&(identical(other.merchant, merchant) || other.merchant == merchant)&&(identical(other.paymentMethod, paymentMethod) || other.paymentMethod == paymentMethod)&&(identical(other.calendarEventRowId, calendarEventRowId) || other.calendarEventRowId == calendarEventRowId)&&(identical(other.todoRowId, todoRowId) || other.todoRowId == todoRowId)&&(identical(other.createAt, createAt) || other.createAt == createAt)&&(identical(other.modifyAt, modifyAt) || other.modifyAt == modifyAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Expense&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.userRowId, userRowId) || other.userRowId == userRowId)&&(identical(other.categoryRowId, categoryRowId) || other.categoryRowId == categoryRowId)&&(identical(other.categoryName, categoryName) || other.categoryName == categoryName)&&(identical(other.categoryIcon, categoryIcon) || other.categoryIcon == categoryIcon)&&(identical(other.categoryColor, categoryColor) || other.categoryColor == categoryColor)&&(identical(other.assetRowId, assetRowId) || other.assetRowId == assetRowId)&&(identical(other.assetName, assetName) || other.assetName == assetName)&&(identical(other.expenseType, expenseType) || other.expenseType == expenseType)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.description, description) || other.description == description)&&(identical(other.expenseDate, expenseDate) || other.expenseDate == expenseDate)&&(identical(other.merchant, merchant) || other.merchant == merchant)&&(identical(other.paymentMethod, paymentMethod) || other.paymentMethod == paymentMethod)&&(identical(other.calendarEventRowId, calendarEventRowId) || other.calendarEventRowId == calendarEventRowId)&&(identical(other.todoRowId, todoRowId) || other.todoRowId == todoRowId)&&const DeepCollectionEquality().equals(other.splitCategoryRowIds, splitCategoryRowIds)&&(identical(other.createAt, createAt) || other.createAt == createAt)&&(identical(other.modifyAt, modifyAt) || other.modifyAt == modifyAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,rowId,userRowId,categoryRowId,categoryName,categoryIcon,categoryColor,assetRowId,assetName,expenseType,amount,description,expenseDate,merchant,paymentMethod,calendarEventRowId,todoRowId,createAt,modifyAt);
+int get hashCode => Object.hashAll([runtimeType,rowId,userRowId,categoryRowId,categoryName,categoryIcon,categoryColor,assetRowId,assetName,expenseType,amount,description,expenseDate,merchant,paymentMethod,calendarEventRowId,todoRowId,const DeepCollectionEquality().hash(splitCategoryRowIds),createAt,modifyAt]);
 
 @override
 String toString() {
-  return 'Expense(rowId: $rowId, userRowId: $userRowId, categoryRowId: $categoryRowId, categoryName: $categoryName, categoryIcon: $categoryIcon, categoryColor: $categoryColor, assetRowId: $assetRowId, assetName: $assetName, expenseType: $expenseType, amount: $amount, description: $description, expenseDate: $expenseDate, merchant: $merchant, paymentMethod: $paymentMethod, calendarEventRowId: $calendarEventRowId, todoRowId: $todoRowId, createAt: $createAt, modifyAt: $modifyAt)';
+  return 'Expense(rowId: $rowId, userRowId: $userRowId, categoryRowId: $categoryRowId, categoryName: $categoryName, categoryIcon: $categoryIcon, categoryColor: $categoryColor, assetRowId: $assetRowId, assetName: $assetName, expenseType: $expenseType, amount: $amount, description: $description, expenseDate: $expenseDate, merchant: $merchant, paymentMethod: $paymentMethod, calendarEventRowId: $calendarEventRowId, todoRowId: $todoRowId, splitCategoryRowIds: $splitCategoryRowIds, createAt: $createAt, modifyAt: $modifyAt)';
 }
 
 
@@ -50,7 +51,7 @@ abstract mixin class $ExpenseCopyWith<$Res>  {
   factory $ExpenseCopyWith(Expense value, $Res Function(Expense) _then) = _$ExpenseCopyWithImpl;
 @useResult
 $Res call({
- int rowId, int? userRowId, int? categoryRowId, String? categoryName, String? categoryIcon, String? categoryColor, int? assetRowId, String? assetName, String expenseType, int amount, String? description, String? expenseDate, String? merchant, String? paymentMethod, int? calendarEventRowId, int? todoRowId, String? createAt, String? modifyAt
+ int rowId, int? userRowId, int? categoryRowId, String? categoryName, String? categoryIcon, String? categoryColor, int? assetRowId, String? assetName, String expenseType, int amount, String? description, String? expenseDate, String? merchant, String? paymentMethod, int? calendarEventRowId, int? todoRowId, List<int> splitCategoryRowIds, String? createAt, String? modifyAt
 });
 
 
@@ -67,7 +68,7 @@ class _$ExpenseCopyWithImpl<$Res>
 
 /// Create a copy of Expense
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? rowId = null,Object? userRowId = freezed,Object? categoryRowId = freezed,Object? categoryName = freezed,Object? categoryIcon = freezed,Object? categoryColor = freezed,Object? assetRowId = freezed,Object? assetName = freezed,Object? expenseType = null,Object? amount = null,Object? description = freezed,Object? expenseDate = freezed,Object? merchant = freezed,Object? paymentMethod = freezed,Object? calendarEventRowId = freezed,Object? todoRowId = freezed,Object? createAt = freezed,Object? modifyAt = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? rowId = null,Object? userRowId = freezed,Object? categoryRowId = freezed,Object? categoryName = freezed,Object? categoryIcon = freezed,Object? categoryColor = freezed,Object? assetRowId = freezed,Object? assetName = freezed,Object? expenseType = null,Object? amount = null,Object? description = freezed,Object? expenseDate = freezed,Object? merchant = freezed,Object? paymentMethod = freezed,Object? calendarEventRowId = freezed,Object? todoRowId = freezed,Object? splitCategoryRowIds = null,Object? createAt = freezed,Object? modifyAt = freezed,}) {
   return _then(_self.copyWith(
 rowId: null == rowId ? _self.rowId : rowId // ignore: cast_nullable_to_non_nullable
 as int,userRowId: freezed == userRowId ? _self.userRowId : userRowId // ignore: cast_nullable_to_non_nullable
@@ -85,7 +86,8 @@ as String?,merchant: freezed == merchant ? _self.merchant : merchant // ignore: 
 as String?,paymentMethod: freezed == paymentMethod ? _self.paymentMethod : paymentMethod // ignore: cast_nullable_to_non_nullable
 as String?,calendarEventRowId: freezed == calendarEventRowId ? _self.calendarEventRowId : calendarEventRowId // ignore: cast_nullable_to_non_nullable
 as int?,todoRowId: freezed == todoRowId ? _self.todoRowId : todoRowId // ignore: cast_nullable_to_non_nullable
-as int?,createAt: freezed == createAt ? _self.createAt : createAt // ignore: cast_nullable_to_non_nullable
+as int?,splitCategoryRowIds: null == splitCategoryRowIds ? _self.splitCategoryRowIds : splitCategoryRowIds // ignore: cast_nullable_to_non_nullable
+as List<int>,createAt: freezed == createAt ? _self.createAt : createAt // ignore: cast_nullable_to_non_nullable
 as String?,modifyAt: freezed == modifyAt ? _self.modifyAt : modifyAt // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
@@ -172,10 +174,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int rowId,  int? userRowId,  int? categoryRowId,  String? categoryName,  String? categoryIcon,  String? categoryColor,  int? assetRowId,  String? assetName,  String expenseType,  int amount,  String? description,  String? expenseDate,  String? merchant,  String? paymentMethod,  int? calendarEventRowId,  int? todoRowId,  String? createAt,  String? modifyAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int rowId,  int? userRowId,  int? categoryRowId,  String? categoryName,  String? categoryIcon,  String? categoryColor,  int? assetRowId,  String? assetName,  String expenseType,  int amount,  String? description,  String? expenseDate,  String? merchant,  String? paymentMethod,  int? calendarEventRowId,  int? todoRowId,  List<int> splitCategoryRowIds,  String? createAt,  String? modifyAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Expense() when $default != null:
-return $default(_that.rowId,_that.userRowId,_that.categoryRowId,_that.categoryName,_that.categoryIcon,_that.categoryColor,_that.assetRowId,_that.assetName,_that.expenseType,_that.amount,_that.description,_that.expenseDate,_that.merchant,_that.paymentMethod,_that.calendarEventRowId,_that.todoRowId,_that.createAt,_that.modifyAt);case _:
+return $default(_that.rowId,_that.userRowId,_that.categoryRowId,_that.categoryName,_that.categoryIcon,_that.categoryColor,_that.assetRowId,_that.assetName,_that.expenseType,_that.amount,_that.description,_that.expenseDate,_that.merchant,_that.paymentMethod,_that.calendarEventRowId,_that.todoRowId,_that.splitCategoryRowIds,_that.createAt,_that.modifyAt);case _:
   return orElse();
 
 }
@@ -193,10 +195,10 @@ return $default(_that.rowId,_that.userRowId,_that.categoryRowId,_that.categoryNa
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int rowId,  int? userRowId,  int? categoryRowId,  String? categoryName,  String? categoryIcon,  String? categoryColor,  int? assetRowId,  String? assetName,  String expenseType,  int amount,  String? description,  String? expenseDate,  String? merchant,  String? paymentMethod,  int? calendarEventRowId,  int? todoRowId,  String? createAt,  String? modifyAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int rowId,  int? userRowId,  int? categoryRowId,  String? categoryName,  String? categoryIcon,  String? categoryColor,  int? assetRowId,  String? assetName,  String expenseType,  int amount,  String? description,  String? expenseDate,  String? merchant,  String? paymentMethod,  int? calendarEventRowId,  int? todoRowId,  List<int> splitCategoryRowIds,  String? createAt,  String? modifyAt)  $default,) {final _that = this;
 switch (_that) {
 case _Expense():
-return $default(_that.rowId,_that.userRowId,_that.categoryRowId,_that.categoryName,_that.categoryIcon,_that.categoryColor,_that.assetRowId,_that.assetName,_that.expenseType,_that.amount,_that.description,_that.expenseDate,_that.merchant,_that.paymentMethod,_that.calendarEventRowId,_that.todoRowId,_that.createAt,_that.modifyAt);case _:
+return $default(_that.rowId,_that.userRowId,_that.categoryRowId,_that.categoryName,_that.categoryIcon,_that.categoryColor,_that.assetRowId,_that.assetName,_that.expenseType,_that.amount,_that.description,_that.expenseDate,_that.merchant,_that.paymentMethod,_that.calendarEventRowId,_that.todoRowId,_that.splitCategoryRowIds,_that.createAt,_that.modifyAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -213,10 +215,10 @@ return $default(_that.rowId,_that.userRowId,_that.categoryRowId,_that.categoryNa
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int rowId,  int? userRowId,  int? categoryRowId,  String? categoryName,  String? categoryIcon,  String? categoryColor,  int? assetRowId,  String? assetName,  String expenseType,  int amount,  String? description,  String? expenseDate,  String? merchant,  String? paymentMethod,  int? calendarEventRowId,  int? todoRowId,  String? createAt,  String? modifyAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int rowId,  int? userRowId,  int? categoryRowId,  String? categoryName,  String? categoryIcon,  String? categoryColor,  int? assetRowId,  String? assetName,  String expenseType,  int amount,  String? description,  String? expenseDate,  String? merchant,  String? paymentMethod,  int? calendarEventRowId,  int? todoRowId,  List<int> splitCategoryRowIds,  String? createAt,  String? modifyAt)?  $default,) {final _that = this;
 switch (_that) {
 case _Expense() when $default != null:
-return $default(_that.rowId,_that.userRowId,_that.categoryRowId,_that.categoryName,_that.categoryIcon,_that.categoryColor,_that.assetRowId,_that.assetName,_that.expenseType,_that.amount,_that.description,_that.expenseDate,_that.merchant,_that.paymentMethod,_that.calendarEventRowId,_that.todoRowId,_that.createAt,_that.modifyAt);case _:
+return $default(_that.rowId,_that.userRowId,_that.categoryRowId,_that.categoryName,_that.categoryIcon,_that.categoryColor,_that.assetRowId,_that.assetName,_that.expenseType,_that.amount,_that.description,_that.expenseDate,_that.merchant,_that.paymentMethod,_that.calendarEventRowId,_that.todoRowId,_that.splitCategoryRowIds,_that.createAt,_that.modifyAt);case _:
   return null;
 
 }
@@ -228,7 +230,7 @@ return $default(_that.rowId,_that.userRowId,_that.categoryRowId,_that.categoryNa
 @JsonSerializable()
 
 class _Expense implements Expense {
-  const _Expense({required this.rowId, this.userRowId, this.categoryRowId, this.categoryName, this.categoryIcon, this.categoryColor, this.assetRowId, this.assetName, required this.expenseType, required this.amount, this.description, this.expenseDate, this.merchant, this.paymentMethod, this.calendarEventRowId, this.todoRowId, this.createAt, this.modifyAt});
+  const _Expense({required this.rowId, this.userRowId, this.categoryRowId, this.categoryName, this.categoryIcon, this.categoryColor, this.assetRowId, this.assetName, required this.expenseType, required this.amount, this.description, this.expenseDate, this.merchant, this.paymentMethod, this.calendarEventRowId, this.todoRowId, final  List<int> splitCategoryRowIds = const <int>[], this.createAt, this.modifyAt}): _splitCategoryRowIds = splitCategoryRowIds;
   factory _Expense.fromJson(Map<String, dynamic> json) => _$ExpenseFromJson(json);
 
 @override final  int rowId;
@@ -249,6 +251,15 @@ class _Expense implements Expense {
 @override final  String? paymentMethod;
 @override final  int? calendarEventRowId;
 @override final  int? todoRowId;
+// 활성 분할 항목들의 카테고리 id (없으면 빈 리스트). 목록 카테고리 필터를 split-aware 하게 매칭.
+ final  List<int> _splitCategoryRowIds;
+// 활성 분할 항목들의 카테고리 id (없으면 빈 리스트). 목록 카테고리 필터를 split-aware 하게 매칭.
+@override@JsonKey() List<int> get splitCategoryRowIds {
+  if (_splitCategoryRowIds is EqualUnmodifiableListView) return _splitCategoryRowIds;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_splitCategoryRowIds);
+}
+
 @override final  String? createAt;
 @override final  String? modifyAt;
 
@@ -265,16 +276,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Expense&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.userRowId, userRowId) || other.userRowId == userRowId)&&(identical(other.categoryRowId, categoryRowId) || other.categoryRowId == categoryRowId)&&(identical(other.categoryName, categoryName) || other.categoryName == categoryName)&&(identical(other.categoryIcon, categoryIcon) || other.categoryIcon == categoryIcon)&&(identical(other.categoryColor, categoryColor) || other.categoryColor == categoryColor)&&(identical(other.assetRowId, assetRowId) || other.assetRowId == assetRowId)&&(identical(other.assetName, assetName) || other.assetName == assetName)&&(identical(other.expenseType, expenseType) || other.expenseType == expenseType)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.description, description) || other.description == description)&&(identical(other.expenseDate, expenseDate) || other.expenseDate == expenseDate)&&(identical(other.merchant, merchant) || other.merchant == merchant)&&(identical(other.paymentMethod, paymentMethod) || other.paymentMethod == paymentMethod)&&(identical(other.calendarEventRowId, calendarEventRowId) || other.calendarEventRowId == calendarEventRowId)&&(identical(other.todoRowId, todoRowId) || other.todoRowId == todoRowId)&&(identical(other.createAt, createAt) || other.createAt == createAt)&&(identical(other.modifyAt, modifyAt) || other.modifyAt == modifyAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Expense&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.userRowId, userRowId) || other.userRowId == userRowId)&&(identical(other.categoryRowId, categoryRowId) || other.categoryRowId == categoryRowId)&&(identical(other.categoryName, categoryName) || other.categoryName == categoryName)&&(identical(other.categoryIcon, categoryIcon) || other.categoryIcon == categoryIcon)&&(identical(other.categoryColor, categoryColor) || other.categoryColor == categoryColor)&&(identical(other.assetRowId, assetRowId) || other.assetRowId == assetRowId)&&(identical(other.assetName, assetName) || other.assetName == assetName)&&(identical(other.expenseType, expenseType) || other.expenseType == expenseType)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.description, description) || other.description == description)&&(identical(other.expenseDate, expenseDate) || other.expenseDate == expenseDate)&&(identical(other.merchant, merchant) || other.merchant == merchant)&&(identical(other.paymentMethod, paymentMethod) || other.paymentMethod == paymentMethod)&&(identical(other.calendarEventRowId, calendarEventRowId) || other.calendarEventRowId == calendarEventRowId)&&(identical(other.todoRowId, todoRowId) || other.todoRowId == todoRowId)&&const DeepCollectionEquality().equals(other._splitCategoryRowIds, _splitCategoryRowIds)&&(identical(other.createAt, createAt) || other.createAt == createAt)&&(identical(other.modifyAt, modifyAt) || other.modifyAt == modifyAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,rowId,userRowId,categoryRowId,categoryName,categoryIcon,categoryColor,assetRowId,assetName,expenseType,amount,description,expenseDate,merchant,paymentMethod,calendarEventRowId,todoRowId,createAt,modifyAt);
+int get hashCode => Object.hashAll([runtimeType,rowId,userRowId,categoryRowId,categoryName,categoryIcon,categoryColor,assetRowId,assetName,expenseType,amount,description,expenseDate,merchant,paymentMethod,calendarEventRowId,todoRowId,const DeepCollectionEquality().hash(_splitCategoryRowIds),createAt,modifyAt]);
 
 @override
 String toString() {
-  return 'Expense(rowId: $rowId, userRowId: $userRowId, categoryRowId: $categoryRowId, categoryName: $categoryName, categoryIcon: $categoryIcon, categoryColor: $categoryColor, assetRowId: $assetRowId, assetName: $assetName, expenseType: $expenseType, amount: $amount, description: $description, expenseDate: $expenseDate, merchant: $merchant, paymentMethod: $paymentMethod, calendarEventRowId: $calendarEventRowId, todoRowId: $todoRowId, createAt: $createAt, modifyAt: $modifyAt)';
+  return 'Expense(rowId: $rowId, userRowId: $userRowId, categoryRowId: $categoryRowId, categoryName: $categoryName, categoryIcon: $categoryIcon, categoryColor: $categoryColor, assetRowId: $assetRowId, assetName: $assetName, expenseType: $expenseType, amount: $amount, description: $description, expenseDate: $expenseDate, merchant: $merchant, paymentMethod: $paymentMethod, calendarEventRowId: $calendarEventRowId, todoRowId: $todoRowId, splitCategoryRowIds: $splitCategoryRowIds, createAt: $createAt, modifyAt: $modifyAt)';
 }
 
 
@@ -285,7 +296,7 @@ abstract mixin class _$ExpenseCopyWith<$Res> implements $ExpenseCopyWith<$Res> {
   factory _$ExpenseCopyWith(_Expense value, $Res Function(_Expense) _then) = __$ExpenseCopyWithImpl;
 @override @useResult
 $Res call({
- int rowId, int? userRowId, int? categoryRowId, String? categoryName, String? categoryIcon, String? categoryColor, int? assetRowId, String? assetName, String expenseType, int amount, String? description, String? expenseDate, String? merchant, String? paymentMethod, int? calendarEventRowId, int? todoRowId, String? createAt, String? modifyAt
+ int rowId, int? userRowId, int? categoryRowId, String? categoryName, String? categoryIcon, String? categoryColor, int? assetRowId, String? assetName, String expenseType, int amount, String? description, String? expenseDate, String? merchant, String? paymentMethod, int? calendarEventRowId, int? todoRowId, List<int> splitCategoryRowIds, String? createAt, String? modifyAt
 });
 
 
@@ -302,7 +313,7 @@ class __$ExpenseCopyWithImpl<$Res>
 
 /// Create a copy of Expense
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? rowId = null,Object? userRowId = freezed,Object? categoryRowId = freezed,Object? categoryName = freezed,Object? categoryIcon = freezed,Object? categoryColor = freezed,Object? assetRowId = freezed,Object? assetName = freezed,Object? expenseType = null,Object? amount = null,Object? description = freezed,Object? expenseDate = freezed,Object? merchant = freezed,Object? paymentMethod = freezed,Object? calendarEventRowId = freezed,Object? todoRowId = freezed,Object? createAt = freezed,Object? modifyAt = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? rowId = null,Object? userRowId = freezed,Object? categoryRowId = freezed,Object? categoryName = freezed,Object? categoryIcon = freezed,Object? categoryColor = freezed,Object? assetRowId = freezed,Object? assetName = freezed,Object? expenseType = null,Object? amount = null,Object? description = freezed,Object? expenseDate = freezed,Object? merchant = freezed,Object? paymentMethod = freezed,Object? calendarEventRowId = freezed,Object? todoRowId = freezed,Object? splitCategoryRowIds = null,Object? createAt = freezed,Object? modifyAt = freezed,}) {
   return _then(_Expense(
 rowId: null == rowId ? _self.rowId : rowId // ignore: cast_nullable_to_non_nullable
 as int,userRowId: freezed == userRowId ? _self.userRowId : userRowId // ignore: cast_nullable_to_non_nullable
@@ -320,7 +331,8 @@ as String?,merchant: freezed == merchant ? _self.merchant : merchant // ignore: 
 as String?,paymentMethod: freezed == paymentMethod ? _self.paymentMethod : paymentMethod // ignore: cast_nullable_to_non_nullable
 as String?,calendarEventRowId: freezed == calendarEventRowId ? _self.calendarEventRowId : calendarEventRowId // ignore: cast_nullable_to_non_nullable
 as int?,todoRowId: freezed == todoRowId ? _self.todoRowId : todoRowId // ignore: cast_nullable_to_non_nullable
-as int?,createAt: freezed == createAt ? _self.createAt : createAt // ignore: cast_nullable_to_non_nullable
+as int?,splitCategoryRowIds: null == splitCategoryRowIds ? _self._splitCategoryRowIds : splitCategoryRowIds // ignore: cast_nullable_to_non_nullable
+as List<int>,createAt: freezed == createAt ? _self.createAt : createAt // ignore: cast_nullable_to_non_nullable
 as String?,modifyAt: freezed == modifyAt ? _self.modifyAt : modifyAt // ignore: cast_nullable_to_non_nullable
 as String?,
   ));

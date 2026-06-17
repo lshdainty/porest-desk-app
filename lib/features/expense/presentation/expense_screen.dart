@@ -167,6 +167,19 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
               onRetry: () => ref.invalidate(monthExpensesProvider(_key)),
             ),
             data: (raw) {
+              // 카테고리 필터: 선택한 카테고리 + (부모 선택 시) 자식까지 롤업. 필터 없으면 null.
+              final selectedCats = _advFilter.categoryIds;
+              final cats = categoriesAsync.value;
+              final Set<int>? allowedCats = selectedCats.isEmpty
+                  ? null
+                  : {
+                      ...selectedCats,
+                      if (cats != null)
+                        for (final c in cats)
+                          if (c.parentRowId != null &&
+                              selectedCats.contains(c.parentRowId))
+                            c.rowId,
+                    };
               final filtered =
                   raw
                       .where((e) {
@@ -184,8 +197,10 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                             e.assetRowId != _assetIdFilter) {
                           return false;
                         }
-                        if (_advFilter.categoryIds.isNotEmpty &&
-                            !_advFilter.categoryIds.contains(e.categoryRowId)) {
+                        // split-aware: 거래 카테고리 또는 분할 항목 카테고리 중 하나라도 선택 집합에 들면 통과.
+                        if (allowedCats != null &&
+                            !(allowedCats.contains(e.categoryRowId) ||
+                                e.splitCategoryRowIds.any(allowedCats.contains))) {
                           return false;
                         }
                         if (_advFilter.assetIds.isNotEmpty &&

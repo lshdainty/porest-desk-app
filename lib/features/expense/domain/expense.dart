@@ -23,6 +23,8 @@ abstract class Expense with _$Expense {
     String? paymentMethod,
     int? calendarEventRowId,
     int? todoRowId,
+    // 활성 분할 항목들의 카테고리 id (없으면 빈 리스트). 목록 카테고리 필터를 split-aware 하게 매칭.
+    @Default(<int>[]) List<int> splitCategoryRowIds,
     String? createAt,
     String? modifyAt,
   }) = _Expense;
