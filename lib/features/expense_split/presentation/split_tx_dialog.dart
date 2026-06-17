@@ -382,11 +382,28 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
             ],
           ),
           const SizedBox(height: PSpace.x4),
-          Text(
-            '분할 합계 ${krw(_sum)}원 · 총액 ${krw(_totalAbs)}원 · '
-            '${shortage ? '부족' : '초과'} ${krw(_remainder.abs())}원',
-            style: PTypo.caption
-                .copyWith(color: t.fgSecondary, height: PLineHeight.normal),
+          // 숫자 강조(웹 정합): 분할 합계·총액 bold, 초과/부족은 bold + warning 색.
+          Text.rich(
+            TextSpan(
+              style: PTypo.caption
+                  .copyWith(color: t.fgSecondary, height: PLineHeight.normal),
+              children: [
+                const TextSpan(text: '분할 합계 '),
+                TextSpan(
+                    text: '${krw(_sum)}원',
+                    style: const TextStyle(fontWeight: PFontWeight.bold)),
+                const TextSpan(text: ' · 총액 '),
+                TextSpan(
+                    text: '${krw(_totalAbs)}원',
+                    style: const TextStyle(fontWeight: PFontWeight.bold)),
+                const TextSpan(text: ' · '),
+                TextSpan(
+                  text: '${shortage ? '부족' : '초과'} ${krw(_remainder.abs())}원',
+                  style: TextStyle(
+                      fontWeight: PFontWeight.bold, color: t.statusWarningFg),
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: PSpace.x8),
           Text('빠르게 맞추기',
