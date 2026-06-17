@@ -4,6 +4,7 @@ import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/core/network/api_response.dart';
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
 import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
+import 'package:porest_desk_app/features/expense_split/data/expense_split_repository.dart';
 
 /// `/expenses`, `/expense/categories`, `/expense` 호출.
 class ExpenseRepository {
@@ -92,6 +93,8 @@ class ExpenseRepository {
     }
   }
 
+  /// [splits] 가 non-null 이면 금액과 함께 분할을 원자적으로 교체(PUT body 에 splits 포함).
+  /// null 이면 분할 미변경(백엔드가 기존 분할 유지). 금액↔분할 합 일치화(reconcile) 저장에 사용.
   Future<Expense> update({
     required int id,
     required int categoryRowId,
@@ -102,6 +105,7 @@ class ExpenseRepository {
     String? description,
     String? merchant,
     String? paymentMethod,
+    List<SplitInput>? splits,
   }) async {
     try {
       final res = await _dio.put<Map<String, dynamic>>(
@@ -115,6 +119,16 @@ class ExpenseRepository {
           'description': ?description,
           'merchant': ?merchant,
           'paymentMethod': ?paymentMethod,
+          if (splits != null)
+            'splits': [
+              for (final s in splits)
+                {
+                  'categoryRowId': s.categoryRowId,
+                  'amount': s.amount,
+                  'label': ?s.label,
+                  'sortOrder': ?s.sortOrder,
+                },
+            ],
         },
       );
       return _unwrap(res, Expense.fromJson);
