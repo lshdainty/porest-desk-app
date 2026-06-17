@@ -612,6 +612,8 @@ class _QuickBtn extends StatelessWidget {
       child: Stack(
         children: [
           Container(
+            // Stack(loose) 안에서 카드가 내용 폭으로 줄지 않도록 폭을 채운다(Expanded 3등분 유지).
+            width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 16),
             decoration: BoxDecoration(
               color: tokens.bgSurface,
