@@ -542,7 +542,9 @@ class _MerchantHistorySection extends ConsumerWidget {
               border: Border.all(color: t.borderSubtle),
               borderRadius: PRadius.brLg,
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+            // 가로 패딩 0 — ExpenseRow 가 자체 가로 16px 인셋을 가지므로(메인 리스트와 동일).
+            // 카드 14 + row 16 이중 패딩으로 아이콘·금액이 과하게 들어가던 문제 수정(웹 정합).
+            padding: const EdgeInsets.symmetric(vertical: 4),
             child: Column(
               children: [
                 for (final h in history)
