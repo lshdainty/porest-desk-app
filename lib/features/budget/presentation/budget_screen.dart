@@ -414,6 +414,7 @@ Future<DateTime?> showMonthPickerSheet(BuildContext context, DateTime initial) {
                       icon: LucideIcons.locateFixed,
                       variant: PButtonVariant.ghost,
                       size: PButtonSize.sm,
+                      flush: PButtonFlush.left,
                       onPressed: () => Navigator.of(
                         ctx,
                       ).pop(DateTime(now.year, now.month, 1)),

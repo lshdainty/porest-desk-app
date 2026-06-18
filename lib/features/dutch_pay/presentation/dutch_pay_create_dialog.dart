@@ -562,6 +562,7 @@ class _WizardFooter extends StatelessWidget {
             PButton(
               label: '이전',
               variant: PButtonVariant.ghost,
+              flush: PButtonFlush.left,
               onPressed: controller.submitting ? null : state?._back,
             ),
             const Spacer(),

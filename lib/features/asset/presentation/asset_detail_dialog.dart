@@ -71,6 +71,7 @@ class _DetailFooter extends ConsumerWidget {
           icon: masked ? LucideIcons.eye : LucideIcons.eyeOff,
           variant: PButtonVariant.ghost,
           size: PButtonSize.sm,
+          flush: PButtonFlush.left,
           onPressed: () => toggleHideAmountsWithUnlock(context, ref),
         ),
         const Spacer(),
