@@ -262,17 +262,12 @@ class PFormAlertDialog extends StatelessWidget {
     required this.content,
     required this.actions,
     this.titleLeading,
-    this.titleStyle,
   });
 
   final String title;
 
   /// title 좌측 prefix (예: 아이콘). 8px gap 후 title 텍스트.
   final Widget? titleLeading;
-
-  /// title TextStyle override. 미지정 시 AlertDialog 기본. formal action dialog 는
-  /// dialog.md SoT(display-sm 24/700)에 맞춰 PTypo.h2 를 전달.
-  final TextStyle? titleStyle;
   final Widget content;
   final List<Widget> actions;
 
@@ -287,10 +282,10 @@ class PFormAlertDialog extends StatelessWidget {
               children: [
                 titleLeading!,
                 const SizedBox(width: PSpace.sm),
-                Expanded(child: Text(title, style: titleStyle)),
+                Expanded(child: Text(title)),
               ],
             )
-          : Text(title, style: titleStyle),
+          : Text(title),
       content: content,
       actions: actions,
     );
