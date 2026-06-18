@@ -96,6 +96,7 @@ Future<ExpenseFilter?> showFilterDialog(
             PButton(
               label: '초기화',
               variant: PButtonVariant.ghost,
+              flush: PButtonFlush.left,
               onPressed: () => formKey.currentState?._reset(),
             ),
             const Spacer(),

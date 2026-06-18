@@ -68,6 +68,7 @@ class _TxDetailFooter extends StatelessWidget {
               icon: LucideIcons.trash2,
               variant: PButtonVariant.ghost,
               dangerous: true,
+              flush: PButtonFlush.left,
               loading: busy,
               onPressed: busy ? null : controller.onDelete,
             ),
