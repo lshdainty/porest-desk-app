@@ -212,10 +212,8 @@ Widget _buildSheetColumn(
             Expanded(
               child: Text(
                 title,
-                style: PTypo.h3.copyWith(
-                  color: t.fgPrimary,
-                  fontWeight: PFontWeight.bold,
-                ),
+                // sheet spec(title-md 18/600) 정합 — 웹 SheetTitle/DrawerTitle 와 동일.
+                style: PTypo.h4.copyWith(color: t.fgPrimary),
               ),
             ),
             ...headerActions,
