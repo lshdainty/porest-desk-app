@@ -1341,73 +1341,80 @@ class _DayDetailBody extends StatelessWidget {
         .where((e) => e.expenseType == 'EXPENSE')
         .fold<int>(0, (s, e) => s + e.amount);
 
+    // 웹 정합: 카드 box 의 좌우 edge 와 ExpenseRow 콘텐츠(아이콘·금액)를 일치시킴.
+    // 바깥 x4 + 카드 wrap x16 → 카드 bg 가 x20 에서 시작, ExpenseRow(h:16) 콘텐츠도 x20.
+    // (기존엔 카드 콘텐츠만 row 와 맞추고 카드 bg 가 16px 더 튀어나와 'lip' 이 생겼음.)
     return Padding(
       padding: const EdgeInsets.fromLTRB(
-        PSpace.x20,
         PSpace.x4,
-        PSpace.x20,
+        PSpace.x4,
+        PSpace.x4,
         PSpace.x16,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // 합계 카드 — muted(subtle bg 로 돋보임) + 테두리 없음(border 1px 만큼 밀리던
-          // 콘텐츠 inset 을 ExpenseRow(h:16)와 정확히 일치). 좌측 '건수' + 우측 수입/지출.
-          PCard(
-            variant: PCardVariant.muted,
-            padding: const EdgeInsets.symmetric(
-              horizontal: PSpace.x16,
-              vertical: PSpace.md,
-            ),
-            child: Row(
-              children: [
-                Text(
-                  '${items.length}건',
-                  style: PTypo.bodySm.copyWith(
-                    color: t.fgSecondary,
-                    fontWeight: PFontWeight.semi,
+          // 합계 카드 — muted(subtle bg 로 돋보임) + 테두리 없음. 좌측 '건수' + 우측 수입/지출.
+          // h:x16 wrap 으로 카드 box 좌우 edge 를 ExpenseRow 콘텐츠 라인(x20)에 맞춤.
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: PSpace.x16),
+            child: PCard(
+              variant: PCardVariant.muted,
+              padding: const EdgeInsets.symmetric(
+                horizontal: PSpace.x16,
+                vertical: PSpace.md,
+              ),
+              child: Row(
+                children: [
+                  Text(
+                    '${items.length}건',
+                    style: PTypo.bodySm.copyWith(
+                      color: t.fgSecondary,
+                      fontWeight: PFontWeight.semi,
+                    ),
                   ),
-                ),
-                const Spacer(),
-                if (income > 0)
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        '수입',
-                        style: PTypo.caption.copyWith(color: t.fgTertiary),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        krwSigned(income, masked, sign: '+', unit: true),
-                        style: PTypo.bodySm.copyWith(
-                          color: t.fgIncome,
-                          fontWeight: PFontWeight.bold,
+                  const Spacer(),
+                  if (income > 0)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          '수입',
+                          style: PTypo.caption.copyWith(color: t.fgTertiary),
                         ),
-                      ),
-                    ],
-                  ),
-                if (income > 0 && expense > 0) const SizedBox(width: PSpace.lg),
-                if (expense > 0)
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        '지출',
-                        style: PTypo.caption.copyWith(color: t.fgTertiary),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        krwSigned(expense, masked, sign: '−', unit: true),
-                        style: PTypo.bodySm.copyWith(
-                          color: t.fgExpense,
-                          fontWeight: PFontWeight.bold,
+                        const SizedBox(height: 2),
+                        Text(
+                          krwSigned(income, masked, sign: '+', unit: true),
+                          style: PTypo.bodySm.copyWith(
+                            color: t.fgIncome,
+                            fontWeight: PFontWeight.bold,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-              ],
+                      ],
+                    ),
+                  if (income > 0 && expense > 0)
+                    const SizedBox(width: PSpace.lg),
+                  if (expense > 0)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          '지출',
+                          style: PTypo.caption.copyWith(color: t.fgTertiary),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          krwSigned(expense, masked, sign: '−', unit: true),
+                          style: PTypo.bodySm.copyWith(
+                            color: t.fgExpense,
+                            fontWeight: PFontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                ],
+              ),
             ),
           ),
           const SizedBox(height: PSpace.lg),
