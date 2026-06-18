@@ -91,6 +91,8 @@ abstract final class PorestTheme {
         surfaceTintColor: Colors.transparent,
         // specs/components/dialog.md md(default): radius-xl(20)
         shape: RoundedRectangleBorder(borderRadius: PRadius.brXl2),
+        // dialog.md/alert-dialog.md SoT: title-md(18/600). 기본 titleLarge(h3 20) 대신 명시.
+        titleTextStyle: PTypo.h4.copyWith(color: tokens.fgPrimary),
       ),
       // specs/components/input.md spec:
       // height 40 (minimumSize 외부에서) / radius-sm(4) / padding sm·md (8·12)
