@@ -13,7 +13,6 @@ import 'package:porest_desk_app/core/settings/settings_notifier.dart';
 import 'package:porest_desk_app/core/sync/keep_alive_refresh.dart';
 import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
 import 'package:porest_desk_app/shared/widgets/p_badge.dart';
-import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
 import 'package:porest_desk_app/features/expense_split/application/expense_split_providers.dart';
@@ -61,35 +60,16 @@ class _TxDetailFooter extends StatelessWidget {
       animation: controller,
       builder: (ctx, _) {
         final busy = controller.submitting;
-        return Row(
-          children: [
-            PButton(
-              label: '삭제',
-              icon: LucideIcons.trash2,
-              variant: PButtonVariant.ghost,
-              dangerous: true,
-              flush: PButtonFlush.left,
-              loading: busy,
-              onPressed: busy ? null : controller.onDelete,
-            ),
-            const Spacer(),
-            PButton(
-              label: '편집',
-              icon: LucideIcons.pencil,
-              variant: PButtonVariant.ghost,
-              onPressed: busy
-                  ? null
-                  : () {
-                      Navigator.of(ctx).pop();
-                      showAddTxSheet(ctx, edit: expense);
-                    },
-            ),
-            const SizedBox(width: PSpace.x8),
-            PButton(
-              label: '확인',
-              onPressed: busy ? null : () => Navigator.of(ctx).pop(),
-            ),
-          ],
+        return PViewFooter(
+          onDelete: controller.onDelete,
+          deleting: busy,
+          onEdit: busy
+              ? null
+              : () {
+                  Navigator.of(ctx).pop();
+                  showAddTxSheet(ctx, edit: expense);
+                },
+          onConfirm: () => Navigator.of(ctx).pop(),
         );
       },
     );

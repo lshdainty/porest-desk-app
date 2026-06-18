@@ -88,31 +88,16 @@ Future<ExpenseFilter?> showFilterDialog(
       scrollController: scrollCtrl,
       controller: controller,
     ),
-    footerBuilder: (ctx) => AnimatedBuilder(
-      animation: controller,
-      builder: (_, _) {
-        return Row(
-          children: [
-            PButton(
-              label: '초기화',
-              variant: PButtonVariant.ghost,
-              flush: PButtonFlush.left,
-              onPressed: () => formKey.currentState?._reset(),
-            ),
-            const Spacer(),
-            PButton(
-              label: '취소',
-              variant: PButtonVariant.ghost,
-              onPressed: () => Navigator.of(ctx).pop(),
-            ),
-            const SizedBox(width: PSpace.x8),
-            PButton(
-              label: '필터 적용',
-              onPressed: controller.canSubmit ? controller.onSubmit : null,
-            ),
-          ],
-        );
-      },
+    // 표준 PSheetFooter — 좌측이 삭제가 아니라 '초기화'(비파괴)라 leftSlot 으로 주입.
+    footerBuilder: (ctx) => PSheetFooter(
+      controller: controller,
+      submitLabel: '필터 적용',
+      leftSlot: PButton(
+        label: '초기화',
+        variant: PButtonVariant.ghost,
+        flush: PButtonFlush.left,
+        onPressed: () => formKey.currentState?._reset(),
+      ),
     ),
   ).whenComplete(controller.dispose);
 }

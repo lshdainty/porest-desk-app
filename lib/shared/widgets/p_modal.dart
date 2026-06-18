@@ -8,6 +8,10 @@ import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 
 /// 표준 footer — 좌측 삭제(편집 모드만) / 우측 취소 + 저장. controller listen.
+///
+/// [leftSlot] 지정 시 좌측 삭제 버튼 대신 임의 위젯(초기화 버튼·요약 텍스트 등)을 둔다
+/// (삭제가 아닌 좌측 보조 액션용 — 삭제 슬롯과 동시 사용 시 leftSlot 우선).
+/// [submitIcon] 은 저장 버튼 좌측 아이콘(정산 만들기 send 등).
 class PSheetFooter extends StatelessWidget {
   const PSheetFooter({
     super.key,
@@ -15,11 +19,15 @@ class PSheetFooter extends StatelessWidget {
     required this.submitLabel,
     this.cancelLabel = '취소',
     this.deleteLabel = '삭제',
+    this.leftSlot,
+    this.submitIcon,
   });
   final PSheetController controller;
   final String submitLabel;
   final String cancelLabel;
   final String deleteLabel;
+  final Widget? leftSlot;
+  final IconData? submitIcon;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +36,9 @@ class PSheetFooter extends StatelessWidget {
       builder: (ctx, _) {
         return Row(
           children: [
-            if (controller.onDelete != null)
+            if (leftSlot != null)
+              leftSlot!
+            else if (controller.onDelete != null)
               PButton(
                 label: deleteLabel,
                 icon: LucideIcons.trash2,
@@ -48,6 +58,7 @@ class PSheetFooter extends StatelessWidget {
             const SizedBox(width: PSpace.x4),
             PButton(
               label: submitLabel,
+              icon: submitIcon,
               loading: controller.submitting,
               onPressed: controller.canSubmit && !controller.submitting
                   ? controller.onSubmit
@@ -56,6 +67,76 @@ class PSheetFooter extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+}
+
+/// 뷰(읽기전용) 다이얼로그 footer — 좌측 보조(삭제 danger 또는 [leading] 위젯) /
+/// 우측 편집(opt) + 확인/닫기. 폼 제출이 없는 상세 시트용(거래·자산·카드 상세 등).
+/// PSheetController 불필요 — 직접 콜백.
+class PViewFooter extends StatelessWidget {
+  const PViewFooter({
+    super.key,
+    this.onDelete,
+    this.deleteLabel = '삭제',
+    this.deleting = false,
+    this.leading,
+    this.onEdit,
+    this.editLabel = '편집',
+    this.confirmLabel = '확인',
+    this.confirmVariant = PButtonVariant.primary,
+    this.onConfirm,
+  });
+
+  /// 좌측 삭제(파괴적) — ghost danger flush-left. [leading] 과 동시 사용 금지.
+  final VoidCallback? onDelete;
+  final String deleteLabel;
+  final bool deleting;
+
+  /// 삭제 대신 좌측에 둘 임의 위젯(금액 가리기 토글 등).
+  final Widget? leading;
+
+  /// 우측 편집(opt) — ghost pencil.
+  final VoidCallback? onEdit;
+  final String editLabel;
+
+  /// 우측 끝 확인/닫기 — onConfirm 미지정 시 Navigator.pop.
+  final String confirmLabel;
+  final PButtonVariant confirmVariant;
+  final VoidCallback? onConfirm;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        if (onDelete != null)
+          PButton(
+            label: deleteLabel,
+            icon: LucideIcons.trash2,
+            variant: PButtonVariant.ghost,
+            dangerous: true,
+            flush: PButtonFlush.left,
+            loading: deleting,
+            onPressed: deleting ? null : onDelete,
+          )
+        else
+          ?leading,
+        const Spacer(),
+        if (onEdit != null) ...[
+          PButton(
+            label: editLabel,
+            icon: LucideIcons.pencil,
+            variant: PButtonVariant.ghost,
+            onPressed: onEdit,
+          ),
+          const SizedBox(width: PSpace.x4),
+        ],
+        PButton(
+          label: confirmLabel,
+          variant: confirmVariant,
+          onPressed: onConfirm ?? () => Navigator.of(context).pop(),
+        ),
+      ],
     );
   }
 }
