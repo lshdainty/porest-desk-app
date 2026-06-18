@@ -33,15 +33,10 @@ void showCardBenefitDetailSheet(BuildContext context, int rowId) {
     maxChildSize: 0.95,
     contentBuilder: (ctx, scrollCtrl) =>
         _CardBenefitDetailContent(rowId: rowId, scrollController: scrollCtrl),
-    footerBuilder: (ctx) => Row(
-      children: [
-        const Spacer(),
-        PButton(
-          label: '닫기',
-          variant: PButtonVariant.ghost,
-          onPressed: () => Navigator.of(ctx).pop(),
-        ),
-      ],
+    // 읽기전용 뷰 — 단일 닫기. PViewFooter(confirm='닫기' ghost).
+    footerBuilder: (ctx) => const PViewFooter(
+      confirmLabel: '닫기',
+      confirmVariant: PButtonVariant.ghost,
     ),
   );
 }

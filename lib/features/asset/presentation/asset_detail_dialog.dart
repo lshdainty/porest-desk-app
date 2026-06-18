@@ -64,34 +64,24 @@ class _DetailFooter extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
     final masked = settings.hideAmounts;
-    return Row(
-      children: [
-        PButton(
-          label: masked ? '금액 표시' : '금액 가리기',
-          icon: masked ? LucideIcons.eye : LucideIcons.eyeOff,
-          variant: PButtonVariant.ghost,
-          size: PButtonSize.sm,
-          flush: PButtonFlush.left,
-          onPressed: () => toggleHideAmountsWithUnlock(context, ref),
-        ),
-        const Spacer(),
-        PButton(
-          label: '편집',
-          icon: LucideIcons.pencil,
-          variant: PButtonVariant.ghost,
-          size: PButtonSize.sm,
-          onPressed: () {
-            Navigator.of(context).pop();
-            if (onEdit != null) {
-              onEdit!();
-            } else {
-              context.push('/account-card-manage');
-            }
-          },
-        ),
-        const SizedBox(width: PSpace.x4),
-        PButton(label: '확인', onPressed: () => Navigator.of(context).pop()),
-      ],
+    return PViewFooter(
+      // 좌측 = 삭제가 아니라 금액 가리기/표시 토글 → leading 슬롯.
+      leading: PButton(
+        label: masked ? '금액 표시' : '금액 가리기',
+        icon: masked ? LucideIcons.eye : LucideIcons.eyeOff,
+        variant: PButtonVariant.ghost,
+        flush: PButtonFlush.left,
+        onPressed: () => toggleHideAmountsWithUnlock(context, ref),
+      ),
+      onEdit: () {
+        Navigator.of(context).pop();
+        if (onEdit != null) {
+          onEdit!();
+        } else {
+          context.push('/account-card-manage');
+        }
+      },
+      onConfirm: () => Navigator.of(context).pop(),
     );
   }
 }
