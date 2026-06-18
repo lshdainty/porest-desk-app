@@ -91,6 +91,7 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
   bool _submitting = false;
   bool _hasExisting = false;
   String? _lastApplied; // 방금 적용한 정합 전략 ('prop'|'largest'|'add')
+  bool _quickOpen = false; // '빠르게 맞추기' 접힘 상태(기본 접힘)
 
   // 일치화 목표 총액 = overrideTotal(편집 중 바뀐 금액) ?? 거래 금액.
   int get _totalAbs => widget.overrideTotal ?? widget.expense.amount.abs();
@@ -193,6 +194,8 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
       _remainder == 0 &&
       _rows!.length >= 2 &&
       _rows!.every((r) => r.categoryRowId != null && r.amount > 0);
+  // 잔액 0(합계 일치)이지만 카테고리 누락·행 부족으로 미저장 가능 — '0원 초과' 오표기 방지.
+  bool get _balanced => _remainder == 0;
 
   void _addRow() {
     setState(() {
@@ -356,13 +359,61 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
     }
   }
 
+  /// 상태 패널 — 일치(success) / 불일치(warning). footer 검증 pill 대체.
+  Widget _statusPanel(PorestTokens t) =>
+      _matched ? _successPanel(t) : _reconcilePanel(t);
+
+  Widget _successPanel(PorestTokens t) {
+    return Container(
+      padding: const EdgeInsets.all(PSpace.x12),
+      decoration: BoxDecoration(
+        color: t.statusSuccessSubtle,
+        borderRadius: PRadius.brLg,
+        border: Border.all(color: t.statusSuccessBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(LucideIcons.check, size: 15, color: t.statusSuccessFg),
+              const SizedBox(width: PSpace.x8),
+              Expanded(
+                child: Text('분할 합계가 총액과 일치해요',
+                    style: PTypo.bodySm.copyWith(
+                        color: t.fgPrimary, fontWeight: PFontWeight.bold)),
+              ),
+            ],
+          ),
+          const SizedBox(height: PSpace.x4),
+          Text.rich(
+            TextSpan(
+              style: PTypo.caption
+                  .copyWith(color: t.fgSecondary, height: PLineHeight.normal),
+              children: [
+                const TextSpan(text: '분할 합계 '),
+                TextSpan(
+                    text: '${krw(_sum)}원',
+                    style: const TextStyle(fontWeight: PFontWeight.bold)),
+                const TextSpan(text: ' · 총액 '),
+                TextSpan(
+                    text: '${krw(_totalAbs)}원',
+                    style: const TextStyle(fontWeight: PFontWeight.bold)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _reconcilePanel(PorestTokens t) {
     final shortage = _remainder > 0;
     return Container(
       padding: const EdgeInsets.all(PSpace.x12),
       decoration: BoxDecoration(
         color: t.statusWarningSubtle,
-        borderRadius: PRadius.brMd,
+        borderRadius: PRadius.brLg,
         border: Border.all(color: t.statusWarningBorder),
       ),
       child: Column(
@@ -374,7 +425,9 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
               const SizedBox(width: PSpace.x8),
               Expanded(
                 child: Text(
-                  _totalChanged ? '총액이 바뀌어 분할을 맞춰야 해요' : '분할 합계가 총액과 달라요',
+                  !_balanced
+                      ? (_totalChanged ? '총액이 바뀌어 분할을 맞춰야 해요' : '분할 합계가 총액과 달라요')
+                      : '분할 항목을 확인해주세요',
                   style: PTypo.bodySm
                       .copyWith(color: t.fgPrimary, fontWeight: PFontWeight.bold),
                 ),
@@ -396,42 +449,72 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
                 TextSpan(
                     text: '${krw(_totalAbs)}원',
                     style: const TextStyle(fontWeight: PFontWeight.bold)),
-                const TextSpan(text: ' · '),
-                TextSpan(
-                  text: '${shortage ? '부족' : '초과'} ${krw(_remainder.abs())}원',
-                  style: TextStyle(
-                      fontWeight: PFontWeight.bold, color: t.statusWarningFg),
-                ),
+                if (!_balanced) ...[
+                  const TextSpan(text: ' · '),
+                  TextSpan(
+                    text: '${shortage ? '부족' : '초과'} ${krw(_remainder.abs())}원',
+                    style: TextStyle(
+                        fontWeight: PFontWeight.bold, color: t.statusWarningFg),
+                  ),
+                ],
               ],
             ),
           ),
-          const SizedBox(height: PSpace.x8),
-          Text('빠르게 맞추기',
-              style: PTypo.caption
-                  .copyWith(color: t.fgTertiary, fontWeight: PFontWeight.bold)),
-          const SizedBox(height: 6),
-          _reconcileBtn(t,
-              icon: LucideIcons.scale,
-              title: '비례 배분',
-              desc: '비중대로 자동 조정',
-              active: _lastApplied == 'prop',
-              recommended: _totalChanged,
-              onTap: _reconcileProportional),
-          const SizedBox(height: 6),
-          _reconcileBtn(t,
-              icon: LucideIcons.moveUp,
-              title: '큰 항목 반영',
-              desc: '가장 큰 항목에 차액',
-              active: _lastApplied == 'largest',
-              onTap: _reconcileToLargest),
-          if (_remainder > 0) ...[
-            const SizedBox(height: 6),
-            _reconcileBtn(t,
-                icon: LucideIcons.plusCircle,
-                title: '조정 항목',
-                desc: '부족분을 새 항목으로',
-                active: _lastApplied == 'add',
-                onTap: _reconcileAddRow),
+          // 합계가 어긋날 때만 '빠르게 맞추기' 토글 노출(잔액 조정 전략이라 의미 있음).
+          if (!_balanced) ...[
+            const SizedBox(height: PSpace.x8),
+            InkWell(
+              onTap: _submitting
+                  ? null
+                  : () => setState(() => _quickOpen = !_quickOpen),
+              borderRadius: PRadius.brSm,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 2),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(LucideIcons.sparkles, size: 14, color: t.fgBrand),
+                    const SizedBox(width: 6),
+                    Text('빠르게 맞추기',
+                        style: PTypo.caption.copyWith(
+                            color: t.fgBrand, fontWeight: PFontWeight.bold)),
+                    const SizedBox(width: 4),
+                    Icon(
+                        _quickOpen
+                            ? LucideIcons.chevronUp
+                            : LucideIcons.chevronDown,
+                        size: 14,
+                        color: t.fgBrand),
+                  ],
+                ),
+              ),
+            ),
+            if (_quickOpen) ...[
+              const SizedBox(height: 6),
+              _reconcileBtn(t,
+                  icon: LucideIcons.scale,
+                  title: '비례 배분',
+                  desc: '비중대로 자동 조정',
+                  active: _lastApplied == 'prop',
+                  recommended: _totalChanged,
+                  onTap: _reconcileProportional),
+              const SizedBox(height: 6),
+              _reconcileBtn(t,
+                  icon: LucideIcons.moveUp,
+                  title: '큰 항목 반영',
+                  desc: '가장 큰 항목에 차액',
+                  active: _lastApplied == 'largest',
+                  onTap: _reconcileToLargest),
+              if (_remainder > 0) ...[
+                const SizedBox(height: 6),
+                _reconcileBtn(t,
+                    icon: LucideIcons.plusCircle,
+                    title: '조정 항목',
+                    desc: '부족분을 새 항목으로',
+                    active: _lastApplied == 'add',
+                    onTap: _reconcileAddRow),
+              ],
+            ],
           ],
         ],
       ),
@@ -562,7 +645,7 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
                           const SizedBox(width: 4),
                           Icon(LucideIcons.arrowRight, size: 12, color: t.fgTertiary),
                           const SizedBox(width: 4),
-                          Text('${_isIncome ? '+' : '-'}${krw(_totalAbs)}원',
+                          Text('${_isIncome ? '+' : '−'}${krw(_totalAbs)}원',
                               style: PTypo.h3.copyWith(
                                   color: t.statusWarningFg,
                                   fontWeight: PFontWeight.bold)),
@@ -570,7 +653,7 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
                       )
                     else
                       Text(
-                        '${_isIncome ? '+' : '-'}${krw(_totalAbs)}원',
+                        '${_isIncome ? '+' : '−'}${krw(_totalAbs)}원',
                         style: PTypo.h3.copyWith(
                             // 수입 금액 = primary(다크 primary-light). success(초록) 아님 — web 정합
                             color: _isIncome ? t.fgBrandStrong : t.fgPrimary,
@@ -583,9 +666,9 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
           ),
           const SizedBox(height: PSpace.x16),
 
-          // 일치화 패널 — 분할 합계가 총액과 어긋날 때(총액 변경 후 가장 흔함)
-          if (!_matched && _rows!.isNotEmpty) ...[
-            _reconcilePanel(t),
+          // 상태 패널 — 일치(success)/불일치(warning). footer 검증 pill 대체.
+          if (_rows!.isNotEmpty) ...[
+            _statusPanel(t),
             const SizedBox(height: PSpace.x16),
           ],
 
@@ -652,12 +735,10 @@ class _SplitFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
     return AnimatedBuilder(
       animation: controller,
       builder: (ctx, _) {
         final state = bodyKey.currentState;
-        final remainder = state?._rows == null ? 0 : state!._remainder;
         final matched = state?._rows == null ? false : state!._matched;
         final hasExisting = state?._hasExisting ?? false;
         return Row(
@@ -670,12 +751,6 @@ class _SplitFooter extends StatelessWidget {
                 dangerous: true,
                 onPressed: controller.submitting ? null : controller.onDelete,
               ),
-            const SizedBox(width: PSpace.x4),
-            _MatchPill(
-              matched: matched,
-              remainder: remainder,
-              tokens: t,
-            ),
             const Spacer(),
             PButton(
               label: '취소',
@@ -996,46 +1071,5 @@ class _RatioLegend extends StatelessWidget {
       if (c.rowId == rowId) return c;
     }
     return null;
-  }
-}
-
-class _MatchPill extends StatelessWidget {
-  const _MatchPill({
-    required this.matched,
-    required this.remainder,
-    required this.tokens,
-  });
-  final bool matched;
-  final int remainder;
-  final PorestTokens tokens;
-
-  @override
-  Widget build(BuildContext context) {
-    final label = matched
-        ? '합계 일치'
-        : (remainder > 0
-            ? '${krw(remainder)}원 부족'
-            : '${krw(-remainder)}원 초과');
-    // web SplitTxDialog 정합 — 합계 일치=success / 불일치=error,
-    // 크기도 web 과 동일(padding 10/4 + caption + bold). 표준 PBadge(micro)보다 큰 검증 pill.
-    final fg = matched ? tokens.statusSuccessFg : tokens.statusDangerFg;
-    final bg = matched ? tokens.statusSuccessSubtle : tokens.statusDangerSubtle;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(color: bg, borderRadius: PRadius.brFull),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(matched ? LucideIcons.check : LucideIcons.alertTriangle,
-              size: 12, color: fg),
-          const SizedBox(width: 4),
-          Text(
-            label,
-            style:
-                PTypo.caption.copyWith(color: fg, fontWeight: PFontWeight.bold),
-          ),
-        ],
-      ),
-    );
   }
 }
