@@ -275,12 +275,14 @@ class _NotiRow extends StatelessWidget {
 
   /// notificationType 별 (배경, 전경) tone 토큰 쌍 — SoT notificationVisual 정합.
   /// BUDGET_ALERT→warning(subtle·fg) / TODO_REMINDER→brand(subtle·strong) /
-  /// EVENT_REMINDER→info(subtle·fg) / SYSTEM·default→sunken·secondary.
+  /// EVENT_REMINDER→info(subtle·fg) / SYSTEM·default→muted·secondary.
+  /// 웹 notificationVisual 은 default 를 `--bg-sunken`(=surface-input=muted) 로 매핑.
+  /// 앱은 bgSunken 이 다크에서 bgCanvas(slate950)와 동일 → 종 박스가 안 보임. bgMuted 사용.
   (Color, Color) _typeTone(PorestTokens t) => switch (noti.notificationType) {
     'BUDGET_ALERT' => (t.statusWarningSubtle, t.statusWarningFg),
     'TODO_REMINDER' => (t.bgBrandSubtle, t.fgBrandStrong),
     'EVENT_REMINDER' => (t.statusInfoSubtle, t.statusInfoFg),
-    _ => (t.bgSunken, t.fgSecondary),
+    _ => (t.bgMuted, t.fgSecondary),
   };
 
   @override
