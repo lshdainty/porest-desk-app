@@ -38,12 +38,10 @@ void showSplitTxDialog(
   void Function(List<SplitInput> splits)? onReconciled,
 }) {
   final controller = PSheetController();
-  final bodyKey = GlobalKey<_SplitBodyState>();
   showPSheet<void>(
     context,
     title: '내역 분할',
     contentBuilder: (ctx, scrollCtrl) => _SplitBody(
-      key: bodyKey,
       expense: expense,
       scrollController: scrollCtrl,
       controller: controller,
@@ -52,7 +50,13 @@ void showSplitTxDialog(
       initialSplits: initialSplits,
       onReconciled: onReconciled,
     ),
-    footerBuilder: (ctx) => _SplitFooter(controller: controller, bodyKey: bodyKey),
+    // 표준 footer 사용 — 분할 해제(삭제)/취소/분할 저장. controller(canSubmit·onDelete·
+    // onSubmit·submitting)에 _syncFooter 가 신호를 다 싣고 있어 커스텀 footer 불필요.
+    footerBuilder: (ctx) => PSheetFooter(
+      controller: controller,
+      submitLabel: '분할 저장',
+      deleteLabel: '분할 해제',
+    ),
   );
 }
 
@@ -65,7 +69,6 @@ class _Row {
 
 class _SplitBody extends ConsumerStatefulWidget {
   const _SplitBody({
-    super.key,
     required this.expense,
     required this.scrollController,
     required this.controller,
@@ -724,53 +727,6 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
           _RatioLegend(rows: _rows!, total: _totalAbs, categories: categories, tokens: t),
           const SizedBox(height: PSpace.x16),
       ],
-    );
-  }
-}
-
-class _SplitFooter extends StatelessWidget {
-  const _SplitFooter({required this.controller, required this.bodyKey});
-  final PSheetController controller;
-  final GlobalKey<_SplitBodyState> bodyKey;
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: controller,
-      builder: (ctx, _) {
-        final state = bodyKey.currentState;
-        final matched = state?._rows == null ? false : state!._matched;
-        final hasExisting = state?._hasExisting ?? false;
-        return Row(
-          children: [
-            if (hasExisting && !(state?._reconcileMode ?? false))
-              PButton(
-                label: '분할 해제',
-                icon: LucideIcons.trash2,
-                variant: PButtonVariant.ghost,
-                dangerous: true,
-                flush: PButtonFlush.left,
-                onPressed: controller.submitting ? null : controller.onDelete,
-              ),
-            const Spacer(),
-            PButton(
-              label: '취소',
-              variant: PButtonVariant.ghost,
-              onPressed: controller.submitting
-                  ? null
-                  : () => Navigator.of(ctx).pop(),
-            ),
-            const SizedBox(width: PSpace.x8),
-            PButton(
-              label: '분할 저장',
-              loading: controller.submitting,
-              onPressed: (matched && !controller.submitting)
-                  ? controller.onSubmit
-                  : null,
-            ),
-          ],
-        );
-      },
     );
   }
 }
