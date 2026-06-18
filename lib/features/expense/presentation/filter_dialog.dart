@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
@@ -14,6 +13,7 @@ import 'package:porest_desk_app/shared/widgets/p_date_input.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
+import 'package:porest_desk_app/shared/widgets/p_toggle.dart';
 import 'package:porest_desk_app/shared/widgets/p_type_chip.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
@@ -402,36 +402,24 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
       children: [
         _label('계좌·카드', t,
             badge: _assetIds.isEmpty ? null : '· ${_assetIds.length}개 선택'),
+        // 다중선택 필터 칩 — spec toggle.md: outline PToggle + radius-md(둥근 사각형). pill 아님.
         Wrap(
           spacing: 6,
           runSpacing: 6,
           children: [
             for (final a in assets)
-              GestureDetector(
-                onTap: () => setState(() {
+              PToggle(
+                label: a.assetName,
+                variant: PToggleVariant.outline,
+                size: PToggleSize.sm,
+                pressed: _assetIds.contains(a.rowId),
+                onChanged: (_) => setState(() {
                   if (_assetIds.contains(a.rowId)) {
                     _assetIds.remove(a.rowId);
                   } else {
                     _assetIds.add(a.rowId);
                   }
                 }),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: PSpace.sm, vertical: PSpace.xs),
-                  decoration: BoxDecoration(
-                    color: _assetIds.contains(a.rowId)
-                        ? t.bgMuted
-                        : Colors.transparent,
-                    borderRadius: PRadius.brFull,
-                  ),
-                  child: Text(a.assetName,
-                      style: PTypo.caption.copyWith(
-                        color: _assetIds.contains(a.rowId)
-                            ? t.fgPrimary
-                            : t.fgSecondary,
-                        fontWeight: PFontWeight.semi,
-                      )),
-                ),
               ),
           ],
         ),
