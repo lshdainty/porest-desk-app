@@ -1157,7 +1157,9 @@ class _MonthYearPickerSheetState extends State<_MonthYearPickerSheet> {
                 child: Container(
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: isSelected ? t.bgBrand : Colors.transparent,
+                    // 선택 월 박스 = 채움(흰 글씨) 버튼이므로 primary 고정 토큰.
+                    // bgBrand 는 다크에서 primary-light 로 밝아져 웹(bg-primary)과 어긋남.
+                    color: isSelected ? t.bgBrandSolid : Colors.transparent,
                     borderRadius: PRadius.brSm,
                   ),
                   child: Text(
