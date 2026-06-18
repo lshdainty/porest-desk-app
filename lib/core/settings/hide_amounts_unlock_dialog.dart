@@ -97,8 +97,6 @@ class _HideAmountsUnlockDialogState
     final t = context.tokens;
     return PFormAlertDialog(
       title: '금액 보기 인증',
-      // formal action dialog — dialog.md SoT: display-sm(24)/700 (= PTypo.h2). 시트(18)와 구분.
-      titleStyle: PTypo.h2.copyWith(color: t.fgPrimary),
       titleLeading:
           Icon(LucideIcons.shieldCheck, size: 18, color: t.fgBrand),
       content: Column(
