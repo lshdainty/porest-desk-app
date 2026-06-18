@@ -749,6 +749,7 @@ class _SplitFooter extends StatelessWidget {
                 icon: LucideIcons.trash2,
                 variant: PButtonVariant.ghost,
                 dangerous: true,
+                flush: PButtonFlush.left,
                 onPressed: controller.submitting ? null : controller.onDelete,
               ),
             const Spacer(),
