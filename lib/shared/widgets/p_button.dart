@@ -15,6 +15,10 @@ enum PButtonVariant { primary, secondary, outline, ghost, accent, danger }
 
 enum PButtonSize { sm, md, lg, iconLg }
 
+/// 컨테이너 edge 에 붙는 ghost 버튼 광학 정렬용 — 해당 방향 좌/우 padding 제거.
+/// front `<Button flush="left|right">` 미러. box·hover 영역 위치는 그대로.
+enum PButtonFlush { left, right }
+
 class PButton extends StatelessWidget {
   const PButton({
     super.key,
@@ -29,6 +33,7 @@ class PButton extends StatelessWidget {
     this.tooltip,
     this.iconColor,
     this.dangerous = false,
+    this.flush,
   })  : assert(label != null || icon != null,
             'PButton requires either a label or an icon'),
         assert(size != PButtonSize.iconLg || label == null,
@@ -48,7 +53,8 @@ class PButton extends StatelessWidget {
     this.dangerous = false,
   })  : label = null,
         fullWidth = false,
-        trailingIcon = null;
+        trailingIcon = null,
+        flush = null;
 
   final String? label;
   final VoidCallback? onPressed;
@@ -67,6 +73,9 @@ class PButton extends StatelessWidget {
   /// dialog footer 의 "삭제" 같이 filled `danger` 보다 절제된 표현이 필요한 곳.
   /// 다른 variant 와 함께 쓰면 무시.
   final bool dangerous;
+  /// 컨테이너 edge flush — 해당 방향 좌/우 padding 제거 (ghost 버튼 광학 정렬).
+  /// label 모드에만 의미 있음 (icon-only/iconLg 는 padding 0 이라 무관).
+  final PButtonFlush? flush;
 
   // DESIGN.desk.md / specs/components/button.md spec:
   // sm: h=32, padY=4 padX=8, font=caption(12), radius=sm(4), icon=14
@@ -80,16 +89,22 @@ class PButton extends StatelessWidget {
         PButtonSize.iconLg => 36,
       };
 
-  EdgeInsetsGeometry _padding() => switch (size) {
-        PButtonSize.sm =>
-          const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        PButtonSize.md =>
-          const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        PButtonSize.lg =>
-          const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        // icon-only 전용이라 build()에서 EdgeInsets.zero 경로만 탐 — 도달 불가.
-        PButtonSize.iconLg => EdgeInsets.zero,
-      };
+  EdgeInsetsGeometry _padding() {
+    final (double h, double v) = switch (size) {
+      PButtonSize.sm => (8, 4),
+      PButtonSize.md => (12, 8),
+      PButtonSize.lg => (16, 12),
+      // icon-only 전용이라 build()에서 EdgeInsets.zero 경로만 탐 — 도달 불가.
+      PButtonSize.iconLg => (0, 0),
+    };
+    // flush: 해당 방향 padding 만 0 (edge 광학 정렬).
+    return EdgeInsets.fromLTRB(
+      flush == PButtonFlush.left ? 0 : h,
+      v,
+      flush == PButtonFlush.right ? 0 : h,
+      v,
+    );
+  }
 
   TextStyle _textStyle(PorestTokens t) => switch (size) {
         PButtonSize.sm => TextStyle(
