@@ -80,7 +80,7 @@ Future<void> _confirmDelete(BuildContext ctx, CalendarEvent edit) async {
   final ok = await showPConfirmDialog(
     ctx,
     title: '일정 삭제',
-    message: '"${edit.title}" 일정을 삭제할까요?',
+    message: '"${edit.title}" 일정을 삭제할까요? 이 작업은 되돌릴 수 없습니다.',
     confirmLabel: '삭제',
     destructive: true,
   );
