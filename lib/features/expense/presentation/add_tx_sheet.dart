@@ -1258,7 +1258,8 @@ class _TxInputForm extends ConsumerWidget {
                   ? assets
                   : assets.where((a) => allowed.contains(a.assetType)).toList();
               return _SelectField<int>(
-                value: c.assetRowId,
+                // null(미선택)도 '선택 안 함'(-1) default로 표시 — 웹 정합.
+                value: c.assetRowId ?? -1,
                 hint: '선택 안 함',
                 items: [
                   const _SelectOption<int>(-1, '선택 안 함'),
