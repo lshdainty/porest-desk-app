@@ -115,14 +115,23 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
     AsyncValue<List<dynamic>> categoriesAsync,
     bool masked,
   ) {
+    // 리스트는 스크롤, '거래 추가' footer 는 항상 하단 고정 — shrinkWrap(전체
+    // 스크롤 → 리스트 길면 footer 밀림) 대신 Draggable 모드(Expanded content
+    // 스크롤 + 고정 footer). 초기 높이는 건수 기반 추정(짧으면 작게, 길면 cap).
+    final initial = (0.3 + items.length * 0.085).clamp(0.42, 0.88);
     showPSheet<void>(
       context,
       title: '${date.month}월 ${date.day}일 ${_koWeekday(date.weekday)}요일',
-      shrinkWrap: true,
-      contentBuilder: (ctx, _) => _DayDetailBody(
-        items: items,
-        categoriesAsync: categoriesAsync,
-        masked: masked,
+      initialChildSize: initial,
+      minChildSize: 0.35,
+      maxChildSize: 0.92,
+      contentBuilder: (ctx, scrollCtrl) => SingleChildScrollView(
+        controller: scrollCtrl,
+        child: _DayDetailBody(
+          items: items,
+          categoriesAsync: categoriesAsync,
+          masked: masked,
+        ),
       ),
       // 그 날짜로 거래 추가 — 시트 닫고 add_tx_sheet(defaultDate 시드).
       footerBuilder: (sheetCtx) => PButton(
