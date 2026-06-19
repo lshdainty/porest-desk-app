@@ -115,6 +115,13 @@ abstract final class PTypo {
     fontFamily: sans, fontSize: 12, height: 1.5,
     fontWeight: FontWeight.w500,
   );
+  // Label — SoT label-md 14/500/1.4 (DESIGN.desk.md). 폼 라벨(control 위)은
+  // label.md 컴포넌트 spec에 따라 leading-none(height 1.0)으로 override
+  // (PSectionLabel.header) — control 위에 붙을 때 vertical rhythm 유지.
+  static const TextStyle labelMd = TextStyle(
+    fontFamily: sans, fontSize: 14, height: 1.4,
+    fontWeight: FontWeight.w500,
+  );
   static const TextStyle micro = TextStyle(
     fontFamily: sans, fontSize: 11, height: 1.5, letterSpacing: 0.44,
     fontWeight: FontWeight.w500,
