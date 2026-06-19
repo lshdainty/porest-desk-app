@@ -1212,7 +1212,8 @@ class _TxInputForm extends ConsumerWidget {
           PSectionLabel(c.type == 'INCOME' ? '수입 방식' : '결제 수단'),
           const SizedBox(height: PSpace.x4),
           _SelectField<String>(
-            value: c.paymentMethod.isEmpty ? null : c.paymentMethod,
+            // ''(선택 안 함)도 유효 default — null 변환 금지(웹 정합: '선택 안 함' selected).
+            value: c.paymentMethod,
             hint: '선택 안 함',
             items: [
               const _SelectOption<String>('', '선택 안 함'),
