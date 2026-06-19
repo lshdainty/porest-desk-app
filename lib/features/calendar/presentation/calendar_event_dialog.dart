@@ -394,7 +394,7 @@ class _BodyState extends ConsumerState<_Body> {
 
           // 라벨
           PSectionLabel('라벨', variant: PSectionLabelVariant.header, icon: LucideIcons.tag),
-          const SizedBox(height: PSpace.x8),
+          const SizedBox(height: PSpace.x4),
           // web EventForm 정합 — chip 나열 대신 Select ('라벨이 없습니다' + 색 점)
           labelsAsync.when(
             loading: () => const SizedBox(
@@ -426,7 +426,7 @@ class _BodyState extends ConsumerState<_Body> {
 
           // 색상
           PSectionLabel('색상', variant: PSectionLabelVariant.header),
-          const SizedBox(height: PSpace.x8),
+          const SizedBox(height: PSpace.x4),
           PColorPicker(
             selected: _color,
             onChanged: (hex) => setState(() => _color = hex),
@@ -512,7 +512,7 @@ class _BodyState extends ConsumerState<_Body> {
 
           // 반복
           PSectionLabel('반복', variant: PSectionLabelVariant.header, icon: LucideIcons.repeat),
-          const SizedBox(height: PSpace.x8),
+          const SizedBox(height: PSpace.x4),
           Wrap(
             spacing: PSpace.x4,
             runSpacing: PSpace.x4,
@@ -529,7 +529,7 @@ class _BodyState extends ConsumerState<_Body> {
 
           // 알림
           PSectionLabel('알림', variant: PSectionLabelVariant.header, icon: LucideIcons.bell),
-          const SizedBox(height: PSpace.x8),
+          const SizedBox(height: PSpace.x4),
           Wrap(
             spacing: PSpace.x4,
             runSpacing: PSpace.x4,
