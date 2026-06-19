@@ -44,8 +44,8 @@ void showCalendarEventDialog(
   ).whenComplete(controller.dispose);
 }
 
-/// 신규 일정 기본 색 = violet (`kChartBaseHexes[6]`).
-const _kDefaultEventColor = '#8b4dba';
+/// 신규 일정 기본 색 = blue(primary) — 웹 DEFAULT_EVENT_COLOR(#2c70bf) 정합.
+const _kDefaultEventColor = '#2c70bf';
 
 enum _RecurrenceOption { none, daily, weekly, monthly, yearly }
 
@@ -150,7 +150,14 @@ class _BodyState extends ConsumerState<_Body> {
       final d = widget.defaultDate ?? DateTime.now();
       _start = DateTime(d.year, d.month, d.day, 9, 0);
       _end = DateTime(d.year, d.month, d.day, 10, 0);
-      _allDay = false;
+      _allDay = true; // 신규 일정 기본 종일 ON (웹 isAllDay default true 정합).
+      // 생성 모드: 캘린더 로드 후 기본 캘린더 선택(저장 반영). 웹 EventForm useEffect 패턴.
+      ref.read(userCalendarListProvider.future).then((cals) {
+        if (!mounted || _userCalendarRowId != null || cals.isEmpty) return;
+        final def =
+            cals.firstWhere((c) => c.isDefault, orElse: () => cals.first);
+        setState(() => _userCalendarRowId = def.rowId);
+      });
     }
     widget.controller.onSubmit = _submit;
     if (widget.edit != null) {
