@@ -66,6 +66,8 @@ class _PSelectState<T> extends State<PSelect<T>> {
   final OverlayPortalController _portal = OverlayPortalController();
   final GlobalKey _triggerKey = GlobalKey();
   double _triggerW = 0;
+  bool _openUp = false;
+  double _maxH = 384;
   static const double _triggerH = 40;
   static const double _gap = 4;
 
@@ -73,11 +75,23 @@ class _PSelectState<T> extends State<PSelect<T>> {
     if (!widget.enabled) return;
     if (_portal.isShowing) {
       _portal.hide();
-    } else {
-      final box = _triggerKey.currentContext?.findRenderObject() as RenderBox?;
-      if (box != null) _triggerW = box.size.width;
-      _portal.show();
+      return;
     }
+    // 화면 하단/상단 가용 공간을 측정해 flip + maxHeight 결정 (웹 Radix collision
+    // detection 정합). trigger 가 하단에 가까우면 위로 펼치거나 높이를 줄여 짤림 방지.
+    final box = _triggerKey.currentContext?.findRenderObject() as RenderBox?;
+    if (box != null) {
+      _triggerW = box.size.width;
+      final mq = MediaQuery.of(context);
+      final top = box.localToGlobal(Offset.zero).dy;
+      final bottom = top + box.size.height;
+      const margin = 8.0;
+      final below = mq.size.height - bottom - mq.padding.bottom - margin - _gap;
+      final above = top - mq.padding.top - margin - _gap;
+      _openUp = below < 220 && above > below;
+      _maxH = (_openUp ? above : below).clamp(120.0, 384.0);
+    }
+    _portal.show();
   }
 
   void _select(T v) {
@@ -158,16 +172,20 @@ class _PSelectState<T> extends State<PSelect<T>> {
               CompositedTransformFollower(
                 link: _link,
                 showWhenUnlinked: false,
-                offset: const Offset(0, _triggerH + _gap),
-                child: Align(
-                  alignment: Alignment.topLeft,
-                  child: SizedBox(
-                    width: _triggerW,
-                    child: _SelectMenu<T>(
-                      items: widget.items,
-                      value: widget.value,
-                      onSelect: _select,
-                    ),
+                // 아래로 펼침(default): trigger 하단에 메뉴 상단 정렬 +gap.
+                // 위로 flip(_openUp): trigger 상단에 메뉴 하단 정렬 -gap.
+                targetAnchor:
+                    _openUp ? Alignment.topLeft : Alignment.bottomLeft,
+                followerAnchor:
+                    _openUp ? Alignment.bottomLeft : Alignment.topLeft,
+                offset: Offset(0, _openUp ? -_gap : _gap),
+                child: SizedBox(
+                  width: _triggerW,
+                  child: _SelectMenu<T>(
+                    maxHeight: _maxH,
+                    items: widget.items,
+                    value: widget.value,
+                    onSelect: _select,
                   ),
                 ),
               ),
@@ -201,11 +219,13 @@ class _PSelectState<T> extends State<PSelect<T>> {
 /// (shadcn SelectScrollUp/DownButton 정합).
 class _SelectMenu<T> extends StatefulWidget {
   const _SelectMenu({
+    required this.maxHeight,
     required this.items,
     required this.value,
     required this.onSelect,
   });
 
+  final double maxHeight;
   final List<PSelectItem<T>> items;
   final T? value;
   final void Function(T) onSelect;
@@ -269,7 +289,7 @@ class _SelectMenuState<T> extends State<_SelectMenu<T>> {
           border: Border.all(color: t.borderDefault),
         ),
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxHeight: 384),
+          constraints: BoxConstraints(maxHeight: widget.maxHeight),
           child: Stack(
             children: [
               // viewport — ListView. shadcn SelectContent Viewport `p-1` 정합:
