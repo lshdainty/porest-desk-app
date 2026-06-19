@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import 'package:porest_desk_app/app/theme/motion.dart';
 import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
@@ -94,19 +95,18 @@ class _PSelectState<T> extends State<PSelect<T>> {
               borderRadius: PRadius.brSm,
               side: BorderSide(color: t.borderDefault),
             )),
-            padding: const WidgetStatePropertyAll(
-                EdgeInsets.symmetric(vertical: PSpace.x4)),
+            // viewport padding 은 _SelectMenu 내부에서 — 여기선 0.
+            padding: const WidgetStatePropertyAll(EdgeInsets.zero),
             minimumSize: WidgetStatePropertyAll(Size(menuW, 0)),
             maximumSize: WidgetStatePropertyAll(Size(menuW, 384)),
           ),
           menuChildren: [
-            for (final it in widget.items)
-              _MenuItem<T>(
-                item: it,
-                selected: it.value == widget.value,
-                width: menuW,
-                onTap: () => _select(it.value),
-              ),
+            _SelectMenu<T>(
+              width: menuW,
+              items: widget.items,
+              value: widget.value,
+              onSelect: _select,
+            ),
           ],
           builder: (context, controller, _) {
             return Material(
@@ -231,6 +231,125 @@ class _MenuItem<T> extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// 드롭다운 메뉴 내용 — spec select.md / shadcn SelectContent 정합:
+/// 스크롤 가능 시 위/아래 chevron 버튼(ScrollUp/DownButton) 자동 노출 +
+/// viewport padding(항목이 가장자리/버튼에 딱 붙지 않게).
+class _SelectMenu<T> extends StatefulWidget {
+  const _SelectMenu({
+    required this.width,
+    required this.items,
+    required this.value,
+    required this.onSelect,
+  });
+
+  final double width;
+  final List<PSelectItem<T>> items;
+  final T? value;
+  final void Function(T) onSelect;
+
+  @override
+  State<_SelectMenu<T>> createState() => _SelectMenuState<T>();
+}
+
+class _SelectMenuState<T> extends State<_SelectMenu<T>> {
+  final ScrollController _ctrl = ScrollController();
+  bool _canUp = false;
+  bool _canDown = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl.addListener(_sync);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _sync());
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  void _sync() {
+    if (!_ctrl.hasClients) return;
+    final up = _ctrl.offset > 0.5;
+    final down = _ctrl.offset < _ctrl.position.maxScrollExtent - 0.5;
+    if (up != _canUp || down != _canDown) {
+      setState(() {
+        _canUp = up;
+        _canDown = down;
+      });
+    }
+  }
+
+  void _scrollBy(double delta) {
+    if (!_ctrl.hasClients) return;
+    final target =
+        (_ctrl.offset + delta).clamp(0.0, _ctrl.position.maxScrollExtent);
+    _ctrl.animateTo(target, duration: PMotion.fast, curve: PMotion.standard);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxHeight: 384),
+      child: SizedBox(
+        width: widget.width,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (_canUp)
+              _ScrollBtn(
+                  icon: LucideIcons.chevronUp, onTap: () => _scrollBy(-120)),
+            Flexible(
+              child: ListView(
+                controller: _ctrl,
+                shrinkWrap: true,
+                // viewport padding (웹 SelectContent Viewport `p-1` 정합) —
+                // 항목이 가장자리/스크롤 버튼에 딱 붙지 않게.
+                padding: const EdgeInsets.symmetric(vertical: PSpace.x4),
+                children: [
+                  for (final it in widget.items)
+                    _MenuItem<T>(
+                      item: it,
+                      selected: it.value == widget.value,
+                      width: widget.width,
+                      onTap: () => widget.onSelect(it.value),
+                    ),
+                ],
+              ),
+            ),
+            if (_canDown)
+              _ScrollBtn(
+                  icon: LucideIcons.chevronDown, onTap: () => _scrollBy(120)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// ScrollUp/ScrollDownButton — shadcn `py-1` + chevron 16 정합. 탭 시 스크롤.
+class _ScrollBtn extends StatelessWidget {
+  const _ScrollBtn({required this.icon, required this.onTap});
+
+  final IconData icon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        alignment: Alignment.center,
+        padding: const EdgeInsets.symmetric(vertical: PSpace.x4),
+        child: Icon(icon, size: 16, color: t.fgSecondary),
       ),
     );
   }
