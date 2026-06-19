@@ -8,13 +8,13 @@ import 'package:porest_desk_app/app/theme/typography.dart';
 
 /// specs/components/select.md 미러.
 ///
-/// Trigger spec:
-/// - h-10 (40), padding sm·md (8·12), font body-md (15)
-/// - radius-sm (4), border 1px border-default, bg surface-input
-/// - 우측 chevron-down 16px
-///
-/// Content (모바일 친화):
-/// - showModalBottomSheet 로 띄움. 각 item h-44 + 선택 시 checkmark.
+/// Trigger: h-10(40) + padding sm·md(8·12) + radius-sm(4) + border-default +
+/// bg surface-input + 우측 chevron-down 16.
+/// Content: **드롭다운 overlay**(MenuAnchor) — trigger 바로 아래(+4), **trigger 폭
+/// 일치**, surface-default + border-default + radius-sm + shadow + max-h 384 scroll.
+/// item: 좌측 indicator(선택 시 Check 16) + (선택)leading + label.
+/// (spec select.md = Radix Select 드롭다운. 이전 showModalBottomSheet 바텀시트 구현은
+///  spec 위반이라 드롭다운으로 정정.)
 class PSelectItem<T> {
   const PSelectItem({required this.value, required this.label, this.leading});
 
@@ -24,7 +24,7 @@ class PSelectItem<T> {
   final String label;
 }
 
-class PSelect<T> extends StatelessWidget {
+class PSelect<T> extends StatefulWidget {
   const PSelect({
     super.key,
     required this.value,
@@ -42,158 +42,126 @@ class PSelect<T> extends StatelessWidget {
   final List<PSelectItem<T>> items;
   final String placeholder;
 
-  /// bottom-sheet 헤더에 표시할 제목 (선택).
+  /// (deprecated) 이전 바텀시트 헤더 제목 — 드롭다운에선 미사용. 호환 위해 유지.
   final String? title;
   final bool enabled;
 
   /// 검증 실패 메시지 — 있으면 invalid state (border-error + helper color text-error).
-  /// specs/components/select.md error state 정합.
   final String? errorText;
 
   /// idle state 보조 텍스트 — control 아래 caption. errorText 우선.
   final String? helperText;
 
-  Future<void> _open(BuildContext context) async {
-    final picked = await showModalBottomSheet<T>(
-      context: context,
-      backgroundColor: context.tokens.bgSurface,
-      shape: const RoundedRectangleBorder(
-        borderRadius:
-            BorderRadius.vertical(top: Radius.circular(PRadius.xl2)),
-      ),
-      builder: (ctx) {
-        final t = ctx.tokens;
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Drag handle
-              Container(
-                margin: const EdgeInsets.only(top: PSpace.sm),
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: t.bgMuted,
-                  borderRadius: PRadius.brFull,
-                ),
-              ),
-              if (title != null)
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                      PSpace.lg, PSpace.md, PSpace.lg, PSpace.xs),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(title!,
-                        style: PTypo.h4.copyWith(
-                            color: t.fgPrimary,
-                            fontWeight: PFontWeight.bold)),
-                  ),
-                ),
-              Flexible(
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: items.length,
-                  itemBuilder: (_, i) {
-                    final it = items[i];
-                    final selected = it.value == value;
-                    return InkWell(
-                      onTap: () => Navigator.of(ctx).pop(it.value),
-                      child: Container(
-                        height: 44,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: PSpace.lg),
-                        child: Row(
-                          children: [
-                            if (it.leading != null) ...[
-                              it.leading!,
-                              const SizedBox(width: PSpace.x8),
-                            ],
-                            Expanded(
-                              child: Text(it.label,
-                                  style: PTypo.bodyLg.copyWith(
-                                    color: t.fgPrimary,
-                                    fontWeight: selected
-                                        ? PFontWeight.semi
-                                        : PFontWeight.regular,
-                                  )),
-                            ),
-                            if (selected)
-                              Icon(LucideIcons.check,
-                                  size: 18, color: t.fgBrand),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(height: PSpace.sm),
-            ],
-          ),
-        );
-      },
-    );
-    if (picked != null && picked != value) onChanged(picked);
+  @override
+  State<PSelect<T>> createState() => _PSelectState<T>();
+}
+
+class _PSelectState<T> extends State<PSelect<T>> {
+  final MenuController _menu = MenuController();
+
+  void _select(T v) {
+    _menu.close();
+    if (v != widget.value) widget.onChanged(v);
   }
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final hasValue = value != null;
-    final hasError = errorText != null;
+    final hasValue = widget.value != null;
+    final hasError = widget.errorText != null;
     final selectedItem = hasValue
-        ? items.firstWhere(
-            (i) => i.value == value,
-            orElse: () => PSelectItem<T>(value: value as T, label: ''),
+        ? widget.items.firstWhere(
+            (i) => i.value == widget.value,
+            orElse: () => PSelectItem<T>(value: widget.value as T, label: ''),
           )
         : null;
-    final label = selectedItem?.label ?? placeholder;
-    final trigger = Material(
-      color: enabled ? t.bgMuted : t.bgDisabled,
-      borderRadius: PRadius.brSm,
-      child: InkWell(
-        onTap: enabled ? () => _open(context) : null,
-        borderRadius: PRadius.brSm,
-        child: Container(
-          height: 40,
-          padding: const EdgeInsets.symmetric(
-              horizontal: PSpace.md, vertical: PSpace.sm),
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: hasError ? t.statusDanger : t.borderDefault,
-              width: hasError ? 1.5 : 1,
-            ),
-            borderRadius: PRadius.brSm,
+    final label = selectedItem?.label ?? widget.placeholder;
+    final caption = hasError ? widget.errorText! : widget.helperText;
+
+    final field = LayoutBuilder(
+      builder: (context, constraints) {
+        final menuW =
+            constraints.maxWidth.isFinite ? constraints.maxWidth : 280.0;
+        return MenuAnchor(
+          controller: _menu,
+          alignmentOffset: const Offset(0, PSpace.x4),
+          style: MenuStyle(
+            backgroundColor: WidgetStatePropertyAll(t.bgSurface),
+            surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
+            shadowColor: const WidgetStatePropertyAll(Color(0x26000000)),
+            elevation: const WidgetStatePropertyAll(8),
+            shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+              borderRadius: PRadius.brSm,
+              side: BorderSide(color: t.borderDefault),
+            )),
+            padding: const WidgetStatePropertyAll(
+                EdgeInsets.symmetric(vertical: PSpace.x4)),
+            minimumSize: WidgetStatePropertyAll(Size(menuW, 0)),
+            maximumSize: WidgetStatePropertyAll(Size(menuW, 384)),
           ),
-          child: Row(
-            children: [
-              if (selectedItem?.leading != null) ...[
-                selectedItem!.leading!,
-                const SizedBox(width: PSpace.x8),
-              ],
-              Expanded(
-                child: Text(
-                  label,
-                  style: PTypo.bodyLg.copyWith(
-                    color: hasValue ? t.fgPrimary : t.fgTertiary,
+          menuChildren: [
+            for (final it in widget.items)
+              _MenuItem<T>(
+                item: it,
+                selected: it.value == widget.value,
+                width: menuW,
+                onTap: () => _select(it.value),
+              ),
+          ],
+          builder: (context, controller, _) {
+            return Material(
+              color: widget.enabled ? t.bgMuted : t.bgDisabled,
+              borderRadius: PRadius.brSm,
+              child: InkWell(
+                onTap: widget.enabled
+                    ? () =>
+                        controller.isOpen ? controller.close() : controller.open()
+                    : null,
+                borderRadius: PRadius.brSm,
+                child: Container(
+                  height: 40,
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: PSpace.md, vertical: PSpace.sm),
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: hasError ? t.statusDanger : t.borderDefault,
+                      width: hasError ? 1.5 : 1,
+                    ),
+                    borderRadius: PRadius.brSm,
                   ),
-                  overflow: TextOverflow.ellipsis,
+                  child: Row(
+                    children: [
+                      if (selectedItem?.leading != null) ...[
+                        selectedItem!.leading!,
+                        const SizedBox(width: PSpace.x8),
+                      ],
+                      Expanded(
+                        child: Text(
+                          label,
+                          style: PTypo.bodyLg.copyWith(
+                            color: hasValue ? t.fgPrimary : t.fgTertiary,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      Icon(LucideIcons.chevronDown,
+                          size: 16, color: t.fgSecondary),
+                    ],
+                  ),
                 ),
               ),
-              Icon(LucideIcons.chevronDown,
-                  size: 16, color: t.fgSecondary),
-            ],
-          ),
-        ),
-      ),
+            );
+          },
+        );
+      },
     );
-    final caption = hasError ? errorText! : helperText;
-    if (caption == null) return trigger;
+
+    if (caption == null) return field;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        trigger,
+        field,
         const SizedBox(height: PSpace.x4),
         Text(
           caption,
@@ -202,6 +170,61 @@ class PSelect<T> extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// 드롭다운 메뉴 항목 — spec select.md item: 좌측 indicator(pl-8 영역, 선택 시 Check 16)
+/// + (선택)leading + body label. 메뉴 폭(trigger 폭)에 맞춰 full-width.
+class _MenuItem<T> extends StatelessWidget {
+  const _MenuItem({
+    required this.item,
+    required this.selected,
+    required this.width,
+    required this.onTap,
+  });
+
+  final PSelectItem<T> item;
+  final bool selected;
+  final double width;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return SizedBox(
+      width: width,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+              horizontal: PSpace.x8, vertical: PSpace.x8),
+          child: Row(
+            children: [
+              SizedBox(
+                width: PSpace.x24,
+                child: selected
+                    ? Icon(LucideIcons.check, size: 16, color: t.fgBrand)
+                    : null,
+              ),
+              if (item.leading != null) ...[
+                item.leading!,
+                const SizedBox(width: PSpace.x8),
+              ],
+              Expanded(
+                child: Text(
+                  item.label,
+                  style: PTypo.body.copyWith(
+                    color: t.fgPrimary,
+                    fontWeight: selected ? PFontWeight.semi : PFontWeight.regular,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

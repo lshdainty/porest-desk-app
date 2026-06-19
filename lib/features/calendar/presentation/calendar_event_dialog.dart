@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
@@ -20,7 +19,6 @@ import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
 import 'package:porest_desk_app/shared/widgets/p_toggle.dart';
 import 'package:porest_desk_app/features/calendar/application/calendar_providers.dart';
 import 'package:porest_desk_app/features/calendar/domain/calendar_event.dart';
-import 'package:porest_desk_app/features/calendar/domain/user_calendar.dart';
 
 void showCalendarEventDialog(
   BuildContext context, {
@@ -275,42 +273,6 @@ class _BodyState extends ConsumerState<_Body> {
     });
   }
 
-  Future<void> _pickCalendar(List<UserCalendar> cals) async {
-    final res = await showPSheet<int>(
-      context,
-      title: '캘린더 선택',
-      contentBuilder: (sheetCtx, scrollCtrl) {
-        final t = sheetCtx.tokens;
-        return ListView(
-          controller: scrollCtrl,
-          padding: const EdgeInsets.fromLTRB(
-              PSpace.x8, 0, PSpace.x8, PSpace.x16),
-          children: [
-            for (final c in cals)
-              ListTile(
-                leading: Container(
-                  width: PSpace.x12,
-                  height: PSpace.x12,
-                  decoration: BoxDecoration(
-                    color: solidSwatchColor(sheetCtx, c.color, fallback: t.fgBrand),
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                title: Text(c.calendarName),
-                trailing: c.rowId == _userCalendarRowId
-                    ? Icon(LucideIcons.check, color: t.fgBrand)
-                    : null,
-                onTap: () => Navigator.pop(sheetCtx, c.rowId),
-              ),
-          ],
-        );
-      },
-      initialChildSize: 0.5,
-      minChildSize: 0.3,
-    );
-    if (res != null) setState(() => _userCalendarRowId = res);
-  }
-
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
@@ -362,43 +324,21 @@ class _BodyState extends ConsumerState<_Body> {
             ),
             error: (_, _) => Text('캘린더 로드 실패',
                 style: PTypo.caption.copyWith(color: t.statusDanger)),
-            data: (cals) => InkWell(
-              onTap: cals.isEmpty ? null : () => _pickCalendar(cals),
-              borderRadius: PRadius.brMd,
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: PSpace.x12, vertical: PSpace.x12),
-                decoration: BoxDecoration(
-                  color: t.bgMuted,
-                  borderRadius: PRadius.brMd,
-                  border: Border.all(color: t.borderDefault),
-                ),
-                child: Row(
-                  children: [
-                    if (selectedCalendar != null) ...[
-                      Container(
-                        width: PSpace.x12,
-                        height: PSpace.x12,
-                        decoration: BoxDecoration(
-                          color: solidSwatchColor(context, selectedCalendar.color,
-                              fallback: t.fgBrand),
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      const SizedBox(width: PSpace.x8),
-                      Text(selectedCalendar.calendarName,
-                          style: PTypo.bodySm
-                              .copyWith(color: t.fgPrimary)),
-                    ] else
-                      Text('캘린더 없음',
-                          style:
-                              PTypo.bodySm.copyWith(color: t.fgTertiary)),
-                    const Spacer(),
-                    Icon(LucideIcons.chevronDown,
-                        size: PSpace.x16, color: t.fgTertiary),
-                  ],
-                ),
-              ),
+            data: (cals) => PSelect<int>(
+              value: selectedCalendar?.rowId,
+              placeholder: '캘린더 선택',
+              onChanged: (v) {
+                if (v != null) setState(() => _userCalendarRowId = v);
+              },
+              items: [
+                for (final c in cals)
+                  PSelectItem<int>(
+                    value: c.rowId,
+                    label: c.calendarName,
+                    leading: _labelDot(
+                        solidSwatchColor(context, c.color, fallback: t.fgBrand)),
+                  ),
+              ],
             ),
           ),
           const SizedBox(height: PSpace.x16),
