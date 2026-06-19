@@ -454,7 +454,8 @@ class _PConfirmDialogState extends State<_PConfirmDialog> {
         // 취소는 작업 중에도 원래 상태 유지 — 비동기 작업은 확인(저장) 버튼 스피너로만 표시.
         PButton(
           label: widget.cancelLabel,
-          variant: PButtonVariant.ghost,
+          // spec alert-dialog.md / preview .modal-actions: Cancel = outline(border).
+          variant: PButtonVariant.outline,
           onPressed: () => Navigator.pop(context, false),
         ),
         PButton(
