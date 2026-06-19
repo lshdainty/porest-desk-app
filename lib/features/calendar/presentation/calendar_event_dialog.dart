@@ -320,7 +320,7 @@ class _BodyState extends ConsumerState<_Body> {
           PSpace.x16, PSpace.x8, PSpace.x16, PSpace.x16),
       children: [
           PSectionLabel('제목', variant: PSectionLabelVariant.header),
-          const SizedBox(height: PSpace.x4),
+          const SizedBox(height: PSpace.x8),
           PTextInput(
             controller: _titleCtrl,
             placeholder: '예: 가족 식사',
@@ -332,7 +332,7 @@ class _BodyState extends ConsumerState<_Body> {
           const SizedBox(height: PSpace.x16),
 
           PSectionLabel('설명', variant: PSectionLabelVariant.header),
-          const SizedBox(height: PSpace.x4),
+          const SizedBox(height: PSpace.x8),
           PTextInput(
             controller: _descCtrl,
             maxLines: 3,
@@ -342,7 +342,7 @@ class _BodyState extends ConsumerState<_Body> {
 
           // 캘린더
           PSectionLabel('캘린더', variant: PSectionLabelVariant.header),
-          const SizedBox(height: PSpace.x4),
+          const SizedBox(height: PSpace.x8),
           calendarsAsync.when(
             loading: () => const Padding(
               padding: EdgeInsets.symmetric(vertical: PSpace.x8),
@@ -394,7 +394,7 @@ class _BodyState extends ConsumerState<_Body> {
 
           // 라벨
           PSectionLabel('라벨', variant: PSectionLabelVariant.header, icon: LucideIcons.tag),
-          const SizedBox(height: PSpace.x4),
+          const SizedBox(height: PSpace.x8),
           // web EventForm 정합 — chip 나열 대신 Select ('라벨이 없습니다' + 색 점)
           labelsAsync.when(
             loading: () => const SizedBox(
@@ -426,7 +426,7 @@ class _BodyState extends ConsumerState<_Body> {
 
           // 색상
           PSectionLabel('색상', variant: PSectionLabelVariant.header),
-          const SizedBox(height: PSpace.x4),
+          const SizedBox(height: PSpace.x8),
           PColorPicker(
             selected: _color,
             onChanged: (hex) => setState(() => _color = hex),
@@ -450,7 +450,7 @@ class _BodyState extends ConsumerState<_Body> {
 
           // 시작
           PSectionLabel('시작일', variant: PSectionLabelVariant.header),
-          const SizedBox(height: PSpace.x4),
+          const SizedBox(height: PSpace.x8),
           Row(
             children: [
               Expanded(
@@ -476,7 +476,7 @@ class _BodyState extends ConsumerState<_Body> {
           const SizedBox(height: PSpace.x12),
 
           PSectionLabel('종료일', variant: PSectionLabelVariant.header),
-          const SizedBox(height: PSpace.x4),
+          const SizedBox(height: PSpace.x8),
           Row(
             children: [
               Expanded(
@@ -503,7 +503,7 @@ class _BodyState extends ConsumerState<_Body> {
 
           // 장소
           PSectionLabel('장소', variant: PSectionLabelVariant.header, icon: LucideIcons.mapPin),
-          const SizedBox(height: PSpace.x4),
+          const SizedBox(height: PSpace.x8),
           PTextInput(
             controller: _locationCtrl,
             placeholder: '장소를 입력하세요',
@@ -512,7 +512,7 @@ class _BodyState extends ConsumerState<_Body> {
 
           // 반복
           PSectionLabel('반복', variant: PSectionLabelVariant.header, icon: LucideIcons.repeat),
-          const SizedBox(height: PSpace.x4),
+          const SizedBox(height: PSpace.x8),
           Wrap(
             spacing: PSpace.x4,
             runSpacing: PSpace.x4,
@@ -529,7 +529,7 @@ class _BodyState extends ConsumerState<_Body> {
 
           // 알림
           PSectionLabel('알림', variant: PSectionLabelVariant.header, icon: LucideIcons.bell),
-          const SizedBox(height: PSpace.x4),
+          const SizedBox(height: PSpace.x8),
           Wrap(
             spacing: PSpace.x4,
             runSpacing: PSpace.x4,
