@@ -17,6 +17,7 @@ import 'package:porest_desk_app/shared/widgets/p_section_label.dart';
 import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/shared/widgets/p_switch.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
+import 'package:porest_desk_app/shared/widgets/p_toggle.dart';
 import 'package:porest_desk_app/features/calendar/application/calendar_providers.dart';
 import 'package:porest_desk_app/features/calendar/domain/calendar_event.dart';
 import 'package:porest_desk_app/features/calendar/domain/user_calendar.dart';
@@ -141,7 +142,8 @@ class _BodyState extends ConsumerState<_Body> {
       _end = e.end;
       _allDay = e.isAllDayBool;
       _labelRowId = e.labelRowId;
-      _userCalendarRowId = e.userRowId;
+      // 소속 캘린더 식별자는 calendarRowId (userRowId=이벤트 소유자라 캘린더 매칭 불가).
+      _userCalendarRowId = e.calendarRowId;
       _color = e.color ?? _kDefaultEventColor;
       _recurrence = _rruleToRecurrence(e.rrule);
     } else {
@@ -190,6 +192,7 @@ class _BodyState extends ConsumerState<_Body> {
           description:
               _descCtrl.text.trim().isEmpty ? null : _descCtrl.text.trim(),
           color: _color,
+          calendarRowId: _userCalendarRowId,
           startDate: _iso(_start),
           endDate: _iso(_end),
           isAllDay: _allDay,
@@ -204,6 +207,7 @@ class _BodyState extends ConsumerState<_Body> {
           description:
               _descCtrl.text.trim().isEmpty ? null : _descCtrl.text.trim(),
           color: _color,
+          calendarRowId: _userCalendarRowId,
           startDate: _iso(_start),
           endDate: _iso(_end),
           isAllDay: _allDay,
@@ -448,20 +452,61 @@ class _BodyState extends ConsumerState<_Body> {
           ),
           const SizedBox(height: PSpace.x12),
 
-          // 시작
-          PSectionLabel('시작일', variant: PSectionLabelVariant.header),
-          const SizedBox(height: PSpace.x8),
-          Row(
-            children: [
-              Expanded(
-                child: PDateInput(
-                  value: _start,
-                  onChanged: (d) => _onPickDate(true, d),
-                  firstDate: DateTime(2020),
-                  lastDate: DateTime(2030),
+          // 시작/종료 — 종일 ON: 시작·종료 가로 2칸(웹 grid-cols-2 정합),
+          // 종일 OFF: 세로 stack + 각 행 [날짜][시간].
+          if (_allDay) ...[
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      PSectionLabel('시작일',
+                          variant: PSectionLabelVariant.header),
+                      const SizedBox(height: PSpace.x8),
+                      PDateInput(
+                        value: _start,
+                        onChanged: (d) => _onPickDate(true, d),
+                        firstDate: DateTime(2020),
+                        lastDate: DateTime(2030),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              if (!_allDay) ...[
+                const SizedBox(width: PSpace.x12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      PSectionLabel('종료일',
+                          variant: PSectionLabelVariant.header),
+                      const SizedBox(height: PSpace.x8),
+                      PDateInput(
+                        value: _end,
+                        onChanged: (d) => _onPickDate(false, d),
+                        firstDate: DateTime(2020),
+                        lastDate: DateTime(2030),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: PSpace.x16),
+          ] else ...[
+            PSectionLabel('시작일', variant: PSectionLabelVariant.header),
+            const SizedBox(height: PSpace.x8),
+            Row(
+              children: [
+                Expanded(
+                  child: PDateInput(
+                    value: _start,
+                    onChanged: (d) => _onPickDate(true, d),
+                    firstDate: DateTime(2020),
+                    lastDate: DateTime(2030),
+                  ),
+                ),
                 const SizedBox(width: PSpace.x8),
                 SizedBox(
                   width: PSpace.x80 + PSpace.x20,
@@ -471,23 +516,20 @@ class _BodyState extends ConsumerState<_Body> {
                   ),
                 ),
               ],
-            ],
-          ),
-          const SizedBox(height: PSpace.x12),
-
-          PSectionLabel('종료일', variant: PSectionLabelVariant.header),
-          const SizedBox(height: PSpace.x8),
-          Row(
-            children: [
-              Expanded(
-                child: PDateInput(
-                  value: _end,
-                  onChanged: (d) => _onPickDate(false, d),
-                  firstDate: DateTime(2020),
-                  lastDate: DateTime(2030),
+            ),
+            const SizedBox(height: PSpace.x12),
+            PSectionLabel('종료일', variant: PSectionLabelVariant.header),
+            const SizedBox(height: PSpace.x8),
+            Row(
+              children: [
+                Expanded(
+                  child: PDateInput(
+                    value: _end,
+                    onChanged: (d) => _onPickDate(false, d),
+                    firstDate: DateTime(2020),
+                    lastDate: DateTime(2030),
+                  ),
                 ),
-              ),
-              if (!_allDay) ...[
                 const SizedBox(width: PSpace.x8),
                 SizedBox(
                   width: PSpace.x80 + PSpace.x20,
@@ -497,9 +539,9 @@ class _BodyState extends ConsumerState<_Body> {
                   ),
                 ),
               ],
-            ],
-          ),
-          const SizedBox(height: PSpace.x16),
+            ),
+            const SizedBox(height: PSpace.x16),
+          ],
 
           // 장소
           PSectionLabel('장소', variant: PSectionLabelVariant.header, icon: LucideIcons.mapPin),
@@ -518,10 +560,11 @@ class _BodyState extends ConsumerState<_Body> {
             runSpacing: PSpace.x4,
             children: [
               for (final r in _RecurrenceOption.values)
-                _PlainToggle(
+                PToggle(
                   label: _recurrenceLabels[r]!,
-                  selected: _recurrence == r,
-                  onTap: () => setState(() => _recurrence = r),
+                  pressed: _recurrence == r,
+                  size: PToggleSize.sm,
+                  onChanged: (_) => setState(() => _recurrence = r),
                 ),
             ],
           ),
@@ -535,11 +578,11 @@ class _BodyState extends ConsumerState<_Body> {
             runSpacing: PSpace.x4,
             children: [
               for (final m in _reminderOptions)
-                _PlainToggle(
+                PToggle(
                   label: _reminderLabel(m),
-                  selected: _reminders.contains(m),
-                  showCheck: true,
-                  onTap: () => setState(() {
+                  pressed: _reminders.contains(m),
+                  size: PToggleSize.sm,
+                  onChanged: (_) => setState(() {
                     if (!_reminders.add(m)) _reminders.remove(m);
                   }),
                 ),
@@ -556,54 +599,3 @@ Widget _labelDot(Color color) => Container(
       height: 12,
       decoration: BoxDecoration(color: color, shape: BoxShape.circle),
     );
-
-/// web ToggleGroup(default variant, sm) 미러 — 테두리 없는 텍스트 옵션.
-/// 선택 시 surface-input(bgSunken) 채움 + fgPrimary 600 (+옵션 체크 아이콘).
-/// PChip(pill 테두리)과 다른 톤 — 반복/알림 선택 그룹 전용.
-class _PlainToggle extends StatelessWidget {
-  const _PlainToggle({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-    this.showCheck = false,
-  });
-
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-  final bool showCheck;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    return InkWell(
-      onTap: onTap,
-      borderRadius: PRadius.brMd,
-      child: Container(
-        padding: const EdgeInsets.symmetric(
-            horizontal: PSpace.x12, vertical: PSpace.x8),
-        decoration: BoxDecoration(
-          color: selected ? t.bgSunken : Colors.transparent,
-          borderRadius: PRadius.brMd,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (showCheck && selected) ...[
-              Icon(LucideIcons.check, size: 12, color: t.fgPrimary),
-              const SizedBox(width: PSpace.x4),
-            ],
-            Text(
-              label,
-              style: PTypo.bodySm.copyWith(
-                color: selected ? t.fgPrimary : t.fgSecondary,
-                fontWeight:
-                    selected ? PFontWeight.semi : PFontWeight.medium,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
