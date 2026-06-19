@@ -106,6 +106,9 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
   }
 
   /// 캘린더 셀 클릭 → 하단 시트로 그날 거래 내역 표시 (shrinkWrap 모드 — 자연 wrap).
+  String _ymd(DateTime d) =>
+      '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+
   void _openDayDetailSheet(
     DateTime date,
     List<Expense> items,
@@ -120,6 +123,16 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
         items: items,
         categoriesAsync: categoriesAsync,
         masked: masked,
+      ),
+      // 그 날짜로 거래 추가 — 시트 닫고 add_tx_sheet(defaultDate 시드).
+      footerBuilder: (sheetCtx) => PButton(
+        label: '거래 추가',
+        icon: LucideIcons.plus,
+        fullWidth: true,
+        onPressed: () {
+          Navigator.of(sheetCtx).pop();
+          showAddTxSheet(context, defaultDate: _ymd(date));
+        },
       ),
     );
   }
@@ -1224,9 +1237,9 @@ class _CalendarGrid extends StatelessWidget {
                           return DecoratedBox(
                             decoration: const BoxDecoration(),
                             child: InkWell(
-                              onTap: items.isEmpty
-                                  ? null
-                                  : () => onTapDate(date, items),
+                              // 빈 날짜도 일별 시트 열기 (웹 정합 — 0건이면 빈
+                              // 상태 메시지 + 거래 추가 버튼).
+                              onTap: () => onTapDate(date, items),
                               child: Container(
                                 padding: const EdgeInsets.symmetric(
                                   vertical: 4,
@@ -1418,19 +1431,31 @@ class _DayDetailBody extends StatelessWidget {
             ),
           ),
           const SizedBox(height: PSpace.lg),
-          // 거래 list — ExpenseRow 재사용
-          for (final e in items)
-            ExpenseRow(
-              expense: e,
-              category: e.categoryRowId == null
-                  ? null
-                  : categories
-                        .cast<dynamic>()
-                        .where((c) => c.rowId == e.categoryRowId)
-                        .cast<dynamic>()
-                        .firstOrNull,
-              masked: masked,
-            ),
+          if (items.isEmpty)
+            // 빈 상태 — 웹 '이 날의 거래가 없어요' 정합.
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: PSpace.x24),
+              child: Center(
+                child: Text(
+                  '이 날의 거래가 없어요',
+                  style: PTypo.bodySm.copyWith(color: t.fgTertiary),
+                ),
+              ),
+            )
+          else
+            // 거래 list — ExpenseRow 재사용
+            for (final e in items)
+              ExpenseRow(
+                expense: e,
+                category: e.categoryRowId == null
+                    ? null
+                    : categories
+                          .cast<dynamic>()
+                          .where((c) => c.rowId == e.categoryRowId)
+                          .cast<dynamic>()
+                          .firstOrNull,
+                masked: masked,
+              ),
         ],
       ),
     );
