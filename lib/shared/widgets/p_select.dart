@@ -194,34 +194,41 @@ class _MenuItem<T> extends StatelessWidget {
     final t = context.tokens;
     return SizedBox(
       width: width,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-              horizontal: PSpace.x8, vertical: PSpace.x8),
-          child: Row(
-            children: [
-              SizedBox(
-                width: PSpace.x24,
-                child: selected
-                    ? Icon(LucideIcons.check, size: 16, color: t.fgBrand)
-                    : null,
-              ),
-              if (item.leading != null) ...[
-                item.leading!,
-                const SizedBox(width: PSpace.x8),
-              ],
-              Expanded(
-                child: Text(
-                  item.label,
-                  style: PTypo.body.copyWith(
-                    color: t.fgPrimary,
-                    fontWeight: selected ? PFontWeight.semi : PFontWeight.regular,
-                  ),
-                  overflow: TextOverflow.ellipsis,
+      child: Material(
+        // 선택 row = surface-input 채움 (spec select.md item `selected+focus`,
+        // 웹 focus:bg-surface-input 정합 — 드롭다운 열림 시 선택값 강조).
+        color: selected ? t.bgMuted : Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+                horizontal: PSpace.x8, vertical: PSpace.x8),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: PSpace.x24,
+                  // 체크 = text-primary(currentColor) — 웹 정합(다크 흰색).
+                  child: selected
+                      ? Icon(LucideIcons.check, size: 16, color: t.fgPrimary)
+                      : null,
                 ),
-              ),
-            ],
+                if (item.leading != null) ...[
+                  item.leading!,
+                  const SizedBox(width: PSpace.x8),
+                ],
+                Expanded(
+                  child: Text(
+                    item.label,
+                    style: PTypo.body.copyWith(
+                      color: t.fgPrimary,
+                      fontWeight:
+                          selected ? PFontWeight.semi : PFontWeight.regular,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
