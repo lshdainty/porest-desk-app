@@ -297,7 +297,11 @@ class _SelectMenuState<T> extends State<_SelectMenu<T>> {
               ListView(
                 controller: _ctrl,
                 shrinkWrap: true,
+                // viewport padding (웹 SelectContent Viewport `p-1` 정합) —
+                // 좌우 x4 로 selected bg 가 메뉴 가장자리에 딱 붙지 않게.
                 padding: EdgeInsets.only(
+                  left: PSpace.x4,
+                  right: PSpace.x4,
                   top: _canUp ? _btnH : PSpace.x4,
                   bottom: _canDown ? _btnH : PSpace.x4,
                 ),
@@ -356,23 +360,28 @@ class _MenuItem<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.tokens;
     return Material(
-      // 선택 row = surface-input 채움 (spec select.md item `selected+focus`,
-      // 웹 focus:bg-surface-input 정합).
+      // 선택 row = surface-input 채움 + rounded-xs (웹 item `rounded-xs` +
+      // `focus:bg-surface-input` 정합). 좌우 viewport padding(ListView)으로
+      // bg 가 메뉴 가장자리에 딱 붙지 않고 안쪽에 둥글게.
       color: selected ? t.bgMuted : Colors.transparent,
+      borderRadius: PRadius.brXs,
       child: InkWell(
         onTap: onTap,
+        borderRadius: PRadius.brXs,
         child: Padding(
           padding: const EdgeInsets.symmetric(
               horizontal: PSpace.x8, vertical: PSpace.x8),
           child: Row(
             children: [
+              // 체크 영역(16) + gap(8) — 웹 indicator(left-8)~label(pl-8) 간격 정합.
               SizedBox(
-                width: PSpace.x24,
+                width: 16,
                 // 체크 = text-primary(currentColor) — 웹 정합(다크 흰색).
                 child: selected
                     ? Icon(LucideIcons.check, size: 16, color: t.fgPrimary)
                     : null,
               ),
+              const SizedBox(width: PSpace.x8),
               if (item.leading != null) ...[
                 item.leading!,
                 const SizedBox(width: PSpace.x8),
