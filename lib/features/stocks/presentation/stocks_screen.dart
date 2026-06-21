@@ -72,8 +72,13 @@ class _StocksScreenState extends ConsumerState<StocksScreen> {
     // 토스 Open API 라이브 시세·환율 오버레이 (키 있으면 실데이터, 없으면 mock). 적용 완료 시 rebuild.
     ref.watch(stockLiveOverlayProvider);
 
-    final holdingsSorted = [...kStockHoldings]
-      ..sort((a, b) => holdingEval(b).compareTo(holdingEval(a)));
+    // 보유자산 — 키 연결 시 실데이터, 미연결 시 null(연결 유도 빈 상태). mock 미사용.
+    final holdings = ref.watch(tossHoldingsProvider).asData?.value;
+    final holdingItems = holdings == null
+        ? const <TossHoldingsItem>[]
+        : ([...holdings.items]
+          ..sort((a, b) =>
+              b.marketValueAmountValue.compareTo(a.marketValueAmountValue)));
     final curGroup = _watchGroups.firstWhere(
       (g) => g.id == _activeGroup,
       orElse: () => _watchGroups.first,
@@ -96,7 +101,7 @@ class _StocksScreenState extends ConsumerState<StocksScreen> {
         children: [
           const _IndexStrip(),
           const SizedBox(height: PSpace.x16),
-          _SummaryCard(masked: masked),
+          _SummaryCard(masked: masked, holdings: holdings),
           const SizedBox(height: PSpace.x16),
           // 종목 검색 트리거 — 공통 PSearchField 시각(36px) 그대로, 탭 시 검색 시트
           GestureDetector(
@@ -115,7 +120,7 @@ class _StocksScreenState extends ConsumerState<StocksScreen> {
             items: [
               PTabItem(
                   value: _Seg.holdings,
-                  label: '보유 ${kStockHoldings.length}'),
+                  label: '보유 ${holdingItems.length}'),
               PTabItem(
                   value: _Seg.watch, label: '관심 ${_watchedTickers.length}'),
               const PTabItem(value: _Seg.discover, label: '발견'),
@@ -125,50 +130,62 @@ class _StocksScreenState extends ConsumerState<StocksScreen> {
           if (_seg == _Seg.discover)
             _DiscoverPanel(onPick: _openDetail)
           else if (_seg == _Seg.holdings)
-            PCard(
-              padding: const EdgeInsets.all(6),
-              child: Column(
-                children: [
-                  for (final h in holdingsSorted)
-                    Builder(builder: (context) {
-                      final ev = holdingEval(h);
-                      final pnl = ev - holdingCost(h);
-                      final pct = pnl / holdingCost(h) * 100;
-                      return _StockRow(
-                        ticker: h.ticker,
-                        sub: '${h.qty}주 보유',
-                        onTap: () => _openDetail(h.ticker),
-                        right: Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
+            holdings == null
+                ? _HoldingsEmpty(onConnect: () => context.push('/account'))
+                : holdingItems.isEmpty
+                    ? PCard(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: PSpace.x32, horizontal: PSpace.x20),
+                        child: Center(
+                          child: Text(
+                            '보유 중인 종목이 없어요.',
+                            style: PTypo.bodySm.copyWith(color: t.fgTertiary),
+                          ),
+                        ),
+                      )
+                    : PCard(
+                        padding: const EdgeInsets.all(6),
+                        child: Column(
                           children: [
-                            Text(
-                              krwMasked(ev, masked, mask: '••••'),
-                              style: TextStyle(
-                                fontFamily: PTypo.sans,
-                                fontFeatures: _tnum,
-                                fontSize: 13.5,
-                                fontWeight: PFontWeight.bold,
-                                color: t.fgPrimary,
+                            for (final h in holdingItems)
+                              _StockRow(
+                                ticker: h.symbol,
+                                sub: '${h.quantity}주 보유',
+                                onTap: () => _openDetail(h.symbol),
+                                right: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Text(
+                                      krwMasked(
+                                          h.marketValueAmountValue.round(),
+                                          masked,
+                                          mask: '••••'),
+                                      style: TextStyle(
+                                        fontFamily: PTypo.sans,
+                                        fontFeatures: _tnum,
+                                        fontSize: 13.5,
+                                        fontWeight: PFontWeight.bold,
+                                        color: t.fgPrimary,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 1),
+                                    Text(
+                                      '${h.profitLossRateValue >= 0 ? '+' : ''}${h.profitLossRateValue.toStringAsFixed(2)}%',
+                                      style: TextStyle(
+                                        fontFamily: PTypo.sans,
+                                        fontFeatures: _tnum,
+                                        fontSize: PFontSize.micro,
+                                        fontWeight: PFontWeight.bold,
+                                        color: _trendColor(
+                                            t, h.profitLossAmountValue),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 1),
-                            Text(
-                              '${pnl >= 0 ? '+' : ''}${pct.toStringAsFixed(2)}%',
-                              style: TextStyle(
-                                fontFamily: PTypo.sans,
-                                fontFeatures: _tnum,
-                                fontSize: PFontSize.micro,
-                                fontWeight: PFontWeight.bold,
-                                color: _trendColor(t, pnl.toDouble()),
-                              ),
-                            ),
                           ],
                         ),
-                      );
-                    }),
-                ],
-              ),
-            )
+                      )
           else ...[
             PTabs<String>(
               value: _activeGroup,
@@ -267,8 +284,13 @@ class _StocksScreenState extends ConsumerState<StocksScreen> {
   }
 
   void _openDetail(String ticker) {
-    final holding =
-        kStockHoldings.where((h) => h.ticker == ticker).firstOrNull;
+    final holding = ref
+        .read(tossHoldingsProvider)
+        .asData
+        ?.value
+        ?.items
+        .where((h) => h.symbol == ticker)
+        .firstOrNull;
     showPSheet<void>(
       context,
       title: '종목 상세',
@@ -556,21 +578,90 @@ class _StockRow extends StatelessWidget {
   }
 }
 
-// ---- 요약 카드 ---------------------------------------------------------------
+// ---- 보유 빈 상태 (증권 계정 미연결) -----------------------------------------
 
-class _SummaryCard extends StatelessWidget {
-  const _SummaryCard({required this.masked});
-  final bool masked;
+class _HoldingsEmpty extends StatelessWidget {
+  const _HoldingsEmpty({required this.onConnect});
+  final VoidCallback onConnect;
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final totalEval =
-        kStockHoldings.fold<int>(0, (sum, h) => sum + holdingEval(h));
-    final totalCost =
-        kStockHoldings.fold<int>(0, (sum, h) => sum + holdingCost(h));
-    final totalPnl = totalEval - totalCost;
-    final totalPnlPct = totalPnl / totalCost * 100;
+    return PCard(
+      padding: const EdgeInsets.symmetric(
+          vertical: PSpace.x32, horizontal: PSpace.x20),
+      child: Column(
+        children: [
+          Icon(LucideIcons.wallet, size: 32, color: t.fgTertiary),
+          const SizedBox(height: PSpace.x12),
+          Text(
+            '증권 계정을 연결해 주세요',
+            style: PTypo.body.copyWith(
+              color: t.fgPrimary,
+              fontWeight: PFontWeight.semi,
+            ),
+          ),
+          const SizedBox(height: PSpace.x4),
+          Text(
+            '토스증권 키를 연결하면 보유 종목과\n평가손익을 실시간으로 볼 수 있어요.',
+            textAlign: TextAlign.center,
+            style: PTypo.bodySm.copyWith(color: t.fgTertiary),
+          ),
+          const SizedBox(height: PSpace.x16),
+          PButton(
+            label: '계정 연결하기',
+            variant: PButtonVariant.outline,
+            size: PButtonSize.sm,
+            onPressed: onConnect,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ---- 요약 카드 ---------------------------------------------------------------
+
+class _SummaryCard extends StatelessWidget {
+  const _SummaryCard({required this.masked, required this.holdings});
+  final bool masked;
+
+  /// 키 연결 시 보유 요약(서버 계산). null 이면 연결 유도 빈 상태.
+  final TossHoldings? holdings;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final h = holdings;
+    if (h == null) {
+      // 미연결 — 연결 유도 카드 (mock 평가금액 노출 안 함).
+      return PCard(
+        padding: const EdgeInsets.all(18),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '내 투자 평가금액',
+              style: TextStyle(
+                fontFamily: PTypo.sans,
+                fontSize: 12.5,
+                fontWeight: PFontWeight.semi,
+                color: t.fgTertiary,
+              ),
+            ),
+            const SizedBox(height: PSpace.x8),
+            Text(
+              '증권 계정을 연결하면 보유자산이 보여요',
+              style: PTypo.bodySm.copyWith(color: t.fgTertiary),
+            ),
+          ],
+        ),
+      );
+    }
+    final totalEval = h.marketValueAmountValue.round();
+    final totalCost = h.totalPurchaseAmountValue.round();
+    final totalPnl = h.profitLossAmountValue.round();
+    final totalPnlPct = h.profitLossRateValue;
     final pnlColor = _trendColor(t, totalPnl.toDouble());
 
     return PCard(
@@ -625,7 +716,7 @@ class _SummaryCard extends StatelessWidget {
             children: [
               for (final (label, value) in [
                 ('매입금액', masked ? '••••' : '${krw(totalCost)}원'),
-                ('보유 종목', '${kStockHoldings.length}개'),
+                ('보유 종목', '${h.items.length}개'),
                 (
                   '환율(USD)',
                   '₩${krw(kFxUsdKrw.truncate())}.${((kFxUsdKrw - kFxUsdKrw.truncate()) * 10).round()}'
@@ -674,7 +765,7 @@ class _StockDetailBody extends StatefulWidget {
     required this.masked,
   });
   final String ticker;
-  final StockHolding? holding;
+  final TossHoldingsItem? holding;
   final bool watched;
   final VoidCallback onToggleWatch;
   final ScrollController scrollController;
@@ -871,10 +962,14 @@ class _StockDetailBodyState extends State<_StockDetailBody> {
         if (widget.holding != null) ...[
           Builder(builder: (context) {
             final h = widget.holding!;
-            final ev = holdingEval(h);
-            final cost = holdingCost(h);
-            final pnl = ev - cost;
-            final pnlPct = pnl / cost * 100;
+            final ev = h.marketValueAmountValue.round();
+            final pnl = h.profitLossAmountValue.round();
+            final pnlPct = h.profitLossRateValue;
+            final qty = h.quantityValue;
+            final qtyLabel = qty == qty.roundToDouble()
+                ? '${qty.round()}주'
+                : '${qty.toStringAsFixed(4)}주';
+            final avg = h.averagePurchasePriceValue;
             final rows = <(String, String, Color)>[
               ('평가금액', widget.masked ? '••••' : '${krw(ev)}원', t.fgPrimary),
               (
@@ -884,7 +979,7 @@ class _StockDetailBodyState extends State<_StockDetailBody> {
                     : '${pnl >= 0 ? '+' : '−'}${krw(pnl, abs: true)}원',
                 _trendColor(t, pnl.toDouble())
               ),
-              ('보유수량', '${h.qty}주', t.fgPrimary),
+              ('보유수량', qtyLabel, t.fgPrimary),
               (
                 '수익률',
                 '${pnlPct >= 0 ? '+' : ''}${pnlPct.toStringAsFixed(2)}%',
@@ -892,11 +987,10 @@ class _StockDetailBodyState extends State<_StockDetailBody> {
               ),
               (
                 '평균단가',
-                s.isUs ? '\$${h.avg.toStringAsFixed(2)}' : '${krw(h.avg.round())}원',
+                h.isUs ? '\$${avg.toStringAsFixed(2)}' : '${krw(avg.round())}원',
                 t.fgSecondary
               ),
-              ('매도가능', '${h.qty}주', t.fgSecondary),
-              ('매입금액', widget.masked ? '••••' : '${krw(cost)}원', t.fgSecondary),
+              ('매도가능', qtyLabel, t.fgSecondary),
             ];
             return PCard(
               padding: const EdgeInsets.all(PSpace.x16),

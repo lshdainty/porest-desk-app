@@ -63,3 +63,27 @@ final tossTradesProvider =
     return null;
   }
 });
+
+/// 증권 계좌 목록 (개인 키). 키 미등록/미설정/에러 시 null → 화면은 '연결 유도' 빈 상태.
+final tossAccountsProvider =
+    FutureProvider<List<TossAccount>?>((ref) async {
+  try {
+    final repo = await ref.watch(stocksRepositoryProvider.future);
+    return await repo.getAccounts();
+  } catch (_) {
+    return null;
+  }
+});
+
+/// 보유 자산 현황 (첫 계좌 기준). 계좌 없음/키 미등록/에러 시 null → 빈 상태.
+/// 시세 mock 폴백과 달리 보유는 mock 미사용(키 없으면 연결 유도).
+final tossHoldingsProvider = FutureProvider<TossHoldings?>((ref) async {
+  final accounts = await ref.watch(tossAccountsProvider.future);
+  if (accounts == null || accounts.isEmpty) return null;
+  try {
+    final repo = await ref.watch(stocksRepositoryProvider.future);
+    return await repo.getHoldings(accounts.first.accountSeq);
+  } catch (_) {
+    return null;
+  }
+});
