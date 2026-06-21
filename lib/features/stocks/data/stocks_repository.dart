@@ -83,24 +83,27 @@ class StocksRepository {
     }
   }
 
-  // 계좌 / 보유자산 (raw — 화면 미연동, 추후 타입화) -----------------------
+  // 계좌 / 보유자산 -------------------------------------------------------
 
-  Future<List<dynamic>> getAccounts() async {
+  Future<List<TossAccount>> getAccounts() async {
     try {
       final res = await _dio.get<dynamic>('/toss/accounts');
-      return (_payload(res) as List? ?? []);
+      final list = (_payload(res) as List? ?? []);
+      return list
+          .map((e) => TossAccount.fromJson(e as Map<String, dynamic>))
+          .toList();
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }
   }
 
-  Future<Map<String, dynamic>> getHoldings(int accountSeq, {String? symbol}) async {
+  Future<TossHoldings> getHoldings(int accountSeq, {String? symbol}) async {
     try {
       final res = await _dio.get<dynamic>(
         '/toss/holdings',
         queryParameters: {'accountSeq': accountSeq, 'symbol': ?symbol},
       );
-      return (_payload(res) as Map<String, dynamic>? ?? {});
+      return TossHoldings.fromJson(_payload(res) as Map<String, dynamic>? ?? {});
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }

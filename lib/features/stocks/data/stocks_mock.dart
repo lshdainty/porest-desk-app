@@ -70,15 +70,6 @@ Stock? findStock(String ticker) {
   return null;
 }
 
-/// 보유 종목 — 평균단가·수량 (평가액/손익은 화면에서 계산)
-const List<StockHolding> kStockHoldings = [
-  StockHolding(ticker: '005930', qty: 42, avg: 67200),
-  StockHolding(ticker: '000660', qty: 8,  avg: 142800),
-  StockHolding(ticker: '069500', qty: 30, avg: 33500),
-  StockHolding(ticker: 'NVDA',   qty: 12, avg: 98.4),
-  StockHolding(ticker: 'AAPL',   qty: 6,  avg: 191.2),
-];
-
 /// 관심종목 — 그룹별 (화면에서 복사해 로컬 상태로 사용)
 const List<WatchGroup> kStockWatch = [
   WatchGroup(id: 'w-main', name: '관심',        tickers: ['035420', '035720', '247540', 'TSLA']),
@@ -129,15 +120,3 @@ List<DailyQuote> dailyQuotes(Stock s) {
 /// 시세 원화 환산 (US는 환율 적용)
 int priceKrw(Stock s) =>
     s.isUs ? (s.price * kFxUsdKrw).round() : s.price.round();
-
-int holdingEval(StockHolding h) {
-  final s = findStock(h.ticker);
-  return s == null ? 0 : priceKrw(s) * h.qty;
-}
-
-int holdingCost(StockHolding h) {
-  final s = findStock(h.ticker);
-  if (s == null) return 0;
-  final avgKrw = s.isUs ? (h.avg * kFxUsdKrw).round() : h.avg.round();
-  return avgKrw * h.qty;
-}

@@ -41,20 +41,6 @@ class Stock {
   bool get isUs => market == StockMarket.us;
 }
 
-class StockHolding {
-  const StockHolding({
-    required this.ticker,
-    required this.qty,
-    required this.avg,
-  });
-
-  final String ticker;
-  final int qty;
-
-  /// 평균단가 — KR=원, US=달러
-  final double avg;
-}
-
 class WatchGroup {
   const WatchGroup({
     required this.id,
