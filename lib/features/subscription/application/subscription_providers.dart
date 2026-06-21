@@ -26,6 +26,11 @@ final hasSecuritiesProvider = Provider<bool>((ref) {
   return ref.watch(myFeaturesProvider).asData?.value.hasSecurities ?? false;
 });
 
+final subscriptionPlansProvider = FutureProvider<List<SubscriptionPlanInfo>>((ref) async {
+  final repo = await ref.watch(subscriptionRepositoryProvider.future);
+  return repo.getPlans();
+});
+
 final mySubscriptionProvider = FutureProvider<SubscriptionInfo?>((ref) async {
   final repo = await ref.watch(subscriptionRepositoryProvider.future);
   return repo.getMySubscription();

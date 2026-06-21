@@ -55,10 +55,8 @@ class _SecuritiesSettingsScreenState extends ConsumerState<SecuritiesSettingsScr
   Widget build(BuildContext context) {
     final t = context.tokens;
     final features = ref.watch(myFeaturesProvider).asData?.value;
-    final sub = ref.watch(mySubscriptionProvider).asData?.value;
     final cred = ref.watch(tossCredentialStatusProvider).asData?.value;
     final hasSecurities = features?.hasSecurities ?? false;
-    final isActive = sub?.isActive ?? false;
     final connected = cred?.connected ?? false;
 
     return Scaffold(
@@ -67,7 +65,7 @@ class _SecuritiesSettingsScreenState extends ConsumerState<SecuritiesSettingsScr
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
         leading: PBackButton(onPressed: () => Navigator.of(context).pop()),
-        title: const Text('증권 구독·연결'),
+        title: const Text('토스증권 연결'),
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,
         elevation: 0,
@@ -75,56 +73,7 @@ class _SecuritiesSettingsScreenState extends ConsumerState<SecuritiesSettingsScr
       body: ListView(
         padding: const EdgeInsets.fromLTRB(PSpace.x16, PSpace.x16, PSpace.x16, PSpace.x24),
         children: [
-          // 구독 카드
-          PCard(
-            padding: const EdgeInsets.all(PSpace.x20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text('증권 구독',
-                          style: TextStyle(fontFamily: PTypo.sans, fontSize: 16, fontWeight: PFontWeight.bold, color: t.fgPrimary)),
-                    ),
-                    if (isActive)
-                      const PBadge(label: '구독중', variant: PBadgeVariant.secondary)
-                    else if (sub != null)
-                      PBadge(label: sub.status == 'EXPIRED' ? '만료' : '해지', variant: PBadgeVariant.secondary),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Text('구독하면 증권(시세·호가·보유) 메뉴가 열려요',
-                    style: PTypo.caption.copyWith(color: t.fgTertiary)),
-                const SizedBox(height: PSpace.x16),
-                if (isActive && sub != null) ...[
-                  _kv('플랜', sub.planName, t),
-                  if (sub.currentPeriodEnd != null) ...[
-                    const SizedBox(height: PSpace.x8),
-                    _kv('다음 갱신', sub.currentPeriodEnd!.substring(0, 10), t),
-                  ],
-                  const SizedBox(height: PSpace.x12),
-                  PButton(
-                    label: '구독 해지',
-                    variant: PButtonVariant.danger,
-                    onPressed: _busy ? null : () => _run(
-                      (repo) => repo.cancelSubscription(),
-                      '구독을 해지했어요', '해지에 실패했어요'),
-                  ),
-                ] else
-                  PButton(
-                    label: '구독하기',
-                    fullWidth: true,
-                    onPressed: _busy ? null : () => _run(
-                      (repo) => repo.subscribe("SECURITIES"),
-                      '증권 구독이 시작되었어요', '구독에 실패했어요'),
-                  ),
-              ],
-            ),
-          ),
-          const SizedBox(height: PSpace.x16),
-
-          // 토스 연결 카드 — 구독중일 때만
+          // 토스증권 연결 — 구독 후 진입(구독은 '플랜 업그레이드'에서)
           if (hasSecurities)
             PCard(
               padding: const EdgeInsets.all(PSpace.x20),
@@ -177,17 +126,15 @@ class _SecuritiesSettingsScreenState extends ConsumerState<SecuritiesSettingsScr
                   ],
                 ],
               ),
+            )
+          else
+            PCard(
+              padding: const EdgeInsets.all(PSpace.x20),
+              child: Text('증권 구독 후 이용할 수 있어요. 설정 > 구독·결제에서 플랜을 업그레이드해 주세요.',
+                  style: PTypo.bodySm.copyWith(color: t.fgTertiary, height: 1.5)),
             ),
         ],
       ),
     );
   }
-
-  Widget _kv(String k, String v, PorestTokens t) => Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(k, style: PTypo.bodySm.copyWith(color: t.fgTertiary)),
-          Text(v, style: PTypo.bodySm.copyWith(color: t.fgPrimary, fontWeight: PFontWeight.semi)),
-        ],
-      );
 }

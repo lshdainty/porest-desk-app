@@ -46,6 +46,19 @@ class SubscriptionInfo {
       );
 }
 
+class SubscriptionPlanInfo {
+  const SubscriptionPlanInfo({required this.planCode, required this.planName, this.durationMonths});
+  final String planCode;
+  final String planName;
+  final int? durationMonths;
+
+  factory SubscriptionPlanInfo.fromJson(Map<String, dynamic> j) => SubscriptionPlanInfo(
+        planCode: j['planCode'] as String,
+        planName: j['planName'] as String,
+        durationMonths: j['durationMonths'] as int?,
+      );
+}
+
 class TossCredentialStatus {
   const TossCredentialStatus({required this.connected, required this.verified, this.verifiedAt});
   final bool connected;
@@ -76,6 +89,18 @@ class SubscriptionRepository {
       final res = await _dio.get<dynamic>('/users/me/features');
       final p = _payload(res);
       return p is Map<String, dynamic> ? MyFeatures.fromJson(p) : MyFeatures.empty;
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  Future<List<SubscriptionPlanInfo>> getPlans() async {
+    try {
+      final res = await _dio.get<dynamic>('/subscriptions/plans');
+      final list = (_payload(res) as List? ?? []);
+      return list
+          .map((e) => SubscriptionPlanInfo.fromJson(e as Map<String, dynamic>))
+          .toList();
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }
