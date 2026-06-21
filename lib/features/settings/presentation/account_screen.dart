@@ -9,6 +9,8 @@ import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/auth/auth_notifier.dart';
 import 'package:porest_desk_app/features/subscription/application/subscription_providers.dart';
+import 'package:porest_desk_app/features/subscription/presentation/subscription_sheet.dart';
+import 'package:porest_desk_app/features/subscription/presentation/toss_connect_card.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_card.dart';
@@ -32,26 +34,12 @@ class AccountScreen extends ConsumerStatefulWidget {
 class _AccountScreenState extends ConsumerState<AccountScreen> {
   bool _twoFa = false;
 
-  Future<void> _subscribe(String planCode) async {
-    try {
-      final repo = await ref.read(subscriptionRepositoryProvider.future);
-      await repo.subscribe(planCode);
-      ref.invalidate(myFeaturesProvider);
-      ref.invalidate(mySubscriptionProvider);
-      if (mounted) showPSnackBar(context, '구독이 시작되었어요', severity: PSnackSeverity.success);
-    } catch (_) {
-      if (mounted) showPSnackBar(context, '구독에 실패했어요', severity: PSnackSeverity.error);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
     final user = ref.watch(authProvider).value;
     final subscription = ref.watch(mySubscriptionProvider).asData?.value;
     final hasSecurities = ref.watch(hasSecuritiesProvider);
-    final plans = ref.watch(subscriptionPlansProvider).asData?.value ?? const [];
-    final upgradePlan = plans.isNotEmpty ? plans.first : null;
     final isSubscribed = subscription?.isActive ?? false;
     final nameInitial = user != null && user.userName.isNotEmpty
         ? user.userName[0].toUpperCase()
@@ -142,7 +130,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                         borderRadius: PRadius.brSm,
                       ),
                       child: Text(
-                        'Pro',
+                        isSubscribed ? 'Pro' : 'Free',
                         style: TextStyle(
                           fontFamily: PTypo.sans,
                           fontSize: 11,
@@ -258,47 +246,29 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           ),
           const SizedBox(height: PSpace.x20),
 
-          // ── 구독·결제 — web: Porest Free / 플랜 업그레이드 2행
+          // ── 구독·결제 — Porest Pro 단일 행 → 구독 관리 시트(일반/프로·결제)
           _SectionLabel(label: '구독·결제', tokens: t),
           const SizedBox(height: PSpace.x8),
           PCard(
             variant: PCardVariant.shadow,
             padding: EdgeInsets.zero,
-            child: Column(
-              children: [
-                _AccountRow(
-                  icon: LucideIcons.bookmark,
-                  label: isSubscribed ? (subscription?.planName ?? 'Pro') : 'Porest Free',
-                  desc: isSubscribed ? '구독 중' : '무료 플랜 사용 중',
-                  tokens: t,
-                ),
-                const PDivider(),
-                // 플랜 업그레이드 — PG 미연동이라 누르면 즉시 구독(self-grant)
-                if (!isSubscribed)
-                  _AccountRow(
-                    icon: LucideIcons.target,
-                    label: '플랜 업그레이드',
-                    desc: upgradePlan != null
-                        ? '${upgradePlan.planName} · 구독하고 증권 기능 열기'
-                        : '구독하고 증권 기능 열기',
-                    chevron: true,
-                    tokens: t,
-                    onTap: () => _subscribe(upgradePlan?.planCode ?? 'SECURITIES'),
-                  ),
-                if (!isSubscribed) const PDivider(),
-                // 증권 연결 — 구독 후에만 클릭 가능(키 입력)
-                _AccountRow(
-                  icon: LucideIcons.trendingUp,
-                  label: '증권 연결',
-                  desc: hasSecurities ? '토스증권 API 키 연결' : '구독 후 이용 가능',
-                  chevron: hasSecurities,
-                  dimmed: !hasSecurities,
-                  tokens: t,
-                  onTap: hasSecurities ? () => context.push('/settings/securities') : null,
-                ),
-              ],
+            child: _AccountRow(
+              icon: LucideIcons.sparkles,
+              label: 'Porest Pro',
+              desc: isSubscribed
+                  ? '${subscription?.currentPeriodEnd != null && subscription!.currentPeriodEnd!.length >= 10 ? '다음 결제 ${subscription.currentPeriodEnd!.substring(0, 10)} · ' : ''}Pro 이용 중 · 9,900원/월'
+                  : '증권 투자는 Pro 전용 · 지금 시작하기',
+              chevron: true,
+              tokens: t,
+              onTap: () => showSubscriptionSheet(context),
             ),
           ),
+
+          // ── 증권 데이터 연동 — 구독(Pro) 시에만 노출(별도 화면 아님, 인라인)
+          if (hasSecurities) ...[
+            const SizedBox(height: PSpace.x20),
+            const TossConnectCard(),
+          ],
           const SizedBox(height: PSpace.x20),
 
           // ── 계정 관리 — web: 로그아웃(일반) / 회원 탈퇴(danger)

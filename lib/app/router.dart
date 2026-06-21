@@ -35,7 +35,6 @@ import 'package:porest_desk_app/features/settings/presentation/settings_screen.d
 import 'package:porest_desk_app/features/stats/presentation/stats_screen.dart';
 import 'package:porest_desk_app/features/stocks/presentation/stocks_screen.dart';
 import 'package:porest_desk_app/features/subscription/presentation/securities_gate.dart';
-import 'package:porest_desk_app/features/subscription/presentation/securities_settings_screen.dart';
 import 'package:porest_desk_app/shared/widgets/mobile_scaffold.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -101,9 +100,6 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
           path: '/settings/notifications',
           builder: (_, _) => const NotificationSettingsScreen()),
-      GoRoute(
-          path: '/settings/securities',
-          builder: (_, _) => const SecuritiesSettingsScreen()),
       GoRoute(path: '/saving-goals', builder: (_, _) => const SavingGoalScreen()),
       GoRoute(path: '/cards', builder: (_, _) => const CardScreen()),
       GoRoute(
