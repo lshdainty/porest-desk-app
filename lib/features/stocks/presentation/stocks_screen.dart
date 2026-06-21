@@ -12,6 +12,7 @@ import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
+import 'package:porest_desk_app/shared/widgets/p_badge.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_card.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
@@ -31,7 +32,10 @@ class StocksScreen extends ConsumerStatefulWidget {
   ConsumerState<StocksScreen> createState() => _StocksScreenState();
 }
 
-enum _Seg { holdings, watch }
+enum _Seg { holdings, watch, discover }
+
+/// 숫자 정렬용 tabular figures — 웹 `.num`(tnum) 미러. 가격·수량·수익률·지수 등에 적용.
+const List<FontFeature> _tnum = [FontFeature.tabularFigures()];
 
 class _StocksScreenState extends ConsumerState<StocksScreen> {
   _Seg _seg = _Seg.holdings;
@@ -86,6 +90,8 @@ class _StocksScreenState extends ConsumerState<StocksScreen> {
         padding: const EdgeInsets.fromLTRB(
             PSpace.x16, PSpace.x16, PSpace.x16, PSpace.x24),
         children: [
+          const _IndexStrip(),
+          const SizedBox(height: PSpace.x16),
           _SummaryCard(masked: masked),
           const SizedBox(height: PSpace.x16),
           // 종목 검색 트리거 — 공통 PSearchField 시각(36px) 그대로, 탭 시 검색 시트
@@ -108,10 +114,13 @@ class _StocksScreenState extends ConsumerState<StocksScreen> {
                   label: '보유 ${kStockHoldings.length}'),
               PTabItem(
                   value: _Seg.watch, label: '관심 ${_watchedTickers.length}'),
+              const PTabItem(value: _Seg.discover, label: '발견'),
             ],
           ),
           const SizedBox(height: 14),
-          if (_seg == _Seg.holdings)
+          if (_seg == _Seg.discover)
+            _DiscoverPanel(onPick: _openDetail)
+          else if (_seg == _Seg.holdings)
             PCard(
               padding: const EdgeInsets.all(6),
               child: Column(
@@ -132,6 +141,7 @@ class _StocksScreenState extends ConsumerState<StocksScreen> {
                               krwMasked(ev, masked, mask: '••••'),
                               style: TextStyle(
                                 fontFamily: PTypo.sans,
+                                fontFeatures: _tnum,
                                 fontSize: 13.5,
                                 fontWeight: PFontWeight.bold,
                                 color: t.fgPrimary,
@@ -142,6 +152,7 @@ class _StocksScreenState extends ConsumerState<StocksScreen> {
                               '${pnl >= 0 ? '+' : ''}${pct.toStringAsFixed(2)}%',
                               style: TextStyle(
                                 fontFamily: PTypo.sans,
+                                fontFeatures: _tnum,
                                 fontSize: PFontSize.micro,
                                 fontWeight: PFontWeight.bold,
                                 color: _trendColor(t, pnl.toDouble()),
@@ -158,7 +169,7 @@ class _StocksScreenState extends ConsumerState<StocksScreen> {
             PTabs<String>(
               value: _activeGroup,
               onChanged: (v) => setState(() => _activeGroup = v),
-              variant: PTabsVariant.pills,
+              variant: PTabsVariant.container,
               size: PTabsSize.sm,
               items: [
                 for (final g in _watchGroups)
@@ -316,6 +327,7 @@ class _PctBadge extends StatelessWidget {
           '${up ? '+' : ''}${pct.toStringAsFixed(2)}%',
           style: TextStyle(
             fontFamily: PTypo.sans,
+            fontFeatures: _tnum,
             fontSize: size,
             fontWeight: PFontWeight.bold,
             color: color,
@@ -342,7 +354,7 @@ class _StockBadge extends StatelessWidget {
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: chipFill(context, tone, t: 0.16),
-        borderRadius: BorderRadius.circular(11),
+        borderRadius: PRadius.tile(size),
       ),
       child: Text(
         stock.isUs ? stock.ticker.substring(0, 2) : stock.name.substring(0, 1),
@@ -522,6 +534,7 @@ class _StockRow extends StatelessWidget {
                         _fmtPrice(s),
                         style: TextStyle(
                           fontFamily: PTypo.sans,
+                          fontFeatures: _tnum,
                           fontSize: 13.5,
                           fontWeight: PFontWeight.bold,
                           color: t.fgPrimary,
@@ -575,6 +588,7 @@ class _SummaryCard extends StatelessWidget {
             masked ? kHideMask : '${krw(totalEval)}원',
             style: TextStyle(
               fontFamily: PTypo.sans,
+              fontFeatures: _tnum,
               fontSize: 28,
               fontWeight: PFontWeight.bold,
               letterSpacing: -0.56,
@@ -590,6 +604,7 @@ class _SummaryCard extends StatelessWidget {
                     : '${totalPnl >= 0 ? '+' : '−'}${krw(totalPnl, abs: true)}원',
                 style: TextStyle(
                   fontFamily: PTypo.sans,
+                  fontFeatures: _tnum,
                   fontSize: 13.5,
                   fontWeight: PFontWeight.bold,
                   color: pnlColor,
@@ -607,7 +622,10 @@ class _SummaryCard extends StatelessWidget {
               for (final (label, value) in [
                 ('매입금액', masked ? '••••' : '${krw(totalCost)}원'),
                 ('보유 종목', '${kStockHoldings.length}개'),
-                ('환율(USD)', '₩${krw(kFxUsdKrw.round())}.5'),
+                (
+                  '환율(USD)',
+                  '₩${krw(kFxUsdKrw.truncate())}.${((kFxUsdKrw - kFxUsdKrw.truncate()) * 10).round()}'
+                ),
               ])
                 Expanded(
                   child: Column(
@@ -621,6 +639,7 @@ class _SummaryCard extends StatelessWidget {
                         value,
                         style: TextStyle(
                           fontFamily: PTypo.sans,
+                          fontFeatures: _tnum,
                           fontSize: 13.5,
                           fontWeight: PFontWeight.bold,
                           color: t.fgPrimary,
@@ -674,22 +693,42 @@ class _StockDetailBodyState extends State<_StockDetailBody> {
     final starTone =
         dark ? PorestPalette.chartYellowLight : PorestPalette.chartYellow;
 
-    final info = <(String, String)>[
-      ('시가총액', s.marketCap),
-      ('PER', s.per != null ? s.per!.toStringAsFixed(1) : '—'),
+    // 국내 종목 상/하한가 (±30%, 호가단위 반올림)
+    double tickOf(double p) => p >= 100000
+        ? 500
+        : p >= 10000
+            ? 100
+            : p >= 1000
+                ? 10
+                : 1;
+    double roundTick(double p) {
+      final tk = tickOf(p);
+      return (p / tk).round() * tk;
+    }
+
+    final info = <(String, String, Color?)>[
+      ('시가총액', s.marketCap, null),
+      ('PER', s.per != null ? s.per!.toStringAsFixed(1) : '—', null),
       (
         'EPS',
         s.eps != null
             ? (s.isUs
                 ? '\$${s.eps!.toStringAsFixed(2)}'
                 : krw(s.eps!.round()))
-            : '—'
+            : '—',
+        null
       ),
+      if (!s.isUs) ...[
+        ('상한가', krw(roundTick(s.price * 1.3).round()), t.statusDangerFg),
+        ('하한가', krw(roundTick(s.price * 0.7).round()), t.fgBrand),
+      ],
       ('52주 최고',
-          s.isUs ? '\$${s.high52.toStringAsFixed(2)}' : krw(s.high52.round())),
+          s.isUs ? '\$${s.high52.toStringAsFixed(2)}' : krw(s.high52.round()),
+          null),
       ('52주 최저',
-          s.isUs ? '\$${s.low52.toStringAsFixed(2)}' : krw(s.low52.round())),
-      ('거래량', s.vol),
+          s.isUs ? '\$${s.low52.toStringAsFixed(2)}' : krw(s.low52.round()),
+          null),
+      ('거래량', s.vol, null),
     ];
 
     return ListView(
@@ -716,10 +755,31 @@ class _StockDetailBodyState extends State<_StockDetailBody> {
                       color: t.fgPrimary,
                     ),
                   ),
-                  const SizedBox(height: 1),
-                  Text(
-                    '${s.ticker} · ${s.isUs ? '미국' : 'KRX'} · ${s.sector}',
-                    style: PTypo.caption.copyWith(color: t.fgTertiary),
+                  const SizedBox(height: 3),
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          s.ticker,
+                          overflow: TextOverflow.ellipsis,
+                          style: PTypo.caption.copyWith(color: t.fgTertiary),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      // 시장 배지 (NASDAQ / KRX·NXT) — shared PBadge(secondary)
+                      PBadge(
+                        label: s.isUs ? 'NASDAQ' : 'KRX·NXT',
+                        variant: PBadgeVariant.secondary,
+                      ),
+                      const SizedBox(width: 6),
+                      Flexible(
+                        child: Text(
+                          '· ${s.sector}',
+                          overflow: TextOverflow.ellipsis,
+                          style: PTypo.caption.copyWith(color: t.fgTertiary),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -727,7 +787,7 @@ class _StockDetailBodyState extends State<_StockDetailBody> {
             // 관심 토글 — active=chart-yellow blend (spec)
             InkWell(
               onTap: widget.onToggleWatch,
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: PRadius.tile(38),
               child: Container(
                 width: 38,
                 height: 38,
@@ -736,7 +796,7 @@ class _StockDetailBodyState extends State<_StockDetailBody> {
                   color: widget.watched
                       ? chipFill(context, starTone, t: 0.18)
                       : t.bgSunken,
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: PRadius.tile(38),
                   border: Border.all(color: t.borderSubtle),
                 ),
                 child: Icon(
@@ -758,6 +818,7 @@ class _StockDetailBodyState extends State<_StockDetailBody> {
           _fmtPrice(s),
           style: TextStyle(
             fontFamily: PTypo.sans,
+            fontFeatures: _tnum,
             fontSize: PFontSize.h1,
             fontWeight: PFontWeight.bold,
             letterSpacing: -0.6,
@@ -772,7 +833,7 @@ class _StockDetailBodyState extends State<_StockDetailBody> {
               const SizedBox(width: PSpace.x8),
               Text(
                 '≈ ${krw(priceKrw(s))}원',
-                style: PTypo.caption.copyWith(color: t.fgTertiary),
+                style: PTypo.caption.copyWith(color: t.fgTertiary, fontFeatures: _tnum),
               ),
             ],
           ],
@@ -830,6 +891,7 @@ class _StockDetailBodyState extends State<_StockDetailBody> {
                 s.isUs ? '\$${h.avg.toStringAsFixed(2)}' : '${krw(h.avg.round())}원',
                 t.fgSecondary
               ),
+              ('매도가능', '${h.qty}주', t.fgSecondary),
               ('매입금액', widget.masked ? '••••' : '${krw(cost)}원', t.fgSecondary),
             ];
             return PCard(
@@ -845,7 +907,11 @@ class _StockDetailBodyState extends State<_StockDetailBody> {
                       children: [
                         Expanded(child: _KvCell(rows[i], tokens: t)),
                         const SizedBox(width: 10),
-                        Expanded(child: _KvCell(rows[i + 1], tokens: t)),
+                        Expanded(
+                          child: i + 1 < rows.length
+                              ? _KvCell(rows[i + 1], tokens: t)
+                              : const SizedBox.shrink(),
+                        ),
                       ],
                     ),
                   ],
@@ -856,18 +922,8 @@ class _StockDetailBodyState extends State<_StockDetailBody> {
           const SizedBox(height: PSpace.x16),
         ],
 
-        // 호가
-        PCard(
-          padding: const EdgeInsets.all(PSpace.x16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _SectionLabel('호가', tokens: t),
-              const SizedBox(height: PSpace.x12),
-              _OrderBook(stock: s),
-            ],
-          ),
-        ),
+        // 호가 / 체결
+        _QuotesCard(stock: s),
         const SizedBox(height: PSpace.x16),
 
         // 기본 정보
@@ -902,8 +958,9 @@ class _StockDetailBodyState extends State<_StockDetailBody> {
                       Text(
                         info[i].$2,
                         style: PTypo.bodySm.copyWith(
-                          color: t.fgPrimary,
+                          color: info[i].$3 ?? t.fgPrimary,
                           fontWeight: PFontWeight.semi,
+                          fontFeatures: _tnum,
                         ),
                       ),
                     ],
@@ -912,6 +969,10 @@ class _StockDetailBodyState extends State<_StockDetailBody> {
             ],
           ),
         ),
+        const SizedBox(height: PSpace.x16),
+
+        // 일별 시세
+        _DailyQuoteTable(stock: s),
         const SizedBox(height: PSpace.x16),
 
         // 매매 (모의) — 매도=primary(파랑), 매수=danger(빨강) — 국내 통념
@@ -938,6 +999,32 @@ class _StockDetailBodyState extends State<_StockDetailBody> {
               ),
             ),
           ],
+        ),
+        const SizedBox(height: PSpace.x16),
+        // 수수료 안내 — 토스증권 Open API 기준
+        Container(
+          padding:
+              const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: BoxDecoration(
+            color: t.bgSunken,
+            borderRadius: PRadius.brMd,
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(LucideIcons.info, size: 14, color: t.fgTertiary),
+              const SizedBox(width: PSpace.x8),
+              Expanded(
+                child: Text(
+                  s.isUs
+                      ? '미국주식 매매수수료 0.1% · 환전 수수료 별도 적용'
+                      : '국내주식 매매수수료 무료 (2026.6까지) · 이후 KRX 0.015% / NXT 0.014%',
+                  style: PTypo.micro
+                      .copyWith(color: t.fgSecondary, height: 1.45),
+                ),
+              ),
+            ],
+          ),
         ),
         const SizedBox(height: PSpace.x16),
         Text(
@@ -983,6 +1070,7 @@ class _KvCell extends StatelessWidget {
             style: PTypo.bodySm.copyWith(
               color: row.$3,
               fontWeight: PFontWeight.bold,
+              fontFeatures: _tnum,
             ),
           ),
         ],
@@ -1054,7 +1142,8 @@ class _OrderBook extends StatelessWidget {
                     right: alignRight ? 6 : 0, left: alignRight ? 0 : 6),
                 child: Text(
                   krw(q),
-                  style: PTypo.micro.copyWith(color: t.fgTertiary),
+                  style:
+                      PTypo.micro.copyWith(color: t.fgTertiary, fontFeatures: _tnum),
                 ),
               ),
             ),
@@ -1081,6 +1170,7 @@ class _OrderBook extends StatelessWidget {
                   fmt(p),
                   style: TextStyle(
                     fontFamily: PTypo.sans,
+                    fontFeatures: _tnum,
                     fontSize: 12.5,
                     fontWeight: PFontWeight.bold,
                     color: priceColor,
@@ -1146,6 +1236,7 @@ class _OrderBook extends StatelessWidget {
                 style: PTypo.bodySm.copyWith(
                   color: _trendColor(t, s.changePct),
                   fontWeight: PFontWeight.bold,
+                  fontFeatures: _tnum,
                 ),
               ),
               const SizedBox(width: 6),
@@ -1155,6 +1246,408 @@ class _OrderBook extends StatelessWidget {
         ),
         for (final b in bids) row(p: b.p, q: b.q, isAsk: false),
       ],
+    );
+  }
+}
+
+// ---- 시장 지수 값 포맷 (천단위 + 소수 2자리) ----------------------------------
+
+String _fmtIndex(double v) {
+  final neg = v < 0;
+  final abs = v.abs();
+  final intPart = abs.truncate();
+  final dec = ((abs - intPart) * 100).round().toString().padLeft(2, '0');
+  final intStr = intPart.toString().replaceAllMapped(
+        RegExp(r'(\d)(?=(\d{3})+$)'),
+        (m) => '${m[1]},',
+      );
+  return '${neg ? '-' : ''}$intStr.$dec';
+}
+
+// ---- 시장 지수 스트립 (가로 스크롤) ------------------------------------------
+
+class _IndexStrip extends StatelessWidget {
+  const _IndexStrip();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return SizedBox(
+      height: 88,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: EdgeInsets.zero,
+        itemCount: kMarketIndices.length,
+        separatorBuilder: (_, _) => const SizedBox(width: 10),
+        itemBuilder: (context, i) {
+          final ix = kMarketIndices[i];
+          return SizedBox(
+            width: 128,
+            child: PCard(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    ix.name,
+                    style: PTypo.caption.copyWith(
+                      color: t.fgSecondary,
+                      fontWeight: PFontWeight.semi,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    _fmtIndex(ix.value),
+                    style: TextStyle(
+                      fontFamily: PTypo.sans,
+                      fontFeatures: _tnum,
+                      fontSize: 15,
+                      fontWeight: PFontWeight.bold,
+                      letterSpacing: -0.3,
+                      color: t.fgPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  _PctBadge(pct: ix.changePct, size: 11),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+// ---- 발견(디스커버리) 랭킹 — 급상승/급하락/거래량 ----------------------------
+
+class _DiscoverPanel extends StatefulWidget {
+  const _DiscoverPanel({required this.onPick});
+  final void Function(String ticker) onPick;
+
+  @override
+  State<_DiscoverPanel> createState() => _DiscoverPanelState();
+}
+
+class _DiscoverPanelState extends State<_DiscoverPanel> {
+  String _tab = 'gainers';
+
+  double _volNum(String vol) {
+    final raw = vol.replaceAll(',', '');
+    if (raw.endsWith('M')) {
+      return (double.tryParse(raw.substring(0, raw.length - 1)) ?? 0) * 1000000;
+    }
+    if (raw.endsWith('K')) {
+      return (double.tryParse(raw.substring(0, raw.length - 1)) ?? 0) * 1000;
+    }
+    return double.tryParse(raw) ?? 0;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final list = [...kStocks];
+    if (_tab == 'gainers') {
+      list.sort((a, b) => b.changePct.compareTo(a.changePct));
+    } else if (_tab == 'losers') {
+      list.sort((a, b) => a.changePct.compareTo(b.changePct));
+    } else {
+      list.sort((a, b) => _volNum(b.vol).compareTo(_volNum(a.vol)));
+    }
+    final top = list.take(6).toList();
+
+    return Column(
+      children: [
+        PTabs<String>(
+          value: _tab,
+          onChanged: (v) => setState(() => _tab = v),
+          variant: PTabsVariant.container,
+          size: PTabsSize.sm,
+          expand: true,
+          items: const [
+            PTabItem(value: 'gainers', label: '급상승'),
+            PTabItem(value: 'losers', label: '급하락'),
+            PTabItem(value: 'volume', label: '거래량'),
+          ],
+        ),
+        const SizedBox(height: 10),
+        PCard(
+          padding: const EdgeInsets.all(6),
+          child: Column(
+            children: [
+              for (var i = 0; i < top.length; i++)
+                Row(
+                  children: [
+                    SizedBox(
+                      width: 22,
+                      child: Text(
+                        '${i + 1}',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontFamily: PTypo.sans,
+                          fontFeatures: _tnum,
+                          fontSize: 14,
+                          fontWeight: PFontWeight.bold,
+                          color: i < 3 ? t.fgBrand : t.fgTertiary,
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: _StockRow(
+                        ticker: top[i].ticker,
+                        onTap: () => widget.onPick(top[i].ticker),
+                      ),
+                    ),
+                  ],
+                ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ---- 호가 / 체결 탭 카드 -----------------------------------------------------
+
+class _QuotesCard extends StatefulWidget {
+  const _QuotesCard({required this.stock});
+  final Stock stock;
+
+  @override
+  State<_QuotesCard> createState() => _QuotesCardState();
+}
+
+class _QuotesCardState extends State<_QuotesCard> {
+  String _tab = 'book';
+
+  @override
+  Widget build(BuildContext context) {
+    final s = widget.stock;
+    return PCard(
+      padding: const EdgeInsets.all(PSpace.x16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          PTabs<String>(
+            value: _tab,
+            onChanged: (v) => setState(() => _tab = v),
+            variant: PTabsVariant.container,
+            size: PTabsSize.sm,
+            expand: true,
+            items: const [
+              PTabItem(value: 'book', label: '호가'),
+              PTabItem(value: 'tape', label: '체결'),
+            ],
+          ),
+          const SizedBox(height: PSpace.x12),
+          if (_tab == 'book') _OrderBook(stock: s) else _TradeTape(stock: s),
+        ],
+      ),
+    );
+  }
+}
+
+// ---- 체결 테이프 (연동 전 시드 고정 의사난수) --------------------------------
+
+class _TradeTape extends StatelessWidget {
+  const _TradeTape({required this.stock});
+  final Stock stock;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final s = stock;
+    final tick = s.isUs
+        ? 0.5
+        : s.price >= 100000
+            ? 500.0
+            : s.price >= 10000
+                ? 100.0
+                : 50.0;
+    double rng(int i) => ((i * 2654435761) % 100000) / 100000;
+    String fmt(double p) =>
+        s.isUs ? '\$${p.toStringAsFixed(2)}' : krw(p.round());
+
+    final fills = [
+      for (var i = 0; i < 12; i++)
+        (() {
+          final dir = rng(i + 3) > 0.45 ? 1 : -1;
+          final p = s.price + dir * tick * (rng(i + 9) * 2).round();
+          final q = (1 + rng(i + 5) * 80).round();
+          final mm = 42 - i;
+          final ss = (rng(i + 7) * 59).round();
+          return (
+            time:
+                '15:${mm.toString().padLeft(2, '0')}:${ss.toString().padLeft(2, '0')}',
+            p: p,
+            q: q,
+            dir: dir,
+          );
+        })(),
+    ];
+
+    TextStyle head() => TextStyle(
+          fontFamily: PTypo.sans,
+          fontSize: 10.5,
+          fontWeight: PFontWeight.semi,
+          color: t.fgTertiary,
+        );
+
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(child: Text('체결시각', style: head())),
+            Expanded(
+                child: Text('체결가', textAlign: TextAlign.right, style: head())),
+            Expanded(
+                child: Text('체결량', textAlign: TextAlign.right, style: head())),
+          ],
+        ),
+        const SizedBox(height: PSpace.x4),
+        for (final f in fills)
+          SizedBox(
+            height: 25,
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    f.time,
+                    style: TextStyle(
+                      fontFamily: PTypo.sans,
+                      fontFeatures: _tnum,
+                      fontSize: 12,
+                      color: t.fgTertiary,
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Text(
+                    fmt(f.p),
+                    textAlign: TextAlign.right,
+                    style: TextStyle(
+                      fontFamily: PTypo.sans,
+                      fontFeatures: _tnum,
+                      fontSize: 12,
+                      fontWeight: PFontWeight.bold,
+                      color: _trendColor(t, f.dir.toDouble()),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Text(
+                    krw(f.q),
+                    textAlign: TextAlign.right,
+                    style: TextStyle(
+                      fontFamily: PTypo.sans,
+                      fontFeatures: _tnum,
+                      fontSize: 12,
+                      color: t.fgSecondary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+// ---- 일별 시세 표 ------------------------------------------------------------
+
+class _DailyQuoteTable extends StatelessWidget {
+  const _DailyQuoteTable({required this.stock});
+  final Stock stock;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final s = stock;
+    final rows = dailyQuotes(s);
+    String fmt(double v) =>
+        s.isUs ? '\$${v.toStringAsFixed(2)}' : krw(v.round());
+    String fmtVol(double v) =>
+        s.isUs ? '${v.toStringAsFixed(1)}M' : krw(v.round());
+
+    Widget headCell(String label, int flex, TextAlign align) => Expanded(
+          flex: flex,
+          child: Text(
+            label,
+            textAlign: align,
+            style: TextStyle(
+              fontFamily: PTypo.sans,
+              fontSize: PFontSize.micro,
+              fontWeight: PFontWeight.semi,
+              color: t.fgTertiary,
+            ),
+          ),
+        );
+
+    Widget cell(String text, int flex, TextAlign align, Color color,
+            {FontWeight? weight}) =>
+        Expanded(
+          flex: flex,
+          child: Text(
+            text,
+            textAlign: align,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontFamily: PTypo.sans,
+              fontFeatures: _tnum,
+              fontSize: 12.5,
+              fontWeight: weight ?? PFontWeight.regular,
+              color: color,
+            ),
+          ),
+        );
+
+    return PCard(
+      padding: const EdgeInsets.all(PSpace.x16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _SectionLabel('일별 시세', tokens: t),
+          const SizedBox(height: 10),
+          Padding(
+            padding: const EdgeInsets.only(bottom: PSpace.x8),
+            child: Row(
+              children: [
+                headCell('일자', 10, TextAlign.left),
+                headCell('종가', 12, TextAlign.right),
+                headCell('등락률', 10, TextAlign.right),
+                headCell('거래량', 13, TextAlign.right),
+              ],
+            ),
+          ),
+          for (final r in rows)
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              decoration: BoxDecoration(
+                border: Border(top: BorderSide(color: t.borderSubtle)),
+              ),
+              child: Row(
+                children: [
+                  cell(r.date, 10, TextAlign.left, t.fgSecondary),
+                  cell(fmt(r.close), 12, TextAlign.right, t.fgPrimary,
+                      weight: PFontWeight.semi),
+                  cell(
+                    '${r.chg >= 0 ? '+' : ''}${r.chg.toStringAsFixed(2)}%',
+                    10,
+                    TextAlign.right,
+                    _trendColor(t, r.chg),
+                    weight: PFontWeight.bold,
+                  ),
+                  cell(fmtVol(r.vol), 13, TextAlign.right, t.fgTertiary),
+                ],
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
