@@ -6,6 +6,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/features/subscription/application/subscription_providers.dart';
 import 'package:porest_desk_app/shared/widgets/p_card.dart';
 import 'package:porest_desk_app/shared/widgets/p_divider.dart';
 import 'package:porest_desk_app/shared/widgets/p_search_field.dart';
@@ -29,11 +30,13 @@ class _NavGroup {
   final List<_NavItem> items;
 }
 
-List<_NavGroup> _buildGroups(BuildContext ctx) => [
+List<_NavGroup> _buildGroups(BuildContext ctx, {required bool hasSecurities}) => [
   _NavGroup(label: '돈 관리', items: [
     _NavItem(label: '가계부', icon: LucideIcons.receiptText, desc: '지출 · 수입 · 이체', onTap: (c) => c.go('/expense')),
     _NavItem(label: '자산', icon: LucideIcons.wallet, desc: '계좌 · 카드 · 투자 · 부채', onTap: (c) => c.go('/assets')),
-    _NavItem(label: '증권', icon: LucideIcons.trendingUp, desc: '시세 · 보유 · 관심 · 호가', onTap: (c) => c.push('/stocks')),
+    // 증권 메뉴는 구독(SECURITIES) 보유 시에만 노출
+    if (hasSecurities)
+      _NavItem(label: '증권', icon: LucideIcons.trendingUp, desc: '시세 · 보유 · 관심 · 호가', onTap: (c) => c.push('/stocks')),
     _NavItem(label: '예산', icon: LucideIcons.filePen, desc: '월간 · 카테고리별', onTap: (c) => c.go('/budget')),
     _NavItem(label: '통계·분석', icon: LucideIcons.pieChart, desc: '카테고리 · 트렌드 · 비교', onTap: (c) => c.go('/stats')),
     _NavItem(label: '반복 거래', icon: LucideIcons.repeat, desc: '구독 · 고정비', onTap: (c) => c.push('/recurring')),
@@ -79,13 +82,13 @@ class _MoreScreenState extends ConsumerState<MoreScreen> {
     super.dispose();
   }
 
-  List<_NavItem> get _allItems =>
-      _buildGroups(context).expand((g) => g.items).toList();
+  List<_NavItem> _allItems(bool hasSecurities) =>
+      _buildGroups(context, hasSecurities: hasSecurities).expand((g) => g.items).toList();
 
-  List<_NavItem>? get _filtered {
+  List<_NavItem>? _filtered(bool hasSecurities) {
     final q = _query.trim().toLowerCase();
     if (q.isEmpty) return null;
-    return _allItems
+    return _allItems(hasSecurities)
         .where((i) =>
             i.label.toLowerCase().contains(q) ||
             i.desc.toLowerCase().contains(q))
@@ -95,8 +98,9 @@ class _MoreScreenState extends ConsumerState<MoreScreen> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final groups = _buildGroups(context);
-    final filtered = _filtered;
+    final hasSecurities = ref.watch(hasSecuritiesProvider);
+    final groups = _buildGroups(context, hasSecurities: hasSecurities);
+    final filtered = _filtered(hasSecurities);
     final isSearching = _query.trim().isNotEmpty;
 
     return ListView(

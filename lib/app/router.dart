@@ -34,6 +34,8 @@ import 'package:porest_desk_app/features/settings/presentation/appearance_sectio
 import 'package:porest_desk_app/features/settings/presentation/settings_screen.dart';
 import 'package:porest_desk_app/features/stats/presentation/stats_screen.dart';
 import 'package:porest_desk_app/features/stocks/presentation/stocks_screen.dart';
+import 'package:porest_desk_app/features/subscription/presentation/securities_gate.dart';
+import 'package:porest_desk_app/features/subscription/presentation/securities_settings_screen.dart';
 import 'package:porest_desk_app/shared/widgets/mobile_scaffold.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -99,13 +101,16 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
           path: '/settings/notifications',
           builder: (_, _) => const NotificationSettingsScreen()),
+      GoRoute(
+          path: '/settings/securities',
+          builder: (_, _) => const SecuritiesSettingsScreen()),
       GoRoute(path: '/saving-goals', builder: (_, _) => const SavingGoalScreen()),
       GoRoute(path: '/cards', builder: (_, _) => const CardScreen()),
       GoRoute(
           path: '/card-benefits',
           builder: (_, _) => const CardBenefitsScreen()),
-      // 증권 — 카드 혜택과 동일하게 전체(more)에서 push 진입, 뒤로가기로 복귀
-      GoRoute(path: '/stocks', builder: (_, _) => const StocksScreen()),
+      // 증권 — 카드 혜택과 동일하게 전체(more)에서 push 진입, 뒤로가기로 복귀. 구독 게이트.
+      GoRoute(path: '/stocks', builder: (_, _) => const SecuritiesGate(child: StocksScreen())),
       GoRoute(
         path: '/cards/:id',
         builder: (_, state) => CardDetailScreen(
