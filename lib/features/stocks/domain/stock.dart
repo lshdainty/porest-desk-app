@@ -5,7 +5,8 @@ library;
 enum StockMarket { kr, us }
 
 class Stock {
-  const Stock({
+  // const 아님 — 토스 Open API 연동 시 [price] 를 in-place 갱신(라이브 시세 오버레이).
+  Stock({
     required this.ticker,
     required this.name,
     required this.market,
@@ -26,8 +27,8 @@ class Stock {
   final StockMarket market;
   final String sector;
 
-  /// KR=원, US=달러
-  final double price;
+  /// KR=원, US=달러. 라이브 시세 적용 시 갱신(mutable).
+  double price;
   final double changePct;
   final List<double> spark;
   final String marketCap;

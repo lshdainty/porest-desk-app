@@ -5,7 +5,31 @@ library;
 
 import 'package:porest_desk_app/features/stocks/domain/stock.dart';
 
-const double kFxUsdKrw = 1383.5;
+/// USD→KRW 환율. 토스 Open API 연동 시 [setLiveFx] 로 실환율 갱신, 미연동 시 mock 기본값.
+double kFxUsdKrw = 1383.5;
+
+/// 라이브 환율 적용 (토스 exchange-rate). 변경되면 true.
+bool setLiveFx(double rate) {
+  if (rate.isFinite && rate > 0 && rate != kFxUsdKrw) {
+    kFxUsdKrw = rate;
+    return true;
+  }
+  return false;
+}
+
+/// 라이브 시세 적용 (토스 prices). ticker→현재가 맵으로 kStocks[].price in-place 갱신.
+/// 화면은 kStocks/findStock 로 동기 읽으므로 연동 전환 시 이 모듈만 갱신(기존 설계). 변경분 있으면 true.
+bool applyLivePrices(Map<String, double> priceByTicker) {
+  var changed = false;
+  for (final s in kStocks) {
+    final live = priceByTicker[s.ticker];
+    if (live != null && live.isFinite && live > 0 && live != s.price) {
+      s.price = live;
+      changed = true;
+    }
+  }
+  return changed;
+}
 
 /// 가벼운 의사난수 스파크라인 (종목별 고정 시드 — 렌더마다 동일)
 List<double> _spark(int seed, {int n = 24, double drift = 0}) {

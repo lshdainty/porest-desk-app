@@ -19,7 +19,9 @@ import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_search_field.dart';
 import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
+import 'package:porest_desk_app/features/stocks/application/stocks_providers.dart';
 import 'package:porest_desk_app/features/stocks/data/stocks_mock.dart';
+import 'package:porest_desk_app/features/stocks/data/toss_dto.dart';
 import 'package:porest_desk_app/features/stocks/domain/stock.dart';
 
 /// 증권 — 시세 · 보유 · 관심 · 호가 (토스증권 Open API 연동 가정, mock 시세).
@@ -67,6 +69,8 @@ class _StocksScreenState extends ConsumerState<StocksScreen> {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final masked = ref.watch(settingsProvider).value?.hideAmounts ?? false;
+    // 토스 Open API 라이브 시세·환율 오버레이 (키 있으면 실데이터, 없으면 mock). 적용 완료 시 rebuild.
+    ref.watch(stockLiveOverlayProvider);
 
     final holdingsSorted = [...kStockHoldings]
       ..sort((a, b) => holdingEval(b).compareTo(holdingEval(a)));
@@ -1080,8 +1084,9 @@ class _KvCell extends StatelessWidget {
 // ---- 호가창 (연동 전 시드 고정 의사난수 잔량) ----------------------------------
 
 class _OrderBook extends StatelessWidget {
-  const _OrderBook({required this.stock});
+  const _OrderBook({required this.stock, this.live});
   final Stock stock;
+  final TossOrderbook? live;
 
   @override
   Widget build(BuildContext context) {
@@ -1096,14 +1101,27 @@ class _OrderBook extends StatelessWidget {
                 ? 100.0
                 : 50.0;
     double rng(int i) => ((i * 9301 + 49297) % 233280) / 233280;
-    final asks = [
-      for (final i in [4, 3, 2, 1, 0])
-        (p: base + tick * (i + 1), q: (40 + rng(i + 1) * 960).round()),
-    ];
-    final bids = [
-      for (final i in [0, 1, 2, 3, 4])
-        (p: base - tick * (i + 1), q: (40 + rng(i + 7) * 960).round()),
-    ];
+    final hasLive =
+        live != null && live!.asks.isNotEmpty && live!.bids.isNotEmpty;
+    // 라이브: asks=낮은가격순 → 상단 표시 위해 5개 역순(높은가격 위), bids=높은가격순 그대로.
+    final asks = hasLive
+        ? [
+            for (final e in live!.asks.take(5))
+              (p: e.priceValue, q: e.volumeValue.round()),
+          ].reversed.toList()
+        : [
+            for (final i in [4, 3, 2, 1, 0])
+              (p: base + tick * (i + 1), q: (40 + rng(i + 1) * 960).round()),
+          ];
+    final bids = hasLive
+        ? [
+            for (final e in live!.bids.take(5))
+              (p: e.priceValue, q: e.volumeValue.round()),
+          ]
+        : [
+            for (final i in [0, 1, 2, 3, 4])
+              (p: base - tick * (i + 1), q: (40 + rng(i + 7) * 960).round()),
+          ];
     var maxQ = 1;
     for (final a in asks) {
       if (a.q > maxQ) maxQ = a.q;
@@ -1412,20 +1430,23 @@ class _DiscoverPanelState extends State<_DiscoverPanel> {
 
 // ---- 호가 / 체결 탭 카드 -----------------------------------------------------
 
-class _QuotesCard extends StatefulWidget {
+class _QuotesCard extends ConsumerStatefulWidget {
   const _QuotesCard({required this.stock});
   final Stock stock;
 
   @override
-  State<_QuotesCard> createState() => _QuotesCardState();
+  ConsumerState<_QuotesCard> createState() => _QuotesCardState();
 }
 
-class _QuotesCardState extends State<_QuotesCard> {
+class _QuotesCardState extends ConsumerState<_QuotesCard> {
   String _tab = 'book';
 
   @override
   Widget build(BuildContext context) {
     final s = widget.stock;
+    // 라이브 호가·체결 (토스 Open API). 키/데이터 없으면 의사난수 폴백.
+    final liveBook = ref.watch(tossOrderbookProvider(s.ticker)).asData?.value;
+    final liveTrades = ref.watch(tossTradesProvider(s.ticker)).asData?.value;
     return PCard(
       padding: const EdgeInsets.all(PSpace.x16),
       child: Column(
@@ -1443,7 +1464,10 @@ class _QuotesCardState extends State<_QuotesCard> {
             ],
           ),
           const SizedBox(height: PSpace.x12),
-          if (_tab == 'book') _OrderBook(stock: s) else _TradeTape(stock: s),
+          if (_tab == 'book')
+            _OrderBook(stock: s, live: liveBook)
+          else
+            _TradeTape(stock: s, live: liveTrades),
         ],
       ),
     );
@@ -1453,8 +1477,9 @@ class _QuotesCardState extends State<_QuotesCard> {
 // ---- 체결 테이프 (연동 전 시드 고정 의사난수) --------------------------------
 
 class _TradeTape extends StatelessWidget {
-  const _TradeTape({required this.stock});
+  const _TradeTape({required this.stock, this.live});
   final Stock stock;
+  final List<TossTrade>? live;
 
   @override
   Widget build(BuildContext context) {
@@ -1471,23 +1496,45 @@ class _TradeTape extends StatelessWidget {
     String fmt(double p) =>
         s.isUs ? '\$${p.toStringAsFixed(2)}' : krw(p.round());
 
-    final fills = [
-      for (var i = 0; i < 12; i++)
-        (() {
-          final dir = rng(i + 3) > 0.45 ? 1 : -1;
-          final p = s.price + dir * tick * (rng(i + 9) * 2).round();
-          final q = (1 + rng(i + 5) * 80).round();
-          final mm = 42 - i;
-          final ss = (rng(i + 7) * 59).round();
-          return (
-            time:
-                '15:${mm.toString().padLeft(2, '0')}:${ss.toString().padLeft(2, '0')}',
-            p: p,
-            q: q,
-            dir: dir,
-          );
-        })(),
-    ];
+    // 라이브 체결(토스): dir=직전 체결가 대비 방향. 없으면 의사난수 폴백.
+    final liveData = live;
+    final fills = (liveData != null && liveData.isNotEmpty)
+        ? [
+            for (var i = 0; i < liveData.length && i < 12; i++)
+              (() {
+                final tr = liveData[i];
+                final p = tr.priceValue;
+                final prev =
+                    i + 1 < liveData.length ? liveData[i + 1].priceValue : p;
+                final time = RegExp(r'(\d{2}:\d{2}:\d{2})')
+                        .firstMatch(tr.timestamp)
+                        ?.group(1) ??
+                    tr.timestamp;
+                return (
+                  time: time,
+                  p: p,
+                  q: tr.volumeValue.round(),
+                  dir: p >= prev ? 1 : -1,
+                );
+              })(),
+          ]
+        : [
+            for (var i = 0; i < 12; i++)
+              (() {
+                final dir = rng(i + 3) > 0.45 ? 1 : -1;
+                final p = s.price + dir * tick * (rng(i + 9) * 2).round();
+                final q = (1 + rng(i + 5) * 80).round();
+                final mm = 42 - i;
+                final ss = (rng(i + 7) * 59).round();
+                return (
+                  time:
+                      '15:${mm.toString().padLeft(2, '0')}:${ss.toString().padLeft(2, '0')}',
+                  p: p,
+                  q: q,
+                  dir: dir,
+                );
+              })(),
+          ];
 
     TextStyle head() => TextStyle(
           fontFamily: PTypo.sans,
