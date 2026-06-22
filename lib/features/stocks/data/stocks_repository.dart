@@ -12,6 +12,9 @@ class StocksRepository {
   StocksRepository(this._dio);
   final Dio _dio;
 
+  /// 토스 candles 의 count 상한(min:1 max:200). 초과 요청은 before 커서로 페이지네이션.
+  static const int _tossCandleMax = 200;
+
   /// ApiResponse envelope({success, code, message, data})에서 data 추출.
   dynamic _payload(Response<dynamic> res) {
     final body = res.data;
@@ -117,14 +120,52 @@ class StocksRepository {
     int? count,
   }) async {
     try {
-      final res = await _dio.get<dynamic>(
-        '/toss/candles',
-        queryParameters: {'symbol': symbol, 'interval': interval, 'count': ?count},
-      );
-      return TossCandlePage.fromJson(_payload(res) as Map<String, dynamic>? ?? {});
+      // count 미지정 또는 ≤200 → 단일 요청
+      if (count == null || count <= _tossCandleMax) {
+        return _getCandlePage(symbol, interval, count: count);
+      }
+      // 토스 count 상한(200) 초과 → nextBefore 커서로 누적 (요청당 ≤200)
+      final merged = <TossCandle>[];
+      final seen = <String>{};
+      String? before;
+      String? nextBefore;
+      var remaining = count;
+      while (remaining > 0) {
+        final pageCount =
+            remaining < _tossCandleMax ? remaining : _tossCandleMax;
+        final page = await _getCandlePage(symbol, interval,
+            count: pageCount, before: before);
+        if (page.candles.isEmpty) break;
+        for (final c in page.candles) {
+          if (seen.add(c.timestamp)) merged.add(c);
+        }
+        nextBefore = page.nextBefore;
+        remaining -= page.candles.length;
+        if (page.nextBefore == null) break;
+        before = page.nextBefore;
+      }
+      return TossCandlePage(candles: merged, nextBefore: nextBefore);
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }
+  }
+
+  Future<TossCandlePage> _getCandlePage(
+    String symbol,
+    String interval, {
+    int? count,
+    String? before,
+  }) async {
+    final res = await _dio.get<dynamic>(
+      '/toss/candles',
+      queryParameters: {
+        'symbol': symbol,
+        'interval': interval,
+        'count': ?count,
+        'before': ?before,
+      },
+    );
+    return TossCandlePage.fromJson(_payload(res) as Map<String, dynamic>? ?? {});
   }
 
   Future<List<TossStockInfo>> getStocks(List<String> symbols) async {
