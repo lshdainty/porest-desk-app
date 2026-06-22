@@ -13,6 +13,7 @@ import 'package:porest_desk_app/features/subscription/presentation/subscription_
 import 'package:porest_desk_app/features/subscription/presentation/toss_connect_card.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
+import 'package:porest_desk_app/shared/widgets/p_badge.dart';
 import 'package:porest_desk_app/shared/widgets/p_card.dart';
 import 'package:porest_desk_app/shared/widgets/p_divider.dart';
 import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
@@ -252,15 +253,81 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           PCard(
             variant: PCardVariant.shadow,
             padding: EdgeInsets.zero,
-            child: _AccountRow(
-              icon: LucideIcons.sparkles,
-              label: 'Porest Pro',
-              desc: isSubscribed
-                  ? '${subscription?.currentPeriodEnd != null && subscription!.currentPeriodEnd!.length >= 10 ? '다음 결제 ${subscription.currentPeriodEnd!.substring(0, 10)} · ' : ''}Pro 이용 중 · 9,900원/월'
-                  : '증권 투자는 Pro 전용 · 지금 시작하기',
-              chevron: true,
-              tokens: t,
+            // 구독·결제 — 디자인대로 제목/부제 세로 스택 + 우측 가격/배지 커스텀 행.
+            // (generic _AccountRow 가로 desc 는 긴 부제에서 label 이 글자단위로 깨짐)
+            child: InkWell(
               onTap: () => showSubscriptionSheet(context),
+              borderRadius: PRadius.brLg,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: PSpace.x16, vertical: 14),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: t.bgBrandSubtle,
+                        borderRadius: PRadius.brMd,
+                      ),
+                      alignment: Alignment.center,
+                      child: Icon(LucideIcons.sparkles,
+                          size: 18, color: t.fgBrand),
+                    ),
+                    const SizedBox(width: PSpace.x12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Porest Pro',
+                            style: TextStyle(
+                              fontFamily: PTypo.sans,
+                              fontSize: PFontSize.body,
+                              fontWeight: PFontWeight.bold,
+                              color: t.fgPrimary,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            isSubscribed
+                                ? '${subscription?.currentPeriodEnd != null && subscription!.currentPeriodEnd!.length >= 10 ? '다음 결제 ${subscription.currentPeriodEnd!.substring(0, 10)} · ' : ''}Pro 이용 중'
+                                : '증권 투자는 Pro 전용 · 지금 시작하기',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: PTypo.caption.copyWith(color: t.fgTertiary),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: PSpace.x8),
+                    if (isSubscribed)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            '9,900원',
+                            style: TextStyle(
+                              fontFamily: PTypo.sans,
+                              fontSize: PFontSize.body,
+                              fontWeight: PFontWeight.bold,
+                              color: t.fgPrimary,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text('/ 월',
+                              style: PTypo.micro.copyWith(color: t.fgTertiary)),
+                        ],
+                      )
+                    else
+                      const PBadge(label: 'Pro 시작',
+                          variant: PBadgeVariant.softBrand),
+                    const SizedBox(width: PSpace.x8),
+                    Icon(LucideIcons.chevronRight,
+                        size: 16, color: t.fgTertiary),
+                  ],
+                ),
+              ),
             ),
           ),
 
@@ -432,12 +499,19 @@ class _AccountRow extends StatelessWidget {
               ),
             ),
             if (desc != null) ...[
-              Text(
-                desc!,
-                style: TextStyle(
-                  fontFamily: PTypo.sans,
-                  fontSize: PFontSize.caption,
-                  color: t.fgTertiary,
+              // 우측 상태/설명 — Flexible+ellipsis 로 긴 desc 가 label 을 0폭으로
+              // 짜부라뜨리지 않게(글자 단위 줄바꿈 방지).
+              Flexible(
+                child: Text(
+                  desc!,
+                  textAlign: TextAlign.right,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontFamily: PTypo.sans,
+                    fontSize: PFontSize.caption,
+                    color: t.fgTertiary,
+                  ),
                 ),
               ),
               if (trailing != null || chevron) const SizedBox(width: PSpace.x8),

@@ -419,14 +419,21 @@ class _SubscriptionSheetBodyState
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
             children: [
-              Text(
-                isPro ? '${_won(priceWon)}원' : '0원',
-                style: TextStyle(
-                  fontFamily: PTypo.sans,
-                  fontSize: 24,
-                  fontWeight: PFontWeight.bold,
-                  color: t.fgPrimary,
-                  letterSpacing: -0.48,
+              // 큰 글꼴 배율/좁은 카드폭에서 가격 overflow 방지(FittedBox 축소).
+              Flexible(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    isPro ? '${_won(priceWon)}원' : '0원',
+                    style: TextStyle(
+                      fontFamily: PTypo.sans,
+                      fontSize: 24,
+                      fontWeight: PFontWeight.bold,
+                      color: t.fgPrimary,
+                      letterSpacing: -0.48,
+                    ),
+                  ),
                 ),
               ),
               if (isPro) ...[
@@ -519,6 +526,9 @@ class _SubscriptionSheetBodyState
                 Flexible(
                   child: Text(
                     f.label,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    softWrap: true,
                     style: TextStyle(
                       fontFamily: PTypo.sans,
                       fontSize: 12.5,
