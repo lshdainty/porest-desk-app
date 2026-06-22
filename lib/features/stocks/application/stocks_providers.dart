@@ -96,7 +96,8 @@ final tossCandlesProvider =
   if (arg.symbol.isEmpty) return null;
   try {
     final repo = await ref.watch(stocksRepositoryProvider.future);
-    final count = arg.interval == '1m' ? 390 : 250;
+    // 토스 count 상한 200 초과는 repository 가 before 커서로 페이지네이션.
+    final count = arg.interval == '1m' ? 390 : 252;
     return await repo.getCandles(arg.symbol, arg.interval, count: count);
   } catch (_) {
     return null;
