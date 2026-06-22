@@ -25,6 +25,8 @@ void showSubscriptionSheet(BuildContext context) {
     title: '구독 관리',
     contentBuilder: (ctx, scrollCtrl) =>
         _SubscriptionSheetBody(scrollController: scrollCtrl),
+    // footer 는 showPSheet 가 하단 고정 — content(ListView)만 스크롤 (웹 ModalShell 정합).
+    footerBuilder: (ctx) => const _SubscriptionFooter(),
     initialChildSize: 0.92,
     maxChildSize: 0.95,
   );
@@ -78,63 +80,6 @@ class _SubscriptionSheetBody extends ConsumerStatefulWidget {
 class _SubscriptionSheetBodyState
     extends ConsumerState<_SubscriptionSheetBody> {
   _Cycle _cycle = _Cycle.monthly;
-  bool _busy = false;
-
-  Future<void> _subscribe() async {
-    final plans = ref.read(subscriptionPlansProvider).asData?.value ?? const [];
-    final planCode = plans.isNotEmpty ? plans.first.planCode : 'SECURITIES';
-    setState(() => _busy = true);
-    try {
-      final repo = await ref.read(subscriptionRepositoryProvider.future);
-      await repo.subscribe(planCode);
-      ref.invalidate(myFeaturesProvider);
-      ref.invalidate(mySubscriptionProvider);
-      if (mounted) {
-        showPSnackBar(
-          context,
-          'Porest Pro 구독이 시작되었어요',
-          severity: PSnackSeverity.success,
-        );
-        Navigator.of(context).pop();
-      }
-    } catch (_) {
-      if (mounted) {
-        showPSnackBar(context, '구독에 실패했어요', severity: PSnackSeverity.error);
-      }
-    } finally {
-      if (mounted) setState(() => _busy = false);
-    }
-  }
-
-  Future<void> _cancel(String nextBill) async {
-    final ok = await showPConfirmDialog(
-      context,
-      title: '구독을 해지할까요?',
-      message:
-          '해지하면 $nextBill부터 Free 플랜으로 전환되고 증권 탭이 잠겨요. 그 전까지는 Pro 기능을 계속 쓸 수 있어요.',
-      confirmLabel: '구독 해지',
-      cancelLabel: '유지하기',
-      destructive: true,
-    );
-    if (!ok || !mounted) return;
-    setState(() => _busy = true);
-    try {
-      final repo = await ref.read(subscriptionRepositoryProvider.future);
-      await repo.cancelSubscription();
-      ref.invalidate(myFeaturesProvider);
-      ref.invalidate(mySubscriptionProvider);
-      if (mounted) {
-        showPSnackBar(context, '구독을 해지했어요', severity: PSnackSeverity.success);
-        Navigator.of(context).pop();
-      }
-    } catch (_) {
-      if (mounted) {
-        showPSnackBar(context, '해지에 실패했어요', severity: PSnackSeverity.error);
-      }
-    } finally {
-      if (mounted) setState(() => _busy = false);
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -322,33 +267,6 @@ class _SubscriptionSheetBodyState
               ],
             ),
           ),
-        ),
-        const SizedBox(height: PSpace.x20),
-
-        // 액션
-        Row(
-          children: [
-            Expanded(
-              child: PButton(
-                label: '닫기',
-                variant: PButtonVariant.outline,
-                onPressed: _busy ? null : () => Navigator.of(context).pop(),
-              ),
-            ),
-            const SizedBox(width: PSpace.x12),
-            Expanded(
-              child: isPro
-                  ? PButton(
-                      label: '구독 해지',
-                      variant: PButtonVariant.danger,
-                      onPressed: _busy ? null : () => _cancel(nextBill),
-                    )
-                  : PButton(
-                      label: _busy ? '처리 중…' : 'Pro 시작하기',
-                      onPressed: _busy ? null : _subscribe,
-                    ),
-            ),
-          ],
         ),
       ],
     );
@@ -562,6 +480,111 @@ class _SubscriptionSheetBodyState
         fontWeight: PFontWeight.bold,
         color: accent ? t.fgBrand : t.fgSecondary,
       ),
+    );
+  }
+}
+
+/// 구독 시트 하단 고정 footer — [닫기 | 구독 해지 / Pro 시작하기].
+/// content(ListView)와 분리해 showPSheet footerBuilder 로 하단 고정(웹 ModalShell 정합).
+/// _busy 는 footer 전용 상태(버튼 비활성/로딩), isPro·nextBill 은 provider 에서 직접 read.
+class _SubscriptionFooter extends ConsumerStatefulWidget {
+  const _SubscriptionFooter();
+
+  @override
+  ConsumerState<_SubscriptionFooter> createState() =>
+      _SubscriptionFooterState();
+}
+
+class _SubscriptionFooterState extends ConsumerState<_SubscriptionFooter> {
+  bool _busy = false;
+
+  Future<void> _subscribe() async {
+    final plans = ref.read(subscriptionPlansProvider).asData?.value ?? const [];
+    final planCode = plans.isNotEmpty ? plans.first.planCode : 'SECURITIES';
+    setState(() => _busy = true);
+    try {
+      final repo = await ref.read(subscriptionRepositoryProvider.future);
+      await repo.subscribe(planCode);
+      ref.invalidate(myFeaturesProvider);
+      ref.invalidate(mySubscriptionProvider);
+      if (mounted) {
+        showPSnackBar(
+          context,
+          'Porest Pro 구독이 시작되었어요',
+          severity: PSnackSeverity.success,
+        );
+        Navigator.of(context).pop();
+      }
+    } catch (_) {
+      if (mounted) {
+        showPSnackBar(context, '구독에 실패했어요', severity: PSnackSeverity.error);
+      }
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _cancel(String nextBill) async {
+    final ok = await showPConfirmDialog(
+      context,
+      title: '구독을 해지할까요?',
+      message:
+          '해지하면 $nextBill부터 Free 플랜으로 전환되고 증권 탭이 잠겨요. 그 전까지는 Pro 기능을 계속 쓸 수 있어요.',
+      confirmLabel: '구독 해지',
+      cancelLabel: '유지하기',
+      destructive: true,
+    );
+    if (!ok || !mounted) return;
+    setState(() => _busy = true);
+    try {
+      final repo = await ref.read(subscriptionRepositoryProvider.future);
+      await repo.cancelSubscription();
+      ref.invalidate(myFeaturesProvider);
+      ref.invalidate(mySubscriptionProvider);
+      if (mounted) {
+        showPSnackBar(context, '구독을 해지했어요', severity: PSnackSeverity.success);
+        Navigator.of(context).pop();
+      }
+    } catch (_) {
+      if (mounted) {
+        showPSnackBar(context, '해지에 실패했어요', severity: PSnackSeverity.error);
+      }
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final sub = ref.watch(mySubscriptionProvider).asData?.value;
+    final isPro = sub?.isActive ?? false;
+    final nextBill =
+        (sub?.currentPeriodEnd != null && sub!.currentPeriodEnd!.length >= 10)
+        ? sub.currentPeriodEnd!.substring(0, 10)
+        : '다음 결제일';
+    return Row(
+      children: [
+        Expanded(
+          child: PButton(
+            label: '닫기',
+            variant: PButtonVariant.outline,
+            onPressed: _busy ? null : () => Navigator.of(context).pop(),
+          ),
+        ),
+        const SizedBox(width: PSpace.x12),
+        Expanded(
+          child: isPro
+              ? PButton(
+                  label: '구독 해지',
+                  variant: PButtonVariant.danger,
+                  onPressed: _busy ? null : () => _cancel(nextBill),
+                )
+              : PButton(
+                  label: _busy ? '처리 중…' : 'Pro 시작하기',
+                  onPressed: _busy ? null : _subscribe,
+                ),
+        ),
+      ],
     );
   }
 }
