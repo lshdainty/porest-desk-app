@@ -76,45 +76,6 @@ const List<WatchGroup> kStockWatch = [
   WatchGroup(id: 'w-us',   name: '미국 기술주', tickers: ['MSFT', 'GOOGL', 'AMZN', 'NVDA']),
 ];
 
-/// 시장 지수 — 상단 스트립 (웹 MARKET_INDICES 와 동일 시드)
-final List<MarketIndex> kMarketIndices = [
-  MarketIndex(id: 'kospi',  name: 'KOSPI',   value: 2580.21,  changePct: 0.83,  spark: _spark(301, drift: 0.4)),
-  MarketIndex(id: 'kosdaq', name: 'KOSDAQ',  value: 738.45,   changePct: -0.41, spark: _spark(317, drift: -0.3)),
-  MarketIndex(id: 'nasdaq', name: 'NASDAQ',  value: 19210.31, changePct: 1.12,  spark: _spark(331, drift: 0.7)),
-  MarketIndex(id: 'snp',    name: 'S&P 500', value: 5998.74,  changePct: 0.55,  spark: _spark(347, drift: 0.3)),
-];
-
-const List<String> _dailyDates = [
-  '06.20', '06.19', '06.18', '06.17', '06.16', '06.13', '06.12', '06.11'
-];
-
-/// 일별 시세 — 종목 상세 표 (연동 전 시드 고정 의사난수, 최근 8영업일)
-List<DailyQuote> dailyQuotes(Stock s) {
-  var seed = s.ticker.codeUnits.fold<int>(0, (a, c) => a + c);
-  double rng() {
-    seed = (seed * 9301 + 49297) % 233280;
-    return seed / 233280;
-  }
-
-  var close = s.price;
-  final volBase = s.isUs ? 30.0 : 2000000.0;
-  final out = <DailyQuote>[];
-  for (var i = 0; i < _dailyDates.length; i++) {
-    final chg = i == 0 ? s.changePct : (rng() - 0.5) * 6;
-    out.add(DailyQuote(
-      date: _dailyDates[i],
-      close: s.isUs ? (close * 100).round() / 100 : close.roundToDouble(),
-      chg: (chg * 100).round() / 100,
-      vol: s.isUs
-          ? (volBase + rng() * 40)
-          : (volBase + rng() * 8000000).roundToDouble(),
-    ));
-    // 과거로 갈수록 등락 역산
-    close = close / (1 + chg / 100);
-  }
-  return out;
-}
-
 // ---- 시세 계산 헬퍼 ----
 
 /// 시세 원화 환산 (US는 환율 적용)
