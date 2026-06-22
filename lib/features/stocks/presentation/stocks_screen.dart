@@ -23,6 +23,7 @@ import 'package:porest_desk_app/features/stocks/application/stocks_providers.dar
 import 'package:porest_desk_app/features/stocks/data/stocks_mock.dart';
 import 'package:porest_desk_app/features/stocks/data/toss_dto.dart';
 import 'package:porest_desk_app/features/stocks/domain/stock.dart';
+import 'package:porest_desk_app/features/subscription/application/subscription_providers.dart';
 
 /// 증권 — 시세 · 보유 · 관심 · 호가 (토스증권 Open API 연동 가정, mock 시세).
 /// 웹 `pages/stocks/ui/StocksPage.tsx` 미러.
@@ -69,7 +70,16 @@ class _StocksScreenState extends ConsumerState<StocksScreen> {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final masked = ref.watch(settingsProvider).value?.hideAmounts ?? false;
-    // 토스 Open API 라이브 시세·환율 오버레이 (키 있으면 실데이터, 없으면 mock). 적용 완료 시 rebuild.
+
+    // 개인키 미연결 시 전 화면 연결 유도 (mock 노출 금지). 토스 API는 시세 포함 모든
+    // 조회가 개인키 토큰을 요구하므로(공용키 폐기), 키 없으면 조회 불가.
+    final credAsync = ref.watch(tossCredentialStatusProvider);
+    final connected = credAsync.asData?.value.connected ?? false;
+    if (!credAsync.isLoading && !connected) {
+      return _ConnectGate();
+    }
+
+    // 토스 Open API 라이브 시세·환율 오버레이 (연결 시에만 실데이터 적용).
     ref.watch(stockLiveOverlayProvider);
 
     // 보유자산 — 키 연결 시 실데이터, 미연결 시 null(연결 유도 빈 상태). mock 미사용.
@@ -572,6 +582,59 @@ class _StockRow extends StatelessWidget {
                   ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+// ---- 개인키 미연결: 전 화면 연결 유도 -----------------------------------------
+
+class _ConnectGate extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return Scaffold(
+      backgroundColor: t.bgCanvas,
+      appBar: AppBar(
+        leadingWidth: PBackButton.leadingWidth,
+        titleSpacing: 0,
+        leading: PBackButton(onPressed: () => context.pop()),
+        title: const Text('증권'),
+        backgroundColor: t.bgSurface,
+        foregroundColor: t.fgPrimary,
+        elevation: 0,
+      ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(PSpace.x24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(LucideIcons.lock, size: 32, color: t.fgTertiary),
+              const SizedBox(height: PSpace.x12),
+              Text(
+                '증권 계정을 연결해 주세요',
+                style: PTypo.body.copyWith(
+                  color: t.fgPrimary,
+                  fontWeight: PFontWeight.semi,
+                ),
+              ),
+              const SizedBox(height: PSpace.x4),
+              Text(
+                '토스증권 키를 연결하면 시세·보유 종목과\n평가손익을 실시간으로 볼 수 있어요.',
+                textAlign: TextAlign.center,
+                style: PTypo.bodySm.copyWith(color: t.fgTertiary),
+              ),
+              const SizedBox(height: PSpace.x16),
+              PButton(
+                label: '설정에서 연결하기',
+                variant: PButtonVariant.outline,
+                size: PButtonSize.sm,
+                onPressed: () => context.push('/account'),
+              ),
+            ],
+          ),
         ),
       ),
     );
