@@ -170,7 +170,9 @@ class _SubscriptionSheetBodyState
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: t.bgBrand,
+                  // solid 채움 아이콘 칩 — 다크에서도 primary 고정(bgBrandSolid). bgBrand 는
+                  // 다크에서 primary-light 로 밝아짐 → 웹(--bg-brand=primary) 정합 위해 solid.
+                  color: t.bgBrandSolid,
                   borderRadius: PRadius.brMd,
                 ),
                 alignment: Alignment.center,

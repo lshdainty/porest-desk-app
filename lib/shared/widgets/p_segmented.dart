@@ -6,7 +6,7 @@ import 'package:porest_desk_app/app/theme/typography.dart';
 
 /// front shadcn `<ToggleGroup variant="segmented">` 미러.
 ///
-/// 기간 선택, 거래종류 등 — track(`bgMuted`) + active(`bgBrand`) 패턴.
+/// 기간 선택, 거래종류 등 — track(`bgSunken`) + active(`bgBrandSolid`) 패턴.
 /// 사용 예:
 /// ```dart
 /// PSegmented<FilterPeriod>(
@@ -58,8 +58,11 @@ class PSegmented<T> extends StatelessWidget {
                 child: Container(
                   height: 28,
                   decoration: BoxDecoration(
-                    color:
-                        o.value == value ? t.bgBrand : Colors.transparent,
+                    // active 채움은 bgBrandSolid(다크에서도 primary 고정) — bgBrand 는 다크에서
+                    // primary-light 로 밝아짐. 웹 ToggleGroup segmented(active=primary) 정합.
+                    color: o.value == value
+                        ? t.bgBrandSolid
+                        : Colors.transparent,
                     borderRadius: PRadius.brSm,
                   ),
                   alignment: Alignment.center,
