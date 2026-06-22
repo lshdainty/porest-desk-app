@@ -499,19 +499,17 @@ class _AccountRow extends StatelessWidget {
               ),
             ),
             if (desc != null) ...[
-              // 우측 상태/설명 — Flexible+ellipsis 로 긴 desc 가 label 을 0폭으로
-              // 짜부라뜨리지 않게(글자 단위 줄바꿈 방지).
-              Flexible(
-                child: Text(
-                  desc!,
-                  textAlign: TextAlign.right,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontFamily: PTypo.sans,
-                    fontSize: PFontSize.caption,
-                    color: t.fgTertiary,
-                  ),
+              // 우측 상태/설명 — 짧은 desc(연결 안 됨/최근 변경 없음 등) 전용.
+              // label(Expanded)이 남은 폭을 차지해 desc·trailing 을 우측으로 민다.
+              // (긴 desc 는 구독 행처럼 호출부에서 커스텀 스택으로 처리)
+              Text(
+                desc!,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontFamily: PTypo.sans,
+                  fontSize: PFontSize.caption,
+                  color: t.fgTertiary,
                 ),
               ),
               if (trailing != null || chevron) const SizedBox(width: PSpace.x8),

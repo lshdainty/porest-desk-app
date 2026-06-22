@@ -7,7 +7,9 @@ import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/features/subscription/application/subscription_providers.dart';
+import 'package:porest_desk_app/shared/widgets/p_badge.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
+import 'package:porest_desk_app/shared/widgets/p_card.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_segmented.dart';
 import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
@@ -157,14 +159,11 @@ class _SubscriptionSheetBodyState
         PSpace.x16,
       ),
       children: [
-        // 현재 플랜 배너
-        Container(
+        // 현재 플랜 배너 — PCard.brand (bgBrandSubtle + soft brand border)
+        PCard(
+          variant: PCardVariant.brand,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          decoration: BoxDecoration(
-            color: t.bgBrandSubtle,
-            borderRadius: PRadius.brLg,
-            border: Border.all(color: t.bgBrand.withValues(alpha: 0.28)),
-          ),
+          border: Border.all(color: t.borderBrandSoft),
           child: Row(
             children: [
               Container(
@@ -186,7 +185,7 @@ class _SubscriptionSheetBodyState
                       isPro ? 'Porest Pro 이용 중' : 'Free 플랜 이용 중',
                       style: TextStyle(
                         fontFamily: PTypo.sans,
-                        fontSize: 15,
+                        fontSize: PFontSize.bodyMd,
                         fontWeight: PFontWeight.bold,
                         color: t.fgPrimary,
                       ),
@@ -206,13 +205,11 @@ class _SubscriptionSheetBodyState
         ),
         const SizedBox(height: PSpace.x16),
 
-        // 증권 스포트라이트
-        Container(
+        // 증권 스포트라이트 — PCard.muted + bgSunken override (dark 톤 분리)
+        PCard(
+          variant: PCardVariant.muted,
+          color: t.bgSunken,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          decoration: BoxDecoration(
-            color: t.bgSunken,
-            borderRadius: PRadius.brLg,
-          ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -220,7 +217,7 @@ class _SubscriptionSheetBodyState
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: t.statusDanger.withValues(alpha: 0.14),
+                  color: t.statusDangerSubtle,
                   borderRadius: PRadius.brMd,
                 ),
                 alignment: Alignment.center,
@@ -239,7 +236,7 @@ class _SubscriptionSheetBodyState
                       '증권 투자는 Pro 전용이에요',
                       style: TextStyle(
                         fontFamily: PTypo.sans,
-                        fontSize: 13.5,
+                        fontSize: PFontSize.body,
                         fontWeight: PFontWeight.bold,
                         color: t.fgPrimary,
                       ),
@@ -310,17 +307,18 @@ class _SubscriptionSheetBodyState
             ),
           ),
         ),
-        Container(
-          decoration: BoxDecoration(
+        // PCard.bordered (bgSurface + borderSubtle) — 행 모서리 라운딩은 PCard 가
+        // clip 을 안 하므로 내부 ClipRRect 로 처리.
+        PCard(
+          variant: PCardVariant.bordered,
+          child: ClipRRect(
             borderRadius: PRadius.brLg,
-            border: Border.all(color: t.borderSubtle),
-          ),
-          clipBehavior: Clip.antiAlias,
-          child: Column(
-            children: [
-              _featureHeader(t),
-              for (final f in _features) _featureRow(t, f),
-            ],
+            child: Column(
+              children: [
+                _featureHeader(t),
+                for (final f in _features) _featureRow(t, f),
+              ],
+            ),
           ),
         ),
         const SizedBox(height: PSpace.x20),
@@ -362,15 +360,12 @@ class _SubscriptionSheetBodyState
     String priceUnit = '월',
     String? note,
   }) {
-    return Container(
+    return PCard(
+      variant: PCardVariant.bordered,
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: t.bgSurface,
-        borderRadius: PRadius.brLg,
-        border: Border.all(
-          color: isPro ? t.bgBrand : t.borderDefault,
-          width: isPro ? 2 : 1,
-        ),
+      border: Border.all(
+        color: isPro ? t.borderBrand : t.borderDefault,
+        width: isPro ? 2 : 1,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -388,7 +383,7 @@ class _SubscriptionSheetBodyState
                     isPro ? 'Pro' : 'Free',
                     style: TextStyle(
                       fontFamily: PTypo.sans,
-                      fontSize: 14,
+                      fontSize: PFontSize.body,
                       fontWeight: PFontWeight.bold,
                       color: isPro ? t.fgBrand : t.fgPrimary,
                     ),
@@ -396,24 +391,11 @@ class _SubscriptionSheetBodyState
                 ],
               ),
               if (current)
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 6,
-                    vertical: 2,
-                  ),
-                  decoration: BoxDecoration(
-                    color: isPro ? t.bgBrandSubtle : t.bgSunken,
-                    borderRadius: PRadius.brSm,
-                  ),
-                  child: Text(
-                    '현재 플랜',
-                    style: TextStyle(
-                      fontFamily: PTypo.sans,
-                      fontSize: 10.5,
-                      fontWeight: PFontWeight.bold,
-                      color: isPro ? t.fgBrandStrong : t.fgSecondary,
-                    ),
-                  ),
+                PBadge(
+                  label: '현재 플랜',
+                  variant: isPro
+                      ? PBadgeVariant.primary
+                      : PBadgeVariant.secondary,
                 ),
             ],
           ),
@@ -430,7 +412,7 @@ class _SubscriptionSheetBodyState
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontFamily: PTypo.sans,
-                    fontSize: 24,
+                    fontSize: PFontSize.h2,
                     fontWeight: PFontWeight.bold,
                     color: t.fgPrimary,
                     letterSpacing: -0.48,
@@ -470,7 +452,7 @@ class _SubscriptionSheetBodyState
               '기능',
               style: TextStyle(
                 fontFamily: PTypo.sans,
-                fontSize: 11.5,
+                fontSize: PFontSize.caption,
                 fontWeight: PFontWeight.semi,
                 color: t.fgTertiary,
               ),
@@ -483,7 +465,7 @@ class _SubscriptionSheetBodyState
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontFamily: PTypo.sans,
-                fontSize: 11.5,
+                fontSize: PFontSize.caption,
                 fontWeight: PFontWeight.semi,
                 color: t.fgTertiary,
               ),
@@ -496,7 +478,7 @@ class _SubscriptionSheetBodyState
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontFamily: PTypo.sans,
-                fontSize: 11.5,
+                fontSize: PFontSize.caption,
                 fontWeight: PFontWeight.bold,
                 color: t.fgBrand,
               ),
@@ -535,7 +517,7 @@ class _SubscriptionSheetBodyState
                     softWrap: true,
                     style: TextStyle(
                       fontFamily: PTypo.sans,
-                      fontSize: 12.5,
+                      fontSize: PFontSize.bodySm,
                       fontWeight: f.star
                           ? PFontWeight.bold
                           : PFontWeight.medium,
@@ -574,7 +556,7 @@ class _SubscriptionSheetBodyState
       val.toString(),
       style: TextStyle(
         fontFamily: PTypo.sans,
-        fontSize: 11.5,
+        fontSize: PFontSize.caption,
         fontWeight: PFontWeight.bold,
         color: accent ? t.fgBrand : t.fgSecondary,
       ),
