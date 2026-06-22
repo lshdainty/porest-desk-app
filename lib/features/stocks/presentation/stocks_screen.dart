@@ -1,3 +1,4 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -15,6 +16,7 @@ import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_badge.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_card.dart';
+import 'package:porest_desk_app/shared/widgets/p_chart_tooltip.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_search_field.dart';
 import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
@@ -25,8 +27,10 @@ import 'package:porest_desk_app/features/stocks/data/toss_dto.dart';
 import 'package:porest_desk_app/features/stocks/domain/stock.dart';
 import 'package:porest_desk_app/features/subscription/application/subscription_providers.dart';
 
-/// 증권 — 시세 · 보유 · 관심 · 호가 (토스증권 Open API 연동 가정, mock 시세).
-/// 웹 `pages/stocks/ui/StocksPage.tsx` 미러.
+/// 증권 — 시세 · 보유 · 관심 · 호가 (토스증권 Open API 실연동).
+/// 웹 `pages/stocks/ui/StocksPage.tsx` 미러 (디자인 리뉴얼 반영).
+/// 차트·일별시세·등락률=실 candles, 장상태=market-calendar, 기본정보=stocks+price-limits,
+/// 매수유의=warnings, 호가/체결=실데이터 전용. 검색/관심/발견 universe 만 큐레이트 카탈로그+오버레이.
 /// 상승=statusDangerFg / 하락=fgBrand (국내 증권 통념, 기존 시맨틱 토큰 재활용).
 class StocksScreen extends ConsumerStatefulWidget {
   const StocksScreen({super.key});
@@ -37,7 +41,7 @@ class StocksScreen extends ConsumerStatefulWidget {
 
 enum _Seg { holdings, watch, discover }
 
-/// 숫자 정렬용 tabular figures — 웹 `.num`(tnum) 미러. 가격·수량·수익률·지수 등에 적용.
+/// 숫자 정렬용 tabular figures — 웹 `.num`(tnum) 미러. 가격·수량·수익률 등에 적용.
 const List<FontFeature> _tnum = [FontFeature.tabularFigures()];
 
 class _StocksScreenState extends ConsumerState<StocksScreen> {
@@ -109,7 +113,7 @@ class _StocksScreenState extends ConsumerState<StocksScreen> {
         padding: const EdgeInsets.fromLTRB(
             PSpace.x16, PSpace.x16, PSpace.x16, PSpace.x24),
         children: [
-          const _IndexStrip(),
+          const _MarketStatusBar(),
           const SizedBox(height: PSpace.x16),
           _SummaryCard(masked: masked, holdings: holdings),
           const SizedBox(height: PSpace.x16),
@@ -315,7 +319,6 @@ class _StocksScreenState extends ConsumerState<StocksScreen> {
             setSheet(() {});
           },
           scrollController: scrollCtrl,
-          masked: ref.read(settingsProvider).value?.hideAmounts ?? false,
         ),
       ),
     );
@@ -340,6 +343,148 @@ Color _marketTone(BuildContext context, Stock s) {
 String _fmtPrice(Stock s) => s.isUs
     ? '\$${s.price.toStringAsFixed(2)}'
     : '${krw(s.price.round())}원';
+
+String _two(int v) => v.toString().padLeft(2, '0');
+
+/// 캔들 → 시간순(오름차순) 종가 배열. 웹 `candleCloses` 미러.
+List<double> _candleCloses(List<TossCandle> candles) {
+  final sorted = [...candles]..sort((a, b) => a.timestamp.compareTo(b.timestamp));
+  return [for (final c in sorted) c.closeValue].where((v) => v.isFinite).toList();
+}
+
+// ---- 매수 유의사항 라벨 (토스 warningType → 한글) ----------------------------
+
+const Map<String, String> _kWarningLabels = {
+  'LIQUIDATION_TRADING': '정리매매',
+  'OVERHEATED': '단기과열',
+  'SHORT_TERM_OVERHEAT': '단기과열',
+  'EXCESSIVE_RISE': '이상급등',
+  'INVESTMENT_WARNING': '투자경고',
+  'INVESTMENT_RISK': '투자위험',
+  'INVESTMENT_CAUTION': '투자주의',
+  'VI': 'VI 발동',
+  'VI_STATIC': '정적 VI',
+  'VI_DYNAMIC': '동적 VI',
+  'VI_STATIC_AND_DYNAMIC': 'VI 발동',
+  'STOCK_WARRANTS': '신주인수권',
+  'ADMINISTRATIVE': '관리종목',
+  'ADJUSTMENT_OF_SHARES': '주식병합·분할',
+};
+String _warningLabel(String type) => _kWarningLabels[type] ?? type;
+
+// ---- 장 상태 계산 (시장 현지 시각 vs 정규장 운영시간) -------------------------
+
+enum _Tz { kr, us }
+
+/// 'HH:MM:SS' → 'HH:MM'
+String? _hhmm(String? s) =>
+    (s != null && s.length >= 5) ? s.substring(0, 5) : null;
+
+DateTime _nthSundayUtc(int year, int month, int n) {
+  var d = DateTime.utc(year, month, 1);
+  var count = 0;
+  while (true) {
+    if (d.weekday == DateTime.sunday) {
+      count++;
+      if (count == n) return d;
+    }
+    d = d.add(const Duration(days: 1));
+  }
+}
+
+/// 미국 동부 서머타임 여부 (3월 둘째 일요일 02:00 ~ 11월 첫째 일요일 02:00).
+bool _isUsEasternDst(DateTime utc) {
+  final start = _nthSundayUtc(utc.year, 3, 2).add(const Duration(hours: 7));
+  final end = _nthSundayUtc(utc.year, 11, 1).add(const Duration(hours: 6));
+  return utc.isAfter(start) && utc.isBefore(end);
+}
+
+/// 시장 현지 시각 'HH:MM' (KR=UTC+9, US 동부=DST 반영). 웹 `nowInTz` 미러.
+String _nowInTz(_Tz tz) {
+  final utc = DateTime.now().toUtc();
+  final local = tz == _Tz.kr
+      ? utc.add(const Duration(hours: 9))
+      : utc.subtract(Duration(hours: _isUsEasternDst(utc) ? 4 : 5));
+  return '${_two(local.hour)}:${_two(local.minute)}';
+}
+
+({bool open, String detail}) _marketState(
+    TossMarketSession? session, _Tz tz) {
+  final start = _hhmm(session?.startTime);
+  final end = _hhmm(session?.endTime);
+  if (start == null || end == null) return (open: false, detail: '휴장');
+  final now = _nowInTz(tz);
+  if (now.compareTo(start) >= 0 && now.compareTo(end) <= 0) {
+    return (open: true, detail: '장중 · $now');
+  }
+  if (now.compareTo(start) < 0) return (open: false, detail: '개장 $start');
+  return (open: false, detail: '장마감');
+}
+
+// ---- 장 상태 바 (토스 market-calendar) --------------------------------------
+
+class _MarketStatusBar extends ConsumerWidget {
+  const _MarketStatusBar();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = context.tokens;
+    final krCal = ref.watch(tossMarketCalendarKrProvider).asData?.value;
+    final usCal = ref.watch(tossMarketCalendarUsProvider).asData?.value;
+    final kr = _marketState(krCal?.today.regularMarket, _Tz.kr);
+    final us = _marketState(usCal?.today.regularMarket, _Tz.us);
+    final markets = <({String name, bool open, String detail})>[
+      (name: '국내', open: kr.open, detail: kr.detail),
+      (name: '미국', open: us.open, detail: us.detail),
+    ];
+    return Wrap(
+      spacing: PSpace.x8,
+      runSpacing: PSpace.x8,
+      children: [
+        for (final m in markets)
+          Container(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 11, vertical: 5),
+            decoration: BoxDecoration(
+              color: t.bgSunken,
+              borderRadius: PRadius.brFull,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 7,
+                  height: 7,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: m.open ? t.statusSuccessFg : t.fgTertiary,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  m.name,
+                  style: TextStyle(
+                    fontFamily: PTypo.sans,
+                    fontSize: 12.5,
+                    fontWeight: PFontWeight.semi,
+                    color: t.fgPrimary,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  m.detail,
+                  style: PTypo.caption.copyWith(
+                    color: m.open ? t.fgSecondary : t.fgTertiary,
+                    fontFeatures: _tnum,
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+}
 
 // ---- 등락률 배지 (색 + 부호 + 아이콘 3중 병기 — A11y 1.4.1) -------------------
 
@@ -406,19 +551,17 @@ class _StockBadge extends StatelessWidget {
   }
 }
 
-// ---- 미니 스파크라인 ---------------------------------------------------------
+// ---- 미니 스파크라인 (리스트 행 — 큐레이트 카탈로그 spark) --------------------
 
 class _Sparkline extends StatelessWidget {
   const _Sparkline({
     required this.values,
     required this.color,
     required this.height,
-    this.fill = false,
   });
   final List<double> values;
   final Color color;
   final double height;
-  final bool fill;
 
   @override
   Widget build(BuildContext context) {
@@ -426,17 +569,16 @@ class _Sparkline extends StatelessWidget {
       height: height,
       width: double.infinity,
       child: CustomPaint(
-        painter: _SparkPainter(values: values, color: color, fill: fill),
+        painter: _SparkPainter(values: values, color: color),
       ),
     );
   }
 }
 
 class _SparkPainter extends CustomPainter {
-  _SparkPainter({required this.values, required this.color, required this.fill});
+  _SparkPainter({required this.values, required this.color});
   final List<double> values;
   final Color color;
-  final bool fill;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -460,24 +602,6 @@ class _SparkPainter extends CustomPainter {
     for (final p in pts.skip(1)) {
       path.lineTo(p.dx, p.dy);
     }
-    if (fill) {
-      final fillPath = Path.from(path)
-        ..lineTo(size.width, size.height)
-        ..lineTo(0, size.height)
-        ..close();
-      canvas.drawPath(
-        fillPath,
-        Paint()
-          ..shader = LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              color.withValues(alpha: 0.25),
-              color.withValues(alpha: 0),
-            ],
-          ).createShader(Offset.zero & size),
-      );
-    }
     canvas.drawPath(
       path,
       Paint()
@@ -492,7 +616,7 @@ class _SparkPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _SparkPainter old) =>
-      old.values != values || old.color != color || old.fill != fill;
+      old.values != values || old.color != color;
 }
 
 // ---- 종목 리스트 행 ----------------------------------------------------------
@@ -814,80 +938,357 @@ class _SummaryCard extends StatelessWidget {
   }
 }
 
-// ---- 종목 상세 ---------------------------------------------------------------
+// ---- 실시간 가격 차트 (토스 candles · fl_chart LineChart) ---------------------
 
 const _kRanges = ['1D', '1주', '1개월', '3개월', '1년'];
 
-class _StockDetailBody extends StatefulWidget {
+/// 기간별 캔들 interval + 표시 개수. 1D=분봉(1m), 그외=일봉(1d) 후 최근 N개 슬라이스.
+const Map<String, ({String interval, int show})> _kRangeCfg = {
+  '1D': (interval: '1m', show: 390),
+  '1주': (interval: '1d', show: 5),
+  '1개월': (interval: '1d', show: 22),
+  '3개월': (interval: '1d', show: 66),
+  '1년': (interval: '1d', show: 252),
+};
+
+class _StockChart extends ConsumerStatefulWidget {
+  const _StockChart({
+    required this.symbol,
+    required this.isUs,
+    required this.range,
+    required this.height,
+  });
+  final String symbol;
+  final bool isUs;
+  final String range;
+  final double height;
+
+  @override
+  ConsumerState<_StockChart> createState() => _StockChartState();
+}
+
+class _StockChartState extends ConsumerState<_StockChart> {
+  int? _touchedIdx;
+  Offset? _touchPos;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final h = widget.height;
+    final cfg = _kRangeCfg[widget.range]!;
+    final candlesAsync = ref.watch(
+        tossCandlesProvider((symbol: widget.symbol, interval: cfg.interval)));
+
+    Widget framed(Widget child) => SizedBox(height: h, child: child);
+
+    if (candlesAsync.isLoading) {
+      return framed(Container(
+        decoration: BoxDecoration(
+          color: t.bgSunken,
+          borderRadius: PRadius.brMd,
+        ),
+      ));
+    }
+
+    final page = candlesAsync.asData?.value;
+    final asc = page == null
+        ? const <TossCandle>[]
+        : ([...page.candles]..sort((a, b) => a.timestamp.compareTo(b.timestamp)));
+    final sliced = widget.range == '1D'
+        ? asc
+        : (asc.length > cfg.show ? asc.sublist(asc.length - cfg.show) : asc);
+    final closes = [for (final c in sliced) c.closeValue];
+
+    if (closes.length < 2) {
+      return framed(Center(
+        child: Text(
+          '차트 데이터가 없어요',
+          style: PTypo.bodySm.copyWith(color: t.fgTertiary),
+        ),
+      ));
+    }
+
+    final n = closes.length;
+    final first = closes.first;
+    final color = closes.last >= first ? t.statusDangerFg : t.fgBrand;
+    var lo = closes.reduce((a, b) => a < b ? a : b);
+    var hi = closes.reduce((a, b) => a > b ? a : b);
+    final padv = (hi - lo) * 0.14 == 0 ? 1.0 : (hi - lo) * 0.14;
+    lo -= padv;
+    hi += padv;
+    final yInterval = (hi - lo) / 3;
+
+    final spots = [
+      for (var i = 0; i < n; i++) FlSpot(i.toDouble(), closes[i]),
+    ];
+    // 4~5개 균등 x축 라벨 인덱스.
+    final labelIdx = <int>{
+      0,
+      (n - 1) ~/ 4,
+      (n - 1) ~/ 2,
+      3 * (n - 1) ~/ 4,
+      n - 1,
+    };
+
+    String axisX(int i) {
+      if (i < 0 || i >= sliced.length) return '';
+      final c = sliced[i];
+      final dt = c.time;
+      if (dt == null) {
+        final ts = c.timestamp;
+        return ts.length >= 10 ? ts.substring(5, 10).replaceAll('-', '.') : ts;
+      }
+      return cfg.interval == '1m'
+          ? '${_two(dt.hour)}:${_two(dt.minute)}'
+          : '${_two(dt.month)}.${_two(dt.day)}';
+    }
+
+    String fmtY(double v) => widget.isUs
+        ? '\$${v.toStringAsFixed(v >= 100 ? 0 : 1)}'
+        : krw(v.round());
+    String fmtFull(double v) =>
+        widget.isUs ? '\$${v.toStringAsFixed(2)}' : '${krw(v.round())}원';
+
+    final chart = LineChart(
+      LineChartData(
+        minX: 0,
+        maxX: (n - 1).toDouble(),
+        minY: lo,
+        maxY: hi,
+        gridData: FlGridData(
+          show: true,
+          drawVerticalLine: false,
+          horizontalInterval: yInterval,
+          getDrawingHorizontalLine: (_) => FlLine(
+            color: t.borderSubtle,
+            strokeWidth: 1,
+            dashArray: const [3, 4],
+          ),
+        ),
+        titlesData: FlTitlesData(
+          topTitles:
+              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          leftTitles:
+              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          rightTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: widget.isUs ? 42 : 52,
+              interval: yInterval,
+              getTitlesWidget: (v, _) => Padding(
+                padding: const EdgeInsets.only(left: 6),
+                child: Text(
+                  fmtY(v),
+                  maxLines: 1,
+                  softWrap: false,
+                  overflow: TextOverflow.visible,
+                  style: TextStyle(
+                    fontFamily: PTypo.sans,
+                    fontFeatures: _tnum,
+                    color: t.fgTertiary,
+                    fontSize: PFontSize.micro,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 22,
+              interval: 1,
+              getTitlesWidget: (v, _) {
+                final i = v.round();
+                if (!labelIdx.contains(i)) return const SizedBox.shrink();
+                return Padding(
+                  padding: const EdgeInsets.only(top: 6),
+                  child: Text(
+                    axisX(i),
+                    style: TextStyle(
+                      fontFamily: PTypo.sans,
+                      fontFeatures: _tnum,
+                      color: t.fgTertiary,
+                      fontSize: PFontSize.micro,
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+        borderData: FlBorderData(show: false),
+        lineTouchData: LineTouchData(
+          enabled: true,
+          handleBuiltInTouches: true,
+          touchCallback: (event, response) {
+            if (event is FlTapUpEvent ||
+                event is FlPanEndEvent ||
+                event is FlPanCancelEvent ||
+                event is FlLongPressEnd ||
+                event is FlPointerExitEvent) {
+              if (_touchedIdx != null) setState(() => _touchedIdx = null);
+              return;
+            }
+            final touched = response?.lineBarSpots;
+            if (touched == null || touched.isEmpty) {
+              if (_touchedIdx != null) setState(() => _touchedIdx = null);
+              return;
+            }
+            final i = touched.first.x.toInt();
+            final pos = event.localPosition;
+            if (i >= 0 && i < n && (i != _touchedIdx || pos != _touchPos)) {
+              setState(() {
+                _touchedIdx = i;
+                if (pos != null) _touchPos = pos;
+              });
+            }
+          },
+          // 크로스헤어 — web 세로 점선 + 표면색 원. 기본 RichText 툴팁은 OFF.
+          getTouchedSpotIndicator: (bar, indexes) => [
+            for (final _ in indexes)
+              TouchedSpotIndicatorData(
+                FlLine(
+                  color: t.fgTertiary.withValues(alpha: 0.6),
+                  strokeWidth: 1,
+                  dashArray: const [3, 3],
+                ),
+                FlDotData(
+                  show: true,
+                  getDotPainter: (_, _, _, _) => FlDotCirclePainter(
+                    radius: 4.5,
+                    color: t.bgSurface,
+                    strokeColor: color,
+                    strokeWidth: 2.5,
+                  ),
+                ),
+              ),
+          ],
+          touchTooltipData: LineTouchTooltipData(
+            getTooltipColor: (_) => Colors.transparent,
+            tooltipBorder: BorderSide.none,
+            tooltipPadding: EdgeInsets.zero,
+            tooltipMargin: 0,
+            getTooltipItems: (touched) =>
+                List<LineTooltipItem?>.filled(touched.length, null),
+          ),
+        ),
+        lineBarsData: [
+          LineChartBarData(
+            spots: spots,
+            isCurved: false,
+            color: color,
+            barWidth: 2,
+            isStrokeCapRound: true,
+            dotData: FlDotData(
+              show: true,
+              checkToShowDot: (spot, _) => spot.x == (n - 1).toDouble(),
+              getDotPainter: (_, _, _, _) => FlDotCirclePainter(
+                radius: 3.5,
+                color: color,
+                strokeWidth: 0,
+                strokeColor: color,
+              ),
+            ),
+            belowBarData: BarAreaData(
+              show: true,
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  color.withValues(alpha: 0.2),
+                  color.withValues(alpha: 0.0),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    return framed(Stack(
+      children: [
+        chart,
+        if (_touchedIdx != null && _touchedIdx! < n && _touchPos != null)
+          PChartTooltipLayer(
+            anchor: _touchPos!,
+            child: PChartTooltipBox(
+              title: axisX(_touchedIdx!),
+              labelWidth: 36,
+              rows: [
+                PChartTooltipRowData(
+                  color: color,
+                  label: '종가',
+                  amount: fmtFull(closes[_touchedIdx!]),
+                  amountColor: t.fgPrimary,
+                ),
+              ],
+              footer: [
+                PChartTooltipFooterRowData(
+                  label: '시작 대비',
+                  value: () {
+                    final d = first == 0
+                        ? 0.0
+                        : (closes[_touchedIdx!] - first) / first * 100;
+                    return '${d >= 0 ? '+' : ''}${d.toStringAsFixed(2)}%';
+                  }(),
+                ),
+              ],
+            ),
+          ),
+      ],
+    ));
+  }
+}
+
+// ---- 종목 상세 ---------------------------------------------------------------
+
+class _StockDetailBody extends ConsumerStatefulWidget {
   const _StockDetailBody({
     required this.ticker,
     required this.holding,
     required this.watched,
     required this.onToggleWatch,
     required this.scrollController,
-    required this.masked,
   });
   final String ticker;
   final TossHoldingsItem? holding;
   final bool watched;
   final VoidCallback onToggleWatch;
   final ScrollController scrollController;
-  final bool masked;
 
   @override
-  State<_StockDetailBody> createState() => _StockDetailBodyState();
+  ConsumerState<_StockDetailBody> createState() => _StockDetailBodyState();
 }
 
-class _StockDetailBodyState extends State<_StockDetailBody> {
+class _StockDetailBodyState extends ConsumerState<_StockDetailBody> {
   String _range = '1D';
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final masked = ref.watch(settingsProvider).value?.hideAmounts ?? false;
     final s = findStock(widget.ticker);
     if (s == null) return const SizedBox.shrink();
-    final trend = _trendColor(t, s.changePct);
     final dark = Theme.of(context).brightness == Brightness.dark;
     final starTone =
         dark ? PorestPalette.chartYellowLight : PorestPalette.chartYellow;
 
-    // 국내 종목 상/하한가 (±30%, 호가단위 반올림)
-    double tickOf(double p) => p >= 100000
-        ? 500
-        : p >= 10000
-            ? 100
-            : p >= 1000
-                ? 10
-                : 1;
-    double roundTick(double p) {
-      final tk = tickOf(p);
-      return (p / tk).round() * tk;
-    }
+    final info = ref.watch(tossStockInfoProvider(widget.ticker)).asData?.value;
+    final warnings =
+        ref.watch(tossWarningsProvider(widget.ticker)).asData?.value ??
+            const <TossStockWarning>[];
+    final dailyCandles = ref
+        .watch(tossCandlesProvider((symbol: widget.ticker, interval: '1d')))
+        .asData
+        ?.value;
 
-    final info = <(String, String, Color?)>[
-      ('시가총액', s.marketCap, null),
-      ('PER', s.per != null ? s.per!.toStringAsFixed(1) : '—', null),
-      (
-        'EPS',
-        s.eps != null
-            ? (s.isUs
-                ? '\$${s.eps!.toStringAsFixed(2)}'
-                : krw(s.eps!.round()))
-            : '—',
-        null
-      ),
-      if (!s.isUs) ...[
-        ('상한가', krw(roundTick(s.price * 1.3).round()), t.statusDangerFg),
-        ('하한가', krw(roundTick(s.price * 0.7).round()), t.fgBrand),
-      ],
-      ('52주 최고',
-          s.isUs ? '\$${s.high52.toStringAsFixed(2)}' : krw(s.high52.round()),
-          null),
-      ('52주 최저',
-          s.isUs ? '\$${s.low52.toStringAsFixed(2)}' : krw(s.low52.round()),
-          null),
-      ('거래량', s.vol, null),
-    ];
+    // 등락률 — 1d 캔들(현재가 vs 전일 종가)로 실산출, 미연동 시 카탈로그 fallback.
+    final changePct = () {
+      final asc = _candleCloses(dailyCandles?.candles ?? const []);
+      final prev = asc.length >= 2 ? asc[asc.length - 2] : 0.0;
+      if (prev > 0) return (s.price - prev) / prev * 100;
+      return s.changePct;
+    }();
 
     return ListView(
       controller: widget.scrollController,
@@ -905,6 +1306,8 @@ class _StockDetailBodyState extends State<_StockDetailBody> {
                 children: [
                   Text(
                     s.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontFamily: PTypo.sans,
                       fontSize: 17,
@@ -924,15 +1327,16 @@ class _StockDetailBodyState extends State<_StockDetailBody> {
                         ),
                       ),
                       const SizedBox(width: 6),
-                      // 시장 배지 (NASDAQ / KRX·NXT) — shared PBadge(secondary)
                       PBadge(
-                        label: s.isUs ? 'NASDAQ' : 'KRX·NXT',
+                        label: info?.market.isNotEmpty == true
+                            ? info!.market
+                            : (s.isUs ? 'NASDAQ' : 'KRX·NXT'),
                         variant: PBadgeVariant.secondary,
                       ),
                       const SizedBox(width: 6),
                       Flexible(
                         child: Text(
-                          '· ${s.sector}',
+                          '· ${info?.isEtf == true ? 'ETF' : s.sector}',
                           overflow: TextOverflow.ellipsis,
                           style: PTypo.caption.copyWith(color: t.fgTertiary),
                         ),
@@ -986,16 +1390,34 @@ class _StockDetailBodyState extends State<_StockDetailBody> {
         const SizedBox(height: 2),
         Row(
           children: [
-            _PctBadge(pct: s.changePct, size: 14),
+            _PctBadge(pct: changePct, size: 14),
             if (s.isUs) ...[
               const SizedBox(width: PSpace.x8),
               Text(
                 '≈ ${krw(priceKrw(s))}원',
-                style: PTypo.caption.copyWith(color: t.fgTertiary, fontFeatures: _tnum),
+                style: PTypo.caption
+                    .copyWith(color: t.fgTertiary, fontFeatures: _tnum),
               ),
             ],
           ],
         ),
+
+        // 매수 유의사항 (토스 warnings)
+        if (warnings.isNotEmpty) ...[
+          const SizedBox(height: PSpace.x12),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: [
+              for (final w in warnings)
+                PBadge(
+                  label: _warningLabel(w.warningType),
+                  variant: PBadgeVariant.softWarning,
+                  icon: LucideIcons.triangleAlert,
+                ),
+            ],
+          ),
+        ],
         const SizedBox(height: PSpace.x16),
 
         // 차트 + 기간
@@ -1003,7 +1425,12 @@ class _StockDetailBodyState extends State<_StockDetailBody> {
           padding: const EdgeInsets.fromLTRB(12, 14, 12, 10),
           child: Column(
             children: [
-              _Sparkline(values: s.spark, color: trend, height: 150, fill: true),
+              _StockChart(
+                symbol: widget.ticker,
+                isUs: s.isUs,
+                range: _range,
+                height: 168,
+              ),
               const SizedBox(height: PSpace.x8),
               PTabs<String>(
                 value: _range,
@@ -1012,8 +1439,7 @@ class _StockDetailBodyState extends State<_StockDetailBody> {
                 size: PTabsSize.sm,
                 expand: true,
                 items: [
-                  for (final r in _kRanges)
-                    PTabItem(value: r, label: r),
+                  for (final r in _kRanges) PTabItem(value: r, label: r),
                 ],
               ),
             ],
@@ -1021,119 +1447,22 @@ class _StockDetailBodyState extends State<_StockDetailBody> {
         ),
         const SizedBox(height: PSpace.x16),
 
-        // 내 보유
+        // 내 보유 (9행)
         if (widget.holding != null) ...[
-          Builder(builder: (context) {
-            final h = widget.holding!;
-            final ev = h.marketValueAmountValue.round();
-            final pnl = h.profitLossAmountValue.round();
-            final pnlPct = h.profitLossRateValue;
-            final qty = h.quantityValue;
-            final qtyLabel = qty == qty.roundToDouble()
-                ? '${qty.round()}주'
-                : '${qty.toStringAsFixed(4)}주';
-            final avg = h.averagePurchasePriceValue;
-            final rows = <(String, String, Color)>[
-              ('평가금액', widget.masked ? '••••' : '${krw(ev)}원', t.fgPrimary),
-              (
-                '평가손익',
-                widget.masked
-                    ? '••••'
-                    : '${pnl >= 0 ? '+' : '−'}${krw(pnl, abs: true)}원',
-                _trendColor(t, pnl.toDouble())
-              ),
-              ('보유수량', qtyLabel, t.fgPrimary),
-              (
-                '수익률',
-                '${pnlPct >= 0 ? '+' : ''}${pnlPct.toStringAsFixed(2)}%',
-                _trendColor(t, pnl.toDouble())
-              ),
-              (
-                '평균단가',
-                h.isUs ? '\$${avg.toStringAsFixed(2)}' : '${krw(avg.round())}원',
-                t.fgSecondary
-              ),
-              ('매도가능', qtyLabel, t.fgSecondary),
-            ];
-            return PCard(
-              padding: const EdgeInsets.all(PSpace.x16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _SectionLabel('내 보유', tokens: t),
-                  const SizedBox(height: PSpace.x12),
-                  for (var i = 0; i < rows.length; i += 2) ...[
-                    if (i > 0) const SizedBox(height: PSpace.x12),
-                    Row(
-                      children: [
-                        Expanded(child: _KvCell(rows[i], tokens: t)),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: i + 1 < rows.length
-                              ? _KvCell(rows[i + 1], tokens: t)
-                              : const SizedBox.shrink(),
-                        ),
-                      ],
-                    ),
-                  ],
-                ],
-              ),
-            );
-          }),
+          _HoldingDetailCard(holding: widget.holding!, masked: masked),
           const SizedBox(height: PSpace.x16),
         ],
 
-        // 호가 / 체결
-        _QuotesCard(stock: s),
+        // 호가 / 체결 (실데이터 전용)
+        _QuotesCard(stock: s, changePct: changePct),
         const SizedBox(height: PSpace.x16),
 
-        // 기본 정보
-        PCard(
-          padding: const EdgeInsets.all(PSpace.x16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _SectionLabel('기본 정보', tokens: t),
-              const SizedBox(height: PSpace.x4),
-              for (var i = 0; i < info.length; i++)
-                Container(
-                  padding: const EdgeInsets.symmetric(vertical: 9),
-                  decoration: BoxDecoration(
-                    border: i == 0
-                        ? null
-                        : Border(
-                            top: BorderSide(color: t.borderSubtle),
-                          ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        info[i].$1,
-                        style: TextStyle(
-                          fontFamily: PTypo.sans,
-                          fontSize: 12.5,
-                          color: t.fgTertiary,
-                        ),
-                      ),
-                      Text(
-                        info[i].$2,
-                        style: PTypo.bodySm.copyWith(
-                          color: info[i].$3 ?? t.fgPrimary,
-                          fontWeight: PFontWeight.semi,
-                          fontFeatures: _tnum,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-            ],
-          ),
-        ),
+        // 기본 정보 (토스 stocks + price-limits)
+        _StockInfoCard(stock: s, info: info),
         const SizedBox(height: PSpace.x16),
 
-        // 일별 시세
-        _DailyQuoteTable(stock: s),
+        // 일별 시세 (토스 candles 1d)
+        _DailyQuoteTable(symbol: widget.ticker, isUs: s.isUs),
         const SizedBox(height: PSpace.x16),
 
         // 매매 (모의) — 매도=primary(파랑), 매수=danger(빨강) — 국내 통념
@@ -1198,6 +1527,80 @@ class _StockDetailBodyState extends State<_StockDetailBody> {
   }
 }
 
+// ---- 내 보유 상세 카드 (9행) -------------------------------------------------
+
+class _HoldingDetailCard extends StatelessWidget {
+  const _HoldingDetailCard({required this.holding, required this.masked});
+  final TossHoldingsItem holding;
+  final bool masked;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final h = holding;
+    final ev = h.marketValueAmountValue.round();
+    final pnl = h.profitLossAmountValue.round();
+    final pnlPct = h.profitLossRateValue;
+    final dayPnl = h.dailyProfitLossAmountValue.round();
+    final purchase = h.purchaseAmountValue.round();
+    final fees = h.feesValue.round();
+    final avg = h.averagePurchasePriceValue;
+    final qty = h.quantityValue;
+    final qtyLabel = qty == qty.roundToDouble()
+        ? '${qty.round()}주'
+        : '${qty.toStringAsFixed(4)}주';
+
+    String money(int v) => masked ? '••••' : '${krw(v)}원';
+    String moneySigned(int v) =>
+        masked ? '••••' : '${v >= 0 ? '+' : '−'}${krw(v, abs: true)}원';
+
+    final rows = <(String, String, Color)>[
+      ('평가금액', money(ev), t.fgPrimary),
+      ('평가손익', moneySigned(pnl), _trendColor(t, pnl.toDouble())),
+      ('보유수량', qtyLabel, t.fgPrimary),
+      (
+        '수익률',
+        '${pnlPct >= 0 ? '+' : ''}${pnlPct.toStringAsFixed(2)}%',
+        _trendColor(t, pnl.toDouble())
+      ),
+      ('일간 손익', moneySigned(dayPnl), _trendColor(t, dayPnl.toDouble())),
+      (
+        '평균단가',
+        h.isUs ? '\$${avg.toStringAsFixed(2)}' : '${krw(avg.round())}원',
+        t.fgSecondary
+      ),
+      ('매입금액', money(purchase), t.fgSecondary),
+      ('수수료·세금', '${krw(fees)}원', t.fgSecondary),
+      ('매도가능', qtyLabel, t.fgSecondary),
+    ];
+
+    return PCard(
+      padding: const EdgeInsets.all(PSpace.x16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _SectionLabel('내 보유', tokens: t),
+          const SizedBox(height: PSpace.x12),
+          for (var i = 0; i < rows.length; i += 2) ...[
+            if (i > 0) const SizedBox(height: PSpace.x12),
+            Row(
+              children: [
+                Expanded(child: _KvCell(rows[i], tokens: t)),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: i + 1 < rows.length
+                      ? _KvCell(rows[i + 1], tokens: t)
+                      : const SizedBox.shrink(),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
 class _SectionLabel extends StatelessWidget {
   const _SectionLabel(this.label, {required this.tokens});
   final String label;
@@ -1238,47 +1641,132 @@ class _KvCell extends StatelessWidget {
       );
 }
 
-// ---- 호가창 (연동 전 시드 고정 의사난수 잔량) ----------------------------------
+// ---- 종목 기본정보 (토스 stocks + price-limits) ------------------------------
+
+String _fmtCapKrw(double v) {
+  if (v >= 1e12) return '${(v / 1e12).toStringAsFixed(1)}조원';
+  return '${krw((v / 1e8).round())}억원';
+}
+
+String _fmtShares(double n) {
+  if (n >= 1e8) return '${(n / 1e8).toStringAsFixed(n >= 1e9 ? 0 : 1)}억 주';
+  return '${krw((n / 1e4).round())}만 주';
+}
+
+class _StockInfoCard extends ConsumerWidget {
+  const _StockInfoCard({required this.stock, required this.info});
+  final Stock stock;
+  final TossStockInfo? info;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = context.tokens;
+    final s = stock;
+    final info = this.info; // 로컬 바인딩 → 널 승격(field promotion 불가) 위함.
+    final isKr = !s.isUs;
+    final limits = ref.watch(tossPriceLimitsProvider(s.ticker)).asData?.value;
+    final shares = info?.sharesValue ?? 0;
+    final mcKrw = priceKrw(s) * shares;
+    final upper = limits?.upperValue;
+    final lower = limits?.lowerValue;
+    final listDate = info?.listDate;
+
+    final rows = <(String, String, Color?)>[
+      ('시장', info?.market.isNotEmpty == true
+          ? info!.market
+          : (s.isUs ? '미국' : '국내'), null),
+      ('종목 유형', info?.isEtf == true ? 'ETF' : '주식', null),
+      ('통화', info?.currency.isNotEmpty == true
+          ? info!.currency
+          : (s.isUs ? 'USD' : 'KRW'), null),
+      if (shares > 0) ('시가총액', _fmtCapKrw(mcKrw), null),
+      if (isKr && upper != null)
+        ('상한가', '${krw(upper.round())}원', t.statusDangerFg),
+      if (isKr && lower != null)
+        ('하한가', '${krw(lower.round())}원', t.fgBrand),
+      if (listDate != null && listDate.isNotEmpty) ('상장일', listDate, null),
+      if (shares > 0) ('발행주식수', _fmtShares(shares), null),
+      (
+        '거래상태',
+        info != null && !info.isNormal ? '거래정지' : '정상',
+        info != null && !info.isNormal
+            ? t.statusDangerFg
+            : t.statusSuccessFg
+      ),
+    ];
+
+    return PCard(
+      padding: const EdgeInsets.all(PSpace.x16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _SectionLabel('기본 정보', tokens: t),
+          const SizedBox(height: PSpace.x4),
+          for (var i = 0; i < rows.length; i++)
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 9),
+              decoration: BoxDecoration(
+                border: i == 0
+                    ? null
+                    : Border(top: BorderSide(color: t.borderSubtle)),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    rows[i].$1,
+                    style: TextStyle(
+                      fontFamily: PTypo.sans,
+                      fontSize: 12.5,
+                      color: t.fgTertiary,
+                    ),
+                  ),
+                  Flexible(
+                    child: Text(
+                      rows[i].$2,
+                      textAlign: TextAlign.right,
+                      overflow: TextOverflow.ellipsis,
+                      style: PTypo.bodySm.copyWith(
+                        color: rows[i].$3 ?? t.fgPrimary,
+                        fontWeight: PFontWeight.semi,
+                        fontFeatures: _tnum,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+// ---- 호가창 (토스 orderbook · 실데이터 전용) ----------------------------------
 
 class _OrderBook extends StatelessWidget {
-  const _OrderBook({required this.stock, this.live});
+  const _OrderBook({
+    required this.stock,
+    required this.book,
+    required this.changePct,
+  });
   final Stock stock;
-  final TossOrderbook? live;
+  final TossOrderbook book;
+  final double changePct;
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
     final s = stock;
-    final base = s.price;
-    final tick = s.isUs
-        ? 0.5
-        : base >= 100000
-            ? 500.0
-            : base >= 10000
-                ? 100.0
-                : 50.0;
-    double rng(int i) => ((i * 9301 + 49297) % 233280) / 233280;
-    final hasLive =
-        live != null && live!.asks.isNotEmpty && live!.bids.isNotEmpty;
-    // 라이브: asks=낮은가격순 → 상단 표시 위해 5개 역순(높은가격 위), bids=높은가격순 그대로.
-    final asks = hasLive
-        ? [
-            for (final e in live!.asks.take(5))
-              (p: e.priceValue, q: e.volumeValue.round()),
-          ].reversed.toList()
-        : [
-            for (final i in [4, 3, 2, 1, 0])
-              (p: base + tick * (i + 1), q: (40 + rng(i + 1) * 960).round()),
-          ];
-    final bids = hasLive
-        ? [
-            for (final e in live!.bids.take(5))
-              (p: e.priceValue, q: e.volumeValue.round()),
-          ]
-        : [
-            for (final i in [0, 1, 2, 3, 4])
-              (p: base - tick * (i + 1), q: (40 + rng(i + 7) * 960).round()),
-          ];
+    // asks=낮은가격순 → 상단 표시(높은가격 위) 위해 5개 잘라 역순, bids=높은가격순 그대로.
+    final asks = [
+      for (final e in book.asks.take(5))
+        (p: e.priceValue, q: e.volumeValue.round()),
+    ].reversed.toList();
+    final bids = [
+      for (final e in book.bids.take(5))
+        (p: e.priceValue, q: e.volumeValue.round()),
+    ];
     var maxQ = 1;
     for (final a in asks) {
       if (a.q > maxQ) maxQ = a.q;
@@ -1317,8 +1805,8 @@ class _OrderBook extends StatelessWidget {
                     right: alignRight ? 6 : 0, left: alignRight ? 0 : 6),
                 child: Text(
                   krw(q),
-                  style:
-                      PTypo.micro.copyWith(color: t.fgTertiary, fontFeatures: _tnum),
+                  style: PTypo.micro
+                      .copyWith(color: t.fgTertiary, fontFeatures: _tnum),
                 ),
               ),
             ),
@@ -1409,13 +1897,13 @@ class _OrderBook extends StatelessWidget {
               Text(
                 _fmtPrice(s),
                 style: PTypo.bodySm.copyWith(
-                  color: _trendColor(t, s.changePct),
+                  color: _trendColor(t, changePct),
                   fontWeight: PFontWeight.bold,
                   fontFeatures: _tnum,
                 ),
               ),
               const SizedBox(width: 6),
-              _PctBadge(pct: s.changePct, size: 11),
+              _PctBadge(pct: changePct, size: 11),
             ],
           ),
         ),
@@ -1425,78 +1913,7 @@ class _OrderBook extends StatelessWidget {
   }
 }
 
-// ---- 시장 지수 값 포맷 (천단위 + 소수 2자리) ----------------------------------
-
-String _fmtIndex(double v) {
-  final neg = v < 0;
-  final abs = v.abs();
-  final intPart = abs.truncate();
-  final dec = ((abs - intPart) * 100).round().toString().padLeft(2, '0');
-  final intStr = intPart.toString().replaceAllMapped(
-        RegExp(r'(\d)(?=(\d{3})+$)'),
-        (m) => '${m[1]},',
-      );
-  return '${neg ? '-' : ''}$intStr.$dec';
-}
-
-// ---- 시장 지수 스트립 (가로 스크롤) ------------------------------------------
-
-class _IndexStrip extends StatelessWidget {
-  const _IndexStrip();
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    return SizedBox(
-      height: 88,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.zero,
-        itemCount: kMarketIndices.length,
-        separatorBuilder: (_, _) => const SizedBox(width: 10),
-        itemBuilder: (context, i) {
-          final ix = kMarketIndices[i];
-          return SizedBox(
-            width: 128,
-            child: PCard(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    ix.name,
-                    style: PTypo.caption.copyWith(
-                      color: t.fgSecondary,
-                      fontWeight: PFontWeight.semi,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    _fmtIndex(ix.value),
-                    style: TextStyle(
-                      fontFamily: PTypo.sans,
-                      fontFeatures: _tnum,
-                      fontSize: 15,
-                      fontWeight: PFontWeight.bold,
-                      letterSpacing: -0.3,
-                      color: t.fgPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  _PctBadge(pct: ix.changePct, size: 11),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-
-// ---- 발견(디스커버리) 랭킹 — 급상승/급하락/거래량 ----------------------------
+// ---- 발견(디스커버리) 랭킹 — 큐레이트 universe 실시세 정렬 --------------------
 
 class _DiscoverPanel extends StatefulWidget {
   const _DiscoverPanel({required this.onPick});
@@ -1585,11 +2002,46 @@ class _DiscoverPanelState extends State<_DiscoverPanel> {
   }
 }
 
-// ---- 호가 / 체결 탭 카드 -----------------------------------------------------
+// ---- 호가 / 체결 탭 카드 (실데이터 전용 · 로딩/빈 상태) -----------------------
+
+typedef _Fill = ({String time, double p, int q, int dir});
+
+/// 라이브 체결 테이프 변환 (토스 trades). dir=직전 체결가 대비 방향. 웹 `liveTradeFills` 미러.
+List<_Fill> _liveTradeFills(List<TossTrade>? trades) {
+  if (trades == null || trades.isEmpty) return const [];
+  final out = <_Fill>[];
+  final n = trades.length < 12 ? trades.length : 12;
+  for (var i = 0; i < n; i++) {
+    final tr = trades[i];
+    final p = tr.priceValue;
+    final prev = i + 1 < trades.length ? trades[i + 1].priceValue : p;
+    final time = RegExp(r'(\d{2}:\d{2}:\d{2})').firstMatch(tr.timestamp)?.group(1) ??
+        tr.timestamp;
+    out.add((time: time, p: p, q: tr.volumeValue.round(), dir: p >= prev ? 1 : -1));
+  }
+  return out;
+}
+
+class _QuotesEmpty extends StatelessWidget {
+  const _QuotesEmpty(this.msg);
+  final String msg;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: PSpace.x32, horizontal: 12),
+      child: Center(
+        child: Text(msg, style: PTypo.bodySm.copyWith(color: t.fgTertiary)),
+      ),
+    );
+  }
+}
 
 class _QuotesCard extends ConsumerStatefulWidget {
-  const _QuotesCard({required this.stock});
+  const _QuotesCard({required this.stock, required this.changePct});
   final Stock stock;
+  final double changePct;
 
   @override
   ConsumerState<_QuotesCard> createState() => _QuotesCardState();
@@ -1601,9 +2053,33 @@ class _QuotesCardState extends ConsumerState<_QuotesCard> {
   @override
   Widget build(BuildContext context) {
     final s = widget.stock;
-    // 라이브 호가·체결 (토스 Open API). 키/데이터 없으면 의사난수 폴백.
-    final liveBook = ref.watch(tossOrderbookProvider(s.ticker)).asData?.value;
-    final liveTrades = ref.watch(tossTradesProvider(s.ticker)).asData?.value;
+    final orderbookAsync = ref.watch(tossOrderbookProvider(s.ticker));
+    final tradesAsync = ref.watch(tossTradesProvider(s.ticker));
+    final book = orderbookAsync.asData?.value;
+    final hasBook =
+        book != null && book.asks.isNotEmpty && book.bids.isNotEmpty;
+    final fills = _liveTradeFills(tradesAsync.asData?.value);
+
+    Widget content;
+    if (_tab == 'book') {
+      if (orderbookAsync.isLoading) {
+        content = const _QuotesEmpty('호가를 불러오는 중이에요');
+      } else if (hasBook) {
+        content =
+            _OrderBook(stock: s, book: book, changePct: widget.changePct);
+      } else {
+        content = const _QuotesEmpty('호가 정보가 없어요');
+      }
+    } else {
+      if (tradesAsync.isLoading) {
+        content = const _QuotesEmpty('체결 내역을 불러오는 중이에요');
+      } else if (fills.isEmpty) {
+        content = const _QuotesEmpty('체결 내역이 없어요');
+      } else {
+        content = _TradeTape(stock: s, fills: fills);
+      }
+    }
+
     return PCard(
       padding: const EdgeInsets.all(PSpace.x16),
       child: Column(
@@ -1621,77 +2097,26 @@ class _QuotesCardState extends ConsumerState<_QuotesCard> {
             ],
           ),
           const SizedBox(height: PSpace.x12),
-          if (_tab == 'book')
-            _OrderBook(stock: s, live: liveBook)
-          else
-            _TradeTape(stock: s, live: liveTrades),
+          content,
         ],
       ),
     );
   }
 }
 
-// ---- 체결 테이프 (연동 전 시드 고정 의사난수) --------------------------------
+// ---- 체결 테이프 (토스 trades · 실데이터 전용) --------------------------------
 
 class _TradeTape extends StatelessWidget {
-  const _TradeTape({required this.stock, this.live});
+  const _TradeTape({required this.stock, required this.fills});
   final Stock stock;
-  final List<TossTrade>? live;
+  final List<_Fill> fills;
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
     final s = stock;
-    final tick = s.isUs
-        ? 0.5
-        : s.price >= 100000
-            ? 500.0
-            : s.price >= 10000
-                ? 100.0
-                : 50.0;
-    double rng(int i) => ((i * 2654435761) % 100000) / 100000;
     String fmt(double p) =>
         s.isUs ? '\$${p.toStringAsFixed(2)}' : krw(p.round());
-
-    // 라이브 체결(토스): dir=직전 체결가 대비 방향. 없으면 의사난수 폴백.
-    final liveData = live;
-    final fills = (liveData != null && liveData.isNotEmpty)
-        ? [
-            for (var i = 0; i < liveData.length && i < 12; i++)
-              (() {
-                final tr = liveData[i];
-                final p = tr.priceValue;
-                final prev =
-                    i + 1 < liveData.length ? liveData[i + 1].priceValue : p;
-                final time = RegExp(r'(\d{2}:\d{2}:\d{2})')
-                        .firstMatch(tr.timestamp)
-                        ?.group(1) ??
-                    tr.timestamp;
-                return (
-                  time: time,
-                  p: p,
-                  q: tr.volumeValue.round(),
-                  dir: p >= prev ? 1 : -1,
-                );
-              })(),
-          ]
-        : [
-            for (var i = 0; i < 12; i++)
-              (() {
-                final dir = rng(i + 3) > 0.45 ? 1 : -1;
-                final p = s.price + dir * tick * (rng(i + 9) * 2).round();
-                final q = (1 + rng(i + 5) * 80).round();
-                final mm = 42 - i;
-                final ss = (rng(i + 7) * 59).round();
-                return (
-                  time:
-                      '15:${mm.toString().padLeft(2, '0')}:${ss.toString().padLeft(2, '0')}',
-                  p: p,
-                  q: q,
-                  dir: dir,
-                );
-              })(),
-          ];
 
     TextStyle head() => TextStyle(
           fontFamily: PTypo.sans,
@@ -1761,21 +2186,42 @@ class _TradeTape extends StatelessWidget {
   }
 }
 
-// ---- 일별 시세 표 ------------------------------------------------------------
+// ---- 일별 시세 표 (토스 candles 1d) ------------------------------------------
 
-class _DailyQuoteTable extends StatelessWidget {
-  const _DailyQuoteTable({required this.stock});
-  final Stock stock;
+class _DailyQuoteTable extends ConsumerWidget {
+  const _DailyQuoteTable({required this.symbol, required this.isUs});
+  final String symbol;
+  final bool isUs;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final t = context.tokens;
-    final s = stock;
-    final rows = dailyQuotes(s);
+    final candlesAsync =
+        ref.watch(tossCandlesProvider((symbol: symbol, interval: '1d')));
     String fmt(double v) =>
-        s.isUs ? '\$${v.toStringAsFixed(2)}' : krw(v.round());
-    String fmtVol(double v) =>
-        s.isUs ? '${v.toStringAsFixed(1)}M' : krw(v.round());
+        isUs ? '\$${v.toStringAsFixed(2)}' : krw(v.round());
+    String fmtVol(int v) => krw(v);
+
+    // 최근 9영업일 → 전일대비 등락 산출 → 8행.
+    final asc = candlesAsync.asData?.value == null
+        ? const <TossCandle>[]
+        : ([...candlesAsync.asData!.value!.candles]
+          ..sort((a, b) => a.timestamp.compareTo(b.timestamp)));
+    final recent =
+        asc.length > 9 ? asc.sublist(asc.length - 9) : asc;
+    final rows = <({String date, double close, double chg, int vol})>[];
+    for (var i = recent.length - 1; i >= 1; i--) {
+      final c = recent[i];
+      final prev = recent[i - 1].closeValue;
+      final close = c.closeValue;
+      final chg = prev > 0 ? (close - prev) / prev * 100 : 0.0;
+      final ts = c.timestamp;
+      final date = ts.length >= 10
+          ? ts.substring(5, 10).replaceAll('-', '.')
+          : ts;
+      rows.add((date: date, close: close, chg: chg, vol: c.volumeValue.round()));
+      if (rows.length >= 8) break;
+    }
 
     Widget headCell(String label, int flex, TextAlign align) => Expanded(
           flex: flex,
@@ -1817,39 +2263,45 @@ class _DailyQuoteTable extends StatelessWidget {
         children: [
           _SectionLabel('일별 시세', tokens: t),
           const SizedBox(height: 10),
-          Padding(
-            padding: const EdgeInsets.only(bottom: PSpace.x8),
-            child: Row(
-              children: [
-                headCell('일자', 10, TextAlign.left),
-                headCell('종가', 12, TextAlign.right),
-                headCell('등락률', 10, TextAlign.right),
-                headCell('거래량', 13, TextAlign.right),
-              ],
-            ),
-          ),
-          for (final r in rows)
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              decoration: BoxDecoration(
-                border: Border(top: BorderSide(color: t.borderSubtle)),
-              ),
+          if (candlesAsync.isLoading)
+            const _QuotesEmpty('일별 시세를 불러오는 중이에요')
+          else if (rows.isEmpty)
+            const _QuotesEmpty('일별 시세가 없어요')
+          else ...[
+            Padding(
+              padding: const EdgeInsets.only(bottom: PSpace.x8),
               child: Row(
                 children: [
-                  cell(r.date, 10, TextAlign.left, t.fgSecondary),
-                  cell(fmt(r.close), 12, TextAlign.right, t.fgPrimary,
-                      weight: PFontWeight.semi),
-                  cell(
-                    '${r.chg >= 0 ? '+' : ''}${r.chg.toStringAsFixed(2)}%',
-                    10,
-                    TextAlign.right,
-                    _trendColor(t, r.chg),
-                    weight: PFontWeight.bold,
-                  ),
-                  cell(fmtVol(r.vol), 13, TextAlign.right, t.fgTertiary),
+                  headCell('일자', 10, TextAlign.left),
+                  headCell('종가', 12, TextAlign.right),
+                  headCell('등락률', 10, TextAlign.right),
+                  headCell('거래량', 13, TextAlign.right),
                 ],
               ),
             ),
+            for (final r in rows)
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                decoration: BoxDecoration(
+                  border: Border(top: BorderSide(color: t.borderSubtle)),
+                ),
+                child: Row(
+                  children: [
+                    cell(r.date, 10, TextAlign.left, t.fgSecondary),
+                    cell(fmt(r.close), 12, TextAlign.right, t.fgPrimary,
+                        weight: PFontWeight.semi),
+                    cell(
+                      '${r.chg >= 0 ? '+' : ''}${r.chg.toStringAsFixed(2)}%',
+                      10,
+                      TextAlign.right,
+                      _trendColor(t, r.chg),
+                      weight: PFontWeight.bold,
+                    ),
+                    cell(fmtVol(r.vol), 13, TextAlign.right, t.fgTertiary),
+                  ],
+                ),
+              ),
+          ],
         ],
       ),
     );

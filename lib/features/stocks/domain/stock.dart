@@ -55,39 +55,3 @@ class WatchGroup {
   WatchGroup copyWith({List<String>? tickers}) =>
       WatchGroup(id: id, name: name, tickers: tickers ?? this.tickers);
 }
-
-/// 시장 지수 — 상단 스트립 (토스증권 Market Info 가정)
-class MarketIndex {
-  const MarketIndex({
-    required this.id,
-    required this.name,
-    required this.value,
-    required this.changePct,
-    required this.spark,
-  });
-
-  final String id;
-  final String name;
-  final double value;
-  final double changePct;
-  final List<double> spark;
-}
-
-/// 일별 시세 — 종목 상세 표 한 행
-class DailyQuote {
-  const DailyQuote({
-    required this.date,
-    required this.close,
-    required this.chg,
-    required this.vol,
-  });
-
-  final String date;
-  final double close;
-
-  /// 전일 대비 등락률 (%)
-  final double chg;
-
-  /// 거래량 — US는 백만(M) 단위
-  final double vol;
-}

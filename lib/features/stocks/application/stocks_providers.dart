@@ -40,7 +40,7 @@ final stockLiveOverlayProvider = FutureProvider<bool>((ref) async {
   return applied;
 });
 
-/// 종목 호가 (라이브). 에러/미설정 시 null → 호가창 의사난수 폴백.
+/// 종목 호가 (라이브). 에러/미설정 시 null → 호가창 빈 상태 (mock 폴백 없음).
 final tossOrderbookProvider =
     FutureProvider.family<TossOrderbook?, String>((ref, symbol) async {
   if (symbol.isEmpty) return null;
@@ -52,7 +52,7 @@ final tossOrderbookProvider =
   }
 });
 
-/// 종목 체결 내역 (라이브). 에러/미설정 시 null → 체결 테이프 의사난수 폴백.
+/// 종목 체결 내역 (라이브). 에러/미설정 시 null → 체결 테이프 빈 상태 (mock 폴백 없음).
 final tossTradesProvider =
     FutureProvider.family<List<TossTrade>?, String>((ref, symbol) async {
   if (symbol.isEmpty) return null;
@@ -83,6 +83,80 @@ final tossHoldingsProvider = FutureProvider<TossHoldings?>((ref) async {
   try {
     final repo = await ref.watch(stocksRepositoryProvider.future);
     return await repo.getHoldings(accounts.first.accountSeq);
+  } catch (_) {
+    return null;
+  }
+});
+
+/// 캔들(차트·일별시세·등락률 실산출). interval '1m'(1D) / '1d'(장기).
+/// 에러/미설정 시 null → 차트 빈 상태(의사난수 폴백 없음).
+typedef CandleArg = ({String symbol, String interval});
+final tossCandlesProvider =
+    FutureProvider.family<TossCandlePage?, CandleArg>((ref, arg) async {
+  if (arg.symbol.isEmpty) return null;
+  try {
+    final repo = await ref.watch(stocksRepositoryProvider.future);
+    final count = arg.interval == '1m' ? 390 : 250;
+    return await repo.getCandles(arg.symbol, arg.interval, count: count);
+  } catch (_) {
+    return null;
+  }
+});
+
+/// 종목 기본정보(시장/유형/통화/상장일/발행주식수/거래상태). 에러/미설정 시 null.
+final tossStockInfoProvider =
+    FutureProvider.family<TossStockInfo?, String>((ref, symbol) async {
+  if (symbol.isEmpty) return null;
+  try {
+    final repo = await ref.watch(stocksRepositoryProvider.future);
+    final list = await repo.getStocks([symbol]);
+    return list.isEmpty ? null : list.first;
+  } catch (_) {
+    return null;
+  }
+});
+
+/// 매수 유의사항. 에러/미설정/없음 시 빈 목록.
+final tossWarningsProvider =
+    FutureProvider.family<List<TossStockWarning>, String>((ref, symbol) async {
+  if (symbol.isEmpty) return const [];
+  try {
+    final repo = await ref.watch(stocksRepositoryProvider.future);
+    return await repo.getStockWarnings(symbol);
+  } catch (_) {
+    return const [];
+  }
+});
+
+/// 상/하한가(국내). 에러/미설정/해외 시 null.
+final tossPriceLimitsProvider =
+    FutureProvider.family<TossPriceLimit?, String>((ref, symbol) async {
+  if (symbol.isEmpty) return null;
+  try {
+    final repo = await ref.watch(stocksRepositoryProvider.future);
+    return await repo.getPriceLimits(symbol);
+  } catch (_) {
+    return null;
+  }
+});
+
+/// 국내 장 운영 일정. 에러/미설정 시 null.
+final tossMarketCalendarKrProvider =
+    FutureProvider<TossKrMarketCalendar?>((ref) async {
+  try {
+    final repo = await ref.watch(stocksRepositoryProvider.future);
+    return await repo.getMarketCalendarKr();
+  } catch (_) {
+    return null;
+  }
+});
+
+/// 미국 장 운영 일정. 에러/미설정 시 null.
+final tossMarketCalendarUsProvider =
+    FutureProvider<TossUsMarketCalendar?>((ref) async {
+  try {
+    final repo = await ref.watch(stocksRepositoryProvider.future);
+    return await repo.getMarketCalendarUs();
   } catch (_) {
     return null;
   }

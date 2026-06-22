@@ -108,4 +108,89 @@ class StocksRepository {
       throw ApiException.fromDio(e);
     }
   }
+
+  // 차트 / 종목정보 / 유의사항 / 상하한가 / 장일정 -------------------------
+
+  Future<TossCandlePage> getCandles(
+    String symbol,
+    String interval, {
+    int? count,
+  }) async {
+    try {
+      final res = await _dio.get<dynamic>(
+        '/toss/candles',
+        queryParameters: {'symbol': symbol, 'interval': interval, 'count': ?count},
+      );
+      return TossCandlePage.fromJson(_payload(res) as Map<String, dynamic>? ?? {});
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  Future<List<TossStockInfo>> getStocks(List<String> symbols) async {
+    try {
+      final res = await _dio.get<dynamic>(
+        '/toss/stocks',
+        queryParameters: {'symbols': symbols.join(',')},
+      );
+      final list = (_payload(res) as List? ?? []);
+      return list
+          .map((e) => TossStockInfo.fromJson(e as Map<String, dynamic>))
+          .toList();
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  Future<List<TossStockWarning>> getStockWarnings(String symbol) async {
+    try {
+      final res = await _dio.get<dynamic>(
+        '/toss/stocks/${Uri.encodeComponent(symbol)}/warnings',
+      );
+      final list = (_payload(res) as List? ?? []);
+      return list
+          .map((e) => TossStockWarning.fromJson(e as Map<String, dynamic>))
+          .toList();
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  Future<TossPriceLimit> getPriceLimits(String symbol) async {
+    try {
+      final res = await _dio.get<dynamic>(
+        '/toss/price-limits',
+        queryParameters: {'symbol': symbol},
+      );
+      return TossPriceLimit.fromJson(_payload(res) as Map<String, dynamic>? ?? {});
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  Future<TossKrMarketCalendar> getMarketCalendarKr({String? date}) async {
+    try {
+      final res = await _dio.get<dynamic>(
+        '/toss/market-calendar/KR',
+        queryParameters: {'date': ?date},
+      );
+      return TossKrMarketCalendar.fromJson(
+          _payload(res) as Map<String, dynamic>? ?? {});
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  Future<TossUsMarketCalendar> getMarketCalendarUs({String? date}) async {
+    try {
+      final res = await _dio.get<dynamic>(
+        '/toss/market-calendar/US',
+        queryParameters: {'date': ?date},
+      );
+      return TossUsMarketCalendar.fromJson(
+          _payload(res) as Map<String, dynamic>? ?? {});
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
 }
