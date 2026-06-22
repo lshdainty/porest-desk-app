@@ -126,7 +126,9 @@ class PBadge extends StatelessWidget {
     }
     switch (variant) {
       case PBadgeVariant.primary:
-        return (t.bgBrand, t.fgOnBrand, null);
+        // 채운 solid 배지는 bgBrandSolid(다크에서도 primary 고정) — bgBrand 는 다크에서
+        // primary-light 로 밝아져 흰 글씨 채움엔 대비 부족(PButton.primary 와 동일 정합).
+        return (t.bgBrandSolid, t.fgOnBrand, null);
       case PBadgeVariant.secondary:
         return (t.bgMuted, t.fgPrimary, null);
       case PBadgeVariant.danger:
