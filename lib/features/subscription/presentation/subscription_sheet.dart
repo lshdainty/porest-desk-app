@@ -271,25 +271,28 @@ class _SubscriptionSheetBodyState
         ),
         const SizedBox(height: PSpace.x16),
 
-        // Free / Pro 비교 카드
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(child: _planCard(t, isPro: false, current: !isPro)),
-            const SizedBox(width: PSpace.x12),
-            Expanded(
-              child: _planCard(
-                t,
-                isPro: true,
-                current: isPro,
-                priceWon: proPrice,
-                priceUnit: _cycle == _Cycle.monthly ? '월' : '년',
-                note: _cycle == _Cycle.yearly
-                    ? '월 ${_won(proPerMonth)}원 꼴 · $_savePct% 절약'
-                    : '월 단위 결제',
+        // Free / Pro 비교 카드 — IntrinsicHeight 로 높이 bound(ListView 안에서
+        // crossAxisAlignment.stretch 는 무한 높이 크래시) + 두 카드 동일 높이.
+        IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(child: _planCard(t, isPro: false, current: !isPro)),
+              const SizedBox(width: PSpace.x12),
+              Expanded(
+                child: _planCard(
+                  t,
+                  isPro: true,
+                  current: isPro,
+                  priceWon: proPrice,
+                  priceUnit: _cycle == _Cycle.monthly ? '월' : '년',
+                  note: _cycle == _Cycle.yearly
+                      ? '월 ${_won(proPerMonth)}원 꼴 · $_savePct% 절약'
+                      : '월 단위 결제',
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         const SizedBox(height: PSpace.x20),
 
@@ -415,32 +418,33 @@ class _SubscriptionSheetBodyState
             ],
           ),
           const SizedBox(height: PSpace.x8),
+          // crossAxisAlignment.end(하단 정렬) — IntrinsicHeight 안에서 baseline 은
+          // intrinsic 계산과 비호환이라 사용 금지. 가격은 Flexible+ellipsis 로 overflow 방지.
           Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              // 큰 글꼴 배율/좁은 카드폭에서 가격 overflow 방지(FittedBox 축소).
               Flexible(
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    isPro ? '${_won(priceWon)}원' : '0원',
-                    style: TextStyle(
-                      fontFamily: PTypo.sans,
-                      fontSize: 24,
-                      fontWeight: PFontWeight.bold,
-                      color: t.fgPrimary,
-                      letterSpacing: -0.48,
-                    ),
+                child: Text(
+                  isPro ? '${_won(priceWon)}원' : '0원',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontFamily: PTypo.sans,
+                    fontSize: 24,
+                    fontWeight: PFontWeight.bold,
+                    color: t.fgPrimary,
+                    letterSpacing: -0.48,
                   ),
                 ),
               ),
               if (isPro) ...[
                 const SizedBox(width: 4),
-                Text(
-                  '/ $priceUnit',
-                  style: PTypo.caption.copyWith(color: t.fgTertiary),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 3),
+                  child: Text(
+                    '/ $priceUnit',
+                    style: PTypo.caption.copyWith(color: t.fgTertiary),
+                  ),
                 ),
               ],
             ],
