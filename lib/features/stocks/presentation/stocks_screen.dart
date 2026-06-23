@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -48,6 +50,24 @@ class _StocksScreenState extends ConsumerState<StocksScreen> {
   late List<WatchGroup> _watchGroups =
       kStockWatch.map((g) => g.copyWith(tickers: [...g.tickers])).toList();
   late String _activeGroup = _watchGroups.first.id;
+  Timer? _priceTimer; // 라이브 시세 폴링 — 헤더 가격/등락%·리스트 시세 주기 갱신
+
+  @override
+  void initState() {
+    super.initState();
+    // 현재가 라이브 갱신 — overlay 를 주기적으로 invalidate 하면 prices 재조회 후
+    // applyLivePrices 가 kStocks[].price 를 갱신 → 헤더/리스트가 새 시세로 rebuild.
+    // 값을 렌더하지 않고 side-effect 용으로만 watch 하므로 로딩 스피너/플리커 없음.
+    _priceTimer = Timer.periodic(const Duration(seconds: 10), (_) {
+      if (mounted) ref.invalidate(stockLiveOverlayProvider);
+    });
+  }
+
+  @override
+  void dispose() {
+    _priceTimer?.cancel();
+    super.dispose();
+  }
 
   Set<String> get _watchedTickers =>
       {for (final g in _watchGroups) ...g.tickers};
