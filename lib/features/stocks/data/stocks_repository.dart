@@ -122,19 +122,19 @@ class StocksRepository {
     try {
       // count 미지정 또는 ≤200 → 단일 요청
       if (count == null || count <= _tossCandleMax) {
-        return _getCandlePage(symbol, interval, count: count);
+        return _getCandlePage(symbol, interval, size: count);
       }
-      // 토스 count 상한(200) 초과 → nextBefore 커서로 누적 (요청당 ≤200)
+      // 토스 count 상한(200) 초과 → nextCursor 커서로 누적 (요청당 ≤200)
       final merged = <TossCandle>[];
       final seen = <String>{};
-      String? before;
+      String? cursor;
       String? nextBefore;
       var remaining = count;
       while (remaining > 0) {
-        final pageCount =
+        final pageSize =
             remaining < _tossCandleMax ? remaining : _tossCandleMax;
         final page = await _getCandlePage(symbol, interval,
-            count: pageCount, before: before);
+            size: pageSize, cursor: cursor);
         if (page.candles.isEmpty) break;
         for (final c in page.candles) {
           if (seen.add(c.timestamp)) merged.add(c);
@@ -142,7 +142,7 @@ class StocksRepository {
         nextBefore = page.nextBefore;
         remaining -= page.candles.length;
         if (page.nextBefore == null) break;
-        before = page.nextBefore;
+        cursor = page.nextBefore;
       }
       return TossCandlePage(candles: merged, nextBefore: nextBefore);
     } on DioException catch (e) {
@@ -153,16 +153,16 @@ class StocksRepository {
   Future<TossCandlePage> _getCandlePage(
     String symbol,
     String interval, {
-    int? count,
-    String? before,
+    int? size,
+    String? cursor,
   }) async {
     final res = await _dio.get<dynamic>(
       '/toss/candles',
       queryParameters: {
         'symbol': symbol,
         'interval': interval,
-        'count': ?count,
-        'before': ?before,
+        'size': ?size,
+        'cursor': ?cursor,
       },
     );
     return TossCandlePage.fromJson(_payload(res) as Map<String, dynamic>? ?? {});

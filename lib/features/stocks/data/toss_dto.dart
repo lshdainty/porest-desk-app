@@ -290,17 +290,22 @@ class TossCandle {
   DateTime? get time => DateTime.tryParse(timestamp);
 }
 
+/// 백엔드 candle 응답(porest-core `CursorResponse<Candle>`)을 내부 정규화 형태로 받는다.
+/// content→candles, meta.nextCursor→nextBefore.
 class TossCandlePage {
   const TossCandlePage({required this.candles, this.nextBefore});
   final List<TossCandle> candles;
   final String? nextBefore;
 
-  factory TossCandlePage.fromJson(Map<String, dynamic> j) => TossCandlePage(
-        candles: ((j['candles'] as List?) ?? [])
-            .map((e) => TossCandle.fromJson(e as Map<String, dynamic>))
-            .toList(),
-        nextBefore: j['nextBefore'] as String?,
-      );
+  factory TossCandlePage.fromJson(Map<String, dynamic> j) {
+    final meta = j['meta'] as Map<String, dynamic>?;
+    return TossCandlePage(
+      candles: ((j['content'] as List?) ?? [])
+          .map((e) => TossCandle.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      nextBefore: meta?['nextCursor'] as String?,
+    );
+  }
 }
 
 // ── 종목 기본정보 (백엔드 TossStockDto.StockInfo 미러) ─────────────────────
