@@ -26,6 +26,13 @@ abstract final class Env {
     defaultValue: 'https://sso-dev.porest.cloud:10443',
   );
 
+  /// desk-front (React 웹) URL — 차트 WebView 가 띄우는 임베드 페이지(`/embed/stocks/:symbol`)의 origin.
+  /// 차트만 임베드용도이며 SSO/대시보드와 무관. 기본 = dev.
+  static const String webBaseUrl = String.fromEnvironment(
+    'WEB_BASE_URL',
+    defaultValue: 'https://desk-front-dev.porest.cloud:10443',
+  );
+
   /// SSO 로그인 후 캐치할 모바일 전용 redirect_uri.
   /// SSO DB의 client_redirect_uris 에 동일 값으로 등록되어 있어야 한다.
   static const String authCallbackScheme = 'porestdesk';
