@@ -1,0 +1,253 @@
+/// 증권 상세 캔들 차트를 desk-front 의 임베드 페이지(/embed/stocks/:symbol)로 띄우는 WebView 위젯.
+///
+/// 인증: 진입 시 백엔드 POST /api/v1/auth/embed-token 으로 60초 단명 토큰 발급 →
+/// 임베드 URL 의 querystring(token=...) 으로 전달 → desk-front 가 Authorization: Bearer 로 candle API 호출.
+/// 글로벌 desk_access_token 쿠키 시드 불필요(WebViewCookieManager 의 iOS HttpOnly 제약 회피).
+///
+/// 양방향 통신:
+///   - Dart → JS: controller.runJavaScript('window.__themeBridge|__rangeBridge(...)')
+///   - JS → Dart: JavaScriptChannel 'PorestChart' 메시지({type: 'ready'|'error', ...})
+library;
+
+import 'dart:async';
+import 'dart:convert';
+
+import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:webview_flutter/webview_flutter.dart';
+
+import 'package:porest_desk_app/app/env.dart';
+import 'package:porest_desk_app/app/theme/radius.dart';
+import 'package:porest_desk_app/app/theme/tokens.dart';
+import 'package:porest_desk_app/core/network/dio_provider.dart';
+import 'package:porest_desk_app/core/settings/settings_notifier.dart';
+
+/// 차트 임베드 페이지를 띄우는 WebView 위젯.
+/// 현재 _StockChart 와 동일한 props(symbol/isUs/range/height) 를 받는다.
+class ChartWebView extends ConsumerStatefulWidget {
+  const ChartWebView({
+    super.key,
+    required this.symbol,
+    required this.isUs,
+    required this.range,
+    required this.height,
+  });
+
+  final String symbol;
+  final bool isUs;
+  final String range;
+  final double height;
+
+  @override
+  ConsumerState<ChartWebView> createState() => _ChartWebViewState();
+}
+
+class _ChartWebViewState extends ConsumerState<ChartWebView> {
+  WebViewController? _controller;
+  bool _loading = true;
+  bool _ready = false; // JS 측 ready 핸드셰이크 수신
+  String? _error;
+
+  // 마지막 푸시 상태(ready 전 변경 시 idempotent replay 위해 보관)
+  String? _pendingRange;
+  String? _pendingTheme;
+
+  @override
+  void initState() {
+    super.initState();
+    _initialize();
+  }
+
+  Future<void> _initialize() async {
+    try {
+      // 1) embed_token 발급 — 인증된 사용자(쿠키)로 dio 호출
+      final dio = await ref.read(dioProvider.future);
+      final res = await dio.post<dynamic>('/auth/embed-token');
+      final body = res.data;
+      final data = (body is Map<String, dynamic>) ? body['data'] : null;
+      final token = (data is Map<String, dynamic>) ? data['token'] as String? : null;
+      if (token == null || token.isEmpty) {
+        if (mounted) setState(() { _loading = false; _error = '토큰 발급 실패'; });
+        return;
+      }
+
+      // 2) WebView 컨트롤러 구성 — SSO 로그인 화면 패턴 재사용(allowedHost · onNavigationRequest 제한)
+      final webOrigin = Uri.tryParse(Env.webBaseUrl);
+      if (Env.appEnv != 'local' && webOrigin?.scheme != 'https') {
+        if (mounted) setState(() { _loading = false; _error = '보안 오류: 차트 WebView 가 HTTPS 가 아닙니다'; });
+        return;
+      }
+      final allowedHost = webOrigin?.host;
+
+      final controller = WebViewController()
+        ..setJavaScriptMode(JavaScriptMode.unrestricted)
+        ..setBackgroundColor(const Color(0x00000000)) // 투명 — 부모 PCard 배경이 비치도록
+        ..addJavaScriptChannel(
+          'PorestChart',
+          onMessageReceived: _onChannelMessage,
+        )
+        ..setNavigationDelegate(NavigationDelegate(
+          onPageStarted: (_) => mounted ? setState(() => _loading = true) : null,
+          onPageFinished: (_) => mounted ? setState(() => _loading = false) : null,
+          onWebResourceError: (e) {
+            if (!mounted) return;
+            // 메인 프레임 에러만 사용자에게 노출(서브 리소스 누락은 잡소리 방지)
+            if (e.isForMainFrame ?? true) {
+              setState(() { _error = '${e.errorCode}: ${e.description}'; });
+            }
+          },
+          onNavigationRequest: (req) {
+            final target = Uri.tryParse(req.url);
+            if (target == null) return NavigationDecision.prevent;
+            // 외부 origin 차단(attributionLogo 외부 이동 등) — about:blank / data: 제외하고 webOrigin 만 허용
+            if (target.scheme == 'about' || target.scheme == 'data') {
+              return NavigationDecision.navigate;
+            }
+            if (target.host != allowedHost) {
+              return NavigationDecision.prevent;
+            }
+            return NavigationDecision.navigate;
+          },
+        ))
+        ..loadRequest(Uri.parse(_buildEmbedUrl(token)));
+
+      if (!mounted) return;
+      setState(() { _controller = controller; _error = null; });
+    } on DioException catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _loading = false;
+        _error = '토큰 발급 실패: ${e.response?.statusCode ?? e.message ?? "error"}';
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() { _loading = false; _error = '차트 초기화 실패'; });
+    }
+  }
+
+  String _buildEmbedUrl(String token) {
+    final t = Theme.of(context).brightness == Brightness.dark ? 'dark' : 'light';
+    final qp = <String, String>{
+      'token': token,
+      'range': widget.range,
+      'theme': t,
+      'isUs': widget.isUs ? '1' : '0',
+    };
+    final base = Uri.parse('${Env.webBaseUrl}/embed/stocks/${Uri.encodeComponent(widget.symbol)}');
+    return base.replace(queryParameters: {...base.queryParameters, ...qp}).toString();
+  }
+
+  void _onChannelMessage(JavaScriptMessage msg) {
+    try {
+      final payload = jsonDecode(msg.message);
+      if (payload is! Map) return;
+      final type = payload['type'];
+      if (type == 'ready') {
+        if (!mounted) return;
+        setState(() => _ready = true);
+        // ready 전에 푸시 시도된 변경분 replay
+        if (_pendingRange != null) _pushRange(_pendingRange!);
+        if (_pendingTheme != null) _pushTheme(_pendingTheme!);
+      } else if (type == 'error') {
+        final code = payload['code'];
+        // 401: embed_token 만료/위조 → 토큰 재발급 후 reload
+        if (code == 401 && _controller != null) {
+          unawaited(_reinitialize());
+        } else {
+          if (kDebugMode) debugPrint('[ChartWebView] embed error: $payload');
+        }
+      }
+    } catch (_) {/* 무시 */}
+  }
+
+  Future<void> _reinitialize() async {
+    if (!mounted) return;
+    setState(() { _ready = false; _loading = true; _error = null; });
+    // 기존 컨트롤러는 _controller 교체로 dispose 처리 — _initialize 가 새 컨트롤러 세팅
+    await _initialize();
+  }
+
+  void _pushRange(String range) {
+    final c = _controller;
+    if (c == null) return;
+    if (!_ready) { _pendingRange = range; return; }
+    c.runJavaScript("window.__rangeBridge && window.__rangeBridge(${jsonEncode(range)})");
+  }
+
+  void _pushTheme(String theme) {
+    final c = _controller;
+    if (c == null) return;
+    if (!_ready) { _pendingTheme = theme; return; }
+    c.runJavaScript("window.__themeBridge && window.__themeBridge(${jsonEncode(theme)})");
+  }
+
+  @override
+  void didUpdateWidget(covariant ChartWebView old) {
+    super.didUpdateWidget(old);
+    if (widget.range != old.range) _pushRange(widget.range);
+    // symbol 이 바뀌면 임베드 URL 자체가 달라지므로 재초기화(토큰도 갱신)
+    if (widget.symbol != old.symbol) {
+      unawaited(_reinitialize());
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+
+    // 테마 변경 감지 — settingsProvider 의 themeMode 변경 시 JS 채널로 푸시
+    ref.listen<AsyncValue<AppSettings>>(settingsProvider, (_, next) {
+      final mode = next.value?.themeMode ?? ThemeMode.system;
+      final resolved = _resolveThemeMode(context, mode);
+      _pushTheme(resolved);
+    });
+
+    Widget body;
+    if (_error != null) {
+      body = Center(
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Text(
+            '차트를 불러올 수 없어요\n$_error',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 12, color: t.fgTertiary),
+          ),
+        ),
+      );
+    } else if (_controller == null || _loading) {
+      // 스켈레톤 — feedback_skeleton_server_data_only.md 준수(shadow 만, border X)
+      body = Container(decoration: BoxDecoration(color: t.bgSunken, borderRadius: PRadius.brMd));
+    } else {
+      body = WebViewWidget(
+        controller: _controller!,
+        // 시트/스크롤 부모 안에서 핀치/팬 제스처를 WebView 가 가져가도록 — 부모와 충돌 방지
+        gestureRecognizers: const <Factory<OneSequenceGestureRecognizer>>{
+          Factory<EagerGestureRecognizer>(EagerGestureRecognizer.new),
+        },
+      );
+    }
+
+    return SizedBox(height: widget.height, child: body);
+  }
+
+  @override
+  void dispose() {
+    // iOS 메모리 회수: about:blank 로 SPA/canvas 해제 후 컨트롤러 폐기(webview_flutter 4.x 는 자동 dispose).
+    _controller?.loadRequest(Uri.parse('about:blank'));
+    super.dispose();
+  }
+}
+
+String _resolveThemeMode(BuildContext context, ThemeMode mode) {
+  switch (mode) {
+    case ThemeMode.light:
+      return 'light';
+    case ThemeMode.dark:
+      return 'dark';
+    case ThemeMode.system:
+      return MediaQuery.platformBrightnessOf(context) == Brightness.dark ? 'dark' : 'light';
+  }
+}

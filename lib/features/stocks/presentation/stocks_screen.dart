@@ -22,6 +22,7 @@ import 'package:porest_desk_app/shared/widgets/p_search_field.dart';
 import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/features/stocks/application/stocks_providers.dart';
+import 'package:porest_desk_app/features/stocks/presentation/chart_web_view.dart';
 import 'package:porest_desk_app/features/stocks/data/stocks_mock.dart';
 import 'package:porest_desk_app/features/stocks/data/toss_dto.dart';
 import 'package:porest_desk_app/features/stocks/domain/stock.dart';
@@ -1425,7 +1426,7 @@ class _StockDetailBodyState extends ConsumerState<_StockDetailBody> {
           padding: const EdgeInsets.fromLTRB(12, 14, 12, 10),
           child: Column(
             children: [
-              _StockChart(
+              ChartWebView(
                 symbol: widget.ticker,
                 isUs: s.isUs,
                 range: _range,
