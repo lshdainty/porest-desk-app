@@ -50,6 +50,10 @@ class _ChartWebViewState extends ConsumerState<ChartWebView> {
   bool _loading = true;
   bool _ready = false; // JS 측 ready 핸드셰이크 수신
   String? _error;
+  Timer? _tokenTimer; // embed_token 만료 전 in-place 갱신 주기 타이머
+
+  /// embed_token 갱신 주기 — 토큰(60s)이 만료되기 전에 새 토큰을 push.
+  static const Duration _tokenRefreshInterval = Duration(seconds: 45);
 
   // 마지막 푸시 상태(ready 전 변경 시 idempotent replay 위해 보관)
   String? _pendingRange;
@@ -61,14 +65,19 @@ class _ChartWebViewState extends ConsumerState<ChartWebView> {
     _initialize();
   }
 
+  /// 인증된 사용자(쿠키)로 60초 embed_token 발급. 실패 시 null.
+  Future<String?> _fetchEmbedToken() async {
+    final dio = await ref.read(dioProvider.future);
+    final res = await dio.post<dynamic>('/auth/embed-token');
+    final body = res.data;
+    final data = (body is Map<String, dynamic>) ? body['data'] : null;
+    return (data is Map<String, dynamic>) ? data['token'] as String? : null;
+  }
+
   Future<void> _initialize() async {
     try {
-      // 1) embed_token 발급 — 인증된 사용자(쿠키)로 dio 호출
-      final dio = await ref.read(dioProvider.future);
-      final res = await dio.post<dynamic>('/auth/embed-token');
-      final body = res.data;
-      final data = (body is Map<String, dynamic>) ? body['data'] : null;
-      final token = (data is Map<String, dynamic>) ? data['token'] as String? : null;
+      // 1) embed_token 발급
+      final token = await _fetchEmbedToken();
       if (token == null || token.isEmpty) {
         if (mounted) setState(() { _loading = false; _error = '토큰 발급 실패'; });
         return;
@@ -116,6 +125,7 @@ class _ChartWebViewState extends ConsumerState<ChartWebView> {
 
       if (!mounted) return;
       setState(() { _controller = controller; _error = null; });
+      _startTokenRefresh(); // reload 없는 토큰 회전 시작
     } on DioException catch (e) {
       if (!mounted) return;
       setState(() {
@@ -163,8 +173,25 @@ class _ChartWebViewState extends ConsumerState<ChartWebView> {
     } catch (_) {/* 무시 */}
   }
 
+  /// embed_token 을 만료 전 주기적으로 재발급해 __tokenBridge 로 push → WebView reload 없이
+  /// 헤더만 교체(스피너 없는 토큰 회전). 발급 실패 시 다음 주기 재시도, 만료되면 401 fallback.
+  void _startTokenRefresh() {
+    _tokenTimer?.cancel();
+    _tokenTimer = Timer.periodic(_tokenRefreshInterval, (_) async {
+      if (!mounted || _controller == null) return;
+      try {
+        final token = await _fetchEmbedToken();
+        if (token == null || token.isEmpty || !mounted) return;
+        await _controller?.runJavaScript(
+          'window.__tokenBridge && window.__tokenBridge(${jsonEncode(token)})',
+        );
+      } catch (_) {/* 다음 주기 재시도; 만료 시 embed 페이지 401 → fallback reload */}
+    });
+  }
+
   Future<void> _reinitialize() async {
     if (!mounted) return;
+    _tokenTimer?.cancel();
     setState(() { _ready = false; _loading = true; _error = null; });
     // 기존 컨트롤러는 _controller 교체로 dispose 처리 — _initialize 가 새 컨트롤러 세팅
     await _initialize();
@@ -235,6 +262,7 @@ class _ChartWebViewState extends ConsumerState<ChartWebView> {
 
   @override
   void dispose() {
+    _tokenTimer?.cancel();
     // iOS 메모리 회수: about:blank 로 SPA/canvas 해제 후 컨트롤러 폐기(webview_flutter 4.x 는 자동 dispose).
     _controller?.loadRequest(Uri.parse('about:blank'));
     super.dispose();
