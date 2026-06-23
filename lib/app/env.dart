@@ -27,10 +27,11 @@ abstract final class Env {
   );
 
   /// desk-front (React 웹) URL — 차트 WebView 가 띄우는 임베드 페이지(`/embed/stocks/:symbol`)의 origin.
-  /// 차트만 임베드용도이며 SSO/대시보드와 무관. 기본 = dev.
+  /// dev/prod 는 nginx 가 백엔드와 동일 호스트에서 SPA 도 서빙하므로 [apiBase] 와 동일.
+  /// 로컬은 vite dev 가 별도 포트(`:3002`)에서 SPA 만 띄운다.
   static const String webBaseUrl = String.fromEnvironment(
     'WEB_BASE_URL',
-    defaultValue: 'https://desk-front-dev.porest.cloud:10443',
+    defaultValue: 'https://desk-dev.porest.cloud:10443',
   );
 
   /// SSO 로그인 후 캐치할 모바일 전용 redirect_uri.
