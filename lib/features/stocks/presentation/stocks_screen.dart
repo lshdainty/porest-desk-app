@@ -1408,9 +1408,10 @@ class _StockInfoCard extends ConsumerWidget {
       if (listDate != null && listDate.isNotEmpty) ('상장일', listDate, null),
       if (shares > 0) ('발행주식수', _fmtShares(shares), null),
       (
+        // 거래정지는 토스 status(분류성 값)가 아니라 KRX 거래정지 플래그로 판정.
         '거래상태',
-        info != null && !info.isNormal ? '거래정지' : '정상',
-        info != null && !info.isNormal
+        info?.koreanMarketDetail?.krxTradingSuspended == true ? '거래정지' : '정상',
+        info?.koreanMarketDetail?.krxTradingSuspended == true
             ? t.statusDangerFg
             : t.statusSuccessFg
       ),
