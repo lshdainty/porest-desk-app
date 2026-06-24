@@ -55,11 +55,17 @@ class _StocksScreenState extends ConsumerState<StocksScreen> {
   @override
   void initState() {
     super.initState();
-    // 현재가 라이브 갱신 — overlay 를 주기적으로 invalidate 하면 prices 재조회 후
-    // applyLivePrices 가 kStocks[].price 를 갱신 → 헤더/리스트가 새 시세로 rebuild.
-    // 값을 렌더하지 않고 side-effect 용으로만 watch 하므로 로딩 스피너/플리커 없음.
+    // 라이브 갱신 — 10초마다:
+    // - stockLiveOverlay: prices 재조회 → applyLivePrices 가 kStocks[].price 갱신 → 헤더/리스트 rebuild.
+    // - orderbook/trades: 호가·체결 family provider 일괄 invalidate(현재 보이는 종목만 자동 재조회).
+    // - candles: 일별표·등락률 계산용 1d 캔들 재조회(family invalidate).
+    // overlay 는 side-effect 용 watch 라 스피너 없음. family 들은 화면이 watch 하지 않으면 NOP.
     _priceTimer = Timer.periodic(const Duration(seconds: 10), (_) {
-      if (mounted) ref.invalidate(stockLiveOverlayProvider);
+      if (!mounted) return;
+      ref.invalidate(stockLiveOverlayProvider);
+      ref.invalidate(tossOrderbookProvider);
+      ref.invalidate(tossTradesProvider);
+      ref.invalidate(tossCandlesProvider);
     });
   }
 
@@ -987,6 +993,9 @@ class _StockDetailBodyState extends ConsumerState<_StockDetailBody> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    // 라이브 가격 갱신을 시트에서도 받아들이도록 overlay 를 watch — 메인 화면의 10초 invalidate 가
+    // 시트(별도 위젯 트리) build 를 트리거하도록 한다. kStocks[].price 는 overlay 가 invalidate 될 때 갱신됨.
+    ref.watch(stockLiveOverlayProvider);
     final masked = ref.watch(settingsProvider).value?.hideAmounts ?? false;
     final s = findStock(widget.ticker);
     if (s == null) return const SizedBox.shrink();
