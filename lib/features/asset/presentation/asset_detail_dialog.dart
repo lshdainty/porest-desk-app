@@ -18,6 +18,7 @@ import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
 import 'package:porest_desk_app/shared/widgets/p_badge.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_card.dart';
+import 'package:porest_desk_app/shared/widgets/p_chip.dart';
 import 'package:porest_desk_app/shared/widgets/p_divider.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
@@ -28,6 +29,8 @@ import 'package:porest_desk_app/features/expense/application/expense_providers.d
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
 import 'package:porest_desk_app/features/expense/presentation/tx_detail_dialog.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
+import 'package:porest_desk_app/features/stocks/application/stocks_providers.dart';
+import 'package:porest_desk_app/features/subscription/application/subscription_providers.dart';
 import 'package:porest_desk_app/features/asset/domain/asset.dart';
 import 'package:porest_desk_app/features/asset/domain/asset_transfer.dart';
 import 'package:porest_desk_app/features/asset/domain/card_billing.dart';
@@ -187,6 +190,10 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
           _CardBillingSection(asset: asset, masked: masked),
           const SizedBox(height: PSpace.x16),
         ],
+        if (isInv) ...[
+          _TossLinkSection(asset: asset),
+          const SizedBox(height: PSpace.x16),
+        ],
 
         // Trend header
         Row(
@@ -273,6 +280,184 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
         const SizedBox(height: PSpace.x8),
         _RecentExpenses(async: recentAsync, masked: masked, tokens: t),
       ],
+    );
+  }
+}
+
+/// 투자 자산 ↔ 토스 보유종목 연결 섹션 (프로(SECURITIES)+토스 연결 사용자에게만 노출).
+/// 연결되면 평가액이 토스에서 자동 동기화되어 자산 화면에 실시간 반영된다.
+class _TossLinkSection extends ConsumerStatefulWidget {
+  const _TossLinkSection({required this.asset});
+  final Asset asset;
+
+  @override
+  ConsumerState<_TossLinkSection> createState() => _TossLinkSectionState();
+}
+
+class _TossLinkSectionState extends ConsumerState<_TossLinkSection> {
+  String? _selected;
+  String? _linkedSymbol;
+  bool _busy = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _linkedSymbol = widget.asset.tossSymbol;
+  }
+
+  Future<void> _link(int accountSeq) async {
+    final symbol = _selected;
+    if (symbol == null || _busy) return;
+    setState(() => _busy = true);
+    try {
+      final repo = await ref.read(assetRepositoryProvider.future);
+      await repo.linkTossSymbol(widget.asset.rowId, accountSeq, symbol);
+      ref.invalidate(assetsProvider);
+      ref.invalidate(tossHoldingsProvider);
+      if (!mounted) return;
+      setState(() => _linkedSymbol = symbol);
+      showPSnackBar(context, '토스 보유종목에 연결했어요',
+          severity: PSnackSeverity.success);
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      showPSnackBar(context, '연결 실패: ${e.message}',
+          severity: PSnackSeverity.error);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _unlink() async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    try {
+      final repo = await ref.read(assetRepositoryProvider.future);
+      await repo.unlinkTossSymbol(widget.asset.rowId);
+      ref.invalidate(assetsProvider);
+      if (!mounted) return;
+      setState(() {
+        _linkedSymbol = null;
+        _selected = null;
+      });
+      showPSnackBar(context, '토스 연결을 해제했어요',
+          severity: PSnackSeverity.success);
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      showPSnackBar(context, '해제 실패: ${e.message}',
+          severity: PSnackSeverity.error);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final features = ref.watch(myFeaturesProvider).asData?.value;
+    final enabled =
+        (features?.hasSecurities ?? false) && (features?.tossConnected ?? false);
+    if (!enabled) return const SizedBox.shrink();
+
+    final holdings = ref.watch(tossHoldingsProvider).asData?.value;
+    final accounts = ref.watch(tossAccountsProvider).asData?.value;
+    final accountSeq = widget.asset.tossAccountSeq ??
+        (accounts != null && accounts.isNotEmpty
+            ? accounts.first.accountSeq
+            : null);
+    final items = holdings?.items ?? const [];
+
+    if (_linkedSymbol != null) {
+      final matches = items.where((it) => it.symbol == _linkedSymbol);
+      final name = matches.isNotEmpty ? matches.first.name : _linkedSymbol!;
+      return PCard(
+        variant: PCardVariant.bordered,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const PBadge(label: '토스 연동 중'),
+                const SizedBox(width: PSpace.x8),
+                Expanded(
+                  child: Text(
+                    name,
+                    style: PTypo.bodySm.copyWith(
+                      color: t.fgPrimary,
+                      fontWeight: PFontWeight.bold,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: PSpace.x8),
+            Text(
+              '이 자산의 평가액은 토스 보유종목에서 자동으로 갱신됩니다.',
+              style: PTypo.caption.copyWith(color: t.fgTertiary),
+            ),
+            const SizedBox(height: PSpace.x12),
+            PButton(
+              label: '연결 해제',
+              variant: PButtonVariant.secondary,
+              size: PButtonSize.sm,
+              loading: _busy,
+              onPressed: _busy ? null : _unlink,
+            ),
+          ],
+        ),
+      );
+    }
+
+    return PCard(
+      variant: PCardVariant.bordered,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '토스 보유종목 연결',
+            style: PTypo.bodySm.copyWith(
+              color: t.fgPrimary,
+              fontWeight: PFontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: PSpace.x4),
+          Text(
+            '이 자산을 토스 보유종목에 연결하면 평가액이 실시간으로 자동 반영됩니다.',
+            style: PTypo.caption.copyWith(color: t.fgTertiary),
+          ),
+          const SizedBox(height: PSpace.x12),
+          if (accountSeq == null)
+            Text('토스 계좌를 찾을 수 없어요.',
+                style: PTypo.caption.copyWith(color: t.fgTertiary))
+          else if (items.isEmpty)
+            Text('토스 보유종목이 없어요.',
+                style: PTypo.caption.copyWith(color: t.fgTertiary))
+          else ...[
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: [
+                for (final it in items)
+                  PChip(
+                    label: it.name,
+                    selected: _selected == it.symbol,
+                    onTap: () => setState(() => _selected = it.symbol),
+                  ),
+              ],
+            ),
+            const SizedBox(height: PSpace.x12),
+            PButton(
+              label: '연결',
+              size: PButtonSize.sm,
+              loading: _busy,
+              onPressed: (_selected == null || _busy)
+                  ? null
+                  : () => _link(accountSeq),
+            ),
+          ],
+        ],
+      ),
     );
   }
 }
