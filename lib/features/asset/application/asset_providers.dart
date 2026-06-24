@@ -7,6 +7,8 @@ import 'package:porest_desk_app/features/asset/domain/asset_summary.dart';
 import 'package:porest_desk_app/features/asset/domain/asset_transfer.dart';
 import 'package:porest_desk_app/features/asset/domain/card_billing.dart';
 import 'package:porest_desk_app/features/asset/domain/net_worth_point.dart';
+import 'package:porest_desk_app/features/stocks/application/stocks_providers.dart';
+import 'package:porest_desk_app/features/subscription/application/subscription_providers.dart';
 
 final assetRepositoryProvider = FutureProvider<AssetRepository>((ref) async {
   final dio = await ref.watch(dioProvider.future);
@@ -66,6 +68,26 @@ final cardBillingProvider =
     FutureProvider.family<CardBilling, int>((ref, assetId) async {
   final repo = await ref.watch(assetRepositoryProvider.future);
   return repo.getCardBilling(assetId);
+});
+
+/// 토스에 연결된 투자 자산의 라이브 평가액(KRW) 맵 (symbol → 원화 평가액).
+///
+/// - 프로(SECURITIES) + 토스 연결 사용자가 아니면 빈 맵 → 오버레이 무효과.
+/// - 평가액은 토스가 원화로 내려준 값(marketValueAmount)을 그대로 사용한다.
+/// - tossHoldingsProvider(첫 계좌)를 watch 하므로 화면에서 invalidate 하면 실시간 갱신.
+final tossValuationMapProvider = FutureProvider<Map<String, int>>((ref) async {
+  final features = ref.watch(myFeaturesProvider).asData?.value;
+  final enabled = (features?.hasSecurities ?? false) && (features?.tossConnected ?? false);
+  if (!enabled) return const {};
+  final holdings = await ref.watch(tossHoldingsProvider.future);
+  if (holdings == null) return const {};
+  final map = <String, int>{};
+  for (final it in holdings.items) {
+    final amt = double.tryParse(it.marketValueAmount);
+    if (amt == null) continue;
+    map[it.symbol] = amt.round();
+  }
+  return map;
 });
 
 extension AssetListX on List<Asset> {

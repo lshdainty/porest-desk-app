@@ -23,6 +23,9 @@ abstract class Asset with _$Asset {
     int? creditLimit, // 신용 한도
     int? paymentDay, // 결제일 (1~31)
     int? paymentAssetRowId, // 결제 출금계좌 자산 rowId
+    // 토스증권 연동 (INVESTMENT 전용, nullable). 연결되면 평가액 자동 동기화.
+    int? tossAccountSeq, // 연결된 토스증권 계좌 식별 키
+    String? tossSymbol, // 연결된 토스 보유종목 심볼
   }) = _Asset;
 
   factory Asset.fromJson(Map<String, dynamic> json) => _$AssetFromJson(json);

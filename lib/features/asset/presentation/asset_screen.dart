@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -13,6 +15,7 @@ import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_card.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
+import 'package:porest_desk_app/features/stocks/application/stocks_providers.dart';
 import 'package:porest_desk_app/features/asset/domain/asset.dart';
 import 'package:porest_desk_app/features/asset/domain/asset_summary.dart';
 import 'package:porest_desk_app/features/asset/presentation/asset_edit_dialog.dart';
@@ -24,17 +27,43 @@ const _cardTypes = {'CREDIT_CARD', 'CHECK_CARD'};
 const _investmentTypes = {'INVESTMENT'};
 const _loanTypes = {'LOAN'};
 
-class AssetScreen extends ConsumerWidget {
+class AssetScreen extends ConsumerStatefulWidget {
   const AssetScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AssetScreen> createState() => _AssetScreenState();
+}
+
+class _AssetScreenState extends ConsumerState<AssetScreen> {
+  Timer? _holdingsTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    // 토스 연결 평가액 라이브 갱신 — holdings 10초 폴링.
+    // 게이트 OFF(비프로/미연결)면 tossValuationMapProvider 가 holdings 를 watch 하지 않아 NOP.
+    _holdingsTimer = Timer.periodic(const Duration(seconds: 10), (_) {
+      if (mounted) ref.invalidate(tossHoldingsProvider);
+    });
+  }
+
+  @override
+  void dispose() {
+    _holdingsTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final t = context.tokens;
     final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
     final assetsAsync = ref.watch(assetsProvider);
     final summaryAsync = ref.watch(
       assetSummaryProvider((year: null, month: null)),
     );
+    // 토스 연결 투자 자산의 라이브 평가액(KRW) 맵 (게이트 OFF면 빈 맵).
+    final valMap =
+        ref.watch(tossValuationMapProvider).asData?.value ?? const <String, int>{};
 
     return Scaffold(
       backgroundColor: t.bgCanvas,
@@ -49,6 +78,7 @@ class AssetScreen extends ConsumerWidget {
           ref.invalidate(assetsProvider);
           ref.invalidate(assetSummaryProvider);
           ref.invalidate(netWorthTrendProvider);
+          ref.invalidate(tossHoldingsProvider);
           await ref.read(assetsProvider.future);
         },
         child: assetsAsync.when(
@@ -59,9 +89,31 @@ class AssetScreen extends ConsumerWidget {
           ),
           data: (assets) {
             final summary = summaryAsync.hasValue ? summaryAsync.value : null;
+            // 연결 자산 balance 를 라이브 평가액으로 치환 + 순자산 보정용 delta(라이브−DB).
+            final liveAssets = valMap.isEmpty
+                ? assets
+                : assets
+                    .map(
+                      (a) => (a.tossSymbol != null &&
+                              valMap.containsKey(a.tossSymbol))
+                          ? a.copyWith(balance: valMap[a.tossSymbol])
+                          : a,
+                    )
+                    .toList();
+            final summaryDelta = valMap.isEmpty
+                ? 0
+                : assets.fold<int>(
+                    0,
+                    (s, a) => (a.tossSymbol != null &&
+                            a.isIncludedInTotal == 'Y' &&
+                            valMap.containsKey(a.tossSymbol))
+                        ? s + (valMap[a.tossSymbol]! - (a.balance ?? 0))
+                        : s,
+                  );
             return _AssetBody(
-              assets: assets,
+              assets: liveAssets,
               summary: summary,
+              summaryDelta: summaryDelta,
               masked: settings.hideAmounts,
               onToggleMask: () => toggleHideAmountsWithUnlock(context, ref),
               tokens: t,
@@ -77,6 +129,7 @@ class _AssetBody extends StatelessWidget {
   const _AssetBody({
     required this.assets,
     required this.summary,
+    required this.summaryDelta,
     required this.masked,
     required this.onToggleMask,
     required this.tokens,
@@ -84,6 +137,8 @@ class _AssetBody extends StatelessWidget {
 
   final List<Asset> assets;
   final AssetSummary? summary;
+  // 토스 라이브 평가액 보정분(라이브−DB). summary(DB 기준) 순자산/변화에 더한다.
+  final int summaryDelta;
   final bool masked;
   final VoidCallback onToggleMask;
   final PorestTokens tokens;
@@ -144,11 +199,15 @@ class _AssetBody extends StatelessWidget {
     final investmentsTotal = sumIncluded(investments);
     final loansTotal = sumIncluded(loans).abs();
 
-    final netWorth =
-        summary?.netWorth ??
-        (accountsTotal + investmentsTotal - cardsTotal - loansTotal);
-    final changeAmount = summary?.changeAmount ?? 0;
-    final changePercent = summary?.changePercent ?? 0.0;
+    // summary(DB 기준)에 토스 라이브 평가액 보정. summary 없으면 liveAssets 합계가 이미 라이브.
+    final netWorth = summary != null
+        ? summary!.netWorth + summaryDelta
+        : (accountsTotal + investmentsTotal - cardsTotal - loansTotal);
+    final changeAmount = (summary?.changeAmount ?? 0) + summaryDelta;
+    final lastMonth = summary?.lastMonthNetWorth ?? 0;
+    final changePercent = lastMonth != 0
+        ? (changeAmount / lastMonth.abs() * 1000).round() / 10
+        : (summary?.changePercent ?? 0.0);
 
     return ListView(
       padding: const EdgeInsets.symmetric(

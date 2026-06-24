@@ -182,6 +182,30 @@ class AssetRepository {
     }
   }
 
+  /// 투자 자산 ↔ 토스 보유종목 연결. PUT /asset/{id}/toss-link.
+  /// 프로(SECURITIES)+토스 연결 사용자만 가능(미충족 시 403).
+  Future<Asset> linkTossSymbol(int id, int accountSeq, String symbol) async {
+    try {
+      final res = await _dio.put<Map<String, dynamic>>(
+        '/asset/$id/toss-link',
+        data: {'accountSeq': accountSeq, 'symbol': symbol},
+      );
+      return _unwrap(res, Asset.fromJson);
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  /// 토스 연결 해제. DELETE /asset/{id}/toss-link.
+  Future<Asset> unlinkTossSymbol(int id) async {
+    try {
+      final res = await _dio.delete<Map<String, dynamic>>('/asset/$id/toss-link');
+      return _unwrap(res, Asset.fromJson);
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
   // ─────────────────────────────────────────────
   // Credit Card Billing
   // ─────────────────────────────────────────────
