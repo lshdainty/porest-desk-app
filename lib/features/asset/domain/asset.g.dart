@@ -21,8 +21,8 @@ _Asset _$AssetFromJson(Map<String, dynamic> json) => _Asset(
   creditLimit: (json['creditLimit'] as num?)?.toInt(),
   paymentDay: (json['paymentDay'] as num?)?.toInt(),
   paymentAssetRowId: (json['paymentAssetRowId'] as num?)?.toInt(),
-  tossAccountSeq: (json['tossAccountSeq'] as num?)?.toInt(),
   tossSymbol: json['tossSymbol'] as String?,
+  tossQuantity: (json['tossQuantity'] as num?)?.toInt(),
 );
 
 Map<String, dynamic> _$AssetToJson(_Asset instance) => <String, dynamic>{
@@ -40,6 +40,6 @@ Map<String, dynamic> _$AssetToJson(_Asset instance) => <String, dynamic>{
   'creditLimit': instance.creditLimit,
   'paymentDay': instance.paymentDay,
   'paymentAssetRowId': instance.paymentAssetRowId,
-  'tossAccountSeq': instance.tossAccountSeq,
   'tossSymbol': instance.tossSymbol,
+  'tossQuantity': instance.tossQuantity,
 };

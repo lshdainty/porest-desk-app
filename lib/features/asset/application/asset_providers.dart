@@ -70,24 +70,37 @@ final cardBillingProvider =
   return repo.getCardBilling(assetId);
 });
 
-/// 토스에 연결된 투자 자산의 라이브 평가액(KRW) 맵 (symbol → 원화 평가액).
+/// 토스에 연결된 투자 자산의 라이브 평가액(KRW) 맵 (assetRowId → 평가액).
 ///
-/// - 프로(SECURITIES) + 토스 연결 사용자가 아니면 빈 맵 → 오버레이 무효과.
-/// - 평가액은 토스가 원화로 내려준 값(marketValueAmount)을 그대로 사용한다.
-/// - tossHoldingsProvider(첫 계좌)를 watch 하므로 화면에서 invalidate 하면 실시간 갱신.
-final tossValuationMapProvider = FutureProvider<Map<String, int>>((ref) async {
+/// - 평가액 = 토스 현재가(toss_symbol) × 보유수량(toss_quantity). 토스 계좌 보유분과 무관하게
+///   시세만 빌려 계산하므로, 타 증권사 보유 주식도 토스 시세로 실시간 평가된다.
+/// - 프로(SECURITIES) + 토스 연결 사용자가 아니거나 연결 자산이 없으면 빈 맵 → 오버레이 무효과.
+/// - 화면에서 invalidate 하면 시세를 재조회해 실시간 갱신된다.
+final tossValuationMapProvider = FutureProvider<Map<int, int>>((ref) async {
   final features = ref.watch(myFeaturesProvider).asData?.value;
   final enabled = (features?.hasSecurities ?? false) && (features?.tossConnected ?? false);
   if (!enabled) return const {};
-  final holdings = await ref.watch(tossHoldingsProvider.future);
-  if (holdings == null) return const {};
-  final map = <String, int>{};
-  for (final it in holdings.items) {
-    final amt = double.tryParse(it.marketValueAmount);
-    if (amt == null) continue;
-    map[it.symbol] = amt.round();
+  final assets = await ref.watch(assetsProvider.future);
+  final linked = assets
+      .where((a) => (a.tossSymbol?.isNotEmpty ?? false) && a.tossQuantity != null)
+      .toList();
+  if (linked.isEmpty) return const {};
+  final symbols = {for (final a in linked) a.tossSymbol!}.toList();
+  try {
+    final repo = await ref.watch(stocksRepositoryProvider.future);
+    final prices = await repo.getPrices(symbols);
+    final priceBySymbol = {for (final p in prices) p.symbol: p.priceValue};
+    final map = <int, int>{};
+    for (final a in linked) {
+      final price = priceBySymbol[a.tossSymbol];
+      if (price == null) continue;
+      map[a.rowId] = (price * a.tossQuantity!).round();
+    }
+    return map;
+  } catch (_) {
+    // 토스 미설정/조회 실패 — 오버레이 없이 기존 잔액 유지.
+    return const {};
   }
-  return map;
 });
 
 extension AssetListX on List<Asset> {

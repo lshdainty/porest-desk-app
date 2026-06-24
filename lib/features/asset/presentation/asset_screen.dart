@@ -15,7 +15,6 @@ import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_card.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
-import 'package:porest_desk_app/features/stocks/application/stocks_providers.dart';
 import 'package:porest_desk_app/features/asset/domain/asset.dart';
 import 'package:porest_desk_app/features/asset/domain/asset_summary.dart';
 import 'package:porest_desk_app/features/asset/presentation/asset_edit_dialog.dart';
@@ -35,21 +34,21 @@ class AssetScreen extends ConsumerStatefulWidget {
 }
 
 class _AssetScreenState extends ConsumerState<AssetScreen> {
-  Timer? _holdingsTimer;
+  Timer? _valuationTimer;
 
   @override
   void initState() {
     super.initState();
-    // 토스 연결 평가액 라이브 갱신 — holdings 10초 폴링.
-    // 게이트 OFF(비프로/미연결)면 tossValuationMapProvider 가 holdings 를 watch 하지 않아 NOP.
-    _holdingsTimer = Timer.periodic(const Duration(seconds: 10), (_) {
-      if (mounted) ref.invalidate(tossHoldingsProvider);
+    // 토스 연결 평가액 라이브 갱신 — 시세(현재가)를 10초마다 재조회.
+    // 게이트 OFF(비프로/미연결)·연결 자산 없음이면 빈 맵이라 NOP.
+    _valuationTimer = Timer.periodic(const Duration(seconds: 10), (_) {
+      if (mounted) ref.invalidate(tossValuationMapProvider);
     });
   }
 
   @override
   void dispose() {
-    _holdingsTimer?.cancel();
+    _valuationTimer?.cancel();
     super.dispose();
   }
 
@@ -61,9 +60,9 @@ class _AssetScreenState extends ConsumerState<AssetScreen> {
     final summaryAsync = ref.watch(
       assetSummaryProvider((year: null, month: null)),
     );
-    // 토스 연결 투자 자산의 라이브 평가액(KRW) 맵 (게이트 OFF면 빈 맵).
+    // 토스 연결 투자 자산의 라이브 평가액(KRW) 맵 — assetRowId → 평가액 (게이트 OFF면 빈 맵).
     final valMap =
-        ref.watch(tossValuationMapProvider).asData?.value ?? const <String, int>{};
+        ref.watch(tossValuationMapProvider).asData?.value ?? const <int, int>{};
 
     return Scaffold(
       backgroundColor: t.bgCanvas,
@@ -78,7 +77,7 @@ class _AssetScreenState extends ConsumerState<AssetScreen> {
           ref.invalidate(assetsProvider);
           ref.invalidate(assetSummaryProvider);
           ref.invalidate(netWorthTrendProvider);
-          ref.invalidate(tossHoldingsProvider);
+          ref.invalidate(tossValuationMapProvider);
           await ref.read(assetsProvider.future);
         },
         child: assetsAsync.when(
@@ -89,14 +88,13 @@ class _AssetScreenState extends ConsumerState<AssetScreen> {
           ),
           data: (assets) {
             final summary = summaryAsync.hasValue ? summaryAsync.value : null;
-            // 연결 자산 balance 를 라이브 평가액으로 치환 + 순자산 보정용 delta(라이브−DB).
+            // 연결 자산 balance 를 라이브 평가액(시세×수량)으로 치환 + 순자산 보정용 delta(라이브−DB).
             final liveAssets = valMap.isEmpty
                 ? assets
                 : assets
                     .map(
-                      (a) => (a.tossSymbol != null &&
-                              valMap.containsKey(a.tossSymbol))
-                          ? a.copyWith(balance: valMap[a.tossSymbol])
+                      (a) => valMap.containsKey(a.rowId)
+                          ? a.copyWith(balance: valMap[a.rowId])
                           : a,
                     )
                     .toList();
@@ -104,10 +102,9 @@ class _AssetScreenState extends ConsumerState<AssetScreen> {
                 ? 0
                 : assets.fold<int>(
                     0,
-                    (s, a) => (a.tossSymbol != null &&
-                            a.isIncludedInTotal == 'Y' &&
-                            valMap.containsKey(a.tossSymbol))
-                        ? s + (valMap[a.tossSymbol]! - (a.balance ?? 0))
+                    (s, a) => (a.isIncludedInTotal == 'Y' &&
+                            valMap.containsKey(a.rowId))
+                        ? s + (valMap[a.rowId]! - (a.balance ?? 0))
                         : s,
                   );
             return _AssetBody(
