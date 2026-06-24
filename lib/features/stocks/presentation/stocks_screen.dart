@@ -59,6 +59,7 @@ class _StocksScreenState extends ConsumerState<StocksScreen> {
     // - stockLiveOverlay: prices 재조회 → applyLivePrices 가 kStocks[].price 갱신 → 헤더/리스트 rebuild.
     // - orderbook/trades: 호가·체결 family provider 일괄 invalidate(현재 보이는 종목만 자동 재조회).
     // - candles: 일별표·등락률 계산용 1d 캔들 재조회(family invalidate).
+    // - holdings: 보유종목 평가액(현재가 반영) 재조회 → 상세 보유정보·포트폴리오 도넛 갱신.
     // overlay 는 side-effect 용 watch 라 스피너 없음. family 들은 화면이 watch 하지 않으면 NOP.
     _priceTimer = Timer.periodic(const Duration(seconds: 10), (_) {
       if (!mounted) return;
@@ -66,6 +67,7 @@ class _StocksScreenState extends ConsumerState<StocksScreen> {
       ref.invalidate(tossOrderbookProvider);
       ref.invalidate(tossTradesProvider);
       ref.invalidate(tossCandlesProvider);
+      ref.invalidate(tossHoldingsProvider);
     });
   }
 
