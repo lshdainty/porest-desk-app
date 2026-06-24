@@ -1504,35 +1504,42 @@ class _OrderBook extends StatelessWidget {
       required Color tone,
       required bool alignRight,
     }) {
+      final f = (maxQ <= 0 ? 0.0 : q / maxQ).clamp(0.0, 1.0);
+      // 바는 항상 중심축(가격) 쪽에 붙어 바깥으로 자란다 — 매수=중심(오른쪽)에서 왼쪽으로,
+      // 매도=중심(왼쪽)에서 오른쪽으로. FractionallySizedBox+Stack 은 좌측 고정 버그가 있어 Positioned 로 명시.
       return SizedBox(
         height: 22,
-        child: Stack(
-          children: [
-            FractionallySizedBox(
-              alignment:
-                  alignRight ? Alignment.centerRight : Alignment.centerLeft,
-              widthFactor: q / maxQ,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: chipFill(context, tone, t: 0.13),
-                  borderRadius: BorderRadius.circular(4),
+        child: LayoutBuilder(
+          builder: (context, c) => Stack(
+            children: [
+              Positioned(
+                top: 0,
+                bottom: 0,
+                left: alignRight ? null : 0,
+                right: alignRight ? 0 : null,
+                width: c.maxWidth * f,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: chipFill(context, tone, t: 0.13),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
                 ),
               ),
-            ),
-            Align(
-              alignment:
-                  alignRight ? Alignment.centerRight : Alignment.centerLeft,
-              child: Padding(
-                padding: EdgeInsets.only(
-                    right: alignRight ? 6 : 0, left: alignRight ? 0 : 6),
-                child: Text(
-                  krw(q),
-                  style: PTypo.micro
-                      .copyWith(color: t.fgTertiary, fontFeatures: _tnum),
+              Align(
+                alignment:
+                    alignRight ? Alignment.centerRight : Alignment.centerLeft,
+                child: Padding(
+                  padding: EdgeInsets.only(
+                      right: alignRight ? 6 : 0, left: alignRight ? 0 : 6),
+                  child: Text(
+                    krw(q),
+                    style: PTypo.micro
+                        .copyWith(color: t.fgTertiary, fontFeatures: _tnum),
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       );
     }
