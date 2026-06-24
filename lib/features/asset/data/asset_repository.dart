@@ -182,13 +182,13 @@ class AssetRepository {
     }
   }
 
-  /// 투자 자산 ↔ 토스 보유종목 연결. PUT /asset/{id}/toss-link.
-  /// 프로(SECURITIES)+토스 연결 사용자만 가능(미충족 시 403).
-  Future<Asset> linkTossSymbol(int id, int accountSeq, String symbol) async {
+  /// 투자 자산 ↔ 토스 종목 연결 (종목코드 + 보유수량). PUT /asset/{id}/toss-link.
+  /// 평가액 = 토스 현재가 × 수량. 프로(SECURITIES)+토스 연결 사용자만 가능(미충족 시 403).
+  Future<Asset> linkTossSymbol(int id, String symbol, int quantity) async {
     try {
       final res = await _dio.put<Map<String, dynamic>>(
         '/asset/$id/toss-link',
-        data: {'accountSeq': accountSeq, 'symbol': symbol},
+        data: {'symbol': symbol, 'quantity': quantity},
       );
       return _unwrap(res, Asset.fromJson);
     } on DioException catch (e) {

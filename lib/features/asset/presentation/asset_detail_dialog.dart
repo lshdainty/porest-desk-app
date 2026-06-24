@@ -24,12 +24,14 @@ import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
 import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
+import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
 import 'package:porest_desk_app/features/card/presentation/card_performance_bar.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
 import 'package:porest_desk_app/features/expense/presentation/tx_detail_dialog.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
-import 'package:porest_desk_app/features/stocks/application/stocks_providers.dart';
+import 'package:porest_desk_app/features/stocks/data/stocks_mock.dart';
+import 'package:porest_desk_app/features/stocks/domain/stock.dart';
 import 'package:porest_desk_app/features/subscription/application/subscription_providers.dart';
 import 'package:porest_desk_app/features/asset/domain/asset.dart';
 import 'package:porest_desk_app/features/asset/domain/asset_transfer.dart';
@@ -284,8 +286,9 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
   }
 }
 
-/// 투자 자산 ↔ 토스 보유종목 연결 섹션 (프로(SECURITIES)+토스 연결 사용자에게만 노출).
-/// 연결되면 평가액이 토스에서 자동 동기화되어 자산 화면에 실시간 반영된다.
+/// 투자 자산 ↔ 토스 종목 연결 섹션 (프로(SECURITIES)+토스 연결 사용자에게만 노출).
+/// 종목 + 보유수량을 등록하면 토스 현재가 × 수량으로 평가액이 실시간 계산된다.
+/// 토스 계좌 보유분과 무관 — 시세만 빌려 타 증권사 보유 주식도 평가.
 class _TossLinkSection extends ConsumerStatefulWidget {
   const _TossLinkSection({required this.asset});
   final Asset asset;
@@ -295,28 +298,48 @@ class _TossLinkSection extends ConsumerStatefulWidget {
 }
 
 class _TossLinkSectionState extends ConsumerState<_TossLinkSection> {
-  String? _selected;
-  String? _linkedSymbol;
+  late final TextEditingController _queryCtrl;
+  late final TextEditingController _qtyCtrl;
+  String? _selSymbol;
+  String? _selName;
   bool _busy = false;
+  ({String symbol, int quantity})? _linked;
 
   @override
   void initState() {
     super.initState();
-    _linkedSymbol = widget.asset.tossSymbol;
+    final a = widget.asset;
+    _queryCtrl = TextEditingController()..addListener(() => setState(() {}));
+    _qtyCtrl = TextEditingController(
+      text: a.tossQuantity != null ? '${a.tossQuantity}' : '',
+    );
+    _selSymbol = a.tossSymbol;
+    if (a.tossSymbol != null) _selName = findStock(a.tossSymbol!)?.name;
+    if (a.tossSymbol != null && a.tossQuantity != null) {
+      _linked = (symbol: a.tossSymbol!, quantity: a.tossQuantity!);
+    }
   }
 
-  Future<void> _link(int accountSeq) async {
-    final symbol = _selected;
-    if (symbol == null || _busy) return;
+  @override
+  void dispose() {
+    _queryCtrl.dispose();
+    _qtyCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _link() async {
+    final symbol = _selSymbol;
+    final qty = int.tryParse(_qtyCtrl.text.replaceAll(',', '')) ?? 0;
+    if (symbol == null || qty <= 0 || _busy) return;
     setState(() => _busy = true);
     try {
       final repo = await ref.read(assetRepositoryProvider.future);
-      await repo.linkTossSymbol(widget.asset.rowId, accountSeq, symbol);
+      await repo.linkTossSymbol(widget.asset.rowId, symbol, qty);
       ref.invalidate(assetsProvider);
-      ref.invalidate(tossHoldingsProvider);
+      ref.invalidate(tossValuationMapProvider);
       if (!mounted) return;
-      setState(() => _linkedSymbol = symbol);
-      showPSnackBar(context, '토스 보유종목에 연결했어요',
+      setState(() => _linked = (symbol: symbol, quantity: qty));
+      showPSnackBar(context, '토스 시세 연동을 시작했어요',
           severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!mounted) return;
@@ -334,10 +357,14 @@ class _TossLinkSectionState extends ConsumerState<_TossLinkSection> {
       final repo = await ref.read(assetRepositoryProvider.future);
       await repo.unlinkTossSymbol(widget.asset.rowId);
       ref.invalidate(assetsProvider);
+      ref.invalidate(tossValuationMapProvider);
       if (!mounted) return;
       setState(() {
-        _linkedSymbol = null;
-        _selected = null;
+        _linked = null;
+        _selSymbol = null;
+        _selName = null;
+        _qtyCtrl.clear();
+        _queryCtrl.clear();
       });
       showPSnackBar(context, '토스 연결을 해제했어요',
           severity: PSnackSeverity.success);
@@ -358,17 +385,9 @@ class _TossLinkSectionState extends ConsumerState<_TossLinkSection> {
         (features?.hasSecurities ?? false) && (features?.tossConnected ?? false);
     if (!enabled) return const SizedBox.shrink();
 
-    final holdings = ref.watch(tossHoldingsProvider).asData?.value;
-    final accounts = ref.watch(tossAccountsProvider).asData?.value;
-    final accountSeq = widget.asset.tossAccountSeq ??
-        (accounts != null && accounts.isNotEmpty
-            ? accounts.first.accountSeq
-            : null);
-    final items = holdings?.items ?? const [];
-
-    if (_linkedSymbol != null) {
-      final matches = items.where((it) => it.symbol == _linkedSymbol);
-      final name = matches.isNotEmpty ? matches.first.name : _linkedSymbol!;
+    if (_linked != null) {
+      final linked = _linked!;
+      final name = findStock(linked.symbol)?.name ?? linked.symbol;
       return PCard(
         variant: PCardVariant.bordered,
         child: Column(
@@ -380,7 +399,7 @@ class _TossLinkSectionState extends ConsumerState<_TossLinkSection> {
                 const SizedBox(width: PSpace.x8),
                 Expanded(
                   child: Text(
-                    name,
+                    '$name · ${linked.quantity}주',
                     style: PTypo.bodySm.copyWith(
                       color: t.fgPrimary,
                       fontWeight: PFontWeight.bold,
@@ -393,7 +412,7 @@ class _TossLinkSectionState extends ConsumerState<_TossLinkSection> {
             ),
             const SizedBox(height: PSpace.x8),
             Text(
-              '이 자산의 평가액은 토스 보유종목에서 자동으로 갱신됩니다.',
+              '평가액 = 토스 현재가 × ${linked.quantity}주 로 실시간 계산됩니다.',
               style: PTypo.caption.copyWith(color: t.fgTertiary),
             ),
             const SizedBox(height: PSpace.x12),
@@ -409,53 +428,109 @@ class _TossLinkSectionState extends ConsumerState<_TossLinkSection> {
       );
     }
 
+    final q = _queryCtrl.text.trim();
+    final matches = q.isEmpty
+        ? const <Stock>[]
+        : kStocks
+            .where((s) =>
+                s.name.contains(q) ||
+                s.ticker.toUpperCase().contains(q.toUpperCase()))
+            .take(6)
+            .toList();
+    final codeFallback = q.isNotEmpty && matches.isEmpty ? q.toUpperCase() : null;
+    final qty = int.tryParse(_qtyCtrl.text.replaceAll(',', '')) ?? 0;
+    final canLink = _selSymbol != null && qty > 0 && !_busy;
+
     return PCard(
       variant: PCardVariant.bordered,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '토스 보유종목 연결',
-            style: PTypo.bodySm.copyWith(
-              color: t.fgPrimary,
-              fontWeight: PFontWeight.bold,
-            ),
+            '토스 시세로 실시간 평가',
+            style: PTypo.bodySm
+                .copyWith(color: t.fgPrimary, fontWeight: PFontWeight.bold),
           ),
           const SizedBox(height: PSpace.x4),
           Text(
-            '이 자산을 토스 보유종목에 연결하면 평가액이 실시간으로 자동 반영됩니다.',
+            '보유 종목과 수량을 등록하면 토스 현재가 × 수량으로 평가액이 실시간 반영됩니다.',
             style: PTypo.caption.copyWith(color: t.fgTertiary),
           ),
           const SizedBox(height: PSpace.x12),
-          if (accountSeq == null)
-            Text('토스 계좌를 찾을 수 없어요.',
-                style: PTypo.caption.copyWith(color: t.fgTertiary))
-          else if (items.isEmpty)
-            Text('토스 보유종목이 없어요.',
-                style: PTypo.caption.copyWith(color: t.fgTertiary))
-          else ...[
-            Wrap(
-              spacing: 6,
-              runSpacing: 6,
+
+          // 선택된 종목 (있으면 chip, 없으면 검색)
+          if (_selSymbol != null)
+            Row(
               children: [
-                for (final it in items)
-                  PChip(
-                    label: it.name,
-                    selected: _selected == it.symbol,
-                    onTap: () => setState(() => _selected = it.symbol),
-                  ),
+                PChip(
+                  label:
+                      '${_selName ?? findStock(_selSymbol!)?.name ?? _selSymbol!} (${_selSymbol!})',
+                  selected: true,
+                  onTap: () => setState(() {
+                    _selSymbol = null;
+                    _selName = null;
+                  }),
+                ),
+                const SizedBox(width: PSpace.x8),
+                Text('변경하려면 탭',
+                    style: PTypo.micro.copyWith(color: t.fgTertiary)),
               ],
+            )
+          else ...[
+            PTextInput(
+              controller: _queryCtrl,
+              placeholder: '종목명·코드 검색 (예: 삼성전자, 005930)',
             ),
-            const SizedBox(height: PSpace.x12),
-            PButton(
-              label: '연결',
-              size: PButtonSize.sm,
-              loading: _busy,
-              onPressed: (_selected == null || _busy)
-                  ? null
-                  : () => _link(accountSeq),
-            ),
+            if (matches.isNotEmpty || codeFallback != null) ...[
+              const SizedBox(height: PSpace.x8),
+              Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: [
+                  for (final s in matches)
+                    PChip(
+                      label: '${s.name} (${s.ticker})',
+                      selected: false,
+                      onTap: () => setState(() {
+                        _selSymbol = s.ticker;
+                        _selName = s.name;
+                        _queryCtrl.clear();
+                      }),
+                    ),
+                  if (codeFallback != null)
+                    PChip(
+                      label: '「$codeFallback」 코드로 연결',
+                      selected: false,
+                      onTap: () => setState(() {
+                        _selSymbol = codeFallback;
+                        _selName = null;
+                        _queryCtrl.clear();
+                      }),
+                    ),
+                ],
+              ),
+            ],
           ],
+
+          const SizedBox(height: PSpace.x12),
+          Row(
+            children: [
+              Expanded(
+                child: PTextInput(
+                  controller: _qtyCtrl,
+                  keyboardType: TextInputType.number,
+                  placeholder: '보유 수량',
+                ),
+              ),
+              const SizedBox(width: PSpace.x8),
+              PButton(
+                label: '연결',
+                size: PButtonSize.sm,
+                loading: _busy,
+                onPressed: canLink ? _link : null,
+              ),
+            ],
+          ),
         ],
       ),
     );
