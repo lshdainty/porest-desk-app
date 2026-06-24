@@ -30,8 +30,8 @@ import 'package:porest_desk_app/features/expense/application/expense_providers.d
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
 import 'package:porest_desk_app/features/expense/presentation/tx_detail_dialog.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
+import 'package:porest_desk_app/features/stocks/data/krx_stock_master.dart';
 import 'package:porest_desk_app/features/stocks/data/stocks_mock.dart';
-import 'package:porest_desk_app/features/stocks/domain/stock.dart';
 import 'package:porest_desk_app/features/subscription/application/subscription_providers.dart';
 import 'package:porest_desk_app/features/asset/domain/asset.dart';
 import 'package:porest_desk_app/features/asset/domain/asset_transfer.dart';
@@ -377,6 +377,10 @@ class _TossLinkSectionState extends ConsumerState<_TossLinkSection> {
     }
   }
 
+  /// 종목코드 → 이름 (KRX 마스터 우선, 해외 등은 kStocks 폴백).
+  String? _nameOf(KrxStockMaster? master, String ticker) =>
+      master?.byTicker(ticker)?.name ?? findStock(ticker)?.name;
+
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
@@ -385,9 +389,12 @@ class _TossLinkSectionState extends ConsumerState<_TossLinkSection> {
         (features?.hasSecurities ?? false) && (features?.tossConnected ?? false);
     if (!enabled) return const SizedBox.shrink();
 
+    // KRX 종목 마스터(이름↔코드). 로딩 중이면 null → kStocks 폴백.
+    final master = ref.watch(krxStockMasterProvider).asData?.value;
+
     if (_linked != null) {
       final linked = _linked!;
-      final name = findStock(linked.symbol)?.name ?? linked.symbol;
+      final name = _nameOf(master, linked.symbol) ?? linked.symbol;
       return PCard(
         variant: PCardVariant.bordered,
         child: Column(
@@ -429,14 +436,20 @@ class _TossLinkSectionState extends ConsumerState<_TossLinkSection> {
     }
 
     final q = _queryCtrl.text.trim();
-    final matches = q.isEmpty
-        ? const <Stock>[]
-        : kStocks
-            .where((s) =>
-                s.name.contains(q) ||
-                s.ticker.toUpperCase().contains(q.toUpperCase()))
-            .take(6)
-            .toList();
+    // KRX 마스터(이름→코드) 우선 검색 + 해외 등 kStocks 보강(마스터엔 국내만 있음).
+    final matches = <({String ticker, String name})>[];
+    if (q.isNotEmpty) {
+      for (final s in master?.search(q, limit: 8) ?? const []) {
+        matches.add((ticker: s.ticker, name: s.name));
+      }
+      for (final s in kStocks) {
+        if (matches.length >= 8) break;
+        if (matches.any((m) => m.ticker == s.ticker)) continue;
+        if (s.name.contains(q) || s.ticker.toUpperCase().contains(q.toUpperCase())) {
+          matches.add((ticker: s.ticker, name: s.name));
+        }
+      }
+    }
     final codeFallback = q.isNotEmpty && matches.isEmpty ? q.toUpperCase() : null;
     final qty = int.tryParse(_qtyCtrl.text.replaceAll(',', '')) ?? 0;
     final canLink = _selSymbol != null && qty > 0 && !_busy;
@@ -464,7 +477,7 @@ class _TossLinkSectionState extends ConsumerState<_TossLinkSection> {
               children: [
                 PChip(
                   label:
-                      '${_selName ?? findStock(_selSymbol!)?.name ?? _selSymbol!} (${_selSymbol!})',
+                      '${_selName ?? _nameOf(master, _selSymbol!) ?? _selSymbol!} (${_selSymbol!})',
                   selected: true,
                   onTap: () => setState(() {
                     _selSymbol = null;
