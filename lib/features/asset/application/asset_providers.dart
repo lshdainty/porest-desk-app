@@ -70,10 +70,16 @@ final cardBillingProvider =
   return repo.getCardBilling(assetId);
 });
 
+/// 통화가 KRW 가 아니면(해외 종목) 환율 환산 대상.
+bool _isForeignCurrency(String? currency) =>
+    currency != null && currency.isNotEmpty && currency.toUpperCase() != 'KRW';
+
 /// 토스에 연결된 투자 자산의 라이브 평가액(KRW) 맵 (assetRowId → 평가액).
 ///
 /// - 평가액 = 토스 현재가(toss_symbol) × 보유수량(toss_quantity). 토스 계좌 보유분과 무관하게
 ///   시세만 빌려 계산하므로, 타 증권사 보유 주식도 토스 시세로 실시간 평가된다.
+/// - 해외 종목(통화≠KRW)은 토스 시세가 외화(USD 등)이므로 토스 환율(USD→KRW)로 원화 환산한다.
+///   환율 조회 실패 시 해외 종목은 맵에서 제외(기존 잔액 유지), 국내(KRW) 종목은 정상 처리.
 /// - 프로(SECURITIES) + 토스 연결 사용자가 아니거나 연결 자산이 없으면 빈 맵 → 오버레이 무효과.
 /// - 화면에서 invalidate 하면 시세를 재조회해 실시간 갱신된다.
 final tossValuationMapProvider = FutureProvider<Map<int, int>>((ref) async {
@@ -89,12 +95,29 @@ final tossValuationMapProvider = FutureProvider<Map<int, int>>((ref) async {
   try {
     final repo = await ref.watch(stocksRepositoryProvider.future);
     final prices = await repo.getPrices(symbols);
-    final priceBySymbol = {for (final p in prices) p.symbol: p.priceValue};
+    final priceBySymbol = {for (final p in prices) p.symbol: p};
+
+    // 해외 종목이 하나라도 있으면 환율(USD→KRW)을 1회 조회.
+    final hasForeign = prices.any((p) => _isForeignCurrency(p.currency));
+    double fxRate = 0;
+    if (hasForeign) {
+      try {
+        fxRate = (await repo.getExchangeRate()).rateValue;
+      } catch (_) {
+        fxRate = 0; // 환율 실패 — 해외 종목은 환산 불가로 제외.
+      }
+    }
+
     final map = <int, int>{};
     for (final a in linked) {
-      final price = priceBySymbol[a.tossSymbol];
-      if (price == null) continue;
-      map[a.rowId] = (price * a.tossQuantity!).round();
+      final p = priceBySymbol[a.tossSymbol];
+      if (p == null) continue;
+      if (_isForeignCurrency(p.currency)) {
+        if (fxRate <= 0) continue; // 환율 없으면 제외 → 기존 잔액 유지
+        map[a.rowId] = (p.priceValue * fxRate * a.tossQuantity!).round();
+      } else {
+        map[a.rowId] = (p.priceValue * a.tossQuantity!).round();
+      }
     }
     return map;
   } catch (_) {
