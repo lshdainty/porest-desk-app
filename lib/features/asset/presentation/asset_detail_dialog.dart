@@ -300,9 +300,11 @@ class _TossLinkSection extends ConsumerStatefulWidget {
 class _TossLinkSectionState extends ConsumerState<_TossLinkSection> {
   late final TextEditingController _queryCtrl;
   late final TextEditingController _qtyCtrl;
+  late final TextEditingController _editQtyCtrl;
   String? _selSymbol;
   String? _selName;
   bool _busy = false;
+  bool _editingQty = false;
   ({String symbol, int quantity})? _linked;
 
   @override
@@ -313,6 +315,7 @@ class _TossLinkSectionState extends ConsumerState<_TossLinkSection> {
     _qtyCtrl = TextEditingController(
       text: a.tossQuantity != null ? '${a.tossQuantity}' : '',
     );
+    _editQtyCtrl = TextEditingController();
     _selSymbol = a.tossSymbol;
     if (a.tossSymbol != null) _selName = findStock(a.tossSymbol!)?.name;
     if (a.tossSymbol != null && a.tossQuantity != null) {
@@ -324,6 +327,7 @@ class _TossLinkSectionState extends ConsumerState<_TossLinkSection> {
   void dispose() {
     _queryCtrl.dispose();
     _qtyCtrl.dispose();
+    _editQtyCtrl.dispose();
     super.dispose();
   }
 
@@ -377,6 +381,33 @@ class _TossLinkSectionState extends ConsumerState<_TossLinkSection> {
     }
   }
 
+  /// 보유 수량만 수정 — 같은 종목코드로 재연결(백엔드가 수량 갱신 + 평가액 스냅샷 재적재).
+  Future<void> _saveQty() async {
+    final linked = _linked;
+    final qty = int.tryParse(_editQtyCtrl.text.replaceAll(',', '')) ?? 0;
+    if (linked == null || qty <= 0 || _busy) return;
+    setState(() => _busy = true);
+    try {
+      final repo = await ref.read(assetRepositoryProvider.future);
+      await repo.linkTossSymbol(widget.asset.rowId, linked.symbol, qty);
+      ref.invalidate(assetsProvider);
+      ref.invalidate(tossValuationMapProvider);
+      if (!mounted) return;
+      setState(() {
+        _linked = (symbol: linked.symbol, quantity: qty);
+        _editingQty = false;
+      });
+      showPSnackBar(context, '보유 수량을 수정했어요',
+          severity: PSnackSeverity.success);
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      showPSnackBar(context, '수정 실패: ${e.message}',
+          severity: PSnackSeverity.error);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
   /// 종목코드 → 이름 (KRX 마스터 우선, 해외 등은 kStocks 폴백).
   String? _nameOf(KrxStockMaster? master, String ticker) =>
       master?.byTicker(ticker)?.name ?? findStock(ticker)?.name;
@@ -423,13 +454,54 @@ class _TossLinkSectionState extends ConsumerState<_TossLinkSection> {
               style: PTypo.caption.copyWith(color: t.fgTertiary),
             ),
             const SizedBox(height: PSpace.x12),
-            PButton(
-              label: '연결 해제',
-              variant: PButtonVariant.secondary,
-              size: PButtonSize.sm,
-              loading: _busy,
-              onPressed: _busy ? null : _unlink,
-            ),
+            if (_editingQty) ...[
+              PTextInput(
+                controller: _editQtyCtrl,
+                keyboardType: TextInputType.number,
+                placeholder: '보유 수량',
+              ),
+              const SizedBox(height: PSpace.x8),
+              Row(
+                children: [
+                  PButton(
+                    label: '저장',
+                    size: PButtonSize.sm,
+                    loading: _busy,
+                    onPressed: _busy ? null : _saveQty,
+                  ),
+                  const SizedBox(width: PSpace.x8),
+                  PButton(
+                    label: '취소',
+                    variant: PButtonVariant.secondary,
+                    size: PButtonSize.sm,
+                    onPressed:
+                        _busy ? null : () => setState(() => _editingQty = false),
+                  ),
+                ],
+              ),
+            ] else
+              Row(
+                children: [
+                  PButton(
+                    label: '수량 수정',
+                    size: PButtonSize.sm,
+                    onPressed: _busy
+                        ? null
+                        : () => setState(() {
+                            _editQtyCtrl.text = '${linked.quantity}';
+                            _editingQty = true;
+                          }),
+                  ),
+                  const SizedBox(width: PSpace.x8),
+                  PButton(
+                    label: '연결 해제',
+                    variant: PButtonVariant.secondary,
+                    size: PButtonSize.sm,
+                    loading: _busy,
+                    onPressed: _busy ? null : _unlink,
+                  ),
+                ],
+              ),
           ],
         ),
       );
