@@ -72,5 +72,19 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<!-- flutter_appauth: OAuth2 redirect private-use scheme (porestdesk://oauth/callback) -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.porest.desk.oauth</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>porestdesk</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

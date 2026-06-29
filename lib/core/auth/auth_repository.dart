@@ -29,6 +29,28 @@ class AuthRepository {
     }
   }
 
+  /// OAuth2 인가코드(PKCE)를 desk 토큰으로 교환. POST /auth/exchange-code.
+  /// flutter_appauth 의 authorize() 로 받은 code+codeVerifier 를 BFF 로 교환한다.
+  /// 성공 시 응답 쿠키(`desk_access_token`)가 cookie_jar 에 저장된다 — 사용자 정보는 [check] 로.
+  Future<void> exchangeCode({
+    required String code,
+    required String codeVerifier,
+    required String redirectUri,
+  }) async {
+    try {
+      await _dio.post<dynamic>(
+        '/auth/exchange-code',
+        data: {
+          'code': code,
+          'codeVerifier': codeVerifier,
+          'redirectUri': redirectUri,
+        },
+      );
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
   /// 현재 세션 유효성 확인. 성공 시 사용자 정보, 실패 시 401 throw.
   Future<User> check() async {
     try {
