@@ -39,6 +39,9 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+
+        // flutter_appauth: OAuth2 redirect 를 받을 private-use scheme (porestdesk://oauth/callback).
+        manifestPlaceholders["appAuthRedirectScheme"] = "porestdesk"
     }
 
     signingConfigs {

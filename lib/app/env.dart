@@ -38,4 +38,11 @@ abstract final class Env {
   /// SSO DB의 client_redirect_uris 에 동일 값으로 등록되어 있어야 한다.
   static const String authCallbackScheme = 'porestdesk';
   static const String authCallbackUri = '$authCallbackScheme://auth/callback';
+
+  /// flutter_appauth(시스템 브라우저) OAuth2 표준 흐름의 redirect (private-use scheme).
+  /// SSO client_redirect_uris 에 동일 값 등록 필요. 네이티브 scheme=[authCallbackScheme] 등록 필요.
+  static const String appAuthRedirectUri = '$authCallbackScheme://oauth/callback';
+
+  /// OAuth2 client_id (SSO clients.client_code).
+  static const String oauthClientId = 'desk';
 }
