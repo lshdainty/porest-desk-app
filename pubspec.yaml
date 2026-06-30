@@ -26,6 +26,11 @@ dependencies:
   cookie_jar: ^4.0.9
   path_provider: ^2.1.5
   webview_flutter: ^4.13.1
+  # SSO OAuth2 로그인용 인앱 WebView — 커스텀스킴(porestdesk://) 가로채기를
+  # shouldOverrideUrlLoading 으로 iOS·Android 양쪽 확실히 지원 (system 브라우저 대체).
+  flutter_inappwebview: ^6.1.5
+  # PKCE code_challenge(S256) / state 생성용 sha256.
+  crypto: ^3.0.7
   # 토큰/쿠키 암호화 저장 (Android Keystore / iOS Keychain)
   flutter_secure_storage: ^9.2.4
 
@@ -48,7 +53,6 @@ dependencies:
   share_plus: ^10.1.4
   image_picker: ^1.1.2
   file_picker: ^8.1.4
-  flutter_appauth: ^12.0.2
 
 dev_dependencies:
   flutter_test:
