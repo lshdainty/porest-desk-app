@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logger/logger.dart';
 
 import 'package:porest_desk_app/app/env.dart';
-import 'package:porest_desk_app/core/auth/auth_notifier.dart';
+import 'package:porest_desk_app/core/auth/auth_events.dart';
 import 'package:porest_desk_app/core/network/interceptors/auth_interceptor.dart';
 import 'package:porest_desk_app/core/network/interceptors/lang_interceptor.dart';
 import 'package:porest_desk_app/core/network/interceptors/log_interceptor.dart';
@@ -36,9 +36,11 @@ final dioProvider = FutureProvider<Dio>((ref) async {
     ..interceptors.add(CookieManager(jar))
     ..interceptors.add(AuthInterceptor(
       onUnauthorized: () {
-        // 다음 microtask 에서 처리해 onError 콜체인이 끝난 뒤 logout 실행
+        // 다음 microtask 에서 처리해 onError 콜체인이 끝난 뒤 신호 발행.
+        // dio 는 "세션 만료" 신호만 올리고(auth 의존성 없음), AuthNotifier 가
+        // 이를 구독해 logout 한다 — dio↔auth 순환(CircularDependencyError) 제거.
         Future.microtask(() {
-          ref.read(authProvider.notifier).logout();
+          ref.read(sessionExpiredProvider.notifier).bump();
         });
       },
     ))
