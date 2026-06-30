@@ -4,7 +4,8 @@
         android:label="porest_desk_app"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
-        android:allowBackup="false">
+        android:allowBackup="false"
+        android:taskAffinity="">
         <activity
             android:name=".MainActivity"
             android:exported="true"
