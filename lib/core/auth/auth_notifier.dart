@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:porest_desk_app/core/auth/auth_events.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/core/network/dio_provider.dart';
 import 'package:porest_desk_app/core/auth/auth_repository.dart';
@@ -20,6 +21,14 @@ final authProvider = AsyncNotifierProvider<AuthNotifier, User?>(AuthNotifier.new
 class AuthNotifier extends AsyncNotifier<User?> {
   @override
   Future<User?> build() async {
+    // 401(세션 만료) 신호 구독 — dio 인터셉터가 신호를 올리면 강제 로그아웃.
+    // dio 는 auth 를 직접 참조하지 않고 신호만 올리므로 dio↔auth 순환이 끊긴다.
+    ref.listen(sessionExpiredProvider, (prev, next) {
+      if ((prev ?? 0) < next) {
+        logout();
+      }
+    });
+
     final repo = await ref.watch(authRepositoryProvider.future);
     try {
       return await repo.check();
