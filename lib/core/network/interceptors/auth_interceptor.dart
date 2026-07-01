@@ -13,7 +13,6 @@ class AuthInterceptor extends Interceptor {
 
   static const _skipPaths = <String>{
     '/auth/check',
-    '/auth/exchange',
     '/auth/logout',
   };
 
