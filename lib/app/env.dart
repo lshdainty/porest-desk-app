@@ -37,7 +37,6 @@ abstract final class Env {
   /// SSO 로그인 후 캐치할 모바일 전용 redirect_uri.
   /// SSO DB의 client_redirect_uris 에 동일 값으로 등록되어 있어야 한다.
   static const String authCallbackScheme = 'porestdesk';
-  static const String authCallbackUri = '$authCallbackScheme://auth/callback';
 
   /// flutter_appauth(시스템 브라우저) OAuth2 표준 흐름의 redirect (private-use scheme).
   /// SSO client_redirect_uris 에 동일 값 등록 필요. 네이티브 scheme=[authCallbackScheme] 등록 필요.

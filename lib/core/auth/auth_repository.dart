@@ -12,23 +12,6 @@ class AuthRepository {
   AuthRepository(this._dio);
   final Dio _dio;
 
-  /// SSO 토큰을 desk 토큰으로 교환.
-  /// 성공 시 응답 쿠키(`desk_access_token`)가 cookie_jar 에 저장된다.
-  ///
-  /// 백엔드 응답(`TokenExchangeDto.Response`)은 `(accessToken, userId, userName, userEmail)` 만
-  /// 포함 — `rowId` 가 없어 [User] 디코딩 불가. 따라서 본 메서드는 쿠키 저장만 하고,
-  /// 사용자 정보는 별도 [check] 호출로 가져온다.
-  Future<void> exchangeToken(String ssoToken) async {
-    try {
-      await _dio.post<dynamic>(
-        '/auth/exchange',
-        data: {'ssoToken': ssoToken},
-      );
-    } on DioException catch (e) {
-      throw ApiException.fromDio(e);
-    }
-  }
-
   /// OAuth2 인가코드(PKCE)를 desk 토큰으로 교환. POST /auth/exchange-code.
   /// flutter_appauth 의 authorize() 로 받은 code+codeVerifier 를 BFF 로 교환한다.
   /// 성공 시 응답 쿠키(`desk_access_token`)가 cookie_jar 에 저장된다 — 사용자 정보는 [check] 로.
