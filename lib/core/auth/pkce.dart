@@ -1,7 +1,7 @@
 /// OAuth 2.0 PKCE (RFC 7636) 보조 함수 모음.
 ///
-/// flutter_appauth 가 내부에서 자동 생성하던 code_verifier / code_challenge / state 를,
-/// 인앱 WebView 흐름에서는 앱이 직접 만들어 SSO `/oauth2/authorize` 쿼리에 싣는다.
+/// 인앱 WebView OAuth 흐름에서 앱이 직접 code_verifier / code_challenge / state 를
+/// 만들어 SSO `/oauth2/authorize` 쿼리에 싣는다.
 /// 교환(`/auth/exchange-code`)은 같은 code_verifier 를 BFF 로 넘겨 검증한다.
 library;
 

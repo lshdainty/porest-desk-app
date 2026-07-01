@@ -41,7 +41,7 @@ class AuthNotifier extends AsyncNotifier<User?> {
 
   /// OAuth2 인가코드(PKCE)를 desk 토큰으로 교환 후 인증 상태 갱신 (표준 흐름, BFF).
   ///
-  /// flutter_appauth authorize() 로 받은 code+codeVerifier 를 desk-back 으로 교환한다.
+  /// 인앱 WebView 가 가로챈 인가코드(code)+codeVerifier 를 desk-back 으로 교환한다.
   /// 1. `/auth/exchange-code` → desk_access_token 쿠키 발급
   /// 2. `/auth/check` → 사용자 정보 (rowId 포함)
   /// 3. AsyncData(user) → router redirect 가 /home 으로 이동

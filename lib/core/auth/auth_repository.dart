@@ -13,7 +13,7 @@ class AuthRepository {
   final Dio _dio;
 
   /// OAuth2 인가코드(PKCE)를 desk 토큰으로 교환. POST /auth/exchange-code.
-  /// flutter_appauth 의 authorize() 로 받은 code+codeVerifier 를 BFF 로 교환한다.
+  /// 인앱 WebView 가 가로챈 code+codeVerifier 를 BFF 로 교환한다.
   /// 성공 시 응답 쿠키(`desk_access_token`)가 cookie_jar 에 저장된다 — 사용자 정보는 [check] 로.
   Future<void> exchangeCode({
     required String code,
