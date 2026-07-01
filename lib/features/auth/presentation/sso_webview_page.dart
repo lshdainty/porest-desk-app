@@ -9,7 +9,7 @@ import 'package:porest_desk_app/shared/widgets/p_progress.dart';
 
 /// SSO 로그인 인앱 WebView (OAuth 2.0 Authorization Code + PKCE).
 ///
-/// 시스템 브라우저(flutter_appauth) 대체 — 앱이 포그라운드를 유지한 채 SSO 로그인 폼을
+/// 시스템 브라우저(Custom Tab) 대체 — 앱이 포그라운드를 유지한 채 SSO 로그인 폼을
 /// 띄운다. 보안 프로토콜은 그대로(Authorization Code + PKCE + RS256 + BFF), UA 만 교체.
 ///
 /// 흐름:

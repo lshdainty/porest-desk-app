@@ -24,7 +24,7 @@ import 'package:porest_desk_app/shared/widgets/p_progress.dart';
 /// 4. desk-back `/auth/exchange-code` 로 교환(code+codeVerifier) → desk_access_token 쿠키.
 /// 5. router redirect 가 /home 으로 이동.
 ///
-/// 시스템 브라우저(flutter_appauth) 대신 인앱 WebView 를 쓰는 이유: 일부 Android 기기에서
+/// 시스템 브라우저(Custom Tab) 대신 인앱 WebView 를 쓰는 이유: 일부 Android 기기에서
 /// Custom Tab 으로 나가는 순간 앱 액티비티가 상태를 잃어 콜백을 못 받는 문제 회피. 보안
 /// 프로토콜(Authorization Code + PKCE + RS256 + BFF)은 그대로, UA 만 인앱 WebView 로 교체.
 class LoginScreen extends ConsumerStatefulWidget {
@@ -51,7 +51,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       _error = null;
     });
     try {
-      // 1) PKCE + state 생성 (flutter_appauth 가 하던 일을 앱이 직접).
+      // 1) PKCE + state 생성 (앱이 직접).
       final verifier = generateCodeVerifier();
       final challenge = codeChallengeS256(verifier);
       final state = generateState();
@@ -61,7 +61,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           '${Env.ssoUrl}/api/v1/oauth2/authorize'
           '?response_type=code'
           '&client_id=${Env.oauthClientId}'
-          '&redirect_uri=${Uri.encodeComponent(Env.appAuthRedirectUri)}'
+          '&redirect_uri=${Uri.encodeComponent(Env.oauthRedirectUri)}'
           '&code_challenge=$challenge'
           '&code_challenge_method=S256'
           '&state=${Uri.encodeComponent(state)}';
@@ -72,7 +72,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           builder: (_) => SsoWebViewPage(
             authorizeUrl: authorizeUrl,
             expectedState: state,
-            redirectUri: Env.appAuthRedirectUri,
+            redirectUri: Env.oauthRedirectUri,
           ),
         ),
       );
@@ -88,7 +88,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       await ref.read(authProvider.notifier).exchangeAndLoginWithCode(
             code: code,
             codeVerifier: verifier,
-            redirectUri: Env.appAuthRedirectUri,
+            redirectUri: Env.oauthRedirectUri,
           );
       // 성공 → router redirect 가 자동으로 /home 으로 이동.
     } on ApiException catch (e) {
