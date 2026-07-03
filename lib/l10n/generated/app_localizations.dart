@@ -2648,6 +2648,366 @@ abstract class AppLocalizations {
   /// **'잔액'**
   String get expSummaryBalance;
 
+  /// No description provided for @budgetOverallCapNew.
+  ///
+  /// In ko, this message translates to:
+  /// **'월 전체 상한 설정'**
+  String get budgetOverallCapNew;
+
+  /// No description provided for @budgetCategoryAdd.
+  ///
+  /// In ko, this message translates to:
+  /// **'카테고리 예산 추가'**
+  String get budgetCategoryAdd;
+
+  /// No description provided for @budgetOverallCapEdit.
+  ///
+  /// In ko, this message translates to:
+  /// **'월 전체 상한 수정'**
+  String get budgetOverallCapEdit;
+
+  /// No description provided for @budgetCategoryEdit.
+  ///
+  /// In ko, this message translates to:
+  /// **'카테고리 예산 수정'**
+  String get budgetCategoryEdit;
+
+  /// No description provided for @budgetUpdated.
+  ///
+  /// In ko, this message translates to:
+  /// **'예산이 수정되었습니다'**
+  String get budgetUpdated;
+
+  /// No description provided for @budgetAdded.
+  ///
+  /// In ko, this message translates to:
+  /// **'예산이 추가되었습니다'**
+  String get budgetAdded;
+
+  /// No description provided for @budgetActionFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'실패'**
+  String get budgetActionFailed;
+
+  /// No description provided for @budgetDeleteTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'예산 삭제'**
+  String get budgetDeleteTitle;
+
+  /// No description provided for @budgetDeleteConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 예산을 삭제하시겠습니까?'**
+  String get budgetDeleteConfirm;
+
+  /// No description provided for @budgetDeleteFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'삭제 실패'**
+  String get budgetDeleteFailed;
+
+  /// No description provided for @budgetOverallCap.
+  ///
+  /// In ko, this message translates to:
+  /// **'월 전체 상한'**
+  String get budgetOverallCap;
+
+  /// No description provided for @budgetCategoryLoadError.
+  ///
+  /// In ko, this message translates to:
+  /// **'카테고리 로드 실패'**
+  String get budgetCategoryLoadError;
+
+  /// No description provided for @budgetMonthlyLimit.
+  ///
+  /// In ko, this message translates to:
+  /// **'월 예산 한도'**
+  String get budgetMonthlyLimit;
+
+  /// No description provided for @budgetLoadError.
+  ///
+  /// In ko, this message translates to:
+  /// **'예산을 불러오지 못했습니다'**
+  String get budgetLoadError;
+
+  /// No description provided for @budgetSelectMonth.
+  ///
+  /// In ko, this message translates to:
+  /// **'월 선택'**
+  String get budgetSelectMonth;
+
+  /// No description provided for @budgetMonthOverallCap.
+  ///
+  /// In ko, this message translates to:
+  /// **'{month}월 전체 상한'**
+  String budgetMonthOverallCap(int month);
+
+  /// No description provided for @budgetOverallCapDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'이번 달 전체 지출의 상한이에요 (카테고리 예산이 없는 지출도 포함).'**
+  String get budgetOverallCapDesc;
+
+  /// No description provided for @budgetOverallCapEmptyHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'전체 상한이 아직 설정되지 않았어요. 우측 상단 설정 버튼으로 이번 달 최대 지출 한도를 지정할 수 있어요.'**
+  String get budgetOverallCapEmptyHint;
+
+  /// No description provided for @budgetCurrentCategorySum.
+  ///
+  /// In ko, this message translates to:
+  /// **'현재 카테고리 한도 합계'**
+  String get budgetCurrentCategorySum;
+
+  /// No description provided for @budgetPercentUsed.
+  ///
+  /// In ko, this message translates to:
+  /// **'{pct}% 사용'**
+  String budgetPercentUsed(String pct);
+
+  /// No description provided for @budgetRemaining.
+  ///
+  /// In ko, this message translates to:
+  /// **'남은 예산 {amount}'**
+  String budgetRemaining(String amount);
+
+  /// No description provided for @budgetOverBy.
+  ///
+  /// In ko, this message translates to:
+  /// **'한도 {amount} 초과'**
+  String budgetOverBy(String amount);
+
+  /// No description provided for @budgetOverallCapLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'전체 상한'**
+  String get budgetOverallCapLabel;
+
+  /// No description provided for @budgetCategoryAllocated.
+  ///
+  /// In ko, this message translates to:
+  /// **'카테고리 할당'**
+  String get budgetCategoryAllocated;
+
+  /// No description provided for @budgetAllocatable.
+  ///
+  /// In ko, this message translates to:
+  /// **'할당 가능'**
+  String get budgetAllocatable;
+
+  /// No description provided for @budgetOverAllocatedWarning.
+  ///
+  /// In ko, this message translates to:
+  /// **'카테고리 한도 합이 전체 상한을 {amount} 초과했어요. 전체 상한을 올리거나 카테고리 한도를 줄여주세요.'**
+  String budgetOverAllocatedWarning(String amount);
+
+  /// No description provided for @budgetSpendingPace.
+  ///
+  /// In ko, this message translates to:
+  /// **'지출 페이스'**
+  String get budgetSpendingPace;
+
+  /// No description provided for @budgetPaceOnTrack.
+  ///
+  /// In ko, this message translates to:
+  /// **'정상 속도'**
+  String get budgetPaceOnTrack;
+
+  /// No description provided for @budgetPaceFast.
+  ///
+  /// In ko, this message translates to:
+  /// **'빠른 속도'**
+  String get budgetPaceFast;
+
+  /// No description provided for @budgetMonthElapsed.
+  ///
+  /// In ko, this message translates to:
+  /// **'이번 달 {pct}% 경과 ↑'**
+  String budgetMonthElapsed(String pct);
+
+  /// No description provided for @budgetDailyAvg.
+  ///
+  /// In ko, this message translates to:
+  /// **'일평균 지출'**
+  String get budgetDailyAvg;
+
+  /// No description provided for @budgetDailyRecommended.
+  ///
+  /// In ko, this message translates to:
+  /// **'남은 일 권장 지출'**
+  String get budgetDailyRecommended;
+
+  /// No description provided for @budgetStatusTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'예산 현황'**
+  String get budgetStatusTitle;
+
+  /// No description provided for @budgetOver.
+  ///
+  /// In ko, this message translates to:
+  /// **'초과'**
+  String get budgetOver;
+
+  /// No description provided for @budgetHealthy.
+  ///
+  /// In ko, this message translates to:
+  /// **'여유'**
+  String get budgetHealthy;
+
+  /// No description provided for @budgetByCategory.
+  ///
+  /// In ko, this message translates to:
+  /// **'카테고리별 예산'**
+  String get budgetByCategory;
+
+  /// No description provided for @budgetCountSet.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}개 설정됨'**
+  String budgetCountSet(int count);
+
+  /// No description provided for @budgetNoCategoryBudgets.
+  ///
+  /// In ko, this message translates to:
+  /// **'카테고리별 예산이 없어요'**
+  String get budgetNoCategoryBudgets;
+
+  /// No description provided for @budgetGoToSettings.
+  ///
+  /// In ko, this message translates to:
+  /// **'예산 설정하러 가기 →'**
+  String get budgetGoToSettings;
+
+  /// No description provided for @budgetCategoryFallback.
+  ///
+  /// In ko, this message translates to:
+  /// **'카테고리 #{id}'**
+  String budgetCategoryFallback(int id);
+
+  /// No description provided for @budgetComplianceTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'최근 6개월 예산 이행률'**
+  String get budgetComplianceTitle;
+
+  /// No description provided for @budgetComplianceSubtitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'한도 대비 지출 %'**
+  String get budgetComplianceSubtitle;
+
+  /// No description provided for @budgetNoComplianceData.
+  ///
+  /// In ko, this message translates to:
+  /// **'아직 이행률 데이터가 없어요'**
+  String get budgetNoComplianceData;
+
+  /// No description provided for @budgetVsLimit.
+  ///
+  /// In ko, this message translates to:
+  /// **'한도 대비'**
+  String get budgetVsLimit;
+
+  /// No description provided for @budgetLimit.
+  ///
+  /// In ko, this message translates to:
+  /// **'한도'**
+  String get budgetLimit;
+
+  /// No description provided for @budgetEmptyMonth.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 달 예산이 없습니다'**
+  String get budgetEmptyMonth;
+
+  /// No description provided for @budgetEmptyHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'전체 상한 또는 카테고리 예산을 설정하세요'**
+  String get budgetEmptyHint;
+
+  /// No description provided for @budgetSetup.
+  ///
+  /// In ko, this message translates to:
+  /// **'예산 설정'**
+  String get budgetSetup;
+
+  /// No description provided for @budgetCopyLastMonth.
+  ///
+  /// In ko, this message translates to:
+  /// **'지난달 예산 복사'**
+  String get budgetCopyLastMonth;
+
+  /// No description provided for @budgetCopyConfirmMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'{from} 예산 한도({count}개)를 {to}로 복사해요. 이번 달에 이미 있는 예산은 덮어써집니다.'**
+  String budgetCopyConfirmMessage(String from, int count, String to);
+
+  /// No description provided for @budgetCopyFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'복사 실패'**
+  String get budgetCopyFailed;
+
+  /// No description provided for @budgetCopiedCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}개 예산을 복사했습니다'**
+  String budgetCopiedCount(int count);
+
+  /// No description provided for @budgetCopyLastMonthBtn.
+  ///
+  /// In ko, this message translates to:
+  /// **'지난달 복사'**
+  String get budgetCopyLastMonthBtn;
+
+  /// No description provided for @budgetMonthTotal.
+  ///
+  /// In ko, this message translates to:
+  /// **'{month}월 총 예산'**
+  String budgetMonthTotal(int month);
+
+  /// No description provided for @budgetNotSet.
+  ///
+  /// In ko, this message translates to:
+  /// **'설정되지 않음'**
+  String get budgetNotSet;
+
+  /// No description provided for @budgetUsed.
+  ///
+  /// In ko, this message translates to:
+  /// **'사용'**
+  String get budgetUsed;
+
+  /// No description provided for @budgetAllocated.
+  ///
+  /// In ko, this message translates to:
+  /// **'할당됨'**
+  String get budgetAllocated;
+
+  /// No description provided for @budgetByCategoryCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'카테고리별 예산 · {count}개'**
+  String budgetByCategoryCount(int count);
+
+  /// No description provided for @budgetAdd.
+  ///
+  /// In ko, this message translates to:
+  /// **'예산 추가'**
+  String get budgetAdd;
+
+  /// No description provided for @budgetNoCategorySet.
+  ///
+  /// In ko, this message translates to:
+  /// **'설정된 카테고리 예산이 없어요'**
+  String get budgetNoCategorySet;
+
   /// No description provided for @authLoginPrompt.
   ///
   /// In ko, this message translates to:

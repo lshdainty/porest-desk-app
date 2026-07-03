@@ -1365,6 +1365,212 @@ class AppLocalizationsEn extends AppLocalizations {
   String get expSummaryBalance => 'Balance';
 
   @override
+  String get budgetOverallCapNew => 'Set overall monthly cap';
+
+  @override
+  String get budgetCategoryAdd => 'Add category budget';
+
+  @override
+  String get budgetOverallCapEdit => 'Edit overall monthly cap';
+
+  @override
+  String get budgetCategoryEdit => 'Edit category budget';
+
+  @override
+  String get budgetUpdated => 'Budget updated';
+
+  @override
+  String get budgetAdded => 'Budget added';
+
+  @override
+  String get budgetActionFailed => 'Failed';
+
+  @override
+  String get budgetDeleteTitle => 'Delete budget';
+
+  @override
+  String get budgetDeleteConfirm => 'Delete this budget?';
+
+  @override
+  String get budgetDeleteFailed => 'Delete failed';
+
+  @override
+  String get budgetOverallCap => 'Overall monthly cap';
+
+  @override
+  String get budgetCategoryLoadError => 'Failed to load categories';
+
+  @override
+  String get budgetMonthlyLimit => 'Monthly budget limit';
+
+  @override
+  String get budgetLoadError => 'Couldn\'t load budget';
+
+  @override
+  String get budgetSelectMonth => 'Select month';
+
+  @override
+  String budgetMonthOverallCap(int month) {
+    return 'Overall cap · $month';
+  }
+
+  @override
+  String get budgetOverallCapDesc =>
+      'The cap for this month\'s total spending (including spending without a category budget).';
+
+  @override
+  String get budgetOverallCapEmptyHint =>
+      'No overall cap set yet. Use the settings button at the top right to set this month\'s maximum spending limit.';
+
+  @override
+  String get budgetCurrentCategorySum => 'Current category limit total';
+
+  @override
+  String budgetPercentUsed(String pct) {
+    return '$pct% used';
+  }
+
+  @override
+  String budgetRemaining(String amount) {
+    return 'Remaining $amount';
+  }
+
+  @override
+  String budgetOverBy(String amount) {
+    return 'Over by $amount';
+  }
+
+  @override
+  String get budgetOverallCapLabel => 'Overall cap';
+
+  @override
+  String get budgetCategoryAllocated => 'Category allocated';
+
+  @override
+  String get budgetAllocatable => 'Allocatable';
+
+  @override
+  String budgetOverAllocatedWarning(String amount) {
+    return 'Category limits exceed the overall cap by $amount. Raise the overall cap or lower category limits.';
+  }
+
+  @override
+  String get budgetSpendingPace => 'Spending pace';
+
+  @override
+  String get budgetPaceOnTrack => 'On pace';
+
+  @override
+  String get budgetPaceFast => 'Too fast';
+
+  @override
+  String budgetMonthElapsed(String pct) {
+    return '$pct% of month elapsed ↑';
+  }
+
+  @override
+  String get budgetDailyAvg => 'Daily average';
+
+  @override
+  String get budgetDailyRecommended => 'Recommended per remaining day';
+
+  @override
+  String get budgetStatusTitle => 'Budget status';
+
+  @override
+  String get budgetOver => 'Over';
+
+  @override
+  String get budgetHealthy => 'On track';
+
+  @override
+  String get budgetByCategory => 'Budget by category';
+
+  @override
+  String budgetCountSet(int count) {
+    return '$count set';
+  }
+
+  @override
+  String get budgetNoCategoryBudgets => 'No category budgets';
+
+  @override
+  String get budgetGoToSettings => 'Go to budget settings →';
+
+  @override
+  String budgetCategoryFallback(int id) {
+    return 'Category #$id';
+  }
+
+  @override
+  String get budgetComplianceTitle => 'Last 6 months compliance';
+
+  @override
+  String get budgetComplianceSubtitle => 'Spending vs limit %';
+
+  @override
+  String get budgetNoComplianceData => 'No compliance data yet';
+
+  @override
+  String get budgetVsLimit => 'vs limit';
+
+  @override
+  String get budgetLimit => 'Limit';
+
+  @override
+  String get budgetEmptyMonth => 'No budget for this month';
+
+  @override
+  String get budgetEmptyHint => 'Set an overall cap or category budgets';
+
+  @override
+  String get budgetSetup => 'Set budget';
+
+  @override
+  String get budgetCopyLastMonth => 'Copy last month\'s budget';
+
+  @override
+  String budgetCopyConfirmMessage(String from, int count, String to) {
+    return '$from budget limits ($count) will be copied to $to. Budgets that already exist this month will be overwritten.';
+  }
+
+  @override
+  String get budgetCopyFailed => 'Copy failed';
+
+  @override
+  String budgetCopiedCount(int count) {
+    return 'Copied $count budgets';
+  }
+
+  @override
+  String get budgetCopyLastMonthBtn => 'Copy last month';
+
+  @override
+  String budgetMonthTotal(int month) {
+    return 'Total budget · $month';
+  }
+
+  @override
+  String get budgetNotSet => 'Not set';
+
+  @override
+  String get budgetUsed => 'Used';
+
+  @override
+  String get budgetAllocated => 'Allocated';
+
+  @override
+  String budgetByCategoryCount(int count) {
+    return 'Budget by category · $count';
+  }
+
+  @override
+  String get budgetAdd => 'Add budget';
+
+  @override
+  String get budgetNoCategorySet => 'No category budgets set';
+
+  @override
   String get authLoginPrompt => 'Sign in with your SSO account';
 
   @override

@@ -7,6 +7,7 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/core/format/date.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
@@ -77,14 +78,17 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
     List<Budget> curBudgets,
   ) {
     if (prevBudgets.isEmpty) return; // 버튼이 비활성이라 도달 불가 — 방어.
+    final l = AppLocalizations.of(context);
     final prevMonth = DateTime(_month.year, _month.month - 1, 1);
     showPConfirmDialog(
       context,
-      title: '지난달 예산 복사',
-      message:
-          '${prevMonth.year}년 ${prevMonth.month}월 예산 한도(${prevBudgets.length}개)를 '
-          '${_key.year}년 ${_key.month}월로 복사해요. 이번 달에 이미 있는 예산은 덮어써집니다.',
-      confirmLabel: '복사',
+      title: l.budgetCopyLastMonth,
+      message: l.budgetCopyConfirmMessage(
+        '${prevMonth.year}년 ${prevMonth.month}월',
+        prevBudgets.length,
+        '${_key.year}년 ${_key.month}월',
+      ),
+      confirmLabel: l.calCopy,
       onConfirm: () => _runCopyFromPreviousMonth(prevBudgets, curBudgets),
     );
   }
@@ -95,6 +99,7 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
     List<Budget> prevBudgets,
     List<Budget> curBudgets,
   ) async {
+    final l = AppLocalizations.of(context);
     final repo = await ref.read(budgetRepositoryProvider.future);
     // 이번 달 기존 예산 key(overall|categoryRowId) → 같은 key 는 덮어쓰기.
     final existingByKey = <String, Budget>{
@@ -118,7 +123,7 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
       if (mounted) {
         showPSnackBar(
           context,
-          '복사 실패: ${e.message}',
+          '${l.budgetCopyFailed}: ${e.message}',
           severity: PSnackSeverity.error,
         );
       }
@@ -129,7 +134,7 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
     if (mounted) {
       showPSnackBar(
         context,
-        '${prevBudgets.length}개 예산을 복사했습니다',
+        l.budgetCopiedCount(prevBudgets.length),
         severity: PSnackSeverity.success,
       );
     }
@@ -177,6 +182,7 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
     final budgetsAsync = ref.watch(monthBudgetsProvider(_key));
     final summaryAsync = ref.watch(
@@ -197,7 +203,7 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
         leading: PBackButton(onPressed: () => context.pop()),
-        title: const Text('예산 설정'),
+        title: Text(l.budgetSetup),
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,
         elevation: 0,
@@ -238,7 +244,7 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
             budgetsAsync.when(
               loading: () => const _LoadingSkeleton(),
               error: (e, _) => _ErrorBox(
-                message: '예산을 불러오지 못했습니다\n$e',
+                message: '${l.budgetLoadError}\n$e',
                 onRetry: () => ref.invalidate(monthBudgetsProvider(_key)),
               ),
               data: (budgets) {
@@ -348,6 +354,7 @@ class _MonthBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     return Row(
       children: [
         PButton.icon(
@@ -389,7 +396,7 @@ class _MonthBar extends StatelessWidget {
         ),
         const Spacer(),
         PButton(
-          label: '지난달 복사',
+          label: l.budgetCopyLastMonthBtn,
           icon: LucideIcons.copy,
           variant: PButtonVariant.secondary,
           size: PButtonSize.sm,
@@ -426,6 +433,7 @@ class _TotalBudgetCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final pct = monthlyLimit > 0 ? (totalSpent / monthlyLimit) * 100 : 0.0;
+    final l = AppLocalizations.of(context);
     return PCard(
       // 디자인 p-card--brand: surface 위 cobalt @12% 알파 합성 (라이트/다크 자동).
       variant: PCardVariant.shadow,
@@ -442,7 +450,7 @@ class _TotalBudgetCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '$month월 총 예산',
+                      l.budgetMonthTotal(month),
                       style: PTypo.caption.copyWith(
                         color: tokens.fgBrandStrong,
                         fontWeight: PFontWeight.semi,
@@ -462,7 +470,7 @@ class _TotalBudgetCard extends StatelessWidget {
                       )
                     else
                       Text(
-                        '설정되지 않음',
+                        l.budgetNotSet,
                         style: PTypo.bodyLg.copyWith(
                           color: tokens.fgTertiary,
                           fontWeight: PFontWeight.semi,
@@ -473,7 +481,7 @@ class _TotalBudgetCard extends StatelessWidget {
               ),
               const SizedBox(width: PSpace.x8),
               PButton(
-                label: overallBudget != null ? '수정' : '예산 설정',
+                label: overallBudget != null ? l.actionEdit : l.budgetSetup,
                 icon: overallBudget != null
                     ? LucideIcons.pencil
                     : LucideIcons.plus,
@@ -505,7 +513,7 @@ class _TotalBudgetCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: _MiniStat(
-                    label: '사용',
+                    label: l.budgetUsed,
                     value: krwMasked(totalSpent, masked, mask: '••••'),
                     color: tokens.fgPrimary,
                     tokens: tokens,
@@ -513,7 +521,7 @@ class _TotalBudgetCard extends StatelessWidget {
                 ),
                 Expanded(
                   child: _MiniStat(
-                    label: '할당됨',
+                    label: l.budgetAllocated,
                     value: krwMasked(categoryLimitSum, masked, mask: '••••'),
                     color: tokens.fgPrimary,
                     tokens: tokens,
@@ -521,7 +529,7 @@ class _TotalBudgetCard extends StatelessWidget {
                 ),
                 Expanded(
                   child: _MiniStat(
-                    label: '할당 가능',
+                    label: l.budgetAllocatable,
                     value: krwSigned(
                       remaining.abs(),
                       masked,
@@ -561,8 +569,8 @@ class _TotalBudgetCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       masked
-                          ? '카테고리 한도 합이 전체 상한을 ${krwMasked(-remaining, masked, mask: '••••')} 초과했어요. 전체 상한을 올리거나 카테고리 한도를 줄여주세요.'
-                          : '카테고리 한도 합이 전체 상한을 ${krwMasked(-remaining, masked)}원 초과했어요. 전체 상한을 올리거나 카테고리 한도를 줄여주세요.',
+                          ? l.budgetOverAllocatedWarning(krwMasked(-remaining, masked, mask: '••••'))
+                          : l.budgetOverAllocatedWarning('${krwMasked(-remaining, masked)}원'),
                       style: PTypo.caption.copyWith(color: tokens.statusDangerFg),
                     ),
                   ),
@@ -639,13 +647,14 @@ class _CategoryListCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
             Text(
-              '카테고리별 예산 · ${budgets.length}개',
+              l.budgetByCategoryCount(budgets.length),
               style: PTypo.body.copyWith(
                 color: tokens.fgPrimary,
                 fontWeight: PFontWeight.bold,
@@ -653,7 +662,7 @@ class _CategoryListCard extends StatelessWidget {
             ),
             const Spacer(),
             PButton(
-              label: '예산 추가',
+              label: l.budgetAdd,
               icon: LucideIcons.plus,
               variant: PButtonVariant.accent,
               size: PButtonSize.sm,
@@ -693,7 +702,7 @@ class _CategoryListCard extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: PSpace.x16),
                   child: Center(
                     child: Text(
-                      '설정된 카테고리 예산이 없어요',
+                      l.budgetNoCategorySet,
                       style: PTypo.bodySm.copyWith(color: tokens.fgTertiary),
                     ),
                   ),
@@ -740,6 +749,7 @@ class _CategoryRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final limit = budget.budgetAmount;
     final p = limit > 0 ? (spent / limit) * 100 : 0.0;
     final over = p > 100;
@@ -753,7 +763,7 @@ class _CategoryRow extends StatelessWidget {
     final bg = softBg(context, fg);
     final name = category?.categoryName ??
         budget.categoryName ??
-        '카테고리 #${budget.categoryRowId}';
+        l.budgetCategoryFallback(budget.categoryRowId!);
 
     return InkWell(
       onTap: onTap,
@@ -789,12 +799,12 @@ class _CategoryRow extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       over
-                          ? (masked
-                                ? '한도 ${krwMasked(spent - limit, masked, mask: '••••')} 초과'
-                                : '한도 ${krwMasked(spent - limit, masked)}원 초과')
-                          : (masked
-                                ? '남은 예산 ${krwMasked((limit - spent).clamp(0, limit), masked, mask: '••••')}'
-                                : '남은 예산 ${krwMasked((limit - spent).clamp(0, limit), masked)}원'),
+                          ? l.budgetOverBy(masked
+                                ? krwMasked(spent - limit, masked, mask: '••••')
+                                : '${krwMasked(spent - limit, masked)}원')
+                          : l.budgetRemaining(masked
+                                ? krwMasked((limit - spent).clamp(0, limit), masked, mask: '••••')
+                                : '${krwMasked((limit - spent).clamp(0, limit), masked)}원'),
                       style: PTypo.caption.copyWith(
                         color: over ? tokens.fgExpense : tokens.fgTertiary,
                       ),
@@ -897,6 +907,7 @@ class _ErrorBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     return PCard(
       padding: const EdgeInsets.all(PSpace.x16),
       variant: PCardVariant.shadow,
@@ -909,7 +920,7 @@ class _ErrorBox extends StatelessWidget {
           ),
           const SizedBox(height: PSpace.x12),
           PButton(
-            label: '다시 시도',
+            label: l.actionRetry,
             icon: LucideIcons.refreshCw,
             variant: PButtonVariant.secondary,
             size: PButtonSize.sm,
