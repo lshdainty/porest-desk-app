@@ -9,6 +9,7 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_card.dart';
@@ -23,22 +24,28 @@ import 'package:porest_desk_app/features/card/domain/card_catalog.dart';
 import 'package:porest_desk_app/features/card/presentation/card_benefit_detail_sheet.dart';
 import 'package:porest_desk_app/features/card/presentation/widgets/card_brand.dart';
 
-/// 종류 필터 옵션 — (라벨, cardType). cardType=null 이면 전체.
-const _typeOptions = <(String, String?)>[
-  ('전체', null),
-  ('신용', 'CREDIT'),
-  ('체크', 'CHECK'),
-];
+/// 종류 필터 값 — index 0=전체(null)/1=신용/2=체크. 라벨은 [_typeLabel].
+const _typeValues = <String?>[null, 'CREDIT', 'CHECK'];
 
-/// 혜택 필터 옵션 — (라벨, benefitType). 라벨 5개 유지.
+/// 혜택 필터 값 — index 0=전체(null)/1=할인/2=적립/3=캐시백/4=마일리지. 라벨은 [_benefitLabel].
 /// 매핑: 할인=DISCOUNT, 적립=POINT, 캐시백=POINT, 마일리지=MILEAGE.
-const _benefitOptions = <(String, String?)>[
-  ('혜택 전체', null),
-  ('할인', 'DISCOUNT'),
-  ('적립', 'POINT'),
-  ('캐시백', 'POINT'),
-  ('마일리지', 'MILEAGE'),
-];
+const _benefitValues = <String?>[null, 'DISCOUNT', 'POINT', 'POINT', 'MILEAGE'];
+
+/// 종류 필터 라벨 — index → 로케일 문자열.
+String _typeLabel(AppLocalizations l, int i) => switch (i) {
+      0 => l.expFilterAll,
+      1 => l.assetCardShortCredit,
+      _ => l.assetCardShortCheck,
+    };
+
+/// 혜택 필터 라벨 — index → 로케일 문자열.
+String _benefitLabel(AppLocalizations l, int i) => switch (i) {
+      0 => l.cardBenefitTypeAll,
+      1 => l.cardBenefitTypeDiscount,
+      2 => l.cardBenefitTypePoint,
+      3 => l.cardBenefitTypeCashback,
+      _ => l.cardBenefitTypeMileage,
+    };
 
 /// 카드 혜택 라이브러리 — front `CardBenefitsScreen` 미러 (모바일 list 레이아웃).
 class CardBenefitsScreen extends ConsumerStatefulWidget {
@@ -84,8 +91,8 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
   void _rebuildKey() {
     _searchKey = defaultCardSearchKey(
       keyword: _kwCtrl.text.trim().isEmpty ? null : _kwCtrl.text.trim(),
-      cardType: _typeOptions[_typeIndex].$2,
-      benefitType: _benefitOptions[_benefitIndex].$2,
+      cardType: _typeValues[_typeIndex],
+      benefitType: _benefitValues[_benefitIndex],
       includeDiscontinued: _includeDiscontinued ? true : null,
     );
   }
@@ -186,6 +193,7 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
 
     return Scaffold(
       backgroundColor: t.bgCanvas,
@@ -193,7 +201,7 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
         leading: PBackButton(onPressed: () => context.pop()),
-        title: const Text('카드 혜택'),
+        title: Text(l.cardBenefitsTitle),
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,
         elevation: 0,
@@ -208,7 +216,7 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
           children: [
             // 검색
             PSearchField(
-              hint: '카드명, 브랜드, 혜택으로 검색',
+              hint: l.cardSearchHintFull,
               controller: _kwCtrl,
               onChanged: _onSearchChanged,
             ),
@@ -223,8 +231,8 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
                 variant: PTabsVariant.pills,
                 size: PTabsSize.sm,
                 items: [
-                  for (int i = 0; i < _typeOptions.length; i++)
-                    PTabItem(value: i, label: _typeOptions[i].$1),
+                  for (int i = 0; i < _typeValues.length; i++)
+                    PTabItem(value: i, label: _typeLabel(l, i)),
                 ],
               ),
             ),
@@ -239,8 +247,8 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
                 variant: PTabsVariant.pills,
                 size: PTabsSize.sm,
                 items: [
-                  for (int i = 0; i < _benefitOptions.length; i++)
-                    PTabItem(value: i, label: _benefitOptions[i].$1),
+                  for (int i = 0; i < _benefitValues.length; i++)
+                    PTabItem(value: i, label: _benefitLabel(l, i)),
                 ],
               ),
             ),
@@ -253,7 +261,7 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
                   child: _initialLoading
                       ? const PSkeleton.line(width: 56, height: 12)
                       : _cards.isNotEmpty
-                          ? Text('총 $_totalElements건',
+                          ? Text(l.cardTotalCount(_totalElements),
                               style: PTypo.caption.copyWith(color: t.fgTertiary))
                           : const SizedBox.shrink(),
                 ),
@@ -261,14 +269,14 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
                   value: _includeDiscontinued,
                   onChanged: _toggleDiscontinued,
                   size: PCheckboxSize.sm,
-                  label: '단종 카드 포함',
+                  label: l.cardIncludeDiscontinued,
                 ),
               ],
             ),
             const SizedBox(height: PSpace.x8),
 
             // 결과 리스트 (누적식 인피니티 스크롤). 총 N건은 위 Row 로 이동.
-            ..._buildResults(t),
+            ..._buildResults(t, l),
           ],
         ),
       ),
@@ -276,7 +284,7 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
   }
 
   /// 결과 영역 — 초기로딩 / 에러 / 빈상태 / 누적 리스트 + 하단 인디케이터.
-  List<Widget> _buildResults(PorestTokens t) {
+  List<Widget> _buildResults(PorestTokens t, AppLocalizations l) {
     // 초기 로딩 (첫 페이지 fetch 중, 누적 없음) — _CardTile 카드 스켈레톤만.
     if (_initialLoading) {
       return [
@@ -292,7 +300,7 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
       return [
         Padding(
           padding: const EdgeInsets.only(top: PSpace.x16),
-          child: Text('카드 로드 실패\n$_error',
+          child: Text('${l.cardLoadError}\n$_error',
               style: PTypo.bodySm.copyWith(color: t.statusDanger)),
         ),
       ];
@@ -300,13 +308,13 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
 
     // 빈 상태
     if (_cards.isEmpty) {
-      return const [
+      return [
         Padding(
-          padding: EdgeInsets.only(top: PSpace.x32),
+          padding: const EdgeInsets.only(top: PSpace.x32),
           child: PEmptyState(
             icon: LucideIcons.searchX,
-            message: '결과가 없어요',
-            subMessage: '다른 검색어를 시도해보세요',
+            message: l.cardNoResults,
+            subMessage: l.cardNoResultsHint,
           ),
         ),
       ];
@@ -392,6 +400,7 @@ class _CardTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = tokens;
+    final l = AppLocalizations.of(context);
     final discontinued = card.isDiscontinued == 'Y';
     return Opacity(
       opacity: discontinued ? 0.6 : 1,
@@ -428,7 +437,7 @@ class _CardTile extends StatelessWidget {
                             color: t.bgSunken,
                             borderRadius: PRadius.brXs,
                           ),
-                          child: Text('단종',
+                          child: Text(l.assetDiscontinued,
                               style: PTypo.micro.copyWith(
                                   color: t.fgTertiary,
                                   fontWeight: PFontWeight.bold,
@@ -441,8 +450,8 @@ class _CardTile extends StatelessWidget {
                   Text(
                     [
                       card.company?.name,
-                      card.cardType == 'CHECK' ? '체크' : '신용',
-                      '연회비 ${_feeLabel(card.annualFee)}',
+                      card.cardType == 'CHECK' ? l.assetCardShortCheck : l.assetCardShortCredit,
+                      l.cardAnnualFeeValue(_feeLabel(l, card.annualFee)),
                     ].whereType<String>().join(' · '),
                     style:
                         PTypo.caption.copyWith(color: t.fgTertiary),
@@ -451,7 +460,7 @@ class _CardTile extends StatelessWidget {
                   ),
                   const SizedBox(height: 1),
                   Text(
-                    _performanceLabel(card.performance),
+                    _performanceLabel(l, card.performance),
                     style: PTypo.caption.copyWith(color: t.fgTertiary),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -562,26 +571,26 @@ String _brandInitial(String? company) {
 }
 
 /// 연회비 라벨 — label 우선, 없으면 amount 0=없음 / N원.
-String _feeLabel(CardAnnualFee? fee) {
-  if (fee == null) return '없음';
+String _feeLabel(AppLocalizations l, CardAnnualFee? fee) {
+  if (fee == null) return l.cardNone;
   // front annualFeeText 정합: amount>0 → "N원" 우선, 아니면 label, 둘 다 없으면 "없음".
   final amount = fee.amount;
   if (amount != null && amount > 0) return '${krw(amount)}원';
   if (fee.label != null && fee.label!.isNotEmpty) return fee.label!;
-  return '없음';
+  return l.cardNone;
 }
 
 /// 전월 실적 라벨 — requiredText 우선, 없으면 amount 0=실적 무관 / N원/월.
-String _performanceLabel(CardPerformance? perf) {
-  if (perf == null) return '실적 무관';
+String _performanceLabel(AppLocalizations l, CardPerformance? perf) {
+  if (perf == null) return l.cardPerfNone;
   // front performanceText 정합: isRequired='Y'일 때만, amount>0 → "실적 N원/월" 우선,
   // 없으면 requiredText. 그 외(미필수)는 항상 "실적 무관".
   final required = perf.isRequired == 'Y';
-  if (!required) return '실적 무관';
+  if (!required) return l.cardPerfNone;
   final amount = perf.requiredAmount;
-  if (amount != null && amount > 0) return '실적 ${krw(amount)}원/월';
+  if (amount != null && amount > 0) return l.cardPerfMonthly('${krw(amount)}원');
   if (perf.requiredText != null && perf.requiredText!.isNotEmpty) {
     return perf.requiredText!;
   }
-  return '실적 무관';
+  return l.cardPerfNone;
 }

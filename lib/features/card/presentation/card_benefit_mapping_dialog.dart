@@ -6,6 +6,7 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/shared/widgets/p_badge.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
@@ -21,9 +22,10 @@ import 'package:porest_desk_app/features/card/domain/card_benefit_mapping.dart';
 
 /// 카드 혜택 ↔ 가계부 카테고리 매핑 관리 — front `CardSettingsPage` 핵심 패널 미러.
 void showCardBenefitMappingDialog(BuildContext context) {
+  final l = AppLocalizations.of(context);
   showPSheet<void>(
     context,
-    title: '카드 혜택 매핑',
+    title: l.cardBenefitMappingTitle,
     contentBuilder: (ctx, scrollCtrl) => _Body(scrollController: scrollCtrl),
   );
 }
@@ -56,6 +58,7 @@ class _BodyState extends ConsumerState<_Body> {
   }
 
   Future<void> _add() async {
+    final l = AppLocalizations.of(context);
     final benefit = _benefitCtrl.text.trim();
     if (benefit.isEmpty || _selectedCategoryId == null || _adding) return;
     setState(() => _adding = true);
@@ -74,13 +77,14 @@ class _BodyState extends ConsumerState<_Body> {
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() => _adding = false);
-      showPSnackBar(context, '추가 실패: ${e.message}', severity: PSnackSeverity.error);
+      showPSnackBar(context, '${l.cardAddFailed}: ${e.message}', severity: PSnackSeverity.error);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final mappingsAsync = ref.watch(cardBenefitMappingsProvider);
     final categoriesAsync = ref.watch(categoriesProvider);
     return ListView(
@@ -88,11 +92,11 @@ class _BodyState extends ConsumerState<_Body> {
       padding: const EdgeInsets.fromLTRB(
           PSpace.x16, 0, PSpace.x16, PSpace.x16),
       children: [
-          Text('새 매핑',
+          Text(l.cardMappingNew,
               style: PTypo.bodySm.copyWith(
                   color: t.fgPrimary, fontWeight: PFontWeight.bold)),
           const SizedBox(height: 4),
-          Text('카드 혜택 카테고리(예: 카페, 주유)를 가계부 카테고리와 연결하면 거래 입력 시 자동 추천에 활용됩니다.',
+          Text(l.cardMappingNewDesc,
               style: PTypo.caption.copyWith(color: t.fgTertiary)),
           const SizedBox(height: PSpace.x12),
           Row(
@@ -102,7 +106,7 @@ class _BodyState extends ConsumerState<_Body> {
                 child: PTextInput(
                   controller: _benefitCtrl,
                   enabled: !_adding,
-                  placeholder: '혜택 카테고리',
+                  placeholder: l.cardMappingBenefitPlaceholder,
                   onChanged: (_) => setState(() {}),
                 ),
               ),
@@ -119,7 +123,7 @@ class _BodyState extends ConsumerState<_Body> {
                         .toList();
                     return PSelect<int?>(
                       value: _selectedCategoryId,
-                      placeholder: '가계부 카테고리',
+                      placeholder: l.cardMappingCategoryPlaceholder,
                       enabled: !_adding,
                       onChanged: (v) =>
                           setState(() => _selectedCategoryId = v),
@@ -136,7 +140,7 @@ class _BodyState extends ConsumerState<_Body> {
           ),
           const SizedBox(height: 8),
           PButton(
-            label: '매핑 추가',
+            label: l.cardMappingAdd,
             loading: _adding,
             fullWidth: true,
             onPressed:
@@ -149,20 +153,20 @@ class _BodyState extends ConsumerState<_Body> {
           const SizedBox(height: PSpace.x16),
           PDivider(),
           const SizedBox(height: PSpace.x16),
-          Text('등록된 매핑',
+          Text(l.cardMappingRegistered,
               style: PTypo.bodySm.copyWith(
                   color: t.fgPrimary, fontWeight: PFontWeight.bold)),
           const SizedBox(height: PSpace.x8),
           mappingsAsync.when(
             loading: () => const Center(child: PCircularProgressIndicator()),
-            error: (e, _) => Text('매핑 로드 실패: $e',
+            error: (e, _) => Text('${l.cardMappingLoadError}: $e',
                 style: PTypo.caption.copyWith(color: t.statusDanger)),
             data: (mappings) {
               if (mappings.isEmpty) {
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: PSpace.x16),
                   child: Center(
-                    child: Text('등록된 매핑이 없습니다',
+                    child: Text(l.cardMappingEmpty,
                         style:
                             PTypo.caption.copyWith(color: t.fgTertiary)),
                   ),
@@ -192,6 +196,7 @@ class _RowState extends ConsumerState<_Row> {
   bool _busy = false;
 
   Future<void> _delete() async {
+    final l = AppLocalizations.of(context);
     if (!widget.mapping.isCustom) return; // 시스템 매핑은 삭제 불가
     setState(() => _busy = true);
     try {
@@ -202,13 +207,14 @@ class _RowState extends ConsumerState<_Row> {
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() => _busy = false);
-      showPSnackBar(context, '삭제 실패: ${e.message}', severity: PSnackSeverity.error);
+      showPSnackBar(context, '${l.cardDeleteFailed}: ${e.message}', severity: PSnackSeverity.error);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final t = widget.tokens;
+    final l = AppLocalizations.of(context);
     final m = widget.mapping;
     return Container(
       margin: const EdgeInsets.only(bottom: 6),
@@ -246,8 +252,8 @@ class _RowState extends ConsumerState<_Row> {
             ),
           ),
           if (!m.isCustom)
-            const PBadge(
-                label: '기본', variant: PBadgeVariant.softBrand)
+            PBadge(
+                label: l.cardMappingDefault, variant: PBadgeVariant.softBrand)
           else
             PButton.icon(
               icon: LucideIcons.trash2,

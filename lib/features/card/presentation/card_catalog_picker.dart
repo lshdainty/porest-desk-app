@@ -8,6 +8,7 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_badge.dart';
 import 'package:porest_desk_app/shared/widgets/p_chip.dart';
 import 'package:porest_desk_app/shared/widgets/p_divider.dart';
@@ -25,9 +26,10 @@ Future<CardCatalogSummary?> showCardCatalogPicker(
   BuildContext context, {
   String? cardType, // CREDIT/CHECK
 }) {
+  final l = AppLocalizations.of(context);
   return showPSheet<CardCatalogSummary>(
     context,
-    title: '카드 선택',
+    title: l.cardSelectTitle,
     contentBuilder: (ctx, scrollCtrl) => _CardPickerSheet(
       initialType: cardType,
       scrollController: scrollCtrl,
@@ -77,6 +79,7 @@ class _CardPickerSheetState extends ConsumerState<_CardPickerSheet> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final pageAsync = ref.watch(cardCatalogPageProvider(_key));
     return ListView(
       controller: widget.scrollController,
@@ -84,7 +87,7 @@ class _CardPickerSheetState extends ConsumerState<_CardPickerSheet> {
           PSpace.x16, 0, PSpace.x16, PSpace.x16),
       children: [
             PSearchField(
-              hint: '카드명 / 회사 검색',
+              hint: l.cardSearchHintNameCompany,
               controller: _ctrl,
               autofocus: true,
               onChanged: _onChange,
@@ -94,7 +97,7 @@ class _CardPickerSheetState extends ConsumerState<_CardPickerSheet> {
               children: [
                 PChip(
                   variant: PChipVariant.subtle,
-                  label: '전체',
+                  label: l.expFilterAll,
                   selected: _type == null,
                   onTap: () => setState(() {
                     _type = null;
@@ -104,7 +107,7 @@ class _CardPickerSheetState extends ConsumerState<_CardPickerSheet> {
                 const SizedBox(width: 6),
                 PChip(
                   variant: PChipVariant.subtle,
-                  label: '신용',
+                  label: l.assetCardShortCredit,
                   selected: _type == 'CREDIT',
                   onTap: () => setState(() {
                     _type = 'CREDIT';
@@ -114,7 +117,7 @@ class _CardPickerSheetState extends ConsumerState<_CardPickerSheet> {
                 const SizedBox(width: 6),
                 PChip(
                   variant: PChipVariant.subtle,
-                  label: '체크',
+                  label: l.assetCardShortCheck,
                   selected: _type == 'CHECK',
                   onTap: () => setState(() {
                     _type = 'CHECK';
@@ -130,7 +133,7 @@ class _CardPickerSheetState extends ConsumerState<_CardPickerSheet> {
                     child: Center(child: PCircularProgressIndicator())),
                 error: (e, _) => Padding(
                   padding: const EdgeInsets.all(24),
-                  child: Text('카드 검색 실패: $e',
+                  child: Text('${l.cardSearchError}: $e',
                       style: PTypo.caption.copyWith(color: t.statusDanger)),
                 ),
                 data: (page) {
@@ -138,7 +141,7 @@ class _CardPickerSheetState extends ConsumerState<_CardPickerSheet> {
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 24),
                       child: Center(
-                        child: Text('일치하는 카드가 없습니다',
+                        child: Text(l.cardPickerNoMatch,
                             style: PTypo.caption
                                 .copyWith(color: t.fgTertiary)),
                       ),
@@ -190,7 +193,7 @@ class _CardPickerSheetState extends ConsumerState<_CardPickerSheet> {
                                 ),
                               ),
                               PBadge(
-                                label: c.cardType == 'CREDIT' ? '신용' : '체크',
+                                label: c.cardType == 'CREDIT' ? l.assetCardShortCredit : l.assetCardShortCheck,
                                 variant: c.cardType == 'CREDIT'
                                     ? PBadgeVariant.softBrand
                                     : PBadgeVariant.secondary,

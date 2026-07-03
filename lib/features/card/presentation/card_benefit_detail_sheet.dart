@@ -6,6 +6,7 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/shared/widgets/p_badge.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
@@ -25,17 +26,18 @@ import 'package:porest_desk_app/features/card/presentation/widgets/card_brand.da
 ///   - 주요 혜택 태그 (PBadge)
 ///   - 혜택 상세 (PCollapsible 아코디언 + 모두 펼치기/접기)
 void showCardBenefitDetailSheet(BuildContext context, int rowId) {
+  final l = AppLocalizations.of(context);
   showPSheet(
     context,
-    title: '카드 상세',
+    title: l.assetCardDetail,
     initialChildSize: 0.9,
     minChildSize: 0.5,
     maxChildSize: 0.95,
     contentBuilder: (ctx, scrollCtrl) =>
         _CardBenefitDetailContent(rowId: rowId, scrollController: scrollCtrl),
     // 읽기전용 뷰 — 단일 닫기. PViewFooter(confirm='닫기' ghost).
-    footerBuilder: (ctx) => const PViewFooter(
-      confirmLabel: '닫기',
+    footerBuilder: (ctx) => PViewFooter(
+      confirmLabel: l.actionClose,
       confirmVariant: PButtonVariant.ghost,
     ),
   );
@@ -62,6 +64,7 @@ class _CardBenefitDetailContentState
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final detailAsync = ref.watch(cardCatalogDetailProvider(widget.rowId));
 
     return detailAsync.when(
@@ -74,7 +77,7 @@ class _CardBenefitDetailContentState
         padding: const EdgeInsets.fromLTRB(
             PSpace.x20, PSpace.x4, PSpace.x20, PSpace.x24),
         children: [
-          Text('카드 상세 로드 실패\n$e',
+          Text('${l.cardDetailLoadError}\n$e',
               style: PTypo.bodySm.copyWith(color: t.statusDanger)),
         ],
       ),
@@ -93,7 +96,7 @@ class _CardBenefitDetailContentState
           }
         }
         // front 상세 조건 badge — 카드 전월 실적(requiredText ?? '실적 무관'). 모든 혜택 공통.
-        final benefitCondition = _benefitCondition(s.performance);
+        final benefitCondition = _benefitCondition(l, s.performance);
 
         return ListView(
           controller: widget.scrollController,
@@ -109,16 +112,16 @@ class _CardBenefitDetailContentState
               children: [
                 Expanded(
                   child: _InfoCell(
-                    label: '연회비',
-                    value: _feeText(s.annualFee),
+                    label: l.assetAnnualFee,
+                    value: _feeText(l, s.annualFee),
                     tokens: t,
                   ),
                 ),
                 const SizedBox(width: PSpace.x8),
                 Expanded(
                   child: _InfoCell(
-                    label: '전월 실적',
-                    value: _performanceText(s.performance),
+                    label: l.cardLastMonthPerf,
+                    value: _performanceText(l, s.performance),
                     tokens: t,
                   ),
                 ),
@@ -128,7 +131,7 @@ class _CardBenefitDetailContentState
 
             // 주요 혜택 태그 (중복 제거)
             if (topTags.isNotEmpty) ...[
-              Text('주요 혜택 태그',
+              Text(l.cardKeyBenefitTags,
                   style: PTypo.bodySm.copyWith(
                       color: t.fgPrimary, fontWeight: PFontWeight.bold)),
               const SizedBox(height: PSpace.x8),
@@ -148,13 +151,13 @@ class _CardBenefitDetailContentState
               Row(
                 children: [
                   Expanded(
-                    child: Text('혜택 상세 · ${benefits.length}건',
+                    child: Text(l.cardBenefitDetailCount(benefits.length),
                         style: PTypo.bodySm.copyWith(
                             color: t.fgPrimary,
                             fontWeight: PFontWeight.bold)),
                   ),
                   PButton(
-                    label: allOpen ? '모두 접기' : '모두 펼치기',
+                    label: allOpen ? l.cardCollapseAll : l.cardExpandAll,
                     icon: allOpen
                         ? LucideIcons.chevronsDownUp
                         : LucideIcons.chevronsUpDown,
@@ -193,7 +196,7 @@ class _CardBenefitDetailContentState
             // 유의사항
             if (d.cautions.isNotEmpty) ...[
               const SizedBox(height: PSpace.x20),
-              Text('유의사항',
+              Text(l.cardCautions,
                   style: PTypo.bodySm.copyWith(
                       color: t.fgPrimary, fontWeight: PFontWeight.bold)),
               const SizedBox(height: PSpace.x8),
@@ -233,34 +236,34 @@ class _CardBenefitDetailContentState
 }
 
 /// 연회비 라벨 — front `card.fee === 0 ? '없음' : '국내전용 N원'` 정합.
-String _feeText(CardAnnualFee? fee) {
-  if (fee == null) return '없음';
+String _feeText(AppLocalizations l, CardAnnualFee? fee) {
+  if (fee == null) return l.cardNone;
   if (fee.label != null && fee.label!.isNotEmpty) return fee.label!;
   final amount = fee.amount;
-  if (amount == null || amount == 0) return '없음';
-  return '국내전용 ${krw(amount)}원';
+  if (amount == null || amount == 0) return l.cardNone;
+  return l.cardFeeDomesticOnly('${krw(amount)}원');
 }
 
 /// 전월 실적 라벨 — front `perf === 0 ? '실적 무관' : 'N원 이상'` 정합.
-String _performanceText(CardPerformance? perf) {
-  if (perf == null) return '실적 무관';
+String _performanceText(AppLocalizations l, CardPerformance? perf) {
+  if (perf == null) return l.cardPerfNone;
   if (perf.requiredText != null && perf.requiredText!.isNotEmpty) {
     return perf.requiredText!;
   }
   final amount = perf.requiredAmount;
-  if (amount == null || amount == 0) return '실적 무관';
-  return '${krw(amount)}원 이상';
+  if (amount == null || amount == 0) return l.cardPerfNone;
+  return l.cardPerfMin('${krw(amount)}원');
 }
 
 /// 혜택 상세 항목 조건 badge — front CardBenefitDialog 정합.
 /// requiredText 있으면 그대로, 없으면 (필수=Y → badge 숨김 / 미필수 → '실적 무관').
-String? _benefitCondition(CardPerformance? perf) {
-  if (perf == null) return '실적 무관';
+String? _benefitCondition(AppLocalizations l, CardPerformance? perf) {
+  if (perf == null) return l.cardPerfNone;
   if (perf.requiredText != null && perf.requiredText!.isNotEmpty) {
     return perf.requiredText;
   }
   if (perf.isRequired == 'Y') return null;
-  return '실적 무관';
+  return l.cardPerfNone;
 }
 
 class _CardHero extends StatelessWidget {
@@ -271,6 +274,7 @@ class _CardHero extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = tokens;
+    final l = AppLocalizations.of(context);
     final discontinued = summary.isDiscontinued == 'Y';
     return Opacity(
       opacity: discontinued ? 0.7 : 1,
@@ -302,7 +306,7 @@ class _CardHero extends StatelessWidget {
                   top: PSpace.x12,
                   right: PSpace.x12,
                   child: PBadge(
-                      label: '단종', variant: PBadgeVariant.secondary),
+                      label: l.assetDiscontinued, variant: PBadgeVariant.secondary),
                 ),
             ],
           ),

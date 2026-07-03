@@ -9,6 +9,7 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
@@ -81,6 +82,7 @@ class _CardScreenState extends ConsumerState<CardScreen> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final pageAsync = ref.watch(cardCatalogPageProvider(_searchKey));
 
     return Scaffold(
@@ -89,14 +91,14 @@ class _CardScreenState extends ConsumerState<CardScreen> {
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
         leading: PBackButton(onPressed: () => context.pop()),
-        title: const Text('카드 관리'),
+        title: Text(l.cardManageTitle),
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,
         elevation: 0,
         actions: [
           PButton.icon(
             icon: LucideIcons.settings,
-            tooltip: '혜택 매핑',
+            tooltip: l.cardBenefitMappingTooltip,
             onPressed: () => showCardBenefitMappingDialog(context),
           ),
         ],
@@ -111,7 +113,7 @@ class _CardScreenState extends ConsumerState<CardScreen> {
                 PSearchField(
                   controller: _kwCtrl,
                   onChanged: _onChange,
-                  hint: '카드명 검색',
+                  hint: l.cardSearchHintName,
                 ),
                 const SizedBox(height: PSpace.x8),
                 SingleChildScrollView(
@@ -123,10 +125,10 @@ class _CardScreenState extends ConsumerState<CardScreen> {
                         onChanged: _setType,
                         variant: PTabsVariant.pills,
                         size: PTabsSize.sm,
-                        items: const [
-                          PTabItem(value: null, label: '전체'),
-                          PTabItem(value: 'CREDIT', label: '신용'),
-                          PTabItem(value: 'CHECK', label: '체크'),
+                        items: [
+                          PTabItem(value: null, label: l.expFilterAll),
+                          PTabItem(value: 'CREDIT', label: l.assetCardShortCredit),
+                          PTabItem(value: 'CHECK', label: l.assetCardShortCheck),
                         ],
                       ),
                       const SizedBox(width: 14),
@@ -135,11 +137,11 @@ class _CardScreenState extends ConsumerState<CardScreen> {
                         onChanged: _setBenefit,
                         variant: PTabsVariant.pills,
                         size: PTabsSize.sm,
-                        items: const [
-                          PTabItem(value: null, label: '혜택 전체'),
-                          PTabItem(value: 'DISCOUNT', label: '할인'),
-                          PTabItem(value: 'POINT', label: '적립'),
-                          PTabItem(value: 'CASHBACK', label: '캐시백'),
+                        items: [
+                          PTabItem(value: null, label: l.cardBenefitTypeAll),
+                          PTabItem(value: 'DISCOUNT', label: l.cardBenefitTypeDiscount),
+                          PTabItem(value: 'POINT', label: l.cardBenefitTypePoint),
+                          PTabItem(value: 'CASHBACK', label: l.cardBenefitTypeCashback),
                         ],
                       ),
                     ],
@@ -162,7 +164,7 @@ class _CardScreenState extends ConsumerState<CardScreen> {
                                 ? t.fgBrand
                                 : t.fgTertiary),
                         const SizedBox(width: 6),
-                        Text('단종 카드 포함',
+                        Text(l.cardIncludeDiscontinued,
                             style: PTypo.caption.copyWith(
                                 color: t.fgSecondary,
                                 fontWeight: PFontWeight.medium)),
@@ -199,16 +201,16 @@ class _CardScreenState extends ConsumerState<CardScreen> {
           ),
           error: (e, _) => Padding(
             padding: const EdgeInsets.all(PSpace.x16),
-            child: Text('카드 로드 실패\n$e',
+            child: Text('${l.cardLoadError}\n$e',
                 style: PTypo.bodySm.copyWith(color: t.statusDanger)),
           ),
           data: (page) {
             final cards = page.content;
             if (cards.isEmpty) {
-              return ListView(children: const [
+              return ListView(children: [
                 PEmptyState(
                   icon: LucideIcons.creditCard,
-                  message: '카드가 없습니다',
+                  message: l.cardEmpty,
                 ),
               ]);
             }
@@ -219,7 +221,7 @@ class _CardScreenState extends ConsumerState<CardScreen> {
                 Padding(
                   padding: const EdgeInsets.only(bottom: PSpace.x8),
                   child: Text(
-                    '총 ${page.totalElements}건',
+                    l.cardTotalCount(page.totalElements),
                     style:
                         PTypo.caption.copyWith(color: t.fgTertiary),
                   ),
@@ -355,6 +357,7 @@ class _CardRow extends StatelessWidget {
   final PorestTokens tokens;
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return Material(
       color: tokens.bgSurface,
       borderRadius: PRadius.brLg,
@@ -404,9 +407,9 @@ class _CardRow extends StatelessWidget {
                     Text(
                       [
                         card.company?.name,
-                        card.cardType == 'CREDIT' ? '신용' : '체크',
+                        card.cardType == 'CREDIT' ? l.assetCardShortCredit : l.assetCardShortCheck,
                         if (card.annualFee?.label != null)
-                          '연회비 ${card.annualFee!.label}',
+                          l.cardAnnualFeeValue(card.annualFee!.label!),
                       ].whereType<String>().join(' · '),
                       style:
                           PTypo.caption.copyWith(color: tokens.fgTertiary),
@@ -416,7 +419,7 @@ class _CardRow extends StatelessWidget {
                     if (card.performance?.requiredAmount != null) ...[
                       const SizedBox(height: 2),
                       Text(
-                        '실적 ${krw(card.performance!.requiredAmount!)}원/월',
+                        l.cardPerfMonthly('${krw(card.performance!.requiredAmount!)}원'),
                         style: PTypo.caption.copyWith(
                             color: tokens.fgSecondary,
                             fontWeight: PFontWeight.semi),

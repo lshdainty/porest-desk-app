@@ -6,6 +6,7 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_badge.dart';
@@ -21,6 +22,7 @@ class CardDetailScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final detailAsync = ref.watch(cardCatalogDetailProvider(catalogId));
 
     return Scaffold(
@@ -29,7 +31,7 @@ class CardDetailScreen extends ConsumerWidget {
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
         leading: PBackButton(onPressed: () => Navigator.of(context).pop()),
-        title: const Text('카드 상세'),
+        title: Text(l.assetCardDetail),
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,
         elevation: 0,
@@ -38,7 +40,7 @@ class CardDetailScreen extends ConsumerWidget {
         loading: () => _CardDetailSkeleton(tokens: t),
         error: (e, _) => Padding(
           padding: const EdgeInsets.all(PSpace.x16),
-          child: Text('카드 상세 로드 실패\n$e',
+          child: Text('${l.cardDetailLoadError}\n$e',
               style: PTypo.bodySm.copyWith(color: t.statusDanger)),
         ),
         data: (d) {
@@ -71,7 +73,7 @@ class CardDetailScreen extends ConsumerWidget {
               Text(
                 [
                   s.company?.name,
-                  s.cardType == 'CREDIT' ? '신용' : '체크',
+                  s.cardType == 'CREDIT' ? l.assetCardShortCredit : l.assetCardShortCheck,
                 ].whereType<String>().join(' · '),
                 style: PTypo.bodySm.copyWith(color: t.fgSecondary),
               ),
@@ -82,22 +84,22 @@ class CardDetailScreen extends ConsumerWidget {
                 children: [
                   Expanded(
                     child: _InfoCard(
-                      label: '연회비',
+                      label: l.assetAnnualFee,
                       value: s.annualFee?.label ??
                           (s.annualFee?.amount != null
                               ? '${krw(s.annualFee!.amount!)}원'
-                              : '없음'),
+                              : l.cardNone),
                       tokens: t,
                     ),
                   ),
                   const SizedBox(width: PSpace.x8),
                   Expanded(
                     child: _InfoCard(
-                      label: '전월 실적',
+                      label: l.cardLastMonthPerf,
                       value: s.performance?.requiredText ??
                           (s.performance?.requiredAmount != null
                               ? '${krw(s.performance!.requiredAmount!)}원'
-                              : '없음'),
+                              : l.cardNone),
                       tokens: t,
                     ),
                   ),
@@ -106,7 +108,7 @@ class CardDetailScreen extends ConsumerWidget {
               const SizedBox(height: PSpace.x20),
 
               if (d.topBenefits.isNotEmpty) ...[
-                Text('주요 혜택 태그',
+                Text(l.cardKeyBenefitTags,
                     style: PTypo.body.copyWith(
                         color: t.fgPrimary, fontWeight: PFontWeight.bold)),
                 const SizedBox(height: PSpace.x8),
@@ -123,7 +125,7 @@ class CardDetailScreen extends ConsumerWidget {
               ],
 
               if (d.benefits.isNotEmpty) ...[
-                Text('혜택',
+                Text(l.cardBenefits,
                     style: PTypo.body.copyWith(
                         color: t.fgPrimary, fontWeight: PFontWeight.bold)),
                 const SizedBox(height: PSpace.x8),
@@ -167,7 +169,7 @@ class CardDetailScreen extends ConsumerWidget {
               ],
 
               if (d.cautions.isNotEmpty) ...[
-                Text('유의사항',
+                Text(l.cardCautions,
                     style: PTypo.body.copyWith(
                         color: t.fgPrimary, fontWeight: PFontWeight.bold)),
                 const SizedBox(height: PSpace.x8),
