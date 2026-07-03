@@ -8,6 +8,7 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/settings/hide_amounts_unlock_dialog.dart';
@@ -143,6 +144,7 @@ class _UpcomingCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     if (async.isLoading && !async.hasValue) {
       return PCard(
         child: Column(
@@ -195,7 +197,7 @@ class _UpcomingCard extends StatelessWidget {
                 Icon(LucideIcons.calendarClock,
                     size: 16, color: t.fgSecondary),
                 const SizedBox(width: 6),
-                Text('다가오는 일정',
+                Text(l.dashUpcoming,
                     style: PTypo.bodySm.copyWith(
                         color: t.fgPrimary, fontWeight: PFontWeight.bold)),
                 const Spacer(),
@@ -231,10 +233,10 @@ class _UpcomingCard extends StatelessWidget {
                     ),
                     Text(
                         e.daysUntil == 0
-                            ? '오늘'
+                            ? l.dashTodayLabel
                             : (e.daysUntil == 1
-                                ? '내일'
-                                : 'D-${e.daysUntil}'),
+                                ? l.dashTomorrowLabel
+                                : l.dashDaysLeft(e.daysUntil)),
                         style: PTypo.caption
                             .copyWith(color: t.fgTertiary)),
                   ],
@@ -248,7 +250,7 @@ class _UpcomingCard extends StatelessWidget {
                 Icon(LucideIcons.squareCheckBig,
                     size: 16, color: t.fgSecondary),
                 const SizedBox(width: 6),
-                Text('최근 할 일',
+                Text(l.dashRecentTodos,
                     style: PTypo.bodySm.copyWith(
                         color: t.fgPrimary, fontWeight: PFontWeight.bold)),
                 const Spacer(),
@@ -315,6 +317,7 @@ class _BalanceHero extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final loading = summaryAsync.isLoading && !summaryAsync.hasValue;
     final s = summaryAsync.value;
     final netWorth = (s?.netWorth as int?) ?? 0;
@@ -344,7 +347,7 @@ class _BalanceHero extends StatelessWidget {
                       size: 13, color: t.fgOnBrand.withValues(alpha: 0.72)),
                   const SizedBox(width: 8),
                   Text(
-                    '순자산',
+                    l.assetNetWorth,
                     style: TextStyle(
                       color: t.fgOnBrand.withValues(alpha: 0.72),
                       fontSize: PFontSize.caption,
@@ -358,7 +361,7 @@ class _BalanceHero extends StatelessWidget {
                     onTap: onToggleMask,
                     behavior: HitTestBehavior.opaque,
                     child: Tooltip(
-                      message: masked ? '금액 표시' : '금액 숨김',
+                      message: masked ? l.assetShowAmount : l.dashHideAmount,
                       child: Container(
                         width: 26,
                         height: 26,
@@ -426,7 +429,7 @@ class _BalanceHero extends StatelessWidget {
                 Row(
                   children: [
                     Text(
-                      '지난달 대비',
+                      l.dashVsLastMonth,
                       style: TextStyle(
                         color: t.fgOnBrand.withValues(alpha: 0.78),
                         fontSize: PFontSize.bodySm,
@@ -464,7 +467,7 @@ class _BalanceHero extends StatelessWidget {
                     children: [
                       Expanded(
                         child: _HeroSplitCol(
-                          label: '자산',
+                          label: l.navAsset,
                           value: krwMasked(totalAssets, masked, mask: '••••'),
                           loading: loading,
                         ),
@@ -477,7 +480,7 @@ class _BalanceHero extends StatelessWidget {
                         child: Padding(
                           padding: const EdgeInsets.only(left: 16),
                           child: _HeroSplitCol(
-                            label: '부채',
+                            label: l.dashLiabilities,
                             value: krwSigned(totalDebt, masked, sign: '-', mask: '••••'),
                             loading: loading,
                           ),
@@ -594,6 +597,7 @@ class _MonthExpenseCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final list = expensesAsync.value ?? const <Expense>[];
     final income = currentSummary?.totalIncome ??
         list
@@ -622,7 +626,7 @@ class _MonthExpenseCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          PCardHeader(child: PCardTitle('${month.month}월 가계부')),
+          PCardHeader(child: PCardTitle(l.dashMonthLedger(month.month))),
           PCardContent(
             afterHeader: true,
             child: Column(
@@ -630,7 +634,7 @@ class _MonthExpenseCard extends StatelessWidget {
               children: [
                 if (hasError)
                   Text(
-                    '이번달 거래를 불러오지 못했습니다',
+                    l.dashMonthTxError,
                     style: PTypo.bodySm.copyWith(color: t.statusDanger),
                   )
                 else
@@ -638,14 +642,14 @@ class _MonthExpenseCard extends StatelessWidget {
                     children: [
                       Expanded(
                         child: _IncomeExpenseCol(
-                          label: '수입',
+                          label: l.expTypeIncome,
                           value: krwSigned(income, masked, sign: '+'),
                           color: t.fgIncome,
                         ),
                       ),
                       Expanded(
                         child: _IncomeExpenseCol(
-                          label: '지출',
+                          label: l.expTypeExpense,
                           value: krwSigned(expense, masked, sign: '-'),
                           color: t.fgExpense,
                         ),
@@ -660,7 +664,7 @@ class _MonthExpenseCard extends StatelessWidget {
                     style: PTypo.caption.copyWith(
                         color: t.fgSecondary, height: 1.5),
                     children: [
-                      const TextSpan(text: '하루 평균 '),
+                      TextSpan(text: l.dashDailyAvgPrefix),
                       TextSpan(
                         text: krwMasked(dailyAvg, masked),
                         style: TextStyle(
@@ -669,9 +673,9 @@ class _MonthExpenseCard extends StatelessWidget {
                           fontFeatures: const [FontFeature.tabularFigures()],
                         ),
                       ),
-                      TextSpan(text: masked ? ' 썼어요.' : '원 썼어요.'),
+                      TextSpan(text: masked ? l.dashSpentMasked : l.dashSpentUnit),
                       if (prevExpense > 0) ...[
-                        const TextSpan(text: ' 전월 대비 '),
+                        TextSpan(text: l.dashVsPrevPrefix),
                         TextSpan(
                           text:
                               '${savingsPct.abs().toStringAsFixed(0)}%',
@@ -683,10 +687,10 @@ class _MonthExpenseCard extends StatelessWidget {
                         ),
                         TextSpan(
                             text: saving
-                                ? ' 절약 중이에요.'
+                                ? l.dashSaving
                                 : (savingsPct < 0
-                                    ? ' 더 썼어요.'
-                                    : ' 동일해요.')),
+                                    ? l.dashSpentMore
+                                    : l.dashSame)),
                       ],
                     ],
                   ),
@@ -763,6 +767,7 @@ class _CategoryDonutCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     // 부모 카테고리로 롤업: 부모가 있으면 부모 ID/이름으로, 없으면 자기 자신.
     final rolled = <int, ({String name, int total})>{};
     for (final c in (summary?.categoryBreakdown ?? const <CategoryBreakdown>[])) {
@@ -792,14 +797,14 @@ class _CategoryDonutCard extends StatelessWidget {
           PCardHeader(
             child: Row(
               children: [
-                const PCardTitle('카테고리'),
+                PCardTitle(l.expCategory),
                 const Spacer(),
                 GestureDetector(
                   onTap: () => context.go('/stats'),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text('자세히',
+                      Text(l.dashSeeMore,
                           style: PTypo.bodySm
                               .copyWith(color: t.fgTertiary)),
                       const SizedBox(width: 2),
@@ -851,7 +856,7 @@ class _CategoryDonutCard extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 12),
               child: Center(
                 child: Text(
-                    '카테고리 데이터가 없어요',
+                    l.dashNoCategoryData,
                     style: TextStyle(
                         color: t.fgTertiary, fontSize: PFontSize.caption)),
               ),
@@ -885,7 +890,7 @@ class _CategoryDonutCard extends StatelessWidget {
                       Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text('지출',
+                          Text(l.expTypeExpense,
                               style: TextStyle(
                                   color: t.fgTertiary,
                                   fontSize: PFontSize.micro)),
@@ -982,6 +987,7 @@ class _BudgetCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final budgets = budgetsAsync.value ?? const <Budget>[];
     final categories = categoriesAsync.value ?? const <ExpenseCategory>[];
 
@@ -1010,7 +1016,7 @@ class _BudgetCard extends StatelessWidget {
           PCardHeader(
             child: Row(
               children: [
-                const PCardTitle('예산'),
+                PCardTitle(l.navBudget),
                 const Spacer(),
                 GestureDetector(
                   // 셸 브랜치 라우트 — push 가 아닌 go 로 브랜치 전환 (가계부 nav 활성).
@@ -1018,7 +1024,7 @@ class _BudgetCard extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text('전체',
+                      Text(l.expFilterAll,
                           style: PTypo.bodySm
                               .copyWith(color: t.fgTertiary)),
                       const SizedBox(width: 2),
@@ -1075,7 +1081,7 @@ class _BudgetCard extends StatelessWidget {
                         vertical: PSpace.x12),
                     child: Center(
                       child: Text(
-                          '등록된 예산이 없어요',
+                          l.dashNoBudget,
                           style: PTypo.caption.copyWith(color: t.fgTertiary)),
                     ),
                   )
@@ -1123,6 +1129,7 @@ class _BudgetRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final p = budget.budgetAmount > 0
         ? (spent / budget.budgetAmount) * 100
         : 0.0;
@@ -1139,7 +1146,7 @@ class _BudgetRow extends StatelessWidget {
     final bg = softBg(context, fg);
     final name = category?.categoryName ??
         budget.categoryName ??
-        (budget.categoryRowId == null ? '전체' : '카테고리');
+        (budget.categoryRowId == null ? l.expFilterAll : l.expCategory);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1215,6 +1222,7 @@ class _TodaySpendCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final list = expensesAsync.value ?? const <Expense>[];
     final categories = categoriesAsync.value as List? ?? const [];
 
@@ -1243,7 +1251,7 @@ class _TodaySpendCard extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const PCardTitle('오늘 쓴 돈'),
+                PCardTitle(l.dashTodaySpend),
                 if (todayTotal > 0) ...[
                   const SizedBox(width: PSpace.x8),
                   Text(
@@ -1259,7 +1267,7 @@ class _TodaySpendCard extends StatelessWidget {
                 GestureDetector(
                   onTap: () => context.go('/expense'),
                   child: Text(
-                    '전체',
+                    l.expFilterAll,
                     style: PTypo.bodySm.copyWith(color: t.fgTertiary),
                   ),
                 ),
@@ -1278,8 +1286,8 @@ class _TodaySpendCard extends StatelessWidget {
                     child: Center(
                       child: Text(
                           expensesAsync.hasError
-                              ? '거래를 불러오지 못했습니다'
-                              : '오늘은 아직 쓴 돈이 없어요',
+                              ? l.dashTxError
+                              : l.dashNoTodaySpend,
                           style: PTypo.caption.copyWith(color: t.fgTertiary)),
                     ),
                   )
