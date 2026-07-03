@@ -35,10 +35,10 @@ class HolidayRepository {
       final res = await _dio.post<Map<String, dynamic>>(
         '/holiday',
         data: {
-          'holiday_date': holidayDate,
-          'holiday_name': holidayName,
-          'holiday_type': holidayType,
-          'is_recurring': isRecurring ? 'Y' : 'N',
+          'holidayDate': holidayDate,
+          'holidayName': holidayName,
+          'holidayType': holidayType,
+          'isRecurring': isRecurring ? 'Y' : 'N',
         },
       );
       return _unwrap(res, Holiday.fromJson);
@@ -58,10 +58,10 @@ class HolidayRepository {
       final res = await _dio.put<Map<String, dynamic>>(
         '/holiday/$id',
         data: {
-          'holiday_date': holidayDate,
-          'holiday_name': holidayName,
-          'holiday_type': holidayType,
-          'is_recurring': isRecurring ? 'Y' : 'N',
+          'holidayDate': holidayDate,
+          'holidayName': holidayName,
+          'holidayType': holidayType,
+          'isRecurring': isRecurring ? 'Y' : 'N',
         },
       );
       return _unwrap(res, Holiday.fromJson);
