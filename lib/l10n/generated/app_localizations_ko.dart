@@ -1351,6 +1351,211 @@ class AppLocalizationsKo extends AppLocalizations {
   String get expSummaryBalance => '잔액';
 
   @override
+  String get budgetOverallCapNew => '월 전체 상한 설정';
+
+  @override
+  String get budgetCategoryAdd => '카테고리 예산 추가';
+
+  @override
+  String get budgetOverallCapEdit => '월 전체 상한 수정';
+
+  @override
+  String get budgetCategoryEdit => '카테고리 예산 수정';
+
+  @override
+  String get budgetUpdated => '예산이 수정되었습니다';
+
+  @override
+  String get budgetAdded => '예산이 추가되었습니다';
+
+  @override
+  String get budgetActionFailed => '실패';
+
+  @override
+  String get budgetDeleteTitle => '예산 삭제';
+
+  @override
+  String get budgetDeleteConfirm => '이 예산을 삭제하시겠습니까?';
+
+  @override
+  String get budgetDeleteFailed => '삭제 실패';
+
+  @override
+  String get budgetOverallCap => '월 전체 상한';
+
+  @override
+  String get budgetCategoryLoadError => '카테고리 로드 실패';
+
+  @override
+  String get budgetMonthlyLimit => '월 예산 한도';
+
+  @override
+  String get budgetLoadError => '예산을 불러오지 못했습니다';
+
+  @override
+  String get budgetSelectMonth => '월 선택';
+
+  @override
+  String budgetMonthOverallCap(int month) {
+    return '$month월 전체 상한';
+  }
+
+  @override
+  String get budgetOverallCapDesc => '이번 달 전체 지출의 상한이에요 (카테고리 예산이 없는 지출도 포함).';
+
+  @override
+  String get budgetOverallCapEmptyHint =>
+      '전체 상한이 아직 설정되지 않았어요. 우측 상단 설정 버튼으로 이번 달 최대 지출 한도를 지정할 수 있어요.';
+
+  @override
+  String get budgetCurrentCategorySum => '현재 카테고리 한도 합계';
+
+  @override
+  String budgetPercentUsed(String pct) {
+    return '$pct% 사용';
+  }
+
+  @override
+  String budgetRemaining(String amount) {
+    return '남은 예산 $amount';
+  }
+
+  @override
+  String budgetOverBy(String amount) {
+    return '한도 $amount 초과';
+  }
+
+  @override
+  String get budgetOverallCapLabel => '전체 상한';
+
+  @override
+  String get budgetCategoryAllocated => '카테고리 할당';
+
+  @override
+  String get budgetAllocatable => '할당 가능';
+
+  @override
+  String budgetOverAllocatedWarning(String amount) {
+    return '카테고리 한도 합이 전체 상한을 $amount 초과했어요. 전체 상한을 올리거나 카테고리 한도를 줄여주세요.';
+  }
+
+  @override
+  String get budgetSpendingPace => '지출 페이스';
+
+  @override
+  String get budgetPaceOnTrack => '정상 속도';
+
+  @override
+  String get budgetPaceFast => '빠른 속도';
+
+  @override
+  String budgetMonthElapsed(String pct) {
+    return '이번 달 $pct% 경과 ↑';
+  }
+
+  @override
+  String get budgetDailyAvg => '일평균 지출';
+
+  @override
+  String get budgetDailyRecommended => '남은 일 권장 지출';
+
+  @override
+  String get budgetStatusTitle => '예산 현황';
+
+  @override
+  String get budgetOver => '초과';
+
+  @override
+  String get budgetHealthy => '여유';
+
+  @override
+  String get budgetByCategory => '카테고리별 예산';
+
+  @override
+  String budgetCountSet(int count) {
+    return '$count개 설정됨';
+  }
+
+  @override
+  String get budgetNoCategoryBudgets => '카테고리별 예산이 없어요';
+
+  @override
+  String get budgetGoToSettings => '예산 설정하러 가기 →';
+
+  @override
+  String budgetCategoryFallback(int id) {
+    return '카테고리 #$id';
+  }
+
+  @override
+  String get budgetComplianceTitle => '최근 6개월 예산 이행률';
+
+  @override
+  String get budgetComplianceSubtitle => '한도 대비 지출 %';
+
+  @override
+  String get budgetNoComplianceData => '아직 이행률 데이터가 없어요';
+
+  @override
+  String get budgetVsLimit => '한도 대비';
+
+  @override
+  String get budgetLimit => '한도';
+
+  @override
+  String get budgetEmptyMonth => '이 달 예산이 없습니다';
+
+  @override
+  String get budgetEmptyHint => '전체 상한 또는 카테고리 예산을 설정하세요';
+
+  @override
+  String get budgetSetup => '예산 설정';
+
+  @override
+  String get budgetCopyLastMonth => '지난달 예산 복사';
+
+  @override
+  String budgetCopyConfirmMessage(String from, int count, String to) {
+    return '$from 예산 한도($count개)를 $to로 복사해요. 이번 달에 이미 있는 예산은 덮어써집니다.';
+  }
+
+  @override
+  String get budgetCopyFailed => '복사 실패';
+
+  @override
+  String budgetCopiedCount(int count) {
+    return '$count개 예산을 복사했습니다';
+  }
+
+  @override
+  String get budgetCopyLastMonthBtn => '지난달 복사';
+
+  @override
+  String budgetMonthTotal(int month) {
+    return '$month월 총 예산';
+  }
+
+  @override
+  String get budgetNotSet => '설정되지 않음';
+
+  @override
+  String get budgetUsed => '사용';
+
+  @override
+  String get budgetAllocated => '할당됨';
+
+  @override
+  String budgetByCategoryCount(int count) {
+    return '카테고리별 예산 · $count개';
+  }
+
+  @override
+  String get budgetAdd => '예산 추가';
+
+  @override
+  String get budgetNoCategorySet => '설정된 카테고리 예산이 없어요';
+
+  @override
   String get authLoginPrompt => 'SSO 계정으로 로그인하세요';
 
   @override
