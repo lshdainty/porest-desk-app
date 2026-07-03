@@ -470,5 +470,16 @@
   "expSummaryTitle": "월간 요약",
   "expSummaryIncome": "수입",
   "expSummaryExpense": "지출",
-  "expSummaryBalance": "잔액"
+  "expSummaryBalance": "잔액",
+
+  "authLoginPrompt": "SSO 계정으로 로그인하세요",
+  "authSsoLogin": "SSO 로그인",
+  "authLoginTitle": "로그인",
+  "authLoginFailed": "로그인 실패",
+  "authLoginError": "로그인 처리 중 오류",
+  "authSecurityNotHttps": "보안 오류: SSO 서버가 HTTPS 가 아닙니다 ({url}).",
+  "@authSecurityNotHttps": {"placeholders": {"url": {"type": "String"}}},
+  "authStateMismatch": "보안 검증에 실패했어요 (state 불일치). 다시 시도해 주세요.",
+  "authNoAuthCode": "인가코드를 받지 못했어요. 다시 시도해 주세요.",
+  "authPageLoadError": "로그인 페이지를 불러오지 못했어요."
 }

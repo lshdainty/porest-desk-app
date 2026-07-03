@@ -2647,6 +2647,60 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'잔액'**
   String get expSummaryBalance;
+
+  /// No description provided for @authLoginPrompt.
+  ///
+  /// In ko, this message translates to:
+  /// **'SSO 계정으로 로그인하세요'**
+  String get authLoginPrompt;
+
+  /// No description provided for @authSsoLogin.
+  ///
+  /// In ko, this message translates to:
+  /// **'SSO 로그인'**
+  String get authSsoLogin;
+
+  /// No description provided for @authLoginTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'로그인'**
+  String get authLoginTitle;
+
+  /// No description provided for @authLoginFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'로그인 실패'**
+  String get authLoginFailed;
+
+  /// No description provided for @authLoginError.
+  ///
+  /// In ko, this message translates to:
+  /// **'로그인 처리 중 오류'**
+  String get authLoginError;
+
+  /// No description provided for @authSecurityNotHttps.
+  ///
+  /// In ko, this message translates to:
+  /// **'보안 오류: SSO 서버가 HTTPS 가 아닙니다 ({url}).'**
+  String authSecurityNotHttps(String url);
+
+  /// No description provided for @authStateMismatch.
+  ///
+  /// In ko, this message translates to:
+  /// **'보안 검증에 실패했어요 (state 불일치). 다시 시도해 주세요.'**
+  String get authStateMismatch;
+
+  /// No description provided for @authNoAuthCode.
+  ///
+  /// In ko, this message translates to:
+  /// **'인가코드를 받지 못했어요. 다시 시도해 주세요.'**
+  String get authNoAuthCode;
+
+  /// No description provided for @authPageLoadError.
+  ///
+  /// In ko, this message translates to:
+  /// **'로그인 페이지를 불러오지 못했어요.'**
+  String get authPageLoadError;
 }
 
 class _AppLocalizationsDelegate

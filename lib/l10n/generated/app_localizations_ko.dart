@@ -1349,4 +1349,33 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get expSummaryBalance => '잔액';
+
+  @override
+  String get authLoginPrompt => 'SSO 계정으로 로그인하세요';
+
+  @override
+  String get authSsoLogin => 'SSO 로그인';
+
+  @override
+  String get authLoginTitle => '로그인';
+
+  @override
+  String get authLoginFailed => '로그인 실패';
+
+  @override
+  String get authLoginError => '로그인 처리 중 오류';
+
+  @override
+  String authSecurityNotHttps(String url) {
+    return '보안 오류: SSO 서버가 HTTPS 가 아닙니다 ($url).';
+  }
+
+  @override
+  String get authStateMismatch => '보안 검증에 실패했어요 (state 불일치). 다시 시도해 주세요.';
+
+  @override
+  String get authNoAuthCode => '인가코드를 받지 못했어요. 다시 시도해 주세요.';
+
+  @override
+  String get authPageLoadError => '로그인 페이지를 불러오지 못했어요.';
 }
