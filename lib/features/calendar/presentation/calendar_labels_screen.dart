@@ -7,6 +7,7 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
@@ -50,6 +51,7 @@ class _CalendarLabelsScreenState extends ConsumerState<CalendarLabelsScreen> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final labelsAsync = ref.watch(eventLabelsProvider);
 
     return Scaffold(
@@ -58,7 +60,7 @@ class _CalendarLabelsScreenState extends ConsumerState<CalendarLabelsScreen> {
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
         leading: PBackButton(onPressed: () => context.pop()),
-        title: const Text('캘린더 라벨'),
+        title: Text(l.calLabelsTitle),
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,
         elevation: 0,
@@ -84,7 +86,7 @@ class _CalendarLabelsScreenState extends ConsumerState<CalendarLabelsScreen> {
               loading: () => const PListSkeleton(rows: 4, showAvatar: true),
               error: (e, _) => Padding(
                 padding: const EdgeInsets.symmetric(vertical: PSpace.x16),
-                child: Text('라벨 로드 실패\n$e',
+                child: Text('${l.calLabelLoadError}\n$e',
                     style: PTypo.bodySm.copyWith(color: t.statusDanger)),
               ),
               data: (labels) {
@@ -93,7 +95,7 @@ class _CalendarLabelsScreenState extends ConsumerState<CalendarLabelsScreen> {
                   children: [
                     Padding(
                       padding: const EdgeInsets.only(left: 2, bottom: PSpace.x8),
-                      child: Text('전체 라벨 · ${labels.length}',
+                      child: Text(l.calAllLabelsCount(labels.length),
                           style: PTypo.bodySm.copyWith(
                             color: t.fgPrimary,
                             fontWeight: PFontWeight.bold,
@@ -102,10 +104,10 @@ class _CalendarLabelsScreenState extends ConsumerState<CalendarLabelsScreen> {
                     if (labels.isEmpty)
                       PCard(
                         variant: PCardVariant.shadow,
-                        child: const PEmptyState(
+                        child: PEmptyState(
                           icon: LucideIcons.tag,
-                          message: '라벨이 없어요',
-                          subMessage: '위 "새 라벨" 버튼으로 만들어보세요',
+                          message: l.calLabelsEmpty,
+                          subMessage: l.calLabelsEmptyHint,
                         ),
                       )
                     else
@@ -147,6 +149,7 @@ class _IntroCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = tokens;
+    final l = AppLocalizations.of(context);
     return PCard(
       variant: PCardVariant.brand,
       padding: const EdgeInsets.all(PSpace.x16),
@@ -167,20 +170,20 @@ class _IntroCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('캘린더 라벨',
+                Text(l.calLabelsTitle,
                     style: PTypo.bodySm.copyWith(
                       color: t.fgPrimary,
                       fontWeight: PFontWeight.bold,
                     )),
                 const SizedBox(height: 2),
-                Text('모든 캘린더에서 공용으로 쓰는 라벨이에요. 일정 등록 시 선택할 수 있어요.',
+                Text(l.calLabelsIntro,
                     style: PTypo.caption.copyWith(color: t.fgSecondary)),
               ],
             ),
           ),
           const SizedBox(width: PSpace.x8),
           PButton(
-            label: '새 라벨',
+            label: l.calNewLabel,
             icon: LucideIcons.plus,
             size: PButtonSize.sm,
             onPressed: onAdd,
@@ -206,6 +209,7 @@ class _LabelRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = tokens;
+    final l = AppLocalizations.of(context);
     final color = solidSwatchColor(context, label.color, fallback: t.fgBrand);
     return InkWell(
       onTap: onTap,
@@ -242,7 +246,7 @@ class _LabelRow extends StatelessWidget {
               icon: LucideIcons.trash2,
               size: PButtonSize.sm,
               iconColor: t.statusDanger,
-              tooltip: '삭제',
+              tooltip: l.actionDelete,
               onPressed: onDelete,
             ),
           ],
@@ -259,6 +263,7 @@ void _showLabelEditor(
   WidgetRef ref,
   EventLabel? existing,
 ) {
+  final l = AppLocalizations.of(context);
   final nameCtrl = TextEditingController(text: existing?.labelName ?? '');
   final controller = PSheetController();
   controller.setCanSubmit((existing?.labelName ?? '').trim().isNotEmpty);
@@ -281,7 +286,7 @@ void _showLabelEditor(
       Navigator.of(context).pop();
     } on ApiException catch (e) {
       if (!context.mounted) return;
-      showPSnackBar(context, '저장 실패: ${e.message}',
+      showPSnackBar(context, '${l.calSaveFailed}: ${e.message}',
           severity: PSnackSeverity.error);
     } finally {
       controller.setSubmitting(false);
@@ -292,7 +297,7 @@ void _showLabelEditor(
 
   showPSheet<void>(
     context,
-    title: existing == null ? '새 라벨' : '라벨 편집',
+    title: existing == null ? l.calNewLabel : l.calEditLabel,
     contentBuilder: (ctx, scrollCtrl) => _LabelEditorBody(
       scrollController: scrollCtrl,
       nameController: nameCtrl,
@@ -301,7 +306,7 @@ void _showLabelEditor(
       onColorChanged: (c) => selectedColor = c,
     ),
     footerBuilder: (ctx) =>
-        PSheetFooter(controller: controller, submitLabel: '저장'),
+        PSheetFooter(controller: controller, submitLabel: l.actionSave),
   );
 }
 
@@ -335,6 +340,7 @@ class _LabelEditorBodyState extends State<_LabelEditorBody> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final swatch = solidSwatchColor(context, _color, fallback: t.fgBrand);
     final preview = widget.nameController.text.trim();
     return ListView(
@@ -362,10 +368,10 @@ class _LabelEditorBodyState extends State<_LabelEditorBody> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('미리보기',
+                    Text(l.calPreview,
                         style: PTypo.micro.copyWith(color: t.fgTertiary)),
                     const SizedBox(height: 2),
-                    Text(preview.isEmpty ? '새 라벨' : preview,
+                    Text(preview.isEmpty ? l.calNewLabel : preview,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: PTypo.body.copyWith(
@@ -381,11 +387,12 @@ class _LabelEditorBodyState extends State<_LabelEditorBody> {
         const SizedBox(height: PSpace.x16),
 
         // 이름
-        Text('이름', style: PTypo.caption.copyWith(color: t.fgSecondary)),
+        Text(l.calFieldName,
+            style: PTypo.caption.copyWith(color: t.fgSecondary)),
         const SizedBox(height: PSpace.x4),
         PTextInput(
           controller: widget.nameController,
-          placeholder: '예: 중요, 마감일, 회의',
+          placeholder: l.calLabelNamePlaceholder,
           onChanged: (v) {
             widget.controller.setCanSubmit(v.trim().isNotEmpty);
             setState(() {});
@@ -394,7 +401,8 @@ class _LabelEditorBodyState extends State<_LabelEditorBody> {
         const SizedBox(height: PSpace.x16),
 
         // 색상
-        Text('색상', style: PTypo.caption.copyWith(color: t.fgSecondary)),
+        Text(l.calFieldColor,
+            style: PTypo.caption.copyWith(color: t.fgSecondary)),
         const SizedBox(height: PSpace.x8),
         PColorPicker(
           selected: _color,
@@ -415,12 +423,12 @@ Future<void> _confirmDelete(
   WidgetRef ref,
   EventLabel label,
 ) async {
+  final l = AppLocalizations.of(context);
   final ok = await showPConfirmDialog(
     context,
-    title: '라벨 삭제',
-    message:
-        '"${label.labelName}" 라벨을 삭제하시겠어요? 이 라벨이 지정된 일정은 라벨 없음 상태가 됩니다.',
-    confirmLabel: '삭제',
+    title: l.calDeleteLabelTitle,
+    message: l.calDeleteLabelConfirm(label.labelName),
+    confirmLabel: l.actionDelete,
     destructive: true,
   );
   if (!ok || !context.mounted) return;
@@ -430,7 +438,7 @@ Future<void> _confirmDelete(
     ref.invalidate(eventLabelsProvider);
   } on ApiException catch (e) {
     if (!context.mounted) return;
-    showPSnackBar(context, '삭제 실패: ${e.message}',
+    showPSnackBar(context, '${l.calDeleteFailed}: ${e.message}',
         severity: PSnackSeverity.error);
   }
 }

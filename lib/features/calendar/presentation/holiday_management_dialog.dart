@@ -6,6 +6,7 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/shared/widgets/p_badge.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
@@ -25,7 +26,7 @@ import 'package:porest_desk_app/features/calendar/domain/holiday.dart';
 void showHolidayManagementDialog(BuildContext context) {
   showPSheet<void>(
     context,
-    title: '공휴일 관리',
+    title: AppLocalizations.of(context).calHolidayMgmt,
     contentBuilder: (ctx, scrollCtrl) => _Body(scrollController: scrollCtrl),
   );
 }
@@ -76,7 +77,8 @@ class _BodyState extends ConsumerState<_Body> {
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() => _adding = false);
-      showPSnackBar(context, '추가 실패: ${e.message}', severity: PSnackSeverity.error);
+      showPSnackBar(context, '${AppLocalizations.of(context).calAddFailed}: ${e.message}',
+          severity: PSnackSeverity.error);
     }
   }
 
@@ -86,6 +88,7 @@ class _BodyState extends ConsumerState<_Body> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final async = ref.watch(holidayListProvider(_range));
     return ListView(
       controller: widget.scrollController,
@@ -114,7 +117,7 @@ class _BodyState extends ConsumerState<_Body> {
           const SizedBox(height: PSpace.x12),
 
           // 사용자 정의 추가 폼
-          Text('사용자 휴일 추가',
+          Text(l.calAddCustomHoliday,
               style: PTypo.bodySm.copyWith(
                   color: t.fgPrimary, fontWeight: PFontWeight.bold)),
           const SizedBox(height: PSpace.x8),
@@ -125,7 +128,7 @@ class _BodyState extends ConsumerState<_Body> {
                 child: PTextInput(
                   controller: _nameCtrl,
                   enabled: !_adding,
-                  placeholder: '휴일 이름',
+                  placeholder: l.calHolidayNamePlaceholder,
                   onChanged: (_) => setState(() {}),
                 ),
               ),
@@ -151,11 +154,11 @@ class _BodyState extends ConsumerState<_Body> {
                 onChanged: (v) =>
                     setState(() => _newRecurring = v ?? false),
               ),
-              Text('매년 반복',
+              Text(l.calRepeatYearlyLabel,
                   style: PTypo.caption.copyWith(color: t.fgSecondary)),
               const Spacer(),
               PButton(
-                label: '추가',
+                label: l.calAdd,
                 loading: _adding,
                 onPressed:
                     (_nameCtrl.text.trim().isEmpty || _adding) ? null : _add,
@@ -166,20 +169,20 @@ class _BodyState extends ConsumerState<_Body> {
           PDivider(),
           const SizedBox(height: PSpace.x16),
 
-          Text('$_year년 휴일',
+          Text(l.calYearHolidays(_year),
               style: PTypo.bodySm.copyWith(
                   color: t.fgPrimary, fontWeight: PFontWeight.bold)),
           const SizedBox(height: PSpace.x8),
           async.when(
             loading: () => const Center(child: PCircularProgressIndicator()),
-            error: (e, _) => Text('휴일 로드 실패: $e',
+            error: (e, _) => Text('${l.calHolidayLoadError}: $e',
                 style: PTypo.caption.copyWith(color: t.statusDanger)),
             data: (list) {
               if (list.isEmpty) {
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: PSpace.x16),
                   child: Center(
-                    child: Text('등록된 휴일이 없습니다',
+                    child: Text(l.calNoHolidays,
                         style:
                             PTypo.caption.copyWith(color: t.fgTertiary)),
                   ),
@@ -213,11 +216,12 @@ class _RowState extends ConsumerState<_Row> {
 
   Future<void> _delete() async {
     if (widget.holiday.holidayType != 'CUSTOM') return;
+    final l = AppLocalizations.of(context);
     final ok = await showPConfirmDialog(
       context,
-      title: '휴일 삭제',
-      message: '${widget.holiday.holidayName} 삭제할까요?',
-      confirmLabel: '삭제',
+      title: l.calDeleteHolidayTitle,
+      message: l.calDeleteHolidayConfirm(widget.holiday.holidayName),
+      confirmLabel: l.actionDelete,
       destructive: true,
     );
     if (!ok || !mounted) return;
@@ -229,28 +233,30 @@ class _RowState extends ConsumerState<_Row> {
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() => _busy = false);
-      showPSnackBar(context, '삭제 실패: ${e.message}', severity: PSnackSeverity.error);
+      showPSnackBar(context, '${l.calDeleteFailed}: ${e.message}',
+          severity: PSnackSeverity.error);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final t = widget.tokens;
+    final l = AppLocalizations.of(context);
     final h = widget.holiday;
     Color badgeColor;
     String typeLabel;
     switch (h.holidayType) {
       case 'CUSTOM':
         badgeColor = t.statusInfo;
-        typeLabel = '사용자';
+        typeLabel = l.calHolidayTypeCustom;
         break;
       case 'SUBSTITUTE':
         badgeColor = t.statusWarning;
-        typeLabel = '대체';
+        typeLabel = l.calHolidayTypeSubstitute;
         break;
       default:
         badgeColor = t.statusDanger;
-        typeLabel = '공휴일';
+        typeLabel = l.calHolidayTypePublic;
     }
     return Container(
       margin: const EdgeInsets.only(bottom: 6),

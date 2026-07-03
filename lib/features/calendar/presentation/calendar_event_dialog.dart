@@ -5,6 +5,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/shared/widgets/p_color_picker.dart';
@@ -25,10 +26,11 @@ void showCalendarEventDialog(
   CalendarEvent? edit,
   DateTime? defaultDate,
 }) {
+  final l = AppLocalizations.of(context);
   final controller = PSheetController();
   showPSheet<void>(
     context,
-    title: edit == null ? '일정 추가' : '일정 수정',
+    title: edit == null ? l.calEventAdd : l.calEventEdit,
     contentBuilder: (ctx, scrollCtrl) => _Body(
       edit: edit,
       defaultDate: defaultDate,
@@ -37,7 +39,7 @@ void showCalendarEventDialog(
     ),
     footerBuilder: (ctx) => PSheetFooter(
       controller: controller,
-      submitLabel: edit != null ? '수정' : '저장',
+      submitLabel: edit != null ? l.actionEdit : l.actionSave,
     ),
   ).whenComplete(controller.dispose);
 }
@@ -47,13 +49,14 @@ const _kDefaultEventColor = '#2c70bf';
 
 enum _RecurrenceOption { none, daily, weekly, monthly, yearly }
 
-const _recurrenceLabels = <_RecurrenceOption, String>{
-  _RecurrenceOption.none: '반복 없음',
-  _RecurrenceOption.daily: '매일',
-  _RecurrenceOption.weekly: '매주',
-  _RecurrenceOption.monthly: '매월',
-  _RecurrenceOption.yearly: '매년',
-};
+String _recurrenceLabel(AppLocalizations l, _RecurrenceOption r) =>
+    switch (r) {
+      _RecurrenceOption.none => l.calRecurrenceNone,
+      _RecurrenceOption.daily => l.calRepeatDaily,
+      _RecurrenceOption.weekly => l.calRepeatWeekly,
+      _RecurrenceOption.monthly => l.calRepeatMonthly,
+      _RecurrenceOption.yearly => l.calRepeatYearly,
+    };
 
 _RecurrenceOption _rruleToRecurrence(String? rrule) {
   if (rrule == null || rrule.isEmpty) return _RecurrenceOption.none;
@@ -66,20 +69,20 @@ _RecurrenceOption _rruleToRecurrence(String? rrule) {
 
 const _reminderOptions = <int>[5, 15, 30, 60, 1440];
 
-String _reminderLabel(int min) {
-  if (min < 60) return '$min분 전';
-  if (min == 60) return '1시간 전';
-  if (min == 1440) return '1일 전';
-  return '$min분 전';
+String _reminderLabel(AppLocalizations l, int min) {
+  if (min == 60) return l.calReminderHourBefore;
+  if (min == 1440) return l.calReminderDayBefore;
+  return l.calReminderMinutesBefore(min);
 }
 
 Future<void> _confirmDelete(BuildContext ctx, CalendarEvent edit) async {
+  final l = AppLocalizations.of(ctx);
   final container = ProviderScope.containerOf(ctx, listen: false);
   final ok = await showPConfirmDialog(
     ctx,
-    title: '일정 삭제',
-    message: '"${edit.title}" 일정을 삭제할까요? 이 작업은 되돌릴 수 없습니다.',
-    confirmLabel: '삭제',
+    title: l.calEventDelete,
+    message: l.calEventDeleteConfirm(edit.title),
+    confirmLabel: l.actionDelete,
     destructive: true,
   );
   if (!ok) return;
@@ -90,7 +93,8 @@ Future<void> _confirmDelete(BuildContext ctx, CalendarEvent edit) async {
         (year: edit.start.year, month: edit.start.month)));
   } on ApiException catch (e) {
     if (!ctx.mounted) return;
-    showPSnackBar(ctx, '삭제 실패: ${e.message}', severity: PSnackSeverity.error);
+    showPSnackBar(ctx, '${l.calDeleteFailed}: ${e.message}',
+        severity: PSnackSeverity.error);
     return;
   }
   if (!ctx.mounted) return;
@@ -185,6 +189,7 @@ class _BodyState extends ConsumerState<_Body> {
       '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}T${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}:00';
 
   Future<void> _submit() async {
+    final l = AppLocalizations.of(context);
     setState(() => _submitting = true);
     _syncController();
     try {
@@ -232,10 +237,12 @@ class _BodyState extends ConsumerState<_Body> {
       }
       if (!mounted) return;
       Navigator.of(context).pop();
-      showPSnackBar(context, _isEdit ? '일정이 수정되었습니다' : '일정이 추가되었습니다', severity: PSnackSeverity.success);
+      showPSnackBar(context, _isEdit ? l.calEventUpdated : l.calEventAdded,
+          severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!mounted) return;
-      showPSnackBar(context, '실패: ${e.message}', severity: PSnackSeverity.error);
+      showPSnackBar(context, '${l.calActionFailed}: ${e.message}',
+          severity: PSnackSeverity.error);
     } finally {
       if (mounted) {
         setState(() => _submitting = false);
@@ -276,6 +283,7 @@ class _BodyState extends ConsumerState<_Body> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final labelsAsync = ref.watch(eventLabelsProvider);
     final calendarsAsync = ref.watch(userCalendarListProvider);
 
@@ -292,11 +300,11 @@ class _BodyState extends ConsumerState<_Body> {
       padding: const EdgeInsets.fromLTRB(
           PSpace.x16, PSpace.x8, PSpace.x16, PSpace.x16),
       children: [
-          PSectionLabel('제목', variant: PSectionLabelVariant.header),
+          PSectionLabel(l.calFieldTitle, variant: PSectionLabelVariant.header),
           const SizedBox(height: PSpace.x8),
           PTextInput(
             controller: _titleCtrl,
-            placeholder: '예: 가족 식사',
+            placeholder: l.calTitlePlaceholder,
             onChanged: (_) {
               setState(() {});
               _syncController();
@@ -304,17 +312,19 @@ class _BodyState extends ConsumerState<_Body> {
           ),
           const SizedBox(height: PSpace.x16),
 
-          PSectionLabel('설명', variant: PSectionLabelVariant.header),
+          PSectionLabel(l.calFieldDescription,
+              variant: PSectionLabelVariant.header),
           const SizedBox(height: PSpace.x8),
           PTextInput(
             controller: _descCtrl,
             maxLines: 3,
-            placeholder: '추가 설명 (선택)',
+            placeholder: l.calDescriptionPlaceholder,
           ),
           const SizedBox(height: PSpace.x16),
 
           // 캘린더
-          PSectionLabel('캘린더', variant: PSectionLabelVariant.header),
+          PSectionLabel(l.calFieldCalendar,
+              variant: PSectionLabelVariant.header),
           const SizedBox(height: PSpace.x8),
           calendarsAsync.when(
             loading: () => const Padding(
@@ -322,11 +332,11 @@ class _BodyState extends ConsumerState<_Body> {
               child:
                   Center(child: SizedBox(height: PSpace.x16, width: PSpace.x16, child: PCircularProgressIndicator(strokeWidth: 2))),
             ),
-            error: (_, _) => Text('캘린더 로드 실패',
+            error: (_, _) => Text(l.calCalendarLoadError,
                 style: PTypo.caption.copyWith(color: t.statusDanger)),
             data: (cals) => PSelect<int>(
               value: selectedCalendar?.rowId,
-              placeholder: '캘린더 선택',
+              placeholder: l.calSelectCalendar,
               onChanged: (v) {
                 if (v != null) setState(() => _userCalendarRowId = v);
               },
@@ -344,14 +354,15 @@ class _BodyState extends ConsumerState<_Body> {
           const SizedBox(height: PSpace.x16),
 
           // 라벨
-          PSectionLabel('라벨', variant: PSectionLabelVariant.header, icon: LucideIcons.tag),
+          PSectionLabel(l.calFieldLabel,
+              variant: PSectionLabelVariant.header, icon: LucideIcons.tag),
           const SizedBox(height: PSpace.x8),
           // web EventForm 정합 — chip 나열 대신 Select ('라벨이 없습니다' + 색 점)
           labelsAsync.when(
             loading: () => const SizedBox(
                 height: PSpace.x32,
                 child: Center(child: PCircularProgressIndicator())),
-            error: (_, _) => Text('라벨 로드 실패',
+            error: (_, _) => Text(l.calLabelLoadError,
                 style: PTypo.caption.copyWith(color: t.statusDanger)),
             data: (labels) => PSelect<int>(
               value: _labelRowId ?? 0,
@@ -360,7 +371,7 @@ class _BodyState extends ConsumerState<_Body> {
               items: [
                 PSelectItem(
                   value: 0,
-                  label: '라벨이 없습니다',
+                  label: l.calNoLabel,
                   leading: _labelDot(t.fgTertiary.withValues(alpha: 0.3)),
                 ),
                 for (final l in labels)
@@ -376,7 +387,7 @@ class _BodyState extends ConsumerState<_Body> {
           const SizedBox(height: PSpace.x16),
 
           // 색상
-          PSectionLabel('색상', variant: PSectionLabelVariant.header),
+          PSectionLabel(l.calFieldColor, variant: PSectionLabelVariant.header),
           const SizedBox(height: PSpace.x8),
           PColorPicker(
             selected: _color,
@@ -390,10 +401,10 @@ class _BodyState extends ConsumerState<_Body> {
               PSwitch(
                 value: _allDay,
                 onChanged: (v) => setState(() => _allDay = v),
-                semanticLabel: '종일',
+                semanticLabel: l.calAllDay,
               ),
               const SizedBox(width: PSpace.x8),
-              Text('종일',
+              Text(l.calAllDay,
                   style: PTypo.bodySm.copyWith(color: t.fgPrimary)),
             ],
           ),
@@ -409,7 +420,7 @@ class _BodyState extends ConsumerState<_Body> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      PSectionLabel('시작일',
+                      PSectionLabel(l.calFieldStartDate,
                           variant: PSectionLabelVariant.header),
                       const SizedBox(height: PSpace.x8),
                       PDateInput(
@@ -426,7 +437,7 @@ class _BodyState extends ConsumerState<_Body> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      PSectionLabel('종료일',
+                      PSectionLabel(l.calFieldEndDate,
                           variant: PSectionLabelVariant.header),
                       const SizedBox(height: PSpace.x8),
                       PDateInput(
@@ -442,7 +453,8 @@ class _BodyState extends ConsumerState<_Body> {
             ),
             const SizedBox(height: PSpace.x16),
           ] else ...[
-            PSectionLabel('시작일', variant: PSectionLabelVariant.header),
+            PSectionLabel(l.calFieldStartDate,
+                variant: PSectionLabelVariant.header),
             const SizedBox(height: PSpace.x8),
             Row(
               children: [
@@ -465,7 +477,8 @@ class _BodyState extends ConsumerState<_Body> {
               ],
             ),
             const SizedBox(height: PSpace.x12),
-            PSectionLabel('종료일', variant: PSectionLabelVariant.header),
+            PSectionLabel(l.calFieldEndDate,
+                variant: PSectionLabelVariant.header),
             const SizedBox(height: PSpace.x8),
             Row(
               children: [
@@ -491,16 +504,18 @@ class _BodyState extends ConsumerState<_Body> {
           ],
 
           // 장소
-          PSectionLabel('장소', variant: PSectionLabelVariant.header, icon: LucideIcons.mapPin),
+          PSectionLabel(l.calLocation,
+              variant: PSectionLabelVariant.header, icon: LucideIcons.mapPin),
           const SizedBox(height: PSpace.x8),
           PTextInput(
             controller: _locationCtrl,
-            placeholder: '장소를 입력하세요',
+            placeholder: l.calLocationPlaceholder,
           ),
           const SizedBox(height: PSpace.x16),
 
           // 반복
-          PSectionLabel('반복', variant: PSectionLabelVariant.header, icon: LucideIcons.repeat),
+          PSectionLabel(l.calRepeat,
+              variant: PSectionLabelVariant.header, icon: LucideIcons.repeat),
           const SizedBox(height: PSpace.x8),
           Wrap(
             spacing: PSpace.x4,
@@ -508,7 +523,7 @@ class _BodyState extends ConsumerState<_Body> {
             children: [
               for (final r in _RecurrenceOption.values)
                 PToggle(
-                  label: _recurrenceLabels[r]!,
+                  label: _recurrenceLabel(l, r),
                   pressed: _recurrence == r,
                   size: PToggleSize.sm,
                   onChanged: (_) => setState(() => _recurrence = r),
@@ -518,7 +533,8 @@ class _BodyState extends ConsumerState<_Body> {
           const SizedBox(height: PSpace.x16),
 
           // 알림
-          PSectionLabel('알림', variant: PSectionLabelVariant.header, icon: LucideIcons.bell),
+          PSectionLabel(l.calFieldReminder,
+              variant: PSectionLabelVariant.header, icon: LucideIcons.bell),
           const SizedBox(height: PSpace.x8),
           Wrap(
             spacing: PSpace.x4,
@@ -526,7 +542,7 @@ class _BodyState extends ConsumerState<_Body> {
             children: [
               for (final m in _reminderOptions)
                 PToggle(
-                  label: _reminderLabel(m),
+                  label: _reminderLabel(l, m),
                   pressed: _reminders.contains(m),
                   size: PToggleSize.sm,
                   onChanged: (_) => setState(() {
