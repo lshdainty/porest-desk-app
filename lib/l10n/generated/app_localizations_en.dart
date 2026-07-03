@@ -1257,6 +1257,59 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get dashHideAmount => 'Hide amounts';
+
+  @override
+  String get dashVsLastMonth => 'vs last month';
+
+  @override
+  String get dashLiabilities => 'Liabilities';
+
+  @override
+  String dashMonthLedger(int month) {
+    return '$month ledger';
+  }
+
+  @override
+  String get dashMonthTxError => 'Couldn\'t load this month\'s transactions';
+
+  @override
+  String get dashDailyAvgPrefix => 'Daily average ';
+
+  @override
+  String get dashSpentMasked => ' spent.';
+
+  @override
+  String get dashSpentUnit => ' spent.';
+
+  @override
+  String get dashVsPrevPrefix => ', vs last month ';
+
+  @override
+  String get dashSaving => ' saved.';
+
+  @override
+  String get dashSpentMore => ' more.';
+
+  @override
+  String get dashSame => ' the same.';
+
+  @override
+  String get dashNoCategoryData => 'No category data';
+
+  @override
+  String get dashNoBudget => 'No budgets set';
+
+  @override
+  String get dashTodaySpend => 'Spent today';
+
+  @override
+  String get dashTxError => 'Couldn\'t load transactions';
+
+  @override
+  String get dashNoTodaySpend => 'Nothing spent today yet';
+
+  @override
   String get expTitle => 'Expenses';
 
   @override

@@ -1243,6 +1243,59 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
+  String get dashHideAmount => '금액 숨김';
+
+  @override
+  String get dashVsLastMonth => '지난달 대비';
+
+  @override
+  String get dashLiabilities => '부채';
+
+  @override
+  String dashMonthLedger(int month) {
+    return '$month월 가계부';
+  }
+
+  @override
+  String get dashMonthTxError => '이번달 거래를 불러오지 못했습니다';
+
+  @override
+  String get dashDailyAvgPrefix => '하루 평균 ';
+
+  @override
+  String get dashSpentMasked => ' 썼어요.';
+
+  @override
+  String get dashSpentUnit => '원 썼어요.';
+
+  @override
+  String get dashVsPrevPrefix => ' 전월 대비 ';
+
+  @override
+  String get dashSaving => ' 절약 중이에요.';
+
+  @override
+  String get dashSpentMore => ' 더 썼어요.';
+
+  @override
+  String get dashSame => ' 동일해요.';
+
+  @override
+  String get dashNoCategoryData => '카테고리 데이터가 없어요';
+
+  @override
+  String get dashNoBudget => '등록된 예산이 없어요';
+
+  @override
+  String get dashTodaySpend => '오늘 쓴 돈';
+
+  @override
+  String get dashTxError => '거래를 불러오지 못했습니다';
+
+  @override
+  String get dashNoTodaySpend => '오늘은 아직 쓴 돈이 없어요';
+
+  @override
   String get expTitle => '가계부';
 
   @override

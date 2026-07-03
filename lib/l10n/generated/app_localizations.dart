@@ -2432,6 +2432,108 @@ abstract class AppLocalizations {
   /// **'D-{n}'**
   String dashDaysLeft(int n);
 
+  /// No description provided for @dashHideAmount.
+  ///
+  /// In ko, this message translates to:
+  /// **'금액 숨김'**
+  String get dashHideAmount;
+
+  /// No description provided for @dashVsLastMonth.
+  ///
+  /// In ko, this message translates to:
+  /// **'지난달 대비'**
+  String get dashVsLastMonth;
+
+  /// No description provided for @dashLiabilities.
+  ///
+  /// In ko, this message translates to:
+  /// **'부채'**
+  String get dashLiabilities;
+
+  /// No description provided for @dashMonthLedger.
+  ///
+  /// In ko, this message translates to:
+  /// **'{month}월 가계부'**
+  String dashMonthLedger(int month);
+
+  /// No description provided for @dashMonthTxError.
+  ///
+  /// In ko, this message translates to:
+  /// **'이번달 거래를 불러오지 못했습니다'**
+  String get dashMonthTxError;
+
+  /// No description provided for @dashDailyAvgPrefix.
+  ///
+  /// In ko, this message translates to:
+  /// **'하루 평균 '**
+  String get dashDailyAvgPrefix;
+
+  /// No description provided for @dashSpentMasked.
+  ///
+  /// In ko, this message translates to:
+  /// **' 썼어요.'**
+  String get dashSpentMasked;
+
+  /// No description provided for @dashSpentUnit.
+  ///
+  /// In ko, this message translates to:
+  /// **'원 썼어요.'**
+  String get dashSpentUnit;
+
+  /// No description provided for @dashVsPrevPrefix.
+  ///
+  /// In ko, this message translates to:
+  /// **' 전월 대비 '**
+  String get dashVsPrevPrefix;
+
+  /// No description provided for @dashSaving.
+  ///
+  /// In ko, this message translates to:
+  /// **' 절약 중이에요.'**
+  String get dashSaving;
+
+  /// No description provided for @dashSpentMore.
+  ///
+  /// In ko, this message translates to:
+  /// **' 더 썼어요.'**
+  String get dashSpentMore;
+
+  /// No description provided for @dashSame.
+  ///
+  /// In ko, this message translates to:
+  /// **' 동일해요.'**
+  String get dashSame;
+
+  /// No description provided for @dashNoCategoryData.
+  ///
+  /// In ko, this message translates to:
+  /// **'카테고리 데이터가 없어요'**
+  String get dashNoCategoryData;
+
+  /// No description provided for @dashNoBudget.
+  ///
+  /// In ko, this message translates to:
+  /// **'등록된 예산이 없어요'**
+  String get dashNoBudget;
+
+  /// No description provided for @dashTodaySpend.
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘 쓴 돈'**
+  String get dashTodaySpend;
+
+  /// No description provided for @dashTxError.
+  ///
+  /// In ko, this message translates to:
+  /// **'거래를 불러오지 못했습니다'**
+  String get dashTxError;
+
+  /// No description provided for @dashNoTodaySpend.
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘은 아직 쓴 돈이 없어요'**
+  String get dashNoTodaySpend;
+
   /// No description provided for @expTitle.
   ///
   /// In ko, this message translates to:
