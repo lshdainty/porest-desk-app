@@ -872,6 +872,606 @@ abstract class AppLocalizations {
   /// **'종료'**
   String get calEndDate;
 
+  /// No description provided for @calFieldTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'제목'**
+  String get calFieldTitle;
+
+  /// No description provided for @calFieldDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'설명'**
+  String get calFieldDescription;
+
+  /// No description provided for @calFieldCalendar.
+  ///
+  /// In ko, this message translates to:
+  /// **'캘린더'**
+  String get calFieldCalendar;
+
+  /// No description provided for @calFieldLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'라벨'**
+  String get calFieldLabel;
+
+  /// No description provided for @calFieldColor.
+  ///
+  /// In ko, this message translates to:
+  /// **'색상'**
+  String get calFieldColor;
+
+  /// No description provided for @calFieldName.
+  ///
+  /// In ko, this message translates to:
+  /// **'이름'**
+  String get calFieldName;
+
+  /// No description provided for @calFieldReminder.
+  ///
+  /// In ko, this message translates to:
+  /// **'알림'**
+  String get calFieldReminder;
+
+  /// No description provided for @calFieldStartDate.
+  ///
+  /// In ko, this message translates to:
+  /// **'시작일'**
+  String get calFieldStartDate;
+
+  /// No description provided for @calFieldEndDate.
+  ///
+  /// In ko, this message translates to:
+  /// **'종료일'**
+  String get calFieldEndDate;
+
+  /// No description provided for @calTitlePlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'예: 가족 식사'**
+  String get calTitlePlaceholder;
+
+  /// No description provided for @calDescriptionPlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'추가 설명 (선택)'**
+  String get calDescriptionPlaceholder;
+
+  /// No description provided for @calLocationPlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'장소를 입력하세요'**
+  String get calLocationPlaceholder;
+
+  /// No description provided for @calSelectCalendar.
+  ///
+  /// In ko, this message translates to:
+  /// **'캘린더 선택'**
+  String get calSelectCalendar;
+
+  /// No description provided for @calNoLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'라벨이 없습니다'**
+  String get calNoLabel;
+
+  /// No description provided for @calLabelNamePlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'예: 중요, 마감일, 회의'**
+  String get calLabelNamePlaceholder;
+
+  /// No description provided for @calCalendarNamePlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'예: 가족, 업무, 운동 일정'**
+  String get calCalendarNamePlaceholder;
+
+  /// No description provided for @calCalendarNameFieldPlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'캘린더 이름'**
+  String get calCalendarNameFieldPlaceholder;
+
+  /// No description provided for @calInviteCodePlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'예: ABC123'**
+  String get calInviteCodePlaceholder;
+
+  /// No description provided for @calHolidayNamePlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'휴일 이름'**
+  String get calHolidayNamePlaceholder;
+
+  /// No description provided for @calRecurrenceNone.
+  ///
+  /// In ko, this message translates to:
+  /// **'반복 없음'**
+  String get calRecurrenceNone;
+
+  /// No description provided for @calReminderMinutesBefore.
+  ///
+  /// In ko, this message translates to:
+  /// **'{n}분 전'**
+  String calReminderMinutesBefore(int n);
+
+  /// No description provided for @calReminderHourBefore.
+  ///
+  /// In ko, this message translates to:
+  /// **'1시간 전'**
+  String get calReminderHourBefore;
+
+  /// No description provided for @calReminderDayBefore.
+  ///
+  /// In ko, this message translates to:
+  /// **'1일 전'**
+  String get calReminderDayBefore;
+
+  /// No description provided for @calEventDeleteConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'\"{title}\" 일정을 삭제할까요? 이 작업은 되돌릴 수 없습니다.'**
+  String calEventDeleteConfirm(String title);
+
+  /// No description provided for @calEventAdded.
+  ///
+  /// In ko, this message translates to:
+  /// **'일정이 추가되었습니다'**
+  String get calEventAdded;
+
+  /// No description provided for @calEventUpdated.
+  ///
+  /// In ko, this message translates to:
+  /// **'일정이 수정되었습니다'**
+  String get calEventUpdated;
+
+  /// No description provided for @calLabelsTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'캘린더 라벨'**
+  String get calLabelsTitle;
+
+  /// No description provided for @calAllLabelsCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'전체 라벨 · {count}'**
+  String calAllLabelsCount(int count);
+
+  /// No description provided for @calLabelsEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'라벨이 없어요'**
+  String get calLabelsEmpty;
+
+  /// No description provided for @calLabelsEmptyHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'위 \"새 라벨\" 버튼으로 만들어보세요'**
+  String get calLabelsEmptyHint;
+
+  /// No description provided for @calLabelsIntro.
+  ///
+  /// In ko, this message translates to:
+  /// **'모든 캘린더에서 공용으로 쓰는 라벨이에요. 일정 등록 시 선택할 수 있어요.'**
+  String get calLabelsIntro;
+
+  /// No description provided for @calNewLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'새 라벨'**
+  String get calNewLabel;
+
+  /// No description provided for @calEditLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'라벨 편집'**
+  String get calEditLabel;
+
+  /// No description provided for @calPreview.
+  ///
+  /// In ko, this message translates to:
+  /// **'미리보기'**
+  String get calPreview;
+
+  /// No description provided for @calDeleteLabelTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'라벨 삭제'**
+  String get calDeleteLabelTitle;
+
+  /// No description provided for @calDeleteLabelConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'\"{name}\" 라벨을 삭제하시겠어요? 이 라벨이 지정된 일정은 라벨 없음 상태가 됩니다.'**
+  String calDeleteLabelConfirm(String name);
+
+  /// No description provided for @calDatePicker.
+  ///
+  /// In ko, this message translates to:
+  /// **'날짜 이동'**
+  String get calDatePicker;
+
+  /// No description provided for @calCalendarChipCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}개'**
+  String calCalendarChipCount(int count);
+
+  /// No description provided for @calNoCalendars.
+  ///
+  /// In ko, this message translates to:
+  /// **'캘린더가 없습니다'**
+  String get calNoCalendars;
+
+  /// No description provided for @calOtherSources.
+  ///
+  /// In ko, this message translates to:
+  /// **'기타 소스'**
+  String get calOtherSources;
+
+  /// No description provided for @calHolidays.
+  ///
+  /// In ko, this message translates to:
+  /// **'공휴일'**
+  String get calHolidays;
+
+  /// No description provided for @calManageShareSettings.
+  ///
+  /// In ko, this message translates to:
+  /// **'캘린더 관리 · 공유 설정'**
+  String get calManageShareSettings;
+
+  /// No description provided for @calNoEventsThisDay.
+  ///
+  /// In ko, this message translates to:
+  /// **'이날 이벤트가 없습니다'**
+  String get calNoEventsThisDay;
+
+  /// No description provided for @calEventTotalCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}건'**
+  String calEventTotalCount(int count);
+
+  /// No description provided for @calGoToToday.
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘로'**
+  String get calGoToToday;
+
+  /// No description provided for @calManageShareTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'캘린더 관리·공유'**
+  String get calManageShareTitle;
+
+  /// No description provided for @calJoinByCode.
+  ///
+  /// In ko, this message translates to:
+  /// **'초대 코드로 참여'**
+  String get calJoinByCode;
+
+  /// No description provided for @calRoleOwner.
+  ///
+  /// In ko, this message translates to:
+  /// **'소유자'**
+  String get calRoleOwner;
+
+  /// No description provided for @calRoleEditor.
+  ///
+  /// In ko, this message translates to:
+  /// **'편집 가능'**
+  String get calRoleEditor;
+
+  /// No description provided for @calRoleViewer.
+  ///
+  /// In ko, this message translates to:
+  /// **'읽기 전용'**
+  String get calRoleViewer;
+
+  /// No description provided for @calShareIntroTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'가족·친구와 일정 공유'**
+  String get calShareIntroTitle;
+
+  /// No description provided for @calShareIntroBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'캘린더를 만들고 멤버를 초대해 함께 일정을 관리할 수 있어요.'**
+  String get calShareIntroBody;
+
+  /// No description provided for @calNewCalendar.
+  ///
+  /// In ko, this message translates to:
+  /// **'새 캘린더'**
+  String get calNewCalendar;
+
+  /// No description provided for @calMyCalendarsCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'내 캘린더 · {count}'**
+  String calMyCalendarsCount(int count);
+
+  /// No description provided for @calNoOwnedCalendars.
+  ///
+  /// In ko, this message translates to:
+  /// **'소유한 캘린더가 없어요'**
+  String get calNoOwnedCalendars;
+
+  /// No description provided for @calSharedCalendarsCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'공유받은 캘린더 · {count}'**
+  String calSharedCalendarsCount(int count);
+
+  /// No description provided for @calNoSharedCalendars.
+  ///
+  /// In ko, this message translates to:
+  /// **'공유받은 캘린더가 없어요'**
+  String get calNoSharedCalendars;
+
+  /// No description provided for @calDefault.
+  ///
+  /// In ko, this message translates to:
+  /// **'기본'**
+  String get calDefault;
+
+  /// No description provided for @calOnlyMe.
+  ///
+  /// In ko, this message translates to:
+  /// **'나만 사용'**
+  String get calOnlyMe;
+
+  /// No description provided for @calMemberCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'멤버 {count}명'**
+  String calMemberCount(int count);
+
+  /// No description provided for @calJoinCardBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'공유받은 초대 코드를 입력해 캘린더에 참여하세요.'**
+  String get calJoinCardBody;
+
+  /// No description provided for @calJoin.
+  ///
+  /// In ko, this message translates to:
+  /// **'참여'**
+  String get calJoin;
+
+  /// No description provided for @calCreate.
+  ///
+  /// In ko, this message translates to:
+  /// **'만들기'**
+  String get calCreate;
+
+  /// No description provided for @calJoinedCalendar.
+  ///
+  /// In ko, this message translates to:
+  /// **'\"{name}\" 캘린더에 참여했어요'**
+  String calJoinedCalendar(String name);
+
+  /// No description provided for @calInviteCode.
+  ///
+  /// In ko, this message translates to:
+  /// **'초대 코드'**
+  String get calInviteCode;
+
+  /// No description provided for @calManageTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name} · 관리'**
+  String calManageTitle(String name);
+
+  /// No description provided for @calDeleteCalendar.
+  ///
+  /// In ko, this message translates to:
+  /// **'캘린더 삭제'**
+  String get calDeleteCalendar;
+
+  /// No description provided for @calCalendarUpdated.
+  ///
+  /// In ko, this message translates to:
+  /// **'캘린더를 수정했어요'**
+  String get calCalendarUpdated;
+
+  /// No description provided for @calInviteCodeRegenerated.
+  ///
+  /// In ko, this message translates to:
+  /// **'초대 코드를 새로 만들었어요'**
+  String get calInviteCodeRegenerated;
+
+  /// No description provided for @calInviteCodeCopied.
+  ///
+  /// In ko, this message translates to:
+  /// **'초대 코드를 복사했어요'**
+  String get calInviteCodeCopied;
+
+  /// No description provided for @calRemoveMember.
+  ///
+  /// In ko, this message translates to:
+  /// **'멤버 내보내기'**
+  String get calRemoveMember;
+
+  /// No description provided for @calRemoveMemberConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name} 님을 캘린더에서 내보내시겠어요?'**
+  String calRemoveMemberConfirm(String name);
+
+  /// No description provided for @calRemove.
+  ///
+  /// In ko, this message translates to:
+  /// **'내보내기'**
+  String get calRemove;
+
+  /// No description provided for @calDeleteCalendarConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'\"{name}\" 캘린더를 삭제하시겠어요? 일정은 기본 캘린더로 이동하고 모든 멤버의 접근 권한이 사라집니다.'**
+  String calDeleteCalendarConfirm(String name);
+
+  /// No description provided for @calCopy.
+  ///
+  /// In ko, this message translates to:
+  /// **'복사'**
+  String get calCopy;
+
+  /// No description provided for @calRegenerate.
+  ///
+  /// In ko, this message translates to:
+  /// **'재생성'**
+  String get calRegenerate;
+
+  /// No description provided for @calMembers.
+  ///
+  /// In ko, this message translates to:
+  /// **'멤버'**
+  String get calMembers;
+
+  /// No description provided for @calMeSuffix.
+  ///
+  /// In ko, this message translates to:
+  /// **'(나)'**
+  String get calMeSuffix;
+
+  /// No description provided for @calChangeToEditor.
+  ///
+  /// In ko, this message translates to:
+  /// **'편집 가능으로'**
+  String get calChangeToEditor;
+
+  /// No description provided for @calChangeToViewer.
+  ///
+  /// In ko, this message translates to:
+  /// **'읽기 전용으로'**
+  String get calChangeToViewer;
+
+  /// No description provided for @calAddCustomHoliday.
+  ///
+  /// In ko, this message translates to:
+  /// **'사용자 휴일 추가'**
+  String get calAddCustomHoliday;
+
+  /// No description provided for @calRepeatYearlyLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'매년 반복'**
+  String get calRepeatYearlyLabel;
+
+  /// No description provided for @calAdd.
+  ///
+  /// In ko, this message translates to:
+  /// **'추가'**
+  String get calAdd;
+
+  /// No description provided for @calYearHolidays.
+  ///
+  /// In ko, this message translates to:
+  /// **'{year}년 휴일'**
+  String calYearHolidays(int year);
+
+  /// No description provided for @calNoHolidays.
+  ///
+  /// In ko, this message translates to:
+  /// **'등록된 휴일이 없습니다'**
+  String get calNoHolidays;
+
+  /// No description provided for @calDeleteHolidayTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'휴일 삭제'**
+  String get calDeleteHolidayTitle;
+
+  /// No description provided for @calDeleteHolidayConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name} 삭제할까요?'**
+  String calDeleteHolidayConfirm(String name);
+
+  /// No description provided for @calHolidayTypeCustom.
+  ///
+  /// In ko, this message translates to:
+  /// **'사용자'**
+  String get calHolidayTypeCustom;
+
+  /// No description provided for @calHolidayTypeSubstitute.
+  ///
+  /// In ko, this message translates to:
+  /// **'대체'**
+  String get calHolidayTypeSubstitute;
+
+  /// No description provided for @calHolidayTypePublic.
+  ///
+  /// In ko, this message translates to:
+  /// **'공휴일'**
+  String get calHolidayTypePublic;
+
+  /// No description provided for @calActionFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'실패'**
+  String get calActionFailed;
+
+  /// No description provided for @calSaveFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'저장 실패'**
+  String get calSaveFailed;
+
+  /// No description provided for @calDeleteFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'삭제 실패'**
+  String get calDeleteFailed;
+
+  /// No description provided for @calAddFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'추가 실패'**
+  String get calAddFailed;
+
+  /// No description provided for @calJoinFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'참여 실패'**
+  String get calJoinFailed;
+
+  /// No description provided for @calUpdateFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'변경 실패'**
+  String get calUpdateFailed;
+
+  /// No description provided for @calCalendarLoadError.
+  ///
+  /// In ko, this message translates to:
+  /// **'캘린더 로드 실패'**
+  String get calCalendarLoadError;
+
+  /// No description provided for @calLabelLoadError.
+  ///
+  /// In ko, this message translates to:
+  /// **'라벨 로드 실패'**
+  String get calLabelLoadError;
+
+  /// No description provided for @calMemberLoadError.
+  ///
+  /// In ko, this message translates to:
+  /// **'멤버 로드 실패'**
+  String get calMemberLoadError;
+
+  /// No description provided for @calHolidayLoadError.
+  ///
+  /// In ko, this message translates to:
+  /// **'휴일 로드 실패'**
+  String get calHolidayLoadError;
+
   /// No description provided for @dashTitle.
   ///
   /// In ko, this message translates to:

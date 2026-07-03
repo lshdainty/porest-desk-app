@@ -396,6 +396,340 @@ class AppLocalizationsEn extends AppLocalizations {
   String get calEndDate => 'End';
 
   @override
+  String get calFieldTitle => 'Title';
+
+  @override
+  String get calFieldDescription => 'Description';
+
+  @override
+  String get calFieldCalendar => 'Calendar';
+
+  @override
+  String get calFieldLabel => 'Label';
+
+  @override
+  String get calFieldColor => 'Color';
+
+  @override
+  String get calFieldName => 'Name';
+
+  @override
+  String get calFieldReminder => 'Reminders';
+
+  @override
+  String get calFieldStartDate => 'Start date';
+
+  @override
+  String get calFieldEndDate => 'End date';
+
+  @override
+  String get calTitlePlaceholder => 'e.g. Family dinner';
+
+  @override
+  String get calDescriptionPlaceholder => 'Additional notes (optional)';
+
+  @override
+  String get calLocationPlaceholder => 'Enter a location';
+
+  @override
+  String get calSelectCalendar => 'Select calendar';
+
+  @override
+  String get calNoLabel => 'No label';
+
+  @override
+  String get calLabelNamePlaceholder => 'e.g. Important, Deadline, Meeting';
+
+  @override
+  String get calCalendarNamePlaceholder => 'e.g. Family, Work, Workouts';
+
+  @override
+  String get calCalendarNameFieldPlaceholder => 'Calendar name';
+
+  @override
+  String get calInviteCodePlaceholder => 'e.g. ABC123';
+
+  @override
+  String get calHolidayNamePlaceholder => 'Holiday name';
+
+  @override
+  String get calRecurrenceNone => 'No repeat';
+
+  @override
+  String calReminderMinutesBefore(int n) {
+    return '$n min before';
+  }
+
+  @override
+  String get calReminderHourBefore => '1 hour before';
+
+  @override
+  String get calReminderDayBefore => '1 day before';
+
+  @override
+  String calEventDeleteConfirm(String title) {
+    return 'Delete \"$title\"? This can\'t be undone.';
+  }
+
+  @override
+  String get calEventAdded => 'Event added';
+
+  @override
+  String get calEventUpdated => 'Event updated';
+
+  @override
+  String get calLabelsTitle => 'Calendar labels';
+
+  @override
+  String calAllLabelsCount(int count) {
+    return 'All labels · $count';
+  }
+
+  @override
+  String get calLabelsEmpty => 'No labels yet';
+
+  @override
+  String get calLabelsEmptyHint =>
+      'Create one with the \"New label\" button above';
+
+  @override
+  String get calLabelsIntro =>
+      'These labels are shared across all your calendars. You can pick one when creating an event.';
+
+  @override
+  String get calNewLabel => 'New label';
+
+  @override
+  String get calEditLabel => 'Edit label';
+
+  @override
+  String get calPreview => 'Preview';
+
+  @override
+  String get calDeleteLabelTitle => 'Delete label';
+
+  @override
+  String calDeleteLabelConfirm(String name) {
+    return 'Delete the \"$name\" label? Events using it will become unlabeled.';
+  }
+
+  @override
+  String get calDatePicker => 'Go to date';
+
+  @override
+  String calCalendarChipCount(int count) {
+    return '$count';
+  }
+
+  @override
+  String get calNoCalendars => 'No calendars';
+
+  @override
+  String get calOtherSources => 'Other sources';
+
+  @override
+  String get calHolidays => 'Holidays';
+
+  @override
+  String get calManageShareSettings => 'Manage & share calendars';
+
+  @override
+  String get calNoEventsThisDay => 'No events on this day';
+
+  @override
+  String calEventTotalCount(int count) {
+    return '$count';
+  }
+
+  @override
+  String get calGoToToday => 'Today';
+
+  @override
+  String get calManageShareTitle => 'Manage & share';
+
+  @override
+  String get calJoinByCode => 'Join with invite code';
+
+  @override
+  String get calRoleOwner => 'Owner';
+
+  @override
+  String get calRoleEditor => 'Can edit';
+
+  @override
+  String get calRoleViewer => 'View only';
+
+  @override
+  String get calShareIntroTitle => 'Share with family & friends';
+
+  @override
+  String get calShareIntroBody =>
+      'Create a calendar and invite members to manage events together.';
+
+  @override
+  String get calNewCalendar => 'New calendar';
+
+  @override
+  String calMyCalendarsCount(int count) {
+    return 'My calendars · $count';
+  }
+
+  @override
+  String get calNoOwnedCalendars => 'You don\'t own any calendars yet';
+
+  @override
+  String calSharedCalendarsCount(int count) {
+    return 'Shared calendars · $count';
+  }
+
+  @override
+  String get calNoSharedCalendars => 'No shared calendars';
+
+  @override
+  String get calDefault => 'Default';
+
+  @override
+  String get calOnlyMe => 'Only me';
+
+  @override
+  String calMemberCount(int count) {
+    return '$count members';
+  }
+
+  @override
+  String get calJoinCardBody =>
+      'Enter an invite code you received to join a calendar.';
+
+  @override
+  String get calJoin => 'Join';
+
+  @override
+  String get calCreate => 'Create';
+
+  @override
+  String calJoinedCalendar(String name) {
+    return 'Joined \"$name\"';
+  }
+
+  @override
+  String get calInviteCode => 'Invite code';
+
+  @override
+  String calManageTitle(String name) {
+    return '$name · Manage';
+  }
+
+  @override
+  String get calDeleteCalendar => 'Delete calendar';
+
+  @override
+  String get calCalendarUpdated => 'Calendar updated';
+
+  @override
+  String get calInviteCodeRegenerated => 'Generated a new invite code';
+
+  @override
+  String get calInviteCodeCopied => 'Invite code copied';
+
+  @override
+  String get calRemoveMember => 'Remove member';
+
+  @override
+  String calRemoveMemberConfirm(String name) {
+    return 'Remove $name from this calendar?';
+  }
+
+  @override
+  String get calRemove => 'Remove';
+
+  @override
+  String calDeleteCalendarConfirm(String name) {
+    return 'Delete the \"$name\" calendar? Its events move to your default calendar and all members lose access.';
+  }
+
+  @override
+  String get calCopy => 'Copy';
+
+  @override
+  String get calRegenerate => 'Regenerate';
+
+  @override
+  String get calMembers => 'Members';
+
+  @override
+  String get calMeSuffix => '(me)';
+
+  @override
+  String get calChangeToEditor => 'Change to editor';
+
+  @override
+  String get calChangeToViewer => 'Change to viewer';
+
+  @override
+  String get calAddCustomHoliday => 'Add custom holiday';
+
+  @override
+  String get calRepeatYearlyLabel => 'Repeat yearly';
+
+  @override
+  String get calAdd => 'Add';
+
+  @override
+  String calYearHolidays(int year) {
+    return '$year holidays';
+  }
+
+  @override
+  String get calNoHolidays => 'No holidays registered';
+
+  @override
+  String get calDeleteHolidayTitle => 'Delete holiday';
+
+  @override
+  String calDeleteHolidayConfirm(String name) {
+    return 'Delete $name?';
+  }
+
+  @override
+  String get calHolidayTypeCustom => 'Custom';
+
+  @override
+  String get calHolidayTypeSubstitute => 'Substitute';
+
+  @override
+  String get calHolidayTypePublic => 'Public';
+
+  @override
+  String get calActionFailed => 'Failed';
+
+  @override
+  String get calSaveFailed => 'Save failed';
+
+  @override
+  String get calDeleteFailed => 'Delete failed';
+
+  @override
+  String get calAddFailed => 'Add failed';
+
+  @override
+  String get calJoinFailed => 'Failed to join';
+
+  @override
+  String get calUpdateFailed => 'Update failed';
+
+  @override
+  String get calCalendarLoadError => 'Failed to load calendars';
+
+  @override
+  String get calLabelLoadError => 'Failed to load labels';
+
+  @override
+  String get calMemberLoadError => 'Failed to load members';
+
+  @override
+  String get calHolidayLoadError => 'Failed to load holidays';
+
+  @override
   String get dashTitle => 'Home';
 
   @override

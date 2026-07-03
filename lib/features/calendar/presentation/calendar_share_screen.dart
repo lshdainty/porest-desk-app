@@ -7,6 +7,7 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/core/auth/auth_notifier.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
@@ -49,6 +50,7 @@ class _CalendarShareScreenState extends ConsumerState<CalendarShareScreen> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final listAsync = ref.watch(userCalendarListProvider);
 
     return Scaffold(
@@ -57,14 +59,14 @@ class _CalendarShareScreenState extends ConsumerState<CalendarShareScreen> {
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
         leading: PBackButton(onPressed: () => Navigator.of(context).maybePop()),
-        title: const Text('캘린더 관리·공유'),
+        title: Text(l.calManageShareTitle),
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,
         elevation: 0,
         actions: [
           PButton.icon(
             icon: LucideIcons.userPlus,
-            tooltip: '초대 코드로 참여',
+            tooltip: l.calJoinByCode,
             onPressed: () => _showJoinDialog(context, ref),
           ),
         ],
@@ -85,7 +87,7 @@ class _CalendarShareScreenState extends ConsumerState<CalendarShareScreen> {
               loading: () => const PListSkeleton(rows: 4, showAvatar: true),
               error: (e, _) => Padding(
                 padding: const EdgeInsets.symmetric(vertical: PSpace.x16),
-                child: Text('캘린더 로드 실패\n$e',
+                child: Text('${l.calCalendarLoadError}\n$e',
                     style: PTypo.bodySm.copyWith(color: t.statusDanger)),
               ),
               data: (calendars) => _CalendarSections(calendars: calendars, tokens: t),
@@ -100,10 +102,12 @@ class _CalendarShareScreenState extends ConsumerState<CalendarShareScreen> {
   }
 }
 
-(String, PBadgeVariant, IconData) _roleStyle(String role) => switch (role) {
-      'OWNER' => ('소유자', PBadgeVariant.outlineInfo, LucideIcons.crown),
-      'EDIT' => ('편집 가능', PBadgeVariant.outlineSuccess, LucideIcons.pencil),
-      _ => ('읽기 전용', PBadgeVariant.outline, LucideIcons.eye),
+(String, PBadgeVariant, IconData) _roleStyle(AppLocalizations l, String role) =>
+    switch (role) {
+      'OWNER' => (l.calRoleOwner, PBadgeVariant.outlineInfo, LucideIcons.crown),
+      'EDIT' =>
+        (l.calRoleEditor, PBadgeVariant.outlineSuccess, LucideIcons.pencil),
+      _ => (l.calRoleViewer, PBadgeVariant.outline, LucideIcons.eye),
     };
 
 class _IntroCard extends StatelessWidget {
@@ -114,6 +118,7 @@ class _IntroCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = tokens;
+    final l = AppLocalizations.of(context);
     return PCard(
       variant: PCardVariant.brand,
       padding: const EdgeInsets.all(PSpace.x16),
@@ -131,18 +136,18 @@ class _IntroCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('가족·친구와 일정 공유',
+                Text(l.calShareIntroTitle,
                     style: PTypo.bodySm.copyWith(
                         color: t.fgPrimary, fontWeight: PFontWeight.bold)),
                 const SizedBox(height: 2),
-                Text('캘린더를 만들고 멤버를 초대해 함께 일정을 관리할 수 있어요.',
+                Text(l.calShareIntroBody,
                     style: PTypo.caption.copyWith(color: t.fgSecondary)),
               ],
             ),
           ),
           const SizedBox(width: PSpace.x8),
           PButton(
-            label: '새 캘린더',
+            label: l.calNewCalendar,
             icon: LucideIcons.plus,
             size: PButtonSize.sm,
             onPressed: onCreate,
@@ -161,14 +166,15 @@ class _CalendarSections extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = tokens;
+    final l = AppLocalizations.of(context);
     final owned = calendars.where((c) => c.isOwner).toList();
     final shared = calendars.where((c) => !c.isOwner).toList();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _Section(title: '내 캘린더 · ${owned.length}', tokens: t, calendars: owned, emptyText: '소유한 캘린더가 없어요'),
+        _Section(title: l.calMyCalendarsCount(owned.length), tokens: t, calendars: owned, emptyText: l.calNoOwnedCalendars),
         const SizedBox(height: PSpace.x20),
-        _Section(title: '공유받은 캘린더 · ${shared.length}', tokens: t, calendars: shared, emptyText: '공유받은 캘린더가 없어요'),
+        _Section(title: l.calSharedCalendarsCount(shared.length), tokens: t, calendars: shared, emptyText: l.calNoSharedCalendars),
       ],
     );
   }
@@ -229,8 +235,9 @@ class _CalendarRow extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = tokens;
+    final l = AppLocalizations.of(context);
     final color = resolveChartColor(context, calendar.color, fallback: t.fgBrand);
-    final (roleLabel, roleVariant, _) = _roleStyle(calendar.myRole);
+    final (roleLabel, roleVariant, _) = _roleStyle(l, calendar.myRole);
     return InkWell(
       onTap: () => _showManageSheet(context, ref, calendar),
       child: Padding(
@@ -259,12 +266,12 @@ class _CalendarRow extends ConsumerWidget {
                       ),
                       if (calendar.isDefault) ...[
                         const SizedBox(width: 6),
-                        const PBadge(label: '기본', variant: PBadgeVariant.secondary),
+                        PBadge(label: l.calDefault, variant: PBadgeVariant.secondary),
                       ],
                     ],
                   ),
                   const SizedBox(height: 2),
-                  Text(calendar.memberCount <= 1 ? '나만 사용' : '멤버 ${calendar.memberCount}명',
+                  Text(calendar.memberCount <= 1 ? l.calOnlyMe : l.calMemberCount(calendar.memberCount),
                       style: PTypo.caption
                           .copyWith(color: t.fgTertiary, fontWeight: PFontWeight.regular)),
                 ],
@@ -291,6 +298,7 @@ class _JoinCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = tokens;
+    final l = AppLocalizations.of(context);
     return PCard(
       variant: PCardVariant.shadow,
       padding: const EdgeInsets.all(PSpace.x16),
@@ -308,16 +316,16 @@ class _JoinCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('초대 코드로 참여',
+                Text(l.calJoinByCode,
                     style: PTypo.bodySm.copyWith(color: t.fgPrimary, fontWeight: PFontWeight.bold)),
                 const SizedBox(height: 2),
-                Text('공유받은 초대 코드를 입력해 캘린더에 참여하세요.',
+                Text(l.calJoinCardBody,
                     style: PTypo.caption.copyWith(color: t.fgSecondary)),
               ],
             ),
           ),
           const SizedBox(width: PSpace.x8),
-          PButton(label: '참여', variant: PButtonVariant.secondary, size: PButtonSize.sm, onPressed: onJoin),
+          PButton(label: l.calJoin, variant: PButtonVariant.secondary, size: PButtonSize.sm, onPressed: onJoin),
         ],
       ),
     );
@@ -327,6 +335,7 @@ class _JoinCard extends StatelessWidget {
 // ─── 새 캘린더 만들기 ────────────────────────────────────────
 
 void _showCreateDialog(BuildContext context, WidgetRef ref) {
+  final l = AppLocalizations.of(context);
   final nameCtrl = TextEditingController();
   final controller = PSheetController();
   var selectedColor = '#2c70bf';
@@ -342,7 +351,7 @@ void _showCreateDialog(BuildContext context, WidgetRef ref) {
       Navigator.of(context).pop();
     } on ApiException catch (e) {
       if (!context.mounted) return;
-      showPSnackBar(context, '실패: ${e.message}', severity: PSnackSeverity.error);
+      showPSnackBar(context, '${l.calActionFailed}: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       controller.setSubmitting(false);
     }
@@ -352,7 +361,7 @@ void _showCreateDialog(BuildContext context, WidgetRef ref) {
 
   showPSheet<void>(
     context,
-    title: '새 캘린더',
+    title: l.calNewCalendar,
     contentBuilder: (ctx, scrollCtrl) {
       final t = ctx.tokens;
       return StatefulBuilder(
@@ -360,28 +369,29 @@ void _showCreateDialog(BuildContext context, WidgetRef ref) {
           controller: scrollCtrl,
           padding: const EdgeInsets.fromLTRB(PSpace.x16, 0, PSpace.x16, PSpace.x16),
           children: [
-            Text('이름', style: PTypo.caption.copyWith(color: t.fgSecondary)),
+            Text(l.calFieldName, style: PTypo.caption.copyWith(color: t.fgSecondary)),
             const SizedBox(height: PSpace.x4),
             PTextInput(
               controller: nameCtrl,
-              placeholder: '예: 가족, 업무, 운동 일정',
+              placeholder: l.calCalendarNamePlaceholder,
               onChanged: (v) => controller.setCanSubmit(v.trim().isNotEmpty),
             ),
             const SizedBox(height: PSpace.x12),
-            Text('색상', style: PTypo.caption.copyWith(color: t.fgSecondary)),
+            Text(l.calFieldColor, style: PTypo.caption.copyWith(color: t.fgSecondary)),
             const SizedBox(height: PSpace.x8),
             PColorPicker(selected: selectedColor, onChanged: (hex) => setSheet(() => selectedColor = hex)),
           ],
         ),
       );
     },
-    footerBuilder: (ctx) => PSheetFooter(controller: controller, submitLabel: '만들기'),
+    footerBuilder: (ctx) => PSheetFooter(controller: controller, submitLabel: l.calCreate),
   );
 }
 
 // ─── 초대 코드로 참여 ───────────────────────────────────────
 
 void _showJoinDialog(BuildContext context, WidgetRef ref) {
+  final l = AppLocalizations.of(context);
   final codeCtrl = TextEditingController();
   final controller = PSheetController();
 
@@ -394,10 +404,10 @@ void _showJoinDialog(BuildContext context, WidgetRef ref) {
       ref.invalidate(userCalendarListProvider);
       if (!context.mounted) return;
       Navigator.of(context).pop();
-      showPSnackBar(context, '"${joined.calendarName}" 캘린더에 참여했어요', severity: PSnackSeverity.success);
+      showPSnackBar(context, l.calJoinedCalendar(joined.calendarName), severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!context.mounted) return;
-      showPSnackBar(context, '참여 실패: ${e.message}', severity: PSnackSeverity.error);
+      showPSnackBar(context, '${l.calJoinFailed}: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       controller.setSubmitting(false);
     }
@@ -407,50 +417,51 @@ void _showJoinDialog(BuildContext context, WidgetRef ref) {
 
   showPSheet<void>(
     context,
-    title: '초대 코드로 참여',
+    title: l.calJoinByCode,
     contentBuilder: (ctx, scrollCtrl) {
       final t = ctx.tokens;
       return ListView(
         controller: scrollCtrl,
         padding: const EdgeInsets.fromLTRB(PSpace.x16, 0, PSpace.x16, PSpace.x16),
         children: [
-          Text('초대 코드', style: PTypo.caption.copyWith(color: t.fgSecondary)),
+          Text(l.calInviteCode, style: PTypo.caption.copyWith(color: t.fgSecondary)),
           const SizedBox(height: PSpace.x4),
           PTextInput(
             controller: codeCtrl,
-            placeholder: '예: ABC123',
+            placeholder: l.calInviteCodePlaceholder,
             inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]'))],
             onChanged: (v) => controller.setCanSubmit(v.trim().isNotEmpty),
           ),
         ],
       );
     },
-    footerBuilder: (ctx) => PSheetFooter(controller: controller, submitLabel: '참여'),
+    footerBuilder: (ctx) => PSheetFooter(controller: controller, submitLabel: l.calJoin),
   );
 }
 
 // ─── 관리 (편집/공유/멤버/삭제) ──────────────────────────────
 
 void _showManageSheet(BuildContext context, WidgetRef ref, UserCalendar calendar) {
+  final l = AppLocalizations.of(context);
   final controller = PSheetController();
   showPSheet<void>(
     context,
-    title: '${calendar.calendarName} · 관리',
+    title: l.calManageTitle(calendar.calendarName),
     // 컨텐츠 높이만큼 wrap (아래 빈 공간 제거).
     shrinkWrap: true,
     contentBuilder: (ctx, _) => _ManageBody(calendar: calendar, controller: controller),
     footerBuilder: (ctx) => calendar.isOwner
         ? PSheetFooter(
             controller: controller,
-            submitLabel: '저장',
-            cancelLabel: '닫기',
-            deleteLabel: '캘린더 삭제',
+            submitLabel: l.actionSave,
+            cancelLabel: l.actionClose,
+            deleteLabel: l.calDeleteCalendar,
           )
         : Row(
             children: [
               const Spacer(),
               PButton(
-                label: '닫기',
+                label: l.actionClose,
                 variant: PButtonVariant.ghost,
                 onPressed: () => Navigator.of(ctx).pop(),
               ),
@@ -502,6 +513,7 @@ class _ManageBodyState extends ConsumerState<_ManageBody> {
 
   Future<void> _saveMeta() async {
     if (_nameCtrl.text.trim().isEmpty) return;
+    final l = AppLocalizations.of(context);
     widget.controller.setSubmitting(true);
     try {
       final repo = await ref.read(userCalendarRepositoryProvider.future);
@@ -510,47 +522,51 @@ class _ManageBodyState extends ConsumerState<_ManageBody> {
       _baseName = _nameCtrl.text.trim();
       _baseColor = _color;
       widget.controller.setCanSubmit(false);
-      if (mounted) showPSnackBar(context, '캘린더를 수정했어요', severity: PSnackSeverity.success);
+      if (mounted) showPSnackBar(context, l.calCalendarUpdated, severity: PSnackSeverity.success);
     } on ApiException catch (e) {
-      if (mounted) showPSnackBar(context, '실패: ${e.message}', severity: PSnackSeverity.error);
+      if (mounted) showPSnackBar(context, '${l.calActionFailed}: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       widget.controller.setSubmitting(false);
     }
   }
 
   Future<void> _regenerate() async {
+    final l = AppLocalizations.of(context);
     try {
       final repo = await ref.read(userCalendarRepositoryProvider.future);
       await repo.regenerateInviteCode(cal.rowId);
       ref.invalidate(userCalendarListProvider);
-      if (mounted) showPSnackBar(context, '초대 코드를 새로 만들었어요', severity: PSnackSeverity.success);
+      if (mounted) showPSnackBar(context, l.calInviteCodeRegenerated, severity: PSnackSeverity.success);
     } on ApiException catch (e) {
-      if (mounted) showPSnackBar(context, '실패: ${e.message}', severity: PSnackSeverity.error);
+      if (mounted) showPSnackBar(context, '${l.calActionFailed}: ${e.message}', severity: PSnackSeverity.error);
     }
   }
 
   Future<void> _copyCode() async {
+    final l = AppLocalizations.of(context);
     await Clipboard.setData(ClipboardData(text: cal.inviteCode ?? ''));
-    if (mounted) showPSnackBar(context, '초대 코드를 복사했어요', severity: PSnackSeverity.success);
+    if (mounted) showPSnackBar(context, l.calInviteCodeCopied, severity: PSnackSeverity.success);
   }
 
   Future<void> _changeRole(CalendarMember member, String permission) async {
+    final l = AppLocalizations.of(context);
     try {
       final repo = await ref.read(userCalendarRepositoryProvider.future);
       await repo.changeMemberRole(cal.rowId, member.rowId, permission);
       ref.invalidate(calendarMembersProvider(cal.rowId));
       ref.invalidate(userCalendarListProvider);
     } on ApiException catch (e) {
-      if (mounted) showPSnackBar(context, '실패: ${e.message}', severity: PSnackSeverity.error);
+      if (mounted) showPSnackBar(context, '${l.calActionFailed}: ${e.message}', severity: PSnackSeverity.error);
     }
   }
 
   Future<void> _removeMember(CalendarMember member) async {
+    final l = AppLocalizations.of(context);
     final ok = await showPConfirmDialog(
       context,
-      title: '멤버 내보내기',
-      message: '${member.userName} 님을 캘린더에서 내보내시겠어요?',
-      confirmLabel: '내보내기',
+      title: l.calRemoveMember,
+      message: l.calRemoveMemberConfirm(member.userName),
+      confirmLabel: l.calRemove,
       destructive: true,
     );
     if (!ok) return;
@@ -560,16 +576,17 @@ class _ManageBodyState extends ConsumerState<_ManageBody> {
       ref.invalidate(calendarMembersProvider(cal.rowId));
       ref.invalidate(userCalendarListProvider);
     } on ApiException catch (e) {
-      if (mounted) showPSnackBar(context, '실패: ${e.message}', severity: PSnackSeverity.error);
+      if (mounted) showPSnackBar(context, '${l.calActionFailed}: ${e.message}', severity: PSnackSeverity.error);
     }
   }
 
   Future<void> _delete() async {
+    final l = AppLocalizations.of(context);
     final ok = await showPConfirmDialog(
       context,
-      title: '캘린더 삭제',
-      message: '"${cal.calendarName}" 캘린더를 삭제하시겠어요? 일정은 기본 캘린더로 이동하고 모든 멤버의 접근 권한이 사라집니다.',
-      confirmLabel: '삭제',
+      title: l.calDeleteCalendar,
+      message: l.calDeleteCalendarConfirm(cal.calendarName),
+      confirmLabel: l.actionDelete,
       destructive: true,
     );
     if (!ok) return;
@@ -579,13 +596,14 @@ class _ManageBodyState extends ConsumerState<_ManageBody> {
       ref.invalidate(userCalendarListProvider);
       if (mounted) Navigator.of(context).pop();
     } on ApiException catch (e) {
-      if (mounted) showPSnackBar(context, '삭제 실패: ${e.message}', severity: PSnackSeverity.error);
+      if (mounted) showPSnackBar(context, '${l.calDeleteFailed}: ${e.message}', severity: PSnackSeverity.error);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final membersAsync = ref.watch(calendarMembersProvider(cal.rowId));
     final myId = ref.watch(authProvider).value?.rowId;
 
@@ -596,15 +614,15 @@ class _ManageBodyState extends ConsumerState<_ManageBody> {
         mainAxisSize: MainAxisSize.min,
         children: [
         if (isOwner) ...[
-          Text('이름', style: PTypo.caption.copyWith(color: t.fgSecondary)),
+          Text(l.calFieldName, style: PTypo.caption.copyWith(color: t.fgSecondary)),
           const SizedBox(height: PSpace.x4),
           PTextInput(
             controller: _nameCtrl,
-            placeholder: '캘린더 이름',
+            placeholder: l.calCalendarNameFieldPlaceholder,
             onChanged: (_) => widget.controller.setCanSubmit(_dirty),
           ),
           const SizedBox(height: PSpace.x12),
-          Text('색상', style: PTypo.caption.copyWith(color: t.fgSecondary)),
+          Text(l.calFieldColor, style: PTypo.caption.copyWith(color: t.fgSecondary)),
           const SizedBox(height: PSpace.x8),
           PColorPicker(
             selected: _color,
@@ -614,7 +632,7 @@ class _ManageBodyState extends ConsumerState<_ManageBody> {
             },
           ),
           const SizedBox(height: PSpace.x16),
-          Text('초대 코드', style: PTypo.caption.copyWith(color: t.fgSecondary)),
+          Text(l.calInviteCode, style: PTypo.caption.copyWith(color: t.fgSecondary)),
           const SizedBox(height: PSpace.x4),
           Row(
             children: [
@@ -625,17 +643,17 @@ class _ManageBodyState extends ConsumerState<_ManageBody> {
                 ),
               ),
               const SizedBox(width: PSpace.x8),
-              PButton.icon(icon: LucideIcons.copy, tooltip: '복사', onPressed: _copyCode),
-              PButton.icon(icon: LucideIcons.refreshCw, tooltip: '재생성', onPressed: _regenerate),
+              PButton.icon(icon: LucideIcons.copy, tooltip: l.calCopy, onPressed: _copyCode),
+              PButton.icon(icon: LucideIcons.refreshCw, tooltip: l.calRegenerate, onPressed: _regenerate),
             ],
           ),
           const SizedBox(height: PSpace.x16),
         ],
-        Text('멤버', style: PTypo.caption.copyWith(color: t.fgSecondary)),
+        Text(l.calMembers, style: PTypo.caption.copyWith(color: t.fgSecondary)),
         const SizedBox(height: PSpace.x8),
         membersAsync.when(
           loading: () => const PListSkeleton(rows: 2, showAvatar: true),
-          error: (e, _) => Text('멤버 로드 실패', style: PTypo.caption.copyWith(color: t.statusDanger)),
+          error: (e, _) => Text(l.calMemberLoadError, style: PTypo.caption.copyWith(color: t.statusDanger)),
           data: (members) => Column(
             children: [
               for (final m in members)
@@ -675,7 +693,8 @@ class _MemberRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = tokens;
-    final (roleLabel, roleVariant, roleIcon) = _roleStyle(member.permission);
+    final l = AppLocalizations.of(context);
+    final (roleLabel, roleVariant, roleIcon) = _roleStyle(l, member.permission);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: PSpace.x8),
       child: Row(
@@ -698,7 +717,7 @@ class _MemberRow extends StatelessWidget {
                 Row(
                   children: [
                     Flexible(child: Text(member.userName, maxLines: 1, overflow: TextOverflow.ellipsis, style: PTypo.body.copyWith(color: t.fgPrimary, fontWeight: PFontWeight.semi))),
-                    if (isMe) ...[const SizedBox(width: 6), Text('(나)', style: PTypo.caption.copyWith(color: t.fgTertiary))],
+                    if (isMe) ...[const SizedBox(width: 6), Text(l.calMeSuffix, style: PTypo.caption.copyWith(color: t.fgTertiary))],
                   ],
                 ),
                 if ((member.userEmail ?? '').isNotEmpty)
@@ -711,10 +730,10 @@ class _MemberRow extends StatelessWidget {
               iconColor: t.fgTertiary,
               entries: [
                 if (member.permission != 'EDIT')
-                  PDropdownItem(label: '편집 가능으로', onTap: () => onChangeRole('EDIT')),
+                  PDropdownItem(label: l.calChangeToEditor, onTap: () => onChangeRole('EDIT')),
                 if (member.permission != 'READ')
-                  PDropdownItem(label: '읽기 전용으로', onTap: () => onChangeRole('READ')),
-                PDropdownItem(label: '내보내기', onTap: onRemove, destructive: true),
+                  PDropdownItem(label: l.calChangeToViewer, onTap: () => onChangeRole('READ')),
+                PDropdownItem(label: l.calRemove, onTap: onRemove, destructive: true),
               ],
             )
           else

@@ -9,6 +9,7 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_divider.dart';
@@ -163,7 +164,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   void _showMonthYearPicker() {
     showPSheet<void>(
       context,
-      title: '날짜 이동',
+      title: AppLocalizations.of(context).calDatePicker,
       shrinkWrap: true,
       contentBuilder: (ctx, scrollCtrl) => _MonthYearPickerSheet(
         initial: _focused,
@@ -190,7 +191,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   void _showFilterSheet() {
     showPSheet<void>(
       context,
-      title: '캘린더',
+      title: AppLocalizations.of(context).calTitle,
       shrinkWrap: true, // 컨텐츠 높이에 맞춤(아래 빈 공간 제거)
       contentBuilder: (ctx, _) => _CalendarFilterSheetBody(
         onManage: () {
@@ -287,6 +288,7 @@ class _MonthHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = tokens;
+    final l = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(PSpace.x4, PSpace.x8, PSpace.x16, PSpace.x4),
       child: Row(
@@ -342,7 +344,7 @@ class _MonthHeader extends StatelessWidget {
                   ],
                   if (dotColors.isNotEmpty) const SizedBox(width: PSpace.x4),
                   Text(
-                    '$calendarCount개',
+                    l.calCalendarChipCount(calendarCount),
                     style: PTypo.caption.copyWith(
                       color: t.fgSecondary,
                       fontWeight: PFontWeight.semi,
@@ -371,6 +373,7 @@ class _CalendarFilterSheetBody extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final async = ref.watch(userCalendarListProvider);
     final calendars = async.value ?? const <UserCalendar>[];
     final holidayVisible = ref.watch(holidayVisibleProvider);
@@ -396,12 +399,12 @@ class _CalendarFilterSheetBody extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           // 내 캘린더 섹션
-          sectionLabel('내 캘린더'),
+          sectionLabel(l.calMyCalendars),
           if (calendars.isEmpty)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: PSpace.x12),
               child: Text(
-                '캘린더가 없습니다',
+                l.calNoCalendars,
                 style: PTypo.bodySm.copyWith(color: t.fgTertiary),
               ),
             )
@@ -419,7 +422,7 @@ class _CalendarFilterSheetBody extends ConsumerWidget {
                     ref.invalidate(userCalendarListProvider);
                   } catch (_) {
                     if (context.mounted) {
-                      showPSnackBar(context, '변경 실패',
+                      showPSnackBar(context, l.calUpdateFailed,
                           severity: PSnackSeverity.error);
                     }
                   }
@@ -429,10 +432,10 @@ class _CalendarFilterSheetBody extends ConsumerWidget {
           const SizedBox(height: PSpace.x8),
           PDivider(),
           // 기타 소스 섹션 — 공휴일 on/off (웹 정합)
-          sectionLabel('기타 소스'),
+          sectionLabel(l.calOtherSources),
           _FilterRow(
             colorHex: '#c73838',
-            name: '공휴일',
+            name: l.calHolidays,
             checked: holidayVisible,
             onToggle: () =>
                 ref.read(holidayVisibleProvider.notifier).toggle(),
@@ -451,7 +454,7 @@ class _CalendarFilterSheetBody extends ConsumerWidget {
                   Icon(LucideIcons.settings2, size: 15, color: t.fgBrand),
                   const SizedBox(width: PSpace.x8),
                   Text(
-                    '캘린더 관리 · 공유 설정',
+                    l.calManageShareSettings,
                     style: PTypo.body.copyWith(
                       color: t.fgBrand,
                       fontWeight: PFontWeight.semi,
@@ -899,6 +902,7 @@ class _DayEventsSheetBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final total = holidays.length + events.length;
     return ListView(
       controller: scrollController,
@@ -908,14 +912,14 @@ class _DayEventsSheetBody extends StatelessWidget {
         Row(
           children: [
             Text(
-              '$total건',
+              l.calEventTotalCount(total),
               style: PTypo.bodySm.copyWith(color: t.fgTertiary),
             ),
             const Spacer(),
             PButton.icon(
               icon: LucideIcons.plus,
               iconColor: t.fgPrimary,
-              tooltip: '이벤트 추가',
+              tooltip: l.calEventAdd,
               onPressed: onAdd,
             ),
           ],
@@ -926,7 +930,7 @@ class _DayEventsSheetBody extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: PSpace.x32),
             child: Center(
               child: Text(
-                '이날 이벤트가 없습니다',
+                l.calNoEventsThisDay,
                 style: PTypo.bodySm.copyWith(color: t.fgTertiary),
               ),
             ),
@@ -961,6 +965,7 @@ class _DaySheetHolidayRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = tokens;
+    final l = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: PSpace.x12),
       child: Row(
@@ -969,7 +974,7 @@ class _DaySheetHolidayRow extends StatelessWidget {
           SizedBox(
             width: PSpace.x40,
             child: Text(
-              '종일',
+              l.calAllDay,
               style: PTypo.caption.copyWith(color: t.fgSecondary),
             ),
           ),
@@ -1016,9 +1021,10 @@ class _DaySheetEventRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = tokens;
+    final l = AppLocalizations.of(context);
     final color =
         solidSwatchColor(context, event.labelColor ?? event.calendarColor ?? event.color, fallback: t.fgBrand);
-    final timeLabel = event.isAllDayBool ? '종일' : _hhmm(event.start);
+    final timeLabel = event.isAllDayBool ? l.calAllDay : _hhmm(event.start);
     return InkWell(
       onTap: onTap,
       child: Padding(
@@ -1112,6 +1118,7 @@ class _MonthYearPickerSheetState extends State<_MonthYearPickerSheet> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final selYear = widget.initial.year;
     final selMonth = widget.initial.month;
 
@@ -1189,7 +1196,7 @@ class _MonthYearPickerSheetState extends State<_MonthYearPickerSheet> {
                     Icon(LucideIcons.navigation, size: 14, color: t.fgBrand),
                     const SizedBox(width: PSpace.x4),
                     Text(
-                      '오늘로',
+                      l.calGoToToday,
                       style: PTypo.bodySm.copyWith(
                         color: t.fgBrand,
                         fontWeight: PFontWeight.semi,
@@ -1200,7 +1207,7 @@ class _MonthYearPickerSheetState extends State<_MonthYearPickerSheet> {
               ),
               const Spacer(),
               PButton(
-                label: '닫기',
+                label: l.actionClose,
                 variant: PButtonVariant.ghost,
                 onPressed: () => Navigator.of(context).pop(),
               ),

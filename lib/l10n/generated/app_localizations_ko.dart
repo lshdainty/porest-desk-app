@@ -396,6 +396,336 @@ class AppLocalizationsKo extends AppLocalizations {
   String get calEndDate => '종료';
 
   @override
+  String get calFieldTitle => '제목';
+
+  @override
+  String get calFieldDescription => '설명';
+
+  @override
+  String get calFieldCalendar => '캘린더';
+
+  @override
+  String get calFieldLabel => '라벨';
+
+  @override
+  String get calFieldColor => '색상';
+
+  @override
+  String get calFieldName => '이름';
+
+  @override
+  String get calFieldReminder => '알림';
+
+  @override
+  String get calFieldStartDate => '시작일';
+
+  @override
+  String get calFieldEndDate => '종료일';
+
+  @override
+  String get calTitlePlaceholder => '예: 가족 식사';
+
+  @override
+  String get calDescriptionPlaceholder => '추가 설명 (선택)';
+
+  @override
+  String get calLocationPlaceholder => '장소를 입력하세요';
+
+  @override
+  String get calSelectCalendar => '캘린더 선택';
+
+  @override
+  String get calNoLabel => '라벨이 없습니다';
+
+  @override
+  String get calLabelNamePlaceholder => '예: 중요, 마감일, 회의';
+
+  @override
+  String get calCalendarNamePlaceholder => '예: 가족, 업무, 운동 일정';
+
+  @override
+  String get calCalendarNameFieldPlaceholder => '캘린더 이름';
+
+  @override
+  String get calInviteCodePlaceholder => '예: ABC123';
+
+  @override
+  String get calHolidayNamePlaceholder => '휴일 이름';
+
+  @override
+  String get calRecurrenceNone => '반복 없음';
+
+  @override
+  String calReminderMinutesBefore(int n) {
+    return '$n분 전';
+  }
+
+  @override
+  String get calReminderHourBefore => '1시간 전';
+
+  @override
+  String get calReminderDayBefore => '1일 전';
+
+  @override
+  String calEventDeleteConfirm(String title) {
+    return '\"$title\" 일정을 삭제할까요? 이 작업은 되돌릴 수 없습니다.';
+  }
+
+  @override
+  String get calEventAdded => '일정이 추가되었습니다';
+
+  @override
+  String get calEventUpdated => '일정이 수정되었습니다';
+
+  @override
+  String get calLabelsTitle => '캘린더 라벨';
+
+  @override
+  String calAllLabelsCount(int count) {
+    return '전체 라벨 · $count';
+  }
+
+  @override
+  String get calLabelsEmpty => '라벨이 없어요';
+
+  @override
+  String get calLabelsEmptyHint => '위 \"새 라벨\" 버튼으로 만들어보세요';
+
+  @override
+  String get calLabelsIntro => '모든 캘린더에서 공용으로 쓰는 라벨이에요. 일정 등록 시 선택할 수 있어요.';
+
+  @override
+  String get calNewLabel => '새 라벨';
+
+  @override
+  String get calEditLabel => '라벨 편집';
+
+  @override
+  String get calPreview => '미리보기';
+
+  @override
+  String get calDeleteLabelTitle => '라벨 삭제';
+
+  @override
+  String calDeleteLabelConfirm(String name) {
+    return '\"$name\" 라벨을 삭제하시겠어요? 이 라벨이 지정된 일정은 라벨 없음 상태가 됩니다.';
+  }
+
+  @override
+  String get calDatePicker => '날짜 이동';
+
+  @override
+  String calCalendarChipCount(int count) {
+    return '$count개';
+  }
+
+  @override
+  String get calNoCalendars => '캘린더가 없습니다';
+
+  @override
+  String get calOtherSources => '기타 소스';
+
+  @override
+  String get calHolidays => '공휴일';
+
+  @override
+  String get calManageShareSettings => '캘린더 관리 · 공유 설정';
+
+  @override
+  String get calNoEventsThisDay => '이날 이벤트가 없습니다';
+
+  @override
+  String calEventTotalCount(int count) {
+    return '$count건';
+  }
+
+  @override
+  String get calGoToToday => '오늘로';
+
+  @override
+  String get calManageShareTitle => '캘린더 관리·공유';
+
+  @override
+  String get calJoinByCode => '초대 코드로 참여';
+
+  @override
+  String get calRoleOwner => '소유자';
+
+  @override
+  String get calRoleEditor => '편집 가능';
+
+  @override
+  String get calRoleViewer => '읽기 전용';
+
+  @override
+  String get calShareIntroTitle => '가족·친구와 일정 공유';
+
+  @override
+  String get calShareIntroBody => '캘린더를 만들고 멤버를 초대해 함께 일정을 관리할 수 있어요.';
+
+  @override
+  String get calNewCalendar => '새 캘린더';
+
+  @override
+  String calMyCalendarsCount(int count) {
+    return '내 캘린더 · $count';
+  }
+
+  @override
+  String get calNoOwnedCalendars => '소유한 캘린더가 없어요';
+
+  @override
+  String calSharedCalendarsCount(int count) {
+    return '공유받은 캘린더 · $count';
+  }
+
+  @override
+  String get calNoSharedCalendars => '공유받은 캘린더가 없어요';
+
+  @override
+  String get calDefault => '기본';
+
+  @override
+  String get calOnlyMe => '나만 사용';
+
+  @override
+  String calMemberCount(int count) {
+    return '멤버 $count명';
+  }
+
+  @override
+  String get calJoinCardBody => '공유받은 초대 코드를 입력해 캘린더에 참여하세요.';
+
+  @override
+  String get calJoin => '참여';
+
+  @override
+  String get calCreate => '만들기';
+
+  @override
+  String calJoinedCalendar(String name) {
+    return '\"$name\" 캘린더에 참여했어요';
+  }
+
+  @override
+  String get calInviteCode => '초대 코드';
+
+  @override
+  String calManageTitle(String name) {
+    return '$name · 관리';
+  }
+
+  @override
+  String get calDeleteCalendar => '캘린더 삭제';
+
+  @override
+  String get calCalendarUpdated => '캘린더를 수정했어요';
+
+  @override
+  String get calInviteCodeRegenerated => '초대 코드를 새로 만들었어요';
+
+  @override
+  String get calInviteCodeCopied => '초대 코드를 복사했어요';
+
+  @override
+  String get calRemoveMember => '멤버 내보내기';
+
+  @override
+  String calRemoveMemberConfirm(String name) {
+    return '$name 님을 캘린더에서 내보내시겠어요?';
+  }
+
+  @override
+  String get calRemove => '내보내기';
+
+  @override
+  String calDeleteCalendarConfirm(String name) {
+    return '\"$name\" 캘린더를 삭제하시겠어요? 일정은 기본 캘린더로 이동하고 모든 멤버의 접근 권한이 사라집니다.';
+  }
+
+  @override
+  String get calCopy => '복사';
+
+  @override
+  String get calRegenerate => '재생성';
+
+  @override
+  String get calMembers => '멤버';
+
+  @override
+  String get calMeSuffix => '(나)';
+
+  @override
+  String get calChangeToEditor => '편집 가능으로';
+
+  @override
+  String get calChangeToViewer => '읽기 전용으로';
+
+  @override
+  String get calAddCustomHoliday => '사용자 휴일 추가';
+
+  @override
+  String get calRepeatYearlyLabel => '매년 반복';
+
+  @override
+  String get calAdd => '추가';
+
+  @override
+  String calYearHolidays(int year) {
+    return '$year년 휴일';
+  }
+
+  @override
+  String get calNoHolidays => '등록된 휴일이 없습니다';
+
+  @override
+  String get calDeleteHolidayTitle => '휴일 삭제';
+
+  @override
+  String calDeleteHolidayConfirm(String name) {
+    return '$name 삭제할까요?';
+  }
+
+  @override
+  String get calHolidayTypeCustom => '사용자';
+
+  @override
+  String get calHolidayTypeSubstitute => '대체';
+
+  @override
+  String get calHolidayTypePublic => '공휴일';
+
+  @override
+  String get calActionFailed => '실패';
+
+  @override
+  String get calSaveFailed => '저장 실패';
+
+  @override
+  String get calDeleteFailed => '삭제 실패';
+
+  @override
+  String get calAddFailed => '추가 실패';
+
+  @override
+  String get calJoinFailed => '참여 실패';
+
+  @override
+  String get calUpdateFailed => '변경 실패';
+
+  @override
+  String get calCalendarLoadError => '캘린더 로드 실패';
+
+  @override
+  String get calLabelLoadError => '라벨 로드 실패';
+
+  @override
+  String get calMemberLoadError => '멤버 로드 실패';
+
+  @override
+  String get calHolidayLoadError => '휴일 로드 실패';
+
+  @override
   String get dashTitle => '홈';
 
   @override
