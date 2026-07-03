@@ -469,5 +469,16 @@
   "expSummaryTitle": "Monthly summary",
   "expSummaryIncome": "Income",
   "expSummaryExpense": "Expense",
-  "expSummaryBalance": "Balance"
+  "expSummaryBalance": "Balance",
+
+  "authLoginPrompt": "Sign in with your SSO account",
+  "authSsoLogin": "SSO login",
+  "authLoginTitle": "Login",
+  "authLoginFailed": "Login failed",
+  "authLoginError": "Error during login",
+  "authSecurityNotHttps": "Security error: the SSO server is not HTTPS ({url}).",
+  "@authSecurityNotHttps": {"placeholders": {"url": {"type": "String"}}},
+  "authStateMismatch": "Security check failed (state mismatch). Please try again.",
+  "authNoAuthCode": "Couldn't get the authorization code. Please try again.",
+  "authPageLoadError": "Couldn't load the login page."
 }

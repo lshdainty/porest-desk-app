@@ -1363,4 +1363,35 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get expSummaryBalance => 'Balance';
+
+  @override
+  String get authLoginPrompt => 'Sign in with your SSO account';
+
+  @override
+  String get authSsoLogin => 'SSO login';
+
+  @override
+  String get authLoginTitle => 'Login';
+
+  @override
+  String get authLoginFailed => 'Login failed';
+
+  @override
+  String get authLoginError => 'Error during login';
+
+  @override
+  String authSecurityNotHttps(String url) {
+    return 'Security error: the SSO server is not HTTPS ($url).';
+  }
+
+  @override
+  String get authStateMismatch =>
+      'Security check failed (state mismatch). Please try again.';
+
+  @override
+  String get authNoAuthCode =>
+      'Couldn\'t get the authorization code. Please try again.';
+
+  @override
+  String get authPageLoadError => 'Couldn\'t load the login page.';
 }

@@ -6,6 +6,7 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/core/auth/auth_notifier.dart';
 import 'package:porest_desk_app/core/auth/pkce.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
@@ -40,10 +41,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   Future<void> _login() async {
     if (_busy) return;
+    final l = AppLocalizations.of(context);
     // 비-local 환경에서 SSO 가 HTTPS 가 아니면 거부 (자격증명 평문 전송/MITM 방지).
     final ssoOrigin = Uri.tryParse(Env.ssoUrl);
     if (Env.appEnv != 'local' && ssoOrigin?.scheme != 'https') {
-      setState(() => _error = '보안 오류: SSO 서버가 HTTPS 가 아닙니다 (${Env.ssoUrl}).');
+      setState(() => _error = l.authSecurityNotHttps(Env.ssoUrl));
       return;
     }
     setState(() {
@@ -95,13 +97,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       if (!mounted) return;
       setState(() {
         _busy = false;
-        _error = '로그인 실패: ${e.message}';
+        _error = '${l.authLoginFailed}: ${e.message}';
       });
     } catch (e) {
       if (!mounted) return;
       setState(() {
         _busy = false;
-        _error = '로그인 처리 중 오류: $e';
+        _error = '${l.authLoginError}: $e';
       });
     }
   }
@@ -109,6 +111,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: t.bgCanvas,
       body: SafeArea(
@@ -129,12 +132,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     ),
                     const SizedBox(height: PSpace.x8),
                     Text(
-                      'SSO 계정으로 로그인하세요',
+                      l.authLoginPrompt,
                       style: PTypo.bodySm.copyWith(color: t.fgSecondary),
                     ),
                     const SizedBox(height: PSpace.x32),
                     PButton(
-                      label: 'SSO 로그인',
+                      label: l.authSsoLogin,
                       onPressed: _busy ? null : _login,
                       loading: _busy,
                       fullWidth: true,

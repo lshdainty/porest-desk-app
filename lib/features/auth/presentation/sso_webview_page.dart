@@ -4,6 +4,7 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_progress.dart';
 
@@ -59,6 +60,7 @@ class _SsoWebViewPageState extends State<SsoWebViewPage> {
     if (url == null || url.scheme != _redirectScheme) {
       return NavigationActionPolicy.ALLOW;
     }
+    final l = AppLocalizations.of(context);
 
     // 콜백 — code/state 파싱.
     final code = url.queryParameters['code'];
@@ -67,14 +69,14 @@ class _SsoWebViewPageState extends State<SsoWebViewPage> {
     if (state != widget.expectedState) {
       // CSRF 의심 — 인가코드 폐기, 에러 표시.
       if (mounted) {
-        setState(() => _error = '보안 검증에 실패했어요 (state 불일치). 다시 시도해 주세요.');
+        setState(() => _error = l.authStateMismatch);
       }
       return NavigationActionPolicy.CANCEL;
     }
 
     if (code == null || code.isEmpty) {
       if (mounted) {
-        setState(() => _error = '인가코드를 받지 못했어요. 다시 시도해 주세요.');
+        setState(() => _error = l.authNoAuthCode);
       }
       return NavigationActionPolicy.CANCEL;
     }
@@ -86,6 +88,7 @@ class _SsoWebViewPageState extends State<SsoWebViewPage> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: t.bgCanvas,
       appBar: AppBar(
@@ -93,7 +96,7 @@ class _SsoWebViewPageState extends State<SsoWebViewPage> {
         titleSpacing: 0,
         // 뒤로가기 = 로그인 취소 (null 반환).
         leading: PBackButton(onPressed: () => Navigator.of(context).pop()),
-        title: const Text('로그인'),
+        title: Text(l.authLoginTitle),
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,
         elevation: 0,
@@ -133,7 +136,8 @@ class _SsoWebViewPageState extends State<SsoWebViewPage> {
                       // 메인 프레임 로드 실패만 사용자에게 노출(서브 리소스 누락 무시).
                       if (mounted && request.isForMainFrame == true) {
                         setState(
-                          () => _error = '로그인 페이지를 불러오지 못했어요.\n${error.description}',
+                          () => _error =
+                              '${l.authPageLoadError}\n${error.description}',
                         );
                       }
                     },
