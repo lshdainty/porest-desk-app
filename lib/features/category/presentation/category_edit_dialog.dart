@@ -5,6 +5,7 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
@@ -31,10 +32,11 @@ void showCategoryEditDialog(
   ExpenseCategory? edit,
   String defaultExpenseType = 'EXPENSE',
 }) {
+  final l = AppLocalizations.of(context);
   final controller = PSheetController();
   showPSheet<void>(
     context,
-    title: edit == null ? '카테고리 추가' : '카테고리 편집',
+    title: edit == null ? l.categoryAdd : l.categoryEdit,
     contentBuilder: (ctx, scrollCtrl) => _CategoryEditBody(
       edit: edit,
       defaultExpenseType: defaultExpenseType,
@@ -43,7 +45,7 @@ void showCategoryEditDialog(
     ),
     footerBuilder: (ctx) => PSheetFooter(
       controller: controller,
-      submitLabel: edit == null ? '추가' : '저장',
+      submitLabel: edit == null ? l.calAdd : l.actionSave,
     ),
   );
 }
@@ -123,9 +125,10 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
   /// 웹과 동일한 에러 문구 (touched 후에만 노출).
   String? get _nameError {
     if (!_touched || _valid) return null;
-    if (_nameTrim.isEmpty) return '이름을 입력해 주세요.';
-    if (_nameTrim.length > 12) return '이름은 12자 이내로 입력해 주세요.';
-    if (_duplicate) return '같은 이름의 카테고리가 있습니다.';
+    final l = AppLocalizations.of(context);
+    if (_nameTrim.isEmpty) return l.categoryNameRequired;
+    if (_nameTrim.length > 12) return l.categoryNameTooLong;
+    if (_duplicate) return l.categoryNameDuplicate;
     return null;
   }
 
@@ -182,21 +185,23 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
     if (projected <= parentBudget) return true;
 
     if (!mounted) return false;
+    final l = AppLocalizations.of(context);
     final parentName = _categories
         .where((c) => c.rowId == newParentRowId)
         .map((c) => c.categoryName)
         .firstOrNull ??
-        '상위 카테고리';
+        l.categoryParent;
     return showPConfirmDialog(
       context,
-      title: '예산 초과 확인',
-      message:
-          '이동하면 "$parentName" 예산을 ${krw(projected - parentBudget)}원 초과합니다. 그래도 이동할까요?',
-      confirmLabel: '이동',
+      title: l.categoryBudgetExceedTitle,
+      message: l.categoryBudgetExceedMessage(
+          parentName, '${krw(projected - parentBudget)}원'),
+      confirmLabel: l.categoryMove,
     );
   }
 
   Future<void> _submit() async {
+    final l = AppLocalizations.of(context);
     setState(() => _touched = true);
     if (_submitting || !_valid) return;
     final name = _nameTrim;
@@ -238,24 +243,24 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
       _invalidateAggregates();
       if (!mounted) return;
       Navigator.of(context).pop();
-      showPSnackBar(context, _isEdit ? '카테고리가 수정되었습니다' : '카테고리가 추가되었습니다', severity: PSnackSeverity.success);
+      showPSnackBar(context, _isEdit ? l.categoryUpdated : l.categoryAdded, severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!mounted) return;
-      showPSnackBar(context, '실패: ${e.message}', severity: PSnackSeverity.error);
+      showPSnackBar(context, '${l.categoryActionFailed}: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setSubmitting(false);
     }
   }
 
   Future<void> _delete() async {
+    final l = AppLocalizations.of(context);
     // 웹 정합 — 하위 카테고리가 있으면 삭제 차단 안내.
     if (_selfHasChildren) {
       await showPConfirmDialog(
         context,
-        title: '카테고리 삭제',
-        message:
-            '"${widget.edit!.categoryName}" 카테고리에 하위 카테고리가 있어 삭제할 수 없어요. 먼저 하위 카테고리를 정리해 주세요.',
-        confirmLabel: '확인',
+        title: l.categoryDeleteTitle,
+        message: l.categoryDeleteHasChildren(widget.edit!.categoryName),
+        confirmLabel: l.actionConfirm,
       );
       return;
     }
@@ -268,11 +273,11 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
         budgets.any((b) => b.categoryRowId == widget.edit!.rowId);
     final ok = await showPConfirmDialog(
       context,
-      title: '카테고리 삭제',
+      title: l.categoryDeleteTitle,
       message: hasBudget
-          ? '예산이 설정되어 있는 카테고리입니다. 삭제 시 예산도 함께 삭제됩니다. "${widget.edit!.categoryName}" 카테고리를 삭제하시겠습니까?'
-          : '"${widget.edit!.categoryName}" 카테고리를 삭제하시겠어요?',
-      confirmLabel: '삭제',
+          ? l.categoryDeleteWithBudget(widget.edit!.categoryName)
+          : l.categoryDeleteConfirm(widget.edit!.categoryName),
+      confirmLabel: l.actionDelete,
       destructive: true,
     );
     if (!ok || !mounted) return;
@@ -285,7 +290,7 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
       Navigator.of(context).pop();
     } on ApiException catch (e) {
       if (!mounted) return;
-      showPSnackBar(context, '삭제 실패: ${e.message}', severity: PSnackSeverity.error);
+      showPSnackBar(context, '${l.categoryDeleteFailed}: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setSubmitting(false);
     }
@@ -294,6 +299,7 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final previewFg = resolveChartColor(context, _color, fallback: t.fgBrand);
     final previewBg = softBg(context, previewFg);
     final categories = ref.watch(categoriesProvider).value ?? const [];
@@ -341,7 +347,7 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      _nameTrim.isEmpty ? '새 카테고리' : _nameTrim,
+                      _nameTrim.isEmpty ? l.categoryNew : _nameTrim,
                       style: PTypo.body.copyWith(
                         fontSize: PFontSize.bodyMd,
                         color: t.fgPrimary,
@@ -351,7 +357,7 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '${_expenseType == 'EXPENSE' ? '지출' : '수입'} 카테고리 · 미리보기',
+                      l.categoryPreview(_expenseType == 'EXPENSE' ? l.expTypeExpense : l.expTypeIncome),
                       style: PTypo.caption.copyWith(color: t.fgTertiary),
                     ),
                   ],
@@ -363,16 +369,16 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
         const SizedBox(height: PSpace.x20),
 
         // 구분 — 웹 정합: 편집 모드에서도 변경 가능.
-        Text('구분', style: PTypo.caption.copyWith(color: t.fgSecondary)),
+        Text(l.categoryTypeLabel, style: PTypo.caption.copyWith(color: t.fgSecondary)),
         const SizedBox(height: PSpace.x8),
         PTabs<String>(
           value: _expenseType,
           variant: PTabsVariant.container,
           size: PTabsSize.sm,
           expand: true,
-          items: const [
-            PTabItem(value: 'EXPENSE', label: '지출'),
-            PTabItem(value: 'INCOME', label: '수입'),
+          items: [
+            PTabItem(value: 'EXPENSE', label: l.expTypeExpense),
+            PTabItem(value: 'INCOME', label: l.expTypeIncome),
           ],
           onChanged: (v) => setState(() => _expenseType = v),
         ),
@@ -385,12 +391,12 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
         if (!_isEdit || widget.edit!.parentRowId != null) ...[
           Text.rich(
             TextSpan(
-              text: '상위 카테고리',
+              text: l.categoryParent,
               style: PTypo.caption.copyWith(color: t.fgSecondary),
               children: [
                 if (!_isEdit)
                   TextSpan(
-                    text: ' (선택)',
+                    text: l.categoryOptionalSuffix,
                     style: PTypo.caption.copyWith(color: t.fgTertiary),
                   ),
               ],
@@ -399,15 +405,15 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
           const SizedBox(height: PSpace.x8),
           PSelect<int>(
             value: _parentRowId ?? _kRootParent,
-            title: '상위 카테고리',
+            title: l.categoryParent,
             enabled: parentOptions.isNotEmpty,
             helperText: _isEdit
-                ? '다른 상위로 이동할 수 있어요. 최상위로 올리려면 연결된 거래를 옮긴 뒤 새로 만들어 주세요.'
+                ? l.categoryParentMoveHint
                 : null,
             items: [
               if (!_isEdit)
-                const PSelectItem(
-                    value: _kRootParent, label: '— 최상위 카테고리로 두기 —'),
+                PSelectItem(
+                    value: _kRootParent, label: l.categoryMakeRoot),
               for (final p in parentOptions)
                 PSelectItem(value: p.rowId, label: p.categoryName),
             ],
@@ -418,11 +424,11 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
         ],
 
         // 이름 — 카운터 N/12 또는 에러 (웹 정합).
-        Text('이름', style: PTypo.caption.copyWith(color: t.fgSecondary)),
+        Text(l.calFieldName, style: PTypo.caption.copyWith(color: t.fgSecondary)),
         const SizedBox(height: PSpace.x4),
         PTextInput(
           controller: _nameCtrl,
-          placeholder: '예: 반려동물, 부수입',
+          placeholder: l.categoryNamePlaceholder,
           autofocus: !_isEdit,
           onChanged: (_) => setState(() => _touched = true),
         ),
@@ -439,7 +445,7 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
         const SizedBox(height: PSpace.x12),
 
         // 색상
-        Text('색상', style: PTypo.caption.copyWith(color: t.fgSecondary)),
+        Text(l.calFieldColor, style: PTypo.caption.copyWith(color: t.fgSecondary)),
         const SizedBox(height: PSpace.x8),
         PColorPicker(
           selected: _color,
@@ -448,7 +454,7 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
         const SizedBox(height: PSpace.x16),
 
         // 아이콘 — 웹 ICON_CHOICES 34종.
-        Text('아이콘', style: PTypo.caption.copyWith(color: t.fgSecondary)),
+        Text(l.categoryIconLabel, style: PTypo.caption.copyWith(color: t.fgSecondary)),
         const SizedBox(height: PSpace.x8),
         Wrap(
           spacing: PSpace.x8,

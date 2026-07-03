@@ -1735,6 +1735,116 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cardPickerNoMatch => 'No matching cards';
 
   @override
+  String get categoryManageTitle => 'Manage categories';
+
+  @override
+  String get categorySearchHint => 'Search categories';
+
+  @override
+  String get categoryLoadError => 'Failed to load categories';
+
+  @override
+  String get categoryNoResults => 'No search results';
+
+  @override
+  String get categoryEmpty => 'No categories';
+
+  @override
+  String get categoryEmptyHint => 'Add one with the \'Add\' button above';
+
+  @override
+  String categoryHasSubcategories(String type) {
+    return '$type · Has subcategories';
+  }
+
+  @override
+  String get categoryAdd => 'Add category';
+
+  @override
+  String get categoryEdit => 'Edit category';
+
+  @override
+  String get categoryNameRequired => 'Please enter a name.';
+
+  @override
+  String get categoryNameTooLong => 'Name must be 12 characters or fewer.';
+
+  @override
+  String get categoryNameDuplicate =>
+      'A category with the same name already exists.';
+
+  @override
+  String get categoryParent => 'Parent category';
+
+  @override
+  String get categoryBudgetExceedTitle => 'Budget exceeded';
+
+  @override
+  String categoryBudgetExceedMessage(String parent, String amount) {
+    return 'Moving will exceed the \"$parent\" budget by $amount. Move anyway?';
+  }
+
+  @override
+  String get categoryMove => 'Move';
+
+  @override
+  String get categoryUpdated => 'Category updated';
+
+  @override
+  String get categoryAdded => 'Category added';
+
+  @override
+  String get categoryActionFailed => 'Failed';
+
+  @override
+  String get categoryDeleteTitle => 'Delete category';
+
+  @override
+  String categoryDeleteHasChildren(String name) {
+    return 'The \"$name\" category has subcategories and can\'t be deleted. Please clear its subcategories first.';
+  }
+
+  @override
+  String categoryDeleteWithBudget(String name) {
+    return 'This category has a budget. Deleting it will also delete the budget. Delete the \"$name\" category?';
+  }
+
+  @override
+  String categoryDeleteConfirm(String name) {
+    return 'Delete the \"$name\" category?';
+  }
+
+  @override
+  String get categoryDeleteFailed => 'Delete failed';
+
+  @override
+  String get categoryNew => 'New category';
+
+  @override
+  String categoryPreview(String type) {
+    return '$type category · Preview';
+  }
+
+  @override
+  String get categoryTypeLabel => 'Type';
+
+  @override
+  String get categoryOptionalSuffix => ' (optional)';
+
+  @override
+  String get categoryParentMoveHint =>
+      'You can move it under a different parent. To promote it to top level, move its linked transactions and recreate it.';
+
+  @override
+  String get categoryMakeRoot => '— Keep as top-level category —';
+
+  @override
+  String get categoryNamePlaceholder => 'e.g., Pets, Side income';
+
+  @override
+  String get categoryIconLabel => 'Icon';
+
+  @override
   String get authLoginPrompt => 'Sign in with your SSO account';
 
   @override

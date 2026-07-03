@@ -1720,6 +1720,115 @@ class AppLocalizationsKo extends AppLocalizations {
   String get cardPickerNoMatch => '일치하는 카드가 없습니다';
 
   @override
+  String get categoryManageTitle => '카테고리 관리';
+
+  @override
+  String get categorySearchHint => '카테고리 검색';
+
+  @override
+  String get categoryLoadError => '카테고리 로드 실패';
+
+  @override
+  String get categoryNoResults => '검색 결과가 없어요';
+
+  @override
+  String get categoryEmpty => '카테고리가 없습니다';
+
+  @override
+  String get categoryEmptyHint => '상단 \'추가\' 버튼으로 추가하세요';
+
+  @override
+  String categoryHasSubcategories(String type) {
+    return '$type · 하위 카테고리 있음';
+  }
+
+  @override
+  String get categoryAdd => '카테고리 추가';
+
+  @override
+  String get categoryEdit => '카테고리 편집';
+
+  @override
+  String get categoryNameRequired => '이름을 입력해 주세요.';
+
+  @override
+  String get categoryNameTooLong => '이름은 12자 이내로 입력해 주세요.';
+
+  @override
+  String get categoryNameDuplicate => '같은 이름의 카테고리가 있습니다.';
+
+  @override
+  String get categoryParent => '상위 카테고리';
+
+  @override
+  String get categoryBudgetExceedTitle => '예산 초과 확인';
+
+  @override
+  String categoryBudgetExceedMessage(String parent, String amount) {
+    return '이동하면 \"$parent\" 예산을 $amount 초과합니다. 그래도 이동할까요?';
+  }
+
+  @override
+  String get categoryMove => '이동';
+
+  @override
+  String get categoryUpdated => '카테고리가 수정되었습니다';
+
+  @override
+  String get categoryAdded => '카테고리가 추가되었습니다';
+
+  @override
+  String get categoryActionFailed => '실패';
+
+  @override
+  String get categoryDeleteTitle => '카테고리 삭제';
+
+  @override
+  String categoryDeleteHasChildren(String name) {
+    return '\"$name\" 카테고리에 하위 카테고리가 있어 삭제할 수 없어요. 먼저 하위 카테고리를 정리해 주세요.';
+  }
+
+  @override
+  String categoryDeleteWithBudget(String name) {
+    return '예산이 설정되어 있는 카테고리입니다. 삭제 시 예산도 함께 삭제됩니다. \"$name\" 카테고리를 삭제하시겠습니까?';
+  }
+
+  @override
+  String categoryDeleteConfirm(String name) {
+    return '\"$name\" 카테고리를 삭제하시겠어요?';
+  }
+
+  @override
+  String get categoryDeleteFailed => '삭제 실패';
+
+  @override
+  String get categoryNew => '새 카테고리';
+
+  @override
+  String categoryPreview(String type) {
+    return '$type 카테고리 · 미리보기';
+  }
+
+  @override
+  String get categoryTypeLabel => '구분';
+
+  @override
+  String get categoryOptionalSuffix => ' (선택)';
+
+  @override
+  String get categoryParentMoveHint =>
+      '다른 상위로 이동할 수 있어요. 최상위로 올리려면 연결된 거래를 옮긴 뒤 새로 만들어 주세요.';
+
+  @override
+  String get categoryMakeRoot => '— 최상위 카테고리로 두기 —';
+
+  @override
+  String get categoryNamePlaceholder => '예: 반려동물, 부수입';
+
+  @override
+  String get categoryIconLabel => '아이콘';
+
+  @override
   String get authLoginPrompt => 'SSO 계정으로 로그인하세요';
 
   @override

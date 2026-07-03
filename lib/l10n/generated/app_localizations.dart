@@ -3302,6 +3302,198 @@ abstract class AppLocalizations {
   /// **'일치하는 카드가 없습니다'**
   String get cardPickerNoMatch;
 
+  /// No description provided for @categoryManageTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'카테고리 관리'**
+  String get categoryManageTitle;
+
+  /// No description provided for @categorySearchHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'카테고리 검색'**
+  String get categorySearchHint;
+
+  /// No description provided for @categoryLoadError.
+  ///
+  /// In ko, this message translates to:
+  /// **'카테고리 로드 실패'**
+  String get categoryLoadError;
+
+  /// No description provided for @categoryNoResults.
+  ///
+  /// In ko, this message translates to:
+  /// **'검색 결과가 없어요'**
+  String get categoryNoResults;
+
+  /// No description provided for @categoryEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'카테고리가 없습니다'**
+  String get categoryEmpty;
+
+  /// No description provided for @categoryEmptyHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'상단 \'추가\' 버튼으로 추가하세요'**
+  String get categoryEmptyHint;
+
+  /// No description provided for @categoryHasSubcategories.
+  ///
+  /// In ko, this message translates to:
+  /// **'{type} · 하위 카테고리 있음'**
+  String categoryHasSubcategories(String type);
+
+  /// No description provided for @categoryAdd.
+  ///
+  /// In ko, this message translates to:
+  /// **'카테고리 추가'**
+  String get categoryAdd;
+
+  /// No description provided for @categoryEdit.
+  ///
+  /// In ko, this message translates to:
+  /// **'카테고리 편집'**
+  String get categoryEdit;
+
+  /// No description provided for @categoryNameRequired.
+  ///
+  /// In ko, this message translates to:
+  /// **'이름을 입력해 주세요.'**
+  String get categoryNameRequired;
+
+  /// No description provided for @categoryNameTooLong.
+  ///
+  /// In ko, this message translates to:
+  /// **'이름은 12자 이내로 입력해 주세요.'**
+  String get categoryNameTooLong;
+
+  /// No description provided for @categoryNameDuplicate.
+  ///
+  /// In ko, this message translates to:
+  /// **'같은 이름의 카테고리가 있습니다.'**
+  String get categoryNameDuplicate;
+
+  /// No description provided for @categoryParent.
+  ///
+  /// In ko, this message translates to:
+  /// **'상위 카테고리'**
+  String get categoryParent;
+
+  /// No description provided for @categoryBudgetExceedTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'예산 초과 확인'**
+  String get categoryBudgetExceedTitle;
+
+  /// No description provided for @categoryBudgetExceedMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'이동하면 \"{parent}\" 예산을 {amount} 초과합니다. 그래도 이동할까요?'**
+  String categoryBudgetExceedMessage(String parent, String amount);
+
+  /// No description provided for @categoryMove.
+  ///
+  /// In ko, this message translates to:
+  /// **'이동'**
+  String get categoryMove;
+
+  /// No description provided for @categoryUpdated.
+  ///
+  /// In ko, this message translates to:
+  /// **'카테고리가 수정되었습니다'**
+  String get categoryUpdated;
+
+  /// No description provided for @categoryAdded.
+  ///
+  /// In ko, this message translates to:
+  /// **'카테고리가 추가되었습니다'**
+  String get categoryAdded;
+
+  /// No description provided for @categoryActionFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'실패'**
+  String get categoryActionFailed;
+
+  /// No description provided for @categoryDeleteTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'카테고리 삭제'**
+  String get categoryDeleteTitle;
+
+  /// No description provided for @categoryDeleteHasChildren.
+  ///
+  /// In ko, this message translates to:
+  /// **'\"{name}\" 카테고리에 하위 카테고리가 있어 삭제할 수 없어요. 먼저 하위 카테고리를 정리해 주세요.'**
+  String categoryDeleteHasChildren(String name);
+
+  /// No description provided for @categoryDeleteWithBudget.
+  ///
+  /// In ko, this message translates to:
+  /// **'예산이 설정되어 있는 카테고리입니다. 삭제 시 예산도 함께 삭제됩니다. \"{name}\" 카테고리를 삭제하시겠습니까?'**
+  String categoryDeleteWithBudget(String name);
+
+  /// No description provided for @categoryDeleteConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'\"{name}\" 카테고리를 삭제하시겠어요?'**
+  String categoryDeleteConfirm(String name);
+
+  /// No description provided for @categoryDeleteFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'삭제 실패'**
+  String get categoryDeleteFailed;
+
+  /// No description provided for @categoryNew.
+  ///
+  /// In ko, this message translates to:
+  /// **'새 카테고리'**
+  String get categoryNew;
+
+  /// No description provided for @categoryPreview.
+  ///
+  /// In ko, this message translates to:
+  /// **'{type} 카테고리 · 미리보기'**
+  String categoryPreview(String type);
+
+  /// No description provided for @categoryTypeLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'구분'**
+  String get categoryTypeLabel;
+
+  /// No description provided for @categoryOptionalSuffix.
+  ///
+  /// In ko, this message translates to:
+  /// **' (선택)'**
+  String get categoryOptionalSuffix;
+
+  /// No description provided for @categoryParentMoveHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'다른 상위로 이동할 수 있어요. 최상위로 올리려면 연결된 거래를 옮긴 뒤 새로 만들어 주세요.'**
+  String get categoryParentMoveHint;
+
+  /// No description provided for @categoryMakeRoot.
+  ///
+  /// In ko, this message translates to:
+  /// **'— 최상위 카테고리로 두기 —'**
+  String get categoryMakeRoot;
+
+  /// No description provided for @categoryNamePlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'예: 반려동물, 부수입'**
+  String get categoryNamePlaceholder;
+
+  /// No description provided for @categoryIconLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'아이콘'**
+  String get categoryIconLabel;
+
   /// No description provided for @authLoginPrompt.
   ///
   /// In ko, this message translates to:
