@@ -560,6 +560,858 @@ abstract class AppLocalizations {
   /// **'대출'**
   String get assetGroupDebt;
 
+  /// No description provided for @assetCatAccount.
+  ///
+  /// In ko, this message translates to:
+  /// **'계좌'**
+  String get assetCatAccount;
+
+  /// No description provided for @assetSubtypeInstallment.
+  ///
+  /// In ko, this message translates to:
+  /// **'적금'**
+  String get assetSubtypeInstallment;
+
+  /// No description provided for @assetSubtypeDeposit.
+  ///
+  /// In ko, this message translates to:
+  /// **'예금'**
+  String get assetSubtypeDeposit;
+
+  /// No description provided for @assetLoadError.
+  ///
+  /// In ko, this message translates to:
+  /// **'자산을 불러오지 못했습니다'**
+  String get assetLoadError;
+
+  /// No description provided for @assetEmptyState.
+  ///
+  /// In ko, this message translates to:
+  /// **'아직 등록된 자산이 없어요'**
+  String get assetEmptyState;
+
+  /// No description provided for @assetEmptyHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'설정 → 카드·계좌 관리에서 추가할 수 있어요'**
+  String get assetEmptyHint;
+
+  /// No description provided for @assetSummaryColAccounts.
+  ///
+  /// In ko, this message translates to:
+  /// **'계좌·예금'**
+  String get assetSummaryColAccounts;
+
+  /// No description provided for @assetSummaryColCards.
+  ///
+  /// In ko, this message translates to:
+  /// **'카드값'**
+  String get assetSummaryColCards;
+
+  /// No description provided for @assetTotalNetWorth.
+  ///
+  /// In ko, this message translates to:
+  /// **'총 순자산'**
+  String get assetTotalNetWorth;
+
+  /// No description provided for @assetVsLastMonth.
+  ///
+  /// In ko, this message translates to:
+  /// **'지난달 대비'**
+  String get assetVsLastMonth;
+
+  /// No description provided for @assetGroupEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'등록된 항목이 없어요'**
+  String get assetGroupEmpty;
+
+  /// No description provided for @assetPaymentDayInfo.
+  ///
+  /// In ko, this message translates to:
+  /// **'{day}일 결제'**
+  String assetPaymentDayInfo(int day);
+
+  /// No description provided for @assetExcludedFromTotal.
+  ///
+  /// In ko, this message translates to:
+  /// **'총액 제외'**
+  String get assetExcludedFromTotal;
+
+  /// No description provided for @assetManageTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'계좌·카드 관리'**
+  String get assetManageTitle;
+
+  /// No description provided for @assetTabAccountsSavings.
+  ///
+  /// In ko, this message translates to:
+  /// **'계좌·예금 {count}'**
+  String assetTabAccountsSavings(int count);
+
+  /// No description provided for @assetTabCards.
+  ///
+  /// In ko, this message translates to:
+  /// **'카드 {count}'**
+  String assetTabCards(int count);
+
+  /// No description provided for @assetTabInvest.
+  ///
+  /// In ko, this message translates to:
+  /// **'투자 {count}'**
+  String assetTabInvest(int count);
+
+  /// No description provided for @assetTotalPrefix.
+  ///
+  /// In ko, this message translates to:
+  /// **'총'**
+  String get assetTotalPrefix;
+
+  /// No description provided for @assetAddCategory.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name} 추가'**
+  String assetAddCategory(String name);
+
+  /// No description provided for @assetCategoryEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'등록된 {name}가 없어요'**
+  String assetCategoryEmpty(String name);
+
+  /// No description provided for @assetIncludeInTotal.
+  ///
+  /// In ko, this message translates to:
+  /// **'전체 자산 합계에 포함'**
+  String get assetIncludeInTotal;
+
+  /// No description provided for @assetIncludeInTotalDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'순자산·총자산 계산에 반영됩니다'**
+  String get assetIncludeInTotalDesc;
+
+  /// No description provided for @assetTrendLoadError.
+  ///
+  /// In ko, this message translates to:
+  /// **'추이 데이터를 불러오지 못했어요'**
+  String get assetTrendLoadError;
+
+  /// No description provided for @assetTrendEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'추이 데이터가 없어요'**
+  String get assetTrendEmpty;
+
+  /// No description provided for @assetNetWorth.
+  ///
+  /// In ko, this message translates to:
+  /// **'순자산'**
+  String get assetNetWorth;
+
+  /// No description provided for @assetAccountAdd.
+  ///
+  /// In ko, this message translates to:
+  /// **'계좌 추가'**
+  String get assetAccountAdd;
+
+  /// No description provided for @assetAccountEdit.
+  ///
+  /// In ko, this message translates to:
+  /// **'계좌 편집'**
+  String get assetAccountEdit;
+
+  /// No description provided for @assetAccountAdded.
+  ///
+  /// In ko, this message translates to:
+  /// **'계좌가 추가되었습니다'**
+  String get assetAccountAdded;
+
+  /// No description provided for @assetAccountUpdated.
+  ///
+  /// In ko, this message translates to:
+  /// **'계좌가 수정되었습니다'**
+  String get assetAccountUpdated;
+
+  /// No description provided for @assetAccountDeleted.
+  ///
+  /// In ko, this message translates to:
+  /// **'계좌가 삭제되었습니다'**
+  String get assetAccountDeleted;
+
+  /// No description provided for @assetAccountDelete.
+  ///
+  /// In ko, this message translates to:
+  /// **'계좌 삭제'**
+  String get assetAccountDelete;
+
+  /// No description provided for @assetAccountDeleteConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 계좌를 삭제하시겠습니까? 연결된 거래는 유지됩니다.'**
+  String get assetAccountDeleteConfirm;
+
+  /// No description provided for @assetActionFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'실패'**
+  String get assetActionFailed;
+
+  /// No description provided for @assetDeleteFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'삭제 실패'**
+  String get assetDeleteFailed;
+
+  /// No description provided for @assetInstitutionBrand.
+  ///
+  /// In ko, this message translates to:
+  /// **'기관·브랜드'**
+  String get assetInstitutionBrand;
+
+  /// No description provided for @assetTotalEntries.
+  ///
+  /// In ko, this message translates to:
+  /// **'총 {count}개'**
+  String assetTotalEntries(int count);
+
+  /// No description provided for @assetBankSearchHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'은행명 또는 증권사 검색'**
+  String get assetBankSearchHint;
+
+  /// No description provided for @assetNickname.
+  ///
+  /// In ko, this message translates to:
+  /// **'별칭'**
+  String get assetNickname;
+
+  /// No description provided for @assetNicknamePlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'예: 신한 주거래'**
+  String get assetNicknamePlaceholder;
+
+  /// No description provided for @assetAccountType.
+  ///
+  /// In ko, this message translates to:
+  /// **'계좌 종류'**
+  String get assetAccountType;
+
+  /// No description provided for @assetAccountNumber.
+  ///
+  /// In ko, this message translates to:
+  /// **'계좌번호'**
+  String get assetAccountNumber;
+
+  /// No description provided for @assetBalanceLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'잔액 (원)'**
+  String get assetBalanceLabel;
+
+  /// No description provided for @assetMemoOptional.
+  ///
+  /// In ko, this message translates to:
+  /// **'메모 (선택)'**
+  String get assetMemoOptional;
+
+  /// No description provided for @assetMemoPlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'계좌번호 뒷자리, 결제일, 한도 등 메모하세요'**
+  String get assetMemoPlaceholder;
+
+  /// No description provided for @assetCreditLimitLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'신용한도 (원, 선택)'**
+  String get assetCreditLimitLabel;
+
+  /// No description provided for @assetCreditLimitPlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'예: 5,000,000'**
+  String get assetCreditLimitPlaceholder;
+
+  /// No description provided for @assetCreditLimitHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'한도를 입력하면 사용률 게이지가 표시됩니다.'**
+  String get assetCreditLimitHint;
+
+  /// No description provided for @assetPaymentDayLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'결제일 (선택)'**
+  String get assetPaymentDayLabel;
+
+  /// No description provided for @assetPaymentDaySelect.
+  ///
+  /// In ko, this message translates to:
+  /// **'결제일 선택'**
+  String get assetPaymentDaySelect;
+
+  /// No description provided for @assetPaymentDay.
+  ///
+  /// In ko, this message translates to:
+  /// **'결제일'**
+  String get assetPaymentDay;
+
+  /// No description provided for @assetPaymentAccountLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'결제 출금계좌 (선택)'**
+  String get assetPaymentAccountLabel;
+
+  /// No description provided for @assetNoBankAccounts.
+  ///
+  /// In ko, this message translates to:
+  /// **'등록된 입출금계좌가 없어요'**
+  String get assetNoBankAccounts;
+
+  /// No description provided for @assetPaymentAccountSelect.
+  ///
+  /// In ko, this message translates to:
+  /// **'결제계좌 선택'**
+  String get assetPaymentAccountSelect;
+
+  /// No description provided for @assetPaymentAccount.
+  ///
+  /// In ko, this message translates to:
+  /// **'결제 출금계좌'**
+  String get assetPaymentAccount;
+
+  /// No description provided for @assetPaymentAccountHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'결제일에 이 계좌에서 청구액이 출금됩니다.'**
+  String get assetPaymentAccountHint;
+
+  /// No description provided for @assetNewAccount.
+  ///
+  /// In ko, this message translates to:
+  /// **'새 계좌'**
+  String get assetNewAccount;
+
+  /// No description provided for @assetPreview.
+  ///
+  /// In ko, this message translates to:
+  /// **'미리보기'**
+  String get assetPreview;
+
+  /// No description provided for @assetNoSearchResults.
+  ///
+  /// In ko, this message translates to:
+  /// **'검색 결과가 없어요'**
+  String get assetNoSearchResults;
+
+  /// No description provided for @assetCardAdd.
+  ///
+  /// In ko, this message translates to:
+  /// **'카드 추가'**
+  String get assetCardAdd;
+
+  /// No description provided for @assetCardAdded.
+  ///
+  /// In ko, this message translates to:
+  /// **'카드가 추가되었습니다'**
+  String get assetCardAdded;
+
+  /// No description provided for @assetCardType.
+  ///
+  /// In ko, this message translates to:
+  /// **'카드 종류'**
+  String get assetCardType;
+
+  /// No description provided for @assetCardProduct.
+  ///
+  /// In ko, this message translates to:
+  /// **'카드 상품'**
+  String get assetCardProduct;
+
+  /// No description provided for @assetIncludeDiscontinued.
+  ///
+  /// In ko, this message translates to:
+  /// **'단종 포함'**
+  String get assetIncludeDiscontinued;
+
+  /// No description provided for @assetTotalItems.
+  ///
+  /// In ko, this message translates to:
+  /// **'총 {count}건'**
+  String assetTotalItems(int count);
+
+  /// No description provided for @assetTotalLoading.
+  ///
+  /// In ko, this message translates to:
+  /// **'총 …'**
+  String get assetTotalLoading;
+
+  /// No description provided for @assetCardSearchHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'카드명 또는 발급사 검색'**
+  String get assetCardSearchHint;
+
+  /// No description provided for @assetNicknameOptional.
+  ///
+  /// In ko, this message translates to:
+  /// **'별칭 (선택)'**
+  String get assetNicknameOptional;
+
+  /// No description provided for @assetCardNicknamePlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'예: 신한 Deep Dream'**
+  String get assetCardNicknamePlaceholder;
+
+  /// No description provided for @assetCurrentUsage.
+  ///
+  /// In ko, this message translates to:
+  /// **'현재 사용액 (원)'**
+  String get assetCurrentUsage;
+
+  /// No description provided for @assetCurrentUsageHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'청구될 금액을 입력하세요. 총 부채에 반영됩니다.'**
+  String get assetCurrentUsageHint;
+
+  /// No description provided for @assetNewCard.
+  ///
+  /// In ko, this message translates to:
+  /// **'새 카드'**
+  String get assetNewCard;
+
+  /// No description provided for @assetCatalogLoadError.
+  ///
+  /// In ko, this message translates to:
+  /// **'카탈로그 로드 실패'**
+  String get assetCatalogLoadError;
+
+  /// No description provided for @assetAnnualFee.
+  ///
+  /// In ko, this message translates to:
+  /// **'연회비'**
+  String get assetAnnualFee;
+
+  /// No description provided for @assetCardShortCredit.
+  ///
+  /// In ko, this message translates to:
+  /// **'신용'**
+  String get assetCardShortCredit;
+
+  /// No description provided for @assetCardShortCheck.
+  ///
+  /// In ko, this message translates to:
+  /// **'체크'**
+  String get assetCardShortCheck;
+
+  /// No description provided for @assetDiscontinued.
+  ///
+  /// In ko, this message translates to:
+  /// **'단종'**
+  String get assetDiscontinued;
+
+  /// No description provided for @assetInvestAdd.
+  ///
+  /// In ko, this message translates to:
+  /// **'투자 추가'**
+  String get assetInvestAdd;
+
+  /// No description provided for @assetInvestEdit.
+  ///
+  /// In ko, this message translates to:
+  /// **'투자 편집'**
+  String get assetInvestEdit;
+
+  /// No description provided for @assetInvestAdded.
+  ///
+  /// In ko, this message translates to:
+  /// **'투자가 추가되었습니다'**
+  String get assetInvestAdded;
+
+  /// No description provided for @assetInvestUpdated.
+  ///
+  /// In ko, this message translates to:
+  /// **'투자가 수정되었습니다'**
+  String get assetInvestUpdated;
+
+  /// No description provided for @assetInvestDeleted.
+  ///
+  /// In ko, this message translates to:
+  /// **'투자가 삭제되었습니다'**
+  String get assetInvestDeleted;
+
+  /// No description provided for @assetInvestDelete.
+  ///
+  /// In ko, this message translates to:
+  /// **'투자 삭제'**
+  String get assetInvestDelete;
+
+  /// No description provided for @assetInvestDeleteConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 투자 자산을 삭제하시겠습니까? 연결된 거래는 유지됩니다.'**
+  String get assetInvestDeleteConfirm;
+
+  /// No description provided for @assetBrokerExchange.
+  ///
+  /// In ko, this message translates to:
+  /// **'증권사·거래소'**
+  String get assetBrokerExchange;
+
+  /// No description provided for @assetInvestSearchHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'증권사·가상자산거래소·상품거래소 검색'**
+  String get assetInvestSearchHint;
+
+  /// No description provided for @assetProductName.
+  ///
+  /// In ko, this message translates to:
+  /// **'상품·종목명'**
+  String get assetProductName;
+
+  /// No description provided for @assetProductPlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'예: KODEX 200, 해외 ETF 포트폴리오'**
+  String get assetProductPlaceholder;
+
+  /// No description provided for @assetValuation.
+  ///
+  /// In ko, this message translates to:
+  /// **'평가액 (원)'**
+  String get assetValuation;
+
+  /// No description provided for @assetNewInvestment.
+  ///
+  /// In ko, this message translates to:
+  /// **'새 투자 상품'**
+  String get assetNewInvestment;
+
+  /// No description provided for @assetCryptoExchange.
+  ///
+  /// In ko, this message translates to:
+  /// **'가상자산거래소'**
+  String get assetCryptoExchange;
+
+  /// No description provided for @assetCardDetail.
+  ///
+  /// In ko, this message translates to:
+  /// **'카드 상세'**
+  String get assetCardDetail;
+
+  /// No description provided for @assetInvestDetail.
+  ///
+  /// In ko, this message translates to:
+  /// **'투자 상세'**
+  String get assetInvestDetail;
+
+  /// No description provided for @assetAccountDetail.
+  ///
+  /// In ko, this message translates to:
+  /// **'계좌 상세'**
+  String get assetAccountDetail;
+
+  /// No description provided for @assetShowAmount.
+  ///
+  /// In ko, this message translates to:
+  /// **'금액 표시'**
+  String get assetShowAmount;
+
+  /// No description provided for @assetHideAmount.
+  ///
+  /// In ko, this message translates to:
+  /// **'금액 가리기'**
+  String get assetHideAmount;
+
+  /// No description provided for @assetPeriod3m.
+  ///
+  /// In ko, this message translates to:
+  /// **'3개월'**
+  String get assetPeriod3m;
+
+  /// No description provided for @assetPeriod6m.
+  ///
+  /// In ko, this message translates to:
+  /// **'6개월'**
+  String get assetPeriod6m;
+
+  /// No description provided for @assetPeriod1y.
+  ///
+  /// In ko, this message translates to:
+  /// **'1년'**
+  String get assetPeriod1y;
+
+  /// No description provided for @assetWeeksCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'{weeks}주'**
+  String assetWeeksCount(int weeks);
+
+  /// No description provided for @assetTrendKindUsage.
+  ///
+  /// In ko, this message translates to:
+  /// **'사용 추이'**
+  String get assetTrendKindUsage;
+
+  /// No description provided for @assetTrendKindValuation.
+  ///
+  /// In ko, this message translates to:
+  /// **'평가액 추이'**
+  String get assetTrendKindValuation;
+
+  /// No description provided for @assetTrendKindBalance.
+  ///
+  /// In ko, this message translates to:
+  /// **'잔액 추이'**
+  String get assetTrendKindBalance;
+
+  /// No description provided for @assetTrendRecent.
+  ///
+  /// In ko, this message translates to:
+  /// **'최근 {weeks} {kind}'**
+  String assetTrendRecent(String weeks, String kind);
+
+  /// No description provided for @assetValueLabelCard.
+  ///
+  /// In ko, this message translates to:
+  /// **'이번 달 결제 예정'**
+  String get assetValueLabelCard;
+
+  /// No description provided for @assetValuationShort.
+  ///
+  /// In ko, this message translates to:
+  /// **'평가액'**
+  String get assetValuationShort;
+
+  /// No description provided for @assetSeriesUsage.
+  ///
+  /// In ko, this message translates to:
+  /// **'사용'**
+  String get assetSeriesUsage;
+
+  /// No description provided for @assetRecentTxCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'최근 거래 ({count})'**
+  String assetRecentTxCount(int count);
+
+  /// No description provided for @assetViewAll.
+  ///
+  /// In ko, this message translates to:
+  /// **'전체 보기'**
+  String get assetViewAll;
+
+  /// No description provided for @assetTossLinkStarted.
+  ///
+  /// In ko, this message translates to:
+  /// **'토스 시세 연동을 시작했어요'**
+  String get assetTossLinkStarted;
+
+  /// No description provided for @assetLinkFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'연결 실패'**
+  String get assetLinkFailed;
+
+  /// No description provided for @assetTossUnlinked.
+  ///
+  /// In ko, this message translates to:
+  /// **'토스 연결을 해제했어요'**
+  String get assetTossUnlinked;
+
+  /// No description provided for @assetUnlinkFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'해제 실패'**
+  String get assetUnlinkFailed;
+
+  /// No description provided for @assetQtyUpdated.
+  ///
+  /// In ko, this message translates to:
+  /// **'보유 수량을 수정했어요'**
+  String get assetQtyUpdated;
+
+  /// No description provided for @assetUpdateFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'수정 실패'**
+  String get assetUpdateFailed;
+
+  /// No description provided for @assetTossLinked.
+  ///
+  /// In ko, this message translates to:
+  /// **'토스 연동 중'**
+  String get assetTossLinked;
+
+  /// No description provided for @assetSharesCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'{n}주'**
+  String assetSharesCount(int n);
+
+  /// No description provided for @assetTossValuationFormula.
+  ///
+  /// In ko, this message translates to:
+  /// **'평가액 = 토스 현재가 × {qty}주 로 실시간 계산됩니다.'**
+  String assetTossValuationFormula(int qty);
+
+  /// No description provided for @assetHoldingQty.
+  ///
+  /// In ko, this message translates to:
+  /// **'보유 수량'**
+  String get assetHoldingQty;
+
+  /// No description provided for @assetEditQty.
+  ///
+  /// In ko, this message translates to:
+  /// **'수량 수정'**
+  String get assetEditQty;
+
+  /// No description provided for @assetUnlink.
+  ///
+  /// In ko, this message translates to:
+  /// **'연결 해제'**
+  String get assetUnlink;
+
+  /// No description provided for @assetTossRealtimeTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'토스 시세로 실시간 평가'**
+  String get assetTossRealtimeTitle;
+
+  /// No description provided for @assetTossRealtimeDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'보유 종목과 수량을 등록하면 토스 현재가 × 수량으로 평가액이 실시간 반영됩니다.'**
+  String get assetTossRealtimeDesc;
+
+  /// No description provided for @assetTapToChange.
+  ///
+  /// In ko, this message translates to:
+  /// **'변경하려면 탭'**
+  String get assetTapToChange;
+
+  /// No description provided for @assetStockSearchHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'종목명·코드 검색 (예: 삼성전자, 005930)'**
+  String get assetStockSearchHint;
+
+  /// No description provided for @assetLinkByCode.
+  ///
+  /// In ko, this message translates to:
+  /// **'「{code}」 코드로 연결'**
+  String assetLinkByCode(String code);
+
+  /// No description provided for @assetLink.
+  ///
+  /// In ko, this message translates to:
+  /// **'연결'**
+  String get assetLink;
+
+  /// No description provided for @assetChartNoData.
+  ///
+  /// In ko, this message translates to:
+  /// **'표시할 데이터가 없어요'**
+  String get assetChartNoData;
+
+  /// No description provided for @assetNoLinkedTx.
+  ///
+  /// In ko, this message translates to:
+  /// **'연결된 거래 내역이 없어요.'**
+  String get assetNoLinkedTx;
+
+  /// No description provided for @assetTxFallback.
+  ///
+  /// In ko, this message translates to:
+  /// **'거래'**
+  String get assetTxFallback;
+
+  /// No description provided for @assetCategoryOther.
+  ///
+  /// In ko, this message translates to:
+  /// **'기타'**
+  String get assetCategoryOther;
+
+  /// No description provided for @assetPayConfirmMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'결제 예정액 {amount}원을 지금 결제 처리할까요?'**
+  String assetPayConfirmMessage(String amount);
+
+  /// No description provided for @assetPayConfirmDateSuffix.
+  ///
+  /// In ko, this message translates to:
+  /// **' 결제일은 {date} 입니다.'**
+  String assetPayConfirmDateSuffix(String date);
+
+  /// No description provided for @assetPayNow.
+  ///
+  /// In ko, this message translates to:
+  /// **'지금 결제'**
+  String get assetPayNow;
+
+  /// No description provided for @assetPayAction.
+  ///
+  /// In ko, this message translates to:
+  /// **'결제하기'**
+  String get assetPayAction;
+
+  /// No description provided for @assetPaymentRecorded.
+  ///
+  /// In ko, this message translates to:
+  /// **'결제가 기록되었습니다'**
+  String get assetPaymentRecorded;
+
+  /// No description provided for @assetPayFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'결제 실패'**
+  String get assetPayFailed;
+
+  /// No description provided for @assetBillingLoadError.
+  ///
+  /// In ko, this message translates to:
+  /// **'청구 정보를 불러오지 못했어요'**
+  String get assetBillingLoadError;
+
+  /// No description provided for @assetUpcomingPayment.
+  ///
+  /// In ko, this message translates to:
+  /// **'결제 예정'**
+  String get assetUpcomingPayment;
+
+  /// No description provided for @assetMonthlyPaymentDay.
+  ///
+  /// In ko, this message translates to:
+  /// **'매월 {day}일 결제'**
+  String assetMonthlyPaymentDay(int day);
+
+  /// No description provided for @assetBillingHistory.
+  ///
+  /// In ko, this message translates to:
+  /// **'청구 이력'**
+  String get assetBillingHistory;
+
+  /// No description provided for @assetStatusPending.
+  ///
+  /// In ko, this message translates to:
+  /// **'대기'**
+  String get assetStatusPending;
+
+  /// No description provided for @assetStatusSkipped.
+  ///
+  /// In ko, this message translates to:
+  /// **'건너뜀'**
+  String get assetStatusSkipped;
+
   /// No description provided for @todoTitle.
   ///
   /// In ko, this message translates to:

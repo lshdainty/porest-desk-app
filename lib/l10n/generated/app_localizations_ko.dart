@@ -240,6 +240,467 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetGroupDebt => '대출';
 
   @override
+  String get assetCatAccount => '계좌';
+
+  @override
+  String get assetSubtypeInstallment => '적금';
+
+  @override
+  String get assetSubtypeDeposit => '예금';
+
+  @override
+  String get assetLoadError => '자산을 불러오지 못했습니다';
+
+  @override
+  String get assetEmptyState => '아직 등록된 자산이 없어요';
+
+  @override
+  String get assetEmptyHint => '설정 → 카드·계좌 관리에서 추가할 수 있어요';
+
+  @override
+  String get assetSummaryColAccounts => '계좌·예금';
+
+  @override
+  String get assetSummaryColCards => '카드값';
+
+  @override
+  String get assetTotalNetWorth => '총 순자산';
+
+  @override
+  String get assetVsLastMonth => '지난달 대비';
+
+  @override
+  String get assetGroupEmpty => '등록된 항목이 없어요';
+
+  @override
+  String assetPaymentDayInfo(int day) {
+    return '$day일 결제';
+  }
+
+  @override
+  String get assetExcludedFromTotal => '총액 제외';
+
+  @override
+  String get assetManageTitle => '계좌·카드 관리';
+
+  @override
+  String assetTabAccountsSavings(int count) {
+    return '계좌·예금 $count';
+  }
+
+  @override
+  String assetTabCards(int count) {
+    return '카드 $count';
+  }
+
+  @override
+  String assetTabInvest(int count) {
+    return '투자 $count';
+  }
+
+  @override
+  String get assetTotalPrefix => '총';
+
+  @override
+  String assetAddCategory(String name) {
+    return '$name 추가';
+  }
+
+  @override
+  String assetCategoryEmpty(String name) {
+    return '등록된 $name가 없어요';
+  }
+
+  @override
+  String get assetIncludeInTotal => '전체 자산 합계에 포함';
+
+  @override
+  String get assetIncludeInTotalDesc => '순자산·총자산 계산에 반영됩니다';
+
+  @override
+  String get assetTrendLoadError => '추이 데이터를 불러오지 못했어요';
+
+  @override
+  String get assetTrendEmpty => '추이 데이터가 없어요';
+
+  @override
+  String get assetNetWorth => '순자산';
+
+  @override
+  String get assetAccountAdd => '계좌 추가';
+
+  @override
+  String get assetAccountEdit => '계좌 편집';
+
+  @override
+  String get assetAccountAdded => '계좌가 추가되었습니다';
+
+  @override
+  String get assetAccountUpdated => '계좌가 수정되었습니다';
+
+  @override
+  String get assetAccountDeleted => '계좌가 삭제되었습니다';
+
+  @override
+  String get assetAccountDelete => '계좌 삭제';
+
+  @override
+  String get assetAccountDeleteConfirm => '이 계좌를 삭제하시겠습니까? 연결된 거래는 유지됩니다.';
+
+  @override
+  String get assetActionFailed => '실패';
+
+  @override
+  String get assetDeleteFailed => '삭제 실패';
+
+  @override
+  String get assetInstitutionBrand => '기관·브랜드';
+
+  @override
+  String assetTotalEntries(int count) {
+    return '총 $count개';
+  }
+
+  @override
+  String get assetBankSearchHint => '은행명 또는 증권사 검색';
+
+  @override
+  String get assetNickname => '별칭';
+
+  @override
+  String get assetNicknamePlaceholder => '예: 신한 주거래';
+
+  @override
+  String get assetAccountType => '계좌 종류';
+
+  @override
+  String get assetAccountNumber => '계좌번호';
+
+  @override
+  String get assetBalanceLabel => '잔액 (원)';
+
+  @override
+  String get assetMemoOptional => '메모 (선택)';
+
+  @override
+  String get assetMemoPlaceholder => '계좌번호 뒷자리, 결제일, 한도 등 메모하세요';
+
+  @override
+  String get assetCreditLimitLabel => '신용한도 (원, 선택)';
+
+  @override
+  String get assetCreditLimitPlaceholder => '예: 5,000,000';
+
+  @override
+  String get assetCreditLimitHint => '한도를 입력하면 사용률 게이지가 표시됩니다.';
+
+  @override
+  String get assetPaymentDayLabel => '결제일 (선택)';
+
+  @override
+  String get assetPaymentDaySelect => '결제일 선택';
+
+  @override
+  String get assetPaymentDay => '결제일';
+
+  @override
+  String get assetPaymentAccountLabel => '결제 출금계좌 (선택)';
+
+  @override
+  String get assetNoBankAccounts => '등록된 입출금계좌가 없어요';
+
+  @override
+  String get assetPaymentAccountSelect => '결제계좌 선택';
+
+  @override
+  String get assetPaymentAccount => '결제 출금계좌';
+
+  @override
+  String get assetPaymentAccountHint => '결제일에 이 계좌에서 청구액이 출금됩니다.';
+
+  @override
+  String get assetNewAccount => '새 계좌';
+
+  @override
+  String get assetPreview => '미리보기';
+
+  @override
+  String get assetNoSearchResults => '검색 결과가 없어요';
+
+  @override
+  String get assetCardAdd => '카드 추가';
+
+  @override
+  String get assetCardAdded => '카드가 추가되었습니다';
+
+  @override
+  String get assetCardType => '카드 종류';
+
+  @override
+  String get assetCardProduct => '카드 상품';
+
+  @override
+  String get assetIncludeDiscontinued => '단종 포함';
+
+  @override
+  String assetTotalItems(int count) {
+    return '총 $count건';
+  }
+
+  @override
+  String get assetTotalLoading => '총 …';
+
+  @override
+  String get assetCardSearchHint => '카드명 또는 발급사 검색';
+
+  @override
+  String get assetNicknameOptional => '별칭 (선택)';
+
+  @override
+  String get assetCardNicknamePlaceholder => '예: 신한 Deep Dream';
+
+  @override
+  String get assetCurrentUsage => '현재 사용액 (원)';
+
+  @override
+  String get assetCurrentUsageHint => '청구될 금액을 입력하세요. 총 부채에 반영됩니다.';
+
+  @override
+  String get assetNewCard => '새 카드';
+
+  @override
+  String get assetCatalogLoadError => '카탈로그 로드 실패';
+
+  @override
+  String get assetAnnualFee => '연회비';
+
+  @override
+  String get assetCardShortCredit => '신용';
+
+  @override
+  String get assetCardShortCheck => '체크';
+
+  @override
+  String get assetDiscontinued => '단종';
+
+  @override
+  String get assetInvestAdd => '투자 추가';
+
+  @override
+  String get assetInvestEdit => '투자 편집';
+
+  @override
+  String get assetInvestAdded => '투자가 추가되었습니다';
+
+  @override
+  String get assetInvestUpdated => '투자가 수정되었습니다';
+
+  @override
+  String get assetInvestDeleted => '투자가 삭제되었습니다';
+
+  @override
+  String get assetInvestDelete => '투자 삭제';
+
+  @override
+  String get assetInvestDeleteConfirm => '이 투자 자산을 삭제하시겠습니까? 연결된 거래는 유지됩니다.';
+
+  @override
+  String get assetBrokerExchange => '증권사·거래소';
+
+  @override
+  String get assetInvestSearchHint => '증권사·가상자산거래소·상품거래소 검색';
+
+  @override
+  String get assetProductName => '상품·종목명';
+
+  @override
+  String get assetProductPlaceholder => '예: KODEX 200, 해외 ETF 포트폴리오';
+
+  @override
+  String get assetValuation => '평가액 (원)';
+
+  @override
+  String get assetNewInvestment => '새 투자 상품';
+
+  @override
+  String get assetCryptoExchange => '가상자산거래소';
+
+  @override
+  String get assetCardDetail => '카드 상세';
+
+  @override
+  String get assetInvestDetail => '투자 상세';
+
+  @override
+  String get assetAccountDetail => '계좌 상세';
+
+  @override
+  String get assetShowAmount => '금액 표시';
+
+  @override
+  String get assetHideAmount => '금액 가리기';
+
+  @override
+  String get assetPeriod3m => '3개월';
+
+  @override
+  String get assetPeriod6m => '6개월';
+
+  @override
+  String get assetPeriod1y => '1년';
+
+  @override
+  String assetWeeksCount(int weeks) {
+    return '$weeks주';
+  }
+
+  @override
+  String get assetTrendKindUsage => '사용 추이';
+
+  @override
+  String get assetTrendKindValuation => '평가액 추이';
+
+  @override
+  String get assetTrendKindBalance => '잔액 추이';
+
+  @override
+  String assetTrendRecent(String weeks, String kind) {
+    return '최근 $weeks $kind';
+  }
+
+  @override
+  String get assetValueLabelCard => '이번 달 결제 예정';
+
+  @override
+  String get assetValuationShort => '평가액';
+
+  @override
+  String get assetSeriesUsage => '사용';
+
+  @override
+  String assetRecentTxCount(int count) {
+    return '최근 거래 ($count)';
+  }
+
+  @override
+  String get assetViewAll => '전체 보기';
+
+  @override
+  String get assetTossLinkStarted => '토스 시세 연동을 시작했어요';
+
+  @override
+  String get assetLinkFailed => '연결 실패';
+
+  @override
+  String get assetTossUnlinked => '토스 연결을 해제했어요';
+
+  @override
+  String get assetUnlinkFailed => '해제 실패';
+
+  @override
+  String get assetQtyUpdated => '보유 수량을 수정했어요';
+
+  @override
+  String get assetUpdateFailed => '수정 실패';
+
+  @override
+  String get assetTossLinked => '토스 연동 중';
+
+  @override
+  String assetSharesCount(int n) {
+    return '$n주';
+  }
+
+  @override
+  String assetTossValuationFormula(int qty) {
+    return '평가액 = 토스 현재가 × $qty주 로 실시간 계산됩니다.';
+  }
+
+  @override
+  String get assetHoldingQty => '보유 수량';
+
+  @override
+  String get assetEditQty => '수량 수정';
+
+  @override
+  String get assetUnlink => '연결 해제';
+
+  @override
+  String get assetTossRealtimeTitle => '토스 시세로 실시간 평가';
+
+  @override
+  String get assetTossRealtimeDesc =>
+      '보유 종목과 수량을 등록하면 토스 현재가 × 수량으로 평가액이 실시간 반영됩니다.';
+
+  @override
+  String get assetTapToChange => '변경하려면 탭';
+
+  @override
+  String get assetStockSearchHint => '종목명·코드 검색 (예: 삼성전자, 005930)';
+
+  @override
+  String assetLinkByCode(String code) {
+    return '「$code」 코드로 연결';
+  }
+
+  @override
+  String get assetLink => '연결';
+
+  @override
+  String get assetChartNoData => '표시할 데이터가 없어요';
+
+  @override
+  String get assetNoLinkedTx => '연결된 거래 내역이 없어요.';
+
+  @override
+  String get assetTxFallback => '거래';
+
+  @override
+  String get assetCategoryOther => '기타';
+
+  @override
+  String assetPayConfirmMessage(String amount) {
+    return '결제 예정액 $amount원을 지금 결제 처리할까요?';
+  }
+
+  @override
+  String assetPayConfirmDateSuffix(String date) {
+    return ' 결제일은 $date 입니다.';
+  }
+
+  @override
+  String get assetPayNow => '지금 결제';
+
+  @override
+  String get assetPayAction => '결제하기';
+
+  @override
+  String get assetPaymentRecorded => '결제가 기록되었습니다';
+
+  @override
+  String get assetPayFailed => '결제 실패';
+
+  @override
+  String get assetBillingLoadError => '청구 정보를 불러오지 못했어요';
+
+  @override
+  String get assetUpcomingPayment => '결제 예정';
+
+  @override
+  String assetMonthlyPaymentDay(int day) {
+    return '매월 $day일 결제';
+  }
+
+  @override
+  String get assetBillingHistory => '청구 이력';
+
+  @override
+  String get assetStatusPending => '대기';
+
+  @override
+  String get assetStatusSkipped => '건너뜀';
+
+  @override
   String get todoTitle => '할 일';
 
   @override

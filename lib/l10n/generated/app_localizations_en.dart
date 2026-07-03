@@ -240,6 +240,477 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetGroupDebt => 'Loans';
 
   @override
+  String get assetCatAccount => 'Account';
+
+  @override
+  String get assetSubtypeInstallment => 'Installment';
+
+  @override
+  String get assetSubtypeDeposit => 'Deposit';
+
+  @override
+  String get assetLoadError => 'Couldn\'t load assets';
+
+  @override
+  String get assetEmptyState => 'No assets yet';
+
+  @override
+  String get assetEmptyHint =>
+      'You can add one from Settings → Manage cards & accounts';
+
+  @override
+  String get assetSummaryColAccounts => 'Accounts';
+
+  @override
+  String get assetSummaryColCards => 'Card debt';
+
+  @override
+  String get assetTotalNetWorth => 'Total net worth';
+
+  @override
+  String get assetVsLastMonth => 'vs last month';
+
+  @override
+  String get assetGroupEmpty => 'No items yet';
+
+  @override
+  String assetPaymentDayInfo(int day) {
+    return 'Pays on day $day';
+  }
+
+  @override
+  String get assetExcludedFromTotal => 'Excluded from total';
+
+  @override
+  String get assetManageTitle => 'Manage accounts & cards';
+
+  @override
+  String assetTabAccountsSavings(int count) {
+    return 'Accounts $count';
+  }
+
+  @override
+  String assetTabCards(int count) {
+    return 'Cards $count';
+  }
+
+  @override
+  String assetTabInvest(int count) {
+    return 'Investments $count';
+  }
+
+  @override
+  String get assetTotalPrefix => 'Total';
+
+  @override
+  String assetAddCategory(String name) {
+    return 'Add $name';
+  }
+
+  @override
+  String assetCategoryEmpty(String name) {
+    return 'No $name registered yet';
+  }
+
+  @override
+  String get assetIncludeInTotal => 'Include in total assets';
+
+  @override
+  String get assetIncludeInTotalDesc =>
+      'Counts toward net worth and total assets';
+
+  @override
+  String get assetTrendLoadError => 'Couldn\'t load trend data';
+
+  @override
+  String get assetTrendEmpty => 'No trend data';
+
+  @override
+  String get assetNetWorth => 'Net worth';
+
+  @override
+  String get assetAccountAdd => 'Add account';
+
+  @override
+  String get assetAccountEdit => 'Edit account';
+
+  @override
+  String get assetAccountAdded => 'Account added';
+
+  @override
+  String get assetAccountUpdated => 'Account updated';
+
+  @override
+  String get assetAccountDeleted => 'Account deleted';
+
+  @override
+  String get assetAccountDelete => 'Delete account';
+
+  @override
+  String get assetAccountDeleteConfirm =>
+      'Delete this account? Linked transactions are kept.';
+
+  @override
+  String get assetActionFailed => 'Failed';
+
+  @override
+  String get assetDeleteFailed => 'Delete failed';
+
+  @override
+  String get assetInstitutionBrand => 'Institution / brand';
+
+  @override
+  String assetTotalEntries(int count) {
+    return 'Total $count';
+  }
+
+  @override
+  String get assetBankSearchHint => 'Search bank or brokerage';
+
+  @override
+  String get assetNickname => 'Nickname';
+
+  @override
+  String get assetNicknamePlaceholder => 'e.g. Shinhan main';
+
+  @override
+  String get assetAccountType => 'Account type';
+
+  @override
+  String get assetAccountNumber => 'Account number';
+
+  @override
+  String get assetBalanceLabel => 'Balance (KRW)';
+
+  @override
+  String get assetMemoOptional => 'Memo (optional)';
+
+  @override
+  String get assetMemoPlaceholder =>
+      'Note last digits, payment day, limit, etc.';
+
+  @override
+  String get assetCreditLimitLabel => 'Credit limit (KRW, optional)';
+
+  @override
+  String get assetCreditLimitPlaceholder => 'e.g. 5,000,000';
+
+  @override
+  String get assetCreditLimitHint => 'Enter a limit to show the usage gauge.';
+
+  @override
+  String get assetPaymentDayLabel => 'Payment day (optional)';
+
+  @override
+  String get assetPaymentDaySelect => 'Select payment day';
+
+  @override
+  String get assetPaymentDay => 'Payment day';
+
+  @override
+  String get assetPaymentAccountLabel => 'Payment account (optional)';
+
+  @override
+  String get assetNoBankAccounts => 'No checking accounts yet';
+
+  @override
+  String get assetPaymentAccountSelect => 'Select payment account';
+
+  @override
+  String get assetPaymentAccount => 'Payment account';
+
+  @override
+  String get assetPaymentAccountHint =>
+      'The billed amount is withdrawn from this account on the payment day.';
+
+  @override
+  String get assetNewAccount => 'New account';
+
+  @override
+  String get assetPreview => 'Preview';
+
+  @override
+  String get assetNoSearchResults => 'No search results';
+
+  @override
+  String get assetCardAdd => 'Add card';
+
+  @override
+  String get assetCardAdded => 'Card added';
+
+  @override
+  String get assetCardType => 'Card type';
+
+  @override
+  String get assetCardProduct => 'Card product';
+
+  @override
+  String get assetIncludeDiscontinued => 'Include discontinued';
+
+  @override
+  String assetTotalItems(int count) {
+    return 'Total $count';
+  }
+
+  @override
+  String get assetTotalLoading => 'Total …';
+
+  @override
+  String get assetCardSearchHint => 'Search card or issuer';
+
+  @override
+  String get assetNicknameOptional => 'Nickname (optional)';
+
+  @override
+  String get assetCardNicknamePlaceholder => 'e.g. Shinhan Deep Dream';
+
+  @override
+  String get assetCurrentUsage => 'Current usage (KRW)';
+
+  @override
+  String get assetCurrentUsageHint =>
+      'Enter the amount to be billed. It counts toward total debt.';
+
+  @override
+  String get assetNewCard => 'New card';
+
+  @override
+  String get assetCatalogLoadError => 'Failed to load catalog';
+
+  @override
+  String get assetAnnualFee => 'Annual fee';
+
+  @override
+  String get assetCardShortCredit => 'Credit';
+
+  @override
+  String get assetCardShortCheck => 'Check';
+
+  @override
+  String get assetDiscontinued => 'Discontinued';
+
+  @override
+  String get assetInvestAdd => 'Add investment';
+
+  @override
+  String get assetInvestEdit => 'Edit investment';
+
+  @override
+  String get assetInvestAdded => 'Investment added';
+
+  @override
+  String get assetInvestUpdated => 'Investment updated';
+
+  @override
+  String get assetInvestDeleted => 'Investment deleted';
+
+  @override
+  String get assetInvestDelete => 'Delete investment';
+
+  @override
+  String get assetInvestDeleteConfirm =>
+      'Delete this investment? Linked transactions are kept.';
+
+  @override
+  String get assetBrokerExchange => 'Brokerage / exchange';
+
+  @override
+  String get assetInvestSearchHint =>
+      'Search brokerages, crypto & commodity exchanges';
+
+  @override
+  String get assetProductName => 'Product / ticker';
+
+  @override
+  String get assetProductPlaceholder =>
+      'e.g. KODEX 200, overseas ETF portfolio';
+
+  @override
+  String get assetValuation => 'Valuation (KRW)';
+
+  @override
+  String get assetNewInvestment => 'New investment';
+
+  @override
+  String get assetCryptoExchange => 'Crypto exchange';
+
+  @override
+  String get assetCardDetail => 'Card details';
+
+  @override
+  String get assetInvestDetail => 'Investment details';
+
+  @override
+  String get assetAccountDetail => 'Account details';
+
+  @override
+  String get assetShowAmount => 'Show amount';
+
+  @override
+  String get assetHideAmount => 'Hide amount';
+
+  @override
+  String get assetPeriod3m => '3 months';
+
+  @override
+  String get assetPeriod6m => '6 months';
+
+  @override
+  String get assetPeriod1y => '1 year';
+
+  @override
+  String assetWeeksCount(int weeks) {
+    return '$weeks weeks';
+  }
+
+  @override
+  String get assetTrendKindUsage => 'usage trend';
+
+  @override
+  String get assetTrendKindValuation => 'valuation trend';
+
+  @override
+  String get assetTrendKindBalance => 'balance trend';
+
+  @override
+  String assetTrendRecent(String weeks, String kind) {
+    return 'Last $weeks $kind';
+  }
+
+  @override
+  String get assetValueLabelCard => 'Due this month';
+
+  @override
+  String get assetValuationShort => 'Valuation';
+
+  @override
+  String get assetSeriesUsage => 'Usage';
+
+  @override
+  String assetRecentTxCount(int count) {
+    return 'Recent transactions ($count)';
+  }
+
+  @override
+  String get assetViewAll => 'View all';
+
+  @override
+  String get assetTossLinkStarted => 'Started Toss price sync';
+
+  @override
+  String get assetLinkFailed => 'Link failed';
+
+  @override
+  String get assetTossUnlinked => 'Unlinked from Toss';
+
+  @override
+  String get assetUnlinkFailed => 'Unlink failed';
+
+  @override
+  String get assetQtyUpdated => 'Updated quantity';
+
+  @override
+  String get assetUpdateFailed => 'Update failed';
+
+  @override
+  String get assetTossLinked => 'Toss linked';
+
+  @override
+  String assetSharesCount(int n) {
+    return '$n shares';
+  }
+
+  @override
+  String assetTossValuationFormula(int qty) {
+    return 'Valuation updates in real time as Toss price × $qty shares.';
+  }
+
+  @override
+  String get assetHoldingQty => 'Holdings';
+
+  @override
+  String get assetEditQty => 'Edit quantity';
+
+  @override
+  String get assetUnlink => 'Unlink';
+
+  @override
+  String get assetTossRealtimeTitle => 'Real-time valuation via Toss';
+
+  @override
+  String get assetTossRealtimeDesc =>
+      'Register a ticker and quantity to reflect valuation live as Toss price × quantity.';
+
+  @override
+  String get assetTapToChange => 'Tap to change';
+
+  @override
+  String get assetStockSearchHint =>
+      'Search ticker or code (e.g. Samsung Elec, 005930)';
+
+  @override
+  String assetLinkByCode(String code) {
+    return 'Link by code \"$code\"';
+  }
+
+  @override
+  String get assetLink => 'Link';
+
+  @override
+  String get assetChartNoData => 'No data to show';
+
+  @override
+  String get assetNoLinkedTx => 'No linked transactions.';
+
+  @override
+  String get assetTxFallback => 'Transaction';
+
+  @override
+  String get assetCategoryOther => 'Other';
+
+  @override
+  String assetPayConfirmMessage(String amount) {
+    return 'Pay the upcoming amount of $amount KRW now?';
+  }
+
+  @override
+  String assetPayConfirmDateSuffix(String date) {
+    return ' The payment date is $date.';
+  }
+
+  @override
+  String get assetPayNow => 'Pay now';
+
+  @override
+  String get assetPayAction => 'Pay';
+
+  @override
+  String get assetPaymentRecorded => 'Payment recorded';
+
+  @override
+  String get assetPayFailed => 'Payment failed';
+
+  @override
+  String get assetBillingLoadError => 'Couldn\'t load billing info';
+
+  @override
+  String get assetUpcomingPayment => 'Upcoming payment';
+
+  @override
+  String assetMonthlyPaymentDay(int day) {
+    return 'Paid on day $day each month';
+  }
+
+  @override
+  String get assetBillingHistory => 'Billing history';
+
+  @override
+  String get assetStatusPending => 'Pending';
+
+  @override
+  String get assetStatusSkipped => 'Skipped';
+
+  @override
   String get todoTitle => 'Todos';
 
   @override

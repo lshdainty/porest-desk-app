@@ -8,6 +8,7 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/core/format/chart_axis.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
@@ -54,7 +55,7 @@ void showAssetDetailRich(
 }) {
   showPSheet<void>(
     context,
-    title: _titleFor(asset),
+    title: _titleFor(AppLocalizations.of(context), asset),
     contentBuilder: (ctx, scrollCtrl) =>
         _DetailBody(asset: asset, scrollController: scrollCtrl),
     footerBuilder: (ctx) => _DetailFooter(asset: asset, onEdit: onEdit),
@@ -67,12 +68,13 @@ class _DetailFooter extends ConsumerWidget {
   final VoidCallback? onEdit;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context);
     final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
     final masked = settings.hideAmounts;
     return PViewFooter(
       // 좌측 = 삭제가 아니라 금액 가리기/표시 토글 → leading 슬롯.
       leading: PButton(
-        label: masked ? '금액 표시' : '금액 가리기',
+        label: masked ? l.assetShowAmount : l.assetHideAmount,
         icon: masked ? LucideIcons.eye : LucideIcons.eyeOff,
         variant: PButtonVariant.ghost,
         flush: PButtonFlush.left,
@@ -91,12 +93,12 @@ class _DetailFooter extends ConsumerWidget {
   }
 }
 
-String _titleFor(Asset a) {
+String _titleFor(AppLocalizations l, Asset a) {
   if (a.assetType == 'CREDIT_CARD' || a.assetType == 'CHECK_CARD') {
-    return '카드 상세';
+    return l.assetCardDetail;
   }
-  if (a.assetType == 'INVESTMENT') return '투자 상세';
-  return '계좌 상세';
+  if (a.assetType == 'INVESTMENT') return l.assetInvestDetail;
+  return l.assetAccountDetail;
 }
 
 enum _Period { p3m, p6m, p1y }
@@ -107,16 +109,12 @@ extension on _Period {
     _Period.p6m => 24,
     _Period.p1y => 52,
   };
-  String get label => switch (this) {
-    _Period.p3m => '3개월',
-    _Period.p6m => '6개월',
-    _Period.p1y => '1년',
+  String label(AppLocalizations l) => switch (this) {
+    _Period.p3m => l.assetPeriod3m,
+    _Period.p6m => l.assetPeriod6m,
+    _Period.p1y => l.assetPeriod1y,
   };
-  String get headerLabel => switch (this) {
-    _Period.p3m => '12주',
-    _Period.p6m => '24주',
-    _Period.p1y => '52주',
-  };
+  String headerLabel(AppLocalizations l) => l.assetWeeksCount(weeks);
 }
 
 class _DetailBody extends ConsumerStatefulWidget {
@@ -133,6 +131,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final asset = widget.asset;
     final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
     final masked = settings.hideAmounts;
@@ -143,21 +142,23 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
         asset.assetType == 'CREDIT_CARD' || asset.assetType == 'CHECK_CARD';
     final isInv = asset.assetType == 'INVESTMENT';
     final valueLabel = isCard
-        ? '이번 달 결제 예정'
+        ? l.assetValueLabelCard
         : isInv
-        ? '평가액'
-        : '잔액';
+        ? l.assetValuationShort
+        : l.expSummaryBalance;
     final seriesLabel = isCard
-        ? '사용'
+        ? l.assetSeriesUsage
         : isInv
-        ? '평가액'
-        : '잔액';
-    final trendTitle =
-        '최근 ${_period.headerLabel} ${isCard
-            ? '사용 추이'
-            : isInv
-            ? '평가액 추이'
-            : '잔액 추이'}';
+        ? l.assetValuationShort
+        : l.expSummaryBalance;
+    final trendTitle = l.assetTrendRecent(
+      _period.headerLabel(l),
+      isCard
+          ? l.assetTrendKindUsage
+          : isInv
+              ? l.assetTrendKindValuation
+              : l.assetTrendKindBalance,
+    );
 
     final trendAsync = ref.watch(
       assetBalanceTrendProvider((assetId: asset.rowId, weeks: _period.weeks)),
@@ -216,7 +217,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
               size: PTabsSize.sm,
               items: [
                 for (final p in _Period.values)
-                  PTabItem(value: p, label: p.label),
+                  PTabItem(value: p, label: p.label(l)),
               ],
               onChanged: (p) => setState(() => _period = p),
             ),
@@ -241,8 +242,8 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
             Expanded(
               child: Text(
                 (recentAsync.value?.isNotEmpty ?? false)
-                    ? '최근 거래 (${recentAsync.value!.length})'
-                    : '최근 거래',
+                    ? l.assetRecentTxCount(recentAsync.value!.length)
+                    : l.dashRecent,
                 style: PTypo.bodySm.copyWith(
                   color: t.fgPrimary,
                   fontWeight: PFontWeight.bold,
@@ -261,7 +262,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      '전체 보기',
+                      l.assetViewAll,
                       style: PTypo.bodySm.copyWith(
                         color: t.fgSecondary,
                         fontWeight: PFontWeight.semi,
@@ -335,6 +336,7 @@ class _TossLinkSectionState extends ConsumerState<_TossLinkSection> {
     final symbol = _selSymbol;
     final qty = int.tryParse(_qtyCtrl.text.replaceAll(',', '')) ?? 0;
     if (symbol == null || qty <= 0 || _busy) return;
+    final l = AppLocalizations.of(context);
     setState(() => _busy = true);
     try {
       final repo = await ref.read(assetRepositoryProvider.future);
@@ -343,11 +345,11 @@ class _TossLinkSectionState extends ConsumerState<_TossLinkSection> {
       ref.invalidate(tossValuationMapProvider);
       if (!mounted) return;
       setState(() => _linked = (symbol: symbol, quantity: qty));
-      showPSnackBar(context, '토스 시세 연동을 시작했어요',
+      showPSnackBar(context, l.assetTossLinkStarted,
           severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!mounted) return;
-      showPSnackBar(context, '연결 실패: ${e.message}',
+      showPSnackBar(context, '${l.assetLinkFailed}: ${e.message}',
           severity: PSnackSeverity.error);
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -356,6 +358,7 @@ class _TossLinkSectionState extends ConsumerState<_TossLinkSection> {
 
   Future<void> _unlink() async {
     if (_busy) return;
+    final l = AppLocalizations.of(context);
     setState(() => _busy = true);
     try {
       final repo = await ref.read(assetRepositoryProvider.future);
@@ -370,11 +373,11 @@ class _TossLinkSectionState extends ConsumerState<_TossLinkSection> {
         _qtyCtrl.clear();
         _queryCtrl.clear();
       });
-      showPSnackBar(context, '토스 연결을 해제했어요',
+      showPSnackBar(context, l.assetTossUnlinked,
           severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!mounted) return;
-      showPSnackBar(context, '해제 실패: ${e.message}',
+      showPSnackBar(context, '${l.assetUnlinkFailed}: ${e.message}',
           severity: PSnackSeverity.error);
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -386,6 +389,7 @@ class _TossLinkSectionState extends ConsumerState<_TossLinkSection> {
     final linked = _linked;
     final qty = int.tryParse(_editQtyCtrl.text.replaceAll(',', '')) ?? 0;
     if (linked == null || qty <= 0 || _busy) return;
+    final l = AppLocalizations.of(context);
     setState(() => _busy = true);
     try {
       final repo = await ref.read(assetRepositoryProvider.future);
@@ -397,11 +401,11 @@ class _TossLinkSectionState extends ConsumerState<_TossLinkSection> {
         _linked = (symbol: linked.symbol, quantity: qty);
         _editingQty = false;
       });
-      showPSnackBar(context, '보유 수량을 수정했어요',
+      showPSnackBar(context, l.assetQtyUpdated,
           severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!mounted) return;
-      showPSnackBar(context, '수정 실패: ${e.message}',
+      showPSnackBar(context, '${l.assetUpdateFailed}: ${e.message}',
           severity: PSnackSeverity.error);
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -415,6 +419,7 @@ class _TossLinkSectionState extends ConsumerState<_TossLinkSection> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final features = ref.watch(myFeaturesProvider).asData?.value;
     final enabled =
         (features?.hasSecurities ?? false) && (features?.tossConnected ?? false);
@@ -433,11 +438,11 @@ class _TossLinkSectionState extends ConsumerState<_TossLinkSection> {
           children: [
             Row(
               children: [
-                const PBadge(label: '토스 연동 중'),
+                PBadge(label: l.assetTossLinked),
                 const SizedBox(width: PSpace.x8),
                 Expanded(
                   child: Text(
-                    '$name · ${linked.quantity}주',
+                    '$name · ${l.assetSharesCount(linked.quantity)}',
                     style: PTypo.bodySm.copyWith(
                       color: t.fgPrimary,
                       fontWeight: PFontWeight.bold,
@@ -450,7 +455,7 @@ class _TossLinkSectionState extends ConsumerState<_TossLinkSection> {
             ),
             const SizedBox(height: PSpace.x8),
             Text(
-              '평가액 = 토스 현재가 × ${linked.quantity}주 로 실시간 계산됩니다.',
+              l.assetTossValuationFormula(linked.quantity),
               style: PTypo.caption.copyWith(color: t.fgTertiary),
             ),
             const SizedBox(height: PSpace.x12),
@@ -458,20 +463,20 @@ class _TossLinkSectionState extends ConsumerState<_TossLinkSection> {
               PTextInput(
                 controller: _editQtyCtrl,
                 keyboardType: TextInputType.number,
-                placeholder: '보유 수량',
+                placeholder: l.assetHoldingQty,
               ),
               const SizedBox(height: PSpace.x8),
               Row(
                 children: [
                   PButton(
-                    label: '저장',
+                    label: l.actionSave,
                     size: PButtonSize.sm,
                     loading: _busy,
                     onPressed: _busy ? null : _saveQty,
                   ),
                   const SizedBox(width: PSpace.x8),
                   PButton(
-                    label: '취소',
+                    label: l.actionCancel,
                     variant: PButtonVariant.secondary,
                     size: PButtonSize.sm,
                     onPressed:
@@ -483,7 +488,7 @@ class _TossLinkSectionState extends ConsumerState<_TossLinkSection> {
               Row(
                 children: [
                   PButton(
-                    label: '수량 수정',
+                    label: l.assetEditQty,
                     size: PButtonSize.sm,
                     onPressed: _busy
                         ? null
@@ -494,7 +499,7 @@ class _TossLinkSectionState extends ConsumerState<_TossLinkSection> {
                   ),
                   const SizedBox(width: PSpace.x8),
                   PButton(
-                    label: '연결 해제',
+                    label: l.assetUnlink,
                     variant: PButtonVariant.secondary,
                     size: PButtonSize.sm,
                     loading: _busy,
@@ -532,13 +537,13 @@ class _TossLinkSectionState extends ConsumerState<_TossLinkSection> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '토스 시세로 실시간 평가',
+            l.assetTossRealtimeTitle,
             style: PTypo.bodySm
                 .copyWith(color: t.fgPrimary, fontWeight: PFontWeight.bold),
           ),
           const SizedBox(height: PSpace.x4),
           Text(
-            '보유 종목과 수량을 등록하면 토스 현재가 × 수량으로 평가액이 실시간 반영됩니다.',
+            l.assetTossRealtimeDesc,
             style: PTypo.caption.copyWith(color: t.fgTertiary),
           ),
           const SizedBox(height: PSpace.x12),
@@ -557,14 +562,14 @@ class _TossLinkSectionState extends ConsumerState<_TossLinkSection> {
                   }),
                 ),
                 const SizedBox(width: PSpace.x8),
-                Text('변경하려면 탭',
+                Text(l.assetTapToChange,
                     style: PTypo.micro.copyWith(color: t.fgTertiary)),
               ],
             )
           else ...[
             PTextInput(
               controller: _queryCtrl,
-              placeholder: '종목명·코드 검색 (예: 삼성전자, 005930)',
+              placeholder: l.assetStockSearchHint,
             ),
             if (matches.isNotEmpty || codeFallback != null) ...[
               const SizedBox(height: PSpace.x8),
@@ -584,7 +589,7 @@ class _TossLinkSectionState extends ConsumerState<_TossLinkSection> {
                     ),
                   if (codeFallback != null)
                     PChip(
-                      label: '「$codeFallback」 코드로 연결',
+                      label: l.assetLinkByCode(codeFallback),
                       selected: false,
                       onTap: () => setState(() {
                         _selSymbol = codeFallback;
@@ -604,12 +609,12 @@ class _TossLinkSectionState extends ConsumerState<_TossLinkSection> {
                 child: PTextInput(
                   controller: _qtyCtrl,
                   keyboardType: TextInputType.number,
-                  placeholder: '보유 수량',
+                  placeholder: l.assetHoldingQty,
                 ),
               ),
               const SizedBox(width: PSpace.x8),
               PButton(
-                label: '연결',
+                label: l.assetLink,
                 size: PButtonSize.sm,
                 loading: _busy,
                 onPressed: canLink ? _link : null,
@@ -641,9 +646,10 @@ class _HeroCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final subtitle = [
       asset.institution,
-      meta.label,
+      assetTypeLabel(l, asset.assetType),
       asset.memo,
     ].where((s) => s != null && s.isNotEmpty).join(' · ');
     final absBalance = (asset.balance ?? 0).abs();
@@ -772,7 +778,8 @@ class _BalanceTrendChartState extends State<_BalanceTrendChart> {
       return SizedBox.expand(child: PSkeleton(borderRadius: PRadius.brLg));
     }
     if (list.isEmpty) {
-      return _ChartPlaceholder(text: '표시할 데이터가 없어요', tokens: tokens);
+      return _ChartPlaceholder(
+          text: AppLocalizations.of(context).assetChartNoData, tokens: tokens);
     }
     final n = list.length;
     final spots = [
@@ -1053,7 +1060,7 @@ class _RecentExpenses extends StatelessWidget {
         variant: PCardVariant.bordered,
         child: Center(
           child: Text(
-            '연결된 거래 내역이 없어요.',
+            AppLocalizations.of(context).assetNoLinkedTx,
             style: PTypo.bodySm.copyWith(color: tokens.fgTertiary),
           ),
         ),
@@ -1083,15 +1090,16 @@ class _ExpenseRow extends StatelessWidget {
   final PorestTokens tokens;
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final isIncome = expense.expenseType == 'INCOME';
     final color = resolveChartColor(context, expense.categoryColor, fallback: tokens.fgBrand);
     final bg = softBg(context, color);
     final title =
         expense.merchant ??
         expense.description ??
-        (expense.categoryName ?? '거래');
+        (expense.categoryName ?? l.assetTxFallback);
     final subParts = [
-      expense.categoryName ?? '기타',
+      expense.categoryName ?? l.assetCategoryOther,
       if ((expense.assetName ?? '').isNotEmpty) expense.assetName!,
     ];
     return InkWell(
@@ -1169,13 +1177,15 @@ class _CardBillingSectionState extends ConsumerState<_CardBillingSection> {
 
   /// 결제 전 확인 — web ConfirmDialog 미러 (제목/문구/'결제하기' 동일).
   Future<void> _confirmAndPay(CardBilling b) async {
-    final dateSuffix =
-        b.nextPaymentDate != null ? ' 결제일은 ${b.nextPaymentDate} 입니다.' : '';
+    final l = AppLocalizations.of(context);
+    final dateSuffix = b.nextPaymentDate != null
+        ? l.assetPayConfirmDateSuffix(b.nextPaymentDate!)
+        : '';
     final ok = await showPConfirmDialog(
       context,
-      title: '지금 결제',
-      message: '결제 예정액 ${krw(b.upcomingAmount)}원을 지금 결제 처리할까요?$dateSuffix',
-      confirmLabel: '결제하기',
+      title: l.assetPayNow,
+      message: '${l.assetPayConfirmMessage(krw(b.upcomingAmount))}$dateSuffix',
+      confirmLabel: l.assetPayAction,
     );
     if (!ok || !mounted) return;
     await _pay();
@@ -1183,6 +1193,7 @@ class _CardBillingSectionState extends ConsumerState<_CardBillingSection> {
 
   Future<void> _pay() async {
     if (_paying) return;
+    final l = AppLocalizations.of(context);
     setState(() => _paying = true);
     try {
       final repo = await ref.read(assetRepositoryProvider.future);
@@ -1192,10 +1203,10 @@ class _CardBillingSectionState extends ConsumerState<_CardBillingSection> {
         ..invalidate(assetsProvider)
         ..invalidate(assetByIdProvider(widget.asset.rowId));
       if (!mounted) return;
-      showPSnackBar(context, '결제가 기록되었습니다', severity: PSnackSeverity.success);
+      showPSnackBar(context, l.assetPaymentRecorded, severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!mounted) return;
-      showPSnackBar(context, '결제 실패: ${e.message}',
+      showPSnackBar(context, '${l.assetPayFailed}: ${e.message}',
           severity: PSnackSeverity.error);
     } finally {
       if (mounted) setState(() => _paying = false);
@@ -1205,6 +1216,7 @@ class _CardBillingSectionState extends ConsumerState<_CardBillingSection> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final masked = widget.masked;
     final async = ref.watch(cardBillingProvider(widget.asset.rowId));
     return async.when(
@@ -1234,7 +1246,7 @@ class _CardBillingSectionState extends ConsumerState<_CardBillingSection> {
       error: (e, _) => PCard(
         variant: PCardVariant.bordered,
         padding: const EdgeInsets.all(PSpace.x16),
-        child: Text('청구 정보를 불러오지 못했어요',
+        child: Text(l.assetBillingLoadError,
             style: PTypo.bodySm.copyWith(color: t.fgTertiary)),
       ),
       data: (b) {
@@ -1247,7 +1259,7 @@ class _CardBillingSectionState extends ConsumerState<_CardBillingSection> {
             children: [
               Row(
                 children: [
-                  Text('결제 예정',
+                  Text(l.assetUpcomingPayment,
                       style: PTypo.bodySm.copyWith(
                           color: t.fgPrimary, fontWeight: PFontWeight.bold)),
                   const Spacer(),
@@ -1288,7 +1300,7 @@ class _CardBillingSectionState extends ConsumerState<_CardBillingSection> {
                   ),
                   const Spacer(),
                   PButton(
-                    label: '지금 결제',
+                    label: l.assetPayNow,
                     icon: LucideIcons.wallet,
                     size: PButtonSize.sm,
                     loading: _paying,
@@ -1298,14 +1310,14 @@ class _CardBillingSectionState extends ConsumerState<_CardBillingSection> {
               ),
               if (b.paymentDay != null) ...[
                 const SizedBox(height: 6),
-                Text('매월 ${b.paymentDay}일 결제',
+                Text(l.assetMonthlyPaymentDay(b.paymentDay!),
                     style: PTypo.caption.copyWith(color: t.fgTertiary)),
               ],
               if (b.history.isNotEmpty) ...[
                 const SizedBox(height: PSpace.x12),
                 PDivider(),
                 const SizedBox(height: PSpace.x8),
-                Text('청구 이력',
+                Text(l.assetBillingHistory,
                     style: PTypo.caption.copyWith(
                         color: t.fgSecondary, fontWeight: PFontWeight.bold)),
                 const SizedBox(height: PSpace.x4),
@@ -1328,6 +1340,7 @@ class _BillingHistoryRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
@@ -1352,7 +1365,7 @@ class _BillingHistoryRow extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '${_fmtDate(item.periodStart)} ~ ${_fmtDate(item.periodEnd)} · 결제일 ${_fmtDate(item.paymentDate)}',
+                  '${_fmtDate(item.periodStart)} ~ ${_fmtDate(item.periodEnd)} · ${l.assetPaymentDay} ${_fmtDate(item.paymentDate)}',
                   style: PTypo.micro.copyWith(color: t.fgTertiary),
                 ),
                 if ((item.failureReason ?? '').isNotEmpty) ...[
@@ -1376,11 +1389,12 @@ class _StatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final (label, variant) = switch (status) {
-      'COMPLETED' => ('완료', PBadgeVariant.softSuccess),
-      'PENDING' => ('대기', PBadgeVariant.softWarning),
-      'FAILED' => ('실패', PBadgeVariant.softError),
-      'SKIPPED' => ('건너뜀', PBadgeVariant.secondary),
+      'COMPLETED' => (l.actionDone, PBadgeVariant.softSuccess),
+      'PENDING' => (l.assetStatusPending, PBadgeVariant.softWarning),
+      'FAILED' => (l.assetActionFailed, PBadgeVariant.softError),
+      'SKIPPED' => (l.assetStatusSkipped, PBadgeVariant.secondary),
       _ => (status, PBadgeVariant.secondary),
     };
     return PBadge(label: label, variant: variant);
