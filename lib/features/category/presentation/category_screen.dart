@@ -7,6 +7,7 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
@@ -19,6 +20,10 @@ import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
 import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
 import 'package:porest_desk_app/features/category/presentation/category_edit_dialog.dart';
+
+/// 구분 필터 라벨 — index 0=지출/1=수입 → 로케일 문자열.
+String _kindLabel(AppLocalizations l, int i) =>
+    i == 0 ? l.expTypeExpense : l.expTypeIncome;
 
 class CategoryScreen extends ConsumerStatefulWidget {
   const CategoryScreen({super.key});
@@ -34,10 +39,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
   // 낙관적 재정렬 오버레이: 드롭 즉시 로컬 순서를 반영하고 refetch가 끝나면 비운다.
   final Map<int, ({int sortOrder, int? parentRowId})> _optimistic = {};
 
-  static const _kinds = [
-    ('EXPENSE', '지출'),
-    ('INCOME', '수입'),
-  ];
+  static const _kindValues = ['EXPENSE', 'INCOME'];
 
   @override
   void initState() {
@@ -85,6 +87,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final categoriesAsync = ref.watch(categoriesProvider);
 
     return Scaffold(
@@ -93,7 +96,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
         leading: PBackButton(onPressed: () => context.pop()),
-        title: const Text('카테고리 관리'),
+        title: Text(l.categoryManageTitle),
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,
         elevation: 0,
@@ -101,8 +104,8 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
           preferredSize: const Size.fromHeight(40),
           child: PTabs<int>(
             items: [
-              for (int i = 0; i < _kinds.length; i++)
-                PTabItem(value: i, label: _kinds[i].$2),
+              for (int i = 0; i < _kindValues.length; i++)
+                PTabItem(value: i, label: _kindLabel(l, i)),
             ],
             value: _tabIndex,
             onChanged: (v) => setState(() => _tabIndex = v),
@@ -126,19 +129,19 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                 Expanded(
                   // 공용 검색바 — 테두리/모양 통일(PSearchField canonical).
                   child: PSearchField(
-                    hint: '카테고리 검색',
+                    hint: l.categorySearchHint,
                     onChanged: (v) => setState(() => _query = v),
                   ),
                 ),
                 const SizedBox(width: PSpace.x8),
                 PButton(
-                  label: '추가',
+                  label: l.calAdd,
                   icon: LucideIcons.plus,
                   variant: PButtonVariant.accent,
                   size: PButtonSize.sm,
                   onPressed: () => showCategoryEditDialog(
                     context,
-                    defaultExpenseType: _kinds[_tabIndex].$1,
+                    defaultExpenseType: _kindValues[_tabIndex],
                   ),
                 ),
               ],
@@ -164,7 +167,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
               error: (e, _) => Padding(
                 padding: const EdgeInsets.all(PSpace.x16),
                 child: Text(
-                  '카테고리 로드 실패\n$e',
+                  '${l.categoryLoadError}\n$e',
                   style: PTypo.bodySm.copyWith(color: t.statusDanger),
                 ),
               ),
@@ -184,11 +187,11 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                 return IndexedStack(
                   index: _tabIndex,
                   children: [
-                    for (final k in _kinds)
+                    for (final k in _kindValues)
                       _CategoryList(
                         categories: effective
                             .where((c) =>
-                                (c.expenseType ?? 'EXPENSE') == k.$1)
+                                (c.expenseType ?? 'EXPENSE') == k)
                             .toList(growable: false),
                         query: _query,
                         collapsed: _collapsed,
@@ -227,6 +230,7 @@ class _CategoryList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     // 트리 변환 (parentRowId + sortOrder) — 웹 CategoryManager.tree 미러.
     final sorted = [...categories]
       ..sort((a, b) => (a.sortOrder ?? 0).compareTo(b.sortOrder ?? 0));
@@ -262,9 +266,9 @@ class _CategoryList extends StatelessWidget {
       return Center(
         child: PEmptyState(
           icon: LucideIcons.tag,
-          message: q.isNotEmpty ? '검색 결과가 없어요' : '카테고리가 없습니다',
+          message: q.isNotEmpty ? l.categoryNoResults : l.categoryEmpty,
           subMessage:
-              q.isNotEmpty ? null : "상단 '추가' 버튼으로 추가하세요",
+              q.isNotEmpty ? null : l.categoryEmptyHint,
         ),
       );
     }
@@ -491,6 +495,7 @@ class _CategoryRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = tokens;
+    final l = AppLocalizations.of(context);
     final fg = resolveChartColor(context, category.color, fallback: t.fgBrand);
     final bg = softBg(context, fg);
     return Material(
@@ -568,7 +573,7 @@ class _CategoryRow extends StatelessWidget {
                       ),
                       if (isParent && hasChildren)
                         Text(
-                          '${category.expenseType == 'EXPENSE' ? '지출' : '수입'} · 하위 카테고리 있음',
+                          l.categoryHasSubcategories(category.expenseType == 'EXPENSE' ? l.expTypeExpense : l.expTypeIncome),
                           style: PTypo.caption.copyWith(color: t.fgTertiary),
                         ),
                     ],
