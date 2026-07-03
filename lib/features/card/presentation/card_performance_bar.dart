@@ -6,6 +6,7 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/features/card/application/card_providers.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
@@ -29,6 +30,7 @@ class CardPerformanceBar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final async = ref.watch(cardPerformanceProvider(
         (assetRowId: assetRowId, yearMonth: yearMonth)));
     return async.when(
@@ -83,7 +85,7 @@ class CardPerformanceBar extends ConsumerWidget {
                   Icon(LucideIcons.trendingUp,
                       size: 14, color: t.fgSecondary),
                   const SizedBox(width: 6),
-                  Text('$yearMonth 실적',
+                  Text(l.cardPerfMonthTitle(yearMonth),
                       style: PTypo.caption.copyWith(
                           color: t.fgPrimary, fontWeight: PFontWeight.bold)),
                   const Spacer(),
@@ -115,13 +117,12 @@ class CardPerformanceBar extends ConsumerWidget {
                   const Spacer(),
                   if (!p.isAchieved && p.remainingAmount != null)
                     Text(
-                      masked
-                          ? '남은 •••'
-                          : '남은 ${krw(p.remainingAmount!)}원',
+                      l.cardPerfRemaining(
+                          masked ? '•••' : '${krw(p.remainingAmount!)}원'),
                       style: PTypo.caption.copyWith(color: t.fgTertiary),
                     )
                   else
-                    Text('달성',
+                    Text(l.cardPerfAchieved,
                         style: PTypo.caption.copyWith(
                             color: t.statusSuccess,
                             fontWeight: PFontWeight.bold)),

@@ -1571,6 +1571,170 @@ class AppLocalizationsEn extends AppLocalizations {
   String get budgetNoCategorySet => 'No category budgets set';
 
   @override
+  String get cardBenefitTypeAll => 'All benefits';
+
+  @override
+  String get cardBenefitTypeDiscount => 'Discount';
+
+  @override
+  String get cardBenefitTypePoint => 'Points';
+
+  @override
+  String get cardBenefitTypeCashback => 'Cashback';
+
+  @override
+  String get cardBenefitTypeMileage => 'Mileage';
+
+  @override
+  String get cardManageTitle => 'Manage cards';
+
+  @override
+  String get cardBenefitsTitle => 'Card benefits';
+
+  @override
+  String get cardSelectTitle => 'Select card';
+
+  @override
+  String get cardBenefitMappingTitle => 'Card benefit mapping';
+
+  @override
+  String get cardBenefitMappingTooltip => 'Benefit mapping';
+
+  @override
+  String get cardSearchHintName => 'Search by card name';
+
+  @override
+  String get cardSearchHintFull => 'Search by name, brand, or benefit';
+
+  @override
+  String get cardSearchHintNameCompany => 'Search card / issuer';
+
+  @override
+  String get cardLoadError => 'Failed to load cards';
+
+  @override
+  String get cardDetailLoadError => 'Failed to load card details';
+
+  @override
+  String get cardSearchError => 'Card search failed';
+
+  @override
+  String get cardAddFailed => 'Failed to add';
+
+  @override
+  String get cardDeleteFailed => 'Failed to delete';
+
+  @override
+  String get cardMappingLoadError => 'Failed to load mappings';
+
+  @override
+  String get cardLastMonthPerf => 'Last month spend';
+
+  @override
+  String get cardKeyBenefitTags => 'Key benefit tags';
+
+  @override
+  String cardBenefitDetailCount(int count) {
+    return 'Benefit details · $count';
+  }
+
+  @override
+  String get cardExpandAll => 'Expand all';
+
+  @override
+  String get cardCollapseAll => 'Collapse all';
+
+  @override
+  String get cardCautions => 'Notes';
+
+  @override
+  String get cardBenefits => 'Benefits';
+
+  @override
+  String get cardNone => 'None';
+
+  @override
+  String get cardPerfNone => 'No spend requirement';
+
+  @override
+  String cardFeeDomesticOnly(String amount) {
+    return 'Domestic only $amount';
+  }
+
+  @override
+  String cardPerfMin(String amount) {
+    return '$amount or more';
+  }
+
+  @override
+  String cardPerfMonthly(String amount) {
+    return 'Spend $amount/mo';
+  }
+
+  @override
+  String cardAnnualFeeValue(String fee) {
+    return 'Annual fee $fee';
+  }
+
+  @override
+  String cardPerfMonthTitle(String month) {
+    return '$month spend';
+  }
+
+  @override
+  String get cardPerfAchieved => 'Achieved';
+
+  @override
+  String cardPerfRemaining(String amount) {
+    return '$amount left';
+  }
+
+  @override
+  String get cardMappingNew => 'New mapping';
+
+  @override
+  String get cardMappingNewDesc =>
+      'Link a card benefit category (e.g., Cafe, Fuel) to a ledger category to power auto-suggestions when entering transactions.';
+
+  @override
+  String get cardMappingBenefitPlaceholder => 'Benefit category';
+
+  @override
+  String get cardMappingCategoryPlaceholder => 'Ledger category';
+
+  @override
+  String get cardMappingAdd => 'Add mapping';
+
+  @override
+  String get cardMappingRegistered => 'Registered mappings';
+
+  @override
+  String get cardMappingEmpty => 'No mappings registered';
+
+  @override
+  String get cardMappingDefault => 'Default';
+
+  @override
+  String get cardIncludeDiscontinued => 'Include discontinued cards';
+
+  @override
+  String cardTotalCount(int count) {
+    return '$count total';
+  }
+
+  @override
+  String get cardEmpty => 'No cards';
+
+  @override
+  String get cardNoResults => 'No results';
+
+  @override
+  String get cardNoResultsHint => 'Try a different search term';
+
+  @override
+  String get cardPickerNoMatch => 'No matching cards';
+
+  @override
   String get authLoginPrompt => 'Sign in with your SSO account';
 
   @override

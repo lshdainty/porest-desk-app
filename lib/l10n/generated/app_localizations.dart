@@ -3008,6 +3008,300 @@ abstract class AppLocalizations {
   /// **'설정된 카테고리 예산이 없어요'**
   String get budgetNoCategorySet;
 
+  /// No description provided for @cardBenefitTypeAll.
+  ///
+  /// In ko, this message translates to:
+  /// **'혜택 전체'**
+  String get cardBenefitTypeAll;
+
+  /// No description provided for @cardBenefitTypeDiscount.
+  ///
+  /// In ko, this message translates to:
+  /// **'할인'**
+  String get cardBenefitTypeDiscount;
+
+  /// No description provided for @cardBenefitTypePoint.
+  ///
+  /// In ko, this message translates to:
+  /// **'적립'**
+  String get cardBenefitTypePoint;
+
+  /// No description provided for @cardBenefitTypeCashback.
+  ///
+  /// In ko, this message translates to:
+  /// **'캐시백'**
+  String get cardBenefitTypeCashback;
+
+  /// No description provided for @cardBenefitTypeMileage.
+  ///
+  /// In ko, this message translates to:
+  /// **'마일리지'**
+  String get cardBenefitTypeMileage;
+
+  /// No description provided for @cardManageTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'카드 관리'**
+  String get cardManageTitle;
+
+  /// No description provided for @cardBenefitsTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'카드 혜택'**
+  String get cardBenefitsTitle;
+
+  /// No description provided for @cardSelectTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'카드 선택'**
+  String get cardSelectTitle;
+
+  /// No description provided for @cardBenefitMappingTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'카드 혜택 매핑'**
+  String get cardBenefitMappingTitle;
+
+  /// No description provided for @cardBenefitMappingTooltip.
+  ///
+  /// In ko, this message translates to:
+  /// **'혜택 매핑'**
+  String get cardBenefitMappingTooltip;
+
+  /// No description provided for @cardSearchHintName.
+  ///
+  /// In ko, this message translates to:
+  /// **'카드명 검색'**
+  String get cardSearchHintName;
+
+  /// No description provided for @cardSearchHintFull.
+  ///
+  /// In ko, this message translates to:
+  /// **'카드명, 브랜드, 혜택으로 검색'**
+  String get cardSearchHintFull;
+
+  /// No description provided for @cardSearchHintNameCompany.
+  ///
+  /// In ko, this message translates to:
+  /// **'카드명 / 회사 검색'**
+  String get cardSearchHintNameCompany;
+
+  /// No description provided for @cardLoadError.
+  ///
+  /// In ko, this message translates to:
+  /// **'카드 로드 실패'**
+  String get cardLoadError;
+
+  /// No description provided for @cardDetailLoadError.
+  ///
+  /// In ko, this message translates to:
+  /// **'카드 상세 로드 실패'**
+  String get cardDetailLoadError;
+
+  /// No description provided for @cardSearchError.
+  ///
+  /// In ko, this message translates to:
+  /// **'카드 검색 실패'**
+  String get cardSearchError;
+
+  /// No description provided for @cardAddFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'추가 실패'**
+  String get cardAddFailed;
+
+  /// No description provided for @cardDeleteFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'삭제 실패'**
+  String get cardDeleteFailed;
+
+  /// No description provided for @cardMappingLoadError.
+  ///
+  /// In ko, this message translates to:
+  /// **'매핑 로드 실패'**
+  String get cardMappingLoadError;
+
+  /// No description provided for @cardLastMonthPerf.
+  ///
+  /// In ko, this message translates to:
+  /// **'전월 실적'**
+  String get cardLastMonthPerf;
+
+  /// No description provided for @cardKeyBenefitTags.
+  ///
+  /// In ko, this message translates to:
+  /// **'주요 혜택 태그'**
+  String get cardKeyBenefitTags;
+
+  /// No description provided for @cardBenefitDetailCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'혜택 상세 · {count}건'**
+  String cardBenefitDetailCount(int count);
+
+  /// No description provided for @cardExpandAll.
+  ///
+  /// In ko, this message translates to:
+  /// **'모두 펼치기'**
+  String get cardExpandAll;
+
+  /// No description provided for @cardCollapseAll.
+  ///
+  /// In ko, this message translates to:
+  /// **'모두 접기'**
+  String get cardCollapseAll;
+
+  /// No description provided for @cardCautions.
+  ///
+  /// In ko, this message translates to:
+  /// **'유의사항'**
+  String get cardCautions;
+
+  /// No description provided for @cardBenefits.
+  ///
+  /// In ko, this message translates to:
+  /// **'혜택'**
+  String get cardBenefits;
+
+  /// No description provided for @cardNone.
+  ///
+  /// In ko, this message translates to:
+  /// **'없음'**
+  String get cardNone;
+
+  /// No description provided for @cardPerfNone.
+  ///
+  /// In ko, this message translates to:
+  /// **'실적 무관'**
+  String get cardPerfNone;
+
+  /// No description provided for @cardFeeDomesticOnly.
+  ///
+  /// In ko, this message translates to:
+  /// **'국내전용 {amount}'**
+  String cardFeeDomesticOnly(String amount);
+
+  /// No description provided for @cardPerfMin.
+  ///
+  /// In ko, this message translates to:
+  /// **'{amount} 이상'**
+  String cardPerfMin(String amount);
+
+  /// No description provided for @cardPerfMonthly.
+  ///
+  /// In ko, this message translates to:
+  /// **'실적 {amount}/월'**
+  String cardPerfMonthly(String amount);
+
+  /// No description provided for @cardAnnualFeeValue.
+  ///
+  /// In ko, this message translates to:
+  /// **'연회비 {fee}'**
+  String cardAnnualFeeValue(String fee);
+
+  /// No description provided for @cardPerfMonthTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'{month} 실적'**
+  String cardPerfMonthTitle(String month);
+
+  /// No description provided for @cardPerfAchieved.
+  ///
+  /// In ko, this message translates to:
+  /// **'달성'**
+  String get cardPerfAchieved;
+
+  /// No description provided for @cardPerfRemaining.
+  ///
+  /// In ko, this message translates to:
+  /// **'남은 {amount}'**
+  String cardPerfRemaining(String amount);
+
+  /// No description provided for @cardMappingNew.
+  ///
+  /// In ko, this message translates to:
+  /// **'새 매핑'**
+  String get cardMappingNew;
+
+  /// No description provided for @cardMappingNewDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'카드 혜택 카테고리(예: 카페, 주유)를 가계부 카테고리와 연결하면 거래 입력 시 자동 추천에 활용됩니다.'**
+  String get cardMappingNewDesc;
+
+  /// No description provided for @cardMappingBenefitPlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'혜택 카테고리'**
+  String get cardMappingBenefitPlaceholder;
+
+  /// No description provided for @cardMappingCategoryPlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'가계부 카테고리'**
+  String get cardMappingCategoryPlaceholder;
+
+  /// No description provided for @cardMappingAdd.
+  ///
+  /// In ko, this message translates to:
+  /// **'매핑 추가'**
+  String get cardMappingAdd;
+
+  /// No description provided for @cardMappingRegistered.
+  ///
+  /// In ko, this message translates to:
+  /// **'등록된 매핑'**
+  String get cardMappingRegistered;
+
+  /// No description provided for @cardMappingEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'등록된 매핑이 없습니다'**
+  String get cardMappingEmpty;
+
+  /// No description provided for @cardMappingDefault.
+  ///
+  /// In ko, this message translates to:
+  /// **'기본'**
+  String get cardMappingDefault;
+
+  /// No description provided for @cardIncludeDiscontinued.
+  ///
+  /// In ko, this message translates to:
+  /// **'단종 카드 포함'**
+  String get cardIncludeDiscontinued;
+
+  /// No description provided for @cardTotalCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'총 {count}건'**
+  String cardTotalCount(int count);
+
+  /// No description provided for @cardEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'카드가 없습니다'**
+  String get cardEmpty;
+
+  /// No description provided for @cardNoResults.
+  ///
+  /// In ko, this message translates to:
+  /// **'결과가 없어요'**
+  String get cardNoResults;
+
+  /// No description provided for @cardNoResultsHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'다른 검색어를 시도해보세요'**
+  String get cardNoResultsHint;
+
+  /// No description provided for @cardPickerNoMatch.
+  ///
+  /// In ko, this message translates to:
+  /// **'일치하는 카드가 없습니다'**
+  String get cardPickerNoMatch;
+
   /// No description provided for @authLoginPrompt.
   ///
   /// In ko, this message translates to:
