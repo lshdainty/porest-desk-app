@@ -6,6 +6,7 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/shared/brand/bank_colors.dart';
 import 'package:porest_desk_app/shared/widgets/p_chip.dart';
@@ -49,10 +50,11 @@ void _open(
   required Asset? edit,
   required _SubType initialSubType,
 }) {
+  final l = AppLocalizations.of(context);
   final controller = PSheetController();
   showPSheet<void>(
     context,
-    title: edit == null ? '계좌 추가' : '계좌 편집',
+    title: edit == null ? l.assetAccountAdd : l.assetAccountEdit,
     contentBuilder: (ctx, scrollCtrl) => _AccountAddBody(
       edit: edit,
       initialSubType: initialSubType,
@@ -61,7 +63,7 @@ void _open(
     ),
     footerBuilder: (ctx) => PSheetFooter(
       controller: controller,
-      submitLabel: edit != null ? '저장' : '추가',
+      submitLabel: edit != null ? l.actionSave : l.calAdd,
     ),
   ).whenComplete(controller.dispose);
 }
@@ -76,12 +78,12 @@ _SubType _subTypeFromAssetType(String t) => switch (t) {
 enum _SubType { checking, savingsRecurring, savingsTime, cash, loan }
 
 extension _SubTypeX on _SubType {
-  String get label => switch (this) {
-        _SubType.checking => '입출금',
-        _SubType.savingsRecurring => '적금',
-        _SubType.savingsTime => '예금',
-        _SubType.cash => '현금',
-        _SubType.loan => '대출',
+  String label(AppLocalizations l) => switch (this) {
+        _SubType.checking => l.assetTypeBankAccount,
+        _SubType.savingsRecurring => l.assetSubtypeInstallment,
+        _SubType.savingsTime => l.assetSubtypeDeposit,
+        _SubType.cash => l.assetTypeCash,
+        _SubType.loan => l.assetTypeLoan,
       };
 
   /// 백엔드 assetType 매핑 — front 와 동일.
@@ -223,9 +225,10 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
 
   Future<void> _submit() async {
     if (_submitting) return;
+    final l = AppLocalizations.of(context);
     final brand = _brand;
     final nickname = _nicknameCtrl.text.trim();
-    final name = nickname.isEmpty ? '$brand ${_subType.label}' : nickname;
+    final name = nickname.isEmpty ? '$brand ${_subType.label(l)}' : nickname;
     final balance = int.tryParse(_balanceCtrl.text.replaceAll(',', '')) ?? 0;
     final accountNumber = _accountNumberCtrl.text.trim();
     final memo = _memoCtrl.text.trim();
@@ -277,10 +280,12 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
       ref.invalidate(assetsProvider);
       if (!mounted) return;
       Navigator.of(context).pop();
-      showPSnackBar(context, _isEdit ? '계좌가 수정되었습니다' : '계좌가 추가되었습니다', severity: PSnackSeverity.success);
+      showPSnackBar(context, _isEdit ? l.assetAccountUpdated : l.assetAccountAdded,
+          severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!mounted) return;
-      showPSnackBar(context, '실패: ${e.message}', severity: PSnackSeverity.error);
+      showPSnackBar(context, '${l.assetActionFailed}: ${e.message}',
+          severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setSubmitting(false);
     }
@@ -288,11 +293,12 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
 
   Future<void> _delete() async {
     if (_deleting || widget.edit == null) return;
+    final l = AppLocalizations.of(context);
     final ok = await showPConfirmDialog(
       context,
-      title: '계좌 삭제',
-      message: '이 계좌를 삭제하시겠습니까? 연결된 거래는 유지됩니다.',
-      confirmLabel: '삭제',
+      title: l.assetAccountDelete,
+      message: l.assetAccountDeleteConfirm,
+      confirmLabel: l.actionDelete,
       destructive: true,
     );
     if (!ok || !mounted) return;
@@ -303,10 +309,11 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
       ref.invalidate(assetsProvider);
       if (!mounted) return;
       Navigator.of(context).pop();
-      showPSnackBar(context, '계좌가 삭제되었습니다', severity: PSnackSeverity.success);
+      showPSnackBar(context, l.assetAccountDeleted, severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!mounted) return;
-      showPSnackBar(context, '삭제 실패: ${e.message}', severity: PSnackSeverity.error);
+      showPSnackBar(context, '${l.assetDeleteFailed}: ${e.message}',
+          severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setDeleting(false);
     }
@@ -315,6 +322,7 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     // 결제 출금계좌 후보 — 본인 소유 BANK_ACCOUNT 자산.
     final bankAccounts = (ref.watch(assetsProvider).value ?? const <Asset>[])
         .where((a) => a.assetType == 'BANK_ACCOUNT')
@@ -332,18 +340,18 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
                 // 기관·브랜드 ────────────────────────
                 Row(
                   children: [
-                    Text('기관·브랜드',
+                    Text(l.assetInstitutionBrand,
                         style: PTypo.caption.copyWith(
                             color: t.fgPrimary,
                             fontWeight: PFontWeight.medium)),
                     const Spacer(),
-                    Text('총 $_accountEntriesCount개',
+                    Text(l.assetTotalEntries(_accountEntriesCount),
                         style: PTypo.micro.copyWith(color: t.fgTertiary)),
                   ],
                 ),
                 const SizedBox(height: PSpace.x8),
                 PSearchField(
-                  hint: '은행명 또는 증권사 검색',
+                  hint: l.assetBankSearchHint,
                   controller: _queryCtrl,
                 ),
                 const SizedBox(height: PSpace.x8),
@@ -355,25 +363,25 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
                 const SizedBox(height: PSpace.x20),
 
                 // 별칭 ────────────────────────────────
-                Text('별칭',
+                Text(l.assetNickname,
                     style: PTypo.caption.copyWith(
                         color: t.fgPrimary, fontWeight: PFontWeight.medium)),
                 const SizedBox(height: PSpace.x8),
                 PTextInput(
                   controller: _nicknameCtrl,
-                  placeholder: '예: 신한 주거래',
+                  placeholder: l.assetNicknamePlaceholder,
                 ),
                 const SizedBox(height: PSpace.x20),
 
                 // 계좌 종류 ──────────────────────────
-                Text('계좌 종류',
+                Text(l.assetAccountType,
                     style: PTypo.caption.copyWith(
                         color: t.fgPrimary, fontWeight: PFontWeight.medium)),
                 const SizedBox(height: PSpace.x8),
                 PTabs<_SubType>(
                   items: [
                     for (final s in _SubType.values)
-                      PTabItem(value: s, label: s.label),
+                      PTabItem(value: s, label: s.label(l)),
                   ],
                   value: _subType,
                   onChanged: (v) => setState(() => _subType = v),
@@ -391,7 +399,7 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('계좌번호',
+                          Text(l.assetAccountNumber,
                               style: PTypo.caption.copyWith(
                                   color: t.fgPrimary,
                                   fontWeight: PFontWeight.medium)),
@@ -408,7 +416,7 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(_isEdit ? '잔액 (원)' : '잔액 (원)',
+                          Text(l.assetBalanceLabel,
                               style: PTypo.caption.copyWith(
                                   color: t.fgPrimary,
                                   fontWeight: PFontWeight.medium)),
@@ -429,14 +437,14 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
                 // 메모 — 편집 모드에서만 노출 (web 동일).
                 if (_isEdit) ...[
                   const SizedBox(height: PSpace.x20),
-                  Text('메모 (선택)',
+                  Text(l.assetMemoOptional,
                       style: PTypo.caption.copyWith(
                           color: t.fgPrimary,
                           fontWeight: PFontWeight.medium)),
                   const SizedBox(height: PSpace.x8),
                   PTextInput(
                     controller: _memoCtrl,
-                    placeholder: '계좌번호 뒷자리, 결제일, 한도 등 메모하세요',
+                    placeholder: l.assetMemoPlaceholder,
                   ),
                 ],
 
@@ -444,28 +452,28 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
                 if (_isCreditCard) ...[
                   const SizedBox(height: PSpace.x20),
                   // 신용한도 (원)
-                  Text('신용한도 (원, 선택)',
+                  Text(l.assetCreditLimitLabel,
                       style: PTypo.caption.copyWith(
                           color: t.fgPrimary, fontWeight: PFontWeight.medium)),
                   const SizedBox(height: PSpace.x8),
                   PTextInput(
                     controller: _creditLimitCtrl,
                     keyboardType: TextInputType.number,
-                    placeholder: '예: 5,000,000',
+                    placeholder: l.assetCreditLimitPlaceholder,
                   ),
                   const SizedBox(height: 6),
-                  Text('한도를 입력하면 사용률 게이지가 표시됩니다.',
+                  Text(l.assetCreditLimitHint,
                       style: PTypo.micro.copyWith(color: t.fgTertiary)),
                   const SizedBox(height: PSpace.x20),
                   // 결제일 (1~31)
-                  Text('결제일 (선택)',
+                  Text(l.assetPaymentDayLabel,
                       style: PTypo.caption.copyWith(
                           color: t.fgPrimary, fontWeight: PFontWeight.medium)),
                   const SizedBox(height: PSpace.x8),
                   PSelect<int>(
                     value: _paymentDay,
-                    placeholder: '결제일 선택',
-                    title: '결제일',
+                    placeholder: l.assetPaymentDaySelect,
+                    title: l.assetPaymentDay,
                     items: [
                       for (var d = 1; d <= 31; d++)
                         PSelectItem(value: d, label: '$d일'),
@@ -474,16 +482,16 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
                   ),
                   const SizedBox(height: PSpace.x20),
                   // 결제 출금계좌
-                  Text('결제 출금계좌 (선택)',
+                  Text(l.assetPaymentAccountLabel,
                       style: PTypo.caption.copyWith(
                           color: t.fgPrimary, fontWeight: PFontWeight.medium)),
                   const SizedBox(height: PSpace.x8),
                   PSelect<int>(
                     value: _paymentAssetRowId,
                     placeholder: bankAccounts.isEmpty
-                        ? '등록된 입출금계좌가 없어요'
-                        : '결제계좌 선택',
-                    title: '결제 출금계좌',
+                        ? l.assetNoBankAccounts
+                        : l.assetPaymentAccountSelect,
+                    title: l.assetPaymentAccount,
                     enabled: bankAccounts.isNotEmpty,
                     items: [
                       for (final a in bankAccounts)
@@ -498,7 +506,7 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
                     onChanged: (v) => setState(() => _paymentAssetRowId = v),
                   ),
                   const SizedBox(height: 6),
-                  Text('결제일에 이 계좌에서 청구액이 출금됩니다.',
+                  Text(l.assetPaymentAccountHint,
                       style: PTypo.micro.copyWith(color: t.fgTertiary)),
                 ],
 
@@ -522,8 +530,9 @@ class _PreviewTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final letter = entry.name.isEmpty ? '?' : entry.name.characters.first;
-    final preview = nickname.isEmpty ? '새 계좌' : nickname;
+    final preview = nickname.isEmpty ? l.assetNewAccount : nickname;
     return Row(
       children: [
         Container(
@@ -559,7 +568,7 @@ class _PreviewTile extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 2),
-              Text('${entry.name} · 미리보기',
+              Text('${entry.name} · ${l.assetPreview}',
                   style: PTypo.caption.copyWith(color: t.fgTertiary)),
             ],
           ),
@@ -584,6 +593,7 @@ class _BrandPicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final box = BoxDecoration(
       color: t.bgSurface,
       borderRadius: PRadius.brMd,
@@ -596,7 +606,7 @@ class _BrandPicker extends StatelessWidget {
         decoration: box,
         child: Center(
           child: Text(
-            '검색 결과가 없어요',
+            l.assetNoSearchResults,
             style: PTypo.caption.copyWith(color: t.fgTertiary),
           ),
         ),

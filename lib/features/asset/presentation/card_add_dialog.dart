@@ -6,6 +6,7 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/shared/brand/bank_colors.dart';
 import 'package:porest_desk_app/shared/widgets/p_divider.dart';
@@ -35,17 +36,18 @@ import 'package:porest_desk_app/features/asset/presentation/include_in_total_car
 /// - 별칭 (선택)
 /// - 현재 사용액 (원)  → 청구 예정 금액. 총 부채에 반영.
 void showCardAddDialog(BuildContext context) {
+  final l = AppLocalizations.of(context);
   final controller = PSheetController();
   showPSheet<void>(
     context,
-    title: '카드 추가',
+    title: l.assetCardAdd,
     contentBuilder: (ctx, scrollCtrl) => _CardAddBody(
       scrollController: scrollCtrl,
       controller: controller,
     ),
     footerBuilder: (ctx) => PSheetFooter(
       controller: controller,
-      submitLabel: '추가',
+      submitLabel: l.calAdd,
     ),
   ).whenComplete(controller.dispose);
 }
@@ -53,9 +55,9 @@ void showCardAddDialog(BuildContext context) {
 enum _CardType { credit, check }
 
 extension on _CardType {
-  String get label => switch (this) {
-        _CardType.credit => '신용카드',
-        _CardType.check => '체크카드',
+  String label(AppLocalizations l) => switch (this) {
+        _CardType.credit => l.assetTypeCreditCard,
+        _CardType.check => l.assetTypeCheckCard,
       };
   String get apiCode => switch (this) {
         _CardType.credit => 'CREDIT',
@@ -123,6 +125,7 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
 
   Future<void> _submit() async {
     if (_submitting || _selected == null) return;
+    final l = AppLocalizations.of(context);
     final selected = _selected!;
     final nickname = _nicknameCtrl.text.trim();
     final name = nickname.isEmpty ? selected.cardName : nickname;
@@ -155,10 +158,11 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
       ref.invalidate(assetsProvider);
       if (!mounted) return;
       Navigator.of(context).pop();
-      showPSnackBar(context, '카드가 추가되었습니다', severity: PSnackSeverity.success);
+      showPSnackBar(context, l.assetCardAdded, severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!mounted) return;
-      showPSnackBar(context, '실패: ${e.message}', severity: PSnackSeverity.error);
+      showPSnackBar(context, '${l.assetActionFailed}: ${e.message}',
+          severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setSubmitting(false);
     }
@@ -167,6 +171,7 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final searchKey = defaultCardSearchKey(
       keyword: _keywordCtrl.text.trim().isEmpty
           ? null
@@ -201,14 +206,14 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
                 const SizedBox(height: PSpace.x20),
 
                 // 카드 종류 ──────────────────────────
-                Text('카드 종류',
+                Text(l.assetCardType,
                     style: PTypo.caption.copyWith(
                         color: t.fgPrimary, fontWeight: PFontWeight.medium)),
                 const SizedBox(height: PSpace.x8),
                 PTabs<_CardType>(
                   items: [
                     for (final c in _CardType.values)
-                      PTabItem(value: c, label: c.label),
+                      PTabItem(value: c, label: c.label(l)),
                   ],
                   value: _cardType,
                   onChanged: (v) => setState(() {
@@ -224,7 +229,7 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
                 // 카드 상품 ──────────────────────────
                 Row(
                   children: [
-                    Text('카드 상품',
+                    Text(l.assetCardProduct,
                         style: PTypo.caption.copyWith(
                             color: t.fgPrimary,
                             fontWeight: PFontWeight.medium)),
@@ -239,7 +244,7 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text('단종 포함',
+                            Text(l.assetIncludeDiscontinued,
                                 style: PTypo.caption
                                     .copyWith(color: t.fgTertiary)),
                             const SizedBox(width: 6),
@@ -263,15 +268,15 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
                     const SizedBox(width: 12),
                     Text(
                       pageAsync.value != null
-                          ? '총 ${pageAsync.value!.totalElements}건'
-                          : '총 …',
+                          ? l.assetTotalItems(pageAsync.value!.totalElements)
+                          : l.assetTotalLoading,
                       style: PTypo.micro.copyWith(color: t.fgTertiary),
                     ),
                   ],
                 ),
                 const SizedBox(height: PSpace.x8),
                 PSearchField(
-                  hint: '카드명 또는 발급사 검색',
+                  hint: l.assetCardSearchHint,
                   controller: _keywordCtrl,
                 ),
                 const SizedBox(height: PSpace.x8),
@@ -283,19 +288,19 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
                 const SizedBox(height: PSpace.x20),
 
                 // 별칭 (선택) ────────────────────────
-                Text('별칭 (선택)',
+                Text(l.assetNicknameOptional,
                     style: PTypo.caption.copyWith(
                         color: t.fgPrimary, fontWeight: PFontWeight.medium)),
                 const SizedBox(height: PSpace.x8),
                 PTextInput(
                   controller: _nicknameCtrl,
                   placeholder:
-                      _selected?.cardName ?? '예: 신한 Deep Dream',
+                      _selected?.cardName ?? l.assetCardNicknamePlaceholder,
                 ),
                 const SizedBox(height: PSpace.x20),
 
                 // 현재 사용액 (원) ───────────────────
-                Text('현재 사용액 (원)',
+                Text(l.assetCurrentUsage,
                     style: PTypo.caption.copyWith(
                         color: t.fgPrimary, fontWeight: PFontWeight.medium)),
                 const SizedBox(height: PSpace.x8),
@@ -306,35 +311,35 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
                   placeholder: '0',
                 ),
                 const SizedBox(height: 6),
-                Text('청구될 금액을 입력하세요. 총 부채에 반영됩니다.',
+                Text(l.assetCurrentUsageHint,
                     style: PTypo.micro.copyWith(color: t.fgTertiary)),
 
                 // 청구 사이클 (신용카드 전용) ──────────────
                 if (isCredit) ...[
                   const SizedBox(height: PSpace.x20),
                   // 신용한도 (원)
-                  Text('신용한도 (원, 선택)',
+                  Text(l.assetCreditLimitLabel,
                       style: PTypo.caption.copyWith(
                           color: t.fgPrimary, fontWeight: PFontWeight.medium)),
                   const SizedBox(height: PSpace.x8),
                   PTextInput(
                     controller: _creditLimitCtrl,
                     keyboardType: TextInputType.number,
-                    placeholder: '예: 5,000,000',
+                    placeholder: l.assetCreditLimitPlaceholder,
                   ),
                   const SizedBox(height: 6),
-                  Text('한도를 입력하면 사용률 게이지가 표시됩니다.',
+                  Text(l.assetCreditLimitHint,
                       style: PTypo.micro.copyWith(color: t.fgTertiary)),
                   const SizedBox(height: PSpace.x20),
                   // 결제일 (1~31)
-                  Text('결제일 (선택)',
+                  Text(l.assetPaymentDayLabel,
                       style: PTypo.caption.copyWith(
                           color: t.fgPrimary, fontWeight: PFontWeight.medium)),
                   const SizedBox(height: PSpace.x8),
                   PSelect<int>(
                     value: _paymentDay,
-                    placeholder: '결제일 선택',
-                    title: '결제일',
+                    placeholder: l.assetPaymentDaySelect,
+                    title: l.assetPaymentDay,
                     items: [
                       for (var d = 1; d <= 31; d++)
                         PSelectItem(value: d, label: '$d일'),
@@ -343,16 +348,16 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
                   ),
                   const SizedBox(height: PSpace.x20),
                   // 결제 출금계좌
-                  Text('결제 출금계좌 (선택)',
+                  Text(l.assetPaymentAccountLabel,
                       style: PTypo.caption.copyWith(
                           color: t.fgPrimary, fontWeight: PFontWeight.medium)),
                   const SizedBox(height: PSpace.x8),
                   PSelect<int>(
                     value: _paymentAssetRowId,
                     placeholder: bankAccounts.isEmpty
-                        ? '등록된 입출금계좌가 없어요'
-                        : '결제계좌 선택',
-                    title: '결제 출금계좌',
+                        ? l.assetNoBankAccounts
+                        : l.assetPaymentAccountSelect,
+                    title: l.assetPaymentAccount,
                     enabled: bankAccounts.isNotEmpty,
                     items: [
                       for (final a in bankAccounts)
@@ -367,7 +372,7 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
                     onChanged: (v) => setState(() => _paymentAssetRowId = v),
                   ),
                   const SizedBox(height: 6),
-                  Text('결제일에 이 계좌에서 청구액이 출금됩니다.',
+                  Text(l.assetPaymentAccountHint,
                       style: PTypo.micro.copyWith(color: t.fgTertiary)),
                 ],
 
@@ -396,13 +401,14 @@ class _PreviewTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final company = selected?.company?.name;
     final brand = company != null ? getBrandColor([company]) : null;
     final preview =
-        nickname.isEmpty ? (selected?.cardName ?? '새 카드') : nickname;
+        nickname.isEmpty ? (selected?.cardName ?? l.assetNewCard) : nickname;
     final subtitle = [
       if (company != null && company.isNotEmpty) company,
-      cardType.label,
+      cardType.label(l),
     ].join(' · ');
     final imgUrl = selected?.imgUrl;
     return Row(
@@ -477,6 +483,7 @@ class _CatalogList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final box = BoxDecoration(
       color: t.bgSurface,
       borderRadius: PRadius.brMd,
@@ -495,7 +502,7 @@ class _CatalogList extends StatelessWidget {
         error: (_, _) => Padding(
           padding: const EdgeInsets.symmetric(vertical: 24),
           child: Center(
-            child: Text('카탈로그 로드 실패',
+            child: Text(l.assetCatalogLoadError,
                 style: PTypo.caption.copyWith(color: t.fgTertiary)),
           ),
         ),
@@ -504,7 +511,7 @@ class _CatalogList extends StatelessWidget {
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 24),
               child: Center(
-                child: Text('검색 결과가 없어요',
+                child: Text(l.assetNoSearchResults,
                     style: PTypo.caption.copyWith(color: t.fgTertiary)),
               ),
             );
@@ -550,12 +557,13 @@ class _CatalogRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final company = item.company?.name;
     final brand = company != null ? getBrandColor([company]) : null;
     final fee = item.annualFee?.amount ?? 0;
-    final feePart = fee > 0 ? ' · 연회비 ${_fmtKrw(fee)}원' : '';
+    final feePart = fee > 0 ? ' · ${l.assetAnnualFee} ${_fmtKrw(fee)}원' : '';
     final subtitle =
-        '${company ?? '—'} · ${item.cardType == 'CREDIT' ? '신용' : '체크'}$feePart';
+        '${company ?? '—'} · ${item.cardType == 'CREDIT' ? l.assetCardShortCredit : l.assetCardShortCheck}$feePart';
 
     return InkWell(
       onTap: onTap,
@@ -618,7 +626,7 @@ class _CatalogRow extends StatelessWidget {
                               borderRadius: PRadius.brXs,
                             ),
                             child: Text(
-                              '단종',
+                              l.assetDiscontinued,
                               style: PTypo.micro.copyWith(
                                 color: t.fgTertiary,
                                 fontWeight: PFontWeight.semi,

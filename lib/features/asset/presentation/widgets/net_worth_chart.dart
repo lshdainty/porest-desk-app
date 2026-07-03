@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/core/format/chart_axis.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
@@ -30,6 +31,7 @@ class _NetWorthChartState extends ConsumerState<NetWorthChart> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final height = widget.height;
     final months = widget.months;
     final trendAsync = ref.watch(netWorthTrendProvider(months));
@@ -42,7 +44,7 @@ class _NetWorthChartState extends ConsumerState<NetWorthChart> {
             SizedBox.expand(child: PSkeleton(borderRadius: PRadius.brLg)),
         error: (_, _) => Center(
           child: Text(
-            '추이 데이터를 불러오지 못했어요',
+            l.assetTrendLoadError,
             style: TextStyle(color: t.fgTertiary, fontSize: PFontSize.bodySm),
           ),
         ),
@@ -50,7 +52,7 @@ class _NetWorthChartState extends ConsumerState<NetWorthChart> {
           if (points.isEmpty) {
             return Center(
               child: Text(
-                '추이 데이터가 없어요',
+                l.assetTrendEmpty,
                 style: TextStyle(
                   color: t.fgTertiary,
                   fontSize: PFontSize.bodySm,
@@ -236,7 +238,7 @@ class _NetWorthChartState extends ConsumerState<NetWorthChart> {
                     rows: [
                       PChartTooltipRowData(
                         color: t.bgBrand,
-                        label: '순자산',
+                        label: l.assetNetWorth,
                         amount: masked
                             ? '••••••'
                             : _fmtFull(points[_touchedIdx!].netWorth.toDouble()),

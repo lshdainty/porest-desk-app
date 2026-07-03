@@ -5,6 +5,7 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_card.dart';
 import 'package:porest_desk_app/shared/widgets/p_switch.dart';
 
@@ -25,6 +26,7 @@ class IncludeInTotalCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     return PCard(
       variant: PCardVariant.bordered,
       padding: const EdgeInsets.symmetric(
@@ -49,7 +51,7 @@ class IncludeInTotalCard extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  '전체 자산 합계에 포함',
+                  l.assetIncludeInTotal,
                   style: PTypo.bodySm.copyWith(
                     color: t.fgPrimary,
                     fontWeight: PFontWeight.medium,
@@ -57,7 +59,7 @@ class IncludeInTotalCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '순자산·총자산 계산에 반영됩니다',
+                  l.assetIncludeInTotalDesc,
                   style: PTypo.caption.copyWith(color: t.fgSecondary),
                 ),
               ],
@@ -67,7 +69,7 @@ class IncludeInTotalCard extends StatelessWidget {
           PSwitch(
             value: value,
             onChanged: onChanged,
-            semanticLabel: '전체 자산 합계에 포함',
+            semanticLabel: l.assetIncludeInTotal,
           ),
         ],
       ),

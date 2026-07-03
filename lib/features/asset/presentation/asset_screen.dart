@@ -8,6 +8,7 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/settings/hide_amounts_unlock_dialog.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
@@ -55,6 +56,7 @@ class _AssetScreenState extends ConsumerState<AssetScreen> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
     final assetsAsync = ref.watch(assetsProvider);
     final summaryAsync = ref.watch(
@@ -83,7 +85,7 @@ class _AssetScreenState extends ConsumerState<AssetScreen> {
         child: assetsAsync.when(
           loading: () => const _AssetPageSkeleton(),
           error: (e, _) => _ErrorBox(
-            message: '자산을 불러오지 못했습니다\n$e',
+            message: '${l.assetLoadError}\n$e',
             onRetry: () => ref.invalidate(assetsProvider),
           ),
           data: (assets) {
@@ -142,6 +144,7 @@ class _AssetBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     if (assets.isEmpty) {
       return ListView(
         padding: const EdgeInsets.all(PSpace.x20),
@@ -152,7 +155,7 @@ class _AssetBody extends StatelessWidget {
             child: Column(
               children: [
                 Text(
-                  '아직 등록된 자산이 없어요',
+                  l.assetEmptyState,
                   style: TextStyle(
                     color: tokens.fgTertiary,
                     fontSize: PFontSize.body,
@@ -161,7 +164,7 @@ class _AssetBody extends StatelessWidget {
                 ),
                 const SizedBox(height: PSpace.x8),
                 Text(
-                  '설정 → 카드·계좌 관리에서 추가할 수 있어요',
+                  l.assetEmptyHint,
                   style: TextStyle(
                     color: tokens.fgTertiary,
                     fontSize: PFontSize.caption,
@@ -225,7 +228,7 @@ class _AssetBody extends StatelessWidget {
         ),
         const SizedBox(height: PSpace.x16),
         _TypeGroup(
-          title: '계좌 · 예금',
+          title: l.assetGroupAccount,
           assets: accounts,
           total: accountsTotal,
           masked: masked,
@@ -235,7 +238,7 @@ class _AssetBody extends StatelessWidget {
         if (investments.isNotEmpty) ...[
           const SizedBox(height: PSpace.x16),
           _TypeGroup(
-            title: '투자',
+            title: l.assetGroupInvestment,
             assets: investments,
             total: investmentsTotal,
             masked: masked,
@@ -245,7 +248,7 @@ class _AssetBody extends StatelessWidget {
         ],
         const SizedBox(height: PSpace.x16),
         _TypeGroup(
-          title: '카드',
+          title: l.assetGroupCard,
           assets: cards,
           total: cardsTotal,
           totalColor: tokens.fgExpense,
@@ -257,7 +260,7 @@ class _AssetBody extends StatelessWidget {
         if (loans.isNotEmpty) ...[
           const SizedBox(height: PSpace.x16),
           _TypeGroup(
-            title: '대출',
+            title: l.assetGroupDebt,
             assets: loans,
             total: loansTotal,
             totalColor: tokens.fgExpense,
@@ -302,6 +305,7 @@ class _SummaryCard extends StatelessWidget {
     final isUp = changeAmount >= 0;
     final trendColor = isUp ? tokens.fgIncome : tokens.fgExpense;
     final t = tokens;
+    final l = AppLocalizations.of(context);
     return PCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -309,7 +313,7 @@ class _SummaryCard extends StatelessWidget {
           Row(
             children: [
               Text(
-                '총 순자산',
+                l.assetTotalNetWorth,
                 style: TextStyle(
                   color: t.fgTertiary,
                   fontSize: PFontSize.caption,
@@ -389,7 +393,7 @@ class _SummaryCard extends StatelessWidget {
               ],
               const SizedBox(width: 10),
               Text(
-                '지난달 대비',
+                l.assetVsLastMonth,
                 style: TextStyle(
                   color: t.fgTertiary,
                   fontSize: PFontSize.bodySm,
@@ -409,7 +413,7 @@ class _SummaryCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: _SummaryCol(
-                    label: '계좌·예금',
+                    label: l.assetSummaryColAccounts,
                     amount: accountsTotal,
                     masked: masked,
                     tokens: t,
@@ -417,7 +421,7 @@ class _SummaryCard extends StatelessWidget {
                 ),
                 Expanded(
                   child: _SummaryCol(
-                    label: '투자',
+                    label: l.assetGroupInvestment,
                     amount: investmentsTotal,
                     masked: masked,
                     tokens: t,
@@ -425,7 +429,7 @@ class _SummaryCard extends StatelessWidget {
                 ),
                 Expanded(
                   child: _SummaryCol(
-                    label: '카드값',
+                    label: l.assetSummaryColCards,
                     amount: cardsTotal,
                     valueColor: t.fgExpense,
                     negative: true,
@@ -515,6 +519,7 @@ class _TypeGroup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     // 총액이 0원이면 음수 표기(−)·빨강 없이 중립색으로 표시 (web 정합)
     final isZeroTotal = total == 0;
     final totalText = masked
@@ -556,7 +561,7 @@ class _TypeGroup extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 24),
               child: Center(
                 child: Text(
-                  '등록된 항목이 없어요',
+                  l.assetGroupEmpty,
                   style: TextStyle(
                     color: tokens.fgTertiary,
                     fontSize: PFontSize.bodySm,
@@ -596,6 +601,7 @@ class _AssetCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = tokens;
+    final l = AppLocalizations.of(context);
     final balance = asset.balance ?? 0;
     // 음수(빚)만 fg-expense 빨강 + 부호(−), 0 은 부호·강조 없이 '0원' (−0원 방지)
     // — 관리 화면(account_card_manage_screen) 과 동일 로직.
@@ -669,7 +675,7 @@ class _AssetCard extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.only(top: 1),
                         child: Text(
-                          '${asset.paymentDay}일 결제',
+                          l.assetPaymentDayInfo(asset.paymentDay!),
                           style: TextStyle(
                             color: t.fgTertiary,
                             fontSize: PFontSize.caption,
@@ -713,7 +719,7 @@ class _AssetCard extends StatelessWidget {
                   if (asset.isIncludedInTotal == 'N') ...[
                     const SizedBox(height: 2),
                     Text(
-                      '총액 제외',
+                      l.assetExcludedFromTotal,
                       style: TextStyle(
                         color: t.fgTertiary,
                         fontSize: PFontSize.micro,
@@ -965,6 +971,7 @@ class _ErrorBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     return ListView(
       padding: const EdgeInsets.all(PSpace.x16),
       children: [
@@ -985,7 +992,7 @@ class _ErrorBox extends StatelessWidget {
               ),
               const SizedBox(height: PSpace.x8),
               PButton(
-                label: '다시 시도',
+                label: l.actionRetry,
                 variant: PButtonVariant.outline,
                 onPressed: onRetry,
               ),

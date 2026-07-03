@@ -5,6 +5,7 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/shared/brand/bank_colors.dart';
 import 'package:porest_desk_app/shared/widgets/p_chip.dart';
@@ -34,10 +35,11 @@ void showInvestmentEditDialog(BuildContext context, Asset asset) {
 }
 
 void _open(BuildContext context, {required Asset? edit}) {
+  final l = AppLocalizations.of(context);
   final controller = PSheetController();
   showPSheet<void>(
     context,
-    title: edit == null ? '투자 추가' : '투자 편집',
+    title: edit == null ? l.assetInvestAdd : l.assetInvestEdit,
     contentBuilder: (ctx, scrollCtrl) => _InvestmentAddBody(
       edit: edit,
       scrollController: scrollCtrl,
@@ -45,7 +47,7 @@ void _open(BuildContext context, {required Asset? edit}) {
     ),
     footerBuilder: (ctx) => PSheetFooter(
       controller: controller,
-      submitLabel: edit != null ? '저장' : '추가',
+      submitLabel: edit != null ? l.actionSave : l.calAdd,
     ),
   ).whenComplete(controller.dispose);
 }
@@ -167,9 +169,10 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
 
   Future<void> _submit() async {
     if (_submitting) return;
+    final l = AppLocalizations.of(context);
     final brand = _brand;
     final product = _productCtrl.text.trim();
-    final name = product.isEmpty ? '$brand 투자' : product;
+    final name = product.isEmpty ? '$brand ${l.assetTypeInvestment}' : product;
     final balance = int.tryParse(_balanceCtrl.text.replaceAll(',', '')) ?? 0;
     final memo = _memoCtrl.text.trim();
 
@@ -200,10 +203,12 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
       ref.invalidate(assetsProvider);
       if (!mounted) return;
       Navigator.of(context).pop();
-      showPSnackBar(context, _isEdit ? '투자가 수정되었습니다' : '투자가 추가되었습니다', severity: PSnackSeverity.success);
+      showPSnackBar(context, _isEdit ? l.assetInvestUpdated : l.assetInvestAdded,
+          severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!mounted) return;
-      showPSnackBar(context, '실패: ${e.message}', severity: PSnackSeverity.error);
+      showPSnackBar(context, '${l.assetActionFailed}: ${e.message}',
+          severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setSubmitting(false);
     }
@@ -211,11 +216,12 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
 
   Future<void> _delete() async {
     if (_deleting || widget.edit == null) return;
+    final l = AppLocalizations.of(context);
     final ok = await showPConfirmDialog(
       context,
-      title: '투자 삭제',
-      message: '이 투자 자산을 삭제하시겠습니까? 연결된 거래는 유지됩니다.',
-      confirmLabel: '삭제',
+      title: l.assetInvestDelete,
+      message: l.assetInvestDeleteConfirm,
+      confirmLabel: l.actionDelete,
       destructive: true,
     );
     if (!ok || !mounted) return;
@@ -226,10 +232,11 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
       ref.invalidate(assetsProvider);
       if (!mounted) return;
       Navigator.of(context).pop();
-      showPSnackBar(context, '투자가 삭제되었습니다', severity: PSnackSeverity.success);
+      showPSnackBar(context, l.assetInvestDeleted, severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!mounted) return;
-      showPSnackBar(context, '삭제 실패: ${e.message}', severity: PSnackSeverity.error);
+      showPSnackBar(context, '${l.assetDeleteFailed}: ${e.message}',
+          severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setDeleting(false);
     }
@@ -238,6 +245,7 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     return ListView(
       controller: widget.scrollController,
       padding: const EdgeInsets.fromLTRB(
@@ -251,19 +259,19 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
                 // 증권사·거래소 ──────────────────────
                 Row(
                   children: [
-                    Text('증권사·거래소',
+                    Text(l.assetBrokerExchange,
                         style: PTypo.caption.copyWith(
                             color: t.fgPrimary,
                             fontWeight: PFontWeight.medium)),
                     const Spacer(),
-                    Text('총 $_investEntriesCount개',
+                    Text(l.assetTotalEntries(_investEntriesCount),
                         style: PTypo.micro.copyWith(color: t.fgTertiary)),
                   ],
                 ),
                 const SizedBox(height: PSpace.x8),
                 PSearchField(
                   controller: _queryCtrl,
-                  hint: '증권사·가상자산거래소·상품거래소 검색',
+                  hint: l.assetInvestSearchHint,
                 ),
                 const SizedBox(height: PSpace.x8),
                 _BrandPicker(
@@ -274,19 +282,19 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
                 const SizedBox(height: PSpace.x20),
 
                 // 상품·종목명 ────────────────────────
-                Text('상품·종목명',
+                Text(l.assetProductName,
                     style: PTypo.caption.copyWith(
                         color: t.fgPrimary,
                         fontWeight: PFontWeight.medium)),
                 const SizedBox(height: PSpace.x8),
                 PTextInput(
                   controller: _productCtrl,
-                  placeholder: '예: KODEX 200, 해외 ETF 포트폴리오',
+                  placeholder: l.assetProductPlaceholder,
                 ),
                 const SizedBox(height: PSpace.x20),
 
                 // 평가액 (원) ────────────────────────
-                Text('평가액 (원)',
+                Text(l.assetValuation,
                     style: PTypo.caption.copyWith(
                         color: t.fgPrimary,
                         fontWeight: PFontWeight.medium)),
@@ -301,14 +309,14 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
                 // 메모 (선택) — 편집 모드에서만.
                 if (_isEdit) ...[
                   const SizedBox(height: PSpace.x20),
-                  Text('메모 (선택)',
+                  Text(l.assetMemoOptional,
                       style: PTypo.caption.copyWith(
                           color: t.fgPrimary,
                           fontWeight: PFontWeight.medium)),
                   const SizedBox(height: PSpace.x8),
                   PTextInput(
                     controller: _memoCtrl,
-                    placeholder: '계좌번호 뒷자리, 결제일, 한도 등 메모하세요',
+                    placeholder: l.assetMemoPlaceholder,
                   ),
                 ],
 
@@ -332,8 +340,9 @@ class _PreviewTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final letter = entry.name.isEmpty ? '?' : entry.name.characters.first;
-    final preview = productName.isEmpty ? '새 투자 상품' : productName;
+    final preview = productName.isEmpty ? l.assetNewInvestment : productName;
     return Row(
       children: [
         Container(
@@ -369,7 +378,7 @@ class _PreviewTile extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 2),
-              Text('${entry.name} · 미리보기',
+              Text('${entry.name} · ${l.assetPreview}',
                   style: PTypo.caption.copyWith(color: t.fgTertiary)),
             ],
           ),
@@ -391,12 +400,13 @@ class _BrandPicker extends StatelessWidget {
   final ValueChanged<String> onPick;
 
   /// 카테고리 라벨 — 가상자산 → 가상자산거래소 (web 동일).
-  static String _label(BankCategory c) =>
-      c == BankCategory.cryptoExchange ? '가상자산거래소' : c.label;
+  static String _label(AppLocalizations l, BankCategory c) =>
+      c == BankCategory.cryptoExchange ? l.assetCryptoExchange : c.label;
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final box = BoxDecoration(
       color: t.bgSurface,
       borderRadius: PRadius.brMd,
@@ -409,7 +419,7 @@ class _BrandPicker extends StatelessWidget {
         decoration: box,
         child: Center(
           child: Text(
-            '검색 결과가 없어요',
+            l.assetNoSearchResults,
             style: PTypo.caption.copyWith(color: t.fgTertiary),
           ),
         ),
@@ -432,7 +442,7 @@ class _BrandPicker extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(bottom: 6),
                   child: Text(
-                    _label(categories[i].key),
+                    _label(l, categories[i].key),
                     style: PTypo.micro.copyWith(
                       color: t.fgTertiary,
                       fontWeight: PFontWeight.semi,

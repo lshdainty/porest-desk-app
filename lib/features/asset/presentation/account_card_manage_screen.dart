@@ -6,6 +6,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
@@ -29,10 +30,10 @@ const Map<_Group, List<String>> _groupTypes = {
   _Group.invest: ['INVESTMENT'],
 };
 
-String _groupLabel(_Group g) => switch (g) {
-      _Group.account => '계좌',
-      _Group.card => '카드',
-      _Group.invest => '투자',
+String _groupLabel(AppLocalizations l, _Group g) => switch (g) {
+      _Group.account => l.assetCatAccount,
+      _Group.card => l.assetGroupCard,
+      _Group.invest => l.assetGroupInvestment,
     };
 
 class AccountCardManageScreen extends ConsumerStatefulWidget {
@@ -61,6 +62,7 @@ class _AccountCardManageScreenState
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final masked = ref.watch(settingsProvider).value?.hideAmounts ?? false;
     final assetsAsync = ref.watch(assetsProvider);
 
@@ -70,7 +72,7 @@ class _AccountCardManageScreenState
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
         leading: PBackButton(onPressed: () => context.pop()),
-        title: const Text('계좌·카드 관리'),
+        title: Text(l.assetManageTitle),
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,
         elevation: 0,
@@ -80,7 +82,7 @@ class _AccountCardManageScreenState
         loading: () => _AccountCardManageSkeleton(tokens: t),
         error: (e, _) => Center(
           child: Text(
-            '자산을 불러오지 못했습니다\n$e',
+            '${l.assetLoadError}\n$e',
             textAlign: TextAlign.center,
             style: PTypo.bodySm.copyWith(color: t.fgSecondary),
           ),
@@ -110,15 +112,15 @@ class _AccountCardManageScreenState
                   items: [
                     PTabItem(
                       value: _Group.account,
-                      label: '계좌·예금 ${countOf(_Group.account)}',
+                      label: l.assetTabAccountsSavings(countOf(_Group.account)),
                     ),
                     PTabItem(
                       value: _Group.card,
-                      label: '카드 ${countOf(_Group.card)}',
+                      label: l.assetTabCards(countOf(_Group.card)),
                     ),
                     PTabItem(
                       value: _Group.invest,
-                      label: '투자 ${countOf(_Group.invest)}',
+                      label: l.assetTabInvest(countOf(_Group.invest)),
                     ),
                   ],
                 ),
@@ -135,12 +137,14 @@ class _AccountCardManageScreenState
                     Row(
                       children: [
                         Text(
-                          masked ? '총 ••••••' : '총 ${krw(total)}원',
+                          masked
+                              ? '${l.assetTotalPrefix} ••••••'
+                              : '${l.assetTotalPrefix} ${krw(total)}원',
                           style: PTypo.caption.copyWith(color: t.fgTertiary),
                         ),
                         const Spacer(),
                         PButton(
-                          label: '${_groupLabel(_tab)} 추가',
+                          label: l.assetAddCategory(_groupLabel(l, _tab)),
                           icon: LucideIcons.plus,
                           variant: PButtonVariant.accent,
                           size: PButtonSize.sm,
@@ -157,7 +161,7 @@ class _AccountCardManageScreenState
                         ),
                         child: Center(
                           child: Text(
-                            '등록된 ${_groupLabel(_tab)}이 없어요',
+                            l.assetCategoryEmpty(_groupLabel(l, _tab)),
                             style: PTypo.bodySm.copyWith(color: t.fgTertiary),
                           ),
                         ),
@@ -318,6 +322,7 @@ class _ManageRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = tokens;
+    final l = AppLocalizations.of(context);
     final balance = asset.balance ?? 0;
     // 카드 사용액은 음수 표기 컨벤션, 계좌는 실제 부호(대출 등 음수 잔액).
     // 음수만 fg-expense 강조, 0 은 부호·강조 없이 '0원' (−0원 방지) — web 정합.
@@ -388,7 +393,7 @@ class _ManageRow extends StatelessWidget {
                   if (asset.isIncludedInTotal == 'N') ...[
                     const SizedBox(height: 2),
                     Text(
-                      '총액 제외',
+                      l.assetExcludedFromTotal,
                       style: TextStyle(
                         color: t.fgTertiary,
                         fontSize: PFontSize.micro,
