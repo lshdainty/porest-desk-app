@@ -26,6 +26,7 @@ import 'package:porest_desk_app/features/expense_split/domain/expense_split.dart
 import 'package:porest_desk_app/features/expense/presentation/add_tx_sheet.dart';
 import 'package:porest_desk_app/features/expense/presentation/widgets/expense_row.dart';
 import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 
 /// 거래 상세 다이얼로그 — front `TxDetailDialog` 미러.
 ///
@@ -35,11 +36,12 @@ import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 /// - Quick actions (3-col grid): 내역 분할 / 반복 설정 / 더치페이
 /// - Footer: 삭제 / 편집 / 확인
 void showTxDetailDialog(BuildContext context, Expense expense) {
+  final l = AppLocalizations.of(context);
   final controller = PSheetController();
   final isIncome = expense.expenseType == 'INCOME';
   showPSheet<void>(
     context,
-    title: isIncome ? '수입 상세' : '지출 상세',
+    title: isIncome ? l.expIncomeDetail : l.expExpenseDetail,
     contentBuilder: (ctx, scrollCtrl) => _DetailBody(
       expense: expense,
       scrollController: scrollCtrl,
@@ -106,11 +108,12 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
   }
 
   Future<void> _delete() async {
+    final l = AppLocalizations.of(context);
     final ok = await showPConfirmDialog(
       context,
-      title: '거래 삭제',
-      message: '이 거래를 삭제하시겠습니까? 연결된 자산 잔액이 함께 조정됩니다.',
-      confirmLabel: '삭제',
+      title: l.expDelete,
+      message: l.expDeleteConfirm,
+      confirmLabel: l.actionDelete,
       destructive: true,
     );
     if (!ok || !mounted) return;
@@ -129,12 +132,12 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
       invalidateAssetsAfterExpense(ref);
       if (!mounted) return;
       Navigator.of(context).pop();
-      showPSnackBar(context, '거래가 삭제되었습니다', severity: PSnackSeverity.success);
+      showPSnackBar(context, l.expDeleted, severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!mounted) return;
       showPSnackBar(
         context,
-        '삭제 실패: ${e.message}',
+        '${l.expDeleteFailed}: ${e.message}',
         severity: PSnackSeverity.error,
       );
     } finally {
@@ -142,17 +145,18 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
     }
   }
 
-  String _paymentMethodLabel(String? m) => switch (m) {
-    'CASH' => '현금',
-    'CARD' => '카드',
-    'TRANSFER' => '계좌이체',
-    'OTHER' => '기타',
+  String _paymentMethodLabel(AppLocalizations l, String? m) => switch (m) {
+    'CASH' => l.expPayCash,
+    'CARD' => l.expPayCard,
+    'TRANSFER' => l.expPayTransfer,
+    'OTHER' => l.expPayOther,
     _ => '',
   };
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
     final masked = settings.hideAmounts;
     final e = widget.expense;
@@ -182,9 +186,9 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
         : null;
     final timeLabel = (timeStr != null && timeStr != '00:00') ? timeStr : null;
 
-    final paymentLabel = _paymentMethodLabel(e.paymentMethod);
+    final paymentLabel = _paymentMethodLabel(l, e.paymentMethod);
     final displayMerchant =
-        e.merchant ?? e.description ?? e.categoryName ?? '거래';
+        e.merchant ?? e.description ?? e.categoryName ?? l.expTxFallback;
     // 웹 TxDetailDialog 매칭: 수입=fg-brand (초록), 지출=fg-primary (검정)
     final amountColor = isIncome ? t.fgIncome : t.fgPrimary;
     final amountText = masked
@@ -277,7 +281,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
           child: Column(
             children: [
               _FieldRow(
-                label: '카테고리',
+                label: l.expCategory,
                 tokens: t,
                 isFirst: true,
                 child: Row(
@@ -293,7 +297,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      e.categoryName ?? '미분류',
+                      e.categoryName ?? l.expUncategorized,
                       style: PTypo.bodySm.copyWith(
                         color: t.fgPrimary,
                         fontWeight: PFontWeight.semi,
@@ -303,7 +307,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                 ),
               ),
               _FieldRow(
-                label: '금액',
+                label: l.expAmount,
                 tokens: t,
                 child: Text(
                   '$amountText${masked ? '' : '원'}',
@@ -315,7 +319,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
               ),
               if (assetLabel != null)
                 _FieldRow(
-                  label: '계좌·카드',
+                  label: l.expAccountCard,
                   tokens: t,
                   child: Text(
                     assetLabel,
@@ -327,7 +331,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                 ),
               if (paymentLabel.isNotEmpty)
                 _FieldRow(
-                  label: '결제 수단',
+                  label: l.expPaymentMethod,
                   tokens: t,
                   child: Text(
                     paymentLabel,
@@ -339,7 +343,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                 ),
               if (dayStr != null)
                 _FieldRow(
-                  label: '날짜·시간',
+                  label: l.expDateTime,
                   tokens: t,
                   child: Text(
                     timeLabel != null ? '$dayStr $timeLabel' : dayStr,
@@ -350,11 +354,11 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                   ),
                 ),
               _FieldRow(
-                label: '메모',
+                label: l.expDescription,
                 tokens: t,
                 isLast: true,
                 child: Text(
-                  (e.description ?? '').isEmpty ? '없음' : e.description!,
+                  (e.description ?? '').isEmpty ? l.expValueNone : e.description!,
                   style: PTypo.bodySm.copyWith(
                     color: (e.description ?? '').isEmpty
                         ? t.fgTertiary
@@ -373,9 +377,9 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
             Expanded(
               child: _QuickBtn(
                 icon: LucideIcons.scissors,
-                label: '내역 분할',
+                label: l.expSplit,
                 tokens: t,
-                badge: splitCount > 0 ? '$splitCount개' : null,
+                badge: splitCount > 0 ? l.expItemsCount(splitCount) : null,
                 onTap: _deleting
                     ? null
                     : () {
@@ -388,7 +392,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
             Expanded(
               child: _QuickBtn(
                 icon: LucideIcons.repeat,
-                label: '반복 설정',
+                label: l.expConvertRecurring,
                 tokens: t,
                 onTap: _deleting
                     ? null
@@ -402,7 +406,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
             Expanded(
               child: _QuickBtn(
                 icon: LucideIcons.users,
-                label: '더치페이',
+                label: l.dutchTitle,
                 tokens: t,
                 onTap: _deleting
                     ? null
@@ -462,6 +466,7 @@ class _MerchantHistorySection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = tokens;
+    final l = AppLocalizations.of(context);
     final async = ref.watch(
       merchantMonthExpensesProvider((
         merchant: merchant,
@@ -489,7 +494,7 @@ class _MerchantHistorySection extends ConsumerWidget {
               textBaseline: TextBaseline.alphabetic,
               children: [
                 Text(
-                  '$merchant에서의 이전 거래',
+                  l.expPrevTxAt(merchant),
                   style: PTypo.bodySm.copyWith(
                     color: t.fgPrimary,
                     fontWeight: PFontWeight.bold,
@@ -500,12 +505,12 @@ class _MerchantHistorySection extends ConsumerWidget {
                   text: TextSpan(
                     style: PTypo.caption.copyWith(color: t.fgTertiary),
                     children: [
-                      const TextSpan(text: '이번 달 '),
+                      TextSpan(text: '${l.expThisMonth} '),
                       TextSpan(
                         // 마스킹 시 '원' 미노출 — web MaskAmount+HideUnit 컨벤션
                         text: masked
-                            ? '$monthCount회 · ••••••'
-                            : '$monthCount회 · ${krw(monthTotal)}원',
+                            ? '${l.expTimesCount(monthCount)} · ••••••'
+                            : '${l.expTimesCount(monthCount)} · ${krw(monthTotal)}원',
                         style: PTypo.caption.copyWith(
                           color: t.fgSecondary,
                           fontWeight: PFontWeight.bold,
@@ -678,6 +683,7 @@ class _SplitSummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = tokens;
+    final l = AppLocalizations.of(context);
     return Container(
       decoration: BoxDecoration(
         color: t.bgSurface,
@@ -696,11 +702,11 @@ class _SplitSummaryCard extends StatelessWidget {
                 children: [
                   Icon(LucideIcons.split, size: 16, color: t.fgBrand),
                   const SizedBox(width: 8),
-                  Text('내역 분할 ${splits.length}개',
+                  Text('${l.expSplit} ${l.expItemsCount(splits.length)}',
                       style: PTypo.bodySm.copyWith(
                           color: t.fgPrimary, fontWeight: PFontWeight.bold)),
                   const SizedBox(width: 8),
-                  Text('합계 ${krw(total)}원',
+                  Text('${l.expTotal} ${krw(total)}원',
                       style: PTypo.caption.copyWith(color: t.fgTertiary)),
                   const Spacer(),
                   Icon(
@@ -756,7 +762,7 @@ class _SplitSummaryCard extends StatelessWidget {
                           Text(
                             (splits[i].label?.trim().isNotEmpty ?? false)
                                 ? splits[i].label!
-                                : (splits[i].categoryName ?? '항목'),
+                                : (splits[i].categoryName ?? l.expItem),
                             style: PTypo.bodySm.copyWith(
                                 color: t.fgPrimary,
                                 fontWeight: PFontWeight.semi),

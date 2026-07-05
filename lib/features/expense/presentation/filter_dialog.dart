@@ -17,6 +17,7 @@ import 'package:porest_desk_app/shared/widgets/p_toggle.dart';
 import 'package:porest_desk_app/shared/widgets/p_type_chip.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 
 /// 필터 기간 옵션 — front `FilterPeriod` 미러.
 enum FilterPeriod { week, month, threeMonth, custom }
@@ -79,9 +80,10 @@ Future<ExpenseFilter?> showFilterDialog(
     BuildContext context, ExpenseFilter current) async {
   final controller = PSheetController();
   final formKey = GlobalKey<_FilterBodyState>();
+  final l = AppLocalizations.of(context);
   return showPSheet<ExpenseFilter>(
     context,
-    title: '필터',
+    title: l.expFilter,
     contentBuilder: (ctx, scrollCtrl) => _FilterBody(
       key: formKey,
       initial: current,
@@ -91,9 +93,9 @@ Future<ExpenseFilter?> showFilterDialog(
     // 표준 PSheetFooter — 좌측이 삭제가 아니라 '초기화'(비파괴)라 leftSlot 으로 주입.
     footerBuilder: (ctx) => PSheetFooter(
       controller: controller,
-      submitLabel: '필터 적용',
+      submitLabel: l.expFilterApply,
       leftSlot: PButton(
-        label: '초기화',
+        label: l.actionReset,
         variant: PButtonVariant.ghost,
         flush: PButtonFlush.left,
         onPressed: () => formKey.currentState?._reset(),
@@ -240,21 +242,22 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
   }
 
   Widget _periodSection(PorestTokens t) {
+    final l = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _label('기간', t),
+        _label(l.expFilterPeriod, t),
         PTabs<FilterPeriod>(
           value: _period,
           onChanged: (v) => setState(() => _period = v),
           variant: PTabsVariant.container,
           size: PTabsSize.sm,
           expand: true,
-          items: const [
-            PTabItem(value: FilterPeriod.week, label: '이번 주'),
-            PTabItem(value: FilterPeriod.month, label: '이번 달'),
-            PTabItem(value: FilterPeriod.threeMonth, label: '3개월'),
-            PTabItem(value: FilterPeriod.custom, label: '직접 선택'),
+          items: [
+            PTabItem(value: FilterPeriod.week, label: l.expPeriodWeek),
+            PTabItem(value: FilterPeriod.month, label: l.expThisMonth),
+            PTabItem(value: FilterPeriod.threeMonth, label: l.expPeriod3Month),
+            PTabItem(value: FilterPeriod.custom, label: l.expPeriodCustom),
           ],
         ),
         if (_period == FilterPeriod.custom) ...[
@@ -274,7 +277,7 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
                   },
                   firstDate: DateTime(2000),
                   lastDate: DateTime(2100),
-                  placeholder: '시작일',
+                  placeholder: l.expStartDate,
                 ),
               ),
               const SizedBox(width: 8),
@@ -293,7 +296,7 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
                   },
                   firstDate: DateTime(2000),
                   lastDate: DateTime(2100),
-                  placeholder: '종료일',
+                  placeholder: l.expEndDate,
                 ),
               ),
             ],
@@ -301,7 +304,7 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
           if (_customInvalid)
             Padding(
               padding: const EdgeInsets.only(top: 6),
-              child: Text('시작일이 종료일보다 늦을 수 없습니다.',
+              child: Text(l.expDateRangeError,
                   style:
                       PTypo.caption.copyWith(color: t.statusDangerFg)),
             ),
@@ -318,15 +321,16 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
             _types.add(code);
           }
         });
+    final l = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _label('거래 종류', t),
+        _label(l.expTxType, t),
         Row(
           children: [
             Expanded(
               child: PTypeChip(
-                label: '지출',
+                label: l.expTypeExpense,
                 active: _types.contains('EXPENSE'),
                 activeColor: t.fgExpense,
                 onTap: () => toggle('EXPENSE'),
@@ -335,7 +339,7 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
             const SizedBox(width: 8),
             Expanded(
               child: PTypeChip(
-                label: '수입',
+                label: l.expTypeIncome,
                 active: _types.contains('INCOME'),
                 activeColor: t.fgIncome,
                 onTap: () => toggle('INCOME'),
@@ -348,6 +352,7 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
   }
 
   Widget _categorySection(PorestTokens t) {
+    final l = AppLocalizations.of(context);
     final categories = ref.watch(categoriesProvider).value ?? const [];
     final parents = categories.where((c) => c.parentRowId == null).toList()
       ..sort((a, b) => (a.sortOrder ?? 0).compareTo(b.sortOrder ?? 0));
@@ -355,9 +360,9 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _label('카테고리', t,
+        _label(l.expCategory, t,
             badge:
-                _categoryIds.isEmpty ? null : '· ${_categoryIds.length}개 선택'),
+                _categoryIds.isEmpty ? null : '· ${l.expNSelected(_categoryIds.length)}'),
         LayoutBuilder(
           builder: (context, constraints) {
             const gap = 6.0;
@@ -395,13 +400,14 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
   }
 
   Widget _assetSection(PorestTokens t) {
+    final l = AppLocalizations.of(context);
     final assets = ref.watch(assetsProvider).value ?? const [];
     if (assets.isEmpty) return const SizedBox.shrink();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _label('계좌·카드', t,
-            badge: _assetIds.isEmpty ? null : '· ${_assetIds.length}개 선택'),
+        _label(l.expAccountCard, t,
+            badge: _assetIds.isEmpty ? null : '· ${l.expNSelected(_assetIds.length)}'),
         // 다중선택 필터 칩 — spec toggle.md: outline PToggle + radius-md(둥근 사각형). pill 아님.
         Wrap(
           spacing: 6,
@@ -428,16 +434,17 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
   }
 
   Widget _amountSection(PorestTokens t) {
+    final l = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _label('금액 범위', t),
+        _label(l.expAmountRange, t),
         Row(
           children: [
             Expanded(
                 child: PTextInput(
                     controller: _minCtrl,
-                    placeholder: '최소 금액',
+                    placeholder: l.expMinAmount,
                     numbersOnly: true)),
             const SizedBox(width: 8),
             Text('~', style: PTypo.body.copyWith(color: t.fgTertiary)),
@@ -445,7 +452,7 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
             Expanded(
                 child: PTextInput(
                     controller: _maxCtrl,
-                    placeholder: '최대 금액',
+                    placeholder: l.expMaxAmount,
                     numbersOnly: true)),
           ],
         ),

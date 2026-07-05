@@ -2152,4 +2152,348 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dutchCreated => 'Settlement created';
+
+  @override
+  String get expLoadError => 'Failed to load transactions';
+
+  @override
+  String get expEmptyMonth => 'No transactions this month';
+
+  @override
+  String get expEmptyDay => 'No transactions on this day';
+
+  @override
+  String get expTotal => 'Total';
+
+  @override
+  String get expFiltering => 'Filtering';
+
+  @override
+  String expFilteringBy(String name) {
+    return 'Filtering: $name';
+  }
+
+  @override
+  String get expViewList => 'List';
+
+  @override
+  String get expViewCalendar => 'Calendar';
+
+  @override
+  String expTxCount(int count) {
+    return '$count items';
+  }
+
+  @override
+  String get expAddShort => 'Add';
+
+  @override
+  String get expTransferDone => 'Transfer completed';
+
+  @override
+  String get expActionFailed => 'Failed';
+
+  @override
+  String get expUpdated => 'Transaction updated';
+
+  @override
+  String get expAdded => 'Transaction added';
+
+  @override
+  String get expDeleteConfirm =>
+      'Delete this transaction? Linked asset balances will be adjusted.';
+
+  @override
+  String get expDeleted => 'Transaction deleted';
+
+  @override
+  String get expDeleteFailed => 'Delete failed';
+
+  @override
+  String get expSplitMismatch => 'Split doesn\'t match the amount';
+
+  @override
+  String expSplitDiff(String total, String sum, String diff) {
+    return 'New total $total원 · Split sum $sum원 · $diff원 diff';
+  }
+
+  @override
+  String get expSplitReconcile => 'Reconcile split';
+
+  @override
+  String get expPresetLoad => 'Load preset';
+
+  @override
+  String get expPresetApplied => 'Applied';
+
+  @override
+  String get expPresetSaveCurrent => 'Save current input';
+
+  @override
+  String get expPresetEmpty =>
+      'No saved presets yet. Enter a transaction you use often, then tap “Save current input”.';
+
+  @override
+  String get expPresetFilled =>
+      'Preset values filled in. Adjust the amount and note, then save.';
+
+  @override
+  String get expClear => 'Clear';
+
+  @override
+  String get expPresetManageHint => 'Settings → Manage presets';
+
+  @override
+  String get expSaveFailed => 'Save failed';
+
+  @override
+  String get expPresetSaveTitle => 'Save as preset';
+
+  @override
+  String get expPresetNamePlaceholder => 'e.g. Lunch box';
+
+  @override
+  String expPresetLockAmount(String amount) {
+    return 'Lock amount — auto-fills $amount원 when applied';
+  }
+
+  @override
+  String get expPayCash => 'Cash';
+
+  @override
+  String get expPayCard => 'Card';
+
+  @override
+  String get expPayTransfer => 'Bank transfer';
+
+  @override
+  String get expPayOther => 'Other';
+
+  @override
+  String get expPresetLock => 'Preset lock';
+
+  @override
+  String get expNoCategoryForType => 'No categories for this type';
+
+  @override
+  String get expSubcategory => 'Subcategory';
+
+  @override
+  String expTopCategorySuffix(String name) {
+    return '$name (parent)';
+  }
+
+  @override
+  String get expIncomeSource => 'Income source';
+
+  @override
+  String get expPayee => 'Merchant';
+
+  @override
+  String get expIncomeSourcePlaceholder => 'e.g. Forest Inc.';
+
+  @override
+  String get expPayeePlaceholder => 'e.g. Starbucks Gangnam';
+
+  @override
+  String get expIncomeMethod => 'Income method';
+
+  @override
+  String get expNone => 'None';
+
+  @override
+  String get expDepositAccount => 'Deposit account';
+
+  @override
+  String get expAccountCard => 'Account/Card';
+
+  @override
+  String get expAssetLoadError => 'Failed to load assets';
+
+  @override
+  String get expWithdrawAccount => 'From account';
+
+  @override
+  String get expSelect => 'Select';
+
+  @override
+  String get expTransferSameAsset => 'From and to assets must differ';
+
+  @override
+  String get expFeeOptional => 'Fee (optional)';
+
+  @override
+  String get expDateTime => 'Date & time';
+
+  @override
+  String get expMemoPlaceholder => 'e.g. Lunch, dinner';
+
+  @override
+  String get expIncomeDetail => 'Income details';
+
+  @override
+  String get expExpenseDetail => 'Expense details';
+
+  @override
+  String get expTxFallback => 'Transaction';
+
+  @override
+  String get expUncategorized => 'Uncategorized';
+
+  @override
+  String get expValueNone => 'None';
+
+  @override
+  String expItemsCount(int count) {
+    return '$count items';
+  }
+
+  @override
+  String get expNotSelected => 'Not selected';
+
+  @override
+  String expPrevTxAt(String merchant) {
+    return 'Previous at $merchant';
+  }
+
+  @override
+  String get expThisMonth => 'This month';
+
+  @override
+  String expTimesCount(int count) {
+    return '$count×';
+  }
+
+  @override
+  String get expItem => 'Item';
+
+  @override
+  String get expFilterApply => 'Apply filter';
+
+  @override
+  String expNSelected(int count) {
+    return '$count selected';
+  }
+
+  @override
+  String get expPeriodWeek => 'This week';
+
+  @override
+  String get expPeriod3Month => '3 months';
+
+  @override
+  String get expPeriodCustom => 'Custom';
+
+  @override
+  String get expStartDate => 'Start date';
+
+  @override
+  String get expEndDate => 'End date';
+
+  @override
+  String get expDateRangeError => 'Start date can\'t be after end date.';
+
+  @override
+  String get expTxType => 'Transaction type';
+
+  @override
+  String get expAmountRange => 'Amount range';
+
+  @override
+  String get expMinAmount => 'Min amount';
+
+  @override
+  String get expMaxAmount => 'Max amount';
+
+  @override
+  String get expSplitSave => 'Save split';
+
+  @override
+  String get expSplitRemove => 'Remove split';
+
+  @override
+  String get expSplitLoadError => 'Failed to load split';
+
+  @override
+  String get expAddAmount => 'Extra amount';
+
+  @override
+  String get expSplitSaved => 'Split saved';
+
+  @override
+  String get expSplitRemoveConfirm =>
+      'Remove all split items for this transaction?';
+
+  @override
+  String get expClearFailed => 'Failed to clear';
+
+  @override
+  String get expSplitMatches => 'Split sum matches the total';
+
+  @override
+  String get expSplitSum => 'Split sum';
+
+  @override
+  String get expTotalAmount => 'Total';
+
+  @override
+  String get expSplitTotalChanged => 'The total changed — reconcile the split';
+
+  @override
+  String get expSplitMismatchTotal => 'Split sum doesn\'t match the total';
+
+  @override
+  String get expSplitCheckItems => 'Check the split items';
+
+  @override
+  String get expShort => 'Short';
+
+  @override
+  String get expOver => 'Over';
+
+  @override
+  String get expQuickAdjust => 'Quick adjust';
+
+  @override
+  String get expProrate => 'Prorate';
+
+  @override
+  String get expProrateDesc => 'Auto-adjust by weight';
+
+  @override
+  String get expApplyToLargest => 'Apply to largest';
+
+  @override
+  String get expApplyToLargestDesc => 'Difference to the largest item';
+
+  @override
+  String get expAdjustItem => 'Adjustment item';
+
+  @override
+  String get expAdjustItemDesc => 'Shortfall as a new item';
+
+  @override
+  String get expRecommended => 'Recommended';
+
+  @override
+  String get expSplitDesc =>
+      'Record one payment split by category and item. e.g. Groceries and household items bought together at a mart.';
+
+  @override
+  String get expOriginalTx => 'Original transaction';
+
+  @override
+  String get expAddItem => 'Add item';
+
+  @override
+  String get expSplitEven => 'Split evenly';
+
+  @override
+  String get expSplitRatio => 'Split ratio';
+
+  @override
+  String get expDeleteItem => 'Delete item';
+
+  @override
+  String get expItemNamePlaceholder => 'Item name (optional)';
 }
