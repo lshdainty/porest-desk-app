@@ -8,6 +8,7 @@ import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_badge.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
@@ -33,7 +34,7 @@ void showDutchPayDetailSheet(
 }) {
   showPSheet<void>(
     context,
-    title: '정산 상세',
+    title: AppLocalizations.of(context).dutchDetailTitle,
     contentBuilder: (ctx, scrollCtrl) => _Body(
       dpId: dpId,
       scrollController: scrollCtrl,
@@ -62,6 +63,7 @@ class _Body extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final masked =
         (ref.watch(settingsProvider).value ?? AppSettings.defaults).hideAmounts;
     final listAsync = ref.watch(dutchPayListProvider);
@@ -131,7 +133,7 @@ class _Body extends ConsumerWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                '1인당 ${krwMasked(perPerson, masked, mask: '••••')}원',
+                '${l.dutchPerPersonLabel} ${krwMasked(perPerson, masked, mask: '••••')}원',
                 style: PTypo.caption.copyWith(color: t.fgSecondary),
               ),
             ],
@@ -141,7 +143,7 @@ class _Body extends ConsumerWidget {
 
         // ── 참여자 라벨 ──
         Text(
-          '참여자',
+          l.dutchParticipant,
           style: PTypo.micro.copyWith(
             color: t.fgSecondary,
             fontWeight: PFontWeight.bold,
@@ -165,7 +167,7 @@ class _Body extends ConsumerWidget {
         if (!dp.isSettled && allPaid) ...[
           const SizedBox(height: 12),
           PButton(
-            label: '정산 완료 처리',
+            label: l.dutchSettleAction,
             icon: LucideIcons.checkCheck,
             variant: PButtonVariant.outline,
             size: PButtonSize.sm,
@@ -186,13 +188,13 @@ class _Body extends ConsumerWidget {
               icon: LucideIcons.trash2,
               variant: PButtonVariant.ghost,
               dangerous: true,
-              tooltip: '삭제',
+              tooltip: l.actionDelete,
               onPressed: () async {
                 final ok = await showPConfirmDialog(
                   context,
-                  title: '더치페이 삭제',
-                  message: '"${dp.title}"을(를) 삭제할까요?',
-                  confirmLabel: '삭제',
+                  title: l.dutchDeleteTitle,
+                  message: l.dutchDeleteConfirm(dp.title),
+                  confirmLabel: l.actionDelete,
                   destructive: true,
                 );
                 if (!ok || !context.mounted) return;
@@ -203,19 +205,19 @@ class _Body extends ConsumerWidget {
             const Spacer(),
             if (!dp.isSettled) ...[
               PButton(
-                label: '닫기',
+                label: l.actionClose,
                 variant: PButtonVariant.ghost,
                 onPressed: () => Navigator.of(context).pop(),
               ),
               const SizedBox(width: PSpace.x4),
               PButton(
-                label: '일괄 요청',
+                label: l.dutchRequestAll,
                 icon: LucideIcons.send,
                 onPressed: () => _requestAll(context, dp),
               ),
             ] else
               PButton(
-                label: '닫기',
+                label: l.actionClose,
                 variant: PButtonVariant.ghost,
                 onPressed: () => Navigator.of(context).pop(),
               ),
@@ -227,20 +229,22 @@ class _Body extends ConsumerWidget {
 
   // UI-only: 실제 API 호출 없이 안내 스낵바만.
   void _request(BuildContext context, DutchPayParticipant p) {
+    final l = AppLocalizations.of(context);
     final name = (p.participantName ?? '').trim();
     showPSnackBar(
       context,
-      '${name.isEmpty ? '참여자' : name}님에게 송금 요청을 보냈어요 (추후 카카오톡·문자 연동 예정)',
+      l.dutchRequestSent(name.isEmpty ? l.dutchParticipant : name),
     );
   }
 
   void _requestAll(BuildContext context, DutchPay dp) {
+    final l = AppLocalizations.of(context);
     final pending = dp.participants.where((p) => !p.isPaid).length;
     showPSnackBar(
       context,
       pending > 0
-          ? '$pending명에게 송금 요청을 보냈어요 (추후 카카오톡·문자 연동 예정)'
-          : '모든 참여자가 이미 정산을 완료했어요',
+          ? l.dutchRequestSentBulk(pending)
+          : l.dutchAllSettled,
     );
   }
 }
@@ -267,10 +271,11 @@ class _ParticipantRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final name = (p.participantName ?? '').trim();
     final status = p.isPaid
-        ? '정산 완료'
-        : '${krwMasked(p.amount, masked, mask: '••••')}원 송금 필요';
+        ? l.dutchSettled
+        : l.dutchNeedsPayment(krwMasked(p.amount, masked, mask: '••••'));
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -286,7 +291,7 @@ class _ParticipantRow extends StatelessWidget {
                   children: [
                     Flexible(
                       child: Text(
-                        name.isEmpty ? '(이름 없음)' : name,
+                        name.isEmpty ? l.dutchNoName : name,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: PTypo.body.copyWith(
@@ -297,8 +302,8 @@ class _ParticipantRow extends StatelessWidget {
                     ),
                     if (isPayer) ...[
                       const SizedBox(width: 6),
-                      const PBadge(
-                          label: '결제자', variant: PBadgeVariant.softBrand),
+                      PBadge(
+                          label: l.dutchPayer, variant: PBadgeVariant.softBrand),
                     ],
                   ],
                 ),
@@ -316,7 +321,7 @@ class _ParticipantRow extends StatelessWidget {
           // 우측 슬롯: 완료 → success 뱃지(dot) / 미정 → 체크(markPaid) + 요청(UI-only).
           if (p.isPaid)
             PBadge(
-              label: '완료',
+              label: l.actionDone,
               variant: PBadgeVariant.softSuccess,
               dotColor: t.statusSuccessFg,
             )
@@ -326,18 +331,18 @@ class _ParticipantRow extends StatelessWidget {
               size: PButtonSize.sm,
               variant: PButtonVariant.ghost,
               iconColor: t.statusSuccessFg,
-              tooltip: '송금 완료 처리',
+              tooltip: l.dutchMarkPaid,
               onPressed: onMarkPaid,
             ),
             PButton(
-              label: '요청',
+              label: l.dutchRequest,
               variant: PButtonVariant.outline,
               size: PButtonSize.sm,
               onPressed: onRequest,
             ),
           ] else
             Text(
-              '미정산',
+              l.dutchUnsettled,
               style: PTypo.caption.copyWith(color: t.fgTertiary),
             ),
         ],

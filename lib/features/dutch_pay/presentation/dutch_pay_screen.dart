@@ -11,6 +11,7 @@ import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_card.dart';
 import 'package:porest_desk_app/shared/widgets/p_floating_action_button.dart';
@@ -42,6 +43,7 @@ class _DutchPayScreenState extends ConsumerState<DutchPayScreen> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final listAsync = ref.watch(dutchPayListProvider);
     final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
 
@@ -51,14 +53,14 @@ class _DutchPayScreenState extends ConsumerState<DutchPayScreen> {
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
         leading: PBackButton(onPressed: () => context.pop()),
-        title: const Text('더치페이'),
+        title: Text(l.dutchTitle),
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,
         elevation: 0,
       ),
       floatingActionButton: PFloatingActionButton(
         icon: LucideIcons.plus,
-        tooltip: '정산 만들기',
+        tooltip: l.dutchCreate,
         onPressed: () => showDutchPayCreateDialog(context),
       ),
       body: RefreshIndicator(
@@ -76,7 +78,7 @@ class _DutchPayScreenState extends ConsumerState<DutchPayScreen> {
           error: (e, _) => ListView(
             padding: const EdgeInsets.all(PSpace.x16),
             children: [
-              Text('더치페이 로드 실패\n$e',
+              Text('${l.dutchLoadFailed}\n$e',
                   style: PTypo.bodySm.copyWith(color: t.statusDanger)),
             ],
           ),
@@ -92,6 +94,7 @@ class _DutchPayScreenState extends ConsumerState<DutchPayScreen> {
     List<DutchPay> items,
     bool masked,
   ) {
+    final l = AppLocalizations.of(context);
     final active = items.where((d) => !d.isSettled).toList()
       ..sort((a, b) =>
           (b.dutchPayDate ?? '').compareTo(a.dutchPayDate ?? ''));
@@ -157,9 +160,9 @@ class _DutchPayScreenState extends ConsumerState<DutchPayScreen> {
             size: PTabsSize.sm,
             expand: false,
             items: [
-              PTabItem(value: _DutchTab.active, label: '진행 중 · ${active.length}'),
-              PTabItem(value: _DutchTab.past, label: '완료 · ${past.length}'),
-              const PTabItem(value: _DutchTab.friends, label: '친구'),
+              PTabItem(value: _DutchTab.active, label: '${l.dutchTabActive} · ${active.length}'),
+              PTabItem(value: _DutchTab.past, label: '${l.dutchTabPast} · ${past.length}'),
+              PTabItem(value: _DutchTab.friends, label: l.dutchTabFriends),
             ],
           ),
         ),
@@ -179,14 +182,15 @@ class _DutchPayScreenState extends ConsumerState<DutchPayScreen> {
     List<_FriendAgg> friends,
     bool masked,
   ) {
+    final l = AppLocalizations.of(context);
     switch (_tab) {
       case _DutchTab.active:
         if (active.isEmpty) {
           return [
-            const _DutchEmpty(
+            _DutchEmpty(
               icon: LucideIcons.receipt,
-              title: '진행 중인 정산이 없어요',
-              sub: '+ 버튼으로 새 정산을 만들어보세요.',
+              title: l.dutchEmptyActiveTitle,
+              sub: l.dutchEmptyActiveSub,
             ),
           ];
         }
@@ -203,10 +207,10 @@ class _DutchPayScreenState extends ConsumerState<DutchPayScreen> {
       case _DutchTab.past:
         if (past.isEmpty) {
           return [
-            const _DutchEmpty(
+            _DutchEmpty(
               icon: LucideIcons.checkCheck,
-              title: '완료된 정산이 없어요',
-              sub: '정산을 마치면 여기에 모입니다.',
+              title: l.dutchEmptyPastTitle,
+              sub: l.dutchEmptyPastSub,
             ),
           ];
         }
@@ -230,10 +234,10 @@ class _DutchPayScreenState extends ConsumerState<DutchPayScreen> {
       case _DutchTab.friends:
         if (friends.isEmpty) {
           return [
-            const _DutchEmpty(
+            _DutchEmpty(
               icon: LucideIcons.users,
-              title: '함께 정산한 친구가 없어요',
-              sub: '정산에 참여자를 추가하면 여기에 모입니다.',
+              title: l.dutchEmptyFriendsTitle,
+              sub: l.dutchEmptyFriendsSub,
             ),
           ];
         }
@@ -294,7 +298,8 @@ class _DutchPayScreenState extends ConsumerState<DutchPayScreen> {
       ref.invalidate(dutchPayListProvider);
     } on ApiException catch (e) {
       if (!mounted) return;
-      showPSnackBar(context, '실패: ${e.message}',
+      final l = AppLocalizations.of(context);
+      showPSnackBar(context, '${l.dutchActionFailed}: ${e.message}',
           severity: PSnackSeverity.error);
     }
   }
@@ -306,7 +311,8 @@ class _DutchPayScreenState extends ConsumerState<DutchPayScreen> {
       ref.invalidate(dutchPayListProvider);
     } on ApiException catch (e) {
       if (!mounted) return;
-      showPSnackBar(context, '정산 실패: ${e.message}',
+      final l = AppLocalizations.of(context);
+      showPSnackBar(context, '${l.dutchSettleFailed}: ${e.message}',
           severity: PSnackSeverity.error);
     }
   }
@@ -318,7 +324,8 @@ class _DutchPayScreenState extends ConsumerState<DutchPayScreen> {
       ref.invalidate(dutchPayListProvider);
     } on ApiException catch (e) {
       if (!mounted) return;
-      showPSnackBar(context, '삭제 실패: ${e.message}',
+      final l = AppLocalizations.of(context);
+      showPSnackBar(context, '${l.dutchDeleteFailed}: ${e.message}',
           severity: PSnackSeverity.error);
     }
   }
@@ -436,10 +443,11 @@ class _SummaryCard extends StatelessWidget {
     final isReceive = kind == _SummaryKind.receive;
     final accent = isReceive ? t.statusSuccessFg : t.statusWarningFg;
     final chipTint = isReceive ? t.statusSuccessSubtle : t.statusWarningSubtle;
-    final label = isReceive ? '받을 돈' : '보낼 돈';
+    final l = AppLocalizations.of(context);
+    final label = isReceive ? l.dutchToReceive : l.dutchToSend;
     final icon =
         isReceive ? LucideIcons.arrowDownLeft : LucideIcons.arrowUpRight;
-    final footer = isReceive ? '$count명에게서' : '$count명에게';
+    final footer = isReceive ? l.dutchFromPeople(count) : l.dutchToPeople(count);
 
     return Container(
       padding: const EdgeInsets.all(18),
@@ -531,6 +539,7 @@ class _SessionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final total = dp.participants.length;
     final paid = dp.participants.where((p) => p.isPaid).length;
     final progress = total == 0 ? 0.0 : paid / total;
@@ -599,7 +608,7 @@ class _SessionCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    '1인 ${krwMasked(perPerson, masked, mask: '••••')}원',
+                    '${l.dutchPerPersonLabel} ${krwMasked(perPerson, masked, mask: '••••')}원',
                     style: PTypo.micro.copyWith(color: t.fgTertiary),
                   ),
                 ],
@@ -728,6 +737,7 @@ class _PastRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final n = dp.participants.length;
     final date = dutchKDate(dp.dutchPayDate);
     return InkWell(
@@ -768,7 +778,7 @@ class _PastRow extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    n > 0 ? '$date · $n명' : date,
+                    n > 0 ? '$date · ${l.dutchNPeople(n)}' : date,
                     style: PTypo.caption.copyWith(color: t.fgTertiary),
                   ),
                 ],
@@ -806,6 +816,7 @@ class _FriendRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final settled = agg.net == 0;
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -833,7 +844,7 @@ class _FriendRow extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '${agg.sessions}회 정산 함께',
+                  l.dutchSettledTogetherCount(agg.sessions),
                   style: PTypo.caption.copyWith(color: t.fgTertiary),
                 ),
               ],
@@ -842,7 +853,7 @@ class _FriendRow extends StatelessWidget {
           const SizedBox(width: 12),
           if (settled)
             Text(
-              '정산 완료',
+              l.dutchSettled,
               style: PTypo.caption.copyWith(color: t.fgTertiary),
             )
           else
@@ -927,6 +938,7 @@ class _DutchPaySkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return ListView(
       padding: const EdgeInsets.fromLTRB(
           PSpace.x16, PSpace.x16, PSpace.x16, 96),
@@ -951,10 +963,10 @@ class _DutchPaySkeleton extends StatelessWidget {
             variant: PTabsVariant.container,
             size: PTabsSize.sm,
             expand: false,
-            items: const [
-              PTabItem(value: _DutchTab.active, label: '진행 중'),
-              PTabItem(value: _DutchTab.past, label: '완료'),
-              PTabItem(value: _DutchTab.friends, label: '친구'),
+            items: [
+              PTabItem(value: _DutchTab.active, label: l.dutchTabActive),
+              PTabItem(value: _DutchTab.past, label: l.dutchTabPast),
+              PTabItem(value: _DutchTab.friends, label: l.dutchTabFriends),
             ],
           ),
         ),
