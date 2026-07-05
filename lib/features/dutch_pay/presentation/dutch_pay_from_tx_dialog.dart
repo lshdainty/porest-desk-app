@@ -12,6 +12,7 @@ import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/core/format/color_parse.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
 import 'package:porest_desk_app/shared/widgets/p_badge.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
@@ -28,7 +29,7 @@ void showDutchPayFromTxDialog(BuildContext context, Expense expense) {
   final bodyKey = GlobalKey<_BodyState>();
   showPSheet<void>(
     context,
-    title: '더치페이 시작',
+    title: AppLocalizations.of(context).dutchStartTitle,
     contentBuilder: (ctx, scrollCtrl) => _Body(
       key: bodyKey,
       expense: expense,
@@ -265,11 +266,13 @@ class _BodyState extends ConsumerState<_Body> {
       );
       ref.invalidate(dutchPayListProvider);
       if (!mounted) return;
+      final l = AppLocalizations.of(context);
       Navigator.of(context).pop();
-      showPSnackBar(context, '더치페이가 생성되었습니다');
+      showPSnackBar(context, l.dutchCreated);
     } on ApiException catch (e) {
       if (!mounted) return;
-      showPSnackBar(context, '실패: ${e.message}', severity: PSnackSeverity.error);
+      final l = AppLocalizations.of(context);
+      showPSnackBar(context, '${l.dutchActionFailed}: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setSubmitting(false);
     }
@@ -278,6 +281,7 @@ class _BodyState extends ConsumerState<_Body> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final e = widget.expense;
     final me = ref.watch(authProvider).value;
     final meName = me?.userName ?? '나';
@@ -317,7 +321,7 @@ class _BodyState extends ConsumerState<_Body> {
           PSpace.x16, 0, PSpace.x16, PSpace.x16),
       children: [
                 Text(
-                  '이 거래를 기준으로 더치페이 정산을 만듭니다. 참여자에게 송금 요청을 보내고, 정산 진행 상황을 추적할 수 있어요.',
+                  l.dutchFromTxDesc,
                   style: PTypo.bodySm.copyWith(
                       color: t.fgSecondary, height: PLineHeight.normal),
                 ),
@@ -386,14 +390,14 @@ class _BodyState extends ConsumerState<_Body> {
 
                 // 분배 방식
                 _Section(
-                  title: '분배 방식',
+                  title: l.dutchSplitMethod,
                   child: Row(
                     children: [
                       Expanded(
                         child: _SplitCard(
                           icon: LucideIcons.divide,
-                          title: 'N분의 1',
-                          subtitle: '균등 분배',
+                          title: l.dutchSplitEqualTitle,
+                          subtitle: l.dutchSplitEqualSub,
                           selected: _split == _Split.equal,
                           onTap: () => setState(() => _split = _Split.equal),
                           tokens: t,
@@ -403,8 +407,8 @@ class _BodyState extends ConsumerState<_Body> {
                       Expanded(
                         child: _SplitCard(
                           icon: LucideIcons.percent,
-                          title: '비율',
-                          subtitle: '인원수·기준',
+                          title: l.dutchSplitRatioTitle,
+                          subtitle: l.dutchSplitRatioSub,
                           selected: _split == _Split.ratio,
                           onTap: () => setState(() => _split = _Split.ratio),
                           tokens: t,
@@ -414,8 +418,8 @@ class _BodyState extends ConsumerState<_Body> {
                       Expanded(
                         child: _SplitCard(
                           icon: LucideIcons.listOrdered,
-                          title: '개별 금액',
-                          subtitle: '각자 다르게',
+                          title: l.dutchSplitCustomTitle,
+                          subtitle: l.dutchSplitCustomSub,
                           selected: _split == _Split.custom,
                           onTap: () =>
                               setState(() => _split = _Split.custom),
@@ -463,12 +467,12 @@ class _BodyState extends ConsumerState<_Body> {
                         ),
                         const SizedBox(width: 10),
                         Expanded(
-                          child: Text('나도 포함해서 분배',
+                          child: Text(l.dutchIncludeMyself,
                               style: PTypo.bodySm.copyWith(
                                   color: t.fgPrimary,
                                   fontWeight: PFontWeight.bold)),
                         ),
-                        Text('내 몫도 계산됩니다',
+                        Text(l.dutchIncludeMyselfDesc,
                             style: PTypo.caption
                                 .copyWith(color: t.fgTertiary)),
                       ],
@@ -482,12 +486,12 @@ class _BodyState extends ConsumerState<_Body> {
                   padding: const EdgeInsets.only(bottom: 8),
                   child: Row(
                     children: [
-                      Text('참여자',
+                      Text(l.dutchParticipant,
                           style: PTypo.caption.copyWith(
                               color: t.fgSecondary,
                               fontWeight: PFontWeight.bold)),
                       const SizedBox(width: 6),
-                      Text('(${participants.length}명)',
+                      Text('(${l.dutchNPeople(participants.length)})',
                           style: PTypo.caption
                               .copyWith(color: t.fgTertiary)),
                     ],
@@ -552,13 +556,13 @@ class _BodyState extends ConsumerState<_Body> {
                         controller: _manualNameCtrl,
                         textInputAction: TextInputAction.done,
                         onSubmitted: (_) => _addManual(),
-                        placeholder: '이름 입력 후 추가',
+                        placeholder: l.dutchAddNamePlaceholder,
                         enabled: !_submitting,
                       ),
                     ),
                     const SizedBox(width: 8),
                     PButton(
-                      label: '추가',
+                      label: l.dutchAdd,
                       icon: LucideIcons.userPlus,
                       variant: PButtonVariant.outline,
                       size: PButtonSize.sm,
@@ -571,12 +575,12 @@ class _BodyState extends ConsumerState<_Body> {
 
                 // 요청 메시지
                 _Section(
-                  title: '요청 메시지 (선택)',
+                  title: l.dutchRequestMsgLabel,
                   child: PTextInput(
                     controller: _msgCtrl,
                     maxLines: 3,
                     minLines: 3,
-                    placeholder: '참여자에게 함께 보낼 한마디를 적어주세요',
+                    placeholder: l.dutchRequestMsgPlaceholder,
                     enabled: !_submitting,
                   ),
                 ),
@@ -586,8 +590,8 @@ class _BodyState extends ConsumerState<_Body> {
             padding: const EdgeInsets.only(top: 4),
             child: Text(
               remainder > 0
-                  ? '합계가 총액보다 ${krw(remainder)}원 부족합니다.'
-                  : '합계가 총액보다 ${krw(-remainder)}원 초과합니다.',
+                  ? l.dutchShortBy(krw(remainder))
+                  : l.dutchOverBy(krw(-remainder)),
               style: PTypo.caption.copyWith(color: t.statusDangerFg),
             ),
           ),
@@ -604,6 +608,7 @@ class _DutchPayFooter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     return AnimatedBuilder(
       animation: controller,
       builder: (ctx, _) {
@@ -616,7 +621,7 @@ class _DutchPayFooter extends StatelessWidget {
               child: RichText(
                 text: TextSpan(children: [
                   TextSpan(
-                    text: '1인당 ',
+                    text: '${l.dutchPerPersonLabel} ',
                     style: PTypo.bodySm.copyWith(color: t.fgSecondary),
                   ),
                   TextSpan(
@@ -629,7 +634,7 @@ class _DutchPayFooter extends StatelessWidget {
               ),
             ),
             PButton(
-              label: '취소',
+              label: l.actionCancel,
               variant: PButtonVariant.ghost,
               onPressed: controller.submitting
                   ? null
@@ -637,7 +642,7 @@ class _DutchPayFooter extends StatelessWidget {
             ),
             const SizedBox(width: PSpace.x4),
             PButton(
-              label: '정산 만들기',
+              label: l.dutchCreate,
               icon: LucideIcons.send,
               loading: controller.submitting,
               onPressed: matched && !controller.submitting
@@ -767,6 +772,7 @@ class _ParticipantRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final palette = participant.isMe
         ? tokens.fgBrand
         : parseColor(
@@ -811,7 +817,7 @@ class _ParticipantRow extends StatelessWidget {
                 ),
                 if (participant.isMe) ...[
                   const SizedBox(width: 6),
-                  const PBadge(label: '나', variant: PBadgeVariant.softBrand),
+                  PBadge(label: l.dutchMe, variant: PBadgeVariant.softBrand),
                 ],
               ],
             ),

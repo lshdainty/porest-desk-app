@@ -10,6 +10,7 @@ import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/auth/auth_notifier.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_date_input.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
@@ -33,7 +34,7 @@ void showDutchPayCreateDialog(BuildContext context, {Expense? fromExpense}) {
   final bodyKey = GlobalKey<_BodyState>();
   showPSheet<void>(
     context,
-    title: '정산 만들기',
+    title: AppLocalizations.of(context).dutchCreate,
     contentBuilder: (ctx, scrollCtrl) => _Body(
       key: bodyKey,
       fromExpense: fromExpense,
@@ -46,10 +47,12 @@ void showDutchPayCreateDialog(BuildContext context, {Expense? fromExpense}) {
 
 /// 참여자 후보 — 이름 + 선택 여부 + '나'/추천 메타.
 class _Pick {
-  _Pick({required this.name, this.isMe = false, this.note});
+  _Pick({required this.name, this.isMe = false, this.recommendCount});
   final String name;
   final bool isMe;
-  final String? note;
+
+  /// 추천 후보가 '함께 정산한 횟수' — 있으면 note 로 표시. me/수동추가는 null.
+  final int? recommendCount;
   bool selected = false;
 }
 
@@ -102,8 +105,8 @@ class _BodyState extends ConsumerState<_Body> {
     } else {
       _date = DateTime.now();
     }
-    // '나' 고정 결제자 — 선택된 상태로 시작.
-    final me = _Pick(name: '나', isMe: true, note: '결제자')..selected = true;
+    // '나' 고정 결제자 — 선택된 상태로 시작. 표시 라벨은 _PickRow 에서 로케일화.
+    final me = _Pick(name: '나', isMe: true)..selected = true;
     _picks.add(me);
     widget.controller.onSubmit = _onPrimary;
   }
@@ -147,7 +150,7 @@ class _BodyState extends ConsumerState<_Body> {
     final sorted = freq.keys.toList()
       ..sort((a, b) => freq[b]!.compareTo(freq[a]!));
     for (final n in sorted.take(6)) {
-      _picks.add(_Pick(name: n, note: '${freq[n]}회 함께 정산'));
+      _picks.add(_Pick(name: n, recommendCount: freq[n]));
     }
   }
 
@@ -214,11 +217,13 @@ class _BodyState extends ConsumerState<_Body> {
       );
       ref.invalidate(dutchPayListProvider);
       if (!mounted) return;
+      final l = AppLocalizations.of(context);
       Navigator.of(context).pop();
-      showPSnackBar(context, '정산이 만들어졌어요');
+      showPSnackBar(context, l.dutchCreated);
     } on ApiException catch (e) {
       if (!mounted) return;
-      showPSnackBar(context, '실패: ${e.message}',
+      final l = AppLocalizations.of(context);
+      showPSnackBar(context, '${l.dutchActionFailed}: ${e.message}',
           severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setSubmitting(false);
@@ -239,28 +244,29 @@ class _BodyState extends ConsumerState<_Body> {
   // ── Step 1: 정산 기본 정보 ──
   Widget _buildStep1(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     return ListView(
       controller: widget.scrollController,
       padding: const EdgeInsets.fromLTRB(
           PSpace.x16, 0, PSpace.x16, PSpace.x16),
       children: [
-        _StepHeader(label: '정산 만들기', step: 1, t: t),
+        _StepHeader(label: l.dutchCreate, step: 1, t: t),
         const SizedBox(height: PSpace.md),
-        _Label('정산 이름', t),
+        _Label(l.dutchNameLabel, t),
         const SizedBox(height: PSpace.x4),
         PTextInput(
           controller: _titleCtrl,
           autofocus: true,
-          placeholder: '예: 팀 저녁 회식',
+          placeholder: l.dutchNamePlaceholder,
           onChanged: (_) => setState(() {}),
         ),
         const SizedBox(height: PSpace.x12),
 
-        _Label('장소 (선택)', t),
+        _Label(l.dutchPlaceLabel, t),
         const SizedBox(height: PSpace.x4),
         PTextInput(
           controller: _placeCtrl,
-          placeholder: '장소 또는 상호명',
+          placeholder: l.dutchPlacePlaceholder,
         ),
         const SizedBox(height: PSpace.x12),
 
@@ -272,7 +278,7 @@ class _BodyState extends ConsumerState<_Body> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _Label('총 금액', t),
+                  _Label(l.dutchTotalLabel, t),
                   const SizedBox(height: PSpace.x4),
                   PTextInput(
                     controller: _amountCtrl,
@@ -292,7 +298,7 @@ class _BodyState extends ConsumerState<_Body> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _Label('날짜', t),
+                  _Label(l.dutchDateLabel, t),
                   const SizedBox(height: PSpace.x4),
                   PDateInput(
                     value: _date,
@@ -314,6 +320,7 @@ class _BodyState extends ConsumerState<_Body> {
   // ── Step 2: 참여자 선택 ──
   Widget _buildStep2(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final n = _selectedCount;
     final perPerson = n == 0 ? 0 : _total ~/ n;
 
@@ -322,7 +329,7 @@ class _BodyState extends ConsumerState<_Body> {
       padding: const EdgeInsets.fromLTRB(
           PSpace.x16, 0, PSpace.x16, PSpace.x16),
       children: [
-        _StepHeader(label: '참여자 선택', step: 2, t: t),
+        _StepHeader(label: l.dutchSelectParticipants, step: 2, t: t),
         const SizedBox(height: PSpace.md),
         // 요약: N명 선택 · 1인당 X원
         Container(
@@ -333,14 +340,14 @@ class _BodyState extends ConsumerState<_Body> {
           ),
           child: Row(
             children: [
-              Text('$n명 선택',
+              Text(l.dutchNSelected(n),
                   style: PTypo.bodySm.copyWith(
                       color: t.fgPrimary, fontWeight: PFontWeight.bold)),
               const Spacer(),
               RichText(
                 text: TextSpan(children: [
                   TextSpan(
-                    text: '1인당 ',
+                    text: '${l.dutchPerPersonLabel} ',
                     style: PTypo.bodySm.copyWith(color: t.fgSecondary),
                   ),
                   TextSpan(
@@ -374,13 +381,13 @@ class _BodyState extends ConsumerState<_Body> {
                 controller: _manualCtrl,
                 textInputAction: TextInputAction.done,
                 onSubmitted: (_) => _addManual(),
-                placeholder: '이름 입력 후 추가',
+                placeholder: l.dutchAddNamePlaceholder,
                 enabled: !_submitting,
               ),
             ),
             const SizedBox(width: 8),
             PButton(
-              label: '추가',
+              label: l.dutchAdd,
               icon: LucideIcons.userPlus,
               variant: PButtonVariant.outline,
               size: PButtonSize.sm,
@@ -402,6 +409,12 @@ class _PickRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
+    final noteText = pick.isMe
+        ? l.dutchPayer
+        : (pick.recommendCount != null
+            ? l.dutchSettledTogetherCount(pick.recommendCount!)
+            : null);
     return InkWell(
       onTap: onToggle,
       borderRadius: PRadius.brMd,
@@ -438,7 +451,7 @@ class _PickRow extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    pick.name,
+                    pick.isMe ? l.dutchMe : pick.name,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: PTypo.bodySm.copyWith(
@@ -446,10 +459,10 @@ class _PickRow extends StatelessWidget {
                       fontWeight: PFontWeight.semi,
                     ),
                   ),
-                  if (pick.note != null) ...[
+                  if (noteText != null) ...[
                     const SizedBox(height: 1),
                     Text(
-                      pick.note!,
+                      noteText,
                       style: PTypo.micro.copyWith(color: t.fgTertiary),
                     ),
                   ],
@@ -530,6 +543,7 @@ class _WizardFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return AnimatedBuilder(
       animation: controller,
       builder: (ctx, _) {
@@ -541,7 +555,7 @@ class _WizardFooter extends StatelessWidget {
             children: [
               const Spacer(),
               PButton(
-                label: '취소',
+                label: l.actionCancel,
                 variant: PButtonVariant.ghost,
                 onPressed: controller.submitting
                     ? null
@@ -549,7 +563,7 @@ class _WizardFooter extends StatelessWidget {
               ),
               const SizedBox(width: PSpace.x4),
               PButton(
-                label: '다음',
+                label: l.dutchNext,
                 icon: LucideIcons.arrowRight,
                 onPressed:
                     canNext && !controller.submitting ? controller.onSubmit : null,
@@ -560,14 +574,14 @@ class _WizardFooter extends StatelessWidget {
         return Row(
           children: [
             PButton(
-              label: '이전',
+              label: l.dutchPrev,
               variant: PButtonVariant.ghost,
               flush: PButtonFlush.left,
               onPressed: controller.submitting ? null : state?._back,
             ),
             const Spacer(),
             PButton(
-              label: '정산 만들기',
+              label: l.dutchCreate,
               icon: LucideIcons.check,
               loading: controller.submitting,
               onPressed:

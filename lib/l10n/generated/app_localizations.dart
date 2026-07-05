@@ -3649,6 +3649,408 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'로그인 페이지를 불러오지 못했어요.'**
   String get authPageLoadError;
+
+  /// No description provided for @dutchTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'더치페이'**
+  String get dutchTitle;
+
+  /// No description provided for @dutchCreate.
+  ///
+  /// In ko, this message translates to:
+  /// **'정산 만들기'**
+  String get dutchCreate;
+
+  /// No description provided for @dutchLoadFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'더치페이 로드 실패'**
+  String get dutchLoadFailed;
+
+  /// No description provided for @dutchTabActive.
+  ///
+  /// In ko, this message translates to:
+  /// **'진행 중'**
+  String get dutchTabActive;
+
+  /// No description provided for @dutchTabPast.
+  ///
+  /// In ko, this message translates to:
+  /// **'완료'**
+  String get dutchTabPast;
+
+  /// No description provided for @dutchTabFriends.
+  ///
+  /// In ko, this message translates to:
+  /// **'친구'**
+  String get dutchTabFriends;
+
+  /// No description provided for @dutchEmptyActiveTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'진행 중인 정산이 없어요'**
+  String get dutchEmptyActiveTitle;
+
+  /// No description provided for @dutchEmptyActiveSub.
+  ///
+  /// In ko, this message translates to:
+  /// **'+ 버튼으로 새 정산을 만들어보세요.'**
+  String get dutchEmptyActiveSub;
+
+  /// No description provided for @dutchEmptyPastTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'완료된 정산이 없어요'**
+  String get dutchEmptyPastTitle;
+
+  /// No description provided for @dutchEmptyPastSub.
+  ///
+  /// In ko, this message translates to:
+  /// **'정산을 마치면 여기에 모입니다.'**
+  String get dutchEmptyPastSub;
+
+  /// No description provided for @dutchEmptyFriendsTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'함께 정산한 친구가 없어요'**
+  String get dutchEmptyFriendsTitle;
+
+  /// No description provided for @dutchEmptyFriendsSub.
+  ///
+  /// In ko, this message translates to:
+  /// **'정산에 참여자를 추가하면 여기에 모입니다.'**
+  String get dutchEmptyFriendsSub;
+
+  /// No description provided for @dutchActionFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'실패'**
+  String get dutchActionFailed;
+
+  /// No description provided for @dutchSettleFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'정산 실패'**
+  String get dutchSettleFailed;
+
+  /// No description provided for @dutchDeleteFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'삭제 실패'**
+  String get dutchDeleteFailed;
+
+  /// No description provided for @dutchToReceive.
+  ///
+  /// In ko, this message translates to:
+  /// **'받을 돈'**
+  String get dutchToReceive;
+
+  /// No description provided for @dutchToSend.
+  ///
+  /// In ko, this message translates to:
+  /// **'보낼 돈'**
+  String get dutchToSend;
+
+  /// No description provided for @dutchFromPeople.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}명에게서'**
+  String dutchFromPeople(int count);
+
+  /// No description provided for @dutchToPeople.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}명에게'**
+  String dutchToPeople(int count);
+
+  /// No description provided for @dutchPerPersonLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'1인당'**
+  String get dutchPerPersonLabel;
+
+  /// No description provided for @dutchNPeople.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}명'**
+  String dutchNPeople(int count);
+
+  /// No description provided for @dutchSettledTogetherCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}회 함께 정산'**
+  String dutchSettledTogetherCount(int count);
+
+  /// No description provided for @dutchSettled.
+  ///
+  /// In ko, this message translates to:
+  /// **'정산 완료'**
+  String get dutchSettled;
+
+  /// No description provided for @dutchMe.
+  ///
+  /// In ko, this message translates to:
+  /// **'나'**
+  String get dutchMe;
+
+  /// No description provided for @dutchPayer.
+  ///
+  /// In ko, this message translates to:
+  /// **'결제자'**
+  String get dutchPayer;
+
+  /// No description provided for @dutchNameLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'정산 이름'**
+  String get dutchNameLabel;
+
+  /// No description provided for @dutchNamePlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'예: 팀 저녁 회식'**
+  String get dutchNamePlaceholder;
+
+  /// No description provided for @dutchPlaceLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'장소 (선택)'**
+  String get dutchPlaceLabel;
+
+  /// No description provided for @dutchPlacePlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'장소 또는 상호명'**
+  String get dutchPlacePlaceholder;
+
+  /// No description provided for @dutchTotalLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'총 금액'**
+  String get dutchTotalLabel;
+
+  /// No description provided for @dutchDateLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'날짜'**
+  String get dutchDateLabel;
+
+  /// No description provided for @dutchSelectParticipants.
+  ///
+  /// In ko, this message translates to:
+  /// **'참여자 선택'**
+  String get dutchSelectParticipants;
+
+  /// No description provided for @dutchNSelected.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}명 선택'**
+  String dutchNSelected(int count);
+
+  /// No description provided for @dutchAddNamePlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'이름 입력 후 추가'**
+  String get dutchAddNamePlaceholder;
+
+  /// No description provided for @dutchAdd.
+  ///
+  /// In ko, this message translates to:
+  /// **'추가'**
+  String get dutchAdd;
+
+  /// No description provided for @dutchNext.
+  ///
+  /// In ko, this message translates to:
+  /// **'다음'**
+  String get dutchNext;
+
+  /// No description provided for @dutchPrev.
+  ///
+  /// In ko, this message translates to:
+  /// **'이전'**
+  String get dutchPrev;
+
+  /// No description provided for @dutchDetailTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'정산 상세'**
+  String get dutchDetailTitle;
+
+  /// No description provided for @dutchParticipant.
+  ///
+  /// In ko, this message translates to:
+  /// **'참여자'**
+  String get dutchParticipant;
+
+  /// No description provided for @dutchSettleAction.
+  ///
+  /// In ko, this message translates to:
+  /// **'정산 완료 처리'**
+  String get dutchSettleAction;
+
+  /// No description provided for @dutchDeleteTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'더치페이 삭제'**
+  String get dutchDeleteTitle;
+
+  /// No description provided for @dutchDeleteConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'\"{title}\"을(를) 삭제할까요?'**
+  String dutchDeleteConfirm(String title);
+
+  /// No description provided for @dutchRequestAll.
+  ///
+  /// In ko, this message translates to:
+  /// **'일괄 요청'**
+  String get dutchRequestAll;
+
+  /// No description provided for @dutchRequestSent.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name}님에게 송금 요청을 보냈어요 (추후 카카오톡·문자 연동 예정)'**
+  String dutchRequestSent(String name);
+
+  /// No description provided for @dutchRequestSentBulk.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}명에게 송금 요청을 보냈어요 (추후 카카오톡·문자 연동 예정)'**
+  String dutchRequestSentBulk(int count);
+
+  /// No description provided for @dutchAllSettled.
+  ///
+  /// In ko, this message translates to:
+  /// **'모든 참여자가 이미 정산을 완료했어요'**
+  String get dutchAllSettled;
+
+  /// No description provided for @dutchNeedsPayment.
+  ///
+  /// In ko, this message translates to:
+  /// **'{amount}원 송금 필요'**
+  String dutchNeedsPayment(String amount);
+
+  /// No description provided for @dutchNoName.
+  ///
+  /// In ko, this message translates to:
+  /// **'(이름 없음)'**
+  String get dutchNoName;
+
+  /// No description provided for @dutchMarkPaid.
+  ///
+  /// In ko, this message translates to:
+  /// **'송금 완료 처리'**
+  String get dutchMarkPaid;
+
+  /// No description provided for @dutchRequest.
+  ///
+  /// In ko, this message translates to:
+  /// **'요청'**
+  String get dutchRequest;
+
+  /// No description provided for @dutchUnsettled.
+  ///
+  /// In ko, this message translates to:
+  /// **'미정산'**
+  String get dutchUnsettled;
+
+  /// No description provided for @dutchStartTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'더치페이 시작'**
+  String get dutchStartTitle;
+
+  /// No description provided for @dutchFromTxDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 거래를 기준으로 더치페이 정산을 만듭니다. 참여자에게 송금 요청을 보내고, 정산 진행 상황을 추적할 수 있어요.'**
+  String get dutchFromTxDesc;
+
+  /// No description provided for @dutchSplitMethod.
+  ///
+  /// In ko, this message translates to:
+  /// **'분배 방식'**
+  String get dutchSplitMethod;
+
+  /// No description provided for @dutchSplitEqualTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'N분의 1'**
+  String get dutchSplitEqualTitle;
+
+  /// No description provided for @dutchSplitEqualSub.
+  ///
+  /// In ko, this message translates to:
+  /// **'균등 분배'**
+  String get dutchSplitEqualSub;
+
+  /// No description provided for @dutchSplitRatioTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'비율'**
+  String get dutchSplitRatioTitle;
+
+  /// No description provided for @dutchSplitRatioSub.
+  ///
+  /// In ko, this message translates to:
+  /// **'인원수·기준'**
+  String get dutchSplitRatioSub;
+
+  /// No description provided for @dutchSplitCustomTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'개별 금액'**
+  String get dutchSplitCustomTitle;
+
+  /// No description provided for @dutchSplitCustomSub.
+  ///
+  /// In ko, this message translates to:
+  /// **'각자 다르게'**
+  String get dutchSplitCustomSub;
+
+  /// No description provided for @dutchIncludeMyself.
+  ///
+  /// In ko, this message translates to:
+  /// **'나도 포함해서 분배'**
+  String get dutchIncludeMyself;
+
+  /// No description provided for @dutchIncludeMyselfDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'내 몫도 계산됩니다'**
+  String get dutchIncludeMyselfDesc;
+
+  /// No description provided for @dutchRequestMsgLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'요청 메시지 (선택)'**
+  String get dutchRequestMsgLabel;
+
+  /// No description provided for @dutchRequestMsgPlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'참여자에게 함께 보낼 한마디를 적어주세요'**
+  String get dutchRequestMsgPlaceholder;
+
+  /// No description provided for @dutchShortBy.
+  ///
+  /// In ko, this message translates to:
+  /// **'합계가 총액보다 {amount}원 부족합니다.'**
+  String dutchShortBy(String amount);
+
+  /// No description provided for @dutchOverBy.
+  ///
+  /// In ko, this message translates to:
+  /// **'합계가 총액보다 {amount}원 초과합니다.'**
+  String dutchOverBy(String amount);
+
+  /// No description provided for @dutchCreated.
+  ///
+  /// In ko, this message translates to:
+  /// **'정산이 만들어졌어요'**
+  String get dutchCreated;
 }
 
 class _AppLocalizationsDelegate
