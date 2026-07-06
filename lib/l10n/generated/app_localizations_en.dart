@@ -3217,4 +3217,196 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get presetCreated => 'Preset added';
+
+  @override
+  String get recurringToggleFailed => 'Change failed';
+
+  @override
+  String get recurringDeleteTitle => 'Delete recurring transaction';
+
+  @override
+  String recurringDeleteConfirm(String name) {
+    return 'Delete the recurring setting for \"$name\"?\nAlready recorded transactions remain.';
+  }
+
+  @override
+  String get recurringDeleteFailed => 'Delete failed';
+
+  @override
+  String get recurringLoadError => 'Failed to load recurring transactions';
+
+  @override
+  String get recurringAllList => 'All';
+
+  @override
+  String get recurringAdd => 'Add';
+
+  @override
+  String recurringFilterAll(int count) {
+    return 'All $count';
+  }
+
+  @override
+  String recurringFilterExpense(int count) {
+    return 'Expense $count';
+  }
+
+  @override
+  String recurringFilterIncome(int count) {
+    return 'Income $count';
+  }
+
+  @override
+  String recurringFilterPaused(int count) {
+    return 'Paused $count';
+  }
+
+  @override
+  String get recurringStatActive => 'Active';
+
+  @override
+  String recurringCount(int count) {
+    return '$count';
+  }
+
+  @override
+  String get recurringPaused => 'Paused';
+
+  @override
+  String get recurringMonthlyExpense => 'Monthly fixed expense';
+
+  @override
+  String get recurringMonthlyIncome => 'Monthly fixed income';
+
+  @override
+  String get recurringUpcoming => 'Next 7 days';
+
+  @override
+  String recurringUpcomingCount(int count) {
+    return '$count upcoming';
+  }
+
+  @override
+  String get recurringToday => 'Today';
+
+  @override
+  String get recurringNoAccount => 'No account';
+
+  @override
+  String recurringOccurrences(int executed, int max) {
+    return '$executed/$max';
+  }
+
+  @override
+  String get recurringNext => 'Next';
+
+  @override
+  String get recurringStart => 'Start';
+
+  @override
+  String get recurringEmpty => 'No matching recurring transactions';
+
+  @override
+  String get recurringIndefinite => 'Indefinite';
+
+  @override
+  String get recurringNotifyShort => 'Alert';
+
+  @override
+  String get recurringAddTitle => 'Add recurring transaction';
+
+  @override
+  String get recurringSaveSubmit => 'Save recurring';
+
+  @override
+  String get recurringUpdated => 'Recurring setting updated';
+
+  @override
+  String get recurringSaved => 'Recurring setting saved';
+
+  @override
+  String get recurringSaveFailed => 'Save failed';
+
+  @override
+  String get recurringIntro =>
+      'Automatically repeat this transaction on a set cycle. Great for subscriptions, rent, regular donations, etc.';
+
+  @override
+  String get recurringFrequencyLabel => 'Frequency';
+
+  @override
+  String get recurringDayOfWeekLabel => 'Day of week';
+
+  @override
+  String get recurringDayOfMonthLabel => 'Day of month';
+
+  @override
+  String get recurringDayNote =>
+      'Months without this day are handled on the last day';
+
+  @override
+  String get recurringEndLabel => 'End';
+
+  @override
+  String get recurringIndefiniteDesc => 'Repeat until stopped';
+
+  @override
+  String get recurringByCount => 'By count';
+
+  @override
+  String get recurringTotal => 'Total';
+
+  @override
+  String get recurringTimesUnit => 'times';
+
+  @override
+  String get recurringByDate => 'By end date';
+
+  @override
+  String get recurringOptions => 'Options';
+
+  @override
+  String get recurringAutoLog => 'Auto-record';
+
+  @override
+  String get recurringAutoLogDesc =>
+      'Automatically add the transaction on the date';
+
+  @override
+  String get recurringNotifyDayBefore => 'Day-before alert';
+
+  @override
+  String get recurringNotifyDesc =>
+      'Send an alert the day before the payment/transfer';
+
+  @override
+  String get recurringNextDates => 'Next dates';
+
+  @override
+  String recurringStartFrom(String date) {
+    return 'Starts $date';
+  }
+
+  @override
+  String get recurringMerchant => 'Merchant';
+
+  @override
+  String get recurringMerchantPlaceholder => 'e.g. Netflix';
+
+  @override
+  String get recurringAssetCard => 'Account / Card';
+
+  @override
+  String get recurringAssetLoadError => 'Failed to load assets';
+
+  @override
+  String get recurringSelectNone => 'None';
+
+  @override
+  String get recurringStartDateLabel => 'Start date';
+
+  @override
+  String recurringParentCategory(String name) {
+    return '$name (parent)';
+  }
 }

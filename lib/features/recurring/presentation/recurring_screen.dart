@@ -11,6 +11,7 @@ import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_badge.dart';
@@ -49,6 +50,7 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
 
   Future<void> _toggle(RecurringTransaction it) async {
     if (_busyToggleId != null) return;
+    final l = AppLocalizations.of(context);
     setState(() => _busyToggleId = it.rowId);
     try {
       final repo = await ref.read(recurringRepositoryProvider.future);
@@ -58,7 +60,7 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
       if (!mounted) return;
       showPSnackBar(
         context,
-        '변경 실패: ${e.message}',
+        '${l.recurringToggleFailed}: ${e.message}',
         severity: PSnackSeverity.error,
       );
     } finally {
@@ -67,11 +69,12 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
   }
 
   Future<void> _delete(RecurringTransaction it) async {
+    final l = AppLocalizations.of(context);
     final ok = await showPConfirmDialog(
       context,
-      title: '반복 거래 삭제',
-      message: '"${_displayTitle(it)}" 반복 설정을 삭제할까요?\n이미 기록된 거래는 그대로 남습니다.',
-      confirmLabel: '삭제',
+      title: l.recurringDeleteTitle,
+      message: l.recurringDeleteConfirm(_displayTitle(l, it)),
+      confirmLabel: l.actionDelete,
       destructive: true,
     );
     if (!ok || !mounted) return;
@@ -84,7 +87,7 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
       if (!mounted) return;
       showPSnackBar(
         context,
-        '삭제 실패: ${e.message}',
+        '${l.recurringDeleteFailed}: ${e.message}',
         severity: PSnackSeverity.error,
       );
     } finally {
@@ -95,6 +98,7 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final listAsync = ref.watch(recurringListProvider);
     final categoriesAsync = ref.watch(categoriesProvider);
     final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
@@ -105,7 +109,7 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
         leading: PBackButton(onPressed: () => context.pop()),
-        title: const Text('반복 거래'),
+        title: Text(l.navRecurring),
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,
         elevation: 0,
@@ -123,7 +127,7 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
             padding: const EdgeInsets.all(PSpace.x16),
             children: [
               _ErrorBox(
-                message: '반복 거래를 불러오지 못했습니다\n$e',
+                message: '${l.recurringLoadError}\n$e',
                 onRetry: () => ref.invalidate(recurringListProvider),
               ),
             ],
@@ -178,7 +182,7 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
                             Row(
                               children: [
                                 Text(
-                                  '전체 목록',
+                                  l.recurringAllList,
                                   style: PTypo.bodySm.copyWith(
                                     color: t.fgPrimary,
                                     fontWeight: PFontWeight.bold,
@@ -186,7 +190,7 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
                                 ),
                                 const Spacer(),
                                 PButton(
-                                  label: '추가',
+                                  label: l.recurringAdd,
                                   icon: LucideIcons.plus,
                                   variant: PButtonVariant.accent,
                                   size: PButtonSize.sm,
@@ -200,18 +204,18 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
                             Row(
                               children: [
                                 for (final e in <(_Filter, String)>[
-                                  (_Filter.all, '전체 ${items.length}'),
+                                  (_Filter.all, l.recurringFilterAll(items.length)),
                                   (
                                     _Filter.expense,
-                                    '지출 ${items.where((i) => i.expenseType == 'EXPENSE' && i.isActive == 'Y').length}',
+                                    l.recurringFilterExpense(items.where((i) => i.expenseType == 'EXPENSE' && i.isActive == 'Y').length),
                                   ),
                                   (
                                     _Filter.income,
-                                    '수입 ${items.where((i) => i.expenseType == 'INCOME' && i.isActive == 'Y').length}',
+                                    l.recurringFilterIncome(items.where((i) => i.expenseType == 'INCOME' && i.isActive == 'Y').length),
                                   ),
                                   (
                                     _Filter.paused,
-                                    '일시정지 ${items.where((i) => i.isActive != 'Y').length}',
+                                    l.recurringFilterPaused(items.where((i) => i.isActive != 'Y').length),
                                   ),
                                 ]) ...[
                                   PToggle(
@@ -352,6 +356,7 @@ class _SummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return PCard(
       padding: const EdgeInsets.all(PSpace.x16),
       variant: PCardVariant.shadow,
@@ -361,18 +366,18 @@ class _SummaryCard extends StatelessWidget {
             children: [
               Expanded(
                 child: _Stat(
-                  label: '활성 반복',
+                  label: l.recurringStatActive,
                   icon: LucideIcons.repeat,
-                  value: '$active개',
+                  value: l.recurringCount(active),
                   color: tokens.fgPrimary,
                   tokens: tokens,
                 ),
               ),
               Expanded(
                 child: _Stat(
-                  label: '일시정지',
+                  label: l.recurringPaused,
                   icon: LucideIcons.pauseCircle,
-                  value: '$paused개',
+                  value: l.recurringCount(paused),
                   color: tokens.fgTertiary,
                   tokens: tokens,
                 ),
@@ -386,7 +391,7 @@ class _SummaryCard extends StatelessWidget {
             children: [
               Expanded(
                 child: _Stat(
-                  label: '매월 고정 지출',
+                  label: l.recurringMonthlyExpense,
                   icon: LucideIcons.trendingDown,
                   value: krwSigned(monthlyExpense, masked, sign: '-'),
                   color: tokens.fgExpense,
@@ -395,7 +400,7 @@ class _SummaryCard extends StatelessWidget {
               ),
               Expanded(
                 child: _Stat(
-                  label: '매월 고정 수입',
+                  label: l.recurringMonthlyIncome,
                   icon: LucideIcons.trendingUp,
                   value: krwSigned(monthlyIncome, masked, sign: '+'),
                   color: tokens.fgIncome,
@@ -466,6 +471,7 @@ class _UpcomingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final today = DateTime.now();
     final todayStart = DateTime(today.year, today.month, today.day);
     return PCard(
@@ -477,7 +483,7 @@ class _UpcomingCard extends StatelessWidget {
           Row(
             children: [
               Text(
-                '다가오는 7일',
+                l.recurringUpcoming,
                 style: PTypo.bodySm.copyWith(
                   color: tokens.fgPrimary,
                   fontWeight: PFontWeight.bold,
@@ -485,7 +491,7 @@ class _UpcomingCard extends StatelessWidget {
               ),
               const Spacer(),
               Text(
-                '${items.length}건 예정',
+                l.recurringUpcomingCount(items.length),
                 style: PTypo.caption.copyWith(color: tokens.fgTertiary),
               ),
             ],
@@ -523,6 +529,7 @@ class _UpcomingRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final due = item.nextExecutionDate != null
         ? DateTime.parse(item.nextExecutionDate!.substring(0, 10))
         : todayStart;
@@ -558,7 +565,7 @@ class _UpcomingRow extends StatelessWidget {
             ),
             alignment: Alignment.center,
             child: Text(
-              isToday ? '오늘' : 'D-$days',
+              isToday ? l.recurringToday : 'D-$days',
               style: PTypo.caption.copyWith(
                 color: isToday ? tokens.fgOnBrand : tokens.fgSecondary,
                 fontWeight: PFontWeight.bold,
@@ -579,7 +586,7 @@ class _UpcomingRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _displayTitle(item),
+                  _displayTitle(l, item),
                   style: PTypo.bodySm.copyWith(
                     color: tokens.fgPrimary,
                     fontWeight: PFontWeight.semi,
@@ -588,7 +595,7 @@ class _UpcomingRow extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
-                  '${item.assetName ?? '계좌 없음'} · ${_summary(item)}',
+                  '${item.assetName ?? l.recurringNoAccount} · ${_summary(l, item)}',
                   style: PTypo.caption.copyWith(color: tokens.fgTertiary),
                 ),
               ],
@@ -631,6 +638,7 @@ class _RecurringRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final isActive = item.isActive == 'Y';
     final isExpense = item.expenseType == 'EXPENSE';
     final fg = resolveChartColor(
@@ -665,7 +673,7 @@ class _RecurringRow extends StatelessWidget {
                     children: [
                       Flexible(
                         child: Text(
-                          _displayTitle(item),
+                          _displayTitle(l, item),
                           style: PTypo.body.copyWith(
                             color: tokens.fgPrimary,
                             fontWeight: PFontWeight.semi,
@@ -676,16 +684,18 @@ class _RecurringRow extends StatelessWidget {
                       ),
                       if (!isActive) ...[
                         const SizedBox(width: 6),
-                        const PBadge(
-                          label: '일시정지',
+                        PBadge(
+                          label: l.recurringPaused,
                           variant: PBadgeVariant.secondary,
                         ),
                       ],
                       if (item.maxOccurrences != null) ...[
                         const SizedBox(width: 6),
                         PBadge(
-                          label:
-                              '${item.executedCount}/${item.maxOccurrences}회',
+                          label: l.recurringOccurrences(
+                            item.executedCount,
+                            item.maxOccurrences!,
+                          ),
                           variant: PBadgeVariant.softWarning,
                         ),
                       ],
@@ -709,8 +719,8 @@ class _RecurringRow extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    '${_summary(item)} · ${item.assetName ?? '계좌 없음'}'
-                    '${item.nextExecutionDate != null ? ' · 다음 ${item.nextExecutionDate!.substring(5).replaceAll('-', '/')}' : ''}',
+                    '${_summary(l, item)} · ${item.assetName ?? l.recurringNoAccount}'
+                    '${item.nextExecutionDate != null ? ' · ${l.recurringNext} ${item.nextExecutionDate!.substring(5).replaceAll('-', '/')}' : ''}',
                     style: PTypo.caption.copyWith(color: tokens.fgTertiary),
                   ),
                 ],
@@ -730,18 +740,18 @@ class _RecurringRow extends StatelessWidget {
               entries: [
                 PDropdownItem(
                   icon: isActive ? LucideIcons.pause : LucideIcons.play,
-                  label: isActive ? '일시정지' : '시작',
+                  label: isActive ? l.recurringPaused : l.recurringStart,
                   onTap: onToggle,
                 ),
                 PDropdownItem(
                   icon: LucideIcons.pencil,
-                  label: '수정',
+                  label: l.actionEdit,
                   onTap: onEdit,
                 ),
                 const PDropdownDivider(),
                 PDropdownItem(
                   icon: LucideIcons.trash2,
-                  label: '삭제',
+                  label: l.actionDelete,
                   onTap: onDelete,
                   destructive: true,
                 ),
@@ -767,6 +777,7 @@ class _RecurringSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     return ListView(
       padding: const EdgeInsets.symmetric(
         horizontal: PSpace.x20,
@@ -819,7 +830,7 @@ class _RecurringSkeleton extends StatelessWidget {
                     Row(
                       children: [
                         Text(
-                          '전체 목록',
+                          l.recurringAllList,
                           style: PTypo.bodySm.copyWith(
                             color: t.fgPrimary,
                             fontWeight: PFontWeight.bold,
@@ -827,7 +838,7 @@ class _RecurringSkeleton extends StatelessWidget {
                         ),
                         const Spacer(),
                         PButton(
-                          label: '추가',
+                          label: l.recurringAdd,
                           icon: LucideIcons.plus,
                           variant: PButtonVariant.accent,
                           size: PButtonSize.sm,
@@ -930,11 +941,12 @@ class _EmptyState extends StatelessWidget {
   final PorestTokens tokens;
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.all(PSpace.x40),
       child: Center(
         child: Text(
-          '해당하는 반복 거래가 없어요',
+          l.recurringEmpty,
           style: PTypo.bodySm.copyWith(color: tokens.fgTertiary),
         ),
       ),
@@ -949,6 +961,7 @@ class _ErrorBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.all(PSpace.x16),
       decoration: BoxDecoration(
@@ -960,7 +973,7 @@ class _ErrorBox extends StatelessWidget {
           Text(message, style: PTypo.bodySm.copyWith(color: t.statusDangerFg)),
           const SizedBox(height: PSpace.x8),
           PButton(
-            label: '다시 시도',
+            label: l.actionRetry,
             variant: PButtonVariant.outline,
             onPressed: onRetry,
           ),
@@ -970,25 +983,25 @@ class _ErrorBox extends StatelessWidget {
   }
 }
 
-String _displayTitle(RecurringTransaction it) =>
-    it.merchant ?? it.description ?? it.categoryName ?? '반복 거래';
+String _displayTitle(AppLocalizations l, RecurringTransaction it) =>
+    it.merchant ?? it.description ?? it.categoryName ?? l.navRecurring;
 
-String _summary(RecurringTransaction it) {
+String _summary(AppLocalizations l, RecurringTransaction it) {
   String core = switch (it.frequency) {
-    'DAILY' => '매일',
-    'WEEKLY' => '매주',
-    'MONTHLY' => '매월',
-    'YEARLY' => '매년',
+    'DAILY' => l.calRepeatDaily,
+    'WEEKLY' => l.calRepeatWeekly,
+    'MONTHLY' => l.calRepeatMonthly,
+    'YEARLY' => l.calRepeatYearly,
     _ => it.frequency,
   };
   if (it.frequency == 'WEEKLY' && it.dayOfWeek != null) {
     const dows = ['', '월', '화', '수', '목', '금', '토', '일'];
     final idx = it.dayOfWeek!;
-    if (idx >= 1 && idx <= 7) core = '매주 ${dows[idx]}';
+    if (idx >= 1 && idx <= 7) core = '${l.calRepeatWeekly} ${dows[idx]}';
   } else if (it.frequency == 'MONTHLY' && it.dayOfMonth != null) {
-    core = '매월 ${it.dayOfMonth}일';
+    core = '${l.calRepeatMonthly} ${it.dayOfMonth}일';
   }
-  final end = it.endDate != null ? '~${it.endDate}' : '무기한';
-  final notify = it.notifyDayBefore ? ' · 알림' : '';
+  final end = it.endDate != null ? '~${it.endDate}' : l.recurringIndefinite;
+  final notify = it.notifyDayBefore ? ' · ${l.recurringNotifyShort}' : '';
   return '$core · $end$notify';
 }

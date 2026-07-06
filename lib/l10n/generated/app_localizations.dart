@@ -6067,6 +6067,342 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'프리셋이 추가되었습니다'**
   String get presetCreated;
+
+  /// No description provided for @recurringToggleFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'변경 실패'**
+  String get recurringToggleFailed;
+
+  /// No description provided for @recurringDeleteTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'반복 거래 삭제'**
+  String get recurringDeleteTitle;
+
+  /// No description provided for @recurringDeleteConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'\"{name}\" 반복 설정을 삭제할까요?\n이미 기록된 거래는 그대로 남습니다.'**
+  String recurringDeleteConfirm(String name);
+
+  /// No description provided for @recurringDeleteFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'삭제 실패'**
+  String get recurringDeleteFailed;
+
+  /// No description provided for @recurringLoadError.
+  ///
+  /// In ko, this message translates to:
+  /// **'반복 거래를 불러오지 못했습니다'**
+  String get recurringLoadError;
+
+  /// No description provided for @recurringAllList.
+  ///
+  /// In ko, this message translates to:
+  /// **'전체 목록'**
+  String get recurringAllList;
+
+  /// No description provided for @recurringAdd.
+  ///
+  /// In ko, this message translates to:
+  /// **'추가'**
+  String get recurringAdd;
+
+  /// No description provided for @recurringFilterAll.
+  ///
+  /// In ko, this message translates to:
+  /// **'전체 {count}'**
+  String recurringFilterAll(int count);
+
+  /// No description provided for @recurringFilterExpense.
+  ///
+  /// In ko, this message translates to:
+  /// **'지출 {count}'**
+  String recurringFilterExpense(int count);
+
+  /// No description provided for @recurringFilterIncome.
+  ///
+  /// In ko, this message translates to:
+  /// **'수입 {count}'**
+  String recurringFilterIncome(int count);
+
+  /// No description provided for @recurringFilterPaused.
+  ///
+  /// In ko, this message translates to:
+  /// **'일시정지 {count}'**
+  String recurringFilterPaused(int count);
+
+  /// No description provided for @recurringStatActive.
+  ///
+  /// In ko, this message translates to:
+  /// **'활성 반복'**
+  String get recurringStatActive;
+
+  /// No description provided for @recurringCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}개'**
+  String recurringCount(int count);
+
+  /// No description provided for @recurringPaused.
+  ///
+  /// In ko, this message translates to:
+  /// **'일시정지'**
+  String get recurringPaused;
+
+  /// No description provided for @recurringMonthlyExpense.
+  ///
+  /// In ko, this message translates to:
+  /// **'매월 고정 지출'**
+  String get recurringMonthlyExpense;
+
+  /// No description provided for @recurringMonthlyIncome.
+  ///
+  /// In ko, this message translates to:
+  /// **'매월 고정 수입'**
+  String get recurringMonthlyIncome;
+
+  /// No description provided for @recurringUpcoming.
+  ///
+  /// In ko, this message translates to:
+  /// **'다가오는 7일'**
+  String get recurringUpcoming;
+
+  /// No description provided for @recurringUpcomingCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}건 예정'**
+  String recurringUpcomingCount(int count);
+
+  /// No description provided for @recurringToday.
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘'**
+  String get recurringToday;
+
+  /// No description provided for @recurringNoAccount.
+  ///
+  /// In ko, this message translates to:
+  /// **'계좌 없음'**
+  String get recurringNoAccount;
+
+  /// No description provided for @recurringOccurrences.
+  ///
+  /// In ko, this message translates to:
+  /// **'{executed}/{max}회'**
+  String recurringOccurrences(int executed, int max);
+
+  /// No description provided for @recurringNext.
+  ///
+  /// In ko, this message translates to:
+  /// **'다음'**
+  String get recurringNext;
+
+  /// No description provided for @recurringStart.
+  ///
+  /// In ko, this message translates to:
+  /// **'시작'**
+  String get recurringStart;
+
+  /// No description provided for @recurringEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'해당하는 반복 거래가 없어요'**
+  String get recurringEmpty;
+
+  /// No description provided for @recurringIndefinite.
+  ///
+  /// In ko, this message translates to:
+  /// **'무기한'**
+  String get recurringIndefinite;
+
+  /// No description provided for @recurringNotifyShort.
+  ///
+  /// In ko, this message translates to:
+  /// **'알림'**
+  String get recurringNotifyShort;
+
+  /// No description provided for @recurringAddTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'반복 거래 추가'**
+  String get recurringAddTitle;
+
+  /// No description provided for @recurringSaveSubmit.
+  ///
+  /// In ko, this message translates to:
+  /// **'반복 저장'**
+  String get recurringSaveSubmit;
+
+  /// No description provided for @recurringUpdated.
+  ///
+  /// In ko, this message translates to:
+  /// **'반복 설정이 수정되었습니다'**
+  String get recurringUpdated;
+
+  /// No description provided for @recurringSaved.
+  ///
+  /// In ko, this message translates to:
+  /// **'반복 설정이 저장되었습니다'**
+  String get recurringSaved;
+
+  /// No description provided for @recurringSaveFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'저장 실패'**
+  String get recurringSaveFailed;
+
+  /// No description provided for @recurringIntro.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 거래를 정해진 주기로 자동 반복합니다. 구독료·월세·정기 후원 등에 사용해보세요.'**
+  String get recurringIntro;
+
+  /// No description provided for @recurringFrequencyLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'반복 주기'**
+  String get recurringFrequencyLabel;
+
+  /// No description provided for @recurringDayOfWeekLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'요일'**
+  String get recurringDayOfWeekLabel;
+
+  /// No description provided for @recurringDayOfMonthLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'반복 일자'**
+  String get recurringDayOfMonthLabel;
+
+  /// No description provided for @recurringDayNote.
+  ///
+  /// In ko, this message translates to:
+  /// **'해당 일이 없는 달은 말일에 처리됩니다'**
+  String get recurringDayNote;
+
+  /// No description provided for @recurringEndLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'종료'**
+  String get recurringEndLabel;
+
+  /// No description provided for @recurringIndefiniteDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'중지할 때까지 계속 반복'**
+  String get recurringIndefiniteDesc;
+
+  /// No description provided for @recurringByCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'횟수 지정'**
+  String get recurringByCount;
+
+  /// No description provided for @recurringTotal.
+  ///
+  /// In ko, this message translates to:
+  /// **'총'**
+  String get recurringTotal;
+
+  /// No description provided for @recurringTimesUnit.
+  ///
+  /// In ko, this message translates to:
+  /// **'회'**
+  String get recurringTimesUnit;
+
+  /// No description provided for @recurringByDate.
+  ///
+  /// In ko, this message translates to:
+  /// **'종료일 지정'**
+  String get recurringByDate;
+
+  /// No description provided for @recurringOptions.
+  ///
+  /// In ko, this message translates to:
+  /// **'옵션'**
+  String get recurringOptions;
+
+  /// No description provided for @recurringAutoLog.
+  ///
+  /// In ko, this message translates to:
+  /// **'자동 기록'**
+  String get recurringAutoLog;
+
+  /// No description provided for @recurringAutoLogDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'해당 일자에 거래를 자동으로 추가합니다'**
+  String get recurringAutoLogDesc;
+
+  /// No description provided for @recurringNotifyDayBefore.
+  ///
+  /// In ko, this message translates to:
+  /// **'하루 전 알림'**
+  String get recurringNotifyDayBefore;
+
+  /// No description provided for @recurringNotifyDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'결제·이체 예정일 전날 알림을 보냅니다'**
+  String get recurringNotifyDesc;
+
+  /// No description provided for @recurringNextDates.
+  ///
+  /// In ko, this message translates to:
+  /// **'다음 예정일'**
+  String get recurringNextDates;
+
+  /// No description provided for @recurringStartFrom.
+  ///
+  /// In ko, this message translates to:
+  /// **'{date} 시작'**
+  String recurringStartFrom(String date);
+
+  /// No description provided for @recurringMerchant.
+  ///
+  /// In ko, this message translates to:
+  /// **'거래처'**
+  String get recurringMerchant;
+
+  /// No description provided for @recurringMerchantPlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'예: 넷플릭스'**
+  String get recurringMerchantPlaceholder;
+
+  /// No description provided for @recurringAssetCard.
+  ///
+  /// In ko, this message translates to:
+  /// **'계좌·카드'**
+  String get recurringAssetCard;
+
+  /// No description provided for @recurringAssetLoadError.
+  ///
+  /// In ko, this message translates to:
+  /// **'자산 로드 실패'**
+  String get recurringAssetLoadError;
+
+  /// No description provided for @recurringSelectNone.
+  ///
+  /// In ko, this message translates to:
+  /// **'선택 안 함'**
+  String get recurringSelectNone;
+
+  /// No description provided for @recurringStartDateLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'반복 시작일'**
+  String get recurringStartDateLabel;
+
+  /// No description provided for @recurringParentCategory.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name} (상위)'**
+  String recurringParentCategory(String name);
 }
 
 class _AppLocalizationsDelegate
