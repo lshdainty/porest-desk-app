@@ -5569,6 +5569,306 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'회원 탈퇴 시 모든 데이터가 영구적으로 삭제됩니다.\n이 작업은 되돌릴 수 없습니다.'**
   String get accountWithdrawConfirm;
+
+  /// No description provided for @notiUnreadPrefix.
+  ///
+  /// In ko, this message translates to:
+  /// **'읽지 않은 알림 '**
+  String get notiUnreadPrefix;
+
+  /// No description provided for @notiUnreadSuffix.
+  ///
+  /// In ko, this message translates to:
+  /// **'개'**
+  String get notiUnreadSuffix;
+
+  /// No description provided for @notiSettings.
+  ///
+  /// In ko, this message translates to:
+  /// **'알림 설정'**
+  String get notiSettings;
+
+  /// No description provided for @notiSettingsLoadError.
+  ///
+  /// In ko, this message translates to:
+  /// **'설정을 불러오지 못했습니다'**
+  String get notiSettingsLoadError;
+
+  /// No description provided for @notiKindTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'알림 종류'**
+  String get notiKindTitle;
+
+  /// No description provided for @notiKindSubtitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'필요한 알림만 켜두면 더 편해요.'**
+  String get notiKindSubtitle;
+
+  /// No description provided for @notiPayment.
+  ///
+  /// In ko, this message translates to:
+  /// **'결제 알림'**
+  String get notiPayment;
+
+  /// No description provided for @notiPaymentDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'결제 예정일 D-1, 결제일 당일 알림'**
+  String get notiPaymentDesc;
+
+  /// No description provided for @notiBudgetDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'카테고리 예산 {threshold}%·100% 도달'**
+  String notiBudgetDesc(int threshold);
+
+  /// No description provided for @notiAutoRecord.
+  ///
+  /// In ko, this message translates to:
+  /// **'자동 기록 알림'**
+  String get notiAutoRecord;
+
+  /// No description provided for @notiAutoRecordDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'반복 거래가 자동으로 기록되었을 때'**
+  String get notiAutoRecordDesc;
+
+  /// No description provided for @notiDutchPay.
+  ///
+  /// In ko, this message translates to:
+  /// **'더치페이 알림'**
+  String get notiDutchPay;
+
+  /// No description provided for @notiDutchPayDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'송금 요청 / 정산 완료 알림'**
+  String get notiDutchPayDesc;
+
+  /// No description provided for @notiCalendarDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'캘린더 이벤트 시작 15분 전'**
+  String get notiCalendarDesc;
+
+  /// No description provided for @notiWeeklyReport.
+  ///
+  /// In ko, this message translates to:
+  /// **'주간 리포트'**
+  String get notiWeeklyReport;
+
+  /// No description provided for @notiWeeklyReportDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'매주 월요일 오전 9시'**
+  String get notiWeeklyReportDesc;
+
+  /// No description provided for @notiMonthlyReport.
+  ///
+  /// In ko, this message translates to:
+  /// **'월간 리포트'**
+  String get notiMonthlyReport;
+
+  /// No description provided for @notiMonthlyReportDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'매월 1일 오전 9시'**
+  String get notiMonthlyReportDesc;
+
+  /// No description provided for @notiPush.
+  ///
+  /// In ko, this message translates to:
+  /// **'푸시 알림'**
+  String get notiPush;
+
+  /// No description provided for @notiPushOn.
+  ///
+  /// In ko, this message translates to:
+  /// **'모든 알림이 활성화되어 있어요'**
+  String get notiPushOn;
+
+  /// No description provided for @notiPushOff.
+  ///
+  /// In ko, this message translates to:
+  /// **'알림이 꺼져 있어요'**
+  String get notiPushOff;
+
+  /// No description provided for @notiThresholdTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'예산 알림 임계값'**
+  String get notiThresholdTitle;
+
+  /// No description provided for @notiThresholdCurrent.
+  ///
+  /// In ko, this message translates to:
+  /// **'현재 '**
+  String get notiThresholdCurrent;
+
+  /// No description provided for @notiThresholdDesc1.
+  ///
+  /// In ko, this message translates to:
+  /// **'예산 사용률이 이 값을 넘으면 '**
+  String get notiThresholdDesc1;
+
+  /// No description provided for @notiThresholdWarning.
+  ///
+  /// In ko, this message translates to:
+  /// **'경고'**
+  String get notiThresholdWarning;
+
+  /// No description provided for @notiThresholdDesc2.
+  ///
+  /// In ko, this message translates to:
+  /// **' 상태로 표시되고 알림을 받습니다. 100%는 '**
+  String get notiThresholdDesc2;
+
+  /// No description provided for @notiThresholdOver.
+  ///
+  /// In ko, this message translates to:
+  /// **'초과'**
+  String get notiThresholdOver;
+
+  /// No description provided for @notiThresholdDesc3.
+  ///
+  /// In ko, this message translates to:
+  /// **'로 별도 알림이 발생합니다.'**
+  String get notiThresholdDesc3;
+
+  /// No description provided for @notiQuietTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'방해 금지 시간'**
+  String get notiQuietTitle;
+
+  /// No description provided for @notiQuietSubtitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 시간에는 알림이 소리·진동 없이 표시됩니다.'**
+  String get notiQuietSubtitle;
+
+  /// No description provided for @notiQuietToggle.
+  ///
+  /// In ko, this message translates to:
+  /// **'방해 금지 사용'**
+  String get notiQuietToggle;
+
+  /// No description provided for @notiQuietToggleDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'시간대를 지정해 자동 무음'**
+  String get notiQuietToggleDesc;
+
+  /// No description provided for @notiQuietStart.
+  ///
+  /// In ko, this message translates to:
+  /// **'시작'**
+  String get notiQuietStart;
+
+  /// No description provided for @notiQuietEnd.
+  ///
+  /// In ko, this message translates to:
+  /// **'종료'**
+  String get notiQuietEnd;
+
+  /// No description provided for @notiSoundTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'소리·진동'**
+  String get notiSoundTitle;
+
+  /// No description provided for @notiSound.
+  ///
+  /// In ko, this message translates to:
+  /// **'알림음'**
+  String get notiSound;
+
+  /// No description provided for @notiSoundDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'앱 알림 사운드'**
+  String get notiSoundDesc;
+
+  /// No description provided for @notiSoundChime.
+  ///
+  /// In ko, this message translates to:
+  /// **'차임'**
+  String get notiSoundChime;
+
+  /// No description provided for @notiSoundDefault.
+  ///
+  /// In ko, this message translates to:
+  /// **'기본'**
+  String get notiSoundDefault;
+
+  /// No description provided for @notiSoundNone.
+  ///
+  /// In ko, this message translates to:
+  /// **'무음'**
+  String get notiSoundNone;
+
+  /// No description provided for @notiVibration.
+  ///
+  /// In ko, this message translates to:
+  /// **'진동'**
+  String get notiVibration;
+
+  /// No description provided for @notiVibrationDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'모바일에서 진동 함께 알림'**
+  String get notiVibrationDesc;
+
+  /// No description provided for @notiEmailTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'이메일 알림'**
+  String get notiEmailTitle;
+
+  /// No description provided for @notiEmailSubtitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'앱을 잘 안 열어도 이메일로 요약을 받아볼 수 있어요.'**
+  String get notiEmailSubtitle;
+
+  /// No description provided for @notiEmailToggle.
+  ///
+  /// In ko, this message translates to:
+  /// **'이메일 받기'**
+  String get notiEmailToggle;
+
+  /// No description provided for @notiEmailNone.
+  ///
+  /// In ko, this message translates to:
+  /// **'등록된 이메일이 없습니다'**
+  String get notiEmailNone;
+
+  /// No description provided for @notiEmailFreq.
+  ///
+  /// In ko, this message translates to:
+  /// **'발송 주기'**
+  String get notiEmailFreq;
+
+  /// No description provided for @notiEmailDaily.
+  ///
+  /// In ko, this message translates to:
+  /// **'매일'**
+  String get notiEmailDaily;
+
+  /// No description provided for @notiEmailWeekly.
+  ///
+  /// In ko, this message translates to:
+  /// **'매주'**
+  String get notiEmailWeekly;
+
+  /// No description provided for @notiEmailMonthly.
+  ///
+  /// In ko, this message translates to:
+  /// **'매월'**
+  String get notiEmailMonthly;
 }
 
 class _AppLocalizationsDelegate
