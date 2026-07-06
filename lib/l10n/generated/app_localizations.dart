@@ -4933,6 +4933,642 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'첨부된 파일 없음'**
   String get fileEmpty;
+
+  /// No description provided for @moreGroupMoney.
+  ///
+  /// In ko, this message translates to:
+  /// **'돈 관리'**
+  String get moreGroupMoney;
+
+  /// No description provided for @moreGroupDaily.
+  ///
+  /// In ko, this message translates to:
+  /// **'일상'**
+  String get moreGroupDaily;
+
+  /// No description provided for @moreGroupPersonal.
+  ///
+  /// In ko, this message translates to:
+  /// **'개인화'**
+  String get moreGroupPersonal;
+
+  /// No description provided for @moreGroupSystem.
+  ///
+  /// In ko, this message translates to:
+  /// **'계정·시스템'**
+  String get moreGroupSystem;
+
+  /// No description provided for @moreItemStocks.
+  ///
+  /// In ko, this message translates to:
+  /// **'증권'**
+  String get moreItemStocks;
+
+  /// No description provided for @moreItemStats.
+  ///
+  /// In ko, this message translates to:
+  /// **'통계·분석'**
+  String get moreItemStats;
+
+  /// No description provided for @moreItemAccountCard.
+  ///
+  /// In ko, this message translates to:
+  /// **'카드·계좌 관리'**
+  String get moreItemAccountCard;
+
+  /// No description provided for @moreItemCardBenefits.
+  ///
+  /// In ko, this message translates to:
+  /// **'카드 혜택'**
+  String get moreItemCardBenefits;
+
+  /// No description provided for @moreItemDisplay.
+  ///
+  /// In ko, this message translates to:
+  /// **'표시 설정'**
+  String get moreItemDisplay;
+
+  /// No description provided for @moreItemAccount.
+  ///
+  /// In ko, this message translates to:
+  /// **'계정'**
+  String get moreItemAccount;
+
+  /// No description provided for @moreDescExpense.
+  ///
+  /// In ko, this message translates to:
+  /// **'지출 · 수입 · 이체'**
+  String get moreDescExpense;
+
+  /// No description provided for @moreDescAsset.
+  ///
+  /// In ko, this message translates to:
+  /// **'계좌 · 카드 · 투자 · 부채'**
+  String get moreDescAsset;
+
+  /// No description provided for @moreDescStocks.
+  ///
+  /// In ko, this message translates to:
+  /// **'시세 · 보유 · 관심 · 호가'**
+  String get moreDescStocks;
+
+  /// No description provided for @moreDescBudget.
+  ///
+  /// In ko, this message translates to:
+  /// **'월간 · 카테고리별'**
+  String get moreDescBudget;
+
+  /// No description provided for @moreDescStats.
+  ///
+  /// In ko, this message translates to:
+  /// **'카테고리 · 트렌드 · 비교'**
+  String get moreDescStats;
+
+  /// No description provided for @moreDescRecurring.
+  ///
+  /// In ko, this message translates to:
+  /// **'구독 · 고정비'**
+  String get moreDescRecurring;
+
+  /// No description provided for @moreDescAccountCard.
+  ///
+  /// In ko, this message translates to:
+  /// **'계좌·카드 추가·편집'**
+  String get moreDescAccountCard;
+
+  /// No description provided for @moreDescCalendar.
+  ///
+  /// In ko, this message translates to:
+  /// **'일정 · 반복 · 알림'**
+  String get moreDescCalendar;
+
+  /// No description provided for @moreDescTodo.
+  ///
+  /// In ko, this message translates to:
+  /// **'마감 · 우선순위 · 태그'**
+  String get moreDescTodo;
+
+  /// No description provided for @moreDescMemo.
+  ///
+  /// In ko, this message translates to:
+  /// **'분류 · 고정 · 검색'**
+  String get moreDescMemo;
+
+  /// No description provided for @moreDescDutchPay.
+  ///
+  /// In ko, this message translates to:
+  /// **'정산 · 친구 · 송금 요청'**
+  String get moreDescDutchPay;
+
+  /// No description provided for @moreDescCardBenefits.
+  ///
+  /// In ko, this message translates to:
+  /// **'신용·체크 카드 검색'**
+  String get moreDescCardBenefits;
+
+  /// No description provided for @moreDescCategories.
+  ///
+  /// In ko, this message translates to:
+  /// **'지출 · 수입'**
+  String get moreDescCategories;
+
+  /// No description provided for @moreDescPresets.
+  ///
+  /// In ko, this message translates to:
+  /// **'자주 쓰는 내역'**
+  String get moreDescPresets;
+
+  /// No description provided for @moreDescDisplay.
+  ///
+  /// In ko, this message translates to:
+  /// **'테마 · 밀도 · 통화'**
+  String get moreDescDisplay;
+
+  /// No description provided for @moreDescSettings.
+  ///
+  /// In ko, this message translates to:
+  /// **'전체 설정 메뉴'**
+  String get moreDescSettings;
+
+  /// No description provided for @moreDescNotifications.
+  ///
+  /// In ko, this message translates to:
+  /// **'푸시 · 방해 금지'**
+  String get moreDescNotifications;
+
+  /// No description provided for @moreDescExport.
+  ///
+  /// In ko, this message translates to:
+  /// **'CSV · Excel · JSON'**
+  String get moreDescExport;
+
+  /// No description provided for @moreDescAccount.
+  ///
+  /// In ko, this message translates to:
+  /// **'프로필 · 보안 · 구독'**
+  String get moreDescAccount;
+
+  /// No description provided for @moreSearchHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'메뉴 검색'**
+  String get moreSearchHint;
+
+  /// No description provided for @moreSearchEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'검색 결과가 없습니다'**
+  String get moreSearchEmpty;
+
+  /// No description provided for @settingsGroupDataMgmt.
+  ///
+  /// In ko, this message translates to:
+  /// **'데이터 관리'**
+  String get settingsGroupDataMgmt;
+
+  /// No description provided for @settingsMenuCategory.
+  ///
+  /// In ko, this message translates to:
+  /// **'카테고리 관리'**
+  String get settingsMenuCategory;
+
+  /// No description provided for @settingsMenuAccountCard.
+  ///
+  /// In ko, this message translates to:
+  /// **'계좌·카드 관리'**
+  String get settingsMenuAccountCard;
+
+  /// No description provided for @settingsMenuBudget.
+  ///
+  /// In ko, this message translates to:
+  /// **'예산 설정'**
+  String get settingsMenuBudget;
+
+  /// No description provided for @settingsMenuRecurring.
+  ///
+  /// In ko, this message translates to:
+  /// **'반복 거래 관리'**
+  String get settingsMenuRecurring;
+
+  /// No description provided for @settingsMenuPreset.
+  ///
+  /// In ko, this message translates to:
+  /// **'프리셋 관리'**
+  String get settingsMenuPreset;
+
+  /// No description provided for @settingsGroupShare.
+  ///
+  /// In ko, this message translates to:
+  /// **'공유·소통'**
+  String get settingsGroupShare;
+
+  /// No description provided for @settingsMenuCalendarShare.
+  ///
+  /// In ko, this message translates to:
+  /// **'캘린더 관리·공유'**
+  String get settingsMenuCalendarShare;
+
+  /// No description provided for @settingsMenuCalendarLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'캘린더 라벨'**
+  String get settingsMenuCalendarLabel;
+
+  /// No description provided for @settingsGroupApp.
+  ///
+  /// In ko, this message translates to:
+  /// **'앱 환경'**
+  String get settingsGroupApp;
+
+  /// No description provided for @settingsMenuAppearance.
+  ///
+  /// In ko, this message translates to:
+  /// **'표시 설정'**
+  String get settingsMenuAppearance;
+
+  /// No description provided for @settingsGroupData.
+  ///
+  /// In ko, this message translates to:
+  /// **'데이터'**
+  String get settingsGroupData;
+
+  /// No description provided for @settingsMenuStorage.
+  ///
+  /// In ko, this message translates to:
+  /// **'저장공간'**
+  String get settingsMenuStorage;
+
+  /// No description provided for @settingsGroupAccount.
+  ///
+  /// In ko, this message translates to:
+  /// **'계정'**
+  String get settingsGroupAccount;
+
+  /// No description provided for @settingsMenuAccountMgmt.
+  ///
+  /// In ko, this message translates to:
+  /// **'계정 관리'**
+  String get settingsMenuAccountMgmt;
+
+  /// No description provided for @appearanceTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'표시 설정'**
+  String get appearanceTitle;
+
+  /// No description provided for @appearanceTheme.
+  ///
+  /// In ko, this message translates to:
+  /// **'테마'**
+  String get appearanceTheme;
+
+  /// No description provided for @appearanceThemeLight.
+  ///
+  /// In ko, this message translates to:
+  /// **'라이트'**
+  String get appearanceThemeLight;
+
+  /// No description provided for @appearanceThemeLightDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'밝은 배경'**
+  String get appearanceThemeLightDesc;
+
+  /// No description provided for @appearanceThemeDark.
+  ///
+  /// In ko, this message translates to:
+  /// **'다크'**
+  String get appearanceThemeDark;
+
+  /// No description provided for @appearanceThemeDarkDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'어두운 배경'**
+  String get appearanceThemeDarkDesc;
+
+  /// No description provided for @appearanceThemeSystem.
+  ///
+  /// In ko, this message translates to:
+  /// **'시스템'**
+  String get appearanceThemeSystem;
+
+  /// No description provided for @appearanceThemeSystemDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'자동 전환'**
+  String get appearanceThemeSystemDesc;
+
+  /// No description provided for @appearancePrivacy.
+  ///
+  /// In ko, this message translates to:
+  /// **'개인정보 보호'**
+  String get appearancePrivacy;
+
+  /// No description provided for @appearanceHideAmount.
+  ///
+  /// In ko, this message translates to:
+  /// **'금액 가리기'**
+  String get appearanceHideAmount;
+
+  /// No description provided for @appearanceHideAmountDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'모든 화면의 금액을 ••••로 표시합니다'**
+  String get appearanceHideAmountDesc;
+
+  /// No description provided for @appearanceDensity.
+  ///
+  /// In ko, this message translates to:
+  /// **'표시 밀도'**
+  String get appearanceDensity;
+
+  /// No description provided for @appearanceDensityCompact.
+  ///
+  /// In ko, this message translates to:
+  /// **'컴팩트'**
+  String get appearanceDensityCompact;
+
+  /// No description provided for @appearanceDensityComfortable.
+  ///
+  /// In ko, this message translates to:
+  /// **'편안'**
+  String get appearanceDensityComfortable;
+
+  /// No description provided for @appearanceDensitySpacious.
+  ///
+  /// In ko, this message translates to:
+  /// **'여유'**
+  String get appearanceDensitySpacious;
+
+  /// No description provided for @appearanceCurrency.
+  ///
+  /// In ko, this message translates to:
+  /// **'통화'**
+  String get appearanceCurrency;
+
+  /// No description provided for @appearanceCurrencyKrw.
+  ///
+  /// In ko, this message translates to:
+  /// **'대한민국 원'**
+  String get appearanceCurrencyKrw;
+
+  /// No description provided for @appearanceCurrencyUsd.
+  ///
+  /// In ko, this message translates to:
+  /// **'미국 달러'**
+  String get appearanceCurrencyUsd;
+
+  /// No description provided for @appearanceCurrencyEur.
+  ///
+  /// In ko, this message translates to:
+  /// **'유로'**
+  String get appearanceCurrencyEur;
+
+  /// No description provided for @appearanceCurrencyJpy.
+  ///
+  /// In ko, this message translates to:
+  /// **'일본 엔'**
+  String get appearanceCurrencyJpy;
+
+  /// No description provided for @passwordChanged.
+  ///
+  /// In ko, this message translates to:
+  /// **'비밀번호가 변경되었습니다'**
+  String get passwordChanged;
+
+  /// No description provided for @passwordChangeFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'비밀번호 변경에 실패했습니다.'**
+  String get passwordChangeFailed;
+
+  /// No description provided for @passwordCurrent.
+  ///
+  /// In ko, this message translates to:
+  /// **'현재 비밀번호'**
+  String get passwordCurrent;
+
+  /// No description provided for @passwordNew.
+  ///
+  /// In ko, this message translates to:
+  /// **'새 비밀번호'**
+  String get passwordNew;
+
+  /// No description provided for @passwordNewPlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'8자 이상'**
+  String get passwordNewPlaceholder;
+
+  /// No description provided for @passwordNewConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'새 비밀번호 확인'**
+  String get passwordNewConfirm;
+
+  /// No description provided for @passwordConfirmPlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'한 번 더 입력'**
+  String get passwordConfirmPlaceholder;
+
+  /// No description provided for @passwordMismatch.
+  ///
+  /// In ko, this message translates to:
+  /// **'새 비밀번호가 일치하지 않습니다'**
+  String get passwordMismatch;
+
+  /// No description provided for @passwordChangeAction.
+  ///
+  /// In ko, this message translates to:
+  /// **'변경'**
+  String get passwordChangeAction;
+
+  /// No description provided for @accountTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'계정'**
+  String get accountTitle;
+
+  /// No description provided for @accountDefaultName.
+  ///
+  /// In ko, this message translates to:
+  /// **'사용자'**
+  String get accountDefaultName;
+
+  /// No description provided for @accountEditComingSoon.
+  ///
+  /// In ko, this message translates to:
+  /// **'프로필 편집은 준비중입니다'**
+  String get accountEditComingSoon;
+
+  /// No description provided for @accountSecurity.
+  ///
+  /// In ko, this message translates to:
+  /// **'보안'**
+  String get accountSecurity;
+
+  /// No description provided for @accountPasswordDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'최근 변경 없음'**
+  String get accountPasswordDesc;
+
+  /// No description provided for @accountTwoFa.
+  ///
+  /// In ko, this message translates to:
+  /// **'2단계 인증'**
+  String get accountTwoFa;
+
+  /// No description provided for @accountOn.
+  ///
+  /// In ko, this message translates to:
+  /// **'사용 중'**
+  String get accountOn;
+
+  /// No description provided for @accountOff.
+  ///
+  /// In ko, this message translates to:
+  /// **'사용 안 함'**
+  String get accountOff;
+
+  /// No description provided for @accountBiometric.
+  ///
+  /// In ko, this message translates to:
+  /// **'생체 인증'**
+  String get accountBiometric;
+
+  /// No description provided for @accountComingSoon.
+  ///
+  /// In ko, this message translates to:
+  /// **'준비중'**
+  String get accountComingSoon;
+
+  /// No description provided for @accountDevices.
+  ///
+  /// In ko, this message translates to:
+  /// **'로그인된 기기'**
+  String get accountDevices;
+
+  /// No description provided for @accountCurrentDevice.
+  ///
+  /// In ko, this message translates to:
+  /// **'현재 기기'**
+  String get accountCurrentDevice;
+
+  /// No description provided for @accountLoginHistory.
+  ///
+  /// In ko, this message translates to:
+  /// **'로그인 기록'**
+  String get accountLoginHistory;
+
+  /// No description provided for @accountLast30Days.
+  ///
+  /// In ko, this message translates to:
+  /// **'최근 30일'**
+  String get accountLast30Days;
+
+  /// No description provided for @accountConnected.
+  ///
+  /// In ko, this message translates to:
+  /// **'연결된 계정'**
+  String get accountConnected;
+
+  /// No description provided for @accountNotConnected.
+  ///
+  /// In ko, this message translates to:
+  /// **'연결 안 됨'**
+  String get accountNotConnected;
+
+  /// No description provided for @accountConnect.
+  ///
+  /// In ko, this message translates to:
+  /// **'연결'**
+  String get accountConnect;
+
+  /// No description provided for @accountSocialComingSoon.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name} 연결은 준비중입니다'**
+  String accountSocialComingSoon(String name);
+
+  /// No description provided for @accountBilling.
+  ///
+  /// In ko, this message translates to:
+  /// **'구독·결제'**
+  String get accountBilling;
+
+  /// No description provided for @accountNextBilling.
+  ///
+  /// In ko, this message translates to:
+  /// **'다음 결제 {date} · '**
+  String accountNextBilling(String date);
+
+  /// No description provided for @accountProActive.
+  ///
+  /// In ko, this message translates to:
+  /// **'Pro 이용 중'**
+  String get accountProActive;
+
+  /// No description provided for @accountProPromo.
+  ///
+  /// In ko, this message translates to:
+  /// **'증권 투자는 Pro 전용 · 지금 시작하기'**
+  String get accountProPromo;
+
+  /// No description provided for @accountPerMonth.
+  ///
+  /// In ko, this message translates to:
+  /// **'/ 월'**
+  String get accountPerMonth;
+
+  /// No description provided for @accountProStart.
+  ///
+  /// In ko, this message translates to:
+  /// **'Pro 시작'**
+  String get accountProStart;
+
+  /// No description provided for @accountManage.
+  ///
+  /// In ko, this message translates to:
+  /// **'계정 관리'**
+  String get accountManage;
+
+  /// No description provided for @accountLogoutDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 기기에서만'**
+  String get accountLogoutDesc;
+
+  /// No description provided for @accountWithdraw.
+  ///
+  /// In ko, this message translates to:
+  /// **'회원 탈퇴'**
+  String get accountWithdraw;
+
+  /// No description provided for @accountWithdrawDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'영구 삭제'**
+  String get accountWithdrawDesc;
+
+  /// No description provided for @accountLogoutConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'정말 로그아웃 하시겠어요?'**
+  String get accountLogoutConfirm;
+
+  /// No description provided for @accountWithdrawTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'정말 탈퇴하시겠습니까?'**
+  String get accountWithdrawTitle;
+
+  /// No description provided for @accountWithdrawConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'회원 탈퇴 시 모든 데이터가 영구적으로 삭제됩니다.\n이 작업은 되돌릴 수 없습니다.'**
+  String get accountWithdrawConfirm;
 }
 
 class _AppLocalizationsDelegate

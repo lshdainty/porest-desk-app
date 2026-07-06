@@ -2606,4 +2606,327 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get fileEmpty => '첨부된 파일 없음';
+
+  @override
+  String get moreGroupMoney => '돈 관리';
+
+  @override
+  String get moreGroupDaily => '일상';
+
+  @override
+  String get moreGroupPersonal => '개인화';
+
+  @override
+  String get moreGroupSystem => '계정·시스템';
+
+  @override
+  String get moreItemStocks => '증권';
+
+  @override
+  String get moreItemStats => '통계·분석';
+
+  @override
+  String get moreItemAccountCard => '카드·계좌 관리';
+
+  @override
+  String get moreItemCardBenefits => '카드 혜택';
+
+  @override
+  String get moreItemDisplay => '표시 설정';
+
+  @override
+  String get moreItemAccount => '계정';
+
+  @override
+  String get moreDescExpense => '지출 · 수입 · 이체';
+
+  @override
+  String get moreDescAsset => '계좌 · 카드 · 투자 · 부채';
+
+  @override
+  String get moreDescStocks => '시세 · 보유 · 관심 · 호가';
+
+  @override
+  String get moreDescBudget => '월간 · 카테고리별';
+
+  @override
+  String get moreDescStats => '카테고리 · 트렌드 · 비교';
+
+  @override
+  String get moreDescRecurring => '구독 · 고정비';
+
+  @override
+  String get moreDescAccountCard => '계좌·카드 추가·편집';
+
+  @override
+  String get moreDescCalendar => '일정 · 반복 · 알림';
+
+  @override
+  String get moreDescTodo => '마감 · 우선순위 · 태그';
+
+  @override
+  String get moreDescMemo => '분류 · 고정 · 검색';
+
+  @override
+  String get moreDescDutchPay => '정산 · 친구 · 송금 요청';
+
+  @override
+  String get moreDescCardBenefits => '신용·체크 카드 검색';
+
+  @override
+  String get moreDescCategories => '지출 · 수입';
+
+  @override
+  String get moreDescPresets => '자주 쓰는 내역';
+
+  @override
+  String get moreDescDisplay => '테마 · 밀도 · 통화';
+
+  @override
+  String get moreDescSettings => '전체 설정 메뉴';
+
+  @override
+  String get moreDescNotifications => '푸시 · 방해 금지';
+
+  @override
+  String get moreDescExport => 'CSV · Excel · JSON';
+
+  @override
+  String get moreDescAccount => '프로필 · 보안 · 구독';
+
+  @override
+  String get moreSearchHint => '메뉴 검색';
+
+  @override
+  String get moreSearchEmpty => '검색 결과가 없습니다';
+
+  @override
+  String get settingsGroupDataMgmt => '데이터 관리';
+
+  @override
+  String get settingsMenuCategory => '카테고리 관리';
+
+  @override
+  String get settingsMenuAccountCard => '계좌·카드 관리';
+
+  @override
+  String get settingsMenuBudget => '예산 설정';
+
+  @override
+  String get settingsMenuRecurring => '반복 거래 관리';
+
+  @override
+  String get settingsMenuPreset => '프리셋 관리';
+
+  @override
+  String get settingsGroupShare => '공유·소통';
+
+  @override
+  String get settingsMenuCalendarShare => '캘린더 관리·공유';
+
+  @override
+  String get settingsMenuCalendarLabel => '캘린더 라벨';
+
+  @override
+  String get settingsGroupApp => '앱 환경';
+
+  @override
+  String get settingsMenuAppearance => '표시 설정';
+
+  @override
+  String get settingsGroupData => '데이터';
+
+  @override
+  String get settingsMenuStorage => '저장공간';
+
+  @override
+  String get settingsGroupAccount => '계정';
+
+  @override
+  String get settingsMenuAccountMgmt => '계정 관리';
+
+  @override
+  String get appearanceTitle => '표시 설정';
+
+  @override
+  String get appearanceTheme => '테마';
+
+  @override
+  String get appearanceThemeLight => '라이트';
+
+  @override
+  String get appearanceThemeLightDesc => '밝은 배경';
+
+  @override
+  String get appearanceThemeDark => '다크';
+
+  @override
+  String get appearanceThemeDarkDesc => '어두운 배경';
+
+  @override
+  String get appearanceThemeSystem => '시스템';
+
+  @override
+  String get appearanceThemeSystemDesc => '자동 전환';
+
+  @override
+  String get appearancePrivacy => '개인정보 보호';
+
+  @override
+  String get appearanceHideAmount => '금액 가리기';
+
+  @override
+  String get appearanceHideAmountDesc => '모든 화면의 금액을 ••••로 표시합니다';
+
+  @override
+  String get appearanceDensity => '표시 밀도';
+
+  @override
+  String get appearanceDensityCompact => '컴팩트';
+
+  @override
+  String get appearanceDensityComfortable => '편안';
+
+  @override
+  String get appearanceDensitySpacious => '여유';
+
+  @override
+  String get appearanceCurrency => '통화';
+
+  @override
+  String get appearanceCurrencyKrw => '대한민국 원';
+
+  @override
+  String get appearanceCurrencyUsd => '미국 달러';
+
+  @override
+  String get appearanceCurrencyEur => '유로';
+
+  @override
+  String get appearanceCurrencyJpy => '일본 엔';
+
+  @override
+  String get passwordChanged => '비밀번호가 변경되었습니다';
+
+  @override
+  String get passwordChangeFailed => '비밀번호 변경에 실패했습니다.';
+
+  @override
+  String get passwordCurrent => '현재 비밀번호';
+
+  @override
+  String get passwordNew => '새 비밀번호';
+
+  @override
+  String get passwordNewPlaceholder => '8자 이상';
+
+  @override
+  String get passwordNewConfirm => '새 비밀번호 확인';
+
+  @override
+  String get passwordConfirmPlaceholder => '한 번 더 입력';
+
+  @override
+  String get passwordMismatch => '새 비밀번호가 일치하지 않습니다';
+
+  @override
+  String get passwordChangeAction => '변경';
+
+  @override
+  String get accountTitle => '계정';
+
+  @override
+  String get accountDefaultName => '사용자';
+
+  @override
+  String get accountEditComingSoon => '프로필 편집은 준비중입니다';
+
+  @override
+  String get accountSecurity => '보안';
+
+  @override
+  String get accountPasswordDesc => '최근 변경 없음';
+
+  @override
+  String get accountTwoFa => '2단계 인증';
+
+  @override
+  String get accountOn => '사용 중';
+
+  @override
+  String get accountOff => '사용 안 함';
+
+  @override
+  String get accountBiometric => '생체 인증';
+
+  @override
+  String get accountComingSoon => '준비중';
+
+  @override
+  String get accountDevices => '로그인된 기기';
+
+  @override
+  String get accountCurrentDevice => '현재 기기';
+
+  @override
+  String get accountLoginHistory => '로그인 기록';
+
+  @override
+  String get accountLast30Days => '최근 30일';
+
+  @override
+  String get accountConnected => '연결된 계정';
+
+  @override
+  String get accountNotConnected => '연결 안 됨';
+
+  @override
+  String get accountConnect => '연결';
+
+  @override
+  String accountSocialComingSoon(String name) {
+    return '$name 연결은 준비중입니다';
+  }
+
+  @override
+  String get accountBilling => '구독·결제';
+
+  @override
+  String accountNextBilling(String date) {
+    return '다음 결제 $date · ';
+  }
+
+  @override
+  String get accountProActive => 'Pro 이용 중';
+
+  @override
+  String get accountProPromo => '증권 투자는 Pro 전용 · 지금 시작하기';
+
+  @override
+  String get accountPerMonth => '/ 월';
+
+  @override
+  String get accountProStart => 'Pro 시작';
+
+  @override
+  String get accountManage => '계정 관리';
+
+  @override
+  String get accountLogoutDesc => '이 기기에서만';
+
+  @override
+  String get accountWithdraw => '회원 탈퇴';
+
+  @override
+  String get accountWithdrawDesc => '영구 삭제';
+
+  @override
+  String get accountLogoutConfirm => '정말 로그아웃 하시겠어요?';
+
+  @override
+  String get accountWithdrawTitle => '정말 탈퇴하시겠습니까?';
+
+  @override
+  String get accountWithdrawConfirm =>
+      '회원 탈퇴 시 모든 데이터가 영구적으로 삭제됩니다.\n이 작업은 되돌릴 수 없습니다.';
 }

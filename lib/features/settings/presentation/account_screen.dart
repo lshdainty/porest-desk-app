@@ -8,6 +8,7 @@ import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/auth/auth_notifier.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/features/subscription/application/subscription_providers.dart';
 import 'package:porest_desk_app/features/subscription/presentation/subscription_sheet.dart';
 import 'package:porest_desk_app/features/subscription/presentation/toss_connect_card.dart';
@@ -38,6 +39,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final user = ref.watch(authProvider).value;
     final subscription = ref.watch(mySubscriptionProvider).asData?.value;
     final hasSecurities = ref.watch(hasSecuritiesProvider);
@@ -52,7 +54,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
         leading: PBackButton(onPressed: () => context.pop()),
-        title: const Text('계정'),
+        title: Text(l.accountTitle),
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,
         elevation: 0,
@@ -92,7 +94,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                 ),
                 const SizedBox(height: PSpace.x12),
                 Text(
-                  user?.userName ?? '사용자',
+                  user?.userName ?? l.accountDefaultName,
                   style: TextStyle(
                     fontFamily: PTypo.sans,
                     fontSize: 17,
@@ -115,10 +117,10 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     PButton(
-                      label: '✎ 편집',
+                      label: '✎ ${l.actionEdit}',
                       variant: PButtonVariant.ghost,
                       size: PButtonSize.sm,
-                      onPressed: () => showPSnackBar(context, '프로필 편집은 준비중입니다'),
+                      onPressed: () => showPSnackBar(context, l.accountEditComingSoon),
                     ),
                     const SizedBox(width: PSpace.x8),
                     Container(
@@ -158,7 +160,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           const SizedBox(height: PSpace.x20),
 
           // ── 보안 — web: desc 우측 정렬 + chevron/switch
-          _SectionLabel(label: '보안', tokens: t),
+          _SectionLabel(label: l.accountSecurity, tokens: t),
           const SizedBox(height: PSpace.x8),
           PCard(
             variant: PCardVariant.shadow,
@@ -167,8 +169,8 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
               children: [
                 _AccountRow(
                   icon: LucideIcons.key,
-                  label: '비밀번호 변경',
-                  desc: '최근 변경 없음',
+                  label: l.navChangePassword,
+                  desc: l.accountPasswordDesc,
                   chevron: true,
                   tokens: t,
                   onTap: () => showPasswordChangeDialog(context),
@@ -176,8 +178,8 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                 // web 정합 — 비밀번호 변경 아래 구분선 없음.
                 _AccountRow(
                   icon: LucideIcons.monitor,
-                  label: '2단계 인증',
-                  desc: _twoFa ? '사용 중' : '사용 안 함',
+                  label: l.accountTwoFa,
+                  desc: _twoFa ? l.accountOn : l.accountOff,
                   tokens: t,
                   // PSwitch 의 44px 탭 타깃이 행을 키우지 않게 트랙 높이(24)로 제한
                   // — 다른 행과 동일 높이 (web 정합).
@@ -192,24 +194,24 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                 const PDivider(),
                 _AccountRow(
                   icon: LucideIcons.fingerprint,
-                  label: '생체 인증',
-                  desc: '준비중',
+                  label: l.accountBiometric,
+                  desc: l.accountComingSoon,
                   dimmed: true,
                   tokens: t,
                 ),
                 const PDivider(),
                 _AccountRow(
                   icon: LucideIcons.monitor,
-                  label: '로그인된 기기',
-                  desc: '현재 기기',
+                  label: l.accountDevices,
+                  desc: l.accountCurrentDevice,
                   chevron: true,
                   tokens: t,
                 ),
                 const PDivider(),
                 _AccountRow(
                   icon: LucideIcons.calendarDays,
-                  label: '로그인 기록',
-                  desc: '최근 30일',
+                  label: l.accountLoginHistory,
+                  desc: l.accountLast30Days,
                   chevron: true,
                   tokens: t,
                 ),
@@ -219,7 +221,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           const SizedBox(height: PSpace.x20),
 
           // ── 연결된 계정 — web: 레터 아이콘 + '연결 안 됨' + 연결 버튼
-          _SectionLabel(label: '연결된 계정', tokens: t),
+          _SectionLabel(label: l.accountConnected, tokens: t),
           const SizedBox(height: PSpace.x8),
           PCard(
             variant: PCardVariant.shadow,
@@ -231,14 +233,14 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                   _AccountRow(
                     letter: social.letter,
                     label: social.name,
-                    desc: '연결 안 됨',
+                    desc: l.accountNotConnected,
                     tokens: t,
                     trailing: PButton(
-                      label: '연결',
+                      label: l.accountConnect,
                       variant: PButtonVariant.outline,
                       size: PButtonSize.sm,
                       onPressed: () =>
-                          showPSnackBar(context, '${social.name} 연결은 준비중입니다'),
+                          showPSnackBar(context, l.accountSocialComingSoon(social.name)),
                     ),
                   ),
                 ],
@@ -248,7 +250,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           const SizedBox(height: PSpace.x20),
 
           // ── 구독·결제 — Porest Pro 단일 행 → 구독 관리 시트(일반/프로·결제)
-          _SectionLabel(label: '구독·결제', tokens: t),
+          _SectionLabel(label: l.accountBilling, tokens: t),
           const SizedBox(height: PSpace.x8),
           PCard(
             variant: PCardVariant.shadow,
@@ -291,8 +293,8 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                           const SizedBox(height: 2),
                           Text(
                             isSubscribed
-                                ? '${subscription?.currentPeriodEnd != null && subscription!.currentPeriodEnd!.length >= 10 ? '다음 결제 ${subscription.currentPeriodEnd!.substring(0, 10)} · ' : ''}Pro 이용 중'
-                                : '증권 투자는 Pro 전용 · 지금 시작하기',
+                                ? '${subscription?.currentPeriodEnd != null && subscription!.currentPeriodEnd!.length >= 10 ? l.accountNextBilling(subscription.currentPeriodEnd!.substring(0, 10)) : ''}${l.accountProActive}'
+                                : l.accountProPromo,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: PTypo.caption.copyWith(color: t.fgTertiary),
@@ -315,12 +317,12 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                             ),
                           ),
                           const SizedBox(height: 2),
-                          Text('/ 월',
+                          Text(l.accountPerMonth,
                               style: PTypo.micro.copyWith(color: t.fgTertiary)),
                         ],
                       )
                     else
-                      const PBadge(label: 'Pro 시작',
+                      PBadge(label: l.accountProStart,
                           variant: PBadgeVariant.softBrand),
                     const SizedBox(width: PSpace.x8),
                     Icon(LucideIcons.chevronRight,
@@ -339,7 +341,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           const SizedBox(height: PSpace.x20),
 
           // ── 계정 관리 — web: 로그아웃(일반) / 회원 탈퇴(danger)
-          _SectionLabel(label: '계정 관리', tokens: t),
+          _SectionLabel(label: l.accountManage, tokens: t),
           const SizedBox(height: PSpace.x8),
           PCard(
             variant: PCardVariant.shadow,
@@ -348,8 +350,8 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
               children: [
                 _AccountRow(
                   icon: LucideIcons.logOut,
-                  label: '로그아웃',
-                  desc: '이 기기에서만',
+                  label: l.navLogout,
+                  desc: l.accountLogoutDesc,
                   chevron: true,
                   tokens: t,
                   onTap: () => _confirmLogout(context, ref),
@@ -357,8 +359,8 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                 // web 정합 — 로그아웃 아래 구분선 없음.
                 _AccountRow(
                   icon: LucideIcons.trash2,
-                  label: '회원 탈퇴',
-                  desc: '영구 삭제',
+                  label: l.accountWithdraw,
+                  desc: l.accountWithdrawDesc,
                   iconColor: t.statusDanger,
                   labelColor: t.statusDanger,
                   tokens: t,
@@ -375,19 +377,20 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
   }
 
   Future<void> _confirmLogout(BuildContext context, WidgetRef ref) async {
+    final l = AppLocalizations.of(context);
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('로그아웃'),
-        content: const Text('정말 로그아웃 하시겠어요?'),
+        title: Text(l.navLogout),
+        content: Text(l.accountLogoutConfirm),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('취소'),
+            child: Text(l.actionCancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('로그아웃'),
+            child: Text(l.navLogout),
           ),
         ],
       ),
@@ -398,15 +401,16 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
   }
 
   Future<void> _confirmWithdraw(BuildContext context) async {
+    final l = AppLocalizations.of(context);
     await showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('정말 탈퇴하시겠습니까?'),
-        content: const Text('회원 탈퇴 시 모든 데이터가 영구적으로 삭제됩니다.\n이 작업은 되돌릴 수 없습니다.'),
+        title: Text(l.accountWithdrawTitle),
+        content: Text(l.accountWithdrawConfirm),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('확인'),
+            child: Text(l.actionConfirm),
           ),
         ],
       ),
