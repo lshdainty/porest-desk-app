@@ -6529,6 +6529,48 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'메모'**
   String get savingGoalDescHint;
+
+  /// No description provided for @searchAdvancedFilter.
+  ///
+  /// In ko, this message translates to:
+  /// **'고급 필터'**
+  String get searchAdvancedFilter;
+
+  /// No description provided for @searchHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'거래 검색...'**
+  String get searchHint;
+
+  /// No description provided for @searchStartHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'시작'**
+  String get searchStartHint;
+
+  /// No description provided for @searchEndHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'종료'**
+  String get searchEndHint;
+
+  /// No description provided for @searchFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'검색 실패'**
+  String get searchFailed;
+
+  /// No description provided for @searchEmptyHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'키워드, 가맹점, 메모로 검색하세요'**
+  String get searchEmptyHint;
+
+  /// No description provided for @searchNoResults.
+  ///
+  /// In ko, this message translates to:
+  /// **'결과가 없습니다'**
+  String get searchNoResults;
 }
 
 class _AppLocalizationsDelegate
