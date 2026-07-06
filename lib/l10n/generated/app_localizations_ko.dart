@@ -2929,4 +2929,156 @@ class AppLocalizationsKo extends AppLocalizations {
   @override
   String get accountWithdrawConfirm =>
       '회원 탈퇴 시 모든 데이터가 영구적으로 삭제됩니다.\n이 작업은 되돌릴 수 없습니다.';
+
+  @override
+  String get notiUnreadPrefix => '읽지 않은 알림 ';
+
+  @override
+  String get notiUnreadSuffix => '개';
+
+  @override
+  String get notiSettings => '알림 설정';
+
+  @override
+  String get notiSettingsLoadError => '설정을 불러오지 못했습니다';
+
+  @override
+  String get notiKindTitle => '알림 종류';
+
+  @override
+  String get notiKindSubtitle => '필요한 알림만 켜두면 더 편해요.';
+
+  @override
+  String get notiPayment => '결제 알림';
+
+  @override
+  String get notiPaymentDesc => '결제 예정일 D-1, 결제일 당일 알림';
+
+  @override
+  String notiBudgetDesc(int threshold) {
+    return '카테고리 예산 $threshold%·100% 도달';
+  }
+
+  @override
+  String get notiAutoRecord => '자동 기록 알림';
+
+  @override
+  String get notiAutoRecordDesc => '반복 거래가 자동으로 기록되었을 때';
+
+  @override
+  String get notiDutchPay => '더치페이 알림';
+
+  @override
+  String get notiDutchPayDesc => '송금 요청 / 정산 완료 알림';
+
+  @override
+  String get notiCalendarDesc => '캘린더 이벤트 시작 15분 전';
+
+  @override
+  String get notiWeeklyReport => '주간 리포트';
+
+  @override
+  String get notiWeeklyReportDesc => '매주 월요일 오전 9시';
+
+  @override
+  String get notiMonthlyReport => '월간 리포트';
+
+  @override
+  String get notiMonthlyReportDesc => '매월 1일 오전 9시';
+
+  @override
+  String get notiPush => '푸시 알림';
+
+  @override
+  String get notiPushOn => '모든 알림이 활성화되어 있어요';
+
+  @override
+  String get notiPushOff => '알림이 꺼져 있어요';
+
+  @override
+  String get notiThresholdTitle => '예산 알림 임계값';
+
+  @override
+  String get notiThresholdCurrent => '현재 ';
+
+  @override
+  String get notiThresholdDesc1 => '예산 사용률이 이 값을 넘으면 ';
+
+  @override
+  String get notiThresholdWarning => '경고';
+
+  @override
+  String get notiThresholdDesc2 => ' 상태로 표시되고 알림을 받습니다. 100%는 ';
+
+  @override
+  String get notiThresholdOver => '초과';
+
+  @override
+  String get notiThresholdDesc3 => '로 별도 알림이 발생합니다.';
+
+  @override
+  String get notiQuietTitle => '방해 금지 시간';
+
+  @override
+  String get notiQuietSubtitle => '이 시간에는 알림이 소리·진동 없이 표시됩니다.';
+
+  @override
+  String get notiQuietToggle => '방해 금지 사용';
+
+  @override
+  String get notiQuietToggleDesc => '시간대를 지정해 자동 무음';
+
+  @override
+  String get notiQuietStart => '시작';
+
+  @override
+  String get notiQuietEnd => '종료';
+
+  @override
+  String get notiSoundTitle => '소리·진동';
+
+  @override
+  String get notiSound => '알림음';
+
+  @override
+  String get notiSoundDesc => '앱 알림 사운드';
+
+  @override
+  String get notiSoundChime => '차임';
+
+  @override
+  String get notiSoundDefault => '기본';
+
+  @override
+  String get notiSoundNone => '무음';
+
+  @override
+  String get notiVibration => '진동';
+
+  @override
+  String get notiVibrationDesc => '모바일에서 진동 함께 알림';
+
+  @override
+  String get notiEmailTitle => '이메일 알림';
+
+  @override
+  String get notiEmailSubtitle => '앱을 잘 안 열어도 이메일로 요약을 받아볼 수 있어요.';
+
+  @override
+  String get notiEmailToggle => '이메일 받기';
+
+  @override
+  String get notiEmailNone => '등록된 이메일이 없습니다';
+
+  @override
+  String get notiEmailFreq => '발송 주기';
+
+  @override
+  String get notiEmailDaily => '매일';
+
+  @override
+  String get notiEmailWeekly => '매주';
+
+  @override
+  String get notiEmailMonthly => '매월';
 }

@@ -119,7 +119,7 @@ class NotificationScreen extends ConsumerWidget {
                         if (!context.mounted) return;
                         showPSnackBar(
                           context,
-                          '실패: ${e.message}',
+                          '${l.expActionFailed}: ${e.message}',
                           severity: PSnackSeverity.error,
                         );
                       }
@@ -144,6 +144,7 @@ class _UnreadSubHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         PSpace.x16,
@@ -155,7 +156,7 @@ class _UnreadSubHeader extends StatelessWidget {
         TextSpan(
           style: PTypo.caption.copyWith(color: tokens.fgTertiary),
           children: [
-            const TextSpan(text: '읽지 않은 알림 '),
+            TextSpan(text: l.notiUnreadPrefix),
             TextSpan(
               text: '$count',
               style: TextStyle(
@@ -163,7 +164,7 @@ class _UnreadSubHeader extends StatelessWidget {
                 fontWeight: PFontWeight.bold,
               ),
             ),
-            const TextSpan(text: '개'),
+            TextSpan(text: l.notiUnreadSuffix),
           ],
         ),
       ),
@@ -178,6 +179,7 @@ class _NotiSettingsFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return Container(
       margin: const EdgeInsets.only(top: PSpace.x4),
       padding: const EdgeInsets.symmetric(
@@ -189,7 +191,7 @@ class _NotiSettingsFooter extends StatelessWidget {
         border: Border(top: BorderSide(color: tokens.borderSubtle)),
       ),
       child: PButton(
-        label: '알림 설정',
+        label: l.notiSettings,
         trailingIcon: LucideIcons.chevronRight,
         variant: PButtonVariant.ghost,
         size: PButtonSize.sm,
@@ -287,6 +289,7 @@ class _NotiRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final unread = !noti.isRead;
     final (toneBg, toneFg) = _typeTone(tokens);
     return InkWell(
@@ -392,7 +395,7 @@ class _NotiRow extends StatelessWidget {
               icon: LucideIcons.x,
               size: PButtonSize.sm,
               iconColor: tokens.fgTertiary,
-              tooltip: '삭제',
+              tooltip: l.actionDelete,
               onPressed: onDelete,
             ),
           ],

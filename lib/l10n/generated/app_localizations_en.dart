@@ -2955,4 +2955,160 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get accountWithdrawConfirm =>
       'Deleting your account permanently erases all data.\nThis cannot be undone.';
+
+  @override
+  String get notiUnreadPrefix => '';
+
+  @override
+  String get notiUnreadSuffix => ' unread';
+
+  @override
+  String get notiSettings => 'Notification settings';
+
+  @override
+  String get notiSettingsLoadError => 'Failed to load settings';
+
+  @override
+  String get notiKindTitle => 'Notification types';
+
+  @override
+  String get notiKindSubtitle => 'Keep only the alerts you need.';
+
+  @override
+  String get notiPayment => 'Payment alerts';
+
+  @override
+  String get notiPaymentDesc => 'D-1 before due date, and on the payment day';
+
+  @override
+  String notiBudgetDesc(int threshold) {
+    return 'Category budget reaches $threshold%·100%';
+  }
+
+  @override
+  String get notiAutoRecord => 'Auto-record alerts';
+
+  @override
+  String get notiAutoRecordDesc =>
+      'When a recurring transaction is auto-recorded';
+
+  @override
+  String get notiDutchPay => 'Dutch pay alerts';
+
+  @override
+  String get notiDutchPayDesc => 'Payment requests / settlement complete';
+
+  @override
+  String get notiCalendarDesc => '15 minutes before a calendar event';
+
+  @override
+  String get notiWeeklyReport => 'Weekly report';
+
+  @override
+  String get notiWeeklyReportDesc => 'Every Monday at 9 AM';
+
+  @override
+  String get notiMonthlyReport => 'Monthly report';
+
+  @override
+  String get notiMonthlyReportDesc => 'On the 1st of each month at 9 AM';
+
+  @override
+  String get notiPush => 'Push notifications';
+
+  @override
+  String get notiPushOn => 'All notifications are enabled';
+
+  @override
+  String get notiPushOff => 'Notifications are off';
+
+  @override
+  String get notiThresholdTitle => 'Budget alert threshold';
+
+  @override
+  String get notiThresholdCurrent => 'Current ';
+
+  @override
+  String get notiThresholdDesc1 => 'When usage exceeds this, a ';
+
+  @override
+  String get notiThresholdWarning => 'Warning';
+
+  @override
+  String get notiThresholdDesc2 =>
+      ' state is shown and you get an alert. At 100%, an ';
+
+  @override
+  String get notiThresholdOver => 'Over';
+
+  @override
+  String get notiThresholdDesc3 => ' alert is sent separately.';
+
+  @override
+  String get notiQuietTitle => 'Do not disturb hours';
+
+  @override
+  String get notiQuietSubtitle =>
+      'During these hours, alerts show without sound or vibration.';
+
+  @override
+  String get notiQuietToggle => 'Use do not disturb';
+
+  @override
+  String get notiQuietToggleDesc => 'Auto-mute during a set time range';
+
+  @override
+  String get notiQuietStart => 'Start';
+
+  @override
+  String get notiQuietEnd => 'End';
+
+  @override
+  String get notiSoundTitle => 'Sound & vibration';
+
+  @override
+  String get notiSound => 'Notification sound';
+
+  @override
+  String get notiSoundDesc => 'In-app notification sound';
+
+  @override
+  String get notiSoundChime => 'Chime';
+
+  @override
+  String get notiSoundDefault => 'Default';
+
+  @override
+  String get notiSoundNone => 'Silent';
+
+  @override
+  String get notiVibration => 'Vibration';
+
+  @override
+  String get notiVibrationDesc => 'Vibrate with notifications on mobile';
+
+  @override
+  String get notiEmailTitle => 'Email notifications';
+
+  @override
+  String get notiEmailSubtitle =>
+      'Get summaries by email even if you rarely open the app.';
+
+  @override
+  String get notiEmailToggle => 'Receive emails';
+
+  @override
+  String get notiEmailNone => 'No email registered';
+
+  @override
+  String get notiEmailFreq => 'Frequency';
+
+  @override
+  String get notiEmailDaily => 'Daily';
+
+  @override
+  String get notiEmailWeekly => 'Weekly';
+
+  @override
+  String get notiEmailMonthly => 'Monthly';
 }
