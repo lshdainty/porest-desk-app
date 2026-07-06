@@ -3111,4 +3111,110 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notiEmailMonthly => 'Monthly';
+
+  @override
+  String get presetManageTitle => 'Manage presets';
+
+  @override
+  String get presetLoadError => 'Failed to load presets';
+
+  @override
+  String get presetDeleteTitle => 'Delete preset';
+
+  @override
+  String presetDeleteConfirm(String name) {
+    return 'Delete preset \"$name\"? Already saved transactions are unaffected.';
+  }
+
+  @override
+  String get presetDeleted => 'Preset deleted';
+
+  @override
+  String get presetDeleteFailed => 'Delete failed';
+
+  @override
+  String get presetIntroTitle => 'What is a preset?';
+
+  @override
+  String get presetIntroBody =>
+      'Save frequently used entries (lunch, coffee, transit, etc.) so you can fill in category, payment method, and details with one tap on the add screen. Handy for saving single entries by just changing the amount.';
+
+  @override
+  String get presetStatSaved => 'Saved presets';
+
+  @override
+  String get presetStatUses => 'Total uses';
+
+  @override
+  String presetUsesCount(int count) {
+    return '$count×';
+  }
+
+  @override
+  String get presetStatType => 'Expense / Income';
+
+  @override
+  String get presetSortUsed => 'Most used';
+
+  @override
+  String get presetSortRecent => 'Recently used';
+
+  @override
+  String get presetSortName => 'By name';
+
+  @override
+  String get presetAdd => 'Add preset';
+
+  @override
+  String get presetAmountEmpty => 'No amount';
+
+  @override
+  String get presetNoCategory => 'No category';
+
+  @override
+  String get presetEmptyTitle => 'No saved presets';
+
+  @override
+  String get presetEmptyDesc =>
+      'Add frequently used entries to save yourself repetitive input.';
+
+  @override
+  String get presetEditTitle => 'Edit preset';
+
+  @override
+  String get presetSubmitAdd => 'Add';
+
+  @override
+  String get presetName => 'Preset name';
+
+  @override
+  String get presetMerchant => 'Default details';
+
+  @override
+  String get presetMerchantPlaceholder => 'e.g. Hansot lunchbox';
+
+  @override
+  String get presetSelectNone => 'None';
+
+  @override
+  String get presetAssetCard => 'Account / Card';
+
+  @override
+  String get presetAssetLoadError => 'Failed to load assets';
+
+  @override
+  String get presetLockToggle => 'Use fixed amount';
+
+  @override
+  String get presetLockDesc =>
+      'When off, the amount is empty on load. Handy when the amount varies each time.';
+
+  @override
+  String get presetLockAmountLabel => 'Fixed amount';
+
+  @override
+  String get presetUpdated => 'Preset updated';
+
+  @override
+  String get presetCreated => 'Preset added';
 }

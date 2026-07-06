@@ -11,6 +11,7 @@ import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
@@ -52,11 +53,12 @@ class _PresetScreenState extends ConsumerState<PresetScreen> {
   }
 
   Future<void> _confirmDelete(ExpenseTemplate p) async {
+    final l = AppLocalizations.of(context);
     final ok = await showPConfirmDialog(
       context,
-      title: '프리셋 삭제',
-      message: '"${p.templateName}" 프리셋을 삭제할까요? 이미 저장된 거래 내역에는 영향이 없습니다.',
-      confirmLabel: '삭제',
+      title: l.presetDeleteTitle,
+      message: l.presetDeleteConfirm(p.templateName),
+      confirmLabel: l.actionDelete,
       destructive: true,
     );
     if (!ok || !mounted) return;
@@ -65,12 +67,12 @@ class _PresetScreenState extends ConsumerState<PresetScreen> {
       await repo.delete(p.rowId);
       ref.invalidate(presetListProvider);
       if (!mounted) return;
-      showPSnackBar(context, '프리셋이 삭제되었습니다', severity: PSnackSeverity.success);
+      showPSnackBar(context, l.presetDeleted, severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!mounted) return;
       showPSnackBar(
         context,
-        '삭제 실패: ${e.message}',
+        '${l.presetDeleteFailed}: ${e.message}',
         severity: PSnackSeverity.error,
       );
     }
@@ -79,6 +81,7 @@ class _PresetScreenState extends ConsumerState<PresetScreen> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final listAsync = ref.watch(presetListProvider);
     final categoriesAsync = ref.watch(categoriesProvider);
     final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
@@ -90,7 +93,7 @@ class _PresetScreenState extends ConsumerState<PresetScreen> {
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
         leading: PBackButton(onPressed: () => context.pop()),
-        title: const Text('프리셋 관리'),
+        title: Text(l.presetManageTitle),
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,
         elevation: 0,
@@ -113,7 +116,7 @@ class _PresetScreenState extends ConsumerState<PresetScreen> {
             padding: const EdgeInsets.all(PSpace.lg),
             children: [
               Text(
-                '프리셋 로드 실패\n$e',
+                '${l.presetLoadError}\n$e',
                 style: PTypo.bodySm.copyWith(color: t.statusDanger),
               ),
             ],
@@ -207,6 +210,7 @@ class _IntroBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -233,7 +237,7 @@ class _IntroBanner extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '프리셋이란?',
+                  l.presetIntroTitle,
                   style: TextStyle(
                     fontFamily: PTypo.sans,
                     fontSize: PFontSize.bodySm, // --text-label-sm = 13
@@ -243,8 +247,7 @@ class _IntroBanner extends StatelessWidget {
                 ),
                 const SizedBox(height: 3),
                 Text(
-                  '자주 쓰는 내역(점심·커피·교통비 등)을 미리 저장해두면, 내역 추가 화면에서 한 번 탭으로 '
-                  '카테고리·결제수단·내역을 모두 채워넣어요. 금액만 바꿔서 단건으로 저장하기 좋습니다.',
+                  l.presetIntroBody,
                   style: PTypo.caption.copyWith(
                     color: t.fgSecondary,
                     height: 1.5,
@@ -276,6 +279,7 @@ class _StatsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     if (isLoading) {
       return Row(
         children: [
@@ -292,16 +296,16 @@ class _StatsRow extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: _StatCard(label: '저장된 프리셋', value: '$presetCount'),
+          child: _StatCard(label: l.presetStatSaved, value: '$presetCount'),
         ),
         const SizedBox(width: PSpace.x8),
         Expanded(
-          child: _StatCard(label: '누적 사용', value: '$totalUses회'),
+          child: _StatCard(label: l.presetStatUses, value: l.presetUsesCount(totalUses)),
         ),
         const SizedBox(width: PSpace.x8),
         Expanded(
           child: _StatCard(
-            label: '지출 / 수입',
+            label: l.presetStatType,
             value: '$expenseCount / $incomeCount',
           ),
         ),
@@ -393,6 +397,7 @@ class _Toolbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return Wrap(
       alignment: WrapAlignment.spaceBetween,
       crossAxisAlignment: WrapCrossAlignment.center,
@@ -403,15 +408,15 @@ class _Toolbar extends StatelessWidget {
           value: sortBy,
           variant: PTabsVariant.container,
           size: PTabsSize.sm,
-          items: const [
-            PTabItem(value: _SortKey.used, label: '사용 많은 순'),
-            PTabItem(value: _SortKey.recent, label: '최근 사용'),
-            PTabItem(value: _SortKey.name, label: '이름순'),
+          items: [
+            PTabItem(value: _SortKey.used, label: l.presetSortUsed),
+            PTabItem(value: _SortKey.recent, label: l.presetSortRecent),
+            PTabItem(value: _SortKey.name, label: l.presetSortName),
           ],
           onChanged: onSort,
         ),
         PButton(
-          label: '프리셋 추가',
+          label: l.presetAdd,
           icon: LucideIcons.plus,
           variant: PButtonVariant.accent,
           size: PButtonSize.sm,
@@ -444,6 +449,7 @@ class _PresetRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = tokens;
+    final l = AppLocalizations.of(context);
     final cat = category;
     final hasCat = cat != null;
     final fg = hasCat
@@ -521,7 +527,7 @@ class _PresetRow extends StatelessWidget {
                     if (!isExpense) ...[
                       const SizedBox(width: 6),
                       _MiniBadge(
-                        label: '수입',
+                        label: l.expTypeIncome,
                         bg: t.bgIncomeSubtle,
                         fg: t.fgIncome,
                         weight: PFontWeight.bold,
@@ -530,7 +536,7 @@ class _PresetRow extends StatelessWidget {
                     if (!lock) ...[
                       const SizedBox(width: 6),
                       _MiniBadge(
-                        label: '금액 비움',
+                        label: l.presetAmountEmpty,
                         bg: t.bgSunken,
                         fg: t.fgTertiary,
                         weight: PFontWeight.semi,
@@ -565,7 +571,7 @@ class _PresetRow extends StatelessWidget {
               ),
               const SizedBox(height: 2),
               Text(
-                '$used회',
+                l.presetUsesCount(used),
                 style: TextStyle(
                   fontFamily: PTypo.sans,
                   fontSize: 10,
@@ -583,7 +589,7 @@ class _PresetRow extends StatelessWidget {
               PButton.icon(
                 icon: LucideIcons.pencil,
                 size: PButtonSize.sm,
-                tooltip: '수정',
+                tooltip: l.actionEdit,
                 onPressed: onEdit,
               ),
               const SizedBox(width: 4),
@@ -591,7 +597,7 @@ class _PresetRow extends StatelessWidget {
                 icon: LucideIcons.trash2,
                 size: PButtonSize.sm,
                 iconColor: t.fgExpense,
-                tooltip: '삭제',
+                tooltip: l.actionDelete,
                 onPressed: onDelete,
               ),
             ],
@@ -646,6 +652,7 @@ class _MetaLine extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = tokens;
+    final l = AppLocalizations.of(context);
     final style = PTypo.caption.copyWith(color: t.fgTertiary);
     final hasMerchant = merchant != null && merchant!.isNotEmpty;
     return Row(
@@ -653,7 +660,7 @@ class _MetaLine extends StatelessWidget {
         Flexible(
           flex: 0,
           child: Text(
-            categoryName ?? '카테고리 없음',
+            categoryName ?? l.presetNoCategory,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: style,
@@ -681,6 +688,7 @@ class _EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.all(60),
       child: Column(
@@ -698,7 +706,7 @@ class _EmptyState extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            '저장된 프리셋이 없어요',
+            l.presetEmptyTitle,
             style: TextStyle(
               fontFamily: PTypo.sans,
               fontSize: PFontSize.body, // --text-body-sm = 14
@@ -708,7 +716,7 @@ class _EmptyState extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            '자주 쓰는 내역을 추가해 매번 입력하는 수고를 줄여보세요.',
+            l.presetEmptyDesc,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontFamily: PTypo.sans,

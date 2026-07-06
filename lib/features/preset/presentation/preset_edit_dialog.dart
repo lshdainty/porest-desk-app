@@ -8,6 +8,7 @@ import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
 import 'package:porest_desk_app/shared/widgets/p_category_tile.dart';
 import 'package:porest_desk_app/shared/widgets/p_checkbox.dart';
@@ -24,23 +25,26 @@ import 'package:porest_desk_app/features/preset/application/preset_providers.dar
 import 'package:porest_desk_app/features/preset/domain/expense_template.dart';
 
 /// 웹 `PresetEditDialog` 미러 — 결제 수단 목록.
-const _kPaymentMethods = <(String, String)>[
-  ('CASH', '현금'),
-  ('CARD', '카드'),
-  ('TRANSFER', '계좌이체'),
-  ('OTHER', '기타'),
-];
+const _kPaymentMethodValues = <String>['CASH', 'CARD', 'TRANSFER', 'OTHER'];
+
+String _payLabel(AppLocalizations l, String v) => switch (v) {
+      'CASH' => l.expPayCash,
+      'CARD' => l.expPayCard,
+      'TRANSFER' => l.expPayTransfer,
+      _ => l.expPayOther,
+    };
 
 void showPresetEditDialog(BuildContext context, {ExpenseTemplate? edit}) {
+  final l = AppLocalizations.of(context);
   final controller = PSheetController();
   showPSheet<void>(
     context,
-    title: edit == null ? '프리셋 추가' : '프리셋 수정',
+    title: edit == null ? l.presetAdd : l.presetEditTitle,
     contentBuilder: (ctx, scrollCtrl) =>
         _Body(edit: edit, scrollController: scrollCtrl, controller: controller),
     footerBuilder: (ctx) => PSheetFooter(
       controller: controller,
-      submitLabel: edit == null ? '추가' : '저장',
+      submitLabel: edit == null ? l.presetSubmitAdd : l.actionSave,
     ),
   );
 }
@@ -123,6 +127,7 @@ class _BodyState extends ConsumerState<_Body> {
 
   Future<void> _submit() async {
     if (!_canSubmit) return;
+    final l = AppLocalizations.of(context);
     _setSubmitting(true);
     try {
       final repo = await ref.read(presetRepositoryProvider.future);
@@ -162,14 +167,14 @@ class _BodyState extends ConsumerState<_Body> {
       Navigator.of(context).pop();
       showPSnackBar(
         context,
-        _isEdit ? '프리셋이 수정되었습니다' : '프리셋이 추가되었습니다',
+        _isEdit ? l.presetUpdated : l.presetCreated,
         severity: PSnackSeverity.success,
       );
     } on ApiException catch (e) {
       if (!mounted) return;
       showPSnackBar(
         context,
-        '실패: ${e.message}',
+        '${l.expActionFailed}: ${e.message}',
         severity: PSnackSeverity.error,
       );
     } finally {
@@ -180,6 +185,7 @@ class _BodyState extends ConsumerState<_Body> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final categoriesAsync = ref.watch(categoriesProvider);
     final assetsAsync = ref.watch(assetsProvider);
     final categories = categoriesAsync.value ?? const <ExpenseCategory>[];
@@ -197,32 +203,32 @@ class _BodyState extends ConsumerState<_Body> {
           variant: PTabsVariant.container,
           size: PTabsSize.sm,
           expand: true,
-          items: const [
-            PTabItem(value: 'EXPENSE', label: '지출'),
-            PTabItem(value: 'INCOME', label: '수입'),
+          items: [
+            PTabItem(value: 'EXPENSE', label: l.expTypeExpense),
+            PTabItem(value: 'INCOME', label: l.expTypeIncome),
           ],
           onChanged: (v) => _onTypeChanged(v, categories),
         ),
         const SizedBox(height: PSpace.lg),
 
         // ② 프리셋 이름
-        _FieldLabel('프리셋 이름'),
+        _FieldLabel(l.presetName),
         const SizedBox(height: PSpace.x4),
         PTextInput(
           controller: _nameCtrl,
-          placeholder: '예: 점심 도시락',
+          placeholder: l.expPresetNamePlaceholder,
           autofocus: true,
           onChanged: (_) => setState(() {}),
         ),
         const SizedBox(height: 14),
 
         // ③ 카테고리 (5열 그룹 타일 grid)
-        _FieldLabel('카테고리'),
+        _FieldLabel(l.expCategory),
         const SizedBox(height: PSpace.x8),
         categoriesAsync.when(
           loading: () => _categoryGridSkeleton(),
           error: (e, _) => Text(
-            '카테고리 로드 실패',
+            l.categoryLoadError,
             style: PTypo.caption.copyWith(color: t.statusDanger),
           ),
           data: (cats) => _CategoryGrid(
@@ -235,42 +241,42 @@ class _BodyState extends ConsumerState<_Body> {
         const SizedBox(height: 14),
 
         // ④ 기본 내역
-        _FieldLabel('기본 내역'),
+        _FieldLabel(l.presetMerchant),
         const SizedBox(height: PSpace.x4),
-        PTextInput(controller: _merchantCtrl, placeholder: '예: 한솥 도시락'),
+        PTextInput(controller: _merchantCtrl, placeholder: l.presetMerchantPlaceholder),
         const SizedBox(height: 14),
 
         // ⑤ 결제 수단
-        _FieldLabel('결제 수단'),
+        _FieldLabel(l.expPaymentMethod),
         const SizedBox(height: PSpace.x4),
         PSelect<String>(
           value: _paymentMethod.isEmpty ? null : _paymentMethod,
-          placeholder: '선택 안 함',
-          title: '결제 수단',
+          placeholder: l.presetSelectNone,
+          title: l.expPaymentMethod,
           items: [
-            const PSelectItem(value: '', label: '선택 안 함'),
-            for (final (v, l) in _kPaymentMethods)
-              PSelectItem(value: v, label: l),
+            PSelectItem(value: '', label: l.presetSelectNone),
+            for (final v in _kPaymentMethodValues)
+              PSelectItem(value: v, label: _payLabel(l, v)),
           ],
           onChanged: (v) => setState(() => _paymentMethod = v ?? ''),
         ),
         const SizedBox(height: 14),
 
         // ⑥ 계좌·카드
-        _FieldLabel('계좌·카드'),
+        _FieldLabel(l.presetAssetCard),
         const SizedBox(height: PSpace.x4),
         assetsAsync.when(
           loading: () => const PSkeleton(width: double.infinity, height: 40),
           error: (e, _) => Text(
-            '자산 로드 실패',
+            l.presetAssetLoadError,
             style: PTypo.caption.copyWith(color: t.statusDanger),
           ),
           data: (assets) => PSelect<int>(
             value: _assetRowId,
-            placeholder: '선택 안 함',
-            title: '계좌·카드',
+            placeholder: l.presetSelectNone,
+            title: l.presetAssetCard,
             items: [
-              const PSelectItem(value: -1, label: '선택 안 함'),
+              PSelectItem(value: -1, label: l.presetSelectNone),
               for (final a in assets)
                 PSelectItem(
                   value: a.rowId,
@@ -360,6 +366,7 @@ class _CategoryGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
 
     final topCategories =
         categories.where((c) => c.expenseType == type && _isTop(c)).toList()
@@ -367,7 +374,7 @@ class _CategoryGrid extends StatelessWidget {
 
     if (topCategories.isEmpty) {
       return Text(
-        '이 타입에 해당하는 카테고리가 없습니다',
+        l.expNoCategoryForType,
         style: PTypo.caption.copyWith(color: t.fgTertiary),
       );
     }
@@ -437,6 +444,7 @@ class _LockAmountCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.all(PSpace.md),
       decoration: BoxDecoration(
@@ -452,7 +460,7 @@ class _LockAmountCard extends StatelessWidget {
               PCheckbox(
                 size: PCheckboxSize.sm,
                 value: lockAmount,
-                semanticLabel: '고정 금액 사용',
+                semanticLabel: l.presetLockToggle,
                 onChanged: (v) => onToggle(v == true),
               ),
               const SizedBox(width: 10),
@@ -464,7 +472,7 @@ class _LockAmountCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '고정 금액 사용',
+                        l.presetLockToggle,
                         style: TextStyle(
                           fontFamily: PTypo.sans,
                           fontSize: PFontSize.bodySm, // --text-label-sm
@@ -474,7 +482,7 @@ class _LockAmountCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        '꺼두면 불러올 때 금액이 비어있어요. 매번 다른 금액일 때 편해요.',
+                        l.presetLockDesc,
                         style: PTypo.caption.copyWith(color: t.fgTertiary),
                       ),
                     ],
@@ -493,7 +501,7 @@ class _LockAmountCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _FieldLabel('고정 금액'),
+                  _FieldLabel(l.presetLockAmountLabel),
                   const SizedBox(height: PSpace.x4),
                   PTextInput(
                     controller: amountCtrl,
