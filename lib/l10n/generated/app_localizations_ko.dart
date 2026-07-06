@@ -3462,4 +3462,218 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get searchNoResults => '결과가 없습니다';
+
+  @override
+  String get statsTabTrend => '추이';
+
+  @override
+  String get statsTabCompare => '비교';
+
+  @override
+  String get statsThisQuarter => '이번 분기';
+
+  @override
+  String get statsThisYear => '이번 해';
+
+  @override
+  String get statsCustomPeriod => '선택 기간';
+
+  @override
+  String get statsLastMonth => '지난 달';
+
+  @override
+  String get statsLastQuarter => '지난 분기';
+
+  @override
+  String get statsLastYear => '지난 해';
+
+  @override
+  String get statsPrevPeriod => '이전 기간';
+
+  @override
+  String get statsMomMonth => '전월 대비';
+
+  @override
+  String get statsMomQuarter => '전분기 대비';
+
+  @override
+  String get statsMomYear => '전년 대비';
+
+  @override
+  String get statsMomCustom => '이전 기간 대비';
+
+  @override
+  String get statsMomPrevMonth => '전월';
+
+  @override
+  String get statsMomPrevQuarter => '전분기';
+
+  @override
+  String get statsMomPrevYear => '전년';
+
+  @override
+  String get statsDailyAvg => '하루 평균';
+
+  @override
+  String get statsMonthlyAvg => '월 평균';
+
+  @override
+  String get statsPeriodPickerTitle => '기간 선택';
+
+  @override
+  String get statsRange7d => '최근 7일';
+
+  @override
+  String get statsRange30d => '최근 30일';
+
+  @override
+  String get statsRange3m => '최근 3개월';
+
+  @override
+  String get statsRange6m => '최근 6개월';
+
+  @override
+  String get statsRange1y => '최근 1년';
+
+  @override
+  String get statsSegMonth => '월';
+
+  @override
+  String get statsSegQuarter => '분기';
+
+  @override
+  String get statsSegYear => '년';
+
+  @override
+  String get statsSegCustom => '직접';
+
+  @override
+  String get statsNoData => '데이터가 없습니다';
+
+  @override
+  String get statsNoDataShort => '데이터 없음';
+
+  @override
+  String get statsUnassigned => '미지정';
+
+  @override
+  String statsCategoryDetail(String name) {
+    return '$name 세부';
+  }
+
+  @override
+  String statsPeriodSpending(String period) {
+    return '$period 지출';
+  }
+
+  @override
+  String get statsSpendingByCategory => '카테고리별 지출';
+
+  @override
+  String get statsNoCategoryData => '카테고리 데이터가 없습니다';
+
+  @override
+  String get statsTopMerchantsTitle => '많이 쓴 가맹점 TOP 5';
+
+  @override
+  String get statsNoMerchantData => '가맹점 데이터가 없습니다';
+
+  @override
+  String get statsNoName => '(이름 없음)';
+
+  @override
+  String get statsTimeMorning => '아침';
+
+  @override
+  String get statsTimeLunch => '점심';
+
+  @override
+  String get statsTimeAfternoon => '오후';
+
+  @override
+  String get statsTimeEvening => '저녁';
+
+  @override
+  String get statsTimeLateNight => '심야';
+
+  @override
+  String get statsTimeDawn => '새벽';
+
+  @override
+  String get statsPatternTitle => '요일·시간대 지출 패턴';
+
+  @override
+  String get statsPatternDesc => '색이 진할수록 지출이 많은 시간대예요 (단위: 원)';
+
+  @override
+  String get statsTooFewTx => '이번 달 거래가 아직 적어요';
+
+  @override
+  String get statsLegendLow => '적음';
+
+  @override
+  String get statsLegendHigh => '많음';
+
+  @override
+  String get statsTotalPrefix => '총';
+
+  @override
+  String statsDaysTotal(int days) {
+    return '$days일 합계';
+  }
+
+  @override
+  String get statsMomCalculating => '전월 대비 계산 중…';
+
+  @override
+  String get statsMomUnavailable => '전월 비교 불가';
+
+  @override
+  String get statsTopCategory => '가장 많이 쓴 카테고리';
+
+  @override
+  String get statsTopMerchant => '가장 많이 쓴 가맹점';
+
+  @override
+  String get statsIncomeExpenseTrend => '수입·지출 추이';
+
+  @override
+  String get statsNoTrendData => '추이 데이터가 없습니다';
+
+  @override
+  String get statsAvgIncome => '평균 수입';
+
+  @override
+  String get statsAvgExpense => '평균 지출';
+
+  @override
+  String get statsNetSavings => '순저축';
+
+  @override
+  String get statsAvgSavings => '평균 저축';
+
+  @override
+  String get statsSavingsRate => '저축률';
+
+  @override
+  String get statsDailyNetSavings => '일별 순저축';
+
+  @override
+  String get statsMonthlyNetSavings => '월별 순저축';
+
+  @override
+  String get statsIncomeMinusExpense => '수입 − 지출';
+
+  @override
+  String statsNoDataFor(String period) {
+    return '$period 데이터 없음';
+  }
+
+  @override
+  String statsCategoryByMom(String mom) {
+    return '카테고리별 $mom';
+  }
+
+  @override
+  String get statsNoCompareData => '비교할 데이터가 없습니다';
 }

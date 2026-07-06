@@ -3497,4 +3497,219 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get searchNoResults => 'No results';
+
+  @override
+  String get statsTabTrend => 'Trend';
+
+  @override
+  String get statsTabCompare => 'Compare';
+
+  @override
+  String get statsThisQuarter => 'This quarter';
+
+  @override
+  String get statsThisYear => 'This year';
+
+  @override
+  String get statsCustomPeriod => 'Selected period';
+
+  @override
+  String get statsLastMonth => 'Last month';
+
+  @override
+  String get statsLastQuarter => 'Last quarter';
+
+  @override
+  String get statsLastYear => 'Last year';
+
+  @override
+  String get statsPrevPeriod => 'Previous period';
+
+  @override
+  String get statsMomMonth => 'vs last month';
+
+  @override
+  String get statsMomQuarter => 'vs last quarter';
+
+  @override
+  String get statsMomYear => 'vs last year';
+
+  @override
+  String get statsMomCustom => 'vs previous period';
+
+  @override
+  String get statsMomPrevMonth => 'Last month';
+
+  @override
+  String get statsMomPrevQuarter => 'Last quarter';
+
+  @override
+  String get statsMomPrevYear => 'Last year';
+
+  @override
+  String get statsDailyAvg => 'Daily average';
+
+  @override
+  String get statsMonthlyAvg => 'Monthly average';
+
+  @override
+  String get statsPeriodPickerTitle => 'Select period';
+
+  @override
+  String get statsRange7d => 'Last 7 days';
+
+  @override
+  String get statsRange30d => 'Last 30 days';
+
+  @override
+  String get statsRange3m => 'Last 3 months';
+
+  @override
+  String get statsRange6m => 'Last 6 months';
+
+  @override
+  String get statsRange1y => 'Last 1 year';
+
+  @override
+  String get statsSegMonth => 'Month';
+
+  @override
+  String get statsSegQuarter => 'Quarter';
+
+  @override
+  String get statsSegYear => 'Year';
+
+  @override
+  String get statsSegCustom => 'Custom';
+
+  @override
+  String get statsNoData => 'No data';
+
+  @override
+  String get statsNoDataShort => 'No data';
+
+  @override
+  String get statsUnassigned => 'Unassigned';
+
+  @override
+  String statsCategoryDetail(String name) {
+    return '$name detail';
+  }
+
+  @override
+  String statsPeriodSpending(String period) {
+    return '$period spending';
+  }
+
+  @override
+  String get statsSpendingByCategory => 'Spending by category';
+
+  @override
+  String get statsNoCategoryData => 'No category data';
+
+  @override
+  String get statsTopMerchantsTitle => 'Top 5 merchants';
+
+  @override
+  String get statsNoMerchantData => 'No merchant data';
+
+  @override
+  String get statsNoName => '(No name)';
+
+  @override
+  String get statsTimeMorning => 'Morning';
+
+  @override
+  String get statsTimeLunch => 'Lunch';
+
+  @override
+  String get statsTimeAfternoon => 'Afternoon';
+
+  @override
+  String get statsTimeEvening => 'Evening';
+
+  @override
+  String get statsTimeLateNight => 'Late night';
+
+  @override
+  String get statsTimeDawn => 'Dawn';
+
+  @override
+  String get statsPatternTitle => 'Spending pattern by day & time';
+
+  @override
+  String get statsPatternDesc =>
+      'Darker cells mean more spending in that time slot (unit: KRW)';
+
+  @override
+  String get statsTooFewTx => 'Too few transactions this month';
+
+  @override
+  String get statsLegendLow => 'Low';
+
+  @override
+  String get statsLegendHigh => 'High';
+
+  @override
+  String get statsTotalPrefix => 'Total';
+
+  @override
+  String statsDaysTotal(int days) {
+    return '$days-day total';
+  }
+
+  @override
+  String get statsMomCalculating => 'Calculating vs last month…';
+
+  @override
+  String get statsMomUnavailable => 'Comparison unavailable';
+
+  @override
+  String get statsTopCategory => 'Top spending category';
+
+  @override
+  String get statsTopMerchant => 'Top merchant';
+
+  @override
+  String get statsIncomeExpenseTrend => 'Income & expense trend';
+
+  @override
+  String get statsNoTrendData => 'No trend data';
+
+  @override
+  String get statsAvgIncome => 'Avg income';
+
+  @override
+  String get statsAvgExpense => 'Avg expense';
+
+  @override
+  String get statsNetSavings => 'Net savings';
+
+  @override
+  String get statsAvgSavings => 'Avg savings';
+
+  @override
+  String get statsSavingsRate => 'Savings rate';
+
+  @override
+  String get statsDailyNetSavings => 'Daily net savings';
+
+  @override
+  String get statsMonthlyNetSavings => 'Monthly net savings';
+
+  @override
+  String get statsIncomeMinusExpense => 'Income − Expense';
+
+  @override
+  String statsNoDataFor(String period) {
+    return 'No data for $period';
+  }
+
+  @override
+  String statsCategoryByMom(String mom) {
+    return 'By category, $mom';
+  }
+
+  @override
+  String get statsNoCompareData => 'No data to compare';
 }

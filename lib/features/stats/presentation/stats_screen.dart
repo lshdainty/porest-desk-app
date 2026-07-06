@@ -13,6 +13,7 @@ import 'package:porest_desk_app/core/format/chart_axis.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart' as cp;
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/app/theme/chart_palette.dart';
 import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
 import 'package:porest_desk_app/shared/widgets/p_card.dart';
@@ -125,25 +126,46 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
         : '${_ymd(_from)} ~ ${_ymd(_to)}';
   }
 
-  String get _periodNow => switch (_segMode) {
-    _SegMode.month => '이번 달',
-    _SegMode.quarter => '이번 분기',
-    _SegMode.year => '이번 해',
-    _SegMode.custom => '선택 기간',
-  };
-  String get _periodPrev => switch (_segMode) {
-    _SegMode.month => '지난 달',
-    _SegMode.quarter => '지난 분기',
-    _SegMode.year => '지난 해',
-    _SegMode.custom => '이전 기간',
-  };
-  String get _momLabel => switch (_segMode) {
-    _SegMode.month => '전월 대비',
-    _SegMode.quarter => '전분기 대비',
-    _SegMode.year => '전년 대비',
-    _SegMode.custom => '이전 기간 대비',
-  };
-  String get _avgLabel => _useDailyAvg ? '하루 평균' : '월 평균';
+  String get _periodNow {
+    final l = AppLocalizations.of(context);
+    return switch (_segMode) {
+      _SegMode.month => l.expThisMonth,
+      _SegMode.quarter => l.statsThisQuarter,
+      _SegMode.year => l.statsThisYear,
+      _SegMode.custom => l.statsCustomPeriod,
+    };
+  }
+  String get _periodPrev {
+    final l = AppLocalizations.of(context);
+    return switch (_segMode) {
+      _SegMode.month => l.statsLastMonth,
+      _SegMode.quarter => l.statsLastQuarter,
+      _SegMode.year => l.statsLastYear,
+      _SegMode.custom => l.statsPrevPeriod,
+    };
+  }
+  String get _momLabel {
+    final l = AppLocalizations.of(context);
+    return switch (_segMode) {
+      _SegMode.month => l.statsMomMonth,
+      _SegMode.quarter => l.statsMomQuarter,
+      _SegMode.year => l.statsMomYear,
+      _SegMode.custom => l.statsMomCustom,
+    };
+  }
+  String get _momPrevLabel {
+    final l = AppLocalizations.of(context);
+    return switch (_segMode) {
+      _SegMode.month => l.statsMomPrevMonth,
+      _SegMode.quarter => l.statsMomPrevQuarter,
+      _SegMode.year => l.statsMomPrevYear,
+      _SegMode.custom => l.statsPrevPeriod,
+    };
+  }
+  String get _avgLabel {
+    final l = AppLocalizations.of(context);
+    return _useDailyAvg ? l.statsDailyAvg : l.statsMonthlyAvg;
+  }
 
   void setSegMode(_SegMode m) {
     setState(() {
@@ -181,6 +203,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
     // 가계부 FilterDialog 패턴 정합 — 상단 ToggleGroup (월/분기/년/직접) +
     // 항상 date range PDateInput + custom 시만 quick chips. apply 시 segMode +
     // from/to 모두 반영. shrinkWrap: true — content 자연 합산.
+    final l = AppLocalizations.of(context);
     final controller = PSheetController();
     _SegMode draftSeg = _segMode;
     DateTime draftFrom = _from;
@@ -189,7 +212,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
 
     final picked = await showPSheet<({_SegMode seg, DateTimeRange range})>(
       context,
-      title: '기간 선택',
+      title: l.statsPeriodPickerTitle,
       shrinkWrap: true,
       contentBuilder: (sheetCtx, _) {
         controller.onSubmit ??= () async {
@@ -198,12 +221,12 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
             range: DateTimeRange(start: draftFrom, end: draftTo),
           ));
         };
-        const quickRanges = <({String label, int days})>[
-          (label: '최근 7일', days: 7),
-          (label: '최근 30일', days: 30),
-          (label: '최근 3개월', days: 90),
-          (label: '최근 6개월', days: 180),
-          (label: '최근 1년', days: 365),
+        final quickRanges = <({String label, int days})>[
+          (label: l.statsRange7d, days: 7),
+          (label: l.statsRange30d, days: 30),
+          (label: l.statsRange3m, days: 90),
+          (label: l.statsRange6m, days: 180),
+          (label: l.statsRange1y, days: 365),
         ];
         return StatefulBuilder(
           builder: (ctx, setSheet) {
@@ -242,11 +265,11 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
                     variant: PTabsVariant.container,
                     size: PTabsSize.sm,
                     expand: true,
-                    items: const [
-                      PTabItem(value: _SegMode.month, label: '월'),
-                      PTabItem(value: _SegMode.quarter, label: '분기'),
-                      PTabItem(value: _SegMode.year, label: '년'),
-                      PTabItem(value: _SegMode.custom, label: '직접'),
+                    items: [
+                      PTabItem(value: _SegMode.month, label: l.statsSegMonth),
+                      PTabItem(value: _SegMode.quarter, label: l.statsSegQuarter),
+                      PTabItem(value: _SegMode.year, label: l.statsSegYear),
+                      PTabItem(value: _SegMode.custom, label: l.statsSegCustom),
                     ],
                     onChanged: setSeg,
                   ),
@@ -327,7 +350,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
         );
       },
       footerBuilder: (ctx) =>
-          PSheetFooter(controller: controller, submitLabel: '적용'),
+          PSheetFooter(controller: controller, submitLabel: l.actionApply),
     ).whenComplete(controller.dispose);
     if (picked != null) {
       if (picked.seg == _SegMode.custom) {
@@ -341,6 +364,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: t.bgCanvas,
       // appBar 제거 — shell MobileScaffold 의 MobileHeader 가 title='통계·분석' +
@@ -350,10 +374,10 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
           Container(
             color: t.bgSurface,
             child: PTabs<int>(
-              items: const [
-                PTabItem(value: 0, label: '카테고리'),
-                PTabItem(value: 1, label: '추이'),
-                PTabItem(value: 2, label: '비교'),
+              items: [
+                PTabItem(value: 0, label: l.expCategory),
+                PTabItem(value: 1, label: l.statsTabTrend),
+                PTabItem(value: 2, label: l.statsTabCompare),
               ],
               value: _tabIndex,
               onChanged: (v) => setState(() => _tabIndex = v),
@@ -639,15 +663,17 @@ class _CardTitle extends StatelessWidget {
 }
 
 class _EmptyBox extends StatelessWidget {
-  const _EmptyBox({this.text = '데이터가 없습니다'});
-  final String text;
+  const _EmptyBox({this.text});
+  final String? text;
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 28),
       child: Center(
-        child: Text(text, style: PTypo.caption.copyWith(color: t.fgTertiary)),
+        child: Text(text ?? l.statsNoData,
+            style: PTypo.caption.copyWith(color: t.fgTertiary)),
       ),
     );
   }
@@ -955,12 +981,13 @@ class _DonutCardState extends ConsumerState<_DonutCard> {
   }
 
   List<_DonutRow> _aggregateParent(List<CategoryBreakdown> bd) {
+    final l = AppLocalizations.of(context);
     final map = <int, _DonutRow>{};
     final cats = (widget.categoriesAsync.value ?? const []).cast<dynamic>();
     for (final c in bd) {
       final groupId = c.parentCategoryRowId ?? c.categoryRowId;
       if (groupId == null) continue;
-      final groupName = c.parentCategoryName ?? c.categoryName ?? '미지정';
+      final groupName = c.parentCategoryName ?? c.categoryName ?? l.statsUnassigned;
       var row = map[groupId];
       if (row == null) {
         final cat = cats
@@ -986,6 +1013,7 @@ class _DonutCardState extends ConsumerState<_DonutCard> {
   }
 
   List<_DonutRow> _aggregateChildren(List<CategoryBreakdown> bd, int parentId) {
+    final l = AppLocalizations.of(context);
     final map = <int, _DonutRow>{};
     final cats = (widget.categoriesAsync.value ?? const []).cast<dynamic>();
     for (final c in bd) {
@@ -1001,7 +1029,7 @@ class _DonutCardState extends ConsumerState<_DonutCard> {
             .firstOrNull;
         row = _DonutRow(
           rowId: id,
-          name: c.categoryName ?? '미지정',
+          name: c.categoryName ?? l.statsUnassigned,
           amount: 0,
           icon: cat?.icon as String?,
           color: cat?.color as String?,
@@ -1017,6 +1045,7 @@ class _DonutCardState extends ConsumerState<_DonutCard> {
   Widget build(BuildContext context) {
     final s = widget.state;
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final loading = widget.rangeAsync.isLoading;
     final bd = _periodBreakdown;
     final parents = _aggregateParent(bd);
@@ -1032,11 +1061,11 @@ class _DonutCardState extends ConsumerState<_DonutCard> {
 
     // 도넛 센터 라벨은 항상 짧게 — custom 모드의 full date range 가 도넛 안으로 침범하지 않도록.
     final centerPeriodLbl = s._segMode == _SegMode.custom
-        ? '선택 기간'
+        ? l.statsCustomPeriod
         : s._periodLabel;
     final centerLbl = isDrilled && activeParent != null
-        ? '${activeParent.name} 세부'
-        : '$centerPeriodLbl 지출';
+        ? l.statsCategoryDetail(activeParent.name)
+        : l.statsPeriodSpending(centerPeriodLbl);
 
     return _Card(
       child: Column(
@@ -1049,7 +1078,7 @@ class _DonutCardState extends ConsumerState<_DonutCard> {
                       InkWell(
                         onTap: () => setState(() => _activeParentId = null),
                         child: Text(
-                          '카테고리별 지출',
+                          l.statsSpendingByCategory,
                           style: TextStyle(
                             fontSize: PFontSize.bodyLg,
                             color: t.fgSecondary,
@@ -1066,14 +1095,14 @@ class _DonutCardState extends ConsumerState<_DonutCard> {
                       Flexible(child: _CardTitle(activeParent?.name ?? '')),
                     ],
                   )
-                : const _CardTitle('카테고리별 지출'),
+                : _CardTitle(l.statsSpendingByCategory),
             trailing: _PeriodTrigger(state: s),
           ),
           const SizedBox(height: PSpace.x12),
           if (loading)
             const _DonutCardSkeleton()
           else if (view.isEmpty)
-            const _EmptyBox(text: '카테고리 데이터가 없습니다')
+            _EmptyBox(text: l.statsNoCategoryData)
           else ...[
             SizedBox(
               height: 200,
@@ -1213,6 +1242,7 @@ class _TopMerchantsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final list = async.value ?? const <MerchantSummary>[];
     final sorted = (List.of(list)
       ..sort((a, b) => b.totalAmount.compareTo(a.totalAmount)));
@@ -1222,11 +1252,11 @@ class _TopMerchantsCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const _CardHeader(title: _CardTitle('많이 쓴 가맹점 TOP 5')),
+          _CardHeader(title: _CardTitle(l.statsTopMerchantsTitle)),
           if (async.isLoading && top.isEmpty)
             const _MerchantListSkeleton()
           else if (top.isEmpty)
-            const _EmptyBox(text: '가맹점 데이터가 없습니다')
+            _EmptyBox(text: l.statsNoMerchantData)
           else
             for (var i = 0; i < top.length; i++) ...[
               if (i > 0) const SizedBox(height: 14),
@@ -1255,7 +1285,7 @@ class _TopMerchantsCard extends StatelessWidget {
                                 children: [
                                   Flexible(
                                     child: Text(
-                                      top[i].merchant ?? '(이름 없음)',
+                                      top[i].merchant ?? l.statsNoName,
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                       style: PTypo.bodySm.copyWith(
@@ -1266,7 +1296,7 @@ class _TopMerchantsCard extends StatelessWidget {
                                   ),
                                   const SizedBox(width: 6),
                                   Text(
-                                    '${top[i].count}회',
+                                    l.expTimesCount(top[i].count),
                                     style: PTypo.caption.copyWith(
                                       color: t.fgTertiary,
                                     ),
@@ -1311,20 +1341,29 @@ class _TopMerchantsCard extends StatelessWidget {
 // ─── HEATMAP ───────────────────────────────────────────────
 
 class _HeatmapRow {
-  const _HeatmapRow(this.label, this.sub, this.hours);
-  final String label;
+  const _HeatmapRow(this.sub, this.hours);
   final String sub;
   final List<int> hours;
 }
 
 const _heatRows = [
-  _HeatmapRow('아침', '06–10시', [6, 7, 8, 9]),
-  _HeatmapRow('점심', '10–14시', [10, 11, 12, 13]),
-  _HeatmapRow('오후', '14–18시', [14, 15, 16, 17]),
-  _HeatmapRow('저녁', '18–22시', [18, 19, 20, 21]),
-  _HeatmapRow('심야', '22–02시', [22, 23, 0, 1]),
-  _HeatmapRow('새벽', '02–06시', [2, 3, 4, 5]),
+  _HeatmapRow('06–10시', [6, 7, 8, 9]),
+  _HeatmapRow('10–14시', [10, 11, 12, 13]),
+  _HeatmapRow('14–18시', [14, 15, 16, 17]),
+  _HeatmapRow('18–22시', [18, 19, 20, 21]),
+  _HeatmapRow('22–02시', [22, 23, 0, 1]),
+  _HeatmapRow('02–06시', [2, 3, 4, 5]),
 ];
+
+/// 히트맵 행(시간대) 라벨 — const 데이터라 렌더 시점에 인덱스로 로컬라이즈.
+String _heatRowLabel(AppLocalizations l, int i) => switch (i) {
+  0 => l.statsTimeMorning,
+  1 => l.statsTimeLunch,
+  2 => l.statsTimeAfternoon,
+  3 => l.statsTimeEvening,
+  4 => l.statsTimeLateNight,
+  _ => l.statsTimeDawn,
+};
 
 const _heatCols = [
   ('월', 1),
@@ -1353,6 +1392,7 @@ class _HeatmapCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final cells = async.value ?? const <HeatmapCell>[];
     // matrix [row][col]
     final matrix = List.generate(
@@ -1391,11 +1431,11 @@ class _HeatmapCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const _CardHeader(title: _CardTitle('요일·시간대 지출 패턴')),
+          _CardHeader(title: _CardTitle(l.statsPatternTitle)),
           Padding(
             padding: const EdgeInsets.only(bottom: 14),
             child: Text(
-              '색이 진할수록 지출이 많은 시간대예요 (단위: 원)',
+              l.statsPatternDesc,
               style: PTypo.caption.copyWith(color: t.fgTertiary),
             ),
           ),
@@ -1410,7 +1450,7 @@ class _HeatmapCard extends StatelessWidget {
               ),
               alignment: Alignment.center,
               child: Text(
-                '이번 달 거래가 아직 적어요',
+                l.statsTooFewTx,
                 style: PTypo.caption.copyWith(color: t.fgTertiary),
               ),
             )
@@ -1445,7 +1485,7 @@ class _HeatmapCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          _heatRows[r].label,
+                          _heatRowLabel(l, r),
                           style: PTypo.caption.copyWith(
                             color: t.fgPrimary,
                             fontWeight: PFontWeight.bold,
@@ -1502,7 +1542,8 @@ class _HeatmapCard extends StatelessWidget {
             const SizedBox(height: 14),
             Row(
               children: [
-                Text('적음', style: PTypo.caption.copyWith(color: t.fgTertiary)),
+                Text(l.statsLegendLow,
+                    style: PTypo.caption.copyWith(color: t.fgTertiary)),
                 const SizedBox(width: 8),
                 for (var i = 1; i <= 5; i++) ...[
                   Container(
@@ -1516,10 +1557,11 @@ class _HeatmapCard extends StatelessWidget {
                   const SizedBox(width: 4),
                 ],
                 const SizedBox(width: 4),
-                Text('많음', style: PTypo.caption.copyWith(color: t.fgTertiary)),
+                Text(l.statsLegendHigh,
+                    style: PTypo.caption.copyWith(color: t.fgTertiary)),
                 const Spacer(),
                 Text(
-                  masked ? '총 ••••••' : '총 ${krw(total)}원',
+                  masked ? '${l.statsTotalPrefix} ••••••' : '${l.statsTotalPrefix} ${krw(total)}원',
                   style: PTypo.caption.copyWith(
                     color: t.fgSecondary,
                     fontWeight: PFontWeight.semi,
@@ -1564,6 +1606,7 @@ class _HighlightsGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     final s = state;
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
 
     // 카테고리 Top — 부모 카테고리 단위 합계
     final bd =
@@ -1573,7 +1616,7 @@ class _HighlightsGrid extends StatelessWidget {
       if (c.expenseType != 'EXPENSE') continue;
       final id = c.parentCategoryRowId ?? c.categoryRowId;
       if (id == null) continue;
-      final name = c.parentCategoryName ?? c.categoryName ?? '미지정';
+      final name = c.parentCategoryName ?? c.categoryName ?? l.statsUnassigned;
       final cur = groupTotals[id];
       groupTotals[id] = cur == null
           ? (id: id, name: name, amount: c.totalAmount)
@@ -1650,8 +1693,8 @@ class _HighlightsGrid extends StatelessWidget {
     Widget? avgSubWidget;
     if (s._segMode != _SegMode.month) {
       avgSub = masked
-          ? '$rangeDays일 합계 ${krwMasked(periodTotal, masked)}'
-          : '$rangeDays일 합계 ${krwMasked(periodTotal, masked)}원';
+          ? '${l.statsDaysTotal(rangeDays)} ${krwMasked(periodTotal, masked)}'
+          : '${l.statsDaysTotal(rangeDays)} ${krwMasked(periodTotal, masked)}원';
     } else {
       final prevTotal = prevRangeAsync.value?.totalExpense ?? 0;
       if (prevTotal > 0) {
@@ -1662,7 +1705,7 @@ class _HighlightsGrid extends StatelessWidget {
           TextSpan(
             style: PTypo.caption.copyWith(color: t.fgTertiary),
             children: [
-              const TextSpan(text: '전월 대비 '),
+              TextSpan(text: '${l.statsMomMonth} '),
               TextSpan(
                 text: '${up ? '↑' : '↓'}$pct%',
                 style: TextStyle(
@@ -1677,7 +1720,7 @@ class _HighlightsGrid extends StatelessWidget {
         );
       } else {
         avgSub =
-            prevRangeAsync.isLoading ? '전월 대비 계산 중…' : '전월 비교 불가';
+            prevRangeAsync.isLoading ? l.statsMomCalculating : l.statsMomUnavailable;
       }
     }
 
@@ -1685,23 +1728,23 @@ class _HighlightsGrid extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _HighlightCard(
-          label: '가장 많이 쓴 카테고리',
+          label: l.statsTopCategory,
           value: topCategory?.name ?? '—',
           sub: topCategory != null
               ? krwSigned(topCategory.amount, masked, unit: true)
-              : '데이터 없음',
+              : l.statsNoDataShort,
           icon: catIcon,
           iconFg: catFg,
         ),
         const SizedBox(height: 10),
         _HighlightCard(
-          label: '가장 많이 쓴 가맹점',
+          label: l.statsTopMerchant,
           value: topMerchant?.merchant ?? '—',
           sub: topMerchant != null
               ? (masked
-                    ? '${topMerchant.count}회 · ${krwMasked(topMerchant.totalAmount, masked)}'
-                    : '${topMerchant.count}회 · ${krwMasked(topMerchant.totalAmount, masked)}원')
-              : '데이터 없음',
+                    ? '${l.expTimesCount(topMerchant.count)} · ${krwMasked(topMerchant.totalAmount, masked)}'
+                    : '${l.expTimesCount(topMerchant.count)} · ${krwMasked(topMerchant.totalAmount, masked)}원')
+              : l.statsNoDataShort,
           // 가맹점이 속한 대표 카테고리 아이콘(역산), 없으면 상점 아이콘
           icon: merchantIcon,
           iconFg: merchantFg,
@@ -1948,6 +1991,7 @@ class _TrendBigCardState extends ConsumerState<_TrendBigCard> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final data = _computeTrendData(
       widget.state,
       widget.rangeAsync,
@@ -1982,14 +2026,14 @@ class _TrendBigCardState extends ConsumerState<_TrendBigCard> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _CardHeader(
-            title: const _CardTitle('수입·지출 추이'),
+            title: _CardTitle(l.statsIncomeExpenseTrend),
             trailing: _PeriodTrigger(state: widget.state),
           ),
           if (loading && data.isEmpty)
             const _ChartSkeleton(height: 200)
           else if (data.isEmpty ||
               data.every((p) => p.income == 0 && p.expense == 0))
-            const _EmptyBox(text: '추이 데이터가 없습니다')
+            _EmptyBox(text: l.statsNoTrendData)
           else ...[
             SizedBox(
               height: 200,
@@ -2193,12 +2237,12 @@ class _TrendBigCardState extends ConsumerState<_TrendBigCard> {
                         rows: [
                           PChartTooltipRowData(
                             color: t.statusInfoFg,
-                            label: '수입',
+                            label: l.expTypeIncome,
                             amount: '${krw(data[_touchedIdx!].income)}원',
                           ),
                           PChartTooltipRowData(
                             color: t.fgExpense,
-                            label: '지출',
+                            label: l.expTypeExpense,
                             amount: '${krw(data[_touchedIdx!].expense)}원',
                           ),
                         ],
@@ -2210,9 +2254,9 @@ class _TrendBigCardState extends ConsumerState<_TrendBigCard> {
             const SizedBox(height: 12),
             Row(
               children: [
-                _LegendChip(color: t.statusInfoFg, label: '수입'),
+                _LegendChip(color: t.statusInfoFg, label: l.expTypeIncome),
                 const SizedBox(width: 16),
-                _LegendChip(color: t.fgExpense, label: '지출'),
+                _LegendChip(color: t.fgExpense, label: l.expTypeExpense),
               ],
             ),
           ],
@@ -2257,6 +2301,7 @@ class _TrendStatsGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final s = state;
+    final l = AppLocalizations.of(context);
     final buckets =
         rangeAsync.value?.monthlyBuckets ?? const <RangeMonthlyBucket>[];
     final sumIn = buckets.fold<int>(0, (sum, b) => sum + b.totalIncome);
@@ -2274,18 +2319,18 @@ class _TrendStatsGrid extends StatelessWidget {
     // web TrendStats 정합 — 고정 비율 GridView 대신 content 높이 2×2, gap 12
     final tiles = [
       _StatCard(
-        label: isSingle ? '수입' : '평균 수입',
+        label: isSingle ? l.expTypeIncome : l.statsAvgIncome,
         value: krwSigned(avgIn, masked, unit: true),
       ),
       _StatCard(
-        label: isSingle ? '지출' : '평균 지출',
+        label: isSingle ? l.expTypeExpense : l.statsAvgExpense,
         value: krwSigned(avgOut, masked, unit: true),
       ),
       _StatCard(
-        label: isSingle ? '순저축' : '평균 저축',
+        label: isSingle ? l.statsNetSavings : l.statsAvgSavings,
         value: krwSigned(avgSave, masked, unit: true),
       ),
-      _StatCard(label: '저축률', value: saveRate),
+      _StatCard(label: l.statsSavingsRate, value: saveRate),
     ];
     return Column(
       children: [
@@ -2368,6 +2413,7 @@ class _SavingsBarsCardState extends ConsumerState<_SavingsBarsCard> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final loading =
         widget.rangeAsync.isLoading || widget.monthExpAsync.isLoading;
     final data = _computeTrendData(
@@ -2388,16 +2434,16 @@ class _SavingsBarsCardState extends ConsumerState<_SavingsBarsCard> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _CardHeader(
-            title: _CardTitle(useDaily ? '일별 순저축' : '월별 순저축'),
+            title: _CardTitle(useDaily ? l.statsDailyNetSavings : l.statsMonthlyNetSavings),
             trailing: Text(
-              '수입 − 지출',
+              l.statsIncomeMinusExpense,
               style: PTypo.caption.copyWith(color: t.fgTertiary),
             ),
           ),
           if (loading && data.isEmpty)
             const _ChartSkeleton(height: 180, showLegend: false)
           else if (data.isEmpty)
-            const _EmptyBox(text: '데이터가 없습니다')
+            _EmptyBox(text: l.statsNoData)
           else
             SizedBox(
               height: 180,
@@ -2547,7 +2593,7 @@ class _SavingsBarsCardState extends ConsumerState<_SavingsBarsCard> {
                             rows: [
                               PChartTooltipRowData(
                                 color: v >= 0 ? t.statusInfoFg : t.fgExpense,
-                                label: '순저축',
+                                label: l.statsNetSavings,
                                 amount: '$sign${krw(v.abs())}원',
                                 amountColor: v >= 0 ? t.statusInfoFg : t.fgExpense,
                               ),
@@ -2583,6 +2629,7 @@ class _CompareSummaryGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final s = state;
+    final l = AppLocalizations.of(context);
 
     final now = rangeAsync.value?.totalExpense ?? 0;
     final prev = prevRangeAsync.value?.totalExpense ?? 0;
@@ -2596,12 +2643,12 @@ class _CompareSummaryGrid extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _CompareCard(
-          label: '${s._periodNow} 지출',
+          label: l.statsPeriodSpending(s._periodNow),
           amount: krwSigned(now, masked, unit: true),
         ),
         const SizedBox(height: 10),
         _CompareCard(
-          label: '${s._periodPrev} 지출',
+          label: l.statsPeriodSpending(s._periodPrev),
           amount: krwSigned(prev, masked, unit: true),
           muted: true,
         ),
@@ -2632,7 +2679,7 @@ class _CompareSummaryGrid extends StatelessWidget {
               Text(
                 prev > 0
                     ? krwSigned(diff.abs(), masked, sign: up ? '+' : '−', unit: true)
-                    : '${s._momLabel.replaceFirst(' 대비', '')} 데이터 없음',
+                    : l.statsNoDataFor(s._momPrevLabel),
                 style: PTypo.caption.copyWith(color: t.fgTertiary),
               ),
             ],
@@ -2734,6 +2781,7 @@ class _CompareCategoryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final s = state;
+    final l = AppLocalizations.of(context);
     final loading = rangeAsync.isLoading || prevRangeAsync.isLoading;
 
     final cats = categoriesAsync.value ?? const <dynamic>[];
@@ -2754,7 +2802,7 @@ class _CompareCategoryCard extends StatelessWidget {
         final id = c.parentCategoryRowId ?? c.categoryRowId;
         if (id == null) continue;
         final cur = byId[id];
-        final name = c.parentCategoryName ?? c.categoryName ?? '미지정';
+        final name = c.parentCategoryName ?? c.categoryName ?? l.statsUnassigned;
         final cat = catBy(id);
         var rec =
             cur ??
@@ -2815,7 +2863,7 @@ class _CompareCategoryCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _CardHeader(
-            title: _CardTitle('카테고리별 ${s._momLabel}'),
+            title: _CardTitle(l.statsCategoryByMom(s._momLabel)),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -2831,7 +2879,7 @@ class _CompareCategoryCard extends StatelessWidget {
           if (loading && top.isEmpty)
             const _CompareListSkeleton()
           else if (top.isEmpty)
-            const _EmptyBox(text: '비교할 데이터가 없습니다')
+            _EmptyBox(text: l.statsNoCompareData)
           else
             for (var i = 0; i < top.length; i++) ...[
               if (i > 0) const SizedBox(height: 16),
