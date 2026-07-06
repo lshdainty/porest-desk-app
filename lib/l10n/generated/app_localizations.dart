@@ -4693,6 +4693,180 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'항목 이름 (선택)'**
   String get expItemNamePlaceholder;
+
+  /// No description provided for @exportTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'데이터 내보내기'**
+  String get exportTitle;
+
+  /// No description provided for @exportShareText.
+  ///
+  /// In ko, this message translates to:
+  /// **'데이터 내보내기 ({start} ~ {end})'**
+  String exportShareText(String start, String end);
+
+  /// No description provided for @exportSuccess.
+  ///
+  /// In ko, this message translates to:
+  /// **'내보내기를 완료했어요'**
+  String get exportSuccess;
+
+  /// No description provided for @exportTypeExpense.
+  ///
+  /// In ko, this message translates to:
+  /// **'거래 내역'**
+  String get exportTypeExpense;
+
+  /// No description provided for @exportTypeAsset.
+  ///
+  /// In ko, this message translates to:
+  /// **'자산·계좌'**
+  String get exportTypeAsset;
+
+  /// No description provided for @exportTypeBudget.
+  ///
+  /// In ko, this message translates to:
+  /// **'예산 설정'**
+  String get exportTypeBudget;
+
+  /// No description provided for @exportTypeCategory.
+  ///
+  /// In ko, this message translates to:
+  /// **'카테고리'**
+  String get exportTypeCategory;
+
+  /// No description provided for @exportTypeMemo.
+  ///
+  /// In ko, this message translates to:
+  /// **'메모'**
+  String get exportTypeMemo;
+
+  /// No description provided for @exportTypeCalendar.
+  ///
+  /// In ko, this message translates to:
+  /// **'캘린더 일정'**
+  String get exportTypeCalendar;
+
+  /// No description provided for @exportTypeTodo.
+  ///
+  /// In ko, this message translates to:
+  /// **'할 일'**
+  String get exportTypeTodo;
+
+  /// No description provided for @exportFormatCsvDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'엑셀·구글시트'**
+  String get exportFormatCsvDesc;
+
+  /// No description provided for @exportFormatExcelDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'Microsoft Excel'**
+  String get exportFormatExcelDesc;
+
+  /// No description provided for @exportFormatJsonDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'개발자·백업'**
+  String get exportFormatJsonDesc;
+
+  /// No description provided for @exportPeriodThisMonth.
+  ///
+  /// In ko, this message translates to:
+  /// **'이번 달'**
+  String get exportPeriodThisMonth;
+
+  /// No description provided for @exportPeriodLastMonth.
+  ///
+  /// In ko, this message translates to:
+  /// **'지난 달'**
+  String get exportPeriodLastMonth;
+
+  /// No description provided for @exportPeriodLast3Months.
+  ///
+  /// In ko, this message translates to:
+  /// **'최근 3개월'**
+  String get exportPeriodLast3Months;
+
+  /// No description provided for @exportPeriodThisYear.
+  ///
+  /// In ko, this message translates to:
+  /// **'올해'**
+  String get exportPeriodThisYear;
+
+  /// No description provided for @exportPeriodCustom.
+  ///
+  /// In ko, this message translates to:
+  /// **'사용자 지정'**
+  String get exportPeriodCustom;
+
+  /// No description provided for @exportPeriodTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'기간 선택'**
+  String get exportPeriodTitle;
+
+  /// No description provided for @exportDateRangeError.
+  ///
+  /// In ko, this message translates to:
+  /// **'시작일이 종료일보다 늦을 수 없어요.'**
+  String get exportDateRangeError;
+
+  /// No description provided for @exportTypesTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'데이터 종류 — {count}개 선택됨'**
+  String exportTypesTitle(int count);
+
+  /// No description provided for @exportTypesDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'내보낼 데이터를 골라주세요. 여러 종류는 ZIP으로 묶입니다.'**
+  String get exportTypesDesc;
+
+  /// No description provided for @exportCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}건'**
+  String exportCount(int count);
+
+  /// No description provided for @exportFormatTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'파일 형식'**
+  String get exportFormatTitle;
+
+  /// No description provided for @exportMaskLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'민감 정보 가리기 (잔액·금액·기관)'**
+  String get exportMaskLabel;
+
+  /// No description provided for @exportPreview.
+  ///
+  /// In ko, this message translates to:
+  /// **'미리보기'**
+  String get exportPreview;
+
+  /// No description provided for @exportRun.
+  ///
+  /// In ko, this message translates to:
+  /// **'내보내기'**
+  String get exportRun;
+
+  /// No description provided for @exportEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 기간에 내보낼 데이터가 없어요.'**
+  String get exportEmpty;
+
+  /// No description provided for @exportPreviewRows.
+  ///
+  /// In ko, this message translates to:
+  /// **'상위 {count}행 미리보기'**
+  String exportPreviewRows(int count);
 }
 
 class _AppLocalizationsDelegate

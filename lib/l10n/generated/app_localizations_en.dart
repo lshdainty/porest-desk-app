@@ -2496,4 +2496,102 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get expItemNamePlaceholder => 'Item name (optional)';
+
+  @override
+  String get exportTitle => 'Export data';
+
+  @override
+  String exportShareText(String start, String end) {
+    return 'Data export ($start ~ $end)';
+  }
+
+  @override
+  String get exportSuccess => 'Export complete';
+
+  @override
+  String get exportTypeExpense => 'Transactions';
+
+  @override
+  String get exportTypeAsset => 'Assets & accounts';
+
+  @override
+  String get exportTypeBudget => 'Budget settings';
+
+  @override
+  String get exportTypeCategory => 'Categories';
+
+  @override
+  String get exportTypeMemo => 'Memos';
+
+  @override
+  String get exportTypeCalendar => 'Calendar events';
+
+  @override
+  String get exportTypeTodo => 'To-dos';
+
+  @override
+  String get exportFormatCsvDesc => 'Excel & Google Sheets';
+
+  @override
+  String get exportFormatExcelDesc => 'Microsoft Excel';
+
+  @override
+  String get exportFormatJsonDesc => 'Developers & backup';
+
+  @override
+  String get exportPeriodThisMonth => 'This month';
+
+  @override
+  String get exportPeriodLastMonth => 'Last month';
+
+  @override
+  String get exportPeriodLast3Months => 'Last 3 months';
+
+  @override
+  String get exportPeriodThisYear => 'This year';
+
+  @override
+  String get exportPeriodCustom => 'Custom';
+
+  @override
+  String get exportPeriodTitle => 'Select period';
+
+  @override
+  String get exportDateRangeError =>
+      'Start date can\'t be later than the end date.';
+
+  @override
+  String exportTypesTitle(int count) {
+    return 'Data types — $count selected';
+  }
+
+  @override
+  String get exportTypesDesc =>
+      'Choose the data to export. Multiple types are bundled into a ZIP.';
+
+  @override
+  String exportCount(int count) {
+    return '$count';
+  }
+
+  @override
+  String get exportFormatTitle => 'File format';
+
+  @override
+  String get exportMaskLabel =>
+      'Hide sensitive info (balance, amount, institution)';
+
+  @override
+  String get exportPreview => 'Preview';
+
+  @override
+  String get exportRun => 'Export';
+
+  @override
+  String get exportEmpty => 'No data to export for this period.';
+
+  @override
+  String exportPreviewRows(int count) {
+    return 'Top $count rows';
+  }
 }

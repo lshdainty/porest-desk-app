@@ -9,6 +9,7 @@ import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_card.dart';
@@ -18,35 +19,59 @@ import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/shared/widgets/p_switch.dart';
 import 'package:porest_desk_app/features/export/data/export_repository.dart';
 
-typedef _TypeMeta = ({String name, String slug, String label, IconData icon});
-typedef _FormatMeta = ({String value, String label, String ext, String desc, IconData icon});
-typedef _PeriodMeta = ({String value, String label});
+typedef _TypeMeta = ({String name, String slug, IconData icon});
+typedef _FormatMeta = ({String value, String label, String ext, IconData icon});
+typedef _PeriodMeta = ({String value});
 
 const List<_TypeMeta> _types = [
-  (name: 'EXPENSE', slug: 'expense', label: '거래 내역', icon: LucideIcons.receipt),
-  (name: 'ASSET', slug: 'asset', label: '자산·계좌', icon: LucideIcons.wallet),
-  (name: 'BUDGET', slug: 'budget', label: '예산 설정', icon: LucideIcons.target),
-  (name: 'CATEGORY', slug: 'category', label: '카테고리', icon: LucideIcons.tag),
-  (name: 'MEMO', slug: 'memo', label: '메모', icon: LucideIcons.fileText),
-  (name: 'CALENDAR', slug: 'calendar', label: '캘린더 일정', icon: LucideIcons.calendar),
-  (name: 'TODO', slug: 'todo', label: '할 일', icon: LucideIcons.squareCheckBig),
+  (name: 'EXPENSE', slug: 'expense', icon: LucideIcons.receipt),
+  (name: 'ASSET', slug: 'asset', icon: LucideIcons.wallet),
+  (name: 'BUDGET', slug: 'budget', icon: LucideIcons.target),
+  (name: 'CATEGORY', slug: 'category', icon: LucideIcons.tag),
+  (name: 'MEMO', slug: 'memo', icon: LucideIcons.fileText),
+  (name: 'CALENDAR', slug: 'calendar', icon: LucideIcons.calendar),
+  (name: 'TODO', slug: 'todo', icon: LucideIcons.squareCheckBig),
 ];
 
 const List<_FormatMeta> _formats = [
-  (value: 'CSV', label: 'CSV', ext: '.csv', desc: '엑셀·구글시트', icon: LucideIcons.fileText),
-  (value: 'EXCEL', label: 'Excel', ext: '.xlsx', desc: 'Microsoft Excel', icon: LucideIcons.sheet),
-  (value: 'JSON', label: 'JSON', ext: '.json', desc: '개발자·백업', icon: LucideIcons.braces),
+  (value: 'CSV', label: 'CSV', ext: '.csv', icon: LucideIcons.fileText),
+  (value: 'EXCEL', label: 'Excel', ext: '.xlsx', icon: LucideIcons.sheet),
+  (value: 'JSON', label: 'JSON', ext: '.json', icon: LucideIcons.braces),
 ];
 
 const List<_PeriodMeta> _periods = [
-  (value: 'THIS_MONTH', label: '이번 달'),
-  (value: 'LAST_MONTH', label: '지난 달'),
-  (value: 'LAST_3_MONTHS', label: '최근 3개월'),
-  (value: 'THIS_YEAR', label: '올해'),
-  (value: 'CUSTOM', label: '사용자 지정'),
+  (value: 'THIS_MONTH'),
+  (value: 'LAST_MONTH'),
+  (value: 'LAST_3_MONTHS'),
+  (value: 'THIS_YEAR'),
+  (value: 'CUSTOM'),
 ];
 
 String _slugOf(String name) => _types.firstWhere((t) => t.name == name).slug;
+
+String _typeLabel(AppLocalizations l, String name) => switch (name) {
+      'EXPENSE' => l.exportTypeExpense,
+      'ASSET' => l.exportTypeAsset,
+      'BUDGET' => l.exportTypeBudget,
+      'CATEGORY' => l.exportTypeCategory,
+      'MEMO' => l.exportTypeMemo,
+      'CALENDAR' => l.exportTypeCalendar,
+      _ => l.exportTypeTodo,
+    };
+
+String _formatDesc(AppLocalizations l, String value) => switch (value) {
+      'EXCEL' => l.exportFormatExcelDesc,
+      'JSON' => l.exportFormatJsonDesc,
+      _ => l.exportFormatCsvDesc,
+    };
+
+String _periodLabel(AppLocalizations l, String value) => switch (value) {
+      'LAST_MONTH' => l.exportPeriodLastMonth,
+      'LAST_3_MONTHS' => l.exportPeriodLast3Months,
+      'THIS_YEAR' => l.exportPeriodThisYear,
+      'CUSTOM' => l.exportPeriodCustom,
+      _ => l.exportPeriodThisMonth,
+    };
 
 String _two(int n) => n.toString().padLeft(2, '0');
 String _iso(DateTime d) => '${d.year}-${_two(d.month)}-${_two(d.day)}';
@@ -173,7 +198,10 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
         _previewTab = tables.isNotEmpty ? tables.first.type : null;
       });
     } on ApiException catch (e) {
-      if (mounted) showPSnackBar(context, '실패: ${e.message}', severity: PSnackSeverity.error);
+      if (mounted) {
+        final l = AppLocalizations.of(context);
+        showPSnackBar(context, '${l.expActionFailed}: ${e.message}', severity: PSnackSeverity.error);
+      }
     } finally {
       if (mounted) setState(() => _previewing = false);
     }
@@ -181,6 +209,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
 
   Future<void> _runExport() async {
     if (_selected.isEmpty || _customInvalid) return;
+    final l = AppLocalizations.of(context);
     setState(() => _downloading = true);
     try {
       final repo = await ref.read(exportRepositoryProvider.future);
@@ -192,15 +221,15 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
       try {
         await Share.shareXFiles(
           [XFile(file.path, name: filename, mimeType: _mimeType(_format, types))],
-          text: '데이터 내보내기 (${r.start} ~ ${r.end})',
+          text: l.exportShareText(r.start, r.end),
         );
       } finally {
         // 금융 데이터 평문 임시파일 — 공유 완료 후 즉시 삭제(복구 방지).
         if (await file.exists()) await file.delete();
       }
-      if (mounted) showPSnackBar(context, '내보내기를 완료했어요', severity: PSnackSeverity.success);
+      if (mounted) showPSnackBar(context, l.exportSuccess, severity: PSnackSeverity.success);
     } on ApiException catch (e) {
-      if (mounted) showPSnackBar(context, '실패: ${e.message}', severity: PSnackSeverity.error);
+      if (mounted) showPSnackBar(context, '${l.expActionFailed}: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) setState(() => _downloading = false);
     }
@@ -213,13 +242,14 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: t.bgCanvas,
       appBar: AppBar(
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
         leading: PBackButton(onPressed: () => context.pop()),
-        title: const Text('데이터 내보내기'),
+        title: Text(l.exportTitle),
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,
         elevation: 0,
@@ -267,17 +297,18 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
   }
 
   Widget _periodCard(PorestTokens t) {
+    final l = AppLocalizations.of(context);
     return _cardShell(
       t,
-      title: '기간 선택',
+      title: l.exportPeriodTitle,
       child: Column(
         children: [
           _grid2(_periods.map((p) {
             final active = _period == p.value;
             final r = _resolveRange(p.value);
-            final sub = p.value == 'CUSTOM' ? '직접 선택' : '${_krLabel(r.start)} — ${_krLabel(r.end)}';
+            final sub = p.value == 'CUSTOM' ? l.expPeriodCustom : '${_krLabel(r.start)} — ${_krLabel(r.end)}';
             return _tile(t, active: active, onTap: () => _changePeriod(p.value), children: [
-              Text(p.label,
+              Text(_periodLabel(l, p.value),
                   style: PTypo.bodySm.copyWith(
                       color: active ? t.fgBrand : t.fgPrimary, fontWeight: PFontWeight.bold)),
               const SizedBox(height: 3),
@@ -317,7 +348,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
             const SizedBox(height: PSpace.x8),
             Align(
               alignment: Alignment.centerLeft,
-              child: Text('시작일이 종료일보다 늦을 수 없어요.',
+              child: Text(l.exportDateRangeError,
                   style: PTypo.caption.copyWith(color: t.statusDanger)),
             ),
           ],
@@ -327,10 +358,11 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
   }
 
   Widget _typesCard(PorestTokens t) {
+    final l = AppLocalizations.of(context);
     return _cardShell(
       t,
-      title: '데이터 종류 — ${_selected.length}개 선택됨',
-      desc: '내보낼 데이터를 골라주세요. 여러 종류는 ZIP으로 묶입니다.',
+      title: l.exportTypesTitle(_selected.length),
+      desc: l.exportTypesDesc,
       child: Column(
         children: [
           for (int i = 0; i < _types.length; i++)
@@ -354,11 +386,11 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
                     ),
                     const SizedBox(width: PSpace.x12),
                     Expanded(
-                      child: Text(_types[i].label,
+                      child: Text(_typeLabel(l, _types[i].name),
                           style: PTypo.bodySm.copyWith(color: t.fgPrimary, fontWeight: PFontWeight.semi)),
                     ),
                     Text(
-                      _counts.containsKey(_types[i].slug) ? '${_counts[_types[i].slug]}건' : '…',
+                      _counts.containsKey(_types[i].slug) ? l.exportCount(_counts[_types[i].slug]!) : '…',
                       style: PTypo.caption.copyWith(color: t.fgTertiary),
                     ),
                   ],
@@ -371,9 +403,10 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
   }
 
   Widget _formatCard(PorestTokens t) {
+    final l = AppLocalizations.of(context);
     return _cardShell(
       t,
-      title: '파일 형식',
+      title: l.exportFormatTitle,
       child: _grid2(_formats.map((f) {
         final active = _format == f.value;
         return _tile(t, active: active, onTap: () => setState(() => _format = f.value), children: [
@@ -389,19 +422,20 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
             ],
           ),
           const SizedBox(height: PSpace.x4),
-          Text(f.desc, style: PTypo.micro.copyWith(color: t.fgTertiary)),
+          Text(_formatDesc(l, f.value), style: PTypo.micro.copyWith(color: t.fgTertiary)),
         ]);
       }).toList()),
     );
   }
 
   Widget _maskRow(PorestTokens t) {
+    final l = AppLocalizations.of(context);
     return Row(
       children: [
         PSwitch(value: _mask, onChanged: (v) => setState(() => _mask = v)),
         const SizedBox(width: PSpace.x8),
         Expanded(
-          child: Text('민감 정보 가리기 (잔액·금액·기관)',
+          child: Text(l.exportMaskLabel,
               style: PTypo.bodySm.copyWith(color: t.fgSecondary)),
         ),
       ],
@@ -409,12 +443,13 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
   }
 
   Widget _actions() {
+    final l = AppLocalizations.of(context);
     final disabled = _selected.isEmpty || _customInvalid;
     return Row(
       children: [
         Expanded(
           child: PButton(
-            label: '미리보기',
+            label: l.exportPreview,
             icon: LucideIcons.eye,
             variant: PButtonVariant.outline,
             loading: _previewing,
@@ -424,7 +459,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
         const SizedBox(width: PSpace.x8),
         Expanded(
           child: PButton(
-            label: '내보내기',
+            label: l.exportRun,
             icon: LucideIcons.download,
             loading: _downloading,
             onPressed: disabled ? null : _runExport,
@@ -435,6 +470,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
   }
 
   Widget _previewCard(PorestTokens t) {
+    final l = AppLocalizations.of(context);
     final tables = _preview!;
     final active = tables.firstWhere(
       (x) => x.type == _previewTab,
@@ -443,7 +479,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
     );
     return _cardShell(
       t,
-      title: '미리보기',
+      title: l.exportPreview,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -474,7 +510,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: PSpace.x20),
               child: Center(
-                child: Text('이 기간에 내보낼 데이터가 없어요.',
+                child: Text(l.exportEmpty,
                     style: PTypo.bodySm.copyWith(color: t.fgTertiary)),
               ),
             )
@@ -501,7 +537,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
               ),
             ),
           const SizedBox(height: PSpace.x8),
-          Text('상위 ${active.rows.length}행 미리보기',
+          Text(l.exportPreviewRows(active.rows.length),
               style: PTypo.micro.copyWith(color: t.fgTertiary)),
         ],
       ),

@@ -2474,4 +2474,99 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get expItemNamePlaceholder => '항목 이름 (선택)';
+
+  @override
+  String get exportTitle => '데이터 내보내기';
+
+  @override
+  String exportShareText(String start, String end) {
+    return '데이터 내보내기 ($start ~ $end)';
+  }
+
+  @override
+  String get exportSuccess => '내보내기를 완료했어요';
+
+  @override
+  String get exportTypeExpense => '거래 내역';
+
+  @override
+  String get exportTypeAsset => '자산·계좌';
+
+  @override
+  String get exportTypeBudget => '예산 설정';
+
+  @override
+  String get exportTypeCategory => '카테고리';
+
+  @override
+  String get exportTypeMemo => '메모';
+
+  @override
+  String get exportTypeCalendar => '캘린더 일정';
+
+  @override
+  String get exportTypeTodo => '할 일';
+
+  @override
+  String get exportFormatCsvDesc => '엑셀·구글시트';
+
+  @override
+  String get exportFormatExcelDesc => 'Microsoft Excel';
+
+  @override
+  String get exportFormatJsonDesc => '개발자·백업';
+
+  @override
+  String get exportPeriodThisMonth => '이번 달';
+
+  @override
+  String get exportPeriodLastMonth => '지난 달';
+
+  @override
+  String get exportPeriodLast3Months => '최근 3개월';
+
+  @override
+  String get exportPeriodThisYear => '올해';
+
+  @override
+  String get exportPeriodCustom => '사용자 지정';
+
+  @override
+  String get exportPeriodTitle => '기간 선택';
+
+  @override
+  String get exportDateRangeError => '시작일이 종료일보다 늦을 수 없어요.';
+
+  @override
+  String exportTypesTitle(int count) {
+    return '데이터 종류 — $count개 선택됨';
+  }
+
+  @override
+  String get exportTypesDesc => '내보낼 데이터를 골라주세요. 여러 종류는 ZIP으로 묶입니다.';
+
+  @override
+  String exportCount(int count) {
+    return '$count건';
+  }
+
+  @override
+  String get exportFormatTitle => '파일 형식';
+
+  @override
+  String get exportMaskLabel => '민감 정보 가리기 (잔액·금액·기관)';
+
+  @override
+  String get exportPreview => '미리보기';
+
+  @override
+  String get exportRun => '내보내기';
+
+  @override
+  String get exportEmpty => '이 기간에 내보낼 데이터가 없어요.';
+
+  @override
+  String exportPreviewRows(int count) {
+    return '상위 $count행 미리보기';
+  }
 }
