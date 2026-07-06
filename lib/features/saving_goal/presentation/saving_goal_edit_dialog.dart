@@ -6,6 +6,7 @@ import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_date_input.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_color_picker.dart';
@@ -15,10 +16,11 @@ import 'package:porest_desk_app/features/saving_goal/application/saving_goal_pro
 import 'package:porest_desk_app/features/saving_goal/domain/saving_goal.dart';
 
 void showSavingGoalEditDialog(BuildContext context, {SavingGoal? edit}) {
+  final l = AppLocalizations.of(context);
   final controller = PSheetController();
   showPSheet<void>(
     context,
-    title: edit == null ? '저금 목표 추가' : '저금 목표 수정',
+    title: edit == null ? l.savingGoalAdd : l.savingGoalEdit,
     contentBuilder: (ctx, scrollCtrl) => _Body(
       edit: edit,
       scrollController: scrollCtrl,
@@ -26,7 +28,7 @@ void showSavingGoalEditDialog(BuildContext context, {SavingGoal? edit}) {
     ),
     footerBuilder: (ctx) => PSheetFooter(
       controller: controller,
-      submitLabel: edit == null ? '추가' : '수정',
+      submitLabel: edit == null ? l.savingGoalSubmitAdd : l.actionEdit,
     ),
   );
 }
@@ -95,6 +97,7 @@ class _BodyState extends ConsumerState<_Body> {
   }
 
   Future<void> _submit() async {
+    final l = AppLocalizations.of(context);
     _setSubmitting(true);
     try {
       final repo = await ref.read(savingGoalRepositoryProvider.future);
@@ -127,18 +130,19 @@ class _BodyState extends ConsumerState<_Body> {
       Navigator.of(context).pop();
     } on ApiException catch (e) {
       if (!mounted) return;
-      showPSnackBar(context, '실패: ${e.message}', severity: PSnackSeverity.error);
+      showPSnackBar(context, '${l.savingGoalActionFailed}: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setSubmitting(false);
     }
   }
 
   Future<void> _delete() async {
+    final l = AppLocalizations.of(context);
     final ok = await showPConfirmDialog(
       context,
-      title: '저금 목표 삭제',
-      message: '"${widget.edit!.title}"을(를) 삭제할까요?',
-      confirmLabel: '삭제',
+      title: l.savingGoalDeleteTitle,
+      message: l.savingGoalDeleteConfirm(widget.edit!.title),
+      confirmLabel: l.actionDelete,
       destructive: true,
     );
     if (!ok || !mounted) return;
@@ -151,7 +155,7 @@ class _BodyState extends ConsumerState<_Body> {
       Navigator.of(context).pop();
     } on ApiException catch (e) {
       if (!mounted) return;
-      showPSnackBar(context, '삭제 실패: ${e.message}', severity: PSnackSeverity.error);
+      showPSnackBar(context, '${l.savingGoalDeleteFailed}: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setSubmitting(false);
     }
@@ -160,6 +164,7 @@ class _BodyState extends ConsumerState<_Body> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) widget.controller.setCanSubmit(_canSubmit);
     });
@@ -168,16 +173,16 @@ class _BodyState extends ConsumerState<_Body> {
       padding: const EdgeInsets.fromLTRB(
           PSpace.x16, 0, PSpace.x16, PSpace.x16),
       children: [
-          Text('목표 이름',
+          Text(l.savingGoalNameLabel,
               style: PTypo.caption.copyWith(color: t.fgSecondary)),
           const SizedBox(height: PSpace.x4),
           PTextInput(
             controller: _titleCtrl,
-            placeholder: '예: 비상금',
+            placeholder: l.savingGoalNameHint,
             onChanged: (_) => setState(() {}),
           ),
           const SizedBox(height: PSpace.x12),
-          Text('목표 금액',
+          Text(l.savingGoalAmountLabel,
               style: PTypo.caption.copyWith(color: t.fgSecondary)),
           const SizedBox(height: PSpace.x4),
           PTextInput(
@@ -188,7 +193,7 @@ class _BodyState extends ConsumerState<_Body> {
             onChanged: (_) => setState(() {}),
           ),
           const SizedBox(height: PSpace.x12),
-          Text('마감일 (선택)',
+          Text(l.savingGoalDeadlineLabel,
               style: PTypo.caption.copyWith(color: t.fgSecondary)),
           const SizedBox(height: PSpace.x4),
           PDateInput(
@@ -196,11 +201,11 @@ class _BodyState extends ConsumerState<_Body> {
             onChanged: (d) => setState(() => _deadline = d),
             firstDate: DateTime(2020),
             lastDate: DateTime(2030),
-            placeholder: '미설정',
+            placeholder: l.savingGoalDeadlineHint,
             allowClear: true,
           ),
           const SizedBox(height: PSpace.x16),
-          Text('색상',
+          Text(l.savingGoalColorLabel,
               style: PTypo.caption.copyWith(color: t.fgSecondary)),
           const SizedBox(height: PSpace.x8),
           PColorPicker(
@@ -208,13 +213,13 @@ class _BodyState extends ConsumerState<_Body> {
             onChanged: (hex) => setState(() => _color = hex),
           ),
           const SizedBox(height: PSpace.x12),
-          Text('설명 (선택)',
+          Text(l.savingGoalDescLabel,
               style: PTypo.caption.copyWith(color: t.fgSecondary)),
           const SizedBox(height: PSpace.x4),
           PTextInput(
             controller: _descCtrl,
             maxLines: 2,
-            placeholder: '메모',
+            placeholder: l.savingGoalDescHint,
           ),
       ],
     );

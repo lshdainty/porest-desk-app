@@ -11,6 +11,7 @@ import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_badge.dart';
@@ -32,6 +33,7 @@ class SavingGoalScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
     final listAsync = ref.watch(savingGoalListProvider);
 
@@ -41,7 +43,7 @@ class SavingGoalScreen extends ConsumerWidget {
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
         leading: PBackButton(onPressed: () => context.pop()),
-        title: const Text('저금 목표'),
+        title: Text(l.navSavingGoals),
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,
         elevation: 0,
@@ -60,15 +62,15 @@ class SavingGoalScreen extends ConsumerWidget {
           loading: () => const _SavingGoalSkeleton(),
           error: (e, _) => Padding(
             padding: const EdgeInsets.all(PSpace.x16),
-            child: Text('저금 목표 로드 실패\n$e',
+            child: Text('${l.savingGoalLoadError}\n$e',
                 style: PTypo.bodySm.copyWith(color: t.statusDanger)),
           ),
           data: (items) {
             if (items.isEmpty) {
-              return ListView(children: const [
+              return ListView(children: [
                 PEmptyState(
                   icon: LucideIcons.piggyBank,
-                  message: '등록된 저금 목표가 없습니다',
+                  message: l.savingGoalEmpty,
                 ),
               ]);
             }
@@ -94,6 +96,7 @@ class SavingGoalScreen extends ConsumerWidget {
   }
 
   void _showContribute(BuildContext context, WidgetRef ref, SavingGoal g) {
+    final l = AppLocalizations.of(context);
     final ctrl = TextEditingController();
     showDialog(
       context: context,
@@ -101,22 +104,22 @@ class SavingGoalScreen extends ConsumerWidget {
         bool busy = false;
         return StatefulBuilder(
           builder: (_, setS) => PFormAlertDialog(
-            title: '"${g.title}" 적립',
+            title: l.savingGoalContributeTitle(g.title),
             content: PTextInput(
               controller: ctrl,
               numbersOnly: true,
               autofocus: true,
-              placeholder: '금액 (음수 가능)',
+              placeholder: l.savingGoalAmountHint,
               suffixText: '원',
             ),
             actions: [
               PButton(
-                label: '취소',
+                label: l.actionCancel,
                 variant: PButtonVariant.ghost,
                 onPressed: () => Navigator.pop(ctx),
               ),
               PButton(
-                label: '적립',
+                label: l.savingGoalContribute,
                 loading: busy,
                 onPressed: busy
                     ? null
@@ -134,7 +137,7 @@ class SavingGoalScreen extends ConsumerWidget {
                         } on ApiException catch (e) {
                           if (!ctx.mounted) return;
                           setS(() => busy = false);
-                          showPSnackBar(ctx, '실패: ${e.message}', severity: PSnackSeverity.error);
+                          showPSnackBar(ctx, '${l.savingGoalActionFailed}: ${e.message}', severity: PSnackSeverity.error);
                         }
                       },
               ),
@@ -224,6 +227,7 @@ class _GoalCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final color = resolveChartColor(context, goal.color, fallback: tokens.fgBrand);
     final bg = softBg(context, color);
     final pct = (goal.progress * 100).round();
@@ -268,8 +272,8 @@ class _GoalCard extends StatelessWidget {
                             ),
                             if (goal.achieved) ...[
                               const SizedBox(width: 6),
-                              const PBadge(
-                                  label: '달성!',
+                              PBadge(
+                                  label: l.savingGoalAchieved,
                                   variant: PBadgeVariant.softSuccess),
                             ],
                           ],
@@ -285,7 +289,7 @@ class _GoalCard extends StatelessWidget {
                     icon: LucideIcons.plus,
                     size: PButtonSize.sm,
                     iconColor: tokens.fgBrand,
-                    tooltip: '적립',
+                    tooltip: l.savingGoalContribute,
                     onPressed: onContribute,
                   ),
                 ],
