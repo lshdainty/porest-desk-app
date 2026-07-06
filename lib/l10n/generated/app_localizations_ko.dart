@@ -3081,4 +3081,108 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get notiEmailMonthly => '매월';
+
+  @override
+  String get presetManageTitle => '프리셋 관리';
+
+  @override
+  String get presetLoadError => '프리셋 로드 실패';
+
+  @override
+  String get presetDeleteTitle => '프리셋 삭제';
+
+  @override
+  String presetDeleteConfirm(String name) {
+    return '\"$name\" 프리셋을 삭제할까요? 이미 저장된 거래 내역에는 영향이 없습니다.';
+  }
+
+  @override
+  String get presetDeleted => '프리셋이 삭제되었습니다';
+
+  @override
+  String get presetDeleteFailed => '삭제 실패';
+
+  @override
+  String get presetIntroTitle => '프리셋이란?';
+
+  @override
+  String get presetIntroBody =>
+      '자주 쓰는 내역(점심·커피·교통비 등)을 미리 저장해두면, 내역 추가 화면에서 한 번 탭으로 카테고리·결제수단·내역을 모두 채워넣어요. 금액만 바꿔서 단건으로 저장하기 좋습니다.';
+
+  @override
+  String get presetStatSaved => '저장된 프리셋';
+
+  @override
+  String get presetStatUses => '누적 사용';
+
+  @override
+  String presetUsesCount(int count) {
+    return '$count회';
+  }
+
+  @override
+  String get presetStatType => '지출 / 수입';
+
+  @override
+  String get presetSortUsed => '사용 많은 순';
+
+  @override
+  String get presetSortRecent => '최근 사용';
+
+  @override
+  String get presetSortName => '이름순';
+
+  @override
+  String get presetAdd => '프리셋 추가';
+
+  @override
+  String get presetAmountEmpty => '금액 비움';
+
+  @override
+  String get presetNoCategory => '카테고리 없음';
+
+  @override
+  String get presetEmptyTitle => '저장된 프리셋이 없어요';
+
+  @override
+  String get presetEmptyDesc => '자주 쓰는 내역을 추가해 매번 입력하는 수고를 줄여보세요.';
+
+  @override
+  String get presetEditTitle => '프리셋 수정';
+
+  @override
+  String get presetSubmitAdd => '추가';
+
+  @override
+  String get presetName => '프리셋 이름';
+
+  @override
+  String get presetMerchant => '기본 내역';
+
+  @override
+  String get presetMerchantPlaceholder => '예: 한솥 도시락';
+
+  @override
+  String get presetSelectNone => '선택 안 함';
+
+  @override
+  String get presetAssetCard => '계좌·카드';
+
+  @override
+  String get presetAssetLoadError => '자산 로드 실패';
+
+  @override
+  String get presetLockToggle => '고정 금액 사용';
+
+  @override
+  String get presetLockDesc => '꺼두면 불러올 때 금액이 비어있어요. 매번 다른 금액일 때 편해요.';
+
+  @override
+  String get presetLockAmountLabel => '고정 금액';
+
+  @override
+  String get presetUpdated => '프리셋이 수정되었습니다';
+
+  @override
+  String get presetCreated => '프리셋이 추가되었습니다';
 }
