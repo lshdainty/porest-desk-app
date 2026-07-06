@@ -3374,4 +3374,71 @@ class AppLocalizationsKo extends AppLocalizations {
   String recurringParentCategory(String name) {
     return '$name (상위)';
   }
+
+  @override
+  String get savingGoalLoadError => '저금 목표 로드 실패';
+
+  @override
+  String get savingGoalEmpty => '등록된 저금 목표가 없습니다';
+
+  @override
+  String get savingGoalContribute => '적립';
+
+  @override
+  String savingGoalContributeTitle(String title) {
+    return '\"$title\" 적립';
+  }
+
+  @override
+  String get savingGoalAmountHint => '금액 (음수 가능)';
+
+  @override
+  String get savingGoalActionFailed => '실패';
+
+  @override
+  String get savingGoalAchieved => '달성!';
+
+  @override
+  String get savingGoalAdd => '저금 목표 추가';
+
+  @override
+  String get savingGoalEdit => '저금 목표 수정';
+
+  @override
+  String get savingGoalSubmitAdd => '추가';
+
+  @override
+  String get savingGoalDeleteTitle => '저금 목표 삭제';
+
+  @override
+  String savingGoalDeleteConfirm(String title) {
+    return '\"$title\"을(를) 삭제할까요?';
+  }
+
+  @override
+  String get savingGoalDeleteFailed => '삭제 실패';
+
+  @override
+  String get savingGoalNameLabel => '목표 이름';
+
+  @override
+  String get savingGoalNameHint => '예: 비상금';
+
+  @override
+  String get savingGoalAmountLabel => '목표 금액';
+
+  @override
+  String get savingGoalDeadlineLabel => '마감일 (선택)';
+
+  @override
+  String get savingGoalDeadlineHint => '미설정';
+
+  @override
+  String get savingGoalColorLabel => '색상';
+
+  @override
+  String get savingGoalDescLabel => '설명 (선택)';
+
+  @override
+  String get savingGoalDescHint => '메모';
 }

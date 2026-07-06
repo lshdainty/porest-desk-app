@@ -3409,4 +3409,71 @@ class AppLocalizationsEn extends AppLocalizations {
   String recurringParentCategory(String name) {
     return '$name (parent)';
   }
+
+  @override
+  String get savingGoalLoadError => 'Failed to load saving goals';
+
+  @override
+  String get savingGoalEmpty => 'No saving goals yet';
+
+  @override
+  String get savingGoalContribute => 'Contribute';
+
+  @override
+  String savingGoalContributeTitle(String title) {
+    return 'Contribute to \"$title\"';
+  }
+
+  @override
+  String get savingGoalAmountHint => 'Amount (negative allowed)';
+
+  @override
+  String get savingGoalActionFailed => 'Failed';
+
+  @override
+  String get savingGoalAchieved => 'Achieved!';
+
+  @override
+  String get savingGoalAdd => 'Add saving goal';
+
+  @override
+  String get savingGoalEdit => 'Edit saving goal';
+
+  @override
+  String get savingGoalSubmitAdd => 'Add';
+
+  @override
+  String get savingGoalDeleteTitle => 'Delete saving goal';
+
+  @override
+  String savingGoalDeleteConfirm(String title) {
+    return 'Delete \"$title\"?';
+  }
+
+  @override
+  String get savingGoalDeleteFailed => 'Delete failed';
+
+  @override
+  String get savingGoalNameLabel => 'Goal name';
+
+  @override
+  String get savingGoalNameHint => 'e.g. Emergency fund';
+
+  @override
+  String get savingGoalAmountLabel => 'Target amount';
+
+  @override
+  String get savingGoalDeadlineLabel => 'Deadline (optional)';
+
+  @override
+  String get savingGoalDeadlineHint => 'Not set';
+
+  @override
+  String get savingGoalColorLabel => 'Color';
+
+  @override
+  String get savingGoalDescLabel => 'Description (optional)';
+
+  @override
+  String get savingGoalDescHint => 'Note';
 }

@@ -6403,6 +6403,132 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'{name} (상위)'**
   String recurringParentCategory(String name);
+
+  /// No description provided for @savingGoalLoadError.
+  ///
+  /// In ko, this message translates to:
+  /// **'저금 목표 로드 실패'**
+  String get savingGoalLoadError;
+
+  /// No description provided for @savingGoalEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'등록된 저금 목표가 없습니다'**
+  String get savingGoalEmpty;
+
+  /// No description provided for @savingGoalContribute.
+  ///
+  /// In ko, this message translates to:
+  /// **'적립'**
+  String get savingGoalContribute;
+
+  /// No description provided for @savingGoalContributeTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'\"{title}\" 적립'**
+  String savingGoalContributeTitle(String title);
+
+  /// No description provided for @savingGoalAmountHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'금액 (음수 가능)'**
+  String get savingGoalAmountHint;
+
+  /// No description provided for @savingGoalActionFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'실패'**
+  String get savingGoalActionFailed;
+
+  /// No description provided for @savingGoalAchieved.
+  ///
+  /// In ko, this message translates to:
+  /// **'달성!'**
+  String get savingGoalAchieved;
+
+  /// No description provided for @savingGoalAdd.
+  ///
+  /// In ko, this message translates to:
+  /// **'저금 목표 추가'**
+  String get savingGoalAdd;
+
+  /// No description provided for @savingGoalEdit.
+  ///
+  /// In ko, this message translates to:
+  /// **'저금 목표 수정'**
+  String get savingGoalEdit;
+
+  /// No description provided for @savingGoalSubmitAdd.
+  ///
+  /// In ko, this message translates to:
+  /// **'추가'**
+  String get savingGoalSubmitAdd;
+
+  /// No description provided for @savingGoalDeleteTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'저금 목표 삭제'**
+  String get savingGoalDeleteTitle;
+
+  /// No description provided for @savingGoalDeleteConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'\"{title}\"을(를) 삭제할까요?'**
+  String savingGoalDeleteConfirm(String title);
+
+  /// No description provided for @savingGoalDeleteFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'삭제 실패'**
+  String get savingGoalDeleteFailed;
+
+  /// No description provided for @savingGoalNameLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'목표 이름'**
+  String get savingGoalNameLabel;
+
+  /// No description provided for @savingGoalNameHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'예: 비상금'**
+  String get savingGoalNameHint;
+
+  /// No description provided for @savingGoalAmountLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'목표 금액'**
+  String get savingGoalAmountLabel;
+
+  /// No description provided for @savingGoalDeadlineLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'마감일 (선택)'**
+  String get savingGoalDeadlineLabel;
+
+  /// No description provided for @savingGoalDeadlineHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'미설정'**
+  String get savingGoalDeadlineHint;
+
+  /// No description provided for @savingGoalColorLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'색상'**
+  String get savingGoalColorLabel;
+
+  /// No description provided for @savingGoalDescLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'설명 (선택)'**
+  String get savingGoalDescLabel;
+
+  /// No description provided for @savingGoalDescHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'메모'**
+  String get savingGoalDescHint;
 }
 
 class _AppLocalizationsDelegate
