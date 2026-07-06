@@ -24,6 +24,7 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/core/network/dio_provider.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 
 /// 차트 임베드 페이지를 띄우는 WebView 위젯.
 /// 현재 _StockChart 와 동일한 props(symbol/isUs/range/height) 를 받는다.
@@ -79,14 +80,14 @@ class _ChartWebViewState extends ConsumerState<ChartWebView> {
       // 1) embed_token 발급
       final token = await _fetchEmbedToken();
       if (token == null || token.isEmpty) {
-        if (mounted) setState(() { _loading = false; _error = '토큰 발급 실패'; });
+        if (mounted) setState(() { _loading = false; _error = AppLocalizations.of(context).stocksChartTokenFailed; });
         return;
       }
 
       // 2) WebView 컨트롤러 구성 — SSO 로그인 화면 패턴 재사용(allowedHost · onNavigationRequest 제한)
       final webOrigin = Uri.tryParse(Env.webBaseUrl);
       if (Env.appEnv != 'local' && webOrigin?.scheme != 'https') {
-        if (mounted) setState(() { _loading = false; _error = '보안 오류: 차트 WebView 가 HTTPS 가 아닙니다'; });
+        if (mounted) setState(() { _loading = false; _error = AppLocalizations.of(context).stocksChartHttpsError; });
         return;
       }
       final allowedHost = webOrigin?.host;
@@ -130,11 +131,11 @@ class _ChartWebViewState extends ConsumerState<ChartWebView> {
       if (!mounted) return;
       setState(() {
         _loading = false;
-        _error = '토큰 발급 실패: ${e.response?.statusCode ?? e.message ?? "error"}';
+        _error = '${AppLocalizations.of(context).stocksChartTokenFailed}: ${e.response?.statusCode ?? e.message ?? "error"}';
       });
     } catch (e) {
       if (!mounted) return;
-      setState(() { _loading = false; _error = '차트 초기화 실패'; });
+      setState(() { _loading = false; _error = AppLocalizations.of(context).stocksChartInitFailed; });
     }
   }
 
@@ -224,6 +225,7 @@ class _ChartWebViewState extends ConsumerState<ChartWebView> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
 
     // 테마 변경 감지 — settingsProvider 의 themeMode 변경 시 JS 채널로 푸시
     ref.listen<AsyncValue<AppSettings>>(settingsProvider, (_, next) {
@@ -238,7 +240,7 @@ class _ChartWebViewState extends ConsumerState<ChartWebView> {
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Text(
-            '차트를 불러올 수 없어요\n$_error',
+            '${l.stocksChartLoadFailed}\n$_error',
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 12, color: t.fgTertiary),
           ),

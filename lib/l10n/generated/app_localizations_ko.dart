@@ -3676,4 +3676,254 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get statsNoCompareData => '비교할 데이터가 없습니다';
+
+  @override
+  String get stocksChartTokenFailed => '토큰 발급 실패';
+
+  @override
+  String get stocksChartHttpsError => '보안 오류: 차트 WebView 가 HTTPS 가 아닙니다';
+
+  @override
+  String get stocksChartInitFailed => '차트 초기화 실패';
+
+  @override
+  String get stocksChartLoadFailed => '차트를 불러올 수 없어요';
+
+  @override
+  String get stocksSearch => '종목 검색';
+
+  @override
+  String get stocksSearchPlaceholder => '종목명 · 티커로 검색 (예: 삼성전자, NVDA)';
+
+  @override
+  String stocksSearchNoResults(String query) {
+    return '\'$query\' 검색 결과가 없어요';
+  }
+
+  @override
+  String stocksTabHoldings(int count) {
+    return '보유 $count';
+  }
+
+  @override
+  String stocksTabWatch(int count) {
+    return '관심 $count';
+  }
+
+  @override
+  String get stocksTabDiscover => '발견';
+
+  @override
+  String get stocksNoHoldings => '보유 중인 종목이 없어요.';
+
+  @override
+  String stocksSharesHeld(String qty) {
+    return '$qty주 보유';
+  }
+
+  @override
+  String get stocksNoWatchlist => '관심 종목이 없어요. 검색해서 별표를 눌러보세요.';
+
+  @override
+  String get stocksDetailTitle => '종목 상세';
+
+  @override
+  String get stocksMarketHoliday => '휴장';
+
+  @override
+  String stocksMarketTrading(String time) {
+    return '장중 · $time';
+  }
+
+  @override
+  String stocksMarketOpensAt(String time) {
+    return '개장 $time';
+  }
+
+  @override
+  String get stocksMarketClosed => '장마감';
+
+  @override
+  String get stocksMarketKr => '국내';
+
+  @override
+  String get stocksMarketUs => '미국';
+
+  @override
+  String get stocksConnectPrompt => '증권 계정을 연결해 주세요';
+
+  @override
+  String get stocksConnectDescRealtime =>
+      '토스증권 키를 연결하면 시세·보유 종목과\n평가손익을 실시간으로 볼 수 있어요.';
+
+  @override
+  String get stocksConnectInSettings => '설정에서 연결하기';
+
+  @override
+  String get stocksConnectDesc => '토스증권 키를 연결하면 보유 종목과\n평가손익을 실시간으로 볼 수 있어요.';
+
+  @override
+  String get stocksConnectAccount => '계정 연결하기';
+
+  @override
+  String get stocksMyEval => '내 투자 평가금액';
+
+  @override
+  String get stocksConnectShowAssets => '증권 계정을 연결하면 보유자산이 보여요';
+
+  @override
+  String get stocksPurchaseAmount => '매입금액';
+
+  @override
+  String get stocksHoldingsLabel => '보유 종목';
+
+  @override
+  String get stocksExchangeRate => '환율(USD)';
+
+  @override
+  String get stocksSell => '매도';
+
+  @override
+  String stocksSellOrderStub(String name) {
+    return '$name 매도 주문 — Open API 연동 시 동작';
+  }
+
+  @override
+  String get stocksBuy => '매수';
+
+  @override
+  String stocksBuyOrderStub(String name) {
+    return '$name 매수 주문 — Open API 연동 시 동작';
+  }
+
+  @override
+  String get stocksFeeUs => '미국주식 매매수수료 0.1% · 환전 수수료 별도 적용';
+
+  @override
+  String get stocksFeeKr =>
+      '국내주식 매매수수료 무료 (2026.6까지) · 이후 KRX 0.015% / NXT 0.014%';
+
+  @override
+  String get stocksOrderDisclaimer =>
+      '토스증권 Open API 연동 시 실시간 호가·체결가가 반영됩니다.\n시세는 투자 참고용이며 실제 주문은 약관 동의 후 가능합니다.';
+
+  @override
+  String get stocksEvalAmount => '평가금액';
+
+  @override
+  String get stocksEvalPnl => '평가손익';
+
+  @override
+  String get stocksQuantityHeld => '보유수량';
+
+  @override
+  String get stocksReturnRate => '수익률';
+
+  @override
+  String get stocksDayPnl => '일간 손익';
+
+  @override
+  String get stocksAvgPrice => '평균단가';
+
+  @override
+  String get stocksFeesTax => '수수료·세금';
+
+  @override
+  String get stocksSellable => '매도가능';
+
+  @override
+  String get stocksMyHoldings => '내 보유';
+
+  @override
+  String get stocksMarket => '시장';
+
+  @override
+  String get stocksInstrumentType => '종목 유형';
+
+  @override
+  String get stocksInstrumentStock => '주식';
+
+  @override
+  String get stocksCurrency => '통화';
+
+  @override
+  String get stocksMarketCap => '시가총액';
+
+  @override
+  String get stocksUpperLimit => '상한가';
+
+  @override
+  String get stocksLowerLimit => '하한가';
+
+  @override
+  String get stocksListingDate => '상장일';
+
+  @override
+  String get stocksSharesOutstanding => '발행주식수';
+
+  @override
+  String get stocksTradingStatus => '거래상태';
+
+  @override
+  String get stocksBasicInfo => '기본 정보';
+
+  @override
+  String get stocksBidVolume => '매수 잔량';
+
+  @override
+  String get stocksAskVolume => '매도 잔량';
+
+  @override
+  String get stocksGainers => '급상승';
+
+  @override
+  String get stocksLosers => '급하락';
+
+  @override
+  String get stocksVolume => '거래량';
+
+  @override
+  String get stocksOrderbookLoading => '호가를 불러오는 중이에요';
+
+  @override
+  String get stocksOrderbookEmpty => '호가 정보가 없어요';
+
+  @override
+  String get stocksTradesLoading => '체결 내역을 불러오는 중이에요';
+
+  @override
+  String get stocksTradesEmpty => '체결 내역이 없어요';
+
+  @override
+  String get stocksOrderbook => '호가';
+
+  @override
+  String get stocksTrades => '체결';
+
+  @override
+  String get stocksTradeTime => '체결시각';
+
+  @override
+  String get stocksTradePrice => '체결가';
+
+  @override
+  String get stocksTradeVolume => '체결량';
+
+  @override
+  String get stocksDailyPrices => '일별 시세';
+
+  @override
+  String get stocksDailyPricesLoading => '일별 시세를 불러오는 중이에요';
+
+  @override
+  String get stocksDailyPricesEmpty => '일별 시세가 없어요';
+
+  @override
+  String get stocksDate => '일자';
+
+  @override
+  String get stocksClosePrice => '종가';
+
+  @override
+  String get stocksChangeRate => '등락률';
 }

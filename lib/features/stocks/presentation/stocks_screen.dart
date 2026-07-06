@@ -21,6 +21,7 @@ import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_search_field.dart';
 import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/features/stocks/application/stocks_providers.dart';
 import 'package:porest_desk_app/features/stocks/presentation/chart_web_view.dart';
 import 'package:porest_desk_app/features/stocks/data/stocks_mock.dart';
@@ -100,6 +101,7 @@ class _StocksScreenState extends ConsumerState<StocksScreen> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final masked = ref.watch(settingsProvider).value?.hideAmounts ?? false;
 
     // 개인키 미연결 시 전 화면 연결 유도 (mock 노출 금지). 토스 API는 시세 포함 모든
@@ -131,7 +133,7 @@ class _StocksScreenState extends ConsumerState<StocksScreen> {
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
         leading: PBackButton(onPressed: () => context.pop()),
-        title: const Text('증권'),
+        title: Text(l.moreItemStocks),
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,
         elevation: 0,
@@ -147,8 +149,8 @@ class _StocksScreenState extends ConsumerState<StocksScreen> {
           // 종목 검색 트리거 — 공통 PSearchField 시각(36px) 그대로, 탭 시 검색 시트
           GestureDetector(
             onTap: _openSearch,
-            child: const AbsorbPointer(
-              child: PSearchField(hint: '종목 검색'),
+            child: AbsorbPointer(
+              child: PSearchField(hint: l.stocksSearch),
             ),
           ),
           const SizedBox(height: 14),
@@ -161,10 +163,10 @@ class _StocksScreenState extends ConsumerState<StocksScreen> {
             items: [
               PTabItem(
                   value: _Seg.holdings,
-                  label: '보유 ${holdingItems.length}'),
+                  label: l.stocksTabHoldings(holdingItems.length)),
               PTabItem(
-                  value: _Seg.watch, label: '관심 ${_watchedTickers.length}'),
-              const PTabItem(value: _Seg.discover, label: '발견'),
+                  value: _Seg.watch, label: l.stocksTabWatch(_watchedTickers.length)),
+              PTabItem(value: _Seg.discover, label: l.stocksTabDiscover),
             ],
           ),
           const SizedBox(height: 14),
@@ -179,7 +181,7 @@ class _StocksScreenState extends ConsumerState<StocksScreen> {
                             vertical: PSpace.x32, horizontal: PSpace.x20),
                         child: Center(
                           child: Text(
-                            '보유 중인 종목이 없어요.',
+                            l.stocksNoHoldings,
                             style: PTypo.bodySm.copyWith(color: t.fgTertiary),
                           ),
                         ),
@@ -191,7 +193,7 @@ class _StocksScreenState extends ConsumerState<StocksScreen> {
                             for (final h in holdingItems)
                               _StockRow(
                                 ticker: h.symbol,
-                                sub: '${h.quantity}주 보유',
+                                sub: l.stocksSharesHeld(h.quantity),
                                 onTap: () => _openDetail(h.symbol),
                                 right: Column(
                                   crossAxisAlignment: CrossAxisAlignment.end,
@@ -247,7 +249,7 @@ class _StocksScreenState extends ConsumerState<StocksScreen> {
                           vertical: PSpace.x32, horizontal: PSpace.x20),
                       child: Center(
                         child: Text(
-                          '관심 종목이 없어요. 검색해서 별표를 눌러보세요.',
+                          l.stocksNoWatchlist,
                           style:
                               PTypo.bodySm.copyWith(color: t.fgTertiary),
                         ),
@@ -270,10 +272,11 @@ class _StocksScreenState extends ConsumerState<StocksScreen> {
   }
 
   void _openSearch() {
+    final l = AppLocalizations.of(context);
     var query = '';
     showPSheet<void>(
       context,
-      title: '종목 검색',
+      title: l.stocksSearch,
       initialChildSize: 0.9,
       contentBuilder: (sheetCtx, scrollCtrl) => StatefulBuilder(
         builder: (sheetCtx, setSheet) {
@@ -293,7 +296,7 @@ class _StocksScreenState extends ConsumerState<StocksScreen> {
                 PSpace.x20, 0, PSpace.x20, PSpace.x24),
             children: [
               PSearchField(
-                hint: '종목명 · 티커로 검색 (예: 삼성전자, NVDA)',
+                hint: l.stocksSearchPlaceholder,
                 autofocus: true,
                 onChanged: (v) => setSheet(() => query = v),
               ),
@@ -303,7 +306,7 @@ class _StocksScreenState extends ConsumerState<StocksScreen> {
                   padding: const EdgeInsets.symmetric(vertical: PSpace.x40),
                   child: Center(
                     child: Text(
-                      "'$query' 검색 결과가 없어요",
+                      l.stocksSearchNoResults(query),
                       style: PTypo.bodySm.copyWith(color: t.fgTertiary),
                     ),
                   ),
@@ -325,6 +328,7 @@ class _StocksScreenState extends ConsumerState<StocksScreen> {
   }
 
   void _openDetail(String ticker) {
+    final l = AppLocalizations.of(context);
     final holding = ref
         .read(tossHoldingsProvider)
         .asData
@@ -334,7 +338,7 @@ class _StocksScreenState extends ConsumerState<StocksScreen> {
         .firstOrNull;
     showPSheet<void>(
       context,
-      title: '종목 상세',
+      title: l.stocksDetailTitle,
       initialChildSize: 0.9,
       contentBuilder: (sheetCtx, scrollCtrl) => StatefulBuilder(
         builder: (sheetCtx, setSheet) => _StockDetailBody(
@@ -436,16 +440,16 @@ String _nowInTz(_Tz tz) {
 }
 
 ({bool open, String detail}) _marketState(
-    TossMarketSession? session, _Tz tz) {
+    TossMarketSession? session, _Tz tz, AppLocalizations l) {
   final start = _hhmm(session?.startTime);
   final end = _hhmm(session?.endTime);
-  if (start == null || end == null) return (open: false, detail: '휴장');
+  if (start == null || end == null) return (open: false, detail: l.stocksMarketHoliday);
   final now = _nowInTz(tz);
   if (now.compareTo(start) >= 0 && now.compareTo(end) <= 0) {
-    return (open: true, detail: '장중 · $now');
+    return (open: true, detail: l.stocksMarketTrading(now));
   }
-  if (now.compareTo(start) < 0) return (open: false, detail: '개장 $start');
-  return (open: false, detail: '장마감');
+  if (now.compareTo(start) < 0) return (open: false, detail: l.stocksMarketOpensAt(start));
+  return (open: false, detail: l.stocksMarketClosed);
 }
 
 // ---- 장 상태 바 (토스 market-calendar) --------------------------------------
@@ -456,13 +460,14 @@ class _MarketStatusBar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final krCal = ref.watch(tossMarketCalendarKrProvider).asData?.value;
     final usCal = ref.watch(tossMarketCalendarUsProvider).asData?.value;
-    final kr = _marketState(krCal?.today.regularMarket, _Tz.kr);
-    final us = _marketState(usCal?.today.regularMarket, _Tz.us);
+    final kr = _marketState(krCal?.today.regularMarket, _Tz.kr, l);
+    final us = _marketState(usCal?.today.regularMarket, _Tz.us, l);
     final markets = <({String name, bool open, String detail})>[
-      (name: '국내', open: kr.open, detail: kr.detail),
-      (name: '미국', open: us.open, detail: us.detail),
+      (name: l.stocksMarketKr, open: kr.open, detail: kr.detail),
+      (name: l.stocksMarketUs, open: us.open, detail: us.detail),
     ];
     return Wrap(
       spacing: PSpace.x8,
@@ -745,13 +750,14 @@ class _ConnectGate extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: t.bgCanvas,
       appBar: AppBar(
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
         leading: PBackButton(onPressed: () => context.pop()),
-        title: const Text('증권'),
+        title: Text(l.moreItemStocks),
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,
         elevation: 0,
@@ -765,7 +771,7 @@ class _ConnectGate extends StatelessWidget {
               Icon(LucideIcons.lock, size: 32, color: t.fgTertiary),
               const SizedBox(height: PSpace.x12),
               Text(
-                '증권 계정을 연결해 주세요',
+                l.stocksConnectPrompt,
                 style: PTypo.body.copyWith(
                   color: t.fgPrimary,
                   fontWeight: PFontWeight.semi,
@@ -773,13 +779,13 @@ class _ConnectGate extends StatelessWidget {
               ),
               const SizedBox(height: PSpace.x4),
               Text(
-                '토스증권 키를 연결하면 시세·보유 종목과\n평가손익을 실시간으로 볼 수 있어요.',
+                l.stocksConnectDescRealtime,
                 textAlign: TextAlign.center,
                 style: PTypo.bodySm.copyWith(color: t.fgTertiary),
               ),
               const SizedBox(height: PSpace.x16),
               PButton(
-                label: '설정에서 연결하기',
+                label: l.stocksConnectInSettings,
                 variant: PButtonVariant.outline,
                 size: PButtonSize.sm,
                 onPressed: () => context.push('/account'),
@@ -801,6 +807,7 @@ class _HoldingsEmpty extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     return PCard(
       padding: const EdgeInsets.symmetric(
           vertical: PSpace.x32, horizontal: PSpace.x20),
@@ -809,7 +816,7 @@ class _HoldingsEmpty extends StatelessWidget {
           Icon(LucideIcons.wallet, size: 32, color: t.fgTertiary),
           const SizedBox(height: PSpace.x12),
           Text(
-            '증권 계정을 연결해 주세요',
+            l.stocksConnectPrompt,
             style: PTypo.body.copyWith(
               color: t.fgPrimary,
               fontWeight: PFontWeight.semi,
@@ -817,13 +824,13 @@ class _HoldingsEmpty extends StatelessWidget {
           ),
           const SizedBox(height: PSpace.x4),
           Text(
-            '토스증권 키를 연결하면 보유 종목과\n평가손익을 실시간으로 볼 수 있어요.',
+            l.stocksConnectDesc,
             textAlign: TextAlign.center,
             style: PTypo.bodySm.copyWith(color: t.fgTertiary),
           ),
           const SizedBox(height: PSpace.x16),
           PButton(
-            label: '계정 연결하기',
+            label: l.stocksConnectAccount,
             variant: PButtonVariant.outline,
             size: PButtonSize.sm,
             onPressed: onConnect,
@@ -846,6 +853,7 @@ class _SummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final h = holdings;
     if (h == null) {
       // 미연결 — 연결 유도 카드 (mock 평가금액 노출 안 함).
@@ -855,7 +863,7 @@ class _SummaryCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '내 투자 평가금액',
+              l.stocksMyEval,
               style: TextStyle(
                 fontFamily: PTypo.sans,
                 fontSize: 12.5,
@@ -865,7 +873,7 @@ class _SummaryCard extends StatelessWidget {
             ),
             const SizedBox(height: PSpace.x8),
             Text(
-              '증권 계정을 연결하면 보유자산이 보여요',
+              l.stocksConnectShowAssets,
               style: PTypo.bodySm.copyWith(color: t.fgTertiary),
             ),
           ],
@@ -884,7 +892,7 @@ class _SummaryCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '내 투자 평가금액',
+            l.stocksMyEval,
             style: TextStyle(
               fontFamily: PTypo.sans,
               fontSize: 12.5,
@@ -929,10 +937,10 @@ class _SummaryCard extends StatelessWidget {
           Row(
             children: [
               for (final (label, value) in [
-                ('매입금액', masked ? '••••' : '${krw(totalCost)}원'),
-                ('보유 종목', '${h.items.length}개'),
+                (l.stocksPurchaseAmount, masked ? '••••' : '${krw(totalCost)}원'),
+                (l.stocksHoldingsLabel, '${h.items.length}개'),
                 (
-                  '환율(USD)',
+                  l.stocksExchangeRate,
                   '₩${krw(kFxUsdKrw.truncate())}.${((kFxUsdKrw - kFxUsdKrw.truncate()) * 10).round()}'
                 ),
               ])
@@ -995,6 +1003,7 @@ class _StockDetailBodyState extends ConsumerState<_StockDetailBody> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     // 라이브 가격 갱신을 시트에서도 받아들이도록 overlay 를 watch — 메인 화면의 10초 invalidate 가
     // 시트(별도 위젯 트리) build 를 트리거하도록 한다. kStocks[].price 는 overlay 가 invalidate 될 때 갱신됨.
     ref.watch(stockLiveOverlayProvider);
@@ -1202,22 +1211,22 @@ class _StockDetailBodyState extends ConsumerState<_StockDetailBody> {
           children: [
             Expanded(
               child: PButton(
-                label: '매도',
+                label: l.stocksSell,
                 size: PButtonSize.lg,
                 fullWidth: true,
                 onPressed: () => showPSnackBar(
-                    context, '${s.name} 매도 주문 — Open API 연동 시 동작'),
+                    context, l.stocksSellOrderStub(s.name)),
               ),
             ),
             const SizedBox(width: 10),
             Expanded(
               child: PButton(
-                label: '매수',
+                label: l.stocksBuy,
                 variant: PButtonVariant.danger,
                 size: PButtonSize.lg,
                 fullWidth: true,
                 onPressed: () => showPSnackBar(
-                    context, '${s.name} 매수 주문 — Open API 연동 시 동작'),
+                    context, l.stocksBuyOrderStub(s.name)),
               ),
             ),
           ],
@@ -1239,8 +1248,8 @@ class _StockDetailBodyState extends ConsumerState<_StockDetailBody> {
               Expanded(
                 child: Text(
                   s.isUs
-                      ? '미국주식 매매수수료 0.1% · 환전 수수료 별도 적용'
-                      : '국내주식 매매수수료 무료 (2026.6까지) · 이후 KRX 0.015% / NXT 0.014%',
+                      ? l.stocksFeeUs
+                      : l.stocksFeeKr,
                   style: PTypo.micro
                       .copyWith(color: t.fgSecondary, height: 1.45),
                 ),
@@ -1250,7 +1259,7 @@ class _StockDetailBodyState extends ConsumerState<_StockDetailBody> {
         ),
         const SizedBox(height: PSpace.x16),
         Text(
-          '토스증권 Open API 연동 시 실시간 호가·체결가가 반영됩니다.\n시세는 투자 참고용이며 실제 주문은 약관 동의 후 가능합니다.',
+          l.stocksOrderDisclaimer,
           textAlign: TextAlign.center,
           style: PTypo.micro.copyWith(color: t.fgTertiary, height: 1.5),
         ),
@@ -1286,24 +1295,25 @@ class _HoldingDetailCard extends StatelessWidget {
     String moneySigned(int v) =>
         masked ? '••••' : '${v >= 0 ? '+' : '−'}${krw(v, abs: true)}원';
 
+    final l = AppLocalizations.of(context);
     final rows = <(String, String, Color)>[
-      ('평가금액', money(ev), t.fgPrimary),
-      ('평가손익', moneySigned(pnl), _trendColor(t, pnl.toDouble())),
-      ('보유수량', qtyLabel, t.fgPrimary),
+      (l.stocksEvalAmount, money(ev), t.fgPrimary),
+      (l.stocksEvalPnl, moneySigned(pnl), _trendColor(t, pnl.toDouble())),
+      (l.stocksQuantityHeld, qtyLabel, t.fgPrimary),
       (
-        '수익률',
+        l.stocksReturnRate,
         '${pnlPct >= 0 ? '+' : ''}${pnlPct.toStringAsFixed(2)}%',
         _trendColor(t, pnl.toDouble())
       ),
-      ('일간 손익', moneySigned(dayPnl), _trendColor(t, dayPnl.toDouble())),
+      (l.stocksDayPnl, moneySigned(dayPnl), _trendColor(t, dayPnl.toDouble())),
       (
-        '평균단가',
+        l.stocksAvgPrice,
         h.isUs ? '\$${avg.toStringAsFixed(2)}' : '${krw(avg.round())}원',
         t.fgSecondary
       ),
-      ('매입금액', money(purchase), t.fgSecondary),
-      ('수수료·세금', '${krw(fees)}원', t.fgSecondary),
-      ('매도가능', qtyLabel, t.fgSecondary),
+      (l.stocksPurchaseAmount, money(purchase), t.fgSecondary),
+      (l.stocksFeesTax, '${krw(fees)}원', t.fgSecondary),
+      (l.stocksSellable, qtyLabel, t.fgSecondary),
     ];
 
     return PCard(
@@ -1311,7 +1321,7 @@ class _HoldingDetailCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _SectionLabel('내 보유', tokens: t),
+          _SectionLabel(l.stocksMyHoldings, tokens: t),
           const SizedBox(height: PSpace.x12),
           for (var i = 0; i < rows.length; i += 2) ...[
             if (i > 0) const SizedBox(height: PSpace.x12),
@@ -1393,6 +1403,7 @@ class _StockInfoCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final s = stock;
     final info = this.info; // 로컬 바인딩 → 널 승격(field promotion 불가) 위함.
     final isKr = !s.isUs;
@@ -1404,23 +1415,23 @@ class _StockInfoCard extends ConsumerWidget {
     final listDate = info?.listDate;
 
     final rows = <(String, String, Color?)>[
-      ('시장', info?.market.isNotEmpty == true
+      (l.stocksMarket, info?.market.isNotEmpty == true
           ? info!.market
-          : (s.isUs ? '미국' : '국내'), null),
-      ('종목 유형', info?.isEtf == true ? 'ETF' : '주식', null),
-      ('통화', info?.currency.isNotEmpty == true
+          : (s.isUs ? l.stocksMarketUs : l.stocksMarketKr), null),
+      (l.stocksInstrumentType, info?.isEtf == true ? 'ETF' : l.stocksInstrumentStock, null),
+      (l.stocksCurrency, info?.currency.isNotEmpty == true
           ? info!.currency
           : (s.isUs ? 'USD' : 'KRW'), null),
-      if (shares > 0) ('시가총액', _fmtCapKrw(mcKrw), null),
+      if (shares > 0) (l.stocksMarketCap, _fmtCapKrw(mcKrw), null),
       if (isKr && upper != null)
-        ('상한가', '${krw(upper.round())}원', t.statusDangerFg),
+        (l.stocksUpperLimit, '${krw(upper.round())}원', t.statusDangerFg),
       if (isKr && lower != null)
-        ('하한가', '${krw(lower.round())}원', t.fgBrand),
-      if (listDate != null && listDate.isNotEmpty) ('상장일', listDate, null),
-      if (shares > 0) ('발행주식수', _fmtShares(shares), null),
+        (l.stocksLowerLimit, '${krw(lower.round())}원', t.fgBrand),
+      if (listDate != null && listDate.isNotEmpty) (l.stocksListingDate, listDate, null),
+      if (shares > 0) (l.stocksSharesOutstanding, _fmtShares(shares), null),
       (
         // 거래정지는 토스 status(분류성 값)가 아니라 KRX 거래정지 플래그로 판정.
-        '거래상태',
+        l.stocksTradingStatus,
         info?.koreanMarketDetail?.krxTradingSuspended == true ? '거래정지' : '정상',
         info?.koreanMarketDetail?.krxTradingSuspended == true
             ? t.statusDangerFg
@@ -1433,7 +1444,7 @@ class _StockInfoCard extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _SectionLabel('기본 정보', tokens: t),
+          _SectionLabel(l.stocksBasicInfo, tokens: t),
           const SizedBox(height: PSpace.x4),
           for (var i = 0; i < rows.length; i++)
             Container(
@@ -1490,6 +1501,7 @@ class _OrderBook extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final s = stock;
     // asks=낮은가격순 → 상단 표시(높은가격 위) 위해 5개 잘라 역순, bids=높은가격순 그대로.
     final asks = [
@@ -1597,7 +1609,7 @@ class _OrderBook extends StatelessWidget {
           children: [
             Expanded(
               child: Text(
-                '매수 잔량',
+                l.stocksBidVolume,
                 textAlign: TextAlign.right,
                 style: TextStyle(
                   fontFamily: PTypo.sans,
@@ -1610,7 +1622,7 @@ class _OrderBook extends StatelessWidget {
             const SizedBox(width: 92),
             Expanded(
               child: Text(
-                '매도 잔량',
+                l.stocksAskVolume,
                 style: TextStyle(
                   fontFamily: PTypo.sans,
                   fontSize: 10.5,
@@ -1680,6 +1692,7 @@ class _DiscoverPanelState extends State<_DiscoverPanel> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final list = [...kStocks];
     if (_tab == 'gainers') {
       list.sort((a, b) => b.changePct.compareTo(a.changePct));
@@ -1698,10 +1711,10 @@ class _DiscoverPanelState extends State<_DiscoverPanel> {
           variant: PTabsVariant.container,
           size: PTabsSize.sm,
           expand: true,
-          items: const [
-            PTabItem(value: 'gainers', label: '급상승'),
-            PTabItem(value: 'losers', label: '급하락'),
-            PTabItem(value: 'volume', label: '거래량'),
+          items: [
+            PTabItem(value: 'gainers', label: l.stocksGainers),
+            PTabItem(value: 'losers', label: l.stocksLosers),
+            PTabItem(value: 'volume', label: l.stocksVolume),
           ],
         ),
         const SizedBox(height: 10),
@@ -1793,6 +1806,7 @@ class _QuotesCardState extends ConsumerState<_QuotesCard> {
   @override
   Widget build(BuildContext context) {
     final s = widget.stock;
+    final l = AppLocalizations.of(context);
     final orderbookAsync = ref.watch(tossOrderbookProvider(s.ticker));
     final tradesAsync = ref.watch(tossTradesProvider(s.ticker));
     final book = orderbookAsync.asData?.value;
@@ -1803,18 +1817,18 @@ class _QuotesCardState extends ConsumerState<_QuotesCard> {
     Widget content;
     if (_tab == 'book') {
       if (orderbookAsync.isLoading) {
-        content = const _QuotesEmpty('호가를 불러오는 중이에요');
+        content = _QuotesEmpty(l.stocksOrderbookLoading);
       } else if (hasBook) {
         content =
             _OrderBook(stock: s, book: book, changePct: widget.changePct);
       } else {
-        content = const _QuotesEmpty('호가 정보가 없어요');
+        content = _QuotesEmpty(l.stocksOrderbookEmpty);
       }
     } else {
       if (tradesAsync.isLoading) {
-        content = const _QuotesEmpty('체결 내역을 불러오는 중이에요');
+        content = _QuotesEmpty(l.stocksTradesLoading);
       } else if (fills.isEmpty) {
-        content = const _QuotesEmpty('체결 내역이 없어요');
+        content = _QuotesEmpty(l.stocksTradesEmpty);
       } else {
         content = _TradeTape(stock: s, fills: fills);
       }
@@ -1831,9 +1845,9 @@ class _QuotesCardState extends ConsumerState<_QuotesCard> {
             variant: PTabsVariant.container,
             size: PTabsSize.sm,
             expand: true,
-            items: const [
-              PTabItem(value: 'book', label: '호가'),
-              PTabItem(value: 'tape', label: '체결'),
+            items: [
+              PTabItem(value: 'book', label: l.stocksOrderbook),
+              PTabItem(value: 'tape', label: l.stocksTrades),
             ],
           ),
           const SizedBox(height: PSpace.x12),
@@ -1854,6 +1868,7 @@ class _TradeTape extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final s = stock;
     String fmt(double p) =>
         s.isUs ? '\$${p.toStringAsFixed(2)}' : krw(p.round());
@@ -1869,11 +1884,11 @@ class _TradeTape extends StatelessWidget {
       children: [
         Row(
           children: [
-            Expanded(child: Text('체결시각', style: head())),
+            Expanded(child: Text(l.stocksTradeTime, style: head())),
             Expanded(
-                child: Text('체결가', textAlign: TextAlign.right, style: head())),
+                child: Text(l.stocksTradePrice, textAlign: TextAlign.right, style: head())),
             Expanded(
-                child: Text('체결량', textAlign: TextAlign.right, style: head())),
+                child: Text(l.stocksTradeVolume, textAlign: TextAlign.right, style: head())),
           ],
         ),
         const SizedBox(height: PSpace.x4),
@@ -1936,6 +1951,7 @@ class _DailyQuoteTable extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final candlesAsync =
         ref.watch(tossCandlesProvider((symbol: symbol, interval: '1d')));
     String fmt(double v) =>
@@ -2001,21 +2017,21 @@ class _DailyQuoteTable extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _SectionLabel('일별 시세', tokens: t),
+          _SectionLabel(l.stocksDailyPrices, tokens: t),
           const SizedBox(height: 10),
           if (candlesAsync.isLoading)
-            const _QuotesEmpty('일별 시세를 불러오는 중이에요')
+            _QuotesEmpty(l.stocksDailyPricesLoading)
           else if (rows.isEmpty)
-            const _QuotesEmpty('일별 시세가 없어요')
+            _QuotesEmpty(l.stocksDailyPricesEmpty)
           else ...[
             Padding(
               padding: const EdgeInsets.only(bottom: PSpace.x8),
               child: Row(
                 children: [
-                  headCell('일자', 10, TextAlign.left),
-                  headCell('종가', 12, TextAlign.right),
-                  headCell('등락률', 10, TextAlign.right),
-                  headCell('거래량', 13, TextAlign.right),
+                  headCell(l.stocksDate, 10, TextAlign.left),
+                  headCell(l.stocksClosePrice, 12, TextAlign.right),
+                  headCell(l.stocksChangeRate, 10, TextAlign.right),
+                  headCell(l.stocksVolume, 13, TextAlign.right),
                 ],
               ),
             ),
