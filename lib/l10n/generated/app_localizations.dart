@@ -6979,6 +6979,468 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'비교할 데이터가 없습니다'**
   String get statsNoCompareData;
+
+  /// No description provided for @stocksChartTokenFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'토큰 발급 실패'**
+  String get stocksChartTokenFailed;
+
+  /// No description provided for @stocksChartHttpsError.
+  ///
+  /// In ko, this message translates to:
+  /// **'보안 오류: 차트 WebView 가 HTTPS 가 아닙니다'**
+  String get stocksChartHttpsError;
+
+  /// No description provided for @stocksChartInitFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'차트 초기화 실패'**
+  String get stocksChartInitFailed;
+
+  /// No description provided for @stocksChartLoadFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'차트를 불러올 수 없어요'**
+  String get stocksChartLoadFailed;
+
+  /// No description provided for @stocksSearch.
+  ///
+  /// In ko, this message translates to:
+  /// **'종목 검색'**
+  String get stocksSearch;
+
+  /// No description provided for @stocksSearchPlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'종목명 · 티커로 검색 (예: 삼성전자, NVDA)'**
+  String get stocksSearchPlaceholder;
+
+  /// No description provided for @stocksSearchNoResults.
+  ///
+  /// In ko, this message translates to:
+  /// **'\'{query}\' 검색 결과가 없어요'**
+  String stocksSearchNoResults(String query);
+
+  /// No description provided for @stocksTabHoldings.
+  ///
+  /// In ko, this message translates to:
+  /// **'보유 {count}'**
+  String stocksTabHoldings(int count);
+
+  /// No description provided for @stocksTabWatch.
+  ///
+  /// In ko, this message translates to:
+  /// **'관심 {count}'**
+  String stocksTabWatch(int count);
+
+  /// No description provided for @stocksTabDiscover.
+  ///
+  /// In ko, this message translates to:
+  /// **'발견'**
+  String get stocksTabDiscover;
+
+  /// No description provided for @stocksNoHoldings.
+  ///
+  /// In ko, this message translates to:
+  /// **'보유 중인 종목이 없어요.'**
+  String get stocksNoHoldings;
+
+  /// No description provided for @stocksSharesHeld.
+  ///
+  /// In ko, this message translates to:
+  /// **'{qty}주 보유'**
+  String stocksSharesHeld(String qty);
+
+  /// No description provided for @stocksNoWatchlist.
+  ///
+  /// In ko, this message translates to:
+  /// **'관심 종목이 없어요. 검색해서 별표를 눌러보세요.'**
+  String get stocksNoWatchlist;
+
+  /// No description provided for @stocksDetailTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'종목 상세'**
+  String get stocksDetailTitle;
+
+  /// No description provided for @stocksMarketHoliday.
+  ///
+  /// In ko, this message translates to:
+  /// **'휴장'**
+  String get stocksMarketHoliday;
+
+  /// No description provided for @stocksMarketTrading.
+  ///
+  /// In ko, this message translates to:
+  /// **'장중 · {time}'**
+  String stocksMarketTrading(String time);
+
+  /// No description provided for @stocksMarketOpensAt.
+  ///
+  /// In ko, this message translates to:
+  /// **'개장 {time}'**
+  String stocksMarketOpensAt(String time);
+
+  /// No description provided for @stocksMarketClosed.
+  ///
+  /// In ko, this message translates to:
+  /// **'장마감'**
+  String get stocksMarketClosed;
+
+  /// No description provided for @stocksMarketKr.
+  ///
+  /// In ko, this message translates to:
+  /// **'국내'**
+  String get stocksMarketKr;
+
+  /// No description provided for @stocksMarketUs.
+  ///
+  /// In ko, this message translates to:
+  /// **'미국'**
+  String get stocksMarketUs;
+
+  /// No description provided for @stocksConnectPrompt.
+  ///
+  /// In ko, this message translates to:
+  /// **'증권 계정을 연결해 주세요'**
+  String get stocksConnectPrompt;
+
+  /// No description provided for @stocksConnectDescRealtime.
+  ///
+  /// In ko, this message translates to:
+  /// **'토스증권 키를 연결하면 시세·보유 종목과\n평가손익을 실시간으로 볼 수 있어요.'**
+  String get stocksConnectDescRealtime;
+
+  /// No description provided for @stocksConnectInSettings.
+  ///
+  /// In ko, this message translates to:
+  /// **'설정에서 연결하기'**
+  String get stocksConnectInSettings;
+
+  /// No description provided for @stocksConnectDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'토스증권 키를 연결하면 보유 종목과\n평가손익을 실시간으로 볼 수 있어요.'**
+  String get stocksConnectDesc;
+
+  /// No description provided for @stocksConnectAccount.
+  ///
+  /// In ko, this message translates to:
+  /// **'계정 연결하기'**
+  String get stocksConnectAccount;
+
+  /// No description provided for @stocksMyEval.
+  ///
+  /// In ko, this message translates to:
+  /// **'내 투자 평가금액'**
+  String get stocksMyEval;
+
+  /// No description provided for @stocksConnectShowAssets.
+  ///
+  /// In ko, this message translates to:
+  /// **'증권 계정을 연결하면 보유자산이 보여요'**
+  String get stocksConnectShowAssets;
+
+  /// No description provided for @stocksPurchaseAmount.
+  ///
+  /// In ko, this message translates to:
+  /// **'매입금액'**
+  String get stocksPurchaseAmount;
+
+  /// No description provided for @stocksHoldingsLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'보유 종목'**
+  String get stocksHoldingsLabel;
+
+  /// No description provided for @stocksExchangeRate.
+  ///
+  /// In ko, this message translates to:
+  /// **'환율(USD)'**
+  String get stocksExchangeRate;
+
+  /// No description provided for @stocksSell.
+  ///
+  /// In ko, this message translates to:
+  /// **'매도'**
+  String get stocksSell;
+
+  /// No description provided for @stocksSellOrderStub.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name} 매도 주문 — Open API 연동 시 동작'**
+  String stocksSellOrderStub(String name);
+
+  /// No description provided for @stocksBuy.
+  ///
+  /// In ko, this message translates to:
+  /// **'매수'**
+  String get stocksBuy;
+
+  /// No description provided for @stocksBuyOrderStub.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name} 매수 주문 — Open API 연동 시 동작'**
+  String stocksBuyOrderStub(String name);
+
+  /// No description provided for @stocksFeeUs.
+  ///
+  /// In ko, this message translates to:
+  /// **'미국주식 매매수수료 0.1% · 환전 수수료 별도 적용'**
+  String get stocksFeeUs;
+
+  /// No description provided for @stocksFeeKr.
+  ///
+  /// In ko, this message translates to:
+  /// **'국내주식 매매수수료 무료 (2026.6까지) · 이후 KRX 0.015% / NXT 0.014%'**
+  String get stocksFeeKr;
+
+  /// No description provided for @stocksOrderDisclaimer.
+  ///
+  /// In ko, this message translates to:
+  /// **'토스증권 Open API 연동 시 실시간 호가·체결가가 반영됩니다.\n시세는 투자 참고용이며 실제 주문은 약관 동의 후 가능합니다.'**
+  String get stocksOrderDisclaimer;
+
+  /// No description provided for @stocksEvalAmount.
+  ///
+  /// In ko, this message translates to:
+  /// **'평가금액'**
+  String get stocksEvalAmount;
+
+  /// No description provided for @stocksEvalPnl.
+  ///
+  /// In ko, this message translates to:
+  /// **'평가손익'**
+  String get stocksEvalPnl;
+
+  /// No description provided for @stocksQuantityHeld.
+  ///
+  /// In ko, this message translates to:
+  /// **'보유수량'**
+  String get stocksQuantityHeld;
+
+  /// No description provided for @stocksReturnRate.
+  ///
+  /// In ko, this message translates to:
+  /// **'수익률'**
+  String get stocksReturnRate;
+
+  /// No description provided for @stocksDayPnl.
+  ///
+  /// In ko, this message translates to:
+  /// **'일간 손익'**
+  String get stocksDayPnl;
+
+  /// No description provided for @stocksAvgPrice.
+  ///
+  /// In ko, this message translates to:
+  /// **'평균단가'**
+  String get stocksAvgPrice;
+
+  /// No description provided for @stocksFeesTax.
+  ///
+  /// In ko, this message translates to:
+  /// **'수수료·세금'**
+  String get stocksFeesTax;
+
+  /// No description provided for @stocksSellable.
+  ///
+  /// In ko, this message translates to:
+  /// **'매도가능'**
+  String get stocksSellable;
+
+  /// No description provided for @stocksMyHoldings.
+  ///
+  /// In ko, this message translates to:
+  /// **'내 보유'**
+  String get stocksMyHoldings;
+
+  /// No description provided for @stocksMarket.
+  ///
+  /// In ko, this message translates to:
+  /// **'시장'**
+  String get stocksMarket;
+
+  /// No description provided for @stocksInstrumentType.
+  ///
+  /// In ko, this message translates to:
+  /// **'종목 유형'**
+  String get stocksInstrumentType;
+
+  /// No description provided for @stocksInstrumentStock.
+  ///
+  /// In ko, this message translates to:
+  /// **'주식'**
+  String get stocksInstrumentStock;
+
+  /// No description provided for @stocksCurrency.
+  ///
+  /// In ko, this message translates to:
+  /// **'통화'**
+  String get stocksCurrency;
+
+  /// No description provided for @stocksMarketCap.
+  ///
+  /// In ko, this message translates to:
+  /// **'시가총액'**
+  String get stocksMarketCap;
+
+  /// No description provided for @stocksUpperLimit.
+  ///
+  /// In ko, this message translates to:
+  /// **'상한가'**
+  String get stocksUpperLimit;
+
+  /// No description provided for @stocksLowerLimit.
+  ///
+  /// In ko, this message translates to:
+  /// **'하한가'**
+  String get stocksLowerLimit;
+
+  /// No description provided for @stocksListingDate.
+  ///
+  /// In ko, this message translates to:
+  /// **'상장일'**
+  String get stocksListingDate;
+
+  /// No description provided for @stocksSharesOutstanding.
+  ///
+  /// In ko, this message translates to:
+  /// **'발행주식수'**
+  String get stocksSharesOutstanding;
+
+  /// No description provided for @stocksTradingStatus.
+  ///
+  /// In ko, this message translates to:
+  /// **'거래상태'**
+  String get stocksTradingStatus;
+
+  /// No description provided for @stocksBasicInfo.
+  ///
+  /// In ko, this message translates to:
+  /// **'기본 정보'**
+  String get stocksBasicInfo;
+
+  /// No description provided for @stocksBidVolume.
+  ///
+  /// In ko, this message translates to:
+  /// **'매수 잔량'**
+  String get stocksBidVolume;
+
+  /// No description provided for @stocksAskVolume.
+  ///
+  /// In ko, this message translates to:
+  /// **'매도 잔량'**
+  String get stocksAskVolume;
+
+  /// No description provided for @stocksGainers.
+  ///
+  /// In ko, this message translates to:
+  /// **'급상승'**
+  String get stocksGainers;
+
+  /// No description provided for @stocksLosers.
+  ///
+  /// In ko, this message translates to:
+  /// **'급하락'**
+  String get stocksLosers;
+
+  /// No description provided for @stocksVolume.
+  ///
+  /// In ko, this message translates to:
+  /// **'거래량'**
+  String get stocksVolume;
+
+  /// No description provided for @stocksOrderbookLoading.
+  ///
+  /// In ko, this message translates to:
+  /// **'호가를 불러오는 중이에요'**
+  String get stocksOrderbookLoading;
+
+  /// No description provided for @stocksOrderbookEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'호가 정보가 없어요'**
+  String get stocksOrderbookEmpty;
+
+  /// No description provided for @stocksTradesLoading.
+  ///
+  /// In ko, this message translates to:
+  /// **'체결 내역을 불러오는 중이에요'**
+  String get stocksTradesLoading;
+
+  /// No description provided for @stocksTradesEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'체결 내역이 없어요'**
+  String get stocksTradesEmpty;
+
+  /// No description provided for @stocksOrderbook.
+  ///
+  /// In ko, this message translates to:
+  /// **'호가'**
+  String get stocksOrderbook;
+
+  /// No description provided for @stocksTrades.
+  ///
+  /// In ko, this message translates to:
+  /// **'체결'**
+  String get stocksTrades;
+
+  /// No description provided for @stocksTradeTime.
+  ///
+  /// In ko, this message translates to:
+  /// **'체결시각'**
+  String get stocksTradeTime;
+
+  /// No description provided for @stocksTradePrice.
+  ///
+  /// In ko, this message translates to:
+  /// **'체결가'**
+  String get stocksTradePrice;
+
+  /// No description provided for @stocksTradeVolume.
+  ///
+  /// In ko, this message translates to:
+  /// **'체결량'**
+  String get stocksTradeVolume;
+
+  /// No description provided for @stocksDailyPrices.
+  ///
+  /// In ko, this message translates to:
+  /// **'일별 시세'**
+  String get stocksDailyPrices;
+
+  /// No description provided for @stocksDailyPricesLoading.
+  ///
+  /// In ko, this message translates to:
+  /// **'일별 시세를 불러오는 중이에요'**
+  String get stocksDailyPricesLoading;
+
+  /// No description provided for @stocksDailyPricesEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'일별 시세가 없어요'**
+  String get stocksDailyPricesEmpty;
+
+  /// No description provided for @stocksDate.
+  ///
+  /// In ko, this message translates to:
+  /// **'일자'**
+  String get stocksDate;
+
+  /// No description provided for @stocksClosePrice.
+  ///
+  /// In ko, this message translates to:
+  /// **'종가'**
+  String get stocksClosePrice;
+
+  /// No description provided for @stocksChangeRate.
+  ///
+  /// In ko, this message translates to:
+  /// **'등락률'**
+  String get stocksChangeRate;
 }
 
 class _AppLocalizationsDelegate

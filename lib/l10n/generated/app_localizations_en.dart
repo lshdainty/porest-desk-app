@@ -3712,4 +3712,259 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get statsNoCompareData => 'No data to compare';
+
+  @override
+  String get stocksChartTokenFailed => 'Failed to issue token';
+
+  @override
+  String get stocksChartHttpsError =>
+      'Security error: chart WebView is not HTTPS';
+
+  @override
+  String get stocksChartInitFailed => 'Chart initialization failed';
+
+  @override
+  String get stocksChartLoadFailed => 'Couldn\'t load chart';
+
+  @override
+  String get stocksSearch => 'Search stocks';
+
+  @override
+  String get stocksSearchPlaceholder =>
+      'Search by name or ticker (e.g. Samsung Electronics, NVDA)';
+
+  @override
+  String stocksSearchNoResults(String query) {
+    return 'No results for \'$query\'';
+  }
+
+  @override
+  String stocksTabHoldings(int count) {
+    return 'Holdings $count';
+  }
+
+  @override
+  String stocksTabWatch(int count) {
+    return 'Watchlist $count';
+  }
+
+  @override
+  String get stocksTabDiscover => 'Discover';
+
+  @override
+  String get stocksNoHoldings => 'You have no holdings.';
+
+  @override
+  String stocksSharesHeld(String qty) {
+    return 'Holding $qty shares';
+  }
+
+  @override
+  String get stocksNoWatchlist => 'No watchlist. Search and tap the star.';
+
+  @override
+  String get stocksDetailTitle => 'Stock details';
+
+  @override
+  String get stocksMarketHoliday => 'Holiday';
+
+  @override
+  String stocksMarketTrading(String time) {
+    return 'Open · $time';
+  }
+
+  @override
+  String stocksMarketOpensAt(String time) {
+    return 'Opens $time';
+  }
+
+  @override
+  String get stocksMarketClosed => 'Closed';
+
+  @override
+  String get stocksMarketKr => 'Domestic';
+
+  @override
+  String get stocksMarketUs => 'US';
+
+  @override
+  String get stocksConnectPrompt => 'Please connect a securities account';
+
+  @override
+  String get stocksConnectDescRealtime =>
+      'Connect your Toss Securities key to see quotes, holdings, and P&L in real time.';
+
+  @override
+  String get stocksConnectInSettings => 'Connect in settings';
+
+  @override
+  String get stocksConnectDesc =>
+      'Connect your Toss Securities key to see holdings and P&L.';
+
+  @override
+  String get stocksConnectAccount => 'Connect account';
+
+  @override
+  String get stocksMyEval => 'My portfolio value';
+
+  @override
+  String get stocksConnectShowAssets =>
+      'Connect a securities account to see your assets';
+
+  @override
+  String get stocksPurchaseAmount => 'Cost basis';
+
+  @override
+  String get stocksHoldingsLabel => 'Holdings';
+
+  @override
+  String get stocksExchangeRate => 'Exchange rate (USD)';
+
+  @override
+  String get stocksSell => 'Sell';
+
+  @override
+  String stocksSellOrderStub(String name) {
+    return '$name sell order — works when Open API is connected';
+  }
+
+  @override
+  String get stocksBuy => 'Buy';
+
+  @override
+  String stocksBuyOrderStub(String name) {
+    return '$name buy order — works when Open API is connected';
+  }
+
+  @override
+  String get stocksFeeUs =>
+      'US stock trading fee 0.1% · FX fee applies separately';
+
+  @override
+  String get stocksFeeKr =>
+      'Domestic stock trading free (until Jun 2026) · then KRX 0.015% / NXT 0.014%';
+
+  @override
+  String get stocksOrderDisclaimer =>
+      'Real-time quotes and prices apply once Toss Securities Open API is connected.\nQuotes are for reference only; actual orders require agreeing to the terms.';
+
+  @override
+  String get stocksEvalAmount => 'Market value';
+
+  @override
+  String get stocksEvalPnl => 'Unrealized P&L';
+
+  @override
+  String get stocksQuantityHeld => 'Quantity held';
+
+  @override
+  String get stocksReturnRate => 'Return';
+
+  @override
+  String get stocksDayPnl => 'Daily P&L';
+
+  @override
+  String get stocksAvgPrice => 'Average price';
+
+  @override
+  String get stocksFeesTax => 'Fees & taxes';
+
+  @override
+  String get stocksSellable => 'Sellable';
+
+  @override
+  String get stocksMyHoldings => 'My holdings';
+
+  @override
+  String get stocksMarket => 'Market';
+
+  @override
+  String get stocksInstrumentType => 'Instrument type';
+
+  @override
+  String get stocksInstrumentStock => 'Stock';
+
+  @override
+  String get stocksCurrency => 'Currency';
+
+  @override
+  String get stocksMarketCap => 'Market cap';
+
+  @override
+  String get stocksUpperLimit => 'Upper limit';
+
+  @override
+  String get stocksLowerLimit => 'Lower limit';
+
+  @override
+  String get stocksListingDate => 'Listing date';
+
+  @override
+  String get stocksSharesOutstanding => 'Shares outstanding';
+
+  @override
+  String get stocksTradingStatus => 'Trading status';
+
+  @override
+  String get stocksBasicInfo => 'Basic info';
+
+  @override
+  String get stocksBidVolume => 'Bid volume';
+
+  @override
+  String get stocksAskVolume => 'Ask volume';
+
+  @override
+  String get stocksGainers => 'Top gainers';
+
+  @override
+  String get stocksLosers => 'Top losers';
+
+  @override
+  String get stocksVolume => 'Volume';
+
+  @override
+  String get stocksOrderbookLoading => 'Loading order book…';
+
+  @override
+  String get stocksOrderbookEmpty => 'No order book data';
+
+  @override
+  String get stocksTradesLoading => 'Loading trades…';
+
+  @override
+  String get stocksTradesEmpty => 'No trades';
+
+  @override
+  String get stocksOrderbook => 'Order book';
+
+  @override
+  String get stocksTrades => 'Trades';
+
+  @override
+  String get stocksTradeTime => 'Time';
+
+  @override
+  String get stocksTradePrice => 'Price';
+
+  @override
+  String get stocksTradeVolume => 'Volume';
+
+  @override
+  String get stocksDailyPrices => 'Daily prices';
+
+  @override
+  String get stocksDailyPricesLoading => 'Loading daily prices…';
+
+  @override
+  String get stocksDailyPricesEmpty => 'No daily prices';
+
+  @override
+  String get stocksDate => 'Date';
+
+  @override
+  String get stocksClosePrice => 'Close';
+
+  @override
+  String get stocksChangeRate => 'Change';
 }
