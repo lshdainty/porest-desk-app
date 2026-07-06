@@ -14,6 +14,7 @@ import 'package:porest_desk_app/core/format/date.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
@@ -77,6 +78,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 
   Future<void> _showAdvancedSheet() async {
+    final l = AppLocalizations.of(context);
     var min = _minAmount;
     var max = _maxAmount;
     var start = _startDate;
@@ -85,7 +87,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     final maxCtrl = TextEditingController(text: max?.toString() ?? '');
     await showPSheet<void>(
       context,
-      title: '고급 필터',
+      title: l.searchAdvancedFilter,
       contentBuilder: (sheetCtx, scrollCtrl) {
         return StatefulBuilder(builder: (ctx, setSheet) {
           final t = ctx.tokens;
@@ -94,7 +96,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             padding: const EdgeInsets.fromLTRB(
                 PSpace.x20, 0, PSpace.x20, PSpace.x16),
             children: [
-              Text('금액 범위',
+              Text(l.expAmountRange,
                   style: PTypo.caption.copyWith(color: t.fgSecondary)),
               const SizedBox(height: 4),
               Row(
@@ -103,7 +105,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                     child: PTextInput(
                       controller: minCtrl,
                       numbersOnly: true,
-                      placeholder: '최소',
+                      placeholder: l.expFilterMin,
                       suffixText: '원',
                       onChanged: (v) => min = int.tryParse(v),
                     ),
@@ -115,7 +117,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                     child: PTextInput(
                       controller: maxCtrl,
                       numbersOnly: true,
-                      placeholder: '최대',
+                      placeholder: l.expFilterMax,
                       suffixText: '원',
                       onChanged: (v) => max = int.tryParse(v),
                     ),
@@ -123,7 +125,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                 ],
               ),
               const SizedBox(height: 12),
-              Text('기간',
+              Text(l.expFilterPeriod,
                   style: PTypo.caption.copyWith(color: t.fgSecondary)),
               const SizedBox(height: 4),
               Row(
@@ -136,7 +138,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                       },
                       firstDate: DateTime(2020),
                       lastDate: DateTime(2030, 12, 31),
-                      placeholder: '시작',
+                      placeholder: l.searchStartHint,
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -148,7 +150,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                       },
                       firstDate: DateTime(2020),
                       lastDate: DateTime(2030, 12, 31),
-                      placeholder: '종료',
+                      placeholder: l.searchEndHint,
                     ),
                   ),
                 ],
@@ -158,7 +160,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                 children: [
                   Expanded(
                     child: PButton(
-                      label: '초기화',
+                      label: l.actionReset,
                       variant: PButtonVariant.outline,
                       fullWidth: true,
                       onPressed: () {
@@ -176,7 +178,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: PButton(
-                      label: '적용',
+                      label: l.actionApply,
                       fullWidth: true,
                       onPressed: () {
                         Navigator.pop(sheetCtx);
@@ -246,6 +248,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
     final categories = ref.watch(categoriesProvider).value ?? const [];
 
@@ -256,7 +259,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
         titleSpacing: 0,
         leading: PBackButton(onPressed: () => context.pop()),
         title: PSearchField(
-          hint: '거래 검색...',
+          hint: l.searchHint,
           controller: _ctrl,
           focusNode: _focus,
           onChanged: _onChanged,
@@ -298,7 +301,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   ),
               ],
             ),
-            tooltip: '고급 필터',
+            tooltip: l.searchAdvancedFilter,
             onPressed: _showAdvancedSheet,
           ),
         ],
@@ -317,10 +320,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                 },
                 variant: PTabsVariant.pills,
                 size: PTabsSize.sm,
-                items: const [
-                  PTabItem(value: null, label: '전체'),
-                  PTabItem(value: 'EXPENSE', label: '지출'),
-                  PTabItem(value: 'INCOME', label: '수입'),
+                items: [
+                  PTabItem(value: null, label: l.expFilterAll),
+                  PTabItem(value: 'EXPENSE', label: l.expFilterExpense),
+                  PTabItem(value: 'INCOME', label: l.expFilterIncome),
                 ],
               ),
             ),
@@ -332,6 +335,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   }
 
   Widget _buildBody(PorestTokens t, AppSettings settings, List categories) {
+    final l = AppLocalizations.of(context);
     if (_loading) {
       return const _SearchLoadingSkeleton();
     }
@@ -339,7 +343,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       return Padding(
         padding: const EdgeInsets.all(PSpace.x24),
         child: Center(
-          child: Text('검색 실패: $_error',
+          child: Text('${l.searchFailed}: $_error',
               style: PTypo.bodySm.copyWith(color: t.statusDanger)),
         ),
       );
@@ -347,14 +351,14 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     if (_ctrl.text.trim().isEmpty && _typeFilter == null) {
       return _EmptyHint(
         icon: LucideIcons.search,
-        text: '키워드, 가맹점, 메모로 검색하세요',
+        text: l.searchEmptyHint,
         tokens: t,
       );
     }
     if (_results.isEmpty) {
       return _EmptyHint(
         icon: LucideIcons.searchX,
-        text: '결과가 없습니다',
+        text: l.searchNoResults,
         tokens: t,
       );
     }
@@ -435,6 +439,7 @@ class _ResultRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final color = resolveChartColor(
         context, category?.color as String? ?? expense.categoryColor,
         fallback: tokens.fgBrand);
@@ -471,7 +476,7 @@ class _ResultRow extends StatelessWidget {
                     expense.merchant ??
                         expense.description ??
                         expense.categoryName ??
-                        '거래',
+                        l.expTxFallback,
                     style: PTypo.bodySm.copyWith(
                         color: tokens.fgPrimary,
                         fontWeight: PFontWeight.semi),

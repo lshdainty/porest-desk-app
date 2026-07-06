@@ -3441,4 +3441,25 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get savingGoalDescHint => '메모';
+
+  @override
+  String get searchAdvancedFilter => '고급 필터';
+
+  @override
+  String get searchHint => '거래 검색...';
+
+  @override
+  String get searchStartHint => '시작';
+
+  @override
+  String get searchEndHint => '종료';
+
+  @override
+  String get searchFailed => '검색 실패';
+
+  @override
+  String get searchEmptyHint => '키워드, 가맹점, 메모로 검색하세요';
+
+  @override
+  String get searchNoResults => '결과가 없습니다';
 }

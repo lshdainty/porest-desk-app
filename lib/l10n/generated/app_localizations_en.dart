@@ -3476,4 +3476,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get savingGoalDescHint => 'Note';
+
+  @override
+  String get searchAdvancedFilter => 'Advanced filter';
+
+  @override
+  String get searchHint => 'Search transactions...';
+
+  @override
+  String get searchStartHint => 'Start';
+
+  @override
+  String get searchEndHint => 'End';
+
+  @override
+  String get searchFailed => 'Search failed';
+
+  @override
+  String get searchEmptyHint => 'Search by keyword, merchant, or note';
+
+  @override
+  String get searchNoResults => 'No results';
 }

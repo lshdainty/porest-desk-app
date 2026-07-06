@@ -1192,5 +1192,12 @@
   "savingGoalDeadlineHint": "미설정",
   "savingGoalColorLabel": "색상",
   "savingGoalDescLabel": "설명 (선택)",
-  "savingGoalDescHint": "메모"
+  "savingGoalDescHint": "메모",
+  "searchAdvancedFilter": "고급 필터",
+  "searchHint": "거래 검색...",
+  "searchStartHint": "시작",
+  "searchEndHint": "종료",
+  "searchFailed": "검색 실패",
+  "searchEmptyHint": "키워드, 가맹점, 메모로 검색하세요",
+  "searchNoResults": "결과가 없습니다"
 }

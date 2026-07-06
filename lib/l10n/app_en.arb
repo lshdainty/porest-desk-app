@@ -1191,5 +1191,12 @@
   "savingGoalDeadlineHint": "Not set",
   "savingGoalColorLabel": "Color",
   "savingGoalDescLabel": "Description (optional)",
-  "savingGoalDescHint": "Note"
+  "savingGoalDescHint": "Note",
+  "searchAdvancedFilter": "Advanced filter",
+  "searchHint": "Search transactions...",
+  "searchStartHint": "Start",
+  "searchEndHint": "End",
+  "searchFailed": "Search failed",
+  "searchEmptyHint": "Search by keyword, merchant, or note",
+  "searchNoResults": "No results"
 }
