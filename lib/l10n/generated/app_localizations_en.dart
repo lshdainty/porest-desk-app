@@ -2594,4 +2594,41 @@ class AppLocalizationsEn extends AppLocalizations {
   String exportPreviewRows(int count) {
     return 'Top $count rows';
   }
+
+  @override
+  String get fileAttachTitle => 'Attachments';
+
+  @override
+  String get fileTooltipGallery => 'Gallery';
+
+  @override
+  String get fileTooltipCamera => 'Camera';
+
+  @override
+  String get fileTooltipFile => 'File';
+
+  @override
+  String fileUploadComplete(String name) {
+    return '$name uploaded';
+  }
+
+  @override
+  String get fileUploadFailed => 'Upload failed';
+
+  @override
+  String get fileDeleteTitle => 'Delete file';
+
+  @override
+  String fileDeleteConfirm(String name) {
+    return 'Delete $name?';
+  }
+
+  @override
+  String get fileDeleteFailed => 'Delete failed';
+
+  @override
+  String get fileLoadError => 'Failed to load attachments';
+
+  @override
+  String get fileEmpty => 'No attachments';
 }

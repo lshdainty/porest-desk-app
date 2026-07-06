@@ -896,5 +896,18 @@
   "exportRun": "내보내기",
   "exportEmpty": "이 기간에 내보낼 데이터가 없어요.",
   "exportPreviewRows": "상위 {count}행 미리보기",
-  "@exportPreviewRows": {"placeholders": {"count": {"type": "int"}}}
+  "@exportPreviewRows": {"placeholders": {"count": {"type": "int"}}},
+  "fileAttachTitle": "첨부 파일",
+  "fileTooltipGallery": "갤러리",
+  "fileTooltipCamera": "카메라",
+  "fileTooltipFile": "파일",
+  "fileUploadComplete": "{name} 업로드 완료",
+  "@fileUploadComplete": {"placeholders": {"name": {"type": "String"}}},
+  "fileUploadFailed": "업로드 실패",
+  "fileDeleteTitle": "파일 삭제",
+  "fileDeleteConfirm": "{name} 삭제할까요?",
+  "@fileDeleteConfirm": {"placeholders": {"name": {"type": "String"}}},
+  "fileDeleteFailed": "삭제 실패",
+  "fileLoadError": "첨부 로드 실패",
+  "fileEmpty": "첨부된 파일 없음"
 }

@@ -8,6 +8,7 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/features/file/application/file_providers.dart';
@@ -69,6 +70,7 @@ class _FileAttachmentSectionState
   }
 
   Future<void> _upload(String path, String name) async {
+    final l = AppLocalizations.of(context);
     setState(() => _busy = true);
     try {
       final repo = await ref.read(fileRepositoryProvider.future);
@@ -80,21 +82,22 @@ class _FileAttachmentSectionState
       );
       ref.invalidate(filesByReferenceProvider(_key));
       if (!mounted) return;
-      showPSnackBar(context, '$name 업로드 완료', severity: PSnackSeverity.success);
+      showPSnackBar(context, l.fileUploadComplete(name), severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!mounted) return;
-      showPSnackBar(context, '업로드 실패: ${e.message}', severity: PSnackSeverity.error);
+      showPSnackBar(context, '${l.fileUploadFailed}: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) setState(() => _busy = false);
     }
   }
 
   Future<void> _delete(FileAttachment f) async {
+    final l = AppLocalizations.of(context);
     final ok = await showPConfirmDialog(
       context,
-      title: '파일 삭제',
-      message: '${f.originalName} 삭제할까요?',
-      confirmLabel: '삭제',
+      title: l.fileDeleteTitle,
+      message: l.fileDeleteConfirm(f.originalName),
+      confirmLabel: l.actionDelete,
       destructive: true,
     );
     if (!ok || !mounted) return;
@@ -105,7 +108,7 @@ class _FileAttachmentSectionState
       ref.invalidate(filesByReferenceProvider(_key));
     } on ApiException catch (e) {
       if (!mounted) return;
-      showPSnackBar(context, '삭제 실패: ${e.message}', severity: PSnackSeverity.error);
+      showPSnackBar(context, '${l.fileDeleteFailed}: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -121,6 +124,7 @@ class _FileAttachmentSectionState
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final async = ref.watch(filesByReferenceProvider(_key));
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -129,26 +133,26 @@ class _FileAttachmentSectionState
           children: [
             Icon(LucideIcons.paperclip, size: 14, color: t.fgSecondary),
             const SizedBox(width: 6),
-            Text('첨부 파일',
+            Text(l.fileAttachTitle,
                 style: PTypo.caption.copyWith(
                     color: t.fgPrimary, fontWeight: PFontWeight.bold)),
             const Spacer(),
             PButton.icon(
               icon: LucideIcons.image,
               size: PButtonSize.sm,
-              tooltip: '갤러리',
+              tooltip: l.fileTooltipGallery,
               onPressed: _busy ? null : _pickImage,
             ),
             PButton.icon(
               icon: LucideIcons.camera,
               size: PButtonSize.sm,
-              tooltip: '카메라',
+              tooltip: l.fileTooltipCamera,
               onPressed: _busy ? null : _pickCamera,
             ),
             PButton.icon(
               icon: LucideIcons.file,
               size: PButtonSize.sm,
-              tooltip: '파일',
+              tooltip: l.fileTooltipFile,
               onPressed: _busy ? null : _pickFile,
             ),
           ],
@@ -159,13 +163,13 @@ class _FileAttachmentSectionState
             padding: EdgeInsets.symmetric(vertical: 8),
             child: Center(child: PCircularProgressIndicator()),
           ),
-          error: (e, _) => Text('첨부 로드 실패',
+          error: (e, _) => Text(l.fileLoadError,
               style: PTypo.caption.copyWith(color: t.statusDanger)),
           data: (files) {
             if (files.isEmpty) {
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4),
-                child: Text('첨부된 파일 없음',
+                child: Text(l.fileEmpty,
                     style:
                         PTypo.caption.copyWith(color: t.fgTertiary)),
               );
