@@ -27,90 +27,93 @@ class _SettingsGroup {
   final List<_SettingsItem> items;
 }
 
-List<_SettingsGroup> _buildGroups(BuildContext ctx) => [
-  _SettingsGroup(
-    label: '데이터 관리',
-    items: [
-      _SettingsItem(
-        icon: LucideIcons.tag,
-        label: '카테고리 관리',
-        onTap: (c) => c.push('/categories'),
-      ),
-      _SettingsItem(
-        icon: LucideIcons.creditCard,
-        label: '계좌·카드 관리',
-        onTap: (c) => c.push('/account-card-manage'),
-      ),
-      _SettingsItem(
-        icon: LucideIcons.filePen,
-        label: '예산 설정',
-        // 웹 정합: 전체 > 설정 > 예산 설정 → BudgetManager 페이지 (개요 /budget 아님).
-        onTap: (c) => c.push('/budget/settings'),
-      ),
-      _SettingsItem(
-        icon: LucideIcons.repeat,
-        label: '반복 거래 관리',
-        onTap: (c) => c.push('/recurring'),
-      ),
-      _SettingsItem(
-        icon: LucideIcons.bookmark,
-        label: '프리셋 관리',
-        onTap: (c) => c.push('/presets'),
-      ),
-    ],
-  ),
-  _SettingsGroup(
-    label: '공유·소통',
-    items: [
-      _SettingsItem(
-        icon: LucideIcons.calendarCog,
-        label: '캘린더 관리·공유',
-        onTap: (c) => c.push('/settings/calendar-share'),
-      ),
-      _SettingsItem(
-        icon: LucideIcons.tag,
-        label: '캘린더 라벨',
-        onTap: (c) => c.push('/settings/calendar-labels'),
-      ),
-    ],
-  ),
-  _SettingsGroup(
-    label: '앱 환경',
-    items: [
-      _SettingsItem(
-        icon: LucideIcons.palette,
-        label: '표시 설정',
-        onTap: (c) => c.push('/settings/appearance'),
-      ),
-      _SettingsItem(
-        icon: LucideIcons.bell,
-        label: '알림',
-        onTap: (c) => c.push('/settings/notifications'),
-      ),
-    ],
-  ),
-  _SettingsGroup(
-    label: '데이터',
-    items: [
-      _SettingsItem(
-        icon: LucideIcons.download,
-        label: '데이터 내보내기',
-        onTap: (c) => c.push('/settings/export-data'),
-      ),
-      _SettingsItem(icon: LucideIcons.hardDrive, label: '저장공간', onTap: null),
-    ],
-  ),
-  _SettingsGroup(
-    label: '계정',
-    items: [
-      _SettingsItem(
-        icon: LucideIcons.user,
-        label: '계정 관리',
-        onTap: (c) => c.push('/account'),
-      ),
-    ],
-  ),
-];
+List<_SettingsGroup> _buildGroups(BuildContext ctx) {
+  final l = AppLocalizations.of(ctx);
+  return [
+    _SettingsGroup(
+      label: l.settingsGroupDataMgmt,
+      items: [
+        _SettingsItem(
+          icon: LucideIcons.tag,
+          label: l.settingsMenuCategory,
+          onTap: (c) => c.push('/categories'),
+        ),
+        _SettingsItem(
+          icon: LucideIcons.creditCard,
+          label: l.settingsMenuAccountCard,
+          onTap: (c) => c.push('/account-card-manage'),
+        ),
+        _SettingsItem(
+          icon: LucideIcons.filePen,
+          label: l.settingsMenuBudget,
+          // 웹 정합: 전체 > 설정 > 예산 설정 → BudgetManager 페이지 (개요 /budget 아님).
+          onTap: (c) => c.push('/budget/settings'),
+        ),
+        _SettingsItem(
+          icon: LucideIcons.repeat,
+          label: l.settingsMenuRecurring,
+          onTap: (c) => c.push('/recurring'),
+        ),
+        _SettingsItem(
+          icon: LucideIcons.bookmark,
+          label: l.settingsMenuPreset,
+          onTap: (c) => c.push('/presets'),
+        ),
+      ],
+    ),
+    _SettingsGroup(
+      label: l.settingsGroupShare,
+      items: [
+        _SettingsItem(
+          icon: LucideIcons.calendarCog,
+          label: l.settingsMenuCalendarShare,
+          onTap: (c) => c.push('/settings/calendar-share'),
+        ),
+        _SettingsItem(
+          icon: LucideIcons.tag,
+          label: l.settingsMenuCalendarLabel,
+          onTap: (c) => c.push('/settings/calendar-labels'),
+        ),
+      ],
+    ),
+    _SettingsGroup(
+      label: l.settingsGroupApp,
+      items: [
+        _SettingsItem(
+          icon: LucideIcons.palette,
+          label: l.settingsMenuAppearance,
+          onTap: (c) => c.push('/settings/appearance'),
+        ),
+        _SettingsItem(
+          icon: LucideIcons.bell,
+          label: l.navNotifications,
+          onTap: (c) => c.push('/settings/notifications'),
+        ),
+      ],
+    ),
+    _SettingsGroup(
+      label: l.settingsGroupData,
+      items: [
+        _SettingsItem(
+          icon: LucideIcons.download,
+          label: l.exportTitle,
+          onTap: (c) => c.push('/settings/export-data'),
+        ),
+        _SettingsItem(icon: LucideIcons.hardDrive, label: l.settingsMenuStorage, onTap: null),
+      ],
+    ),
+    _SettingsGroup(
+      label: l.settingsGroupAccount,
+      items: [
+        _SettingsItem(
+          icon: LucideIcons.user,
+          label: l.settingsMenuAccountMgmt,
+          onTap: (c) => c.push('/account'),
+        ),
+      ],
+    ),
+  ];
+}
 
 /// 설정 화면 — 프로필 카드 + 5개 그룹 카드 + 표시 설정 inline.
 class SettingsScreen extends ConsumerWidget {

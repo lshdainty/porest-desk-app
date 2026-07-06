@@ -2631,4 +2631,328 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get fileEmpty => 'No attachments';
+
+  @override
+  String get moreGroupMoney => 'Money';
+
+  @override
+  String get moreGroupDaily => 'Daily';
+
+  @override
+  String get moreGroupPersonal => 'Personalization';
+
+  @override
+  String get moreGroupSystem => 'Account & System';
+
+  @override
+  String get moreItemStocks => 'Securities';
+
+  @override
+  String get moreItemStats => 'Stats & Analysis';
+
+  @override
+  String get moreItemAccountCard => 'Account & Card';
+
+  @override
+  String get moreItemCardBenefits => 'Card Benefits';
+
+  @override
+  String get moreItemDisplay => 'Display';
+
+  @override
+  String get moreItemAccount => 'Account';
+
+  @override
+  String get moreDescExpense => 'Expense · Income · Transfer';
+
+  @override
+  String get moreDescAsset => 'Accounts · Cards · Investments · Debt';
+
+  @override
+  String get moreDescStocks => 'Quotes · Holdings · Watchlist · Orders';
+
+  @override
+  String get moreDescBudget => 'Monthly · By category';
+
+  @override
+  String get moreDescStats => 'Category · Trends · Comparison';
+
+  @override
+  String get moreDescRecurring => 'Subscriptions · Fixed costs';
+
+  @override
+  String get moreDescAccountCard => 'Add · Edit accounts & cards';
+
+  @override
+  String get moreDescCalendar => 'Events · Recurring · Reminders';
+
+  @override
+  String get moreDescTodo => 'Due · Priority · Tags';
+
+  @override
+  String get moreDescMemo => 'Category · Pin · Search';
+
+  @override
+  String get moreDescDutchPay => 'Settle · Friends · Payment requests';
+
+  @override
+  String get moreDescCardBenefits => 'Search credit & check cards';
+
+  @override
+  String get moreDescCategories => 'Expense · Income';
+
+  @override
+  String get moreDescPresets => 'Frequently used entries';
+
+  @override
+  String get moreDescDisplay => 'Theme · Density · Currency';
+
+  @override
+  String get moreDescSettings => 'All settings menu';
+
+  @override
+  String get moreDescNotifications => 'Push · Do not disturb';
+
+  @override
+  String get moreDescExport => 'CSV · Excel · JSON';
+
+  @override
+  String get moreDescAccount => 'Profile · Security · Subscription';
+
+  @override
+  String get moreSearchHint => 'Search menu';
+
+  @override
+  String get moreSearchEmpty => 'No results found';
+
+  @override
+  String get settingsGroupDataMgmt => 'Data Management';
+
+  @override
+  String get settingsMenuCategory => 'Category Management';
+
+  @override
+  String get settingsMenuAccountCard => 'Account & Card Management';
+
+  @override
+  String get settingsMenuBudget => 'Budget Settings';
+
+  @override
+  String get settingsMenuRecurring => 'Recurring Management';
+
+  @override
+  String get settingsMenuPreset => 'Preset Management';
+
+  @override
+  String get settingsGroupShare => 'Sharing & Communication';
+
+  @override
+  String get settingsMenuCalendarShare => 'Calendar Management & Sharing';
+
+  @override
+  String get settingsMenuCalendarLabel => 'Calendar Labels';
+
+  @override
+  String get settingsGroupApp => 'App Environment';
+
+  @override
+  String get settingsMenuAppearance => 'Display Settings';
+
+  @override
+  String get settingsGroupData => 'Data';
+
+  @override
+  String get settingsMenuStorage => 'Storage';
+
+  @override
+  String get settingsGroupAccount => 'Account';
+
+  @override
+  String get settingsMenuAccountMgmt => 'Account Management';
+
+  @override
+  String get appearanceTitle => 'Display Settings';
+
+  @override
+  String get appearanceTheme => 'Theme';
+
+  @override
+  String get appearanceThemeLight => 'Light';
+
+  @override
+  String get appearanceThemeLightDesc => 'Light background';
+
+  @override
+  String get appearanceThemeDark => 'Dark';
+
+  @override
+  String get appearanceThemeDarkDesc => 'Dark background';
+
+  @override
+  String get appearanceThemeSystem => 'System';
+
+  @override
+  String get appearanceThemeSystemDesc => 'Auto switch';
+
+  @override
+  String get appearancePrivacy => 'Privacy';
+
+  @override
+  String get appearanceHideAmount => 'Hide amounts';
+
+  @override
+  String get appearanceHideAmountDesc => 'Display all amounts as ••••';
+
+  @override
+  String get appearanceDensity => 'Display density';
+
+  @override
+  String get appearanceDensityCompact => 'Compact';
+
+  @override
+  String get appearanceDensityComfortable => 'Comfortable';
+
+  @override
+  String get appearanceDensitySpacious => 'Spacious';
+
+  @override
+  String get appearanceCurrency => 'Currency';
+
+  @override
+  String get appearanceCurrencyKrw => 'South Korean Won';
+
+  @override
+  String get appearanceCurrencyUsd => 'US Dollar';
+
+  @override
+  String get appearanceCurrencyEur => 'Euro';
+
+  @override
+  String get appearanceCurrencyJpy => 'Japanese Yen';
+
+  @override
+  String get passwordChanged => 'Password changed';
+
+  @override
+  String get passwordChangeFailed => 'Failed to change password.';
+
+  @override
+  String get passwordCurrent => 'Current password';
+
+  @override
+  String get passwordNew => 'New password';
+
+  @override
+  String get passwordNewPlaceholder => '8 or more characters';
+
+  @override
+  String get passwordNewConfirm => 'Confirm new password';
+
+  @override
+  String get passwordConfirmPlaceholder => 'Enter once more';
+
+  @override
+  String get passwordMismatch => 'New passwords do not match';
+
+  @override
+  String get passwordChangeAction => 'Change';
+
+  @override
+  String get accountTitle => 'Account';
+
+  @override
+  String get accountDefaultName => 'User';
+
+  @override
+  String get accountEditComingSoon => 'Profile editing is coming soon';
+
+  @override
+  String get accountSecurity => 'Security';
+
+  @override
+  String get accountPasswordDesc => 'No recent changes';
+
+  @override
+  String get accountTwoFa => 'Two-factor authentication';
+
+  @override
+  String get accountOn => 'On';
+
+  @override
+  String get accountOff => 'Off';
+
+  @override
+  String get accountBiometric => 'Biometric authentication';
+
+  @override
+  String get accountComingSoon => 'Coming soon';
+
+  @override
+  String get accountDevices => 'Logged-in devices';
+
+  @override
+  String get accountCurrentDevice => 'Current device';
+
+  @override
+  String get accountLoginHistory => 'Login history';
+
+  @override
+  String get accountLast30Days => 'Last 30 days';
+
+  @override
+  String get accountConnected => 'Connected accounts';
+
+  @override
+  String get accountNotConnected => 'Not connected';
+
+  @override
+  String get accountConnect => 'Connect';
+
+  @override
+  String accountSocialComingSoon(String name) {
+    return '$name connection is coming soon';
+  }
+
+  @override
+  String get accountBilling => 'Subscription & Billing';
+
+  @override
+  String accountNextBilling(String date) {
+    return 'Next billing $date · ';
+  }
+
+  @override
+  String get accountProActive => 'Pro active';
+
+  @override
+  String get accountProPromo => 'Securities investing is Pro-only · Start now';
+
+  @override
+  String get accountPerMonth => '/ mo';
+
+  @override
+  String get accountProStart => 'Start Pro';
+
+  @override
+  String get accountManage => 'Account Management';
+
+  @override
+  String get accountLogoutDesc => 'This device only';
+
+  @override
+  String get accountWithdraw => 'Delete account';
+
+  @override
+  String get accountWithdrawDesc => 'Permanent deletion';
+
+  @override
+  String get accountLogoutConfirm => 'Are you sure you want to log out?';
+
+  @override
+  String get accountWithdrawTitle =>
+      'Are you sure you want to delete your account?';
+
+  @override
+  String get accountWithdrawConfirm =>
+      'Deleting your account permanently erases all data.\nThis cannot be undone.';
 }

@@ -10,6 +10,7 @@ import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/settings/hide_amounts_unlock_dialog.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_card.dart';
 import 'package:porest_desk_app/shared/widgets/p_radio_list.dart';
 import 'package:porest_desk_app/shared/widgets/p_section_label.dart';
@@ -25,13 +26,14 @@ class AppearanceScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: t.bgCanvas,
       appBar: AppBar(
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
         leading: PBackButton(onPressed: () => context.pop()),
-        title: const Text('표시 설정'),
+        title: Text(l.appearanceTitle),
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,
         elevation: 0,
@@ -60,20 +62,21 @@ class AppearanceSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        PSectionLabel('테마'),
+        PSectionLabel(l.appearanceTheme),
         const SizedBox(height: PSpace.x8),
         Row(
           children: [
             Expanded(
               child: PTile(
                 swatch: _ThemeSwatch(icon: LucideIcons.sun, tokens: t),
-                label: '라이트',
-                description: '밝은 배경',
+                label: l.appearanceThemeLight,
+                description: l.appearanceThemeLightDesc,
                 selected: settings.themeMode == ThemeMode.light,
                 onTap: () => ref
                     .read(settingsProvider.notifier)
@@ -84,8 +87,8 @@ class AppearanceSection extends ConsumerWidget {
             Expanded(
               child: PTile(
                 swatch: _ThemeSwatch(icon: LucideIcons.moon, tokens: t),
-                label: '다크',
-                description: '어두운 배경',
+                label: l.appearanceThemeDark,
+                description: l.appearanceThemeDarkDesc,
                 selected: settings.themeMode == ThemeMode.dark,
                 onTap: () => ref
                     .read(settingsProvider.notifier)
@@ -96,8 +99,8 @@ class AppearanceSection extends ConsumerWidget {
             Expanded(
               child: PTile(
                 swatch: _ThemeSwatch(icon: LucideIcons.monitor, tokens: t),
-                label: '시스템',
-                description: '자동 전환',
+                label: l.appearanceThemeSystem,
+                description: l.appearanceThemeSystemDesc,
                 selected: settings.themeMode == ThemeMode.system,
                 onTap: () => ref
                     .read(settingsProvider.notifier)
@@ -108,7 +111,7 @@ class AppearanceSection extends ConsumerWidget {
         ),
 
         const SizedBox(height: PSpace.x24),
-        PSectionLabel('개인정보 보호'),
+        PSectionLabel(l.appearancePrivacy),
         const SizedBox(height: PSpace.x8),
         // 금액 가리기 — 클로드 디자인 settings 행 (아이콘 박스 + 라벨/설명 + 스위치).
         // 켜기는 즉시, 끄기는 비밀번호 인증 (toggleHideAmountsWithUnlock).
@@ -135,7 +138,7 @@ class AppearanceSection extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '금액 가리기',
+                      l.appearanceHideAmount,
                       style: PTypo.bodySm.copyWith(
                         color: t.fgPrimary,
                         fontWeight: PFontWeight.semi,
@@ -143,7 +146,7 @@ class AppearanceSection extends ConsumerWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '모든 화면의 금액을 ••••로 표시합니다',
+                      l.appearanceHideAmountDesc,
                       style: PTypo.caption.copyWith(color: t.fgTertiary),
                     ),
                   ],
@@ -161,33 +164,33 @@ class AppearanceSection extends ConsumerWidget {
         ),
 
         const SizedBox(height: PSpace.x24),
-        PSectionLabel('표시 밀도'),
+        PSectionLabel(l.appearanceDensity),
         const SizedBox(height: PSpace.x8),
         PTabs<PDensity>(
           value: settings.density,
           variant: PTabsVariant.container,
           size: PTabsSize.sm,
           expand: true,
-          items: const [
-            PTabItem(value: PDensity.compact, label: '컴팩트'),
-            PTabItem(value: PDensity.comfortable, label: '편안'),
-            PTabItem(value: PDensity.spacious, label: '여유'),
+          items: [
+            PTabItem(value: PDensity.compact, label: l.appearanceDensityCompact),
+            PTabItem(value: PDensity.comfortable, label: l.appearanceDensityComfortable),
+            PTabItem(value: PDensity.spacious, label: l.appearanceDensitySpacious),
           ],
           onChanged: (d) => ref.read(settingsProvider.notifier).setDensity(d),
         ),
 
         const SizedBox(height: PSpace.x24),
-        PSectionLabel('언어'),
+        PSectionLabel(l.settingsLanguage),
         const SizedBox(height: PSpace.x8),
         PTabs<String>(
           value: settings.locale?.languageCode ?? 'system',
           variant: PTabsVariant.container,
           size: PTabsSize.sm,
           expand: true,
-          items: const [
-            PTabItem(value: 'system', label: '시스템'),
-            PTabItem(value: 'ko', label: '한국어'),
-            PTabItem(value: 'en', label: 'English'),
+          items: [
+            PTabItem(value: 'system', label: l.languageSystem),
+            PTabItem(value: 'ko', label: l.languageKorean),
+            PTabItem(value: 'en', label: l.languageEnglish),
           ],
           onChanged: (v) {
             final notifier = ref.read(settingsProvider.notifier);
@@ -205,17 +208,17 @@ class AppearanceSection extends ConsumerWidget {
         ),
 
         const SizedBox(height: PSpace.x24),
-        PSectionLabel('통화'),
+        PSectionLabel(l.appearanceCurrency),
         const SizedBox(height: PSpace.x8),
         PRadioList<String>(
           value: settings.currency,
           onChanged: (code) =>
               ref.read(settingsProvider.notifier).setCurrency(code),
-          items: const [
-            PRadioListItem(value: 'KRW', label: '대한민국 원', subLabel: 'KRW', pillText: '₩'),
-            PRadioListItem(value: 'USD', label: '미국 달러', subLabel: 'USD', pillText: r'$'),
-            PRadioListItem(value: 'EUR', label: '유로', subLabel: 'EUR', pillText: '€'),
-            PRadioListItem(value: 'JPY', label: '일본 엔', subLabel: 'JPY', pillText: '¥'),
+          items: [
+            PRadioListItem(value: 'KRW', label: l.appearanceCurrencyKrw, subLabel: 'KRW', pillText: '₩'),
+            PRadioListItem(value: 'USD', label: l.appearanceCurrencyUsd, subLabel: 'USD', pillText: r'$'),
+            PRadioListItem(value: 'EUR', label: l.appearanceCurrencyEur, subLabel: 'EUR', pillText: '€'),
+            PRadioListItem(value: 'JPY', label: l.appearanceCurrencyJpy, subLabel: 'JPY', pillText: '¥'),
           ],
         ),
       ],
