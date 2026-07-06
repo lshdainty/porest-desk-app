@@ -6571,6 +6571,414 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'결과가 없습니다'**
   String get searchNoResults;
+
+  /// No description provided for @statsTabTrend.
+  ///
+  /// In ko, this message translates to:
+  /// **'추이'**
+  String get statsTabTrend;
+
+  /// No description provided for @statsTabCompare.
+  ///
+  /// In ko, this message translates to:
+  /// **'비교'**
+  String get statsTabCompare;
+
+  /// No description provided for @statsThisQuarter.
+  ///
+  /// In ko, this message translates to:
+  /// **'이번 분기'**
+  String get statsThisQuarter;
+
+  /// No description provided for @statsThisYear.
+  ///
+  /// In ko, this message translates to:
+  /// **'이번 해'**
+  String get statsThisYear;
+
+  /// No description provided for @statsCustomPeriod.
+  ///
+  /// In ko, this message translates to:
+  /// **'선택 기간'**
+  String get statsCustomPeriod;
+
+  /// No description provided for @statsLastMonth.
+  ///
+  /// In ko, this message translates to:
+  /// **'지난 달'**
+  String get statsLastMonth;
+
+  /// No description provided for @statsLastQuarter.
+  ///
+  /// In ko, this message translates to:
+  /// **'지난 분기'**
+  String get statsLastQuarter;
+
+  /// No description provided for @statsLastYear.
+  ///
+  /// In ko, this message translates to:
+  /// **'지난 해'**
+  String get statsLastYear;
+
+  /// No description provided for @statsPrevPeriod.
+  ///
+  /// In ko, this message translates to:
+  /// **'이전 기간'**
+  String get statsPrevPeriod;
+
+  /// No description provided for @statsMomMonth.
+  ///
+  /// In ko, this message translates to:
+  /// **'전월 대비'**
+  String get statsMomMonth;
+
+  /// No description provided for @statsMomQuarter.
+  ///
+  /// In ko, this message translates to:
+  /// **'전분기 대비'**
+  String get statsMomQuarter;
+
+  /// No description provided for @statsMomYear.
+  ///
+  /// In ko, this message translates to:
+  /// **'전년 대비'**
+  String get statsMomYear;
+
+  /// No description provided for @statsMomCustom.
+  ///
+  /// In ko, this message translates to:
+  /// **'이전 기간 대비'**
+  String get statsMomCustom;
+
+  /// No description provided for @statsMomPrevMonth.
+  ///
+  /// In ko, this message translates to:
+  /// **'전월'**
+  String get statsMomPrevMonth;
+
+  /// No description provided for @statsMomPrevQuarter.
+  ///
+  /// In ko, this message translates to:
+  /// **'전분기'**
+  String get statsMomPrevQuarter;
+
+  /// No description provided for @statsMomPrevYear.
+  ///
+  /// In ko, this message translates to:
+  /// **'전년'**
+  String get statsMomPrevYear;
+
+  /// No description provided for @statsDailyAvg.
+  ///
+  /// In ko, this message translates to:
+  /// **'하루 평균'**
+  String get statsDailyAvg;
+
+  /// No description provided for @statsMonthlyAvg.
+  ///
+  /// In ko, this message translates to:
+  /// **'월 평균'**
+  String get statsMonthlyAvg;
+
+  /// No description provided for @statsPeriodPickerTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'기간 선택'**
+  String get statsPeriodPickerTitle;
+
+  /// No description provided for @statsRange7d.
+  ///
+  /// In ko, this message translates to:
+  /// **'최근 7일'**
+  String get statsRange7d;
+
+  /// No description provided for @statsRange30d.
+  ///
+  /// In ko, this message translates to:
+  /// **'최근 30일'**
+  String get statsRange30d;
+
+  /// No description provided for @statsRange3m.
+  ///
+  /// In ko, this message translates to:
+  /// **'최근 3개월'**
+  String get statsRange3m;
+
+  /// No description provided for @statsRange6m.
+  ///
+  /// In ko, this message translates to:
+  /// **'최근 6개월'**
+  String get statsRange6m;
+
+  /// No description provided for @statsRange1y.
+  ///
+  /// In ko, this message translates to:
+  /// **'최근 1년'**
+  String get statsRange1y;
+
+  /// No description provided for @statsSegMonth.
+  ///
+  /// In ko, this message translates to:
+  /// **'월'**
+  String get statsSegMonth;
+
+  /// No description provided for @statsSegQuarter.
+  ///
+  /// In ko, this message translates to:
+  /// **'분기'**
+  String get statsSegQuarter;
+
+  /// No description provided for @statsSegYear.
+  ///
+  /// In ko, this message translates to:
+  /// **'년'**
+  String get statsSegYear;
+
+  /// No description provided for @statsSegCustom.
+  ///
+  /// In ko, this message translates to:
+  /// **'직접'**
+  String get statsSegCustom;
+
+  /// No description provided for @statsNoData.
+  ///
+  /// In ko, this message translates to:
+  /// **'데이터가 없습니다'**
+  String get statsNoData;
+
+  /// No description provided for @statsNoDataShort.
+  ///
+  /// In ko, this message translates to:
+  /// **'데이터 없음'**
+  String get statsNoDataShort;
+
+  /// No description provided for @statsUnassigned.
+  ///
+  /// In ko, this message translates to:
+  /// **'미지정'**
+  String get statsUnassigned;
+
+  /// No description provided for @statsCategoryDetail.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name} 세부'**
+  String statsCategoryDetail(String name);
+
+  /// No description provided for @statsPeriodSpending.
+  ///
+  /// In ko, this message translates to:
+  /// **'{period} 지출'**
+  String statsPeriodSpending(String period);
+
+  /// No description provided for @statsSpendingByCategory.
+  ///
+  /// In ko, this message translates to:
+  /// **'카테고리별 지출'**
+  String get statsSpendingByCategory;
+
+  /// No description provided for @statsNoCategoryData.
+  ///
+  /// In ko, this message translates to:
+  /// **'카테고리 데이터가 없습니다'**
+  String get statsNoCategoryData;
+
+  /// No description provided for @statsTopMerchantsTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'많이 쓴 가맹점 TOP 5'**
+  String get statsTopMerchantsTitle;
+
+  /// No description provided for @statsNoMerchantData.
+  ///
+  /// In ko, this message translates to:
+  /// **'가맹점 데이터가 없습니다'**
+  String get statsNoMerchantData;
+
+  /// No description provided for @statsNoName.
+  ///
+  /// In ko, this message translates to:
+  /// **'(이름 없음)'**
+  String get statsNoName;
+
+  /// No description provided for @statsTimeMorning.
+  ///
+  /// In ko, this message translates to:
+  /// **'아침'**
+  String get statsTimeMorning;
+
+  /// No description provided for @statsTimeLunch.
+  ///
+  /// In ko, this message translates to:
+  /// **'점심'**
+  String get statsTimeLunch;
+
+  /// No description provided for @statsTimeAfternoon.
+  ///
+  /// In ko, this message translates to:
+  /// **'오후'**
+  String get statsTimeAfternoon;
+
+  /// No description provided for @statsTimeEvening.
+  ///
+  /// In ko, this message translates to:
+  /// **'저녁'**
+  String get statsTimeEvening;
+
+  /// No description provided for @statsTimeLateNight.
+  ///
+  /// In ko, this message translates to:
+  /// **'심야'**
+  String get statsTimeLateNight;
+
+  /// No description provided for @statsTimeDawn.
+  ///
+  /// In ko, this message translates to:
+  /// **'새벽'**
+  String get statsTimeDawn;
+
+  /// No description provided for @statsPatternTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'요일·시간대 지출 패턴'**
+  String get statsPatternTitle;
+
+  /// No description provided for @statsPatternDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'색이 진할수록 지출이 많은 시간대예요 (단위: 원)'**
+  String get statsPatternDesc;
+
+  /// No description provided for @statsTooFewTx.
+  ///
+  /// In ko, this message translates to:
+  /// **'이번 달 거래가 아직 적어요'**
+  String get statsTooFewTx;
+
+  /// No description provided for @statsLegendLow.
+  ///
+  /// In ko, this message translates to:
+  /// **'적음'**
+  String get statsLegendLow;
+
+  /// No description provided for @statsLegendHigh.
+  ///
+  /// In ko, this message translates to:
+  /// **'많음'**
+  String get statsLegendHigh;
+
+  /// No description provided for @statsTotalPrefix.
+  ///
+  /// In ko, this message translates to:
+  /// **'총'**
+  String get statsTotalPrefix;
+
+  /// No description provided for @statsDaysTotal.
+  ///
+  /// In ko, this message translates to:
+  /// **'{days}일 합계'**
+  String statsDaysTotal(int days);
+
+  /// No description provided for @statsMomCalculating.
+  ///
+  /// In ko, this message translates to:
+  /// **'전월 대비 계산 중…'**
+  String get statsMomCalculating;
+
+  /// No description provided for @statsMomUnavailable.
+  ///
+  /// In ko, this message translates to:
+  /// **'전월 비교 불가'**
+  String get statsMomUnavailable;
+
+  /// No description provided for @statsTopCategory.
+  ///
+  /// In ko, this message translates to:
+  /// **'가장 많이 쓴 카테고리'**
+  String get statsTopCategory;
+
+  /// No description provided for @statsTopMerchant.
+  ///
+  /// In ko, this message translates to:
+  /// **'가장 많이 쓴 가맹점'**
+  String get statsTopMerchant;
+
+  /// No description provided for @statsIncomeExpenseTrend.
+  ///
+  /// In ko, this message translates to:
+  /// **'수입·지출 추이'**
+  String get statsIncomeExpenseTrend;
+
+  /// No description provided for @statsNoTrendData.
+  ///
+  /// In ko, this message translates to:
+  /// **'추이 데이터가 없습니다'**
+  String get statsNoTrendData;
+
+  /// No description provided for @statsAvgIncome.
+  ///
+  /// In ko, this message translates to:
+  /// **'평균 수입'**
+  String get statsAvgIncome;
+
+  /// No description provided for @statsAvgExpense.
+  ///
+  /// In ko, this message translates to:
+  /// **'평균 지출'**
+  String get statsAvgExpense;
+
+  /// No description provided for @statsNetSavings.
+  ///
+  /// In ko, this message translates to:
+  /// **'순저축'**
+  String get statsNetSavings;
+
+  /// No description provided for @statsAvgSavings.
+  ///
+  /// In ko, this message translates to:
+  /// **'평균 저축'**
+  String get statsAvgSavings;
+
+  /// No description provided for @statsSavingsRate.
+  ///
+  /// In ko, this message translates to:
+  /// **'저축률'**
+  String get statsSavingsRate;
+
+  /// No description provided for @statsDailyNetSavings.
+  ///
+  /// In ko, this message translates to:
+  /// **'일별 순저축'**
+  String get statsDailyNetSavings;
+
+  /// No description provided for @statsMonthlyNetSavings.
+  ///
+  /// In ko, this message translates to:
+  /// **'월별 순저축'**
+  String get statsMonthlyNetSavings;
+
+  /// No description provided for @statsIncomeMinusExpense.
+  ///
+  /// In ko, this message translates to:
+  /// **'수입 − 지출'**
+  String get statsIncomeMinusExpense;
+
+  /// No description provided for @statsNoDataFor.
+  ///
+  /// In ko, this message translates to:
+  /// **'{period} 데이터 없음'**
+  String statsNoDataFor(String period);
+
+  /// No description provided for @statsCategoryByMom.
+  ///
+  /// In ko, this message translates to:
+  /// **'카테고리별 {mom}'**
+  String statsCategoryByMom(String mom);
+
+  /// No description provided for @statsNoCompareData.
+  ///
+  /// In ko, this message translates to:
+  /// **'비교할 데이터가 없습니다'**
+  String get statsNoCompareData;
 }
 
 class _AppLocalizationsDelegate
