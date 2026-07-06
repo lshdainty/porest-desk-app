@@ -3185,4 +3185,193 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get presetCreated => '프리셋이 추가되었습니다';
+
+  @override
+  String get recurringToggleFailed => '변경 실패';
+
+  @override
+  String get recurringDeleteTitle => '반복 거래 삭제';
+
+  @override
+  String recurringDeleteConfirm(String name) {
+    return '\"$name\" 반복 설정을 삭제할까요?\n이미 기록된 거래는 그대로 남습니다.';
+  }
+
+  @override
+  String get recurringDeleteFailed => '삭제 실패';
+
+  @override
+  String get recurringLoadError => '반복 거래를 불러오지 못했습니다';
+
+  @override
+  String get recurringAllList => '전체 목록';
+
+  @override
+  String get recurringAdd => '추가';
+
+  @override
+  String recurringFilterAll(int count) {
+    return '전체 $count';
+  }
+
+  @override
+  String recurringFilterExpense(int count) {
+    return '지출 $count';
+  }
+
+  @override
+  String recurringFilterIncome(int count) {
+    return '수입 $count';
+  }
+
+  @override
+  String recurringFilterPaused(int count) {
+    return '일시정지 $count';
+  }
+
+  @override
+  String get recurringStatActive => '활성 반복';
+
+  @override
+  String recurringCount(int count) {
+    return '$count개';
+  }
+
+  @override
+  String get recurringPaused => '일시정지';
+
+  @override
+  String get recurringMonthlyExpense => '매월 고정 지출';
+
+  @override
+  String get recurringMonthlyIncome => '매월 고정 수입';
+
+  @override
+  String get recurringUpcoming => '다가오는 7일';
+
+  @override
+  String recurringUpcomingCount(int count) {
+    return '$count건 예정';
+  }
+
+  @override
+  String get recurringToday => '오늘';
+
+  @override
+  String get recurringNoAccount => '계좌 없음';
+
+  @override
+  String recurringOccurrences(int executed, int max) {
+    return '$executed/$max회';
+  }
+
+  @override
+  String get recurringNext => '다음';
+
+  @override
+  String get recurringStart => '시작';
+
+  @override
+  String get recurringEmpty => '해당하는 반복 거래가 없어요';
+
+  @override
+  String get recurringIndefinite => '무기한';
+
+  @override
+  String get recurringNotifyShort => '알림';
+
+  @override
+  String get recurringAddTitle => '반복 거래 추가';
+
+  @override
+  String get recurringSaveSubmit => '반복 저장';
+
+  @override
+  String get recurringUpdated => '반복 설정이 수정되었습니다';
+
+  @override
+  String get recurringSaved => '반복 설정이 저장되었습니다';
+
+  @override
+  String get recurringSaveFailed => '저장 실패';
+
+  @override
+  String get recurringIntro =>
+      '이 거래를 정해진 주기로 자동 반복합니다. 구독료·월세·정기 후원 등에 사용해보세요.';
+
+  @override
+  String get recurringFrequencyLabel => '반복 주기';
+
+  @override
+  String get recurringDayOfWeekLabel => '요일';
+
+  @override
+  String get recurringDayOfMonthLabel => '반복 일자';
+
+  @override
+  String get recurringDayNote => '해당 일이 없는 달은 말일에 처리됩니다';
+
+  @override
+  String get recurringEndLabel => '종료';
+
+  @override
+  String get recurringIndefiniteDesc => '중지할 때까지 계속 반복';
+
+  @override
+  String get recurringByCount => '횟수 지정';
+
+  @override
+  String get recurringTotal => '총';
+
+  @override
+  String get recurringTimesUnit => '회';
+
+  @override
+  String get recurringByDate => '종료일 지정';
+
+  @override
+  String get recurringOptions => '옵션';
+
+  @override
+  String get recurringAutoLog => '자동 기록';
+
+  @override
+  String get recurringAutoLogDesc => '해당 일자에 거래를 자동으로 추가합니다';
+
+  @override
+  String get recurringNotifyDayBefore => '하루 전 알림';
+
+  @override
+  String get recurringNotifyDesc => '결제·이체 예정일 전날 알림을 보냅니다';
+
+  @override
+  String get recurringNextDates => '다음 예정일';
+
+  @override
+  String recurringStartFrom(String date) {
+    return '$date 시작';
+  }
+
+  @override
+  String get recurringMerchant => '거래처';
+
+  @override
+  String get recurringMerchantPlaceholder => '예: 넷플릭스';
+
+  @override
+  String get recurringAssetCard => '계좌·카드';
+
+  @override
+  String get recurringAssetLoadError => '자산 로드 실패';
+
+  @override
+  String get recurringSelectNone => '선택 안 함';
+
+  @override
+  String get recurringStartDateLabel => '반복 시작일';
+
+  @override
+  String recurringParentCategory(String name) {
+    return '$name (상위)';
+  }
 }

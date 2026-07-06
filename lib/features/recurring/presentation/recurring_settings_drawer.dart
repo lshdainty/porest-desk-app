@@ -10,6 +10,7 @@ import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
 import 'package:porest_desk_app/shared/widgets/p_category_tile.dart';
 import 'package:porest_desk_app/shared/widgets/p_date_input.dart';
@@ -45,10 +46,11 @@ void showRecurringSettingsDialog(
     'expense 와 recurring 을 동시에 줄 수 없습니다 (둘 다 null = 신규 추가)',
   );
   final isAdd = expense == null && recurring == null;
+  final l = AppLocalizations.of(context);
   final controller = PSheetController();
   showPSheet<void>(
     context,
-    title: isAdd ? '반복 거래 추가' : '반복 설정',
+    title: isAdd ? l.recurringAddTitle : l.expConvertRecurring,
     contentBuilder: (ctx, scrollCtrl) => _RecurringSettingsBody(
       expense: expense,
       recurring: recurring,
@@ -57,7 +59,7 @@ void showRecurringSettingsDialog(
     ),
     footerBuilder: (ctx) => PSheetFooter(
       controller: controller,
-      submitLabel: isAdd ? '추가' : '반복 저장',
+      submitLabel: isAdd ? l.recurringAdd : l.recurringSaveSubmit,
     ),
   );
 }
@@ -184,6 +186,7 @@ class _RecurringSettingsBodyState
 
   Future<void> _save() async {
     if (!_ready || _submitting) return;
+    final l = AppLocalizations.of(context);
     _setSubmitting(true);
     final isWeekly = _frequency == 'WEEKLY';
     final isMonthlyish = _frequency == 'MONTHLY' || _frequency == 'YEARLY';
@@ -273,14 +276,14 @@ class _RecurringSettingsBodyState
       Navigator.of(context).pop();
       showPSnackBar(
         context,
-        _isEdit ? '반복 설정이 수정되었습니다' : '반복 설정이 저장되었습니다',
+        _isEdit ? l.recurringUpdated : l.recurringSaved,
         severity: PSnackSeverity.success,
       );
     } on ApiException catch (err) {
       if (!mounted) return;
       showPSnackBar(
         context,
-        '저장 실패: ${err.message}',
+        '${l.recurringSaveFailed}: ${err.message}',
         severity: PSnackSeverity.error,
       );
     } finally {
@@ -291,6 +294,7 @@ class _RecurringSettingsBodyState
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
 
     final Widget topWidget;
     if (_isAdd) {
@@ -319,13 +323,13 @@ class _RecurringSettingsBodyState
             ? r.merchant!
             : ((r.description ?? '').isNotEmpty
                   ? r.description!
-                  : (r.categoryName ?? '반복 거래'));
+                  : (r.categoryName ?? l.navRecurring));
         summaryAmount = r.amount;
         summaryType = r.expenseType;
       } else {
         summaryTitle = (e!.merchant ?? '').isNotEmpty
             ? e.merchant!
-            : ((e.description ?? '').isNotEmpty ? e.description! : '거래');
+            : ((e.description ?? '').isNotEmpty ? e.description! : l.expTxFallback);
         summaryAmount = e.amount;
         summaryType = e.expenseType;
       }
@@ -357,7 +361,7 @@ class _RecurringSettingsBodyState
       padding: const EdgeInsets.fromLTRB(PSpace.x16, 0, PSpace.x16, PSpace.x16),
       children: [
         Text(
-          '이 거래를 정해진 주기로 자동 반복합니다. 구독료·월세·정기 후원 등에 사용해보세요.',
+          l.recurringIntro,
           style: PTypo.bodySm.copyWith(
             color: t.fgSecondary,
             height: PLineHeight.normal,
@@ -368,17 +372,17 @@ class _RecurringSettingsBodyState
         const SizedBox(height: 18),
 
         _Section(
-          title: '반복 주기',
+          title: l.recurringFrequencyLabel,
           child: PTabs<String>(
             value: _frequency,
             variant: PTabsVariant.container,
             size: PTabsSize.sm,
             expand: true,
-            items: const [
-              PTabItem(value: 'DAILY', label: '매일'),
-              PTabItem(value: 'WEEKLY', label: '매주'),
-              PTabItem(value: 'MONTHLY', label: '매월'),
-              PTabItem(value: 'YEARLY', label: '매년'),
+            items: [
+              PTabItem(value: 'DAILY', label: l.calRepeatDaily),
+              PTabItem(value: 'WEEKLY', label: l.calRepeatWeekly),
+              PTabItem(value: 'MONTHLY', label: l.calRepeatMonthly),
+              PTabItem(value: 'YEARLY', label: l.calRepeatYearly),
             ],
             onChanged: (v) => setState(() => _frequency = v),
           ),
@@ -386,7 +390,7 @@ class _RecurringSettingsBodyState
 
         if (_frequency == 'WEEKLY')
           _Section(
-            title: '요일',
+            title: l.recurringDayOfWeekLabel,
             child: _DowGrid(
               value: _dayOfWeekUi,
               onChanged: (v) => setState(() => _dayOfWeekUi = v),
@@ -396,10 +400,10 @@ class _RecurringSettingsBodyState
 
         if (_frequency == 'MONTHLY')
           _Section(
-            title: '반복 일자',
+            title: l.recurringDayOfMonthLabel,
             child: Row(
               children: [
-                Text('매월', style: PTypo.bodySm.copyWith(color: t.fgSecondary)),
+                Text(l.calRepeatMonthly, style: PTypo.bodySm.copyWith(color: t.fgSecondary)),
                 const SizedBox(width: 8),
                 SizedBox(
                   width: 64,
@@ -427,7 +431,7 @@ class _RecurringSettingsBodyState
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    '해당 일이 없는 달은 말일에 처리됩니다',
+                    l.recurringDayNote,
                     style: PTypo.caption.copyWith(color: t.fgTertiary),
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -437,27 +441,27 @@ class _RecurringSettingsBodyState
           ),
 
         _Section(
-          title: '종료',
+          title: l.recurringEndLabel,
           child: Column(
             children: [
               _RadioCard(
                 selected: _endMode == _EndMode.none,
                 onSelect: () => setState(() => _endMode = _EndMode.none),
-                title: '무기한',
-                subtitle: '중지할 때까지 계속 반복',
+                title: l.recurringIndefinite,
+                subtitle: l.recurringIndefiniteDesc,
                 tokens: t,
               ),
               const SizedBox(height: 8),
               _RadioCard(
                 selected: _endMode == _EndMode.count,
                 onSelect: () => setState(() => _endMode = _EndMode.count),
-                title: '횟수 지정',
+                title: l.recurringByCount,
                 tokens: t,
                 subtitleChild: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      '총',
+                      l.recurringTotal,
                       style: PTypo.caption.copyWith(color: t.fgSecondary),
                     ),
                     const SizedBox(width: 6),
@@ -477,7 +481,7 @@ class _RecurringSettingsBodyState
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      '회',
+                      l.recurringTimesUnit,
                       style: PTypo.caption.copyWith(color: t.fgSecondary),
                     ),
                   ],
@@ -487,7 +491,7 @@ class _RecurringSettingsBodyState
               _RadioCard(
                 selected: _endMode == _EndMode.date,
                 onSelect: () => setState(() => _endMode = _EndMode.date),
-                title: '종료일 지정',
+                title: l.recurringByDate,
                 tokens: t,
                 subtitleChild: Padding(
                   padding: const EdgeInsets.only(top: 6),
@@ -510,13 +514,13 @@ class _RecurringSettingsBodyState
         ),
 
         _Section(
-          title: '옵션',
+          title: l.recurringOptions,
           child: Column(
             children: [
               _ToggleRow(
                 icon: LucideIcons.zap,
-                title: '자동 기록',
-                subtitle: '해당 일자에 거래를 자동으로 추가합니다',
+                title: l.recurringAutoLog,
+                subtitle: l.recurringAutoLogDesc,
                 value: _autoLog,
                 onChanged: (v) => setState(() => _autoLog = v),
                 tokens: t,
@@ -524,8 +528,8 @@ class _RecurringSettingsBodyState
               const SizedBox(height: 8),
               _ToggleRow(
                 icon: LucideIcons.bell,
-                title: '하루 전 알림',
-                subtitle: '결제·이체 예정일 전날 알림을 보냅니다',
+                title: l.recurringNotifyDayBefore,
+                subtitle: l.recurringNotifyDesc,
                 value: _notifyDayBefore,
                 onChanged: (v) => setState(() => _notifyDayBefore = v),
                 tokens: t,
@@ -551,7 +555,7 @@ class _RecurringSettingsBodyState
                     Icon(LucideIcons.calendar, size: 13, color: t.fgSecondary),
                     const SizedBox(width: 6),
                     Text(
-                      '다음 예정일',
+                      l.recurringNextDates,
                       style: PTypo.caption.copyWith(
                         color: t.fgPrimary,
                         fontWeight: PFontWeight.bold,
@@ -617,6 +621,7 @@ class _SourceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final isIncome = expenseType == 'INCOME';
     final amountText = '${isIncome ? '+' : '−'}${krw(amount.abs())}';
     return Container(
@@ -654,7 +659,7 @@ class _SourceCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '$startDate 시작',
+                  l.recurringStartFrom(startDate),
                   style: PTypo.caption.copyWith(color: tokens.fgTertiary),
                 ),
               ],
@@ -973,12 +978,14 @@ List<DateTime> _previewNextDates(
 // 거래 입력 (inline) — add_tx_sheet 와 독립. 지출/수입만, 시간 없음, 날짜 = 반복 시작일.
 // (웹 RecurringAddDialog 와 동일 구조 — 공용 TxInputForm 분리 대신 각 호스트 자체 보유)
 
-const _txPaymentMethods = [
-  ('CASH', '현금'),
-  ('CARD', '카드'),
-  ('TRANSFER', '계좌이체'),
-  ('OTHER', '기타'),
-];
+const _txPaymentMethodValues = ['CASH', 'CARD', 'TRANSFER', 'OTHER'];
+
+String _txPayLabel(AppLocalizations l, String v) => switch (v) {
+      'CASH' => l.expPayCash,
+      'CARD' => l.expPayCard,
+      'TRANSFER' => l.expPayTransfer,
+      _ => l.expPayOther,
+    };
 
 const Map<String, List<String>?> _txPaymentAssetTypes = {
   'CASH': ['CASH'],
@@ -1038,6 +1045,7 @@ class _TxFields extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final c = controller;
     final categoriesAsync = ref.watch(categoriesProvider);
     final assetsAsync = ref.watch(assetsProvider);
@@ -1057,15 +1065,15 @@ class _TxFields extends ConsumerWidget {
           expand: true,
           value: c.type,
           onChanged: (v) => _set(() => c.type = v),
-          items: const [
-            PTabItem(value: 'EXPENSE', label: '지출'),
-            PTabItem(value: 'INCOME', label: '수입'),
+          items: [
+            PTabItem(value: 'EXPENSE', label: l.expTypeExpense),
+            PTabItem(value: 'INCOME', label: l.expTypeIncome),
           ],
         ),
         const SizedBox(height: PSpace.x12),
 
         // 금액
-        PSectionLabel('금액'),
+        PSectionLabel(l.expAmount),
         const SizedBox(height: PSpace.x4),
         PTextInput(
           controller: c.amountCtrl,
@@ -1082,7 +1090,7 @@ class _TxFields extends ConsumerWidget {
         const SizedBox(height: PSpace.x16),
 
         // 카테고리
-        PSectionLabel('카테고리', variant: PSectionLabelVariant.eyebrow),
+        PSectionLabel(l.expCategory, variant: PSectionLabelVariant.eyebrow),
         const SizedBox(height: PSpace.x8),
         categoriesAsync.when(
           loading: () => const Padding(
@@ -1090,7 +1098,7 @@ class _TxFields extends ConsumerWidget {
             child: Center(child: PCircularProgressIndicator()),
           ),
           error: (e, _) => Text(
-            '카테고리 로드 실패: $e',
+            '${l.categoryLoadError}: $e',
             style: PTypo.caption.copyWith(color: t.statusDanger),
           ),
           data: (categories) {
@@ -1107,7 +1115,7 @@ class _TxFields extends ConsumerWidget {
                   );
             if (topCategories.isEmpty) {
               return Text(
-                '이 타입에 해당하는 카테고리가 없습니다',
+                l.expNoCategoryForType,
                 style: PTypo.caption.copyWith(color: t.fgTertiary),
               );
             }
@@ -1187,11 +1195,11 @@ class _TxFields extends ConsumerWidget {
                   const SizedBox(height: 10),
                   _SelectField<int>(
                     value: c.categoryRowId,
-                    hint: '세부 카테고리',
+                    hint: l.expSubcategory,
                     items: [
                       _SelectOption<int>(
                         selectedParentId,
-                        '${topCategories.firstWhere((cat) => cat.rowId == selectedParentId).categoryName} (상위)',
+                        l.recurringParentCategory(topCategories.firstWhere((cat) => cat.rowId == selectedParentId).categoryName),
                       ),
                       for (final child in childrenByParent[selectedParentId]!)
                         _SelectOption<int>(
@@ -1209,24 +1217,24 @@ class _TxFields extends ConsumerWidget {
         const SizedBox(height: PSpace.x12),
 
         // 거래처
-        PSectionLabel(c.type == 'INCOME' ? '수입처' : '거래처'),
+        PSectionLabel(c.type == 'INCOME' ? l.expIncomeSource : l.recurringMerchant),
         const SizedBox(height: PSpace.x4),
         PTextInput(
           controller: c.merchantCtrl,
-          placeholder: c.type == 'INCOME' ? '예: (주)포레스트' : '예: 넷플릭스',
+          placeholder: c.type == 'INCOME' ? l.expIncomeSourcePlaceholder : l.recurringMerchantPlaceholder,
         ),
         const SizedBox(height: PSpace.x12),
 
         // 결제 수단
-        PSectionLabel(c.type == 'INCOME' ? '수입 방식' : '결제 수단'),
+        PSectionLabel(c.type == 'INCOME' ? l.expIncomeMethod : l.expPaymentMethod),
         const SizedBox(height: PSpace.x4),
         _SelectField<String>(
           value: c.paymentMethod.isEmpty ? null : c.paymentMethod,
-          hint: '선택 안 함',
+          hint: l.recurringSelectNone,
           items: [
-            const _SelectOption<String>('', '선택 안 함'),
-            for (final pm in _txPaymentMethods)
-              _SelectOption<String>(pm.$1, pm.$2),
+            _SelectOption<String>('', l.recurringSelectNone),
+            for (final pm in _txPaymentMethodValues)
+              _SelectOption<String>(pm, _txPayLabel(l, pm)),
           ],
           onChanged: (v) => _set(() {
             c.paymentMethod = v ?? '';
@@ -1246,7 +1254,7 @@ class _TxFields extends ConsumerWidget {
         const SizedBox(height: PSpace.x12),
 
         // 계좌·카드
-        PSectionLabel(c.type == 'INCOME' ? '입금 계좌' : '계좌·카드'),
+        PSectionLabel(c.type == 'INCOME' ? l.expDepositAccount : l.recurringAssetCard),
         const SizedBox(height: PSpace.x4),
         assetsAsync.when(
           loading: () => const Padding(
@@ -1254,7 +1262,7 @@ class _TxFields extends ConsumerWidget {
             child: Center(child: PCircularProgressIndicator()),
           ),
           error: (e, _) => Text(
-            '자산 로드 실패: $e',
+            '${l.recurringAssetLoadError}: $e',
             style: PTypo.caption.copyWith(color: t.statusDanger),
           ),
           data: (assets) {
@@ -1266,9 +1274,9 @@ class _TxFields extends ConsumerWidget {
                 : assets.where((a) => allowed.contains(a.assetType)).toList();
             return _SelectField<int>(
               value: c.assetRowId,
-              hint: '선택 안 함',
+              hint: l.recurringSelectNone,
               items: [
-                const _SelectOption<int>(-1, '선택 안 함'),
+                _SelectOption<int>(-1, l.recurringSelectNone),
                 for (final a in filtered)
                   _SelectOption<int>(
                     a.rowId,
@@ -1284,7 +1292,7 @@ class _TxFields extends ConsumerWidget {
         const SizedBox(height: PSpace.x12),
 
         // 반복 시작일 (날짜만 — 웹 정합)
-        PSectionLabel('반복 시작일'),
+        PSectionLabel(l.recurringStartDateLabel),
         const SizedBox(height: PSpace.x4),
         PDateInput(
           value: c.date,
@@ -1297,12 +1305,12 @@ class _TxFields extends ConsumerWidget {
         const SizedBox(height: PSpace.x16),
 
         // 메모
-        PSectionLabel('메모'),
+        PSectionLabel(l.navMemo),
         const SizedBox(height: PSpace.x4),
         PTextInput(
           controller: c.memoCtrl,
           maxLines: 2,
-          placeholder: '예: 점심, 회식 등',
+          placeholder: l.expMemoPlaceholder,
         ),
       ],
     );
