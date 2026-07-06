@@ -7,6 +7,7 @@ import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
 import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
@@ -30,12 +31,13 @@ class ExpenseRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final positive = expense.signedAmount > 0;
 
     // 카테고리 색은 백엔드 카테고리 우선, 없으면 거래에 임베드된 categoryColor, 없으면 토큰
     final colorRaw = category?.color ?? expense.categoryColor;
     final iconRaw = category?.icon ?? expense.categoryIcon;
-    final cName = category?.categoryName ?? expense.categoryName ?? '미지정';
+    final cName = category?.categoryName ?? expense.categoryName ?? l.expUncategorized;
 
     final fg = resolveChartColor(context, colorRaw, fallback: t.fgBrand);
     final bg = softBg(context, fg);

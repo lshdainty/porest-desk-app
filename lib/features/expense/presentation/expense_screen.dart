@@ -10,6 +10,7 @@ import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/format/date.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_badge.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_card.dart';
@@ -115,6 +116,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
     AsyncValue<List<dynamic>> categoriesAsync,
     bool masked,
   ) {
+    final l = AppLocalizations.of(context);
     // 리스트는 스크롤, '거래 추가' footer 는 항상 하단 고정 — Draggable 모드
     // (Expanded content 스크롤 + 고정 footer). 높이는 showPSheet default(0.85)
     // — 다른 표준 시트(add_tx_sheet 등)·웹 mobileMinHeight 85dvh 와 동일하게 고정.
@@ -131,7 +133,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
       ),
       // 그 날짜로 거래 추가 — 시트 닫고 add_tx_sheet(defaultDate 시드).
       footerBuilder: (sheetCtx) => PButton(
-        label: '거래 추가',
+        label: l.expAdd,
         icon: LucideIcons.plus,
         fullWidth: true,
         onPressed: () {
@@ -145,6 +147,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
     final categoriesAsync = ref.watch(categoriesProvider);
     final expensesAsync = ref.watch(monthExpensesProvider(_key));
@@ -181,7 +184,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
               calendarHeight: calendarH,
             ),
             error: (e, _) => _ErrorBox(
-              message: '거래를 불러오지 못했습니다\n$e',
+              message: '${l.expLoadError}\n$e',
               onRetry: () => ref.invalidate(monthExpensesProvider(_key)),
             ),
             data: (raw) {
@@ -331,7 +334,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                         ),
                         child: Center(
                           child: Text(
-                            '이 달에는 거래가 없습니다',
+                            l.expEmptyMonth,
                             style: PTypo.bodySm.copyWith(color: t.fgTertiary),
                           ),
                         ),
@@ -402,6 +405,7 @@ class _SummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final balance = income - expense;
     return PCard(
       padding: const EdgeInsets.all(PSpace.x16),
@@ -439,21 +443,21 @@ class _SummaryCard extends StatelessWidget {
             children: [
               Expanded(
                 child: _Stat(
-                  label: '수입',
+                  label: l.expSummaryIncome,
                   value: krwMasked(income, masked, sign: true),
                   color: t.fgIncome,
                 ),
               ),
               Expanded(
                 child: _Stat(
-                  label: '지출',
+                  label: l.expSummaryExpense,
                   value: krwMasked(-expense, masked, sign: true),
                   color: t.fgExpense,
                 ),
               ),
               Expanded(
                 child: _Stat(
-                  label: '합계',
+                  label: l.expTotal,
                   value: krwMasked(balance, masked, sign: true),
                   color: t.fgBrandStrong,
                 ),
@@ -545,6 +549,7 @@ class _FilterRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     return Row(
       children: [
         Expanded(
@@ -560,9 +565,9 @@ class _FilterRow extends StatelessWidget {
                   PTabItem(
                     value: f,
                     label: switch (f) {
-                      _Filter.all => '전체',
-                      _Filter.expense => '지출',
-                      _Filter.income => '수입',
+                      _Filter.all => l.expFilterAll,
+                      _Filter.expense => l.expFilterExpense,
+                      _Filter.income => l.expFilterIncome,
                     },
                   ),
               ],
@@ -754,6 +759,7 @@ class _AssetFilterBadge extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     // assetsProvider 캐시 우선, 없으면 단건 fetch.
     final all = ref.watch(assetsProvider).value;
     final cached = all?.byRowId(assetId);
@@ -761,7 +767,7 @@ class _AssetFilterBadge extends ConsumerWidget {
         ? ref.watch(assetByIdProvider(assetId))
         : null;
     final name = cached?.assetName ?? asyncFallback?.value?.assetName;
-    final label = name == null ? '필터 중' : '$name 필터 중';
+    final label = name == null ? l.expFiltering : l.expFilteringBy(name);
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 6, 6, 6),
       decoration: BoxDecoration(
@@ -1073,6 +1079,7 @@ class _ErrorBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.all(PSpace.x16),
       decoration: BoxDecoration(
@@ -1084,7 +1091,7 @@ class _ErrorBox extends StatelessWidget {
           Text(message, style: PTypo.bodySm.copyWith(color: t.statusDangerFg)),
           const SizedBox(height: PSpace.x8),
           PButton(
-            label: '다시 시도',
+            label: l.actionRetry,
             variant: PButtonVariant.outline,
             onPressed: onRetry,
           ),
@@ -1102,11 +1109,12 @@ class _ViewModeToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final isCalendar = value == _ViewMode.calendar;
     return Align(
       alignment: Alignment.centerLeft,
       child: PButton(
-        label: isCalendar ? '목록' : '달력',
+        label: isCalendar ? l.expViewList : l.expViewCalendar,
         icon: isCalendar ? LucideIcons.list : LucideIcons.calendar,
         variant: PButtonVariant.ghost,
         size: PButtonSize.sm,
@@ -1351,6 +1359,7 @@ class _DayDetailBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final categories = categoriesAsync.value ?? const <dynamic>[];
     final income = items
         .where((e) => e.expenseType == 'INCOME')
@@ -1386,7 +1395,7 @@ class _DayDetailBody extends StatelessWidget {
               child: Row(
                 children: [
                   Text(
-                    '${items.length}건',
+                    l.expTxCount(items.length),
                     style: PTypo.bodySm.copyWith(
                       color: t.fgSecondary,
                       fontWeight: PFontWeight.semi,
@@ -1398,7 +1407,7 @@ class _DayDetailBody extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
-                          '수입',
+                          l.expSummaryIncome,
                           style: PTypo.caption.copyWith(color: t.fgTertiary),
                         ),
                         const SizedBox(height: 2),
@@ -1418,7 +1427,7 @@ class _DayDetailBody extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
-                          '지출',
+                          l.expSummaryExpense,
                           style: PTypo.caption.copyWith(color: t.fgTertiary),
                         ),
                         const SizedBox(height: 2),
@@ -1442,7 +1451,7 @@ class _DayDetailBody extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: PSpace.x24),
               child: Center(
                 child: Text(
-                  '이 날의 거래가 없어요',
+                  l.expEmptyDay,
                   style: PTypo.bodySm.copyWith(color: t.fgTertiary),
                 ),
               ),

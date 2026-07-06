@@ -11,6 +11,7 @@ import 'package:porest_desk_app/core/format/date.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/core/sync/keep_alive_refresh.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
 import 'package:porest_desk_app/shared/widgets/p_badge.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
@@ -47,9 +48,10 @@ void showAddTxSheet(
   Expense? edit,
 }) {
   final controller = PSheetController();
+  final l = AppLocalizations.of(context);
   showPSheet<void>(
     context,
-    title: edit == null ? '내역 추가' : '거래 편집',
+    title: edit == null ? l.expAdd : l.expEdit,
     contentBuilder: (ctx, scrollCtrl) => _AddTxBody(
       defaultDate: defaultDate,
       edit: edit,
@@ -58,7 +60,7 @@ void showAddTxSheet(
     ),
     footerBuilder: (ctx) => PSheetFooter(
       controller: controller,
-      submitLabel: edit != null ? '저장' : '추가',
+      submitLabel: edit != null ? l.actionSave : l.expAddShort,
     ),
   ).whenComplete(controller.dispose);
 }
@@ -232,13 +234,15 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
         ref.invalidate(monthExpensesProvider((year: d.year, month: d.month)));
         invalidateAssetsAfterExpense(ref);
         if (!mounted) return;
+        final l = AppLocalizations.of(context);
         Navigator.of(context).pop();
-        showPSnackBar(context, '이체가 완료되었습니다', severity: PSnackSeverity.success);
+        showPSnackBar(context, l.expTransferDone, severity: PSnackSeverity.success);
       } on ApiException catch (e) {
         if (!mounted) return;
+        final l = AppLocalizations.of(context);
         showPSnackBar(
           context,
-          '실패: ${e.message}',
+          '${l.expActionFailed}: ${e.message}',
           severity: PSnackSeverity.error,
         );
       } finally {
@@ -300,17 +304,19 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
       ref.invalidate(monthExpensesProvider((year: d.year, month: d.month)));
       invalidateAssetsAfterExpense(ref);
       if (!mounted) return;
+      final l = AppLocalizations.of(context);
       Navigator.of(context).pop();
       showPSnackBar(
         context,
-        _isEdit ? '거래가 수정되었습니다' : '거래가 추가되었습니다',
+        _isEdit ? l.expUpdated : l.expAdded,
         severity: PSnackSeverity.success,
       );
     } on ApiException catch (e) {
       if (!mounted) return;
+      final l = AppLocalizations.of(context);
       showPSnackBar(
         context,
-        '실패: ${e.message}',
+        '${l.expActionFailed}: ${e.message}',
         severity: PSnackSeverity.error,
       );
     } finally {
@@ -319,11 +325,12 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
   }
 
   Future<void> _confirmDelete() async {
+    final l = AppLocalizations.of(context);
     final ok = await showPConfirmDialog(
       context,
-      title: '거래 삭제',
-      message: '이 거래를 삭제하시겠습니까? 연결된 자산 잔액이 함께 조정됩니다.',
-      confirmLabel: '삭제',
+      title: l.expDelete,
+      message: l.expDeleteConfirm,
+      confirmLabel: l.actionDelete,
       destructive: true,
     );
     if (!ok || !mounted) return;
@@ -340,12 +347,12 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
       invalidateAssetsAfterExpense(ref);
       if (!mounted) return;
       Navigator.of(context).pop();
-      showPSnackBar(context, '거래가 삭제되었습니다', severity: PSnackSeverity.success);
+      showPSnackBar(context, l.expDeleted, severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!mounted) return;
       showPSnackBar(
         context,
-        '삭제 실패: ${e.message}',
+        '${l.expDeleteFailed}: ${e.message}',
         severity: PSnackSeverity.error,
       );
     } finally {
@@ -413,6 +420,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
 
   /// 분할 합 불일치 경고 — 금액을 바꿔 기존 분할 합과 어긋날 때. '분할 내역 맞추기'로 일치화 진입.
   Widget _splitMismatchBanner(PorestTokens t) {
+    final l = AppLocalizations.of(context);
     final amount = _input.amountInt;
     final diff = amount - _splitSum;
     return Container(
@@ -431,19 +439,22 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('분할 내역과 금액이 달라요',
+                Text(l.expSplitMismatch,
                     style: PTypo.bodySm.copyWith(
                         color: t.fgPrimary, fontWeight: PFontWeight.bold)),
                 const SizedBox(height: 3),
                 Text(
-                  '새 총액 ${krw(amount)}원 · 분할 합계 ${krw(_splitSum)}원 · '
-                  '${diff > 0 ? '+' : '-'}${krw(diff.abs())}원 차이',
+                  l.expSplitDiff(
+                    krw(amount),
+                    krw(_splitSum),
+                    '${diff > 0 ? '+' : '-'}${krw(diff.abs())}',
+                  ),
                   style: PTypo.caption.copyWith(
                       color: t.fgSecondary, height: PLineHeight.normal),
                 ),
                 const SizedBox(height: PSpace.x8),
                 PButton(
-                  label: '분할 내역 맞추기',
+                  label: l.expSplitReconcile,
                   icon: LucideIcons.scissors,
                   size: PButtonSize.sm,
                   onPressed: _submitting ? null : _openReconcile,
@@ -497,6 +508,7 @@ class _PresetSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     // 사용 빈도 desc 로 8개 (웹과 동일).
     final sorted = [...presets]
       ..sort((a, b) => (b.useCount ?? 0).compareTo(a.useCount ?? 0));
@@ -514,7 +526,7 @@ class _PresetSection extends StatelessWidget {
               Icon(LucideIcons.bookmark, size: 13, color: tokens.fgTertiary),
               const SizedBox(width: 6),
               Text(
-                '프리셋 불러오기',
+                l.expPresetLoad,
                 style: TextStyle(
                   fontSize: PFontSize.micro,
                   color: tokens.fgTertiary,
@@ -524,7 +536,7 @@ class _PresetSection extends StatelessWidget {
               ),
               if (appliedId != null) ...[
                 const SizedBox(width: 6),
-                const PBadge(label: '적용됨', variant: PBadgeVariant.softBrand),
+                PBadge(label: l.expPresetApplied, variant: PBadgeVariant.softBrand),
               ],
               const Spacer(),
               GestureDetector(
@@ -540,7 +552,7 @@ class _PresetSection extends StatelessWidget {
                     ),
                     const SizedBox(width: 3),
                     Text(
-                      '현재 입력값 저장',
+                      l.expPresetSaveCurrent,
                       style: TextStyle(
                         fontSize: PFontSize.caption,
                         color: canSave
@@ -593,7 +605,7 @@ class _PresetSection extends StatelessWidget {
               borderRadius: PRadius.brSm,
             ),
             child: Text(
-              '저장된 프리셋이 없어요. 자주 쓰는 내역을 입력 후 “현재 입력값 저장”을 눌러보세요.',
+              l.expPresetEmpty,
               style: TextStyle(
                 fontSize: PFontSize.caption,
                 color: tokens.fgTertiary,
@@ -617,7 +629,7 @@ class _PresetSection extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    '프리셋 값이 채워졌어요. 금액·내역만 수정해서 저장하세요.',
+                    l.expPresetFilled,
                     style: TextStyle(
                       fontSize: PFontSize.caption,
                       color: tokens.fgBrandStrong,
@@ -628,7 +640,7 @@ class _PresetSection extends StatelessWidget {
                 GestureDetector(
                   onTap: onClear,
                   child: Text(
-                    '해제',
+                    l.expClear,
                     style: TextStyle(
                       fontSize: PFontSize.micro,
                       color: tokens.fgBrandStrong,
@@ -732,6 +744,7 @@ class _MorePresetsHint extends StatelessWidget {
   final PorestTokens tokens;
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
       decoration: BoxDecoration(
@@ -747,7 +760,7 @@ class _MorePresetsHint extends StatelessWidget {
           Icon(LucideIcons.moreHorizontal, size: 14, color: tokens.fgTertiary),
           const SizedBox(width: 4),
           Text(
-            '설정 → 프리셋 관리',
+            l.expPresetManageHint,
             style: TextStyle(
               fontSize: PFontSize.caption,
               fontWeight: PFontWeight.semi,
@@ -830,7 +843,7 @@ class _SavePresetDialogState extends ConsumerState<_SavePresetDialog> {
       if (!mounted) return;
       showPSnackBar(
         context,
-        '저장 실패: ${e.message}',
+        '${AppLocalizations.of(context).expSaveFailed}: ${e.message}',
         severity: PSnackSeverity.error,
       );
     } finally {
@@ -841,8 +854,9 @@ class _SavePresetDialogState extends ConsumerState<_SavePresetDialog> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     return PFormAlertDialog(
-      title: '프리셋으로 저장',
+      title: l.expPresetSaveTitle,
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -850,7 +864,7 @@ class _SavePresetDialogState extends ConsumerState<_SavePresetDialog> {
           PTextInput(
             controller: _nameCtrl,
             autofocus: true,
-            placeholder: '예: 점심 도시락',
+            placeholder: l.expPresetNamePlaceholder,
           ),
           const SizedBox(height: PSpace.x12),
           InkWell(
@@ -867,7 +881,7 @@ class _SavePresetDialogState extends ConsumerState<_SavePresetDialog> {
                   const SizedBox(width: 4),
                   Expanded(
                     child: Text(
-                      '금액 잠금 — 적용 시 ${krw(widget.seedAmount)}원 자동 채움',
+                      l.expPresetLockAmount(krw(widget.seedAmount)),
                       style: TextStyle(
                         fontSize: PFontSize.caption,
                         color: t.fgSecondary,
@@ -882,12 +896,12 @@ class _SavePresetDialogState extends ConsumerState<_SavePresetDialog> {
       ),
       actions: [
         PButton(
-          label: '취소',
+          label: l.actionCancel,
           variant: PButtonVariant.ghost,
           onPressed: _submitting ? null : Navigator.of(context).pop,
         ),
         PButton(
-          label: '저장',
+          label: l.actionSave,
           loading: _submitting,
           onPressed: (_submitting || _nameCtrl.text.trim().isEmpty)
               ? null
@@ -901,12 +915,15 @@ class _SavePresetDialogState extends ConsumerState<_SavePresetDialog> {
 // ─────────────────────────────────────────────
 // 거래 입력 (inline) — recurring 과 독립. tx_input_form.dart 해체 후 add_tx 자체 보유.
 
-const _txPaymentMethods = [
-  ('CASH', '현금'),
-  ('CARD', '카드'),
-  ('TRANSFER', '계좌이체'),
-  ('OTHER', '기타'),
-];
+const _txPaymentMethodCodes = ['CASH', 'CARD', 'TRANSFER', 'OTHER'];
+
+String _txPaymentMethodLabel(AppLocalizations l, String code) => switch (code) {
+  'CASH' => l.expPayCash,
+  'CARD' => l.expPayCard,
+  'TRANSFER' => l.expPayTransfer,
+  'OTHER' => l.expPayOther,
+  _ => code,
+};
 
 const Map<String, List<String>?> _txPaymentAssetTypes = {
   'CASH': ['CASH'],
@@ -990,6 +1007,7 @@ class _TxInputForm extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final c = controller;
     final categoriesAsync = ref.watch(categoriesProvider);
     final assetsAsync = ref.watch(assetsProvider);
@@ -1016,18 +1034,18 @@ class _TxInputForm extends ConsumerWidget {
           items: [
             PTabItem(
               value: 'EXPENSE',
-              label: '지출',
+              label: l.expTypeExpense,
               disabled: typeReadOnly && typeDisabledFor != 'EXPENSE',
             ),
             PTabItem(
               value: 'INCOME',
-              label: '수입',
+              label: l.expTypeIncome,
               disabled: typeReadOnly && typeDisabledFor != 'INCOME',
             ),
             if (!typeReadOnly || c.type == 'TRANSFER')
               PTabItem(
                 value: 'TRANSFER',
-                label: '이체',
+                label: l.expTypeTransfer,
                 disabled: typeReadOnly && typeDisabledFor != 'TRANSFER',
               ),
           ],
@@ -1042,12 +1060,12 @@ class _TxInputForm extends ConsumerWidget {
         // 금액
         Row(
           children: [
-            Expanded(child: PSectionLabel('금액')),
+            Expanded(child: PSectionLabel(l.expAmount)),
             if (c.amountLocked) ...[
               Icon(LucideIcons.lock, size: 11, color: t.fgTertiary),
               const SizedBox(width: 3),
               Text(
-                '프리셋 잠금',
+                l.expPresetLock,
                 style: PTypo.caption.copyWith(color: t.fgTertiary),
               ),
             ],
@@ -1070,7 +1088,7 @@ class _TxInputForm extends ConsumerWidget {
         const SizedBox(height: PSpace.x16),
 
         if (c.type != 'TRANSFER') ...[
-          PSectionLabel('카테고리', variant: PSectionLabelVariant.eyebrow),
+          PSectionLabel(l.expCategory, variant: PSectionLabelVariant.eyebrow),
           const SizedBox(height: PSpace.x8),
           categoriesAsync.when(
             loading: () => const Padding(
@@ -1078,7 +1096,7 @@ class _TxInputForm extends ConsumerWidget {
               child: Center(child: PCircularProgressIndicator()),
             ),
             error: (e, _) => Text(
-              '카테고리 로드 실패: $e',
+              '${l.categoryLoadError}: $e',
               style: PTypo.caption.copyWith(color: t.statusDanger),
             ),
             data: (categories) {
@@ -1095,7 +1113,7 @@ class _TxInputForm extends ConsumerWidget {
                     );
               if (topCategories.isEmpty) {
                 return Text(
-                  '이 타입에 해당하는 카테고리가 없습니다',
+                  l.expNoCategoryForType,
                   style: PTypo.caption.copyWith(color: t.fgTertiary),
                 );
               }
@@ -1176,11 +1194,11 @@ class _TxInputForm extends ConsumerWidget {
                     const SizedBox(height: 10),
                     _SelectField<int>(
                       value: c.categoryRowId,
-                      hint: '세부 카테고리',
+                      hint: l.expSubcategory,
                       items: [
                         _SelectOption<int>(
                           selectedParentId,
-                          '${topCategories.firstWhere((cat) => cat.rowId == selectedParentId).categoryName} (상위)',
+                          l.expTopCategorySuffix(topCategories.firstWhere((cat) => cat.rowId == selectedParentId).categoryName),
                         ),
                         for (final child in childrenByParent[selectedParentId]!)
                           _SelectOption<int>(
@@ -1200,25 +1218,25 @@ class _TxInputForm extends ConsumerWidget {
 
         if (c.type != 'TRANSFER') ...[
           // 거래처
-          PSectionLabel(c.type == 'INCOME' ? '수입처' : '거래처'),
+          PSectionLabel(c.type == 'INCOME' ? l.expIncomeSource : l.expPayee),
           const SizedBox(height: PSpace.x4),
           PTextInput(
             controller: c.merchantCtrl,
-            placeholder: c.type == 'INCOME' ? '예: (주)포레스트' : '예: 스타벅스 강남점',
+            placeholder: c.type == 'INCOME' ? l.expIncomeSourcePlaceholder : l.expPayeePlaceholder,
           ),
           const SizedBox(height: PSpace.x12),
 
           // 결제 수단 (Select)
-          PSectionLabel(c.type == 'INCOME' ? '수입 방식' : '결제 수단'),
+          PSectionLabel(c.type == 'INCOME' ? l.expIncomeMethod : l.expPaymentMethod),
           const SizedBox(height: PSpace.x4),
           _SelectField<String>(
             // ''(선택 안 함)도 유효 default — null 변환 금지(웹 정합: '선택 안 함' selected).
             value: c.paymentMethod,
-            hint: '선택 안 함',
+            hint: l.expNone,
             items: [
-              const _SelectOption<String>('', '선택 안 함'),
-              for (final pm in _txPaymentMethods)
-                _SelectOption<String>(pm.$1, pm.$2),
+              _SelectOption<String>('', l.expNone),
+              for (final code in _txPaymentMethodCodes)
+                _SelectOption<String>(code, _txPaymentMethodLabel(l, code)),
             ],
             onChanged: (v) => _set(() {
               c.paymentMethod = v ?? '';
@@ -1239,7 +1257,7 @@ class _TxInputForm extends ConsumerWidget {
           const SizedBox(height: PSpace.x12),
 
           // 계좌·카드 (Select, payment method 로 필터)
-          PSectionLabel(c.type == 'INCOME' ? '입금 계좌' : '계좌·카드'),
+          PSectionLabel(c.type == 'INCOME' ? l.expDepositAccount : l.expAccountCard),
           const SizedBox(height: PSpace.x4),
           assetsAsync.when(
             loading: () => const Padding(
@@ -1247,7 +1265,7 @@ class _TxInputForm extends ConsumerWidget {
               child: Center(child: PCircularProgressIndicator()),
             ),
             error: (e, _) => Text(
-              '자산 로드 실패: $e',
+              '${l.expAssetLoadError}: $e',
               style: PTypo.caption.copyWith(color: t.statusDanger),
             ),
             data: (assets) {
@@ -1260,9 +1278,9 @@ class _TxInputForm extends ConsumerWidget {
               return _SelectField<int>(
                 // null(미선택)도 '선택 안 함'(-1) default로 표시 — 웹 정합.
                 value: c.assetRowId ?? -1,
-                hint: '선택 안 함',
+                hint: l.expNone,
                 items: [
-                  const _SelectOption<int>(-1, '선택 안 함'),
+                  _SelectOption<int>(-1, l.expNone),
                   for (final a in filtered)
                     _SelectOption<int>(
                       a.rowId,
@@ -1278,14 +1296,14 @@ class _TxInputForm extends ConsumerWidget {
           const SizedBox(height: PSpace.x12),
         ] else ...[
           // 이체 — 출금/입금/수수료
-          PSectionLabel('출금 계좌'),
+          PSectionLabel(l.expWithdrawAccount),
           const SizedBox(height: PSpace.x4),
           assetsAsync.when(
             loading: () => const SizedBox.shrink(),
             error: (_, _) => const SizedBox.shrink(),
             data: (assets) => _SelectField<int>(
               value: c.assetRowId,
-              hint: '선택',
+              hint: l.expSelect,
               items: [
                 for (final a in assets)
                   _SelectOption<int>(
@@ -1299,14 +1317,14 @@ class _TxInputForm extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: PSpace.x12),
-          PSectionLabel('입금 계좌'),
+          PSectionLabel(l.expDepositAccount),
           const SizedBox(height: PSpace.x4),
           assetsAsync.when(
             loading: () => const SizedBox.shrink(),
             error: (_, _) => const SizedBox.shrink(),
             data: (assets) => _SelectField<int>(
               value: c.toAssetRowId,
-              hint: '선택',
+              hint: l.expSelect,
               items: [
                 for (final a in assets.where((a) => a.rowId != c.assetRowId))
                   _SelectOption<int>(
@@ -1323,12 +1341,12 @@ class _TxInputForm extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.only(top: 4),
               child: Text(
-                '보낼/받을 자산은 달라야 합니다',
+                l.expTransferSameAsset,
                 style: PTypo.caption.copyWith(color: t.statusDanger),
               ),
             ),
           const SizedBox(height: PSpace.x12),
-          PSectionLabel('수수료 (선택)'),
+          PSectionLabel(l.expFeeOptional),
           const SizedBox(height: PSpace.x4),
           PTextInput(
             controller: c.feeCtrl,
@@ -1339,7 +1357,7 @@ class _TxInputForm extends ConsumerWidget {
         ],
 
         // 날짜(·시간)
-        PSectionLabel(c.type != 'TRANSFER' ? '날짜·시간' : '날짜'),
+        PSectionLabel(c.type != 'TRANSFER' ? l.expDateTime : l.expDate),
         const SizedBox(height: PSpace.x4),
         (c.type == 'TRANSFER')
             ? PDateInput(
@@ -1376,12 +1394,12 @@ class _TxInputForm extends ConsumerWidget {
               ),
         const SizedBox(height: PSpace.x16),
 
-        PSectionLabel('메모'),
+        PSectionLabel(l.expDescription),
         const SizedBox(height: PSpace.x4),
         PTextInput(
           controller: c.memoCtrl,
           maxLines: 2,
-          placeholder: '예: 점심, 회식 등',
+          placeholder: l.expMemoPlaceholder,
         ),
       ],
     );

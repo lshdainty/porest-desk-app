@@ -2133,4 +2133,345 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get dutchCreated => '정산이 만들어졌어요';
+
+  @override
+  String get expLoadError => '거래를 불러오지 못했습니다';
+
+  @override
+  String get expEmptyMonth => '이 달에는 거래가 없습니다';
+
+  @override
+  String get expEmptyDay => '이 날의 거래가 없어요';
+
+  @override
+  String get expTotal => '합계';
+
+  @override
+  String get expFiltering => '필터 중';
+
+  @override
+  String expFilteringBy(String name) {
+    return '$name 필터 중';
+  }
+
+  @override
+  String get expViewList => '목록';
+
+  @override
+  String get expViewCalendar => '달력';
+
+  @override
+  String expTxCount(int count) {
+    return '$count건';
+  }
+
+  @override
+  String get expAddShort => '추가';
+
+  @override
+  String get expTransferDone => '이체가 완료되었습니다';
+
+  @override
+  String get expActionFailed => '실패';
+
+  @override
+  String get expUpdated => '거래가 수정되었습니다';
+
+  @override
+  String get expAdded => '거래가 추가되었습니다';
+
+  @override
+  String get expDeleteConfirm => '이 거래를 삭제하시겠습니까? 연결된 자산 잔액이 함께 조정됩니다.';
+
+  @override
+  String get expDeleted => '거래가 삭제되었습니다';
+
+  @override
+  String get expDeleteFailed => '삭제 실패';
+
+  @override
+  String get expSplitMismatch => '분할 내역과 금액이 달라요';
+
+  @override
+  String expSplitDiff(String total, String sum, String diff) {
+    return '새 총액 $total원 · 분할 합계 $sum원 · $diff원 차이';
+  }
+
+  @override
+  String get expSplitReconcile => '분할 내역 맞추기';
+
+  @override
+  String get expPresetLoad => '프리셋 불러오기';
+
+  @override
+  String get expPresetApplied => '적용됨';
+
+  @override
+  String get expPresetSaveCurrent => '현재 입력값 저장';
+
+  @override
+  String get expPresetEmpty =>
+      '저장된 프리셋이 없어요. 자주 쓰는 내역을 입력 후 “현재 입력값 저장”을 눌러보세요.';
+
+  @override
+  String get expPresetFilled => '프리셋 값이 채워졌어요. 금액·내역만 수정해서 저장하세요.';
+
+  @override
+  String get expClear => '해제';
+
+  @override
+  String get expPresetManageHint => '설정 → 프리셋 관리';
+
+  @override
+  String get expSaveFailed => '저장 실패';
+
+  @override
+  String get expPresetSaveTitle => '프리셋으로 저장';
+
+  @override
+  String get expPresetNamePlaceholder => '예: 점심 도시락';
+
+  @override
+  String expPresetLockAmount(String amount) {
+    return '금액 잠금 — 적용 시 $amount원 자동 채움';
+  }
+
+  @override
+  String get expPayCash => '현금';
+
+  @override
+  String get expPayCard => '카드';
+
+  @override
+  String get expPayTransfer => '계좌이체';
+
+  @override
+  String get expPayOther => '기타';
+
+  @override
+  String get expPresetLock => '프리셋 잠금';
+
+  @override
+  String get expNoCategoryForType => '이 타입에 해당하는 카테고리가 없습니다';
+
+  @override
+  String get expSubcategory => '세부 카테고리';
+
+  @override
+  String expTopCategorySuffix(String name) {
+    return '$name (상위)';
+  }
+
+  @override
+  String get expIncomeSource => '수입처';
+
+  @override
+  String get expPayee => '거래처';
+
+  @override
+  String get expIncomeSourcePlaceholder => '예: (주)포레스트';
+
+  @override
+  String get expPayeePlaceholder => '예: 스타벅스 강남점';
+
+  @override
+  String get expIncomeMethod => '수입 방식';
+
+  @override
+  String get expNone => '선택 안 함';
+
+  @override
+  String get expDepositAccount => '입금 계좌';
+
+  @override
+  String get expAccountCard => '계좌·카드';
+
+  @override
+  String get expAssetLoadError => '자산 로드 실패';
+
+  @override
+  String get expWithdrawAccount => '출금 계좌';
+
+  @override
+  String get expSelect => '선택';
+
+  @override
+  String get expTransferSameAsset => '보낼/받을 자산은 달라야 합니다';
+
+  @override
+  String get expFeeOptional => '수수료 (선택)';
+
+  @override
+  String get expDateTime => '날짜·시간';
+
+  @override
+  String get expMemoPlaceholder => '예: 점심, 회식 등';
+
+  @override
+  String get expIncomeDetail => '수입 상세';
+
+  @override
+  String get expExpenseDetail => '지출 상세';
+
+  @override
+  String get expTxFallback => '거래';
+
+  @override
+  String get expUncategorized => '미분류';
+
+  @override
+  String get expValueNone => '없음';
+
+  @override
+  String expItemsCount(int count) {
+    return '$count개';
+  }
+
+  @override
+  String get expNotSelected => '미선택';
+
+  @override
+  String expPrevTxAt(String merchant) {
+    return '$merchant에서의 이전 거래';
+  }
+
+  @override
+  String get expThisMonth => '이번 달';
+
+  @override
+  String expTimesCount(int count) {
+    return '$count회';
+  }
+
+  @override
+  String get expItem => '항목';
+
+  @override
+  String get expFilterApply => '필터 적용';
+
+  @override
+  String expNSelected(int count) {
+    return '$count개 선택';
+  }
+
+  @override
+  String get expPeriodWeek => '이번 주';
+
+  @override
+  String get expPeriod3Month => '3개월';
+
+  @override
+  String get expPeriodCustom => '직접 선택';
+
+  @override
+  String get expStartDate => '시작일';
+
+  @override
+  String get expEndDate => '종료일';
+
+  @override
+  String get expDateRangeError => '시작일이 종료일보다 늦을 수 없습니다.';
+
+  @override
+  String get expTxType => '거래 종류';
+
+  @override
+  String get expAmountRange => '금액 범위';
+
+  @override
+  String get expMinAmount => '최소 금액';
+
+  @override
+  String get expMaxAmount => '최대 금액';
+
+  @override
+  String get expSplitSave => '분할 저장';
+
+  @override
+  String get expSplitRemove => '분할 해제';
+
+  @override
+  String get expSplitLoadError => '분할 내역 로드 실패';
+
+  @override
+  String get expAddAmount => '추가 금액';
+
+  @override
+  String get expSplitSaved => '분할이 저장되었습니다';
+
+  @override
+  String get expSplitRemoveConfirm => '이 거래의 분할 내역을 모두 삭제하시겠습니까?';
+
+  @override
+  String get expClearFailed => '해제 실패';
+
+  @override
+  String get expSplitMatches => '분할 합계가 총액과 일치해요';
+
+  @override
+  String get expSplitSum => '분할 합계';
+
+  @override
+  String get expTotalAmount => '총액';
+
+  @override
+  String get expSplitTotalChanged => '총액이 바뀌어 분할을 맞춰야 해요';
+
+  @override
+  String get expSplitMismatchTotal => '분할 합계가 총액과 달라요';
+
+  @override
+  String get expSplitCheckItems => '분할 항목을 확인해주세요';
+
+  @override
+  String get expShort => '부족';
+
+  @override
+  String get expOver => '초과';
+
+  @override
+  String get expQuickAdjust => '빠르게 맞추기';
+
+  @override
+  String get expProrate => '비례 배분';
+
+  @override
+  String get expProrateDesc => '비중대로 자동 조정';
+
+  @override
+  String get expApplyToLargest => '큰 항목 반영';
+
+  @override
+  String get expApplyToLargestDesc => '가장 큰 항목에 차액';
+
+  @override
+  String get expAdjustItem => '조정 항목';
+
+  @override
+  String get expAdjustItemDesc => '부족분을 새 항목으로';
+
+  @override
+  String get expRecommended => '추천';
+
+  @override
+  String get expSplitDesc =>
+      '하나의 결제를 카테고리·항목별로 나누어 기록합니다. 예: 마트에서 식품과 생활품을 함께 결제한 경우.';
+
+  @override
+  String get expOriginalTx => '원 거래';
+
+  @override
+  String get expAddItem => '항목 추가';
+
+  @override
+  String get expSplitEven => '균등 분배';
+
+  @override
+  String get expSplitRatio => '분할 비율';
+
+  @override
+  String get expDeleteItem => '항목 삭제';
+
+  @override
+  String get expItemNamePlaceholder => '항목 이름 (선택)';
 }

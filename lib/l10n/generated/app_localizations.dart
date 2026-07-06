@@ -4051,6 +4051,648 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'정산이 만들어졌어요'**
   String get dutchCreated;
+
+  /// No description provided for @expLoadError.
+  ///
+  /// In ko, this message translates to:
+  /// **'거래를 불러오지 못했습니다'**
+  String get expLoadError;
+
+  /// No description provided for @expEmptyMonth.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 달에는 거래가 없습니다'**
+  String get expEmptyMonth;
+
+  /// No description provided for @expEmptyDay.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 날의 거래가 없어요'**
+  String get expEmptyDay;
+
+  /// No description provided for @expTotal.
+  ///
+  /// In ko, this message translates to:
+  /// **'합계'**
+  String get expTotal;
+
+  /// No description provided for @expFiltering.
+  ///
+  /// In ko, this message translates to:
+  /// **'필터 중'**
+  String get expFiltering;
+
+  /// No description provided for @expFilteringBy.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name} 필터 중'**
+  String expFilteringBy(String name);
+
+  /// No description provided for @expViewList.
+  ///
+  /// In ko, this message translates to:
+  /// **'목록'**
+  String get expViewList;
+
+  /// No description provided for @expViewCalendar.
+  ///
+  /// In ko, this message translates to:
+  /// **'달력'**
+  String get expViewCalendar;
+
+  /// No description provided for @expTxCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}건'**
+  String expTxCount(int count);
+
+  /// No description provided for @expAddShort.
+  ///
+  /// In ko, this message translates to:
+  /// **'추가'**
+  String get expAddShort;
+
+  /// No description provided for @expTransferDone.
+  ///
+  /// In ko, this message translates to:
+  /// **'이체가 완료되었습니다'**
+  String get expTransferDone;
+
+  /// No description provided for @expActionFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'실패'**
+  String get expActionFailed;
+
+  /// No description provided for @expUpdated.
+  ///
+  /// In ko, this message translates to:
+  /// **'거래가 수정되었습니다'**
+  String get expUpdated;
+
+  /// No description provided for @expAdded.
+  ///
+  /// In ko, this message translates to:
+  /// **'거래가 추가되었습니다'**
+  String get expAdded;
+
+  /// No description provided for @expDeleteConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 거래를 삭제하시겠습니까? 연결된 자산 잔액이 함께 조정됩니다.'**
+  String get expDeleteConfirm;
+
+  /// No description provided for @expDeleted.
+  ///
+  /// In ko, this message translates to:
+  /// **'거래가 삭제되었습니다'**
+  String get expDeleted;
+
+  /// No description provided for @expDeleteFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'삭제 실패'**
+  String get expDeleteFailed;
+
+  /// No description provided for @expSplitMismatch.
+  ///
+  /// In ko, this message translates to:
+  /// **'분할 내역과 금액이 달라요'**
+  String get expSplitMismatch;
+
+  /// No description provided for @expSplitDiff.
+  ///
+  /// In ko, this message translates to:
+  /// **'새 총액 {total}원 · 분할 합계 {sum}원 · {diff}원 차이'**
+  String expSplitDiff(String total, String sum, String diff);
+
+  /// No description provided for @expSplitReconcile.
+  ///
+  /// In ko, this message translates to:
+  /// **'분할 내역 맞추기'**
+  String get expSplitReconcile;
+
+  /// No description provided for @expPresetLoad.
+  ///
+  /// In ko, this message translates to:
+  /// **'프리셋 불러오기'**
+  String get expPresetLoad;
+
+  /// No description provided for @expPresetApplied.
+  ///
+  /// In ko, this message translates to:
+  /// **'적용됨'**
+  String get expPresetApplied;
+
+  /// No description provided for @expPresetSaveCurrent.
+  ///
+  /// In ko, this message translates to:
+  /// **'현재 입력값 저장'**
+  String get expPresetSaveCurrent;
+
+  /// No description provided for @expPresetEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'저장된 프리셋이 없어요. 자주 쓰는 내역을 입력 후 “현재 입력값 저장”을 눌러보세요.'**
+  String get expPresetEmpty;
+
+  /// No description provided for @expPresetFilled.
+  ///
+  /// In ko, this message translates to:
+  /// **'프리셋 값이 채워졌어요. 금액·내역만 수정해서 저장하세요.'**
+  String get expPresetFilled;
+
+  /// No description provided for @expClear.
+  ///
+  /// In ko, this message translates to:
+  /// **'해제'**
+  String get expClear;
+
+  /// No description provided for @expPresetManageHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'설정 → 프리셋 관리'**
+  String get expPresetManageHint;
+
+  /// No description provided for @expSaveFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'저장 실패'**
+  String get expSaveFailed;
+
+  /// No description provided for @expPresetSaveTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'프리셋으로 저장'**
+  String get expPresetSaveTitle;
+
+  /// No description provided for @expPresetNamePlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'예: 점심 도시락'**
+  String get expPresetNamePlaceholder;
+
+  /// No description provided for @expPresetLockAmount.
+  ///
+  /// In ko, this message translates to:
+  /// **'금액 잠금 — 적용 시 {amount}원 자동 채움'**
+  String expPresetLockAmount(String amount);
+
+  /// No description provided for @expPayCash.
+  ///
+  /// In ko, this message translates to:
+  /// **'현금'**
+  String get expPayCash;
+
+  /// No description provided for @expPayCard.
+  ///
+  /// In ko, this message translates to:
+  /// **'카드'**
+  String get expPayCard;
+
+  /// No description provided for @expPayTransfer.
+  ///
+  /// In ko, this message translates to:
+  /// **'계좌이체'**
+  String get expPayTransfer;
+
+  /// No description provided for @expPayOther.
+  ///
+  /// In ko, this message translates to:
+  /// **'기타'**
+  String get expPayOther;
+
+  /// No description provided for @expPresetLock.
+  ///
+  /// In ko, this message translates to:
+  /// **'프리셋 잠금'**
+  String get expPresetLock;
+
+  /// No description provided for @expNoCategoryForType.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 타입에 해당하는 카테고리가 없습니다'**
+  String get expNoCategoryForType;
+
+  /// No description provided for @expSubcategory.
+  ///
+  /// In ko, this message translates to:
+  /// **'세부 카테고리'**
+  String get expSubcategory;
+
+  /// No description provided for @expTopCategorySuffix.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name} (상위)'**
+  String expTopCategorySuffix(String name);
+
+  /// No description provided for @expIncomeSource.
+  ///
+  /// In ko, this message translates to:
+  /// **'수입처'**
+  String get expIncomeSource;
+
+  /// No description provided for @expPayee.
+  ///
+  /// In ko, this message translates to:
+  /// **'거래처'**
+  String get expPayee;
+
+  /// No description provided for @expIncomeSourcePlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'예: (주)포레스트'**
+  String get expIncomeSourcePlaceholder;
+
+  /// No description provided for @expPayeePlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'예: 스타벅스 강남점'**
+  String get expPayeePlaceholder;
+
+  /// No description provided for @expIncomeMethod.
+  ///
+  /// In ko, this message translates to:
+  /// **'수입 방식'**
+  String get expIncomeMethod;
+
+  /// No description provided for @expNone.
+  ///
+  /// In ko, this message translates to:
+  /// **'선택 안 함'**
+  String get expNone;
+
+  /// No description provided for @expDepositAccount.
+  ///
+  /// In ko, this message translates to:
+  /// **'입금 계좌'**
+  String get expDepositAccount;
+
+  /// No description provided for @expAccountCard.
+  ///
+  /// In ko, this message translates to:
+  /// **'계좌·카드'**
+  String get expAccountCard;
+
+  /// No description provided for @expAssetLoadError.
+  ///
+  /// In ko, this message translates to:
+  /// **'자산 로드 실패'**
+  String get expAssetLoadError;
+
+  /// No description provided for @expWithdrawAccount.
+  ///
+  /// In ko, this message translates to:
+  /// **'출금 계좌'**
+  String get expWithdrawAccount;
+
+  /// No description provided for @expSelect.
+  ///
+  /// In ko, this message translates to:
+  /// **'선택'**
+  String get expSelect;
+
+  /// No description provided for @expTransferSameAsset.
+  ///
+  /// In ko, this message translates to:
+  /// **'보낼/받을 자산은 달라야 합니다'**
+  String get expTransferSameAsset;
+
+  /// No description provided for @expFeeOptional.
+  ///
+  /// In ko, this message translates to:
+  /// **'수수료 (선택)'**
+  String get expFeeOptional;
+
+  /// No description provided for @expDateTime.
+  ///
+  /// In ko, this message translates to:
+  /// **'날짜·시간'**
+  String get expDateTime;
+
+  /// No description provided for @expMemoPlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'예: 점심, 회식 등'**
+  String get expMemoPlaceholder;
+
+  /// No description provided for @expIncomeDetail.
+  ///
+  /// In ko, this message translates to:
+  /// **'수입 상세'**
+  String get expIncomeDetail;
+
+  /// No description provided for @expExpenseDetail.
+  ///
+  /// In ko, this message translates to:
+  /// **'지출 상세'**
+  String get expExpenseDetail;
+
+  /// No description provided for @expTxFallback.
+  ///
+  /// In ko, this message translates to:
+  /// **'거래'**
+  String get expTxFallback;
+
+  /// No description provided for @expUncategorized.
+  ///
+  /// In ko, this message translates to:
+  /// **'미분류'**
+  String get expUncategorized;
+
+  /// No description provided for @expValueNone.
+  ///
+  /// In ko, this message translates to:
+  /// **'없음'**
+  String get expValueNone;
+
+  /// No description provided for @expItemsCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}개'**
+  String expItemsCount(int count);
+
+  /// No description provided for @expNotSelected.
+  ///
+  /// In ko, this message translates to:
+  /// **'미선택'**
+  String get expNotSelected;
+
+  /// No description provided for @expPrevTxAt.
+  ///
+  /// In ko, this message translates to:
+  /// **'{merchant}에서의 이전 거래'**
+  String expPrevTxAt(String merchant);
+
+  /// No description provided for @expThisMonth.
+  ///
+  /// In ko, this message translates to:
+  /// **'이번 달'**
+  String get expThisMonth;
+
+  /// No description provided for @expTimesCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}회'**
+  String expTimesCount(int count);
+
+  /// No description provided for @expItem.
+  ///
+  /// In ko, this message translates to:
+  /// **'항목'**
+  String get expItem;
+
+  /// No description provided for @expFilterApply.
+  ///
+  /// In ko, this message translates to:
+  /// **'필터 적용'**
+  String get expFilterApply;
+
+  /// No description provided for @expNSelected.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}개 선택'**
+  String expNSelected(int count);
+
+  /// No description provided for @expPeriodWeek.
+  ///
+  /// In ko, this message translates to:
+  /// **'이번 주'**
+  String get expPeriodWeek;
+
+  /// No description provided for @expPeriod3Month.
+  ///
+  /// In ko, this message translates to:
+  /// **'3개월'**
+  String get expPeriod3Month;
+
+  /// No description provided for @expPeriodCustom.
+  ///
+  /// In ko, this message translates to:
+  /// **'직접 선택'**
+  String get expPeriodCustom;
+
+  /// No description provided for @expStartDate.
+  ///
+  /// In ko, this message translates to:
+  /// **'시작일'**
+  String get expStartDate;
+
+  /// No description provided for @expEndDate.
+  ///
+  /// In ko, this message translates to:
+  /// **'종료일'**
+  String get expEndDate;
+
+  /// No description provided for @expDateRangeError.
+  ///
+  /// In ko, this message translates to:
+  /// **'시작일이 종료일보다 늦을 수 없습니다.'**
+  String get expDateRangeError;
+
+  /// No description provided for @expTxType.
+  ///
+  /// In ko, this message translates to:
+  /// **'거래 종류'**
+  String get expTxType;
+
+  /// No description provided for @expAmountRange.
+  ///
+  /// In ko, this message translates to:
+  /// **'금액 범위'**
+  String get expAmountRange;
+
+  /// No description provided for @expMinAmount.
+  ///
+  /// In ko, this message translates to:
+  /// **'최소 금액'**
+  String get expMinAmount;
+
+  /// No description provided for @expMaxAmount.
+  ///
+  /// In ko, this message translates to:
+  /// **'최대 금액'**
+  String get expMaxAmount;
+
+  /// No description provided for @expSplitSave.
+  ///
+  /// In ko, this message translates to:
+  /// **'분할 저장'**
+  String get expSplitSave;
+
+  /// No description provided for @expSplitRemove.
+  ///
+  /// In ko, this message translates to:
+  /// **'분할 해제'**
+  String get expSplitRemove;
+
+  /// No description provided for @expSplitLoadError.
+  ///
+  /// In ko, this message translates to:
+  /// **'분할 내역 로드 실패'**
+  String get expSplitLoadError;
+
+  /// No description provided for @expAddAmount.
+  ///
+  /// In ko, this message translates to:
+  /// **'추가 금액'**
+  String get expAddAmount;
+
+  /// No description provided for @expSplitSaved.
+  ///
+  /// In ko, this message translates to:
+  /// **'분할이 저장되었습니다'**
+  String get expSplitSaved;
+
+  /// No description provided for @expSplitRemoveConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 거래의 분할 내역을 모두 삭제하시겠습니까?'**
+  String get expSplitRemoveConfirm;
+
+  /// No description provided for @expClearFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'해제 실패'**
+  String get expClearFailed;
+
+  /// No description provided for @expSplitMatches.
+  ///
+  /// In ko, this message translates to:
+  /// **'분할 합계가 총액과 일치해요'**
+  String get expSplitMatches;
+
+  /// No description provided for @expSplitSum.
+  ///
+  /// In ko, this message translates to:
+  /// **'분할 합계'**
+  String get expSplitSum;
+
+  /// No description provided for @expTotalAmount.
+  ///
+  /// In ko, this message translates to:
+  /// **'총액'**
+  String get expTotalAmount;
+
+  /// No description provided for @expSplitTotalChanged.
+  ///
+  /// In ko, this message translates to:
+  /// **'총액이 바뀌어 분할을 맞춰야 해요'**
+  String get expSplitTotalChanged;
+
+  /// No description provided for @expSplitMismatchTotal.
+  ///
+  /// In ko, this message translates to:
+  /// **'분할 합계가 총액과 달라요'**
+  String get expSplitMismatchTotal;
+
+  /// No description provided for @expSplitCheckItems.
+  ///
+  /// In ko, this message translates to:
+  /// **'분할 항목을 확인해주세요'**
+  String get expSplitCheckItems;
+
+  /// No description provided for @expShort.
+  ///
+  /// In ko, this message translates to:
+  /// **'부족'**
+  String get expShort;
+
+  /// No description provided for @expOver.
+  ///
+  /// In ko, this message translates to:
+  /// **'초과'**
+  String get expOver;
+
+  /// No description provided for @expQuickAdjust.
+  ///
+  /// In ko, this message translates to:
+  /// **'빠르게 맞추기'**
+  String get expQuickAdjust;
+
+  /// No description provided for @expProrate.
+  ///
+  /// In ko, this message translates to:
+  /// **'비례 배분'**
+  String get expProrate;
+
+  /// No description provided for @expProrateDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'비중대로 자동 조정'**
+  String get expProrateDesc;
+
+  /// No description provided for @expApplyToLargest.
+  ///
+  /// In ko, this message translates to:
+  /// **'큰 항목 반영'**
+  String get expApplyToLargest;
+
+  /// No description provided for @expApplyToLargestDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'가장 큰 항목에 차액'**
+  String get expApplyToLargestDesc;
+
+  /// No description provided for @expAdjustItem.
+  ///
+  /// In ko, this message translates to:
+  /// **'조정 항목'**
+  String get expAdjustItem;
+
+  /// No description provided for @expAdjustItemDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'부족분을 새 항목으로'**
+  String get expAdjustItemDesc;
+
+  /// No description provided for @expRecommended.
+  ///
+  /// In ko, this message translates to:
+  /// **'추천'**
+  String get expRecommended;
+
+  /// No description provided for @expSplitDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'하나의 결제를 카테고리·항목별로 나누어 기록합니다. 예: 마트에서 식품과 생활품을 함께 결제한 경우.'**
+  String get expSplitDesc;
+
+  /// No description provided for @expOriginalTx.
+  ///
+  /// In ko, this message translates to:
+  /// **'원 거래'**
+  String get expOriginalTx;
+
+  /// No description provided for @expAddItem.
+  ///
+  /// In ko, this message translates to:
+  /// **'항목 추가'**
+  String get expAddItem;
+
+  /// No description provided for @expSplitEven.
+  ///
+  /// In ko, this message translates to:
+  /// **'균등 분배'**
+  String get expSplitEven;
+
+  /// No description provided for @expSplitRatio.
+  ///
+  /// In ko, this message translates to:
+  /// **'분할 비율'**
+  String get expSplitRatio;
+
+  /// No description provided for @expDeleteItem.
+  ///
+  /// In ko, this message translates to:
+  /// **'항목 삭제'**
+  String get expDeleteItem;
+
+  /// No description provided for @expItemNamePlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'항목 이름 (선택)'**
+  String get expItemNamePlaceholder;
 }
 
 class _AppLocalizationsDelegate

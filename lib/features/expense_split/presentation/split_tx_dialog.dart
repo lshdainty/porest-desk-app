@@ -10,6 +10,7 @@ import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/core/sync/keep_alive_refresh.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_progress.dart';
@@ -38,9 +39,10 @@ void showSplitTxDialog(
   void Function(List<SplitInput> splits)? onReconciled,
 }) {
   final controller = PSheetController();
+  final l = AppLocalizations.of(context);
   showPSheet<void>(
     context,
-    title: '내역 분할',
+    title: l.expSplit,
     contentBuilder: (ctx, scrollCtrl) => _SplitBody(
       expense: expense,
       scrollController: scrollCtrl,
@@ -54,8 +56,8 @@ void showSplitTxDialog(
     // onSubmit·submitting)에 _syncFooter 가 신호를 다 싣고 있어 커스텀 footer 불필요.
     footerBuilder: (ctx) => PSheetFooter(
       controller: controller,
-      submitLabel: '분할 저장',
-      deleteLabel: '분할 해제',
+      submitLabel: l.expSplitSave,
+      deleteLabel: l.expSplitRemove,
     ),
   );
 }
@@ -129,6 +131,7 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final splitsAsync =
         ref.watch(expenseSplitsProvider(widget.expense.rowId));
     final categoriesAsync = ref.watch(categoriesProvider);
@@ -140,7 +143,7 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
       ),
       error: (e, _) => Padding(
         padding: const EdgeInsets.all(PSpace.x16),
-        child: Text('분할 내역 로드 실패\n$e',
+        child: Text('${l.expSplitLoadError}\n$e',
             style: PTypo.bodySm.copyWith(color: t.statusDanger)),
       ),
       data: (splits) {
@@ -278,11 +281,12 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
   /// ③ 부족분을 새 조정 항목으로 추가(부족할 때만 노출).
   void _reconcileAddRow() {
     if (_remainder <= 0) return;
+    final l = AppLocalizations.of(context);
     setState(() {
       _rows!.add(_Row(
           categoryRowId: widget.expense.categoryRowId,
           amount: _remainder,
-          label: '추가 금액'));
+          label: l.expAddAmount));
       _lastApplied = 'add';
     });
   }
@@ -326,11 +330,13 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
       ref.invalidate(expenseSplitsProvider(widget.expense.rowId));
       _invalidateExpenseAndAssets();
       if (!mounted) return;
+      final l = AppLocalizations.of(context);
       Navigator.of(context).pop();
-      showPSnackBar(context, '분할이 저장되었습니다', severity: PSnackSeverity.success);
+      showPSnackBar(context, l.expSplitSaved, severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!mounted) return;
-      showPSnackBar(context, '저장 실패: ${e.message}', severity: PSnackSeverity.error);
+      final l = AppLocalizations.of(context);
+      showPSnackBar(context, '${l.expSaveFailed}: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setSubmitting(false);
     }
@@ -338,11 +344,12 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
 
   Future<void> _deleteAll() async {
     if (_submitting) return;
+    final l = AppLocalizations.of(context);
     final ok = await showPConfirmDialog(
       context,
-      title: '분할 해제',
-      message: '이 거래의 분할 내역을 모두 삭제하시겠습니까?',
-      confirmLabel: '해제',
+      title: l.expSplitRemove,
+      message: l.expSplitRemoveConfirm,
+      confirmLabel: l.expClear,
       destructive: true,
     );
     if (!ok || !mounted) return;
@@ -356,7 +363,7 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
       Navigator.of(context).pop();
     } on ApiException catch (e) {
       if (!mounted) return;
-      showPSnackBar(context, '해제 실패: ${e.message}', severity: PSnackSeverity.error);
+      showPSnackBar(context, '${l.expClearFailed}: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setSubmitting(false);
     }
@@ -367,6 +374,7 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
       _matched ? _successPanel(t) : _reconcilePanel(t);
 
   Widget _successPanel(PorestTokens t) {
+    final l = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.all(PSpace.x12),
       decoration: BoxDecoration(
@@ -382,7 +390,7 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
               Icon(LucideIcons.check, size: 15, color: t.statusSuccessFg),
               const SizedBox(width: PSpace.x8),
               Expanded(
-                child: Text('분할 합계가 총액과 일치해요',
+                child: Text(l.expSplitMatches,
                     style: PTypo.bodySm.copyWith(
                         color: t.fgPrimary, fontWeight: PFontWeight.bold)),
               ),
@@ -394,11 +402,11 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
               style: PTypo.caption
                   .copyWith(color: t.fgSecondary, height: PLineHeight.normal),
               children: [
-                const TextSpan(text: '분할 합계 '),
+                TextSpan(text: '${l.expSplitSum} '),
                 TextSpan(
                     text: '${krw(_sum)}원',
                     style: const TextStyle(fontWeight: PFontWeight.bold)),
-                const TextSpan(text: ' · 총액 '),
+                TextSpan(text: ' · ${l.expTotalAmount} '),
                 TextSpan(
                     text: '${krw(_totalAbs)}원',
                     style: const TextStyle(fontWeight: PFontWeight.bold)),
@@ -411,6 +419,7 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
   }
 
   Widget _reconcilePanel(PorestTokens t) {
+    final l = AppLocalizations.of(context);
     final shortage = _remainder > 0;
     return Container(
       padding: const EdgeInsets.all(PSpace.x12),
@@ -429,8 +438,8 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
               Expanded(
                 child: Text(
                   !_balanced
-                      ? (_totalChanged ? '총액이 바뀌어 분할을 맞춰야 해요' : '분할 합계가 총액과 달라요')
-                      : '분할 항목을 확인해주세요',
+                      ? (_totalChanged ? l.expSplitTotalChanged : l.expSplitMismatchTotal)
+                      : l.expSplitCheckItems,
                   style: PTypo.bodySm
                       .copyWith(color: t.fgPrimary, fontWeight: PFontWeight.bold),
                 ),
@@ -444,18 +453,18 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
               style: PTypo.caption
                   .copyWith(color: t.fgSecondary, height: PLineHeight.normal),
               children: [
-                const TextSpan(text: '분할 합계 '),
+                TextSpan(text: '${l.expSplitSum} '),
                 TextSpan(
                     text: '${krw(_sum)}원',
                     style: const TextStyle(fontWeight: PFontWeight.bold)),
-                const TextSpan(text: ' · 총액 '),
+                TextSpan(text: ' · ${l.expTotalAmount} '),
                 TextSpan(
                     text: '${krw(_totalAbs)}원',
                     style: const TextStyle(fontWeight: PFontWeight.bold)),
                 if (!_balanced) ...[
                   const TextSpan(text: ' · '),
                   TextSpan(
-                    text: '${shortage ? '부족' : '초과'} ${krw(_remainder.abs())}원',
+                    text: '${shortage ? l.expShort : l.expOver} ${krw(_remainder.abs())}원',
                     style: TextStyle(
                         fontWeight: PFontWeight.bold, color: t.statusWarningFg),
                   ),
@@ -478,7 +487,7 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
                   children: [
                     Icon(LucideIcons.sparkles, size: 14, color: t.fgBrand),
                     const SizedBox(width: 6),
-                    Text('빠르게 맞추기',
+                    Text(l.expQuickAdjust,
                         style: PTypo.caption.copyWith(
                             color: t.fgBrand, fontWeight: PFontWeight.bold)),
                     const SizedBox(width: 4),
@@ -496,24 +505,24 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
               const SizedBox(height: 6),
               _reconcileBtn(t,
                   icon: LucideIcons.scale,
-                  title: '비례 배분',
-                  desc: '비중대로 자동 조정',
+                  title: l.expProrate,
+                  desc: l.expProrateDesc,
                   active: _lastApplied == 'prop',
                   recommended: _totalChanged,
                   onTap: _reconcileProportional),
               const SizedBox(height: 6),
               _reconcileBtn(t,
                   icon: LucideIcons.moveUp,
-                  title: '큰 항목 반영',
-                  desc: '가장 큰 항목에 차액',
+                  title: l.expApplyToLargest,
+                  desc: l.expApplyToLargestDesc,
                   active: _lastApplied == 'largest',
                   onTap: _reconcileToLargest),
               if (_remainder > 0) ...[
                 const SizedBox(height: 6),
                 _reconcileBtn(t,
                     icon: LucideIcons.plusCircle,
-                    title: '조정 항목',
-                    desc: '부족분을 새 항목으로',
+                    title: l.expAdjustItem,
+                    desc: l.expAdjustItemDesc,
                     active: _lastApplied == 'add',
                     onTap: _reconcileAddRow),
               ],
@@ -533,6 +542,7 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
     bool recommended = false,
     required VoidCallback onTap,
   }) {
+    final l = AppLocalizations.of(context);
     return InkWell(
       onTap: _submitting ? null : onTap,
       borderRadius: PRadius.brMd,
@@ -569,7 +579,7 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
                           decoration: BoxDecoration(
                               color: t.statusWarningSubtle,
                               borderRadius: PRadius.brFull),
-                          child: Text('추천',
+                          child: Text(l.expRecommended,
                               style: PTypo.caption.copyWith(
                                   color: t.statusWarningFg,
                                   fontWeight: PFontWeight.bold)),
@@ -591,13 +601,14 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
   }
 
   Widget _build(PorestTokens t, List<ExpenseCategory> categories) {
+    final l = AppLocalizations.of(context);
     return ListView(
       controller: widget.scrollController,
       padding: const EdgeInsets.fromLTRB(
           PSpace.x20, 0, PSpace.x20, PSpace.x16),
       children: [
         Text(
-            '하나의 결제를 카테고리·항목별로 나누어 기록합니다. 예: 마트에서 식품과 생활품을 함께 결제한 경우.',
+            l.expSplitDesc,
             style: PTypo.caption
                 .copyWith(color: t.fgSecondary, height: PLineHeight.normal)),
         const SizedBox(height: PSpace.x12),
@@ -616,14 +627,14 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('원 거래',
+                      Text(l.expOriginalTx,
                           style:
                               PTypo.caption.copyWith(color: t.fgTertiary)),
                       const SizedBox(height: 2),
                       Text(
                         widget.expense.merchant ??
                             widget.expense.description ??
-                            '거래',
+                            l.expTxFallback,
                         style: PTypo.body.copyWith(
                             color: t.fgPrimary, fontWeight: PFontWeight.bold),
                       ),
@@ -633,7 +644,7 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text('총액',
+                    Text(l.expTotalAmount,
                         style: PTypo.caption.copyWith(color: t.fgTertiary)),
                     const SizedBox(height: 2),
                     if (_totalChanged)
@@ -699,7 +710,7 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
           Row(
             children: [
               PButton(
-                label: '항목 추가',
+                label: l.expAddItem,
                 icon: LucideIcons.plus,
                 variant: PButtonVariant.ghost,
                 size: PButtonSize.sm,
@@ -707,7 +718,7 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
               ),
               const Spacer(),
               PButton(
-                label: '균등 분배',
+                label: l.expSplitEven,
                 icon: LucideIcons.scissors,
                 variant: PButtonVariant.ghost,
                 size: PButtonSize.sm,
@@ -718,7 +729,7 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
           const SizedBox(height: PSpace.x16),
 
           // 분할 비율
-          Text('분할 비율',
+          Text(l.expSplitRatio,
               style: PTypo.caption
                   .copyWith(color: t.fgSecondary, fontWeight: PFontWeight.bold)),
           const SizedBox(height: PSpace.x8),
@@ -803,6 +814,7 @@ class _SplitRowCardState extends State<_SplitRowCard> {
   @override
   Widget build(BuildContext context) {
     final t = widget.tokens;
+    final l = AppLocalizations.of(context);
     // 스택형 카드 layout(front 미러): 헤더(색 점·항목N·비율%·삭제) / 라벨 / 카테고리+금액
     final pct =
         widget.total > 0 ? ((widget.row.amount / widget.total) * 100).round() : 0;
@@ -828,7 +840,7 @@ class _SplitRowCardState extends State<_SplitRowCard> {
                     BoxDecoration(color: dotColor, borderRadius: PRadius.brXs),
               ),
               const SizedBox(width: 6),
-              Text('항목 ${widget.index + 1}',
+              Text('${l.expItem} ${widget.index + 1}',
                   style: PTypo.caption.copyWith(
                       color: t.fgSecondary, fontWeight: PFontWeight.semi)),
               const Spacer(),
@@ -840,7 +852,7 @@ class _SplitRowCardState extends State<_SplitRowCard> {
                 icon: LucideIcons.x,
                 size: PButtonSize.sm,
                 iconColor: t.fgTertiary,
-                tooltip: '항목 삭제',
+                tooltip: l.expDeleteItem,
                 onPressed: widget.disabled || !widget.canRemove
                     ? null
                     : widget.onRemove,
@@ -851,7 +863,7 @@ class _SplitRowCardState extends State<_SplitRowCard> {
           // 항목 이름 — 전체폭
           PTextInput(
             controller: _labelCtrl,
-            placeholder: '항목 이름 (선택)',
+            placeholder: l.expItemNamePlaceholder,
             enabled: !widget.disabled,
             onChanged: (v) {
               widget.row.label = v;
@@ -913,11 +925,12 @@ class _CategoryDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return PSelect<int>(
       value: value != null && categories.any((c) => c.rowId == value)
           ? value
           : null,
-      placeholder: '카테고리',
+      placeholder: l.expCategory,
       enabled: onChanged != null,
       items: [
         for (final c in categories)
@@ -1000,6 +1013,7 @@ class _RatioLegend extends StatelessWidget {
   }
 
   Widget _legendChip(BuildContext context, _Row r) {
+    final l = AppLocalizations.of(context);
     final cat = _cat(r.categoryRowId);
     final color = resolveChartColor(context, cat?.color, fallback: tokens.fgBrand);
     final pct = total > 0 ? ((r.amount / total) * 100).round() : 0;
@@ -1012,7 +1026,7 @@ class _RatioLegend extends StatelessWidget {
           decoration: BoxDecoration(color: color, borderRadius: PRadius.brFull),
         ),
         const SizedBox(width: 5),
-        Text(cat?.categoryName ?? '미선택',
+        Text(cat?.categoryName ?? l.expNotSelected,
             style: PTypo.caption.copyWith(color: tokens.fgSecondary)),
         const SizedBox(width: 4),
         Text('$pct%',
