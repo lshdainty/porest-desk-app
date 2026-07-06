@@ -4867,6 +4867,72 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'상위 {count}행 미리보기'**
   String exportPreviewRows(int count);
+
+  /// No description provided for @fileAttachTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'첨부 파일'**
+  String get fileAttachTitle;
+
+  /// No description provided for @fileTooltipGallery.
+  ///
+  /// In ko, this message translates to:
+  /// **'갤러리'**
+  String get fileTooltipGallery;
+
+  /// No description provided for @fileTooltipCamera.
+  ///
+  /// In ko, this message translates to:
+  /// **'카메라'**
+  String get fileTooltipCamera;
+
+  /// No description provided for @fileTooltipFile.
+  ///
+  /// In ko, this message translates to:
+  /// **'파일'**
+  String get fileTooltipFile;
+
+  /// No description provided for @fileUploadComplete.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name} 업로드 완료'**
+  String fileUploadComplete(String name);
+
+  /// No description provided for @fileUploadFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'업로드 실패'**
+  String get fileUploadFailed;
+
+  /// No description provided for @fileDeleteTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'파일 삭제'**
+  String get fileDeleteTitle;
+
+  /// No description provided for @fileDeleteConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name} 삭제할까요?'**
+  String fileDeleteConfirm(String name);
+
+  /// No description provided for @fileDeleteFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'삭제 실패'**
+  String get fileDeleteFailed;
+
+  /// No description provided for @fileLoadError.
+  ///
+  /// In ko, this message translates to:
+  /// **'첨부 로드 실패'**
+  String get fileLoadError;
+
+  /// No description provided for @fileEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'첨부된 파일 없음'**
+  String get fileEmpty;
 }
 
 class _AppLocalizationsDelegate

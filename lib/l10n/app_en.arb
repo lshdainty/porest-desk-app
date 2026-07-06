@@ -895,5 +895,18 @@
   "exportRun": "Export",
   "exportEmpty": "No data to export for this period.",
   "exportPreviewRows": "Top {count} rows",
-  "@exportPreviewRows": {"placeholders": {"count": {"type": "int"}}}
+  "@exportPreviewRows": {"placeholders": {"count": {"type": "int"}}},
+  "fileAttachTitle": "Attachments",
+  "fileTooltipGallery": "Gallery",
+  "fileTooltipCamera": "Camera",
+  "fileTooltipFile": "File",
+  "fileUploadComplete": "{name} uploaded",
+  "@fileUploadComplete": {"placeholders": {"name": {"type": "String"}}},
+  "fileUploadFailed": "Upload failed",
+  "fileDeleteTitle": "Delete file",
+  "fileDeleteConfirm": "Delete {name}?",
+  "@fileDeleteConfirm": {"placeholders": {"name": {"type": "String"}}},
+  "fileDeleteFailed": "Delete failed",
+  "fileLoadError": "Failed to load attachments",
+  "fileEmpty": "No attachments"
 }

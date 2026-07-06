@@ -2569,4 +2569,41 @@ class AppLocalizationsKo extends AppLocalizations {
   String exportPreviewRows(int count) {
     return '상위 $count행 미리보기';
   }
+
+  @override
+  String get fileAttachTitle => '첨부 파일';
+
+  @override
+  String get fileTooltipGallery => '갤러리';
+
+  @override
+  String get fileTooltipCamera => '카메라';
+
+  @override
+  String get fileTooltipFile => '파일';
+
+  @override
+  String fileUploadComplete(String name) {
+    return '$name 업로드 완료';
+  }
+
+  @override
+  String get fileUploadFailed => '업로드 실패';
+
+  @override
+  String get fileDeleteTitle => '파일 삭제';
+
+  @override
+  String fileDeleteConfirm(String name) {
+    return '$name 삭제할까요?';
+  }
+
+  @override
+  String get fileDeleteFailed => '삭제 실패';
+
+  @override
+  String get fileLoadError => '첨부 로드 실패';
+
+  @override
+  String get fileEmpty => '첨부된 파일 없음';
 }
