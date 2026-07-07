@@ -977,7 +977,7 @@ class _BalanceTrendChartState extends State<_BalanceTrendChart> {
                   label: seriesLabel,
                   amount: masked
                       ? '••••••'
-                      : '${krw(list[_touchedIdx!].balance)}원',
+                      : krwSigned(list[_touchedIdx!].balance, false, unit: true),
                 ),
               ],
             ),
@@ -1148,7 +1148,10 @@ class _ExpenseRow extends StatelessWidget {
             ),
             const SizedBox(width: 12),
             Text(
-              masked ? '••••••' : '${krw(expense.signedAmount, sign: true)}원',
+              masked
+                  ? '••••••'
+                  : krwSigned(expense.signedAmount, false,
+                      sign: expense.signedAmount > 0 ? '+' : '', unit: true),
               style: PTypo.bodySm.copyWith(
                 color: isIncome ? tokens.fgIncome : tokens.fgExpense,
                 fontWeight: PFontWeight.bold,
@@ -1353,7 +1356,9 @@ class _BillingHistoryRow extends StatelessWidget {
                 Row(
                   children: [
                     Text(
-                      masked ? '••••••' : '${krw(item.billingAmount)}원',
+                      masked
+                          ? '••••••'
+                          : krwSigned(item.billingAmount, false, unit: true),
                       style: PTypo.bodySm.copyWith(
                         color: t.fgPrimary,
                         fontWeight: PFontWeight.bold,
