@@ -241,7 +241,8 @@ class _NetWorthChartState extends ConsumerState<NetWorthChart> {
                         label: l.assetNetWorth,
                         amount: masked
                             ? '••••••'
-                            : _fmtFull(points[_touchedIdx!].netWorth.toDouble()),
+                            : krwSigned(points[_touchedIdx!].netWorth, false,
+                                unit: true),
                         amountColor: points[_touchedIdx!].netWorth < 0
                             ? t.statusDangerFg
                             : t.fgPrimary,
@@ -255,16 +256,4 @@ class _NetWorthChartState extends ConsumerState<NetWorthChart> {
       ),
     );
   }
-}
-
-String _fmtFull(double v) {
-  final s = v.round().toString();
-  final buf = StringBuffer();
-  final neg = s.startsWith('-');
-  final body = neg ? s.substring(1) : s;
-  for (int i = 0; i < body.length; i++) {
-    if (i > 0 && (body.length - i) % 3 == 0) buf.write(',');
-    buf.write(body[i]);
-  }
-  return '${neg ? '-' : ''}${buf.toString()}원';
 }

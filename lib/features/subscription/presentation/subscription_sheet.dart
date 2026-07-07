@@ -6,6 +6,7 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/features/subscription/application/subscription_providers.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_badge.dart';
@@ -59,16 +60,6 @@ enum _Cycle { monthly, yearly }
 const _proMonthly = 9900;
 const _proYearly = 99000;
 const _savePct = 17; // 1 - 99000/(9900*12) ≈ 0.166
-
-String _won(int n) {
-  final s = n.toString();
-  final buf = StringBuffer();
-  for (var i = 0; i < s.length; i++) {
-    if (i > 0 && (s.length - i) % 3 == 0) buf.write(',');
-    buf.write(s[i]);
-  }
-  return buf.toString();
-}
 
 class _SubscriptionSheetBody extends ConsumerStatefulWidget {
   const _SubscriptionSheetBody({required this.scrollController});
@@ -143,7 +134,8 @@ class _SubscriptionSheetBodyState
                     const SizedBox(height: 2),
                     Text(
                       isPro
-                          ? l.subNextBilling(nextBill, '${_won(_proMonthly)}원')
+                          ? l.subNextBilling(
+                              nextBill, krwSigned(_proMonthly, false, unit: true))
                           : l.subFreeLockedDesc,
                       style: PTypo.caption.copyWith(color: t.fgSecondary),
                     ),
@@ -239,7 +231,8 @@ class _SubscriptionSheetBodyState
                       ? l.subUnitMonth
                       : l.subUnitYear,
                   note: _cycle == _Cycle.yearly
-                      ? l.subYearlyPerMonth('${_won(proPerMonth)}원', _savePct)
+                      ? l.subYearlyPerMonth(
+                          krwSigned(proPerMonth, false, unit: true), _savePct)
                       : l.subMonthlyBilling,
                 ),
               ),
@@ -336,7 +329,9 @@ class _SubscriptionSheetBodyState
             children: [
               Flexible(
                 child: Text(
-                  isPro ? '${_won(priceWon)}원' : '0원',
+                  isPro
+                      ? krwSigned(priceWon, false, unit: true)
+                      : krwSigned(0, false, unit: true),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
