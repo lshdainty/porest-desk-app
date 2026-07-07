@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
 import 'package:porest_desk_app/app/theme/density.dart';
 import 'package:porest_desk_app/core/storage/prefs_provider.dart';
@@ -60,6 +61,9 @@ class SettingsNotifier extends AsyncNotifier<AppSettings> {
     final prefs = await ref.watch(prefsProvider.future);
     final loc = _parseLocale(prefs.getString(PrefsKeys.locale));
     UserLocale.current = loc;
+    // 숫자·날짜 포맷터가 참조하는 전역 로케일 배선. 미선택(시스템)이면 ko 로 폴백
+    // → 기존 출력 회귀 0. 명시적으로 en 을 고른 경우에만 영어 포맷.
+    Intl.defaultLocale = loc?.languageCode ?? 'ko';
     return AppSettings(
       themeMode: _parseTheme(prefs.getString(PrefsKeys.themeMode)),
       density: _parseDensity(prefs.getString(PrefsKeys.density)),
@@ -106,6 +110,7 @@ class SettingsNotifier extends AsyncNotifier<AppSettings> {
       await prefs.setString(PrefsKeys.locale, locale.languageCode);
     }
     UserLocale.current = locale;
+    Intl.defaultLocale = locale?.languageCode ?? 'ko';
     state = AsyncData(_current.copyWith(locale: locale));
   }
 

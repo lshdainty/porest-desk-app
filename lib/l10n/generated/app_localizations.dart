@@ -8197,6 +8197,54 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'색상'**
   String get memoFieldColor;
+
+  /// No description provided for @dateToday.
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘'**
+  String get dateToday;
+
+  /// No description provided for @dateTomorrow.
+  ///
+  /// In ko, this message translates to:
+  /// **'내일'**
+  String get dateTomorrow;
+
+  /// No description provided for @dateYesterday.
+  ///
+  /// In ko, this message translates to:
+  /// **'어제'**
+  String get dateYesterday;
+
+  /// No description provided for @dateInDays.
+  ///
+  /// In ko, this message translates to:
+  /// **'{n}일 후'**
+  String dateInDays(int n);
+
+  /// No description provided for @dateDaysAgo.
+  ///
+  /// In ko, this message translates to:
+  /// **'{n}일 전'**
+  String dateDaysAgo(int n);
+
+  /// No description provided for @dateJustNow.
+  ///
+  /// In ko, this message translates to:
+  /// **'방금'**
+  String get dateJustNow;
+
+  /// No description provided for @dateMinutesAgo.
+  ///
+  /// In ko, this message translates to:
+  /// **'{n}분 전'**
+  String dateMinutesAgo(int n);
+
+  /// No description provided for @dateHoursAgo.
+  ///
+  /// In ko, this message translates to:
+  /// **'{n}시간 전'**
+  String dateHoursAgo(int n);
 }
 
 class _AppLocalizationsDelegate
