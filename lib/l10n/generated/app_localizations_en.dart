@@ -4305,4 +4305,78 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get subTossKeyNotice =>
       'Your key is stored encrypted on the server and used only by you. Issue one at the Toss Securities Developer Center.';
+
+  @override
+  String get memoNew => 'New memo';
+
+  @override
+  String get memoEditTitle => 'Edit memo';
+
+  @override
+  String get memoAdd => 'Add';
+
+  @override
+  String get memoLoadError => 'Failed to load memos';
+
+  @override
+  String memoTagAll(int count) {
+    return 'All $count';
+  }
+
+  @override
+  String memoSectionPinned(int count) {
+    return 'Pinned · $count';
+  }
+
+  @override
+  String memoSectionAll(int count) {
+    return 'All memos · $count';
+  }
+
+  @override
+  String memoActionFailed(String message) {
+    return 'Failed: $message';
+  }
+
+  @override
+  String get memoEmptyDesc =>
+      'When something comes to mind, create a new memo.';
+
+  @override
+  String get memoSearchEmptyDesc => 'Try a different search term.';
+
+  @override
+  String get memoUntitled => '(Untitled)';
+
+  @override
+  String get memoDeleteTitle => 'Delete memo';
+
+  @override
+  String get memoDeleteConfirm => 'Delete this memo?';
+
+  @override
+  String memoDeleteFailed(String message) {
+    return 'Delete failed: $message';
+  }
+
+  @override
+  String get memoFieldTitle => 'Title';
+
+  @override
+  String get memoTitleRequired => 'Please enter a title';
+
+  @override
+  String get memoFieldContent => 'Content';
+
+  @override
+  String get memoContentPlaceholder => 'Write your memo here';
+
+  @override
+  String get memoFieldTag => 'Tag';
+
+  @override
+  String get memoPinToTop => 'Pin to top';
+
+  @override
+  String get memoFieldColor => 'Color';
 }

@@ -1529,13 +1529,13 @@ abstract class AppLocalizations {
   /// No description provided for @memoEmpty.
   ///
   /// In ko, this message translates to:
-  /// **'메모가 없습니다'**
+  /// **'메모가 없어요'**
   String get memoEmpty;
 
   /// No description provided for @memoSearchEmpty.
   ///
   /// In ko, this message translates to:
-  /// **'검색 결과가 없습니다'**
+  /// **'결과가 없어요'**
   String get memoSearchEmpty;
 
   /// No description provided for @memoSearchHint.
@@ -8071,6 +8071,132 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'키는 서버에 암호화되어 저장되며 본인만 사용합니다. 발급은 토스증권 개발자센터에서.'**
   String get subTossKeyNotice;
+
+  /// No description provided for @memoNew.
+  ///
+  /// In ko, this message translates to:
+  /// **'새 메모'**
+  String get memoNew;
+
+  /// No description provided for @memoEditTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'메모 수정'**
+  String get memoEditTitle;
+
+  /// No description provided for @memoAdd.
+  ///
+  /// In ko, this message translates to:
+  /// **'추가'**
+  String get memoAdd;
+
+  /// No description provided for @memoLoadError.
+  ///
+  /// In ko, this message translates to:
+  /// **'메모 로드 실패'**
+  String get memoLoadError;
+
+  /// No description provided for @memoTagAll.
+  ///
+  /// In ko, this message translates to:
+  /// **'전체 {count}'**
+  String memoTagAll(int count);
+
+  /// No description provided for @memoSectionPinned.
+  ///
+  /// In ko, this message translates to:
+  /// **'고정 · {count}'**
+  String memoSectionPinned(int count);
+
+  /// No description provided for @memoSectionAll.
+  ///
+  /// In ko, this message translates to:
+  /// **'모든 메모 · {count}'**
+  String memoSectionAll(int count);
+
+  /// No description provided for @memoActionFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'실패: {message}'**
+  String memoActionFailed(String message);
+
+  /// No description provided for @memoEmptyDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'생각이 떠오를 때, 새 메모를 만들어보세요.'**
+  String get memoEmptyDesc;
+
+  /// No description provided for @memoSearchEmptyDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'다른 검색어를 입력해보세요.'**
+  String get memoSearchEmptyDesc;
+
+  /// No description provided for @memoUntitled.
+  ///
+  /// In ko, this message translates to:
+  /// **'(제목 없음)'**
+  String get memoUntitled;
+
+  /// No description provided for @memoDeleteTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'메모 삭제'**
+  String get memoDeleteTitle;
+
+  /// No description provided for @memoDeleteConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 메모를 삭제할까요?'**
+  String get memoDeleteConfirm;
+
+  /// No description provided for @memoDeleteFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'삭제 실패: {message}'**
+  String memoDeleteFailed(String message);
+
+  /// No description provided for @memoFieldTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'제목'**
+  String get memoFieldTitle;
+
+  /// No description provided for @memoTitleRequired.
+  ///
+  /// In ko, this message translates to:
+  /// **'제목을 입력해주세요'**
+  String get memoTitleRequired;
+
+  /// No description provided for @memoFieldContent.
+  ///
+  /// In ko, this message translates to:
+  /// **'내용'**
+  String get memoFieldContent;
+
+  /// No description provided for @memoContentPlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'여기에 메모를 작성해주세요'**
+  String get memoContentPlaceholder;
+
+  /// No description provided for @memoFieldTag.
+  ///
+  /// In ko, this message translates to:
+  /// **'태그'**
+  String get memoFieldTag;
+
+  /// No description provided for @memoPinToTop.
+  ///
+  /// In ko, this message translates to:
+  /// **'상단에 고정'**
+  String get memoPinToTop;
+
+  /// No description provided for @memoFieldColor.
+  ///
+  /// In ko, this message translates to:
+  /// **'색상'**
+  String get memoFieldColor;
 }
 
 class _AppLocalizationsDelegate

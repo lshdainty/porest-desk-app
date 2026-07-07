@@ -8,6 +8,7 @@ import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
@@ -46,6 +47,7 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     // 전체 목록을 한 번 받아 클라이언트에서 검색·태그·정렬 필터 (web 동작 미러).
     final listAsync = ref.watch(memoListProvider);
 
@@ -55,7 +57,7 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
         leading: PBackButton(onPressed: () => context.pop()),
-        title: const Text('메모'),
+        title: Text(l.memoTitle),
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,
         elevation: 0,
@@ -78,7 +80,7 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
             padding: const EdgeInsets.all(PSpace.x16),
             children: [
               Text(
-                '메모 로드 실패\n$e',
+                '${l.memoLoadError}\n$e',
                 style: PTypo.bodySm.copyWith(color: t.statusDanger),
               ),
             ],
@@ -98,6 +100,7 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
     required Widget chips,
     required Widget body,
   }) {
+    final l = AppLocalizations.of(context);
     return ListView(
       // EdgeInsets.zero 미지정 시 safe-area 가 흡수돼 좌우 간격 어긋남 방지.
       padding: const EdgeInsets.fromLTRB(
@@ -110,7 +113,7 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
         // 검색 — web mobile 정합: AppBar 고정이 아니라 본문 스크롤 첫 항목.
         PSearchField(
           controller: _searchCtrl,
-          hint: '메모 검색',
+          hint: l.memoSearchHint,
           trailing: _query.trim().isNotEmpty
               ? PButton.icon(
                   icon: LucideIcons.x,
@@ -132,7 +135,7 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
             Expanded(child: SizedBox(height: 32, child: chips)),
             const SizedBox(width: 8),
             PButton(
-              label: '추가',
+              label: l.memoAdd,
               icon: LucideIcons.plus,
               variant: PButtonVariant.accent,
               size: PButtonSize.sm,
@@ -148,6 +151,7 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
   }
 
   Widget _buildBody(BuildContext context, PorestTokens t, List<Memo> all) {
+    final l = AppLocalizations.of(context);
     final hasQuery = _query.trim().isNotEmpty;
 
     // 태그 정규화 — web `memo.tag || '개인'` 정합. raw tag 만 세면
@@ -196,7 +200,7 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
           size: PTabsSize.sm,
           // count 는 PTabItem trailing 미지원 → 라벨에 병합('전체 N' / '태그 N')
           items: [
-            PTabItem(value: null, label: '전체 ${all.length}'),
+            PTabItem(value: null, label: l.memoTagAll(all.length)),
             for (final tag in tags)
               PTabItem(
                 value: tag,
@@ -213,7 +217,7 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
                 if (pinned.isNotEmpty) ...[
                   _SectionHeader(
                     icon: LucideIcons.pin,
-                    label: '고정 · ${pinned.length}',
+                    label: l.memoSectionPinned(pinned.length),
                     t: t,
                   ),
                   const SizedBox(height: PSpace.x12),
@@ -224,7 +228,7 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
                     const SizedBox(height: PSpace.x20),
                     _SectionHeader(
                       icon: LucideIcons.stickyNote,
-                      label: '모든 메모 · ${others.length}',
+                      label: l.memoSectionAll(others.length),
                       t: t,
                     ),
                     const SizedBox(height: PSpace.x12),
@@ -237,6 +241,7 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
   }
 
   Future<void> _togglePin(Memo memo) async {
+    final l = AppLocalizations.of(context);
     try {
       final repo = await ref.read(memoRepositoryProvider.future);
       await repo.pin(memo.rowId);
@@ -245,7 +250,7 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
       if (!mounted) return;
       showPSnackBar(
         context,
-        '실패: ${e.message}',
+        l.memoActionFailed(e.message),
         severity: PSnackSeverity.error,
       );
     }
@@ -259,16 +264,17 @@ class _EmptyMemo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 64),
       child: PEmptyState(
         icon: hasQuery ? LucideIcons.searchX : LucideIcons.stickyNote,
-        message: hasQuery ? '결과가 없어요' : '메모가 없어요',
-        subMessage: hasQuery ? '다른 검색어를 입력해보세요.' : '생각이 떠오를 때, 새 메모를 만들어보세요.',
+        message: hasQuery ? l.memoSearchEmpty : l.memoEmpty,
+        subMessage: hasQuery ? l.memoSearchEmptyDesc : l.memoEmptyDesc,
         action: hasQuery
             ? null
             : PButton(
-                label: '새 메모',
+                label: l.memoNew,
                 icon: LucideIcons.plus,
                 size: PButtonSize.sm,
                 onPressed: () => showMemoEditDialog(context),
@@ -350,6 +356,7 @@ class _MemoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final bg = memoCardBg(context, memo.color);
     final tagFg = memoTagFg(context, memo.color);
     final swatch = memoSwatch(context, memo.color);
@@ -415,7 +422,7 @@ class _MemoCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  hasTitle ? memo.title! : '(제목 없음)',
+                  hasTitle ? memo.title! : l.memoUntitled,
                   style: PTypo.body.copyWith(
                     fontSize: PFontSize.bodyMd, // 15px title (web 15/700)
                     color: hasTitle ? t.fgPrimary : t.fgTertiary,

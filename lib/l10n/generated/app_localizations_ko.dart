@@ -758,10 +758,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get memoTitle => '메모';
 
   @override
-  String get memoEmpty => '메모가 없습니다';
+  String get memoEmpty => '메모가 없어요';
 
   @override
-  String get memoSearchEmpty => '검색 결과가 없습니다';
+  String get memoSearchEmpty => '결과가 없어요';
 
   @override
   String get memoSearchHint => '메모 검색';
@@ -4259,4 +4259,77 @@ class AppLocalizationsKo extends AppLocalizations {
   @override
   String get subTossKeyNotice =>
       '키는 서버에 암호화되어 저장되며 본인만 사용합니다. 발급은 토스증권 개발자센터에서.';
+
+  @override
+  String get memoNew => '새 메모';
+
+  @override
+  String get memoEditTitle => '메모 수정';
+
+  @override
+  String get memoAdd => '추가';
+
+  @override
+  String get memoLoadError => '메모 로드 실패';
+
+  @override
+  String memoTagAll(int count) {
+    return '전체 $count';
+  }
+
+  @override
+  String memoSectionPinned(int count) {
+    return '고정 · $count';
+  }
+
+  @override
+  String memoSectionAll(int count) {
+    return '모든 메모 · $count';
+  }
+
+  @override
+  String memoActionFailed(String message) {
+    return '실패: $message';
+  }
+
+  @override
+  String get memoEmptyDesc => '생각이 떠오를 때, 새 메모를 만들어보세요.';
+
+  @override
+  String get memoSearchEmptyDesc => '다른 검색어를 입력해보세요.';
+
+  @override
+  String get memoUntitled => '(제목 없음)';
+
+  @override
+  String get memoDeleteTitle => '메모 삭제';
+
+  @override
+  String get memoDeleteConfirm => '이 메모를 삭제할까요?';
+
+  @override
+  String memoDeleteFailed(String message) {
+    return '삭제 실패: $message';
+  }
+
+  @override
+  String get memoFieldTitle => '제목';
+
+  @override
+  String get memoTitleRequired => '제목을 입력해주세요';
+
+  @override
+  String get memoFieldContent => '내용';
+
+  @override
+  String get memoContentPlaceholder => '여기에 메모를 작성해주세요';
+
+  @override
+  String get memoFieldTag => '태그';
+
+  @override
+  String get memoPinToTop => '상단에 고정';
+
+  @override
+  String get memoFieldColor => '색상';
 }
