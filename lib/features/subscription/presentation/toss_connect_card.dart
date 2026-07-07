@@ -8,6 +8,7 @@ import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/features/subscription/application/subscription_providers.dart';
 import 'package:porest_desk_app/features/subscription/data/subscription_repository.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_badge.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_card.dart';
@@ -63,6 +64,7 @@ class _TossConnectCardState extends ConsumerState<TossConnectCard> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final cred = ref.watch(tossCredentialStatusProvider).asData?.value;
     final connected = cred?.connected ?? false;
 
@@ -72,7 +74,7 @@ class _TossConnectCardState extends ConsumerState<TossConnectCard> {
         Padding(
           padding: const EdgeInsets.only(left: 2, bottom: PSpace.x8),
           child: Text(
-            '증권 데이터 연동',
+            l.subTossSectionTitle,
             style: TextStyle(
               fontFamily: PTypo.sans,
               fontSize: PFontSize.caption,
@@ -114,7 +116,7 @@ class _TossConnectCardState extends ConsumerState<TossConnectCard> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '토스증권 연결',
+                            l.subTossConnectTitle,
                             style: TextStyle(
                               fontFamily: PTypo.sans,
                               fontSize: 15,
@@ -125,7 +127,7 @@ class _TossConnectCardState extends ConsumerState<TossConnectCard> {
                           ),
                           const SizedBox(height: 3),
                           Text(
-                            '본인 API 키를 등록하면 보유 주식·시세를 자동으로 가져와요',
+                            l.subTossConnectDesc,
                             style: PTypo.caption.copyWith(
                               color: t.fgSecondary,
                               height: 1.5,
@@ -136,8 +138,8 @@ class _TossConnectCardState extends ConsumerState<TossConnectCard> {
                     ),
                     if (connected) ...[
                       const SizedBox(width: PSpace.x8),
-                      const PBadge(
-                        label: '연결됨',
+                      PBadge(
+                        label: l.subConnected,
                         variant: PBadgeVariant.softSuccess,
                       ),
                     ],
@@ -162,10 +164,11 @@ class _TossConnectCardState extends ConsumerState<TossConnectCard> {
   }
 
   Widget _connectedBody(PorestTokens t, TossCredentialStatus? cred) {
+    final l = AppLocalizations.of(context);
     final verifiedAt = cred?.verifiedAt;
     final sub = verifiedAt != null && verifiedAt.length >= 10
-        ? '마지막 검증 · ${verifiedAt.substring(0, 10)}'
-        : '보유 주식·시세 자동 수집 중';
+        ? l.subTossLastVerified(verifiedAt.substring(0, 10))
+        : l.subTossCollecting;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(color: t.bgSunken, borderRadius: PRadius.brMd),
@@ -178,7 +181,7 @@ class _TossConnectCardState extends ConsumerState<TossConnectCard> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '토스증권 API 키 연결됨',
+                  l.subTossKeyConnected,
                   style: TextStyle(
                     fontFamily: PTypo.sans,
                     fontSize: 13,
@@ -193,15 +196,15 @@ class _TossConnectCardState extends ConsumerState<TossConnectCard> {
           ),
           const SizedBox(width: PSpace.x8),
           PButton(
-            label: '연결 해제',
+            label: l.assetUnlink,
             variant: PButtonVariant.outline,
             size: PButtonSize.sm,
             onPressed: _busy
                 ? null
                 : () => _run(
                     (repo) => repo.disconnectTossCredential(),
-                    '토스증권 연결을 해제했어요',
-                    '해제에 실패했어요',
+                    l.subTossDisconnected,
+                    l.subDisconnectFailed,
                   ),
           ),
         ],
@@ -210,12 +213,13 @@ class _TossConnectCardState extends ConsumerState<TossConnectCard> {
   }
 
   Widget _formBody(PorestTokens t) {
+    final l = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text('Client ID', style: _fieldLabel(t)),
         const SizedBox(height: PSpace.x4),
-        PTextInput(controller: _idCtrl, placeholder: '토스증권 개발자센터 발급 Client ID'),
+        PTextInput(controller: _idCtrl, placeholder: l.subTossIdPlaceholder),
         const SizedBox(height: PSpace.x12),
         Text('Client Secret', style: _fieldLabel(t)),
         const SizedBox(height: PSpace.x4),
@@ -226,7 +230,7 @@ class _TossConnectCardState extends ConsumerState<TossConnectCard> {
         ),
         const SizedBox(height: PSpace.x12),
         PButton(
-          label: _busy ? '연결 중…' : '연결하기',
+          label: _busy ? l.subConnecting : l.subConnect,
           fullWidth: true,
           onPressed: _busy
               ? null
@@ -236,14 +240,14 @@ class _TossConnectCardState extends ConsumerState<TossConnectCard> {
                   if (id.isEmpty || secret.isEmpty) return;
                   _run(
                     (repo) => repo.registerTossCredential(id, secret),
-                    '토스증권 계정을 연결했어요',
-                    '인증정보가 올바르지 않아요',
+                    l.subTossConnected,
+                    l.subTossInvalidCred,
                   );
                 },
         ),
         const SizedBox(height: PSpace.x8),
         Text(
-          '키는 서버에 암호화되어 저장되며 본인만 사용합니다. 발급은 토스증권 개발자센터에서.',
+          l.subTossKeyNotice,
           style: PTypo.micro.copyWith(color: t.fgTertiary, height: 1.5),
         ),
       ],

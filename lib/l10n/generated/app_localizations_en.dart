@@ -4133,4 +4133,176 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get todoSubtaskLoadError => 'Failed to load subtasks';
+
+  @override
+  String get subManageTitle => 'Manage subscription';
+
+  @override
+  String get subUsingPro => 'On Porest Pro';
+
+  @override
+  String get subUsingFree => 'On the Free plan';
+
+  @override
+  String subNextBilling(String date, String amount) {
+    return 'Next billing $date · $amount';
+  }
+
+  @override
+  String get subFreeLockedDesc =>
+      'Pro features like securities and import are locked';
+
+  @override
+  String get subSpotlightTitle => 'Securities investing is Pro-only';
+
+  @override
+  String get subSpotlightDesc =>
+      'Real-time quotes and order book, domestic and overseas ticker search, watchlists, and holding P&L — subscribe to Pro and the Securities tab opens right away.';
+
+  @override
+  String get subCycleMonthly => 'Monthly';
+
+  @override
+  String subCycleYearlyOff(int pct) {
+    return 'Yearly $pct% off';
+  }
+
+  @override
+  String get subUnitMonth => 'mo';
+
+  @override
+  String get subUnitYear => 'yr';
+
+  @override
+  String subYearlyPerMonth(String amount, int pct) {
+    return '≈ $amount/mo · Save $pct%';
+  }
+
+  @override
+  String get subMonthlyBilling => 'Billed monthly';
+
+  @override
+  String get subFeatureCompare => 'Feature comparison';
+
+  @override
+  String get subCurrentPlan => 'Current plan';
+
+  @override
+  String get subFreeCaption => 'Basic ledger features';
+
+  @override
+  String get subFeatureColumn => 'Feature';
+
+  @override
+  String get subFeatLedger => 'Ledger · asset management';
+
+  @override
+  String get subFeatBudget => 'Budget · savings goals · calendar';
+
+  @override
+  String get subFeatMonthlyTx => 'Monthly transaction records';
+
+  @override
+  String get subFeatTxLimit => '100';
+
+  @override
+  String get subFeatUnlimited => 'Unlimited';
+
+  @override
+  String get subFeatSecurities =>
+      'Securities — real-time quotes · ticker search · watchlist';
+
+  @override
+  String get subFeatImportExport => 'CSV · Excel import / export';
+
+  @override
+  String get subFeatCalendarShare => 'Shared multi-calendar';
+
+  @override
+  String get subFeatCardRec => 'Card benefit recommendations';
+
+  @override
+  String get subStarted => 'Your Porest Pro subscription is active';
+
+  @override
+  String get subFailed => 'Couldn\'t start the subscription';
+
+  @override
+  String get subCancelConfirmTitle => 'Cancel your subscription?';
+
+  @override
+  String subCancelConfirmMsg(String date) {
+    return 'If you cancel, you will switch to the Free plan from $date and the Securities tab will lock. You can keep using Pro features until then.';
+  }
+
+  @override
+  String get subCancel => 'Cancel subscription';
+
+  @override
+  String get subKeep => 'Keep';
+
+  @override
+  String get subCanceled => 'Subscription canceled';
+
+  @override
+  String get subCancelFailed => 'Couldn\'t cancel';
+
+  @override
+  String get subNextBillingDate => 'Next billing date';
+
+  @override
+  String get subProcessing => 'Processing…';
+
+  @override
+  String get subStartPro => 'Start Pro';
+
+  @override
+  String get subTossSectionTitle => 'Securities data link';
+
+  @override
+  String get subTossConnectTitle => 'Connect Toss Securities';
+
+  @override
+  String get subTossConnectDesc =>
+      'Register your API key to auto-import your holdings and prices';
+
+  @override
+  String get subConnected => 'Connected';
+
+  @override
+  String subTossLastVerified(String date) {
+    return 'Last verified · $date';
+  }
+
+  @override
+  String get subTossCollecting => 'Auto-collecting holdings and prices';
+
+  @override
+  String get subTossKeyConnected => 'Toss Securities API key connected';
+
+  @override
+  String get subTossIdPlaceholder =>
+      'Client ID issued by Toss Securities Developer Center';
+
+  @override
+  String get subConnecting => 'Connecting…';
+
+  @override
+  String get subConnect => 'Connect';
+
+  @override
+  String get subTossConnected => 'Connected your Toss Securities account';
+
+  @override
+  String get subTossInvalidCred => 'Those credentials aren\'t valid';
+
+  @override
+  String get subTossDisconnected => 'Disconnected from Toss Securities';
+
+  @override
+  String get subDisconnectFailed => 'Couldn\'t disconnect';
+
+  @override
+  String get subTossKeyNotice =>
+      'Your key is stored encrypted on the server and used only by you. Issue one at the Toss Securities Developer Center.';
 }
