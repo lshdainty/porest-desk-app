@@ -7759,6 +7759,318 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'하위 작업 로드 실패'**
   String get todoSubtaskLoadError;
+
+  /// No description provided for @subManageTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'구독 관리'**
+  String get subManageTitle;
+
+  /// No description provided for @subUsingPro.
+  ///
+  /// In ko, this message translates to:
+  /// **'Porest Pro 이용 중'**
+  String get subUsingPro;
+
+  /// No description provided for @subUsingFree.
+  ///
+  /// In ko, this message translates to:
+  /// **'Free 플랜 이용 중'**
+  String get subUsingFree;
+
+  /// No description provided for @subNextBilling.
+  ///
+  /// In ko, this message translates to:
+  /// **'다음 결제 {date} · {amount}'**
+  String subNextBilling(String date, String amount);
+
+  /// No description provided for @subFreeLockedDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'증권·가져오기 등 Pro 기능이 잠겨 있어요'**
+  String get subFreeLockedDesc;
+
+  /// No description provided for @subSpotlightTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'증권 투자는 Pro 전용이에요'**
+  String get subSpotlightTitle;
+
+  /// No description provided for @subSpotlightDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'실시간 시세·호가, 국내외 종목 검색, 관심종목, 보유 손익까지 — Pro를 구독하면 증권 탭이 바로 열려요.'**
+  String get subSpotlightDesc;
+
+  /// No description provided for @subCycleMonthly.
+  ///
+  /// In ko, this message translates to:
+  /// **'월간'**
+  String get subCycleMonthly;
+
+  /// No description provided for @subCycleYearlyOff.
+  ///
+  /// In ko, this message translates to:
+  /// **'연간 {pct}%↓'**
+  String subCycleYearlyOff(int pct);
+
+  /// No description provided for @subUnitMonth.
+  ///
+  /// In ko, this message translates to:
+  /// **'월'**
+  String get subUnitMonth;
+
+  /// No description provided for @subUnitYear.
+  ///
+  /// In ko, this message translates to:
+  /// **'년'**
+  String get subUnitYear;
+
+  /// No description provided for @subYearlyPerMonth.
+  ///
+  /// In ko, this message translates to:
+  /// **'월 {amount} 꼴 · {pct}% 절약'**
+  String subYearlyPerMonth(String amount, int pct);
+
+  /// No description provided for @subMonthlyBilling.
+  ///
+  /// In ko, this message translates to:
+  /// **'월 단위 결제'**
+  String get subMonthlyBilling;
+
+  /// No description provided for @subFeatureCompare.
+  ///
+  /// In ko, this message translates to:
+  /// **'기능 비교'**
+  String get subFeatureCompare;
+
+  /// No description provided for @subCurrentPlan.
+  ///
+  /// In ko, this message translates to:
+  /// **'현재 플랜'**
+  String get subCurrentPlan;
+
+  /// No description provided for @subFreeCaption.
+  ///
+  /// In ko, this message translates to:
+  /// **'기본 가계부 기능'**
+  String get subFreeCaption;
+
+  /// No description provided for @subFeatureColumn.
+  ///
+  /// In ko, this message translates to:
+  /// **'기능'**
+  String get subFeatureColumn;
+
+  /// No description provided for @subFeatLedger.
+  ///
+  /// In ko, this message translates to:
+  /// **'가계부 · 자산 관리'**
+  String get subFeatLedger;
+
+  /// No description provided for @subFeatBudget.
+  ///
+  /// In ko, this message translates to:
+  /// **'예산 · 저축 목표 · 캘린더'**
+  String get subFeatBudget;
+
+  /// No description provided for @subFeatMonthlyTx.
+  ///
+  /// In ko, this message translates to:
+  /// **'월 거래 기록'**
+  String get subFeatMonthlyTx;
+
+  /// No description provided for @subFeatTxLimit.
+  ///
+  /// In ko, this message translates to:
+  /// **'100건'**
+  String get subFeatTxLimit;
+
+  /// No description provided for @subFeatUnlimited.
+  ///
+  /// In ko, this message translates to:
+  /// **'무제한'**
+  String get subFeatUnlimited;
+
+  /// No description provided for @subFeatSecurities.
+  ///
+  /// In ko, this message translates to:
+  /// **'증권 — 실시간 시세 · 종목 검색 · 관심종목'**
+  String get subFeatSecurities;
+
+  /// No description provided for @subFeatImportExport.
+  ///
+  /// In ko, this message translates to:
+  /// **'CSV · Excel 가져오기 / 내보내기'**
+  String get subFeatImportExport;
+
+  /// No description provided for @subFeatCalendarShare.
+  ///
+  /// In ko, this message translates to:
+  /// **'다중 캘린더 공유'**
+  String get subFeatCalendarShare;
+
+  /// No description provided for @subFeatCardRec.
+  ///
+  /// In ko, this message translates to:
+  /// **'카드 혜택 추천'**
+  String get subFeatCardRec;
+
+  /// No description provided for @subStarted.
+  ///
+  /// In ko, this message translates to:
+  /// **'Porest Pro 구독이 시작되었어요'**
+  String get subStarted;
+
+  /// No description provided for @subFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'구독에 실패했어요'**
+  String get subFailed;
+
+  /// No description provided for @subCancelConfirmTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'구독을 해지할까요?'**
+  String get subCancelConfirmTitle;
+
+  /// No description provided for @subCancelConfirmMsg.
+  ///
+  /// In ko, this message translates to:
+  /// **'해지하면 {date}부터 Free 플랜으로 전환되고 증권 탭이 잠겨요. 그 전까지는 Pro 기능을 계속 쓸 수 있어요.'**
+  String subCancelConfirmMsg(String date);
+
+  /// No description provided for @subCancel.
+  ///
+  /// In ko, this message translates to:
+  /// **'구독 해지'**
+  String get subCancel;
+
+  /// No description provided for @subKeep.
+  ///
+  /// In ko, this message translates to:
+  /// **'유지하기'**
+  String get subKeep;
+
+  /// No description provided for @subCanceled.
+  ///
+  /// In ko, this message translates to:
+  /// **'구독을 해지했어요'**
+  String get subCanceled;
+
+  /// No description provided for @subCancelFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'해지에 실패했어요'**
+  String get subCancelFailed;
+
+  /// No description provided for @subNextBillingDate.
+  ///
+  /// In ko, this message translates to:
+  /// **'다음 결제일'**
+  String get subNextBillingDate;
+
+  /// No description provided for @subProcessing.
+  ///
+  /// In ko, this message translates to:
+  /// **'처리 중…'**
+  String get subProcessing;
+
+  /// No description provided for @subStartPro.
+  ///
+  /// In ko, this message translates to:
+  /// **'Pro 시작하기'**
+  String get subStartPro;
+
+  /// No description provided for @subTossSectionTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'증권 데이터 연동'**
+  String get subTossSectionTitle;
+
+  /// No description provided for @subTossConnectTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'토스증권 연결'**
+  String get subTossConnectTitle;
+
+  /// No description provided for @subTossConnectDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'본인 API 키를 등록하면 보유 주식·시세를 자동으로 가져와요'**
+  String get subTossConnectDesc;
+
+  /// No description provided for @subConnected.
+  ///
+  /// In ko, this message translates to:
+  /// **'연결됨'**
+  String get subConnected;
+
+  /// No description provided for @subTossLastVerified.
+  ///
+  /// In ko, this message translates to:
+  /// **'마지막 검증 · {date}'**
+  String subTossLastVerified(String date);
+
+  /// No description provided for @subTossCollecting.
+  ///
+  /// In ko, this message translates to:
+  /// **'보유 주식·시세 자동 수집 중'**
+  String get subTossCollecting;
+
+  /// No description provided for @subTossKeyConnected.
+  ///
+  /// In ko, this message translates to:
+  /// **'토스증권 API 키 연결됨'**
+  String get subTossKeyConnected;
+
+  /// No description provided for @subTossIdPlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'토스증권 개발자센터 발급 Client ID'**
+  String get subTossIdPlaceholder;
+
+  /// No description provided for @subConnecting.
+  ///
+  /// In ko, this message translates to:
+  /// **'연결 중…'**
+  String get subConnecting;
+
+  /// No description provided for @subConnect.
+  ///
+  /// In ko, this message translates to:
+  /// **'연결하기'**
+  String get subConnect;
+
+  /// No description provided for @subTossConnected.
+  ///
+  /// In ko, this message translates to:
+  /// **'토스증권 계정을 연결했어요'**
+  String get subTossConnected;
+
+  /// No description provided for @subTossInvalidCred.
+  ///
+  /// In ko, this message translates to:
+  /// **'인증정보가 올바르지 않아요'**
+  String get subTossInvalidCred;
+
+  /// No description provided for @subTossDisconnected.
+  ///
+  /// In ko, this message translates to:
+  /// **'토스증권 연결을 해제했어요'**
+  String get subTossDisconnected;
+
+  /// No description provided for @subDisconnectFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'해제에 실패했어요'**
+  String get subDisconnectFailed;
+
+  /// No description provided for @subTossKeyNotice.
+  ///
+  /// In ko, this message translates to:
+  /// **'키는 서버에 암호화되어 저장되며 본인만 사용합니다. 발급은 토스증권 개발자센터에서.'**
+  String get subTossKeyNotice;
 }
 
 class _AppLocalizationsDelegate

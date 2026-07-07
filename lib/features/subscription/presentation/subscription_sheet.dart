@@ -7,6 +7,7 @@ import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/features/subscription/application/subscription_providers.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_badge.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_card.dart';
@@ -20,9 +21,10 @@ import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 /// · Free/Pro 비교 카드 · 기능 비교표. 결제(PG) 없음 — 'Pro 시작하기'=self-grant,
 /// '구독 해지'=cancel. (결제 수단·내역 mock 은 백엔드 PG 부재로 미구현)
 void showSubscriptionSheet(BuildContext context) {
+  final l = AppLocalizations.of(context);
   showPSheet<void>(
     context,
-    title: '구독 관리',
+    title: l.subManageTitle,
     contentBuilder: (ctx, scrollCtrl) =>
         _SubscriptionSheetBody(scrollController: scrollCtrl),
     // footer 는 showPSheet 가 하단 고정 — content(ListView)만 스크롤 (웹 ModalShell 정합).
@@ -42,14 +44,14 @@ class _PlanFeature {
   final bool star;
 }
 
-const _features = <_PlanFeature>[
-  _PlanFeature('가계부 · 자산 관리', true, true),
-  _PlanFeature('예산 · 저축 목표 · 캘린더', true, true),
-  _PlanFeature('월 거래 기록', '100건', '무제한'),
-  _PlanFeature('증권 — 실시간 시세 · 종목 검색 · 관심종목', false, true, star: true),
-  _PlanFeature('CSV · Excel 가져오기 / 내보내기', false, true),
-  _PlanFeature('다중 캘린더 공유', false, true),
-  _PlanFeature('카드 혜택 추천', false, true),
+List<_PlanFeature> _featuresOf(AppLocalizations l) => <_PlanFeature>[
+  _PlanFeature(l.subFeatLedger, true, true),
+  _PlanFeature(l.subFeatBudget, true, true),
+  _PlanFeature(l.subFeatMonthlyTx, l.subFeatTxLimit, l.subFeatUnlimited),
+  _PlanFeature(l.subFeatSecurities, false, true, star: true),
+  _PlanFeature(l.subFeatImportExport, false, true),
+  _PlanFeature(l.subFeatCalendarShare, false, true),
+  _PlanFeature(l.subFeatCardRec, false, true),
 ];
 
 enum _Cycle { monthly, yearly }
@@ -84,12 +86,13 @@ class _SubscriptionSheetBodyState
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final sub = ref.watch(mySubscriptionProvider).asData?.value;
     final isPro = sub?.isActive ?? false;
     final nextBill =
         (sub?.currentPeriodEnd != null && sub!.currentPeriodEnd!.length >= 10)
         ? sub.currentPeriodEnd!.substring(0, 10)
-        : '다음 결제일';
+        : l.subNextBillingDate;
     final proPrice = _cycle == _Cycle.monthly ? _proMonthly : _proYearly;
     final proPerMonth = _cycle == _Cycle.monthly
         ? _proMonthly
@@ -129,7 +132,7 @@ class _SubscriptionSheetBodyState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      isPro ? 'Porest Pro 이용 중' : 'Free 플랜 이용 중',
+                      isPro ? l.subUsingPro : l.subUsingFree,
                       style: TextStyle(
                         fontFamily: PTypo.sans,
                         fontSize: PFontSize.bodyMd,
@@ -140,8 +143,8 @@ class _SubscriptionSheetBodyState
                     const SizedBox(height: 2),
                     Text(
                       isPro
-                          ? '다음 결제 $nextBill · ${_won(_proMonthly)}원'
-                          : '증권·가져오기 등 Pro 기능이 잠겨 있어요',
+                          ? l.subNextBilling(nextBill, '${_won(_proMonthly)}원')
+                          : l.subFreeLockedDesc,
                       style: PTypo.caption.copyWith(color: t.fgSecondary),
                     ),
                   ],
@@ -180,7 +183,7 @@ class _SubscriptionSheetBodyState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '증권 투자는 Pro 전용이에요',
+                      l.subSpotlightTitle,
                       style: TextStyle(
                         fontFamily: PTypo.sans,
                         fontSize: PFontSize.body,
@@ -190,7 +193,7 @@ class _SubscriptionSheetBodyState
                     ),
                     const SizedBox(height: 3),
                     Text(
-                      '실시간 시세·호가, 국내외 종목 검색, 관심종목, 보유 손익까지 — Pro를 구독하면 증권 탭이 바로 열려요.',
+                      l.subSpotlightDesc,
                       style: PTypo.caption.copyWith(
                         color: t.fgSecondary,
                         height: 1.5,
@@ -208,9 +211,12 @@ class _SubscriptionSheetBodyState
         PSegmented<_Cycle>(
           value: _cycle,
           onChanged: (v) => setState(() => _cycle = v),
-          options: const [
-            PSegmentOption(value: _Cycle.monthly, label: '월간'),
-            PSegmentOption(value: _Cycle.yearly, label: '연간 17%↓'),
+          options: [
+            PSegmentOption(value: _Cycle.monthly, label: l.subCycleMonthly),
+            PSegmentOption(
+              value: _Cycle.yearly,
+              label: l.subCycleYearlyOff(_savePct),
+            ),
           ],
         ),
         const SizedBox(height: PSpace.x16),
@@ -229,10 +235,12 @@ class _SubscriptionSheetBodyState
                   isPro: true,
                   current: isPro,
                   priceWon: proPrice,
-                  priceUnit: _cycle == _Cycle.monthly ? '월' : '년',
+                  priceUnit: _cycle == _Cycle.monthly
+                      ? l.subUnitMonth
+                      : l.subUnitYear,
                   note: _cycle == _Cycle.yearly
-                      ? '월 ${_won(proPerMonth)}원 꼴 · $_savePct% 절약'
-                      : '월 단위 결제',
+                      ? l.subYearlyPerMonth('${_won(proPerMonth)}원', _savePct)
+                      : l.subMonthlyBilling,
                 ),
               ),
             ],
@@ -244,7 +252,7 @@ class _SubscriptionSheetBodyState
         Padding(
           padding: const EdgeInsets.only(bottom: PSpace.x8),
           child: Text(
-            '기능 비교',
+            l.subFeatureCompare,
             style: TextStyle(
               fontFamily: PTypo.sans,
               fontSize: PFontSize.caption,
@@ -263,7 +271,7 @@ class _SubscriptionSheetBodyState
             child: Column(
               children: [
                 _featureHeader(t),
-                for (final f in _features) _featureRow(t, f),
+                for (final f in _featuresOf(l)) _featureRow(t, f),
               ],
             ),
           ),
@@ -277,9 +285,10 @@ class _SubscriptionSheetBodyState
     required bool isPro,
     required bool current,
     int priceWon = 0,
-    String priceUnit = '월',
+    String? priceUnit,
     String? note,
   }) {
+    final l = AppLocalizations.of(context);
     return PCard(
       variant: PCardVariant.bordered,
       padding: const EdgeInsets.all(16),
@@ -312,7 +321,7 @@ class _SubscriptionSheetBodyState
               ),
               if (current)
                 PBadge(
-                  label: '현재 플랜',
+                  label: l.subCurrentPlan,
                   variant: isPro
                       ? PBadgeVariant.primary
                       : PBadgeVariant.secondary,
@@ -344,7 +353,7 @@ class _SubscriptionSheetBodyState
                 Padding(
                   padding: const EdgeInsets.only(bottom: 3),
                   child: Text(
-                    '/ $priceUnit',
+                    '/ ${priceUnit ?? l.subUnitMonth}',
                     style: PTypo.caption.copyWith(color: t.fgTertiary),
                   ),
                 ),
@@ -353,7 +362,7 @@ class _SubscriptionSheetBodyState
           ),
           const SizedBox(height: 2),
           Text(
-            isPro ? (note ?? '월 단위 결제') : '기본 가계부 기능',
+            isPro ? (note ?? l.subMonthlyBilling) : l.subFreeCaption,
             style: PTypo.micro.copyWith(color: t.fgTertiary),
           ),
         ],
@@ -362,6 +371,7 @@ class _SubscriptionSheetBodyState
   }
 
   Widget _featureHeader(PorestTokens t) {
+    final l = AppLocalizations.of(context);
     return Container(
       color: t.bgSunken,
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
@@ -369,7 +379,7 @@ class _SubscriptionSheetBodyState
         children: [
           Expanded(
             child: Text(
-              '기능',
+              l.subFeatureColumn,
               style: TextStyle(
                 fontFamily: PTypo.sans,
                 fontSize: PFontSize.caption,
@@ -499,6 +509,7 @@ class _SubscriptionFooterState extends ConsumerState<_SubscriptionFooter> {
   bool _busy = false;
 
   Future<void> _subscribe() async {
+    final l = AppLocalizations.of(context);
     final plans = ref.read(subscriptionPlansProvider).asData?.value ?? const [];
     final planCode = plans.isNotEmpty ? plans.first.planCode : 'SECURITIES';
     setState(() => _busy = true);
@@ -510,14 +521,14 @@ class _SubscriptionFooterState extends ConsumerState<_SubscriptionFooter> {
       if (mounted) {
         showPSnackBar(
           context,
-          'Porest Pro 구독이 시작되었어요',
+          l.subStarted,
           severity: PSnackSeverity.success,
         );
         Navigator.of(context).pop();
       }
     } catch (_) {
       if (mounted) {
-        showPSnackBar(context, '구독에 실패했어요', severity: PSnackSeverity.error);
+        showPSnackBar(context, l.subFailed, severity: PSnackSeverity.error);
       }
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -525,13 +536,13 @@ class _SubscriptionFooterState extends ConsumerState<_SubscriptionFooter> {
   }
 
   Future<void> _cancel(String nextBill) async {
+    final l = AppLocalizations.of(context);
     final ok = await showPConfirmDialog(
       context,
-      title: '구독을 해지할까요?',
-      message:
-          '해지하면 $nextBill부터 Free 플랜으로 전환되고 증권 탭이 잠겨요. 그 전까지는 Pro 기능을 계속 쓸 수 있어요.',
-      confirmLabel: '구독 해지',
-      cancelLabel: '유지하기',
+      title: l.subCancelConfirmTitle,
+      message: l.subCancelConfirmMsg(nextBill),
+      confirmLabel: l.subCancel,
+      cancelLabel: l.subKeep,
       destructive: true,
     );
     if (!ok || !mounted) return;
@@ -542,12 +553,12 @@ class _SubscriptionFooterState extends ConsumerState<_SubscriptionFooter> {
       ref.invalidate(myFeaturesProvider);
       ref.invalidate(mySubscriptionProvider);
       if (mounted) {
-        showPSnackBar(context, '구독을 해지했어요', severity: PSnackSeverity.success);
+        showPSnackBar(context, l.subCanceled, severity: PSnackSeverity.success);
         Navigator.of(context).pop();
       }
     } catch (_) {
       if (mounted) {
-        showPSnackBar(context, '해지에 실패했어요', severity: PSnackSeverity.error);
+        showPSnackBar(context, l.subCancelFailed, severity: PSnackSeverity.error);
       }
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -556,17 +567,18 @@ class _SubscriptionFooterState extends ConsumerState<_SubscriptionFooter> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final sub = ref.watch(mySubscriptionProvider).asData?.value;
     final isPro = sub?.isActive ?? false;
     final nextBill =
         (sub?.currentPeriodEnd != null && sub!.currentPeriodEnd!.length >= 10)
         ? sub.currentPeriodEnd!.substring(0, 10)
-        : '다음 결제일';
+        : l.subNextBillingDate;
     return Row(
       children: [
         Expanded(
           child: PButton(
-            label: '닫기',
+            label: l.actionClose,
             variant: PButtonVariant.outline,
             onPressed: _busy ? null : () => Navigator.of(context).pop(),
           ),
@@ -575,12 +587,12 @@ class _SubscriptionFooterState extends ConsumerState<_SubscriptionFooter> {
         Expanded(
           child: isPro
               ? PButton(
-                  label: '구독 해지',
+                  label: l.subCancel,
                   variant: PButtonVariant.danger,
                   onPressed: _busy ? null : () => _cancel(nextBill),
                 )
               : PButton(
-                  label: _busy ? '처리 중…' : 'Pro 시작하기',
+                  label: _busy ? l.subProcessing : l.subStartPro,
                   onPressed: _busy ? null : _subscribe,
                 ),
         ),

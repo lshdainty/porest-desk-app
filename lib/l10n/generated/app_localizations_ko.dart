@@ -4091,4 +4091,172 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get todoSubtaskLoadError => '하위 작업 로드 실패';
+
+  @override
+  String get subManageTitle => '구독 관리';
+
+  @override
+  String get subUsingPro => 'Porest Pro 이용 중';
+
+  @override
+  String get subUsingFree => 'Free 플랜 이용 중';
+
+  @override
+  String subNextBilling(String date, String amount) {
+    return '다음 결제 $date · $amount';
+  }
+
+  @override
+  String get subFreeLockedDesc => '증권·가져오기 등 Pro 기능이 잠겨 있어요';
+
+  @override
+  String get subSpotlightTitle => '증권 투자는 Pro 전용이에요';
+
+  @override
+  String get subSpotlightDesc =>
+      '실시간 시세·호가, 국내외 종목 검색, 관심종목, 보유 손익까지 — Pro를 구독하면 증권 탭이 바로 열려요.';
+
+  @override
+  String get subCycleMonthly => '월간';
+
+  @override
+  String subCycleYearlyOff(int pct) {
+    return '연간 $pct%↓';
+  }
+
+  @override
+  String get subUnitMonth => '월';
+
+  @override
+  String get subUnitYear => '년';
+
+  @override
+  String subYearlyPerMonth(String amount, int pct) {
+    return '월 $amount 꼴 · $pct% 절약';
+  }
+
+  @override
+  String get subMonthlyBilling => '월 단위 결제';
+
+  @override
+  String get subFeatureCompare => '기능 비교';
+
+  @override
+  String get subCurrentPlan => '현재 플랜';
+
+  @override
+  String get subFreeCaption => '기본 가계부 기능';
+
+  @override
+  String get subFeatureColumn => '기능';
+
+  @override
+  String get subFeatLedger => '가계부 · 자산 관리';
+
+  @override
+  String get subFeatBudget => '예산 · 저축 목표 · 캘린더';
+
+  @override
+  String get subFeatMonthlyTx => '월 거래 기록';
+
+  @override
+  String get subFeatTxLimit => '100건';
+
+  @override
+  String get subFeatUnlimited => '무제한';
+
+  @override
+  String get subFeatSecurities => '증권 — 실시간 시세 · 종목 검색 · 관심종목';
+
+  @override
+  String get subFeatImportExport => 'CSV · Excel 가져오기 / 내보내기';
+
+  @override
+  String get subFeatCalendarShare => '다중 캘린더 공유';
+
+  @override
+  String get subFeatCardRec => '카드 혜택 추천';
+
+  @override
+  String get subStarted => 'Porest Pro 구독이 시작되었어요';
+
+  @override
+  String get subFailed => '구독에 실패했어요';
+
+  @override
+  String get subCancelConfirmTitle => '구독을 해지할까요?';
+
+  @override
+  String subCancelConfirmMsg(String date) {
+    return '해지하면 $date부터 Free 플랜으로 전환되고 증권 탭이 잠겨요. 그 전까지는 Pro 기능을 계속 쓸 수 있어요.';
+  }
+
+  @override
+  String get subCancel => '구독 해지';
+
+  @override
+  String get subKeep => '유지하기';
+
+  @override
+  String get subCanceled => '구독을 해지했어요';
+
+  @override
+  String get subCancelFailed => '해지에 실패했어요';
+
+  @override
+  String get subNextBillingDate => '다음 결제일';
+
+  @override
+  String get subProcessing => '처리 중…';
+
+  @override
+  String get subStartPro => 'Pro 시작하기';
+
+  @override
+  String get subTossSectionTitle => '증권 데이터 연동';
+
+  @override
+  String get subTossConnectTitle => '토스증권 연결';
+
+  @override
+  String get subTossConnectDesc => '본인 API 키를 등록하면 보유 주식·시세를 자동으로 가져와요';
+
+  @override
+  String get subConnected => '연결됨';
+
+  @override
+  String subTossLastVerified(String date) {
+    return '마지막 검증 · $date';
+  }
+
+  @override
+  String get subTossCollecting => '보유 주식·시세 자동 수집 중';
+
+  @override
+  String get subTossKeyConnected => '토스증권 API 키 연결됨';
+
+  @override
+  String get subTossIdPlaceholder => '토스증권 개발자센터 발급 Client ID';
+
+  @override
+  String get subConnecting => '연결 중…';
+
+  @override
+  String get subConnect => '연결하기';
+
+  @override
+  String get subTossConnected => '토스증권 계정을 연결했어요';
+
+  @override
+  String get subTossInvalidCred => '인증정보가 올바르지 않아요';
+
+  @override
+  String get subTossDisconnected => '토스증권 연결을 해제했어요';
+
+  @override
+  String get subDisconnectFailed => '해제에 실패했어요';
+
+  @override
+  String get subTossKeyNotice =>
+      '키는 서버에 암호화되어 저장되며 본인만 사용합니다. 발급은 토스증권 개발자센터에서.';
 }
