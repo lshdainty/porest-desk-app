@@ -11,6 +11,7 @@ import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart';
+import 'package:porest_desk_app/core/format/format_locale.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
@@ -1393,11 +1394,15 @@ class _KvCell extends StatelessWidget {
 // ---- 종목 기본정보 (토스 stocks + price-limits) ------------------------------
 
 String _fmtCapKrw(double v) {
+  // en: ₩ + 로케일 compact(₩1.2T·₩12B). ko: 조원/억원(기존 유지).
+  if (localeIsEn()) return '₩${formatChartAxis(v)}';
   if (v >= 1e12) return '${(v / 1e12).toStringAsFixed(1)}조원';
   return '${krw((v / 1e8).round())}억원';
 }
 
 String _fmtShares(double n) {
+  // en: 로케일 compact(120M). ko: 억 주/만 주(기존 유지). 단위(주)는 라벨이 제공.
+  if (localeIsEn()) return formatChartAxis(n);
   if (n >= 1e8) return '${(n / 1e8).toStringAsFixed(n >= 1e9 ? 0 : 1)}억 주';
   return '${krw((n / 1e4).round())}만 주';
 }
