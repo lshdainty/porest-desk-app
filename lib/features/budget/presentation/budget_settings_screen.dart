@@ -461,7 +461,7 @@ class _TotalBudgetCard extends StatelessWidget {
                       Text(
                         masked
                             ? '••••'
-                            : '${krwMasked(monthlyLimit, masked)}원',
+                            : krwSigned(monthlyLimit, false, unit: true),
                         style: PTypo.h2.copyWith(
                           color: tokens.fgPrimary,
                           fontWeight: PFontWeight.bold,
@@ -570,7 +570,8 @@ class _TotalBudgetCard extends StatelessWidget {
                     child: Text(
                       masked
                           ? l.budgetOverAllocatedWarning(krwMasked(-remaining, masked, mask: '••••'))
-                          : l.budgetOverAllocatedWarning('${krwMasked(-remaining, masked)}원'),
+                          : l.budgetOverAllocatedWarning(
+                              krwSigned(-remaining, false, unit: true)),
                       style: PTypo.caption.copyWith(color: tokens.statusDangerFg),
                     ),
                   ),
@@ -801,10 +802,10 @@ class _CategoryRow extends StatelessWidget {
                       over
                           ? l.budgetOverBy(masked
                                 ? krwMasked(spent - limit, masked, mask: '••••')
-                                : '${krwMasked(spent - limit, masked)}원')
+                                : krwSigned(spent - limit, false, unit: true))
                           : l.budgetRemaining(masked
                                 ? krwMasked((limit - spent).clamp(0, limit), masked, mask: '••••')
-                                : '${krwMasked((limit - spent).clamp(0, limit), masked)}원'),
+                                : krwSigned((limit - spent).clamp(0, limit), false, unit: true)),
                       style: PTypo.caption.copyWith(
                         color: over ? tokens.fgExpense : tokens.fgTertiary,
                       ),

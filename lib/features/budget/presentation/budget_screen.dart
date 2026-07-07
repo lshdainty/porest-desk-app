@@ -570,7 +570,7 @@ class _HeaderCard extends StatelessWidget {
           Text(
             masked
                 ? '${l.budgetCurrentCategorySum}: ${krwMasked(categoryLimitSum, masked, mask: '••••')}'
-                : '${l.budgetCurrentCategorySum}: ${krwMasked(categoryLimitSum, masked)}원',
+                : '${l.budgetCurrentCategorySum}: ${krwSigned(categoryLimitSum, false, unit: true)}',
             style: PTypo.caption.copyWith(color: tokens.fgTertiary),
           ),
         ],
@@ -615,7 +615,7 @@ class _HeaderCard extends StatelessWidget {
               child: Text(
                 masked
                     ? ' / ${krwMasked(totalLimit, masked, mask: '••••')}'
-                    : ' / ${krwMasked(totalLimit, masked)}원',
+                    : ' / ${krwSigned(totalLimit, false, unit: true)}',
                 style: PTypo.bodySm.copyWith(color: tokens.fgSecondary),
               ),
             ),
@@ -641,10 +641,10 @@ class _HeaderCard extends StatelessWidget {
               remaining >= 0
                   ? l.budgetRemaining(masked
                         ? krwMasked(remaining, masked, mask: '••••')
-                        : '${krwMasked(remaining, masked)}원')
+                        : krwSigned(remaining, false, unit: true))
                   : l.budgetOverBy(masked
                         ? krwMasked(-remaining, masked, mask: '••••')
-                        : '${krwMasked(-remaining, masked)}원'),
+                        : krwSigned(-remaining, false, unit: true)),
               style: PTypo.caption.copyWith(
                 color: remaining >= 0 ? tokens.fgSecondary : tokens.fgExpense,
               ),
@@ -729,7 +729,8 @@ class _HeaderCard extends StatelessWidget {
                   child: Text(
                     masked
                         ? l.budgetOverAllocatedWarning(krwMasked(categoryLimitSum - overallLimit, masked, mask: '••••'))
-                        : l.budgetOverAllocatedWarning('${krwMasked(categoryLimitSum - overallLimit, masked)}원'),
+                        : l.budgetOverAllocatedWarning(
+                            krwSigned(categoryLimitSum - overallLimit, false, unit: true)),
                     style: PTypo.caption.copyWith(color: tokens.statusDangerFg),
                   ),
                 ),
@@ -1296,10 +1297,10 @@ class _CategoryRow extends StatelessWidget {
                     over
                         ? l.budgetOverBy(masked
                               ? krwMasked(spent - limit, masked, mask: '••••')
-                              : '${krwMasked(spent - limit, masked)}원')
+                              : krwSigned(spent - limit, false, unit: true))
                         : l.budgetRemaining(masked
                               ? krwMasked((limit - spent).clamp(0, limit), masked, mask: '••••')
-                              : '${krwMasked((limit - spent).clamp(0, limit), masked)}원'),
+                              : krwSigned((limit - spent).clamp(0, limit), false, unit: true)),
                     style: PTypo.caption.copyWith(
                       color: over ? tokens.fgExpense : tokens.fgTertiary,
                     ),
@@ -1601,11 +1602,13 @@ class _ComplianceBarChartState extends State<_ComplianceBarChart> {
                   footer: [
                     PChartTooltipFooterRowData(
                       label: l.expSummaryExpense,
-                      value: masked ? '••••' : '${krw(r.totalSpent)}원',
+                      value:
+                          masked ? '••••' : krwSigned(r.totalSpent, false, unit: true),
                     ),
                     PChartTooltipFooterRowData(
                       label: l.budgetLimit,
-                      value: masked ? '••••' : '${krw(r.totalLimit)}원',
+                      value:
+                          masked ? '••••' : krwSigned(r.totalLimit, false, unit: true),
                     ),
                   ],
                 );
