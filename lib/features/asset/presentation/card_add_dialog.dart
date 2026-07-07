@@ -7,6 +7,7 @@ import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
+import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/shared/brand/bank_colors.dart';
 import 'package:porest_desk_app/shared/widgets/p_divider.dart';
@@ -561,7 +562,9 @@ class _CatalogRow extends StatelessWidget {
     final company = item.company?.name;
     final brand = company != null ? getBrandColor([company]) : null;
     final fee = item.annualFee?.amount ?? 0;
-    final feePart = fee > 0 ? ' · ${l.assetAnnualFee} ${_fmtKrw(fee)}원' : '';
+    final feePart = fee > 0
+        ? ' · ${l.assetAnnualFee} ${krwSigned(fee, false, unit: true)}'
+        : '';
     final subtitle =
         '${company ?? '—'} · ${item.cardType == 'CREDIT' ? l.assetCardShortCredit : l.assetCardShortCheck}$feePart';
 
@@ -679,14 +682,4 @@ class _RowPlaceholder extends StatelessWidget {
       ),
     );
   }
-}
-
-String _fmtKrw(int n) {
-  final s = n.toString();
-  final buf = StringBuffer();
-  for (int i = 0; i < s.length; i++) {
-    if (i > 0 && (s.length - i) % 3 == 0) buf.write(',');
-    buf.write(s[i]);
-  }
-  return buf.toString();
 }
