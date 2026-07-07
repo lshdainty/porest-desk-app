@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -11,6 +10,8 @@ import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart';
+import 'package:porest_desk_app/core/format/date.dart';
+import 'package:porest_desk_app/core/format/format_locale.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_divider.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
@@ -124,7 +125,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                 }
                 return Center(
                   child: Text(
-                    DateFormat.E('ko_KR').format(day),
+                    formatDay(day).dow,
                     style: PTypo.caption.copyWith(color: color),
                   ),
                 );
@@ -224,9 +225,9 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
             .where((h) => h.holidayDate == dayKey)
             .toList()
         : const <Holiday>[];
-    final weekday =
-        const ['월', '화', '수', '목', '금', '토', '일'][day.weekday - 1];
-    final title = '${day.month}월 ${day.day}일 $weekday요일';
+    final title = localeIsEn()
+        ? '${formatDay(day).md}, ${formatDay(day).dow}'
+        : '${formatDay(day).md} ${formatDay(day).dow}요일';
     showPSheet<void>(
       context,
       title: title,
@@ -302,7 +303,7 @@ class _MonthHeader extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  '${focused.year}년 ${focused.month}월',
+                  yearMonth(focused),
                   style: PTypo.body.copyWith(
                     color: t.fgPrimary,
                     fontWeight: PFontWeight.bold,
@@ -557,7 +558,7 @@ class _CalendarGridSkeleton extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = tokens;
     // 월~일 — TableCalendar daysOfWeekStyle/dowBuilder 정합(주말 색 포함, 실제 텍스트).
-    const dow = ['월', '화', '수', '목', '금', '토', '일'];
+    final dow = weekdayLabels(mondayFirst: true);
     Color dowColor(int i) {
       if (i == 6) return t.fgExpense; // 일
       if (i == 5) return t.fgBrand; // 토
