@@ -133,7 +133,7 @@ class _Body extends ConsumerWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                '${l.dutchPerPersonLabel} ${krwMasked(perPerson, masked, mask: '••••')}원',
+                '${l.dutchPerPersonLabel} ${krwSigned(perPerson, masked, unit: true, mask: '••••')}',
                 style: PTypo.caption.copyWith(color: t.fgSecondary),
               ),
             ],

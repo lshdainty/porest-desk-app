@@ -625,7 +625,7 @@ class _DutchPayFooter extends StatelessWidget {
                     style: PTypo.bodySm.copyWith(color: t.fgSecondary),
                   ),
                   TextSpan(
-                    text: '${krw(perPerson)}원',
+                    text: krwSigned(perPerson, false, unit: true),
                     style: PTypo.bodySm.copyWith(
                         color: t.fgPrimary,
                         fontWeight: PFontWeight.bold),
@@ -835,7 +835,7 @@ class _ParticipantRow extends StatelessWidget {
               ),
             ),
           ] else if (splitMethod == _Split.custom && participant.isMe) ...[
-            Text('${krw(amount)}원',
+            Text(krwSigned(amount, false, unit: true),
                 style: PTypo.bodySm.copyWith(
                     color: tokens.fgPrimary,
                     fontWeight: PFontWeight.bold)),
@@ -860,14 +860,14 @@ class _ParticipantRow extends StatelessWidget {
             ],
             SizedBox(
               width: 80,
-              child: Text('${krw(amount)}원',
+              child: Text(krwSigned(amount, false, unit: true),
                   textAlign: TextAlign.right,
                   style: PTypo.bodySm.copyWith(
                       color: tokens.fgPrimary,
                       fontWeight: PFontWeight.bold)),
             ),
           ] else ...[
-            Text('${krw(amount)}원',
+            Text(krwSigned(amount, false, unit: true),
                 style: PTypo.bodySm.copyWith(
                     color: tokens.fgPrimary,
                     fontWeight: PFontWeight.bold)),

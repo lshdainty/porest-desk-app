@@ -608,7 +608,7 @@ class _SessionCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    '${l.dutchPerPersonLabel} ${krwMasked(perPerson, masked, mask: '••••')}원',
+                    '${l.dutchPerPersonLabel} ${krwSigned(perPerson, masked, unit: true, mask: '••••')}',
                     style: PTypo.micro.copyWith(color: t.fgTertiary),
                   ),
                 ],
@@ -858,7 +858,7 @@ class _FriendRow extends StatelessWidget {
             )
           else
             Text(
-              '+${krwMasked(agg.net, masked)}원',
+              krwSigned(agg.net, masked, sign: '+', unit: true),
               style: PTypo.body.copyWith(
                 color: t.statusSuccessFg,
                 fontWeight: PFontWeight.bold,
