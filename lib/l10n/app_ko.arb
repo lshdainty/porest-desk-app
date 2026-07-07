@@ -1496,5 +1496,17 @@
   "memoContentPlaceholder": "여기에 메모를 작성해주세요",
   "memoFieldTag": "태그",
   "memoPinToTop": "상단에 고정",
-  "memoFieldColor": "색상"
+  "memoFieldColor": "색상",
+  "dateToday": "오늘",
+  "dateTomorrow": "내일",
+  "dateYesterday": "어제",
+  "dateInDays": "{n}일 후",
+  "@dateInDays": {"placeholders": {"n": {"type": "int"}}},
+  "dateDaysAgo": "{n}일 전",
+  "@dateDaysAgo": {"placeholders": {"n": {"type": "int"}}},
+  "dateJustNow": "방금",
+  "dateMinutesAgo": "{n}분 전",
+  "@dateMinutesAgo": {"placeholders": {"n": {"type": "int"}}},
+  "dateHoursAgo": "{n}시간 전",
+  "@dateHoursAgo": {"placeholders": {"n": {"type": "int"}}}
 }

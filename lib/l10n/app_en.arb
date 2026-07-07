@@ -1495,5 +1495,17 @@
   "memoContentPlaceholder": "Write your memo here",
   "memoFieldTag": "Tag",
   "memoPinToTop": "Pin to top",
-  "memoFieldColor": "Color"
+  "memoFieldColor": "Color",
+  "dateToday": "Today",
+  "dateTomorrow": "Tomorrow",
+  "dateYesterday": "Yesterday",
+  "dateInDays": "in {n} days",
+  "@dateInDays": {"placeholders": {"n": {"type": "int"}}},
+  "dateDaysAgo": "{n} days ago",
+  "@dateDaysAgo": {"placeholders": {"n": {"type": "int"}}},
+  "dateJustNow": "Just now",
+  "dateMinutesAgo": "{n} min ago",
+  "@dateMinutesAgo": {"placeholders": {"n": {"type": "int"}}},
+  "dateHoursAgo": "{n} hr ago",
+  "@dateHoursAgo": {"placeholders": {"n": {"type": "int"}}}
 }

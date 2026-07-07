@@ -4379,4 +4379,36 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get memoFieldColor => 'Color';
+
+  @override
+  String get dateToday => 'Today';
+
+  @override
+  String get dateTomorrow => 'Tomorrow';
+
+  @override
+  String get dateYesterday => 'Yesterday';
+
+  @override
+  String dateInDays(int n) {
+    return 'in $n days';
+  }
+
+  @override
+  String dateDaysAgo(int n) {
+    return '$n days ago';
+  }
+
+  @override
+  String get dateJustNow => 'Just now';
+
+  @override
+  String dateMinutesAgo(int n) {
+    return '$n min ago';
+  }
+
+  @override
+  String dateHoursAgo(int n) {
+    return '$n hr ago';
+  }
 }

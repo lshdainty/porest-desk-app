@@ -1,11 +1,15 @@
 import 'package:intl/intl.dart';
 
+import 'package:porest_desk_app/core/format/format_locale.dart';
+
 /// porest-desk-front `KRW(n, {sign, abs})` 포팅.
 ///
-/// 천단위 콤마 (`ko_KR`), 부호 옵션, 절댓값 옵션.
+/// 천단위 콤마, 부호 옵션, 절댓값 옵션.
 String krw(int n, {bool sign = false, bool abs = false}) {
   final v = abs ? n.abs() : n;
-  final formatted = NumberFormat.decimalPattern('ko_KR').format(v);
+  // 천단위 콤마 그룹핑은 ko/en 동일('10,000') → ko 출력 회귀 0. locale 만 현재값으로.
+  final formatted =
+      NumberFormat.decimalPattern(localeIsEn() ? 'en' : 'ko_KR').format(v);
   if (sign && n > 0) return '+$formatted';
   return formatted;
 }
@@ -27,6 +31,8 @@ String krwMasked(int n, bool masked,
 String krwSigned(int n, bool masked,
     {String sign = '', bool unit = false, String mask = kHideMask}) {
   if (masked) return mask;
+  // 통화 단위: ko '원' 접미 / en '₩' 접두 (부호는 항상 최선두). unit=false 면 숫자만.
+  if (unit && localeIsEn()) return '$sign₩${krw(n)}';
   return '$sign${krw(n)}${unit ? '원' : ''}';
 }
 
@@ -34,6 +40,9 @@ String krwSigned(int n, bool masked,
 /// 음수도 부호 prepend (`−` 가운데 dash). Web `formatChartAxis` 와 정합.
 /// 예: -51,750,000 → '−5,200만', 1,200,000,000 → '12.0억'.
 String formatChartAxis(double v) {
+  // en: 로케일 compact 축약 (120M · 52K · -5.2M). intl 내장 en 데이터.
+  if (localeIsEn()) return NumberFormat.compact(locale: 'en').format(v);
+  // ko: 억/만 축약 (기존 그대로).
   final n = v.abs();
   String body;
   if (n >= 100000000) {
