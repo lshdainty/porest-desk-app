@@ -51,6 +51,15 @@ void main() {
       expect(yearMonth(DateTime(2026, 7, 1)), '2026년 7월');
     });
 
+    test('weekdayLabels · yearOnly · monthOnly: 수동 포맷', () {
+      // 기존 인라인 배열과 정확히 동일 (일~토 / 월~일).
+      expect(weekdayLabels(), const ['일', '월', '화', '수', '목', '금', '토']);
+      expect(weekdayLabels(mondayFirst: true),
+          const ['월', '화', '수', '목', '금', '토', '일']);
+      expect(yearOnly(DateTime(2026, 7, 1)), '2026년');
+      expect(monthOnly(DateTime(2026, 7, 1)), '7월');
+    });
+
     // Intl.defaultLocale='ko' 배선 후 bare DateFormat(toIsoLocal) 이 ko 심볼을
     // 요구 → 초기화 안 됐으면 throw. 회귀 가드.
     test('toIsoLocal: ISO 그대로 (locale 무관)', () {
@@ -83,6 +92,15 @@ void main() {
       expect(formatDay(d).md, 'Jan 1');
       expect(formatDay(d).dow, 'Thu');
       expect(yearMonth(DateTime(2026, 7, 1)), 'Jul 2026');
+    });
+
+    test('weekdayLabels · yearOnly · monthOnly: DateFormat(en)', () {
+      expect(weekdayLabels(),
+          const ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']);
+      expect(weekdayLabels(mondayFirst: true),
+          const ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']);
+      expect(yearOnly(DateTime(2026, 7, 1)), '2026');
+      expect(monthOnly(DateTime(2026, 7, 1)), 'Jul');
     });
   });
 }
