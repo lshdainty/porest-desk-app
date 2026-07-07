@@ -8,6 +8,7 @@ import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_dropdown_menu.dart';
@@ -70,7 +71,7 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
       ref.invalidate(todoListProvider);
     } on ApiException catch (e) {
       if (!mounted) return;
-      showPSnackBar(context, '추가 실패: ${e.message}',
+      showPSnackBar(context, '${AppLocalizations.of(context).todoAddFailed}: ${e.message}',
           severity: PSnackSeverity.error);
     } finally {
       if (mounted) setState(() => _quickAdding = false);
@@ -84,7 +85,7 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
       ref.invalidate(todoListProvider);
     } on ApiException catch (e) {
       if (!mounted) return;
-      showPSnackBar(context, '실패: ${e.message}',
+      showPSnackBar(context, '${AppLocalizations.of(context).todoActionFailed}: ${e.message}',
           severity: PSnackSeverity.error);
     }
   }
@@ -95,6 +96,7 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final listAsync = ref.watch(todoListProvider(_allFilter));
 
     return Scaffold(
@@ -103,14 +105,14 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
         leading: PBackButton(onPressed: () => context.pop()),
-        title: const Text('할 일'),
+        title: Text(l.todoTitle),
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,
         elevation: 0,
         actions: [
           PButton.icon(
             icon: _kanban ? LucideIcons.list : LucideIcons.layoutGrid,
-            tooltip: _kanban ? '리스트 보기' : '칸반 보기',
+            tooltip: _kanban ? l.todoViewList : l.todoViewKanban,
             onPressed: () => setState(() => _kanban = !_kanban),
           ),
           PDropdownMenu(
@@ -118,11 +120,11 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
             iconSize: 24,
             entries: [
               PDropdownItem(
-                label: '프로젝트 관리',
+                label: l.todoProjectMgmt,
                 onTap: () => showTodoProjectManagementDialog(context),
               ),
               PDropdownItem(
-                label: '태그 관리',
+                label: l.todoTagMgmt,
                 onTap: () => showTodoTagManagementDialog(context),
               ),
             ],
@@ -131,7 +133,7 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
       ),
       floatingActionButton: PFloatingActionButton(
         icon: LucideIcons.plus,
-        tooltip: '할 일 추가',
+        tooltip: l.todoAdd,
         onPressed: () => showTodoEditDialog(context),
       ),
       body: _kanban
@@ -147,7 +149,7 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
                 error: (e, _) => ListView(
                   padding: const EdgeInsets.all(PSpace.x16),
                   children: [
-                    Text('할 일 로드 실패\n$e',
+                    Text('${l.todoLoadError}\n$e',
                         style:
                             PTypo.bodySm.copyWith(color: t.statusDanger)),
                   ],
@@ -159,6 +161,7 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
   }
 
   Widget _buildBody(BuildContext context, PorestTokens t, List<Todo> all) {
+    final l = AppLocalizations.of(context);
     final today = DateTime.now();
 
     // ── 통계 (전체 기준) ──
@@ -233,7 +236,7 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
           children: [
             Expanded(
               child: _StatCard(
-                label: '오늘',
+                label: l.calToday,
                 value: '$todayCount',
                 unit: '건',
                 valueColor: todayCount > 0 ? t.fgBrand : t.fgPrimary,
@@ -243,7 +246,7 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
             const SizedBox(width: PSpace.sm),
             Expanded(
               child: _StatCard(
-                label: '이번 주',
+                label: l.expPeriodWeek,
                 value: '$weekCount',
                 unit: '건',
                 valueColor: t.fgPrimary,
@@ -253,7 +256,7 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
             const SizedBox(width: PSpace.sm),
             Expanded(
               child: _StatCard(
-                label: '완료율',
+                label: l.todoCompletionRate,
                 value: '$completedPct',
                 unit: '%',
                 valueColor: t.statusSuccessFg,
@@ -335,12 +338,15 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
   bool _isSameDay(DateTime a, DateTime b) =>
       a.year == b.year && a.month == b.month && a.day == b.day;
 
-  String _tabLabel(_TodoFilterTab tab) => switch (tab) {
-        _TodoFilterTab.today => '오늘',
-        _TodoFilterTab.week => '이번 주',
-        _TodoFilterTab.all => '전체',
-        _TodoFilterTab.done => '완료',
-      };
+  String _tabLabel(_TodoFilterTab tab) {
+    final l = AppLocalizations.of(context);
+    return switch (tab) {
+      _TodoFilterTab.today => l.calToday,
+      _TodoFilterTab.week => l.expPeriodWeek,
+      _TodoFilterTab.all => l.todoStatusAll,
+      _TodoFilterTab.done => l.todoStatusCompleted,
+    };
+  }
 }
 
 /// 통계 카드 — 라벨(uppercase tracking) + 숫자(.num) + 단위, 완료율은 progress bar.
@@ -465,6 +471,7 @@ class _QuickAddState extends State<_QuickAdd> {
   @override
   Widget build(BuildContext context) {
     final t = widget.t;
+    final l = AppLocalizations.of(context);
     final focused = _focusNode.hasFocus;
     return Container(
       padding: const EdgeInsets.all(6),
@@ -503,7 +510,7 @@ class _QuickAddState extends State<_QuickAdd> {
                 disabledBorder: InputBorder.none,
                 errorBorder: InputBorder.none,
                 focusedErrorBorder: InputBorder.none,
-                hintText: '할 일을 입력하고 Enter',
+                hintText: l.todoQuickAddPlaceholder,
                 hintStyle: PTypo.body.copyWith(color: t.fgPlaceholder),
               ),
               onChanged: (_) => widget.onChanged(),
@@ -512,18 +519,18 @@ class _QuickAddState extends State<_QuickAdd> {
           ),
           const SizedBox(width: 4),
           PButton(
-            label: '추가',
+            label: l.calAdd,
             size: PButtonSize.sm,
             loading: widget.adding,
             onPressed: widget.adding ? null : widget.onAdd,
           ),
           const SizedBox(width: 4),
           PButton(
-            label: '자세히',
+            label: l.todoDetail,
             icon: LucideIcons.settings2,
             size: PButtonSize.sm,
             variant: PButtonVariant.outline,
-            tooltip: '자세히',
+            tooltip: l.todoDetail,
             onPressed: widget.onDetail,
           ),
         ],
@@ -714,16 +721,17 @@ class _EmptyTodo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final isDone = tab == _TodoFilterTab.done;
     final title = switch (tab) {
-      _TodoFilterTab.today => '오늘 할 일이 없어요',
-      _TodoFilterTab.week => '이번 주는 한가해요',
-      _TodoFilterTab.done => '아직 완료된 일이 없어요',
-      _TodoFilterTab.all => '할 일이 없어요',
+      _TodoFilterTab.today => l.todoEmptyToday,
+      _TodoFilterTab.week => l.todoEmptyWeek,
+      _TodoFilterTab.done => l.todoEmptyDone,
+      _TodoFilterTab.all => l.todoEmptyAll,
     };
     final sub = isDone
-        ? '할 일을 완료하면 여기에 모입니다.'
-        : '위 입력칸으로 빠르게 추가해보세요.';
+        ? l.todoEmptyDoneHint
+        : l.todoEmptyAddHint;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 20),

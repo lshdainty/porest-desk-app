@@ -3967,4 +3967,170 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get stocksChangeRate => 'Change';
+
+  @override
+  String get todoAdd => 'Add todo';
+
+  @override
+  String get todoEditTitle => 'Edit todo';
+
+  @override
+  String get todoDeleteTitle => 'Delete todo';
+
+  @override
+  String todoDeleteConfirm(String title) {
+    return 'Delete \"$title\"?';
+  }
+
+  @override
+  String get todoDetail => 'Details';
+
+  @override
+  String get todoCompletionRate => 'Completion rate';
+
+  @override
+  String get todoQuickAddPlaceholder => 'Type a todo and press Enter';
+
+  @override
+  String get todoTitlePlaceholder => 'Write a todo';
+
+  @override
+  String get todoTitleRequired => 'Please enter a title';
+
+  @override
+  String get todoDueDate => 'Due date';
+
+  @override
+  String get todoUnset => 'Not set';
+
+  @override
+  String get todoTag => 'Tag';
+
+  @override
+  String get todoTagSelect => 'Select tag';
+
+  @override
+  String get todoPriorityLabel => 'Priority';
+
+  @override
+  String get todoPriorityImportant => 'High';
+
+  @override
+  String get todoPriorityRelaxed => 'Low';
+
+  @override
+  String get todoContentLabel => 'Details (optional)';
+
+  @override
+  String get todoContentPlaceholder =>
+      'e.g. # Heading / **bold** / - item / - [ ] check';
+
+  @override
+  String get todoEditMode => 'Edit';
+
+  @override
+  String get todoPreview => 'Preview';
+
+  @override
+  String get todoNoContent => 'No content';
+
+  @override
+  String get todoColumnEmpty => 'Empty';
+
+  @override
+  String get todoEmptyToday => 'Nothing due today';
+
+  @override
+  String get todoEmptyWeek => 'A light week ahead';
+
+  @override
+  String get todoEmptyDone => 'Nothing completed yet';
+
+  @override
+  String get todoEmptyAll => 'No todos';
+
+  @override
+  String get todoEmptyDoneHint => 'Completed todos appear here.';
+
+  @override
+  String get todoEmptyAddHint => 'Add one quickly using the field above.';
+
+  @override
+  String get todoNewProject => 'New project';
+
+  @override
+  String get todoProjectNamePlaceholder => 'Project name';
+
+  @override
+  String get todoDescOptional => 'Description (optional)';
+
+  @override
+  String get todoAdding => 'Adding…';
+
+  @override
+  String get todoAddProject => 'Add project';
+
+  @override
+  String get todoRegisteredProjects => 'Projects';
+
+  @override
+  String get todoNoProjects => 'No projects';
+
+  @override
+  String get todoDeleteProjectTitle => 'Delete project';
+
+  @override
+  String todoDeleteProjectConfirm(String name) {
+    return 'Delete project \"$name\"? Linked todos will be set to no project.';
+  }
+
+  @override
+  String get todoNewTag => 'New tag';
+
+  @override
+  String get todoTagNamePlaceholder => 'Tag name';
+
+  @override
+  String get todoRegisteredTags => 'Tags';
+
+  @override
+  String get todoNoTags => 'No tags';
+
+  @override
+  String get todoDeleteTagTitle => 'Delete tag';
+
+  @override
+  String todoDeleteTagConfirm(String name) {
+    return 'Delete tag \"$name\"?';
+  }
+
+  @override
+  String get todoActionFailed => 'Failed';
+
+  @override
+  String get todoAddFailed => 'Add failed';
+
+  @override
+  String get todoDeleteFailed => 'Delete failed';
+
+  @override
+  String get todoUpdateFailed => 'Update failed';
+
+  @override
+  String get todoStatusChangeFailed => 'Status change failed';
+
+  @override
+  String get todoMoveFailed => 'Move failed';
+
+  @override
+  String get todoLoadError => 'Failed to load todos';
+
+  @override
+  String get todoProjectLoadError => 'Failed to load projects';
+
+  @override
+  String get todoTagLoadError => 'Failed to load tags';
+
+  @override
+  String get todoSubtaskLoadError => 'Failed to load subtasks';
 }

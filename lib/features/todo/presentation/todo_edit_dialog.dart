@@ -7,6 +7,7 @@ import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/markdown_preview.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_date_input.dart';
@@ -20,10 +21,11 @@ import 'package:porest_desk_app/features/todo/domain/todo.dart';
 import 'package:porest_desk_app/features/todo/domain/todo_meta.dart';
 
 void showTodoEditDialog(BuildContext context, {Todo? edit}) {
+  final l = AppLocalizations.of(context);
   final controller = PSheetController();
   showPSheet<void>(
     context,
-    title: edit == null ? '할 일 추가' : '할 일 수정',
+    title: edit == null ? l.todoAdd : l.todoEditTitle,
     // 컨텐츠 높이에 맞춰 wrap (web 다이얼로그처럼) — 기본 0.85 강제 높이 사용 X.
     shrinkWrap: true,
     contentBuilder: (ctx, _) => _Body(
@@ -32,7 +34,7 @@ void showTodoEditDialog(BuildContext context, {Todo? edit}) {
     ),
     footerBuilder: (ctx) => PSheetFooter(
       controller: controller,
-      submitLabel: edit == null ? '추가' : '수정',
+      submitLabel: edit == null ? l.calAdd : l.actionEdit,
     ),
   );
 }
@@ -125,18 +127,19 @@ class _BodyState extends ConsumerState<_Body> {
       Navigator.of(context).pop();
     } on ApiException catch (e) {
       if (!mounted) return;
-      showPSnackBar(context, '실패: ${e.message}', severity: PSnackSeverity.error);
+      showPSnackBar(context, '${AppLocalizations.of(context).todoActionFailed}: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setSubmitting(false);
     }
   }
 
   Future<void> _delete() async {
+    final l = AppLocalizations.of(context);
     final ok = await showPConfirmDialog(
       context,
-      title: '할 일 삭제',
-      message: '"${widget.edit!.title}" 을(를) 삭제할까요?',
-      confirmLabel: '삭제',
+      title: l.todoDeleteTitle,
+      message: l.todoDeleteConfirm(widget.edit!.title),
+      confirmLabel: l.actionDelete,
       destructive: true,
     );
     if (!ok || !mounted) return;
@@ -149,7 +152,7 @@ class _BodyState extends ConsumerState<_Body> {
       Navigator.of(context).pop();
     } on ApiException catch (e) {
       if (!mounted) return;
-      showPSnackBar(context, '삭제 실패: ${e.message}', severity: PSnackSeverity.error);
+      showPSnackBar(context, '${AppLocalizations.of(context).todoDeleteFailed}: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setSubmitting(false);
     }
@@ -158,6 +161,7 @@ class _BodyState extends ConsumerState<_Body> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) widget.controller.setCanSubmit(_canSubmit);
     });
@@ -167,14 +171,14 @@ class _BodyState extends ConsumerState<_Body> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('제목', style: PTypo.caption.copyWith(color: t.fgSecondary)),
+          Text(l.calFieldTitle, style: PTypo.caption.copyWith(color: t.fgSecondary)),
           const SizedBox(height: PSpace.x4),
           PTextInput(
             controller: _titleCtrl,
-            placeholder: '할 일을 적어주세요',
+            placeholder: l.todoTitlePlaceholder,
             onChanged: (_) => setState(() => _titleTouched = true),
             errorText: _titleCtrl.text.trim().isEmpty && _titleTouched
-                ? '제목을 입력해주세요'
+                ? l.todoTitleRequired
                 : null,
           ),
           const SizedBox(height: PSpace.x12),
@@ -187,7 +191,7 @@ class _BodyState extends ConsumerState<_Body> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('마감일',
+                    Text(l.todoDueDate,
                         style:
                             PTypo.caption.copyWith(color: t.fgSecondary)),
                     const SizedBox(height: PSpace.x4),
@@ -196,7 +200,7 @@ class _BodyState extends ConsumerState<_Body> {
                       onChanged: (d) => setState(() => _due = d),
                       firstDate: DateTime(2020),
                       lastDate: DateTime(2030),
-                      placeholder: '미설정',
+                      placeholder: l.todoUnset,
                       allowClear: true,
                     ),
                   ],
@@ -207,13 +211,13 @@ class _BodyState extends ConsumerState<_Body> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('태그',
+                    Text(l.todoTag,
                         style:
                             PTypo.caption.copyWith(color: t.fgSecondary)),
                     const SizedBox(height: PSpace.x4),
                     PSelect<String>(
                       value: _tag,
-                      title: '태그 선택',
+                      title: l.todoTagSelect,
                       items: [
                         for (final tag in kTodoTags)
                           PSelectItem<String>(value: tag, label: tag),
@@ -228,7 +232,7 @@ class _BodyState extends ConsumerState<_Body> {
           ),
           const SizedBox(height: PSpace.x12),
 
-          Text('우선순위',
+          Text(l.todoPriorityLabel,
               style: PTypo.caption.copyWith(color: t.fgSecondary)),
           const SizedBox(height: PSpace.x8),
           _PriSeg(
@@ -239,7 +243,7 @@ class _BodyState extends ConsumerState<_Body> {
 
           Row(
             children: [
-              Text('상세 내용 (선택)',
+              Text(l.todoContentLabel,
                   style: PTypo.caption.copyWith(color: t.fgSecondary)),
               const Spacer(),
               GestureDetector(
@@ -258,7 +262,7 @@ class _BodyState extends ConsumerState<_Body> {
                           size: 12,
                           color: t.fgSecondary),
                       const SizedBox(width: 4),
-                      Text(_previewContent ? '편집' : '미리보기',
+                      Text(_previewContent ? l.todoEditMode : l.todoPreview,
                           style: PTypo.caption.copyWith(
                               color: t.fgSecondary,
                               fontWeight: PFontWeight.semi)),
@@ -280,7 +284,7 @@ class _BodyState extends ConsumerState<_Body> {
                 border: Border.all(color: t.borderSubtle),
               ),
               child: _contentCtrl.text.trim().isEmpty
-                  ? Text('내용 없음',
+                  ? Text(l.todoNoContent,
                       style: PTypo.caption.copyWith(color: t.fgTertiary))
                   : MarkdownPreview(_contentCtrl.text),
             )
@@ -288,7 +292,7 @@ class _BodyState extends ConsumerState<_Body> {
             PTextInput(
               controller: _contentCtrl,
               maxLines: 6,
-              placeholder: '예: # 제목 / **굵게** / - 항목 / - [ ] 체크',
+              placeholder: l.todoContentPlaceholder,
             ),
 
           if (_isEdit) ...[
@@ -309,7 +313,8 @@ class _PriSeg extends StatelessWidget {
   final PorestTokens tokens;
   @override
   Widget build(BuildContext context) {
-    const opts = [('HIGH', '중요'), ('MEDIUM', '보통'), ('LOW', '여유')];
+    final l = AppLocalizations.of(context);
+    final opts = [('HIGH', l.todoPriorityImportant), ('MEDIUM', l.todoPriorityMedium), ('LOW', l.todoPriorityRelaxed)];
     return Container(
       padding: const EdgeInsets.all(4),
       decoration:
@@ -378,7 +383,7 @@ class _SubtaskSectionState extends ConsumerState<_SubtaskSection> {
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() => _adding = false);
-      showPSnackBar(context, '추가 실패: ${e.message}', severity: PSnackSeverity.error);
+      showPSnackBar(context, '${AppLocalizations.of(context).todoAddFailed}: ${e.message}', severity: PSnackSeverity.error);
     }
   }
 
@@ -391,7 +396,7 @@ class _SubtaskSectionState extends ConsumerState<_SubtaskSection> {
       ref.invalidate(todoSubtasksProvider(widget.parentId));
     } on ApiException catch (e) {
       if (!mounted) return;
-      showPSnackBar(context, '상태 변경 실패: ${e.message}', severity: PSnackSeverity.error);
+      showPSnackBar(context, '${AppLocalizations.of(context).todoStatusChangeFailed}: ${e.message}', severity: PSnackSeverity.error);
     }
   }
 
@@ -402,18 +407,19 @@ class _SubtaskSectionState extends ConsumerState<_SubtaskSection> {
       ref.invalidate(todoSubtasksProvider(widget.parentId));
     } on ApiException catch (e) {
       if (!mounted) return;
-      showPSnackBar(context, '삭제 실패: ${e.message}', severity: PSnackSeverity.error);
+      showPSnackBar(context, '${AppLocalizations.of(context).todoDeleteFailed}: ${e.message}', severity: PSnackSeverity.error);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final t = widget.tokens;
+    final l = AppLocalizations.of(context);
     final async = ref.watch(todoSubtasksProvider(widget.parentId));
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('하위 작업',
+        Text(l.todoSubtask,
             style: PTypo.caption.copyWith(color: t.fgSecondary)),
         const SizedBox(height: PSpace.x4),
         async.when(
@@ -421,7 +427,7 @@ class _SubtaskSectionState extends ConsumerState<_SubtaskSection> {
             padding: EdgeInsets.symmetric(vertical: 8),
             child: Center(child: PCircularProgressIndicator()),
           ),
-          error: (e, _) => Text('하위 작업 로드 실패',
+          error: (e, _) => Text(l.todoSubtaskLoadError,
               style: PTypo.caption.copyWith(color: t.statusDanger)),
           data: (subs) {
             if (subs.isEmpty) return const SizedBox.shrink();
@@ -473,14 +479,14 @@ class _SubtaskSectionState extends ConsumerState<_SubtaskSection> {
               child: PTextInput(
                 controller: _ctrl,
                 enabled: !_adding,
-                placeholder: '+ 하위 작업 추가',
+                placeholder: l.todoSubtaskAddHint,
                 onSubmitted: (_) => _addSubtask(),
                 onChanged: (_) => setState(() {}),
               ),
             ),
             const SizedBox(width: 6),
             PButton(
-              label: '추가',
+              label: l.calAdd,
               loading: _adding,
               onPressed:
                   (_ctrl.text.trim().isEmpty || _adding) ? null : _addSubtask,
