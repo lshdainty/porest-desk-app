@@ -7,12 +7,20 @@ import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_badge.dart';
 import 'package:porest_desk_app/features/todo/application/todo_providers.dart';
 import 'package:porest_desk_app/features/todo/domain/todo.dart';
 import 'package:porest_desk_app/features/todo/presentation/todo_edit_dialog.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
 import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
+
+/// 칸반 컬럼(상태) 라벨 — const 데이터라 렌더 시점에 코드로 로컬라이즈.
+String _columnLabel(AppLocalizations l, String code) => switch (code) {
+      'PENDING' => l.todoStatusPending,
+      'IN_PROGRESS' => l.todoStatusInProgress,
+      _ => l.todoStatusCompleted,
+    };
 
 /// Todo 칸반 보드 — front `KanbanBoard` 미러.
 ///
@@ -26,10 +34,10 @@ class TodoKanbanView extends ConsumerStatefulWidget {
 }
 
 class _TodoKanbanViewState extends ConsumerState<TodoKanbanView> {
-  static const _columns = <(String code, String label, IconData icon)>[
-    ('PENDING', '대기', LucideIcons.circle),
-    ('IN_PROGRESS', '진행중', LucideIcons.arrowRightCircle),
-    ('COMPLETED', '완료', LucideIcons.checkCircle),
+  static const _columns = <(String code, IconData icon)>[
+    ('PENDING', LucideIcons.circle),
+    ('IN_PROGRESS', LucideIcons.arrowRightCircle),
+    ('COMPLETED', LucideIcons.checkCircle),
   ];
 
   Future<void> _moveTo(Todo todo, String status) async {
@@ -41,13 +49,14 @@ class _TodoKanbanViewState extends ConsumerState<TodoKanbanView> {
       ref.invalidate(todoListProvider);
     } on ApiException catch (e) {
       if (!mounted) return;
-      showPSnackBar(context, '이동 실패: ${e.message}', severity: PSnackSeverity.error);
+      showPSnackBar(context, '${AppLocalizations.of(context).todoMoveFailed}: ${e.message}', severity: PSnackSeverity.error);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     // 전체 todo 한 번에 fetch (status=null) 후 클라이언트 분류.
     final async = ref.watch(
         todoListProvider((status: null, priority: widget.priority)));
@@ -56,7 +65,7 @@ class _TodoKanbanViewState extends ConsumerState<TodoKanbanView> {
       loading: () => _KanbanSkeleton(columns: _columns, tokens: t),
       error: (e, _) => Padding(
         padding: const EdgeInsets.all(PSpace.x16),
-        child: Text('할 일 로드 실패\n$e',
+        child: Text('${l.todoLoadError}\n$e',
             style: PTypo.bodySm.copyWith(color: t.statusDanger)),
       ),
       data: (all) {
@@ -81,8 +90,8 @@ class _TodoKanbanViewState extends ConsumerState<TodoKanbanView> {
                     width: 280,
                     child: _Column(
                       status: col.$1,
-                      label: col.$2,
-                      icon: col.$3,
+                      label: _columnLabel(l, col.$1),
+                      icon: col.$2,
                       items: byStatus[col.$1] ?? const [],
                       onAccept: (todo) => _moveTo(todo, col.$1),
                       tokens: t,
@@ -102,12 +111,13 @@ class _TodoKanbanViewState extends ConsumerState<TodoKanbanView> {
 /// 컬럼 shell·카드 치수는 로딩 후 [_Column]/[_Card]와 1:1 정합.
 class _KanbanSkeleton extends StatelessWidget {
   const _KanbanSkeleton({required this.columns, required this.tokens});
-  final List<(String code, String label, IconData icon)> columns;
+  final List<(String code, IconData icon)> columns;
   final PorestTokens tokens;
 
   @override
   Widget build(BuildContext context) {
     final t = tokens;
+    final l = AppLocalizations.of(context);
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.fromLTRB(
@@ -138,9 +148,9 @@ class _KanbanSkeleton extends StatelessWidget {
                       // 정적 헤더 틀: 실제 아이콘 + 라벨 텍스트(서버 무관) 렌더.
                       Row(
                         children: [
-                          Icon(col.$3, size: 14, color: t.fgSecondary),
+                          Icon(col.$2, size: 14, color: t.fgSecondary),
                           const SizedBox(width: 6),
-                          Text(col.$2,
+                          Text(_columnLabel(l, col.$1),
                               style: PTypo.bodySm.copyWith(
                                   color: t.fgPrimary,
                                   fontWeight: PFontWeight.bold)),
@@ -221,6 +231,7 @@ class _Column extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return DragTarget<Todo>(
       onAcceptWithDetails: (d) => onAccept(d.data),
       builder: (ctx, candidate, _) {
@@ -258,7 +269,7 @@ class _Column extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   child: Center(
-                    child: Text('비어있음',
+                    child: Text(l.todoColumnEmpty,
                         style:
                             PTypo.caption.copyWith(color: tokens.fgTertiary)),
                   ),

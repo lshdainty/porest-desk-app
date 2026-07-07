@@ -3926,4 +3926,169 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get stocksChangeRate => '등락률';
+
+  @override
+  String get todoAdd => '할 일 추가';
+
+  @override
+  String get todoEditTitle => '할 일 수정';
+
+  @override
+  String get todoDeleteTitle => '할 일 삭제';
+
+  @override
+  String todoDeleteConfirm(String title) {
+    return '\"$title\" 을(를) 삭제할까요?';
+  }
+
+  @override
+  String get todoDetail => '자세히';
+
+  @override
+  String get todoCompletionRate => '완료율';
+
+  @override
+  String get todoQuickAddPlaceholder => '할 일을 입력하고 Enter';
+
+  @override
+  String get todoTitlePlaceholder => '할 일을 적어주세요';
+
+  @override
+  String get todoTitleRequired => '제목을 입력해주세요';
+
+  @override
+  String get todoDueDate => '마감일';
+
+  @override
+  String get todoUnset => '미설정';
+
+  @override
+  String get todoTag => '태그';
+
+  @override
+  String get todoTagSelect => '태그 선택';
+
+  @override
+  String get todoPriorityLabel => '우선순위';
+
+  @override
+  String get todoPriorityImportant => '중요';
+
+  @override
+  String get todoPriorityRelaxed => '여유';
+
+  @override
+  String get todoContentLabel => '상세 내용 (선택)';
+
+  @override
+  String get todoContentPlaceholder => '예: # 제목 / **굵게** / - 항목 / - [ ] 체크';
+
+  @override
+  String get todoEditMode => '편집';
+
+  @override
+  String get todoPreview => '미리보기';
+
+  @override
+  String get todoNoContent => '내용 없음';
+
+  @override
+  String get todoColumnEmpty => '비어있음';
+
+  @override
+  String get todoEmptyToday => '오늘 할 일이 없어요';
+
+  @override
+  String get todoEmptyWeek => '이번 주는 한가해요';
+
+  @override
+  String get todoEmptyDone => '아직 완료된 일이 없어요';
+
+  @override
+  String get todoEmptyAll => '할 일이 없어요';
+
+  @override
+  String get todoEmptyDoneHint => '할 일을 완료하면 여기에 모입니다.';
+
+  @override
+  String get todoEmptyAddHint => '위 입력칸으로 빠르게 추가해보세요.';
+
+  @override
+  String get todoNewProject => '새 프로젝트';
+
+  @override
+  String get todoProjectNamePlaceholder => '프로젝트 이름';
+
+  @override
+  String get todoDescOptional => '설명 (선택)';
+
+  @override
+  String get todoAdding => '추가 중...';
+
+  @override
+  String get todoAddProject => '프로젝트 추가';
+
+  @override
+  String get todoRegisteredProjects => '등록된 프로젝트';
+
+  @override
+  String get todoNoProjects => '등록된 프로젝트가 없습니다';
+
+  @override
+  String get todoDeleteProjectTitle => '프로젝트 삭제';
+
+  @override
+  String todoDeleteProjectConfirm(String name) {
+    return '\"$name\" 프로젝트를 삭제하시겠어요? 연결된 할 일은 프로젝트 미지정으로 변경됩니다.';
+  }
+
+  @override
+  String get todoNewTag => '새 태그';
+
+  @override
+  String get todoTagNamePlaceholder => '태그 이름';
+
+  @override
+  String get todoRegisteredTags => '등록된 태그';
+
+  @override
+  String get todoNoTags => '등록된 태그가 없습니다';
+
+  @override
+  String get todoDeleteTagTitle => '태그 삭제';
+
+  @override
+  String todoDeleteTagConfirm(String name) {
+    return '\"$name\" 태그를 삭제하시겠어요?';
+  }
+
+  @override
+  String get todoActionFailed => '실패';
+
+  @override
+  String get todoAddFailed => '추가 실패';
+
+  @override
+  String get todoDeleteFailed => '삭제 실패';
+
+  @override
+  String get todoUpdateFailed => '수정 실패';
+
+  @override
+  String get todoStatusChangeFailed => '상태 변경 실패';
+
+  @override
+  String get todoMoveFailed => '이동 실패';
+
+  @override
+  String get todoLoadError => '할 일 로드 실패';
+
+  @override
+  String get todoProjectLoadError => '프로젝트 로드 실패';
+
+  @override
+  String get todoTagLoadError => '태그 로드 실패';
+
+  @override
+  String get todoSubtaskLoadError => '하위 작업 로드 실패';
 }

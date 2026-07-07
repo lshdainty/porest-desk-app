@@ -7441,6 +7441,324 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'등락률'**
   String get stocksChangeRate;
+
+  /// No description provided for @todoAdd.
+  ///
+  /// In ko, this message translates to:
+  /// **'할 일 추가'**
+  String get todoAdd;
+
+  /// No description provided for @todoEditTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'할 일 수정'**
+  String get todoEditTitle;
+
+  /// No description provided for @todoDeleteTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'할 일 삭제'**
+  String get todoDeleteTitle;
+
+  /// No description provided for @todoDeleteConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'\"{title}\" 을(를) 삭제할까요?'**
+  String todoDeleteConfirm(String title);
+
+  /// No description provided for @todoDetail.
+  ///
+  /// In ko, this message translates to:
+  /// **'자세히'**
+  String get todoDetail;
+
+  /// No description provided for @todoCompletionRate.
+  ///
+  /// In ko, this message translates to:
+  /// **'완료율'**
+  String get todoCompletionRate;
+
+  /// No description provided for @todoQuickAddPlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'할 일을 입력하고 Enter'**
+  String get todoQuickAddPlaceholder;
+
+  /// No description provided for @todoTitlePlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'할 일을 적어주세요'**
+  String get todoTitlePlaceholder;
+
+  /// No description provided for @todoTitleRequired.
+  ///
+  /// In ko, this message translates to:
+  /// **'제목을 입력해주세요'**
+  String get todoTitleRequired;
+
+  /// No description provided for @todoDueDate.
+  ///
+  /// In ko, this message translates to:
+  /// **'마감일'**
+  String get todoDueDate;
+
+  /// No description provided for @todoUnset.
+  ///
+  /// In ko, this message translates to:
+  /// **'미설정'**
+  String get todoUnset;
+
+  /// No description provided for @todoTag.
+  ///
+  /// In ko, this message translates to:
+  /// **'태그'**
+  String get todoTag;
+
+  /// No description provided for @todoTagSelect.
+  ///
+  /// In ko, this message translates to:
+  /// **'태그 선택'**
+  String get todoTagSelect;
+
+  /// No description provided for @todoPriorityLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'우선순위'**
+  String get todoPriorityLabel;
+
+  /// No description provided for @todoPriorityImportant.
+  ///
+  /// In ko, this message translates to:
+  /// **'중요'**
+  String get todoPriorityImportant;
+
+  /// No description provided for @todoPriorityRelaxed.
+  ///
+  /// In ko, this message translates to:
+  /// **'여유'**
+  String get todoPriorityRelaxed;
+
+  /// No description provided for @todoContentLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'상세 내용 (선택)'**
+  String get todoContentLabel;
+
+  /// No description provided for @todoContentPlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'예: # 제목 / **굵게** / - 항목 / - [ ] 체크'**
+  String get todoContentPlaceholder;
+
+  /// No description provided for @todoEditMode.
+  ///
+  /// In ko, this message translates to:
+  /// **'편집'**
+  String get todoEditMode;
+
+  /// No description provided for @todoPreview.
+  ///
+  /// In ko, this message translates to:
+  /// **'미리보기'**
+  String get todoPreview;
+
+  /// No description provided for @todoNoContent.
+  ///
+  /// In ko, this message translates to:
+  /// **'내용 없음'**
+  String get todoNoContent;
+
+  /// No description provided for @todoColumnEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'비어있음'**
+  String get todoColumnEmpty;
+
+  /// No description provided for @todoEmptyToday.
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘 할 일이 없어요'**
+  String get todoEmptyToday;
+
+  /// No description provided for @todoEmptyWeek.
+  ///
+  /// In ko, this message translates to:
+  /// **'이번 주는 한가해요'**
+  String get todoEmptyWeek;
+
+  /// No description provided for @todoEmptyDone.
+  ///
+  /// In ko, this message translates to:
+  /// **'아직 완료된 일이 없어요'**
+  String get todoEmptyDone;
+
+  /// No description provided for @todoEmptyAll.
+  ///
+  /// In ko, this message translates to:
+  /// **'할 일이 없어요'**
+  String get todoEmptyAll;
+
+  /// No description provided for @todoEmptyDoneHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'할 일을 완료하면 여기에 모입니다.'**
+  String get todoEmptyDoneHint;
+
+  /// No description provided for @todoEmptyAddHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'위 입력칸으로 빠르게 추가해보세요.'**
+  String get todoEmptyAddHint;
+
+  /// No description provided for @todoNewProject.
+  ///
+  /// In ko, this message translates to:
+  /// **'새 프로젝트'**
+  String get todoNewProject;
+
+  /// No description provided for @todoProjectNamePlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'프로젝트 이름'**
+  String get todoProjectNamePlaceholder;
+
+  /// No description provided for @todoDescOptional.
+  ///
+  /// In ko, this message translates to:
+  /// **'설명 (선택)'**
+  String get todoDescOptional;
+
+  /// No description provided for @todoAdding.
+  ///
+  /// In ko, this message translates to:
+  /// **'추가 중...'**
+  String get todoAdding;
+
+  /// No description provided for @todoAddProject.
+  ///
+  /// In ko, this message translates to:
+  /// **'프로젝트 추가'**
+  String get todoAddProject;
+
+  /// No description provided for @todoRegisteredProjects.
+  ///
+  /// In ko, this message translates to:
+  /// **'등록된 프로젝트'**
+  String get todoRegisteredProjects;
+
+  /// No description provided for @todoNoProjects.
+  ///
+  /// In ko, this message translates to:
+  /// **'등록된 프로젝트가 없습니다'**
+  String get todoNoProjects;
+
+  /// No description provided for @todoDeleteProjectTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'프로젝트 삭제'**
+  String get todoDeleteProjectTitle;
+
+  /// No description provided for @todoDeleteProjectConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'\"{name}\" 프로젝트를 삭제하시겠어요? 연결된 할 일은 프로젝트 미지정으로 변경됩니다.'**
+  String todoDeleteProjectConfirm(String name);
+
+  /// No description provided for @todoNewTag.
+  ///
+  /// In ko, this message translates to:
+  /// **'새 태그'**
+  String get todoNewTag;
+
+  /// No description provided for @todoTagNamePlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'태그 이름'**
+  String get todoTagNamePlaceholder;
+
+  /// No description provided for @todoRegisteredTags.
+  ///
+  /// In ko, this message translates to:
+  /// **'등록된 태그'**
+  String get todoRegisteredTags;
+
+  /// No description provided for @todoNoTags.
+  ///
+  /// In ko, this message translates to:
+  /// **'등록된 태그가 없습니다'**
+  String get todoNoTags;
+
+  /// No description provided for @todoDeleteTagTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'태그 삭제'**
+  String get todoDeleteTagTitle;
+
+  /// No description provided for @todoDeleteTagConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'\"{name}\" 태그를 삭제하시겠어요?'**
+  String todoDeleteTagConfirm(String name);
+
+  /// No description provided for @todoActionFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'실패'**
+  String get todoActionFailed;
+
+  /// No description provided for @todoAddFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'추가 실패'**
+  String get todoAddFailed;
+
+  /// No description provided for @todoDeleteFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'삭제 실패'**
+  String get todoDeleteFailed;
+
+  /// No description provided for @todoUpdateFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'수정 실패'**
+  String get todoUpdateFailed;
+
+  /// No description provided for @todoStatusChangeFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'상태 변경 실패'**
+  String get todoStatusChangeFailed;
+
+  /// No description provided for @todoMoveFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'이동 실패'**
+  String get todoMoveFailed;
+
+  /// No description provided for @todoLoadError.
+  ///
+  /// In ko, this message translates to:
+  /// **'할 일 로드 실패'**
+  String get todoLoadError;
+
+  /// No description provided for @todoProjectLoadError.
+  ///
+  /// In ko, this message translates to:
+  /// **'프로젝트 로드 실패'**
+  String get todoProjectLoadError;
+
+  /// No description provided for @todoTagLoadError.
+  ///
+  /// In ko, this message translates to:
+  /// **'태그 로드 실패'**
+  String get todoTagLoadError;
+
+  /// No description provided for @todoSubtaskLoadError.
+  ///
+  /// In ko, this message translates to:
+  /// **'하위 작업 로드 실패'**
+  String get todoSubtaskLoadError;
 }
 
 class _AppLocalizationsDelegate

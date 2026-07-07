@@ -8,6 +8,7 @@ import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_color_picker.dart';
 import 'package:porest_desk_app/shared/widgets/p_divider.dart';
@@ -23,9 +24,10 @@ import 'package:porest_desk_app/features/todo/domain/todo_project.dart';
 /// 신규: 이름 + 설명(선택) + 색 팔레트 + 추가
 /// 기존: 인라인 편집 + 삭제
 void showTodoProjectManagementDialog(BuildContext context) {
+  final l = AppLocalizations.of(context);
   showPSheet<void>(
     context,
-    title: '프로젝트 관리',
+    title: l.todoProjectMgmt,
     contentBuilder: (ctx, scrollCtrl) => _Body(scrollController: scrollCtrl),
   );
 }
@@ -81,34 +83,35 @@ class _BodyState extends ConsumerState<_Body> {
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() => _adding = false);
-      showPSnackBar(context, '추가 실패: ${e.message}', severity: PSnackSeverity.error);
+      showPSnackBar(context, '${AppLocalizations.of(context).todoAddFailed}: ${e.message}', severity: PSnackSeverity.error);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final projectsAsync = ref.watch(todoProjectListProvider);
     return ListView(
       controller: widget.scrollController,
       padding: const EdgeInsets.fromLTRB(
           PSpace.x16, 0, PSpace.x16, PSpace.x16),
       children: [
-          Text('새 프로젝트',
+          Text(l.todoNewProject,
               style: PTypo.bodySm.copyWith(
                   color: t.fgPrimary, fontWeight: PFontWeight.bold)),
           const SizedBox(height: PSpace.x8),
           PTextInput(
             controller: _nameCtrl,
             enabled: !_adding,
-            placeholder: '프로젝트 이름',
+            placeholder: l.todoProjectNamePlaceholder,
             onChanged: (_) => setState(() {}),
           ),
           const SizedBox(height: PSpace.x8),
           PTextInput(
             controller: _descCtrl,
             enabled: !_adding,
-            placeholder: '설명 (선택)',
+            placeholder: l.todoDescOptional,
           ),
           const SizedBox(height: PSpace.x8),
           PColorPicker(
@@ -117,7 +120,7 @@ class _BodyState extends ConsumerState<_Body> {
           ),
           const SizedBox(height: PSpace.x8),
           PButton(
-            label: _adding ? '추가 중...' : '프로젝트 추가',
+            label: _adding ? l.todoAdding : l.todoAddProject,
             icon: LucideIcons.plus,
             loading: _adding,
             fullWidth: true,
@@ -127,7 +130,7 @@ class _BodyState extends ConsumerState<_Body> {
           const SizedBox(height: PSpace.x20),
           PDivider(),
           const SizedBox(height: PSpace.x16),
-          Text('등록된 프로젝트',
+          Text(l.todoRegisteredProjects,
               style: PTypo.bodySm.copyWith(
                   color: t.fgPrimary, fontWeight: PFontWeight.bold)),
           const SizedBox(height: PSpace.x8),
@@ -136,14 +139,14 @@ class _BodyState extends ConsumerState<_Body> {
               padding: EdgeInsets.symmetric(vertical: PSpace.x8),
               child: PListSkeleton(rows: 3),
             ),
-            error: (e, _) => Text('프로젝트 로드 실패: $e',
+            error: (e, _) => Text('${l.todoProjectLoadError}: $e',
                 style: PTypo.caption.copyWith(color: t.statusDanger)),
             data: (projects) {
               if (projects.isEmpty) {
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: PSpace.x16),
                   child: Center(
-                    child: Text('등록된 프로젝트가 없습니다',
+                    child: Text(l.todoNoProjects,
                         style:
                             PTypo.caption.copyWith(color: t.fgTertiary)),
                   ),
@@ -215,17 +218,17 @@ class _ProjectRowState extends ConsumerState<_ProjectRow> {
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() => _busy = false);
-      showPSnackBar(context, '수정 실패: ${e.message}', severity: PSnackSeverity.error);
+      showPSnackBar(context, '${AppLocalizations.of(context).todoUpdateFailed}: ${e.message}', severity: PSnackSeverity.error);
     }
   }
 
   Future<void> _delete() async {
+    final l = AppLocalizations.of(context);
     final ok = await showPConfirmDialog(
       context,
-      title: '프로젝트 삭제',
-      message:
-          '"${widget.project.projectName}" 프로젝트를 삭제하시겠어요? 연결된 할 일은 프로젝트 미지정으로 변경됩니다.',
-      confirmLabel: '삭제',
+      title: l.todoDeleteProjectTitle,
+      message: l.todoDeleteProjectConfirm(widget.project.projectName),
+      confirmLabel: l.actionDelete,
       destructive: true,
     );
     if (!ok || !mounted) return;
@@ -237,13 +240,14 @@ class _ProjectRowState extends ConsumerState<_ProjectRow> {
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() => _busy = false);
-      showPSnackBar(context, '삭제 실패: ${e.message}', severity: PSnackSeverity.error);
+      showPSnackBar(context, '${AppLocalizations.of(context).todoDeleteFailed}: ${e.message}', severity: PSnackSeverity.error);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final t = widget.tokens;
+    final l = AppLocalizations.of(context);
     final color = solidSwatchColor(context, _color, fallback: t.fgBrand);
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
@@ -278,7 +282,7 @@ class _ProjectRowState extends ConsumerState<_ProjectRow> {
                       PTextInput(
                         controller: _descCtrl,
                         enabled: _expanded && !_busy,
-                        placeholder: '설명',
+                        placeholder: l.calFieldDescription,
                         style: PTypo.caption,
                       ),
                     ],
@@ -317,7 +321,7 @@ class _ProjectRowState extends ConsumerState<_ProjectRow> {
             Align(
               alignment: Alignment.centerRight,
               child: PButton(
-                label: '저장',
+                label: l.actionSave,
                 loading: _busy,
                 onPressed: _busy ? null : _save,
               ),

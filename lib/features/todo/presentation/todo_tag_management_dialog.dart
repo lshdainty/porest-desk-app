@@ -8,6 +8,7 @@ import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_color_picker.dart';
 import 'package:porest_desk_app/shared/widgets/p_divider.dart';
@@ -20,9 +21,10 @@ import 'package:porest_desk_app/features/todo/domain/todo_tag.dart';
 
 /// Todo 태그 관리 다이얼로그 — front `TagManagementDialog` 미러.
 void showTodoTagManagementDialog(BuildContext context) {
+  final l = AppLocalizations.of(context);
   showPSheet<void>(
     context,
-    title: '태그 관리',
+    title: l.todoTagMgmt,
     contentBuilder: (ctx, scrollCtrl) => _Body(scrollController: scrollCtrl),
   );
 }
@@ -72,20 +74,21 @@ class _BodyState extends ConsumerState<_Body> {
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() => _adding = false);
-      showPSnackBar(context, '추가 실패: ${e.message}', severity: PSnackSeverity.error);
+      showPSnackBar(context, '${AppLocalizations.of(context).todoAddFailed}: ${e.message}', severity: PSnackSeverity.error);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final tagsAsync = ref.watch(todoTagListProvider);
     return ListView(
       controller: widget.scrollController,
       padding: const EdgeInsets.fromLTRB(
           PSpace.x16, 0, PSpace.x16, PSpace.x16),
       children: [
-          Text('새 태그',
+          Text(l.todoNewTag,
               style: PTypo.bodySm.copyWith(
                   color: t.fgPrimary, fontWeight: PFontWeight.bold)),
           const SizedBox(height: PSpace.x8),
@@ -103,14 +106,14 @@ class _BodyState extends ConsumerState<_Body> {
                 child: PTextInput(
                   controller: _newCtrl,
                   enabled: !_adding,
-                  placeholder: '태그 이름',
+                  placeholder: l.todoTagNamePlaceholder,
                   onSubmitted: (_) => _create(),
                   onChanged: (_) => setState(() {}),
                 ),
               ),
               const SizedBox(width: PSpace.x8),
               PButton(
-                label: '추가',
+                label: l.calAdd,
                 loading: _adding,
                 onPressed:
                     (_newCtrl.text.trim().isEmpty || _adding) ? null : _create,
@@ -125,7 +128,7 @@ class _BodyState extends ConsumerState<_Body> {
           const SizedBox(height: PSpace.x20),
           PDivider(),
           const SizedBox(height: PSpace.x16),
-          Text('등록된 태그',
+          Text(l.todoRegisteredTags,
               style: PTypo.bodySm.copyWith(
                   color: t.fgPrimary, fontWeight: PFontWeight.bold)),
           const SizedBox(height: PSpace.x8),
@@ -134,14 +137,14 @@ class _BodyState extends ConsumerState<_Body> {
               padding: EdgeInsets.symmetric(vertical: PSpace.x8),
               child: PListSkeleton(rows: 3),
             ),
-            error: (e, _) => Text('태그 로드 실패: $e',
+            error: (e, _) => Text('${l.todoTagLoadError}: $e',
                 style: PTypo.caption.copyWith(color: t.statusDanger)),
             data: (tags) {
               if (tags.isEmpty) {
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: PSpace.x16),
                   child: Center(
-                    child: Text('등록된 태그가 없습니다',
+                    child: Text(l.todoNoTags,
                         style:
                             PTypo.caption.copyWith(color: t.fgTertiary)),
                   ),
@@ -201,16 +204,17 @@ class _TagRowState extends ConsumerState<_TagRow> {
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() => _busy = false);
-      showPSnackBar(context, '수정 실패: ${e.message}', severity: PSnackSeverity.error);
+      showPSnackBar(context, '${AppLocalizations.of(context).todoUpdateFailed}: ${e.message}', severity: PSnackSeverity.error);
     }
   }
 
   Future<void> _delete() async {
+    final l = AppLocalizations.of(context);
     final ok = await showPConfirmDialog(
       context,
-      title: '태그 삭제',
-      message: '"${widget.tag.tagName}" 태그를 삭제하시겠어요?',
-      confirmLabel: '삭제',
+      title: l.todoDeleteTagTitle,
+      message: l.todoDeleteTagConfirm(widget.tag.tagName),
+      confirmLabel: l.actionDelete,
       destructive: true,
     );
     if (!ok || !mounted) return;
@@ -222,13 +226,14 @@ class _TagRowState extends ConsumerState<_TagRow> {
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() => _busy = false);
-      showPSnackBar(context, '삭제 실패: ${e.message}', severity: PSnackSeverity.error);
+      showPSnackBar(context, '${AppLocalizations.of(context).todoDeleteFailed}: ${e.message}', severity: PSnackSeverity.error);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final t = widget.tokens;
+    final l = AppLocalizations.of(context);
     final color = solidSwatchColor(context, _color, fallback: t.fgBrand);
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
@@ -286,7 +291,7 @@ class _TagRowState extends ConsumerState<_TagRow> {
             Align(
               alignment: Alignment.centerRight,
               child: PButton(
-                label: '저장',
+                label: l.actionSave,
                 loading: _busy,
                 onPressed: _busy ? null : _save,
               ),
