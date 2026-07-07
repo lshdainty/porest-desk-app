@@ -11,6 +11,7 @@ import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/format/chart_axis.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart' as cp;
+import 'package:porest_desk_app/core/format/format_locale.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
@@ -1580,6 +1581,8 @@ class _HeatmapCard extends StatelessWidget {
 
 String _shortAmount(int v) {
   if (v <= 0) return '—';
+  // en: 로케일 compact(52M·120K). ko: 천/만 축약(기존 유지).
+  if (localeIsEn()) return formatChartAxis(v.toDouble());
   if (v < 10000) return '${(v / 1000).round()}천';
   return '${(v / 10000).toStringAsFixed(1)}만';
 }
@@ -1921,6 +1924,8 @@ List<_TrendPoint> _computeTrendData(
 }
 
 String _fmtTick(double v) {
+  // en: 로케일 compact 축약(중앙 formatChartAxis en 경로와 동일). ko: 억/만(기존 유지).
+  if (localeIsEn()) return formatChartAxis(v);
   final abs = v.abs();
   String body;
   if (abs >= 100000000) {
