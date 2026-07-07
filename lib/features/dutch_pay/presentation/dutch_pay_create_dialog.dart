@@ -351,7 +351,7 @@ class _BodyState extends ConsumerState<_Body> {
                     style: PTypo.bodySm.copyWith(color: t.fgSecondary),
                   ),
                   TextSpan(
-                    text: '${krw(perPerson)}원',
+                    text: krwSigned(perPerson, false, unit: true),
                     style: PTypo.bodySm.copyWith(
                         color: t.fgBrand, fontWeight: PFontWeight.bold),
                   ),

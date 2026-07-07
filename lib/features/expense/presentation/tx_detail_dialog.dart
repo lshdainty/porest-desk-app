@@ -510,7 +510,7 @@ class _MerchantHistorySection extends ConsumerWidget {
                         // 마스킹 시 '원' 미노출 — web MaskAmount+HideUnit 컨벤션
                         text: masked
                             ? '${l.expTimesCount(monthCount)} · ••••••'
-                            : '${l.expTimesCount(monthCount)} · ${krw(monthTotal)}원',
+                            : '${l.expTimesCount(monthCount)} · ${krwSigned(monthTotal, false, unit: true)}',
                         style: PTypo.caption.copyWith(
                           color: t.fgSecondary,
                           fontWeight: PFontWeight.bold,
@@ -706,7 +706,7 @@ class _SplitSummaryCard extends StatelessWidget {
                       style: PTypo.bodySm.copyWith(
                           color: t.fgPrimary, fontWeight: PFontWeight.bold)),
                   const SizedBox(width: 8),
-                  Text('${l.expTotal} ${krw(total)}원',
+                  Text('${l.expTotal} ${krwSigned(total, false, unit: true)}',
                       style: PTypo.caption.copyWith(color: t.fgTertiary)),
                   const Spacer(),
                   Icon(
@@ -781,7 +781,8 @@ class _SplitSummaryCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      '${isIncome ? '+' : '−'}${krw(splits[i].amount)}원',
+                      krwSigned(splits[i].amount, false,
+                          sign: isIncome ? '+' : '−', unit: true),
                       style: PTypo.bodySm.copyWith(
                           color: isIncome ? t.fgIncome : t.fgExpense,
                           fontWeight: PFontWeight.bold),
