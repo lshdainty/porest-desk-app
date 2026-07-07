@@ -404,11 +404,11 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
               children: [
                 TextSpan(text: '${l.expSplitSum} '),
                 TextSpan(
-                    text: '${krw(_sum)}원',
+                    text: krwSigned(_sum, false, unit: true),
                     style: const TextStyle(fontWeight: PFontWeight.bold)),
                 TextSpan(text: ' · ${l.expTotalAmount} '),
                 TextSpan(
-                    text: '${krw(_totalAbs)}원',
+                    text: krwSigned(_totalAbs, false, unit: true),
                     style: const TextStyle(fontWeight: PFontWeight.bold)),
               ],
             ),
@@ -455,16 +455,17 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
               children: [
                 TextSpan(text: '${l.expSplitSum} '),
                 TextSpan(
-                    text: '${krw(_sum)}원',
+                    text: krwSigned(_sum, false, unit: true),
                     style: const TextStyle(fontWeight: PFontWeight.bold)),
                 TextSpan(text: ' · ${l.expTotalAmount} '),
                 TextSpan(
-                    text: '${krw(_totalAbs)}원',
+                    text: krwSigned(_totalAbs, false, unit: true),
                     style: const TextStyle(fontWeight: PFontWeight.bold)),
                 if (!_balanced) ...[
                   const TextSpan(text: ' · '),
                   TextSpan(
-                    text: '${shortage ? l.expShort : l.expOver} ${krw(_remainder.abs())}원',
+                    text:
+                        '${shortage ? l.expShort : l.expOver} ${krwSigned(_remainder.abs(), false, unit: true)}',
                     style: TextStyle(
                         fontWeight: PFontWeight.bold, color: t.statusWarningFg),
                   ),
@@ -659,7 +660,7 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
                           const SizedBox(width: 4),
                           Icon(LucideIcons.arrowRight, size: 12, color: t.fgTertiary),
                           const SizedBox(width: 4),
-                          Text('${_isIncome ? '+' : '−'}${krw(_totalAbs)}원',
+                          Text(krwSigned(_totalAbs, false, sign: _isIncome ? '+' : '−', unit: true),
                               style: PTypo.h3.copyWith(
                                   color: t.statusWarningFg,
                                   fontWeight: PFontWeight.bold)),
@@ -667,7 +668,7 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
                       )
                     else
                       Text(
-                        '${_isIncome ? '+' : '−'}${krw(_totalAbs)}원',
+                        krwSigned(_totalAbs, false, sign: _isIncome ? '+' : '−', unit: true),
                         style: PTypo.h3.copyWith(
                             // 수입 금액 = primary(다크 primary-light). success(초록) 아님 — web 정합
                             color: _isIncome ? t.fgBrandStrong : t.fgPrimary,
