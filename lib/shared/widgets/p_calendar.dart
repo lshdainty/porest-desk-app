@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:porest_desk_app/app/theme/motion.dart';
@@ -7,6 +6,7 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/core/format/date.dart';
 
 /// specs/components/calendar.md 미러 (Flutter inline picker 적응).
 ///
@@ -126,8 +126,8 @@ class _PCalendarState extends State<PCalendar> {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final now = DateTime.now();
-    final caption = DateFormat('yyyy년 M월', 'ko_KR').format(_month);
-    final weekdays = ['일', '월', '화', '수', '목', '금', '토'];
+    final caption = yearMonth(_month);
+    final weekdays = weekdayLabels();
 
     // grid 시작: 해당 월 1일이 속한 주의 일요일.
     final firstOfMonth = DateTime(_month.year, _month.month, 1);
