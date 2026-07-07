@@ -575,7 +575,7 @@ String _feeLabel(AppLocalizations l, CardAnnualFee? fee) {
   if (fee == null) return l.cardNone;
   // front annualFeeText 정합: amount>0 → "N원" 우선, 아니면 label, 둘 다 없으면 "없음".
   final amount = fee.amount;
-  if (amount != null && amount > 0) return '${krw(amount)}원';
+  if (amount != null && amount > 0) return krwSigned(amount, false, unit: true);
   if (fee.label != null && fee.label!.isNotEmpty) return fee.label!;
   return l.cardNone;
 }
@@ -588,7 +588,9 @@ String _performanceLabel(AppLocalizations l, CardPerformance? perf) {
   final required = perf.isRequired == 'Y';
   if (!required) return l.cardPerfNone;
   final amount = perf.requiredAmount;
-  if (amount != null && amount > 0) return l.cardPerfMonthly('${krw(amount)}원');
+  if (amount != null && amount > 0) {
+    return l.cardPerfMonthly(krwSigned(amount, false, unit: true));
+  }
   if (perf.requiredText != null && perf.requiredText!.isNotEmpty) {
     return perf.requiredText!;
   }

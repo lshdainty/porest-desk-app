@@ -87,7 +87,7 @@ class CardDetailScreen extends ConsumerWidget {
                       label: l.assetAnnualFee,
                       value: s.annualFee?.label ??
                           (s.annualFee?.amount != null
-                              ? '${krw(s.annualFee!.amount!)}원'
+                              ? krwSigned(s.annualFee!.amount!, false, unit: true)
                               : l.cardNone),
                       tokens: t,
                     ),
@@ -98,7 +98,7 @@ class CardDetailScreen extends ConsumerWidget {
                       label: l.cardLastMonthPerf,
                       value: s.performance?.requiredText ??
                           (s.performance?.requiredAmount != null
-                              ? '${krw(s.performance!.requiredAmount!)}원'
+                              ? krwSigned(s.performance!.requiredAmount!, false, unit: true)
                               : l.cardNone),
                       tokens: t,
                     ),

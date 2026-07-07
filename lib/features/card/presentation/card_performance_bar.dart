@@ -111,14 +111,14 @@ class CardPerformanceBar extends ConsumerWidget {
                     // 마스킹 시 '원' 미노출 — web MaskAmount+HideUnit 컨벤션
                     masked
                         ? '••• / •••'
-                        : '${krw(p.currentAmount)} / ${krw(p.requiredAmount ?? 0)}원',
+                        : '${krw(p.currentAmount)} / ${krwSigned(p.requiredAmount ?? 0, false, unit: true)}',
                     style: PTypo.caption.copyWith(color: t.fgTertiary),
                   ),
                   const Spacer(),
                   if (!p.isAchieved && p.remainingAmount != null)
                     Text(
                       l.cardPerfRemaining(
-                          masked ? '•••' : '${krw(p.remainingAmount!)}원'),
+                          masked ? '•••' : krwSigned(p.remainingAmount!, false, unit: true)),
                       style: PTypo.caption.copyWith(color: t.fgTertiary),
                     )
                   else

@@ -1561,7 +1561,9 @@ class _HeatmapCard extends StatelessWidget {
                     style: PTypo.caption.copyWith(color: t.fgTertiary)),
                 const Spacer(),
                 Text(
-                  masked ? '${l.statsTotalPrefix} ••••••' : '${l.statsTotalPrefix} ${krw(total)}원',
+                  masked
+                      ? '${l.statsTotalPrefix} ••••••'
+                      : '${l.statsTotalPrefix} ${krwSigned(total, false, unit: true)}',
                   style: PTypo.caption.copyWith(
                     color: t.fgSecondary,
                     fontWeight: PFontWeight.semi,
@@ -1694,7 +1696,7 @@ class _HighlightsGrid extends StatelessWidget {
     if (s._segMode != _SegMode.month) {
       avgSub = masked
           ? '${l.statsDaysTotal(rangeDays)} ${krwMasked(periodTotal, masked)}'
-          : '${l.statsDaysTotal(rangeDays)} ${krwMasked(periodTotal, masked)}원';
+          : '${l.statsDaysTotal(rangeDays)} ${krwSigned(periodTotal, masked, unit: true)}';
     } else {
       final prevTotal = prevRangeAsync.value?.totalExpense ?? 0;
       if (prevTotal > 0) {
@@ -1743,7 +1745,7 @@ class _HighlightsGrid extends StatelessWidget {
           sub: topMerchant != null
               ? (masked
                     ? '${l.expTimesCount(topMerchant.count)} · ${krwMasked(topMerchant.totalAmount, masked)}'
-                    : '${l.expTimesCount(topMerchant.count)} · ${krwMasked(topMerchant.totalAmount, masked)}원')
+                    : '${l.expTimesCount(topMerchant.count)} · ${krwSigned(topMerchant.totalAmount, masked, unit: true)}')
               : l.statsNoDataShort,
           // 가맹점이 속한 대표 카테고리 아이콘(역산), 없으면 상점 아이콘
           icon: merchantIcon,
@@ -2238,12 +2240,12 @@ class _TrendBigCardState extends ConsumerState<_TrendBigCard> {
                           PChartTooltipRowData(
                             color: t.statusInfoFg,
                             label: l.expTypeIncome,
-                            amount: '${krw(data[_touchedIdx!].income)}원',
+                            amount: krwSigned(data[_touchedIdx!].income, false, unit: true),
                           ),
                           PChartTooltipRowData(
                             color: t.fgExpense,
                             label: l.expTypeExpense,
-                            amount: '${krw(data[_touchedIdx!].expense)}원',
+                            amount: krwSigned(data[_touchedIdx!].expense, false, unit: true),
                           ),
                         ],
                       ),
@@ -2594,7 +2596,7 @@ class _SavingsBarsCardState extends ConsumerState<_SavingsBarsCard> {
                               PChartTooltipRowData(
                                 color: v >= 0 ? t.statusInfoFg : t.fgExpense,
                                 label: l.statsNetSavings,
-                                amount: '$sign${krw(v.abs())}원',
+                                amount: krwSigned(v.abs(), false, sign: sign, unit: true),
                                 amountColor: v >= 0 ? t.statusInfoFg : t.fgExpense,
                               ),
                             ],

@@ -241,7 +241,7 @@ String _feeText(AppLocalizations l, CardAnnualFee? fee) {
   if (fee.label != null && fee.label!.isNotEmpty) return fee.label!;
   final amount = fee.amount;
   if (amount == null || amount == 0) return l.cardNone;
-  return l.cardFeeDomesticOnly('${krw(amount)}원');
+  return l.cardFeeDomesticOnly(krwSigned(amount, false, unit: true));
 }
 
 /// 전월 실적 라벨 — front `perf === 0 ? '실적 무관' : 'N원 이상'` 정합.
@@ -252,7 +252,7 @@ String _performanceText(AppLocalizations l, CardPerformance? perf) {
   }
   final amount = perf.requiredAmount;
   if (amount == null || amount == 0) return l.cardPerfNone;
-  return l.cardPerfMin('${krw(amount)}원');
+  return l.cardPerfMin(krwSigned(amount, false, unit: true));
 }
 
 /// 혜택 상세 항목 조건 badge — front CardBenefitDialog 정합.

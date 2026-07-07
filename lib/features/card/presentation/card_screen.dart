@@ -419,7 +419,8 @@ class _CardRow extends StatelessWidget {
                     if (card.performance?.requiredAmount != null) ...[
                       const SizedBox(height: 2),
                       Text(
-                        l.cardPerfMonthly('${krw(card.performance!.requiredAmount!)}원'),
+                        l.cardPerfMonthly(
+                            krwSigned(card.performance!.requiredAmount!, false, unit: true)),
                         style: PTypo.caption.copyWith(
                             color: tokens.fgSecondary,
                             fontWeight: PFontWeight.semi),
