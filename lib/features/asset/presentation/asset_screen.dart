@@ -383,7 +383,7 @@ class _SummaryCard extends StatelessWidget {
               if (!masked && changeAmount != 0) ...[
                 const SizedBox(width: 4),
                 Text(
-                  '(${isUp ? '+' : '−'}${krw(changeAmount.abs())}원)',
+                  '(${krwSigned(changeAmount.abs(), false, sign: isUp ? '+' : '−', unit: true)})',
                   style: TextStyle(
                     color: t.fgTertiary,
                     fontSize: PFontSize.bodySm,
@@ -525,8 +525,8 @@ class _TypeGroup extends StatelessWidget {
     final totalText = masked
         ? '••••••'
         : (negativeTotal && !isZeroTotal)
-        ? '−${krw(total.abs())}원'
-        : '${krw(total)}원';
+        ? krwSigned(total.abs(), false, sign: '−', unit: true)
+        : krwSigned(total, false, unit: true);
     final effectiveTotalColor = isZeroTotal ? tokens.fgPrimary : (totalColor ?? tokens.fgPrimary);
     return PCard(
       padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
@@ -705,8 +705,8 @@ class _AssetCard extends StatelessWidget {
                     masked
                         ? '••••••'
                         : isNeg
-                        ? '−${krw(balance.abs())}원'
-                        : '${krw(balance.abs())}원',
+                        ? krwSigned(balance.abs(), false, sign: '−', unit: true)
+                        : krwSigned(balance.abs(), false, unit: true),
                     style: TextStyle(
                       color: isNeg ? t.fgExpense : t.fgPrimary,
                       fontSize: PFontSize.bodyLg,
@@ -777,7 +777,9 @@ class _CardUsageGauge extends StatelessWidget {
         Row(
           children: [
             Text(
-              masked ? '••• / •••' : '${krw(used)} / ${krw(limit)}원',
+              masked
+                  ? '••• / •••'
+                  : '${krw(used)} / ${krwSigned(limit, false, unit: true)}',
               style: TextStyle(
                 color: t.fgTertiary,
                 fontSize: PFontSize.micro,

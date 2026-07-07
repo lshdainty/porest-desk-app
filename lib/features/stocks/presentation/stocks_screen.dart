@@ -373,7 +373,7 @@ Color _marketTone(BuildContext context, Stock s) {
 
 String _fmtPrice(Stock s) => s.isUs
     ? '\$${s.price.toStringAsFixed(2)}'
-    : '${krw(s.price.round())}원';
+    : krwSigned(s.price.round(), false, unit: true);
 
 String _two(int v) => v.toString().padLeft(2, '0');
 
@@ -902,7 +902,7 @@ class _SummaryCard extends StatelessWidget {
           ),
           const SizedBox(height: PSpace.x4),
           Text(
-            masked ? kHideMask : '${krw(totalEval)}원',
+            masked ? kHideMask : krwSigned(totalEval, false, unit: true),
             style: TextStyle(
               fontFamily: PTypo.sans,
               fontFeatures: _tnum,
@@ -918,7 +918,8 @@ class _SummaryCard extends StatelessWidget {
               Text(
                 masked
                     ? '••••'
-                    : '${totalPnl >= 0 ? '+' : '−'}${krw(totalPnl, abs: true)}원',
+                    : krwSigned(totalPnl.abs(), false,
+                        sign: totalPnl >= 0 ? '+' : '−', unit: true),
                 style: TextStyle(
                   fontFamily: PTypo.sans,
                   fontFeatures: _tnum,
@@ -937,7 +938,10 @@ class _SummaryCard extends StatelessWidget {
           Row(
             children: [
               for (final (label, value) in [
-                (l.stocksPurchaseAmount, masked ? '••••' : '${krw(totalCost)}원'),
+                (
+                  l.stocksPurchaseAmount,
+                  masked ? '••••' : krwSigned(totalCost, false, unit: true)
+                ),
                 (l.stocksHoldingsLabel, '${h.items.length}개'),
                 (
                   l.stocksExchangeRate,
@@ -1135,7 +1139,7 @@ class _StockDetailBodyState extends ConsumerState<_StockDetailBody> {
             if (s.isUs) ...[
               const SizedBox(width: PSpace.x8),
               Text(
-                '≈ ${krw(priceKrw(s))}원',
+                '≈ ${krwSigned(priceKrw(s), false, unit: true)}',
                 style: PTypo.caption
                     .copyWith(color: t.fgTertiary, fontFeatures: _tnum),
               ),
@@ -1291,9 +1295,10 @@ class _HoldingDetailCard extends StatelessWidget {
         ? '${qty.round()}주'
         : '${qty.toStringAsFixed(4)}주';
 
-    String money(int v) => masked ? '••••' : '${krw(v)}원';
-    String moneySigned(int v) =>
-        masked ? '••••' : '${v >= 0 ? '+' : '−'}${krw(v, abs: true)}원';
+    String money(int v) => masked ? '••••' : krwSigned(v, false, unit: true);
+    String moneySigned(int v) => masked
+        ? '••••'
+        : krwSigned(v.abs(), false, sign: v >= 0 ? '+' : '−', unit: true);
 
     final l = AppLocalizations.of(context);
     final rows = <(String, String, Color)>[
@@ -1308,11 +1313,13 @@ class _HoldingDetailCard extends StatelessWidget {
       (l.stocksDayPnl, moneySigned(dayPnl), _trendColor(t, dayPnl.toDouble())),
       (
         l.stocksAvgPrice,
-        h.isUs ? '\$${avg.toStringAsFixed(2)}' : '${krw(avg.round())}원',
+        h.isUs
+            ? '\$${avg.toStringAsFixed(2)}'
+            : krwSigned(avg.round(), false, unit: true),
         t.fgSecondary
       ),
       (l.stocksPurchaseAmount, money(purchase), t.fgSecondary),
-      (l.stocksFeesTax, '${krw(fees)}원', t.fgSecondary),
+      (l.stocksFeesTax, krwSigned(fees, false, unit: true), t.fgSecondary),
       (l.stocksSellable, qtyLabel, t.fgSecondary),
     ];
 
@@ -1424,9 +1431,13 @@ class _StockInfoCard extends ConsumerWidget {
           : (s.isUs ? 'USD' : 'KRW'), null),
       if (shares > 0) (l.stocksMarketCap, _fmtCapKrw(mcKrw), null),
       if (isKr && upper != null)
-        (l.stocksUpperLimit, '${krw(upper.round())}원', t.statusDangerFg),
+        (
+          l.stocksUpperLimit,
+          krwSigned(upper.round(), false, unit: true),
+          t.statusDangerFg
+        ),
       if (isKr && lower != null)
-        (l.stocksLowerLimit, '${krw(lower.round())}원', t.fgBrand),
+        (l.stocksLowerLimit, krwSigned(lower.round(), false, unit: true), t.fgBrand),
       if (listDate != null && listDate.isNotEmpty) (l.stocksListingDate, listDate, null),
       if (shares > 0) (l.stocksSharesOutstanding, _fmtShares(shares), null),
       (

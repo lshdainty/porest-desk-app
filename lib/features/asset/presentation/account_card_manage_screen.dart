@@ -139,7 +139,7 @@ class _AccountCardManageScreenState
                         Text(
                           masked
                               ? '${l.assetTotalPrefix} ••••••'
-                              : '${l.assetTotalPrefix} ${krw(total)}원',
+                              : '${l.assetTotalPrefix} ${krwSigned(total, false, unit: true)}',
                           style: PTypo.caption.copyWith(color: t.fgTertiary),
                         ),
                         const Spacer(),
@@ -380,8 +380,8 @@ class _ManageRow extends StatelessWidget {
                     masked
                         ? '••••'
                         : isNeg
-                            ? '−${krw(balance.abs())}원'
-                            : '${krw(balance.abs())}원',
+                            ? krwSigned(balance.abs(), false, sign: '−', unit: true)
+                            : krwSigned(balance.abs(), false, unit: true),
                     style: TextStyle(
                       color: isNeg ? t.fgExpense : t.fgPrimary,
                       fontSize: PFontSize.bodySm,
