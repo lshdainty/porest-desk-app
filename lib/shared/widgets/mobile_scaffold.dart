@@ -5,6 +5,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/core/sync/keep_alive_refresh.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/features/calendar/presentation/calendar_event_dialog.dart';
 import 'package:porest_desk_app/features/expense/presentation/add_tx_sheet.dart';
 import 'package:porest_desk_app/shared/widgets/mobile_header.dart';
@@ -22,8 +23,6 @@ class MobileScaffold extends ConsumerStatefulWidget {
 }
 
 class _MobileScaffoldState extends ConsumerState<MobileScaffold> {
-  static const _titles = ['홈', '가계부', '캘린더', '전체'];
-
   String? _lastPath;
 
   @override
@@ -44,6 +43,7 @@ class _MobileScaffoldState extends ConsumerState<MobileScaffold> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final navigationShell = widget.navigationShell;
     final idx = navigationShell.currentIndex;
     // 가계부 branch (idx=1) 는 money sub-nav 표시 — ← / 가계부 / 자산 / 통계 / 예산.
@@ -60,14 +60,15 @@ class _MobileScaffoldState extends ConsumerState<MobileScaffold> {
     };
     // shell appBar title — money branch 의 4 path 별 분기 (각 screen 자체 AppBar
     // 제거됨 — actions(theme/eye/bell/search) 는 모든 path 에서 MobileHeader 가 일관 표시).
+    final titles = [l.navHome, l.navExpense, l.navCalendar, l.navMore];
     final title = isMoneyBranch
         ? switch (routePath) {
-            '/assets' => '자산',
-            '/stats' => '통계·분석',
-            '/budget' => '예산',
-            _ => '가계부',
+            '/assets' => l.navAsset,
+            '/stats' => l.moreItemStats,
+            '/budget' => l.navBudget,
+            _ => l.navExpense,
           }
-        : _titles[idx];
+        : titles[idx];
     return Scaffold(
       backgroundColor: t.bgCanvas,
       // 헤더 아이콘은 페이지당 1개 — 홈=알림 벨, 그 외=검색 (클로드 디자인 정합).

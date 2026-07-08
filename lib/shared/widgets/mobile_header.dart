@@ -5,6 +5,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/features/notification/application/notification_providers.dart';
 
@@ -38,6 +39,7 @@ class MobileHeader extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     return Material(
       color: t.bgSurface,
       child: SafeArea(
@@ -64,7 +66,7 @@ class MobileHeader extends StatelessWidget implements PreferredSizeWidget {
                 PButton.icon(
                   icon: trailingIcon,
                   size: PButtonSize.iconLg,
-                  tooltip: '검색',
+                  tooltip: l.actionSearch,
                   onPressed: onTrailingTap ?? () => context.push('/search'),
                 ),
             ],
@@ -83,6 +85,7 @@ class _NotificationBell extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final unread = ref.watch(unreadCountProvider).value ?? 0;
     return Stack(
       clipBehavior: Clip.none,
@@ -90,7 +93,7 @@ class _NotificationBell extends ConsumerWidget {
         PButton.icon(
           icon: LucideIcons.bell,
           size: PButtonSize.iconLg,
-          tooltip: '알림',
+          tooltip: l.navNotifications,
           onPressed: () => context.push('/notifications'),
         ),
         // front NotificationBell 정합 — 숫자 대신 작은 점(dot)으로 표시.

@@ -51,6 +51,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get actionDone => '완료';
 
   @override
+  String get actionBack => '뒤로';
+
+  @override
   String get stateNoData => '데이터가 없습니다';
 
   @override

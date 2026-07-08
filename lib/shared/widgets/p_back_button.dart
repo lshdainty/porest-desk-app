@@ -3,6 +3,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 
 /// 공통 뒤로가기 버튼 — AppBar leading 표준.
 ///
@@ -26,6 +27,7 @@ class PBackButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final btn = Padding(
       // 좌측 8 inset — 글리프가 화면 좌측에서 14px(8 + 버튼 padding 6) 떨어지게 (web 헤더 정합).
       padding: const EdgeInsets.only(left: 8),
@@ -40,7 +42,7 @@ class PBackButton extends StatelessWidget {
     );
     return Semantics(
       button: true,
-      label: tooltip ?? '뒤로',
+      label: tooltip ?? l.actionBack,
       child: tooltip != null ? Tooltip(message: tooltip!, child: btn) : btn,
     );
   }

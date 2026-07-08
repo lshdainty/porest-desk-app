@@ -8,6 +8,7 @@ import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
 
 /// front `<ExpenseRow>` (shared/ui/porest/expense-row.tsx) 미러.
@@ -58,6 +59,7 @@ class PExpenseRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final isIncome = expense.expenseType == 'INCOME';
     final colorStr = categoryColorOverride ?? expense.categoryColor;
     final fg = resolveChartColor(context, colorStr, fallback: t.fgBrand);
@@ -92,7 +94,7 @@ class PExpenseRow extends StatelessWidget {
                   expense.merchant ??
                       expense.description ??
                       expense.categoryName ??
-                      '거래',
+                      l.expTxFallback,
                   style: PTypo.body.copyWith(
                     color: t.fgPrimary,
                     fontWeight: PFontWeight.semi,

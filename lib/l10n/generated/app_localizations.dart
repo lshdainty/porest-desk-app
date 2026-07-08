@@ -182,6 +182,12 @@ abstract class AppLocalizations {
   /// **'완료'**
   String get actionDone;
 
+  /// No description provided for @actionBack.
+  ///
+  /// In ko, this message translates to:
+  /// **'뒤로'**
+  String get actionBack;
+
   /// No description provided for @stateNoData.
   ///
   /// In ko, this message translates to:

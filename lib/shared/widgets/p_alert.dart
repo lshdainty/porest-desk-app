@@ -4,6 +4,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 
 /// specs/components/alert.md 미러.
 ///
@@ -41,6 +42,7 @@ class PAlert extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final (Color accent, Color bg, IconData defaultIcon) = switch (variant) {
       PAlertVariant.defaultPlain =>
         (t.borderDefault, t.bgSurface, LucideIcons.info),
@@ -121,7 +123,7 @@ class PAlert extends StatelessWidget {
                 padding: EdgeInsets.zero,
                 iconSize: 16,
                 splashRadius: 16,
-                tooltip: '닫기',
+                tooltip: l.actionClose,
                 icon: Icon(LucideIcons.x, color: t.fgTertiary),
                 onPressed: onDismiss,
               ),
