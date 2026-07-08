@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_search_field.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
 
@@ -43,11 +44,11 @@ class PSearchableList<T> extends StatefulWidget {
     required this.value,
     required this.onChanged,
     required this.filter,
-    this.searchPlaceholder = '검색',
+    this.searchPlaceholder,
     this.size = PSearchableListSize.md,
     this.maxHeight,
     this.loading = false,
-    this.emptyText = '검색 결과가 없어요',
+    this.emptyText,
     this.autoFocus = false,
   });
 
@@ -58,14 +59,14 @@ class PSearchableList<T> extends StatefulWidget {
   /// (item, query) → matches. 호출처가 어떤 필드를 검색할지 결정.
   final bool Function(PSearchableListItem<T> item, String query) filter;
 
-  final String searchPlaceholder;
+  final String? searchPlaceholder;
   final PSearchableListSize size;
 
   /// 결과 컨테이너 max-height. 미지정 시 size별 기본값(200/260/320).
   final double? maxHeight;
 
   final bool loading;
-  final String emptyText;
+  final String? emptyText;
   final bool autoFocus;
 
   @override
@@ -92,6 +93,7 @@ class _PSearchableListState<T> extends State<PSearchableList<T>> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final (padX, padY, thumbW, thumbH, gap, defaultMaxH) = _metrics;
     final maxH = widget.maxHeight ?? defaultMaxH;
     final filtered = _query.isEmpty
@@ -103,7 +105,7 @@ class _PSearchableListState<T> extends State<PSearchableList<T>> {
       mainAxisSize: MainAxisSize.min,
       children: [
         PSearchField(
-          hint: widget.searchPlaceholder,
+          hint: widget.searchPlaceholder ?? l.actionSearch,
           controller: _ctrl,
           autofocus: widget.autoFocus,
           onChanged: (v) => setState(() => _query = v.trim().toLowerCase()),
@@ -121,7 +123,7 @@ class _PSearchableListState<T> extends State<PSearchableList<T>> {
             child: widget.loading
                 ? _loadingSkeleton(thumbW, thumbH, padX, padY, gap)
                 : (filtered.isEmpty
-                    ? _empty(t)
+                    ? _empty(t, widget.emptyText ?? l.searchResultsEmpty)
                     : ListView.separated(
                         shrinkWrap: true,
                         padding: EdgeInsets.zero,
@@ -216,11 +218,11 @@ class _PSearchableListState<T> extends State<PSearchableList<T>> {
     );
   }
 
-  Widget _empty(PorestTokens t) => Padding(
+  Widget _empty(PorestTokens t, String emptyText) => Padding(
         padding: const EdgeInsets.symmetric(vertical: 24),
         child: Center(
           child: Text(
-            widget.emptyText,
+            emptyText,
             style: TextStyle(
               fontFamily: PTypo.sans,
               fontSize: PFontSize.caption,

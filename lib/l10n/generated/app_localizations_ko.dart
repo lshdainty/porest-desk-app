@@ -54,6 +54,18 @@ class AppLocalizationsKo extends AppLocalizations {
   String get actionBack => '뒤로';
 
   @override
+  String get actionEditLabel => '편집';
+
+  @override
+  String get pickDate => '날짜 선택';
+
+  @override
+  String get pickTime => '시간 선택';
+
+  @override
+  String get searchResultsEmpty => '검색 결과가 없어요';
+
+  @override
   String get stateNoData => '데이터가 없습니다';
 
   @override

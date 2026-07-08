@@ -5,6 +5,7 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 
 /// front `<InputDatePicker>` 등가 — 탭하면 DatePicker, 빈 값 처리.
 class PDateInput extends StatelessWidget {
@@ -14,7 +15,7 @@ class PDateInput extends StatelessWidget {
     required this.onChanged,
     this.firstDate,
     this.lastDate,
-    this.placeholder = '날짜 선택',
+    this.placeholder,
     this.allowClear = false,
   });
 
@@ -22,7 +23,7 @@ class PDateInput extends StatelessWidget {
   final ValueChanged<DateTime?> onChanged;
   final DateTime? firstDate;
   final DateTime? lastDate;
-  final String placeholder;
+  final String? placeholder;
   final bool allowClear;
 
   String _fmt(DateTime d) =>
@@ -31,6 +32,7 @@ class PDateInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     return InkWell(
       onTap: () async {
         final p = await showDatePicker(
@@ -56,7 +58,7 @@ class PDateInput extends StatelessWidget {
             const SizedBox(width: PSpace.x8),
             Expanded(
               child: Text(
-                value != null ? _fmt(value!) : placeholder,
+                value != null ? _fmt(value!) : (placeholder ?? l.pickDate),
                 style: PTypo.bodyLg.copyWith(
                   color: value != null ? t.fgPrimary : t.fgTertiary,
                 ),
@@ -80,12 +82,12 @@ class PTimeInput extends StatelessWidget {
     super.key,
     required this.value,
     required this.onChanged,
-    this.placeholder = '시간 선택',
+    this.placeholder,
   });
 
   final TimeOfDay? value;
   final ValueChanged<TimeOfDay?> onChanged;
-  final String placeholder;
+  final String? placeholder;
 
   String _fmt(TimeOfDay t) =>
       '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
@@ -93,6 +95,7 @@ class PTimeInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     return InkWell(
       onTap: () async {
         final p = await showTimePicker(
@@ -115,7 +118,7 @@ class PTimeInput extends StatelessWidget {
             Icon(LucideIcons.clock, size: 16, color: t.fgSecondary),
             const SizedBox(width: PSpace.x8),
             Text(
-              value != null ? _fmt(value!) : placeholder,
+              value != null ? _fmt(value!) : (placeholder ?? l.pickTime),
               style: PTypo.bodyLg.copyWith(
                 color: value != null ? t.fgPrimary : t.fgTertiary,
               ),

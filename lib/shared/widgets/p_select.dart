@@ -6,6 +6,7 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 
 /// specs/components/select.md 미러.
 ///
@@ -35,7 +36,7 @@ class PSelect<T> extends StatefulWidget {
     required this.value,
     required this.onChanged,
     required this.items,
-    this.placeholder = '선택',
+    this.placeholder,
     this.title,
     this.enabled = true,
     this.errorText,
@@ -45,7 +46,7 @@ class PSelect<T> extends StatefulWidget {
   final T? value;
   final ValueChanged<T?> onChanged;
   final List<PSelectItem<T>> items;
-  final String placeholder;
+  final String? placeholder;
 
   /// (deprecated) 이전 바텀시트 헤더 제목 — 드롭다운에선 미사용. 호환 위해 유지.
   final String? title;
@@ -102,6 +103,7 @@ class _PSelectState<T> extends State<PSelect<T>> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final hasValue = widget.value != null;
     final hasError = widget.errorText != null;
     final selectedItem = hasValue
@@ -110,7 +112,7 @@ class _PSelectState<T> extends State<PSelect<T>> {
             orElse: () => PSelectItem<T>(value: widget.value as T, label: ''),
           )
         : null;
-    final label = selectedItem?.label ?? widget.placeholder;
+    final label = selectedItem?.label ?? widget.placeholder ?? l.expSelect;
     final caption = hasError ? widget.errorText! : widget.helperText;
 
     final trigger = Material(
