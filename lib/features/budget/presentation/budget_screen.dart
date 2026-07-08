@@ -1535,7 +1535,7 @@ class _ComplianceBarChartState extends State<_ComplianceBarChart> {
                 return Padding(
                   padding: const EdgeInsets.only(top: 6),
                   child: Text(
-                    '${r.month}월',
+                    monthOnly(DateTime(2000, r.month)),
                     style: PTypo.micro.copyWith(
                       color: last ? tokens.fgPrimary : tokens.fgTertiary,
                       fontWeight: last ? PFontWeight.bold : PFontWeight.medium,
@@ -1589,7 +1589,7 @@ class _ComplianceBarChartState extends State<_ComplianceBarChart> {
                 final r = rows[_touchedIdx!];
                 final over = r.compliancePercent > 100;
                 return PChartTooltipBox(
-                  title: '${r.month}월',
+                  title: monthOnly(DateTime(2000, r.month)),
                   labelWidth: 56,
                   rows: [
                     PChartTooltipRowData(

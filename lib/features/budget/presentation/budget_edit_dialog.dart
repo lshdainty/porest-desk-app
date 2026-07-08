@@ -7,6 +7,7 @@ import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart';
+import 'package:porest_desk_app/core/format/date.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
 import 'package:porest_desk_app/shared/widgets/p_chip.dart';
@@ -183,7 +184,7 @@ class _BudgetEditBodyState extends ConsumerState<_BudgetEditBody> {
       padding: const EdgeInsets.fromLTRB(
           PSpace.x16, 0, PSpace.x16, PSpace.x16),
       children: [
-        Text('${widget.year}년 ${widget.month}월',
+        Text(yearMonth(DateTime(widget.year, widget.month)),
             style: PTypo.caption.copyWith(color: t.fgTertiary)),
         const SizedBox(height: PSpace.x12),
 

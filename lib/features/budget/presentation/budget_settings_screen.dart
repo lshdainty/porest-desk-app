@@ -84,9 +84,9 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
       context,
       title: l.budgetCopyLastMonth,
       message: l.budgetCopyConfirmMessage(
-        '${prevMonth.year}년 ${prevMonth.month}월',
+        yearMonth(prevMonth),
         prevBudgets.length,
-        '${_key.year}년 ${_key.month}월',
+        yearMonth(DateTime(_key.year, _key.month)),
       ),
       confirmLabel: l.calCopy,
       onConfirm: () => _runCopyFromPreviousMonth(prevBudgets, curBudgets),

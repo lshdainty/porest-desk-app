@@ -11,6 +11,7 @@ import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/format/chart_axis.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart' as cp;
+import 'package:porest_desk_app/core/format/date.dart';
 import 'package:porest_desk_app/core/format/format_locale.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
@@ -115,12 +116,13 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
       (_segMode == _SegMode.custom && monthlyBucketCount <= 1);
 
   String get _periodLabel {
-    if (_segMode == _SegMode.month) return '${_from.year}년 ${_from.month}월';
+    if (_segMode == _SegMode.month) return yearMonth(_from);
     if (_segMode == _SegMode.quarter) {
       final q = (_from.month - 1) ~/ 3 + 1;
-      return '${_from.year}년 $q분기';
+      // 분기는 중앙 헬퍼 부재 → ko 유지 + en 분기(en "Q3 2026").
+      return localeIsEn() ? 'Q$q ${_from.year}' : '${_from.year}년 $q분기';
     }
-    if (_segMode == _SegMode.year) return '${_from.year}년';
+    if (_segMode == _SegMode.year) return yearOnly(_from);
     final sameYear = _from.year == _to.year;
     return sameYear
         ? '${_from.month}/${_from.day} ~ ${_to.month}/${_to.day}'
