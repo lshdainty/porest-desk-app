@@ -1507,5 +1507,8 @@
   "dateMinutesAgo": "{n} min ago",
   "@dateMinutesAgo": {"placeholders": {"n": {"type": "int"}}},
   "dateHoursAgo": "{n} hr ago",
-  "@dateHoursAgo": {"placeholders": {"n": {"type": "int"}}}
+  "@dateHoursAgo": {"placeholders": {"n": {"type": "int"}}},
+  "todoNoDue": "No due date",
+  "todoGroupLabel": "{label} · {count}",
+  "@todoGroupLabel": {"placeholders": {"label": {"type": "String"}, "count": {"type": "int"}}}
 }

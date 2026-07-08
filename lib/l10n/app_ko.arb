@@ -1508,5 +1508,8 @@
   "dateMinutesAgo": "{n}분 전",
   "@dateMinutesAgo": {"placeholders": {"n": {"type": "int"}}},
   "dateHoursAgo": "{n}시간 전",
-  "@dateHoursAgo": {"placeholders": {"n": {"type": "int"}}}
+  "@dateHoursAgo": {"placeholders": {"n": {"type": "int"}}},
+  "todoNoDue": "마감일 없음",
+  "todoGroupLabel": "{label} · {count}건",
+  "@todoGroupLabel": {"placeholders": {"label": {"type": "String"}, "count": {"type": "int"}}}
 }

@@ -4411,4 +4411,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String dateHoursAgo(int n) {
     return '$n hr ago';
   }
+
+  @override
+  String get todoNoDue => 'No due date';
+
+  @override
+  String todoGroupLabel(String label, int count) {
+    return '$label · $count';
+  }
 }
