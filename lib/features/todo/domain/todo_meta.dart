@@ -70,6 +70,13 @@ TodoPrioMeta todoPrioOf(String? code) => kTodoPrios.firstWhere(
       orElse: () => kTodoPrios[1],
     );
 
+/// 우선순위 표시 라벨 로컬라이즈 (meta.label 은 내부 fallback). HIGH 중요 / MEDIUM 보통 / LOW 여유.
+String todoPrioLabel(AppLocalizations l, String? code) => switch (code) {
+      'HIGH' => l.todoPriorityImportant,
+      'LOW' => l.todoPriorityRelaxed,
+      _ => l.todoPriorityMedium,
+    };
+
 /// 우선순위 정렬 가중치 (high → med → low desc).
 int todoPrioRank(String? code) => switch (code) {
       'HIGH' => 3,

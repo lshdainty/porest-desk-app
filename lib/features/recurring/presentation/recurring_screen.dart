@@ -1001,7 +1001,7 @@ String _summary(AppLocalizations l, RecurringTransaction it) {
       core = '${l.calRepeatWeekly} ${weekdayLabels(mondayFirst: true)[idx - 1]}';
     }
   } else if (it.frequency == 'MONTHLY' && it.dayOfMonth != null) {
-    core = '${l.calRepeatMonthly} ${it.dayOfMonth}일';
+    core = '${l.calRepeatMonthly} ${l.dayN(it.dayOfMonth!)}';
   }
   final end = it.endDate != null ? '~${it.endDate}' : l.recurringIndefinite;
   final notify = it.notifyDayBefore ? ' · ${l.recurringNotifyShort}' : '';

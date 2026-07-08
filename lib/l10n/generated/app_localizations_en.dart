@@ -4449,4 +4449,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String todoGroupLabel(String label, int count) {
     return '$label · $count';
   }
+
+  @override
+  String dayN(int d) {
+    return 'Day $d';
+  }
+
+  @override
+  String weekN(int n) {
+    return 'W$n';
+  }
+
+  @override
+  String get countUnit => '';
+
+  @override
+  String get dayUnit => 'day';
 }

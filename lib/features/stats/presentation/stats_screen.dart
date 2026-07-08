@@ -1467,7 +1467,7 @@ class _HeatmapCard extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 2),
                       child: Text(
-                        col.$1,
+                        weekdayLabels(mondayFirst: true)[_heatCols.indexOf(col)],
                         textAlign: TextAlign.center,
                         style: PTypo.caption.copyWith(
                           color: t.fgTertiary,

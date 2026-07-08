@@ -8,6 +8,7 @@ import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart';
+import 'package:porest_desk_app/core/format/date.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
@@ -354,7 +355,7 @@ String dutchKDate(String? iso) {
   final m = int.tryParse(parts[1]);
   final d = int.tryParse(parts[2]);
   if (m == null || d == null) return iso;
-  return '$m월 $d일';
+  return formatDay(DateTime(2000, m, d)).md;
 }
 
 // ─────────────────────────────────────────────────────────────

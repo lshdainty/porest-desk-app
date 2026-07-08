@@ -8,6 +8,7 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/core/format/date.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
@@ -78,7 +79,9 @@ String _iso(DateTime d) => '${d.year}-${_two(d.month)}-${_two(d.day)}';
 String _krLabel(String isoDate) {
   final parts = isoDate.split('-');
   if (parts.length < 3) return isoDate;
-  return '${int.parse(parts[1])}월 ${int.parse(parts[2])}일';
+  return formatDay(
+    DateTime(int.parse(parts[0]), int.parse(parts[1]), int.parse(parts[2])),
+  ).md;
 }
 
 /// 데이터 내보내기 풀스크린 — 설정 > 데이터 내보내기.
