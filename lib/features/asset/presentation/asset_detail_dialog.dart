@@ -729,7 +729,7 @@ class _HeroCard extends StatelessWidget {
                 ),
                 if (!masked)
                   TextSpan(
-                    text: '원',
+                    text: wonUnit(),
                     style: PTypo.body.copyWith(
                       color: isCard ? t.statusDangerFg : t.fgPrimary,
                       fontWeight: PFontWeight.bold,
@@ -1290,7 +1290,7 @@ class _CardBillingSectionState extends ConsumerState<_CardBillingSection> {
                         ),
                         if (!masked)
                           TextSpan(
-                            text: '원',
+                            text: wonUnit(),
                             style: PTypo.bodySm.copyWith(
                               color: b.upcomingAmount > 0
                                   ? t.statusDangerFg

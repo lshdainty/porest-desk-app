@@ -897,7 +897,7 @@ class _SplitRowCardState extends State<_SplitRowCard> {
                   textAlign: TextAlign.right,
                   enabled: !widget.disabled,
                   placeholder: '0',
-                  suffixText: '원',
+                  suffixText: wonUnit(),
                   onChanged: (v) {
                     widget.row.amount = int.tryParse(v) ?? 0;
                     widget.onChange();

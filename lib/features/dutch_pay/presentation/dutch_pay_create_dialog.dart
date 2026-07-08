@@ -285,7 +285,7 @@ class _BodyState extends ConsumerState<_Body> {
                     numbersOnly: true,
                     style: PTypo.h3,
                     placeholder: '0',
-                    suffixText: '원',
+                    suffixText: wonUnit(),
                     inputFormatters: [_ThousandsFormatter()],
                     onChanged: (_) => setState(() {}),
                   ),

@@ -351,7 +351,7 @@ class _SummaryCard extends StatelessWidget {
               children: [
                 if (!masked)
                   TextSpan(
-                    text: ' 원',
+                    text: ' ${wonUnit()}',
                     style: TextStyle(
                       color: t.fgPrimary,
                       fontSize: PFontSize.bodyLg,

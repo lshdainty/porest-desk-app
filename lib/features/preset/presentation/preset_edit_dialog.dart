@@ -7,6 +7,7 @@ import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart';
+import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
@@ -520,7 +521,7 @@ class _LockAmountCard extends StatelessWidget {
                     suffix: Padding(
                       padding: const EdgeInsets.only(right: 12, left: 4),
                       child: Text(
-                        '원',
+                        wonUnit(),
                         style: TextStyle(
                           fontFamily: PTypo.sans,
                           fontSize: PFontSize.bodySm, // --text-label-sm

@@ -13,7 +13,7 @@ class MaskedAmount extends ConsumerWidget {
   const MaskedAmount(
     this.amount, {
     super.key,
-    this.suffix = '원',
+    this.suffix,
     this.sign = false,
     this.abs = false,
     this.style,
@@ -32,7 +32,8 @@ class MaskedAmount extends ConsumerWidget {
     final hidden = ref.watch(settingsProvider).value?.hideAmounts ?? false;
     final body =
         hidden ? maskedText : krw(amount, sign: sign, abs: abs);
-    final text = (suffix == null || suffix!.isEmpty) ? body : '$body${suffix!}';
+    final resolvedSuffix = suffix ?? wonUnit();
+    final text = resolvedSuffix.isEmpty ? body : '$body$resolvedSuffix';
     return Text(text, style: style);
   }
 }

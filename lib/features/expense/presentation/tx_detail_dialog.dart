@@ -250,7 +250,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                     ),
                     if (!masked)
                       TextSpan(
-                        text: '원',
+                        text: wonUnit(),
                         style: TextStyle(
                           color: amountColor,
                           fontSize: PFontSize.h4,
@@ -310,7 +310,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                 label: l.expAmount,
                 tokens: t,
                 child: Text(
-                  '$amountText${masked ? '' : '원'}',
+                  '$amountText${masked ? '' : wonUnit()}',
                   style: PTypo.bodySm.copyWith(
                     color: t.fgPrimary,
                     fontWeight: PFontWeight.bold,

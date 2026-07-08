@@ -36,6 +36,12 @@ String krwSigned(int n, bool masked,
   return '$sign${krw(n)}${unit ? '원' : ''}';
 }
 
+/// 통화 단위 라벨(정적) — ko '원' / en '₩'.
+///
+/// 입력필드 suffixText·표시 라벨 등 **독립 단위 라벨 자리** 정적 분기용.
+/// (금액+단위 동시 포맷은 [krwSigned]`(unit:true)` 사용 — en 은 접두 ₩.)
+String wonUnit() => localeIsEn() ? '₩' : '원';
+
 /// 차트 Y축 라벨 — 한국어 단위 축약 (억/만) + 100만 단위 round.
 /// 음수도 부호 prepend (`−` 가운데 dash). Web `formatChartAxis` 와 정합.
 /// 예: -51,750,000 → '−5,200만', 1,200,000,000 → '12.0억'.

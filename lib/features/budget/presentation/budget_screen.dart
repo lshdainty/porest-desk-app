@@ -958,7 +958,7 @@ class _PaceStat extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(bottom: 2),
                 child: Text(
-                  '원',
+                  wonUnit(),
                   style: PTypo.caption.copyWith(
                     color: tokens.fgTertiary,
                     fontWeight: PFontWeight.semi,
