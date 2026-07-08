@@ -8,6 +8,7 @@ import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart';
+import 'package:porest_desk_app/core/format/date.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
@@ -729,10 +730,9 @@ class _DowGrid extends StatelessWidget {
   final ValueChanged<int> onChanged;
   final PorestTokens tokens;
 
-  static const _labels = ['일', '월', '화', '수', '목', '금', '토'];
-
   @override
   Widget build(BuildContext context) {
+    final labels = weekdayLabels();
     return Row(
       children: [
         for (int i = 0; i < 7; i++) ...[
@@ -753,7 +753,7 @@ class _DowGrid extends StatelessWidget {
                   borderRadius: PRadius.brFull,
                 ),
                 child: Text(
-                  _labels[i],
+                  labels[i],
                   style: PTypo.bodySm.copyWith(
                     color: i == value ? tokens.fgBrandStrong : tokens.fgPrimary,
                     fontWeight: i == value

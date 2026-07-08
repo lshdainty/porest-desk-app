@@ -8,6 +8,7 @@ import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart';
+import 'package:porest_desk_app/core/format/date.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
@@ -995,9 +996,10 @@ String _summary(AppLocalizations l, RecurringTransaction it) {
     _ => it.frequency,
   };
   if (it.frequency == 'WEEKLY' && it.dayOfWeek != null) {
-    const dows = ['', '월', '화', '수', '목', '금', '토', '일'];
     final idx = it.dayOfWeek!;
-    if (idx >= 1 && idx <= 7) core = '${l.calRepeatWeekly} ${dows[idx]}';
+    if (idx >= 1 && idx <= 7) {
+      core = '${l.calRepeatWeekly} ${weekdayLabels(mondayFirst: true)[idx - 1]}';
+    }
   } else if (it.frequency == 'MONTHLY' && it.dayOfMonth != null) {
     core = '${l.calRepeatMonthly} ${it.dayOfMonth}일';
   }
