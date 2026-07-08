@@ -5,6 +5,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_progress.dart';
 import 'package:porest_desk_app/core/auth/auth_notifier.dart';
@@ -84,7 +85,7 @@ class _HideAmountsUnlockDialogState
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() {
-        _error = e.message.isEmpty ? '비밀번호가 일치하지 않습니다.' : e.message;
+        _error = e.message.isEmpty ? AppLocalizations.of(context).unlockMismatch : e.message;
         _submitting = false;
         _ctrl.clear();
       });
@@ -95,18 +96,19 @@ class _HideAmountsUnlockDialogState
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     return PFormAlertDialog(
-      title: '금액 보기 인증',
+      title: l.unlockTitle,
       titleLeading:
           Icon(LucideIcons.shieldCheck, size: 18, color: t.fgBrand),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('금액을 다시 보려면 비밀번호로 본인 확인이 필요해요.',
+          Text(l.unlockBody,
               style: PTypo.bodySm.copyWith(color: t.fgSecondary)),
           const SizedBox(height: PSpace.x16),
-          Text('비밀번호',
+          Text(l.unlockPasswordLabel,
               style: PTypo.caption.copyWith(color: t.fgSecondary)),
           const SizedBox(height: PSpace.x4),
           TextField(
@@ -116,7 +118,7 @@ class _HideAmountsUnlockDialogState
             autofillHints: const [AutofillHints.password],
             enabled: !_submitting,
             decoration: InputDecoration(
-              hintText: '비밀번호 입력',
+              hintText: l.unlockPasswordHint,
               errorText: _error,
             ),
             onChanged: (_) => setState(() {
@@ -131,13 +133,13 @@ class _HideAmountsUnlockDialogState
           onPressed: _submitting
               ? null
               : () => Navigator.of(context).pop(false),
-          child: const Text('취소'),
+          child: Text(l.actionCancel),
         ),
         FilledButton(
           onPressed: (_ctrl.text.trim().isEmpty || _submitting) ? null : _submit,
           child: _submitting
               ? const PCircularProgressIndicator(size: 16, strokeWidth: 2)
-              : const Text('확인'),
+              : Text(l.actionConfirm),
         ),
       ],
     );

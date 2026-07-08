@@ -66,6 +66,21 @@ class AppLocalizationsKo extends AppLocalizations {
   String get searchResultsEmpty => '검색 결과가 없어요';
 
   @override
+  String get unlockTitle => '금액 보기 인증';
+
+  @override
+  String get unlockBody => '금액을 다시 보려면 비밀번호로 본인 확인이 필요해요.';
+
+  @override
+  String get unlockPasswordLabel => '비밀번호';
+
+  @override
+  String get unlockPasswordHint => '비밀번호 입력';
+
+  @override
+  String get unlockMismatch => '비밀번호가 일치하지 않습니다.';
+
+  @override
   String get stateNoData => '데이터가 없습니다';
 
   @override

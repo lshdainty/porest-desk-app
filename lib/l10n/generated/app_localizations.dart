@@ -212,6 +212,36 @@ abstract class AppLocalizations {
   /// **'검색 결과가 없어요'**
   String get searchResultsEmpty;
 
+  /// No description provided for @unlockTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'금액 보기 인증'**
+  String get unlockTitle;
+
+  /// No description provided for @unlockBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'금액을 다시 보려면 비밀번호로 본인 확인이 필요해요.'**
+  String get unlockBody;
+
+  /// No description provided for @unlockPasswordLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'비밀번호'**
+  String get unlockPasswordLabel;
+
+  /// No description provided for @unlockPasswordHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'비밀번호 입력'**
+  String get unlockPasswordHint;
+
+  /// No description provided for @unlockMismatch.
+  ///
+  /// In ko, this message translates to:
+  /// **'비밀번호가 일치하지 않습니다.'**
+  String get unlockMismatch;
+
   /// No description provided for @stateNoData.
   ///
   /// In ko, this message translates to:

@@ -66,6 +66,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get searchResultsEmpty => 'No results';
 
   @override
+  String get unlockTitle => 'Verify to view amounts';
+
+  @override
+  String get unlockBody => 'Enter your password to view amounts again.';
+
+  @override
+  String get unlockPasswordLabel => 'Password';
+
+  @override
+  String get unlockPasswordHint => 'Enter password';
+
+  @override
+  String get unlockMismatch => 'Password doesn\'t match.';
+
+  @override
   String get stateNoData => 'No data';
 
   @override
