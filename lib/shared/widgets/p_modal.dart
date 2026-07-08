@@ -5,6 +5,7 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 
 /// 표준 footer — 좌측 삭제(편집 모드만) / 우측 취소 + 저장. controller listen.
@@ -17,20 +18,21 @@ class PSheetFooter extends StatelessWidget {
     super.key,
     required this.controller,
     required this.submitLabel,
-    this.cancelLabel = '취소',
-    this.deleteLabel = '삭제',
+    this.cancelLabel,
+    this.deleteLabel,
     this.leftSlot,
     this.submitIcon,
   });
   final PSheetController controller;
   final String submitLabel;
-  final String cancelLabel;
-  final String deleteLabel;
+  final String? cancelLabel;
+  final String? deleteLabel;
   final Widget? leftSlot;
   final IconData? submitIcon;
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return AnimatedBuilder(
       animation: controller,
       builder: (ctx, _) {
@@ -40,7 +42,7 @@ class PSheetFooter extends StatelessWidget {
               leftSlot!
             else if (controller.onDelete != null)
               PButton(
-                label: deleteLabel,
+                label: deleteLabel ?? l.actionDelete,
                 icon: LucideIcons.trash2,
                 variant: PButtonVariant.ghost,
                 dangerous: true,
@@ -49,7 +51,7 @@ class PSheetFooter extends StatelessWidget {
               ),
             const Spacer(),
             PButton(
-              label: cancelLabel,
+              label: cancelLabel ?? l.actionCancel,
               variant: PButtonVariant.ghost,
               onPressed: controller.submitting
                   ? null
@@ -78,19 +80,19 @@ class PViewFooter extends StatelessWidget {
   const PViewFooter({
     super.key,
     this.onDelete,
-    this.deleteLabel = '삭제',
+    this.deleteLabel,
     this.deleting = false,
     this.leading,
     this.onEdit,
-    this.editLabel = '편집',
-    this.confirmLabel = '확인',
+    this.editLabel,
+    this.confirmLabel,
     this.confirmVariant = PButtonVariant.primary,
     this.onConfirm,
   });
 
   /// 좌측 삭제(파괴적) — ghost danger flush-left. [leading] 과 동시 사용 금지.
   final VoidCallback? onDelete;
-  final String deleteLabel;
+  final String? deleteLabel;
   final bool deleting;
 
   /// 삭제 대신 좌측에 둘 임의 위젯(금액 가리기 토글 등).
@@ -98,20 +100,21 @@ class PViewFooter extends StatelessWidget {
 
   /// 우측 편집(opt) — ghost pencil.
   final VoidCallback? onEdit;
-  final String editLabel;
+  final String? editLabel;
 
   /// 우측 끝 확인/닫기 — onConfirm 미지정 시 Navigator.pop.
-  final String confirmLabel;
+  final String? confirmLabel;
   final PButtonVariant confirmVariant;
   final VoidCallback? onConfirm;
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return Row(
       children: [
         if (onDelete != null)
           PButton(
-            label: deleteLabel,
+            label: deleteLabel ?? l.actionDelete,
             icon: LucideIcons.trash2,
             variant: PButtonVariant.ghost,
             dangerous: true,
@@ -124,7 +127,7 @@ class PViewFooter extends StatelessWidget {
         const Spacer(),
         if (onEdit != null) ...[
           PButton(
-            label: editLabel,
+            label: editLabel ?? l.actionEditLabel,
             icon: LucideIcons.pencil,
             variant: PButtonVariant.ghost,
             onPressed: onEdit,
@@ -132,7 +135,7 @@ class PViewFooter extends StatelessWidget {
           const SizedBox(width: PSpace.x4),
         ],
         PButton(
-          label: confirmLabel,
+          label: confirmLabel ?? l.actionConfirm,
           variant: confirmVariant,
           onPressed: onConfirm ?? () => Navigator.of(context).pop(),
         ),
@@ -385,8 +388,8 @@ Future<bool> showPConfirmDialog(
   BuildContext context, {
   required String title,
   required String message,
-  String confirmLabel = '확인',
-  String cancelLabel = '취소',
+  String? confirmLabel,
+  String? cancelLabel,
   bool destructive = false,
   Future<void> Function()? onConfirm,
 }) async {
@@ -395,8 +398,8 @@ Future<bool> showPConfirmDialog(
     builder: (ctx) => _PConfirmDialog(
       title: title,
       message: message,
-      confirmLabel: confirmLabel,
-      cancelLabel: cancelLabel,
+      confirmLabel: confirmLabel ?? AppLocalizations.of(context).actionConfirm,
+      cancelLabel: cancelLabel ?? AppLocalizations.of(context).actionCancel,
       destructive: destructive,
       onConfirm: onConfirm,
     ),

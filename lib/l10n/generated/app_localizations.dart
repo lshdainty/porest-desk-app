@@ -188,6 +188,30 @@ abstract class AppLocalizations {
   /// **'뒤로'**
   String get actionBack;
 
+  /// No description provided for @actionEditLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'편집'**
+  String get actionEditLabel;
+
+  /// No description provided for @pickDate.
+  ///
+  /// In ko, this message translates to:
+  /// **'날짜 선택'**
+  String get pickDate;
+
+  /// No description provided for @pickTime.
+  ///
+  /// In ko, this message translates to:
+  /// **'시간 선택'**
+  String get pickTime;
+
+  /// No description provided for @searchResultsEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'검색 결과가 없어요'**
+  String get searchResultsEmpty;
+
   /// No description provided for @stateNoData.
   ///
   /// In ko, this message translates to:
