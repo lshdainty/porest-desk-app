@@ -1520,5 +1520,11 @@
   "@dateHoursAgo": {"placeholders": {"n": {"type": "int"}}},
   "todoNoDue": "No due date",
   "todoGroupLabel": "{label} · {count}",
-  "@todoGroupLabel": {"placeholders": {"label": {"type": "String"}, "count": {"type": "int"}}}
+  "@todoGroupLabel": {"placeholders": {"label": {"type": "String"}, "count": {"type": "int"}}},
+  "dayN": "Day {d}",
+  "@dayN": {"placeholders": {"d": {"type": "int"}}},
+  "weekN": "W{n}",
+  "@weekN": {"placeholders": {"n": {"type": "int"}}},
+  "countUnit": "",
+  "dayUnit": "day"
 }

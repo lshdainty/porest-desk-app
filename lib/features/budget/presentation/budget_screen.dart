@@ -375,7 +375,7 @@ Future<DateTime?> showMonthPickerSheet(BuildContext context, DateTime initial) {
                     Expanded(
                       child: Center(
                         child: Text(
-                          '$viewYear년',
+                          yearOnly(DateTime(viewYear)),
                           style: PTypo.bodyLg.copyWith(
                             color: t.fgPrimary,
                             fontWeight: PFontWeight.bold,
@@ -401,7 +401,7 @@ Future<DateTime?> showMonthPickerSheet(BuildContext context, DateTime initial) {
                   children: [
                     for (int m = 1; m <= 12; m++)
                       _MonthGridButton(
-                        label: '$m월',
+                        label: monthOnly(DateTime(viewYear, m)),
                         selected:
                             viewYear == selectedYear && m == selectedMonth,
                         onTap: () =>

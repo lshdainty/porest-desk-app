@@ -8317,6 +8317,30 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'{label} · {count}건'**
   String todoGroupLabel(String label, int count);
+
+  /// No description provided for @dayN.
+  ///
+  /// In ko, this message translates to:
+  /// **'{d}일'**
+  String dayN(int d);
+
+  /// No description provided for @weekN.
+  ///
+  /// In ko, this message translates to:
+  /// **'{n}주'**
+  String weekN(int n);
+
+  /// No description provided for @countUnit.
+  ///
+  /// In ko, this message translates to:
+  /// **'건'**
+  String get countUnit;
+
+  /// No description provided for @dayUnit.
+  ///
+  /// In ko, this message translates to:
+  /// **'일'**
+  String get dayUnit;
 }
 
 class _AppLocalizationsDelegate

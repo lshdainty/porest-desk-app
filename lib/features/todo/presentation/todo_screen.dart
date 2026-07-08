@@ -238,7 +238,7 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
               child: _StatCard(
                 label: l.calToday,
                 value: '$todayCount',
-                unit: '건',
+                unit: l.countUnit,
                 valueColor: todayCount > 0 ? t.fgBrand : t.fgPrimary,
                 t: t,
               ),
@@ -248,7 +248,7 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
               child: _StatCard(
                 label: l.expPeriodWeek,
                 value: '$weekCount',
-                unit: '건',
+                unit: l.countUnit,
                 valueColor: t.fgPrimary,
                 t: t,
               ),
@@ -679,7 +679,7 @@ class _TodoRow extends StatelessWidget {
                   borderRadius: PRadius.brSm,
                 ),
                 child: Text(
-                  prio.label,
+                  todoPrioLabel(l, todo.priority),
                   style: PTypo.micro.copyWith(
                     color: prio.color(context),
                     fontWeight: PFontWeight.semi,

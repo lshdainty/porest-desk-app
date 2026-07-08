@@ -9,6 +9,7 @@ import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/core/format/date.dart';
+import 'package:porest_desk_app/core/format/format_locale.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
@@ -428,7 +429,7 @@ class _RecurringSettingsBodyState
                   ),
                 ),
                 const SizedBox(width: 8),
-                Text('일', style: PTypo.bodySm.copyWith(color: t.fgSecondary)),
+                Text(l.dayUnit, style: PTypo.bodySm.copyWith(color: t.fgSecondary)),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -581,7 +582,9 @@ class _RecurringSettingsBodyState
                           border: Border.all(color: t.borderSubtle),
                         ),
                         child: Text(
-                          '${d.month.toString().padLeft(2, '0')}월 ${d.day.toString().padLeft(2, '0')}일',
+                          localeIsEn()
+                              ? formatDay(d).md
+                              : '${d.month.toString().padLeft(2, '0')}월 ${d.day.toString().padLeft(2, '0')}일',
                           style: PTypo.caption.copyWith(
                             color: t.fgPrimary,
                             fontWeight: PFontWeight.semi,

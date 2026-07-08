@@ -195,7 +195,7 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
       context,
       title: l.categoryBudgetExceedTitle,
       message: l.categoryBudgetExceedMessage(
-          parentName, '${krw(projected - parentBudget)}원'),
+          parentName, krwSigned(projected - parentBudget, false, unit: true)),
       confirmLabel: l.categoryMove,
     );
   }

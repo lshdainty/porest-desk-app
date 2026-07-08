@@ -4402,4 +4402,20 @@ class AppLocalizationsKo extends AppLocalizations {
   String todoGroupLabel(String label, int count) {
     return '$label · $count건';
   }
+
+  @override
+  String dayN(int d) {
+    return '$d일';
+  }
+
+  @override
+  String weekN(int n) {
+    return '$n주';
+  }
+
+  @override
+  String get countUnit => '건';
+
+  @override
+  String get dayUnit => '일';
 }

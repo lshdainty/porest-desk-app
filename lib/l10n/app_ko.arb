@@ -1521,5 +1521,11 @@
   "@dateHoursAgo": {"placeholders": {"n": {"type": "int"}}},
   "todoNoDue": "마감일 없음",
   "todoGroupLabel": "{label} · {count}건",
-  "@todoGroupLabel": {"placeholders": {"label": {"type": "String"}, "count": {"type": "int"}}}
+  "@todoGroupLabel": {"placeholders": {"label": {"type": "String"}, "count": {"type": "int"}}},
+  "dayN": "{d}일",
+  "@dayN": {"placeholders": {"d": {"type": "int"}}},
+  "weekN": "{n}주",
+  "@weekN": {"placeholders": {"n": {"type": "int"}}},
+  "countUnit": "건",
+  "dayUnit": "일"
 }

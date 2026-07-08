@@ -8,6 +8,8 @@ import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/core/format/chart_axis.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
+import 'package:porest_desk_app/core/format/date.dart';
+import 'package:porest_desk_app/core/format/format_locale.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
 import 'package:porest_desk_app/shared/widgets/p_chart_tooltip.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
@@ -135,7 +137,9 @@ class _NetWorthChartState extends ConsumerState<NetWorthChart> {
                       return Padding(
                         padding: const EdgeInsets.only(top: 6),
                         child: Text(
-                          '$mm월',
+                          localeIsEn()
+                              ? monthOnly(DateTime(2000, points[i].month))
+                              : '$mm월',
                           style: TextStyle(
                             color: t.fgTertiary,
                             fontSize: PFontSize.micro,
@@ -232,8 +236,9 @@ class _NetWorthChartState extends ConsumerState<NetWorthChart> {
                 PChartTooltipLayer(
                   anchor: _touchPos!,
                   child: PChartTooltipBox(
-                    title:
-                        '${points[_touchedIdx!].month.toString().padLeft(2, '0')}월',
+                    title: localeIsEn()
+                        ? monthOnly(DateTime(2000, points[_touchedIdx!].month))
+                        : '${points[_touchedIdx!].month.toString().padLeft(2, '0')}월',
                     labelWidth: 40,
                     rows: [
                       PChartTooltipRowData(

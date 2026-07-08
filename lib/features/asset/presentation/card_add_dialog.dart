@@ -343,7 +343,7 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
                     title: l.assetPaymentDay,
                     items: [
                       for (var d = 1; d <= 31; d++)
-                        PSelectItem(value: d, label: '$d일'),
+                        PSelectItem(value: d, label: l.dayN(d)),
                     ],
                     onChanged: (v) => setState(() => _paymentDay = v),
                   ),

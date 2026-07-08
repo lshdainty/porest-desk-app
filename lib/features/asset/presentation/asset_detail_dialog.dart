@@ -768,6 +768,7 @@ class _BalanceTrendChartState extends State<_BalanceTrendChart> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final tokens = widget.tokens;
     final brandFg = widget.brandFg;
     final seriesLabel = widget.seriesLabel;
@@ -857,7 +858,7 @@ class _BalanceTrendChartState extends State<_BalanceTrendChart> {
                 return Padding(
                   padding: const EdgeInsets.only(top: 6),
                   child: Text(
-                    '${i + 1}주',
+                    l.weekN(i + 1),
                     style: PTypo.micro.copyWith(
                       color: tokens.fgTertiary,
                       fontSize: PFontSize.micro,
@@ -969,7 +970,7 @@ class _BalanceTrendChartState extends State<_BalanceTrendChart> {
             child: PChartTooltipBox(
               // web BalanceTooltip 정합 — 'N주 · MM-DD'
               title:
-                  '${_touchedIdx! + 1}주 · ${_fmtWeekStart(list[_touchedIdx!].weekStart)}',
+                  '${l.weekN(_touchedIdx! + 1)} · ${_fmtWeekStart(list[_touchedIdx!].weekStart)}',
               labelWidth: 40,
               rows: [
                 PChartTooltipRowData(
