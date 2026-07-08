@@ -123,7 +123,7 @@ class _Body extends ConsumerWidget {
                   ),
                   if (!masked)
                     TextSpan(
-                      text: '원',
+                      text: wonUnit(),
                       style: PTypo.body.copyWith(
                         color: t.fgBrand,
                         fontWeight: PFontWeight.bold,

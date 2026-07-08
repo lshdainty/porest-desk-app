@@ -376,7 +376,7 @@ class _BodyState extends ConsumerState<_Body> {
                                 fontWeight: PFontWeight.bold),
                           ),
                           TextSpan(
-                            text: '원',
+                            text: wonUnit(),
                             style: PTypo.bodySm.copyWith(
                                 color: t.fgPrimary,
                                 fontWeight: PFontWeight.bold),
@@ -830,7 +830,7 @@ class _ParticipantRow extends StatelessWidget {
                 numbersOnly: true,
                 textAlign: TextAlign.right,
                 placeholder: '0',
-                suffixText: '원',
+                suffixText: wonUnit(),
                 onChanged: onCustomChanged,
               ),
             ),

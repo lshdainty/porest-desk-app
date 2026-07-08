@@ -678,7 +678,7 @@ class _SourceCard extends StatelessWidget {
                   ),
                 ),
                 TextSpan(
-                  text: '원',
+                  text: wonUnit(),
                   style: PTypo.bodySm.copyWith(
                     color: tokens.fgPrimary,
                     fontWeight: PFontWeight.bold,
@@ -1080,7 +1080,7 @@ class _TxFields extends ConsumerWidget {
           numbersOnly: true,
           placeholder: '0',
           prefixText: amountInt > 0 ? amountPrefix : null,
-          suffixText: '원',
+          suffixText: wonUnit(),
           style: PTypo.h4.copyWith(
             color: amountColor,
             fontWeight: PFontWeight.bold,

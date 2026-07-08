@@ -502,7 +502,7 @@ class _SummaryCard extends StatelessWidget {
               if (!masked) ...[
                 const SizedBox(width: 1),
                 Text(
-                  '원',
+                  wonUnit(),
                   style: PTypo.bodySm.copyWith(
                     color: accent,
                     fontWeight: PFontWeight.semi,
@@ -598,7 +598,7 @@ class _SessionCard extends StatelessWidget {
                       ),
                       if (!masked)
                         TextSpan(
-                          text: '원',
+                          text: wonUnit(),
                           style: PTypo.bodySm.copyWith(
                             color: t.fgPrimary,
                             fontWeight: PFontWeight.bold,

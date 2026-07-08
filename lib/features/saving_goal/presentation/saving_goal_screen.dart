@@ -110,7 +110,7 @@ class SavingGoalScreen extends ConsumerWidget {
               numbersOnly: true,
               autofocus: true,
               placeholder: l.savingGoalAmountHint,
-              suffixText: '원',
+              suffixText: wonUnit(),
             ),
             actions: [
               PButton(

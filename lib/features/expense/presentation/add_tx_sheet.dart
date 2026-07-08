@@ -1078,7 +1078,7 @@ class _TxInputForm extends ConsumerWidget {
           enabled: !c.amountLocked,
           placeholder: '0',
           prefixText: amountInt > 0 ? amountPrefix : null,
-          suffixText: '원',
+          suffixText: wonUnit(),
           style: PTypo.h4.copyWith(
             color: amountColor,
             fontWeight: PFontWeight.bold,

@@ -409,7 +409,7 @@ class _BalanceHero extends StatelessWidget {
                     if (!masked) ...[
                       const SizedBox(width: 4),
                       Text(
-                        '원',
+                        wonUnit(),
                         style: TextStyle(
                           color: t.fgOnBrand.withValues(alpha: 0.8),
                           fontSize: PFontSize.h4,
