@@ -5,6 +5,7 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 
 /// 금액 sub-navigation 하단바 — 가계부 진입 시 표시되는 5칸 탭.
 ///
@@ -33,6 +34,7 @@ class MoneyTabBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final mq = MediaQuery.of(context);
     return Material(
       color: t.bgSurface,
@@ -57,7 +59,7 @@ class MoneyTabBar extends StatelessWidget {
                 Expanded(
                   child: _MoneyTabItem(
                     icon: LucideIcons.receiptText,
-                    label: '가계부',
+                    label: l.navExpense,
                     selected: current == MoneyTab.expense,
                     onTap: () => onTap(MoneyTab.expense),
                     tokens: t,
@@ -66,7 +68,7 @@ class MoneyTabBar extends StatelessWidget {
                 Expanded(
                   child: _MoneyTabItem(
                     icon: LucideIcons.wallet,
-                    label: '자산',
+                    label: l.navAsset,
                     selected: current == MoneyTab.assets,
                     onTap: () => onTap(MoneyTab.assets),
                     tokens: t,
@@ -75,7 +77,7 @@ class MoneyTabBar extends StatelessWidget {
                 Expanded(
                   child: _MoneyTabItem(
                     icon: LucideIcons.pieChart,
-                    label: '통계',
+                    label: l.navStats,
                     selected: current == MoneyTab.stats,
                     onTap: () => onTap(MoneyTab.stats),
                     tokens: t,
@@ -84,7 +86,7 @@ class MoneyTabBar extends StatelessWidget {
                 Expanded(
                   child: _MoneyTabItem(
                     icon: LucideIcons.filePen,
-                    label: '예산',
+                    label: l.navBudget,
                     selected: current == MoneyTab.budget,
                     onTap: () => onTap(MoneyTab.budget),
                     tokens: t,

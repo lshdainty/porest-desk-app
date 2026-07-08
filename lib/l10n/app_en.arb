@@ -15,6 +15,7 @@
   "actionSearch": "Search",
   "actionLoading": "Loading...",
   "actionDone": "Done",
+  "actionBack": "Back",
   "stateNoData": "No data",
   "stateError": "Something went wrong",
   "stateEmpty": "Nothing to show",
