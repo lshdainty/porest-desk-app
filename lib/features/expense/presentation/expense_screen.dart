@@ -8,6 +8,7 @@ import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/format/date.dart';
+import 'package:porest_desk_app/core/format/format_locale.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
@@ -122,7 +123,9 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
     // — 다른 표준 시트(add_tx_sheet 등)·웹 mobileMinHeight 85dvh 와 동일하게 고정.
     showPSheet<void>(
       context,
-      title: '${date.month}월 ${date.day}일 ${_koWeekday(date.weekday)}요일',
+      title: localeIsEn()
+          ? '${formatDay(date).md}, ${formatDay(date).dow}'
+          : '${formatDay(date).md} ${formatDay(date).dow}요일',
       contentBuilder: (ctx, scrollCtrl) => SingleChildScrollView(
         controller: scrollCtrl,
         child: _DayDetailBody(
@@ -421,7 +424,7 @@ class _SummaryCard extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Text(
-                '${month.year}년 ${month.month}월',
+                yearMonth(month),
                 style: TextStyle(
                   color: t.fgPrimary,
                   fontSize: PFontSize.bodyLg,
@@ -1125,9 +1128,6 @@ class _ViewModeToggle extends StatelessWidget {
   }
 }
 
-String _koWeekday(int weekday) =>
-    const ['', '월', '화', '수', '목', '금', '토', '일'][weekday];
-
 /// 7×6 캘린더 grid — 날짜 + 그 날의 income/expense 합계 표시.
 /// 셀 클릭 시 [onTapDate] 으로 그날 거래 list 전달.
 /// [height] 가 0 이면 부모(Expanded 등)가 size 결정 — 그 외에는 SizedBox 로 강제.
@@ -1186,7 +1186,7 @@ class _CalendarGrid extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  for (final wd in const ['일', '월', '화', '수', '목', '금', '토'])
+                  for (final (i, wd) in weekdayLabels().indexed)
                     Expanded(
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
@@ -1196,9 +1196,10 @@ class _CalendarGrid extends StatelessWidget {
                           wd,
                           textAlign: TextAlign.center,
                           style: PTypo.caption.copyWith(
-                            color: wd == '일'
+                            // 색은 위치(0=일/6=토)로 판정 — 로케일 라벨 무관.
+                            color: i == 0
                                 ? t.fgExpense
-                                : wd == '토'
+                                : i == 6
                                 ? t.fgBrand
                                 : t.fgSecondary,
                             fontWeight: PFontWeight.medium,
