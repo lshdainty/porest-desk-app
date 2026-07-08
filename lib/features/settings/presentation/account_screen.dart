@@ -20,6 +20,7 @@ import 'package:porest_desk_app/shared/widgets/p_divider.dart';
 import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/shared/widgets/p_switch.dart';
 import 'package:porest_desk_app/features/settings/presentation/password_change_dialog.dart';
+import 'package:porest_desk_app/core/format/krw.dart';
 
 /// 계정 상세 화면 — web AccountSection 1:1 미러.
 ///
@@ -308,7 +309,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Text(
-                            '9,900원',
+                            krwSigned(9900, false, unit: true),
                             style: TextStyle(
                               fontFamily: PTypo.sans,
                               fontSize: PFontSize.body,
