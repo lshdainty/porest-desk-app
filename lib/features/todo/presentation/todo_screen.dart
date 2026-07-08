@@ -315,6 +315,7 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
                     for (final key in groupKeys) ...[
                       _GroupHeader(
                         label: todoGroupLabel(
+                          l,
                           key.isEmpty ? null : DateTime.parse(key),
                           groups[key]!.length,
                         ),
@@ -582,6 +583,7 @@ class _TodoRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final overdue = !todo.done && isTodoOverdue(todo.due, today);
     final overdueColor = todoOverdueColor(context);
     final prio = todoPrioOf(todo.priority);
@@ -643,7 +645,7 @@ class _TodoRow extends StatelessWidget {
                     Row(
                       children: [
                         Text(
-                          todoRelativeDate(todo.due, today),
+                          todoRelativeDate(l, todo.due, today),
                           style: PTypo.caption.copyWith(
                             color: overdue ? overdueColor : t.fgTertiary,
                             fontWeight: overdue

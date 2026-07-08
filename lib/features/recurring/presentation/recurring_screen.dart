@@ -566,7 +566,7 @@ class _UpcomingRow extends StatelessWidget {
             ),
             alignment: Alignment.center,
             child: Text(
-              isToday ? l.recurringToday : 'D-$days',
+              isToday ? l.recurringToday : l.dashDaysLeft(days),
               style: PTypo.caption.copyWith(
                 color: isToday ? tokens.fgOnBrand : tokens.fgSecondary,
                 fontWeight: PFontWeight.bold,

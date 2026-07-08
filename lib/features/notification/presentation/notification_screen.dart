@@ -382,7 +382,7 @@ class _NotiRow extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(top: 2),
                 child: Text(
-                  _relativeTime(noti.createAt!),
+                  _relativeTime(l, noti.createAt!),
                   style: PTypo.micro.copyWith(
                     color: tokens.fgTertiary,
                     letterSpacing: 0,
@@ -405,18 +405,18 @@ class _NotiRow extends StatelessWidget {
   }
 
   /// SoT relativeTime 정합: 방금 / N분 전 / N시간 전 / 어제 / N일 전 / yyyy-MM-dd(≥7일).
-  String _relativeTime(String iso) {
+  String _relativeTime(AppLocalizations l, String iso) {
     final dt = DateTime.tryParse(iso);
     if (dt == null) return '';
     final diff = DateTime.now().difference(dt);
     final m = diff.inMinutes;
-    if (m < 1) return '방금';
-    if (m < 60) return '$m분 전';
+    if (m < 1) return l.dateJustNow;
+    if (m < 60) return l.dateMinutesAgo(m);
     final h = diff.inHours;
-    if (h < 24) return '$h시간 전';
+    if (h < 24) return l.dateHoursAgo(h);
     final d = diff.inDays;
-    if (d == 1) return '어제';
-    if (d < 7) return '$d일 전';
+    if (d == 1) return l.dateYesterday;
+    if (d < 7) return l.dateDaysAgo(d);
     // 1주 이상 — yyyy-MM-dd (SoT createAt.slice(0,10) 정합).
     final mm = dt.month.toString().padLeft(2, '0');
     final dd = dt.day.toString().padLeft(2, '0');

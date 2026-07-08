@@ -8245,6 +8245,18 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'{n}시간 전'**
   String dateHoursAgo(int n);
+
+  /// No description provided for @todoNoDue.
+  ///
+  /// In ko, this message translates to:
+  /// **'마감일 없음'**
+  String get todoNoDue;
+
+  /// No description provided for @todoGroupLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'{label} · {count}건'**
+  String todoGroupLabel(String label, int count);
 }
 
 class _AppLocalizationsDelegate

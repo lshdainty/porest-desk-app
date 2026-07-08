@@ -4364,4 +4364,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String dateHoursAgo(int n) {
     return '$n시간 전';
   }
+
+  @override
+  String get todoNoDue => '마감일 없음';
+
+  @override
+  String todoGroupLabel(String label, int count) {
+    return '$label · $count건';
+  }
 }
