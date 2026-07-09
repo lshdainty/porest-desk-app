@@ -2857,6 +2857,11 @@ class AppLocalizationsKo extends AppLocalizations {
   String get accountDefaultName => '사용자';
 
   @override
+  String accountJoined(String date) {
+    return '가입 $date';
+  }
+
+  @override
   String get accountEditComingSoon => '프로필 편집은 준비중입니다';
 
   @override

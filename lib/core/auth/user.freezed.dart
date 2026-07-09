@@ -15,7 +15,8 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$User {
 
- int get rowId; String get userId; String get userName; String get userEmail; String? get timezone;
+ int get rowId; String get userId; String get userName; String get userEmail; String? get timezone;// 가입일시 — 백엔드 /auth/check 의 joinedAt(User.createAt). 미조회 시 null.
+ DateTime? get joinedAt;
 /// Create a copy of User
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +29,16 @@ $UserCopyWith<User> get copyWith => _$UserCopyWithImpl<User>(this as User, _$ide
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is User&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.userName, userName) || other.userName == userName)&&(identical(other.userEmail, userEmail) || other.userEmail == userEmail)&&(identical(other.timezone, timezone) || other.timezone == timezone));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is User&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.userName, userName) || other.userName == userName)&&(identical(other.userEmail, userEmail) || other.userEmail == userEmail)&&(identical(other.timezone, timezone) || other.timezone == timezone)&&(identical(other.joinedAt, joinedAt) || other.joinedAt == joinedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,rowId,userId,userName,userEmail,timezone);
+int get hashCode => Object.hash(runtimeType,rowId,userId,userName,userEmail,timezone,joinedAt);
 
 @override
 String toString() {
-  return 'User(rowId: $rowId, userId: $userId, userName: $userName, userEmail: $userEmail, timezone: $timezone)';
+  return 'User(rowId: $rowId, userId: $userId, userName: $userName, userEmail: $userEmail, timezone: $timezone, joinedAt: $joinedAt)';
 }
 
 
@@ -48,7 +49,7 @@ abstract mixin class $UserCopyWith<$Res>  {
   factory $UserCopyWith(User value, $Res Function(User) _then) = _$UserCopyWithImpl;
 @useResult
 $Res call({
- int rowId, String userId, String userName, String userEmail, String? timezone
+ int rowId, String userId, String userName, String userEmail, String? timezone, DateTime? joinedAt
 });
 
 
@@ -65,14 +66,15 @@ class _$UserCopyWithImpl<$Res>
 
 /// Create a copy of User
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? rowId = null,Object? userId = null,Object? userName = null,Object? userEmail = null,Object? timezone = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? rowId = null,Object? userId = null,Object? userName = null,Object? userEmail = null,Object? timezone = freezed,Object? joinedAt = freezed,}) {
   return _then(_self.copyWith(
 rowId: null == rowId ? _self.rowId : rowId // ignore: cast_nullable_to_non_nullable
 as int,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,userName: null == userName ? _self.userName : userName // ignore: cast_nullable_to_non_nullable
 as String,userEmail: null == userEmail ? _self.userEmail : userEmail // ignore: cast_nullable_to_non_nullable
 as String,timezone: freezed == timezone ? _self.timezone : timezone // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,joinedAt: freezed == joinedAt ? _self.joinedAt : joinedAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,
   ));
 }
 
@@ -157,10 +159,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int rowId,  String userId,  String userName,  String userEmail,  String? timezone)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int rowId,  String userId,  String userName,  String userEmail,  String? timezone,  DateTime? joinedAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _User() when $default != null:
-return $default(_that.rowId,_that.userId,_that.userName,_that.userEmail,_that.timezone);case _:
+return $default(_that.rowId,_that.userId,_that.userName,_that.userEmail,_that.timezone,_that.joinedAt);case _:
   return orElse();
 
 }
@@ -178,10 +180,10 @@ return $default(_that.rowId,_that.userId,_that.userName,_that.userEmail,_that.ti
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int rowId,  String userId,  String userName,  String userEmail,  String? timezone)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int rowId,  String userId,  String userName,  String userEmail,  String? timezone,  DateTime? joinedAt)  $default,) {final _that = this;
 switch (_that) {
 case _User():
-return $default(_that.rowId,_that.userId,_that.userName,_that.userEmail,_that.timezone);case _:
+return $default(_that.rowId,_that.userId,_that.userName,_that.userEmail,_that.timezone,_that.joinedAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -198,10 +200,10 @@ return $default(_that.rowId,_that.userId,_that.userName,_that.userEmail,_that.ti
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int rowId,  String userId,  String userName,  String userEmail,  String? timezone)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int rowId,  String userId,  String userName,  String userEmail,  String? timezone,  DateTime? joinedAt)?  $default,) {final _that = this;
 switch (_that) {
 case _User() when $default != null:
-return $default(_that.rowId,_that.userId,_that.userName,_that.userEmail,_that.timezone);case _:
+return $default(_that.rowId,_that.userId,_that.userName,_that.userEmail,_that.timezone,_that.joinedAt);case _:
   return null;
 
 }
@@ -213,7 +215,7 @@ return $default(_that.rowId,_that.userId,_that.userName,_that.userEmail,_that.ti
 @JsonSerializable()
 
 class _User implements User {
-  const _User({required this.rowId, required this.userId, required this.userName, required this.userEmail, this.timezone});
+  const _User({required this.rowId, required this.userId, required this.userName, required this.userEmail, this.timezone, this.joinedAt});
   factory _User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
 
 @override final  int rowId;
@@ -221,6 +223,8 @@ class _User implements User {
 @override final  String userName;
 @override final  String userEmail;
 @override final  String? timezone;
+// 가입일시 — 백엔드 /auth/check 의 joinedAt(User.createAt). 미조회 시 null.
+@override final  DateTime? joinedAt;
 
 /// Create a copy of User
 /// with the given fields replaced by the non-null parameter values.
@@ -235,16 +239,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _User&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.userName, userName) || other.userName == userName)&&(identical(other.userEmail, userEmail) || other.userEmail == userEmail)&&(identical(other.timezone, timezone) || other.timezone == timezone));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _User&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.userName, userName) || other.userName == userName)&&(identical(other.userEmail, userEmail) || other.userEmail == userEmail)&&(identical(other.timezone, timezone) || other.timezone == timezone)&&(identical(other.joinedAt, joinedAt) || other.joinedAt == joinedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,rowId,userId,userName,userEmail,timezone);
+int get hashCode => Object.hash(runtimeType,rowId,userId,userName,userEmail,timezone,joinedAt);
 
 @override
 String toString() {
-  return 'User(rowId: $rowId, userId: $userId, userName: $userName, userEmail: $userEmail, timezone: $timezone)';
+  return 'User(rowId: $rowId, userId: $userId, userName: $userName, userEmail: $userEmail, timezone: $timezone, joinedAt: $joinedAt)';
 }
 
 
@@ -255,7 +259,7 @@ abstract mixin class _$UserCopyWith<$Res> implements $UserCopyWith<$Res> {
   factory _$UserCopyWith(_User value, $Res Function(_User) _then) = __$UserCopyWithImpl;
 @override @useResult
 $Res call({
- int rowId, String userId, String userName, String userEmail, String? timezone
+ int rowId, String userId, String userName, String userEmail, String? timezone, DateTime? joinedAt
 });
 
 
@@ -272,14 +276,15 @@ class __$UserCopyWithImpl<$Res>
 
 /// Create a copy of User
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? rowId = null,Object? userId = null,Object? userName = null,Object? userEmail = null,Object? timezone = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? rowId = null,Object? userId = null,Object? userName = null,Object? userEmail = null,Object? timezone = freezed,Object? joinedAt = freezed,}) {
   return _then(_User(
 rowId: null == rowId ? _self.rowId : rowId // ignore: cast_nullable_to_non_nullable
 as int,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,userName: null == userName ? _self.userName : userName // ignore: cast_nullable_to_non_nullable
 as String,userEmail: null == userEmail ? _self.userEmail : userEmail // ignore: cast_nullable_to_non_nullable
 as String,timezone: freezed == timezone ? _self.timezone : timezone // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,joinedAt: freezed == joinedAt ? _self.joinedAt : joinedAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,
   ));
 }
 

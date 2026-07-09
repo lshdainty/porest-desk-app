@@ -27,23 +27,27 @@ class ApiException implements Exception {
     if (res != null) {
       final body = res.data;
       if (body is Map<String, dynamic>) {
+        // 정상 에러는 서버가 로케일(ko/en) 메시지를 body.message 로 내려주므로 그대로 사용.
+        // 아래 fallback 은 서버가 message 를 안 준 예외적 경우만 → 기본값 영어 하드코딩.
         return ApiException(
           code: body['code']?.toString() ?? 'HTTP_${res.statusCode}',
-          message: body['message']?.toString() ?? '서버 오류',
+          message: body['message']?.toString() ?? 'Server error',
           statusCode: res.statusCode,
           cause: e,
         );
       }
+      // non-JSON 응답(게이트웨이 502 등) — 서버 메시지 없음, 영어 기본값.
       return ApiException(
         code: 'HTTP_${res.statusCode}',
-        message: '서버 오류 (${res.statusCode})',
+        message: 'Server error (${res.statusCode})',
         statusCode: res.statusCode,
         cause: e,
       );
     }
+    // 네트워크 무응답 — 서버 응답 자체가 없어 서버 메시지 불가, 영어 기본값.
     return ApiException(
       code: 'NETWORK',
-      message: '네트워크 연결을 확인해주세요',
+      message: 'Network connection failed. Please try again.',
       cause: e,
     );
   }

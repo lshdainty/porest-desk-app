@@ -993,6 +993,8 @@
   "passwordChangeAction": "변경",
   "accountTitle": "계정",
   "accountDefaultName": "사용자",
+  "accountJoined": "가입 {date}",
+  "@accountJoined": {"placeholders": {"date": {"type": "String"}}},
   "accountEditComingSoon": "프로필 편집은 준비중입니다",
   "accountSecurity": "보안",
   "accountPasswordDesc": "최근 변경 없음",
