@@ -2882,6 +2882,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accountDefaultName => 'User';
 
   @override
+  String accountJoined(String date) {
+    return 'Joined $date';
+  }
+
+  @override
   String get accountEditComingSoon => 'Profile editing is coming soon';
 
   @override

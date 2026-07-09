@@ -992,6 +992,8 @@
   "passwordChangeAction": "Change",
   "accountTitle": "Account",
   "accountDefaultName": "User",
+  "accountJoined": "Joined {date}",
+  "@accountJoined": {"placeholders": {"date": {"type": "String"}}},
   "accountEditComingSoon": "Profile editing is coming soon",
   "accountSecurity": "Security",
   "accountPasswordDesc": "No recent changes",

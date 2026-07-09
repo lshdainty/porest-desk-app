@@ -8,6 +8,7 @@ import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/auth/auth_notifier.dart';
+import 'package:porest_desk_app/core/format/date.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/features/subscription/application/subscription_providers.dart';
 import 'package:porest_desk_app/features/subscription/presentation/subscription_sheet.dart';
@@ -146,15 +147,17 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: PSpace.x8),
-                Text(
-                  '가입 2024년 11월',
-                  style: TextStyle(
-                    fontFamily: PTypo.sans,
-                    fontSize: 12,
-                    color: t.fgTertiary,
+                if (user?.joinedAt != null) ...[
+                  const SizedBox(height: PSpace.x8),
+                  Text(
+                    l.accountJoined(yearMonth(user!.joinedAt!)),
+                    style: TextStyle(
+                      fontFamily: PTypo.sans,
+                      fontSize: 12,
+                      color: t.fgTertiary,
+                    ),
                   ),
-                ),
+                ],
               ],
             ),
           ),

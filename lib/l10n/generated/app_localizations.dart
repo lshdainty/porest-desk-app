@@ -5432,6 +5432,12 @@ abstract class AppLocalizations {
   /// **'사용자'**
   String get accountDefaultName;
 
+  /// No description provided for @accountJoined.
+  ///
+  /// In ko, this message translates to:
+  /// **'가입 {date}'**
+  String accountJoined(String date);
+
   /// No description provided for @accountEditComingSoon.
   ///
   /// In ko, this message translates to:
