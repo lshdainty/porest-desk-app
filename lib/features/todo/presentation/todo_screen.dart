@@ -18,6 +18,10 @@ import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
 import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/features/todo/application/todo_providers.dart';
+import 'package:porest_desk_app/features/constellation/application/constellation_providers.dart';
+import 'package:porest_desk_app/features/constellation/presentation/collection_card.dart';
+import 'package:porest_desk_app/features/constellation/presentation/my_sky_card.dart';
+import 'package:porest_desk_app/features/constellation/presentation/night_sky_hero.dart';
 import 'package:porest_desk_app/features/todo/domain/todo.dart';
 import 'package:porest_desk_app/features/todo/domain/todo_meta.dart';
 import 'package:porest_desk_app/features/todo/presentation/todo_edit_dialog.dart';
@@ -69,6 +73,7 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
       );
       _quickAddCtrl.clear();
       ref.invalidate(todoListProvider);
+      invalidateConstellation(ref);
     } on ApiException catch (e) {
       if (!mounted) return;
       showPSnackBar(context, '${AppLocalizations.of(context).todoAddFailed}: ${e.message}',
@@ -83,6 +88,8 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
       final repo = await ref.read(todoRepositoryProvider.future);
       await repo.setStatus(t.rowId, t.done ? 'PENDING' : 'COMPLETED');
       ref.invalidate(todoListProvider);
+      // 별자리 게이미피케이션 — 완료 토글은 별빛 적립/회수 부수효과를 가짐
+      invalidateConstellation(ref);
     } on ApiException catch (e) {
       if (!mounted) return;
       showPSnackBar(context, '${AppLocalizations.of(context).todoActionFailed}: ${e.message}',
@@ -161,6 +168,10 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
   }
 
   Widget _buildBody(BuildContext context, PorestTokens t, List<Todo> all) {
+    // 별자리 게이미피케이션 — 로딩/실패 시 null → 해당 카드 미렌더(graceful)
+    final constToday = ref.watch(constellationTodayProvider).value;
+    final constSky = ref.watch(constellationSkyProvider).value;
+    final constCollection = ref.watch(constellationCollectionProvider).value;
     final l = AppLocalizations.of(context);
     final today = DateTime.now();
 
@@ -175,8 +186,11 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
       return diff >= 0 && diff <= 7;
     }).length;
     final completedCount = all.where((x) => x.done).length;
-    final completedPct =
-        all.isEmpty ? 0 : ((completedCount / all.length) * 100).round();
+    // 오늘 완료 건수 — 완료 이벤트(completedAt) 기준 (히어로 캡션용)
+    final todayIso = _fmtDate(today);
+    final doneToday = all
+        .where((x) => x.done && (x.completedAt ?? '').startsWith(todayIso))
+        .length;
 
     // ── 필터 카운트 ──
     final counts = <_TodoFilterTab, int>{
@@ -231,42 +245,11 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
       padding: const EdgeInsets.fromLTRB(
           PSpace.x16, PSpace.x16, PSpace.x16, 96),
       children: [
-        // ── 통계 3카드 ──
-        Row(
-          children: [
-            Expanded(
-              child: _StatCard(
-                label: l.calToday,
-                value: '$todayCount',
-                unit: l.countUnit,
-                valueColor: todayCount > 0 ? t.fgBrand : t.fgPrimary,
-                t: t,
-              ),
-            ),
-            const SizedBox(width: PSpace.sm),
-            Expanded(
-              child: _StatCard(
-                label: l.expPeriodWeek,
-                value: '$weekCount',
-                unit: l.countUnit,
-                valueColor: t.fgPrimary,
-                t: t,
-              ),
-            ),
-            const SizedBox(width: PSpace.sm),
-            Expanded(
-              child: _StatCard(
-                label: l.todoCompletionRate,
-                value: '$completedPct',
-                unit: '%',
-                valueColor: t.statusSuccessFg,
-                progress: all.isEmpty ? 0 : completedCount / all.length,
-                t: t,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: PSpace.md),
+        // ── 밤하늘 히어로 (별자리 게이미피케이션 — 통계 카드 대체, 디자인 정합) ──
+        if (constToday != null) ...[
+          NightSkyHero(today: constToday, doneToday: doneToday),
+          const SizedBox(height: PSpace.md),
+        ],
 
         // ── 퀵추가 ──
         _QuickAdd(
@@ -332,6 +315,21 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
                   ],
                 ),
         ),
+        if (constSky != null && constToday != null && constCollection != null) ...[
+          const SizedBox(height: PSpace.md),
+          MySkyCard(
+            sky: constSky,
+            today: constToday,
+            entries: constCollection.entries,
+          ),
+        ],
+        if (constCollection != null && constToday != null) ...[
+          const SizedBox(height: PSpace.md),
+          CollectionCard(
+            collection: constCollection,
+            todayKey: constToday.constellation.constellationKey,
+          ),
+        ],
       ],
     );
   }
@@ -351,86 +349,6 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
 }
 
 /// 통계 카드 — 라벨(uppercase tracking) + 숫자(.num) + 단위, 완료율은 progress bar.
-class _StatCard extends StatelessWidget {
-  const _StatCard({
-    required this.label,
-    required this.value,
-    required this.unit,
-    required this.valueColor,
-    required this.t,
-    this.progress,
-  });
-  final String label;
-  final String value;
-  final String unit;
-  final Color valueColor;
-  final PorestTokens t;
-  final double? progress;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: t.bgSurface,
-        borderRadius: PRadius.brLg,
-        boxShadow: t.shadowSm,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label.toUpperCase(),
-            style: PTypo.micro.copyWith(
-              color: t.fgTertiary,
-              fontWeight: PFontWeight.semi,
-              letterSpacing: 0.48,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Text(
-                value,
-                style: PTypo.h2.copyWith(
-                  fontSize: 22,
-                  color: valueColor,
-                  fontWeight: PFontWeight.bold,
-                  letterSpacing: -0.55,
-                ),
-              ),
-              const SizedBox(width: 2),
-              Text(
-                unit,
-                style: PTypo.caption.copyWith(color: t.fgTertiary),
-              ),
-            ],
-          ),
-          if (progress != null) ...[
-            const SizedBox(height: 8),
-            ClipRRect(
-              borderRadius: PRadius.brFull,
-              child: LinearProgressIndicator(
-                value: progress!.clamp(0.0, 1.0),
-                minHeight: 5,
-                backgroundColor: t.bgSunken,
-                valueColor:
-                    AlwaysStoppedAnimation<Color>(t.statusSuccess),
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-/// 퀵추가 카드 — plus 아이콘 + 투명 input + 추가/자세히 버튼.
-///
-/// input 자체엔 박스(테두리/배경) 없이 투명 처리하고, 포커스 시 바깥쪽 카드
-/// 전체에 border-focus 보더를 입혀 포커스 상태를 표시(web `:focus-within` 정합).
 class _QuickAdd extends StatefulWidget {
   const _QuickAdd({
     required this.controller,

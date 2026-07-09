@@ -4463,4 +4463,153 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dayUnit => 'day';
+
+  @override
+  String get constNameDipper => 'Big Dipper';
+
+  @override
+  String get constNameCass => 'Cassiopeia';
+
+  @override
+  String get constNameOrion => 'Orion';
+
+  @override
+  String get constNameCygnus => 'Cygnus';
+
+  @override
+  String get constNameLyra => 'Lyra';
+
+  @override
+  String get constNameCrux => 'Crux';
+
+  @override
+  String get constNameScorpius => 'Scorpius';
+
+  @override
+  String get constNamePegasus => 'Square of Pegasus';
+
+  @override
+  String get constDescDipper => 'Seven stars shaping the northern ladle';
+
+  @override
+  String get constDescCass => 'The queen tracing a W in the northern sky';
+
+  @override
+  String get constDescOrion => 'The hunter of winter night skies';
+
+  @override
+  String get constDescCygnus =>
+      'The swan over the Milky Way, the Northern Cross';
+
+  @override
+  String get constDescLyra => 'The lyre where Vega shines';
+
+  @override
+  String get constDescCrux => 'The southern guidepost, the Southern Cross';
+
+  @override
+  String get constDescScorpius => 'The scorpion of summer southern skies';
+
+  @override
+  String get constDescPegasus => 'The great square of autumn skies';
+
+  @override
+  String get constHeroTodayTarget => 'Today\'s constellation';
+
+  @override
+  String constHeroCollectedBang(String name) {
+    return '$name collected!';
+  }
+
+  @override
+  String constHeroStarlightCount(int lit, int goal) {
+    return '$lit/$goal starlight';
+  }
+
+  @override
+  String get constHeroCaptionDone =>
+      'Etched in your collection · shines brighter as you complete more';
+
+  @override
+  String constHeroCaptionProgress(int count) {
+    return '$count done today';
+  }
+
+  @override
+  String constHeroCaptionMemo(int count) {
+    return 'Memo starlight +$count';
+  }
+
+  @override
+  String constHeroCaptionRemain(int count) {
+    return '$count stars to go';
+  }
+
+  @override
+  String get constHeroCaptionEmpty => 'Complete todos to light up the stars';
+
+  @override
+  String constHeroStreak(int count) {
+    return '$count-day streak';
+  }
+
+  @override
+  String constHeroGuardInfo(int count) {
+    return 'Guard $count · High +3 · Medium +2 · Low +1';
+  }
+
+  @override
+  String get constMySkyTitle => 'My Night Sky';
+
+  @override
+  String constMySkyTotal(int count) {
+    return '$count collected';
+  }
+
+  @override
+  String get constMySkySubtitle => 'Last 2 weeks · cloudy nights count too';
+
+  @override
+  String get constCollectionTitle => 'Constellation Collection';
+
+  @override
+  String constCollectionProgress(int collected, int total) {
+    return '$collected/$total collected';
+  }
+
+  @override
+  String get constCollectionSubtitle =>
+      'Gather starlight equal to the stars to collect';
+
+  @override
+  String get constCollectionTodayBadge => 'Today\'s goal';
+
+  @override
+  String constCollectionStarCount(int count) {
+    return '$count stars';
+  }
+
+  @override
+  String constCollectionTimes(int count) {
+    return '$count×';
+  }
+
+  @override
+  String get constCollectionNotCollected => 'Not yet';
+
+  @override
+  String get constDetailTitle => 'Constellation Collection';
+
+  @override
+  String get constDetailNotMet => 'A constellation you haven\'t met yet';
+
+  @override
+  String constDetailCollectedTimes(int count) {
+    return 'Collected $count times so far';
+  }
+
+  @override
+  String constDetailHint(int count) {
+    return 'Gather $count starlight in a day to collect · a new target rises daily';
+  }
 }
