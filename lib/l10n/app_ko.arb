@@ -434,6 +434,8 @@
   "dashRecent": "최근 거래",
   "dashUpcoming": "다가오는 일정",
   "dashRecentTodos": "최근 할 일",
+  "dashOverdue": "연체 {count}",
+  "@dashOverdue": {"placeholders": {"count": {"type": "int"}}},
   "dashTrendTitle": "최근 6개월",
   "dashSeeMore": "자세히",
   "dashEmptyTransactions": "최근 거래가 없습니다",

@@ -253,6 +253,21 @@ class _UpcomingCard extends StatelessWidget {
                 Text(l.dashRecentTodos,
                     style: PTypo.bodySm.copyWith(
                         color: t.fgPrimary, fontWeight: PFontWeight.bold)),
+                if (s.todoSummary.overDueCount > 0) ...[
+                  const SizedBox(width: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                    decoration: BoxDecoration(
+                      color: t.statusDangerSubtle,
+                      borderRadius: PRadius.brSm,
+                    ),
+                    child: Text(
+                      l.dashOverdue(s.todoSummary.overDueCount),
+                      style: PTypo.caption.copyWith(
+                          color: t.statusDanger, fontWeight: PFontWeight.semi),
+                    ),
+                  ),
+                ],
                 const Spacer(),
                 GestureDetector(
                   onTap: () => context.push('/todos'),

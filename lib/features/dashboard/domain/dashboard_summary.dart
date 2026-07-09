@@ -8,12 +8,14 @@ class TodoCountSummary {
     required this.inProgressCount,
     required this.completedCount,
     required this.todayDueCount,
+    required this.overDueCount,
   });
   final int totalCount;
   final int pendingCount;
   final int inProgressCount;
   final int completedCount;
   final int todayDueCount;
+  final int overDueCount;
   factory TodoCountSummary.fromJson(Map<String, dynamic> j) {
     int p(String k) => (j[k] as num?)?.toInt() ?? 0;
     return TodoCountSummary(
@@ -22,6 +24,7 @@ class TodoCountSummary {
       inProgressCount: p('inProgressCount'),
       completedCount: p('completedCount'),
       todayDueCount: p('todayDueCount'),
+      overDueCount: p('overDueCount'),
     );
   }
 }
