@@ -8329,6 +8329,246 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'일'**
   String get dayUnit;
+
+  /// No description provided for @constNameDipper.
+  ///
+  /// In ko, this message translates to:
+  /// **'북두칠성'**
+  String get constNameDipper;
+
+  /// No description provided for @constNameCass.
+  ///
+  /// In ko, this message translates to:
+  /// **'카시오페이아'**
+  String get constNameCass;
+
+  /// No description provided for @constNameOrion.
+  ///
+  /// In ko, this message translates to:
+  /// **'오리온자리'**
+  String get constNameOrion;
+
+  /// No description provided for @constNameCygnus.
+  ///
+  /// In ko, this message translates to:
+  /// **'백조자리'**
+  String get constNameCygnus;
+
+  /// No description provided for @constNameLyra.
+  ///
+  /// In ko, this message translates to:
+  /// **'거문고자리'**
+  String get constNameLyra;
+
+  /// No description provided for @constNameCrux.
+  ///
+  /// In ko, this message translates to:
+  /// **'남십자자리'**
+  String get constNameCrux;
+
+  /// No description provided for @constNameScorpius.
+  ///
+  /// In ko, this message translates to:
+  /// **'전갈자리'**
+  String get constNameScorpius;
+
+  /// No description provided for @constNamePegasus.
+  ///
+  /// In ko, this message translates to:
+  /// **'페가수스 사각형'**
+  String get constNamePegasus;
+
+  /// No description provided for @constDescDipper.
+  ///
+  /// In ko, this message translates to:
+  /// **'북쪽 하늘의 국자 모양 일곱 별'**
+  String get constDescDipper;
+
+  /// No description provided for @constDescCass.
+  ///
+  /// In ko, this message translates to:
+  /// **'W자를 그리는 북쪽 하늘의 여왕'**
+  String get constDescCass;
+
+  /// No description provided for @constDescOrion.
+  ///
+  /// In ko, this message translates to:
+  /// **'겨울 밤하늘의 사냥꾼'**
+  String get constDescOrion;
+
+  /// No description provided for @constDescCygnus.
+  ///
+  /// In ko, this message translates to:
+  /// **'은하수를 나는 백조, 북십자성'**
+  String get constDescCygnus;
+
+  /// No description provided for @constDescLyra.
+  ///
+  /// In ko, this message translates to:
+  /// **'직녀성 베가가 빛나는 거문고'**
+  String get constDescLyra;
+
+  /// No description provided for @constDescCrux.
+  ///
+  /// In ko, this message translates to:
+  /// **'남반구의 길잡이, 남십자성'**
+  String get constDescCrux;
+
+  /// No description provided for @constDescScorpius.
+  ///
+  /// In ko, this message translates to:
+  /// **'여름 남쪽 하늘의 전갈'**
+  String get constDescScorpius;
+
+  /// No description provided for @constDescPegasus.
+  ///
+  /// In ko, this message translates to:
+  /// **'가을 하늘의 큰 사각형'**
+  String get constDescPegasus;
+
+  /// No description provided for @constHeroTodayTarget.
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘의 목표 별자리'**
+  String get constHeroTodayTarget;
+
+  /// No description provided for @constHeroCollectedBang.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name} 수집!'**
+  String constHeroCollectedBang(String name);
+
+  /// No description provided for @constHeroStarlightCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'{lit}/{goal} 별빛'**
+  String constHeroStarlightCount(int lit, int goal);
+
+  /// No description provided for @constHeroCaptionDone.
+  ///
+  /// In ko, this message translates to:
+  /// **'도감에 새겨졌어요 · 완료할수록 더 반짝여요'**
+  String get constHeroCaptionDone;
+
+  /// No description provided for @constHeroCaptionProgress.
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘 {count}건 완료'**
+  String constHeroCaptionProgress(int count);
+
+  /// No description provided for @constHeroCaptionMemo.
+  ///
+  /// In ko, this message translates to:
+  /// **'메모 별빛 +{count}'**
+  String constHeroCaptionMemo(int count);
+
+  /// No description provided for @constHeroCaptionRemain.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}별 남음'**
+  String constHeroCaptionRemain(int count);
+
+  /// No description provided for @constHeroCaptionEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'할 일을 완료하면 별이 켜져요'**
+  String get constHeroCaptionEmpty;
+
+  /// No description provided for @constHeroStreak.
+  ///
+  /// In ko, this message translates to:
+  /// **'연속 관측 {count}일'**
+  String constHeroStreak(int count);
+
+  /// No description provided for @constHeroGuardInfo.
+  ///
+  /// In ko, this message translates to:
+  /// **'보호 {count} · 중요 +3 · 보통 +2 · 여유 +1'**
+  String constHeroGuardInfo(int count);
+
+  /// No description provided for @constMySkyTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'나의 밤하늘'**
+  String get constMySkyTitle;
+
+  /// No description provided for @constMySkyTotal.
+  ///
+  /// In ko, this message translates to:
+  /// **'누적 {count}개'**
+  String constMySkyTotal(int count);
+
+  /// No description provided for @constMySkySubtitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'최근 2주 · 흐린 밤도 기록에 남아요'**
+  String get constMySkySubtitle;
+
+  /// No description provided for @constCollectionTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'별자리 도감'**
+  String get constCollectionTitle;
+
+  /// No description provided for @constCollectionProgress.
+  ///
+  /// In ko, this message translates to:
+  /// **'{collected}/{total} 수집'**
+  String constCollectionProgress(int collected, int total);
+
+  /// No description provided for @constCollectionSubtitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'별 개수만큼 별빛을 모으면 수집돼요'**
+  String get constCollectionSubtitle;
+
+  /// No description provided for @constCollectionTodayBadge.
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘의 목표'**
+  String get constCollectionTodayBadge;
+
+  /// No description provided for @constCollectionStarCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'별 {count}개'**
+  String constCollectionStarCount(int count);
+
+  /// No description provided for @constCollectionTimes.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}회'**
+  String constCollectionTimes(int count);
+
+  /// No description provided for @constCollectionNotCollected.
+  ///
+  /// In ko, this message translates to:
+  /// **'미수집'**
+  String get constCollectionNotCollected;
+
+  /// No description provided for @constDetailTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'별자리 도감'**
+  String get constDetailTitle;
+
+  /// No description provided for @constDetailNotMet.
+  ///
+  /// In ko, this message translates to:
+  /// **'아직 만나지 못한 별자리예요'**
+  String get constDetailNotMet;
+
+  /// No description provided for @constDetailCollectedTimes.
+  ///
+  /// In ko, this message translates to:
+  /// **'지금까지 {count}번 수집했어요'**
+  String constDetailCollectedTimes(int count);
+
+  /// No description provided for @constDetailHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'하루에 별빛 {count}개를 모으면 수집돼요 · 매일 새 목표 별자리가 떠요'**
+  String constDetailHint(int count);
 }
 
 class _AppLocalizationsDelegate

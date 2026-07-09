@@ -4416,4 +4416,150 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get dayUnit => '일';
+
+  @override
+  String get constNameDipper => '북두칠성';
+
+  @override
+  String get constNameCass => '카시오페이아';
+
+  @override
+  String get constNameOrion => '오리온자리';
+
+  @override
+  String get constNameCygnus => '백조자리';
+
+  @override
+  String get constNameLyra => '거문고자리';
+
+  @override
+  String get constNameCrux => '남십자자리';
+
+  @override
+  String get constNameScorpius => '전갈자리';
+
+  @override
+  String get constNamePegasus => '페가수스 사각형';
+
+  @override
+  String get constDescDipper => '북쪽 하늘의 국자 모양 일곱 별';
+
+  @override
+  String get constDescCass => 'W자를 그리는 북쪽 하늘의 여왕';
+
+  @override
+  String get constDescOrion => '겨울 밤하늘의 사냥꾼';
+
+  @override
+  String get constDescCygnus => '은하수를 나는 백조, 북십자성';
+
+  @override
+  String get constDescLyra => '직녀성 베가가 빛나는 거문고';
+
+  @override
+  String get constDescCrux => '남반구의 길잡이, 남십자성';
+
+  @override
+  String get constDescScorpius => '여름 남쪽 하늘의 전갈';
+
+  @override
+  String get constDescPegasus => '가을 하늘의 큰 사각형';
+
+  @override
+  String get constHeroTodayTarget => '오늘의 목표 별자리';
+
+  @override
+  String constHeroCollectedBang(String name) {
+    return '$name 수집!';
+  }
+
+  @override
+  String constHeroStarlightCount(int lit, int goal) {
+    return '$lit/$goal 별빛';
+  }
+
+  @override
+  String get constHeroCaptionDone => '도감에 새겨졌어요 · 완료할수록 더 반짝여요';
+
+  @override
+  String constHeroCaptionProgress(int count) {
+    return '오늘 $count건 완료';
+  }
+
+  @override
+  String constHeroCaptionMemo(int count) {
+    return '메모 별빛 +$count';
+  }
+
+  @override
+  String constHeroCaptionRemain(int count) {
+    return '$count별 남음';
+  }
+
+  @override
+  String get constHeroCaptionEmpty => '할 일을 완료하면 별이 켜져요';
+
+  @override
+  String constHeroStreak(int count) {
+    return '연속 관측 $count일';
+  }
+
+  @override
+  String constHeroGuardInfo(int count) {
+    return '보호 $count · 중요 +3 · 보통 +2 · 여유 +1';
+  }
+
+  @override
+  String get constMySkyTitle => '나의 밤하늘';
+
+  @override
+  String constMySkyTotal(int count) {
+    return '누적 $count개';
+  }
+
+  @override
+  String get constMySkySubtitle => '최근 2주 · 흐린 밤도 기록에 남아요';
+
+  @override
+  String get constCollectionTitle => '별자리 도감';
+
+  @override
+  String constCollectionProgress(int collected, int total) {
+    return '$collected/$total 수집';
+  }
+
+  @override
+  String get constCollectionSubtitle => '별 개수만큼 별빛을 모으면 수집돼요';
+
+  @override
+  String get constCollectionTodayBadge => '오늘의 목표';
+
+  @override
+  String constCollectionStarCount(int count) {
+    return '별 $count개';
+  }
+
+  @override
+  String constCollectionTimes(int count) {
+    return '$count회';
+  }
+
+  @override
+  String get constCollectionNotCollected => '미수집';
+
+  @override
+  String get constDetailTitle => '별자리 도감';
+
+  @override
+  String get constDetailNotMet => '아직 만나지 못한 별자리예요';
+
+  @override
+  String constDetailCollectedTimes(int count) {
+    return '지금까지 $count번 수집했어요';
+  }
+
+  @override
+  String constDetailHint(int count) {
+    return '하루에 별빛 $count개를 모으면 수집돼요 · 매일 새 목표 별자리가 떠요';
+  }
 }

@@ -14,6 +14,7 @@ import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/shared/widgets/p_switch.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
 import 'package:porest_desk_app/features/memo/application/memo_providers.dart';
+import 'package:porest_desk_app/features/constellation/application/constellation_providers.dart';
 import 'package:porest_desk_app/features/memo/domain/memo.dart';
 import 'package:porest_desk_app/features/memo/domain/memo_colors.dart';
 
@@ -124,6 +125,8 @@ class _BodyState extends ConsumerState<_Body> {
         if (_pinned) await repo.pin(created.rowId);
       }
       ref.invalidate(memoListProvider);
+      // 별자리 게이미피케이션 — 메모 작성 별빛(+1, 일 2회) 반영
+      invalidateConstellation(ref);
       if (!mounted) return;
       Navigator.of(context).pop();
     } on ApiException catch (e) {
@@ -150,6 +153,7 @@ class _BodyState extends ConsumerState<_Body> {
       final repo = await ref.read(memoRepositoryProvider.future);
       await repo.delete(widget.edit!.rowId);
       ref.invalidate(memoListProvider);
+      invalidateConstellation(ref);
       if (!mounted) return;
       Navigator.of(context).pop();
     } on ApiException catch (e) {
