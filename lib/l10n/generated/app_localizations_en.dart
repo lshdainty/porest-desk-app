@@ -2735,7 +2735,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get moreDescPresets => 'Frequently used entries';
 
   @override
-  String get moreDescDisplay => 'Theme · Density · Currency';
+  String get moreDescDisplay => 'Theme · Language · Currency';
 
   @override
   String get moreDescSettings => 'All settings menu';
@@ -2832,18 +2832,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get appearanceHideAmountDesc => 'Display all amounts as ••••';
-
-  @override
-  String get appearanceDensity => 'Display density';
-
-  @override
-  String get appearanceDensityCompact => 'Compact';
-
-  @override
-  String get appearanceDensityComfortable => 'Comfortable';
-
-  @override
-  String get appearanceDensitySpacious => 'Spacious';
 
   @override
   String get appearanceCurrency => 'Currency';

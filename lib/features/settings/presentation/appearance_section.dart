@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/density.dart';
 import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
@@ -54,8 +53,7 @@ class AppearanceScreen extends StatelessWidget {
 /// 섹션 구성 (클로드 디자인 표시 설정 정합):
 /// 1. 테마 카드 3종 (Light / Dark / System) — Sun / Moon / Monitor 아이콘
 /// 2. 개인정보 보호 — 금액 가리기 스위치 (헤더 눈 버튼 제거 후 설정 진입점)
-/// 3. 표시 밀도 세그먼트 (compact / comfortable / spacious)
-/// 4. 언어 / 통화 리스트 (KRW / USD / EUR / JPY)
+/// 3. 언어 / 통화 리스트 (KRW / USD / EUR / JPY)
 class AppearanceSection extends ConsumerWidget {
   const AppearanceSection({super.key});
 
@@ -161,22 +159,6 @@ class AppearanceSection extends ConsumerWidget {
               ),
             ],
           ),
-        ),
-
-        const SizedBox(height: PSpace.x24),
-        PSectionLabel(l.appearanceDensity),
-        const SizedBox(height: PSpace.x8),
-        PTabs<PDensity>(
-          value: settings.density,
-          variant: PTabsVariant.container,
-          size: PTabsSize.sm,
-          expand: true,
-          items: [
-            PTabItem(value: PDensity.compact, label: l.appearanceDensityCompact),
-            PTabItem(value: PDensity.comfortable, label: l.appearanceDensityComfortable),
-            PTabItem(value: PDensity.spacious, label: l.appearanceDensitySpacious),
-          ],
-          onChanged: (d) => ref.read(settingsProvider.notifier).setDensity(d),
         ),
 
         const SizedBox(height: PSpace.x24),
