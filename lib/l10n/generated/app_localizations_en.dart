@@ -4489,6 +4489,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get constNamePegasus => 'Square of Pegasus';
 
   @override
+  String get constNameUrsaMinor => 'Ursa Minor';
+
+  @override
+  String get constNameLeo => 'Leo';
+
+  @override
+  String get constNameCanisMajor => 'Canis Major';
+
+  @override
+  String get constNameTaurus => 'Taurus';
+
+  @override
+  String get constNameGemini => 'Gemini';
+
+  @override
+  String get constNameCorona => 'Corona Borealis';
+
+  @override
+  String get constNameAquila => 'Aquila';
+
+  @override
+  String get constNameSagittarius => 'Sagittarius';
+
+  @override
   String get constDescDipper => 'Seven stars shaping the northern ladle';
 
   @override
@@ -4512,6 +4536,31 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get constDescPegasus => 'The great square of autumn skies';
+
+  @override
+  String get constDescUrsaMinor => 'The little ladle with Polaris at its tip';
+
+  @override
+  String get constDescLeo => 'The lion of spring skies with a sickle mane';
+
+  @override
+  String get constDescCanisMajor =>
+      'The great dog bearing Sirius, the brightest star';
+
+  @override
+  String get constDescTaurus => 'The bull with a V face and long horns';
+
+  @override
+  String get constDescGemini => 'The twins Castor and Pollux side by side';
+
+  @override
+  String get constDescCorona => 'A crescent crown of seven stars';
+
+  @override
+  String get constDescAquila => 'The eagle where Altair shines';
+
+  @override
+  String get constDescSagittarius => 'The teapot aiming at the galactic heart';
 
   @override
   String get constHeroTodayTarget => 'Today\'s constellation';

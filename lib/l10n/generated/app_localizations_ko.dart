@@ -4442,6 +4442,30 @@ class AppLocalizationsKo extends AppLocalizations {
   String get constNamePegasus => '페가수스 사각형';
 
   @override
+  String get constNameUrsaMinor => '작은곰자리';
+
+  @override
+  String get constNameLeo => '사자자리';
+
+  @override
+  String get constNameCanisMajor => '큰개자리';
+
+  @override
+  String get constNameTaurus => '황소자리';
+
+  @override
+  String get constNameGemini => '쌍둥이자리';
+
+  @override
+  String get constNameCorona => '왕관자리';
+
+  @override
+  String get constNameAquila => '독수리자리';
+
+  @override
+  String get constNameSagittarius => '궁수자리';
+
+  @override
   String get constDescDipper => '북쪽 하늘의 국자 모양 일곱 별';
 
   @override
@@ -4464,6 +4488,30 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get constDescPegasus => '가을 하늘의 큰 사각형';
+
+  @override
+  String get constDescUrsaMinor => '북극성이 손잡이 끝에 빛나는 작은 국자';
+
+  @override
+  String get constDescLeo => '봄 밤하늘의 사자, 낫 모양 갈기';
+
+  @override
+  String get constDescCanisMajor => '가장 밝은 별 시리우스를 품은 큰 개';
+
+  @override
+  String get constDescTaurus => 'V자 얼굴에 긴 뿔을 세운 황소';
+
+  @override
+  String get constDescGemini => '나란히 선 쌍둥이 카스토르와 폴룩스';
+
+  @override
+  String get constDescCorona => '일곱 별이 그리는 반원 왕관';
+
+  @override
+  String get constDescAquila => '견우성 알타이르가 빛나는 독수리';
+
+  @override
+  String get constDescSagittarius => '은하수 중심을 겨눈 찻주전자';
 
   @override
   String get constHeroTodayTarget => '오늘의 목표 별자리';

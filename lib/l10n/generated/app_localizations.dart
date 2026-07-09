@@ -8378,6 +8378,54 @@ abstract class AppLocalizations {
   /// **'페가수스 사각형'**
   String get constNamePegasus;
 
+  /// No description provided for @constNameUrsaMinor.
+  ///
+  /// In ko, this message translates to:
+  /// **'작은곰자리'**
+  String get constNameUrsaMinor;
+
+  /// No description provided for @constNameLeo.
+  ///
+  /// In ko, this message translates to:
+  /// **'사자자리'**
+  String get constNameLeo;
+
+  /// No description provided for @constNameCanisMajor.
+  ///
+  /// In ko, this message translates to:
+  /// **'큰개자리'**
+  String get constNameCanisMajor;
+
+  /// No description provided for @constNameTaurus.
+  ///
+  /// In ko, this message translates to:
+  /// **'황소자리'**
+  String get constNameTaurus;
+
+  /// No description provided for @constNameGemini.
+  ///
+  /// In ko, this message translates to:
+  /// **'쌍둥이자리'**
+  String get constNameGemini;
+
+  /// No description provided for @constNameCorona.
+  ///
+  /// In ko, this message translates to:
+  /// **'왕관자리'**
+  String get constNameCorona;
+
+  /// No description provided for @constNameAquila.
+  ///
+  /// In ko, this message translates to:
+  /// **'독수리자리'**
+  String get constNameAquila;
+
+  /// No description provided for @constNameSagittarius.
+  ///
+  /// In ko, this message translates to:
+  /// **'궁수자리'**
+  String get constNameSagittarius;
+
   /// No description provided for @constDescDipper.
   ///
   /// In ko, this message translates to:
@@ -8425,6 +8473,54 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'가을 하늘의 큰 사각형'**
   String get constDescPegasus;
+
+  /// No description provided for @constDescUrsaMinor.
+  ///
+  /// In ko, this message translates to:
+  /// **'북극성이 손잡이 끝에 빛나는 작은 국자'**
+  String get constDescUrsaMinor;
+
+  /// No description provided for @constDescLeo.
+  ///
+  /// In ko, this message translates to:
+  /// **'봄 밤하늘의 사자, 낫 모양 갈기'**
+  String get constDescLeo;
+
+  /// No description provided for @constDescCanisMajor.
+  ///
+  /// In ko, this message translates to:
+  /// **'가장 밝은 별 시리우스를 품은 큰 개'**
+  String get constDescCanisMajor;
+
+  /// No description provided for @constDescTaurus.
+  ///
+  /// In ko, this message translates to:
+  /// **'V자 얼굴에 긴 뿔을 세운 황소'**
+  String get constDescTaurus;
+
+  /// No description provided for @constDescGemini.
+  ///
+  /// In ko, this message translates to:
+  /// **'나란히 선 쌍둥이 카스토르와 폴룩스'**
+  String get constDescGemini;
+
+  /// No description provided for @constDescCorona.
+  ///
+  /// In ko, this message translates to:
+  /// **'일곱 별이 그리는 반원 왕관'**
+  String get constDescCorona;
+
+  /// No description provided for @constDescAquila.
+  ///
+  /// In ko, this message translates to:
+  /// **'견우성 알타이르가 빛나는 독수리'**
+  String get constDescAquila;
+
+  /// No description provided for @constDescSagittarius.
+  ///
+  /// In ko, this message translates to:
+  /// **'은하수 중심을 겨눈 찻주전자'**
+  String get constDescSagittarius;
 
   /// No description provided for @constHeroTodayTarget.
   ///
