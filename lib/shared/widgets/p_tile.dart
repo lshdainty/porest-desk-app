@@ -59,12 +59,15 @@ class PTile extends StatelessWidget {
             curve: PMotion.standard,
             padding: EdgeInsets.symmetric(horizontal: padX, vertical: padY),
             decoration: BoxDecoration(
+              // shadow 카드 — border 대신 elevation(shadow-sm). 선택 시에만 브랜드 보더
+              // (레이아웃 안정 위해 미선택은 transparent border). desk-front Tile 정합.
               color: selected ? t.bgBrandSubtle : t.bgSurface,
               borderRadius: PRadius.brLg,
               border: Border.all(
-                color: selected ? t.borderBrand : t.borderSubtle,
+                color: selected ? t.borderBrand : Colors.transparent,
                 width: selected ? 1.5 : 1,
               ),
+              boxShadow: t.shadowSm,
             ),
             child: Row(
               children: [

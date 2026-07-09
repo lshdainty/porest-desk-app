@@ -10,7 +10,7 @@ import 'package:porest_desk_app/app/theme/typography.dart';
 /// 전체 폭 row 리스트에서 single-select 도메인 컴포넌트 — 통화/언어/국가 등
 /// **목록형 선택지** 패턴. 좌측 pill + label/sub + 우측 active check.
 ///
-/// container = border + radius-lg + divider 사이 row만. active 표시는 우측
+/// container = shadow(shadow-sm) + radius-lg + divider 사이 row만. active 표시는 우측
 /// check ✓ 만 (row bg 변화 없음 — 비교 가독성 유지).
 class PRadioListItem<T> {
   const PRadioListItem({
@@ -65,10 +65,12 @@ class PRadioList<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.tokens;
     return Container(
+      // shadow 카드 — border 대신 elevation(shadow-sm). 내부 행 구분은 divider 유지.
+      // desk-front RadioList 정합.
       decoration: BoxDecoration(
         color: t.bgSurface,
         borderRadius: PRadius.brLg,
-        border: Border.all(color: t.borderSubtle),
+        boxShadow: t.shadowSm,
       ),
       child: ClipRRect(
         borderRadius: PRadius.brLg,
