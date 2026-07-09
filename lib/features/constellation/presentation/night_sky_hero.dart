@@ -29,6 +29,14 @@ class NightSkyHero extends StatelessWidget {
         'crux' => l.constNameCrux,
         'scorpius' => l.constNameScorpius,
         'pegasus' => l.constNamePegasus,
+        'ursaminor' => l.constNameUrsaMinor,
+        'leo' => l.constNameLeo,
+        'canismajor' => l.constNameCanisMajor,
+        'taurus' => l.constNameTaurus,
+        'gemini' => l.constNameGemini,
+        'corona' => l.constNameCorona,
+        'aquila' => l.constNameAquila,
+        'sagittarius' => l.constNameSagittarius,
         _ => today.constellation.name,
       };
 

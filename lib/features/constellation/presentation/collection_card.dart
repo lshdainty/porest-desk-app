@@ -22,6 +22,14 @@ String constellationName(AppLocalizations l, ConstellationInfo info) =>
       'crux' => l.constNameCrux,
       'scorpius' => l.constNameScorpius,
       'pegasus' => l.constNamePegasus,
+      'ursaminor' => l.constNameUrsaMinor,
+      'leo' => l.constNameLeo,
+      'canismajor' => l.constNameCanisMajor,
+      'taurus' => l.constNameTaurus,
+      'gemini' => l.constNameGemini,
+      'corona' => l.constNameCorona,
+      'aquila' => l.constNameAquila,
+      'sagittarius' => l.constNameSagittarius,
       _ => info.name,
     };
 
@@ -35,6 +43,14 @@ String constellationDesc(AppLocalizations l, ConstellationInfo info) =>
       'crux' => l.constDescCrux,
       'scorpius' => l.constDescScorpius,
       'pegasus' => l.constDescPegasus,
+      'ursaminor' => l.constDescUrsaMinor,
+      'leo' => l.constDescLeo,
+      'canismajor' => l.constDescCanisMajor,
+      'taurus' => l.constDescTaurus,
+      'gemini' => l.constDescGemini,
+      'corona' => l.constDescCorona,
+      'aquila' => l.constDescAquila,
+      'sagittarius' => l.constDescSagittarius,
       _ => info.description ?? '',
     };
 
