@@ -2710,7 +2710,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get moreDescPresets => '자주 쓰는 내역';
 
   @override
-  String get moreDescDisplay => '테마 · 밀도 · 통화';
+  String get moreDescDisplay => '테마 · 언어 · 통화';
 
   @override
   String get moreDescSettings => '전체 설정 메뉴';
@@ -2807,18 +2807,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get appearanceHideAmountDesc => '모든 화면의 금액을 ••••로 표시합니다';
-
-  @override
-  String get appearanceDensity => '표시 밀도';
-
-  @override
-  String get appearanceDensityCompact => '컴팩트';
-
-  @override
-  String get appearanceDensityComfortable => '편안';
-
-  @override
-  String get appearanceDensitySpacious => '여유';
 
   @override
   String get appearanceCurrency => '통화';

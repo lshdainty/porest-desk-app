@@ -5141,7 +5141,7 @@ abstract class AppLocalizations {
   /// No description provided for @moreDescDisplay.
   ///
   /// In ko, this message translates to:
-  /// **'테마 · 밀도 · 통화'**
+  /// **'테마 · 언어 · 통화'**
   String get moreDescDisplay;
 
   /// No description provided for @moreDescSettings.
@@ -5335,30 +5335,6 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'모든 화면의 금액을 ••••로 표시합니다'**
   String get appearanceHideAmountDesc;
-
-  /// No description provided for @appearanceDensity.
-  ///
-  /// In ko, this message translates to:
-  /// **'표시 밀도'**
-  String get appearanceDensity;
-
-  /// No description provided for @appearanceDensityCompact.
-  ///
-  /// In ko, this message translates to:
-  /// **'컴팩트'**
-  String get appearanceDensityCompact;
-
-  /// No description provided for @appearanceDensityComfortable.
-  ///
-  /// In ko, this message translates to:
-  /// **'편안'**
-  String get appearanceDensityComfortable;
-
-  /// No description provided for @appearanceDensitySpacious.
-  ///
-  /// In ko, this message translates to:
-  /// **'여유'**
-  String get appearanceDensitySpacious;
 
   /// No description provided for @appearanceCurrency.
   ///

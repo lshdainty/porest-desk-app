@@ -11,7 +11,6 @@ final prefsProvider = FutureProvider<SharedPreferences>((ref) {
 /// porest-desk-front 와 동일한 키를 그대로 사용 — 추후 동기화 정책 변경 쉽게.
 abstract final class PrefsKeys {
   static const themeMode = 'vite-ui-theme';   // 'light' | 'dark' | 'system'
-  static const density = 'pd-density';        // 'compact' | 'comfortable' | 'spacious'
   static const currency = 'pd-currency';      // 'KRW' | 'USD' | 'EUR' | 'JPY'
   static const hideAmounts = 'pd-hide';       // bool
   static const locale = 'pd-locale';          // 'ko' | 'en' | null(=system)

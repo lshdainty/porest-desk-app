@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
-import 'package:porest_desk_app/app/theme/density.dart';
 import 'package:porest_desk_app/core/storage/prefs_provider.dart';
 import 'package:porest_desk_app/core/settings/user_locale.dart';
 
@@ -10,14 +9,12 @@ import 'package:porest_desk_app/core/settings/user_locale.dart';
 class AppSettings {
   const AppSettings({
     required this.themeMode,
-    required this.density,
     required this.currency,
     required this.hideAmounts,
     required this.locale,
   });
 
   final ThemeMode themeMode;
-  final PDensity density;
   final String currency; // 'KRW' | 'USD' | 'EUR' | 'JPY'
   final bool hideAmounts;
 
@@ -26,7 +23,6 @@ class AppSettings {
 
   static const defaults = AppSettings(
     themeMode: ThemeMode.system,
-    density: PDensity.comfortable,
     currency: 'KRW',
     hideAmounts: false,
     locale: null,
@@ -34,14 +30,12 @@ class AppSettings {
 
   AppSettings copyWith({
     ThemeMode? themeMode,
-    PDensity? density,
     String? currency,
     bool? hideAmounts,
     Object? locale = _sentinel,
   }) {
     return AppSettings(
       themeMode: themeMode ?? this.themeMode,
-      density: density ?? this.density,
       currency: currency ?? this.currency,
       hideAmounts: hideAmounts ?? this.hideAmounts,
       locale: identical(locale, _sentinel) ? this.locale : locale as Locale?,
@@ -66,7 +60,6 @@ class SettingsNotifier extends AsyncNotifier<AppSettings> {
     Intl.defaultLocale = loc?.languageCode ?? 'ko';
     return AppSettings(
       themeMode: _parseTheme(prefs.getString(PrefsKeys.themeMode)),
-      density: _parseDensity(prefs.getString(PrefsKeys.density)),
       currency: prefs.getString(PrefsKeys.currency) ?? AppSettings.defaults.currency,
       hideAmounts: prefs.getBool(PrefsKeys.hideAmounts) ?? false,
       locale: loc,
@@ -77,12 +70,6 @@ class SettingsNotifier extends AsyncNotifier<AppSettings> {
     final prefs = await ref.read(prefsProvider.future);
     await prefs.setString(PrefsKeys.themeMode, _serializeTheme(mode));
     state = AsyncData(_current.copyWith(themeMode: mode));
-  }
-
-  Future<void> setDensity(PDensity d) async {
-    final prefs = await ref.read(prefsProvider.future);
-    await prefs.setString(PrefsKeys.density, d.name);
-    state = AsyncData(_current.copyWith(density: d));
   }
 
   Future<void> setCurrency(String code) async {
@@ -125,11 +112,6 @@ class SettingsNotifier extends AsyncNotifier<AppSettings> {
         ThemeMode.light => 'light',
         ThemeMode.dark => 'dark',
         ThemeMode.system => 'system',
-      };
-  static PDensity _parseDensity(String? raw) => switch (raw) {
-        'compact' => PDensity.compact,
-        'spacious' => PDensity.spacious,
-        _ => PDensity.comfortable,
       };
   static Locale? _parseLocale(String? raw) => switch (raw) {
         'ko' => const Locale('ko'),
