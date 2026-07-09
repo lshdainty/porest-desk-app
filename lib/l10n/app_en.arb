@@ -433,6 +433,8 @@
   "dashRecent": "Recent transactions",
   "dashUpcoming": "Upcoming events",
   "dashRecentTodos": "Recent todos",
+  "dashOverdue": "Overdue {count}",
+  "@dashOverdue": {"placeholders": {"count": {"type": "int"}}},
   "dashTrendTitle": "Last 6 months",
   "dashSeeMore": "See more",
   "dashEmptyTransactions": "No recent transactions",

@@ -2438,6 +2438,12 @@ abstract class AppLocalizations {
   /// **'최근 할 일'**
   String get dashRecentTodos;
 
+  /// No description provided for @dashOverdue.
+  ///
+  /// In ko, this message translates to:
+  /// **'연체 {count}'**
+  String dashOverdue(int count);
+
   /// No description provided for @dashTrendTitle.
   ///
   /// In ko, this message translates to:

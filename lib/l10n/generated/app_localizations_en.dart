@@ -1258,6 +1258,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dashRecentTodos => 'Recent todos';
 
   @override
+  String dashOverdue(int count) {
+    return 'Overdue $count';
+  }
+
+  @override
   String get dashTrendTitle => 'Last 6 months';
 
   @override

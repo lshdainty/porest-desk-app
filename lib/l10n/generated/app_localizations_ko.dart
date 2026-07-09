@@ -1244,6 +1244,11 @@ class AppLocalizationsKo extends AppLocalizations {
   String get dashRecentTodos => '최근 할 일';
 
   @override
+  String dashOverdue(int count) {
+    return '연체 $count';
+  }
+
+  @override
   String get dashTrendTitle => '최근 6개월';
 
   @override
