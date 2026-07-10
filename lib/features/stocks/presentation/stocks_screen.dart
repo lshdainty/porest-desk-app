@@ -177,7 +177,7 @@ class _StocksScreenState extends ConsumerState<StocksScreen> {
             holdings == null
                 ? _HoldingsEmpty(onConnect: () => context.push('/account'))
                 : holdingItems.isEmpty
-                    ? PCard(
+                    ? Padding(
                         padding: const EdgeInsets.symmetric(
                             vertical: PSpace.x32, horizontal: PSpace.x20),
                         child: Center(
@@ -187,9 +187,7 @@ class _StocksScreenState extends ConsumerState<StocksScreen> {
                           ),
                         ),
                       )
-                    : PCard(
-                        padding: const EdgeInsets.all(6),
-                        child: Column(
+                    : Column(
                           children: [
                             for (final h in holdingItems)
                               _StockRow(
@@ -228,8 +226,7 @@ class _StocksScreenState extends ConsumerState<StocksScreen> {
                                 ),
                               ),
                           ],
-                        ),
-                      )
+                        )
           else ...[
             PTabs<String>(
               value: _activeGroup,
@@ -242,30 +239,27 @@ class _StocksScreenState extends ConsumerState<StocksScreen> {
               ],
             ),
             const SizedBox(height: 14),
-            PCard(
-              padding: const EdgeInsets.all(6),
-              child: curGroup.tickers.isEmpty
-                  ? Padding(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: PSpace.x32, horizontal: PSpace.x20),
-                      child: Center(
-                        child: Text(
-                          l.stocksNoWatchlist,
-                          style:
-                              PTypo.bodySm.copyWith(color: t.fgTertiary),
-                        ),
-                      ),
-                    )
-                  : Column(
-                      children: [
-                        for (final ticker in curGroup.tickers)
-                          _StockRow(
-                            ticker: ticker,
-                            onTap: () => _openDetail(ticker),
-                          ),
-                      ],
+            if (curGroup.tickers.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                    vertical: PSpace.x32, horizontal: PSpace.x20),
+                child: Center(
+                  child: Text(
+                    l.stocksNoWatchlist,
+                    style: PTypo.bodySm.copyWith(color: t.fgTertiary),
+                  ),
+                ),
+              )
+            else
+              Column(
+                children: [
+                  for (final ticker in curGroup.tickers)
+                    _StockRow(
+                      ticker: ticker,
+                      onTap: () => _openDetail(ticker),
                     ),
-            ),
+                ],
+              ),
           ],
         ],
       ),
@@ -809,7 +803,8 @@ class _HoldingsEmpty extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
-    return PCard(
+    // 카드 다이어트 — 빈 상태 플랫.
+    return Padding(
       padding: const EdgeInsets.symmetric(
           vertical: PSpace.x32, horizontal: PSpace.x20),
       child: Column(
@@ -857,8 +852,9 @@ class _SummaryCard extends StatelessWidget {
     final l = AppLocalizations.of(context);
     final h = holdings;
     if (h == null) {
-      // 미연결 — 연결 유도 카드 (mock 평가금액 노출 안 함).
+      // 미연결 — 연결 유도 카드 (mock 평가금액 노출 안 함). keep(raised) — design p-card--keep.
       return PCard(
+        variant: PCardVariant.raised,
         padding: const EdgeInsets.all(18),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -887,7 +883,9 @@ class _SummaryCard extends StatelessWidget {
     final totalPnlPct = h.profitLossRateValue;
     final pnlColor = _trendColor(t, totalPnl.toDouble());
 
+    // 내 투자 요약 — design `p-card--keep` (raised + shadow-lg, padding 18).
     return PCard(
+      variant: PCardVariant.raised,
       padding: const EdgeInsets.all(18),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1734,37 +1732,35 @@ class _DiscoverPanelState extends State<_DiscoverPanel> {
           ],
         ),
         const SizedBox(height: 10),
-        PCard(
-          padding: const EdgeInsets.all(6),
-          child: Column(
-            children: [
-              for (var i = 0; i < top.length; i++)
-                Row(
-                  children: [
-                    SizedBox(
-                      width: 22,
-                      child: Text(
-                        '${i + 1}',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontFamily: PTypo.sans,
-                          fontFeatures: _tnum,
-                          fontSize: 14,
-                          fontWeight: PFontWeight.bold,
-                          color: i < 3 ? t.fgBrand : t.fgTertiary,
-                        ),
+        // 카드 다이어트 — 발견 랭킹 리스트도 카드 없이 행 리듬만.
+        Column(
+          children: [
+            for (var i = 0; i < top.length; i++)
+              Row(
+                children: [
+                  SizedBox(
+                    width: 22,
+                    child: Text(
+                      '${i + 1}',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontFamily: PTypo.sans,
+                        fontFeatures: _tnum,
+                        fontSize: 14,
+                        fontWeight: PFontWeight.bold,
+                        color: i < 3 ? t.fgBrand : t.fgTertiary,
                       ),
                     ),
-                    Expanded(
-                      child: _StockRow(
-                        ticker: top[i].ticker,
-                        onTap: () => widget.onPick(top[i].ticker),
-                      ),
+                  ),
+                  Expanded(
+                    child: _StockRow(
+                      ticker: top[i].ticker,
+                      onTap: () => widget.onPick(top[i].ticker),
                     ),
-                  ],
-                ),
-            ],
-          ),
+                  ),
+                ],
+              ),
+          ],
         ),
       ],
     );
