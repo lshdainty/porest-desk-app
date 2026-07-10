@@ -55,7 +55,7 @@ class _CalendarLabelsScreenState extends ConsumerState<CalendarLabelsScreen> {
     final labelsAsync = ref.watch(eventLabelsProvider);
 
     return Scaffold(
-      backgroundColor: t.bgCanvas,
+      backgroundColor: t.bgSurface,
       appBar: AppBar(
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,

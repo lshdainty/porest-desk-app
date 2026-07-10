@@ -14,7 +14,7 @@ import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/settings/hide_amounts_unlock_dialog.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
 import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
-import 'package:porest_desk_app/shared/widgets/p_card.dart';
+import 'package:porest_desk_app/shared/widgets/p_flat_section.dart';
 import 'package:porest_desk_app/shared/widgets/p_expense_row.dart';
 import 'package:porest_desk_app/shared/widgets/p_divider.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
@@ -89,16 +89,18 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             (startDate: _ymdStart, endDate: _ymdEnd)));
         ref.invalidate(monthBudgetsProvider(monthKey));
       },
+      // 카드 다이어트 — design HomeMobile: padding 20/20/24 + 섹션 gap 36.
+      // 카드 대신 페이지 padding + 섹션 간 넓은 여백이 콘텐츠를 구분한다.
       child: ListView(
-        padding: const EdgeInsets.symmetric(
-            horizontal: PSpace.x20, vertical: PSpace.x24),
+        padding: const EdgeInsets.fromLTRB(
+            PSpace.x20, PSpace.x20, PSpace.x20, PSpace.x24),
         children: [
           _BalanceHero(
               summaryAsync: summaryAsync,
               masked: settings.hideAmounts,
               // 헤더 eye 버튼과 동일 — 숨김 해제 시 unlock 다이얼로그.
               onToggleMask: () => toggleHideAmountsWithUnlock(context, ref)),
-          const SizedBox(height: 16),
+          const SizedBox(height: 36),
           _MonthExpenseCard(
             month: _month,
             expensesAsync: expensesAsync,
@@ -106,14 +108,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             prevSummary: prevSummaryAsync.value,
             masked: settings.hideAmounts,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 36),
           _CategoryDonutCard(
             summary: summaryRangeAsync.value,
             categoriesAsync: categoriesAsync,
             loading: summaryRangeAsync.isLoading,
             masked: settings.hideAmounts,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 36),
           _BudgetCard(
             budgetsAsync: budgetsAsync,
             categoriesAsync: categoriesAsync,
@@ -122,9 +124,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             warnThreshold:
                 ref.watch(budgetAlertThresholdProvider).value?.toDouble() ?? 85,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 36),
+          // 자체적으로 숨을 수 있어 아래 gap(36)을 스스로 관리 — gap 중복 방지.
           _UpcomingCard(async: dashboardAsync),
-          const SizedBox(height: 16),
           _TodaySpendCard(
             expensesAsync: expensesAsync,
             categoriesAsync: categoriesAsync,
@@ -146,7 +148,9 @@ class _UpcomingCard extends StatelessWidget {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
     if (async.isLoading && !async.hasValue) {
-      return PCard(
+      // 카드 다이어트 — 플랫 스켈레톤 (콘텐츠 inset 10, 아래 섹션 gap 36 자체 관리).
+      return Padding(
+        padding: const EdgeInsets.only(left: 10, right: 10, bottom: 36),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -187,7 +191,9 @@ class _UpcomingCard extends StatelessWidget {
     final todos = s.recentTodos.take(3).toList();
     if (events.isEmpty && todos.isEmpty) return const SizedBox.shrink();
 
-    return PCard(
+    // 카드 다이어트 — 카드 없이 서브헤드 2개(일정/할일) + 행. 아래 gap 36 자체 관리.
+    return Padding(
+      padding: const EdgeInsets.only(left: 10, right: 10, bottom: 36),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -636,45 +642,41 @@ class _MonthExpenseCard extends StatelessWidget {
         : 0.0;
     final saving = savingsPct > 0;
 
-    return PCard(
-      padding: EdgeInsets.zero,
+    // 카드 다이어트 — design HomeMobile 월 가계부: 헤드(15/bold) + 콘텐츠 inset 10.
+    return PFlatSection(
+      title: l.dashMonthLedger(month.month),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          PCardHeader(child: PCardTitle(l.dashMonthLedger(month.month))),
-          PCardContent(
-            afterHeader: true,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          if (hasError)
+            Text(
+              l.dashMonthTxError,
+              style: PTypo.bodySm.copyWith(color: t.statusDanger),
+            )
+          else
+            Row(
               children: [
-                if (hasError)
-                  Text(
-                    l.dashMonthTxError,
-                    style: PTypo.bodySm.copyWith(color: t.statusDanger),
-                  )
-                else
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _IncomeExpenseCol(
-                          label: l.expTypeIncome,
-                          value: krwSigned(income, masked, sign: '+'),
-                          color: t.fgIncome,
-                        ),
-                      ),
-                      Expanded(
-                        child: _IncomeExpenseCol(
-                          label: l.expTypeExpense,
-                          value: krwSigned(expense, masked, sign: '-'),
-                          color: t.fgExpense,
-                        ),
-                      ),
-                    ],
+                Expanded(
+                  child: _IncomeExpenseCol(
+                    label: l.expTypeIncome,
+                    value: krwSigned(income, masked, sign: '+'),
+                    color: t.fgIncome,
                   ),
-                const SizedBox(height: PSpace.x16),
-                const PDivider(),
-                const SizedBox(height: PSpace.x16),
-                RichText(
+                ),
+                Expanded(
+                  child: _IncomeExpenseCol(
+                    label: l.expTypeExpense,
+                    value: krwSigned(expense, masked, sign: '-'),
+                    color: t.fgExpense,
+                  ),
+                ),
+              ],
+            ),
+          const SizedBox(height: 14),
+          const PDivider(),
+          const SizedBox(height: 14),
+          RichText(
                   text: TextSpan(
                     style: PTypo.caption.copyWith(
                         color: t.fgSecondary, height: 1.5),
@@ -710,9 +712,6 @@ class _MonthExpenseCard extends StatelessWidget {
                     ],
                   ),
                 ),
-              ],
-            ),
-          ),
         ],
       ),
     );
@@ -804,38 +803,17 @@ class _CategoryDonutCard extends StatelessWidget {
       ..sort((a, b) => b.totalAmount.compareTo(a.totalAmount));
     final total = topSegs.fold<int>(0, (s, c) => s + c.totalAmount);
 
-    return PCard(
-      padding: EdgeInsets.zero,
+    // 카드 다이어트 — design HomeMobile 카테고리: 헤드 + 도넛·범례 (inset 10).
+    return PFlatSection(
+      title: l.expCategory,
+      trailing: PFlatSectionLink(
+        label: l.dashSeeMore,
+        onTap: () => context.go('/stats'),
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          PCardHeader(
-            child: Row(
-              children: [
-                PCardTitle(l.expCategory),
-                const Spacer(),
-                GestureDetector(
-                  onTap: () => context.go('/stats'),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(l.dashSeeMore,
-                          style: PTypo.bodySm
-                              .copyWith(color: t.fgTertiary)),
-                      const SizedBox(width: 2),
-                      Icon(LucideIcons.chevronRight,
-                          size: 14, color: t.fgTertiary),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          PCardContent(
-            afterHeader: true,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
           if (loading && topSegs.isEmpty)
             // 도넛 카드 placeholder — Web stats CategorySkeleton 미러 (작은 사이즈).
             Padding(
@@ -974,9 +952,6 @@ class _CategoryDonutCard extends StatelessWidget {
                 ),
               ],
             ),
-              ],
-            ),
-          ),
         ],
       ),
     );
@@ -1023,40 +998,20 @@ class _BudgetCard extends StatelessWidget {
     final totalEx = summary?.totalExpense ?? 0;
     final items = budgets;
 
-    return PCard(
-      padding: EdgeInsets.zero,
+    // 카드 다이어트 — design HomeMobile 예산: 헤드(gap 14) + budget-flat 행(14/10).
+    return PFlatSection(
+      title: l.navBudget,
+      headGap: 14,
+      trailing: PFlatSectionLink(
+        label: l.expFilterAll,
+        // 셸 브랜치 라우트 — push 가 아닌 go 로 브랜치 전환 (가계부 nav 활성).
+        onTap: () => context.go('/budget'),
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          PCardHeader(
-            child: Row(
-              children: [
-                PCardTitle(l.navBudget),
-                const Spacer(),
-                GestureDetector(
-                  // 셸 브랜치 라우트 — push 가 아닌 go 로 브랜치 전환 (가계부 nav 활성).
-                  onTap: () => context.go('/budget'),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(l.expFilterAll,
-                          style: PTypo.bodySm
-                              .copyWith(color: t.fgTertiary)),
-                      const SizedBox(width: 2),
-                      Icon(LucideIcons.chevronRight,
-                          size: 14, color: t.fgTertiary),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          PCardContent(
-            afterHeader: true,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (budgetsAsync.isLoading && items.isEmpty)
+          if (budgetsAsync.isLoading && items.isEmpty)
                   // 예산 카드 placeholder — _BudgetRow 1:1: 28 icon + name + amount, 6px progress.
                   Column(
                     children: [
@@ -1117,9 +1072,6 @@ class _BudgetCard extends StatelessWidget {
                     if (i < items.length - 1)
                       const SizedBox(height: PSpace.x16),
                   ],
-              ],
-            ),
-          ),
         ],
       ),
     );
@@ -1257,78 +1209,59 @@ class _TodaySpendCard extends StatelessWidget {
         .where((e) => e.expenseType == 'EXPENSE')
         .fold<int>(0, (s, e) => s + e.amount);
 
-    return PCard(
-      padding: EdgeInsets.zero,
+    // 카드 다이어트 — design HomeMobile 오늘 쓴 돈: 헤드(gap 6) + tx-flat 행(12/10).
+    return PFlatSection(
+      title: l.dashTodaySpend,
+      headGap: 6,
+      titleSuffix: todayTotal > 0
+          ? Text(
+              krwSigned(todayTotal, masked, sign: '-', unit: true, mask: '••••'),
+              style: PTypo.caption.copyWith(
+                color: t.fgExpense,
+                fontWeight: PFontWeight.bold,
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
+            )
+          : null,
+      trailing: PFlatSectionLink(
+        label: l.expFilterAll,
+        chevron: false,
+        onTap: () => context.go('/expense'),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          PCardHeader(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                PCardTitle(l.dashTodaySpend),
-                if (todayTotal > 0) ...[
-                  const SizedBox(width: PSpace.x8),
-                  Text(
-                    krwSigned(todayTotal, masked, sign: '-', unit: true, mask: '••••'),
-                    style: PTypo.caption.copyWith(
-                      color: t.fgExpense,
-                      fontWeight: PFontWeight.bold,
-                      fontFeatures: const [FontFeature.tabularFigures()],
-                    ),
-                  ),
-                ],
-                const Spacer(),
-                GestureDetector(
-                  onTap: () => context.go('/expense'),
-                  child: Text(
-                    l.expFilterAll,
-                    style: PTypo.bodySm.copyWith(color: t.fgTertiary),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          PCardContent(
-            afterHeader: true,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (todayTx.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: PSpace.x12),
-                    child: Center(
-                      child: Text(
-                          expensesAsync.hasError
-                              ? l.dashTxError
-                              : l.dashNoTodaySpend,
-                          style: PTypo.caption.copyWith(color: t.fgTertiary)),
-                    ),
-                  )
-                else
-                  for (final e in todayTx)
-                    PExpenseRow(
-                      expense: e,
-                      masked: masked,
-                      categoryColorOverride:
-                          _findCategory(categories, e.categoryRowId)?.color
-                              as String?,
-                      categoryIconOverride:
-                          _findCategory(categories, e.categoryRowId)?.icon
-                              as String?,
-                      onTap: () {
-                        final dateStr = e.expenseDate?.substring(0, 7);
-                        if (dateStr != null && dateStr.length == 7) {
-                          context.go('/expense?month=$dateStr&txId=${e.rowId}');
-                        } else {
-                          context.go('/expense?txId=${e.rowId}');
-                        }
-                      },
-                    ),
-              ],
-            ),
-          ),
+          if (todayTx.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: PSpace.x12),
+              child: Center(
+                child: Text(
+                    expensesAsync.hasError
+                        ? l.dashTxError
+                        : l.dashNoTodaySpend,
+                    style: PTypo.caption.copyWith(color: t.fgTertiary)),
+              ),
+            )
+          else
+            for (final e in todayTx)
+              PExpenseRow(
+                expense: e,
+                masked: masked,
+                categoryColorOverride:
+                    _findCategory(categories, e.categoryRowId)?.color
+                        as String?,
+                categoryIconOverride:
+                    _findCategory(categories, e.categoryRowId)?.icon
+                        as String?,
+                onTap: () {
+                  final dateStr = e.expenseDate?.substring(0, 7);
+                  if (dateStr != null && dateStr.length == 7) {
+                    context.go('/expense?month=$dateStr&txId=${e.rowId}');
+                  } else {
+                    context.go('/expense?txId=${e.rowId}');
+                  }
+                },
+              ),
         ],
       ),
     );

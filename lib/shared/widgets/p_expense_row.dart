@@ -74,8 +74,10 @@ class PExpenseRow extends StatelessWidget {
       time,
     ].whereType<String>().where((s) => s.isNotEmpty).join(' · ');
 
+    // design app.css `.tx-flat .tx-row`: 12px 10px + radius 10 — 플랫 리스트 행 리듬.
     final row = Padding(
-      padding: const EdgeInsets.symmetric(vertical: PSpace.x12),
+      padding: const EdgeInsets.symmetric(
+          vertical: PSpace.x12, horizontal: 10),
       child: Row(
         children: [
           Container(
@@ -130,6 +132,10 @@ class PExpenseRow extends StatelessWidget {
     );
 
     if (onTap == null) return row;
-    return InkWell(onTap: onTap, child: row);
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(10),
+      child: row,
+    );
   }
 }

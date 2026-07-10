@@ -49,7 +49,7 @@ class _DutchPayScreenState extends ConsumerState<DutchPayScreen> {
     final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
 
     return Scaffold(
-      backgroundColor: t.bgCanvas,
+      backgroundColor: t.bgSurface,
       appBar: AppBar(
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,

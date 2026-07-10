@@ -86,7 +86,7 @@ class _CardScreenState extends ConsumerState<CardScreen> {
     final pageAsync = ref.watch(cardCatalogPageProvider(_searchKey));
 
     return Scaffold(
-      backgroundColor: t.bgCanvas,
+      backgroundColor: t.bgSurface,
       appBar: AppBar(
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,

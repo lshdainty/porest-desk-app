@@ -67,7 +67,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
         _warnThreshold;
 
     return Scaffold(
-      backgroundColor: t.bgCanvas,
+      backgroundColor: t.bgSurface,
       // appBar 제거 — shell MobileScaffold 의 MobileHeader 가 title='예산' +
       // actions(theme/eye/bell/search) 일관 표시.
       body: RefreshIndicator(

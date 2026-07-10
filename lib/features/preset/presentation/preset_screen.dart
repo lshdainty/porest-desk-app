@@ -88,7 +88,7 @@ class _PresetScreenState extends ConsumerState<PresetScreen> {
     final isLoading = listAsync.isLoading || categoriesAsync.isLoading;
 
     return Scaffold(
-      backgroundColor: t.bgCanvas,
+      backgroundColor: t.bgSurface,
       appBar: AppBar(
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,

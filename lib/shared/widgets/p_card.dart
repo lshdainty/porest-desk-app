@@ -20,7 +20,11 @@ import 'package:porest_desk_app/app/theme/typography.dart';
 ///   (정보 박스 — surface와 톤 분리해 secondary 위계 표현)
 /// - [PCardVariant.brand]: bgBrandSubtle + borderBrand
 ///   (강조 카드 — selected/active 상태)
-enum PCardVariant { shadow, bordered, muted, brand }
+/// - [PCardVariant.raised]: bgSurfaceRaised + shadow-lg
+///   (모바일 카드 다이어트의 keep 카드 — design app.css `.m-scroll .p-card--keep`:
+///   플랫 화면(배경=surface)에서 강조 요약/히어로만 raised 면 + lg 그림자로 띄운다.
+///   다크=#2d3346 패널 / 라이트=흰 카드 + 그림자)
+enum PCardVariant { shadow, bordered, muted, brand, raised }
 
 class PCard extends StatelessWidget {
   const PCard({
@@ -55,16 +59,17 @@ class PCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final (defaultBg, defaultBorder, useShadow) = switch (variant) {
-      PCardVariant.shadow => (t.bgSurface, null, true),
+    final (defaultBg, defaultBorder, shadow) = switch (variant) {
+      PCardVariant.shadow => (t.bgSurface, null, t.shadowSm),
       PCardVariant.bordered =>
-        (t.bgSurface, Border.all(color: t.borderSubtle), false),
-      PCardVariant.muted => (t.bgMuted, null, false),
+        (t.bgSurface, Border.all(color: t.borderSubtle), null),
+      PCardVariant.muted => (t.bgMuted, null, null),
       PCardVariant.brand =>
-        (t.bgBrandSubtle, Border.all(color: t.borderBrand), false),
+        (t.bgBrandSubtle, Border.all(color: t.borderBrand), null),
+      PCardVariant.raised => (t.bgSurfaceRaised, null, t.shadowLg),
     };
     final effectivePadding = padding ??
-        (variant == PCardVariant.shadow
+        (variant == PCardVariant.shadow || variant == PCardVariant.raised
             ? const EdgeInsets.all(PSpace.lg)
             : EdgeInsets.zero);
     final wrap = Container(
@@ -73,7 +78,7 @@ class PCard extends StatelessWidget {
         color: color ?? defaultBg,
         borderRadius: borderRadius,
         border: border ?? defaultBorder,
-        boxShadow: useShadow ? t.shadowSm : null,
+        boxShadow: shadow,
       ),
       child: child,
     );

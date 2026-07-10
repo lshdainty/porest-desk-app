@@ -196,7 +196,7 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
     final l = AppLocalizations.of(context);
 
     return Scaffold(
-      backgroundColor: t.bgCanvas,
+      backgroundColor: t.bgSurface,
       appBar: AppBar(
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,

@@ -113,7 +113,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
     return Scaffold(
-      backgroundColor: t.bgCanvas,
+      backgroundColor: t.bgSurface,
       body: SafeArea(
         child: Stack(
           children: [

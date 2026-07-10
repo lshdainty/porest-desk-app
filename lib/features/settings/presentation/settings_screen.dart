@@ -127,7 +127,7 @@ class SettingsScreen extends ConsumerWidget {
     final groups = _buildGroups(context);
 
     return Scaffold(
-      backgroundColor: t.bgCanvas,
+      backgroundColor: t.bgSurface,
       appBar: AppBar(
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,

@@ -70,7 +70,7 @@ class _MobileScaffoldState extends ConsumerState<MobileScaffold> {
           }
         : titles[idx];
     return Scaffold(
-      backgroundColor: t.bgCanvas,
+      backgroundColor: t.bgSurface,
       // 헤더 아이콘은 페이지당 1개 — 홈=알림 벨, 그 외=검색 (클로드 디자인 정합).
       appBar: MobileHeader(
         title: title,

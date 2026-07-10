@@ -27,7 +27,7 @@ class NotificationScreen extends ConsumerWidget {
     final listAsync = ref.watch(notificationListProvider);
 
     return Scaffold(
-      backgroundColor: t.bgCanvas,
+      backgroundColor: t.bgSurface,
       appBar: AppBar(
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,

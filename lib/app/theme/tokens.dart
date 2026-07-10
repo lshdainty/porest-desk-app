@@ -282,7 +282,9 @@ class PorestTokens extends ThemeExtension<PorestTokens> {
   static const PorestTokens dark = PorestTokens(
     bgCanvas: PorestPalette.slate950,
     bgSurface: PorestPalette.slate900,
-    bgSurfaceRaised: PorestPalette.slate900,
+    // design tokens.css dark: `--bg-surface-raised: #2d3346` — surface(#242938) 한 단계 위
+    // 패널. 모바일 카드 다이어트의 keep(raised) 카드가 다크에서도 떠 보이게 한다.
+    bgSurfaceRaised: PorestPalette.slate850,
     bgSunken: PorestPalette.slate950,
     bgMuted: PorestPalette.slate850,
     bgInverse: PorestPalette.slate50,

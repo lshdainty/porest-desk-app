@@ -253,7 +253,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     final categories = ref.watch(categoriesProvider).value ?? const [];
 
     return Scaffold(
-      backgroundColor: t.bgCanvas,
+      backgroundColor: t.bgSurface,
       appBar: AppBar(
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,

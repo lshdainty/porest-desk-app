@@ -51,7 +51,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
         : '?';
 
     return Scaffold(
-      backgroundColor: t.bgCanvas,
+      backgroundColor: t.bgSurface,
       appBar: AppBar(
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,

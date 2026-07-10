@@ -14,6 +14,7 @@ import 'package:porest_desk_app/core/settings/hide_amounts_unlock_dialog.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_card.dart';
+import 'package:porest_desk_app/shared/widgets/p_flat_section.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
 import 'package:porest_desk_app/features/asset/domain/asset.dart';
@@ -67,7 +68,7 @@ class _AssetScreenState extends ConsumerState<AssetScreen> {
         ref.watch(tossValuationMapProvider).asData?.value ?? const <int, int>{};
 
     return Scaffold(
-      backgroundColor: t.bgCanvas,
+      backgroundColor: t.bgSurface,
       // appBar 제거 — shell MobileScaffold 의 MobileHeader 가 title='자산' +
       // actions(theme/eye/bell/search) 일관 표시.
       // bottomNavigationBar 는 shell MobileScaffold 가 path-aware MoneyTabBar 표시.
@@ -150,7 +151,8 @@ class _AssetBody extends StatelessWidget {
         padding: const EdgeInsets.all(PSpace.x20),
         children: [
           const SizedBox(height: PSpace.x32),
-          PCard(
+          // 카드 다이어트 — 빈 상태도 카드 없이 플랫.
+          Padding(
             padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 20),
             child: Column(
               children: [
@@ -209,10 +211,14 @@ class _AssetBody extends StatelessWidget {
         ? (changeAmount / lastMonth.abs() * 1000).round() / 10
         : (summary?.changePercent ?? 0.0);
 
+    // 카드 다이어트 — design AssetsScreen mobile: padding 16/20/24 + 섹션 gap 36.
+    // 총순자산 요약만 keep(raised) 카드, 그룹들은 flat-group(라벨+총액+행).
     return ListView(
-      padding: const EdgeInsets.symmetric(
-        horizontal: PSpace.x20,
-        vertical: PSpace.x24,
+      padding: const EdgeInsets.fromLTRB(
+        PSpace.x20,
+        PSpace.x16,
+        PSpace.x20,
+        PSpace.x24,
       ),
       children: [
         _SummaryCard(
@@ -226,7 +232,7 @@ class _AssetBody extends StatelessWidget {
           onToggleMask: onToggleMask,
           tokens: tokens,
         ),
-        const SizedBox(height: PSpace.x16),
+        const SizedBox(height: 36),
         _TypeGroup(
           title: l.assetGroupAccount,
           assets: accounts,
@@ -236,7 +242,7 @@ class _AssetBody extends StatelessWidget {
           kind: _GroupKind.account,
         ),
         if (investments.isNotEmpty) ...[
-          const SizedBox(height: PSpace.x16),
+          const SizedBox(height: 36),
           _TypeGroup(
             title: l.assetGroupInvestment,
             assets: investments,
@@ -246,7 +252,7 @@ class _AssetBody extends StatelessWidget {
             kind: _GroupKind.investment,
           ),
         ],
-        const SizedBox(height: PSpace.x16),
+        const SizedBox(height: 36),
         _TypeGroup(
           title: l.assetGroupCard,
           assets: cards,
@@ -258,7 +264,7 @@ class _AssetBody extends StatelessWidget {
           kind: _GroupKind.card,
         ),
         if (loans.isNotEmpty) ...[
-          const SizedBox(height: PSpace.x16),
+          const SizedBox(height: 36),
           _TypeGroup(
             title: l.assetGroupDebt,
             assets: loans,
@@ -306,7 +312,10 @@ class _SummaryCard extends StatelessWidget {
     final trendColor = isUp ? tokens.fgIncome : tokens.fgExpense;
     final t = tokens;
     final l = AppLocalizations.of(context);
+    // 총순자산 요약 — design `p-card--keep` (raised + shadow-lg, padding mobile 18).
     return PCard(
+      variant: PCardVariant.raised,
+      padding: const EdgeInsets.all(18),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -528,34 +537,21 @@ class _TypeGroup extends StatelessWidget {
         ? krwSigned(total.abs(), false, sign: '−', unit: true)
         : krwSigned(total, false, unit: true);
     final effectiveTotalColor = isZeroTotal ? tokens.fgPrimary : (totalColor ?? tokens.fgPrimary);
-    return PCard(
-      padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
+    // 카드 다이어트 — design flat-group: 라벨(15/bold)+총액(13/bold 우측), 카드 없음.
+    return PFlatSection(
+      title: title,
+      trailing: Text(
+        totalText,
+        style: TextStyle(
+          color: effectiveTotalColor,
+          fontSize: PFontSize.bodySm,
+          fontWeight: PFontWeight.bold,
+          fontFeatures: const [FontFeature.tabularFigures()],
+        ),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            children: [
-              Text(
-                title,
-                style: TextStyle(
-                  color: tokens.fgPrimary,
-                  fontSize: PFontSize.bodyLg,
-                  fontWeight: PFontWeight.bold,
-                ),
-              ),
-              const Spacer(),
-              Text(
-                totalText,
-                style: TextStyle(
-                  color: effectiveTotalColor,
-                  fontSize: PFontSize.bodySm,
-                  fontWeight: PFontWeight.bold,
-                  fontFeatures: const [FontFeature.tabularFigures()],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
           if (assets.isEmpty)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 24),
@@ -576,7 +572,6 @@ class _TypeGroup extends StatelessWidget {
                 masked: masked,
                 negativeAmount: negativeTotal,
                 tokens: tokens,
-                showTopBorder: i > 0,
               ),
         ],
       ),
@@ -590,13 +585,11 @@ class _AssetCard extends StatelessWidget {
     required this.masked,
     required this.negativeAmount,
     required this.tokens,
-    required this.showTopBorder,
   });
   final Asset asset;
   final bool masked;
   final bool negativeAmount;
   final PorestTokens tokens;
-  final bool showTopBorder;
 
   @override
   Widget build(BuildContext context) {
@@ -606,19 +599,14 @@ class _AssetCard extends StatelessWidget {
     // 음수(빚)만 fg-expense 빨강 + 부호(−), 0 은 부호·강조 없이 '0원' (−0원 방지)
     // — 관리 화면(account_card_manage_screen) 과 동일 로직.
     final isNeg = (negativeAmount ? -balance.abs() : balance) < 0;
-    // list item — 자체 round/border 없음. 부모 list 가 큰 카드, item 사이 border-top
-    // 1px (첫 item 제외) 으로 구분. 클로드 디자인 톤.
+    // design acc-card 플랫 행 — 구분선 없이 padding(12/10)+radius 10, 탭 hover 톤.
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: () => showAssetDetailDialog(context, asset),
+        borderRadius: BorderRadius.circular(10),
         child: Container(
-          decoration: BoxDecoration(
-            border: showTopBorder
-                ? Border(top: BorderSide(color: t.borderSubtle))
-                : null,
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 14),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
           child: Row(
             children: [
               AssetLogo(asset: asset),
@@ -811,15 +799,17 @@ class _AssetPageSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.symmetric(
-        horizontal: PSpace.x20,
-        vertical: PSpace.x24,
+      padding: const EdgeInsets.fromLTRB(
+        PSpace.x20,
+        PSpace.x16,
+        PSpace.x20,
+        PSpace.x24,
       ),
       children: const [
         _AssetSummaryCardSkeleton(),
-        SizedBox(height: PSpace.x16),
+        SizedBox(height: 36),
         _AssetTypeGroupSkeleton(rows: 3),
-        SizedBox(height: PSpace.x16),
+        SizedBox(height: 36),
         _AssetTypeGroupSkeleton(rows: 2),
       ],
     );
@@ -832,7 +822,10 @@ class _AssetSummaryCardSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    // keep(raised) 요약 카드 스켈레톤 — 실제 _SummaryCard 와 동일 껍데기.
     return PCard(
+      variant: PCardVariant.raised,
+      padding: const EdgeInsets.all(18),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -908,34 +901,28 @@ class _AssetTypeGroupSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
-    return PCard(
-      padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // header: title(bodyLg) + Spacer + total(bodySm) — 실제 _TypeGroup
-          // 헤더엔 추가 버튼 없음(title + total 만).
-          Row(
-            children: const [
-              PSkeleton.line(width: 80, height: 16),
-              Spacer(),
-              PSkeleton.line(width: 96, height: 14),
-            ],
+    // 카드 다이어트 — 플랫 그룹 스켈레톤 (라벨+총액 헤드 + acc-card 행 리듬).
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+          // header: title(15/bold) + Spacer + total(bodySm) — 실제 _TypeGroup 정합.
+          Padding(
+            padding: const EdgeInsets.only(bottom: PSpace.x12),
+            child: Row(
+              children: const [
+                PSkeleton.line(width: 80, height: 16),
+                Spacer(),
+                PSkeleton.line(width: 96, height: 14),
+              ],
+            ),
           ),
-          const SizedBox(height: PSpace.x12),
           // rows — 실제 _AssetCard 정합: logo(40, brLg) + 14 gap + 2 line +
-          // amount(bodyLg). item 사이 border-top, padding (h4 / v14).
+          // amount(bodyLg). 플랫 행 리듬 padding (10 / v12), 구분선 없음.
           for (int i = 0; i < rows; i++)
-            Container(
-              decoration: BoxDecoration(
-                border: i > 0
-                    ? Border(top: BorderSide(color: t.borderSubtle))
-                    : null,
-              ),
+            Padding(
               padding: const EdgeInsets.symmetric(
-                horizontal: PSpace.x4,
-                vertical: 14,
+                horizontal: 10,
+                vertical: PSpace.x12,
               ),
               child: Row(
                 children: [
@@ -960,8 +947,7 @@ class _AssetTypeGroupSkeleton extends StatelessWidget {
                 ],
               ),
             ),
-        ],
-      ),
+      ],
     );
   }
 }

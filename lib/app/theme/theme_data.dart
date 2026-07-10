@@ -51,7 +51,7 @@ abstract final class PorestTheme {
       brightness: brightness,
       useMaterial3: true,
       colorScheme: scheme,
-      scaffoldBackgroundColor: tokens.bgCanvas,
+      scaffoldBackgroundColor: tokens.bgSurface,
       canvasColor: tokens.bgSurface,
       dividerColor: tokens.borderSubtle,
       splashFactory: InkRipple.splashFactory,

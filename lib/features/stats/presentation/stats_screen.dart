@@ -369,7 +369,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
     return Scaffold(
-      backgroundColor: t.bgCanvas,
+      backgroundColor: t.bgSurface,
       // appBar 제거 — shell MobileScaffold 의 MobileHeader 가 title='통계·분석' +
       // actions(theme/eye/bell/search) 일관 표시.
       body: Column(

@@ -37,7 +37,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
     final email = ref.watch(authProvider).value?.userEmail ?? '';
 
     return Scaffold(
-      backgroundColor: t.bgCanvas,
+      backgroundColor: t.bgSurface,
       appBar: AppBar(
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,

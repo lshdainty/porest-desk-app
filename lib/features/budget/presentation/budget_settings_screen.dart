@@ -198,7 +198,7 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
     final copyEnabled = prevBudgets.isNotEmpty;
 
     return Scaffold(
-      backgroundColor: t.bgCanvas,
+      backgroundColor: t.bgSurface,
       appBar: AppBar(
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,

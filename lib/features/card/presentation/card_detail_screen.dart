@@ -26,7 +26,7 @@ class CardDetailScreen extends ConsumerWidget {
     final detailAsync = ref.watch(cardCatalogDetailProvider(catalogId));
 
     return Scaffold(
-      backgroundColor: t.bgCanvas,
+      backgroundColor: t.bgSurface,
       appBar: AppBar(
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,

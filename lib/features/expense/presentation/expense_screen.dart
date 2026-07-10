@@ -16,7 +16,6 @@ import 'package:porest_desk_app/shared/widgets/p_badge.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_card.dart';
 import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
-import 'package:porest_desk_app/shared/widgets/p_divider.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
@@ -160,12 +159,10 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
     // min-h-0 과 동일 패턴.
     return LayoutBuilder(
       builder: (context, constraints) {
-        // 차감 = ListView 상하 padding 48(24+24) + Summary card 실측 ~114 + gap 12 = 174.
-        // (기존 190 은 summary 를 130 으로 과대평가 → 캘린더가 짧아져 하단 여백이 상단보다 컸음)
-        // 결과: 상단 24 == 하단 24 (web flex 정합).
+        // 차감 = ListView 상하 padding 40(16+24) + Summary card 실측 ~114 + gap 36 = 190.
         final hasAssetBadge = _assetIdFilter != null;
         final calendarH = (constraints.maxHeight -
-                174 -
+                190 -
                 (hasAssetBadge ? 52 : 0))
             .clamp(280.0, double.infinity);
         return RefreshIndicator(
@@ -174,10 +171,13 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
         ref.invalidate(monthExpensesProvider(_key));
         await ref.read(monthExpensesProvider(_key).future);
       },
+      // 카드 다이어트 — design TxScreen mobile: padding 16/20/24 + 섹션 gap 36.
       child: ListView(
-        padding: const EdgeInsets.symmetric(
-          horizontal: PSpace.x20,
-          vertical: PSpace.x24,
+        padding: const EdgeInsets.fromLTRB(
+          PSpace.x20,
+          PSpace.x16,
+          PSpace.x20,
+          PSpace.x24,
         ),
         children: [
           // 본문 — 비동기 상태에 따라 분기
@@ -291,7 +291,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                       onChanged: (v) => setState(() => _viewMode = v),
                     ),
                   ),
-                  const SizedBox(height: PSpace.x12),
+                  const SizedBox(height: 36),
                   if (_viewMode == _ViewMode.calendar)
                     // 월 변경 시 refetch 중이면 (data + isLoading 동시) 캘린더 자체를
                     // skeleton 으로 대체 — cell 들이 "사용 금액 없는 것처럼" 보이는 현상 fix.
@@ -323,7 +323,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                       onOpenFilter: _openFilter,
                       onAddTx: () => showAddTxSheet(context),
                     ),
-                    const SizedBox(height: PSpace.x12),
+                    const SizedBox(height: PSpace.x8),
                     if (expensesAsync.isLoading) ...const [
                       _ExpenseDayGroupSkeleton(rows: 3),
                       SizedBox(height: PSpace.x16),
@@ -410,7 +410,9 @@ class _SummaryCard extends StatelessWidget {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
     final balance = income - expense;
+    // 월 네비+요약 — design TxScreen `p-card--keep` (raised, padding mobile 16).
     return PCard(
+      variant: PCardVariant.raised,
       padding: const EdgeInsets.all(PSpace.x16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -664,16 +666,15 @@ class _DayGroup extends ConsumerWidget {
         .fold<int>(0, (s, e) => s + e.amount);
     final categories = ref.watch(categoriesProvider).value ?? const [];
 
+    // 카드 다이어트 — design `.m-scroll .tx-list`: day-head(라벨, 아래 10) + 플랫 행.
+    // 날짜 그룹 사이는 넓은 여백(24)으로 구분 (헤어라인·카드 없음).
     return Padding(
-      padding: const EdgeInsets.only(bottom: PSpace.x12),
+      padding: const EdgeInsets.only(bottom: PSpace.x24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: PSpace.x4,
-              vertical: PSpace.x8,
-            ),
+            padding: const EdgeInsets.only(top: 2, bottom: 10),
             child: Row(
               children: [
                 Text(
@@ -710,42 +711,38 @@ class _DayGroup extends ConsumerWidget {
               ],
             ),
           ),
-          PCard(
-            padding: EdgeInsets.zero,
-            child: Column(
-              children: [
-                for (int i = 0; i < items.length; i++) ...[
-                  Builder(
-                    builder: (_) {
-                      final isFocus = focusTxId == items[i].rowId;
-                      final k = isFocus
-                          ? (rowKeys?.putIfAbsent(
-                              items[i].rowId,
-                              () => GlobalKey(),
-                            ))
-                          : null;
-                      return Container(
-                        key: k,
-                        decoration: isFocus
-                            ? BoxDecoration(
-                                color: t.bgBrandSubtle,
-                                borderRadius: PRadius.brSm,
-                              )
-                            : null,
-                        child: ExpenseRow(
-                          expense: items[i],
-                          category: items[i].categoryRowId == null
-                              ? null
-                              : categories.byRowId(items[i].categoryRowId!),
-                          masked: masked,
-                        ),
-                      );
-                    },
-                  ),
-                  if (i < items.length - 1) PDivider(),
-                ],
-              ],
-            ),
+          // 행 리스트 — 카드/구분선 없이 행 리듬(12/10)만.
+          Column(
+            children: [
+              for (int i = 0; i < items.length; i++)
+                Builder(
+                  builder: (_) {
+                    final isFocus = focusTxId == items[i].rowId;
+                    final k = isFocus
+                        ? (rowKeys?.putIfAbsent(
+                            items[i].rowId,
+                            () => GlobalKey(),
+                          ))
+                        : null;
+                    return Container(
+                      key: k,
+                      decoration: isFocus
+                          ? BoxDecoration(
+                              color: t.bgBrandSubtle,
+                              borderRadius: PRadius.brSm,
+                            )
+                          : null,
+                      child: ExpenseRow(
+                        expense: items[i],
+                        category: items[i].categoryRowId == null
+                            ? null
+                            : categories.byRowId(items[i].categoryRowId!),
+                        masked: masked,
+                      ),
+                    );
+                  },
+                ),
+            ],
           ),
         ],
       ),
@@ -819,7 +816,7 @@ class _ExpensePageSkeleton extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const _ExpenseSummarySkeleton(),
-        const SizedBox(height: PSpace.x12),
+        const SizedBox(height: 36),
         if (viewMode == _ViewMode.calendar)
           _ExpenseCalendarSkeleton(height: calendarHeight)
         else ...const [
@@ -845,11 +842,10 @@ class _ExpenseCalendarSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    // 카드 다이어트 — 실제 _CalendarGrid 정합: 카드 없이 그리드만.
     return SizedBox(
       height: height,
-      child: PCard(
-        padding: EdgeInsets.zero,
-        child: Column(
+      child: Column(
           children: [
             // 요일 헤더 (일~토)
             DecoratedBox(
@@ -910,7 +906,6 @@ class _ExpenseCalendarSkeleton extends StatelessWidget {
             ),
           ],
         ),
-      ),
     );
   }
 }
@@ -918,9 +913,11 @@ class _ExpenseCalendarSkeleton extends StatelessWidget {
 class _ExpenseSummarySkeleton extends StatelessWidget {
   const _ExpenseSummarySkeleton();
 
+  // keep(raised) 요약 스켈레톤 — 실제 _SummaryCard 와 동일 껍데기.
   @override
   Widget build(BuildContext context) {
     return PCard(
+      variant: PCardVariant.raised,
       padding: const EdgeInsets.all(PSpace.x16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1011,12 +1008,9 @@ class _ExpenseDayGroupSkeleton extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // 날짜 헤더 — 카드 밖 평문 (_DayGroup header 정합: bodySm/caption 높이).
+        // 날짜 헤더 — 플랫 day-head (_DayGroup 정합: 위 2 / 아래 10).
         Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: PSpace.x4,
-            vertical: PSpace.x8,
-          ),
+          padding: const EdgeInsets.only(top: 2, bottom: 10),
           child: Row(
             children: const [
               PSkeleton.line(width: 48, height: 13),
@@ -1029,17 +1023,13 @@ class _ExpenseDayGroupSkeleton extends StatelessWidget {
             ],
           ),
         ),
-        // 거래 카드 — _DayGroup 정합: PCard(shadow) + 행 사이 PDivider.
-        // 행 placeholder 는 ExpenseRow 치수 (icon 40 tile / pad 16·12 / 2px gap).
-        PCard(
-          padding: EdgeInsets.zero,
-          child: Column(
+        // 행 placeholder — 카드 다이어트: 카드/구분선 없이 행 리듬(12/10)만.
+        Column(
             children: [
               for (int i = 0; i < rows; i++) ...[
-                if (i > 0) const PDivider(),
                 const Padding(
                   padding: EdgeInsets.symmetric(
-                    horizontal: PSpace.x16,
+                    horizontal: 10,
                     vertical: PSpace.x12,
                   ),
                   child: Row(
@@ -1068,7 +1058,6 @@ class _ExpenseDayGroupSkeleton extends StatelessWidget {
                 ),
               ],
             ],
-          ),
         ),
       ],
     );
@@ -1168,15 +1157,13 @@ class _CalendarGrid extends StatelessWidget {
         '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 
     // 셀 사이 border grid — 셀 자체 Container.decoration.border 로 그림.
-    // outer 카드 시각: PCard default (shadow variant — spec card.md SoT).
+    // 카드 다이어트 — design TxCalendar(.p-card)는 모바일에서 플랫: 카드 없이 그리드만.
     final borderColor = t.borderSubtle;
     // viewport 의 남은 공간을 채우도록 호출처에서 LayoutBuilder 로 정확 계산한
     // height 받음. Web 의 `flex-1 min-h-0` 와 동일 패턴.
     return SizedBox(
       height: height,
-      child: PCard(
-        padding: EdgeInsets.zero,
-        child: Column(
+      child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // 요일 헤더 — 일/월/화/수/목/금/토. 일=fgExpense(빨강), 토=fgBrand(파랑).
@@ -1333,7 +1320,6 @@ class _CalendarGrid extends StatelessWidget {
               ),
           ],
         ),
-      ),
     );
   }
 }

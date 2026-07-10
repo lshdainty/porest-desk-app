@@ -54,7 +54,7 @@ class _CalendarShareScreenState extends ConsumerState<CalendarShareScreen> {
     final listAsync = ref.watch(userCalendarListProvider);
 
     return Scaffold(
-      backgroundColor: t.bgCanvas,
+      backgroundColor: t.bgSurface,
       appBar: AppBar(
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
