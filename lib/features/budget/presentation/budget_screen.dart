@@ -17,6 +17,7 @@ import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
 import 'package:porest_desk_app/shared/widgets/p_badge.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_card.dart';
+import 'package:porest_desk_app/shared/widgets/p_flat_section.dart';
 import 'package:porest_desk_app/shared/widgets/p_chart_tooltip.dart';
 import 'package:porest_desk_app/shared/widgets/p_empty_state.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
@@ -67,7 +68,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
         _warnThreshold;
 
     return Scaffold(
-      backgroundColor: t.bgCanvas,
+      backgroundColor: t.bgSurface,
       // appBar 제거 — shell MobileScaffold 의 MobileHeader 가 title='예산' +
       // actions(theme/eye/bell/search) 일관 표시.
       body: RefreshIndicator(
@@ -83,10 +84,13 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
           ref.invalidate(budgetComplianceProvider(6));
           await ref.read(monthBudgetsProvider(_key).future);
         },
+        // 카드 다이어트 — design BudgetScreen mobile: padding 16/20/24 + 섹션 gap 36.
         child: ListView(
-          padding: const EdgeInsets.symmetric(
-            horizontal: PSpace.x20,
-            vertical: PSpace.x24,
+          padding: const EdgeInsets.fromLTRB(
+            PSpace.x20,
+            PSpace.x16,
+            PSpace.x20,
+            PSpace.x24,
           ),
           children: [
             _MonthBar(
@@ -197,13 +201,13 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                       tokens: t,
                     ),
                     if (hasNoData) ...[
-                      const SizedBox(height: PSpace.x12),
+                      const SizedBox(height: 36),
                       _EmptyState(
                         tokens: t,
                         onAdd: () => context.push('/budget/settings'),
                       ),
                     ] else ...[
-                      const SizedBox(height: PSpace.x12),
+                      const SizedBox(height: 36),
                       _PaceCard(
                         pct: pct,
                         daysElapsedPct: daysElapsedPct,
@@ -213,13 +217,13 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                         masked: settings.hideAmounts,
                         tokens: t,
                       ),
-                      const SizedBox(height: PSpace.x12),
+                      const SizedBox(height: 36),
                       _StatusTiles(
                         overCount: overList.length,
                         healthyCount: healthyList.length,
                         tokens: t,
                       ),
-                      const SizedBox(height: PSpace.x12),
+                      const SizedBox(height: 36),
                       _CategoryListCard(
                         budgets: categoryBudgets,
                         categories: categories,
@@ -230,7 +234,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                         tokens: t,
                         onGoSettings: () => context.push('/budget/settings'),
                       ),
-                      const SizedBox(height: PSpace.x12),
+                      const SizedBox(height: 36),
                       _ComplianceCard(
                         async: complianceAsync,
                         currentYear: _month.year,
@@ -513,12 +517,13 @@ class _HeaderCard extends StatelessWidget {
     final l = AppLocalizations.of(context);
 
     // 조회 전용 (web BudgetPage hero 정합) — 상한 수정은 예산 설정 페이지에서.
+    // 카드 다이어트에서도 유지 — design `p-card--brand` 는 diet 제외 (브랜드 강조 카드).
     return PCard(
       // 디자인 p-card--brand: surface(#242938) 위에 cobalt @12% 알파 합성 → #2B374D.
       // alphaBlend(틴트, surface) 로 "surface 위 알파"를 명시(라이트/다크 자동).
       variant: PCardVariant.shadow,
       color: Color.alphaBlend(tokens.bgBrandTint, tokens.bgSurface),
-      padding: const EdgeInsets.all(PSpace.x16),
+      padding: const EdgeInsets.all(18),
       child: overallBudget == null
           ? _emptyOverall(context, l)
           : _filledOverall(color, l),
@@ -802,31 +807,19 @@ class _PaceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    return PCard(
-      padding: const EdgeInsets.all(PSpace.x16),
-      variant: PCardVariant.shadow,
+    // 카드 다이어트 — 플랫 섹션 (헤드 + 콘텐츠 inset 10).
+    return PFlatSection(
+      title: l.budgetSpendingPace,
+      trailing: PBadge(
+        label: onTrack ? l.budgetPaceOnTrack : l.budgetPaceFast,
+        variant: onTrack
+            ? PBadgeVariant.softSuccess
+            : PBadgeVariant.softWarning,
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Text(
-                l.budgetSpendingPace,
-                style: PTypo.body.copyWith(
-                  color: tokens.fgPrimary,
-                  fontWeight: PFontWeight.bold,
-                ),
-              ),
-              const Spacer(),
-              PBadge(
-                label: onTrack ? l.budgetPaceOnTrack : l.budgetPaceFast,
-                variant: onTrack
-                    ? PBadgeVariant.softSuccess
-                    : PBadgeVariant.softWarning,
-              ),
-            ],
-          ),
-          const SizedBox(height: PSpace.x12),
           LayoutBuilder(
             builder: (ctx, c) {
               final w = c.maxWidth;
@@ -986,20 +979,13 @@ class _StatusTiles extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    return PCard(
-      padding: const EdgeInsets.all(PSpace.x16),
-      variant: PCardVariant.shadow,
+    // 카드 다이어트 — 플랫 섹션.
+    return PFlatSection(
+      title: l.budgetStatusTitle,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            l.budgetStatusTitle,
-            style: PTypo.body.copyWith(
-              color: tokens.fgPrimary,
-              fontWeight: PFontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: PSpace.x12),
           Row(
             children: [
               Expanded(
@@ -1139,30 +1125,18 @@ class _CategoryListCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    return PCard(
-      padding: const EdgeInsets.all(PSpace.x16),
-      variant: PCardVariant.shadow,
+    // 카드 다이어트 — design 카테고리별 예산: 플랫 섹션(헤드 gap 14) + budget-row 리듬.
+    return PFlatSection(
+      title: l.budgetByCategory,
+      headGap: 14,
+      trailing: Text(
+        l.budgetCountSet(budgets.length),
+        style: PTypo.caption.copyWith(color: tokens.fgTertiary),
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 카드 안 헤더 — web CardHeader(타이틀 body-lg + 우측 'N개 설정됨' caption).
-          Row(
-            children: [
-              Text(
-                l.budgetByCategory,
-                style: PTypo.bodyLg.copyWith(
-                  color: tokens.fgPrimary,
-                  fontWeight: PFontWeight.bold,
-                ),
-              ),
-              const Spacer(),
-              Text(
-                l.budgetCountSet(budgets.length),
-                style: PTypo.caption.copyWith(color: tokens.fgTertiary),
-              ),
-            ],
-          ),
-          const SizedBox(height: PSpace.x16),
           if (loading && budgets.isEmpty)
             // 예산 list placeholder — 3 rows (label + progress).
             Padding(
@@ -1361,29 +1335,18 @@ class _ComplianceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final list = async.value ?? const <BudgetComplianceMonth>[];
     final l = AppLocalizations.of(context);
-    return PCard(
-      padding: const EdgeInsets.all(PSpace.x16),
-      variant: PCardVariant.shadow,
+    // 카드 다이어트 — 플랫 섹션.
+    return PFlatSection(
+      title: l.budgetComplianceTitle,
+      headGap: 16,
+      trailing: Text(
+        l.budgetComplianceSubtitle,
+        style: PTypo.caption.copyWith(color: tokens.fgTertiary),
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Text(
-                l.budgetComplianceTitle,
-                style: PTypo.body.copyWith(
-                  color: tokens.fgPrimary,
-                  fontWeight: PFontWeight.bold,
-                ),
-              ),
-              const Spacer(),
-              Text(
-                l.budgetComplianceSubtitle,
-                style: PTypo.caption.copyWith(color: tokens.fgTertiary),
-              ),
-            ],
-          ),
-          const SizedBox(height: PSpace.x16),
           if (async.isLoading && list.isEmpty)
             const PSkeleton(width: double.infinity, height: 200)
           else if (list.isEmpty)
@@ -1662,11 +1625,11 @@ class _BudgetLoadingSkeleton extends StatelessWidget {
     final t = context.tokens;
     return Column(
       children: [
-        // _HeaderCard — brand-tint surface(실제와 동일 합성).
+        // _HeaderCard — brand-tint surface(실제와 동일 합성, diet 제외).
         PCard(
           variant: PCardVariant.shadow,
           color: Color.alphaBlend(t.bgBrandTint, t.bgSurface),
-          padding: const EdgeInsets.all(PSpace.x16),
+          padding: const EdgeInsets.all(18),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -1725,11 +1688,10 @@ class _BudgetLoadingSkeleton extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: PSpace.x12),
-        // _PaceCard — header + 게이지 + %경과 행 + 2-column PaceStat.
-        PCard(
-          variant: PCardVariant.shadow,
-          padding: const EdgeInsets.all(PSpace.x16),
+        const SizedBox(height: 36),
+        // _PaceCard — 플랫 섹션 스켈레톤 (header + 게이지 + 2-column PaceStat).
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -1778,11 +1740,10 @@ class _BudgetLoadingSkeleton extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: PSpace.x12),
-        // _StatusTiles — '예산 현황' + 2칸(초과/여유) box.
-        PCard(
-          variant: PCardVariant.shadow,
-          padding: const EdgeInsets.all(PSpace.x16),
+        const SizedBox(height: 36),
+        // _StatusTiles — 플랫 섹션 스켈레톤 ('예산 현황' + 2칸 box).
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -1816,12 +1777,10 @@ class _BudgetLoadingSkeleton extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: PSpace.x12),
-        // _CategoryListCard — 카드 안 헤더('카테고리별 예산' + 'N개 설정됨') +
-        // 구분선 없는 행 리스트(x16 간격) — web ListCard 정합.
-        PCard(
-          variant: PCardVariant.shadow,
-          padding: const EdgeInsets.all(PSpace.x16),
+        const SizedBox(height: 36),
+        // _CategoryListCard — 플랫 섹션 스켈레톤 (헤더 + 구분선 없는 행 리스트).
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -1867,11 +1826,10 @@ class _BudgetLoadingSkeleton extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: PSpace.x12),
-        // _ComplianceCard — header + 차트 영역(height 200).
-        PCard(
-          variant: PCardVariant.shadow,
-          padding: const EdgeInsets.all(PSpace.x16),
+        const SizedBox(height: 36),
+        // _ComplianceCard — 플랫 섹션 스켈레톤 (header + 차트 영역 height 200).
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

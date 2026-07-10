@@ -13,7 +13,7 @@ class SplashScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.tokens;
     return Scaffold(
-      backgroundColor: t.bgCanvas,
+      backgroundColor: t.bgSurface,
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,

@@ -13,7 +13,6 @@ import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_card.dart';
 import 'package:porest_desk_app/shared/widgets/p_checkbox.dart';
 import 'package:porest_desk_app/shared/widgets/p_date_input.dart';
 import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
@@ -247,7 +246,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
     return Scaffold(
-      backgroundColor: t.bgCanvas,
+      backgroundColor: t.bgSurface,
       appBar: AppBar(
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
@@ -281,21 +280,19 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
 
   // ── 카드들 ────────────────────────────────────────────────
 
+  // 카드 다이어트 — design .m-subpage 플랫: 카드 없이 섹션 타이틀 + 콘텐츠만.
   Widget _cardShell(PorestTokens t, {required String title, String? desc, required Widget child}) {
-    return PCard(
-      variant: PCardVariant.shadow,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: PTypo.body.copyWith(color: t.fgPrimary, fontWeight: PFontWeight.bold)),
-          if (desc != null) ...[
-            const SizedBox(height: 2),
-            Text(desc, style: PTypo.caption.copyWith(color: t.fgTertiary)),
-          ],
-          const SizedBox(height: PSpace.x12),
-          child,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: PTypo.body.copyWith(color: t.fgPrimary, fontWeight: PFontWeight.bold)),
+        if (desc != null) ...[
+          const SizedBox(height: 2),
+          Text(desc, style: PTypo.caption.copyWith(color: t.fgTertiary)),
         ],
-      ),
+        const SizedBox(height: PSpace.x12),
+        child,
+      ],
     );
   }
 

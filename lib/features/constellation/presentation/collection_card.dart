@@ -8,7 +8,6 @@ import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/features/constellation/domain/constellation.dart';
 import 'package:porest_desk_app/features/constellation/presentation/constellation_painter.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/widgets/p_card.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 
 /// 별자리 도감 — 전체 목록(수집 횟수/미수집), 탭 시 상세 감상 시트.
@@ -28,8 +27,10 @@ class CollectionCard extends StatelessWidget {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
 
-    return PCard(
-      padding: const EdgeInsets.all(PSpace.x16),
+    // 카드 다이어트 — design forest.jsx MyForest/ForestCollection(.p-card)는
+    // 모바일에서 플랫: 카드 없이 sec-head + 콘텐츠만 (inset 10).
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

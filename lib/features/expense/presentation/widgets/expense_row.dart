@@ -45,8 +45,10 @@ class ExpenseRow extends StatelessWidget {
 
     return InkWell(
       onTap: interactive ? () => showTxDetailDialog(context, expense) : null,
+      borderRadius: BorderRadius.circular(10),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: PSpace.x16, vertical: PSpace.x12),
+        // design `.m-scroll .tx-list .tx-row`: 12px 10px + radius 10 (플랫 행 리듬).
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: PSpace.x12),
         child: Row(
           children: [
             Container(

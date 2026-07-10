@@ -16,7 +16,6 @@ import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_badge.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_card.dart';
 import 'package:porest_desk_app/shared/widgets/p_empty_state.dart';
 import 'package:porest_desk_app/shared/widgets/p_floating_action_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
@@ -39,7 +38,7 @@ class SavingGoalScreen extends ConsumerWidget {
     final listAsync = ref.watch(savingGoalListProvider);
 
     return Scaffold(
-      backgroundColor: t.bgCanvas,
+      backgroundColor: t.bgSurface,
       appBar: AppBar(
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
@@ -165,9 +164,8 @@ class _SavingGoalSkeleton extends StatelessWidget {
       shrinkWrap: true,
       itemCount: 3,
       separatorBuilder: (_, _) => const SizedBox(height: PSpace.x8),
-      itemBuilder: (_, _) => PCard(
-        variant: PCardVariant.bordered,
-        padding: const EdgeInsets.all(PSpace.x12),
+      itemBuilder: (_, _) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: PSpace.x12, horizontal: 10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -232,18 +230,14 @@ class _GoalCard extends StatelessWidget {
     final color = resolveChartColor(context, goal.color, fallback: tokens.fgBrand);
     final bg = softBg(context, color);
     final pct = (goal.progress * 100).round();
+    // 카드 다이어트 — 목표 아이템을 카드(border) 대신 플랫 행 리듬으로.
     return Material(
-      color: tokens.bgSurface,
-      borderRadius: PRadius.brLg,
+      color: Colors.transparent,
       child: InkWell(
         onTap: onEdit,
-        borderRadius: PRadius.brLg,
+        borderRadius: BorderRadius.circular(10),
         child: Container(
-          padding: const EdgeInsets.all(PSpace.x12),
-          decoration: BoxDecoration(
-            borderRadius: PRadius.brLg,
-            border: Border.all(color: tokens.borderSubtle),
-          ),
+          padding: const EdgeInsets.symmetric(vertical: PSpace.x12, horizontal: 10),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

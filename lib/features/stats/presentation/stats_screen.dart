@@ -369,7 +369,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
     return Scaffold(
-      backgroundColor: t.bgCanvas,
+      backgroundColor: t.bgSurface,
       // appBar 제거 — shell MobileScaffold 의 MobileHeader 가 title='통계·분석' +
       // actions(theme/eye/bell/search) 일관 표시.
       body: Column(
@@ -442,9 +442,12 @@ class _CategoryTab extends ConsumerWidget {
         ref.invalidate(rangeExpensesProvider(state._range));
       },
       child: ListView(
-        padding: const EdgeInsets.symmetric(
-          horizontal: PSpace.x20,
-          vertical: PSpace.x24,
+        // 카드 다이어트 — design StatsScreen: padding 16/20/24 + 섹션 gap 36.
+        padding: const EdgeInsets.fromLTRB(
+          PSpace.x20,
+          PSpace.x16,
+          PSpace.x20,
+          PSpace.x24,
         ),
         children: [
           _DonutCard(
@@ -453,11 +456,11 @@ class _CategoryTab extends ConsumerWidget {
             categoriesAsync: categoriesAsync,
             masked: settings.hideAmounts,
           ),
-          const SizedBox(height: PSpace.x12),
+          const SizedBox(height: 36),
           _TopMerchantsCard(async: merchantAsync, masked: settings.hideAmounts),
-          const SizedBox(height: PSpace.x12),
+          const SizedBox(height: 36),
           _HeatmapCard(async: heatmapAsync, masked: settings.hideAmounts),
-          const SizedBox(height: PSpace.x12),
+          const SizedBox(height: 36),
           _HighlightsGrid(
             state: state,
             rangeAsync: rangeAsync,
@@ -491,9 +494,12 @@ class _TrendTab extends ConsumerWidget {
         ref.invalidate(rangeExpensesProvider(state._range));
       },
       child: ListView(
-        padding: const EdgeInsets.symmetric(
-          horizontal: PSpace.x20,
-          vertical: PSpace.x24,
+        // 카드 다이어트 — design StatsScreen: padding 16/20/24 + 섹션 gap 36.
+        padding: const EdgeInsets.fromLTRB(
+          PSpace.x20,
+          PSpace.x16,
+          PSpace.x20,
+          PSpace.x24,
         ),
         children: [
           _TrendBigCard(
@@ -501,13 +507,13 @@ class _TrendTab extends ConsumerWidget {
             rangeAsync: rangeAsync,
             monthExpAsync: monthExpAsync,
           ),
-          const SizedBox(height: PSpace.x12),
+          const SizedBox(height: 36),
           _TrendStatsGrid(
             state: state,
             rangeAsync: rangeAsync,
             masked: settings.hideAmounts,
           ),
-          const SizedBox(height: PSpace.x12),
+          const SizedBox(height: 36),
           _SavingsBarsCard(
             state: state,
             rangeAsync: rangeAsync,
@@ -538,9 +544,12 @@ class _CompareTab extends ConsumerWidget {
         ref.invalidate(rangeSummaryProvider(state._prevRangeKey));
       },
       child: ListView(
-        padding: const EdgeInsets.symmetric(
-          horizontal: PSpace.x20,
-          vertical: PSpace.x24,
+        // 카드 다이어트 — design StatsScreen: padding 16/20/24 + 섹션 gap 36.
+        padding: const EdgeInsets.fromLTRB(
+          PSpace.x20,
+          PSpace.x16,
+          PSpace.x20,
+          PSpace.x24,
         ),
         children: [
           _CompareSummaryGrid(
@@ -549,7 +558,7 @@ class _CompareTab extends ConsumerWidget {
             prevRangeAsync: prevRangeAsync,
             masked: settings.hideAmounts,
           ),
-          const SizedBox(height: PSpace.x12),
+          const SizedBox(height: 36),
           _CompareCategoryCard(
             state: state,
             rangeAsync: rangeAsync,
@@ -565,18 +574,19 @@ class _CompareTab extends ConsumerWidget {
 
 // ─── 공용 위젯 ─────────────────────────────────────────────
 
-/// 카드 컨테이너 — PCard(bordered) 위임. shared SoT 사용.
-///
-/// [padding] 미지정 시 chart card 의 dense layout (18) 적용. dashboard 의
-/// PCard(shadow) default(24) 와 의도적으로 다름 — chart 영역 보존.
+/// 섹션 컨테이너 — 카드 다이어트(design app.css `.m-scroll .p-card` 플랫):
+/// 카드 배경/그림자/radius 없이 콘텐츠 inset(가로 10)만. 섹션 내부 헤더는
+/// 각 섹션이 자체 렌더 — 섹션 사이 여백(36)이 구분을 담당한다.
 class _Card extends StatelessWidget {
   const _Card({required this.child, this.padding});
   final Widget child;
   final EdgeInsets? padding;
   @override
   Widget build(BuildContext context) {
-    // PCard default = shadow variant (spec card.md SoT). Web 정합.
-    return PCard(padding: padding ?? const EdgeInsets.all(18), child: child);
+    return Padding(
+      padding: padding ?? const EdgeInsets.symmetric(horizontal: 10),
+      child: child,
+    );
   }
 }
 

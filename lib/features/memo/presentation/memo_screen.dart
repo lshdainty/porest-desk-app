@@ -53,7 +53,7 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
     final listAsync = ref.watch(memoListProvider);
 
     return Scaffold(
-      backgroundColor: t.bgCanvas,
+      backgroundColor: t.bgSurface,
       appBar: AppBar(
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,

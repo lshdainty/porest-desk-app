@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
@@ -11,12 +10,9 @@ import 'package:porest_desk_app/core/auth/auth_notifier.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_avatar.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_card.dart';
-import 'package:porest_desk_app/shared/widgets/p_divider.dart';
 
 class _SettingsItem {
-  const _SettingsItem({required this.icon, required this.label, this.onTap});
-  final IconData icon;
+  const _SettingsItem({required this.label, this.onTap});
   final String label;
   final void Function(BuildContext ctx)? onTap;
 }
@@ -34,28 +30,23 @@ List<_SettingsGroup> _buildGroups(BuildContext ctx) {
       label: l.settingsGroupDataMgmt,
       items: [
         _SettingsItem(
-          icon: LucideIcons.tag,
           label: l.settingsMenuCategory,
           onTap: (c) => c.push('/categories'),
         ),
         _SettingsItem(
-          icon: LucideIcons.creditCard,
           label: l.settingsMenuAccountCard,
           onTap: (c) => c.push('/account-card-manage'),
         ),
         _SettingsItem(
-          icon: LucideIcons.filePen,
           label: l.settingsMenuBudget,
           // 웹 정합: 전체 > 설정 > 예산 설정 → BudgetManager 페이지 (개요 /budget 아님).
           onTap: (c) => c.push('/budget/settings'),
         ),
         _SettingsItem(
-          icon: LucideIcons.repeat,
           label: l.settingsMenuRecurring,
           onTap: (c) => c.push('/recurring'),
         ),
         _SettingsItem(
-          icon: LucideIcons.bookmark,
           label: l.settingsMenuPreset,
           onTap: (c) => c.push('/presets'),
         ),
@@ -65,12 +56,10 @@ List<_SettingsGroup> _buildGroups(BuildContext ctx) {
       label: l.settingsGroupShare,
       items: [
         _SettingsItem(
-          icon: LucideIcons.calendarCog,
           label: l.settingsMenuCalendarShare,
           onTap: (c) => c.push('/settings/calendar-share'),
         ),
         _SettingsItem(
-          icon: LucideIcons.tag,
           label: l.settingsMenuCalendarLabel,
           onTap: (c) => c.push('/settings/calendar-labels'),
         ),
@@ -80,12 +69,10 @@ List<_SettingsGroup> _buildGroups(BuildContext ctx) {
       label: l.settingsGroupApp,
       items: [
         _SettingsItem(
-          icon: LucideIcons.palette,
           label: l.settingsMenuAppearance,
           onTap: (c) => c.push('/settings/appearance'),
         ),
         _SettingsItem(
-          icon: LucideIcons.bell,
           label: l.navNotifications,
           onTap: (c) => c.push('/settings/notifications'),
         ),
@@ -95,18 +82,16 @@ List<_SettingsGroup> _buildGroups(BuildContext ctx) {
       label: l.settingsGroupData,
       items: [
         _SettingsItem(
-          icon: LucideIcons.download,
           label: l.exportTitle,
           onTap: (c) => c.push('/settings/export-data'),
         ),
-        _SettingsItem(icon: LucideIcons.hardDrive, label: l.settingsMenuStorage, onTap: null),
+        _SettingsItem(label: l.settingsMenuStorage, onTap: null),
       ],
     ),
     _SettingsGroup(
       label: l.settingsGroupAccount,
       items: [
         _SettingsItem(
-          icon: LucideIcons.user,
           label: l.settingsMenuAccountMgmt,
           onTap: (c) => c.push('/account'),
         ),
@@ -115,7 +100,10 @@ List<_SettingsGroup> _buildGroups(BuildContext ctx) {
   ];
 }
 
-/// 설정 화면 — 프로필 카드 + 5개 그룹 카드 + 표시 설정 inline.
+/// 설정 메뉴 — design MobileSettingsList (K뱅크 톤) 미러.
+///
+/// 카드 없이: 프로필 헤더 행(아바타+이름) + 헤어라인 + [그룹 라벨(16/700) +
+/// 플랫 행(라벨 15/500 + chevron, 13px/20px)] 반복, 그룹 사이 헤어라인.
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
@@ -127,7 +115,7 @@ class SettingsScreen extends ConsumerWidget {
     final groups = _buildGroups(context);
 
     return Scaffold(
-      backgroundColor: t.bgCanvas,
+      backgroundColor: t.bgSurface,
       appBar: AppBar(
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
@@ -138,119 +126,99 @@ class SettingsScreen extends ConsumerWidget {
         elevation: 0,
       ),
       body: ListView(
-        padding: const EdgeInsets.symmetric(
-          horizontal: PSpace.x20,
-          vertical: PSpace.x24,
-        ),
+        // design m-settings-list: padding '8px 0 32px' — 좌우는 요소별 20.
+        padding: const EdgeInsets.only(top: PSpace.x8, bottom: PSpace.x32),
         children: [
-          // 프로필 카드
+          // 내 정보 — 카드 없이 이름 헤더 행 (design ProfileCard 폐기판).
           if (user != null) ...[
-            PCard(
-              variant: PCardVariant.shadow,
-              // shadow 기본 padding(16)과 내부 Padding(x16)이 겹쳐 과대 인셋 — zero (web 정합).
-              padding: EdgeInsets.zero,
-              child: InkWell(
-                onTap: () => context.push('/account'),
-                borderRadius: PRadius.brLg,
-                child: Padding(
-                  padding: const EdgeInsets.all(PSpace.x16),
-                  child: Row(
-                    children: [
-                      PAvatar(
-                        size: PAvatarSize.md,
-                        fill: PAvatarFill.primary,
-                        fallbackText: user.userName.isNotEmpty
-                            ? user.userName[0].toUpperCase()
-                            : '?',
-                      ),
-                      const SizedBox(width: PSpace.x12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              user.userName,
-                              style: TextStyle(
-                                fontFamily: PTypo.sans,
-                                fontSize: PFontSize.body,
-                                fontWeight: PFontWeight.semi,
-                                color: t.fgPrimary,
-                              ),
+            InkWell(
+              onTap: () => context.push('/account'),
+              child: Padding(
+                padding:
+                    const EdgeInsets.fromLTRB(PSpace.x20, 14, PSpace.x20, 18),
+                child: Row(
+                  children: [
+                    PAvatar(
+                      size: PAvatarSize.lg,
+                      fill: PAvatarFill.primary,
+                      fallbackText: user.userName.isNotEmpty
+                          ? user.userName[0].toUpperCase()
+                          : '?',
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            user.userName,
+                            style: TextStyle(
+                              fontFamily: PTypo.sans,
+                              fontSize: 17,
+                              fontWeight: PFontWeight.bold,
+                              letterSpacing: -0.26,
+                              color: t.fgPrimary,
                             ),
-                            if (user.userEmail.isNotEmpty)
-                              Text(
-                                user.userEmail,
-                                style: TextStyle(
-                                  fontFamily: PTypo.sans,
-                                  fontSize: PFontSize.caption,
-                                  color: t.fgTertiary,
-                                ),
-                              ),
-                          ],
-                        ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            user.userEmail.isNotEmpty
+                                ? user.userEmail
+                                : l.settingsMenuAccountMgmt,
+                            style: TextStyle(
+                              fontFamily: PTypo.sans,
+                              fontSize: 12.5,
+                              color: t.fgTertiary,
+                            ),
+                          ),
+                        ],
                       ),
-                      Icon(
-                        LucideIcons.chevronRight,
-                        size: 16,
-                        color: t.fgTertiary,
-                      ),
-                    ],
-                  ),
+                    ),
+                    Icon(LucideIcons.chevronRight,
+                        size: 18, color: t.fgTertiary),
+                  ],
                 ),
               ),
             ),
-            const SizedBox(height: PSpace.x24),
+            Container(
+              height: 1,
+              margin: const EdgeInsets.fromLTRB(PSpace.x20, 0, PSpace.x20, 4),
+              color: t.borderSubtle,
+            ),
           ],
 
-          // 그룹 카드 (표시 설정 포함 — 전부 메뉴 항목, 별도 화면 이동)
+          // 그룹 — 라벨 + 플랫 행, 그룹 사이 헤어라인 (design flat-div 12px 20px).
           for (int gi = 0; gi < groups.length; gi++) ...[
-            _GroupLabel(label: groups[gi].label, tokens: t),
-            const SizedBox(height: PSpace.x8),
-            PCard(
-              variant: PCardVariant.shadow,
-              // list shell — 카드 자체 padding 제거, row 가 14/16 보유 (web 정합).
-              padding: EdgeInsets.zero,
-              child: Column(
-                children: [
-                  for (int i = 0; i < groups[gi].items.length; i++) ...[
-                    _SettingsRow(item: groups[gi].items[i], tokens: t),
-                    if (i < groups[gi].items.length - 1) const PDivider(),
-                  ],
-                ],
+            if (gi > 0)
+              Container(
+                height: 1,
+                margin: const EdgeInsets.symmetric(
+                    vertical: PSpace.x12, horizontal: PSpace.x20),
+                color: t.borderSubtle,
+              ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(PSpace.x20, 14, PSpace.x20, 4),
+              child: Text(
+                groups[gi].label,
+                style: TextStyle(
+                  fontFamily: PTypo.sans,
+                  fontSize: 16,
+                  fontWeight: PFontWeight.bold,
+                  letterSpacing: -0.16,
+                  color: t.fgPrimary,
+                ),
               ),
             ),
-            if (gi < groups.length - 1) const SizedBox(height: PSpace.x20),
+            for (final item in groups[gi].items)
+              _SettingsRow(item: item, tokens: t),
           ],
-
-          const SizedBox(height: PSpace.x32),
         ],
       ),
     );
   }
 }
 
-class _GroupLabel extends StatelessWidget {
-  const _GroupLabel({required this.label, required this.tokens});
-  final String label;
-  final PorestTokens tokens;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 2),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontFamily: PTypo.sans,
-          fontSize: PFontSize.caption,
-          fontWeight: PFontWeight.bold,
-          color: tokens.fgPrimary,
-        ),
-      ),
-    );
-  }
-}
-
+/// 플랫 설정 행 — design m-settings-row: 라벨(15/500) + chevron, padding 13px 20px.
 class _SettingsRow extends StatelessWidget {
   const _SettingsRow({required this.item, required this.tokens});
   final _SettingsItem item;
@@ -262,36 +230,28 @@ class _SettingsRow extends StatelessWidget {
     return InkWell(
       onTap: enabled ? () => item.onTap!(context) : null,
       child: Padding(
-        // web row '14px 16px' 정합.
         padding: const EdgeInsets.symmetric(
-          horizontal: PSpace.x16,
-          vertical: 14,
+          horizontal: PSpace.x20,
+          vertical: 13,
         ),
         child: Row(
           children: [
-            // 아이콘 네모 배경 제거 — 아이콘만 (web 동일 처리).
-            Icon(
-              item.icon,
-              size: 16,
-              color: enabled ? tokens.fgSecondary : tokens.fgDisabled,
-            ),
-            const SizedBox(width: PSpace.x12),
-            // 부가 설명 없이 라벨만 — web 메뉴 행 정합.
             Expanded(
               child: Text(
                 item.label,
                 style: TextStyle(
                   fontFamily: PTypo.sans,
-                  fontSize: PFontSize.body,
-                  fontWeight: PFontWeight.semi,
+                  fontSize: 15,
+                  fontWeight: PFontWeight.medium,
+                  letterSpacing: -0.15,
                   color: enabled ? tokens.fgPrimary : tokens.fgDisabled,
                 ),
               ),
             ),
             if (enabled)
-              Icon(LucideIcons.chevronRight, size: 16, color: tokens.fgTertiary)
+              Icon(LucideIcons.chevronRight, size: 15, color: tokens.fgTertiary)
             else
-              const SizedBox(width: 16),
+              const SizedBox(width: 15),
           ],
         ),
       ),

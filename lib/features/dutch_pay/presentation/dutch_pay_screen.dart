@@ -49,7 +49,7 @@ class _DutchPayScreenState extends ConsumerState<DutchPayScreen> {
     final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
 
     return Scaffold(
-      backgroundColor: t.bgCanvas,
+      backgroundColor: t.bgSurface,
       appBar: AppBar(
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
@@ -215,22 +215,15 @@ class _DutchPayScreenState extends ConsumerState<DutchPayScreen> {
             ),
           ];
         }
+        // 카드 다이어트 — 플랫 행 리듬 (구분선 없음).
         return [
-          PCard(
-            variant: PCardVariant.shadow,
-            padding: const EdgeInsets.symmetric(horizontal: PSpace.x16),
-            child: Column(
-              children: [
-                for (var i = 0; i < past.length; i++)
-                  _PastRow(
-                    dp: past[i],
-                    masked: masked,
-                    showDivider: i > 0,
-                    onTap: () => _openDetail(past[i]),
-                  ),
-              ],
+          for (final dp in past)
+            _PastRow(
+              dp: dp,
+              masked: masked,
+              showDivider: false,
+              onTap: () => _openDetail(dp),
             ),
-          ),
         ];
       case _DutchTab.friends:
         if (friends.isEmpty) {
@@ -242,21 +235,10 @@ class _DutchPayScreenState extends ConsumerState<DutchPayScreen> {
             ),
           ];
         }
+        // 카드 다이어트 — 플랫 행 리듬 (구분선 없음).
         return [
-          PCard(
-            variant: PCardVariant.shadow,
-            padding: const EdgeInsets.symmetric(horizontal: PSpace.x16),
-            child: Column(
-              children: [
-                for (var i = 0; i < friends.length; i++)
-                  _FriendRow(
-                    agg: friends[i],
-                    masked: masked,
-                    showDivider: i > 0,
-                  ),
-              ],
-            ),
-          ),
+          for (final f in friends)
+            _FriendRow(agg: f, masked: masked, showDivider: false),
         ];
     }
   }
@@ -450,13 +432,10 @@ class _SummaryCard extends StatelessWidget {
         isReceive ? LucideIcons.arrowDownLeft : LucideIcons.arrowUpRight;
     final footer = isReceive ? l.dutchFromPeople(count) : l.dutchToPeople(count);
 
-    return Container(
+    // 요약 — design DutchScreen Hero keep(raised) 정합 (카드 다이어트 제외 대상).
+    return PCard(
+      variant: PCardVariant.raised,
       padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: t.bgSurface,
-        borderRadius: PRadius.brLg,
-        boxShadow: t.shadowSm,
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -549,10 +528,12 @@ class _SessionCard extends StatelessWidget {
     final date = dutchKDate(dp.dutchPayDate);
     final sub = place.isEmpty ? date : '$place · $date';
 
-    return PCard(
-      variant: PCardVariant.shadow,
-      padding: const EdgeInsets.all(18),
+    // 카드 다이어트 — design SessionCard(.p-card)는 모바일 플랫: 행 리듬(12/10)로.
+    return InkWell(
       onTap: onTap,
+      borderRadius: BorderRadius.circular(10),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -655,6 +636,7 @@ class _SessionCard extends StatelessWidget {
           ),
         ],
       ),
+      ),
     );
   }
 }
@@ -744,7 +726,7 @@ class _PastRow extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
         decoration: showDivider
             ? BoxDecoration(
                 border: Border(top: BorderSide(color: t.borderSubtle)),
@@ -820,7 +802,7 @@ class _FriendRow extends StatelessWidget {
     final l = AppLocalizations.of(context);
     final settled = agg.net == 0;
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12),
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
       decoration: showDivider
           ? BoxDecoration(
               border: Border(top: BorderSide(color: t.borderSubtle)),

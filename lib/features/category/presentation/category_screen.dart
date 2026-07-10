@@ -12,7 +12,6 @@ import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_card.dart';
 import 'package:porest_desk_app/shared/widgets/p_empty_state.dart';
 import 'package:porest_desk_app/shared/widgets/p_search_field.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
@@ -91,7 +90,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
     final categoriesAsync = ref.watch(categoriesProvider);
 
     return Scaffold(
-      backgroundColor: t.bgCanvas,
+      backgroundColor: t.bgSurface,
       appBar: AppBar(
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
@@ -157,11 +156,8 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                   PSpace.x24,
                 ),
                 children: [
-                  PCard(
-                    variant: PCardVariant.shadow,
-                    padding: EdgeInsets.zero,
-                    child: _CategorySkeleton(tokens: t),
-                  ),
+                  // 카드 다이어트 — 스켈레톤 플랫.
+                  _CategorySkeleton(tokens: t),
                 ],
               ),
               error: (e, _) => Padding(
@@ -281,11 +277,11 @@ class _CategoryList extends StatelessWidget {
         PSpace.x24,
       ),
       children: [
-        PCard(
-          variant: PCardVariant.shadow,
-          padding: EdgeInsets.zero,
-          // 웹 CategoryManager 미러: 부모 reorder(외곽) + 부모별 자식 reorder(내부) 분리.
-          // 자식은 자기 부모 그룹 안에서만 드래그 가능 — 다른 부모로 넘어가지 않음.
+        // 카드 다이어트 — 카드 없이 reorder 리스트 플랫 렌더.
+        // 웹 CategoryManager 미러: 부모 reorder(외곽) + 부모별 자식 reorder(내부) 분리.
+        // 자식은 자기 부모 그룹 안에서만 드래그 가능 — 다른 부모로 넘어가지 않음.
+        Material(
+          color: Colors.transparent,
           child: ReorderableListView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),

@@ -55,7 +55,7 @@ class _CalendarLabelsScreenState extends ConsumerState<CalendarLabelsScreen> {
     final labelsAsync = ref.watch(eventLabelsProvider);
 
     return Scaffold(
-      backgroundColor: t.bgCanvas,
+      backgroundColor: t.bgSurface,
       appBar: AppBar(
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
@@ -102,8 +102,9 @@ class _CalendarLabelsScreenState extends ConsumerState<CalendarLabelsScreen> {
                           )),
                     ),
                     if (labels.isEmpty)
-                      PCard(
-                        variant: PCardVariant.shadow,
+                      // 카드 다이어트 — 빈 상태 플랫.
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
                         child: PEmptyState(
                           icon: LucideIcons.tag,
                           message: l.calLabelsEmpty,
@@ -111,9 +112,8 @@ class _CalendarLabelsScreenState extends ConsumerState<CalendarLabelsScreen> {
                         ),
                       )
                     else
-                      PCard(
-                        variant: PCardVariant.shadow,
-                        child: Column(
+                      // 카드 다이어트 — 리스트 플랫.
+                      Column(
                           children: [
                             for (int i = 0; i < labels.length; i++) ...[
                               _LabelRow(
@@ -128,7 +128,6 @@ class _CalendarLabelsScreenState extends ConsumerState<CalendarLabelsScreen> {
                             ],
                           ],
                         ),
-                      ),
                   ],
                 );
               },

@@ -10,7 +10,6 @@ import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/settings/hide_amounts_unlock_dialog.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/widgets/p_card.dart';
 import 'package:porest_desk_app/shared/widgets/p_radio_list.dart';
 import 'package:porest_desk_app/shared/widgets/p_section_label.dart';
 import 'package:porest_desk_app/shared/widgets/p_switch.dart';
@@ -27,7 +26,7 @@ class AppearanceScreen extends StatelessWidget {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
     return Scaffold(
-      backgroundColor: t.bgCanvas,
+      backgroundColor: t.bgSurface,
       appBar: AppBar(
         leadingWidth: PBackButton.leadingWidth,
         titleSpacing: 0,
@@ -111,9 +110,10 @@ class AppearanceSection extends ConsumerWidget {
         const SizedBox(height: PSpace.x24),
         PSectionLabel(l.appearancePrivacy),
         const SizedBox(height: PSpace.x8),
-        // 금액 가리기 — 클로드 디자인 settings 행 (아이콘 박스 + 라벨/설명 + 스위치).
+        // 금액 가리기 — 카드 다이어트: 카드 없이 플랫 행 (아이콘 박스 + 라벨/설명 + 스위치).
         // 켜기는 즉시, 끄기는 비밀번호 인증 (toggleHideAmountsWithUnlock).
-        PCard(
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
           child: Row(
             children: [
               Container(
