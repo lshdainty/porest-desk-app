@@ -358,44 +358,34 @@ class _SectionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    return PCard(
-      variant: PCardVariant.shadow,
-      padding: EdgeInsets.zero,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(
-              PSpace.lg,
-              PSpace.lg,
-              PSpace.lg,
-              PSpace.sm,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: PTypo.bodyLg.copyWith(
-                    color: t.fgPrimary,
-                    fontWeight: PFontWeight.bold,
-                  ),
+    // 카드 다이어트 — design .m-subpage SettingsGroup 플랫: 카드 없이 타이틀 + 행.
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(0, 0, 0, PSpace.sm),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: PTypo.bodyLg.copyWith(
+                  color: t.fgPrimary,
+                  fontWeight: PFontWeight.bold,
                 ),
-                if (subtitle != null) ...[
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle!,
-                    style: PTypo.caption.copyWith(color: t.fgTertiary),
-                  ),
-                ],
+              ),
+              if (subtitle != null) ...[
+                const SizedBox(height: 2),
+                Text(
+                  subtitle!,
+                  style: PTypo.caption.copyWith(color: t.fgTertiary),
+                ),
               ],
-            ),
+            ],
           ),
-          child,
-          // 마지막 행 패딩 12 + 4 = 16 — web CardContent 하단 여백 정합.
-          const SizedBox(height: 4),
-        ],
-      ),
+        ),
+        child,
+      ],
     );
   }
 }
@@ -488,9 +478,8 @@ class _ThresholdCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
-    return PCard(
-      variant: PCardVariant.shadow,
-      child: Column(
+    // 카드 다이어트 — 플랫 섹션.
+    return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
@@ -566,7 +555,6 @@ class _ThresholdCard extends StatelessWidget {
             ],
           ),
         ],
-      ),
     );
   }
 }
@@ -1027,9 +1015,9 @@ class _SkeletonRowCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PCard(
-      variant: PCardVariant.shadow,
-      padding: const EdgeInsets.all(PSpace.lg),
+    // 카드 다이어트 — 플랫 스켈레톤.
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: PSpace.x8),
       child: Row(
         children: const [
           PSkeleton(width: 36, height: 36, borderRadius: PRadius.brMd),
@@ -1062,20 +1050,13 @@ class _SkeletonSectionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PCard(
-      variant: PCardVariant.shadow,
-      padding: EdgeInsets.zero,
-      child: Column(
+    // 카드 다이어트 — 플랫 스켈레톤 셸.
+    return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // 헤더 — 제목(bodyLg) + 소제목(caption).
           Padding(
-            padding: const EdgeInsets.fromLTRB(
-              PSpace.lg,
-              PSpace.lg,
-              PSpace.lg,
-              PSpace.sm,
-            ),
+            padding: const EdgeInsets.fromLTRB(0, 0, 0, PSpace.sm),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -1122,7 +1103,6 @@ class _SkeletonSectionCard extends StatelessWidget {
           ],
           const SizedBox(height: 4),
         ],
-      ),
     );
   }
 }
@@ -1133,9 +1113,8 @@ class _SkeletonThresholdCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PCard(
-      variant: PCardVariant.shadow,
-      child: Column(
+    // 카드 다이어트 — 플랫 스켈레톤.
+    return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: const [
           Row(
@@ -1153,7 +1132,6 @@ class _SkeletonThresholdCard extends StatelessWidget {
           // 슬라이더 트랙 자리.
           PSkeleton(width: double.infinity, height: 4, borderRadius: PRadius.brFull),
         ],
-      ),
     );
   }
 }

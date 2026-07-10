@@ -11,7 +11,6 @@ import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_card.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
 import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
@@ -167,10 +166,8 @@ class _AccountCardManageScreenState
                         ),
                       )
                     else
-                      PCard(
-                        variant: PCardVariant.shadow,
-                        padding: EdgeInsets.zero,
-                        child: Column(
+                      // 카드 다이어트 — 카드 없이 플랫 행 리스트.
+                      Column(
                           children: [
                             for (var i = 0; i < filtered.length; i++)
                               _ManageRow(
@@ -188,7 +185,6 @@ class _AccountCardManageScreenState
                               ),
                           ],
                         ),
-                      ),
                   ],
                 ),
               ),
@@ -242,15 +238,12 @@ class _AccountCardManageSkeleton extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: PSpace.x4),
-              PCard(
-                variant: PCardVariant.shadow,
-                padding: EdgeInsets.zero,
-                child: Column(
-                  children: [
-                    for (int i = 0; i < 5; i++)
-                      _ManageRowSkel(isLast: i == 4, tokens: t),
-                  ],
-                ),
+              // 카드 다이어트 — 스켈레톤 플랫.
+              Column(
+                children: [
+                  for (int i = 0; i < 5; i++)
+                    _ManageRowSkel(isLast: i == 4, tokens: t),
+                ],
               ),
             ],
           ),

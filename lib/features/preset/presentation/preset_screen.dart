@@ -15,7 +15,6 @@ import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_card.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
 import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
@@ -170,36 +169,32 @@ class _PresetScreenState extends ConsumerState<PresetScreen> {
         ),
         const SizedBox(height: PSpace.x16),
 
-        // (4) 리스트 카드 — web 은 shadow Card (border 없음)
-        PCard(
-          variant: PCardVariant.shadow,
-          padding: EdgeInsets.zero,
-          child: isLoading
-              ? const _ListSkeleton()
-              : (sorted.isEmpty
-                    ? const _EmptyState()
-                    : Column(
-                        children: [
-                          for (int i = 0; i < sorted.length; i++)
-                            _PresetRow(
-                              template: sorted[i],
-                              category: sorted[i].categoryRowId == null
-                                  ? null
-                                  : categories.byRowId(
-                                      sorted[i].categoryRowId!,
-                                    ),
-                              masked: masked,
-                              tokens: t,
-                              divider: i > 0,
-                              onEdit: () => showPresetEditDialog(
-                                context,
-                                edit: sorted[i],
-                              ),
-                              onDelete: () => _confirmDelete(sorted[i]),
+        // (4) 리스트 — 카드 다이어트: 카드 없이 플랫 행 (구분선 제거).
+        isLoading
+            ? const _ListSkeleton()
+            : (sorted.isEmpty
+                  ? const _EmptyState()
+                  : Column(
+                      children: [
+                        for (int i = 0; i < sorted.length; i++)
+                          _PresetRow(
+                            template: sorted[i],
+                            category: sorted[i].categoryRowId == null
+                                ? null
+                                : categories.byRowId(
+                                    sorted[i].categoryRowId!,
+                                  ),
+                            masked: masked,
+                            tokens: t,
+                            divider: false,
+                            onEdit: () => showPresetEditDialog(
+                              context,
+                              edit: sorted[i],
                             ),
-                        ],
-                      )),
-        ),
+                            onDelete: () => _confirmDelete(sorted[i]),
+                          ),
+                      ],
+                    )),
       ],
     );
   }
