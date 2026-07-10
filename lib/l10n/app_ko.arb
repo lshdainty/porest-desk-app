@@ -2496,5 +2496,22 @@
         "type": "int"
       }
     }
-  }
+  },
+  "todoDetailTitle": "할 일 상세",
+  "todoDetailStatus": "상태",
+  "todoStatusPending": "대기",
+  "todoDetailCompletedAt": "완료 일시",
+  "todoDetailContent": "상세 내용",
+  "memoDetailTitle": "메모 상세",
+  "memoDetailPinned": "고정됨",
+  "memoDetailNoContent": "내용 없음",
+  "savingGoalDetailTitle": "저금 목표 상세",
+  "savingGoalDetailCurrent": "현재 모은 금액",
+  "savingGoalDetailRemaining": "남은 금액",
+  "savingGoalDetailDeadline": "목표일",
+  "savingGoalDetailDeadlineNone": "미설정",
+  "savingGoalDetailDescription": "설명",
+  "savingGoalDetailAchievedAt": "달성일",
+  "calEventDetailTitle": "일정 상세",
+  "calDetailNone": "없음"
 }

@@ -25,6 +25,7 @@ import 'package:porest_desk_app/features/constellation/presentation/night_sky_he
 import 'package:porest_desk_app/features/todo/domain/todo.dart';
 import 'package:porest_desk_app/features/todo/domain/todo_meta.dart';
 import 'package:porest_desk_app/features/todo/presentation/todo_edit_dialog.dart';
+import 'package:porest_desk_app/features/todo/presentation/todo_detail_dialog.dart';
 import 'package:porest_desk_app/features/todo/presentation/todo_project_management_dialog.dart';
 import 'package:porest_desk_app/features/todo/presentation/todo_tag_management_dialog.dart';
 
@@ -311,7 +312,7 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
                           todo: todo,
                           today: today,
                           onToggle: () => _toggleDone(todo),
-                          onTap: () => showTodoEditDialog(context, edit: todo),
+                          onTap: () => showTodoDetailDialog(context, todo),
                         ),
                     ],
                   ],

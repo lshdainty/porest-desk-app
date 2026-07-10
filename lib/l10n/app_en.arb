@@ -2493,5 +2493,22 @@
         "type": "int"
       }
     }
-  }
+  },
+  "todoDetailTitle": "To-do details",
+  "todoDetailStatus": "Status",
+  "todoStatusPending": "Pending",
+  "todoDetailCompletedAt": "Completed at",
+  "todoDetailContent": "Details",
+  "memoDetailTitle": "Memo details",
+  "memoDetailPinned": "Pinned",
+  "memoDetailNoContent": "No content",
+  "savingGoalDetailTitle": "Saving goal details",
+  "savingGoalDetailCurrent": "Amount saved",
+  "savingGoalDetailRemaining": "Remaining",
+  "savingGoalDetailDeadline": "Target date",
+  "savingGoalDetailDeadlineNone": "Not set",
+  "savingGoalDetailDescription": "Description",
+  "savingGoalDetailAchievedAt": "Achieved on",
+  "calEventDetailTitle": "Event details",
+  "calDetailNone": "None"
 }

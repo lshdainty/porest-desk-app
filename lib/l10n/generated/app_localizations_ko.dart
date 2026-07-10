@@ -4499,4 +4499,55 @@ class AppLocalizationsKo extends AppLocalizations {
   String constDetailHint(int count) {
     return '하루에 별빛 $count개를 모으면 수집돼요 · 매일 새 목표 별자리가 떠요';
   }
+
+  @override
+  String get todoDetailTitle => '할 일 상세';
+
+  @override
+  String get todoDetailStatus => '상태';
+
+  @override
+  String get todoStatusPending => '대기';
+
+  @override
+  String get todoDetailCompletedAt => '완료 일시';
+
+  @override
+  String get todoDetailContent => '상세 내용';
+
+  @override
+  String get memoDetailTitle => '메모 상세';
+
+  @override
+  String get memoDetailPinned => '고정됨';
+
+  @override
+  String get memoDetailNoContent => '내용 없음';
+
+  @override
+  String get savingGoalDetailTitle => '저금 목표 상세';
+
+  @override
+  String get savingGoalDetailCurrent => '현재 모은 금액';
+
+  @override
+  String get savingGoalDetailRemaining => '남은 금액';
+
+  @override
+  String get savingGoalDetailDeadline => '목표일';
+
+  @override
+  String get savingGoalDetailDeadlineNone => '미설정';
+
+  @override
+  String get savingGoalDetailDescription => '설명';
+
+  @override
+  String get savingGoalDetailAchievedAt => '달성일';
+
+  @override
+  String get calEventDetailTitle => '일정 상세';
+
+  @override
+  String get calDetailNone => '없음';
 }

@@ -20,6 +20,7 @@ import 'package:porest_desk_app/features/memo/application/memo_providers.dart';
 import 'package:porest_desk_app/features/memo/domain/memo.dart';
 import 'package:porest_desk_app/features/memo/domain/memo_colors.dart';
 import 'package:porest_desk_app/features/memo/presentation/memo_edit_dialog.dart';
+import 'package:porest_desk_app/features/memo/presentation/memo_detail_dialog.dart';
 
 /// 메모 — 토스 톤 색틴트 카드 그리드 (web `MemoScreen` mobile 미러).
 ///
@@ -336,7 +337,7 @@ class _CardGrid extends StatelessWidget {
       itemCount: memos.length,
       itemBuilder: (_, i) => _MemoCard(
         memo: memos[i],
-        onTap: () => showMemoEditDialog(context, edit: memos[i]),
+        onTap: () => showMemoDetailDialog(context, memos[i]),
         onPin: () => onPin(memos[i]),
       ),
     );

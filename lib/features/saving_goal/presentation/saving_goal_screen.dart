@@ -26,6 +26,7 @@ import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
 import 'package:porest_desk_app/features/saving_goal/application/saving_goal_providers.dart';
 import 'package:porest_desk_app/features/saving_goal/domain/saving_goal.dart';
 import 'package:porest_desk_app/features/saving_goal/presentation/saving_goal_edit_dialog.dart';
+import 'package:porest_desk_app/features/saving_goal/presentation/saving_goal_detail_dialog.dart';
 
 class SavingGoalScreen extends ConsumerWidget {
   const SavingGoalScreen({super.key});
@@ -85,8 +86,8 @@ class SavingGoalScreen extends ConsumerWidget {
                 tokens: t,
                 onContribute: () =>
                     _showContribute(context, ref, items[i]),
-                onEdit: () => showSavingGoalEditDialog(context,
-                    edit: items[i]),
+                onEdit: () =>
+                    showSavingGoalDetailDialog(context, items[i]),
               ),
             );
           },

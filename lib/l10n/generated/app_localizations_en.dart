@@ -4548,4 +4548,55 @@ class AppLocalizationsEn extends AppLocalizations {
   String constDetailHint(int count) {
     return 'Gather $count starlight in a day to collect · a new target rises daily';
   }
+
+  @override
+  String get todoDetailTitle => 'To-do details';
+
+  @override
+  String get todoDetailStatus => 'Status';
+
+  @override
+  String get todoStatusPending => 'Pending';
+
+  @override
+  String get todoDetailCompletedAt => 'Completed at';
+
+  @override
+  String get todoDetailContent => 'Details';
+
+  @override
+  String get memoDetailTitle => 'Memo details';
+
+  @override
+  String get memoDetailPinned => 'Pinned';
+
+  @override
+  String get memoDetailNoContent => 'No content';
+
+  @override
+  String get savingGoalDetailTitle => 'Saving goal details';
+
+  @override
+  String get savingGoalDetailCurrent => 'Amount saved';
+
+  @override
+  String get savingGoalDetailRemaining => 'Remaining';
+
+  @override
+  String get savingGoalDetailDeadline => 'Target date';
+
+  @override
+  String get savingGoalDetailDeadlineNone => 'Not set';
+
+  @override
+  String get savingGoalDetailDescription => 'Description';
+
+  @override
+  String get savingGoalDetailAchievedAt => 'Achieved on';
+
+  @override
+  String get calEventDetailTitle => 'Event details';
+
+  @override
+  String get calDetailNone => 'None';
 }
