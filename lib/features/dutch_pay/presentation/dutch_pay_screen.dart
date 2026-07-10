@@ -999,15 +999,15 @@ class _SummaryCardSkeleton extends StatelessWidget {
   }
 }
 
-/// _SessionCard placeholder — bordered card + 제목/금액 + 아바타스택/진행바/비율.
+/// _SessionCard placeholder — 플랫 행(12/10) + 제목/금액 + 아바타스택/진행바/비율.
 class _SessionCardSkeleton extends StatelessWidget {
   const _SessionCardSkeleton();
 
   @override
   Widget build(BuildContext context) {
-    return PCard(
-      variant: PCardVariant.shadow,
-      padding: const EdgeInsets.all(18),
+    // 카드 다이어트 — 실제 _SessionCard 와 동일 플랫 리듬.
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: PSpace.x12, horizontal: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

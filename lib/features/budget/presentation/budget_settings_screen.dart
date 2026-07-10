@@ -910,9 +910,9 @@ class _ErrorBox extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
-    return PCard(
+    // 카드 다이어트 — 에러 상태 플랫 (카드 셸 제거).
+    return Padding(
       padding: const EdgeInsets.all(PSpace.x16),
-      variant: PCardVariant.shadow,
       child: Column(
         children: [
           Text(
