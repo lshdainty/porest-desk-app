@@ -251,7 +251,7 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
         // ── 밤하늘 히어로 (별자리 게이미피케이션 — 통계 카드 대체, 디자인 정합) ──
         if (constToday != null) ...[
           NightSkyHero(today: constToday, doneToday: doneToday),
-          const SizedBox(height: PSpace.md),
+          const SizedBox(height: 14),
         ],
 
         // ── 퀵추가 ──
@@ -263,7 +263,7 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
           onChanged: () => setState(() {}),
           t: t,
         ),
-        const SizedBox(height: PSpace.md),
+        const SizedBox(height: 14),
 
         // ── 필터 칩 4종 → PTabs(pills, sm) (가계부 필터 선례 동일) ──
         SingleChildScrollView(
@@ -282,20 +282,15 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
             ],
           ),
         ),
-        const SizedBox(height: PSpace.md),
+        const SizedBox(height: 14),
 
-        // ── 리스트 (마감일 그룹) or 빈 상태 — 둘 다 카드 안에 (web 정합) ──
-        PCard(
-          variant: PCardVariant.bordered,
-          padding: filtered.isEmpty
-              ? EdgeInsets.zero
-              : const EdgeInsets.symmetric(horizontal: PSpace.x16),
-          child: filtered.isEmpty
-              ? SizedBox(
-                  width: double.infinity,
-                  child: _EmptyTodo(tab: _tab),
-                )
-              : Column(
+        // ── 리스트 (마감일 그룹) or 빈 상태 — 카드 다이어트: 플랫 (design .p-card 플랫화) ──
+        filtered.isEmpty
+            ? SizedBox(
+                width: double.infinity,
+                child: _EmptyTodo(tab: _tab),
+              )
+            : Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     for (final key in groupKeys) ...[
@@ -317,11 +312,10 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
                     ],
                   ],
                 ),
-        ),
         if (constSky != null &&
             constToday != null &&
             constCollection != null) ...[
-          const SizedBox(height: PSpace.md),
+          const SizedBox(height: 14),
           MySkyCard(
             sky: constSky,
             today: constToday,
@@ -329,7 +323,7 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
           ),
         ],
         if (constCollection != null && constToday != null) ...[
-          const SizedBox(height: PSpace.md),
+          const SizedBox(height: 14),
           CollectionCard(
             collection: constCollection,
             todayKey: constToday.constellation.constellationKey,

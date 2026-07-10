@@ -2,13 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:porest_desk_app/app/theme/radius.dart';
-import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/features/constellation/domain/constellation.dart';
 import 'package:porest_desk_app/features/constellation/presentation/constellation_painter.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/widgets/p_card.dart';
 
 /// 나의 밤하늘 — 최근 2주 관측 그리드 (GROWN=별자리 미니 아이콘 · 흐린 밤 · 쉼 · 오늘 단계).
 /// 웹 MySkyCard 미러 (디자인 SoT: forest.jsx MyForest).
@@ -44,8 +42,10 @@ class MySkyCard extends StatelessWidget {
       rows.add(sky.sublist(i, i + 7 > sky.length ? sky.length : i + 7));
     }
 
-    return PCard(
-      padding: const EdgeInsets.all(PSpace.x16),
+    // 카드 다이어트 — design forest.jsx MyForest/ForestCollection(.p-card)는
+    // 모바일에서 플랫: 카드 없이 sec-head + 콘텐츠만 (inset 10).
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
