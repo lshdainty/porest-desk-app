@@ -31,6 +31,7 @@ class ConstellationPainter extends CustomPainter {
     this.lit,
     this.dim = false,
     this.glow = false,
+    this.linesOnly = false,
     this.uniformScale = true,
   });
 
@@ -39,6 +40,9 @@ class ConstellationPainter extends CustomPainter {
   final int? lit;
   final bool dim;
   final bool glow;
+
+  /// 썸네일 모드 — 선만 그려 작은 크기에서 뭉침 방지 (점등 상태 무관 전체 골격).
+  final bool linesOnly;
 
   /// true: 정비율(썸네일/감상), false: 박스에 늘림(히어로 figure — 웹 preserveAspectRatio=none 정합).
   final bool uniformScale;
@@ -56,18 +60,24 @@ class ConstellationPainter extends CustomPainter {
         ? Offset(ox + p[0] * s, oy + p[1] * s)
         : Offset(p[0] * sx, p[1] * sy);
 
+    // 별 수 적응형 크기 — 실좌표 별자리(2~27별)의 밀집 구간 겹침 방지
+    final count = map.pts.length;
+    final strokeScale = count <= 8 ? 0.022 : count <= 15 ? 0.016 : 0.012;
     final linePaint = Paint()
       ..color = color.withValues(alpha: dim ? 0.35 : 0.55)
-      ..strokeWidth = size.shortestSide * 0.022
+      ..strokeWidth = size.shortestSide * strokeScale
       ..strokeCap = StrokeCap.round;
 
     for (final e in map.edges) {
       if (e.length < 2) continue;
       final a = e[0];
       final b = e[1];
-      if (a >= n || b >= n || a >= map.pts.length || b >= map.pts.length) continue;
+      if (a >= map.pts.length || b >= map.pts.length) continue;
+      // linesOnly(썸네일)는 점등 상태와 무관하게 전체 골격을 보여준다
+      if (!linesOnly && (a >= n || b >= n)) continue;
       canvas.drawLine(at(map.pts[a]), at(map.pts[b]), linePaint);
     }
+    if (linesOnly) return;
 
     final litPaint = Paint()..color = color.withValues(alpha: dim ? 0.55 : 1);
     final glowPaint = Paint()
@@ -78,8 +88,8 @@ class ConstellationPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = size.shortestSide * 0.014;
 
-    final rLit = size.shortestSide * 0.034;
-    final rUnlit = size.shortestSide * 0.026;
+    final rLit = size.shortestSide * (count <= 8 ? 0.034 : count <= 15 ? 0.024 : 0.018);
+    final rUnlit = size.shortestSide * (count <= 8 ? 0.026 : count <= 15 ? 0.019 : 0.015);
     for (var i = 0; i < map.pts.length; i++) {
       final c = at(map.pts[i]);
       if (i < n) {
@@ -93,7 +103,8 @@ class ConstellationPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(ConstellationPainter old) =>
-      old.map != map || old.color != color || old.lit != lit || old.dim != dim || old.glow != glow;
+      old.map != map || old.color != color || old.lit != lit || old.dim != dim ||
+      old.glow != glow || old.linesOnly != linesOnly;
 }
 
 /// 별자리 썸네일 아이콘 — 도감/밤하늘 그리드용.
@@ -106,6 +117,7 @@ class ConstellationIcon extends StatelessWidget {
     this.lit,
     this.dim = false,
     this.glow = false,
+    this.linesOnly = false,
   });
 
   final ConstellationInfo info;
@@ -114,6 +126,7 @@ class ConstellationIcon extends StatelessWidget {
   final int? lit;
   final bool dim;
   final bool glow;
+  final bool linesOnly;
 
   @override
   Widget build(BuildContext context) {
@@ -127,6 +140,7 @@ class ConstellationIcon extends StatelessWidget {
           lit: lit,
           dim: dim,
           glow: glow,
+          linesOnly: linesOnly,
         ),
       ),
     );

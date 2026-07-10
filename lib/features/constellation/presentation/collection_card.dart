@@ -152,7 +152,7 @@ class _CollectionRow extends StatelessWidget {
                 color: collected ? color : t.fgTertiary,
                 size: 24,
                 dim: !collected,
-                lit: collected ? null : 0,
+                linesOnly: true,
               ),
             ),
             const SizedBox(width: PSpace.x12),

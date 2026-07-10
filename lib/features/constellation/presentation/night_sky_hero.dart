@@ -284,13 +284,17 @@ class _HeroFigurePainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1;
 
+    // 별 수 적응형 점 크기 — 밀집 별자리(15별 초과) 겹침 방지
+    final dense = map.pts.length > 15;
+    final rOn = dense ? 2.5 : 3.5;
+    final rOff = dense ? 1.8 : 2.5;
     for (var i = 0; i < map.pts.length; i++) {
       final c = at(map.pts[i]);
       if (i < lit) {
-        canvas.drawCircle(c, 6, glowPaint);
-        canvas.drawCircle(c, 3.5, onPaint);
+        canvas.drawCircle(c, rOn * 1.7, glowPaint);
+        canvas.drawCircle(c, rOn, onPaint);
       } else {
-        canvas.drawCircle(c, 2.5, offPaint);
+        canvas.drawCircle(c, rOff, offPaint);
       }
     }
   }

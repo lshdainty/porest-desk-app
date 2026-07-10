@@ -154,7 +154,7 @@ class _DayCell extends StatelessWidget {
                 child: isToday
                     ? Icon(stageIcon, size: 16, color: fg)
                     : day.isGrown && entry != null
-                        ? ConstellationIcon(info: entry!.constellation, color: fg, size: 22)
+                        ? ConstellationIcon(info: entry!.constellation, color: fg, size: 22, linesOnly: true)
                         : day.isWithered
                             ? Icon(LucideIcons.cloudy, size: 15, color: fg)
                             : Container(
