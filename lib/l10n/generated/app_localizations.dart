@@ -8443,6 +8443,108 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'하루에 별빛 {count}개를 모으면 수집돼요 · 매일 새 목표 별자리가 떠요'**
   String constDetailHint(int count);
+
+  /// No description provided for @todoDetailTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'할 일 상세'**
+  String get todoDetailTitle;
+
+  /// No description provided for @todoDetailStatus.
+  ///
+  /// In ko, this message translates to:
+  /// **'상태'**
+  String get todoDetailStatus;
+
+  /// No description provided for @todoStatusPending.
+  ///
+  /// In ko, this message translates to:
+  /// **'대기'**
+  String get todoStatusPending;
+
+  /// No description provided for @todoDetailCompletedAt.
+  ///
+  /// In ko, this message translates to:
+  /// **'완료 일시'**
+  String get todoDetailCompletedAt;
+
+  /// No description provided for @todoDetailContent.
+  ///
+  /// In ko, this message translates to:
+  /// **'상세 내용'**
+  String get todoDetailContent;
+
+  /// No description provided for @memoDetailTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'메모 상세'**
+  String get memoDetailTitle;
+
+  /// No description provided for @memoDetailPinned.
+  ///
+  /// In ko, this message translates to:
+  /// **'고정됨'**
+  String get memoDetailPinned;
+
+  /// No description provided for @memoDetailNoContent.
+  ///
+  /// In ko, this message translates to:
+  /// **'내용 없음'**
+  String get memoDetailNoContent;
+
+  /// No description provided for @savingGoalDetailTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'저금 목표 상세'**
+  String get savingGoalDetailTitle;
+
+  /// No description provided for @savingGoalDetailCurrent.
+  ///
+  /// In ko, this message translates to:
+  /// **'현재 모은 금액'**
+  String get savingGoalDetailCurrent;
+
+  /// No description provided for @savingGoalDetailRemaining.
+  ///
+  /// In ko, this message translates to:
+  /// **'남은 금액'**
+  String get savingGoalDetailRemaining;
+
+  /// No description provided for @savingGoalDetailDeadline.
+  ///
+  /// In ko, this message translates to:
+  /// **'목표일'**
+  String get savingGoalDetailDeadline;
+
+  /// No description provided for @savingGoalDetailDeadlineNone.
+  ///
+  /// In ko, this message translates to:
+  /// **'미설정'**
+  String get savingGoalDetailDeadlineNone;
+
+  /// No description provided for @savingGoalDetailDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'설명'**
+  String get savingGoalDetailDescription;
+
+  /// No description provided for @savingGoalDetailAchievedAt.
+  ///
+  /// In ko, this message translates to:
+  /// **'달성일'**
+  String get savingGoalDetailAchievedAt;
+
+  /// No description provided for @calEventDetailTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'일정 상세'**
+  String get calEventDetailTitle;
+
+  /// No description provided for @calDetailNone.
+  ///
+  /// In ko, this message translates to:
+  /// **'없음'**
+  String get calDetailNone;
 }
 
 class _AppLocalizationsDelegate

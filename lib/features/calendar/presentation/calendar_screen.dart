@@ -22,6 +22,7 @@ import 'package:porest_desk_app/features/calendar/domain/calendar_event.dart';
 import 'package:porest_desk_app/features/calendar/domain/holiday.dart';
 import 'package:porest_desk_app/features/calendar/domain/user_calendar.dart';
 import 'package:porest_desk_app/features/calendar/presentation/calendar_event_dialog.dart';
+import 'package:porest_desk_app/features/calendar/presentation/calendar_event_detail_dialog.dart';
 
 class CalendarScreen extends ConsumerStatefulWidget {
   const CalendarScreen({super.key});
@@ -242,7 +243,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         },
         onTapEvent: (e) {
           Navigator.of(context).pop();
-          showCalendarEventDialog(context, edit: e);
+          showCalendarEventDetailDialog(context, e);
         },
       ),
     );
