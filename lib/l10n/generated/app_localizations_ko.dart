@@ -746,12 +746,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get todoStatusAll => '전체';
 
   @override
-  String get todoStatusPending => '대기';
-
-  @override
-  String get todoStatusInProgress => '진행중';
-
-  @override
   String get todoStatusCompleted => '완료';
 
   @override
@@ -777,12 +771,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get todoTagMgmt => '태그 관리';
-
-  @override
-  String get todoViewKanban => '칸반 보기';
-
-  @override
-  String get todoViewList => '리스트 보기';
 
   @override
   String get memoTitle => '메모';
@@ -4019,9 +4007,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get todoNoContent => '내용 없음';
-
-  @override
-  String get todoColumnEmpty => '비어있음';
 
   @override
   String get todoEmptyToday => '오늘 할 일이 없어요';

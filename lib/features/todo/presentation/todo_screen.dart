@@ -25,7 +25,6 @@ import 'package:porest_desk_app/features/constellation/presentation/night_sky_he
 import 'package:porest_desk_app/features/todo/domain/todo.dart';
 import 'package:porest_desk_app/features/todo/domain/todo_meta.dart';
 import 'package:porest_desk_app/features/todo/presentation/todo_edit_dialog.dart';
-import 'package:porest_desk_app/features/todo/presentation/todo_kanban_view.dart';
 import 'package:porest_desk_app/features/todo/presentation/todo_project_management_dialog.dart';
 import 'package:porest_desk_app/features/todo/presentation/todo_tag_management_dialog.dart';
 
@@ -43,7 +42,6 @@ class TodoScreen extends ConsumerStatefulWidget {
 enum _TodoFilterTab { today, week, all, done }
 
 class _TodoScreenState extends ConsumerState<TodoScreen> {
-  bool _kanban = false;
   _TodoFilterTab _tab = _TodoFilterTab.today;
   final _quickAddCtrl = TextEditingController();
   bool _quickAdding = false;
@@ -76,8 +74,11 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
       invalidateConstellation(ref);
     } on ApiException catch (e) {
       if (!mounted) return;
-      showPSnackBar(context, '${AppLocalizations.of(context).todoAddFailed}: ${e.message}',
-          severity: PSnackSeverity.error);
+      showPSnackBar(
+        context,
+        '${AppLocalizations.of(context).todoAddFailed}: ${e.message}',
+        severity: PSnackSeverity.error,
+      );
     } finally {
       if (mounted) setState(() => _quickAdding = false);
     }
@@ -92,8 +93,11 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
       invalidateConstellation(ref);
     } on ApiException catch (e) {
       if (!mounted) return;
-      showPSnackBar(context, '${AppLocalizations.of(context).todoActionFailed}: ${e.message}',
-          severity: PSnackSeverity.error);
+      showPSnackBar(
+        context,
+        '${AppLocalizations.of(context).todoActionFailed}: ${e.message}',
+        severity: PSnackSeverity.error,
+      );
     }
   }
 
@@ -117,11 +121,6 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
         foregroundColor: t.fgPrimary,
         elevation: 0,
         actions: [
-          PButton.icon(
-            icon: _kanban ? LucideIcons.list : LucideIcons.layoutGrid,
-            tooltip: _kanban ? l.todoViewList : l.todoViewKanban,
-            onPressed: () => setState(() => _kanban = !_kanban),
-          ),
           PDropdownMenu(
             iconColor: t.fgSecondary,
             iconSize: 24,
@@ -143,27 +142,26 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
         tooltip: l.todoAdd,
         onPressed: () => showTodoEditDialog(context),
       ),
-      body: _kanban
-          ? const TodoKanbanView(priority: null)
-          : RefreshIndicator(
-              color: t.bgBrand,
-              onRefresh: () async {
-                ref.invalidate(todoListProvider(_allFilter));
-                await ref.read(todoListProvider(_allFilter).future);
-              },
-              child: listAsync.when(
-                loading: () => _TodoSkeleton(tokens: t),
-                error: (e, _) => ListView(
-                  padding: const EdgeInsets.all(PSpace.x16),
-                  children: [
-                    Text('${l.todoLoadError}\n$e',
-                        style:
-                            PTypo.bodySm.copyWith(color: t.statusDanger)),
-                  ],
-                ),
-                data: (all) => _buildBody(context, t, all),
+      body: RefreshIndicator(
+        color: t.bgBrand,
+        onRefresh: () async {
+          ref.invalidate(todoListProvider(_allFilter));
+          await ref.read(todoListProvider(_allFilter).future);
+        },
+        child: listAsync.when(
+          loading: () => _TodoSkeleton(tokens: t),
+          error: (e, _) => ListView(
+            padding: const EdgeInsets.all(PSpace.x16),
+            children: [
+              Text(
+                '${l.todoLoadError}\n$e',
+                style: PTypo.bodySm.copyWith(color: t.statusDanger),
               ),
-            ),
+            ],
+          ),
+          data: (all) => _buildBody(context, t, all),
+        ),
+      ),
     );
   }
 
@@ -243,7 +241,11 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(
-          PSpace.x16, PSpace.x16, PSpace.x16, 96),
+        PSpace.x16,
+        PSpace.x16,
+        PSpace.x16,
+        96,
+      ),
       children: [
         // ── 밤하늘 히어로 (별자리 게이미피케이션 — 통계 카드 대체, 디자인 정합) ──
         if (constToday != null) ...[
@@ -315,7 +317,9 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
                   ],
                 ),
         ),
-        if (constSky != null && constToday != null && constCollection != null) ...[
+        if (constSky != null &&
+            constToday != null &&
+            constCollection != null) ...[
           const SizedBox(height: PSpace.md),
           MySkyCard(
             sky: constSky,
@@ -535,8 +539,11 @@ class _TodoRow extends StatelessWidget {
                           ),
                   ),
                   child: todo.done
-                      ? const Icon(LucideIcons.check,
-                          size: 13, color: Colors.white)
+                      ? const Icon(
+                          LucideIcons.check,
+                          size: 13,
+                          color: Colors.white,
+                        )
                       : null,
                 ),
               ),
@@ -574,13 +581,15 @@ class _TodoRow extends StatelessWidget {
                         _MetaDot(t: t),
                         Text(
                           tag,
-                          style:
-                              PTypo.caption.copyWith(color: t.fgTertiary),
+                          style: PTypo.caption.copyWith(color: t.fgTertiary),
                         ),
                         if (hasNote) ...[
                           _MetaDot(t: t),
-                          Icon(LucideIcons.alignLeft,
-                              size: 11, color: t.fgTertiary),
+                          Icon(
+                            LucideIcons.alignLeft,
+                            size: 11,
+                            color: t.fgTertiary,
+                          ),
                         ],
                       ],
                     ),
@@ -590,8 +599,7 @@ class _TodoRow extends StatelessWidget {
               const SizedBox(width: 8),
               // 우선순위 칩.
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
                   color: prio.bg(context),
                   borderRadius: PRadius.brSm,
@@ -649,9 +657,7 @@ class _EmptyTodo extends StatelessWidget {
       _TodoFilterTab.done => l.todoEmptyDone,
       _TodoFilterTab.all => l.todoEmptyAll,
     };
-    final sub = isDone
-        ? l.todoEmptyDoneHint
-        : l.todoEmptyAddHint;
+    final sub = isDone ? l.todoEmptyDoneHint : l.todoEmptyAddHint;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 20),
@@ -702,7 +708,11 @@ class _TodoSkeleton extends StatelessWidget {
     final t = tokens;
     return ListView(
       padding: const EdgeInsets.fromLTRB(
-          PSpace.x16, PSpace.x16, PSpace.x16, 96),
+        PSpace.x16,
+        PSpace.x16,
+        PSpace.x16,
+        96,
+      ),
       physics: const NeverScrollableScrollPhysics(),
       children: [
         Row(
