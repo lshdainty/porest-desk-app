@@ -434,6 +434,7 @@ class _TotalBudgetCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final pct = monthlyLimit > 0 ? (totalSpent / monthlyLimit) * 100 : 0.0;
     final l = AppLocalizations.of(context);
+    // 카드 다이어트에서도 유지 — design `p-card--brand` 는 diet 제외 (브랜드 강조 카드).
     return PCard(
       // 디자인 p-card--brand: surface 위 cobalt @12% 알파 합성 (라이트/다크 자동).
       variant: PCardVariant.shadow,
@@ -672,9 +673,9 @@ class _CategoryListCard extends StatelessWidget {
           ],
         ),
         const SizedBox(height: PSpace.x8),
-        PCard(
-          padding: const EdgeInsets.all(PSpace.x16),
-          variant: PCardVariant.shadow,
+        // 카드 다이어트 — 플랫 (콘텐츠 inset 10).
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -875,9 +876,9 @@ class _LoadingSkeleton extends StatelessWidget {
         const SizedBox(height: PSpace.x16),
         const PSkeleton.line(width: 140, height: 16),
         const SizedBox(height: PSpace.x8),
-        PCard(
-          padding: const EdgeInsets.all(PSpace.x16),
-          variant: PCardVariant.shadow,
+        // 카드 다이어트 — 리스트 스켈레톤 플랫.
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
           child: Column(
             children: [
               for (var i = 0; i < 3; i++) ...[

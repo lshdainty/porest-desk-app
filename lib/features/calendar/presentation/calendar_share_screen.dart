@@ -198,9 +198,8 @@ class _Section extends StatelessWidget {
           child: Text(title, style: PTypo.bodySm.copyWith(color: t.fgPrimary, fontWeight: PFontWeight.bold)),
         ),
         if (calendars.isEmpty)
-          PCard(
-            variant: PCardVariant.shadow,
-            // 기본 padding(16) 래핑 제거 — 안에서 직접 28/16 지정(web 정합, 비어보임 완화).
+          // 카드 다이어트 — 빈 상태 플랫.
+          Padding(
             padding: EdgeInsets.zero,
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 28, horizontal: PSpace.x16),
@@ -208,9 +207,8 @@ class _Section extends StatelessWidget {
             ),
           )
         else
-          PCard(
-            variant: PCardVariant.shadow,
-            // 기본 padding(16) 제거 — row 가 자체 16/12 보유(web CardContent padding:0 정합).
+          // 카드 다이어트 — 리스트 플랫 (row 가 자체 16/12 보유).
+          Padding(
             padding: EdgeInsets.zero,
             child: Column(
               children: [
@@ -299,9 +297,9 @@ class _JoinCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = tokens;
     final l = AppLocalizations.of(context);
-    return PCard(
-      variant: PCardVariant.shadow,
-      padding: const EdgeInsets.all(PSpace.x16),
+    // 카드 다이어트 — 플랫 행.
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: PSpace.x8),
       child: Row(
         children: [
           Container(

@@ -17,7 +17,6 @@ import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_badge.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_card.dart';
 import 'package:porest_desk_app/shared/widgets/p_dropdown_menu.dart';
 import 'package:porest_desk_app/shared/widgets/p_toggle.dart';
 import 'package:porest_desk_app/shared/widgets/p_divider.dart';
@@ -163,9 +162,8 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
                   ),
                 ],
                 const SizedBox(height: PSpace.x12),
-                PCard(
-                  padding: EdgeInsets.zero,
-                  child: Column(
+                // 카드 다이어트 — 리스트 셸 카드 제거, 플랫.
+                Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // 헤더: 전체 목록 (좌) + 필터 개별 toggle (우, 배경 없음)
@@ -261,7 +259,6 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
                         ),
                     ],
                   ),
-                ),
               ],
             );
           },
@@ -358,9 +355,9 @@ class _SummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    return PCard(
-      padding: const EdgeInsets.all(PSpace.x16),
-      variant: PCardVariant.shadow,
+    // 카드 다이어트 — 플랫 (콘텐츠 inset 10).
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Column(
         children: [
           Row(
@@ -475,9 +472,9 @@ class _UpcomingCard extends StatelessWidget {
     final l = AppLocalizations.of(context);
     final today = DateTime.now();
     final todayStart = DateTime(today.year, today.month, today.day);
-    return PCard(
-      padding: const EdgeInsets.all(PSpace.x16),
-      variant: PCardVariant.shadow,
+    // 카드 다이어트 — 플랫 (콘텐츠 inset 10).
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -785,10 +782,9 @@ class _RecurringSkeleton extends StatelessWidget {
         vertical: PSpace.x24,
       ),
       children: [
-        // 통계 카드 — 실제 _SummaryCard 와 동일한 2×2 그리드 + 중앙 PDivider.
-        PCard(
-          variant: PCardVariant.shadow,
-          padding: const EdgeInsets.all(PSpace.x16),
+        // 통계 — 플랫 스켈레톤 (실제와 동일 2×2 그리드).
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
           child: Column(
             children: [
               Row(
@@ -810,11 +806,8 @@ class _RecurringSkeleton extends StatelessWidget {
           ),
         ),
         const SizedBox(height: PSpace.x12),
-        // 반복 거래 리스트 — 실제 카드는 shadow(border 없음).
-        PCard(
-          variant: PCardVariant.shadow,
-          padding: EdgeInsets.zero,
-          child: Column(
+        // 반복 거래 리스트 — 플랫 스켈레톤.
+        Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // 헤더: "전체 목록"(정적) + "추가"(정적) — 실제 렌더.
@@ -907,7 +900,6 @@ class _RecurringSkeleton extends StatelessWidget {
               ],
             ],
           ),
-        ),
       ],
     );
   }
