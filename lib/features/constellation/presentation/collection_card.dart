@@ -11,49 +11,6 @@ import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_card.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 
-/// 별자리 이름 로컬라이즈 — key 기반 (마스터 name 은 fallback).
-String constellationName(AppLocalizations l, ConstellationInfo info) =>
-    switch (info.constellationKey) {
-      'dipper' => l.constNameDipper,
-      'cass' => l.constNameCass,
-      'orion' => l.constNameOrion,
-      'cygnus' => l.constNameCygnus,
-      'lyra' => l.constNameLyra,
-      'crux' => l.constNameCrux,
-      'scorpius' => l.constNameScorpius,
-      'pegasus' => l.constNamePegasus,
-      'ursaminor' => l.constNameUrsaMinor,
-      'leo' => l.constNameLeo,
-      'canismajor' => l.constNameCanisMajor,
-      'taurus' => l.constNameTaurus,
-      'gemini' => l.constNameGemini,
-      'corona' => l.constNameCorona,
-      'aquila' => l.constNameAquila,
-      'sagittarius' => l.constNameSagittarius,
-      _ => info.name,
-    };
-
-String constellationDesc(AppLocalizations l, ConstellationInfo info) =>
-    switch (info.constellationKey) {
-      'dipper' => l.constDescDipper,
-      'cass' => l.constDescCass,
-      'orion' => l.constDescOrion,
-      'cygnus' => l.constDescCygnus,
-      'lyra' => l.constDescLyra,
-      'crux' => l.constDescCrux,
-      'scorpius' => l.constDescScorpius,
-      'pegasus' => l.constDescPegasus,
-      'ursaminor' => l.constDescUrsaMinor,
-      'leo' => l.constDescLeo,
-      'canismajor' => l.constDescCanisMajor,
-      'taurus' => l.constDescTaurus,
-      'gemini' => l.constDescGemini,
-      'corona' => l.constDescCorona,
-      'aquila' => l.constDescAquila,
-      'sagittarius' => l.constDescSagittarius,
-      _ => info.description ?? '',
-    };
-
 /// 별자리 도감 — 전체 목록(수집 횟수/미수집), 탭 시 상세 감상 시트.
 /// 웹 CollectionCard 미러 (디자인 SoT: forest.jsx ForestCollection).
 class CollectionCard extends StatelessWidget {
@@ -164,7 +121,7 @@ class _CollectionRow extends StatelessWidget {
                     children: [
                       Flexible(
                         child: Text(
-                          constellationName(l, entry.constellation),
+                          constellationName(entry.constellation),
                           overflow: TextOverflow.ellipsis,
                           style: PTypo.bodySm.copyWith(
                             fontSize: 13.5,
@@ -290,7 +247,7 @@ Future<void> showConstellationDetailSheet(
               textBaseline: TextBaseline.alphabetic,
               children: [
                 Text(
-                  constellationName(l, entry.constellation),
+                  constellationName(entry.constellation),
                   style: TextStyle(
                     fontFamily: PTypo.sans,
                     fontSize: 17,
@@ -311,7 +268,7 @@ Future<void> showConstellationDetailSheet(
             ),
             const SizedBox(height: 4),
             Text(
-              constellationDesc(l, entry.constellation),
+              constellationDesc(entry.constellation),
               style: PTypo.bodySm.copyWith(color: t.fgSecondary),
             ),
             const SizedBox(height: 10),
