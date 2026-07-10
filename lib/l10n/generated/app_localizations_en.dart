@@ -756,12 +756,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get todoStatusAll => 'All';
 
   @override
-  String get todoStatusPending => 'Pending';
-
-  @override
-  String get todoStatusInProgress => 'In progress';
-
-  @override
   String get todoStatusCompleted => 'Completed';
 
   @override
@@ -787,12 +781,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get todoTagMgmt => 'Tags';
-
-  @override
-  String get todoViewKanban => 'Kanban view';
-
-  @override
-  String get todoViewList => 'List view';
 
   @override
   String get memoTitle => 'Memos';
@@ -4061,9 +4049,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get todoNoContent => 'No content';
-
-  @override
-  String get todoColumnEmpty => 'Empty';
 
   @override
   String get todoEmptyToday => 'Nothing due today';

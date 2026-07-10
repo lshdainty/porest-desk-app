@@ -1502,18 +1502,6 @@ abstract class AppLocalizations {
   /// **'전체'**
   String get todoStatusAll;
 
-  /// No description provided for @todoStatusPending.
-  ///
-  /// In ko, this message translates to:
-  /// **'대기'**
-  String get todoStatusPending;
-
-  /// No description provided for @todoStatusInProgress.
-  ///
-  /// In ko, this message translates to:
-  /// **'진행중'**
-  String get todoStatusInProgress;
-
   /// No description provided for @todoStatusCompleted.
   ///
   /// In ko, this message translates to:
@@ -1567,18 +1555,6 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'태그 관리'**
   String get todoTagMgmt;
-
-  /// No description provided for @todoViewKanban.
-  ///
-  /// In ko, this message translates to:
-  /// **'칸반 보기'**
-  String get todoViewKanban;
-
-  /// No description provided for @todoViewList.
-  ///
-  /// In ko, this message translates to:
-  /// **'리스트 보기'**
-  String get todoViewList;
 
   /// No description provided for @memoTitle.
   ///
@@ -7615,12 +7591,6 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'내용 없음'**
   String get todoNoContent;
-
-  /// No description provided for @todoColumnEmpty.
-  ///
-  /// In ko, this message translates to:
-  /// **'비어있음'**
-  String get todoColumnEmpty;
 
   /// No description provided for @todoEmptyToday.
   ///
