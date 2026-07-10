@@ -1,7 +1,6 @@
 {
   "@@locale": "en",
   "appTitle": "POREST Desk",
-
   "actionSave": "Save",
   "actionCancel": "Cancel",
   "actionDelete": "Delete",
@@ -28,12 +27,10 @@
   "stateNoData": "No data",
   "stateError": "Something went wrong",
   "stateEmpty": "Nothing to show",
-
   "languageKorean": "한국어",
   "languageEnglish": "English",
   "languageSystem": "System",
   "settingsLanguage": "Language",
-
   "navDashboard": "Dashboard",
   "navTodo": "Todo",
   "navCalendar": "Calendar",
@@ -60,7 +57,6 @@
   "navExport": "Export",
   "navLogout": "Log out",
   "navChangePassword": "Change Password",
-
   "notiTitle": "Notifications",
   "notiEmpty": "No notifications",
   "notiMarkAllRead": "Mark all read",
@@ -71,7 +67,6 @@
   "notiConnectionLost": "Notification connection lost",
   "notiConnectionRestored": "Notification connection restored",
   "notiNew": "New notification",
-
   "assetTitle": "Assets",
   "assetSummaryTotalBalance": "Total Balance",
   "assetEmpty": "No assets registered",
@@ -92,7 +87,6 @@
   "assetGroupCard": "Cards",
   "assetGroupInvestment": "Investments",
   "assetGroupDebt": "Loans",
-
   "assetCatAccount": "Account",
   "assetSubtypeInstallment": "Installment",
   "assetSubtypeDeposit": "Deposit",
@@ -105,20 +99,56 @@
   "assetVsLastMonth": "vs last month",
   "assetGroupEmpty": "No items yet",
   "assetPaymentDayInfo": "Pays on day {day}",
-  "@assetPaymentDayInfo": {"placeholders": {"day": {"type": "int"}}},
+  "@assetPaymentDayInfo": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      }
+    }
+  },
   "assetExcludedFromTotal": "Excluded from total",
   "assetManageTitle": "Manage accounts & cards",
   "assetTabAccountsSavings": "Accounts {count}",
-  "@assetTabAccountsSavings": {"placeholders": {"count": {"type": "int"}}},
+  "@assetTabAccountsSavings": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "assetTabCards": "Cards {count}",
-  "@assetTabCards": {"placeholders": {"count": {"type": "int"}}},
+  "@assetTabCards": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "assetTabInvest": "Investments {count}",
-  "@assetTabInvest": {"placeholders": {"count": {"type": "int"}}},
+  "@assetTabInvest": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "assetTotalPrefix": "Total",
   "assetAddCategory": "Add {name}",
-  "@assetAddCategory": {"placeholders": {"name": {"type": "String"}}},
+  "@assetAddCategory": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "assetCategoryEmpty": "No {name} registered yet",
-  "@assetCategoryEmpty": {"placeholders": {"name": {"type": "String"}}},
+  "@assetCategoryEmpty": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "assetIncludeInTotal": "Include in total assets",
   "assetIncludeInTotalDesc": "Counts toward net worth and total assets",
   "assetTrendLoadError": "Couldn't load trend data",
@@ -135,7 +165,13 @@
   "assetDeleteFailed": "Delete failed",
   "assetInstitutionBrand": "Institution / brand",
   "assetTotalEntries": "Total {count}",
-  "@assetTotalEntries": {"placeholders": {"count": {"type": "int"}}},
+  "@assetTotalEntries": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "assetBankSearchHint": "Search bank or brokerage",
   "assetNickname": "Nickname",
   "assetNicknamePlaceholder": "e.g. Shinhan main",
@@ -164,7 +200,13 @@
   "assetCardProduct": "Card product",
   "assetIncludeDiscontinued": "Include discontinued",
   "assetTotalItems": "Total {count}",
-  "@assetTotalItems": {"placeholders": {"count": {"type": "int"}}},
+  "@assetTotalItems": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "assetTotalLoading": "Total …",
   "assetCardSearchHint": "Search card or issuer",
   "assetNicknameOptional": "Nickname (optional)",
@@ -200,17 +242,38 @@
   "assetPeriod6m": "6 months",
   "assetPeriod1y": "1 year",
   "assetWeeksCount": "{weeks} weeks",
-  "@assetWeeksCount": {"placeholders": {"weeks": {"type": "int"}}},
+  "@assetWeeksCount": {
+    "placeholders": {
+      "weeks": {
+        "type": "int"
+      }
+    }
+  },
   "assetTrendKindUsage": "usage trend",
   "assetTrendKindValuation": "valuation trend",
   "assetTrendKindBalance": "balance trend",
   "assetTrendRecent": "Last {weeks} {kind}",
-  "@assetTrendRecent": {"placeholders": {"weeks": {"type": "String"}, "kind": {"type": "String"}}},
+  "@assetTrendRecent": {
+    "placeholders": {
+      "weeks": {
+        "type": "String"
+      },
+      "kind": {
+        "type": "String"
+      }
+    }
+  },
   "assetValueLabelCard": "Due this month",
   "assetValuationShort": "Valuation",
   "assetSeriesUsage": "Usage",
   "assetRecentTxCount": "Recent transactions ({count})",
-  "@assetRecentTxCount": {"placeholders": {"count": {"type": "int"}}},
+  "@assetRecentTxCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "assetViewAll": "View all",
   "assetTossLinkStarted": "Started Toss price sync",
   "assetLinkFailed": "Link failed",
@@ -220,9 +283,21 @@
   "assetUpdateFailed": "Update failed",
   "assetTossLinked": "Toss linked",
   "assetSharesCount": "{n} shares",
-  "@assetSharesCount": {"placeholders": {"n": {"type": "int"}}},
+  "@assetSharesCount": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "assetTossValuationFormula": "Valuation updates in real time as Toss price × {qty} shares.",
-  "@assetTossValuationFormula": {"placeholders": {"qty": {"type": "int"}}},
+  "@assetTossValuationFormula": {
+    "placeholders": {
+      "qty": {
+        "type": "int"
+      }
+    }
+  },
   "assetHoldingQty": "Holdings",
   "assetEditQty": "Edit quantity",
   "assetUnlink": "Unlink",
@@ -231,16 +306,34 @@
   "assetTapToChange": "Tap to change",
   "assetStockSearchHint": "Search ticker or code (e.g. Samsung Elec, 005930)",
   "assetLinkByCode": "Link by code \"{code}\"",
-  "@assetLinkByCode": {"placeholders": {"code": {"type": "String"}}},
+  "@assetLinkByCode": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
   "assetLink": "Link",
   "assetChartNoData": "No data to show",
   "assetNoLinkedTx": "No linked transactions.",
   "assetTxFallback": "Transaction",
   "assetCategoryOther": "Other",
   "assetPayConfirmMessage": "Pay the upcoming amount of {amount} KRW now?",
-  "@assetPayConfirmMessage": {"placeholders": {"amount": {"type": "String"}}},
+  "@assetPayConfirmMessage": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "assetPayConfirmDateSuffix": " The payment date is {date}.",
-  "@assetPayConfirmDateSuffix": {"placeholders": {"date": {"type": "String"}}},
+  "@assetPayConfirmDateSuffix": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "assetPayNow": "Pay now",
   "assetPayAction": "Pay",
   "assetPaymentRecorded": "Payment recorded",
@@ -248,11 +341,16 @@
   "assetBillingLoadError": "Couldn't load billing info",
   "assetUpcomingPayment": "Upcoming payment",
   "assetMonthlyPaymentDay": "Paid on day {day} each month",
-  "@assetMonthlyPaymentDay": {"placeholders": {"day": {"type": "int"}}},
+  "@assetMonthlyPaymentDay": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      }
+    }
+  },
   "assetBillingHistory": "Billing history",
   "assetStatusPending": "Pending",
   "assetStatusSkipped": "Skipped",
-
   "todoTitle": "Todos",
   "todoEmpty": "No todos",
   "todoCreateFirst": "Create your first todo",
@@ -271,7 +369,6 @@
   "todoTagMgmt": "Tags",
   "todoViewKanban": "Kanban view",
   "todoViewList": "List view",
-
   "memoTitle": "Memos",
   "memoEmpty": "No memos",
   "memoSearchEmpty": "No matching memos",
@@ -281,7 +378,6 @@
   "memoFolderEmpty": "No folders",
   "memoPin": "Pin",
   "memoUnpin": "Unpin",
-
   "calTitle": "Calendar",
   "calToday": "Today",
   "calMonthView": "Month",
@@ -307,7 +403,6 @@
   "calMemo": "Notes",
   "calStartDate": "Start",
   "calEndDate": "End",
-
   "calFieldTitle": "Title",
   "calFieldDescription": "Description",
   "calFieldCalendar": "Calendar",
@@ -329,16 +424,34 @@
   "calHolidayNamePlaceholder": "Holiday name",
   "calRecurrenceNone": "No repeat",
   "calReminderMinutesBefore": "{n} min before",
-  "@calReminderMinutesBefore": {"placeholders": {"n": {"type": "int"}}},
+  "@calReminderMinutesBefore": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "calReminderHourBefore": "1 hour before",
   "calReminderDayBefore": "1 day before",
   "calEventDeleteConfirm": "Delete \"{title}\"? This can't be undone.",
-  "@calEventDeleteConfirm": {"placeholders": {"title": {"type": "String"}}},
+  "@calEventDeleteConfirm": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
   "calEventAdded": "Event added",
   "calEventUpdated": "Event updated",
   "calLabelsTitle": "Calendar labels",
   "calAllLabelsCount": "All labels · {count}",
-  "@calAllLabelsCount": {"placeholders": {"count": {"type": "int"}}},
+  "@calAllLabelsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "calLabelsEmpty": "No labels yet",
   "calLabelsEmptyHint": "Create one with the \"New label\" button above",
   "calLabelsIntro": "These labels are shared across all your calendars. You can pick one when creating an event.",
@@ -347,17 +460,35 @@
   "calPreview": "Preview",
   "calDeleteLabelTitle": "Delete label",
   "calDeleteLabelConfirm": "Delete the \"{name}\" label? Events using it will become unlabeled.",
-  "@calDeleteLabelConfirm": {"placeholders": {"name": {"type": "String"}}},
+  "@calDeleteLabelConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "calDatePicker": "Go to date",
   "calCalendarChipCount": "{count}",
-  "@calCalendarChipCount": {"placeholders": {"count": {"type": "int"}}},
+  "@calCalendarChipCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "calNoCalendars": "No calendars",
   "calOtherSources": "Other sources",
   "calHolidays": "Holidays",
   "calManageShareSettings": "Manage & share calendars",
   "calNoEventsThisDay": "No events on this day",
   "calEventTotalCount": "{count}",
-  "@calEventTotalCount": {"placeholders": {"count": {"type": "int"}}},
+  "@calEventTotalCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "calGoToToday": "Today",
   "calManageShareTitle": "Manage & share",
   "calJoinByCode": "Join with invite code",
@@ -368,33 +499,75 @@
   "calShareIntroBody": "Create a calendar and invite members to manage events together.",
   "calNewCalendar": "New calendar",
   "calMyCalendarsCount": "My calendars · {count}",
-  "@calMyCalendarsCount": {"placeholders": {"count": {"type": "int"}}},
+  "@calMyCalendarsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "calNoOwnedCalendars": "You don't own any calendars yet",
   "calSharedCalendarsCount": "Shared calendars · {count}",
-  "@calSharedCalendarsCount": {"placeholders": {"count": {"type": "int"}}},
+  "@calSharedCalendarsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "calNoSharedCalendars": "No shared calendars",
   "calDefault": "Default",
   "calOnlyMe": "Only me",
   "calMemberCount": "{count} members",
-  "@calMemberCount": {"placeholders": {"count": {"type": "int"}}},
+  "@calMemberCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "calJoinCardBody": "Enter an invite code you received to join a calendar.",
   "calJoin": "Join",
   "calCreate": "Create",
   "calJoinedCalendar": "Joined \"{name}\"",
-  "@calJoinedCalendar": {"placeholders": {"name": {"type": "String"}}},
+  "@calJoinedCalendar": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "calInviteCode": "Invite code",
   "calManageTitle": "{name} · Manage",
-  "@calManageTitle": {"placeholders": {"name": {"type": "String"}}},
+  "@calManageTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "calDeleteCalendar": "Delete calendar",
   "calCalendarUpdated": "Calendar updated",
   "calInviteCodeRegenerated": "Generated a new invite code",
   "calInviteCodeCopied": "Invite code copied",
   "calRemoveMember": "Remove member",
   "calRemoveMemberConfirm": "Remove {name} from this calendar?",
-  "@calRemoveMemberConfirm": {"placeholders": {"name": {"type": "String"}}},
+  "@calRemoveMemberConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "calRemove": "Remove",
   "calDeleteCalendarConfirm": "Delete the \"{name}\" calendar? Its events move to your default calendar and all members lose access.",
-  "@calDeleteCalendarConfirm": {"placeholders": {"name": {"type": "String"}}},
+  "@calDeleteCalendarConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "calCopy": "Copy",
   "calRegenerate": "Regenerate",
   "calMembers": "Members",
@@ -405,11 +578,23 @@
   "calRepeatYearlyLabel": "Repeat yearly",
   "calAdd": "Add",
   "calYearHolidays": "{year} holidays",
-  "@calYearHolidays": {"placeholders": {"year": {"type": "int"}}},
+  "@calYearHolidays": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
   "calNoHolidays": "No holidays registered",
   "calDeleteHolidayTitle": "Delete holiday",
   "calDeleteHolidayConfirm": "Delete {name}?",
-  "@calDeleteHolidayConfirm": {"placeholders": {"name": {"type": "String"}}},
+  "@calDeleteHolidayConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "calHolidayTypeCustom": "Custom",
   "calHolidayTypeSubstitute": "Substitute",
   "calHolidayTypePublic": "Public",
@@ -423,7 +608,6 @@
   "calLabelLoadError": "Failed to load labels",
   "calMemberLoadError": "Failed to load members",
   "calHolidayLoadError": "Failed to load holidays",
-
   "dashTitle": "Home",
   "dashGreeting": "Have a great day",
   "dashTotalAssets": "Total assets",
@@ -434,7 +618,13 @@
   "dashUpcoming": "Upcoming events",
   "dashRecentTodos": "Recent todos",
   "dashOverdue": "Overdue {count}",
-  "@dashOverdue": {"placeholders": {"count": {"type": "int"}}},
+  "@dashOverdue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "dashTrendTitle": "Last 6 months",
   "dashSeeMore": "See more",
   "dashEmptyTransactions": "No recent transactions",
@@ -444,12 +634,24 @@
   "dashTodayLabel": "Today",
   "dashTomorrowLabel": "Tomorrow",
   "dashDaysLeft": "{n}d",
-  "@dashDaysLeft": {"placeholders": {"n": {"type": "int"}}},
+  "@dashDaysLeft": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "dashHideAmount": "Hide amounts",
   "dashVsLastMonth": "vs last month",
   "dashLiabilities": "Liabilities",
   "dashMonthLedger": "{month} ledger",
-  "@dashMonthLedger": {"placeholders": {"month": {"type": "int"}}},
+  "@dashMonthLedger": {
+    "placeholders": {
+      "month": {
+        "type": "int"
+      }
+    }
+  },
   "dashMonthTxError": "Couldn't load this month's transactions",
   "dashDailyAvgPrefix": "Daily average ",
   "dashSpentMasked": " spent.",
@@ -463,7 +665,6 @@
   "dashTodaySpend": "Spent today",
   "dashTxError": "Couldn't load transactions",
   "dashNoTodaySpend": "Nothing spent today yet",
-
   "expTitle": "Expenses",
   "expFilterAll": "All",
   "expFilterIncome": "Income",
@@ -500,7 +701,6 @@
   "expSummaryIncome": "Income",
   "expSummaryExpense": "Expense",
   "expSummaryBalance": "Balance",
-
   "budgetOverallCapNew": "Set overall monthly cap",
   "budgetCategoryAdd": "Add category budget",
   "budgetOverallCapEdit": "Edit overall monthly cap",
@@ -517,26 +717,62 @@
   "budgetLoadError": "Couldn't load budget",
   "budgetSelectMonth": "Select month",
   "budgetMonthOverallCap": "Overall cap · {month}",
-  "@budgetMonthOverallCap": {"placeholders": {"month": {"type": "int"}}},
+  "@budgetMonthOverallCap": {
+    "placeholders": {
+      "month": {
+        "type": "int"
+      }
+    }
+  },
   "budgetOverallCapDesc": "The cap for this month's total spending (including spending without a category budget).",
   "budgetOverallCapEmptyHint": "No overall cap set yet. Use the settings button at the top right to set this month's maximum spending limit.",
   "budgetCurrentCategorySum": "Current category limit total",
   "budgetPercentUsed": "{pct}% used",
-  "@budgetPercentUsed": {"placeholders": {"pct": {"type": "String"}}},
+  "@budgetPercentUsed": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
   "budgetRemaining": "Remaining {amount}",
-  "@budgetRemaining": {"placeholders": {"amount": {"type": "String"}}},
+  "@budgetRemaining": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "budgetOverBy": "Over by {amount}",
-  "@budgetOverBy": {"placeholders": {"amount": {"type": "String"}}},
+  "@budgetOverBy": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "budgetOverallCapLabel": "Overall cap",
   "budgetCategoryAllocated": "Category allocated",
   "budgetAllocatable": "Allocatable",
   "budgetOverAllocatedWarning": "Category limits exceed the overall cap by {amount}. Raise the overall cap or lower category limits.",
-  "@budgetOverAllocatedWarning": {"placeholders": {"amount": {"type": "String"}}},
+  "@budgetOverAllocatedWarning": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "budgetSpendingPace": "Spending pace",
   "budgetPaceOnTrack": "On pace",
   "budgetPaceFast": "Too fast",
   "budgetMonthElapsed": "{pct}% of month elapsed ↑",
-  "@budgetMonthElapsed": {"placeholders": {"pct": {"type": "String"}}},
+  "@budgetMonthElapsed": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
   "budgetDailyAvg": "Daily average",
   "budgetDailyRecommended": "Recommended per remaining day",
   "budgetStatusTitle": "Budget status",
@@ -544,11 +780,23 @@
   "budgetHealthy": "On track",
   "budgetByCategory": "Budget by category",
   "budgetCountSet": "{count} set",
-  "@budgetCountSet": {"placeholders": {"count": {"type": "int"}}},
+  "@budgetCountSet": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "budgetNoCategoryBudgets": "No category budgets",
   "budgetGoToSettings": "Go to budget settings →",
   "budgetCategoryFallback": "Category #{id}",
-  "@budgetCategoryFallback": {"placeholders": {"id": {"type": "int"}}},
+  "@budgetCategoryFallback": {
+    "placeholders": {
+      "id": {
+        "type": "int"
+      }
+    }
+  },
   "budgetComplianceTitle": "Last 6 months compliance",
   "budgetComplianceSubtitle": "Spending vs limit %",
   "budgetNoComplianceData": "No compliance data yet",
@@ -559,21 +807,50 @@
   "budgetSetup": "Set budget",
   "budgetCopyLastMonth": "Copy last month's budget",
   "budgetCopyConfirmMessage": "{from} budget limits ({count}) will be copied to {to}. Budgets that already exist this month will be overwritten.",
-  "@budgetCopyConfirmMessage": {"placeholders": {"from": {"type": "String"}, "count": {"type": "int"}, "to": {"type": "String"}}},
+  "@budgetCopyConfirmMessage": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
   "budgetCopyFailed": "Copy failed",
   "budgetCopiedCount": "Copied {count} budgets",
-  "@budgetCopiedCount": {"placeholders": {"count": {"type": "int"}}},
+  "@budgetCopiedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "budgetCopyLastMonthBtn": "Copy last month",
   "budgetMonthTotal": "Total budget · {month}",
-  "@budgetMonthTotal": {"placeholders": {"month": {"type": "int"}}},
+  "@budgetMonthTotal": {
+    "placeholders": {
+      "month": {
+        "type": "int"
+      }
+    }
+  },
   "budgetNotSet": "Not set",
   "budgetUsed": "Used",
   "budgetAllocated": "Allocated",
   "budgetByCategoryCount": "Budget by category · {count}",
-  "@budgetByCategoryCount": {"placeholders": {"count": {"type": "int"}}},
+  "@budgetByCategoryCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "budgetAdd": "Add budget",
   "budgetNoCategorySet": "No category budgets set",
-
   "cardBenefitTypeAll": "All benefits",
   "cardBenefitTypeDiscount": "Discount",
   "cardBenefitTypePoint": "Points",
@@ -596,7 +873,13 @@
   "cardLastMonthPerf": "Last month spend",
   "cardKeyBenefitTags": "Key benefit tags",
   "cardBenefitDetailCount": "Benefit details · {count}",
-  "@cardBenefitDetailCount": {"placeholders": {"count": {"type": "int"}}},
+  "@cardBenefitDetailCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "cardExpandAll": "Expand all",
   "cardCollapseAll": "Collapse all",
   "cardCautions": "Notes",
@@ -604,18 +887,54 @@
   "cardNone": "None",
   "cardPerfNone": "No spend requirement",
   "cardFeeDomesticOnly": "Domestic only {amount}",
-  "@cardFeeDomesticOnly": {"placeholders": {"amount": {"type": "String"}}},
+  "@cardFeeDomesticOnly": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "cardPerfMin": "{amount} or more",
-  "@cardPerfMin": {"placeholders": {"amount": {"type": "String"}}},
+  "@cardPerfMin": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "cardPerfMonthly": "Spend {amount}/mo",
-  "@cardPerfMonthly": {"placeholders": {"amount": {"type": "String"}}},
+  "@cardPerfMonthly": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "cardAnnualFeeValue": "Annual fee {fee}",
-  "@cardAnnualFeeValue": {"placeholders": {"fee": {"type": "String"}}},
+  "@cardAnnualFeeValue": {
+    "placeholders": {
+      "fee": {
+        "type": "String"
+      }
+    }
+  },
   "cardPerfMonthTitle": "{month} spend",
-  "@cardPerfMonthTitle": {"placeholders": {"month": {"type": "String"}}},
+  "@cardPerfMonthTitle": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
   "cardPerfAchieved": "Achieved",
   "cardPerfRemaining": "{amount} left",
-  "@cardPerfRemaining": {"placeholders": {"amount": {"type": "String"}}},
+  "@cardPerfRemaining": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "cardMappingNew": "New mapping",
   "cardMappingNewDesc": "Link a card benefit category (e.g., Cafe, Fuel) to a ledger category to power auto-suggestions when entering transactions.",
   "cardMappingBenefitPlaceholder": "Benefit category",
@@ -626,12 +945,17 @@
   "cardMappingDefault": "Default",
   "cardIncludeDiscontinued": "Include discontinued cards",
   "cardTotalCount": "{count} total",
-  "@cardTotalCount": {"placeholders": {"count": {"type": "int"}}},
+  "@cardTotalCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "cardEmpty": "No cards",
   "cardNoResults": "No results",
   "cardNoResultsHint": "Try a different search term",
   "cardPickerNoMatch": "No matching cards",
-
   "categoryManageTitle": "Manage categories",
   "categorySearchHint": "Search categories",
   "categoryLoadError": "Failed to load categories",
@@ -639,7 +963,13 @@
   "categoryEmpty": "No categories",
   "categoryEmptyHint": "Add one with the 'Add' button above",
   "categoryHasSubcategories": "{type} · Has subcategories",
-  "@categoryHasSubcategories": {"placeholders": {"type": {"type": "String"}}},
+  "@categoryHasSubcategories": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
   "categoryAdd": "Add category",
   "categoryEdit": "Edit category",
   "categoryNameRequired": "Please enter a name.",
@@ -648,36 +978,74 @@
   "categoryParent": "Parent category",
   "categoryBudgetExceedTitle": "Budget exceeded",
   "categoryBudgetExceedMessage": "Moving will exceed the \"{parent}\" budget by {amount}. Move anyway?",
-  "@categoryBudgetExceedMessage": {"placeholders": {"parent": {"type": "String"}, "amount": {"type": "String"}}},
+  "@categoryBudgetExceedMessage": {
+    "placeholders": {
+      "parent": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "categoryMove": "Move",
   "categoryUpdated": "Category updated",
   "categoryAdded": "Category added",
   "categoryActionFailed": "Failed",
   "categoryDeleteTitle": "Delete category",
   "categoryDeleteHasChildren": "The \"{name}\" category has subcategories and can't be deleted. Please clear its subcategories first.",
-  "@categoryDeleteHasChildren": {"placeholders": {"name": {"type": "String"}}},
+  "@categoryDeleteHasChildren": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "categoryDeleteWithBudget": "This category has a budget. Deleting it will also delete the budget. Delete the \"{name}\" category?",
-  "@categoryDeleteWithBudget": {"placeholders": {"name": {"type": "String"}}},
+  "@categoryDeleteWithBudget": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "categoryDeleteConfirm": "Delete the \"{name}\" category?",
-  "@categoryDeleteConfirm": {"placeholders": {"name": {"type": "String"}}},
+  "@categoryDeleteConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "categoryDeleteFailed": "Delete failed",
   "categoryNew": "New category",
   "categoryPreview": "{type} category · Preview",
-  "@categoryPreview": {"placeholders": {"type": {"type": "String"}}},
+  "@categoryPreview": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
   "categoryTypeLabel": "Type",
   "categoryOptionalSuffix": " (optional)",
   "categoryParentMoveHint": "You can move it under a different parent. To promote it to top level, move its linked transactions and recreate it.",
   "categoryMakeRoot": "— Keep as top-level category —",
   "categoryNamePlaceholder": "e.g., Pets, Side income",
   "categoryIconLabel": "Icon",
-
   "authLoginPrompt": "Sign in with your SSO account",
   "authSsoLogin": "SSO login",
   "authLoginTitle": "Login",
   "authLoginFailed": "Login failed",
   "authLoginError": "Error during login",
   "authSecurityNotHttps": "Security error: the SSO server is not HTTPS ({url}).",
-  "@authSecurityNotHttps": {"placeholders": {"url": {"type": "String"}}},
+  "@authSecurityNotHttps": {
+    "placeholders": {
+      "url": {
+        "type": "String"
+      }
+    }
+  },
   "authStateMismatch": "Security check failed (state mismatch). Please try again.",
   "authNoAuthCode": "Couldn't get the authorization code. Please try again.",
   "authPageLoadError": "Couldn't load the login page.",
@@ -699,14 +1067,38 @@
   "dutchToReceive": "To receive",
   "dutchToSend": "To send",
   "dutchFromPeople": "from {count} people",
-  "@dutchFromPeople": {"placeholders": {"count": {"type": "int"}}},
+  "@dutchFromPeople": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "dutchToPeople": "to {count} people",
-  "@dutchToPeople": {"placeholders": {"count": {"type": "int"}}},
+  "@dutchToPeople": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "dutchPerPersonLabel": "Per person",
   "dutchNPeople": "{count} people",
-  "@dutchNPeople": {"placeholders": {"count": {"type": "int"}}},
+  "@dutchNPeople": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "dutchSettledTogetherCount": "Settled together {count} times",
-  "@dutchSettledTogetherCount": {"placeholders": {"count": {"type": "int"}}},
+  "@dutchSettledTogetherCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "dutchSettled": "Settled",
   "dutchMe": "Me",
   "dutchPayer": "Payer",
@@ -718,7 +1110,13 @@
   "dutchDateLabel": "Date",
   "dutchSelectParticipants": "Select participants",
   "dutchNSelected": "{count} selected",
-  "@dutchNSelected": {"placeholders": {"count": {"type": "int"}}},
+  "@dutchNSelected": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "dutchAddNamePlaceholder": "Enter a name to add",
   "dutchAdd": "Add",
   "dutchNext": "Next",
@@ -728,15 +1126,39 @@
   "dutchSettleAction": "Mark as settled",
   "dutchDeleteTitle": "Delete Dutch Pay",
   "dutchDeleteConfirm": "Delete \"{title}\"?",
-  "@dutchDeleteConfirm": {"placeholders": {"title": {"type": "String"}}},
+  "@dutchDeleteConfirm": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
   "dutchRequestAll": "Request all",
   "dutchRequestSent": "Payment request sent to {name} (KakaoTalk/SMS coming soon)",
-  "@dutchRequestSent": {"placeholders": {"name": {"type": "String"}}},
+  "@dutchRequestSent": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "dutchRequestSentBulk": "Payment request sent to {count} people (KakaoTalk/SMS coming soon)",
-  "@dutchRequestSentBulk": {"placeholders": {"count": {"type": "int"}}},
+  "@dutchRequestSentBulk": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "dutchAllSettled": "All participants have already settled",
   "dutchNeedsPayment": "Send {amount}원",
-  "@dutchNeedsPayment": {"placeholders": {"amount": {"type": "String"}}},
+  "@dutchNeedsPayment": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "dutchNoName": "(No name)",
   "dutchMarkPaid": "Mark as paid",
   "dutchRequest": "Request",
@@ -755,9 +1177,21 @@
   "dutchRequestMsgLabel": "Request message (optional)",
   "dutchRequestMsgPlaceholder": "Add a note to send to participants",
   "dutchShortBy": "The total is {amount}원 short.",
-  "@dutchShortBy": {"placeholders": {"amount": {"type": "String"}}},
+  "@dutchShortBy": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "dutchOverBy": "The total exceeds by {amount}원.",
-  "@dutchOverBy": {"placeholders": {"amount": {"type": "String"}}},
+  "@dutchOverBy": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "dutchCreated": "Settlement created",
   "expLoadError": "Failed to load transactions",
   "expEmptyMonth": "No transactions this month",
@@ -765,11 +1199,23 @@
   "expTotal": "Total",
   "expFiltering": "Filtering",
   "expFilteringBy": "Filtering: {name}",
-  "@expFilteringBy": {"placeholders": {"name": {"type": "String"}}},
+  "@expFilteringBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "expViewList": "List",
   "expViewCalendar": "Calendar",
   "expTxCount": "{count} items",
-  "@expTxCount": {"placeholders": {"count": {"type": "int"}}},
+  "@expTxCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "expAddShort": "Add",
   "expTransferDone": "Transfer completed",
   "expActionFailed": "Failed",
@@ -780,7 +1226,19 @@
   "expDeleteFailed": "Delete failed",
   "expSplitMismatch": "Split doesn't match the amount",
   "expSplitDiff": "New total {total}원 · Split sum {sum}원 · {diff}원 diff",
-  "@expSplitDiff": {"placeholders": {"total": {"type": "String"}, "sum": {"type": "String"}, "diff": {"type": "String"}}},
+  "@expSplitDiff": {
+    "placeholders": {
+      "total": {
+        "type": "String"
+      },
+      "sum": {
+        "type": "String"
+      },
+      "diff": {
+        "type": "String"
+      }
+    }
+  },
   "expSplitReconcile": "Reconcile split",
   "expPresetLoad": "Load preset",
   "expPresetApplied": "Applied",
@@ -793,7 +1251,13 @@
   "expPresetSaveTitle": "Save as preset",
   "expPresetNamePlaceholder": "e.g. Lunch box",
   "expPresetLockAmount": "Lock amount — auto-fills {amount}원 when applied",
-  "@expPresetLockAmount": {"placeholders": {"amount": {"type": "String"}}},
+  "@expPresetLockAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "expPayCash": "Cash",
   "expPayCard": "Card",
   "expPayTransfer": "Bank transfer",
@@ -802,7 +1266,13 @@
   "expNoCategoryForType": "No categories for this type",
   "expSubcategory": "Subcategory",
   "expTopCategorySuffix": "{name} (parent)",
-  "@expTopCategorySuffix": {"placeholders": {"name": {"type": "String"}}},
+  "@expTopCategorySuffix": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "expIncomeSource": "Income source",
   "expPayee": "Merchant",
   "expIncomeSourcePlaceholder": "e.g. Forest Inc.",
@@ -824,17 +1294,41 @@
   "expUncategorized": "Uncategorized",
   "expValueNone": "None",
   "expItemsCount": "{count} items",
-  "@expItemsCount": {"placeholders": {"count": {"type": "int"}}},
+  "@expItemsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "expNotSelected": "Not selected",
   "expPrevTxAt": "Previous at {merchant}",
-  "@expPrevTxAt": {"placeholders": {"merchant": {"type": "String"}}},
+  "@expPrevTxAt": {
+    "placeholders": {
+      "merchant": {
+        "type": "String"
+      }
+    }
+  },
   "expThisMonth": "This month",
   "expTimesCount": "{count}×",
-  "@expTimesCount": {"placeholders": {"count": {"type": "int"}}},
+  "@expTimesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "expItem": "Item",
   "expFilterApply": "Apply filter",
   "expNSelected": "{count} selected",
-  "@expNSelected": {"placeholders": {"count": {"type": "int"}}},
+  "@expNSelected": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "expPeriodWeek": "This week",
   "expPeriod3Month": "3 months",
   "expPeriodCustom": "Custom",
@@ -877,7 +1371,16 @@
   "expItemNamePlaceholder": "Item name (optional)",
   "exportTitle": "Export data",
   "exportShareText": "Data export ({start} ~ {end})",
-  "@exportShareText": {"placeholders": {"start": {"type": "String"}, "end": {"type": "String"}}},
+  "@exportShareText": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
   "exportSuccess": "Export complete",
   "exportTypeExpense": "Transactions",
   "exportTypeAsset": "Assets & accounts",
@@ -897,27 +1400,57 @@
   "exportPeriodTitle": "Select period",
   "exportDateRangeError": "Start date can't be later than the end date.",
   "exportTypesTitle": "Data types — {count} selected",
-  "@exportTypesTitle": {"placeholders": {"count": {"type": "int"}}},
+  "@exportTypesTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "exportTypesDesc": "Choose the data to export. Multiple types are bundled into a ZIP.",
   "exportCount": "{count}",
-  "@exportCount": {"placeholders": {"count": {"type": "int"}}},
+  "@exportCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "exportFormatTitle": "File format",
   "exportMaskLabel": "Hide sensitive info (balance, amount, institution)",
   "exportPreview": "Preview",
   "exportRun": "Export",
   "exportEmpty": "No data to export for this period.",
   "exportPreviewRows": "Top {count} rows",
-  "@exportPreviewRows": {"placeholders": {"count": {"type": "int"}}},
+  "@exportPreviewRows": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "fileAttachTitle": "Attachments",
   "fileTooltipGallery": "Gallery",
   "fileTooltipCamera": "Camera",
   "fileTooltipFile": "File",
   "fileUploadComplete": "{name} uploaded",
-  "@fileUploadComplete": {"placeholders": {"name": {"type": "String"}}},
+  "@fileUploadComplete": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "fileUploadFailed": "Upload failed",
   "fileDeleteTitle": "Delete file",
   "fileDeleteConfirm": "Delete {name}?",
-  "@fileDeleteConfirm": {"placeholders": {"name": {"type": "String"}}},
+  "@fileDeleteConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "fileDeleteFailed": "Delete failed",
   "fileLoadError": "Failed to load attachments",
   "fileEmpty": "No attachments",
@@ -995,7 +1528,13 @@
   "accountTitle": "Account",
   "accountDefaultName": "User",
   "accountJoined": "Joined {date}",
-  "@accountJoined": {"placeholders": {"date": {"type": "String"}}},
+  "@accountJoined": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "accountEditComingSoon": "Profile editing is coming soon",
   "accountSecurity": "Security",
   "accountPasswordDesc": "No recent changes",
@@ -1012,10 +1551,22 @@
   "accountNotConnected": "Not connected",
   "accountConnect": "Connect",
   "accountSocialComingSoon": "{name} connection is coming soon",
-  "@accountSocialComingSoon": {"placeholders": {"name": {"type": "String"}}},
+  "@accountSocialComingSoon": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "accountBilling": "Subscription & Billing",
   "accountNextBilling": "Next billing {date} · ",
-  "@accountNextBilling": {"placeholders": {"date": {"type": "String"}}},
+  "@accountNextBilling": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "accountProActive": "Pro active",
   "accountProPromo": "Securities investing is Pro-only · Start now",
   "accountPerMonth": "/ mo",
@@ -1036,7 +1587,13 @@
   "notiPayment": "Payment alerts",
   "notiPaymentDesc": "D-1 before due date, and on the payment day",
   "notiBudgetDesc": "Category budget reaches {threshold}%·100%",
-  "@notiBudgetDesc": {"placeholders": {"threshold": {"type": "int"}}},
+  "@notiBudgetDesc": {
+    "placeholders": {
+      "threshold": {
+        "type": "int"
+      }
+    }
+  },
   "notiAutoRecord": "Auto-record alerts",
   "notiAutoRecordDesc": "When a recurring transaction is auto-recorded",
   "notiDutchPay": "Dutch pay alerts",
@@ -1082,7 +1639,13 @@
   "presetLoadError": "Failed to load presets",
   "presetDeleteTitle": "Delete preset",
   "presetDeleteConfirm": "Delete preset \"{name}\"? Already saved transactions are unaffected.",
-  "@presetDeleteConfirm": {"placeholders": {"name": {"type": "String"}}},
+  "@presetDeleteConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "presetDeleted": "Preset deleted",
   "presetDeleteFailed": "Delete failed",
   "presetIntroTitle": "What is a preset?",
@@ -1090,7 +1653,13 @@
   "presetStatSaved": "Saved presets",
   "presetStatUses": "Total uses",
   "presetUsesCount": "{count}×",
-  "@presetUsesCount": {"placeholders": {"count": {"type": "int"}}},
+  "@presetUsesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "presetStatType": "Expense / Income",
   "presetSortUsed": "Most used",
   "presetSortRecent": "Recently used",
@@ -1116,32 +1685,83 @@
   "recurringToggleFailed": "Change failed",
   "recurringDeleteTitle": "Delete recurring transaction",
   "recurringDeleteConfirm": "Delete the recurring setting for \"{name}\"?\nAlready recorded transactions remain.",
-  "@recurringDeleteConfirm": {"placeholders": {"name": {"type": "String"}}},
+  "@recurringDeleteConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "recurringDeleteFailed": "Delete failed",
   "recurringLoadError": "Failed to load recurring transactions",
   "recurringAllList": "All",
   "recurringAdd": "Add",
   "recurringFilterAll": "All {count}",
-  "@recurringFilterAll": {"placeholders": {"count": {"type": "int"}}},
+  "@recurringFilterAll": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "recurringFilterExpense": "Expense {count}",
-  "@recurringFilterExpense": {"placeholders": {"count": {"type": "int"}}},
+  "@recurringFilterExpense": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "recurringFilterIncome": "Income {count}",
-  "@recurringFilterIncome": {"placeholders": {"count": {"type": "int"}}},
+  "@recurringFilterIncome": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "recurringFilterPaused": "Paused {count}",
-  "@recurringFilterPaused": {"placeholders": {"count": {"type": "int"}}},
+  "@recurringFilterPaused": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "recurringStatActive": "Active",
   "recurringCount": "{count}",
-  "@recurringCount": {"placeholders": {"count": {"type": "int"}}},
+  "@recurringCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "recurringPaused": "Paused",
   "recurringMonthlyExpense": "Monthly fixed expense",
   "recurringMonthlyIncome": "Monthly fixed income",
   "recurringUpcoming": "Next 7 days",
   "recurringUpcomingCount": "{count} upcoming",
-  "@recurringUpcomingCount": {"placeholders": {"count": {"type": "int"}}},
+  "@recurringUpcomingCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "recurringToday": "Today",
   "recurringNoAccount": "No account",
   "recurringOccurrences": "{executed}/{max}",
-  "@recurringOccurrences": {"placeholders": {"executed": {"type": "int"}, "max": {"type": "int"}}},
+  "@recurringOccurrences": {
+    "placeholders": {
+      "executed": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
   "recurringNext": "Next",
   "recurringStart": "Start",
   "recurringEmpty": "No matching recurring transactions",
@@ -1170,7 +1790,13 @@
   "recurringNotifyDesc": "Send an alert the day before the payment/transfer",
   "recurringNextDates": "Next dates",
   "recurringStartFrom": "Starts {date}",
-  "@recurringStartFrom": {"placeholders": {"date": {"type": "String"}}},
+  "@recurringStartFrom": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "recurringMerchant": "Merchant",
   "recurringMerchantPlaceholder": "e.g. Netflix",
   "recurringAssetCard": "Account / Card",
@@ -1178,12 +1804,24 @@
   "recurringSelectNone": "None",
   "recurringStartDateLabel": "Start date",
   "recurringParentCategory": "{name} (parent)",
-  "@recurringParentCategory": {"placeholders": {"name": {"type": "String"}}},
+  "@recurringParentCategory": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "savingGoalLoadError": "Failed to load saving goals",
   "savingGoalEmpty": "No saving goals yet",
   "savingGoalContribute": "Contribute",
   "savingGoalContributeTitle": "Contribute to \"{title}\"",
-  "@savingGoalContributeTitle": {"placeholders": {"title": {"type": "String"}}},
+  "@savingGoalContributeTitle": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
   "savingGoalAmountHint": "Amount (negative allowed)",
   "savingGoalActionFailed": "Failed",
   "savingGoalAchieved": "Achieved!",
@@ -1192,7 +1830,13 @@
   "savingGoalSubmitAdd": "Add",
   "savingGoalDeleteTitle": "Delete saving goal",
   "savingGoalDeleteConfirm": "Delete \"{title}\"?",
-  "@savingGoalDeleteConfirm": {"placeholders": {"title": {"type": "String"}}},
+  "@savingGoalDeleteConfirm": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
   "savingGoalDeleteFailed": "Delete failed",
   "savingGoalNameLabel": "Goal name",
   "savingGoalNameHint": "e.g. Emergency fund",
@@ -1241,9 +1885,21 @@
   "statsNoDataShort": "No data",
   "statsUnassigned": "Unassigned",
   "statsCategoryDetail": "{name} detail",
-  "@statsCategoryDetail": {"placeholders": {"name": {"type": "String"}}},
+  "@statsCategoryDetail": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "statsPeriodSpending": "{period} spending",
-  "@statsPeriodSpending": {"placeholders": {"period": {"type": "String"}}},
+  "@statsPeriodSpending": {
+    "placeholders": {
+      "period": {
+        "type": "String"
+      }
+    }
+  },
   "statsSpendingByCategory": "Spending by category",
   "statsNoCategoryData": "No category data",
   "statsTopMerchantsTitle": "Top 5 merchants",
@@ -1262,7 +1918,13 @@
   "statsLegendHigh": "High",
   "statsTotalPrefix": "Total",
   "statsDaysTotal": "{days}-day total",
-  "@statsDaysTotal": {"placeholders": {"days": {"type": "int"}}},
+  "@statsDaysTotal": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
   "statsMomCalculating": "Calculating vs last month…",
   "statsMomUnavailable": "Comparison unavailable",
   "statsTopCategory": "Top spending category",
@@ -1278,9 +1940,21 @@
   "statsMonthlyNetSavings": "Monthly net savings",
   "statsIncomeMinusExpense": "Income − Expense",
   "statsNoDataFor": "No data for {period}",
-  "@statsNoDataFor": {"placeholders": {"period": {"type": "String"}}},
+  "@statsNoDataFor": {
+    "placeholders": {
+      "period": {
+        "type": "String"
+      }
+    }
+  },
   "statsCategoryByMom": "By category, {mom}",
-  "@statsCategoryByMom": {"placeholders": {"mom": {"type": "String"}}},
+  "@statsCategoryByMom": {
+    "placeholders": {
+      "mom": {
+        "type": "String"
+      }
+    }
+  },
   "statsNoCompareData": "No data to compare",
   "stocksChartTokenFailed": "Failed to issue token",
   "stocksChartHttpsError": "Security error: chart WebView is not HTTPS",
@@ -1289,22 +1963,58 @@
   "stocksSearch": "Search stocks",
   "stocksSearchPlaceholder": "Search by name or ticker (e.g. Samsung Electronics, NVDA)",
   "stocksSearchNoResults": "No results for '{query}'",
-  "@stocksSearchNoResults": {"placeholders": {"query": {"type": "String"}}},
+  "@stocksSearchNoResults": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
   "stocksTabHoldings": "Holdings {count}",
-  "@stocksTabHoldings": {"placeholders": {"count": {"type": "int"}}},
+  "@stocksTabHoldings": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "stocksTabWatch": "Watchlist {count}",
-  "@stocksTabWatch": {"placeholders": {"count": {"type": "int"}}},
+  "@stocksTabWatch": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "stocksTabDiscover": "Discover",
   "stocksNoHoldings": "You have no holdings.",
   "stocksSharesHeld": "Holding {qty} shares",
-  "@stocksSharesHeld": {"placeholders": {"qty": {"type": "String"}}},
+  "@stocksSharesHeld": {
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      }
+    }
+  },
   "stocksNoWatchlist": "No watchlist. Search and tap the star.",
   "stocksDetailTitle": "Stock details",
   "stocksMarketHoliday": "Holiday",
   "stocksMarketTrading": "Open · {time}",
-  "@stocksMarketTrading": {"placeholders": {"time": {"type": "String"}}},
+  "@stocksMarketTrading": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
   "stocksMarketOpensAt": "Opens {time}",
-  "@stocksMarketOpensAt": {"placeholders": {"time": {"type": "String"}}},
+  "@stocksMarketOpensAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
   "stocksMarketClosed": "Closed",
   "stocksMarketKr": "Domestic",
   "stocksMarketUs": "US",
@@ -1320,10 +2030,22 @@
   "stocksExchangeRate": "Exchange rate (USD)",
   "stocksSell": "Sell",
   "stocksSellOrderStub": "{name} sell order — works when Open API is connected",
-  "@stocksSellOrderStub": {"placeholders": {"name": {"type": "String"}}},
+  "@stocksSellOrderStub": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "stocksBuy": "Buy",
   "stocksBuyOrderStub": "{name} buy order — works when Open API is connected",
-  "@stocksBuyOrderStub": {"placeholders": {"name": {"type": "String"}}},
+  "@stocksBuyOrderStub": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "stocksFeeUs": "US stock trading fee 0.1% · FX fee applies separately",
   "stocksFeeKr": "Domestic stock trading free (until Jun 2026) · then KRX 0.015% / NXT 0.014%",
   "stocksOrderDisclaimer": "Real-time quotes and prices apply once Toss Securities Open API is connected.\nQuotes are for reference only; actual orders require agreeing to the terms.",
@@ -1371,7 +2093,13 @@
   "todoEditTitle": "Edit todo",
   "todoDeleteTitle": "Delete todo",
   "todoDeleteConfirm": "Delete \"{title}\"?",
-  "@todoDeleteConfirm": {"placeholders": {"title": {"type": "String"}}},
+  "@todoDeleteConfirm": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
   "todoDetail": "Details",
   "todoCompletionRate": "Completion rate",
   "todoQuickAddPlaceholder": "Type a todo and press Enter",
@@ -1405,14 +2133,26 @@
   "todoNoProjects": "No projects",
   "todoDeleteProjectTitle": "Delete project",
   "todoDeleteProjectConfirm": "Delete project \"{name}\"? Linked todos will be set to no project.",
-  "@todoDeleteProjectConfirm": {"placeholders": {"name": {"type": "String"}}},
+  "@todoDeleteProjectConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "todoNewTag": "New tag",
   "todoTagNamePlaceholder": "Tag name",
   "todoRegisteredTags": "Tags",
   "todoNoTags": "No tags",
   "todoDeleteTagTitle": "Delete tag",
   "todoDeleteTagConfirm": "Delete tag \"{name}\"?",
-  "@todoDeleteTagConfirm": {"placeholders": {"name": {"type": "String"}}},
+  "@todoDeleteTagConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "todoActionFailed": "Failed",
   "todoAddFailed": "Add failed",
   "todoDeleteFailed": "Delete failed",
@@ -1427,17 +2167,41 @@
   "subUsingPro": "On Porest Pro",
   "subUsingFree": "On the Free plan",
   "subNextBilling": "Next billing {date} · {amount}",
-  "@subNextBilling": {"placeholders": {"date": {"type": "String"}, "amount": {"type": "String"}}},
+  "@subNextBilling": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "subFreeLockedDesc": "Pro features like securities and import are locked",
   "subSpotlightTitle": "Securities investing is Pro-only",
   "subSpotlightDesc": "Real-time quotes and order book, domestic and overseas ticker search, watchlists, and holding P&L — subscribe to Pro and the Securities tab opens right away.",
   "subCycleMonthly": "Monthly",
   "subCycleYearlyOff": "Yearly {pct}% off",
-  "@subCycleYearlyOff": {"placeholders": {"pct": {"type": "int"}}},
+  "@subCycleYearlyOff": {
+    "placeholders": {
+      "pct": {
+        "type": "int"
+      }
+    }
+  },
   "subUnitMonth": "mo",
   "subUnitYear": "yr",
   "subYearlyPerMonth": "≈ {amount}/mo · Save {pct}%",
-  "@subYearlyPerMonth": {"placeholders": {"amount": {"type": "String"}, "pct": {"type": "int"}}},
+  "@subYearlyPerMonth": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "pct": {
+        "type": "int"
+      }
+    }
+  },
   "subMonthlyBilling": "Billed monthly",
   "subFeatureCompare": "Feature comparison",
   "subCurrentPlan": "Current plan",
@@ -1456,7 +2220,13 @@
   "subFailed": "Couldn't start the subscription",
   "subCancelConfirmTitle": "Cancel your subscription?",
   "subCancelConfirmMsg": "If you cancel, you will switch to the Free plan from {date} and the Securities tab will lock. You can keep using Pro features until then.",
-  "@subCancelConfirmMsg": {"placeholders": {"date": {"type": "String"}}},
+  "@subCancelConfirmMsg": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "subCancel": "Cancel subscription",
   "subKeep": "Keep",
   "subCanceled": "Subscription canceled",
@@ -1469,7 +2239,13 @@
   "subTossConnectDesc": "Register your API key to auto-import your holdings and prices",
   "subConnected": "Connected",
   "subTossLastVerified": "Last verified · {date}",
-  "@subTossLastVerified": {"placeholders": {"date": {"type": "String"}}},
+  "@subTossLastVerified": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "subTossCollecting": "Auto-collecting holdings and prices",
   "subTossKeyConnected": "Toss Securities API key connected",
   "subTossIdPlaceholder": "Client ID issued by Toss Securities Developer Center",
@@ -1485,20 +2261,50 @@
   "memoAdd": "Add",
   "memoLoadError": "Failed to load memos",
   "memoTagAll": "All {count}",
-  "@memoTagAll": {"placeholders": {"count": {"type": "int"}}},
+  "@memoTagAll": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "memoSectionPinned": "Pinned · {count}",
-  "@memoSectionPinned": {"placeholders": {"count": {"type": "int"}}},
+  "@memoSectionPinned": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "memoSectionAll": "All memos · {count}",
-  "@memoSectionAll": {"placeholders": {"count": {"type": "int"}}},
+  "@memoSectionAll": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "memoActionFailed": "Failed: {message}",
-  "@memoActionFailed": {"placeholders": {"message": {"type": "String"}}},
+  "@memoActionFailed": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
   "memoEmptyDesc": "When something comes to mind, create a new memo.",
   "memoSearchEmptyDesc": "Try a different search term.",
   "memoUntitled": "(Untitled)",
   "memoDeleteTitle": "Delete memo",
   "memoDeleteConfirm": "Delete this memo?",
   "memoDeleteFailed": "Delete failed: {message}",
-  "@memoDeleteFailed": {"placeholders": {"message": {"type": "String"}}},
+  "@memoDeleteFailed": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
   "memoFieldTitle": "Title",
   "memoTitleRequired": "Please enter a title",
   "memoFieldContent": "Content",
@@ -1510,90 +2316,187 @@
   "dateTomorrow": "Tomorrow",
   "dateYesterday": "Yesterday",
   "dateInDays": "in {n} days",
-  "@dateInDays": {"placeholders": {"n": {"type": "int"}}},
+  "@dateInDays": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "dateDaysAgo": "{n} days ago",
-  "@dateDaysAgo": {"placeholders": {"n": {"type": "int"}}},
+  "@dateDaysAgo": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "dateJustNow": "Just now",
   "dateMinutesAgo": "{n} min ago",
-  "@dateMinutesAgo": {"placeholders": {"n": {"type": "int"}}},
+  "@dateMinutesAgo": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "dateHoursAgo": "{n} hr ago",
-  "@dateHoursAgo": {"placeholders": {"n": {"type": "int"}}},
+  "@dateHoursAgo": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "todoNoDue": "No due date",
   "todoGroupLabel": "{label} · {count}",
-  "@todoGroupLabel": {"placeholders": {"label": {"type": "String"}, "count": {"type": "int"}}},
+  "@todoGroupLabel": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "dayN": "Day {d}",
-  "@dayN": {"placeholders": {"d": {"type": "int"}}},
+  "@dayN": {
+    "placeholders": {
+      "d": {
+        "type": "int"
+      }
+    }
+  },
   "weekN": "W{n}",
-  "@weekN": {"placeholders": {"n": {"type": "int"}}},
+  "@weekN": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "countUnit": "",
   "dayUnit": "day",
-  "constNameDipper": "Big Dipper",
-  "constNameCass": "Cassiopeia",
-  "constNameOrion": "Orion",
-  "constNameCygnus": "Cygnus",
-  "constNameLyra": "Lyra",
-  "constNameCrux": "Crux",
-  "constNameScorpius": "Scorpius",
-  "constNamePegasus": "Square of Pegasus",
-  "constNameUrsaMinor": "Ursa Minor",
-  "constNameLeo": "Leo",
-  "constNameCanisMajor": "Canis Major",
-  "constNameTaurus": "Taurus",
-  "constNameGemini": "Gemini",
-  "constNameCorona": "Corona Borealis",
-  "constNameAquila": "Aquila",
-  "constNameSagittarius": "Sagittarius",
-  "constDescDipper": "Seven stars shaping the northern ladle",
-  "constDescCass": "The queen tracing a W in the northern sky",
-  "constDescOrion": "The hunter of winter night skies",
-  "constDescCygnus": "The swan over the Milky Way, the Northern Cross",
-  "constDescLyra": "The lyre where Vega shines",
-  "constDescCrux": "The southern guidepost, the Southern Cross",
-  "constDescScorpius": "The scorpion of summer southern skies",
-  "constDescPegasus": "The great square of autumn skies",
-  "constDescUrsaMinor": "The little ladle with Polaris at its tip",
-  "constDescLeo": "The lion of spring skies with a sickle mane",
-  "constDescCanisMajor": "The great dog bearing Sirius, the brightest star",
-  "constDescTaurus": "The bull with a V face and long horns",
-  "constDescGemini": "The twins Castor and Pollux side by side",
-  "constDescCorona": "A crescent crown of seven stars",
-  "constDescAquila": "The eagle where Altair shines",
-  "constDescSagittarius": "The teapot aiming at the galactic heart",
   "constHeroTodayTarget": "Today's constellation",
   "constHeroCollectedBang": "{name} collected!",
-  "@constHeroCollectedBang": {"placeholders": {"name": {"type": "String"}}},
+  "@constHeroCollectedBang": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "constHeroStarlightCount": "{lit}/{goal} starlight",
-  "@constHeroStarlightCount": {"placeholders": {"lit": {"type": "int"}, "goal": {"type": "int"}}},
+  "@constHeroStarlightCount": {
+    "placeholders": {
+      "lit": {
+        "type": "int"
+      },
+      "goal": {
+        "type": "int"
+      }
+    }
+  },
   "constHeroCaptionDone": "Etched in your collection · shines brighter as you complete more",
   "constHeroCaptionProgress": "{count} done today",
-  "@constHeroCaptionProgress": {"placeholders": {"count": {"type": "int"}}},
+  "@constHeroCaptionProgress": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "constHeroCaptionMemo": "Memo starlight +{count}",
-  "@constHeroCaptionMemo": {"placeholders": {"count": {"type": "int"}}},
+  "@constHeroCaptionMemo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "constHeroCaptionRemain": "{count} stars to go",
-  "@constHeroCaptionRemain": {"placeholders": {"count": {"type": "int"}}},
+  "@constHeroCaptionRemain": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "constHeroCaptionEmpty": "Complete todos to light up the stars",
   "constHeroStreak": "{count}-day streak",
-  "@constHeroStreak": {"placeholders": {"count": {"type": "int"}}},
+  "@constHeroStreak": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "constHeroGuardInfo": "Guard {count} · High +3 · Medium +2 · Low +1",
-  "@constHeroGuardInfo": {"placeholders": {"count": {"type": "int"}}},
+  "@constHeroGuardInfo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "constMySkyTitle": "My Night Sky",
   "constMySkyTotal": "{count} collected",
-  "@constMySkyTotal": {"placeholders": {"count": {"type": "int"}}},
+  "@constMySkyTotal": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "constMySkySubtitle": "Last 2 weeks · cloudy nights count too",
   "constCollectionTitle": "Constellation Collection",
   "constCollectionProgress": "{collected}/{total} collected",
-  "@constCollectionProgress": {"placeholders": {"collected": {"type": "int"}, "total": {"type": "int"}}},
+  "@constCollectionProgress": {
+    "placeholders": {
+      "collected": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "constCollectionSubtitle": "Gather starlight equal to the stars to collect",
   "constCollectionTodayBadge": "Today's goal",
   "constCollectionStarCount": "{count} stars",
-  "@constCollectionStarCount": {"placeholders": {"count": {"type": "int"}}},
+  "@constCollectionStarCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "constCollectionTimes": "{count}×",
-  "@constCollectionTimes": {"placeholders": {"count": {"type": "int"}}},
+  "@constCollectionTimes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "constCollectionNotCollected": "Not yet",
   "constDetailTitle": "Constellation Collection",
   "constDetailNotMet": "A constellation you haven't met yet",
   "constDetailCollectedTimes": "Collected {count} times so far",
-  "@constDetailCollectedTimes": {"placeholders": {"count": {"type": "int"}}},
+  "@constDetailCollectedTimes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "constDetailHint": "Gather {count} starlight in a day to collect · a new target rises daily",
-  "@constDetailHint": {"placeholders": {"count": {"type": "int"}}}
+  "@constDetailHint": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

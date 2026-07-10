@@ -20,32 +20,12 @@ class NightSkyHero extends StatelessWidget {
     (95, 52), (8, 48), (92, 82), (60, 30), (20, 58), (86, 44),
   ];
 
-  String _constellationName(AppLocalizations l, String key) => switch (key) {
-        'dipper' => l.constNameDipper,
-        'cass' => l.constNameCass,
-        'orion' => l.constNameOrion,
-        'cygnus' => l.constNameCygnus,
-        'lyra' => l.constNameLyra,
-        'crux' => l.constNameCrux,
-        'scorpius' => l.constNameScorpius,
-        'pegasus' => l.constNamePegasus,
-        'ursaminor' => l.constNameUrsaMinor,
-        'leo' => l.constNameLeo,
-        'canismajor' => l.constNameCanisMajor,
-        'taurus' => l.constNameTaurus,
-        'gemini' => l.constNameGemini,
-        'corona' => l.constNameCorona,
-        'aquila' => l.constNameAquila,
-        'sagittarius' => l.constNameSagittarius,
-        _ => today.constellation.name,
-      };
-
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final lit = today.points < today.goal ? today.points : today.goal;
     final done = today.collected;
-    final name = _constellationName(l, today.constellation.constellationKey);
+    final name = constellationName(today.constellation);
 
     final caption = done
         ? l.constHeroCaptionDone

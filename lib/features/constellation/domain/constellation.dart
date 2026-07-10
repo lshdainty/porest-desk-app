@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:porest_desk_app/core/format/format_locale.dart';
 
 /// 백엔드 `ConstellationApiDto` 매핑 (plain class — dashboard_summary 관례).
 /// 별자리 모양 star_map: {"pts":[[x,y]...],"edges":[[a,b]...]} 0-100 정규 좌표.
@@ -27,12 +28,24 @@ class StarMapData {
   }
 }
 
+/// 로케일별 별자리 이름 — en 로케일은 nameEn(빈값이면 ko 마스터 fallback).
+String constellationName(ConstellationInfo info) =>
+    localeIsEn() && info.nameEn.isNotEmpty ? info.nameEn : info.name;
+
+/// 로케일별 별자리 설명 — en 로케일은 descriptionEn(빈값이면 ko 마스터 fallback).
+String constellationDesc(ConstellationInfo info) {
+  final en = info.descriptionEn;
+  return (localeIsEn() && en != null && en.isNotEmpty ? en : info.description) ?? '';
+}
+
 class ConstellationInfo {
   const ConstellationInfo({
     required this.rowId,
     required this.constellationKey,
     required this.name,
+    required this.nameEn,
     required this.description,
+    required this.descriptionEn,
     required this.colorKey,
     required this.starCount,
     required this.starMapRaw,
@@ -41,7 +54,9 @@ class ConstellationInfo {
   final int rowId;
   final String constellationKey;
   final String name;
+  final String nameEn;
   final String? description;
+  final String? descriptionEn;
   final String colorKey;
   final int starCount;
   final String starMapRaw;
@@ -54,7 +69,9 @@ class ConstellationInfo {
       rowId: (j['rowId'] as num?)?.toInt() ?? 0,
       constellationKey: j['constellationKey'] as String? ?? '',
       name: j['name'] as String? ?? '',
+      nameEn: j['nameEn'] as String? ?? '',
       description: j['description'] as String?,
+      descriptionEn: j['descriptionEn'] as String?,
       colorKey: j['colorKey'] as String? ?? 'blue',
       starCount: (j['starCount'] as num?)?.toInt() ?? 0,
       starMapRaw: j['starMap'] as String? ?? '{"pts":[],"edges":[]}',
