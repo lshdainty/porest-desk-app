@@ -12,7 +12,6 @@ import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_card.dart';
 import 'package:porest_desk_app/shared/widgets/p_checkbox.dart';
 import 'package:porest_desk_app/shared/widgets/p_empty_state.dart';
 import 'package:porest_desk_app/shared/widgets/p_progress.dart';
@@ -289,7 +288,6 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
     if (_initialLoading) {
       return [
         for (int i = 0; i < 6; i++) ...[
-          if (i > 0) const SizedBox(height: PSpace.x8),
           const _CardTileSkeleton(),
         ],
       ];
@@ -322,7 +320,6 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
 
     return [
       for (int i = 0; i < _cards.length; i++) ...[
-        if (i > 0) const SizedBox(height: PSpace.x8),
         _CardTile(
           card: _cards[i],
           onTap: () =>
@@ -343,14 +340,14 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
 }
 
 /// `_CardTile` 로딩 placeholder — 실제 타일과 1:1 구조 정합.
-/// PCard(shadow, padding 14) + 56×36 비주얼(brSm) + 이름/메타/실적 3줄 + chevron 자리.
+/// 플랫 행(12/10) + 56×36 비주얼(brSm) + 이름/메타/실적 3줄 + chevron 자리.
 class _CardTileSkeleton extends StatelessWidget {
   const _CardTileSkeleton();
   @override
   Widget build(BuildContext context) {
-    return PCard(
-      variant: PCardVariant.shadow,
-      padding: const EdgeInsets.all(14),
+    // 카드 다이어트 — 실제 _CardTile 과 동일 플랫 리듬.
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: PSpace.x12, horizontal: 10),
       child: Row(
         children: const [
           PSkeleton(width: 56, height: 36, borderRadius: PRadius.brSm),
@@ -402,12 +399,15 @@ class _CardTile extends StatelessWidget {
     final t = tokens;
     final l = AppLocalizations.of(context);
     final discontinued = card.isDiscontinued == 'Y';
+    // 카드 다이어트 — 자산 acc-card 리듬 유추 적용: 카드 그림자/배경 없이
+    // 플랫 행(12/10, radius 10, 탭 hover). 56×36 브랜드 비주얼 구조는 유지.
     return Opacity(
       opacity: discontinued ? 0.6 : 1,
-      child: PCard(
-        variant: PCardVariant.shadow,
-        padding: const EdgeInsets.all(14),
+      child: InkWell(
         onTap: onTap,
+        borderRadius: BorderRadius.circular(10),
+        child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: PSpace.x12, horizontal: 10),
         child: Row(
           children: [
             _CardVisual(
@@ -471,6 +471,7 @@ class _CardTile extends StatelessWidget {
             const SizedBox(width: PSpace.x8),
             Icon(LucideIcons.chevronRight, size: 14, color: t.fgTertiary),
           ],
+        ),
         ),
       ),
     );

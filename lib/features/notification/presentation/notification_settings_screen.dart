@@ -977,8 +977,8 @@ class _PrefsSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 실제 _Content 6카드 정합 — 모두 shadow/brand PCard. 스켈레톤도 PCard(shadow)
-    // 셸 안에 PSkeleton 프리미티브로 구조(아이콘 박스/제목·소제목/토글·슬라이더)를 미러.
+    // 실제 _Content 정합 — 카드 다이어트 후 플랫 섹션 구조(brand 마스터 카드만 카드).
+    // 스켈레톤도 동일 플랫 셸에 PSkeleton 프리미티브로 구조를 미러.
     return ListView(
       padding: const EdgeInsets.symmetric(
         horizontal: PSpace.x20,

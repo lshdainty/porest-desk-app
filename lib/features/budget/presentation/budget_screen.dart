@@ -1590,9 +1590,8 @@ class _EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    return PCard(
-      variant: PCardVariant.shadow,
-      child: PEmptyState(
+    // 카드 다이어트 — 빈 상태 플랫 (카드 셸 제거).
+    return PEmptyState(
         icon: LucideIcons.target,
         message: l.budgetEmptyMonth,
         subMessage: l.budgetEmptyHint,
@@ -1609,14 +1608,13 @@ class _EmptyState extends StatelessWidget {
             foregroundColor: tokens.fgBrandStrong,
           ),
         ),
-      ),
     );
   }
 }
 
 /// 예산 로딩 skeleton — 로딩-후 실제 렌더 구조(_HeaderCard → _PaceCard →
 /// _StatusTiles → _CategoryListCard → _ComplianceCard)와 1:1 정합.
-/// 모든 카드는 shadow variant(실제와 동일), 회색 박스는 PSkeleton 프리미티브.
+/// 상한 카드(brand)만 카드, 나머지는 플랫 섹션 — 회색 박스는 PSkeleton 프리미티브.
 class _BudgetLoadingSkeleton extends StatelessWidget {
   const _BudgetLoadingSkeleton();
 
