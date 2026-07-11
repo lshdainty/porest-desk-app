@@ -156,15 +156,6 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
       _SegMode.custom => l.statsMomCustom,
     };
   }
-  String get _momPrevLabel {
-    final l = AppLocalizations.of(context);
-    return switch (_segMode) {
-      _SegMode.month => l.statsMomPrevMonth,
-      _SegMode.quarter => l.statsMomPrevQuarter,
-      _SegMode.year => l.statsMomPrevYear,
-      _SegMode.custom => l.statsPrevPeriod,
-    };
-  }
   String get _avgLabel {
     final l = AppLocalizations.of(context);
     return _useDailyAvg ? l.statsDailyAvg : l.statsMonthlyAvg;
@@ -561,6 +552,15 @@ class _CompareTab extends ConsumerWidget {
             state: state,
             rangeAsync: rangeAsync,
             prevRangeAsync: prevRangeAsync,
+            masked: settings.hideAmounts,
+          ),
+          const SizedBox(height: 36),
+          _CompareMetricsCard(
+            state: state,
+            rangeAsync: rangeAsync,
+            prevRangeAsync: prevRangeAsync,
+            nowExpAsync: nowExpAsync,
+            prevExpAsync: prevExpAsync,
             masked: settings.hideAmounts,
           ),
           const SizedBox(height: 36),
@@ -2658,64 +2658,250 @@ class _CompareSummaryGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final s = state;
     final l = AppLocalizations.of(context);
 
     final now = rangeAsync.value?.totalExpense ?? 0;
     final prev = prevRangeAsync.value?.totalExpense ?? 0;
     final diff = now - prev;
-    final up = diff >= 0;
+    final less = diff <= 0; // 지출 감소 = 좋음(파랑)
+    final good = less ? t.fgIncome : t.fgExpense;
     final pct = prev > 0
         ? '${((diff.abs() / prev) * 100).toStringAsFixed(1)}%'
         : '—';
+    final barMax = [now, prev, 1].reduce((a, b) => a > b ? a : b);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        _CompareCard(
-          label: l.statsPeriodSpending(s._periodNow),
-          amount: krwSigned(now, masked, unit: true),
-        ),
-        const SizedBox(height: 10),
-        _CompareCard(
-          label: l.statsPeriodSpending(s._periodPrev),
-          amount: krwSigned(prev, masked, unit: true),
-          muted: true,
-        ),
-        const SizedBox(height: 10),
-        _Card(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    Widget cmpBar(String label, int amt, {required bool muted}) => Padding(
+      padding: const EdgeInsets.only(top: 10),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 44,
+            child: Text(
+              label,
+              style: PTypo.micro.copyWith(
+                color: t.fgTertiary,
+                fontWeight: PFontWeight.semi,
+              ),
+            ),
+          ),
+          Expanded(
+            child: SizedBox(
+              height: 14,
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: FractionallySizedBox(
+                  widthFactor: (amt / barMax).clamp(0.0, 1.0),
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: muted ? t.bgSunken : t.bgBrand,
+                      border: muted
+                          ? Border.all(color: t.borderDefault)
+                          : null,
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          SizedBox(
+            width: 92,
+            child: Text(
+              krwSigned(amt, masked, unit: true),
+              textAlign: TextAlign.right,
+              style: PTypo.caption.copyWith(
+                color: muted ? t.fgSecondary : t.fgPrimary,
+                fontWeight: PFontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    return _Card(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l.dashThisMonthExpense,
+            style: PTypo.caption.copyWith(
+              color: t.fgSecondary,
+              fontWeight: PFontWeight.medium,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(
-                s._momLabel,
-                style: PTypo.caption.copyWith(
-                  color: t.fgTertiary,
-                  fontWeight: PFontWeight.medium,
+              Flexible(
+                child: Text(
+                  krwSigned(now, masked, unit: true),
+                  style: PTypo.h2.copyWith(
+                    color: t.fgPrimary,
+                    fontWeight: PFontWeight.bold,
+                  ),
                 ),
               ),
-              const SizedBox(height: 8),
-              Text(
-                prev > 0 ? '${up ? '+' : '−'}$pct' : '—',
-                style: PTypo.h3.copyWith(
-                  color: prev <= 0
-                      ? t.fgPrimary
-                      : (up ? t.fgExpense : t.fgIncome),
-                  fontWeight: PFontWeight.bold,
+              if (prev > 0) ...[
+                const SizedBox(width: 10),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 9,
+                    vertical: 3,
+                  ),
+                  decoration: BoxDecoration(
+                    color: good.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Text(
+                    '${less ? '▼' : '▲'} $pct',
+                    style: PTypo.micro.copyWith(
+                      color: good,
+                      fontWeight: PFontWeight.bold,
+                    ),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                prev > 0
-                    ? krwSigned(diff.abs(), masked, sign: up ? '+' : '−', unit: true)
-                    : l.statsNoDataFor(s._momPrevLabel),
-                style: PTypo.caption.copyWith(color: t.fgTertiary),
-              ),
+              ],
             ],
           ),
-        ),
-      ],
+          if (prev > 0) ...[
+            const SizedBox(height: 10),
+            Text(
+              less
+                  ? l.statsVsLastLess(krwSigned(diff.abs(), masked, unit: true))
+                  : l.statsVsLastMore(krwSigned(diff.abs(), masked, unit: true)),
+              style: PTypo.body.copyWith(
+                color: good,
+                fontWeight: PFontWeight.bold,
+              ),
+            ),
+          ],
+          const SizedBox(height: 8),
+          cmpBar(l.statsThisMonthShort, now, muted: false),
+          cmpBar(l.statsLastMonthShort, prev, muted: true),
+        ],
+      ),
+    );
+  }
+}
+
+/// 비교 지표 — 하루 평균 / 거래 건수 / 건당 평균 (이번/지난 기간).
+/// design StatsScreen `CompareMetrics` 미러: 좌 라벨+이번 값, 우 ▲▼ 증감+지난 값.
+/// ▲(증가)=지출색 빨강, ▼(감소)=수입색 파랑 (지출성이라 증가가 나쁨).
+class _CompareMetricsCard extends StatelessWidget {
+  const _CompareMetricsCard({
+    required this.state,
+    required this.rangeAsync,
+    required this.prevRangeAsync,
+    required this.nowExpAsync,
+    required this.prevExpAsync,
+    required this.masked,
+  });
+  final _StatsScreenState state;
+  final AsyncValue<RangeSummary> rangeAsync;
+  final AsyncValue<RangeSummary> prevRangeAsync;
+  final AsyncValue<List<Expense>> nowExpAsync;
+  final AsyncValue<List<Expense>> prevExpAsync;
+  final bool masked;
+
+  static int _txCount(List<Expense> e) =>
+      e.where((x) => x.expenseType == 'EXPENSE').length;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final l = AppLocalizations.of(context);
+    final now = rangeAsync.value?.totalExpense ?? 0;
+    final prev = prevRangeAsync.value?.totalExpense ?? 0;
+    final txNow = _txCount(nowExpAsync.value ?? const []);
+    final txPrev = _txCount(prevExpAsync.value ?? const []);
+
+    final today = DateTime.now();
+    DateTime dOnly(DateTime d) => DateTime(d.year, d.month, d.day);
+    var nowEnd = state._to;
+    if (nowEnd.isAfter(today)) nowEnd = today;
+    final nowDays = (dOnly(nowEnd).difference(dOnly(state._from)).inDays + 1)
+        .clamp(1, 100000);
+    final prevDays = (dOnly(state._prevRange.to)
+                .difference(dOnly(state._prevRange.from))
+                .inDays +
+            1)
+        .clamp(1, 100000);
+
+    final rows = <({String label, int now, int prev, bool count})>[
+      (label: l.statsCompareDailyAvg, now: now ~/ nowDays, prev: prev ~/ prevDays, count: false),
+      (label: l.statsCompareTxCount, now: txNow, prev: txPrev, count: true),
+      (
+        label: l.statsComparePerTx,
+        now: txNow > 0 ? now ~/ txNow : 0,
+        prev: txPrev > 0 ? prev ~/ txPrev : 0,
+        count: false,
+      ),
+    ];
+
+    String fmt(int v, bool count) =>
+        count ? l.statsCountValue(v) : krwSigned(v, masked, unit: true);
+
+    return _Card(
+      child: Column(
+        children: [
+          for (final (i, m) in rows.indexed) ...[
+            if (i > 0) const SizedBox(height: 18),
+            Builder(
+              builder: (_) {
+                final d = m.now - m.prev;
+                final up = d > 0;
+                final c = up ? t.fgExpense : t.fgIncome;
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          m.label,
+                          style: PTypo.caption.copyWith(
+                            color: t.fgTertiary,
+                            fontWeight: PFontWeight.semi,
+                          ),
+                        ),
+                        const SizedBox(height: 3),
+                        Text(
+                          fmt(m.now, m.count),
+                          style: PTypo.h3.copyWith(
+                            color: t.fgPrimary,
+                            fontWeight: PFontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const Spacer(),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          d == 0 ? '—' : '${up ? '▲' : '▼'} ${fmt(d.abs(), m.count)}',
+                          style: PTypo.caption.copyWith(
+                            color: d == 0 ? t.fgTertiary : c,
+                            fontWeight: PFontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          '${l.statsLastMonthShort} ${fmt(m.prev, m.count)}',
+                          style: PTypo.micro.copyWith(color: t.fgTertiary),
+                        ),
+                      ],
+                    ),
+                  ],
+                );
+              },
+            ),
+          ],
+        ],
+      ),
     );
   }
 }
@@ -2943,44 +3129,6 @@ class _RoundedBar extends StatelessWidget {
             ),
           );
         },
-      ),
-    );
-  }
-}
-
-class _CompareCard extends StatelessWidget {
-  const _CompareCard({
-    required this.label,
-    required this.amount,
-    this.muted = false,
-  });
-  final String label;
-  final String amount;
-  final bool muted;
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    return _Card(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: PTypo.caption.copyWith(
-              color: t.fgTertiary,
-              fontWeight: PFontWeight.medium,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            amount,
-            style: PTypo.h3.copyWith(
-              color: muted ? t.fgSecondary : t.fgPrimary,
-              fontWeight: PFontWeight.bold,
-            ),
-          ),
-        ],
       ),
     );
   }
