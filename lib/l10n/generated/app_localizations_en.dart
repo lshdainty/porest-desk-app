@@ -3730,6 +3730,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statsNoCompareData => 'No data to compare';
 
   @override
+  String get statsWeekdayTitle => 'Spending by weekday';
+
+  @override
+  String get statsThisMonthShort => 'This month';
+
+  @override
+  String get statsLastMonthShort => 'Last month';
+
+  @override
+  String statsWeekdayInsightDown(String day, String amount) {
+    return '$day spending dropped by $amount vs last month.';
+  }
+
+  @override
+  String statsWeekdayInsightUp(String day, String amount) {
+    return '$day spending rose by $amount vs last month.';
+  }
+
+  @override
+  String get statsWeekdayInsightSame =>
+      'Weekday spending is similar to last month.';
+
+  @override
   String get stocksChartTokenFailed => 'Failed to issue token';
 
   @override

@@ -537,11 +537,16 @@ class _CompareTab extends ConsumerWidget {
     final rangeAsync = ref.watch(rangeSummaryProvider(state._range));
     final prevRangeAsync = ref.watch(rangeSummaryProvider(state._prevRangeKey));
     final categoriesAsync = ref.watch(categoriesProvider);
+    // 요일별 지출 비교 — 이번/지난 기간 원시 거래로 요일 집계.
+    final nowExpAsync = ref.watch(rangeExpensesProvider(state._range));
+    final prevExpAsync = ref.watch(rangeExpensesProvider(state._prevRangeKey));
     return RefreshIndicator(
       color: t.bgBrand,
       onRefresh: () async {
         ref.invalidate(rangeSummaryProvider(state._range));
         ref.invalidate(rangeSummaryProvider(state._prevRangeKey));
+        ref.invalidate(rangeExpensesProvider(state._range));
+        ref.invalidate(rangeExpensesProvider(state._prevRangeKey));
       },
       child: ListView(
         // 카드 다이어트 — design StatsScreen: padding 16/20/24 + 섹션 gap 36.
@@ -564,6 +569,12 @@ class _CompareTab extends ConsumerWidget {
             rangeAsync: rangeAsync,
             prevRangeAsync: prevRangeAsync,
             categoriesAsync: categoriesAsync,
+            masked: settings.hideAmounts,
+          ),
+          const SizedBox(height: 36),
+          _CompareWeekdayCard(
+            nowExpAsync: nowExpAsync,
+            prevExpAsync: prevExpAsync,
             masked: settings.hideAmounts,
           ),
         ],
@@ -2703,6 +2714,198 @@ class _CompareSummaryGrid extends StatelessWidget {
               ),
             ],
           ),
+        ),
+      ],
+    );
+  }
+}
+
+/// 요일별 지출 비교 — 이번 달(파랑) vs 지난 달(회색 track) grouped bar.
+/// design StatsScreen `CompareWeekday` 미러: 월~일, 토·일 라벨 빨강, 하단 인사이트.
+class _CompareWeekdayCard extends StatelessWidget {
+  const _CompareWeekdayCard({
+    required this.nowExpAsync,
+    required this.prevExpAsync,
+    required this.masked,
+  });
+  final AsyncValue<List<Expense>> nowExpAsync;
+  final AsyncValue<List<Expense>> prevExpAsync;
+  final bool masked;
+
+  /// EXPENSE 만 요일별 합산. index 0=월 .. 6=일 (DateTime.weekday 1=월~7=일).
+  static List<int> _byWeekday(List<Expense> exps) {
+    final res = List<int>.filled(7, 0);
+    for (final e in exps) {
+      if (e.expenseType != 'EXPENSE') continue;
+      final d = DateTime.tryParse(e.expenseDate ?? '');
+      if (d == null) continue;
+      res[d.weekday - 1] += e.amount;
+    }
+    return res;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final l = AppLocalizations.of(context);
+    final now = _byWeekday(nowExpAsync.value ?? const []);
+    final prev = _byWeekday(prevExpAsync.value ?? const []);
+    final labels = weekdayLabels(mondayFirst: true);
+    final maxV = [
+      ...now,
+      ...prev,
+    ].fold<int>(1, (m, v) => v > m ? v : m);
+    const chartH = 120.0;
+
+    // 인사이트 — 감소폭 최대 요일 우선, 없으면 증가폭 최대.
+    String insight;
+    var bestDrop = 0, dropIdx = -1;
+    for (var i = 0; i < 7; i++) {
+      final drop = prev[i] - now[i];
+      if (drop > bestDrop) {
+        bestDrop = drop;
+        dropIdx = i;
+      }
+    }
+    if (dropIdx >= 0) {
+      insight = l.statsWeekdayInsightDown(
+        labels[dropIdx],
+        krwSigned(bestDrop, masked, unit: true),
+      );
+    } else {
+      var bestRise = 0, riseIdx = -1;
+      for (var i = 0; i < 7; i++) {
+        final rise = now[i] - prev[i];
+        if (rise > bestRise) {
+          bestRise = rise;
+          riseIdx = i;
+        }
+      }
+      insight = riseIdx >= 0
+          ? l.statsWeekdayInsightUp(
+              labels[riseIdx],
+              krwSigned(bestRise, masked, unit: true),
+            )
+          : l.statsWeekdayInsightSame;
+    }
+
+    Widget bar(int v, Color color, {Color? border}) => Container(
+      width: 10,
+      height: ((v / maxV) * chartH).clamp(3.0, chartH),
+      decoration: BoxDecoration(
+        color: color,
+        border: border == null ? null : Border.all(color: border),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(3)),
+      ),
+    );
+
+    return _Card(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(child: _CardTitle(l.statsWeekdayTitle)),
+              _WeekdayLegend(color: t.bgBrand, label: l.statsThisMonthShort),
+              const SizedBox(width: 12),
+              _WeekdayLegend(
+                color: t.bgSunken,
+                label: l.statsLastMonthShort,
+                border: t.borderDefault,
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          SizedBox(
+            height: chartH + 22,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                for (var i = 0; i < 7; i++)
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        SizedBox(
+                          height: chartH,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              bar(now[i], t.bgBrand),
+                              const SizedBox(width: 3),
+                              bar(prev[i], t.bgSunken, border: t.borderDefault),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          labels[i],
+                          style: PTypo.micro.copyWith(
+                            color: i >= 5 ? t.fgExpense : t.fgTertiary,
+                            fontWeight: PFontWeight.semi,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.only(top: 12),
+            decoration: BoxDecoration(
+              border: Border(top: BorderSide(color: t.borderSubtle)),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(LucideIcons.sparkles, size: 12, color: t.bgBrand),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    insight,
+                    style: PTypo.caption.copyWith(
+                      color: t.fgSecondary,
+                      fontWeight: PFontWeight.medium,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _WeekdayLegend extends StatelessWidget {
+  const _WeekdayLegend({required this.color, required this.label, this.border});
+  final Color color;
+  final String label;
+  final Color? border;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 9,
+          height: 9,
+          decoration: BoxDecoration(
+            color: color,
+            border: border == null ? null : Border.all(color: border!),
+            borderRadius: BorderRadius.circular(2.5),
+          ),
+        ),
+        const SizedBox(width: 5),
+        Text(
+          label,
+          style: PTypo.micro.copyWith(color: t.fgTertiary),
         ),
       ],
     );
