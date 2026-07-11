@@ -7004,6 +7004,42 @@ abstract class AppLocalizations {
   /// **'비교할 데이터가 없습니다'**
   String get statsNoCompareData;
 
+  /// No description provided for @statsWeekdayTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'요일별 지출 비교'**
+  String get statsWeekdayTitle;
+
+  /// No description provided for @statsThisMonthShort.
+  ///
+  /// In ko, this message translates to:
+  /// **'이번 달'**
+  String get statsThisMonthShort;
+
+  /// No description provided for @statsLastMonthShort.
+  ///
+  /// In ko, this message translates to:
+  /// **'지난 달'**
+  String get statsLastMonthShort;
+
+  /// No description provided for @statsWeekdayInsightDown.
+  ///
+  /// In ko, this message translates to:
+  /// **'{day}요일 지출이 지난 달보다 {amount} 줄었어요.'**
+  String statsWeekdayInsightDown(String day, String amount);
+
+  /// No description provided for @statsWeekdayInsightUp.
+  ///
+  /// In ko, this message translates to:
+  /// **'{day}요일 지출이 지난 달보다 {amount} 늘었어요.'**
+  String statsWeekdayInsightUp(String day, String amount);
+
+  /// No description provided for @statsWeekdayInsightSame.
+  ///
+  /// In ko, this message translates to:
+  /// **'요일별 지출이 지난 달과 비슷해요.'**
+  String get statsWeekdayInsightSame;
+
   /// No description provided for @stocksChartTokenFailed.
   ///
   /// In ko, this message translates to:

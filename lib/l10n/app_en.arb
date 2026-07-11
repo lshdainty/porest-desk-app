@@ -1952,6 +1952,12 @@
     }
   },
   "statsNoCompareData": "No data to compare",
+  "statsWeekdayTitle": "Spending by weekday",
+  "statsThisMonthShort": "This month",
+  "statsLastMonthShort": "Last month",
+  "statsWeekdayInsightDown": "{day} spending dropped by {amount} vs last month.",
+  "statsWeekdayInsightUp": "{day} spending rose by {amount} vs last month.",
+  "statsWeekdayInsightSame": "Weekday spending is similar to last month.",
   "stocksChartTokenFailed": "Failed to issue token",
   "stocksChartHttpsError": "Security error: chart WebView is not HTTPS",
   "stocksChartInitFailed": "Chart initialization failed",

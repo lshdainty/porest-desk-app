@@ -3694,6 +3694,28 @@ class AppLocalizationsKo extends AppLocalizations {
   String get statsNoCompareData => '비교할 데이터가 없습니다';
 
   @override
+  String get statsWeekdayTitle => '요일별 지출 비교';
+
+  @override
+  String get statsThisMonthShort => '이번 달';
+
+  @override
+  String get statsLastMonthShort => '지난 달';
+
+  @override
+  String statsWeekdayInsightDown(String day, String amount) {
+    return '$day요일 지출이 지난 달보다 $amount 줄었어요.';
+  }
+
+  @override
+  String statsWeekdayInsightUp(String day, String amount) {
+    return '$day요일 지출이 지난 달보다 $amount 늘었어요.';
+  }
+
+  @override
+  String get statsWeekdayInsightSame => '요일별 지출이 지난 달과 비슷해요.';
+
+  @override
   String get stocksChartTokenFailed => '토큰 발급 실패';
 
   @override

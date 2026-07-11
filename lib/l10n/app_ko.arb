@@ -1955,6 +1955,24 @@
     }
   },
   "statsNoCompareData": "비교할 데이터가 없습니다",
+  "statsWeekdayTitle": "요일별 지출 비교",
+  "statsThisMonthShort": "이번 달",
+  "statsLastMonthShort": "지난 달",
+  "statsWeekdayInsightDown": "{day}요일 지출이 지난 달보다 {amount} 줄었어요.",
+  "@statsWeekdayInsightDown": {
+    "placeholders": {
+      "day": { "type": "String" },
+      "amount": { "type": "String" }
+    }
+  },
+  "statsWeekdayInsightUp": "{day}요일 지출이 지난 달보다 {amount} 늘었어요.",
+  "@statsWeekdayInsightUp": {
+    "placeholders": {
+      "day": { "type": "String" },
+      "amount": { "type": "String" }
+    }
+  },
+  "statsWeekdayInsightSame": "요일별 지출이 지난 달과 비슷해요.",
   "stocksChartTokenFailed": "토큰 발급 실패",
   "stocksChartHttpsError": "보안 오류: 차트 WebView 가 HTTPS 가 아닙니다",
   "stocksChartInitFailed": "차트 초기화 실패",
