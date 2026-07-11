@@ -71,12 +71,29 @@ Map<String, dynamic> _$RangeSummaryToJson(_RangeSummary instance) =>
       'monthlyBuckets': instance.monthlyBuckets,
     };
 
+_CategoryAmount _$CategoryAmountFromJson(Map<String, dynamic> json) =>
+    _CategoryAmount(
+      categoryRowId: (json['categoryRowId'] as num?)?.toInt(),
+      amount: (json['amount'] as num?)?.toInt() ?? 0,
+    );
+
+Map<String, dynamic> _$CategoryAmountToJson(_CategoryAmount instance) =>
+    <String, dynamic>{
+      'categoryRowId': instance.categoryRowId,
+      'amount': instance.amount,
+    };
+
 _RangeMonthlyBucket _$RangeMonthlyBucketFromJson(Map<String, dynamic> json) =>
     _RangeMonthlyBucket(
       year: (json['year'] as num).toInt(),
       month: (json['month'] as num).toInt(),
       totalIncome: (json['totalIncome'] as num?)?.toInt() ?? 0,
       totalExpense: (json['totalExpense'] as num?)?.toInt() ?? 0,
+      categoryExpenses:
+          (json['categoryExpenses'] as List<dynamic>?)
+              ?.map((e) => CategoryAmount.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const <CategoryAmount>[],
     );
 
 Map<String, dynamic> _$RangeMonthlyBucketToJson(_RangeMonthlyBucket instance) =>
@@ -85,6 +102,7 @@ Map<String, dynamic> _$RangeMonthlyBucketToJson(_RangeMonthlyBucket instance) =>
       'month': instance.month,
       'totalIncome': instance.totalIncome,
       'totalExpense': instance.totalExpense,
+      'categoryExpenses': instance.categoryExpenses,
     };
 
 _MerchantSummary _$MerchantSummaryFromJson(Map<String, dynamic> json) =>

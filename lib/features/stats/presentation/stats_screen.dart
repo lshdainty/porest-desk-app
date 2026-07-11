@@ -510,6 +510,8 @@ class _TrendTab extends ConsumerWidget {
             rangeAsync: rangeAsync,
             monthExpAsync: monthExpAsync,
           ),
+          const SizedBox(height: 36),
+          _CatTrendCard(state: state, rangeAsync: rangeAsync),
         ],
       ),
     );
@@ -2418,6 +2420,173 @@ class _StatCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+// ─── 주요 카테고리 월별 추이 (추이 탭) — 지출 TOP3 stacked bar ────
+class _CatTrendCard extends ConsumerWidget {
+  const _CatTrendCard({required this.state, required this.rangeAsync});
+  final _StatsScreenState state;
+  final AsyncValue<RangeSummary> rangeAsync;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = context.tokens;
+    final l = AppLocalizations.of(context);
+    final range = rangeAsync.value;
+    final breakdown = range?.categoryBreakdown ?? const <CategoryBreakdown>[];
+    final buckets = range?.monthlyBuckets ?? const <RangeMonthlyBucket>[];
+
+    // 기간 전체 지출 TOP3 카테고리
+    final top =
+        (breakdown.where((b) => b.expenseType == 'EXPENSE').toList()
+              ..sort((a, b) => b.totalAmount.compareTo(a.totalAmount)))
+            .take(3)
+            .toList();
+
+    // 월별 parts = TOP3 각 카테고리의 그 달 지출액(매칭 없으면 0)
+    final allSameYear =
+        buckets.isNotEmpty &&
+        buckets.every((b) => b.year == buckets.first.year);
+    final rows = <({String label, List<int> parts})>[
+      for (final b in buckets)
+        (
+          label: allSameYear
+              ? b.month.toString().padLeft(2, '0')
+              : '${b.year}.${b.month.toString().padLeft(2, '0')}',
+          parts: [
+            for (final c in top)
+              b.categoryExpenses
+                  .firstWhere(
+                    (ce) => ce.categoryRowId == c.categoryRowId,
+                    orElse: () => const CategoryAmount(),
+                  )
+                  .amount,
+          ],
+        ),
+    ];
+    final maxSum = rows.fold<int>(
+      0,
+      (m, r) => math.max(m, r.parts.fold<int>(0, (s, v) => s + v)),
+    );
+
+    return _Card(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _CardHeader(
+            title: _CardTitle(l.statsCatTrendTitle),
+            trailing: Text(
+              l.statsCatTrendTop3,
+              style: PTypo.caption.copyWith(color: t.fgTertiary),
+            ),
+          ),
+          if (rangeAsync.isLoading && buckets.isEmpty)
+            const _ChartSkeleton(height: 168, showLegend: true)
+          else if (top.isEmpty || maxSum <= 0)
+            _EmptyBox(text: l.statsNoData)
+          else ...[
+            Padding(
+              padding: const EdgeInsets.only(top: 2, bottom: 4),
+              child: Wrap(
+                spacing: 14,
+                runSpacing: 6,
+                children: [
+                  for (var i = 0; i < top.length; i++)
+                    _LegendChip(
+                      color: _donutColor(context, i),
+                      label: top[i].categoryName ?? '',
+                    ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 16, bottom: 4),
+              child: SizedBox(
+                height: 132,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    for (var i = 0; i < rows.length; i++)
+                      Expanded(
+                        child: _CatTrendBar(
+                          row: rows[i],
+                          maxSum: maxSum,
+                          isCurrent: i == rows.length - 1,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// 카테고리 추이 막대 하나 — 상단 합계('N만')·stacked 세그먼트·하단 월 라벨.
+class _CatTrendBar extends StatelessWidget {
+  const _CatTrendBar({
+    required this.row,
+    required this.maxSum,
+    required this.isCurrent,
+  });
+  final ({String label, List<int> parts}) row;
+  final int maxSum;
+  final bool isCurrent;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final sum = row.parts.fold<int>(0, (s, v) => s + v);
+    final barH = maxSum <= 0 ? 8.0 : math.max(8.0, sum / maxSum * 100.0);
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        Text(
+          sum <= 0 ? '' : _fmtTick(sum.toDouble()),
+          style: PTypo.micro.copyWith(
+            color: isCurrent ? t.fgPrimary : t.fgTertiary,
+            fontWeight: PFontWeight.bold,
+            fontSize: PFontSize.micro,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Opacity(
+          opacity: isCurrent ? 1 : 0.55,
+          child: ClipRRect(
+            borderRadius: PRadius.brSm,
+            child: SizedBox(
+              width: 24,
+              height: barH,
+              // TOP1이 아래에 오도록 column-reverse (디자인 정합)
+              child: Column(
+                verticalDirection: VerticalDirection.up,
+                children: [
+                  for (var i = 0; i < row.parts.length; i++)
+                    if (row.parts[i] > 0)
+                      Expanded(
+                        flex: row.parts[i],
+                        child: Container(color: _donutColor(context, i)),
+                      ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          row.label,
+          style: PTypo.micro.copyWith(
+            color: isCurrent ? t.fgPrimary : t.fgTertiary,
+            fontWeight: isCurrent ? PFontWeight.bold : PFontWeight.regular,
+            fontSize: PFontSize.micro,
+          ),
+        ),
+      ],
     );
   }
 }

@@ -853,9 +853,276 @@ as List<RangeMonthlyBucket>,
 
 
 /// @nodoc
+mixin _$CategoryAmount {
+
+ int? get categoryRowId; int get amount;
+/// Create a copy of CategoryAmount
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$CategoryAmountCopyWith<CategoryAmount> get copyWith => _$CategoryAmountCopyWithImpl<CategoryAmount>(this as CategoryAmount, _$identity);
+
+  /// Serializes this CategoryAmount to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CategoryAmount&&(identical(other.categoryRowId, categoryRowId) || other.categoryRowId == categoryRowId)&&(identical(other.amount, amount) || other.amount == amount));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,categoryRowId,amount);
+
+@override
+String toString() {
+  return 'CategoryAmount(categoryRowId: $categoryRowId, amount: $amount)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $CategoryAmountCopyWith<$Res>  {
+  factory $CategoryAmountCopyWith(CategoryAmount value, $Res Function(CategoryAmount) _then) = _$CategoryAmountCopyWithImpl;
+@useResult
+$Res call({
+ int? categoryRowId, int amount
+});
+
+
+
+
+}
+/// @nodoc
+class _$CategoryAmountCopyWithImpl<$Res>
+    implements $CategoryAmountCopyWith<$Res> {
+  _$CategoryAmountCopyWithImpl(this._self, this._then);
+
+  final CategoryAmount _self;
+  final $Res Function(CategoryAmount) _then;
+
+/// Create a copy of CategoryAmount
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? categoryRowId = freezed,Object? amount = null,}) {
+  return _then(_self.copyWith(
+categoryRowId: freezed == categoryRowId ? _self.categoryRowId : categoryRowId // ignore: cast_nullable_to_non_nullable
+as int?,amount: null == amount ? _self.amount : amount // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [CategoryAmount].
+extension CategoryAmountPatterns on CategoryAmount {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _CategoryAmount value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _CategoryAmount() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _CategoryAmount value)  $default,){
+final _that = this;
+switch (_that) {
+case _CategoryAmount():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _CategoryAmount value)?  $default,){
+final _that = this;
+switch (_that) {
+case _CategoryAmount() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? categoryRowId,  int amount)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _CategoryAmount() when $default != null:
+return $default(_that.categoryRowId,_that.amount);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? categoryRowId,  int amount)  $default,) {final _that = this;
+switch (_that) {
+case _CategoryAmount():
+return $default(_that.categoryRowId,_that.amount);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? categoryRowId,  int amount)?  $default,) {final _that = this;
+switch (_that) {
+case _CategoryAmount() when $default != null:
+return $default(_that.categoryRowId,_that.amount);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _CategoryAmount implements CategoryAmount {
+  const _CategoryAmount({this.categoryRowId, this.amount = 0});
+  factory _CategoryAmount.fromJson(Map<String, dynamic> json) => _$CategoryAmountFromJson(json);
+
+@override final  int? categoryRowId;
+@override@JsonKey() final  int amount;
+
+/// Create a copy of CategoryAmount
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$CategoryAmountCopyWith<_CategoryAmount> get copyWith => __$CategoryAmountCopyWithImpl<_CategoryAmount>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$CategoryAmountToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CategoryAmount&&(identical(other.categoryRowId, categoryRowId) || other.categoryRowId == categoryRowId)&&(identical(other.amount, amount) || other.amount == amount));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,categoryRowId,amount);
+
+@override
+String toString() {
+  return 'CategoryAmount(categoryRowId: $categoryRowId, amount: $amount)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$CategoryAmountCopyWith<$Res> implements $CategoryAmountCopyWith<$Res> {
+  factory _$CategoryAmountCopyWith(_CategoryAmount value, $Res Function(_CategoryAmount) _then) = __$CategoryAmountCopyWithImpl;
+@override @useResult
+$Res call({
+ int? categoryRowId, int amount
+});
+
+
+
+
+}
+/// @nodoc
+class __$CategoryAmountCopyWithImpl<$Res>
+    implements _$CategoryAmountCopyWith<$Res> {
+  __$CategoryAmountCopyWithImpl(this._self, this._then);
+
+  final _CategoryAmount _self;
+  final $Res Function(_CategoryAmount) _then;
+
+/// Create a copy of CategoryAmount
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? categoryRowId = freezed,Object? amount = null,}) {
+  return _then(_CategoryAmount(
+categoryRowId: freezed == categoryRowId ? _self.categoryRowId : categoryRowId // ignore: cast_nullable_to_non_nullable
+as int?,amount: null == amount ? _self.amount : amount // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
 mixin _$RangeMonthlyBucket {
 
- int get year; int get month; int get totalIncome; int get totalExpense;
+ int get year; int get month; int get totalIncome; int get totalExpense;// 그 달의 카테고리별 지출(EXPENSE만, split-aware) — 카테고리 월별 추이용. 구버전 응답이면 빈 리스트.
+ List<CategoryAmount> get categoryExpenses;
 /// Create a copy of RangeMonthlyBucket
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -868,16 +1135,16 @@ $RangeMonthlyBucketCopyWith<RangeMonthlyBucket> get copyWith => _$RangeMonthlyBu
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is RangeMonthlyBucket&&(identical(other.year, year) || other.year == year)&&(identical(other.month, month) || other.month == month)&&(identical(other.totalIncome, totalIncome) || other.totalIncome == totalIncome)&&(identical(other.totalExpense, totalExpense) || other.totalExpense == totalExpense));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RangeMonthlyBucket&&(identical(other.year, year) || other.year == year)&&(identical(other.month, month) || other.month == month)&&(identical(other.totalIncome, totalIncome) || other.totalIncome == totalIncome)&&(identical(other.totalExpense, totalExpense) || other.totalExpense == totalExpense)&&const DeepCollectionEquality().equals(other.categoryExpenses, categoryExpenses));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,year,month,totalIncome,totalExpense);
+int get hashCode => Object.hash(runtimeType,year,month,totalIncome,totalExpense,const DeepCollectionEquality().hash(categoryExpenses));
 
 @override
 String toString() {
-  return 'RangeMonthlyBucket(year: $year, month: $month, totalIncome: $totalIncome, totalExpense: $totalExpense)';
+  return 'RangeMonthlyBucket(year: $year, month: $month, totalIncome: $totalIncome, totalExpense: $totalExpense, categoryExpenses: $categoryExpenses)';
 }
 
 
@@ -888,7 +1155,7 @@ abstract mixin class $RangeMonthlyBucketCopyWith<$Res>  {
   factory $RangeMonthlyBucketCopyWith(RangeMonthlyBucket value, $Res Function(RangeMonthlyBucket) _then) = _$RangeMonthlyBucketCopyWithImpl;
 @useResult
 $Res call({
- int year, int month, int totalIncome, int totalExpense
+ int year, int month, int totalIncome, int totalExpense, List<CategoryAmount> categoryExpenses
 });
 
 
@@ -905,13 +1172,14 @@ class _$RangeMonthlyBucketCopyWithImpl<$Res>
 
 /// Create a copy of RangeMonthlyBucket
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? year = null,Object? month = null,Object? totalIncome = null,Object? totalExpense = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? year = null,Object? month = null,Object? totalIncome = null,Object? totalExpense = null,Object? categoryExpenses = null,}) {
   return _then(_self.copyWith(
 year: null == year ? _self.year : year // ignore: cast_nullable_to_non_nullable
 as int,month: null == month ? _self.month : month // ignore: cast_nullable_to_non_nullable
 as int,totalIncome: null == totalIncome ? _self.totalIncome : totalIncome // ignore: cast_nullable_to_non_nullable
 as int,totalExpense: null == totalExpense ? _self.totalExpense : totalExpense // ignore: cast_nullable_to_non_nullable
-as int,
+as int,categoryExpenses: null == categoryExpenses ? _self.categoryExpenses : categoryExpenses // ignore: cast_nullable_to_non_nullable
+as List<CategoryAmount>,
   ));
 }
 
@@ -996,10 +1264,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int year,  int month,  int totalIncome,  int totalExpense)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int year,  int month,  int totalIncome,  int totalExpense,  List<CategoryAmount> categoryExpenses)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _RangeMonthlyBucket() when $default != null:
-return $default(_that.year,_that.month,_that.totalIncome,_that.totalExpense);case _:
+return $default(_that.year,_that.month,_that.totalIncome,_that.totalExpense,_that.categoryExpenses);case _:
   return orElse();
 
 }
@@ -1017,10 +1285,10 @@ return $default(_that.year,_that.month,_that.totalIncome,_that.totalExpense);cas
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int year,  int month,  int totalIncome,  int totalExpense)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int year,  int month,  int totalIncome,  int totalExpense,  List<CategoryAmount> categoryExpenses)  $default,) {final _that = this;
 switch (_that) {
 case _RangeMonthlyBucket():
-return $default(_that.year,_that.month,_that.totalIncome,_that.totalExpense);case _:
+return $default(_that.year,_that.month,_that.totalIncome,_that.totalExpense,_that.categoryExpenses);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -1037,10 +1305,10 @@ return $default(_that.year,_that.month,_that.totalIncome,_that.totalExpense);cas
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int year,  int month,  int totalIncome,  int totalExpense)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int year,  int month,  int totalIncome,  int totalExpense,  List<CategoryAmount> categoryExpenses)?  $default,) {final _that = this;
 switch (_that) {
 case _RangeMonthlyBucket() when $default != null:
-return $default(_that.year,_that.month,_that.totalIncome,_that.totalExpense);case _:
+return $default(_that.year,_that.month,_that.totalIncome,_that.totalExpense,_that.categoryExpenses);case _:
   return null;
 
 }
@@ -1052,13 +1320,22 @@ return $default(_that.year,_that.month,_that.totalIncome,_that.totalExpense);cas
 @JsonSerializable()
 
 class _RangeMonthlyBucket implements RangeMonthlyBucket {
-  const _RangeMonthlyBucket({required this.year, required this.month, this.totalIncome = 0, this.totalExpense = 0});
+  const _RangeMonthlyBucket({required this.year, required this.month, this.totalIncome = 0, this.totalExpense = 0, final  List<CategoryAmount> categoryExpenses = const <CategoryAmount>[]}): _categoryExpenses = categoryExpenses;
   factory _RangeMonthlyBucket.fromJson(Map<String, dynamic> json) => _$RangeMonthlyBucketFromJson(json);
 
 @override final  int year;
 @override final  int month;
 @override@JsonKey() final  int totalIncome;
 @override@JsonKey() final  int totalExpense;
+// 그 달의 카테고리별 지출(EXPENSE만, split-aware) — 카테고리 월별 추이용. 구버전 응답이면 빈 리스트.
+ final  List<CategoryAmount> _categoryExpenses;
+// 그 달의 카테고리별 지출(EXPENSE만, split-aware) — 카테고리 월별 추이용. 구버전 응답이면 빈 리스트.
+@override@JsonKey() List<CategoryAmount> get categoryExpenses {
+  if (_categoryExpenses is EqualUnmodifiableListView) return _categoryExpenses;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_categoryExpenses);
+}
+
 
 /// Create a copy of RangeMonthlyBucket
 /// with the given fields replaced by the non-null parameter values.
@@ -1073,16 +1350,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RangeMonthlyBucket&&(identical(other.year, year) || other.year == year)&&(identical(other.month, month) || other.month == month)&&(identical(other.totalIncome, totalIncome) || other.totalIncome == totalIncome)&&(identical(other.totalExpense, totalExpense) || other.totalExpense == totalExpense));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RangeMonthlyBucket&&(identical(other.year, year) || other.year == year)&&(identical(other.month, month) || other.month == month)&&(identical(other.totalIncome, totalIncome) || other.totalIncome == totalIncome)&&(identical(other.totalExpense, totalExpense) || other.totalExpense == totalExpense)&&const DeepCollectionEquality().equals(other._categoryExpenses, _categoryExpenses));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,year,month,totalIncome,totalExpense);
+int get hashCode => Object.hash(runtimeType,year,month,totalIncome,totalExpense,const DeepCollectionEquality().hash(_categoryExpenses));
 
 @override
 String toString() {
-  return 'RangeMonthlyBucket(year: $year, month: $month, totalIncome: $totalIncome, totalExpense: $totalExpense)';
+  return 'RangeMonthlyBucket(year: $year, month: $month, totalIncome: $totalIncome, totalExpense: $totalExpense, categoryExpenses: $categoryExpenses)';
 }
 
 
@@ -1093,7 +1370,7 @@ abstract mixin class _$RangeMonthlyBucketCopyWith<$Res> implements $RangeMonthly
   factory _$RangeMonthlyBucketCopyWith(_RangeMonthlyBucket value, $Res Function(_RangeMonthlyBucket) _then) = __$RangeMonthlyBucketCopyWithImpl;
 @override @useResult
 $Res call({
- int year, int month, int totalIncome, int totalExpense
+ int year, int month, int totalIncome, int totalExpense, List<CategoryAmount> categoryExpenses
 });
 
 
@@ -1110,13 +1387,14 @@ class __$RangeMonthlyBucketCopyWithImpl<$Res>
 
 /// Create a copy of RangeMonthlyBucket
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? year = null,Object? month = null,Object? totalIncome = null,Object? totalExpense = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? year = null,Object? month = null,Object? totalIncome = null,Object? totalExpense = null,Object? categoryExpenses = null,}) {
   return _then(_RangeMonthlyBucket(
 year: null == year ? _self.year : year // ignore: cast_nullable_to_non_nullable
 as int,month: null == month ? _self.month : month // ignore: cast_nullable_to_non_nullable
 as int,totalIncome: null == totalIncome ? _self.totalIncome : totalIncome // ignore: cast_nullable_to_non_nullable
 as int,totalExpense: null == totalExpense ? _self.totalExpense : totalExpense // ignore: cast_nullable_to_non_nullable
-as int,
+as int,categoryExpenses: null == categoryExpenses ? _self._categoryExpenses : categoryExpenses // ignore: cast_nullable_to_non_nullable
+as List<CategoryAmount>,
   ));
 }
 

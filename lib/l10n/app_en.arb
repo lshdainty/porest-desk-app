@@ -1934,6 +1934,8 @@
   "statsSavingsRate": "Savings rate",
   "statsDailyNetSavings": "Daily net savings",
   "statsMonthlyNetSavings": "Monthly net savings",
+  "statsCatTrendTitle": "Top categories over time",
+  "statsCatTrendTop3": "Top 3 spending",
   "statsIncomeMinusExpense": "Income − Expense",
   "statsNoDataFor": "No data for {period}",
   "@statsNoDataFor": {

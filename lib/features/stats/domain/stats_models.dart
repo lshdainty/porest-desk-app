@@ -51,6 +51,18 @@ abstract class RangeSummary with _$RangeSummary {
 }
 
 /// 추이 차트용 월별 버킷 — 0인 달도 포함.
+/// 카테고리 단위 금액 — 월별 지출 분해(카테고리 추이 차트)용.
+@freezed
+abstract class CategoryAmount with _$CategoryAmount {
+  const factory CategoryAmount({
+    int? categoryRowId,
+    @Default(0) int amount,
+  }) = _CategoryAmount;
+
+  factory CategoryAmount.fromJson(Map<String, dynamic> json) =>
+      _$CategoryAmountFromJson(json);
+}
+
 @freezed
 abstract class RangeMonthlyBucket with _$RangeMonthlyBucket {
   const factory RangeMonthlyBucket({
@@ -58,6 +70,8 @@ abstract class RangeMonthlyBucket with _$RangeMonthlyBucket {
     required int month,
     @Default(0) int totalIncome,
     @Default(0) int totalExpense,
+    // 그 달의 카테고리별 지출(EXPENSE만, split-aware) — 카테고리 월별 추이용. 구버전 응답이면 빈 리스트.
+    @Default(<CategoryAmount>[]) List<CategoryAmount> categoryExpenses,
   }) = _RangeMonthlyBucket;
 
   factory RangeMonthlyBucket.fromJson(Map<String, dynamic> json) =>

@@ -3714,6 +3714,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statsMonthlyNetSavings => 'Monthly net savings';
 
   @override
+  String get statsCatTrendTitle => 'Top categories over time';
+
+  @override
+  String get statsCatTrendTop3 => 'Top 3 spending';
+
+  @override
   String get statsIncomeMinusExpense => 'Income − Expense';
 
   @override

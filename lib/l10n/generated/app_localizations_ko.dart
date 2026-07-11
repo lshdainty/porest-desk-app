@@ -3678,6 +3678,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get statsMonthlyNetSavings => '월별 순저축';
 
   @override
+  String get statsCatTrendTitle => '주요 카테고리 월별 추이';
+
+  @override
+  String get statsCatTrendTop3 => '지출 TOP 3';
+
+  @override
   String get statsIncomeMinusExpense => '수입 − 지출';
 
   @override

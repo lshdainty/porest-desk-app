@@ -6980,6 +6980,18 @@ abstract class AppLocalizations {
   /// **'월별 순저축'**
   String get statsMonthlyNetSavings;
 
+  /// No description provided for @statsCatTrendTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'주요 카테고리 월별 추이'**
+  String get statsCatTrendTitle;
+
+  /// No description provided for @statsCatTrendTop3.
+  ///
+  /// In ko, this message translates to:
+  /// **'지출 TOP 3'**
+  String get statsCatTrendTop3;
+
   /// No description provided for @statsIncomeMinusExpense.
   ///
   /// In ko, this message translates to:

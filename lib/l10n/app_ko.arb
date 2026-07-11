@@ -1937,6 +1937,8 @@
   "statsSavingsRate": "저축률",
   "statsDailyNetSavings": "일별 순저축",
   "statsMonthlyNetSavings": "월별 순저축",
+  "statsCatTrendTitle": "주요 카테고리 월별 추이",
+  "statsCatTrendTop3": "지출 TOP 3",
   "statsIncomeMinusExpense": "수입 − 지출",
   "statsNoDataFor": "{period} 데이터 없음",
   "@statsNoDataFor": {
