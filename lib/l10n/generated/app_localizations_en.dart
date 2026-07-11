@@ -3753,6 +3753,30 @@ class AppLocalizationsEn extends AppLocalizations {
       'Weekday spending is similar to last month.';
 
   @override
+  String statsVsLastLess(String amount) {
+    return 'You spent $amount less than last month';
+  }
+
+  @override
+  String statsVsLastMore(String amount) {
+    return 'You spent $amount more than last month';
+  }
+
+  @override
+  String get statsCompareDailyAvg => 'Daily average';
+
+  @override
+  String get statsCompareTxCount => 'Transactions';
+
+  @override
+  String get statsComparePerTx => 'Per transaction';
+
+  @override
+  String statsCountValue(int count) {
+    return '$count';
+  }
+
+  @override
   String get stocksChartTokenFailed => 'Failed to issue token';
 
   @override

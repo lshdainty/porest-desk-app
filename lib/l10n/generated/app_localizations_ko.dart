@@ -3716,6 +3716,30 @@ class AppLocalizationsKo extends AppLocalizations {
   String get statsWeekdayInsightSame => '요일별 지출이 지난 달과 비슷해요.';
 
   @override
+  String statsVsLastLess(String amount) {
+    return '지난 달보다 $amount 덜 썼어요';
+  }
+
+  @override
+  String statsVsLastMore(String amount) {
+    return '지난 달보다 $amount 더 썼어요';
+  }
+
+  @override
+  String get statsCompareDailyAvg => '하루 평균';
+
+  @override
+  String get statsCompareTxCount => '거래 건수';
+
+  @override
+  String get statsComparePerTx => '건당 평균';
+
+  @override
+  String statsCountValue(int count) {
+    return '$count건';
+  }
+
+  @override
   String get stocksChartTokenFailed => '토큰 발급 실패';
 
   @override

@@ -7040,6 +7040,42 @@ abstract class AppLocalizations {
   /// **'요일별 지출이 지난 달과 비슷해요.'**
   String get statsWeekdayInsightSame;
 
+  /// No description provided for @statsVsLastLess.
+  ///
+  /// In ko, this message translates to:
+  /// **'지난 달보다 {amount} 덜 썼어요'**
+  String statsVsLastLess(String amount);
+
+  /// No description provided for @statsVsLastMore.
+  ///
+  /// In ko, this message translates to:
+  /// **'지난 달보다 {amount} 더 썼어요'**
+  String statsVsLastMore(String amount);
+
+  /// No description provided for @statsCompareDailyAvg.
+  ///
+  /// In ko, this message translates to:
+  /// **'하루 평균'**
+  String get statsCompareDailyAvg;
+
+  /// No description provided for @statsCompareTxCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'거래 건수'**
+  String get statsCompareTxCount;
+
+  /// No description provided for @statsComparePerTx.
+  ///
+  /// In ko, this message translates to:
+  /// **'건당 평균'**
+  String get statsComparePerTx;
+
+  /// No description provided for @statsCountValue.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}건'**
+  String statsCountValue(int count);
+
   /// No description provided for @stocksChartTokenFailed.
   ///
   /// In ko, this message translates to:
