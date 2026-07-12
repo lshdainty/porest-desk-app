@@ -1012,37 +1012,38 @@ class _BudgetCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (budgetsAsync.isLoading && items.isEmpty)
-                  // 예산 카드 placeholder — _BudgetRow 1:1: 28 icon + name + amount, 6px progress.
+                  // 예산 카드 placeholder — _BudgetRow 1:1: 행 상하 14 / 40 icon + name + amount / 8px pill.
                   Column(
                     children: [
-                      for (var i = 0; i < 3; i++) ...[
-                        if (i > 0) const SizedBox(height: PSpace.x16),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Row(
-                              children: [
-                                PSkeleton(
-                                  width: 28,
-                                  height: 28,
-                                  borderRadius: PRadius.tile(28),
-                                ),
-                                const SizedBox(width: 8),
-                                const Expanded(
-                                  child: PSkeleton.line(width: 80, height: 14),
-                                ),
-                                const SizedBox(width: 6),
-                                const PSkeleton.line(width: 96, height: 12),
-                              ],
-                            ),
-                            const SizedBox(height: 6),
-                            PSkeleton(
-                              height: 8,
-                              borderRadius: PRadius.brFull,
-                            ),
-                          ],
+                      for (var i = 0; i < 3; i++)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Row(
+                                children: [
+                                  PSkeleton(
+                                    width: 40,
+                                    height: 40,
+                                    borderRadius: PRadius.tile(40),
+                                  ),
+                                  const SizedBox(width: 14),
+                                  const Expanded(
+                                    child: PSkeleton.line(width: 80, height: 14),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  const PSkeleton.line(width: 110, height: 16),
+                                ],
+                              ),
+                              const SizedBox(height: 10),
+                              PSkeleton(
+                                height: 8,
+                                borderRadius: PRadius.brFull,
+                              ),
+                            ],
+                          ),
                         ),
-                      ],
                     ],
                   )
                 else if (items.isEmpty)
@@ -1056,7 +1057,7 @@ class _BudgetCard extends StatelessWidget {
                     ),
                   )
                 else
-                  for (var i = 0; i < items.length; i++) ...[
+                  for (var i = 0; i < items.length; i++)
                     _BudgetRow(
                       budget: items[i],
                       category: items[i].categoryRowId == null
@@ -1069,9 +1070,6 @@ class _BudgetCard extends StatelessWidget {
                       tokens: t,
                       warnThreshold: warnThreshold,
                     ),
-                    if (i < items.length - 1)
-                      const SizedBox(height: PSpace.x16),
-                  ],
         ],
       ),
     );
@@ -1115,35 +1113,40 @@ class _BudgetRow extends StatelessWidget {
         budget.categoryName ??
         (budget.categoryRowId == null ? l.expFilterAll : l.expCategory);
 
-    return Column(
+    // 웹 모바일 예산 행(DashboardPage 1471~) 정합 — 행 상하 14 / 아이콘 40·18 /
+    // gap 14 / 금액 body-lg(16)·700 / 바 marginTop 10.
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 14),
+      child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
             Container(
-              width: 28,
-              height: 28,
+              width: 40,
+              height: 40,
               alignment: Alignment.center,
               decoration:
-                  BoxDecoration(color: bg, borderRadius: PRadius.tile(28)),
+                  BoxDecoration(color: bg, borderRadius: PRadius.tile(40)),
               child: Icon(lucideByName(category?.icon),
-                  size: 14, color: fg),
+                  size: 18, color: fg),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 14),
             Expanded(
               child: Text(name,
                   style: TextStyle(
                       color: tokens.fgPrimary,
                       fontSize: PFontSize.bodySm,
-                      fontWeight: PFontWeight.semi),
+                      fontWeight: PFontWeight.semi,
+                      letterSpacing: -0.13),
                   overflow: TextOverflow.ellipsis),
             ),
             const SizedBox(width: 6),
             RichText(
               text: TextSpan(
                 style: TextStyle(
-                  fontSize: PFontSize.caption,
-                  fontWeight: PFontWeight.semi,
+                  fontSize: PFontSize.bodyLg,
+                  fontWeight: PFontWeight.bold,
                   color: over ? tokens.fgExpense : tokens.fgPrimary,
                   fontFeatures: const [FontFeature.tabularFigures()],
                 ),
@@ -1161,7 +1164,7 @@ class _BudgetRow extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 10),
         // 웹 .budget-bar(8px pill) 정합 — Flutter 3.41 M3 LinearProgressIndicator 는
         // track gap/stop indicator 가 붙어 디자인보다 두껍게 렌더돼 커스텀 pill 로 대체.
         ClipRRect(
@@ -1182,6 +1185,7 @@ class _BudgetRow extends StatelessWidget {
           ),
         ),
       ],
+      ),
     );
   }
 }
