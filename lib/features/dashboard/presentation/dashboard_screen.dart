@@ -1037,7 +1037,7 @@ class _BudgetCard extends StatelessWidget {
                             ),
                             const SizedBox(height: 6),
                             PSkeleton(
-                              height: 6,
+                              height: 8,
                               borderRadius: PRadius.brFull,
                             ),
                           ],
@@ -1162,12 +1162,24 @@ class _BudgetRow extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 6),
-        LinearProgressIndicator(
-          borderRadius: PRadius.brFull,
-          value: (p / 100).clamp(0, 1).toDouble(),
-          minHeight: 6,
-          backgroundColor: tokens.bgTrack,
-          color: stateColor,
+        // 웹 .budget-bar(8px pill) 정합 — Flutter 3.41 M3 LinearProgressIndicator 는
+        // track gap/stop indicator 가 붙어 디자인보다 두껍게 렌더돼 커스텀 pill 로 대체.
+        ClipRRect(
+          borderRadius: BorderRadius.circular(999),
+          child: SizedBox(
+            height: 8,
+            width: double.infinity,
+            child: Stack(
+              children: [
+                Positioned.fill(child: ColoredBox(color: tokens.bgSunken)),
+                FractionallySizedBox(
+                  alignment: Alignment.centerLeft,
+                  widthFactor: (p / 100).clamp(0, 1).toDouble(),
+                  child: ColoredBox(color: stateColor),
+                ),
+              ],
+            ),
+          ),
         ),
       ],
     );
