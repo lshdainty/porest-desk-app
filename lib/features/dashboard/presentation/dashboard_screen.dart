@@ -269,8 +269,10 @@ class _UpcomingCard extends StatelessWidget {
                     ),
                     child: Text(
                       l.dashOverdue(s.todoSummary.overDueCount),
+                      // 웹 모바일 뱃지 정합 — fg-expense(다크서 light variant). statusDanger 는
+                      // 다크서도 원색이라 subtle 배경 위에서 칙칙(라이트 전용 색).
                       style: PTypo.caption.copyWith(
-                          color: t.statusDanger, fontWeight: PFontWeight.semi),
+                          color: t.fgExpense, fontWeight: PFontWeight.semi),
                     ),
                   ),
                 ],
