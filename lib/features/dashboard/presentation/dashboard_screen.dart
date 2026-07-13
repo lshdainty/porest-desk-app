@@ -18,6 +18,7 @@ import 'package:porest_desk_app/shared/widgets/p_flat_section.dart';
 import 'package:porest_desk_app/shared/widgets/p_expense_row.dart';
 import 'package:porest_desk_app/shared/widgets/p_divider.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
+import 'package:porest_desk_app/shared/widgets/p_badge.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
 import 'package:porest_desk_app/features/budget/application/budget_providers.dart';
 import 'package:porest_desk_app/features/budget/domain/budget.dart';
@@ -357,21 +358,11 @@ class _HomeTodosWidget extends StatelessWidget {
             icon: LucideIcons.squareCheckBig,
             title: l.dashRecentTodos,
             onAll: () => context.go('/todos'),
+            // badge SoT = pill(brFull) + softError(subtle 배경 + statusDangerFg). square 는 spec 외.
             badge: overdue > 0
-                ? Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 6, vertical: 1),
-                    decoration: BoxDecoration(
-                      color: t.statusDangerSubtle,
-                      borderRadius: PRadius.brSm,
-                    ),
-                    child: Text(
-                      l.dashOverdue(overdue),
-                      // fg-expense: 다크서 light variant(원색 statusDanger 는 subtle 위 칙칙).
-                      style: PTypo.caption.copyWith(
-                          color: t.fgExpense,
-                          fontWeight: PFontWeight.semi),
-                    ),
+                ? PBadge(
+                    label: l.dashOverdue(overdue),
+                    variant: PBadgeVariant.softError,
                   )
                 : null,
           ),
