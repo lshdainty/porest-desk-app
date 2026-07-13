@@ -125,8 +125,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 ref.watch(budgetAlertThresholdProvider).value?.toDouble() ?? 85,
           ),
           const SizedBox(height: 36),
-          // 자체적으로 숨을 수 있어 아래 gap(36)을 스스로 관리 — gap 중복 방지.
-          _UpcomingCard(async: dashboardAsync),
+          // 각 위젯이 자체적으로 숨을 수 있어 아래 gap(36)을 스스로 관리 — gap 중복 방지.
+          _HomeUpcomingWidget(async: dashboardAsync),
+          _HomeTodosWidget(async: dashboardAsync),
           _TodaySpendCard(
             expensesAsync: expensesAsync,
             categoriesAsync: categoriesAsync,
@@ -138,187 +139,279 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 }
 
-/// 다가오는 일정 + 최근 할 일 카드 (#230 활용).
-class _UpcomingCard extends StatelessWidget {
-  const _UpcomingCard({required this.async});
+// 모바일 홈 전용 위젯 — design screens-home.jsx HomeUpcoming/HomeTodos 미러.
+// 각각 독립 섹션(헤더 15/bold + 아이콘16 + chevron16), 항목은 widget-row(탭).
+
+/// 위젯 섹션 헤더 — 아이콘16(fgSecondary) + 제목(15/bold) + [뱃지] + chevron16.
+class _WidgetHead extends StatelessWidget {
+  const _WidgetHead({
+    required this.icon,
+    required this.title,
+    required this.onAll,
+    this.badge,
+  });
+  final IconData icon;
+  final String title;
+  final VoidCallback onAll;
+  final Widget? badge;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        children: [
+          Icon(icon, size: 16, color: t.fgSecondary),
+          const SizedBox(width: 7),
+          Text(title,
+              style: PTypo.body.copyWith(
+                  fontSize: PFontSize.bodyMd,
+                  color: t.fgPrimary,
+                  fontWeight: PFontWeight.bold)),
+          if (badge != null) ...[const SizedBox(width: 6), badge!],
+          const Spacer(),
+          GestureDetector(
+            // 셸 브랜치 라우트는 go 로 전환(push 금지 — web 정합).
+            onTap: onAll,
+            child: Icon(LucideIcons.chevronRight, size: 16, color: t.fgTertiary),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 위젯 행 — leading(dot/체크) + 제목(14/500) + trailing(D-day/날짜). full-width 탭.
+class _WidgetRow extends StatelessWidget {
+  const _WidgetRow({
+    required this.onTap,
+    required this.leading,
+    required this.title,
+    required this.trailing,
+    this.strike = false,
+  });
+  final VoidCallback onTap;
+  final Widget leading;
+  final String title;
+  final Widget trailing;
+  final bool strike;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        child: Row(
+          children: [
+            leading,
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: PTypo.body.copyWith(
+                    color: t.fgPrimary,
+                    fontWeight: PFontWeight.medium,
+                    decoration:
+                        strike ? TextDecoration.lineThrough : null,
+                  )),
+            ),
+            const SizedBox(width: 8),
+            trailing,
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// 위젯 로딩 스켈레톤 — 헤더 + 2행 (아래 gap 36 자체 관리).
+class _WidgetSkeleton extends StatelessWidget {
+  const _WidgetSkeleton({required this.tokens});
+  final PorestTokens tokens;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 10, right: 10, bottom: 36),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Row(
+              children: const [
+                PSkeleton(width: 16, height: 16),
+                SizedBox(width: 7),
+                PSkeleton.line(width: 80),
+                Spacer(),
+                PSkeleton(width: 16, height: 16),
+              ],
+            ),
+          ),
+          for (int i = 0; i < 2; i++)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: Row(
+                children: [
+                  PSkeleton(width: 18, height: 18, borderRadius: BorderRadius.circular(9)),
+                  const SizedBox(width: 12),
+                  PSkeleton.line(width: i == 0 ? 120 : 96),
+                  const Spacer(),
+                  const PSkeleton.line(width: 40, height: 12),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 모바일 홈 — 다가오는 일정.
+class _HomeUpcomingWidget extends StatelessWidget {
+  const _HomeUpcomingWidget({required this.async});
   final AsyncValue<DashboardSummary> async;
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
-    if (async.isLoading && !async.hasValue) {
-      // 카드 다이어트 — 플랫 스켈레톤 (콘텐츠 inset 10, 아래 섹션 gap 36 자체 관리).
-      return Padding(
-        padding: const EdgeInsets.only(left: 10, right: 10, bottom: 36),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                const PSkeleton(width: 16, height: 16),
-                const SizedBox(width: 6),
-                const PSkeleton.line(width: 80),
-                const Spacer(),
-                const PSkeleton(width: 14, height: 14),
-              ],
-            ),
-            const SizedBox(height: 8),
-            for (int i = 0; i < 2; i++)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4),
-                child: Row(
-                  children: [
-                    PSkeleton(
-                      width: 8,
-                      height: 8,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    const SizedBox(width: 8),
-                    PSkeleton.line(width: i == 0 ? 120 : 96),
-                    const Spacer(),
-                    PSkeleton.line(width: 40, height: 12),
-                  ],
-                ),
-              ),
-          ],
-        ),
-      );
-    }
+    if (async.isLoading && !async.hasValue) return _WidgetSkeleton(tokens: t);
     final s = async.value;
     if (s == null) return const SizedBox.shrink();
     final events = s.upcomingEvents.take(3).toList();
-    final todos = s.recentTodos.take(3).toList();
-    if (events.isEmpty && todos.isEmpty) return const SizedBox.shrink();
+    if (events.isEmpty) return const SizedBox.shrink();
 
-    // 카드 다이어트 — 카드 없이 서브헤드 2개(일정/할일) + 행. 아래 gap 36 자체 관리.
     return Padding(
       padding: const EdgeInsets.only(left: 10, right: 10, bottom: 36),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (events.isNotEmpty) ...[
-            Row(
-              children: [
-                Icon(LucideIcons.calendarClock,
-                    size: 16, color: t.fgSecondary),
-                const SizedBox(width: 6),
-                Text(l.dashUpcoming,
-                    style: PTypo.bodySm.copyWith(
-                        color: t.fgPrimary, fontWeight: PFontWeight.bold)),
-                const Spacer(),
-                GestureDetector(
-                  // 셸 브랜치 라우트는 push 금지 — push 하면 홈 브랜치 위에 얹혀
-                  // 헤더/하단 nav 가 '홈'으로 남음. go 로 브랜치 전환 (web 정합).
-                  onTap: () => context.go('/calendar'),
-                  child: Icon(LucideIcons.chevronRight,
-                      size: 14, color: t.fgTertiary),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            for (final e in events)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 8,
-                      height: 8,
-                      decoration: BoxDecoration(
-                          color: resolveChartColor(context, e.color, fallback: t.fgBrand),
-                          shape: BoxShape.circle),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(e.title,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: PTypo.bodySm
-                              .copyWith(color: t.fgPrimary)),
-                    ),
-                    Text(
-                        e.daysUntil == 0
-                            ? l.dashTodayLabel
-                            : (e.daysUntil == 1
-                                ? l.dashTomorrowLabel
-                                : l.dashDaysLeft(e.daysUntil)),
-                        style: PTypo.caption
-                            .copyWith(color: t.fgTertiary)),
-                  ],
+          _WidgetHead(
+            icon: LucideIcons.calendarClock,
+            title: l.dashUpcoming,
+            onAll: () => context.go('/calendar'),
+          ),
+          for (final e in events)
+            _WidgetRow(
+              onTap: () => context.go('/calendar'),
+              leading: Container(
+                width: 8,
+                height: 8,
+                decoration: BoxDecoration(
+                    color: resolveChartColor(context, e.color,
+                        fallback: t.fgBrand),
+                    shape: BoxShape.circle),
+              ),
+              title: e.title,
+              trailing: Text(
+                e.daysUntil == 0
+                    ? l.dashTodayLabel
+                    : (e.daysUntil == 1
+                        ? l.dashTomorrowLabel
+                        : l.dashDaysLeft(e.daysUntil)),
+                style: TextStyle(
+                  fontSize: 12.5,
+                  fontWeight: PFontWeight.bold,
+                  color: e.daysUntil <= 3 ? t.fgExpense : t.fgTertiary,
+                  fontFeatures: const [FontFeature.tabularFigures()],
                 ),
               ),
-            if (todos.isNotEmpty) const SizedBox(height: 12),
-          ],
-          if (todos.isNotEmpty) ...[
-            Row(
-              children: [
-                Icon(LucideIcons.squareCheckBig,
-                    size: 16, color: t.fgSecondary),
-                const SizedBox(width: 6),
-                Text(l.dashRecentTodos,
-                    style: PTypo.bodySm.copyWith(
-                        color: t.fgPrimary, fontWeight: PFontWeight.bold)),
-                if (s.todoSummary.overDueCount > 0) ...[
-                  const SizedBox(width: 6),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 모바일 홈 — 최근 할 일.
+class _HomeTodosWidget extends StatelessWidget {
+  const _HomeTodosWidget({required this.async});
+  final AsyncValue<DashboardSummary> async;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final l = AppLocalizations.of(context);
+    if (async.isLoading && !async.hasValue) return const SizedBox.shrink();
+    final s = async.value;
+    if (s == null) return const SizedBox.shrink();
+    final todos = s.recentTodos.take(3).toList();
+    if (todos.isEmpty) return const SizedBox.shrink();
+
+    final now = DateTime.now();
+    final todayStr =
+        '${now.year.toString().padLeft(4, '0')}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+    final overdue = s.todoSummary.overDueCount;
+
+    return Padding(
+      padding: const EdgeInsets.only(left: 10, right: 10, bottom: 36),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _WidgetHead(
+            icon: LucideIcons.squareCheckBig,
+            title: l.dashRecentTodos,
+            onAll: () => context.go('/todos'),
+            badge: overdue > 0
+                ? Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 6, vertical: 1),
                     decoration: BoxDecoration(
                       color: t.statusDangerSubtle,
                       borderRadius: PRadius.brSm,
                     ),
                     child: Text(
-                      l.dashOverdue(s.todoSummary.overDueCount),
-                      // 웹 모바일 뱃지 정합 — fg-expense(다크서 light variant). statusDanger 는
-                      // 다크서도 원색이라 subtle 배경 위에서 칙칙(라이트 전용 색).
+                      l.dashOverdue(overdue),
+                      // fg-expense: 다크서 light variant(원색 statusDanger 는 subtle 위 칙칙).
                       style: PTypo.caption.copyWith(
-                          color: t.fgExpense, fontWeight: PFontWeight.semi),
+                          color: t.fgExpense,
+                          fontWeight: PFontWeight.semi),
                     ),
-                  ),
-                ],
-                const Spacer(),
-                GestureDetector(
-                  onTap: () => context.push('/todos'),
-                  child: Icon(LucideIcons.chevronRight,
-                      size: 14, color: t.fgTertiary),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            for (final tdo in todos)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4),
-                child: Row(
-                  children: [
-                    Icon(
-                      tdo.status == 'COMPLETED'
-                          ? LucideIcons.checkCircle
-                          : LucideIcons.circle,
-                      size: 14,
-                      color: tdo.status == 'COMPLETED'
-                          ? t.statusSuccess
-                          : t.fgTertiary,
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(tdo.title,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: PTypo.bodySm.copyWith(
-                            color: t.fgPrimary,
-                            decoration: tdo.status == 'COMPLETED'
-                                ? TextDecoration.lineThrough
-                                : null,
-                          )),
-                    ),
-                    if (tdo.dueDate != null)
-                      Text(tdo.dueDate!.substring(5),
-                          style: PTypo.caption
-                              .copyWith(color: t.fgTertiary)),
-                  ],
-                ),
-              ),
-          ],
+                  )
+                : null,
+          ),
+          for (final tdo in todos)
+            () {
+              final done = tdo.status == 'COMPLETED';
+              final isOver = !done &&
+                  tdo.dueDate != null &&
+                  tdo.dueDate!.substring(0, 10).compareTo(todayStr) < 0;
+              return _WidgetRow(
+                onTap: () => context.go('/todos'),
+                strike: done,
+                leading: done
+                    ? Icon(LucideIcons.checkCircle,
+                        size: 18, color: t.statusSuccess)
+                    : Container(
+                        width: 18,
+                        height: 18,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: isOver ? t.fgExpense : t.borderStrong,
+                            width: 2,
+                          ),
+                        ),
+                      ),
+                title: tdo.title,
+                trailing: tdo.dueDate != null
+                    ? Text(
+                        tdo.dueDate!.substring(5, 10),
+                        style: TextStyle(
+                          fontSize: 12.5,
+                          fontWeight: PFontWeight.semi,
+                          color: isOver ? t.fgExpense : t.fgTertiary,
+                          fontFeatures: const [FontFeature.tabularFigures()],
+                        ),
+                      )
+                    : const SizedBox.shrink(),
+              );
+            }(),
         ],
       ),
     );
@@ -1176,10 +1269,13 @@ class _BudgetRow extends StatelessWidget {
             width: double.infinity,
             child: Stack(
               children: [
-                Positioned.fill(child: ColoredBox(color: tokens.bgSunken)),
+                Positioned.fill(child: ColoredBox(color: tokens.bgTrack)),
+                // heightFactor:1 필수 — Stack 안 FractionallySizedBox 는 heightFactor 없으면
+                // 높이가 0이라 fill(색)이 렌더되지 않음(track 만 보이던 버그).
                 FractionallySizedBox(
                   alignment: Alignment.centerLeft,
                   widthFactor: (p / 100).clamp(0, 1).toDouble(),
+                  heightFactor: 1,
                   child: ColoredBox(color: stateColor),
                 ),
               ],
