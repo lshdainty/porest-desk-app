@@ -821,7 +821,7 @@ class _ExpensePageSkeleton extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const _ExpenseSummarySkeleton(),
-        const SizedBox(height: 36),
+        const SizedBox(height: PSpace.x32),
         if (viewMode == _ViewMode.calendar)
           _ExpenseCalendarSkeleton(height: calendarHeight)
         else ...const [

@@ -201,13 +201,13 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                       tokens: t,
                     ),
                     if (hasNoData) ...[
-                      const SizedBox(height: 36),
+                      const SizedBox(height: PSpace.x32),
                       _EmptyState(
                         tokens: t,
                         onAdd: () => context.push('/budget/settings'),
                       ),
                     ] else ...[
-                      const SizedBox(height: 36),
+                      const SizedBox(height: PSpace.x32),
                       _PaceCard(
                         pct: pct,
                         daysElapsedPct: daysElapsedPct,
@@ -217,13 +217,13 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                         masked: settings.hideAmounts,
                         tokens: t,
                       ),
-                      const SizedBox(height: 36),
+                      const SizedBox(height: PSpace.x32),
                       _StatusTiles(
                         overCount: overList.length,
                         healthyCount: healthyList.length,
                         tokens: t,
                       ),
-                      const SizedBox(height: 36),
+                      const SizedBox(height: PSpace.x32),
                       _CategoryListCard(
                         budgets: categoryBudgets,
                         categories: categories,
@@ -234,7 +234,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                         tokens: t,
                         onGoSettings: () => context.push('/budget/settings'),
                       ),
-                      const SizedBox(height: 36),
+                      const SizedBox(height: PSpace.x32),
                       _ComplianceCard(
                         async: complianceAsync,
                         currentYear: _month.year,
@@ -1686,7 +1686,7 @@ class _BudgetLoadingSkeleton extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: 36),
+        const SizedBox(height: PSpace.x32),
         // _PaceCard — 플랫 섹션 스켈레톤 (header + 게이지 + 2-column PaceStat).
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -1738,7 +1738,7 @@ class _BudgetLoadingSkeleton extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: 36),
+        const SizedBox(height: PSpace.x32),
         // _StatusTiles — 플랫 섹션 스켈레톤 ('예산 현황' + 2칸 box).
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -1775,7 +1775,7 @@ class _BudgetLoadingSkeleton extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: 36),
+        const SizedBox(height: PSpace.x32),
         // _CategoryListCard — 플랫 섹션 스켈레톤 (헤더 + 구분선 없는 행 리스트).
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -1824,7 +1824,7 @@ class _BudgetLoadingSkeleton extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: 36),
+        const SizedBox(height: PSpace.x32),
         // _ComplianceCard — 플랫 섹션 스켈레톤 (header + 차트 영역 height 200).
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10),

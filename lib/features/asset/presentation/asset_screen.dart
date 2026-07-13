@@ -232,7 +232,7 @@ class _AssetBody extends StatelessWidget {
           onToggleMask: onToggleMask,
           tokens: tokens,
         ),
-        const SizedBox(height: 36),
+        const SizedBox(height: PSpace.x32),
         _TypeGroup(
           title: l.assetGroupAccount,
           assets: accounts,
@@ -242,7 +242,7 @@ class _AssetBody extends StatelessWidget {
           kind: _GroupKind.account,
         ),
         if (investments.isNotEmpty) ...[
-          const SizedBox(height: 36),
+          const SizedBox(height: PSpace.x32),
           _TypeGroup(
             title: l.assetGroupInvestment,
             assets: investments,
@@ -252,7 +252,7 @@ class _AssetBody extends StatelessWidget {
             kind: _GroupKind.investment,
           ),
         ],
-        const SizedBox(height: 36),
+        const SizedBox(height: PSpace.x32),
         _TypeGroup(
           title: l.assetGroupCard,
           assets: cards,
@@ -264,7 +264,7 @@ class _AssetBody extends StatelessWidget {
           kind: _GroupKind.card,
         ),
         if (loans.isNotEmpty) ...[
-          const SizedBox(height: 36),
+          const SizedBox(height: PSpace.x32),
           _TypeGroup(
             title: l.assetGroupDebt,
             assets: loans,
@@ -807,9 +807,9 @@ class _AssetPageSkeleton extends StatelessWidget {
       ),
       children: const [
         _AssetSummaryCardSkeleton(),
-        SizedBox(height: 36),
+        SizedBox(height: PSpace.x32),
         _AssetTypeGroupSkeleton(rows: 3),
-        SizedBox(height: 36),
+        SizedBox(height: PSpace.x32),
         _AssetTypeGroupSkeleton(rows: 2),
       ],
     );

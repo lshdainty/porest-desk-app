@@ -101,7 +101,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               masked: settings.hideAmounts,
               // 헤더 eye 버튼과 동일 — 숨김 해제 시 unlock 다이얼로그.
               onToggleMask: () => toggleHideAmountsWithUnlock(context, ref)),
-          const SizedBox(height: 36),
+          const SizedBox(height: PSpace.x32),
           _MonthExpenseCard(
             month: _month,
             expensesAsync: expensesAsync,
@@ -109,14 +109,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             prevSummary: prevSummaryAsync.value,
             masked: settings.hideAmounts,
           ),
-          const SizedBox(height: 36),
+          const SizedBox(height: PSpace.x32),
           _CategoryDonutCard(
             summary: summaryRangeAsync.value,
             categoriesAsync: categoriesAsync,
             loading: summaryRangeAsync.isLoading,
             masked: settings.hideAmounts,
           ),
-          const SizedBox(height: 36),
+          const SizedBox(height: PSpace.x32),
           _BudgetCard(
             budgetsAsync: budgetsAsync,
             categoriesAsync: categoriesAsync,
@@ -125,7 +125,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             warnThreshold:
                 ref.watch(budgetAlertThresholdProvider).value?.toDouble() ?? 85,
           ),
-          const SizedBox(height: 36),
+          const SizedBox(height: PSpace.x32),
           // 각 위젯이 자체적으로 숨을 수 있어 아래 gap(36)을 스스로 관리 — gap 중복 방지.
           _HomeUpcomingWidget(async: dashboardAsync),
           _HomeTodosWidget(async: dashboardAsync),
@@ -237,7 +237,7 @@ class _WidgetSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 10, right: 10, bottom: 36),
+      padding: const EdgeInsets.only(left: 10, right: 10, bottom: PSpace.x32),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -288,7 +288,7 @@ class _HomeUpcomingWidget extends StatelessWidget {
     if (events.isEmpty) return const SizedBox.shrink();
 
     return Padding(
-      padding: const EdgeInsets.only(left: 10, right: 10, bottom: 36),
+      padding: const EdgeInsets.only(left: 10, right: 10, bottom: PSpace.x32),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -350,7 +350,7 @@ class _HomeTodosWidget extends StatelessWidget {
     final overdue = s.todoSummary.overDueCount;
 
     return Padding(
-      padding: const EdgeInsets.only(left: 10, right: 10, bottom: 36),
+      padding: const EdgeInsets.only(left: 10, right: 10, bottom: PSpace.x32),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
