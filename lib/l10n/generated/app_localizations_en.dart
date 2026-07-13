@@ -3708,6 +3708,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statsSavingsRate => 'Savings rate';
 
   @override
+  String statsSavingsInsight(int pct) {
+    return 'You\'re saving $pct% of your average income';
+  }
+
+  @override
   String get statsDailyNetSavings => 'Daily net savings';
 
   @override
