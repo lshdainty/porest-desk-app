@@ -3673,7 +3673,8 @@ class _StatsChipTab extends StatelessWidget {
         constraints: const BoxConstraints(minHeight: 32),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
         decoration: BoxDecoration(
-          color: active ? t.bgBrand : Colors.transparent,
+          // active fill 은 다크에서도 primary 고정(bgBrandSolid) — pills/월그리드 정합. bgBrand(다크 light)는 fill 부적합.
+          color: active ? t.bgBrandSolid : Colors.transparent,
           borderRadius: PRadius.brMd,
         ),
         alignment: Alignment.center,

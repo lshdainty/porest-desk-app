@@ -168,8 +168,9 @@ class PTabs<T> extends StatelessWidget {
         break;
       case PTabsVariant.pills:
         textColor = active ? t.fgOnBrand : t.fgSecondary;
-        // active fill = bgBrand — 다크에서 cobalt400(primary-light) swap (web --fg-brand 정합).
-        bgColor = active ? t.bgBrand : Colors.transparent;
+        // active fill = bgBrandSolid — 채움(fill)은 다크에서도 primary 고정(web --bg-brand 정합).
+        // bgBrand 는 다크에서 cobalt400(light)이라 fill 엔 부적합 — 대비 필요한 fg/border(underline) 만 light.
+        bgColor = active ? t.bgBrandSolid : Colors.transparent;
         decoration = BoxDecoration(
           color: bgColor,
           borderRadius: radius,

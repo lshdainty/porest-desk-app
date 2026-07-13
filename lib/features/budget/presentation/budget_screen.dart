@@ -458,7 +458,8 @@ class _MonthGridButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.tokens;
     return Material(
-      color: selected ? t.bgBrand : Colors.transparent,
+      // 선택 월 = 채움(흰 글씨) 버튼 → primary 고정(bgBrandSolid). 캘린더 월그리드(calendar_screen bgBrandSolid) 정합. bgBrand(다크 light)는 fill 부적합.
+      color: selected ? t.bgBrandSolid : Colors.transparent,
       borderRadius: PRadius.brMd,
       child: InkWell(
         borderRadius: PRadius.brMd,
