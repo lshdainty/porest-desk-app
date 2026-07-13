@@ -435,9 +435,9 @@ class _CategoryTab extends ConsumerWidget {
       child: ListView(
         // 카드 다이어트 — design StatsScreen: padding 16/20/24 + 섹션 gap 36.
         padding: const EdgeInsets.fromLTRB(
-          PSpace.x20,
+          PSpace.x24,
           PSpace.x16,
-          PSpace.x20,
+          PSpace.x24,
           PSpace.x24,
         ),
         children: [
@@ -487,9 +487,9 @@ class _TrendTab extends ConsumerWidget {
       child: ListView(
         // 카드 다이어트 — design StatsScreen: padding 16/20/24 + 섹션 gap 36.
         padding: const EdgeInsets.fromLTRB(
-          PSpace.x20,
+          PSpace.x24,
           PSpace.x16,
-          PSpace.x20,
+          PSpace.x24,
           PSpace.x24,
         ),
         children: [
@@ -544,9 +544,9 @@ class _CompareTab extends ConsumerWidget {
       child: ListView(
         // 카드 다이어트 — design StatsScreen: padding 16/20/24 + 섹션 gap 36.
         padding: const EdgeInsets.fromLTRB(
-          PSpace.x20,
+          PSpace.x24,
           PSpace.x16,
-          PSpace.x20,
+          PSpace.x24,
           PSpace.x24,
         ),
         children: [

@@ -174,9 +174,9 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
       // 카드 다이어트 — design TxScreen mobile: padding 16/20/24 + 섹션 gap 36.
       child: ListView(
         padding: const EdgeInsets.fromLTRB(
-          PSpace.x20,
+          PSpace.x24,
           PSpace.x16,
-          PSpace.x20,
+          PSpace.x24,
           PSpace.x24,
         ),
         children: [

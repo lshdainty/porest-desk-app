@@ -141,7 +141,7 @@ class _StocksScreenState extends ConsumerState<StocksScreen> {
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(
-            PSpace.x16, PSpace.x16, PSpace.x16, PSpace.x24),
+            PSpace.x24, PSpace.x16, PSpace.x24, PSpace.x24),
         children: [
           const _MarketStatusBar(),
           const SizedBox(height: PSpace.x16),

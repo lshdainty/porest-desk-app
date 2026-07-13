@@ -94,7 +94,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       // 카드 대신 페이지 padding + 섹션 간 넓은 여백이 콘텐츠를 구분한다.
       child: ListView(
         padding: const EdgeInsets.fromLTRB(
-            PSpace.x20, PSpace.x20, PSpace.x20, PSpace.x24),
+            PSpace.x24, PSpace.x20, PSpace.x24, PSpace.x24),
         children: [
           _BalanceHero(
               summaryAsync: summaryAsync,
