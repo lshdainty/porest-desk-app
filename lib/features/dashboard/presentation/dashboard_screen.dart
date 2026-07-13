@@ -1263,11 +1263,18 @@ class _BudgetRow extends StatelessWidget {
                 Positioned.fill(child: ColoredBox(color: tokens.bgTrack)),
                 // heightFactor:1 필수 — Stack 안 FractionallySizedBox 는 heightFactor 없으면
                 // 높이가 0이라 fill(색)이 렌더되지 않음(track 만 보이던 버그).
+                // fill 자체 borderRadius — 100% 미만일 때 fill 오른쪽 끝도 둥글게(웹 .budget-bar__fill
+                // border-radius:inherit 정합). track ClipRRect 만으론 bar 양끝만 클립돼 각졌음.
                 FractionallySizedBox(
                   alignment: Alignment.centerLeft,
                   widthFactor: (p / 100).clamp(0, 1).toDouble(),
                   heightFactor: 1,
-                  child: ColoredBox(color: stateColor),
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: stateColor,
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                  ),
                 ),
               ],
             ),
