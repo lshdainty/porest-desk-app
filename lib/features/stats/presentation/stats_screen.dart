@@ -365,18 +365,30 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
       // actions(theme/eye/bell/search) 일관 표시.
       body: Column(
         children: [
+          // design .m-chip-tabs + .tg--pill — 컴팩트 pill toggle(선택=bg-brand 채움,
+          // 가로스크롤). 예전 underline TabBar → toggle 스타일로 변경(디자인 최신본).
           Container(
+            width: double.infinity,
             color: t.bgSurface,
-            child: PTabs<int>(
-              items: [
-                PTabItem(value: 0, label: l.expCategory),
-                PTabItem(value: 1, label: l.statsTabTrend),
-                PTabItem(value: 2, label: l.statsTabCompare),
-              ],
-              value: _tabIndex,
-              onChanged: (v) => setState(() => _tabIndex = v),
-              variant: PTabsVariant.underline,
-              expand: true,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  for (final e in [
+                    (0, l.expCategory),
+                    (1, l.statsTabTrend),
+                    (2, l.statsTabCompare),
+                  ]) ...[
+                    _StatsChipTab(
+                      label: e.$2,
+                      active: _tabIndex == e.$1,
+                      onTap: () => setState(() => _tabIndex = e.$1),
+                    ),
+                    if (e.$1 < 2) const SizedBox(width: 4),
+                  ],
+                ],
+              ),
             ),
           ),
           Expanded(
@@ -3520,6 +3532,45 @@ class _CompareRow extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// design .tg--pill 모바일 — 컴팩트 pill toggle 버튼.
+/// 선택=bg-brand 채움 + fg-on-brand/600, 기본=transparent + fg-secondary/500.
+class _StatsChipTab extends StatelessWidget {
+  const _StatsChipTab({
+    required this.label,
+    required this.active,
+    required this.onTap,
+  });
+  final String label;
+  final bool active;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        constraints: const BoxConstraints(minHeight: 32),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        decoration: BoxDecoration(
+          color: active ? t.bgBrand : Colors.transparent,
+          borderRadius: PRadius.brMd,
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          label,
+          style: TextStyle(
+            fontFamily: PTypo.sans,
+            fontSize: PFontSize.bodySm,
+            fontWeight: active ? PFontWeight.semi : PFontWeight.medium,
+            color: active ? t.fgOnBrand : t.fgSecondary,
+          ),
+        ),
+      ),
     );
   }
 }
