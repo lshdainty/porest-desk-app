@@ -105,9 +105,9 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
     return ListView(
       // EdgeInsets.zero 미지정 시 safe-area 가 흡수돼 좌우 간격 어긋남 방지.
       padding: const EdgeInsets.fromLTRB(
+        PSpace.x24,
         PSpace.x16,
-        PSpace.x16,
-        PSpace.x16,
+        PSpace.x24,
         96,
       ),
       children: [

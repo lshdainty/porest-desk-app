@@ -242,9 +242,9 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(
+        PSpace.x24,
         PSpace.x16,
-        PSpace.x16,
-        PSpace.x16,
+        PSpace.x24,
         96,
       ),
       children: [
@@ -703,9 +703,9 @@ class _TodoSkeleton extends StatelessWidget {
     final t = tokens;
     return ListView(
       padding: const EdgeInsets.fromLTRB(
+        PSpace.x24,
         PSpace.x16,
-        PSpace.x16,
-        PSpace.x16,
+        PSpace.x24,
         96,
       ),
       physics: const NeverScrollableScrollPhysics(),

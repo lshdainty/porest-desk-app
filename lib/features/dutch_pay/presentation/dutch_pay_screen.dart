@@ -123,7 +123,7 @@ class _DutchPayScreenState extends ConsumerState<DutchPayScreen> {
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(
-          PSpace.x16, PSpace.x16, PSpace.x16, 96),
+          PSpace.x24, PSpace.x16, PSpace.x24, 96),
       children: [
         // ── 요약 2카드 ──
         Row(
@@ -924,7 +924,7 @@ class _DutchPaySkeleton extends StatelessWidget {
     final l = AppLocalizations.of(context);
     return ListView(
       padding: const EdgeInsets.fromLTRB(
-          PSpace.x16, PSpace.x16, PSpace.x16, 96),
+          PSpace.x24, PSpace.x16, PSpace.x24, 96),
       physics: const NeverScrollableScrollPhysics(),
       children: [
         // ── 요약 2카드 (데이터) — _SummaryCard 구조/shadow 정합 ──

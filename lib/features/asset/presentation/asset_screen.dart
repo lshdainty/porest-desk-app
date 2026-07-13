@@ -148,7 +148,7 @@ class _AssetBody extends StatelessWidget {
     final l = AppLocalizations.of(context);
     if (assets.isEmpty) {
       return ListView(
-        padding: const EdgeInsets.all(PSpace.x20),
+        padding: const EdgeInsets.symmetric(horizontal: PSpace.x24, vertical: PSpace.x20),
         children: [
           const SizedBox(height: PSpace.x32),
           // 카드 다이어트 — 빈 상태도 카드 없이 플랫.
@@ -215,9 +215,9 @@ class _AssetBody extends StatelessWidget {
     // 총순자산 요약만 keep(raised) 카드, 그룹들은 flat-group(라벨+총액+행).
     return ListView(
       padding: const EdgeInsets.fromLTRB(
-        PSpace.x20,
+        PSpace.x24,
         PSpace.x16,
-        PSpace.x20,
+        PSpace.x24,
         PSpace.x24,
       ),
       children: [
@@ -800,9 +800,9 @@ class _AssetPageSkeleton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView(
       padding: const EdgeInsets.fromLTRB(
-        PSpace.x20,
+        PSpace.x24,
         PSpace.x16,
-        PSpace.x20,
+        PSpace.x24,
         PSpace.x24,
       ),
       children: const [
