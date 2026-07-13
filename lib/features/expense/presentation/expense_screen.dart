@@ -291,7 +291,9 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                       onChanged: (v) => setState(() => _viewMode = v),
                     ),
                   ),
-                  const SizedBox(height: 36),
+                  // 요약카드-뷰 간격: 캘린더형 0(달력 붙임) / 목록형 36.
+                  SizedBox(
+                      height: _viewMode == _ViewMode.calendar ? 0 : 36),
                   if (_viewMode == _ViewMode.calendar)
                     // 월 변경 시 refetch 중이면 (data + isLoading 동시) 캘린더 자체를
                     // skeleton 으로 대체 — cell 들이 "사용 금액 없는 것처럼" 보이는 현상 fix.
