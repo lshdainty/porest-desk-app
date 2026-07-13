@@ -1935,6 +1935,10 @@
   "statsNetSavings": "순저축",
   "statsAvgSavings": "평균 저축",
   "statsSavingsRate": "저축률",
+  "statsSavingsInsight": "월 평균 수입의 {pct}%를 저축하고 있어요",
+  "@statsSavingsInsight": {
+    "placeholders": { "pct": { "type": "int" } }
+  },
   "statsDailyNetSavings": "일별 순저축",
   "statsMonthlyNetSavings": "월별 순저축",
   "statsCatTrendTitle": "주요 카테고리 월별 추이",

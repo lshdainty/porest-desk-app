@@ -511,7 +511,7 @@ class _TrendTab extends ConsumerWidget {
             monthExpAsync: monthExpAsync,
           ),
           const SizedBox(height: PSpace.x32),
-          _TrendStatsGrid(
+          _SavingsRateCard(
             state: state,
             rangeAsync: rangeAsync,
             masked: settings.hideAmounts,
@@ -2346,8 +2346,8 @@ class _LegendChip extends StatelessWidget {
   }
 }
 
-class _TrendStatsGrid extends StatelessWidget {
-  const _TrendStatsGrid({
+class _SavingsRateCard extends StatelessWidget {
+  const _SavingsRateCard({
     required this.state,
     required this.rangeAsync,
     required this.masked,
@@ -2359,6 +2359,7 @@ class _TrendStatsGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final s = state;
+    final t = context.tokens;
     final l = AppLocalizations.of(context);
     final buckets =
         rangeAsync.value?.monthlyBuckets ?? const <RangeMonthlyBucket>[];
@@ -2370,84 +2371,183 @@ class _TrendStatsGrid extends StatelessWidget {
     final avgSave = avgIn - avgOut;
     final isSingle = s._segMode == _SegMode.month;
 
-    final saveRate = avgIn > 0
-        ? '${((avgSave / avgIn) * 100).toStringAsFixed(1)}%'
-        : '—';
+    // web StatsScreen TrendStats 정합 — 저축률 도넛 게이지 + 구성 스택바 + 평균 3행.
+    final saveRate =
+        avgIn > 0 ? (avgSave / avgIn * 100).clamp(0.0, 100.0) : 0.0;
+    final spendRate =
+        avgIn > 0 ? (avgOut / avgIn * 100).clamp(0.0, 100.0) : 0.0;
 
-    // web TrendStats 정합 — 고정 비율 GridView 대신 content 높이 2×2, gap 12
-    final tiles = [
-      _StatCard(
-        label: isSingle ? l.expTypeIncome : l.statsAvgIncome,
-        value: krwSigned(avgIn, masked, unit: true),
-      ),
-      _StatCard(
-        label: isSingle ? l.expTypeExpense : l.statsAvgExpense,
-        value: krwSigned(avgOut, masked, unit: true),
-      ),
-      _StatCard(
-        label: isSingle ? l.statsNetSavings : l.statsAvgSavings,
-        value: krwSigned(avgSave, masked, unit: true),
-      ),
-      _StatCard(label: l.statsSavingsRate, value: saveRate),
+    // 평균 수입/지출/저축 3행 — (라벨, 금액, dot 색, 비율%|null).
+    final rows = <(String, int, Color, double?)>[
+      (isSingle ? l.expTypeIncome : l.statsAvgIncome, avgIn, t.fgTertiary, null),
+      (isSingle ? l.expTypeExpense : l.statsAvgExpense, avgOut, t.fgExpense,
+          spendRate),
+      (isSingle ? l.statsNetSavings : l.statsAvgSavings, avgSave, t.fgBrand,
+          saveRate),
     ];
-    return Column(
-      children: [
-        Row(
-          children: [
-            Expanded(child: tiles[0]),
-            const SizedBox(width: 12),
-            Expanded(child: tiles[1]),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(child: tiles[2]),
-            const SizedBox(width: 12),
-            Expanded(child: tiles[3]),
-          ],
-        ),
-      ],
-    );
-  }
-}
 
-class _StatCard extends StatelessWidget {
-  const _StatCard({required this.label, required this.value});
-  final String label;
-  final String value;
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    // web stat 타일 정합 — padding 16 / 라벨 badge(11)·500·gap6 / 값 16·bold
     return _Card(
-      padding: const EdgeInsets.all(PSpace.x16),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            label,
-            style: PTypo.micro.copyWith(
-              color: t.fgTertiary,
-              fontWeight: PFontWeight.medium,
+          // 저축률 도넛 게이지 + 인사이트 문구.
+          Row(
+            children: [
+              SizedBox(
+                width: 108,
+                height: 108,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    CustomPaint(
+                      size: const Size(108, 108),
+                      painter: _SavingsRingPainter(
+                        rate: saveRate,
+                        track: t.bgTrack,
+                        progress: t.fgBrand,
+                      ),
+                    ),
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          l.statsSavingsRate,
+                          style: PTypo.micro.copyWith(
+                            color: t.fgTertiary,
+                            fontWeight: PFontWeight.semi,
+                          ),
+                        ),
+                        Text(
+                          '${saveRate.toStringAsFixed(1)}%',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w800,
+                            color: t.fgPrimary,
+                            letterSpacing: -0.4,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  l.statsSavingsInsight(saveRate.round()),
+                  style: PTypo.bodyLg.copyWith(
+                    color: t.fgPrimary,
+                    fontWeight: PFontWeight.bold,
+                    height: 1.4,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          // 구성 스택바 (지출 / 저축 비율) — 각 세그먼트 pill.
+          SizedBox(
+            height: 10,
+            child: Row(
+              children: [
+                if (spendRate > 0)
+                  Expanded(
+                    flex: (spendRate * 100).round(),
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: t.fgExpense,
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                    ),
+                  ),
+                if (spendRate > 0 && saveRate > 0) const SizedBox(width: 2),
+                if (saveRate > 0)
+                  Expanded(
+                    flex: (saveRate * 100).round(),
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: t.fgBrand,
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ),
-          const SizedBox(height: 6),
-          Text(
-            value,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: PTypo.bodyLg.copyWith(
-              color: t.fgPrimary,
-              fontWeight: PFontWeight.bold,
-              letterSpacing: -0.35,
+          const SizedBox(height: 14),
+          // 평균 수입 / 지출 / 저축 3행 (dot·라벨·%·금액).
+          for (final (i, r) in rows.indexed) ...[
+            if (i > 0) const SizedBox(height: 10),
+            Row(
+              children: [
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(color: r.$3, shape: BoxShape.circle),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  r.$4 != null ? '${r.$1} ${r.$4!.round()}%' : r.$1,
+                  style: PTypo.caption.copyWith(color: t.fgSecondary),
+                ),
+                const Spacer(),
+                Text(
+                  krwSigned(r.$2, masked, unit: true),
+                  style: PTypo.bodySm.copyWith(
+                    color: t.fgPrimary,
+                    fontWeight: PFontWeight.bold,
+                  ),
+                ),
+              ],
             ),
-          ),
+          ],
         ],
       ),
     );
   }
+}
+
+/// 저축률 도넛 게이지 페인터 — track 전체 원 + progress 호(top 시작, round cap).
+/// web StatsScreen 의 svg(circle track + strokeDasharray arc, rotate -90) 정합.
+class _SavingsRingPainter extends CustomPainter {
+  _SavingsRingPainter({
+    required this.rate,
+    required this.track,
+    required this.progress,
+  });
+  final double rate; // 0~100
+  final Color track;
+  final Color progress;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    const stroke = 10.0;
+    const r = 48.0;
+    final center = Offset(size.width / 2, size.height / 2);
+    final trackPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = stroke
+      ..color = track;
+    canvas.drawCircle(center, r, trackPaint);
+    if (rate > 0) {
+      final progressPaint = Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = stroke
+        ..strokeCap = StrokeCap.round
+        ..color = progress;
+      canvas.drawArc(
+        Rect.fromCircle(center: center, radius: r),
+        -math.pi / 2,
+        (rate / 100) * 2 * math.pi,
+        false,
+        progressPaint,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(_SavingsRingPainter old) =>
+      old.rate != rate || old.track != track || old.progress != progress;
 }
 
 // ─── 주요 카테고리 월별 추이 (추이 탭) — 지출 TOP3 stacked bar ────

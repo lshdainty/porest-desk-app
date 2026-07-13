@@ -3672,6 +3672,11 @@ class AppLocalizationsKo extends AppLocalizations {
   String get statsSavingsRate => '저축률';
 
   @override
+  String statsSavingsInsight(int pct) {
+    return '월 평균 수입의 $pct%를 저축하고 있어요';
+  }
+
+  @override
   String get statsDailyNetSavings => '일별 순저축';
 
   @override
