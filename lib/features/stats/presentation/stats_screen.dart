@@ -3517,7 +3517,9 @@ class _CompareWeekdayCard extends StatelessWidget {
             ),
           ),
           SizedBox(
-            height: chartH + 22,
+            // 막대(chartH) + gap6 + 월라벨(micro ~17) 이 chartH+22 를 1px 초과("BOTTOM
+            // OVERFLOWED BY 1.0px") → 여유 확보.
+            height: chartH + 26,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
