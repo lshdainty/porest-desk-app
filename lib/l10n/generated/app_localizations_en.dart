@@ -3764,13 +3764,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Weekday spending is similar to last month.';
 
   @override
-  String statsVsLastLess(String amount) {
-    return 'You spent $amount less than last month';
+  String statsVsLastLess(String prev, String amount) {
+    return 'You spent $amount less than $prev';
   }
 
   @override
-  String statsVsLastMore(String amount) {
-    return 'You spent $amount more than last month';
+  String statsVsLastMore(String prev, String amount) {
+    return 'You spent $amount more than $prev';
   }
 
   @override

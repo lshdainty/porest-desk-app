@@ -591,6 +591,7 @@ class _CompareTab extends ConsumerWidget {
           ),
           const SizedBox(height: PSpace.x32),
           _CompareWeekdayCard(
+            state: state,
             nowExpAsync: nowExpAsync,
             prevExpAsync: prevExpAsync,
             masked: settings.hideAmounts,
@@ -3178,6 +3179,7 @@ class _CompareSummaryGrid extends StatelessWidget {
               ),
             ),
           ),
+          const SizedBox(width: 10),
           Expanded(
             child: SizedBox(
               height: 14,
@@ -3185,6 +3187,9 @@ class _CompareSummaryGrid extends StatelessWidget {
                 alignment: Alignment.centerLeft,
                 child: FractionallySizedBox(
                   widthFactor: (amt / barMax).clamp(0.0, 1.0),
+                  // heightFactor 없으면 DecoratedBox(자식 없음)가 loose 높이 제약에서
+                  // 0px 로 접혀 막대가 안 보임 → 트랙 높이(14) 를 꽉 채우도록 1.0 고정.
+                  heightFactor: 1.0,
                   child: DecoratedBox(
                     decoration: BoxDecoration(
                       color: muted ? t.bgSunken : t.bgBrand,
@@ -3219,7 +3224,9 @@ class _CompareSummaryGrid extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            l.dashThisMonthExpense,
+            // design/web CompareSummary 헤더는 기간 모드별 동적 라벨("이번 달/분기/해/기간 지출").
+            // web: t('compare.periodExpense', {period: periodNow}). 앱 statsPeriodSpending('{period} 지출') 재사용.
+            l.statsPeriodSpending(state._periodNow),
             style: PTypo.caption.copyWith(
               color: t.fgSecondary,
               fontWeight: PFontWeight.medium,
@@ -3264,8 +3271,14 @@ class _CompareSummaryGrid extends StatelessWidget {
             const SizedBox(height: 10),
             Text(
               less
-                  ? l.statsVsLastLess(krwSigned(diff.abs(), masked, unit: true))
-                  : l.statsVsLastMore(krwSigned(diff.abs(), masked, unit: true)),
+                  ? l.statsVsLastLess(
+                      state._periodPrev,
+                      krwSigned(diff.abs(), masked, unit: true),
+                    )
+                  : l.statsVsLastMore(
+                      state._periodPrev,
+                      krwSigned(diff.abs(), masked, unit: true),
+                    ),
               style: PTypo.body.copyWith(
                 color: good,
                 fontWeight: PFontWeight.bold,
@@ -3273,8 +3286,9 @@ class _CompareSummaryGrid extends StatelessWidget {
             ),
           ],
           const SizedBox(height: 8),
-          cmpBar(l.statsThisMonthShort, now, muted: false),
-          cmpBar(l.statsLastMonthShort, prev, muted: true),
+          // 막대 라벨도 기간 모드별 동적("이번 달/분기/해/기간" · "지난 …") — web periodNow/periodPrev 정합.
+          cmpBar(state._periodNow, now, muted: false),
+          cmpBar(state._periodPrev, prev, muted: true),
         ],
       ),
     );
@@ -3384,7 +3398,8 @@ class _CompareMetricsCard extends StatelessWidget {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          '${l.statsLastMonthShort} ${fmt(m.prev, m.count)}',
+                          // 접미어("지난 달 …")도 기간 모드별 동적("지난 분기/해/이전 기간 …").
+                          '${state._periodPrev} ${fmt(m.prev, m.count)}',
                           style: PTypo.micro.copyWith(color: t.fgTertiary),
                         ),
                       ],
@@ -3404,10 +3419,12 @@ class _CompareMetricsCard extends StatelessWidget {
 /// design StatsScreen `CompareWeekday` 미러: 월~일, 토·일 라벨 빨강, 하단 인사이트.
 class _CompareWeekdayCard extends StatelessWidget {
   const _CompareWeekdayCard({
+    required this.state,
     required this.nowExpAsync,
     required this.prevExpAsync,
     required this.masked,
   });
+  final _StatsScreenState state;
   final AsyncValue<List<Expense>> nowExpAsync;
   final AsyncValue<List<Expense>> prevExpAsync;
   final bool masked;
@@ -3488,11 +3505,12 @@ class _CompareWeekdayCard extends StatelessWidget {
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                _WeekdayLegend(color: t.bgBrand, label: l.statsThisMonthShort),
+                // 범례 라벨도 기간 모드별 동적 — web periodNow/periodPrev 정합.
+                _WeekdayLegend(color: t.bgBrand, label: state._periodNow),
                 const SizedBox(width: 12),
                 _WeekdayLegend(
                   color: t.bgSunken,
-                  label: l.statsLastMonthShort,
+                  label: state._periodPrev,
                   border: t.borderDefault,
                 ),
               ],

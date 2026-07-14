@@ -7061,14 +7061,14 @@ abstract class AppLocalizations {
   /// No description provided for @statsVsLastLess.
   ///
   /// In ko, this message translates to:
-  /// **'지난 달보다 {amount} 덜 썼어요'**
-  String statsVsLastLess(String amount);
+  /// **'{prev}보다 {amount} 덜 썼어요'**
+  String statsVsLastLess(String prev, String amount);
 
   /// No description provided for @statsVsLastMore.
   ///
   /// In ko, this message translates to:
-  /// **'지난 달보다 {amount} 더 썼어요'**
-  String statsVsLastMore(String amount);
+  /// **'{prev}보다 {amount} 더 썼어요'**
+  String statsVsLastMore(String prev, String amount);
 
   /// No description provided for @statsCompareDailyAvg.
   ///
