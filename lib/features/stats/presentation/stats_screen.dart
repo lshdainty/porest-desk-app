@@ -1873,7 +1873,7 @@ class _HighlightsGrid extends StatelessWidget {
           icon: catIcon,
           iconFg: catFg,
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 12),
         _HighlightCard(
           label: l.statsTopMerchant,
           value: topMerchant?.merchant ?? '—',
@@ -1886,7 +1886,7 @@ class _HighlightsGrid extends StatelessWidget {
           icon: merchantIcon,
           iconFg: merchantFg,
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 12),
         _HighlightCard(
           label: avgLabel,
           value: krwSigned(avgValue, masked, unit: true),
@@ -1921,61 +1921,60 @@ class _HighlightCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    return _Card(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: PTypo.caption.copyWith(
-              color: t.fgTertiary,
-              fontWeight: PFontWeight.medium,
+    // 웹 MTile(mobile=flat div) 정합 — 하이라이트는 개별 카드가 아니라 한 묶음 안의 flat 항목.
+    // _Card(배경/패딩) 벗겨 flat Column, 항목 구분은 _HighlightsGrid 의 gap 이 담당.
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: PTypo.caption.copyWith(
+            color: t.fgTertiary,
+            fontWeight: PFontWeight.medium,
+          ),
+        ),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: cp.softBg(context, iconFg),
+                borderRadius: PRadius.tile(40),
+              ),
+              alignment: Alignment.center,
+              child: Icon(icon, size: 18, color: iconFg),
             ),
-          ),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: cp.softBg(context, iconFg),
-                  borderRadius: PRadius.tile(40),
-                ),
-                alignment: Alignment.center,
-                child: Icon(icon, size: 18, color: iconFg),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      value,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: PTypo.h4.copyWith(
-                        color: t.fgPrimary,
-                        fontWeight: PFontWeight.bold,
-                        fontFamily: valueIsAmount ? 'monospace' : null,
-                      ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    value,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: PTypo.h4.copyWith(
+                      color: t.fgPrimary,
+                      fontWeight: PFontWeight.bold,
+                      fontFamily: valueIsAmount ? 'monospace' : null,
                     ),
-                    const SizedBox(height: 2),
-                    subWidget ??
-                        Text(
-                          sub ?? '',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: PTypo.caption.copyWith(color: t.fgTertiary),
-                        ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 2),
+                  subWidget ??
+                      Text(
+                        sub ?? '',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: PTypo.caption.copyWith(color: t.fgTertiary),
+                      ),
+                ],
               ),
-            ],
-          ),
-        ],
-      ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
