@@ -609,7 +609,8 @@ class _Card extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: padding ?? const EdgeInsets.symmetric(horizontal: 10),
+      // content 좌우 inset = web Section contentInset(spacing-sm=8) 정합.
+      padding: padding ?? const EdgeInsets.symmetric(horizontal: 8),
       child: child,
     );
   }
@@ -674,9 +675,9 @@ class _PeriodTrigger extends StatelessWidget {
 /// 사용 대신 _Card 의 내부 padding 컨텍스트와 맞춰 bottom 14 만 유지.
 /// (PCardHeader 의 all(xl=24) 는 _Card 의 dense 18 padding 안에서 너무 큼.)
 ///
-/// 라벨(헤더)은 page padding edge(0)에, content 는 _Card 의 inset(10) 안쪽에 —
-/// 자산 `flat-group__head`(0) + `.acc-card`(inset) 리듬 정합. _Card 의 가로 inset(10)을
-/// Transform(paint-only, 레이아웃·높이 영향 없음)으로 상쇄: title 좌 −10, trailing 우 +10.
+/// 라벨(헤더)은 page padding edge(0)에, content 는 _Card 의 inset(8) 안쪽에 —
+/// 자산 `flat-group__head`(0) + `.acc-card`(inset) 리듬 정합. _Card 의 가로 inset(8=web spacing-sm)을
+/// Transform(paint-only, 레이아웃·높이 영향 없음)으로 상쇄: title 좌 −8, trailing 우 +8.
 /// 끌어낸 edge(24px abs)는 ListView content 경계라 clip 없음.
 class _CardHeader extends StatelessWidget {
   const _CardHeader({required this.title, this.trailing});
@@ -691,13 +692,13 @@ class _CardHeader extends StatelessWidget {
         children: [
           Expanded(
             child: Transform.translate(
-              offset: const Offset(-10, 0),
+              offset: const Offset(-8, 0),
               child: title,
             ),
           ),
           if (trailing != null)
             Transform.translate(
-              offset: const Offset(10, 0),
+              offset: const Offset(8, 0),
               child: trailing,
             ),
         ],
