@@ -2692,6 +2692,14 @@ class _CatTrendCardState extends ConsumerState<_CatTrendCard> {
             .take(3)
             .toList();
 
+    // TOP3 각 카테고리의 실제 설정 색(hex) — categoriesProvider 에서 rowId 매칭 룩업.
+    // 웹과 동일하게 팔레트 인덱스가 아닌 카테고리 색 사용(없으면 _donutColor fallback).
+    final cats = ref.watch(categoriesProvider).value ?? const [];
+    final colors = <String?>[
+      for (final c in top)
+        cats.where((cat) => cat.rowId == c.categoryRowId).firstOrNull?.color,
+    ];
+
     // 월별 parts = TOP3 각 카테고리의 그 달 지출액(매칭 없으면 0)
     final allSameYear =
         buckets.isNotEmpty &&
@@ -2742,7 +2750,7 @@ class _CatTrendCardState extends ConsumerState<_CatTrendCard> {
                 children: [
                   for (var i = 0; i < top.length; i++)
                     _LegendChip(
-                      color: _donutColor(context, i),
+                      color: _donutColor(context, i, colors[i]),
                       label: top[i].categoryName ?? '',
                     ),
                 ],
@@ -2751,8 +2759,8 @@ class _CatTrendCardState extends ConsumerState<_CatTrendCard> {
             Padding(
               padding: const EdgeInsets.only(top: 16, bottom: 4),
               child: SizedBox(
-                // 값라벨(~14)+6+바(최대100)+6+월라벨(~14) 다 들어가게 150 (web height 150 정합).
-                // 132 면 큰 막대에서 오버플로우("BOTTOM OVERFLOWED"). 바 하단 기준 정렬은 Row end.
+                // 바(최대100)+6+월라벨(~14) + 상단 여유. web height 150 정합 유지
+                // (값라벨 제거로 여유 늘어 오버플로우 없음). 바 하단 기준 정렬은 Row end.
                 height: 150,
                 // 순저축 카드처럼 Stack 위에 커스텀 툴팁을 얹는다. StackFit.expand 로
                 // 바 영역이 150 을 꽉 채워(=기존 SizedBox 동작) 바 하단정렬을 유지.
@@ -2781,6 +2789,7 @@ class _CatTrendCardState extends ConsumerState<_CatTrendCard> {
                                     row: rows[i],
                                     maxSum: maxSum,
                                     isCurrent: i == rows.length - 1,
+                                    colors: colors,
                                   ),
                                 ),
                             ],
@@ -2804,7 +2813,7 @@ class _CatTrendCardState extends ConsumerState<_CatTrendCard> {
                                 for (var i = 0; i < top.length; i++)
                                   if (r.parts[i] > 0)
                                     PChartTooltipRowData(
-                                      color: _donutColor(context, i),
+                                      color: _donutColor(context, i, colors[i]),
                                       label: top[i].categoryName ?? '',
                                       amount: krwSigned(
                                         r.parts[i],
@@ -2834,40 +2843,36 @@ class _CatTrendBar extends StatelessWidget {
     required this.row,
     required this.maxSum,
     required this.isCurrent,
+    required this.colors,
   });
   final ({String label, List<int> parts}) row;
   final int maxSum;
   final bool isCurrent;
+  // TOP3 인덱스별 카테고리 실제 색(hex, 없으면 null → _donutColor fallback).
+  final List<String?> colors;
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
     final sum = row.parts.fold<int>(0, (s, v) => s + v);
     final barH = maxSum <= 0 ? 8.0 : math.max(8.0, sum / maxSum * 100.0);
-    // 값이 있는 세그먼트 인덱스만 — 캡슐 사이 간격을 "세그먼트 사이"에만 넣기 위함.
+    // 값이 있는 세그먼트 인덱스만 — 0 인 카테고리는 바에서 제외.
     final visible = [
       for (var i = 0; i < row.parts.length; i++)
         if (row.parts[i] > 0) i,
     ];
     return Column(
+      // 값라벨 제거 — 금액은 터치 툴팁으로만 확인. Row.end + 이 mainAxisAlignment.end
+      // 로 바가 값 높이와 무관하게 항상 하단(월 라벨) 기준 고정.
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        Text(
-          sum <= 0 ? '' : _fmtTick(sum.toDouble()),
-          style: PTypo.micro.copyWith(
-            color: isCurrent ? t.fgPrimary : t.fgTertiary,
-            fontWeight: PFontWeight.bold,
-            fontSize: PFontSize.micro,
-          ),
-        ),
-        const SizedBox(height: 6),
         Opacity(
           opacity: isCurrent ? 1 : 0.55,
           child: SizedBox(
             width: 24,
             height: barH,
-            // 통짜 바 — 외곽(최상단·최하단)만 round(ClipRRect), 세그먼트는 각지고
-            // 사이 2px 간격(배경 비침 = 구분선). 순저축 단일 바와 동일한 통짜 톤.
+            // 통짜 바 — 외곽(최상단·최하단)만 round(ClipRRect), 세그먼트는 사이 간격
+            // 없이 붙어 색상 경계만으로 구분. 순저축 단일 바와 동일한 통짜 톤.
             child: ClipRRect(
               borderRadius: PRadius.brSm,
               // TOP1이 아래에 오도록 column-reverse (디자인 정합)
@@ -2877,13 +2882,17 @@ class _CatTrendBar extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 verticalDirection: VerticalDirection.up,
                 children: [
-                  for (var vi = 0; vi < visible.length; vi++) ...[
-                    if (vi != 0) const SizedBox(height: 2),
+                  for (var vi = 0; vi < visible.length; vi++)
                     Expanded(
                       flex: row.parts[visible[vi]],
-                      child: ColoredBox(color: _donutColor(context, visible[vi])),
+                      child: ColoredBox(
+                        color: _donutColor(
+                          context,
+                          visible[vi],
+                          colors[visible[vi]],
+                        ),
+                      ),
                     ),
-                  ],
                 ],
               ),
             ),
