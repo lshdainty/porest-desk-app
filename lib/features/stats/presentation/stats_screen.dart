@@ -2992,7 +2992,8 @@ class _SavingsBarsCardState extends ConsumerState<_SavingsBarsCard> {
                                 color: data[i].savings >= 0
                                     ? t.statusInfoFg
                                     : t.fgExpense,
-                                width: data.length > 20 ? 4 : 12,
+                                // 월별 바 두께 24 로 통일(카테고리 월별 추이 _CatTrendBar width 24 기준). 일별(>20)만 얇게 4.
+                                width: data.length > 20 ? 4 : 24,
                                 borderRadius: PRadius.brXs,
                               ),
                             ],
