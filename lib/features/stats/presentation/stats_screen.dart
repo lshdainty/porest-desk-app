@@ -2866,25 +2866,23 @@ class _CatTrendBar extends StatelessWidget {
           child: SizedBox(
             width: 24,
             height: barH,
-            // TOP1이 아래에 오도록 column-reverse (디자인 정합)
-            child: Column(
-              verticalDirection: VerticalDirection.up,
-              children: [
-                // 각 세그먼트를 개별 둥근 캡슐(brSm)로, 사이에 2px 간격.
-                // 외곽 ClipRRect 제거 — DecoratedBox 마다 자기 borderRadius 로 렌더.
-                for (var vi = 0; vi < visible.length; vi++) ...[
-                  if (vi != 0) const SizedBox(height: 2),
-                  Expanded(
-                    flex: row.parts[visible[vi]],
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: _donutColor(context, visible[vi]),
-                        borderRadius: PRadius.brSm,
-                      ),
+            // 통짜 바 — 외곽(최상단·최하단)만 round(ClipRRect), 세그먼트는 각지고
+            // 사이 2px 간격(배경 비침 = 구분선). 순저축 단일 바와 동일한 통짜 톤.
+            child: ClipRRect(
+              borderRadius: PRadius.brSm,
+              // TOP1이 아래에 오도록 column-reverse (디자인 정합)
+              child: Column(
+                verticalDirection: VerticalDirection.up,
+                children: [
+                  for (var vi = 0; vi < visible.length; vi++) ...[
+                    if (vi != 0) const SizedBox(height: 2),
+                    Expanded(
+                      flex: row.parts[visible[vi]],
+                      child: ColoredBox(color: _donutColor(context, visible[vi])),
                     ),
-                  ),
+                  ],
                 ],
-              ],
+              ),
             ),
           ),
         ),
