@@ -3727,13 +3727,13 @@ class AppLocalizationsKo extends AppLocalizations {
   String get statsWeekdayInsightSame => '요일별 지출이 지난 달과 비슷해요.';
 
   @override
-  String statsVsLastLess(String amount) {
-    return '지난 달보다 $amount 덜 썼어요';
+  String statsVsLastLess(String prev, String amount) {
+    return '$prev보다 $amount 덜 썼어요';
   }
 
   @override
-  String statsVsLastMore(String amount) {
-    return '지난 달보다 $amount 더 썼어요';
+  String statsVsLastMore(String prev, String amount) {
+    return '$prev보다 $amount 더 썼어요';
   }
 
   @override
