@@ -445,7 +445,7 @@ class _CategoryTab extends ConsumerWidget {
         ref.invalidate(rangeExpensesProvider(state._range));
       },
       child: ListView(
-        // 카드 다이어트 — design StatsScreen: padding 16/20/24 + 섹션 gap 36.
+        // 카드 다이어트 — design StatsScreen: padding 24/16/24/24 (LTRB) + 섹션 gap 32.
         padding: const EdgeInsets.fromLTRB(
           PSpace.x24,
           PSpace.x16,
@@ -497,7 +497,7 @@ class _TrendTab extends ConsumerWidget {
         ref.invalidate(rangeExpensesProvider(state._range));
       },
       child: ListView(
-        // 카드 다이어트 — design StatsScreen: padding 16/20/24 + 섹션 gap 36.
+        // 카드 다이어트 — design StatsScreen: padding 24/16/24/24 (LTRB) + 섹션 gap 32.
         padding: const EdgeInsets.fromLTRB(
           PSpace.x24,
           PSpace.x16,
@@ -554,7 +554,7 @@ class _CompareTab extends ConsumerWidget {
         ref.invalidate(rangeExpensesProvider(state._prevRangeKey));
       },
       child: ListView(
-        // 카드 다이어트 — design StatsScreen: padding 16/20/24 + 섹션 gap 36.
+        // 카드 다이어트 — design StatsScreen: padding 24/16/24/24 (LTRB) + 섹션 gap 32.
         padding: const EdgeInsets.fromLTRB(
           PSpace.x24,
           PSpace.x16,
@@ -962,6 +962,87 @@ class _LegendChipSkeleton extends StatelessWidget {
         PSkeleton(width: 10, height: 10, borderRadius: PRadius.brXs),
         SizedBox(width: 6),
         PSkeleton.line(width: 28, height: 12),
+      ],
+    );
+  }
+}
+
+/// _SavingsRateCard 로딩 placeholder — 실제 렌더 정합: 도넛 링(108)+인사이트
+/// 문구 / 구성 스택바(10·pill) / 평균 3행(dot 8 + 라벨 + 금액). 형제 추이 카드
+/// (_ChartSkeleton)와 같은 리듬으로 로딩 점프 0.
+class _SavingsRateSkeleton extends StatelessWidget {
+  const _SavingsRateSkeleton();
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // 도넛 링(108) + 인사이트 문구 placeholder.
+        Row(
+          children: [
+            PSkeleton.circle(size: 108),
+            const SizedBox(width: 16),
+            const Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  PSkeleton.line(height: 16),
+                  SizedBox(height: 8),
+                  PSkeleton.line(width: 150, height: 16),
+                ],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 20),
+        // 구성 스택바 placeholder (pill).
+        const PSkeleton(height: 10, borderRadius: PRadius.brFull),
+        const SizedBox(height: 14),
+        // 평균 수입/지출/저축 3행 placeholder.
+        for (var i = 0; i < 3; i++) ...[
+          if (i > 0) const SizedBox(height: 10),
+          Row(
+            children: [
+              PSkeleton.circle(size: 8),
+              const SizedBox(width: 8),
+              const PSkeleton.line(width: 100, height: 13),
+              const Spacer(),
+              const PSkeleton.line(width: 64, height: 13),
+            ],
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+/// _CatTrendCard 로딩 placeholder — 실제 렌더 정합: 범례 Wrap(차트 **위**,
+/// top2/bottom4·spacing14/runSpacing6·TOP3 chip) + 차트(top16/bottom4·height132).
+/// (공용 _ChartSkeleton 은 범례를 차트 아래 2개로 그려 이 카드와 어긋나 전용 분리.)
+class _CatTrendSkeleton extends StatelessWidget {
+  const _CatTrendSkeleton();
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: const [
+        Padding(
+          padding: EdgeInsets.only(top: 2, bottom: 4),
+          child: Wrap(
+            spacing: 14,
+            runSpacing: 6,
+            children: [
+              _LegendChipSkeleton(),
+              _LegendChipSkeleton(),
+              _LegendChipSkeleton(),
+            ],
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.only(top: 16, bottom: 4),
+          child: PSkeleton(height: 132),
+        ),
       ],
     );
   }
@@ -2363,6 +2444,11 @@ class _SavingsRateCard extends StatelessWidget {
     final l = AppLocalizations.of(context);
     final buckets =
         rangeAsync.value?.monthlyBuckets ?? const <RangeMonthlyBucket>[];
+    // 첫 로딩(캐시 없음) — 형제 추이 카드처럼 도넛형 스켈레톤. _CatTrendCard 와
+    // 동일하게 rangeAsync 만으로 판정 (이 카드는 monthExpAsync 미사용).
+    if (rangeAsync.isLoading && buckets.isEmpty) {
+      return const _Card(child: _SavingsRateSkeleton());
+    }
     final sumIn = buckets.fold<int>(0, (sum, b) => sum + b.totalIncome);
     final sumOut = buckets.fold<int>(0, (sum, b) => sum + b.totalExpense);
     final n = buckets.isEmpty ? 1 : buckets.length;
@@ -2609,7 +2695,7 @@ class _CatTrendCard extends ConsumerWidget {
             ),
           ),
           if (rangeAsync.isLoading && buckets.isEmpty)
-            const _ChartSkeleton(height: 168, showLegend: true)
+            const _CatTrendSkeleton()
           else if (top.isEmpty || maxSum <= 0)
             _EmptyBox(text: l.statsNoData)
           else ...[

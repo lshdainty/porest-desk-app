@@ -171,7 +171,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
         ref.invalidate(monthExpensesProvider(_key));
         await ref.read(monthExpensesProvider(_key).future);
       },
-      // 카드 다이어트 — design TxScreen mobile: padding 16/20/24 + 섹션 gap 36.
+      // 카드 다이어트 — design TxScreen mobile: padding 24/16/24/24 (LTRB) + 섹션 gap 32.
       child: ListView(
         padding: const EdgeInsets.fromLTRB(
           PSpace.x24,
@@ -826,7 +826,7 @@ class _ExpensePageSkeleton extends StatelessWidget {
           _ExpenseCalendarSkeleton(height: calendarHeight)
         else ...const [
           _ExpenseChipsSkeleton(),
-          SizedBox(height: PSpace.x12),
+          SizedBox(height: PSpace.x8),
           _ExpenseDayGroupSkeleton(rows: 3),
           SizedBox(height: PSpace.x16),
           _ExpenseDayGroupSkeleton(rows: 2),
