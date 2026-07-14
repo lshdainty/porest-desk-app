@@ -3092,7 +3092,7 @@ class _SavingsBarsCardState extends ConsumerState<_SavingsBarsCard> {
                                     ? t.statusInfoFg
                                     : t.fgExpense,
                                 // 월별 바 두께 24 로 통일(카테고리 월별 추이 _CatTrendBar width 24 기준). 일별(>20)만 얇게 4.
-                                width: data.length > 20 ? 4 : 24,
+                                width: data.length > 20 ? 4 : 18,
                                 // 위·아래 모두 둥글게(상하 대칭 round) — brSm(4) 전 모서리 적용.
                                 // 얇은 일별 바(width 4)도 동일 처리(반경은 폭 절반으로 자동 clamp).
                                 borderRadius: PRadius.brSm,
