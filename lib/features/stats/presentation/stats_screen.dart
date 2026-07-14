@@ -2783,7 +2783,9 @@ class _CatTrendCardState extends ConsumerState<_CatTrendCard> {
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
-                              for (var i = 0; i < rows.length; i++)
+                              for (var i = 0; i < rows.length; i++) ...[
+                                // 웹 카테고리 바 gap(mobile 10) 정합 — slot 폭↓ → 바 두께↓.
+                                if (i > 0) const SizedBox(width: 10),
                                 Expanded(
                                   child: _CatTrendBar(
                                     row: rows[i],
@@ -2792,6 +2794,7 @@ class _CatTrendCardState extends ConsumerState<_CatTrendCard> {
                                     colors: colors,
                                   ),
                                 ),
+                              ],
                             ],
                           ),
                         );
@@ -2866,14 +2869,13 @@ class _CatTrendBar extends StatelessWidget {
       // 로 바가 값 높이와 무관하게 항상 하단(월 라벨) 기준 고정.
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        Opacity(
-          opacity: isCurrent ? 1 : 0.55,
-          child: SizedBox(
-            width: 24,
-            height: barH,
-            // 통짜 바 — 외곽(최상단·최하단)만 round(ClipRRect), 세그먼트는 사이 간격
-            // 없이 붙어 색상 경계만으로 구분. 순저축 단일 바와 동일한 통짜 톤.
-            child: ClipRRect(
+        SizedBox(
+          // 폭은 부모 Expanded(Row gap 반영)에 맞춰 채움 — 두께는 slot 폭이 결정(웹 gap+maxWidth 정합).
+          width: double.infinity,
+          height: barH,
+          // 통짜 바 — 외곽(최상단·최하단)만 round(ClipRRect), 세그먼트는 사이 간격
+          // 없이 붙어 색상 경계만으로 구분. 순저축 단일 바와 동일한 통짜 톤.
+          child: ClipRRect(
               borderRadius: PRadius.brSm,
               // TOP1이 아래에 오도록 column-reverse (디자인 정합)
               child: Column(
@@ -2897,7 +2899,6 @@ class _CatTrendBar extends StatelessWidget {
               ),
             ),
           ),
-        ),
         const SizedBox(height: 6),
         Text(
           row.label,
