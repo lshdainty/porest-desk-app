@@ -2646,16 +2646,42 @@ class _SavingsRingPainter extends CustomPainter {
 }
 
 // ─── 주요 카테고리 월별 추이 (추이 탭) — 지출 TOP3 stacked bar ────
-class _CatTrendCard extends ConsumerWidget {
+class _CatTrendCard extends ConsumerStatefulWidget {
   const _CatTrendCard({required this.state, required this.rangeAsync});
   final _StatsScreenState state;
   final AsyncValue<RangeSummary> rangeAsync;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_CatTrendCard> createState() => _CatTrendCardState();
+}
+
+class _CatTrendCardState extends ConsumerState<_CatTrendCard> {
+  // 순저축 카드(_SavingsBarsCard)와 동일한 터치 상태 패턴 — 터치 위치/인덱스로 툴팁.
+  int? _touchedIdx;
+  Offset? _touchPos;
+
+  // fl_chart 가 아닌 커스텀 바(Row of _CatTrendBar)라 터치를 직접 계산:
+  // 각 바는 Expanded(등폭)이므로 슬롯폭 = 전체폭/개수, 인덱스 = dx / 슬롯폭.
+  void _onTouch(Offset pos, double slotW, int n) {
+    if (n <= 0 || slotW <= 0) return;
+    final i = (pos.dx ~/ slotW).clamp(0, n - 1).toInt();
+    if (i != _touchedIdx || pos != _touchPos) {
+      setState(() {
+        _touchedIdx = i;
+        _touchPos = pos;
+      });
+    }
+  }
+
+  void _clearTouch() {
+    if (_touchedIdx != null) setState(() => _touchedIdx = null);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
-    final range = rangeAsync.value;
+    final range = widget.rangeAsync.value;
     final breakdown = range?.categoryBreakdown ?? const <CategoryBreakdown>[];
     final buckets = range?.monthlyBuckets ?? const <RangeMonthlyBucket>[];
 
@@ -2703,7 +2729,7 @@ class _CatTrendCard extends ConsumerWidget {
               style: PTypo.caption.copyWith(color: t.fgTertiary),
             ),
           ),
-          if (rangeAsync.isLoading && buckets.isEmpty)
+          if (widget.rangeAsync.isLoading && buckets.isEmpty)
             const _CatTrendSkeleton()
           else if (top.isEmpty || maxSum <= 0)
             _EmptyBox(text: l.statsNoData)
@@ -2728,15 +2754,67 @@ class _CatTrendCard extends ConsumerWidget {
                 // 값라벨(~14)+6+바(최대100)+6+월라벨(~14) 다 들어가게 150 (web height 150 정합).
                 // 132 면 큰 막대에서 오버플로우("BOTTOM OVERFLOWED"). 바 하단 기준 정렬은 Row end.
                 height: 150,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
+                // 순저축 카드처럼 Stack 위에 커스텀 툴팁을 얹는다. StackFit.expand 로
+                // 바 영역이 150 을 꽉 채워(=기존 SizedBox 동작) 바 하단정렬을 유지.
+                child: Stack(
+                  fit: StackFit.expand,
+                  clipBehavior: Clip.none,
                   children: [
-                    for (var i = 0; i < rows.length; i++)
-                      Expanded(
-                        child: _CatTrendBar(
-                          row: rows[i],
-                          maxSum: maxSum,
-                          isCurrent: i == rows.length - 1,
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        final n = rows.length;
+                        final slotW = n == 0 ? 0.0 : constraints.maxWidth / n;
+                        return Listener(
+                          behavior: HitTestBehavior.opaque,
+                          onPointerDown: (e) =>
+                              _onTouch(e.localPosition, slotW, n),
+                          onPointerMove: (e) =>
+                              _onTouch(e.localPosition, slotW, n),
+                          onPointerUp: (_) => _clearTouch(),
+                          onPointerCancel: (_) => _clearTouch(),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              for (var i = 0; i < rows.length; i++)
+                                Expanded(
+                                  child: _CatTrendBar(
+                                    row: rows[i],
+                                    maxSum: maxSum,
+                                    isCurrent: i == rows.length - 1,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                    if (_touchedIdx != null &&
+                        _touchedIdx! < rows.length &&
+                        _touchPos != null)
+                      PChartTooltipLayer(
+                        anchor: _touchPos!,
+                        child: Builder(
+                          builder: (context) {
+                            final r = rows[_touchedIdx!];
+                            return PChartTooltipBox(
+                              title: r.label,
+                              // 카테고리명(최대 ~4자)까지 들어가게 라벨폭 확장(기본 36→52).
+                              labelWidth: 52,
+                              rows: [
+                                for (var i = 0; i < top.length; i++)
+                                  if (r.parts[i] > 0)
+                                    PChartTooltipRowData(
+                                      color: _donutColor(context, i),
+                                      label: top[i].categoryName ?? '',
+                                      amount: krwSigned(
+                                        r.parts[i],
+                                        false,
+                                        unit: true,
+                                      ),
+                                    ),
+                              ],
+                            );
+                          },
                         ),
                       ),
                   ],
@@ -2766,6 +2844,11 @@ class _CatTrendBar extends StatelessWidget {
     final t = context.tokens;
     final sum = row.parts.fold<int>(0, (s, v) => s + v);
     final barH = maxSum <= 0 ? 8.0 : math.max(8.0, sum / maxSum * 100.0);
+    // 값이 있는 세그먼트 인덱스만 — 캡슐 사이 간격을 "세그먼트 사이"에만 넣기 위함.
+    final visible = [
+      for (var i = 0; i < row.parts.length; i++)
+        if (row.parts[i] > 0) i,
+    ];
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
@@ -2780,23 +2863,28 @@ class _CatTrendBar extends StatelessWidget {
         const SizedBox(height: 6),
         Opacity(
           opacity: isCurrent ? 1 : 0.55,
-          child: ClipRRect(
-            borderRadius: PRadius.brSm,
-            child: SizedBox(
-              width: 24,
-              height: barH,
-              // TOP1이 아래에 오도록 column-reverse (디자인 정합)
-              child: Column(
-                verticalDirection: VerticalDirection.up,
-                children: [
-                  for (var i = 0; i < row.parts.length; i++)
-                    if (row.parts[i] > 0)
-                      Expanded(
-                        flex: row.parts[i],
-                        child: Container(color: _donutColor(context, i)),
+          child: SizedBox(
+            width: 24,
+            height: barH,
+            // TOP1이 아래에 오도록 column-reverse (디자인 정합)
+            child: Column(
+              verticalDirection: VerticalDirection.up,
+              children: [
+                // 각 세그먼트를 개별 둥근 캡슐(brSm)로, 사이에 2px 간격.
+                // 외곽 ClipRRect 제거 — DecoratedBox 마다 자기 borderRadius 로 렌더.
+                for (var vi = 0; vi < visible.length; vi++) ...[
+                  if (vi != 0) const SizedBox(height: 2),
+                  Expanded(
+                    flex: row.parts[visible[vi]],
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: _donutColor(context, visible[vi]),
+                        borderRadius: PRadius.brSm,
                       ),
+                    ),
+                  ),
                 ],
-              ),
+              ],
             ),
           ),
         ),
@@ -2994,7 +3082,9 @@ class _SavingsBarsCardState extends ConsumerState<_SavingsBarsCard> {
                                     : t.fgExpense,
                                 // 월별 바 두께 24 로 통일(카테고리 월별 추이 _CatTrendBar width 24 기준). 일별(>20)만 얇게 4.
                                 width: data.length > 20 ? 4 : 24,
-                                borderRadius: PRadius.brXs,
+                                // 위·아래 모두 둥글게(상하 대칭 round) — brSm(4) 전 모서리 적용.
+                                // 얇은 일별 바(width 4)도 동일 처리(반경은 폭 절반으로 자동 clamp).
+                                borderRadius: PRadius.brSm,
                               ),
                             ],
                           ),
