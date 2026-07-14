@@ -3738,6 +3738,12 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get statsCategoryDelta => 'Change by category';
+
+  @override
+  String get statsSortByChange => 'Biggest changes';
+
+  @override
   String get statsNoCompareData => 'No data to compare';
 
   @override
