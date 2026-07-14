@@ -3185,7 +3185,8 @@ class _CompareSummaryGrid extends StatelessWidget {
                   heightFactor: 1.0,
                   child: DecoratedBox(
                     decoration: BoxDecoration(
-                      color: muted ? t.bgSunken : t.bgBrand,
+                      // web CompareSummary 막대: 이번=fg-brand, 지난=surface-input(bgTrack)+border.
+                      color: muted ? t.bgTrack : t.fgBrand,
                       border: muted
                           ? Border.all(color: t.borderDefault)
                           : null,
@@ -3479,8 +3480,10 @@ class _CompareWeekdayCard extends StatelessWidget {
           : l.statsWeekdayInsightSame;
     }
 
+    // 막대 두께 — web `width: 42%, maxWidth: 16` 은 모바일 컬럼 폭에서 상한 16 에 근접.
+    // 고정폭 16 으로 web 모바일 실두께 정합(design mobile 10 보다 두껍게).
     Widget bar(int v, Color color, {Color? border}) => Container(
-      width: 10,
+      width: 16,
       height: ((v / maxV) * chartH).clamp(3.0, chartH),
       decoration: BoxDecoration(
         color: color,
@@ -3499,10 +3502,10 @@ class _CompareWeekdayCard extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 // 범례 라벨도 기간 모드별 동적 — web periodNow/periodPrev 정합.
-                _WeekdayLegend(color: t.bgBrand, label: state._periodNow),
+                _WeekdayLegend(color: t.fgBrand, label: state._periodNow),
                 const SizedBox(width: 12),
                 _WeekdayLegend(
-                  color: t.bgSunken,
+                  color: t.bgTrack,
                   label: state._periodPrev,
                   border: t.borderDefault,
                 ),
@@ -3527,9 +3530,9 @@ class _CompareWeekdayCard extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
-                              bar(now[i], t.bgBrand),
+                              bar(now[i], t.fgBrand),
                               const SizedBox(width: 3),
-                              bar(prev[i], t.bgSunken, border: t.borderDefault),
+                              bar(prev[i], t.bgTrack, border: t.borderDefault),
                             ],
                           ),
                         ),
@@ -3537,7 +3540,10 @@ class _CompareWeekdayCard extends StatelessWidget {
                         Text(
                           labels[i],
                           style: PTypo.micro.copyWith(
-                            color: i >= 5 ? t.fgExpense : t.fgTertiary,
+                            // web CompareWeekday: 토(i==5)=fg-brand(파랑), 일(i==6)=fg-expense(빨강), 평일=fg-tertiary.
+                            color: i == 6
+                                ? t.fgExpense
+                                : (i == 5 ? t.fgBrand : t.fgTertiary),
                             fontWeight: PFontWeight.semi,
                           ),
                         ),
