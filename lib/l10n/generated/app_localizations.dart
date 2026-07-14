@@ -7016,6 +7016,18 @@ abstract class AppLocalizations {
   /// **'카테고리별 {mom}'**
   String statsCategoryByMom(String mom);
 
+  /// No description provided for @statsCategoryDelta.
+  ///
+  /// In ko, this message translates to:
+  /// **'카테고리별 증감'**
+  String get statsCategoryDelta;
+
+  /// No description provided for @statsSortByChange.
+  ///
+  /// In ko, this message translates to:
+  /// **'변화 큰 순'**
+  String get statsSortByChange;
+
   /// No description provided for @statsNoCompareData.
   ///
   /// In ko, this message translates to:

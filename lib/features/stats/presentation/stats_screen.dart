@@ -147,15 +147,6 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
       _SegMode.custom => l.statsPrevPeriod,
     };
   }
-  String get _momLabel {
-    final l = AppLocalizations.of(context);
-    return switch (_segMode) {
-      _SegMode.month => l.statsMomMonth,
-      _SegMode.quarter => l.statsMomQuarter,
-      _SegMode.year => l.statsMomYear,
-      _SegMode.custom => l.statsMomCustom,
-    };
-  }
   String get _avgLabel {
     final l = AppLocalizations.of(context);
     return _useDailyAvg ? l.statsDailyAvg : l.statsMonthlyAvg;
@@ -583,7 +574,6 @@ class _CompareTab extends ConsumerWidget {
           ),
           const SizedBox(height: PSpace.x32),
           _CompareCategoryCard(
-            state: state,
             rangeAsync: rangeAsync,
             prevRangeAsync: prevRangeAsync,
             categoriesAsync: categoriesAsync,
@@ -815,51 +805,54 @@ class _MerchantListSkeleton extends StatelessWidget {
   }
 }
 
-/// _CompareCategoryCard 의 _CompareRow placeholder — icon tile(32) + name +
-/// amount + pct, 그 아래 좌측 42 들여쓴 2 stacked 막대(10 / 6). 행간 16.
+/// _CompareCategoryCard 의 _CompareDeltaRow placeholder — 행마다 icon tile(32) +
+/// [이름 라인 + "지난→이번" 서브라인] + [증감액 + 증감률]. 세로 padding 12 +
+/// 하단 구분선(마지막 제외). (증감 방식 전환 — 기존 2 stacked 막대 placeholder 폐기.)
 class _CompareListSkeleton extends StatelessWidget {
   const _CompareListSkeleton();
   @override
   Widget build(BuildContext context) {
+    final t = context.tokens;
     return Column(
       children: [
-        for (var i = 0; i < 5; i++) ...[
-          if (i > 0) const SizedBox(height: 16),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  PSkeleton(
-                    width: 32,
-                    height: 32,
-                    borderRadius: PRadius.tile(32),
+        for (var i = 0; i < 5; i++)
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            decoration: i < 4
+                ? BoxDecoration(
+                    border: Border(bottom: BorderSide(color: t.borderSubtle)),
+                  )
+                : null,
+            child: Row(
+              children: [
+                PSkeleton(
+                  width: 32,
+                  height: 32,
+                  borderRadius: PRadius.tile(32),
+                ),
+                const SizedBox(width: 12),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      PSkeleton.line(width: 80, height: 14),
+                      SizedBox(height: 4),
+                      PSkeleton.line(width: 120, height: 11),
+                    ],
                   ),
-                  const SizedBox(width: 10),
-                  const Expanded(child: PSkeleton.line(height: 14)),
-                  const SizedBox(width: 10),
-                  const PSkeleton.line(width: 64, height: 14),
-                  const SizedBox(width: 10),
-                  const SizedBox(
-                    width: 56,
-                    child: PSkeleton.line(height: 12),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              const Padding(
-                padding: EdgeInsets.only(left: 42),
-                child: Column(
+                ),
+                const SizedBox(width: 12),
+                const Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    PSkeleton(height: 10, borderRadius: PRadius.brFull),
+                    PSkeleton.line(width: 72, height: 13),
                     SizedBox(height: 4),
-                    PSkeleton(height: 6, borderRadius: PRadius.brFull),
+                    PSkeleton.line(width: 32, height: 10),
                   ],
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ],
       ],
     );
   }
@@ -3614,51 +3607,13 @@ class _WeekdayLegend extends StatelessWidget {
   }
 }
 
-/// 양쪽 끝 모두 라운드 처리된 progress bar (LinearProgressIndicator 의 fill 우측이
-/// 항상 square 인 한계 우회). 트랙은 투명.
-class _RoundedBar extends StatelessWidget {
-  const _RoundedBar({
-    required this.value,
-    required this.height,
-    required this.color,
-  });
-  final double value; // 0.0 ~ 1.0
-  final double height;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    final clamped = value.isNaN ? 0.0 : value.clamp(0.0, 1.0);
-    return SizedBox(
-      height: height,
-      child: LayoutBuilder(
-        builder: (ctx, c) {
-          return Align(
-            alignment: Alignment.centerLeft,
-            child: Container(
-              width: c.maxWidth * clamped,
-              height: height,
-              decoration: BoxDecoration(
-                color: color,
-                borderRadius: BorderRadius.circular(height / 2),
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-
 class _CompareCategoryCard extends StatelessWidget {
   const _CompareCategoryCard({
-    required this.state,
     required this.rangeAsync,
     required this.prevRangeAsync,
     required this.categoriesAsync,
     required this.masked,
   });
-  final _StatsScreenState state;
   final AsyncValue<RangeSummary> rangeAsync;
   final AsyncValue<RangeSummary> prevRangeAsync;
   final AsyncValue<List<dynamic>> categoriesAsync;
@@ -3666,7 +3621,7 @@ class _CompareCategoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = state;
+    final t = context.tokens;
     final l = AppLocalizations.of(context);
     final loading = rangeAsync.isLoading || prevRangeAsync.isLoading;
 
@@ -3729,37 +3684,25 @@ class _CompareCategoryCard extends StatelessWidget {
       prevRangeAsync.value?.categoryBreakdown ?? const <CategoryBreakdown>[],
     );
 
+    // design CompareCategory `deltaRows` — 증감액(now-prev) 절댓값 큰 순 정렬.
     final rows = byId.entries.toList()
       ..sort((a, b) {
-        final c = b.value.now.compareTo(a.value.now);
-        return c != 0 ? c : b.value.prev.compareTo(a.value.prev);
+        final da = (a.value.now - a.value.prev).abs();
+        final db = (b.value.now - b.value.prev).abs();
+        final c = db.compareTo(da);
+        return c != 0 ? c : b.value.now.compareTo(a.value.now);
       });
     final top = rows.take(10).toList();
-    final maxAmt = top.isEmpty
-        ? 1
-        : top
-              .map(
-                (e) => e.value.now > e.value.prev ? e.value.now : e.value.prev,
-              )
-              .reduce((a, b) => a > b ? a : b)
-              .clamp(1, 1 << 62);
 
     return _Card(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _CardHeader(
-            title: _CardTitle(l.statsCategoryByMom(s._momLabel)),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _LegendChip(
-                    color: cp.resolveChartColor(context, '#2c70bf'),
-                    label: s._periodNow),
-                const SizedBox(width: 10),
-                _LegendChip(
-                    color: const Color(0xFFABC8EE), label: s._periodPrev),
-              ],
+            title: _CardTitle(l.statsCategoryDelta),
+            trailing: Text(
+              l.statsSortByChange,
+              style: PTypo.caption.copyWith(color: t.fgTertiary),
             ),
           ),
           if (loading && top.isEmpty)
@@ -3767,106 +3710,117 @@ class _CompareCategoryCard extends StatelessWidget {
           else if (top.isEmpty)
             _EmptyBox(text: l.statsNoCompareData)
           else
-            for (var i = 0; i < top.length; i++) ...[
-              if (i > 0) const SizedBox(height: 16),
-              _CompareRow(row: top[i].value, maxAmt: maxAmt, masked: masked),
-            ],
+            for (var i = 0; i < top.length; i++)
+              _CompareDeltaRow(
+                row: top[i].value,
+                masked: masked,
+                showDivider: i < top.length - 1,
+              ),
         ],
       ),
     );
   }
 }
 
-class _CompareRow extends StatelessWidget {
-  const _CompareRow({
+/// design CompareCategory 행 — 아이콘 + [카테고리명 + "{지난}→{이번}" 서브라인] +
+/// [증감액(증가=지출 빨강/감소=브랜드 파랑) + 증감률(tertiary)]. 하단 구분선.
+///
+/// diverging bar 는 디자인상 태블릿+ 전용이나 앱은 화면 크기 분기 인프라가 없어
+/// 모바일 방식(막대 없이 증감액)만 구현 — 태블릿 대응은 별도.
+class _CompareDeltaRow extends StatelessWidget {
+  const _CompareDeltaRow({
     required this.row,
-    required this.maxAmt,
     required this.masked,
+    required this.showDivider,
   });
   final ({String name, String? icon, String? color, int now, int prev}) row;
-  final int maxAmt;
   final bool masked;
+  final bool showDivider;
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final fg = cp.resolveChartColor(context, row.color, fallback: t.fgBrand);
+    final iconColor = cp.resolveChartColor(
+      context,
+      row.color,
+      fallback: t.fgBrand,
+    );
     final iconData = lucideByName(row.icon ?? 'tag');
     final diff = row.now - row.prev;
     final up = diff > 0;
     final pct = row.prev > 0 ? ((diff / row.prev) * 100).round() : 0;
+    // 증가(지출↑)=지출색 빨강(fgExpense) / 감소=수입색 파랑(fgIncome — 형제 CompareSummary·
+    // Metrics 및 웹과 톤 통일) / 무변동=tertiary.
+    final deltaColor = diff == 0
+        ? t.fgTertiary
+        : (up ? t.fgExpense : t.fgIncome);
+    // U+2212(−) minus — formatChartAxis 부호 표기 정합.
+    final sign = diff > 0 ? '+' : (diff < 0 ? '−' : '');
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: fg.withValues(alpha: 0.12),
-                borderRadius: PRadius.tile(32),
-              ),
-              alignment: Alignment.center,
-              child: Icon(iconData, size: 16, color: fg),
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      decoration: showDivider
+          ? BoxDecoration(
+              border: Border(bottom: BorderSide(color: t.borderSubtle)),
+            )
+          : null,
+      child: Row(
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: iconColor.withValues(alpha: 0.12),
+              borderRadius: PRadius.tile(32),
             ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                row.name,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: PTypo.bodySm.copyWith(
-                  color: t.fgPrimary,
-                  fontWeight: PFontWeight.semi,
+            alignment: Alignment.center,
+            child: Icon(iconData, size: 16, color: iconColor),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  row.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: PTypo.bodySm.copyWith(
+                    color: t.fgPrimary,
+                    fontWeight: PFontWeight.semi,
+                  ),
                 ),
-              ),
+                const SizedBox(height: 2),
+                Text(
+                  '${krwSigned(row.prev, masked, unit: true)} → '
+                  '${krwSigned(row.now, masked, unit: true)}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: PTypo.caption.copyWith(color: t.fgTertiary),
+                ),
+              ],
             ),
-            Text(
-              krwSigned(row.now, masked, unit: true),
-              style: PTypo.bodySm.copyWith(
-                color: t.fgPrimary,
-                fontWeight: PFontWeight.bold,
-              ),
-            ),
-            const SizedBox(width: 10),
-            SizedBox(
-              width: 56,
-              child: Text(
-                row.prev > 0 ? '${up ? '▲' : '▼'} ${pct.abs()}%' : '—',
-                textAlign: TextAlign.right,
-                style: PTypo.caption.copyWith(
-                  color: row.prev == 0
-                      ? t.fgTertiary
-                      : (up ? t.fgExpense : t.fgIncome),
+          ),
+          const SizedBox(width: 12),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                krwSigned(diff.abs(), masked, sign: sign, unit: true),
+                style: PTypo.bodySm.copyWith(
+                  color: deltaColor,
                   fontWeight: PFontWeight.bold,
                 ),
               ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        Padding(
-          padding: const EdgeInsets.only(left: 42),
-          child: Column(
-            children: [
-              // 트랙 투명, fill 양 끝 round — 웹과 매칭
-              _RoundedBar(
-                value: row.now / maxAmt,
-                height: 10,
-                color: cp.resolveChartColor(context, '#2c70bf'),
-              ),
-              const SizedBox(height: 4),
-              _RoundedBar(
-                value: row.prev / maxAmt,
-                height: 6,
-                color: const Color(0xFFABC8EE),
+              const SizedBox(height: 2),
+              Text(
+                row.prev > 0 ? '${up ? '▲' : '▼'} ${pct.abs()}%' : '—',
+                style: PTypo.micro.copyWith(color: t.fgTertiary),
               ),
             ],
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

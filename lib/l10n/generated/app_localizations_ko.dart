@@ -3702,6 +3702,12 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
+  String get statsCategoryDelta => '카테고리별 증감';
+
+  @override
+  String get statsSortByChange => '변화 큰 순';
+
+  @override
   String get statsNoCompareData => '비교할 데이터가 없습니다';
 
   @override

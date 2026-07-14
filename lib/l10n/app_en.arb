@@ -1954,6 +1954,8 @@
       }
     }
   },
+  "statsCategoryDelta": "Change by category",
+  "statsSortByChange": "Biggest changes",
   "statsNoCompareData": "No data to compare",
   "statsWeekdayTitle": "Spending by weekday",
   "statsThisMonthShort": "This month",

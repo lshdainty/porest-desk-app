@@ -1960,6 +1960,8 @@
       }
     }
   },
+  "statsCategoryDelta": "카테고리별 증감",
+  "statsSortByChange": "변화 큰 순",
   "statsNoCompareData": "비교할 데이터가 없습니다",
   "statsWeekdayTitle": "요일별 지출 비교",
   "statsThisMonthShort": "이번 달",
