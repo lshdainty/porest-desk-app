@@ -1680,14 +1680,16 @@ class _HeatmapCard extends StatelessWidget {
                 const SizedBox(width: 8),
                 for (var i = 1; i <= 5; i++) ...[
                   Container(
-                    width: 14,
-                    height: 14,
+                    // web 범례 셀 정합 — 18×10 가로 막대(얇게) + border-subtle 1px.
+                    width: 18,
+                    height: 10,
                     decoration: BoxDecoration(
                       color: bgFor(i),
                       borderRadius: PRadius.brXs,
+                      border: Border.all(color: t.borderSubtle),
                     ),
                   ),
-                  const SizedBox(width: 4),
+                  const SizedBox(width: 3),
                 ],
                 const SizedBox(width: 4),
                 Text(l.statsLegendHigh,
