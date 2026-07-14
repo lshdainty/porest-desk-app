@@ -522,8 +522,12 @@ class _TrendTab extends ConsumerWidget {
             rangeAsync: rangeAsync,
             monthExpAsync: monthExpAsync,
           ),
-          const SizedBox(height: PSpace.x32),
-          _CatTrendCard(state: state, rangeAsync: rangeAsync),
+          // 카테고리 월별 추이는 여러 달(2+)일 때만 노출 — 단일 월은 카테고리 탭 도넛이
+          // 담당(web showCatTrend: monthlyBuckets >= 2 정합).
+          if (((rangeAsync.value?.monthlyBuckets.length) ?? 0) >= 2) ...[
+            const SizedBox(height: PSpace.x32),
+            _CatTrendCard(state: state, rangeAsync: rangeAsync),
+          ],
         ],
       ),
     );
@@ -2537,6 +2541,9 @@ class _SavingsRateCard extends StatelessWidget {
           SizedBox(
             height: 10,
             child: Row(
+              // Expanded 세그먼트가 세로(높이 10)를 꽉 채우도록 stretch. 기본 center 면
+              // child 없는 DecoratedBox 의 세로가 0 이 돼 스택바가 안 보였음.
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 if (spendRate > 0)
                   Expanded(
@@ -2718,7 +2725,9 @@ class _CatTrendCard extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.only(top: 16, bottom: 4),
               child: SizedBox(
-                height: 132,
+                // 값라벨(~14)+6+바(최대100)+6+월라벨(~14) 다 들어가게 150 (web height 150 정합).
+                // 132 면 큰 막대에서 오버플로우("BOTTOM OVERFLOWED"). 바 하단 기준 정렬은 Row end.
+                height: 150,
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
