@@ -2872,6 +2872,9 @@ class _CatTrendBar extends StatelessWidget {
               borderRadius: PRadius.brSm,
               // TOP1이 아래에 오도록 column-reverse (디자인 정합)
               child: Column(
+                // 세그먼트(ColoredBox, child 없음)가 가로(24)를 채우도록 stretch.
+                // 기본 center 면 교차축이 0 이 돼 바가 아예 안 보였음.
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 verticalDirection: VerticalDirection.up,
                 children: [
                   for (var vi = 0; vi < visible.length; vi++) ...[
