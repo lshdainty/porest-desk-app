@@ -3411,7 +3411,7 @@ class _CompareMetricsCard extends StatelessWidget {
 
 /// 요일별 지출 비교 — 이번 달(파랑) vs 지난 달(회색 track) grouped bar.
 /// design StatsScreen `CompareWeekday` 미러: 월~일, 토·일 라벨 빨강, 하단 인사이트.
-class _CompareWeekdayCard extends StatelessWidget {
+class _CompareWeekdayCard extends StatefulWidget {
   const _CompareWeekdayCard({
     required this.state,
     required this.nowExpAsync,
@@ -3436,11 +3436,36 @@ class _CompareWeekdayCard extends StatelessWidget {
   }
 
   @override
+  State<_CompareWeekdayCard> createState() => _CompareWeekdayCardState();
+}
+
+class _CompareWeekdayCardState extends State<_CompareWeekdayCard> {
+  // 순저축/카테고리 추이 카드와 동일한 터치 툴팁 패턴 — 터치 위치/인덱스.
+  int? _touchedIdx;
+  Offset? _touchPos;
+
+  // 커스텀 바(Row of Expanded ×7)라 터치를 직접 계산: 슬롯폭 = 전체폭/7.
+  void _onTouch(Offset pos, double slotW) {
+    if (slotW <= 0) return;
+    final i = (pos.dx ~/ slotW).clamp(0, 6).toInt();
+    if (i != _touchedIdx || pos != _touchPos) {
+      setState(() {
+        _touchedIdx = i;
+        _touchPos = pos;
+      });
+    }
+  }
+
+  void _clearTouch() {
+    if (_touchedIdx != null) setState(() => _touchedIdx = null);
+  }
+
+  @override
   Widget build(BuildContext context) {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
-    final now = _byWeekday(nowExpAsync.value ?? const []);
-    final prev = _byWeekday(prevExpAsync.value ?? const []);
+    final now = _CompareWeekdayCard._byWeekday(widget.nowExpAsync.value ?? const []);
+    final prev = _CompareWeekdayCard._byWeekday(widget.prevExpAsync.value ?? const []);
     final labels = weekdayLabels(mondayFirst: true);
     final maxV = [
       ...now,
@@ -3461,7 +3486,7 @@ class _CompareWeekdayCard extends StatelessWidget {
     if (dropIdx >= 0) {
       insight = l.statsWeekdayInsightDown(
         labels[dropIdx],
-        krwSigned(bestDrop, masked, unit: true),
+        krwSigned(bestDrop, widget.masked, unit: true),
       );
     } else {
       var bestRise = 0, riseIdx = -1;
@@ -3475,7 +3500,7 @@ class _CompareWeekdayCard extends StatelessWidget {
       insight = riseIdx >= 0
           ? l.statsWeekdayInsightUp(
               labels[riseIdx],
-              krwSigned(bestRise, masked, unit: true),
+              krwSigned(bestRise, widget.masked, unit: true),
             )
           : l.statsWeekdayInsightSame;
     }
@@ -3502,11 +3527,11 @@ class _CompareWeekdayCard extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 // 범례 라벨도 기간 모드별 동적 — web periodNow/periodPrev 정합.
-                _WeekdayLegend(color: t.fgBrand, label: state._periodNow),
+                _WeekdayLegend(color: t.fgBrand, label: widget.state._periodNow),
                 const SizedBox(width: 12),
                 _WeekdayLegend(
                   color: t.bgTrack,
-                  label: state._periodPrev,
+                  label: widget.state._periodPrev,
                   border: t.borderDefault,
                 ),
               ],
@@ -3516,36 +3541,77 @@ class _CompareWeekdayCard extends StatelessWidget {
             // 막대(chartH) + gap6 + 월라벨(micro ~17) 이 chartH+22 를 1px 초과("BOTTOM
             // OVERFLOWED BY 1.0px") → 여유 확보.
             height: chartH + 26,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
+            // 순저축/카테고리 추이 카드처럼 Stack 위에 커스텀 툴팁을 얹는다.
+            child: Stack(
+              fit: StackFit.expand,
+              clipBehavior: Clip.none,
               children: [
-                for (var i = 0; i < 7; i++)
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        SizedBox(
-                          height: chartH,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              bar(now[i], t.fgBrand),
-                              const SizedBox(width: 3),
-                              bar(prev[i], t.bgTrack, border: t.borderDefault),
-                            ],
-                          ),
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final slotW = constraints.maxWidth / 7;
+                    return Listener(
+                      behavior: HitTestBehavior.opaque,
+                      onPointerDown: (e) => _onTouch(e.localPosition, slotW),
+                      onPointerMove: (e) => _onTouch(e.localPosition, slotW),
+                      onPointerUp: (_) => _clearTouch(),
+                      onPointerCancel: (_) => _clearTouch(),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          for (var i = 0; i < 7; i++)
+                            Expanded(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  SizedBox(
+                                    height: chartH,
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      children: [
+                                        bar(now[i], t.fgBrand),
+                                        const SizedBox(width: 3),
+                                        bar(prev[i], t.bgTrack, border: t.borderDefault),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    labels[i],
+                                    style: PTypo.micro.copyWith(
+                                      // web CompareWeekday: 토(i==5)=fg-brand(파랑), 일(i==6)=fg-expense(빨강), 평일=fg-tertiary.
+                                      color: i == 6
+                                          ? t.fgExpense
+                                          : (i == 5 ? t.fgBrand : t.fgTertiary),
+                                      fontWeight: PFontWeight.semi,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+                if (_touchedIdx != null && _touchPos != null)
+                  PChartTooltipLayer(
+                    anchor: _touchPos!,
+                    child: PChartTooltipBox(
+                      title: labels[_touchedIdx!],
+                      // 기간 라벨(이번 해/지난 분기 등 최대 4자+공백) 폭 — 카테고리 추이와 동일.
+                      labelWidth: 52,
+                      rows: [
+                        PChartTooltipRowData(
+                          color: t.fgBrand,
+                          label: widget.state._periodNow,
+                          amount: krwSigned(now[_touchedIdx!], widget.masked, unit: true),
                         ),
-                        const SizedBox(height: 6),
-                        Text(
-                          labels[i],
-                          style: PTypo.micro.copyWith(
-                            // web CompareWeekday: 토(i==5)=fg-brand(파랑), 일(i==6)=fg-expense(빨강), 평일=fg-tertiary.
-                            color: i == 6
-                                ? t.fgExpense
-                                : (i == 5 ? t.fgBrand : t.fgTertiary),
-                            fontWeight: PFontWeight.semi,
-                          ),
+                        PChartTooltipRowData(
+                          color: t.bgTrack,
+                          borderColor: t.borderDefault,
+                          label: widget.state._periodPrev,
+                          amount: krwSigned(prev[_touchedIdx!], widget.masked, unit: true),
                         ),
                       ],
                     ),
