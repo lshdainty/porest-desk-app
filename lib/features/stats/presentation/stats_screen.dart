@@ -3263,7 +3263,7 @@ class _CompareSummaryGrid extends StatelessWidget {
           ),
           if (prev > 0) ...[
             const SizedBox(height: 10),
-            // 강조는 web 정합 — "{금액} 더/덜"만 증감색, 앞뒤("…보다"/"썼어요")는 기본색.
+            // 강조는 web 정합 — "{금액} 더/덜"만 증감색+bold, 앞뒤("…보다"/"썼어요")는 일반 굵기.
             Text.rich(
               TextSpan(
                 children: [
@@ -3271,15 +3271,12 @@ class _CompareSummaryGrid extends StatelessWidget {
                   TextSpan(
                     text:
                         '${krwSigned(diff.abs(), masked, unit: true)} ${less ? l.statsVsLastDirLess : l.statsVsLastDirMore}',
-                    style: TextStyle(color: good),
+                    style: TextStyle(color: good, fontWeight: PFontWeight.bold),
                   ),
                   TextSpan(text: ' ${l.statsVsLastSuffix(state._periodPrev)}'),
                 ],
               ),
-              style: PTypo.body.copyWith(
-                color: t.fgPrimary,
-                fontWeight: PFontWeight.bold,
-              ),
+              style: PTypo.body.copyWith(color: t.fgPrimary),
             ),
           ],
           const SizedBox(height: 8),
@@ -3336,12 +3333,18 @@ class _CompareMetricsCard extends StatelessWidget {
         .clamp(1, 100000);
 
     final rows = <({String label, int now, int prev, bool count})>[
-      (label: l.statsCompareDailyAvg, now: now ~/ nowDays, prev: prev ~/ prevDays, count: false),
+      // 반올림도 web(Math.round) 정합 — `~/`(내림)는 web과 1원 차이 발생.
+      (
+        label: l.statsCompareDailyAvg,
+        now: (now / nowDays).round(),
+        prev: (prev / prevDays).round(),
+        count: false,
+      ),
       (label: l.statsCompareTxCount, now: txNow, prev: txPrev, count: true),
       (
         label: l.statsComparePerTx,
-        now: txNow > 0 ? now ~/ txNow : 0,
-        prev: txPrev > 0 ? prev ~/ txPrev : 0,
+        now: txNow > 0 ? (now / txNow).round() : 0,
+        prev: txPrev > 0 ? (prev / txPrev).round() : 0,
         count: false,
       ),
     ];
@@ -3367,7 +3370,8 @@ class _CompareMetricsCard extends StatelessWidget {
                       children: [
                         Text(
                           m.label,
-                          style: PTypo.caption.copyWith(
+                          // web 모바일 정합 — 라벨 text-badge(11)/w600.
+                          style: PTypo.micro.copyWith(
                             color: t.fgTertiary,
                             fontWeight: PFontWeight.semi,
                           ),
@@ -3375,7 +3379,8 @@ class _CompareMetricsCard extends StatelessWidget {
                         const SizedBox(height: 3),
                         Text(
                           fmt(m.now, m.count),
-                          style: PTypo.h3.copyWith(
+                          // web 모바일 정합 — 값 16(bodyLg). h3(20)는 web(16)보다 커서 불일치.
+                          style: PTypo.bodyLg.copyWith(
                             color: t.fgPrimary,
                             fontWeight: PFontWeight.bold,
                           ),
@@ -3388,7 +3393,8 @@ class _CompareMetricsCard extends StatelessWidget {
                       children: [
                         Text(
                           d == 0 ? '—' : '${up ? '▲' : '▼'} ${fmt(d.abs(), m.count)}',
-                          style: PTypo.caption.copyWith(
+                          // web 모바일 정합 — 증감 text-badge(11)/w700.
+                          style: PTypo.micro.copyWith(
                             color: d == 0 ? t.fgTertiary : c,
                             fontWeight: PFontWeight.bold,
                           ),
