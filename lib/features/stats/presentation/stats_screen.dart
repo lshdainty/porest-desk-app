@@ -3874,7 +3874,8 @@ class _CompareDeltaRow extends StatelessWidget {
                   '${krwSigned(row.now, masked, unit: true)}',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: PTypo.caption.copyWith(color: t.fgTertiary),
+                  // 클로드 디자인(11.5) 정수 스냅 11 — web badge(11) 동값(caption 12는 web과 1px 불일치).
+                  style: PTypo.micro.copyWith(color: t.fgTertiary),
                 ),
               ],
             ),
