@@ -3109,11 +3109,11 @@ class _SavingsBarsCardState extends ConsumerState<_SavingsBarsCard> {
                           return PChartTooltipBox(
                             title: p.label,
                             rows: [
+                              // 금액 텍스트는 기본색(fgPrimary) — web 툴팁은 색점만 증감색, 금액은 흰색.
                               PChartTooltipRowData(
                                 color: v >= 0 ? t.statusInfoFg : t.fgExpense,
                                 label: l.statsNetSavings,
                                 amount: krwSigned(v.abs(), false, sign: sign, unit: true),
-                                amountColor: v >= 0 ? t.statusInfoFg : t.fgExpense,
                               ),
                             ],
                           );
