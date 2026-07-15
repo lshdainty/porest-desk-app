@@ -1981,13 +1981,15 @@
     }
   },
   "statsWeekdayInsightSame": "요일별 지출이 지난 달과 비슷해요.",
-  "statsVsLastLess": "{prev}보다 {amount} 덜 썼어요",
-  "@statsVsLastLess": {
-    "placeholders": { "prev": { "type": "String" }, "amount": { "type": "String" } }
+  "statsVsLastPrefix": "{prev}보다",
+  "@statsVsLastPrefix": {
+    "placeholders": { "prev": { "type": "String" } }
   },
-  "statsVsLastMore": "{prev}보다 {amount} 더 썼어요",
-  "@statsVsLastMore": {
-    "placeholders": { "prev": { "type": "String" }, "amount": { "type": "String" } }
+  "statsVsLastDirLess": "덜",
+  "statsVsLastDirMore": "더",
+  "statsVsLastSuffix": "썼어요",
+  "@statsVsLastSuffix": {
+    "placeholders": { "prev": { "type": "String" } }
   },
   "statsCompareDailyAvg": "하루 평균",
   "statsCompareTxCount": "거래 건수",

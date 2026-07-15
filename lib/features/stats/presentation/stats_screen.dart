@@ -3263,18 +3263,21 @@ class _CompareSummaryGrid extends StatelessWidget {
           ),
           if (prev > 0) ...[
             const SizedBox(height: 10),
-            Text(
-              less
-                  ? l.statsVsLastLess(
-                      state._periodPrev,
-                      krwSigned(diff.abs(), masked, unit: true),
-                    )
-                  : l.statsVsLastMore(
-                      state._periodPrev,
-                      krwSigned(diff.abs(), masked, unit: true),
-                    ),
+            // 강조는 web 정합 — "{금액} 더/덜"만 증감색, 앞뒤("…보다"/"썼어요")는 기본색.
+            Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(text: '${l.statsVsLastPrefix(state._periodPrev)} '),
+                  TextSpan(
+                    text:
+                        '${krwSigned(diff.abs(), masked, unit: true)} ${less ? l.statsVsLastDirLess : l.statsVsLastDirMore}',
+                    style: TextStyle(color: good),
+                  ),
+                  TextSpan(text: ' ${l.statsVsLastSuffix(state._periodPrev)}'),
+                ],
+              ),
               style: PTypo.body.copyWith(
-                color: good,
+                color: t.fgPrimary,
                 fontWeight: PFontWeight.bold,
               ),
             ),
