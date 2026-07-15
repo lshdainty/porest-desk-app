@@ -172,11 +172,15 @@ class PChartTooltipRowData {
     required this.label,
     required this.amount,
     this.amountColor,
+    this.borderColor,
   });
   final Color color;
   final String label;
   final String amount;
   final Color? amountColor;
+
+  /// 트랙(회색)처럼 배경과 비슷한 시리즈 색 인디케이터 구분용 테두리 — 범례와 동일 시각.
+  final Color? borderColor;
 }
 
 class _PChartTooltipRow extends StatelessWidget {
@@ -196,6 +200,9 @@ class _PChartTooltipRow extends StatelessWidget {
           height: 9,
           decoration: BoxDecoration(
             color: data.color,
+            border: data.borderColor == null
+                ? null
+                : Border.all(color: data.borderColor!),
             borderRadius: PRadius.brXs,
           ),
         ),
