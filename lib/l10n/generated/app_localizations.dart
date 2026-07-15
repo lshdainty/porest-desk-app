@@ -7070,17 +7070,29 @@ abstract class AppLocalizations {
   /// **'요일별 지출이 지난 달과 비슷해요.'**
   String get statsWeekdayInsightSame;
 
-  /// No description provided for @statsVsLastLess.
+  /// No description provided for @statsVsLastPrefix.
   ///
   /// In ko, this message translates to:
-  /// **'{prev}보다 {amount} 덜 썼어요'**
-  String statsVsLastLess(String prev, String amount);
+  /// **'{prev}보다'**
+  String statsVsLastPrefix(String prev);
 
-  /// No description provided for @statsVsLastMore.
+  /// No description provided for @statsVsLastDirLess.
   ///
   /// In ko, this message translates to:
-  /// **'{prev}보다 {amount} 더 썼어요'**
-  String statsVsLastMore(String prev, String amount);
+  /// **'덜'**
+  String get statsVsLastDirLess;
+
+  /// No description provided for @statsVsLastDirMore.
+  ///
+  /// In ko, this message translates to:
+  /// **'더'**
+  String get statsVsLastDirMore;
+
+  /// No description provided for @statsVsLastSuffix.
+  ///
+  /// In ko, this message translates to:
+  /// **'썼어요'**
+  String statsVsLastSuffix(String prev);
 
   /// No description provided for @statsCompareDailyAvg.
   ///
