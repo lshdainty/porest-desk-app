@@ -16,8 +16,10 @@ import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_checkbox.dart';
 import 'package:porest_desk_app/shared/widgets/p_date_input.dart';
 import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
+import 'package:porest_desk_app/shared/widgets/p_segmented.dart';
 import 'package:porest_desk_app/shared/widgets/p_switch.dart';
 import 'package:porest_desk_app/features/export/data/export_repository.dart';
+import 'package:porest_desk_app/features/import/presentation/import_view.dart';
 
 typedef _TypeMeta = ({String name, String slug, IconData icon});
 typedef _FormatMeta = ({String value, String label, String ext, IconData icon});
@@ -92,6 +94,7 @@ class ExportScreen extends ConsumerStatefulWidget {
 }
 
 class _ExportScreenState extends ConsumerState<ExportScreen> {
+  String _mode = 'export'; // export | import
   String _format = 'CSV';
   String _period = 'THIS_MONTH';
   DateTime? _customFrom = DateTime(DateTime.now().year, DateTime.now().month, 1);
@@ -256,23 +259,42 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
         foregroundColor: t.fgPrimary,
         elevation: 0,
       ),
-      body: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: PSpace.x20, vertical: PSpace.x24),
+      body: Column(
         children: [
-          _periodCard(t),
-          const SizedBox(height: PSpace.x16),
-          _typesCard(t),
-          const SizedBox(height: PSpace.x16),
-          _formatCard(t),
-          const SizedBox(height: PSpace.x16),
-          _maskRow(t),
-          const SizedBox(height: PSpace.x12),
-          _actions(),
-          if (_preview != null) ...[
-            const SizedBox(height: PSpace.x16),
-            _previewCard(t),
-          ],
-          const SizedBox(height: PSpace.x32),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(PSpace.x20, PSpace.x16, PSpace.x20, 0),
+            child: PSegmented<String>(
+              value: _mode,
+              onChanged: (v) => setState(() => _mode = v),
+              options: [
+                PSegmentOption(value: 'export', label: l.exportTab),
+                PSegmentOption(value: 'import', label: l.importTab),
+              ],
+            ),
+          ),
+          Expanded(
+            child: _mode == 'import'
+                ? const ImportView()
+                : ListView(
+                    padding: const EdgeInsets.symmetric(horizontal: PSpace.x20, vertical: PSpace.x24),
+                    children: [
+                      _periodCard(t),
+                      const SizedBox(height: PSpace.x16),
+                      _typesCard(t),
+                      const SizedBox(height: PSpace.x16),
+                      _formatCard(t),
+                      const SizedBox(height: PSpace.x16),
+                      _maskRow(t),
+                      const SizedBox(height: PSpace.x12),
+                      _actions(),
+                      if (_preview != null) ...[
+                        const SizedBox(height: PSpace.x16),
+                        _previewCard(t),
+                      ],
+                      const SizedBox(height: PSpace.x32),
+                    ],
+                  ),
+          ),
         ],
       ),
     );

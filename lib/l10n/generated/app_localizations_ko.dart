@@ -4613,4 +4613,168 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get calDetailNone => '없음';
+
+  @override
+  String get exportTab => '내보내기';
+
+  @override
+  String get importTab => '가져오기';
+
+  @override
+  String get importSourceTitle => '어떤 앱에서 가져오나요?';
+
+  @override
+  String get importSourceDesc => '기존에 쓰던 가계부를 고르면 열 구조를 자동으로 맞춰드려요';
+
+  @override
+  String get importSourcePorest => 'Porest 백업';
+
+  @override
+  String get importSourcePorestDesc => '내보내기 파일 다시 가져오기';
+
+  @override
+  String get importSourceEasybudget => '편한가계부·머니매니저';
+
+  @override
+  String get importSourceEasybudgetDesc => 'Excel 백업';
+
+  @override
+  String get importSourceBanksalad => '뱅크샐러드';
+
+  @override
+  String get importSourceBanksaladDesc => '가계부 내역';
+
+  @override
+  String get importSourceToss => '토스';
+
+  @override
+  String get importSourceTossDesc => '거래내역';
+
+  @override
+  String get importSourceCustom => '직접 매핑';
+
+  @override
+  String get importSourceCustomDesc => 'CSV·Excel 직접 연결';
+
+  @override
+  String get importUploadTitle => '파일 업로드';
+
+  @override
+  String get importUploadDesc =>
+      'CSV 또는 Excel(.xlsx, .xls) 파일을 올려주세요. 최대 10MB.';
+
+  @override
+  String get importDropTitle => '파일 선택';
+
+  @override
+  String get importDropHint => '.csv · .xlsx · .xls 지원';
+
+  @override
+  String get importAnalyzing => '파일 분석 중…';
+
+  @override
+  String get importNotice =>
+      '가져온 데이터는 기존 거래에 추가되며 덮어쓰지 않아요. 미리보기에서 중복·오류를 확인할 수 있어요.';
+
+  @override
+  String get importFileTitle => '가져올 파일';
+
+  @override
+  String importRowsDetected(int total, int valid) {
+    return '$total개 행 · 유효 $valid건';
+  }
+
+  @override
+  String get importChange => '변경';
+
+  @override
+  String get importMapTitle => '열 매핑';
+
+  @override
+  String get importMapDesc => '파일의 열을 가계부 항목에 연결하세요. 자동 감지값을 바꿀 수 있어요.';
+
+  @override
+  String get importNotMapped => '가져오지 않음';
+
+  @override
+  String get importFieldDate => '날짜';
+
+  @override
+  String get importFieldType => '수입/지출';
+
+  @override
+  String get importFieldAmount => '금액';
+
+  @override
+  String get importFieldCategory => '카테고리';
+
+  @override
+  String get importFieldAsset => '자산·결제수단';
+
+  @override
+  String get importFieldMemo => '메모';
+
+  @override
+  String importPreviewDesc(int dup) {
+    return '중복 의심 $dup건';
+  }
+
+  @override
+  String get importIncome => '수입';
+
+  @override
+  String get importExpense => '지출';
+
+  @override
+  String get importDupBadge => '중복?';
+
+  @override
+  String get importOptionsTitle => '가져오기 옵션';
+
+  @override
+  String get importOptDupSkip => '중복 거래 건너뛰기';
+
+  @override
+  String importOptDupSkipDesc(int dup) {
+    return '날짜·금액·내용이 같은 $dup건을 제외해요';
+  }
+
+  @override
+  String get importOptAutoCat => '새 카테고리 자동 생성';
+
+  @override
+  String get importOptAutoCatDesc => '없는 카테고리는 자동으로 만들어요';
+
+  @override
+  String get importPrev => '이전';
+
+  @override
+  String importDoImport(int count) {
+    return '$count건 가져오기';
+  }
+
+  @override
+  String get importDoneTitle => '가져오기 완료';
+
+  @override
+  String importDoneCount(int count) {
+    return '$count건을 가져왔어요';
+  }
+
+  @override
+  String importDoneDetail(int skipped, int failed) {
+    return '건너뜀 $skipped · 실패 $failed';
+  }
+
+  @override
+  String get importAnother => '다른 파일 가져오기';
+
+  @override
+  String get importStepUpload => '파일 선택';
+
+  @override
+  String get importStepMapping => '열 매핑';
+
+  @override
+  String get importStepDone => '완료';
 }

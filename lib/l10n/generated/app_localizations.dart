@@ -8647,6 +8647,306 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'없음'**
   String get calDetailNone;
+
+  /// No description provided for @exportTab.
+  ///
+  /// In ko, this message translates to:
+  /// **'내보내기'**
+  String get exportTab;
+
+  /// No description provided for @importTab.
+  ///
+  /// In ko, this message translates to:
+  /// **'가져오기'**
+  String get importTab;
+
+  /// No description provided for @importSourceTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'어떤 앱에서 가져오나요?'**
+  String get importSourceTitle;
+
+  /// No description provided for @importSourceDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'기존에 쓰던 가계부를 고르면 열 구조를 자동으로 맞춰드려요'**
+  String get importSourceDesc;
+
+  /// No description provided for @importSourcePorest.
+  ///
+  /// In ko, this message translates to:
+  /// **'Porest 백업'**
+  String get importSourcePorest;
+
+  /// No description provided for @importSourcePorestDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'내보내기 파일 다시 가져오기'**
+  String get importSourcePorestDesc;
+
+  /// No description provided for @importSourceEasybudget.
+  ///
+  /// In ko, this message translates to:
+  /// **'편한가계부·머니매니저'**
+  String get importSourceEasybudget;
+
+  /// No description provided for @importSourceEasybudgetDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'Excel 백업'**
+  String get importSourceEasybudgetDesc;
+
+  /// No description provided for @importSourceBanksalad.
+  ///
+  /// In ko, this message translates to:
+  /// **'뱅크샐러드'**
+  String get importSourceBanksalad;
+
+  /// No description provided for @importSourceBanksaladDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'가계부 내역'**
+  String get importSourceBanksaladDesc;
+
+  /// No description provided for @importSourceToss.
+  ///
+  /// In ko, this message translates to:
+  /// **'토스'**
+  String get importSourceToss;
+
+  /// No description provided for @importSourceTossDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'거래내역'**
+  String get importSourceTossDesc;
+
+  /// No description provided for @importSourceCustom.
+  ///
+  /// In ko, this message translates to:
+  /// **'직접 매핑'**
+  String get importSourceCustom;
+
+  /// No description provided for @importSourceCustomDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'CSV·Excel 직접 연결'**
+  String get importSourceCustomDesc;
+
+  /// No description provided for @importUploadTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'파일 업로드'**
+  String get importUploadTitle;
+
+  /// No description provided for @importUploadDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'CSV 또는 Excel(.xlsx, .xls) 파일을 올려주세요. 최대 10MB.'**
+  String get importUploadDesc;
+
+  /// No description provided for @importDropTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'파일 선택'**
+  String get importDropTitle;
+
+  /// No description provided for @importDropHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'.csv · .xlsx · .xls 지원'**
+  String get importDropHint;
+
+  /// No description provided for @importAnalyzing.
+  ///
+  /// In ko, this message translates to:
+  /// **'파일 분석 중…'**
+  String get importAnalyzing;
+
+  /// No description provided for @importNotice.
+  ///
+  /// In ko, this message translates to:
+  /// **'가져온 데이터는 기존 거래에 추가되며 덮어쓰지 않아요. 미리보기에서 중복·오류를 확인할 수 있어요.'**
+  String get importNotice;
+
+  /// No description provided for @importFileTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'가져올 파일'**
+  String get importFileTitle;
+
+  /// No description provided for @importRowsDetected.
+  ///
+  /// In ko, this message translates to:
+  /// **'{total}개 행 · 유효 {valid}건'**
+  String importRowsDetected(int total, int valid);
+
+  /// No description provided for @importChange.
+  ///
+  /// In ko, this message translates to:
+  /// **'변경'**
+  String get importChange;
+
+  /// No description provided for @importMapTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'열 매핑'**
+  String get importMapTitle;
+
+  /// No description provided for @importMapDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'파일의 열을 가계부 항목에 연결하세요. 자동 감지값을 바꿀 수 있어요.'**
+  String get importMapDesc;
+
+  /// No description provided for @importNotMapped.
+  ///
+  /// In ko, this message translates to:
+  /// **'가져오지 않음'**
+  String get importNotMapped;
+
+  /// No description provided for @importFieldDate.
+  ///
+  /// In ko, this message translates to:
+  /// **'날짜'**
+  String get importFieldDate;
+
+  /// No description provided for @importFieldType.
+  ///
+  /// In ko, this message translates to:
+  /// **'수입/지출'**
+  String get importFieldType;
+
+  /// No description provided for @importFieldAmount.
+  ///
+  /// In ko, this message translates to:
+  /// **'금액'**
+  String get importFieldAmount;
+
+  /// No description provided for @importFieldCategory.
+  ///
+  /// In ko, this message translates to:
+  /// **'카테고리'**
+  String get importFieldCategory;
+
+  /// No description provided for @importFieldAsset.
+  ///
+  /// In ko, this message translates to:
+  /// **'자산·결제수단'**
+  String get importFieldAsset;
+
+  /// No description provided for @importFieldMemo.
+  ///
+  /// In ko, this message translates to:
+  /// **'메모'**
+  String get importFieldMemo;
+
+  /// No description provided for @importPreviewDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'중복 의심 {dup}건'**
+  String importPreviewDesc(int dup);
+
+  /// No description provided for @importIncome.
+  ///
+  /// In ko, this message translates to:
+  /// **'수입'**
+  String get importIncome;
+
+  /// No description provided for @importExpense.
+  ///
+  /// In ko, this message translates to:
+  /// **'지출'**
+  String get importExpense;
+
+  /// No description provided for @importDupBadge.
+  ///
+  /// In ko, this message translates to:
+  /// **'중복?'**
+  String get importDupBadge;
+
+  /// No description provided for @importOptionsTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'가져오기 옵션'**
+  String get importOptionsTitle;
+
+  /// No description provided for @importOptDupSkip.
+  ///
+  /// In ko, this message translates to:
+  /// **'중복 거래 건너뛰기'**
+  String get importOptDupSkip;
+
+  /// No description provided for @importOptDupSkipDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'날짜·금액·내용이 같은 {dup}건을 제외해요'**
+  String importOptDupSkipDesc(int dup);
+
+  /// No description provided for @importOptAutoCat.
+  ///
+  /// In ko, this message translates to:
+  /// **'새 카테고리 자동 생성'**
+  String get importOptAutoCat;
+
+  /// No description provided for @importOptAutoCatDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'없는 카테고리는 자동으로 만들어요'**
+  String get importOptAutoCatDesc;
+
+  /// No description provided for @importPrev.
+  ///
+  /// In ko, this message translates to:
+  /// **'이전'**
+  String get importPrev;
+
+  /// No description provided for @importDoImport.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}건 가져오기'**
+  String importDoImport(int count);
+
+  /// No description provided for @importDoneTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'가져오기 완료'**
+  String get importDoneTitle;
+
+  /// No description provided for @importDoneCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}건을 가져왔어요'**
+  String importDoneCount(int count);
+
+  /// No description provided for @importDoneDetail.
+  ///
+  /// In ko, this message translates to:
+  /// **'건너뜀 {skipped} · 실패 {failed}'**
+  String importDoneDetail(int skipped, int failed);
+
+  /// No description provided for @importAnother.
+  ///
+  /// In ko, this message translates to:
+  /// **'다른 파일 가져오기'**
+  String get importAnother;
+
+  /// No description provided for @importStepUpload.
+  ///
+  /// In ko, this message translates to:
+  /// **'파일 선택'**
+  String get importStepUpload;
+
+  /// No description provided for @importStepMapping.
+  ///
+  /// In ko, this message translates to:
+  /// **'열 매핑'**
+  String get importStepMapping;
+
+  /// No description provided for @importStepDone.
+  ///
+  /// In ko, this message translates to:
+  /// **'완료'**
+  String get importStepDone;
 }
 
 class _AppLocalizationsDelegate
