@@ -3370,8 +3370,7 @@ class _CompareMetricsCard extends StatelessWidget {
                       children: [
                         Text(
                           m.label,
-                          // web 모바일 정합 — 라벨 text-badge(11)/w600.
-                          style: PTypo.micro.copyWith(
+                          style: PTypo.caption.copyWith(
                             color: t.fgTertiary,
                             fontWeight: PFontWeight.semi,
                           ),
@@ -3379,8 +3378,7 @@ class _CompareMetricsCard extends StatelessWidget {
                         const SizedBox(height: 3),
                         Text(
                           fmt(m.now, m.count),
-                          // web 모바일 정합 — 값 16(bodyLg). h3(20)는 web(16)보다 커서 불일치.
-                          style: PTypo.bodyLg.copyWith(
+                          style: PTypo.h3.copyWith(
                             color: t.fgPrimary,
                             fontWeight: PFontWeight.bold,
                           ),
@@ -3393,8 +3391,7 @@ class _CompareMetricsCard extends StatelessWidget {
                       children: [
                         Text(
                           d == 0 ? '—' : '${up ? '▲' : '▼'} ${fmt(d.abs(), m.count)}',
-                          // web 모바일 정합 — 증감 text-badge(11)/w700.
-                          style: PTypo.micro.copyWith(
+                          style: PTypo.caption.copyWith(
                             color: d == 0 ? t.fgTertiary : c,
                             fontWeight: PFontWeight.bold,
                           ),
