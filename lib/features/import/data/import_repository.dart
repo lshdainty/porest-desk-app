@@ -1,0 +1,176 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/core/network/api_response.dart';
+import 'package:porest_desk_app/core/network/dio_provider.dart';
+
+// ─── 모델 (백엔드 dataimport 미러) ─────────────────────────────
+
+/// 원본 파일의 열(매핑 select 옵션).
+class ImportColumn {
+  const ImportColumn({required this.index, required this.name});
+  final int index;
+  final String name;
+
+  factory ImportColumn.fromJson(Map<String, dynamic> j) => ImportColumn(
+        index: (j['index'] as num?)?.toInt() ?? 0,
+        name: j['name'] as String? ?? '',
+      );
+}
+
+/// 미리보기 한 행(매핑·정규화 결과).
+class ImportPreviewRow {
+  const ImportPreviewRow({
+    required this.lineNo,
+    this.date,
+    this.type,
+    this.amount,
+    this.category,
+    this.asset,
+    this.memo,
+    required this.duplicate,
+    this.error,
+  });
+  final int lineNo;
+  final String? date;
+  final String? type;
+  final int? amount;
+  final String? category;
+  final String? asset;
+  final String? memo;
+  final bool duplicate;
+  final String? error;
+
+  factory ImportPreviewRow.fromJson(Map<String, dynamic> j) => ImportPreviewRow(
+        lineNo: (j['lineNo'] as num?)?.toInt() ?? 0,
+        date: j['date'] as String?,
+        type: j['type'] as String?,
+        amount: (j['amount'] as num?)?.toInt(),
+        category: j['category'] as String?,
+        asset: j['asset'] as String?,
+        memo: j['memo'] as String?,
+        duplicate: j['duplicate'] as bool? ?? false,
+        error: j['error'] as String?,
+      );
+}
+
+/// 파일 분석 결과.
+class ImportAnalyzeResult {
+  const ImportAnalyzeResult({
+    required this.fileName,
+    required this.totalRows,
+    required this.validRows,
+    required this.duplicateCount,
+    required this.columns,
+    required this.suggestedMapping,
+    required this.preview,
+  });
+  final String fileName;
+  final int totalRows;
+  final int validRows;
+  final int duplicateCount;
+  final List<ImportColumn> columns;
+  final Map<String, int> suggestedMapping; // ImportField.name → 열 인덱스
+  final List<ImportPreviewRow> preview;
+
+  factory ImportAnalyzeResult.fromJson(Map<String, dynamic> j) => ImportAnalyzeResult(
+        fileName: j['fileName'] as String? ?? '',
+        totalRows: (j['totalRows'] as num?)?.toInt() ?? 0,
+        validRows: (j['validRows'] as num?)?.toInt() ?? 0,
+        duplicateCount: (j['duplicateCount'] as num?)?.toInt() ?? 0,
+        columns: ((j['columns'] as List?) ?? [])
+            .map((e) => ImportColumn.fromJson((e as Map).cast<String, dynamic>()))
+            .toList(),
+        suggestedMapping: ((j['suggestedMapping'] as Map?) ?? {})
+            .map((k, v) => MapEntry(k.toString(), (v as num).toInt())),
+        preview: ((j['preview'] as List?) ?? [])
+            .map((e) => ImportPreviewRow.fromJson((e as Map).cast<String, dynamic>()))
+            .toList(),
+      );
+}
+
+/// 저장 결과.
+class ImportExecuteResult {
+  const ImportExecuteResult({
+    required this.imported,
+    required this.skipped,
+    required this.failed,
+  });
+  final int imported;
+  final int skipped;
+  final int failed;
+
+  factory ImportExecuteResult.fromJson(Map<String, dynamic> j) => ImportExecuteResult(
+        imported: (j['imported'] as num?)?.toInt() ?? 0,
+        skipped: (j['skipped'] as num?)?.toInt() ?? 0,
+        failed: (j['failed'] as num?)?.toInt() ?? 0,
+      );
+}
+
+// ─── Repository ────────────────────────────────────────────────
+
+/// 데이터 가져오기 API. analyze/execute 모두 multipart 업로드(stateless 재업로드).
+class ImportRepository {
+  ImportRepository(this._dio);
+  final Dio _dio;
+
+  Future<ImportAnalyzeResult> analyze(File file, String source) async {
+    try {
+      final form = FormData.fromMap({
+        'file': await MultipartFile.fromFile(file.path, filename: _nameOf(file)),
+        'source': source,
+      });
+      final res = await _dio.post<Map<String, dynamic>>('/import/analyze', data: form);
+      final api = ApiResponse<Map<String, dynamic>>.fromJson(
+        res.data!,
+        (o) => (o as Map).cast<String, dynamic>(),
+      );
+      return ImportAnalyzeResult.fromJson(api.data ?? {});
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  Future<ImportExecuteResult> execute(
+    File file, {
+    required String source,
+    required Map<String, int> mapping,
+    required bool dupSkip,
+    required bool autoCat,
+  }) async {
+    try {
+      final request = jsonEncode({
+        'source': source,
+        'mapping': mapping,
+        'dupSkip': dupSkip,
+        'autoCat': autoCat,
+      });
+      final form = FormData.fromMap({
+        'file': await MultipartFile.fromFile(file.path, filename: _nameOf(file)),
+        'request': MultipartFile.fromString(
+          request,
+          contentType: DioMediaType.parse('application/json'),
+        ),
+      });
+      final res = await _dio.post<Map<String, dynamic>>('/import/execute', data: form);
+      final api = ApiResponse<Map<String, dynamic>>.fromJson(
+        res.data!,
+        (o) => (o as Map).cast<String, dynamic>(),
+      );
+      return ImportExecuteResult.fromJson(api.data ?? {});
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  String _nameOf(File file) => file.path.split(Platform.pathSeparator).last;
+}
+
+final importRepositoryProvider = FutureProvider<ImportRepository>((ref) async {
+  final dio = await ref.watch(dioProvider.future);
+  return ImportRepository(dio);
+});

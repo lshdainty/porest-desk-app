@@ -4663,4 +4663,171 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get calDetailNone => 'None';
+
+  @override
+  String get exportTab => 'Export';
+
+  @override
+  String get importTab => 'Import';
+
+  @override
+  String get importSourceTitle => 'Which app are you importing from?';
+
+  @override
+  String get importSourceDesc =>
+      'Pick your previous app and we\'ll auto-map the columns';
+
+  @override
+  String get importSourcePorest => 'Porest backup';
+
+  @override
+  String get importSourcePorestDesc => 'Re-import an export file';
+
+  @override
+  String get importSourceEasybudget => 'EasyBudget · Money Manager';
+
+  @override
+  String get importSourceEasybudgetDesc => 'Excel backup';
+
+  @override
+  String get importSourceBanksalad => 'Banksalad';
+
+  @override
+  String get importSourceBanksaladDesc => 'Ledger export';
+
+  @override
+  String get importSourceToss => 'Toss';
+
+  @override
+  String get importSourceTossDesc => 'Transactions';
+
+  @override
+  String get importSourceCustom => 'Custom';
+
+  @override
+  String get importSourceCustomDesc => 'Map CSV/Excel yourself';
+
+  @override
+  String get importUploadTitle => 'Upload file';
+
+  @override
+  String get importUploadDesc =>
+      'Upload a CSV or Excel (.xlsx, .xls) file. Up to 10MB.';
+
+  @override
+  String get importDropTitle => 'Choose a file';
+
+  @override
+  String get importDropHint => '.csv · .xlsx · .xls supported';
+
+  @override
+  String get importAnalyzing => 'Analyzing…';
+
+  @override
+  String get importNotice =>
+      'Imported data is added to existing transactions without overwriting. Check duplicates and errors in the preview.';
+
+  @override
+  String get importFileTitle => 'File to import';
+
+  @override
+  String importRowsDetected(int total, int valid) {
+    return '$total rows · $valid valid';
+  }
+
+  @override
+  String get importChange => 'Change';
+
+  @override
+  String get importMapTitle => 'Column mapping';
+
+  @override
+  String get importMapDesc =>
+      'Connect file columns to ledger fields. Adjust the auto-detected values.';
+
+  @override
+  String get importNotMapped => 'Don\'t import';
+
+  @override
+  String get importFieldDate => 'Date';
+
+  @override
+  String get importFieldType => 'Income/Expense';
+
+  @override
+  String get importFieldAmount => 'Amount';
+
+  @override
+  String get importFieldCategory => 'Category';
+
+  @override
+  String get importFieldAsset => 'Asset/Method';
+
+  @override
+  String get importFieldMemo => 'Memo';
+
+  @override
+  String importPreviewDesc(int dup) {
+    return '$dup possible duplicates';
+  }
+
+  @override
+  String get importIncome => 'Income';
+
+  @override
+  String get importExpense => 'Expense';
+
+  @override
+  String get importDupBadge => 'Dup?';
+
+  @override
+  String get importOptionsTitle => 'Import options';
+
+  @override
+  String get importOptDupSkip => 'Skip duplicate transactions';
+
+  @override
+  String importOptDupSkipDesc(int dup) {
+    return 'Excludes $dup rows with same date, amount and content';
+  }
+
+  @override
+  String get importOptAutoCat => 'Auto-create new categories';
+
+  @override
+  String get importOptAutoCatDesc =>
+      'Missing categories are created automatically';
+
+  @override
+  String get importPrev => 'Back';
+
+  @override
+  String importDoImport(int count) {
+    return 'Import $count';
+  }
+
+  @override
+  String get importDoneTitle => 'Import complete';
+
+  @override
+  String importDoneCount(int count) {
+    return 'Imported $count';
+  }
+
+  @override
+  String importDoneDetail(int skipped, int failed) {
+    return '$skipped skipped · $failed failed';
+  }
+
+  @override
+  String get importAnother => 'Import another file';
+
+  @override
+  String get importStepUpload => 'Choose file';
+
+  @override
+  String get importStepMapping => 'Map columns';
+
+  @override
+  String get importStepDone => 'Done';
 }
