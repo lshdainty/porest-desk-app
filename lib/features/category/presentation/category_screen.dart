@@ -90,6 +90,15 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
     final categoriesAsync = ref.watch(categoriesProvider);
+    // 탭 카운트 — 웹·디자인 "지출 N / 수입 N" 정합(상위+하위 전체 수). 로딩 중엔 라벨만.
+    final allCats = categoriesAsync.value;
+    String tabLabel(int i) {
+      if (allCats == null) return _kindLabel(l, i);
+      final n = allCats
+          .where((c) => (c.expenseType ?? 'EXPENSE') == _kindValues[i])
+          .length;
+      return '${_kindLabel(l, i)} $n';
+    }
 
     return Scaffold(
       backgroundColor: t.bgSurface,
@@ -122,7 +131,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
           child: PTabs<int>(
             items: [
               for (int i = 0; i < _kindValues.length; i++)
-                PTabItem(value: i, label: _kindLabel(l, i)),
+                PTabItem(value: i, label: tabLabel(i)),
             ],
             value: _tabIndex,
             onChanged: (v) => setState(() => _tabIndex = v),
