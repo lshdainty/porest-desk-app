@@ -210,7 +210,8 @@ class _LabelRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = tokens;
     final l = AppLocalizations.of(context);
-    final color = solidSwatchColor(context, label.color, fallback: t.fgBrand);
+    // 아이콘 색 web 정합 — 다크 light-variant swap(resolveChartColor). solid 스와치는 뮤트해 보임.
+    final color = resolveChartColor(context, label.color, fallback: t.fgBrand);
     return InkWell(
       onTap: onTap,
       child: Padding(
