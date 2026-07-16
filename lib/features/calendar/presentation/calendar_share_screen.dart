@@ -82,7 +82,7 @@ class _CalendarShareScreenState extends ConsumerState<CalendarShareScreen> {
               horizontal: PSpace.x20, vertical: PSpace.x24),
           children: [
             _IntroCard(tokens: t, onCreate: () => _showCreateDialog(context, ref)),
-            const SizedBox(height: PSpace.x20),
+            const SizedBox(height: PSpace.x32),
             listAsync.when(
               loading: () => const PListSkeleton(rows: 4, showAvatar: true),
               error: (e, _) => Padding(
@@ -92,7 +92,7 @@ class _CalendarShareScreenState extends ConsumerState<CalendarShareScreen> {
               ),
               data: (calendars) => _CalendarSections(calendars: calendars, tokens: t),
             ),
-            const SizedBox(height: PSpace.x16),
+            const SizedBox(height: PSpace.x32),
             _JoinCard(tokens: t, onJoin: () => _showJoinDialog(context, ref)),
             const SizedBox(height: PSpace.x32),
           ],
@@ -174,7 +174,7 @@ class _CalendarSections extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _Section(title: l.calMyCalendarsCount(owned.length), tokens: t, calendars: owned, emptyText: l.calNoOwnedCalendars),
-        const SizedBox(height: PSpace.x20),
+        const SizedBox(height: PSpace.x32),
         _Section(title: l.calSharedCalendarsCount(shared.length), tokens: t, calendars: shared, emptyText: l.calNoSharedCalendars),
       ],
     );

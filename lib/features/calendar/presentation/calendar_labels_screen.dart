@@ -80,7 +80,7 @@ class _CalendarLabelsScreenState extends ConsumerState<CalendarLabelsScreen> {
               tokens: t,
               onAdd: () => _showLabelEditor(context, ref, null),
             ),
-            const SizedBox(height: PSpace.x20),
+            const SizedBox(height: PSpace.x32),
 
             labelsAsync.when(
               loading: () => const PListSkeleton(rows: 4, showAvatar: true),

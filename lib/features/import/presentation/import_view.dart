@@ -144,7 +144,7 @@ class _ImportViewState extends ConsumerState<ImportView> {
       padding: const EdgeInsets.symmetric(horizontal: PSpace.x20, vertical: PSpace.x24),
       children: [
         _stepper(t),
-        const SizedBox(height: PSpace.x16),
+        const SizedBox(height: PSpace.x32),
         if (_step == _Step.upload) ..._uploadStep(t),
         if (_step == _Step.mapping && _analysis != null) ..._mappingStep(t, _analysis!),
         if (_step == _Step.done && _result != null) _doneStep(t, _result!),
@@ -218,7 +218,7 @@ class _ImportViewState extends ConsumerState<ImportView> {
           items: _sources.map((s) => PSelectItem(value: s, label: _sourceLabel(l, s))).toList(),
         ),
       ),
-      const SizedBox(height: PSpace.x16),
+      const SizedBox(height: PSpace.x32),
       _cardShell(
         t,
         title: l.importUploadTitle,
@@ -260,7 +260,7 @@ class _ImportViewState extends ConsumerState<ImportView> {
           ),
         ),
       ),
-      const SizedBox(height: PSpace.x16),
+      const SizedBox(height: PSpace.x32),
       Container(
         padding: const EdgeInsets.symmetric(horizontal: PSpace.x16, vertical: PSpace.x12),
         decoration: BoxDecoration(color: t.bgMuted, borderRadius: PRadius.brMd),
@@ -319,7 +319,7 @@ class _ImportViewState extends ConsumerState<ImportView> {
           ],
         ),
       ),
-      const SizedBox(height: PSpace.x16),
+      const SizedBox(height: PSpace.x32),
       _cardShell(
         t,
         title: l.importMapTitle,
@@ -364,7 +364,7 @@ class _ImportViewState extends ConsumerState<ImportView> {
           ],
         ),
       ),
-      const SizedBox(height: PSpace.x16),
+      const SizedBox(height: PSpace.x32),
       _cardShell(
         t,
         title: l.exportPreview,
@@ -417,7 +417,7 @@ class _ImportViewState extends ConsumerState<ImportView> {
           ),
         ),
       ),
-      const SizedBox(height: PSpace.x16),
+      const SizedBox(height: PSpace.x32),
       _cardShell(
         t,
         title: l.importOptionsTitle,
@@ -431,7 +431,7 @@ class _ImportViewState extends ConsumerState<ImportView> {
           ],
         ),
       ),
-      const SizedBox(height: PSpace.x16),
+      const SizedBox(height: PSpace.x32),
       Row(
         children: [
           Expanded(
