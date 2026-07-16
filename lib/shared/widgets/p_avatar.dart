@@ -48,7 +48,8 @@ class PAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final bg = fill == PAvatarFill.primary ? t.bgBrand : t.bgMuted;
+    // fill 은 다크에서도 primary 고정(bgBrandSolid) — bgBrand 는 다크 cobalt400 으로 밝아짐(web 정합).
+    final bg = fill == PAvatarFill.primary ? t.bgBrandSolid : t.bgMuted;
     final fg = fill == PAvatarFill.primary ? t.fgOnBrand : t.fgPrimary;
 
     return Semantics(
