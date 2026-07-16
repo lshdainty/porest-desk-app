@@ -518,12 +518,9 @@ class _HeaderCard extends StatelessWidget {
     final l = AppLocalizations.of(context);
 
     // 조회 전용 (web BudgetPage hero 정합) — 상한 수정은 예산 설정 페이지에서.
-    // 카드 다이어트에서도 유지 — design `p-card--brand` 는 diet 제외 (브랜드 강조 카드).
+    // brand 틴트 제거(사용자 결정) — 캘린더 월 헤더 카드와 동일한 기본 카드.
     return PCard(
-      // 디자인 p-card--brand: surface(#242938) 위에 cobalt @12% 알파 합성 → #2B374D.
-      // alphaBlend(틴트, surface) 로 "surface 위 알파"를 명시(라이트/다크 자동).
       variant: PCardVariant.shadow,
-      color: Color.alphaBlend(tokens.bgBrandTint, tokens.bgSurface),
       padding: const EdgeInsets.all(18),
       child: overallBudget == null
           ? _emptyOverall(context, l)
@@ -1624,10 +1621,9 @@ class _BudgetLoadingSkeleton extends StatelessWidget {
     final t = context.tokens;
     return Column(
       children: [
-        // _HeaderCard — brand-tint surface(실제와 동일 합성, diet 제외).
+        // _HeaderCard — 기본 카드(brand 틴트 제거, 실제와 동일).
         PCard(
           variant: PCardVariant.shadow,
-          color: Color.alphaBlend(t.bgBrandTint, t.bgSurface),
           padding: const EdgeInsets.all(18),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

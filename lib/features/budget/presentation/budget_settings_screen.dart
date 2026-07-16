@@ -434,11 +434,9 @@ class _TotalBudgetCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final pct = monthlyLimit > 0 ? (totalSpent / monthlyLimit) * 100 : 0.0;
     final l = AppLocalizations.of(context);
-    // 카드 다이어트에서도 유지 — design `p-card--brand` 는 diet 제외 (브랜드 강조 카드).
+    // brand 틴트 제거(사용자 결정) — 캘린더 월 헤더 카드와 동일한 기본 카드(surface+shadow).
     return PCard(
-      // 디자인 p-card--brand: surface 위 cobalt @12% 알파 합성 (라이트/다크 자동).
       variant: PCardVariant.shadow,
-      color: Color.alphaBlend(tokens.bgBrandTint, tokens.bgSurface),
       padding: const EdgeInsets.all(PSpace.x16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
