@@ -258,7 +258,7 @@ class _RowState extends ConsumerState<_Row> {
             PButton.icon(
               icon: LucideIcons.trash2,
               size: PButtonSize.sm,
-              iconColor: t.statusDanger,
+              iconColor: t.fgExpense,
               onPressed: _busy ? null : _delete,
             ),
         ],
