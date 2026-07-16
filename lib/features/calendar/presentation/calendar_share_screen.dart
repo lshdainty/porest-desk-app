@@ -127,7 +127,8 @@ class _IntroCard extends StatelessWidget {
           Container(
             width: 36,
             height: 36,
-            decoration: BoxDecoration(color: t.bgBrand, borderRadius: PRadius.brMd),
+            // fill 은 다크에서도 primary 고정(bgBrandSolid) — bgBrand 는 다크 cobalt400 으로 밝아짐(web 정합).
+            decoration: BoxDecoration(color: t.bgBrandSolid, borderRadius: PRadius.brMd),
             alignment: Alignment.center,
             child: Icon(LucideIcons.users, size: 18, color: t.fgOnBrand),
           ),
