@@ -243,7 +243,8 @@ class _LabelRow extends StatelessWidget {
             PButton.icon(
               icon: LucideIcons.trash2,
               size: PButtonSize.sm,
-              iconColor: t.statusDanger,
+              // web !text-[--fg-expense] 정합 — statusDanger(원색)는 다크에서 탁함.
+              iconColor: t.fgExpense,
               tooltip: l.actionDelete,
               onPressed: onDelete,
             ),
