@@ -94,7 +94,7 @@ class _Content extends ConsumerWidget {
             'pushEnabled': v,
           }, (p) => p.copyWith(pushEnabled: v)),
         ),
-        const SizedBox(height: PSpace.x20),
+        const SizedBox(height: PSpace.x32),
 
         // 2) 알림 종류
         _SectionCard(
@@ -189,7 +189,7 @@ class _Content extends ConsumerWidget {
             ],
           ),
         ),
-        const SizedBox(height: PSpace.x20),
+        const SizedBox(height: PSpace.x32),
 
         // 3) 예산 알림 임계값
         _ThresholdCard(
@@ -198,7 +198,7 @@ class _Content extends ConsumerWidget {
             'budgetAlertThreshold': v,
           }, (p) => p.copyWith(budgetAlertThreshold: v)),
         ),
-        const SizedBox(height: PSpace.x20),
+        const SizedBox(height: PSpace.x32),
 
         // 4) 방해 금지 시간
         _QuietHoursCard(
@@ -215,7 +215,7 @@ class _Content extends ConsumerWidget {
             'quietHoursEnd': v,
           }, (p) => p.copyWith(quietHoursEnd: v)),
         ),
-        const SizedBox(height: PSpace.x20),
+        const SizedBox(height: PSpace.x32),
 
         // 5) 소리·진동
         _SoundCard(
@@ -228,7 +228,7 @@ class _Content extends ConsumerWidget {
             'vibrationEnabled': v,
           }, (p) => p.copyWith(vibrationEnabled: v)),
         ),
-        const SizedBox(height: PSpace.x20),
+        const SizedBox(height: PSpace.x32),
 
         // 6) 이메일 알림
         _EmailCard(
@@ -988,13 +988,13 @@ class _PrefsSkeleton extends StatelessWidget {
       children: const [
         // 1) 마스터 카드 — 아이콘(36) + 제목/소제목 + 스위치 행.
         _SkeletonRowCard(),
-        SizedBox(height: PSpace.x20),
+        SizedBox(height: PSpace.x32),
         // 2) 알림 종류 — 제목/소제목 헤더 + 토글 행 ×7.
         _SkeletonSectionCard(rows: 7),
-        SizedBox(height: PSpace.x20),
+        SizedBox(height: PSpace.x32),
         // 3) 예산 임계값 — 제목 + 본문 2줄 + 슬라이더 트랙.
         _SkeletonThresholdCard(),
-        SizedBox(height: PSpace.x20),
+        SizedBox(height: PSpace.x32),
         // 4) 방해 금지 — 제목/소제목 헤더 + 행 ×1.
         _SkeletonSectionCard(rows: 1),
         SizedBox(height: PSpace.x20),

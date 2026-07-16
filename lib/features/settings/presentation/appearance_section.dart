@@ -107,7 +107,7 @@ class AppearanceSection extends ConsumerWidget {
           ],
         ),
 
-        const SizedBox(height: PSpace.x24),
+        const SizedBox(height: PSpace.x32),
         PSectionLabel(l.appearancePrivacy),
         const SizedBox(height: PSpace.x8),
         // 금액 가리기 — 카드 다이어트: 카드 없이 플랫 행 (아이콘 박스 + 라벨/설명 + 스위치).
@@ -161,7 +161,7 @@ class AppearanceSection extends ConsumerWidget {
           ),
         ),
 
-        const SizedBox(height: PSpace.x24),
+        const SizedBox(height: PSpace.x32),
         PSectionLabel(l.settingsLanguage),
         const SizedBox(height: PSpace.x8),
         PTabs<String>(
@@ -189,7 +189,7 @@ class AppearanceSection extends ConsumerWidget {
           },
         ),
 
-        const SizedBox(height: PSpace.x24),
+        const SizedBox(height: PSpace.x32),
         PSectionLabel(l.appearanceCurrency),
         const SizedBox(height: PSpace.x8),
         PRadioList<String>(

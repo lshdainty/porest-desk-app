@@ -161,7 +161,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
               ],
             ),
           ),
-          const SizedBox(height: PSpace.x20),
+          const SizedBox(height: PSpace.x32),
 
           // ── 보안 — web: desc 우측 정렬 + chevron/switch
           _SectionLabel(label: l.accountSecurity, tokens: t),
@@ -222,7 +222,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
               ],
             ),
           ),
-          const SizedBox(height: PSpace.x20),
+          const SizedBox(height: PSpace.x32),
 
           // ── 연결된 계정 — web: 레터 아이콘 + '연결 안 됨' + 연결 버튼
           _SectionLabel(label: l.accountConnected, tokens: t),
@@ -251,7 +251,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
               ],
             ),
           ),
-          const SizedBox(height: PSpace.x20),
+          const SizedBox(height: PSpace.x32),
 
           // ── 구독·결제 — Porest Pro 단일 행 → 구독 관리 시트(일반/프로·결제)
           _SectionLabel(label: l.accountBilling, tokens: t),
@@ -339,10 +339,10 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
 
           // ── 증권 데이터 연동 — 구독(Pro) 시에만 노출(별도 화면 아님, 인라인)
           if (hasSecurities) ...[
-            const SizedBox(height: PSpace.x20),
+            const SizedBox(height: PSpace.x32),
             const TossConnectCard(),
           ],
-          const SizedBox(height: PSpace.x20),
+          const SizedBox(height: PSpace.x32),
 
           // ── 계정 관리 — web: 로그아웃(일반) / 회원 탈퇴(danger)
           _SectionLabel(label: l.accountManage, tokens: t),
