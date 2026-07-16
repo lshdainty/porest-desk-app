@@ -169,7 +169,7 @@ class _PresetScreenState extends ConsumerState<PresetScreen> {
         ),
         const SizedBox(height: PSpace.x16),
 
-        // (4) 리스트 — 카드 다이어트: 카드 없이 플랫 행 (구분선 제거).
+        // (4) 리스트 — 카드 다이어트: 카드 없이 플랫 행 + 행 사이 구분선(web 정합).
         isLoading
             ? const _ListSkeleton()
             : (sorted.isEmpty
@@ -186,7 +186,8 @@ class _PresetScreenState extends ConsumerState<PresetScreen> {
                                   ),
                             masked: masked,
                             tokens: t,
-                            divider: false,
+                            // web 정합 — 행 사이 구분선(첫 행 제외 top border).
+                            divider: i > 0,
                             onEdit: () => showPresetEditDialog(
                               context,
                               edit: sorted[i],
