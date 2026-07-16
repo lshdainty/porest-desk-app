@@ -19,6 +19,7 @@ import 'package:porest_desk_app/shared/widgets/p_badge.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_dropdown_menu.dart';
 import 'package:porest_desk_app/shared/widgets/p_toggle.dart';
+import 'package:porest_desk_app/shared/widgets/p_card.dart';
 import 'package:porest_desk_app/shared/widgets/p_divider.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
@@ -355,9 +356,10 @@ class _SummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    // 카드 다이어트 — 플랫 (콘텐츠 inset 10).
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
+    // raised 카드(가계부 취합·예산 히어로 정합, 사용자 결정) — padding 16 미러.
+    return PCard(
+      variant: PCardVariant.raised,
+      padding: const EdgeInsets.all(PSpace.x16),
       child: Column(
         children: [
           Row(
@@ -782,9 +784,10 @@ class _RecurringSkeleton extends StatelessWidget {
         vertical: PSpace.x24,
       ),
       children: [
-        // 통계 — 플랫 스켈레톤 (실제와 동일 2×2 그리드).
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
+        // 통계 — raised 카드 스켈레톤 (실제와 동일 2×2 그리드).
+        PCard(
+          variant: PCardVariant.raised,
+          padding: const EdgeInsets.all(PSpace.x16),
           child: Column(
             children: [
               Row(
