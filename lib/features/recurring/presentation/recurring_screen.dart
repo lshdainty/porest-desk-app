@@ -169,12 +169,8 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
                     children: [
                       // 헤더: 전체 목록 (좌) + 필터 개별 toggle (우, 배경 없음)
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(
-                          PSpace.x16,
-                          PSpace.x12,
-                          PSpace.x16,
-                          0,
-                        ),
+                        // 라벨·토글은 inset 0(최상위 폭) — 행만 살짝 inset(가계부 목록 뷰 패턴).
+                        padding: const EdgeInsets.fromLTRB(0, PSpace.x12, 0, 0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
