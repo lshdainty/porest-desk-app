@@ -2587,5 +2587,7 @@
   "calDetailDurationHM": "{h}h {m}m",
   "calDetailDurationM": "{m}m",
   "calDetailMemo": "Memo",
-  "calDetailRepeat": "Repeat"
+  "calDetailRepeat": "Repeat",
+  "categoryReorderEdit": "Edit",
+  "categoryReorderHint": "Drag the handle to reorder. Parents move among parents; subcategories move within their parent."
 }

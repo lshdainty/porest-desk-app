@@ -9007,6 +9007,18 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'반복'**
   String get calDetailRepeat;
+
+  /// No description provided for @categoryReorderEdit.
+  ///
+  /// In ko, this message translates to:
+  /// **'편집'**
+  String get categoryReorderEdit;
+
+  /// No description provided for @categoryReorderHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'핸들을 잡고 위·아래로 끌어 순서를 바꿔요. 상위 카테고리끼리·하위 카테고리끼리 이동돼요.'**
+  String get categoryReorderHint;
 }
 
 class _AppLocalizationsDelegate

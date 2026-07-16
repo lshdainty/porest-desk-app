@@ -2625,5 +2625,7 @@
   "calDetailDurationM": "{m}분",
   "@calDetailDurationM": { "placeholders": { "m": {"type":"int"} } },
   "calDetailMemo": "메모",
-  "calDetailRepeat": "반복"
+  "calDetailRepeat": "반복",
+  "categoryReorderEdit": "편집",
+  "categoryReorderHint": "핸들을 잡고 위·아래로 끌어 순서를 바꿔요. 상위 카테고리끼리·하위 카테고리끼리 이동돼요."
 }

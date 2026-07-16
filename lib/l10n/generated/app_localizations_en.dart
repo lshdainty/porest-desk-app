@@ -4870,4 +4870,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get calDetailRepeat => 'Repeat';
+
+  @override
+  String get categoryReorderEdit => 'Edit';
+
+  @override
+  String get categoryReorderHint =>
+      'Drag the handle to reorder. Parents move among parents; subcategories move within their parent.';
 }
