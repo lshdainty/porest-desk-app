@@ -65,7 +65,7 @@ class AppearanceSection extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        PSectionLabel(l.appearanceTheme),
+        PSectionLabel(l.appearanceTheme, variant: PSectionLabelVariant.section),
         const SizedBox(height: PSpace.x8),
         Row(
           children: [
@@ -108,7 +108,7 @@ class AppearanceSection extends ConsumerWidget {
         ),
 
         const SizedBox(height: PSpace.x32),
-        PSectionLabel(l.appearancePrivacy),
+        PSectionLabel(l.appearancePrivacy, variant: PSectionLabelVariant.section),
         const SizedBox(height: PSpace.x8),
         // 금액 가리기 — 카드 다이어트: 카드 없이 플랫 행 (아이콘 박스 + 라벨/설명 + 스위치).
         // 켜기는 즉시, 끄기는 비밀번호 인증 (toggleHideAmountsWithUnlock).
@@ -162,7 +162,7 @@ class AppearanceSection extends ConsumerWidget {
         ),
 
         const SizedBox(height: PSpace.x32),
-        PSectionLabel(l.settingsLanguage),
+        PSectionLabel(l.settingsLanguage, variant: PSectionLabelVariant.section),
         const SizedBox(height: PSpace.x8),
         PTabs<String>(
           value: settings.locale?.languageCode ?? 'system',
@@ -190,7 +190,7 @@ class AppearanceSection extends ConsumerWidget {
         ),
 
         const SizedBox(height: PSpace.x32),
-        PSectionLabel(l.appearanceCurrency),
+        PSectionLabel(l.appearanceCurrency, variant: PSectionLabelVariant.section),
         const SizedBox(height: PSpace.x8),
         PRadioList<String>(
           value: settings.currency,

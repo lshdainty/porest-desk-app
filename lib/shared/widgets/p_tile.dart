@@ -69,60 +69,68 @@ class PTile extends StatelessWidget {
               ),
               boxShadow: t.shadowSm,
             ),
-            child: Row(
+            // 세로 스택 타일(사용자 결정, 클로드 디자인) — swatch 위 중앙 + 라벨/설명 중앙,
+            // 체크는 우상단. desk-front TileItem 동일 수정과 세트.
+            child: Stack(
+              clipBehavior: Clip.none,
               children: [
-                SizedBox(
-                  width: swatchSize,
-                  height: swatchSize,
-                  child: ClipRRect(
-                    borderRadius: PRadius.brLg,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        border: Border.all(color: t.borderSubtle),
-                        borderRadius: PRadius.brLg,
-                      ),
-                      child: swatch,
-                    ),
-                  ),
-                ),
-                SizedBox(width: gap),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        label,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontFamily: PTypo.sans,
-                          fontSize: PFontSize.body,
-                          fontWeight: PFontWeight.semi,
-                          color: t.fgPrimary,
-                        ),
-                      ),
-                      if (description != null) ...[
-                        const SizedBox(height: 2),
-                        Text(
-                          description!,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontFamily: PTypo.sans,
-                            fontSize: PFontSize.caption,
-                            fontWeight: PFontWeight.regular,
-                            color: t.fgTertiary,
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Center(
+                      child: SizedBox(
+                        width: swatchSize,
+                        height: swatchSize,
+                        child: ClipRRect(
+                          borderRadius: PRadius.brLg,
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              border: Border.all(color: t.borderSubtle),
+                              borderRadius: PRadius.brLg,
+                            ),
+                            child: swatch,
                           ),
                         ),
-                      ],
+                      ),
+                    ),
+                    SizedBox(height: gap),
+                    Text(
+                      label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontFamily: PTypo.sans,
+                        fontSize: PFontSize.body,
+                        fontWeight: PFontWeight.semi,
+                        color: t.fgPrimary,
+                      ),
+                    ),
+                    if (description != null) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        description!,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontFamily: PTypo.sans,
+                          fontSize: PFontSize.caption,
+                          fontWeight: PFontWeight.regular,
+                          color: t.fgTertiary,
+                        ),
+                      ),
                     ],
-                  ),
+                  ],
                 ),
-                if (selected) ...[
-                  SizedBox(width: gap),
-                  Icon(LucideIcons.check, size: checkSize, color: t.fgBrand),
-                ],
+                if (selected)
+                  Positioned(
+                    top: 0,
+                    right: 0,
+                    child:
+                        Icon(LucideIcons.check, size: checkSize, color: t.fgBrand),
+                  ),
               ],
             ),
           ),

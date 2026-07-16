@@ -16,7 +16,9 @@ import 'package:porest_desk_app/app/theme/typography.dart';
 ///   label-md (14/500) + fgPrimary + leading-none(height 1.0) + optional leading
 ///   icon. control 위 폼 라벨(예: 캘린더 일정 폼). leading-none 으로 gap 이
 ///   광학적으로 커지지 않게 유지(label.md: "line-height 1.4면 form gap 이 커짐").
-enum PSectionLabelVariant { label, eyebrow, header }
+/// - [PSectionLabelVariant.section] — 설정 화면 섹션 제목("테마"/"통화" 등).
+///   web SectionLabel(label-sm 13/600/tertiary) 미러.
+enum PSectionLabelVariant { label, eyebrow, header, section }
 
 class PSectionLabel extends StatelessWidget {
   const PSectionLabel(
@@ -46,6 +48,11 @@ class PSectionLabel extends StatelessWidget {
       PSectionLabelVariant.header => PTypo.labelMd.copyWith(
           color: t.fgPrimary,
           height: 1.0, // label.md leading-none — control 위 폼 라벨 vertical rhythm
+        ),
+      PSectionLabelVariant.section => PTypo.bodySm.copyWith(
+          color: t.fgTertiary,
+          fontWeight: PFontWeight.semi,
+          letterSpacing: 0.5, // web SectionLabel letterSpacing 0.04em(≈0.5px@13) 미러
         ),
     };
     if (variant == PSectionLabelVariant.header && icon != null) {
