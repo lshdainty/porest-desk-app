@@ -125,8 +125,10 @@ class PTile extends StatelessWidget {
                 ),
                 if (selected)
                   Positioned(
-                    top: 0,
-                    right: 0,
+                    // web(top-2 right-2 = 타일 모서리 기준 8px) 정합 — Stack 이
+                    // padding 안이라 패딩만큼 당겨 모서리 기준으로 배치.
+                    top: 8 - padY,
+                    right: 8 - padX,
                     child:
                         Icon(LucideIcons.check, size: checkSize, color: t.fgBrand),
                   ),
