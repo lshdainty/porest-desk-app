@@ -64,26 +64,16 @@ class PRadioList<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    return Container(
-      // shadow 카드 — border 대신 elevation(shadow-sm). 내부 행 구분은 divider 유지.
-      // desk-front RadioList 정합.
-      decoration: BoxDecoration(
-        color: t.bgSurface,
-        borderRadius: PRadius.brLg,
-        boxShadow: t.shadowSm,
-      ),
-      child: ClipRRect(
-        borderRadius: PRadius.brLg,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            for (int i = 0; i < items.length; i++) ...[
-              if (i > 0) Divider(height: 1, thickness: 1, color: t.borderSubtle),
-              _row(context, items[i]),
-            ],
-          ],
-        ),
-      ),
+    // 카드 다이어트(사용자 결정) — 카드 셸(shadow/radius) 벗기고 순수 리스트(divider 만).
+    // desk-front RadioList 동일 수정과 세트.
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (int i = 0; i < items.length; i++) ...[
+          if (i > 0) Divider(height: 1, thickness: 1, color: t.borderSubtle),
+          _row(context, items[i]),
+        ],
+      ],
     );
   }
 
