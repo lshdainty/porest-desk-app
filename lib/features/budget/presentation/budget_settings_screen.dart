@@ -611,7 +611,8 @@ class _MiniStat extends StatelessWidget {
         const SizedBox(height: 2),
         Text(
           value,
-          style: PTypo.bodySm.copyWith(
+          // 앱(13)·웹(16) 중간 → 토큰 스냅 14(body) — 웹 body-sm(14)과 동값(사용자 결정).
+          style: PTypo.body.copyWith(
             color: color,
             fontWeight: PFontWeight.bold,
           ),
