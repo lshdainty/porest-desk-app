@@ -14,7 +14,6 @@ import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_card.dart';
 import 'package:porest_desk_app/shared/widgets/p_color_picker.dart';
-import 'package:porest_desk_app/shared/widgets/p_divider.dart';
 import 'package:porest_desk_app/shared/widgets/p_empty_state.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
@@ -115,17 +114,17 @@ class _CalendarLabelsScreenState extends ConsumerState<CalendarLabelsScreen> {
                       // 카드 다이어트 — 리스트 플랫.
                       Column(
                           children: [
-                            for (int i = 0; i < labels.length; i++) ...[
+                            for (int i = 0; i < labels.length; i++)
                               _LabelRow(
                                 label: labels[i],
                                 tokens: t,
+                                // web 정합 — divider 는 행 풀폭 borderTop(첫 행 제외, indent 없음).
+                                showDivider: i > 0,
                                 onTap: () =>
                                     _showLabelEditor(context, ref, labels[i]),
                                 onDelete: () =>
                                     _confirmDelete(context, ref, labels[i]),
                               ),
-                              if (i < labels.length - 1) PDivider(indent: 60),
-                            ],
                           ],
                         ),
                   ],
@@ -198,11 +197,13 @@ class _LabelRow extends StatelessWidget {
   const _LabelRow({
     required this.label,
     required this.tokens,
+    required this.showDivider,
     required this.onTap,
     required this.onDelete,
   });
   final EventLabel label;
   final PorestTokens tokens;
+  final bool showDivider;
   final VoidCallback onTap;
   final VoidCallback onDelete;
 
@@ -212,11 +213,18 @@ class _LabelRow extends StatelessWidget {
     final l = AppLocalizations.of(context);
     // 아이콘 색 web 정합 — 다크 light-variant swap(resolveChartColor). solid 스와치는 뮤트해 보임.
     final color = resolveChartColor(context, label.color, fallback: t.fgBrand);
-    return InkWell(
+    return Container(
+      decoration: showDivider
+          ? BoxDecoration(
+              border: Border(top: BorderSide(color: t.borderSubtle)),
+            )
+          : null,
+      child: InkWell(
       onTap: onTap,
       child: Padding(
+        // web 정합 — 행 padding 14px 16px.
         padding: const EdgeInsets.symmetric(
-            horizontal: PSpace.x16, vertical: PSpace.x12),
+            horizontal: PSpace.x16, vertical: 14),
         child: Row(
           children: [
             Container(
@@ -230,7 +238,8 @@ class _LabelRow extends StatelessWidget {
               // web 정합 — 색 원 대신 라벨색 tag 아이콘(16).
               child: Icon(LucideIcons.tag, size: 16, color: color),
             ),
-            const SizedBox(width: PSpace.x12),
+            // web 정합 — 아이콘↔텍스트 gap 14.
+            const SizedBox(width: 14),
             Expanded(
               child: Text(label.labelName,
                   maxLines: 1,
@@ -250,6 +259,7 @@ class _LabelRow extends StatelessWidget {
             ),
           ],
         ),
+      ),
       ),
     );
   }
