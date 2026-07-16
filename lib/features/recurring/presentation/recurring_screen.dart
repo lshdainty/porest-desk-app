@@ -651,8 +651,9 @@ class _RecurringRow extends StatelessWidget {
     return Opacity(
       opacity: isActive ? 1.0 : 0.55,
       child: Padding(
+        // 행 좌우 살짝 inset(10) — 가계부 ExpenseRow 정합(라벨·토글은 inset 0).
         padding: const EdgeInsets.symmetric(
-          horizontal: PSpace.x12,
+          horizontal: 10,
           vertical: PSpace.x12,
         ),
         child: Row(
@@ -815,12 +816,8 @@ class _RecurringSkeleton extends StatelessWidget {
             children: [
               // 헤더: "전체 목록"(정적) + "추가"(정적) — 실제 렌더.
               Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  PSpace.x16,
-                  PSpace.x12,
-                  PSpace.x16,
-                  0,
-                ),
+                // 라벨·토글은 inset 0(최상위 폭) — 행만 살짝 inset(가계부 목록 뷰 패턴).
+                padding: const EdgeInsets.fromLTRB(0, PSpace.x12, 0, 0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -863,7 +860,7 @@ class _RecurringSkeleton extends StatelessWidget {
               for (int i = 0; i < 4; i++) ...[
                 Padding(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: PSpace.x12,
+                    horizontal: 10,
                     vertical: PSpace.x12,
                   ),
                   child: Row(
