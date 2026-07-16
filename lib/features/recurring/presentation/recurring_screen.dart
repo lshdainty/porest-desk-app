@@ -474,41 +474,45 @@ class _UpcomingCard extends StatelessWidget {
     final l = AppLocalizations.of(context);
     final today = DateTime.now();
     final todayStart = DateTime(today.year, today.month, today.day);
-    // 카드 다이어트 — 플랫 (콘텐츠 inset 10).
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+    // 라벨은 inset 0(최상위 폭), 타일만 좌우 살짝 inset(10) — 전체 목록·가계부 패턴 정합.
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              l.recurringUpcoming,
+              style: PTypo.bodySm.copyWith(
+                color: tokens.fgPrimary,
+                fontWeight: PFontWeight.bold,
+              ),
+            ),
+            const Spacer(),
+            Text(
+              l.recurringUpcomingCount(items.length),
+              style: PTypo.caption.copyWith(color: tokens.fgTertiary),
+            ),
+          ],
+        ),
+        const SizedBox(height: PSpace.x8),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: Column(
             children: [
-              Text(
-                l.recurringUpcoming,
-                style: PTypo.bodySm.copyWith(
-                  color: tokens.fgPrimary,
-                  fontWeight: PFontWeight.bold,
+              for (final it in items) ...[
+                _UpcomingRow(
+                  item: it,
+                  category: categories.byRowId(it.categoryRowId),
+                  todayStart: todayStart,
+                  masked: masked,
+                  tokens: tokens,
                 ),
-              ),
-              const Spacer(),
-              Text(
-                l.recurringUpcomingCount(items.length),
-                style: PTypo.caption.copyWith(color: tokens.fgTertiary),
-              ),
+                if (it != items.last) const SizedBox(height: PSpace.x4),
+              ],
             ],
           ),
-          const SizedBox(height: PSpace.x8),
-          for (final it in items) ...[
-            _UpcomingRow(
-              item: it,
-              category: categories.byRowId(it.categoryRowId),
-              todayStart: todayStart,
-              masked: masked,
-              tokens: tokens,
-            ),
-            if (it != items.last) const SizedBox(height: PSpace.x4),
-          ],
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
