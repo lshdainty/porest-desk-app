@@ -34,6 +34,8 @@ class CategoryScreen extends ConsumerStatefulWidget {
 class _CategoryScreenState extends ConsumerState<CategoryScreen> {
   int _tabIndex = 0;
   String _query = '';
+  // 순서 편집 모드 — 디자인 editMode: 켜야만 grip 노출·드래그 가능, 하위 강제 표시.
+  bool _editMode = false;
   final Set<int> _collapsed = <int>{};
   // 낙관적 재정렬 오버레이: 드롭 즉시 로컬 순서를 반영하고 refetch가 끝나면 비운다.
   final Map<int, ({int sortOrder, int? parentRowId})> _optimistic = {};
@@ -99,6 +101,22 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,
         elevation: 0,
+        actions: [
+          // 순서 편집 토글 — 디자인 m-subhead__action-btn('편집'↔'완료').
+          Padding(
+            padding: const EdgeInsets.only(right: PSpace.x8),
+            child: PButton(
+              label: _editMode ? l.actionDone : l.categoryReorderEdit,
+              variant: PButtonVariant.ghost,
+              size: PButtonSize.sm,
+              onPressed: () => setState(() {
+                _editMode = !_editMode;
+                // 편집 진입 시 검색 초기화 — 필터된 일부만 보며 정렬하는 혼란 방지.
+                if (_editMode) _query = '';
+              }),
+            ),
+          ),
+        ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(40),
           child: PTabs<int>(
@@ -115,37 +133,57 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
       ),
       body: Column(
         children: [
-          // 검색 + 추가 row (계좌·카드 관리 accent 버튼 톤 미러)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(
-              PSpace.x20,
-              PSpace.x16,
-              PSpace.x20,
-              0,
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  // 공용 검색바 — 테두리/모양 통일(PSearchField canonical).
-                  child: PSearchField(
-                    hint: l.categorySearchHint,
-                    onChanged: (v) => setState(() => _query = v),
+          // 편집 모드: 검색·추가 대신 드래그 안내문(디자인 editMode) / 평시: 검색 + 추가 row.
+          if (_editMode)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                PSpace.x20,
+                PSpace.x12,
+                PSpace.x20,
+                0,
+              ),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  l.categoryReorderHint,
+                  style: PTypo.caption.copyWith(
+                    color: t.fgTertiary,
+                    height: 1.5,
                   ),
                 ),
-                const SizedBox(width: PSpace.x8),
-                PButton(
-                  label: l.calAdd,
-                  icon: LucideIcons.plus,
-                  variant: PButtonVariant.accent,
-                  size: PButtonSize.sm,
-                  onPressed: () => showCategoryEditDialog(
-                    context,
-                    defaultExpenseType: _kindValues[_tabIndex],
+              ),
+            )
+          else
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                PSpace.x20,
+                PSpace.x16,
+                PSpace.x20,
+                0,
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    // 공용 검색바 — 테두리/모양 통일(PSearchField canonical).
+                    child: PSearchField(
+                      hint: l.categorySearchHint,
+                      onChanged: (v) => setState(() => _query = v),
+                    ),
                   ),
-                ),
-              ],
+                  const SizedBox(width: PSpace.x8),
+                  PButton(
+                    label: l.calAdd,
+                    icon: LucideIcons.plus,
+                    variant: PButtonVariant.accent,
+                    size: PButtonSize.sm,
+                    onPressed: () => showCategoryEditDialog(
+                      context,
+                      defaultExpenseType: _kindValues[_tabIndex],
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
           Expanded(
             child: categoriesAsync.when(
               loading: () => ListView(
@@ -190,6 +228,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                                 (c.expenseType ?? 'EXPENSE') == k)
                             .toList(growable: false),
                         query: _query,
+                        editMode: _editMode,
                         collapsed: _collapsed,
                         onToggleCollapse: _toggleCollapse,
                         onReorderSiblings: _handleReorder,
@@ -210,6 +249,7 @@ class _CategoryList extends StatelessWidget {
   const _CategoryList({
     required this.categories,
     required this.query,
+    required this.editMode,
     required this.collapsed,
     required this.onToggleCollapse,
     required this.onReorderSiblings,
@@ -217,6 +257,7 @@ class _CategoryList extends StatelessWidget {
   });
   final List<ExpenseCategory> categories;
   final String query;
+  final bool editMode;
   final Set<int> collapsed;
   final void Function(int parentRowId) onToggleCollapse;
   final void Function(
@@ -308,8 +349,9 @@ class _CategoryList extends StatelessWidget {
               final entry = tree[pi];
               final parent = entry.parent;
               final hasChildren = entry.children.isNotEmpty;
-              final showChildren =
-                  hasChildren && !collapsed.contains(parent.rowId);
+              // 편집 모드는 하위 강제 표시(디자인 editMode || expanded) — 접힘 무시.
+              final showChildren = hasChildren &&
+                  (editMode || !collapsed.contains(parent.rowId));
               final isLastParent = pi == tree.length - 1;
               return Column(
                 key: ValueKey('p-${parent.rowId}'),
@@ -318,10 +360,11 @@ class _CategoryList extends StatelessWidget {
                   _CategoryRow(
                     index: pi,
                     category: parent,
+                    editMode: editMode,
                     isParent: true,
                     hasChildren: hasChildren,
                     isCollapsed: collapsed.contains(parent.rowId),
-                    onToggle: hasChildren
+                    onToggle: hasChildren && !editMode
                         ? () => onToggleCollapse(parent.rowId)
                         : null,
                     isLast: isLastParent && !showChildren,
@@ -361,6 +404,7 @@ class _CategoryList extends StatelessWidget {
                           key: ValueKey('c-${child.rowId}'),
                           index: ci,
                           category: child,
+                          editMode: editMode,
                           isParent: false,
                           hasChildren: false,
                           isCollapsed: false,
@@ -430,10 +474,9 @@ class _CatRowSkel extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // 자식 들여쓰기 — web paddingLeft:28 미러 (grip 앞)
+          // 자식 들여쓰기 — web paddingLeft:28 미러
           if (!isParent) const SizedBox(width: 28),
-          // drag handle 자리 (Padding(all:4) + Icon(16) = 24px)
-          const SizedBox(width: 24),
+          // grip 은 평시엔 없음(편집 모드 전용) — 스켈레톤은 평시 렌더 미러
           // 부모: chevron 자리(24) + gap(4)
           if (isParent) ...[
             const SizedBox(width: 24),
@@ -472,6 +515,7 @@ class _CategoryRow extends StatelessWidget {
     super.key,
     required this.index,
     required this.category,
+    required this.editMode,
     required this.isParent,
     required this.hasChildren,
     required this.isCollapsed,
@@ -481,6 +525,7 @@ class _CategoryRow extends StatelessWidget {
   });
   final int index;
   final ExpenseCategory category;
+  final bool editMode;
   final bool isParent;
   final bool hasChildren;
   final bool isCollapsed;
@@ -504,7 +549,10 @@ class _CategoryRow extends StatelessWidget {
               : Border(bottom: BorderSide(color: t.borderSubtle)),
         ),
         child: InkWell(
-          onTap: () => showCategoryEditDialog(context, edit: category),
+          // 편집 모드에선 행 탭(수정 다이얼로그) 비활성 — 드래그 전용(디자인 editMode).
+          onTap: editMode
+              ? null
+              : () => showCategoryEditDialog(context, edit: category),
           child: Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: PSpace.x12,
@@ -514,21 +562,22 @@ class _CategoryRow extends StatelessWidget {
               children: [
                 // 자식 들여쓰기 — web paddingLeft:28 미러 (grip 앞, 행 전체가 밀림)
                 if (!isParent) const SizedBox(width: 28),
-                // drag handle (좌측 GripVertical, 웹 CategoryManager 미러)
-                ReorderableDragStartListener(
-                  index: index,
-                  child: Padding(
-                    padding: const EdgeInsets.all(PSpace.x4),
-                    child: Icon(
-                      LucideIcons.gripVertical,
-                      size: 16,
-                      color: t.fgTertiary,
+                // drag handle — 편집 모드 전용(디자인: 평시엔 손잡이 자체가 없음).
+                if (editMode)
+                  ReorderableDragStartListener(
+                    index: index,
+                    child: Padding(
+                      padding: const EdgeInsets.all(PSpace.x4),
+                      child: Icon(
+                        LucideIcons.gripVertical,
+                        size: 16,
+                        color: t.fgTertiary,
+                      ),
                     ),
                   ),
-                ),
-                // 부모 expand chevron (또는 chevron 자리)
+                // 부모 expand chevron (또는 chevron 자리) — 편집 모드엔 자리만(하위 강제 표시)
                 if (isParent) ...[
-                  if (hasChildren && onToggle != null)
+                  if (!editMode && hasChildren && onToggle != null)
                     InkWell(
                       onTap: onToggle,
                       borderRadius: BorderRadius.circular(PRadius.sm),
@@ -575,8 +624,9 @@ class _CategoryRow extends StatelessWidget {
                     ],
                   ),
                 ),
-                Icon(LucideIcons.chevronRight,
-                    size: 16, color: t.fgTertiary),
+                if (!editMode)
+                  Icon(LucideIcons.chevronRight,
+                      size: 16, color: t.fgTertiary),
               ],
             ),
           ),

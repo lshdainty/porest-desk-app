@@ -4817,4 +4817,11 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get calDetailRepeat => '반복';
+
+  @override
+  String get categoryReorderEdit => '편집';
+
+  @override
+  String get categoryReorderHint =>
+      '핸들을 잡고 위·아래로 끌어 순서를 바꿔요. 상위 카테고리끼리·하위 카테고리끼리 이동돼요.';
 }
