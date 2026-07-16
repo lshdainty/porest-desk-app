@@ -8959,6 +8959,54 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'완료'**
   String get importStepDone;
+
+  /// No description provided for @calDetailDday.
+  ///
+  /// In ko, this message translates to:
+  /// **'D-DAY'**
+  String get calDetailDday;
+
+  /// No description provided for @calDetailDdayLeft.
+  ///
+  /// In ko, this message translates to:
+  /// **'D-{n}'**
+  String calDetailDdayLeft(int n);
+
+  /// No description provided for @calDetailDdayPast.
+  ///
+  /// In ko, this message translates to:
+  /// **'{n}일 지남'**
+  String calDetailDdayPast(int n);
+
+  /// No description provided for @calDetailDurationH.
+  ///
+  /// In ko, this message translates to:
+  /// **'{h}시간'**
+  String calDetailDurationH(int h);
+
+  /// No description provided for @calDetailDurationHM.
+  ///
+  /// In ko, this message translates to:
+  /// **'{h}시간 {m}분'**
+  String calDetailDurationHM(int h, int m);
+
+  /// No description provided for @calDetailDurationM.
+  ///
+  /// In ko, this message translates to:
+  /// **'{m}분'**
+  String calDetailDurationM(int m);
+
+  /// No description provided for @calDetailMemo.
+  ///
+  /// In ko, this message translates to:
+  /// **'메모'**
+  String get calDetailMemo;
+
+  /// No description provided for @calDetailRepeat.
+  ///
+  /// In ko, this message translates to:
+  /// **'반복'**
+  String get calDetailRepeat;
 }
 
 class _AppLocalizationsDelegate

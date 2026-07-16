@@ -2612,5 +2612,18 @@
   "importAnother": "다른 파일 가져오기",
   "importStepUpload": "파일 선택",
   "importStepMapping": "열 매핑",
-  "importStepDone": "완료"
+  "importStepDone": "완료",
+  "calDetailDday": "D-DAY",
+  "calDetailDdayLeft": "D-{n}",
+  "@calDetailDdayLeft": { "placeholders": { "n": {"type":"int"} } },
+  "calDetailDdayPast": "{n}일 지남",
+  "@calDetailDdayPast": { "placeholders": { "n": {"type":"int"} } },
+  "calDetailDurationH": "{h}시간",
+  "@calDetailDurationH": { "placeholders": { "h": {"type":"int"} } },
+  "calDetailDurationHM": "{h}시간 {m}분",
+  "@calDetailDurationHM": { "placeholders": { "h": {"type":"int"}, "m": {"type":"int"} } },
+  "calDetailDurationM": "{m}분",
+  "@calDetailDurationM": { "placeholders": { "m": {"type":"int"} } },
+  "calDetailMemo": "메모",
+  "calDetailRepeat": "반복"
 }

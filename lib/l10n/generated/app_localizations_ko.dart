@@ -4783,4 +4783,38 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get importStepDone => '완료';
+
+  @override
+  String get calDetailDday => 'D-DAY';
+
+  @override
+  String calDetailDdayLeft(int n) {
+    return 'D-$n';
+  }
+
+  @override
+  String calDetailDdayPast(int n) {
+    return '$n일 지남';
+  }
+
+  @override
+  String calDetailDurationH(int h) {
+    return '$h시간';
+  }
+
+  @override
+  String calDetailDurationHM(int h, int m) {
+    return '$h시간 $m분';
+  }
+
+  @override
+  String calDetailDurationM(int m) {
+    return '$m분';
+  }
+
+  @override
+  String get calDetailMemo => '메모';
+
+  @override
+  String get calDetailRepeat => '반복';
 }

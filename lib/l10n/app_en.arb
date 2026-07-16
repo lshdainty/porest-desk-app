@@ -2579,5 +2579,13 @@
   "importAnother": "Import another file",
   "importStepUpload": "Choose file",
   "importStepMapping": "Map columns",
-  "importStepDone": "Done"
+  "importStepDone": "Done",
+  "calDetailDday": "D-DAY",
+  "calDetailDdayLeft": "D-{n}",
+  "calDetailDdayPast": "{n}d ago",
+  "calDetailDurationH": "{h}h",
+  "calDetailDurationHM": "{h}h {m}m",
+  "calDetailDurationM": "{m}m",
+  "calDetailMemo": "Memo",
+  "calDetailRepeat": "Repeat"
 }
