@@ -434,9 +434,9 @@ class _TotalBudgetCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final pct = monthlyLimit > 0 ? (totalSpent / monthlyLimit) * 100 : 0.0;
     final l = AppLocalizations.of(context);
-    // brand 틴트 제거(사용자 결정) — 캘린더 월 헤더 카드와 동일한 기본 카드(surface+shadow).
+    // 가계부 취합 카드 정합(사용자 결정) — raised(surfaceRaised + shadowLg) 히어로.
     return PCard(
-      variant: PCardVariant.shadow,
+      variant: PCardVariant.raised,
       padding: const EdgeInsets.all(PSpace.x16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

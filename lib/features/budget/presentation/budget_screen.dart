@@ -518,9 +518,9 @@ class _HeaderCard extends StatelessWidget {
     final l = AppLocalizations.of(context);
 
     // 조회 전용 (web BudgetPage hero 정합) — 상한 수정은 예산 설정 페이지에서.
-    // brand 틴트 제거(사용자 결정) — 캘린더 월 헤더 카드와 동일한 기본 카드.
+    // 가계부 취합 카드 정합(사용자 결정) — raised(surfaceRaised + shadowLg) 히어로.
     return PCard(
-      variant: PCardVariant.shadow,
+      variant: PCardVariant.raised,
       padding: const EdgeInsets.all(18),
       child: overallBudget == null
           ? _emptyOverall(context, l)
@@ -1621,9 +1621,9 @@ class _BudgetLoadingSkeleton extends StatelessWidget {
     final t = context.tokens;
     return Column(
       children: [
-        // _HeaderCard — 기본 카드(brand 틴트 제거, 실제와 동일).
+        // _HeaderCard — raised(실제와 동일, 가계부 취합 카드 정합).
         PCard(
-          variant: PCardVariant.shadow,
+          variant: PCardVariant.raised,
           padding: const EdgeInsets.all(18),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
