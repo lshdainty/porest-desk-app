@@ -10,6 +10,7 @@ import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/core/format/date.dart';
+import 'package:porest_desk_app/core/format/format_locale.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
@@ -457,13 +458,30 @@ class _TotalBudgetCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     if (overallBudget != null)
-                      Text(
-                        masked
-                            ? '••••'
-                            : krwSigned(monthlyLimit, false, unit: true),
-                        style: PTypo.h2.copyWith(
-                          color: tokens.fgPrimary,
-                          fontWeight: PFontWeight.bold,
+                      // 금액 web 정합 — h2(24)→display-md(32), '원' 유닛만 bodyLg(16) 축소
+                      // (en 은 web wonPre 정합으로 '₩' 접두 통짜).
+                      Text.rich(
+                        TextSpan(
+                          style: PTypo.displayMd.copyWith(
+                            color: tokens.fgPrimary,
+                          ),
+                          children: [
+                            TextSpan(
+                              text: masked
+                                  ? '••••'
+                                  : (localeIsEn()
+                                      ? '₩${krw(monthlyLimit)}'
+                                      : krw(monthlyLimit)),
+                            ),
+                            if (!masked && !localeIsEn())
+                              TextSpan(
+                                text: ' 원',
+                                style: PTypo.bodyLg.copyWith(
+                                  color: tokens.fgPrimary,
+                                  fontWeight: PFontWeight.bold,
+                                ),
+                              ),
+                          ],
                         ),
                         overflow: TextOverflow.ellipsis,
                       )
