@@ -158,7 +158,8 @@ class _IntroCard extends StatelessWidget {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: t.bgBrand,
+              // fill 은 다크에서도 primary 고정(bgBrandSolid) — web --bg-brand 정합.
+              color: t.bgBrandSolid,
               borderRadius: PRadius.brMd,
             ),
             alignment: Alignment.center,
@@ -225,11 +226,8 @@ class _LabelRow extends StatelessWidget {
                 borderRadius: PRadius.brMd,
               ),
               alignment: Alignment.center,
-              child: Container(
-                width: 14,
-                height: 14,
-                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-              ),
+              // web 정합 — 색 원 대신 라벨색 tag 아이콘(16).
+              child: Icon(LucideIcons.tag, size: 16, color: color),
             ),
             const SizedBox(width: PSpace.x12),
             Expanded(
