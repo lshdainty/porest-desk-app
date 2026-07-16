@@ -4836,4 +4836,38 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get importStepDone => 'Done';
+
+  @override
+  String get calDetailDday => 'D-DAY';
+
+  @override
+  String calDetailDdayLeft(int n) {
+    return 'D-$n';
+  }
+
+  @override
+  String calDetailDdayPast(int n) {
+    return '${n}d ago';
+  }
+
+  @override
+  String calDetailDurationH(int h) {
+    return '${h}h';
+  }
+
+  @override
+  String calDetailDurationHM(int h, int m) {
+    return '${h}h ${m}m';
+  }
+
+  @override
+  String calDetailDurationM(int m) {
+    return '${m}m';
+  }
+
+  @override
+  String get calDetailMemo => 'Memo';
+
+  @override
+  String get calDetailRepeat => 'Repeat';
 }
