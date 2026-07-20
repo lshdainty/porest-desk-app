@@ -124,11 +124,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     // 마크는 타이틀 좌측 가로 배치(사용자 결정) — web 로그인 정합.
+                    // 마크 48 / gap 8 — 아이콘 확대·간격 축소(사용자 결정).
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const _BrandMark(size: 40),
-                        const SizedBox(width: PSpace.x12),
+                        const _BrandMark(size: 48),
+                        const SizedBox(width: PSpace.x8),
                         Text(
                           'Porest Desk',
                           style: PTypo.displayMd.copyWith(
