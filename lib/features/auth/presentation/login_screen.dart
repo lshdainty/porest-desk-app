@@ -123,6 +123,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    // 브랜드 마크 — web 로그인 로고 정합.
+                    const _BrandMark(size: 72),
+                    const SizedBox(height: PSpace.x16),
                     Text(
                       'Porest Desk',
                       style: PTypo.displayMd.copyWith(
@@ -172,6 +175,43 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// 브랜드 마크 — web `porest-desk-mark.svg`(rect 4단 나무) 미러.
+/// 테마(다크/라이트) 무관 primary 고정(사용자 결정) — bgBrandSolid.
+class _BrandMark extends StatelessWidget {
+  const _BrandMark({this.size = 64});
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.tokens.bgBrandSolid;
+    // svg viewBox 100 기준 좌표를 size 비율로 환산 (행높이 12, 간격 6, 꼬리 11×10).
+    Widget bar(double w, double h) => Container(
+          width: size * w / 100,
+          height: size * h / 100,
+          decoration: BoxDecoration(
+            color: c,
+            borderRadius: BorderRadius.circular(size * 6 / 100),
+          ),
+        );
+    return SizedBox(
+      width: size,
+      height: size,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          bar(22, 12),
+          SizedBox(height: size * 6 / 100),
+          bar(40, 12),
+          SizedBox(height: size * 6 / 100),
+          bar(58, 12),
+          SizedBox(height: size * 6 / 100),
+          bar(11, 10),
+        ],
       ),
     );
   }
