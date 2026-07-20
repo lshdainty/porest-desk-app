@@ -198,7 +198,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
               loading: () => ListView(
                 padding: const EdgeInsets.fromLTRB(
                   PSpace.x20,
-                  PSpace.x8,
+                  PSpace.x0, // 검색바 label 과 gap 0 (label·list 는 한 묶음, 사용자 결정)
                   PSpace.x20,
                   PSpace.x24,
                 ),
@@ -322,7 +322,7 @@ class _CategoryList extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.fromLTRB(
         PSpace.x20,
-        PSpace.x8,
+        PSpace.x0, // 검색바 label 과 gap 0 (label·list 는 한 묶음, 사용자 결정)
         PSpace.x20,
         PSpace.x24,
       ),
