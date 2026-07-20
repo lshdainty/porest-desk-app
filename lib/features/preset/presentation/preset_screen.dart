@@ -402,7 +402,8 @@ class _Toolbar extends StatelessWidget {
       children: [
         PTabs<_SortKey>(
           value: sortBy,
-          variant: PTabsVariant.container,
+          // single-select 세그먼트(선택만 primary 채움) — 할일 필터 정합(사용자 결정).
+          variant: PTabsVariant.pills,
           size: PTabsSize.sm,
           items: [
             PTabItem(value: _SortKey.used, label: l.presetSortUsed),
