@@ -154,7 +154,7 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
                   tokens: t,
                 ),
                 if (stats.next7.isNotEmpty) ...[
-                  const SizedBox(height: PSpace.x12),
+                  const SizedBox(height: PSpace.x24),
                   _UpcomingCard(
                     items: stats.next7,
                     categories: categories,
@@ -162,7 +162,7 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
                     tokens: t,
                   ),
                 ],
-                const SizedBox(height: PSpace.x12),
+                const SizedBox(height: PSpace.x24),
                 // 카드 다이어트 — 리스트 셸 카드 제거, 플랫.
                 Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
