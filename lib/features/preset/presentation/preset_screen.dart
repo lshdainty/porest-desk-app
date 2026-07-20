@@ -160,7 +160,8 @@ class _PresetScreenState extends ConsumerState<PresetScreen> {
           expenseCount: expenseCount,
           incomeCount: incomeCount,
         ),
-        const SizedBox(height: PSpace.x16),
+        // 묶음 경계 — 정보 묶음 ↔ toggle+list 묶음 사이 xl(24, 사용자 결정, web 정합).
+        const SizedBox(height: PSpace.x24),
 
         // (3)+(4) 정렬 툴바 + 리스트 = 한 묶음. toggle 이 list 헤더처럼 붙도록 사이는
         // md(12), 위 통계 묶음과는 x16 으로 분리(사용자 결정, web wrapper 정합).
