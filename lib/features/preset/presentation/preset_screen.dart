@@ -147,9 +147,10 @@ class _PresetScreenState extends ConsumerState<PresetScreen> {
     return ListView(
       padding: const EdgeInsets.all(PSpace.lg),
       children: [
-        // (1) 안내 배너
+        // (1)+(2) 배너 + 취합카드 = 상단 정보 묶음. 사이는 md(12), 아래 toggle+list
+        // 묶음과는 x16 으로 분리(사용자 결정, web wrapper 정합).
         _IntroBanner(),
-        const SizedBox(height: PSpace.x16),
+        const SizedBox(height: PSpace.x12),
 
         // (2) 통계 3카드
         _StatsRow(
