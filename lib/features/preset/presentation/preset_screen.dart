@@ -161,13 +161,14 @@ class _PresetScreenState extends ConsumerState<PresetScreen> {
         ),
         const SizedBox(height: PSpace.x16),
 
-        // (3) 정렬 툴바
+        // (3)+(4) 정렬 툴바 + 리스트 = 한 묶음. toggle 이 list 헤더처럼 붙도록 사이는
+        // md(12), 위 통계 묶음과는 x16 으로 분리(사용자 결정, web wrapper 정합).
         _Toolbar(
           sortBy: _sortBy,
           onSort: (v) => setState(() => _sortBy = v),
           onAdd: () => showPresetEditDialog(context),
         ),
-        const SizedBox(height: PSpace.x16),
+        const SizedBox(height: PSpace.x12),
 
         // (4) 리스트 — 카드 다이어트: 카드 없이 플랫 행 + 행 사이 구분선(web 정합).
         isLoading
