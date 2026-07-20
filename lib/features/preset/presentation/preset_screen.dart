@@ -14,6 +14,7 @@ import 'package:porest_desk_app/core/settings/settings_notifier.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
+import 'package:porest_desk_app/shared/widgets/p_badge.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
@@ -534,12 +535,8 @@ class _PresetRow extends StatelessWidget {
                     ],
                     if (!lock) ...[
                       const SizedBox(width: 6),
-                      _MiniBadge(
-                        label: l.presetAmountEmpty,
-                        bg: t.bgSunken,
-                        fg: t.fgTertiary,
-                        weight: PFontWeight.semi,
-                      ),
+                      // badge.md secondary(neutral) — surface-input bg + text-primary. raw→PBadge(사용자 결정).
+                      PBadge(label: l.presetAmountEmpty),
                     ],
                   ],
                 ),
