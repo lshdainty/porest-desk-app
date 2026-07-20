@@ -123,15 +123,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // 브랜드 마크 — web 로그인 로고 정합.
-                    const _BrandMark(size: 72),
-                    const SizedBox(height: PSpace.x16),
-                    Text(
-                      'Porest Desk',
-                      style: PTypo.displayMd.copyWith(
-                        color: t.fgPrimary,
-                        fontWeight: PFontWeight.bold,
-                      ),
+                    // 마크는 타이틀 좌측 가로 배치(사용자 결정) — web 로그인 정합.
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const _BrandMark(size: 40),
+                        const SizedBox(width: PSpace.x12),
+                        Text(
+                          'Porest Desk',
+                          style: PTypo.displayMd.copyWith(
+                            color: t.fgPrimary,
+                            fontWeight: PFontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: PSpace.x8),
                     Text(
@@ -181,14 +186,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 }
 
 /// 브랜드 마크 — web `porest-desk-mark.svg`(rect 4단 나무) 미러.
-/// 테마(다크/라이트) 무관 primary 고정(사용자 결정) — bgBrandSolid.
+/// 색은 web 로그인 마크(fg-brand: 라이트 primary / 다크 primary-light) 정합 — 다크에서 밝게.
 class _BrandMark extends StatelessWidget {
   const _BrandMark({this.size = 64});
   final double size;
 
   @override
   Widget build(BuildContext context) {
-    final c = context.tokens.bgBrandSolid;
+    final c = context.tokens.fgBrand;
     // svg viewBox 100 기준 좌표를 size 비율로 환산 (행높이 12, 간격 6, 꼬리 11×10).
     Widget bar(double w, double h) => Container(
           width: size * w / 100,
