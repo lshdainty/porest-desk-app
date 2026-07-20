@@ -151,8 +151,7 @@ class _AccountCardManageScreenState
                         ),
                       ],
                     ),
-                    const SizedBox(height: PSpace.x4),
-                    // 리스트
+                    // 리스트 — 총액 label 과 gap 0(사용자 결정, label·list 는 한 묶음).
                     if (filtered.isEmpty)
                       Padding(
                         padding: const EdgeInsets.symmetric(
@@ -237,8 +236,7 @@ class _AccountCardManageSkeleton extends StatelessWidget {
                   const PSkeleton(width: 72, height: 32),
                 ],
               ),
-              const SizedBox(height: PSpace.x4),
-              // 카드 다이어트 — 스켈레톤 플랫.
+              // 스켈레톤 플랫 — 총액 label 과 gap 0(실제 리스트 정합).
               Column(
                 children: [
                   for (int i = 0; i < 5; i++)
