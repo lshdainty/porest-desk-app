@@ -179,7 +179,8 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
                               children: [
                                 Text(
                                   l.recurringAllList,
-                                  style: PTypo.bodySm.copyWith(
+                                  // 웹 --text-body-sm(14) 정합 — 앱 bodySm 은 13이라 body(14) 사용.
+                                  style: PTypo.body.copyWith(
                                     color: t.fgPrimary,
                                     fontWeight: PFontWeight.bold,
                                   ),
@@ -478,7 +479,8 @@ class _UpcomingCard extends StatelessWidget {
           children: [
             Text(
               l.recurringUpcoming,
-              style: PTypo.bodySm.copyWith(
+              // 웹 --text-body-sm(14) 정합 — 앱 bodySm 은 13이라 body(14) 사용.
+              style: PTypo.body.copyWith(
                 color: tokens.fgPrimary,
                 fontWeight: PFontWeight.bold,
               ),
@@ -823,7 +825,8 @@ class _RecurringSkeleton extends StatelessWidget {
                       children: [
                         Text(
                           l.recurringAllList,
-                          style: PTypo.bodySm.copyWith(
+                          // 웹 --text-body-sm(14) 정합 — 앱 bodySm 은 13이라 body(14) 사용(스켈레톤 정합).
+                          style: PTypo.body.copyWith(
                             color: t.fgPrimary,
                             fontWeight: PFontWeight.bold,
                           ),
