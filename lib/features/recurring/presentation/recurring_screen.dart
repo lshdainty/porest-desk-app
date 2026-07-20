@@ -491,22 +491,20 @@ class _UpcomingCard extends StatelessWidget {
           ],
         ),
         const SizedBox(height: PSpace.x8),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: Column(
-            children: [
-              for (final it in items) ...[
-                _UpcomingRow(
-                  item: it,
-                  category: categories.byRowId(it.categoryRowId),
-                  todayStart: todayStart,
-                  masked: masked,
-                  tokens: tokens,
-                ),
-                if (it != items.last) const SizedBox(height: PSpace.x4),
-              ],
+        // 다가오는 7일 행은 헤더와 좌우 정렬(inset 0) — 추가 좌우 inset 제거(사용자 결정, web 정합).
+        Column(
+          children: [
+            for (final it in items) ...[
+              _UpcomingRow(
+                item: it,
+                category: categories.byRowId(it.categoryRowId),
+                todayStart: todayStart,
+                masked: masked,
+                tokens: tokens,
+              ),
+              if (it != items.last) const SizedBox(height: PSpace.x4),
             ],
-          ),
+          ],
         ),
       ],
     );
