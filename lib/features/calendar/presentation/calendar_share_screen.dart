@@ -194,11 +194,8 @@ class _Section extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          // label padding 4/4/0 (web 정합) — label·list 한 묶음.
-          padding: const EdgeInsets.fromLTRB(PSpace.x4, PSpace.x4, PSpace.x4, 0),
-          child: Text(title, style: PTypo.bodySm.copyWith(color: t.fgPrimary, fontWeight: PFontWeight.bold)),
-        ),
+        // label padding 제거(사용자 결정, web 정합) — label·list 한 묶음.
+        Text(title, style: PTypo.bodySm.copyWith(color: t.fgPrimary, fontWeight: PFontWeight.bold)),
         if (calendars.isEmpty)
           // 카드 다이어트 — 빈 상태 플랫.
           Padding(
@@ -241,7 +238,7 @@ class _CalendarRow extends ConsumerWidget {
     return InkWell(
       onTap: () => _showManageSheet(context, ref, calendar),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: PSpace.x8, vertical: PSpace.x12),
+        padding: const EdgeInsets.symmetric(horizontal: PSpace.x8, vertical: 14),
         child: Row(
           children: [
             Container(
