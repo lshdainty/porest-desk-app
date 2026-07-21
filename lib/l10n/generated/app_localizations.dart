@@ -5321,7 +5321,7 @@ abstract class AppLocalizations {
   /// No description provided for @appearanceCurrency.
   ///
   /// In ko, this message translates to:
-  /// **'통화'**
+  /// **'기본 통화'**
   String get appearanceCurrency;
 
   /// No description provided for @appearanceCurrencyKrw.

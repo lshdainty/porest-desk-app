@@ -2827,7 +2827,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appearanceHideAmountDesc => 'Display all amounts as ••••';
 
   @override
-  String get appearanceCurrency => 'Currency';
+  String get appearanceCurrency => 'Default currency';
 
   @override
   String get appearanceCurrencyKrw => 'South Korean Won';

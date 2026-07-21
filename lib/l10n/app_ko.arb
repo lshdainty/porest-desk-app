@@ -1510,7 +1510,7 @@
   "appearancePrivacy": "개인정보 보호",
   "appearanceHideAmount": "금액 가리기",
   "appearanceHideAmountDesc": "모든 화면의 금액을 ••••로 표시합니다",
-  "appearanceCurrency": "통화",
+  "appearanceCurrency": "기본 통화",
   "appearanceCurrencyKrw": "대한민국 원",
   "appearanceCurrencyUsd": "미국 달러",
   "appearanceCurrencyEur": "유로",
