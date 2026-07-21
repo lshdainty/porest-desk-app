@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -56,9 +58,13 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
   // txm 통합 뷰 상태 — 접이식 캘린더/소비 요약/선택일.
   bool _expanded = false;
   bool _sumOpen = false;
+  bool _compact = false; // 스크롤 시 총액 영역 접힘 (design txm-pin--compact)
   String? _selected;
   final Map<String, GlobalKey> _dayKeys = {};
   final ScrollController _scrollCtrl = ScrollController();
+  final GlobalKey _listKey = GlobalKey();
+  bool _lock = false; // 프로그램 스크롤 중 스파이 무시
+  Timer? _lockTimer;
 
   @override
   void initState() {
@@ -68,12 +74,53 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
     if (today.year == _month.year && today.month == _month.month) {
       _selected = _ymdOf(today);
     }
+    _scrollCtrl.addListener(_onScroll);
   }
 
   @override
   void dispose() {
+    _lockTimer?.cancel();
+    _scrollCtrl.removeListener(_onScroll);
     _scrollCtrl.dispose();
     super.dispose();
+  }
+
+  void _lockFor(int ms) {
+    _lock = true;
+    _lockTimer?.cancel();
+    _lockTimer = Timer(Duration(milliseconds: ms), () => _lock = false);
+  }
+
+  /// 스크롤 스파이 — compact 토글(히스테리시스 72/24) + 맨 위 날짜 그룹을 선택일로 동기.
+  void _onScroll() {
+    if (!_scrollCtrl.hasClients) return;
+    final st = _scrollCtrl.offset;
+    final next = _compact ? st > 24 : st > 72;
+    if (next != _compact) {
+      setState(() {
+        _compact = next;
+        if (next) _expanded = false;
+      });
+    }
+    if (_lock) return;
+    final listBox = _listKey.currentContext?.findRenderObject() as RenderBox?;
+    if (listBox == null) return;
+    final listTop = listBox.localToGlobal(Offset.zero).dy;
+    // 리스트 상단(+28) 을 지난 그룹 중 화면상 가장 아래 그룹 = 현재 보는 날짜.
+    double best = double.negativeInfinity;
+    String? cur;
+    for (final e in _dayKeys.entries) {
+      final box = e.value.currentContext?.findRenderObject() as RenderBox?;
+      if (box == null) continue;
+      final top = box.localToGlobal(Offset.zero).dy - listTop;
+      if (top <= 28 && top > best) {
+        best = top;
+        cur = e.key;
+      }
+    }
+    if (cur != null && cur != _selected) {
+      setState(() => _selected = cur);
+    }
   }
 
   DateTime _resolveInitialMonth() {
@@ -160,6 +207,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
           ? _ymdOf(today)
           : null;
     });
+    _lockFor(800);
     if (_scrollCtrl.hasClients) {
       _scrollCtrl.animateTo(0,
           duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
@@ -167,11 +215,12 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
   }
 
   void _scrollToDay(String ds) {
+    _lockFor(800);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final ctx = _dayKeys[ds]?.currentContext;
       if (ctx == null) return;
       Scrollable.ensureVisible(ctx,
-          duration: const Duration(milliseconds: 300), alignment: 0.05);
+          duration: const Duration(milliseconds: 300), alignment: 0.02);
     });
   }
 
@@ -185,27 +234,17 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
     // 인사이트(지난달 대비) — 지난달 거래도 함께 구독(family 캐시).
     final prevAsync = ref.watch(monthExpensesProvider(_prevKey));
 
-    return RefreshIndicator(
-      color: t.bgBrand,
-      onRefresh: () async {
-        ref.invalidate(monthExpensesProvider(_key));
-        await ref.read(monthExpensesProvider(_key).future);
-      },
-      // txm 통합 뷰(design tx-mobile.jsx) — 페이지 좌우 0, 섹션별 자체 inset.
-      child: ListView(
-        controller: _scrollCtrl,
-        padding: const EdgeInsets.fromLTRB(0, 10, 0, 28),
-        children: [
-          expensesAsync.when(
-            loading: () => const _TxmSkeleton(),
-            error: (e, _) => Padding(
-              padding: const EdgeInsets.symmetric(horizontal: PSpace.x20),
-              child: _ErrorBox(
-                message: '${l.expLoadError}\n$e',
-                onRetry: () => ref.invalidate(monthExpensesProvider(_key)),
-              ),
-            ),
-            data: (raw) {
+    // txm 통합 뷰(design tx-mobile.jsx) — pin(월네비+총액+캘린더) 고정, 리스트만 스크롤.
+    return expensesAsync.when(
+      loading: () => _TxmSkeleton(monthLabel: _monthLabel(_month)),
+      error: (e, _) => Padding(
+        padding: const EdgeInsets.all(PSpace.x20),
+        child: _ErrorBox(
+          message: '${l.expLoadError}\n$e',
+          onRetry: () => ref.invalidate(monthExpensesProvider(_key)),
+        ),
+      ),
+      data: (raw) {
               final selectedCats = _advFilter.categoryIds;
               final cats = categoriesAsync.value;
               final Set<int>? allowedCats = selectedCats.isEmpty
@@ -301,9 +340,10 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                   (_advFilter.min != null ? 1 : 0) +
                   (_advFilter.max != null ? 1 : 0);
 
-              final content = Column(
+              final pin = Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  const SizedBox(height: 10),
                   _TxmMonthNav(
                     label: _monthLabel(_month),
                     onPrev: () => _goMonth(-1),
@@ -322,7 +362,17 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                         onClear: _clearAssetFilter,
                       ),
                     ),
-                  // 총액 + 인사이트 + [소비 요약]
+                  // 총액 + 인사이트 + [소비 요약] — 스크롤 시 접힘 (design txm-collapse).
+                  ClipRect(
+                    child: AnimatedSize(
+                      duration: const Duration(milliseconds: 220),
+                      curve: Curves.easeOut,
+                      alignment: Alignment.topCenter,
+                      child: _compact
+                          ? const SizedBox(width: double.infinity)
+                          : Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
                   Padding(
                     padding: const EdgeInsets.fromLTRB(PSpace.x20, 8, PSpace.x20, 0),
                     child: Row(
@@ -405,6 +455,10 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                         ),
                       ),
                     ),
+                              ],
+                            ),
+                    ),
+                  ),
                   // 캘린더 — 필터 적용 시 숨김(리스트만, 사용자 결정·web 정합).
                   if (!(advCount > 0 || _assetIdFilter != null)) ...[
                   _TxmCalendar(
@@ -422,12 +476,10 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                   ),
                   ],
                   Container(height: 1, color: t.borderDefault),
-                  // 거래 리스트 — 날짜 그룹
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: PSpace.x20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
+                ],
+              );
+
+              final listChildren = <Widget>[
                         if (groupKeys.isEmpty)
                           Padding(
                             padding: const EdgeInsets.fromLTRB(20, 56, 20, 20),
@@ -466,12 +518,9 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                                 focusTxId: widget.focusTxId,
                               ),
                             ),
-                      ],
-                    ),
-                  ),
                   // 이전 달 이용 내역 보기
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(PSpace.x20, 28, PSpace.x20, 0),
+                    padding: const EdgeInsets.only(top: 28),
                     child: Material(
                       color: t.bgSunken,
                       borderRadius: const BorderRadius.all(Radius.circular(14)),
@@ -496,6 +545,28 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                       ),
                     ),
                   ),
+              ];
+
+              final content = Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  pin,
+                  Expanded(
+                    child: RefreshIndicator(
+                      color: t.bgBrand,
+                      onRefresh: () async {
+                        ref.invalidate(monthExpensesProvider(_key));
+                        await ref.read(monthExpensesProvider(_key).future);
+                      },
+                      child: ListView(
+                        key: _listKey,
+                        controller: _scrollCtrl,
+                        padding: const EdgeInsets.fromLTRB(
+                            PSpace.x20, 0, PSpace.x20, 28),
+                        children: listChildren,
+                      ),
+                    ),
+                  ),
                 ],
               );
               if (widget.focusTxId != null && !_scrolledToFocus) {
@@ -512,10 +583,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                 });
               }
               return content;
-            },
-          ),
-        ],
-      ),
+      },
     );
   }
 
@@ -1091,38 +1159,43 @@ class _AssetFilterBadge extends ConsumerWidget {
   }
 }
 
-/// txm 통합 뷰 skeleton — 월네비 + 총액/인사이트 + 캘린더 1주 + 리스트 (web 정합).
+/// txm 통합 뷰 skeleton — 정적 틀(월네비/소비요약 버튼/요일/expand)은 실제 렌더,
+/// 서버 데이터(총액·인사이트·셀 금액·리스트)만 스켈레톤. feedback_skeleton_server_data_only.
 class _TxmSkeleton extends StatelessWidget {
-  const _TxmSkeleton();
+  const _TxmSkeleton({required this.monthLabel});
+  final String monthLabel;
 
   @override
   Widget build(BuildContext context) {
+    final t = context.tokens;
+    final l = AppLocalizations.of(context);
+    final now = DateTime.now();
+    final weekDays = List.generate(
+      7,
+      (i) => now.subtract(Duration(days: (now.weekday % 7) - i)),
+    );
+    final dows = weekdayLabels();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          child: Row(
-            children: const [
-              PSkeleton(width: 36, height: 36),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 4),
-                child: PSkeleton.line(width: 40, height: 20),
-              ),
-              PSkeleton(width: 36, height: 36),
-              Spacer(),
-              PSkeleton(width: 36, height: 36),
-              SizedBox(width: 4),
-              PSkeleton(width: 36, height: 36),
-            ],
-          ),
+        const SizedBox(height: 10),
+        // 월 네비 — 실제 틀 (탭은 로딩 중 no-op).
+        _TxmMonthNav(
+          label: monthLabel,
+          onPrev: () {},
+          onNext: () {},
+          filterActive: false,
+          filterCount: 0,
+          onOpenFilter: () {},
+          onAddTx: () {},
+          tokens: t,
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(PSpace.x20, 8, PSpace.x20, 0),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
-              Expanded(
+            children: [
+              const Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -1132,8 +1205,13 @@ class _TxmSkeleton extends StatelessWidget {
                   ],
                 ),
               ),
-              SizedBox(width: PSpace.x12),
-              PSkeleton(width: 74, height: 36),
+              const SizedBox(width: PSpace.x12),
+              _TxmSumBtn(
+                on: false,
+                label: l.txmSpendSummary,
+                onTap: () {},
+                tokens: t,
+              ),
             ],
           ),
         ),
@@ -1144,42 +1222,75 @@ class _TxmSkeleton extends StatelessWidget {
               Row(
                 children: [
                   for (var i = 0; i < 7; i++)
-                    const Expanded(
+                    Expanded(
                       child: Padding(
-                        padding: EdgeInsets.fromLTRB(0, 6, 0, 8),
-                        child: Center(child: PSkeleton.line(width: 16, height: 14)),
+                        padding: const EdgeInsets.fromLTRB(0, 6, 0, 8),
+                        child: Text(
+                          dows[i],
+                          textAlign: TextAlign.center,
+                          style: PTypo.caption.copyWith(
+                            fontWeight: PFontWeight.semi,
+                            color: i == 0
+                                ? t.fgExpense
+                                : i == 6
+                                    ? t.fgBrand
+                                    : t.fgTertiary,
+                          ),
+                        ),
                       ),
                     ),
                 ],
               ),
               Row(
                 children: [
-                  for (var i = 0; i < 7; i++)
-                    const Expanded(
+                  for (final d in weekDays)
+                    Expanded(
                       child: Padding(
-                        padding: EdgeInsets.fromLTRB(0, 4, 0, 8),
+                        padding: const EdgeInsets.fromLTRB(0, 4, 0, 8),
                         child: Column(
                           children: [
-                            PSkeleton(width: 33, height: 33, borderRadius: PRadius.brFull),
-                            SizedBox(height: 3),
-                            PSkeleton.line(width: 32, height: 10),
+                            SizedBox(
+                              width: 33,
+                              height: 33,
+                              child: Center(
+                                child: Text(
+                                  '${d.day}',
+                                  style: TextStyle(
+                                    fontSize: PFontSize.bodyMd,
+                                    fontWeight: PFontWeight.semi,
+                                    color: t.fgPrimary,
+                                    fontFeatures: const [
+                                      FontFeature.tabularFigures(),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 3),
+                            const PSkeleton.line(width: 32, height: 10),
                           ],
                         ),
                       ),
                     ),
                 ],
               ),
-              const Padding(
-                padding: EdgeInsets.fromLTRB(0, 2, 0, 10),
-                child: Center(child: PSkeleton.line(width: 20, height: 16)),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 2, 0, 10),
+                child: Center(
+                  child: Icon(
+                    LucideIcons.chevronDown,
+                    size: 20,
+                    color: t.fgTertiary,
+                  ),
+                ),
               ),
             ],
           ),
         ),
-        Container(height: 1, color: context.tokens.borderSubtle),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(PSpace.x20, 24, PSpace.x20, 0),
-          child: Column(
+        Container(height: 1, color: t.borderDefault),
+        Expanded(
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(PSpace.x20, 24, PSpace.x20, 28),
             children: const [
               _ExpenseDayGroupSkeleton(rows: 3),
               SizedBox(height: PSpace.x16),
