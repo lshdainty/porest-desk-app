@@ -170,7 +170,8 @@ class _ImportViewState extends ConsumerState<ImportView> {
             width: 22,
             height: 22,
             decoration: BoxDecoration(
-              color: i <= idx ? t.bgBrand : t.bgMuted,
+              // 동그라미 채움은 다크에서도 primary 고정(bgBrandSolid, 사용자 결정·web 정합).
+              color: i <= idx ? t.bgBrandSolid : t.bgMuted,
               shape: BoxShape.circle,
             ),
             alignment: Alignment.center,
@@ -227,6 +228,7 @@ class _ImportViewState extends ConsumerState<ImportView> {
           onTap: _analyzing ? null : _pickAndAnalyze,
           borderRadius: PRadius.brLg,
           child: Container(
+            width: double.infinity, // 풀폭 드롭존(web 정합, 사용자 결정)
             padding: const EdgeInsets.symmetric(vertical: PSpace.x24, horizontal: PSpace.x16),
             decoration: BoxDecoration(
               color: t.bgMuted,
