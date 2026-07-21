@@ -9115,6 +9115,18 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'어제'**
   String get txmYesterday;
+
+  /// No description provided for @expChipMin.
+  ///
+  /// In ko, this message translates to:
+  /// **'{amount} 이상'**
+  String expChipMin(String amount);
+
+  /// No description provided for @expChipMax.
+  ///
+  /// In ko, this message translates to:
+  /// **'{amount} 이하'**
+  String expChipMax(String amount);
 }
 
 class _AppLocalizationsDelegate

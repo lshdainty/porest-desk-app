@@ -4880,4 +4880,14 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get txmYesterday => '어제';
+
+  @override
+  String expChipMin(String amount) {
+    return '$amount 이상';
+  }
+
+  @override
+  String expChipMax(String amount) {
+    return '$amount 이하';
+  }
 }

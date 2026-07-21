@@ -358,13 +358,14 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                     onAddTx: () => showAddTxSheet(context),
                     tokens: t,
                   ),
-                  if (_assetIdFilter != null)
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(PSpace.x20, 8, PSpace.x20, 0),
-                      child: _AssetFilterBadge(
-                        assetId: _assetIdFilter!,
-                        onClear: _clearAssetFilter,
-                      ),
+                  if (filterActive)
+                    _FilterChipsRow(
+                      filter: _advFilter,
+                      assetId: _assetIdFilter,
+                      onClearAsset: _clearAssetFilter,
+                      onChange: (f) => setState(() => _advFilter = f),
+                      categories: categoriesAsync.value ?? const [],
+                      tokens: t,
                     ),
                   // 총액 + 인사이트 + [소비 요약] — 스크롤 시 접힘. 필터 활성 시 숨김.
                   if (!filterActive)
@@ -524,11 +525,14 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                                 focusTxId: widget.focusTxId,
                               ),
                             ),
-                  // 이전 달 이용 내역 보기
+                  // 이전 달 이용 내역 보기 — 필터 활성 시 숨김(사용자 결정).
+                  if (!filterActive)
                   Padding(
                     padding: const EdgeInsets.only(top: 28),
                     child: Material(
-                      color: t.bgSunken,
+                      // design .txm-prevbtn bg-sunken 다크(#2D3346)=web 정합 — 앱 bgMuted 사용
+                      // (앱 bgSunken 은 다크에서 페이지색이라 버튼이 사라짐).
+                      color: t.bgMuted,
                       borderRadius: const BorderRadius.all(Radius.circular(14)),
                       child: InkWell(
                         onTap: () => _goMonth(-1),
@@ -891,11 +895,6 @@ class _TxmCalendar extends StatelessWidget {
       if (c == null) return const Expanded(child: SizedBox(height: 56));
       final isSel = c.ds == selected;
       final data = byDay[c.ds];
-      final amt = data == null
-          ? ''
-          : data.out > 0
-              ? '-${masked ? '••••' : krw(data.out)}'
-              : '+${masked ? '••••' : krw(data.inn)}';
       final future = c.ds.compareTo(todayStr) > 0;
       return Expanded(
         child: InkWell(
@@ -927,22 +926,30 @@ class _TxmCalendar extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 3),
-                SizedBox(
-                  height: 12,
-                  child: Text(
-                    amt,
+                // 지출·수입 병기(각 줄) — 색은 아래 리스트와 동일(사용자 결정).
+                if (data != null && data.out > 0)
+                  Text(
+                    '-${masked ? '••••' : krw(data.out)}',
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: isSel ? PFontWeight.bold : PFontWeight.semi,
                       letterSpacing: -0.2,
-                      // 지출 빨강·수입 파랑 — 아래 리스트와 동일(사용자 결정).
-                      color: data == null
-                          ? t.fgTertiary
-                          : (data.out > 0 ? t.fgExpense : t.fgBrand),
+                      color: t.fgExpense,
                       fontFeatures: const [FontFeature.tabularFigures()],
                     ),
                   ),
-                ),
+                if (data != null && data.inn > 0)
+                  Text(
+                    '+${masked ? '••••' : krw(data.inn)}',
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: isSel ? PFontWeight.bold : PFontWeight.semi,
+                      letterSpacing: -0.2,
+                      color: t.fgBrand,
+                      fontFeatures: const [FontFeature.tabularFigures()],
+                    ),
+                  ),
+                if (data == null) const SizedBox(height: 12),
               ],
             ),
           ),
@@ -1119,26 +1126,48 @@ class _DayGroup extends ConsumerWidget {
   }
 }
 
-/// 자산 필터 활성 시 상단에 표시되는 chip — '<자산명> 필터 중 ✕'.
-/// front `AssetFilterBadge` 미러.
-class _AssetFilterBadge extends ConsumerWidget {
-  const _AssetFilterBadge({required this.assetId, required this.onClear});
-  final int assetId;
-  final VoidCallback onClear;
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final t = context.tokens;
-    final l = AppLocalizations.of(context);
-    // assetsProvider 캐시 우선, 없으면 단건 fetch.
-    final all = ref.watch(assetsProvider).value;
-    final cached = all?.byRowId(assetId);
-    final asyncFallback = cached == null
-        ? ref.watch(assetByIdProvider(assetId))
-        : null;
-    final name = cached?.assetName ?? asyncFallback?.value?.assetName;
-    final label = name == null ? l.expFiltering : l.expFilteringBy(name);
+/// 필터 활성 시 — 적용 항목별 칩 가로 스크롤(스크롤바 없음), 개별 ✕ 제거 (사용자 결정, web 정합).
+class _FilterChipsRow extends ConsumerWidget {
+  const _FilterChipsRow({
+    required this.filter,
+    required this.assetId,
+    required this.onClearAsset,
+    required this.onChange,
+    required this.categories,
+    required this.tokens,
+  });
+  final ExpenseFilter filter;
+  final int? assetId;
+  final VoidCallback onClearAsset;
+  final ValueChanged<ExpenseFilter> onChange;
+  final List<ExpenseCategory> categories;
+  final PorestTokens tokens;
+
+  /// copyWith 는 null 대입이 불가(`?? this`) — 제거 칩용 직접 재구성.
+  static ExpenseFilter _rebuild(
+    ExpenseFilter f, {
+    FilterPeriod? period,
+    bool clearDates = false,
+    Set<String>? types,
+    Set<int>? categoryIds,
+    Set<int>? assetIds,
+    bool clearMin = false,
+    bool clearMax = false,
+  }) =>
+      ExpenseFilter(
+        period: period ?? f.period,
+        startDate: clearDates ? null : f.startDate,
+        endDate: clearDates ? null : f.endDate,
+        types: types ?? f.types,
+        categoryIds: categoryIds ?? f.categoryIds,
+        assetIds: assetIds ?? f.assetIds,
+        min: clearMin ? null : f.min,
+        max: clearMax ? null : f.max,
+      );
+
+  Widget _chip(PorestTokens t, String label, VoidCallback onRemove) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(12, 6, 6, 6),
+      padding: const EdgeInsets.fromLTRB(12, 6, 8, 6),
       decoration: BoxDecoration(
         color: t.bgBrandSubtle,
         border: Border.all(color: t.borderBrand),
@@ -1154,15 +1183,88 @@ class _AssetFilterBadge extends ConsumerWidget {
               fontWeight: PFontWeight.semi,
             ),
           ),
-          const SizedBox(width: 4),
+          const SizedBox(width: 6),
           InkWell(
-            onTap: onClear,
+            onTap: onRemove,
             borderRadius: PRadius.brFull,
-            child: Padding(
-              padding: const EdgeInsets.all(2),
-              child: Icon(LucideIcons.x, size: 14, color: t.fgBrand),
-            ),
+            child: Icon(LucideIcons.x, size: 14, color: t.fgBrand),
           ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = tokens;
+    final l = AppLocalizations.of(context);
+    final f = filter;
+    final chips = <Widget>[];
+
+    if (assetId != null) {
+      final all = ref.watch(assetsProvider).value;
+      final name = all?.byRowId(assetId!)?.assetName;
+      chips.add(_chip(
+        t,
+        name == null ? l.expFiltering : l.expFilteringBy(name),
+        onClearAsset,
+      ));
+    }
+    if (f.period != FilterPeriod.custom) {
+      final label = switch (f.period) {
+        FilterPeriod.week => l.expPeriodWeek,
+        FilterPeriod.month => l.expThisMonth,
+        _ => l.expPeriod3Month,
+      };
+      chips.add(_chip(t, label,
+          () => onChange(_rebuild(f, period: FilterPeriod.custom, clearDates: true))));
+    } else if ((f.startDate ?? '').isNotEmpty && (f.endDate ?? '').isNotEmpty) {
+      String md(String d) => '${int.parse(d.substring(5, 7))}.${int.parse(d.substring(8, 10))}';
+      chips.add(_chip(t, '${md(f.startDate!)}~${md(f.endDate!)}',
+          () => onChange(_rebuild(f, clearDates: true))));
+    }
+    if (f.types.length < 2) {
+      chips.add(_chip(
+        t,
+        f.types.contains('EXPENSE') ? l.expFilterExpense : l.expFilterIncome,
+        () => onChange(_rebuild(f, types: const {'EXPENSE', 'INCOME'})),
+      ));
+    }
+    for (final id in f.categoryIds) {
+      final name = categories.byRowId(id)?.categoryName ?? '$id';
+      chips.add(_chip(t, name, () {
+        final next = Set<int>.from(f.categoryIds)..remove(id);
+        onChange(_rebuild(f, categoryIds: next));
+      }));
+    }
+    if (f.assetIds.isNotEmpty) {
+      final all = ref.watch(assetsProvider).value;
+      for (final id in f.assetIds) {
+        final name = all?.byRowId(id)?.assetName ?? '$id';
+        chips.add(_chip(t, name, () {
+          final next = Set<int>.from(f.assetIds)..remove(id);
+          onChange(_rebuild(f, assetIds: next));
+        }));
+      }
+    }
+    if (f.min != null) {
+      chips.add(_chip(t, l.expChipMin(krwSigned(f.min!, false, unit: true)),
+          () => onChange(_rebuild(f, clearMin: true))));
+    }
+    if (f.max != null) {
+      chips.add(_chip(t, l.expChipMax(krwSigned(f.max!, false, unit: true)),
+          () => onChange(_rebuild(f, clearMax: true))));
+    }
+    if (chips.isEmpty) return const SizedBox.shrink();
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.fromLTRB(PSpace.x20, 8, PSpace.x20, 0),
+      child: Row(
+        children: [
+          for (var i = 0; i < chips.length; i++) ...[
+            if (i > 0) const SizedBox(width: 8),
+            chips[i],
+          ],
         ],
       ),
     );
