@@ -303,7 +303,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
   // ── 카드들 ────────────────────────────────────────────────
 
   // 카드 다이어트 — design .m-subpage 플랫: 카드 없이 섹션 타이틀 + 콘텐츠만.
-  Widget _cardShell(PorestTokens t, {required String title, String? desc, required Widget child}) {
+  Widget _cardShell(PorestTokens t, {required String title, String? desc, required Widget child, bool flushContent = false}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -312,7 +312,8 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
           const SizedBox(height: 2),
           Text(desc, style: PTypo.caption.copyWith(color: t.fgTertiary)),
         ],
-        // label↔content gap 0(사용자 결정, web margin-top 12 삭제 정합).
+        // 데이터 종류 섹션만 label↔content gap 0(사용자 결정) — 나머지는 x12.
+        if (!flushContent) const SizedBox(height: PSpace.x12),
         child,
       ],
     );
@@ -383,6 +384,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
     final l = AppLocalizations.of(context);
     return _cardShell(
       t,
+      flushContent: true,
       title: l.exportTypesTitle(_selected.length),
       desc: l.exportTypesDesc,
       child: Column(
