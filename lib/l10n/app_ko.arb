@@ -2770,5 +2770,21 @@
   },
   "txmEmptyMonthDesc": "다른 달을 살펴보거나 첫 거래를 추가해보세요.",
   "txmToday": "오늘",
-  "txmYesterday": "어제"
+  "txmYesterday": "어제",
+  "expChipMin": "{amount} 이상",
+  "@expChipMin": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "expChipMax": "{amount} 이하",
+  "@expChipMax": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  }
 }

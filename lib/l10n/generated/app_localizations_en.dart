@@ -4934,4 +4934,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get txmYesterday => 'Yesterday';
+
+  @override
+  String expChipMin(String amount) {
+    return 'Min $amount';
+  }
+
+  @override
+  String expChipMax(String amount) {
+    return 'Max $amount';
+  }
 }

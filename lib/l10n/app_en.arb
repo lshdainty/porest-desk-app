@@ -2633,5 +2633,21 @@
   },
   "txmEmptyMonthDesc": "Browse another month or add your first transaction.",
   "txmToday": "Today",
-  "txmYesterday": "Yesterday"
+  "txmYesterday": "Yesterday",
+  "expChipMin": "Min {amount}",
+  "@expChipMin": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "expChipMax": "Max {amount}",
+  "@expChipMax": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  }
 }
