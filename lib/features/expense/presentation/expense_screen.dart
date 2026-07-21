@@ -678,9 +678,8 @@ class _DayGroup extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 2, bottom: 10),
-            child: Row(
+          // 날짜 헤더 padding 제거(사용자 결정, web 정합) — label·list 한 묶음.
+          Row(
               children: [
                 Text(
                   label.md,
@@ -714,7 +713,6 @@ class _DayGroup extends ConsumerWidget {
                   ),
                 ],
               ],
-            ),
           ),
           // 행 리스트 — 카드/구분선 없이 행 리듬(12/10)만.
           Column(
