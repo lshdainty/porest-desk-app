@@ -340,12 +340,16 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                   (_advFilter.min != null ? 1 : 0) +
                   (_advFilter.max != null ? 1 : 0);
 
+              // 필터 활성 시 — 월선택/총액/캘린더/divider 숨기고 온전히 리스트만(사용자 결정).
+              final filterActive = advCount > 0 || _assetIdFilter != null;
+
               final pin = Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 10),
                   _TxmMonthNav(
                     label: _monthLabel(_month),
+                    showMonth: !filterActive,
                     onPrev: () => _goMonth(-1),
                     onNext: () => _goMonth(1),
                     filterActive: advCount > 0,
@@ -362,7 +366,8 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                         onClear: _clearAssetFilter,
                       ),
                     ),
-                  // 총액 + 인사이트 + [소비 요약] — 스크롤 시 접힘 (design txm-collapse).
+                  // 총액 + 인사이트 + [소비 요약] — 스크롤 시 접힘. 필터 활성 시 숨김.
+                  if (!filterActive)
                   ClipRect(
                     child: AnimatedSize(
                       duration: const Duration(milliseconds: 220),
@@ -460,7 +465,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                     ),
                   ),
                   // 캘린더 — 필터 적용 시 숨김(리스트만, 사용자 결정·web 정합).
-                  if (!(advCount > 0 || _assetIdFilter != null)) ...[
+                  if (!filterActive) ...[
                   _TxmCalendar(
                     month: _month,
                     selected: _selected,
@@ -475,7 +480,8 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                     tokens: t,
                   ),
                   ],
-                  Container(height: 1, color: t.borderDefault),
+                  if (!filterActive)
+                    Container(height: 1, color: t.borderDefault),
                 ],
               );
 
@@ -660,8 +666,10 @@ class _TxmMonthNav extends StatelessWidget {
     required this.onOpenFilter,
     required this.onAddTx,
     required this.tokens,
+    this.showMonth = true,
   });
   final String label;
+  final bool showMonth;
   final VoidCallback onPrev;
   final VoidCallback onNext;
   final bool filterActive;
@@ -701,21 +709,23 @@ class _TxmMonthNav extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Row(
         children: [
-          _btn(LucideIcons.chevronLeft, onPrev),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: Text(
-              label,
-              style: TextStyle(
-                fontSize: 17,
-                fontWeight: FontWeight.w800,
-                letterSpacing: -0.17,
-                color: t.fgPrimary,
-                fontFeatures: const [FontFeature.tabularFigures()],
+          if (showMonth) ...[
+            _btn(LucideIcons.chevronLeft, onPrev),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.17,
+                  color: t.fgPrimary,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
               ),
             ),
-          ),
-          _btn(LucideIcons.chevronRight, onNext),
+            _btn(LucideIcons.chevronRight, onNext),
+          ],
           const Spacer(),
           _btn(
             LucideIcons.slidersHorizontal,
