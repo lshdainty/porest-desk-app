@@ -78,10 +78,11 @@ class PCheckbox extends StatelessWidget {
     final filled = checked || indeterminate;
 
     final (Color bg, Color border) = switch ((disabled, error, filled)) {
-      (true, _, true) => (t.bgBrand.withValues(alpha: 0.5), t.bgBrand.withValues(alpha: 0.5)),
+      (true, _, true) => (t.bgBrandSolid.withValues(alpha: 0.5), t.bgBrandSolid.withValues(alpha: 0.5)),
       (true, _, false) => (t.bgMuted, t.borderDefault),
       (_, true, _) => (t.bgSurface, t.statusDanger),
-      (false, false, true) => (t.bgBrand, t.bgBrand),
+      // 채움·테두리는 다크에서도 primary 고정(bgBrandSolid) — web checkbox bg-primary 정합.
+      (false, false, true) => (t.bgBrandSolid, t.bgBrandSolid),
       (false, false, false) => (t.bgSurface, t.borderStrong),
     };
 
