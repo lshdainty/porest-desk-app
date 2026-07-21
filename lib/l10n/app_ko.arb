@@ -1937,7 +1937,11 @@
   "statsSavingsRate": "저축률",
   "statsSavingsInsight": "월 평균 수입의 {pct}%를 저축하고 있어요",
   "@statsSavingsInsight": {
-    "placeholders": { "pct": { "type": "int" } }
+    "placeholders": {
+      "pct": {
+        "type": "int"
+      }
+    }
   },
   "statsDailyNetSavings": "일별 순저축",
   "statsMonthlyNetSavings": "월별 순저축",
@@ -1969,34 +1973,54 @@
   "statsWeekdayInsightDown": "{day}요일 지출이 지난 달보다 {amount} 줄었어요.",
   "@statsWeekdayInsightDown": {
     "placeholders": {
-      "day": { "type": "String" },
-      "amount": { "type": "String" }
+      "day": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "statsWeekdayInsightUp": "{day}요일 지출이 지난 달보다 {amount} 늘었어요.",
   "@statsWeekdayInsightUp": {
     "placeholders": {
-      "day": { "type": "String" },
-      "amount": { "type": "String" }
+      "day": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "statsWeekdayInsightSame": "요일별 지출이 지난 달과 비슷해요.",
   "statsVsLastPrefix": "{prev}보다",
   "@statsVsLastPrefix": {
-    "placeholders": { "prev": { "type": "String" } }
+    "placeholders": {
+      "prev": {
+        "type": "String"
+      }
+    }
   },
   "statsVsLastDirLess": "덜",
   "statsVsLastDirMore": "더",
   "statsVsLastSuffix": "썼어요",
   "@statsVsLastSuffix": {
-    "placeholders": { "prev": { "type": "String" } }
+    "placeholders": {
+      "prev": {
+        "type": "String"
+      }
+    }
   },
   "statsCompareDailyAvg": "하루 평균",
   "statsCompareTxCount": "거래 건수",
   "statsComparePerTx": "건당 평균",
   "statsCountValue": "{count}건",
   "@statsCountValue": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "stocksChartTokenFailed": "토큰 발급 실패",
   "stocksChartHttpsError": "보안 오류: 차트 WebView 가 HTTPS 가 아닙니다",
@@ -2579,7 +2603,16 @@
   "importNotice": "가져온 데이터는 기존 거래에 추가되며 덮어쓰지 않아요. 미리보기에서 중복·오류를 확인할 수 있어요.",
   "importFileTitle": "가져올 파일",
   "importRowsDetected": "{total}개 행 · 유효 {valid}건",
-  "@importRowsDetected": { "placeholders": { "total": {"type":"int"}, "valid": {"type":"int"} } },
+  "@importRowsDetected": {
+    "placeholders": {
+      "total": {
+        "type": "int"
+      },
+      "valid": {
+        "type": "int"
+      }
+    }
+  },
   "importChange": "변경",
   "importMapTitle": "열 매핑",
   "importMapDesc": "파일의 열을 가계부 항목에 연결하세요. 자동 감지값을 바꿀 수 있어요.",
@@ -2591,41 +2624,151 @@
   "importFieldAsset": "자산·결제수단",
   "importFieldMemo": "메모",
   "importPreviewDesc": "중복 의심 {dup}건",
-  "@importPreviewDesc": { "placeholders": { "dup": {"type":"int"} } },
+  "@importPreviewDesc": {
+    "placeholders": {
+      "dup": {
+        "type": "int"
+      }
+    }
+  },
   "importIncome": "수입",
   "importExpense": "지출",
   "importDupBadge": "중복?",
   "importOptionsTitle": "가져오기 옵션",
   "importOptDupSkip": "중복 거래 건너뛰기",
   "importOptDupSkipDesc": "날짜·금액·내용이 같은 {dup}건을 제외해요",
-  "@importOptDupSkipDesc": { "placeholders": { "dup": {"type":"int"} } },
+  "@importOptDupSkipDesc": {
+    "placeholders": {
+      "dup": {
+        "type": "int"
+      }
+    }
+  },
   "importOptAutoCat": "새 카테고리 자동 생성",
   "importOptAutoCatDesc": "없는 카테고리는 자동으로 만들어요",
   "importPrev": "이전",
   "importDoImport": "{count}건 가져오기",
-  "@importDoImport": { "placeholders": { "count": {"type":"int"} } },
+  "@importDoImport": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "importDoneTitle": "가져오기 완료",
   "importDoneCount": "{count}건을 가져왔어요",
-  "@importDoneCount": { "placeholders": { "count": {"type":"int"} } },
+  "@importDoneCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "importDoneDetail": "건너뜀 {skipped} · 실패 {failed}",
-  "@importDoneDetail": { "placeholders": { "skipped": {"type":"int"}, "failed": {"type":"int"} } },
+  "@importDoneDetail": {
+    "placeholders": {
+      "skipped": {
+        "type": "int"
+      },
+      "failed": {
+        "type": "int"
+      }
+    }
+  },
   "importAnother": "다른 파일 가져오기",
   "importStepUpload": "파일 선택",
   "importStepMapping": "열 매핑",
   "importStepDone": "완료",
   "calDetailDday": "D-DAY",
   "calDetailDdayLeft": "D-{n}",
-  "@calDetailDdayLeft": { "placeholders": { "n": {"type":"int"} } },
+  "@calDetailDdayLeft": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "calDetailDdayPast": "{n}일 지남",
-  "@calDetailDdayPast": { "placeholders": { "n": {"type":"int"} } },
+  "@calDetailDdayPast": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "calDetailDurationH": "{h}시간",
-  "@calDetailDurationH": { "placeholders": { "h": {"type":"int"} } },
+  "@calDetailDurationH": {
+    "placeholders": {
+      "h": {
+        "type": "int"
+      }
+    }
+  },
   "calDetailDurationHM": "{h}시간 {m}분",
-  "@calDetailDurationHM": { "placeholders": { "h": {"type":"int"}, "m": {"type":"int"} } },
+  "@calDetailDurationHM": {
+    "placeholders": {
+      "h": {
+        "type": "int"
+      },
+      "m": {
+        "type": "int"
+      }
+    }
+  },
   "calDetailDurationM": "{m}분",
-  "@calDetailDurationM": { "placeholders": { "m": {"type":"int"} } },
+  "@calDetailDurationM": {
+    "placeholders": {
+      "m": {
+        "type": "int"
+      }
+    }
+  },
   "calDetailMemo": "메모",
   "calDetailRepeat": "반복",
   "categoryReorderEdit": "편집",
-  "categoryReorderHint": "핸들을 잡고 위·아래로 끌어 순서를 바꿔요. 상위 카테고리끼리·하위 카테고리끼리 이동돼요."
+  "categoryReorderHint": "핸들을 잡고 위·아래로 끌어 순서를 바꿔요. 상위 카테고리끼리·하위 카테고리끼리 이동돼요.",
+  "txmSpendSummary": "소비 요약",
+  "txmInsightLessPre": "지난달보다 ",
+  "txmInsightLessHl": "{amount} 덜",
+  "@txmInsightLessHl": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "txmInsightLessPost": " 쓰는 중",
+  "txmInsightMorePre": "지난달보다 ",
+  "txmInsightMoreHl": "{amount} 더",
+  "@txmInsightMoreHl": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "txmInsightMorePost": " 쓰는 중",
+  "txmInsightSame": "지난달과 비슷하게 쓰고 있어요",
+  "txmInsightNone": "이 달에는 거래 내역이 없어요",
+  "txmInsightTopCatPre": "이번 달 ",
+  "txmInsightTopCatPost": "에 가장 많이 썼어요",
+  "txmPrevMonthBtn": "{month} 이용 내역 보기",
+  "@txmPrevMonthBtn": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "txmEmptyMonth": "{month} 거래가 없어요",
+  "@txmEmptyMonth": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "txmEmptyMonthDesc": "다른 달을 살펴보거나 첫 거래를 추가해보세요.",
+  "txmToday": "오늘",
+  "txmYesterday": "어제"
 }

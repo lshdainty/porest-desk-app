@@ -2589,5 +2589,49 @@
   "calDetailMemo": "Memo",
   "calDetailRepeat": "Repeat",
   "categoryReorderEdit": "Edit",
-  "categoryReorderHint": "Drag the handle to reorder. Parents move among parents; subcategories move within their parent."
+  "categoryReorderHint": "Drag the handle to reorder. Parents move among parents; subcategories move within their parent.",
+  "txmSpendSummary": "Spending summary",
+  "txmInsightLessPre": "Spending ",
+  "txmInsightLessHl": "{amount} less",
+  "@txmInsightLessHl": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "txmInsightLessPost": " than last month",
+  "txmInsightMorePre": "Spending ",
+  "txmInsightMoreHl": "{amount} more",
+  "@txmInsightMoreHl": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "txmInsightMorePost": " than last month",
+  "txmInsightSame": "Spending about the same as last month",
+  "txmInsightNone": "No transactions this month",
+  "txmInsightTopCatPre": "Spent the most on ",
+  "txmInsightTopCatPost": " this month",
+  "txmPrevMonthBtn": "View {month} history",
+  "@txmPrevMonthBtn": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "txmEmptyMonth": "No transactions in {month}",
+  "@txmEmptyMonth": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "txmEmptyMonthDesc": "Browse another month or add your first transaction.",
+  "txmToday": "Today",
+  "txmYesterday": "Yesterday"
 }
