@@ -98,6 +98,7 @@ class _Content extends ConsumerWidget {
 
         // 2) 알림 종류
         _SectionCard(
+          gap: PSpace.x0, // 알림 종류 label↔content gap 삭제(사용자 결정)
           title: l.notiKindTitle,
           subtitle: l.notiKindSubtitle,
           child: Column(
@@ -350,19 +351,25 @@ class _MasterCard extends StatelessWidget {
 // ── 공용: 섹션 카드 (제목 + 소제목 + child) ──────────────────────────────────
 
 class _SectionCard extends StatelessWidget {
-  const _SectionCard({required this.title, required this.child, this.subtitle});
+  const _SectionCard({
+    required this.title,
+    required this.child,
+    this.subtitle,
+    this.gap = PSpace.sm,
+  });
   final String title;
   final String? subtitle;
   final Widget child;
+  final double gap;
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
     // 카드 다이어트 — design .m-subpage SettingsGroup 플랫: 카드 없이 타이틀 + 행.
-    // 섹션 label↔content 간격을 padding → Column gap(spacing sm)으로(사용자 결정).
+    // 섹션 label↔content 간격을 padding → Column gap(spacing)으로(사용자 결정, 섹션별 gap).
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      spacing: PSpace.sm,
+      spacing: gap,
       children: [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -580,6 +587,7 @@ class _QuietHoursCard extends StatelessWidget {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
     return _SectionCard(
+      gap: PSpace.x0, // 방해 금지 label↔content gap 삭제(사용자 결정)
       title: l.notiQuietTitle,
       subtitle: l.notiQuietSubtitle,
       child: Column(
@@ -757,6 +765,7 @@ class _SoundCard extends StatelessWidget {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
     return _SectionCard(
+      gap: PSpace.md, // 소리·진동 label↔content gap md(사용자 결정)
       title: l.notiSoundTitle,
       child: Column(
         children: [
@@ -881,6 +890,7 @@ class _EmailCard extends StatelessWidget {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
     return _SectionCard(
+      gap: PSpace.x0, // 이메일 알림 label↔content gap 삭제(사용자 결정)
       title: l.notiEmailTitle,
       subtitle: l.notiEmailSubtitle,
       child: Column(
