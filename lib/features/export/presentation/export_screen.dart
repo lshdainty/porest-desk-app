@@ -312,7 +312,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
           const SizedBox(height: 2),
           Text(desc, style: PTypo.caption.copyWith(color: t.fgTertiary)),
         ],
-        const SizedBox(height: PSpace.x12),
+        // label↔content gap 0(사용자 결정, web margin-top 12 삭제 정합).
         child,
       ],
     );
