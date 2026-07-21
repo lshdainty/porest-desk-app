@@ -48,8 +48,8 @@ class ExpenseRow extends StatelessWidget {
       borderRadius: BorderRadius.circular(10),
       child: Padding(
         // design `.m-scroll .tx-list .tx-row`: 12px 10px + radius 10 (플랫 행 리듬).
-        // 좌우 inset 삭제(사용자 결정, web 행 wrapper 10 삭제 정합).
-        padding: const EdgeInsets.symmetric(vertical: PSpace.x12),
+        // web pl-1.5(6)−ml-1(4) = 순 좌측 +2 정합(사용자 결정). 우측 0.
+        padding: const EdgeInsets.fromLTRB(2, PSpace.x12, 0, PSpace.x12),
         child: Row(
           children: [
             Container(
