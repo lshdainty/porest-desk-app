@@ -196,7 +196,7 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
                                 ),
                               ],
                             ),
-                            const SizedBox(height: PSpace.x8),
+                            const SizedBox(height: PSpace.x4), // 전체목록↔toggle 4(사용자 결정)
                             // 2행: 필터 single toggle
                             Row(
                               children: [
@@ -651,9 +651,9 @@ class _RecurringRow extends StatelessWidget {
     return Opacity(
       opacity: isActive ? 1.0 : 0.55,
       child: Padding(
-        // 행 좌우 살짝 inset(10) — 가계부 ExpenseRow 정합(라벨·토글은 inset 0).
+        // 행 좌우 inset 4(사용자 결정) — 라벨·토글은 inset 0.
         padding: const EdgeInsets.symmetric(
-          horizontal: 10,
+          horizontal: PSpace.x4,
           vertical: PSpace.x12,
         ),
         child: Row(

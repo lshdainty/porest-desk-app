@@ -479,7 +479,7 @@ class _PresetRow extends StatelessWidget {
               border: Border(top: BorderSide(color: t.borderSubtle)),
             )
           : null,
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: PSpace.x4, vertical: 12),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -741,7 +741,7 @@ class _ListSkeleton extends StatelessWidget {
                     border: Border(top: BorderSide(color: t.borderSubtle)),
                   )
                 : null,
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: PSpace.x4, vertical: 12),
             child: Row(
               children: [
                 // 실제 _PresetRow 아이콘 박스: 40×40, PRadius.tile(40)=12.
