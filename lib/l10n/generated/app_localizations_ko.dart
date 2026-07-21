@@ -2802,7 +2802,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get appearanceHideAmountDesc => '모든 화면의 금액을 ••••로 표시합니다';
 
   @override
-  String get appearanceCurrency => '통화';
+  String get appearanceCurrency => '기본 통화';
 
   @override
   String get appearanceCurrencyKrw => '대한민국 원';

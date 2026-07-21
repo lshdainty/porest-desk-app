@@ -57,7 +57,7 @@ class PRadioList<T> extends StatelessWidget {
   (double padX, double padY, double pillSize, double gap, double checkSize)
       get _metrics => switch (size) {
             PRadioListSize.sm => (12, 10, 28, 10, 14),
-            PRadioListSize.md => (16, 14, 32, 12, 16),
+            PRadioListSize.md => (8, 14, 32, 12, 16),
             PRadioListSize.lg => (20, 16, 40, 14, 18),
           };
 

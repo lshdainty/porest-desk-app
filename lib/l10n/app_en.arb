@@ -1507,7 +1507,7 @@
   "appearancePrivacy": "Privacy",
   "appearanceHideAmount": "Hide amounts",
   "appearanceHideAmountDesc": "Display all amounts as ••••",
-  "appearanceCurrency": "Currency",
+  "appearanceCurrency": "Default currency",
   "appearanceCurrencyKrw": "South Korean Won",
   "appearanceCurrencyUsd": "US Dollar",
   "appearanceCurrencyEur": "Euro",
