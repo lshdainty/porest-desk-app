@@ -1013,7 +1013,7 @@ class _ExpenseDayGroupSkeleton extends StatelessWidget {
       children: [
         // 날짜 헤더 — 플랫 day-head (_DayGroup 정합: 위 2 / 아래 10).
         Padding(
-          padding: const EdgeInsets.only(top: 2, bottom: 10),
+          padding: EdgeInsets.zero, // 실제 날짜 헤더 padding 제거 정합
           child: Row(
             children: const [
               PSkeleton.line(width: 48, height: 13),
@@ -1032,8 +1032,7 @@ class _ExpenseDayGroupSkeleton extends StatelessWidget {
               for (int i = 0; i < rows; i++) ...[
                 const Padding(
                   padding: EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: PSpace.x12,
+                    vertical: PSpace.x12, // 좌우 0 — 실제 ExpenseRow 정합
                   ),
                   child: Row(
                     children: [

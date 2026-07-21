@@ -242,12 +242,15 @@ class _AccountCardManageSkeleton extends StatelessWidget {
                   const PSkeleton(width: 72, height: 32),
                 ],
               ),
-              // 스켈레톤 플랫 — 총액 label 과 gap 0(실제 리스트 정합).
-              Column(
-                children: [
-                  for (int i = 0; i < 5; i++)
-                    _ManageRowSkel(isLast: i == 4, tokens: t),
-                ],
+              // 스켈레톤 플랫 — 총액 label 과 gap 0 + Transform -8(실제 리스트 정합).
+              Transform.translate(
+                offset: const Offset(0, -8),
+                child: Column(
+                  children: [
+                    for (int i = 0; i < 5; i++)
+                      _ManageRowSkel(isLast: i == 4, tokens: t),
+                  ],
+                ),
               ),
             ],
           ),
@@ -272,7 +275,7 @@ class _ManageRowSkel extends StatelessWidget {
             : Border(bottom: BorderSide(color: t.borderSubtle)),
       ),
       padding: const EdgeInsets.symmetric(
-        horizontal: PSpace.x16,
+        horizontal: PSpace.x8, // 실제 행 x8 정합
         vertical: PSpace.x16,
       ),
       child: Row(
