@@ -841,7 +841,7 @@ class _RecurringSkeleton extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: PSpace.x8),
+                    const SizedBox(height: PSpace.x4),
                     // 필터 칩(카운트=데이터) placeholder — 칩 4개, sm toggle 높이 32.
                     Row(
                       children: const [
@@ -861,7 +861,7 @@ class _RecurringSkeleton extends StatelessWidget {
               for (int i = 0; i < 4; i++) ...[
                 Padding(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
+                    horizontal: PSpace.x4, // 실제 행 x4 정합
                     vertical: PSpace.x12,
                   ),
                   child: Row(
