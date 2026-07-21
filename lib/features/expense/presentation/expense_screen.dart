@@ -1031,8 +1031,8 @@ class _ExpenseDayGroupSkeleton extends StatelessWidget {
             children: [
               for (int i = 0; i < rows; i++) ...[
                 const Padding(
-                  padding: EdgeInsets.symmetric(
-                    vertical: PSpace.x12, // 좌우 0 — 실제 ExpenseRow 정합
+                  padding: EdgeInsets.fromLTRB(
+                    2, PSpace.x12, 0, PSpace.x12, // 실제 ExpenseRow(좌2/우0) 정합
                   ),
                   child: Row(
                     children: [
