@@ -161,8 +161,8 @@ class _PresetScreenState extends ConsumerState<PresetScreen> {
           expenseCount: expenseCount,
           incomeCount: incomeCount,
         ),
-        // 묶음 경계 — 정보 묶음 ↔ toggle+list 묶음 사이 xl(24, 사용자 결정, web 정합).
-        const SizedBox(height: PSpace.x24),
+        // 묶음 경계 — 정보 묶음 ↔ toggle+list 묶음 사이 2xl(32, 사용자 결정, web 정합).
+        const SizedBox(height: PSpace.x32),
 
         // (3)+(4) 정렬 툴바 + 리스트 = 한 묶음. toggle 이 list 바로 위에 붙도록 사이 gap 0
         // (사용자 결정), 위 통계 묶음과는 x24 로 분리(web wrapper 정합).
@@ -479,7 +479,7 @@ class _PresetRow extends StatelessWidget {
               border: Border(top: BorderSide(color: t.borderSubtle)),
             )
           : null,
-      padding: const EdgeInsets.symmetric(horizontal: PSpace.x4, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: PSpace.x8, vertical: 12),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -741,7 +741,7 @@ class _ListSkeleton extends StatelessWidget {
                     border: Border(top: BorderSide(color: t.borderSubtle)),
                   )
                 : null,
-            padding: const EdgeInsets.symmetric(horizontal: PSpace.x4, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: PSpace.x8, vertical: 12),
             child: Row(
               children: [
                 // 실제 _PresetRow 아이콘 박스: 40×40, PRadius.tile(40)=12.
