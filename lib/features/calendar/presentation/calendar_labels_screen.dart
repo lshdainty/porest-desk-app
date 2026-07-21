@@ -220,9 +220,9 @@ class _LabelRow extends StatelessWidget {
       child: InkWell(
       onTap: onTap,
       child: Padding(
-        // web 정합 — 행 padding 14px 4px(사용자 결정, 좌우 축소).
+        // web 정합 — 행 padding 14px 8px(사용자 결정).
         padding: const EdgeInsets.symmetric(
-            horizontal: PSpace.x4, vertical: 14),
+            horizontal: PSpace.x8, vertical: 14),
         child: Row(
           children: [
             Container(
