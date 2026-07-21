@@ -9019,6 +9019,102 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'핸들을 잡고 위·아래로 끌어 순서를 바꿔요. 상위 카테고리끼리·하위 카테고리끼리 이동돼요.'**
   String get categoryReorderHint;
+
+  /// No description provided for @txmSpendSummary.
+  ///
+  /// In ko, this message translates to:
+  /// **'소비 요약'**
+  String get txmSpendSummary;
+
+  /// No description provided for @txmInsightLessPre.
+  ///
+  /// In ko, this message translates to:
+  /// **'지난달보다 '**
+  String get txmInsightLessPre;
+
+  /// No description provided for @txmInsightLessHl.
+  ///
+  /// In ko, this message translates to:
+  /// **'{amount} 덜'**
+  String txmInsightLessHl(String amount);
+
+  /// No description provided for @txmInsightLessPost.
+  ///
+  /// In ko, this message translates to:
+  /// **' 쓰는 중'**
+  String get txmInsightLessPost;
+
+  /// No description provided for @txmInsightMorePre.
+  ///
+  /// In ko, this message translates to:
+  /// **'지난달보다 '**
+  String get txmInsightMorePre;
+
+  /// No description provided for @txmInsightMoreHl.
+  ///
+  /// In ko, this message translates to:
+  /// **'{amount} 더'**
+  String txmInsightMoreHl(String amount);
+
+  /// No description provided for @txmInsightMorePost.
+  ///
+  /// In ko, this message translates to:
+  /// **' 쓰는 중'**
+  String get txmInsightMorePost;
+
+  /// No description provided for @txmInsightSame.
+  ///
+  /// In ko, this message translates to:
+  /// **'지난달과 비슷하게 쓰고 있어요'**
+  String get txmInsightSame;
+
+  /// No description provided for @txmInsightNone.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 달에는 거래 내역이 없어요'**
+  String get txmInsightNone;
+
+  /// No description provided for @txmInsightTopCatPre.
+  ///
+  /// In ko, this message translates to:
+  /// **'이번 달 '**
+  String get txmInsightTopCatPre;
+
+  /// No description provided for @txmInsightTopCatPost.
+  ///
+  /// In ko, this message translates to:
+  /// **'에 가장 많이 썼어요'**
+  String get txmInsightTopCatPost;
+
+  /// No description provided for @txmPrevMonthBtn.
+  ///
+  /// In ko, this message translates to:
+  /// **'{month} 이용 내역 보기'**
+  String txmPrevMonthBtn(String month);
+
+  /// No description provided for @txmEmptyMonth.
+  ///
+  /// In ko, this message translates to:
+  /// **'{month} 거래가 없어요'**
+  String txmEmptyMonth(String month);
+
+  /// No description provided for @txmEmptyMonthDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'다른 달을 살펴보거나 첫 거래를 추가해보세요.'**
+  String get txmEmptyMonthDesc;
+
+  /// No description provided for @txmToday.
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘'**
+  String get txmToday;
+
+  /// No description provided for @txmYesterday.
+  ///
+  /// In ko, this message translates to:
+  /// **'어제'**
+  String get txmYesterday;
 }
 
 class _AppLocalizationsDelegate

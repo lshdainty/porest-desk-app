@@ -4824,4 +4824,60 @@ class AppLocalizationsKo extends AppLocalizations {
   @override
   String get categoryReorderHint =>
       '핸들을 잡고 위·아래로 끌어 순서를 바꿔요. 상위 카테고리끼리·하위 카테고리끼리 이동돼요.';
+
+  @override
+  String get txmSpendSummary => '소비 요약';
+
+  @override
+  String get txmInsightLessPre => '지난달보다 ';
+
+  @override
+  String txmInsightLessHl(String amount) {
+    return '$amount 덜';
+  }
+
+  @override
+  String get txmInsightLessPost => ' 쓰는 중';
+
+  @override
+  String get txmInsightMorePre => '지난달보다 ';
+
+  @override
+  String txmInsightMoreHl(String amount) {
+    return '$amount 더';
+  }
+
+  @override
+  String get txmInsightMorePost => ' 쓰는 중';
+
+  @override
+  String get txmInsightSame => '지난달과 비슷하게 쓰고 있어요';
+
+  @override
+  String get txmInsightNone => '이 달에는 거래 내역이 없어요';
+
+  @override
+  String get txmInsightTopCatPre => '이번 달 ';
+
+  @override
+  String get txmInsightTopCatPost => '에 가장 많이 썼어요';
+
+  @override
+  String txmPrevMonthBtn(String month) {
+    return '$month 이용 내역 보기';
+  }
+
+  @override
+  String txmEmptyMonth(String month) {
+    return '$month 거래가 없어요';
+  }
+
+  @override
+  String get txmEmptyMonthDesc => '다른 달을 살펴보거나 첫 거래를 추가해보세요.';
+
+  @override
+  String get txmToday => '오늘';
+
+  @override
+  String get txmYesterday => '어제';
 }

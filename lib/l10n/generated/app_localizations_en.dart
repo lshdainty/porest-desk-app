@@ -4877,4 +4877,61 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get categoryReorderHint =>
       'Drag the handle to reorder. Parents move among parents; subcategories move within their parent.';
+
+  @override
+  String get txmSpendSummary => 'Spending summary';
+
+  @override
+  String get txmInsightLessPre => 'Spending ';
+
+  @override
+  String txmInsightLessHl(String amount) {
+    return '$amount less';
+  }
+
+  @override
+  String get txmInsightLessPost => ' than last month';
+
+  @override
+  String get txmInsightMorePre => 'Spending ';
+
+  @override
+  String txmInsightMoreHl(String amount) {
+    return '$amount more';
+  }
+
+  @override
+  String get txmInsightMorePost => ' than last month';
+
+  @override
+  String get txmInsightSame => 'Spending about the same as last month';
+
+  @override
+  String get txmInsightNone => 'No transactions this month';
+
+  @override
+  String get txmInsightTopCatPre => 'Spent the most on ';
+
+  @override
+  String get txmInsightTopCatPost => ' this month';
+
+  @override
+  String txmPrevMonthBtn(String month) {
+    return 'View $month history';
+  }
+
+  @override
+  String txmEmptyMonth(String month) {
+    return 'No transactions in $month';
+  }
+
+  @override
+  String get txmEmptyMonthDesc =>
+      'Browse another month or add your first transaction.';
+
+  @override
+  String get txmToday => 'Today';
+
+  @override
+  String get txmYesterday => 'Yesterday';
 }
