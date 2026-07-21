@@ -422,7 +422,6 @@ class _ToggleRow extends StatelessWidget {
     final t = context.tokens;
     return Padding(
       padding: const EdgeInsets.symmetric(
-        horizontal: PSpace.x16,
         vertical: PSpace.x12,
       ),
       child: Row(
@@ -588,7 +587,6 @@ class _QuietHoursCard extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(
-              horizontal: PSpace.x16,
               vertical: PSpace.x12,
             ),
             child: Row(
@@ -766,7 +764,6 @@ class _SoundCard extends StatelessWidget {
           // 행1 — 알림음 (Select)
           Padding(
             padding: const EdgeInsets.symmetric(
-              horizontal: PSpace.x16,
               vertical: PSpace.x12,
             ),
             child: Row(
@@ -819,7 +816,6 @@ class _SoundCard extends StatelessWidget {
           // 행2 — 진동 (Switch)
           Padding(
             padding: const EdgeInsets.symmetric(
-              horizontal: PSpace.x16,
               vertical: PSpace.x12,
             ),
             child: Row(
@@ -892,7 +888,6 @@ class _EmailCard extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(
-              horizontal: PSpace.x16,
               vertical: PSpace.x12,
             ),
             child: Row(
@@ -1073,7 +1068,6 @@ class _SkeletonSectionCard extends StatelessWidget {
             if (i > 0) const PDivider(),
             const Padding(
               padding: EdgeInsets.symmetric(
-                horizontal: PSpace.x16,
                 vertical: PSpace.x12,
               ),
               child: Row(
