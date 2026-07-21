@@ -359,30 +359,29 @@ class _SectionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.tokens;
     // 카드 다이어트 — design .m-subpage SettingsGroup 플랫: 카드 없이 타이틀 + 행.
+    // 섹션 label↔content 간격을 padding → Column gap(spacing sm)으로(사용자 결정).
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      spacing: PSpace.sm,
       children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(0, 0, 0, PSpace.sm),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: PTypo.bodyLg.copyWith(
-                  color: t.fgPrimary,
-                  fontWeight: PFontWeight.bold,
-                ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: PTypo.bodyLg.copyWith(
+                color: t.fgPrimary,
+                fontWeight: PFontWeight.bold,
               ),
-              if (subtitle != null) ...[
-                const SizedBox(height: 2),
-                Text(
-                  subtitle!,
-                  style: PTypo.caption.copyWith(color: t.fgTertiary),
-                ),
-              ],
+            ),
+            if (subtitle != null) ...[
+              const SizedBox(height: 2),
+              Text(
+                subtitle!,
+                style: PTypo.caption.copyWith(color: t.fgTertiary),
+              ),
             ],
-          ),
+          ],
         ),
         child,
       ],
