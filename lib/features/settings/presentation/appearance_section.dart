@@ -120,7 +120,7 @@ class AppearanceSection extends ConsumerWidget {
           children: [
             PSectionLabel(l.appearancePrivacy,
                 variant: PSectionLabelVariant.section),
-            const SizedBox(height: PSpace.x8),
+            // label↔content gap 0(사용자 결정) — 테마·언어만 gap.
             // 금액 가리기 — 카드 다이어트: 카드 없이 플랫 행 (아이콘 박스 + 라벨/설명 + 스위치).
             // 켜기는 즉시, 끄기는 비밀번호 인증 (toggleHideAmountsWithUnlock).
             Padding(
@@ -217,7 +217,7 @@ class AppearanceSection extends ConsumerWidget {
           children: [
             PSectionLabel(l.appearanceCurrency,
                 variant: PSectionLabelVariant.section),
-            const SizedBox(height: PSpace.x8),
+            // label↔content gap 0(사용자 결정) — 테마·언어만 gap.
             PRadioList<String>(
               value: settings.currency,
               onChanged: (code) =>
