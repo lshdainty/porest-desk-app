@@ -769,11 +769,9 @@ class _SoundCard extends StatelessWidget {
       title: l.notiSoundTitle,
       child: Column(
         children: [
-          // 행1 — 알림음 (Select)
+          // 행1 — 알림음 (Select) — 상단 padding 없음(label gap md 만, web 정합).
           Padding(
-            padding: const EdgeInsets.symmetric(
-              vertical: PSpace.x12,
-            ),
+            padding: const EdgeInsets.only(bottom: PSpace.x12),
             child: Row(
               children: [
                 const _ToneIcon(icon: LucideIcons.volume2, tone: _Tone.info),
@@ -821,11 +819,9 @@ class _SoundCard extends StatelessWidget {
             ),
           ),
           const _RowDivider(),
-          // 행2 — 진동 (Switch)
+          // 행2 — 진동 (Switch) — 상단 12(web paddingTop 정합).
           Padding(
-            padding: const EdgeInsets.symmetric(
-              vertical: PSpace.x12,
-            ),
+            padding: const EdgeInsets.only(top: PSpace.x12),
             child: Row(
               children: [
                 const _ToneIcon(icon: LucideIcons.vibrate, tone: _Tone.brand),
