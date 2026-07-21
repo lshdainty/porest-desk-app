@@ -606,7 +606,7 @@ class _AssetCard extends StatelessWidget {
         onTap: () => showAssetDetailDialog(context, asset),
         borderRadius: BorderRadius.circular(10),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
           child: Row(
             children: [
               AssetLogo(asset: asset),
@@ -907,7 +907,7 @@ class _AssetTypeGroupSkeleton extends StatelessWidget {
       children: [
           // header: title(15/bold) + Spacer + total(bodySm) — 실제 _TypeGroup 정합.
           Padding(
-            padding: const EdgeInsets.only(bottom: PSpace.x12),
+            padding: const EdgeInsets.only(bottom: PSpace.x8),
             child: Row(
               children: const [
                 PSkeleton.line(width: 80, height: 16),
@@ -921,7 +921,7 @@ class _AssetTypeGroupSkeleton extends StatelessWidget {
           for (int i = 0; i < rows; i++)
             Padding(
               padding: const EdgeInsets.symmetric(
-                horizontal: 10,
+                horizontal: 8,
                 vertical: PSpace.x12,
               ),
               child: Row(

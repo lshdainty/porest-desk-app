@@ -18,7 +18,7 @@ class PFlatSection extends StatelessWidget {
     required this.title,
     this.titleSuffix,
     this.trailing,
-    this.headGap = 12,
+    this.headGap = 8, // web .flat-group__head padding-bottom 8 정합
     this.contentPadding = EdgeInsets.zero,
     required this.child,
   });
