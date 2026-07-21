@@ -1126,7 +1126,7 @@ class _CategoryListCard extends StatelessWidget {
     // 카드 다이어트 — design 카테고리별 예산: 플랫 섹션(헤드 gap 14) + budget-row 리듬.
     return PFlatSection(
       title: l.budgetByCategory,
-      headGap: 14,
+      headGap: 0, // 카테고리별 예산 label↔list gap 0(사용자 결정, label·list 는 한 묶음)
       trailing: Text(
         l.budgetCountSet(budgets.length),
         style: PTypo.caption.copyWith(color: tokens.fgTertiary),
