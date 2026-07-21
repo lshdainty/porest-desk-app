@@ -195,7 +195,8 @@ class _Section extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.only(left: 2, bottom: PSpace.x8),
+          // label padding 4/4/0 (web 정합) — label·list 한 묶음.
+          padding: const EdgeInsets.fromLTRB(PSpace.x4, PSpace.x4, PSpace.x4, 0),
           child: Text(title, style: PTypo.bodySm.copyWith(color: t.fgPrimary, fontWeight: PFontWeight.bold)),
         ),
         if (calendars.isEmpty)
@@ -240,7 +241,7 @@ class _CalendarRow extends ConsumerWidget {
     return InkWell(
       onTap: () => _showManageSheet(context, ref, calendar),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: PSpace.x16, vertical: PSpace.x12),
+        padding: const EdgeInsets.symmetric(horizontal: PSpace.x8, vertical: PSpace.x12),
         child: Row(
           children: [
             Container(
