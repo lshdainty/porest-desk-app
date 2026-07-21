@@ -152,38 +152,44 @@ class _AccountCardManageScreenState
                       ],
                     ),
                     // 리스트 — 총액 label 과 gap 0(사용자 결정, label·list 는 한 묶음).
-                    if (filtered.isEmpty)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: PSpace.x32,
-                        ),
-                        child: Center(
-                          child: Text(
-                            l.assetCategoryEmpty(_groupLabel(l, _tab)),
-                            style: PTypo.bodySm.copyWith(color: t.fgTertiary),
-                          ),
-                        ),
-                      )
-                    else
-                      // 카드 다이어트 — 카드 없이 플랫 행 리스트.
-                      Column(
-                          children: [
-                            for (var i = 0; i < filtered.length; i++)
-                              _ManageRow(
-                                asset: filtered[i],
-                                masked: masked,
-                                negative: isCard,
-                                tokens: t,
-                                showTopBorder: i > 0,
-                                onTap: () => showAssetDetailRich(
-                                  context,
-                                  filtered[i],
-                                  onEdit: () =>
-                                      showAssetEditForm(context, filtered[i]),
+                    // margin-top -8(web 정합) — Flutter 음수 margin 없어 Transform.translate
+                    // (paint-only, label↔list 시각 간격 -8 당김).
+                    Transform.translate(
+                      offset: const Offset(0, -8),
+                      child: filtered.isEmpty
+                          ? Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: PSpace.x32,
+                              ),
+                              child: Center(
+                                child: Text(
+                                  l.assetCategoryEmpty(_groupLabel(l, _tab)),
+                                  style: PTypo.bodySm.copyWith(
+                                    color: t.fgTertiary,
+                                  ),
                                 ),
                               ),
-                          ],
-                        ),
+                            )
+                          // 카드 다이어트 — 카드 없이 플랫 행 리스트.
+                          : Column(
+                              children: [
+                                for (var i = 0; i < filtered.length; i++)
+                                  _ManageRow(
+                                    asset: filtered[i],
+                                    masked: masked,
+                                    negative: isCard,
+                                    tokens: t,
+                                    showTopBorder: i > 0,
+                                    onTap: () => showAssetDetailRich(
+                                      context,
+                                      filtered[i],
+                                      onEdit: () => showAssetEditForm(
+                                          context, filtered[i]),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                    ),
                   ],
                 ),
               ),
