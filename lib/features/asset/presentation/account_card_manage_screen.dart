@@ -332,7 +332,8 @@ class _ManageRow extends StatelessWidget {
                 : null,
           ),
           // web MANAGE_ROW(계좌·카테고리 공용) 정합 — py 12 / 아이콘 36 / 금액 bodySm
-          padding: const EdgeInsets.symmetric(horizontal: PSpace.x16, vertical: PSpace.x12),
+          // 관리 행 좌우 inset 웹 px-2(8) 정합(사용자 결정).
+          padding: const EdgeInsets.symmetric(horizontal: PSpace.x8, vertical: PSpace.x12),
           child: Row(
             children: [
               AssetLogo(asset: asset, size: 36),
