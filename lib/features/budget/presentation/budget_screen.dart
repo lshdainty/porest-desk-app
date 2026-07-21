@@ -1131,7 +1131,8 @@ class _CategoryListCard extends StatelessWidget {
         l.budgetCountSet(budgets.length),
         style: PTypo.caption.copyWith(color: tokens.fgTertiary),
       ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+      // 관리 행 좌우 inset 웹 px-2(8) 정합(사용자 결정).
+      contentPadding: const EdgeInsets.symmetric(horizontal: PSpace.x8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
