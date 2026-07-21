@@ -92,14 +92,12 @@ class _CalendarLabelsScreenState extends ConsumerState<CalendarLabelsScreen> {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 2, bottom: PSpace.x8),
-                      child: Text(l.calAllLabelsCount(labels.length),
-                          style: PTypo.bodySm.copyWith(
-                            color: t.fgPrimary,
-                            fontWeight: PFontWeight.bold,
-                          )),
-                    ),
+                    // label padding 제거(사용자 결정, web 정합) — label·list 한 묶음 gap 0.
+                    Text(l.calAllLabelsCount(labels.length),
+                        style: PTypo.bodySm.copyWith(
+                          color: t.fgPrimary,
+                          fontWeight: PFontWeight.bold,
+                        )),
                     if (labels.isEmpty)
                       // 카드 다이어트 — 빈 상태 플랫.
                       Padding(
@@ -222,9 +220,9 @@ class _LabelRow extends StatelessWidget {
       child: InkWell(
       onTap: onTap,
       child: Padding(
-        // web 정합 — 행 padding 14px 16px.
+        // web 정합 — 행 padding 14px 4px(사용자 결정, 좌우 축소).
         padding: const EdgeInsets.symmetric(
-            horizontal: PSpace.x16, vertical: 14),
+            horizontal: PSpace.x4, vertical: 14),
         child: Row(
           children: [
             Container(
