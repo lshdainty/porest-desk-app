@@ -117,6 +117,31 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
     if (result != null && mounted) setState(() => _advFilter = result);
   }
 
+  /// 기간 필터 범위 — web computeFilterRange 미러 (클라 필터, v0.1).
+  /// null = 제한 없음(custom+날짜 미입력·month 는 월 뷰 그대로).
+  (String?, String?) _periodRange(ExpenseFilter f) {
+    switch (f.period) {
+      case FilterPeriod.custom:
+        if ((f.startDate ?? '').isNotEmpty && (f.endDate ?? '').isNotEmpty) {
+          return (f.startDate, f.endDate);
+        }
+        return (null, null);
+      case FilterPeriod.month:
+        return (null, null);
+      case FilterPeriod.week:
+        final today = DateTime.now();
+        final dow = today.weekday % 7; // 0=Sun
+        final monday = today.add(Duration(days: dow == 0 ? -6 : 1 - dow));
+        return (_ymdOf(monday), _ymdOf(monday.add(const Duration(days: 6))));
+      case FilterPeriod.threeMonth:
+        final today = DateTime.now();
+        return (
+          _ymdOf(DateTime(today.year, today.month - 2, 1)),
+          _ymdOf(today),
+        );
+    }
+  }
+
   static String _ymdOf(DateTime d) =>
       '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 
@@ -193,9 +218,18 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                               selectedCats.contains(c.parentRowId))
                             c.rowId,
                     };
+              final (pStart, pEnd) = _periodRange(_advFilter);
               final filtered =
                   raw
                       .where((e) {
+                        // 기간 필터(클라) — 월 데이터와의 교집합만 표시.
+                        final d = e.expenseDateOnly ?? '';
+                        if (pStart != null && d.compareTo(pStart) < 0) {
+                          return false;
+                        }
+                        if (pEnd != null && d.compareTo(pEnd) > 0) {
+                          return false;
+                        }
                         if (_assetIdFilter != null &&
                             e.assetRowId != _assetIdFilter) {
                           return false;
@@ -260,6 +294,9 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
               final advCount =
                   _advFilter.categoryIds.length +
                   _advFilter.assetIds.length +
+                  // web filterActiveCount 정합 — 기본(custom) 외 기간 선택도 카운트.
+                  (_advFilter.period != FilterPeriod.custom ? 1 : 0) +
+                  (pStart != null && _advFilter.period == FilterPeriod.custom ? 1 : 0) +
                   (_advFilter.types.length < 2 ? 1 : 0) +
                   (_advFilter.min != null ? 1 : 0) +
                   (_advFilter.max != null ? 1 : 0);
@@ -368,7 +405,8 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                         ),
                       ),
                     ),
-                  // 캘린더 — 접힘: 선택 주 1줄 / 펼침: 월 전체
+                  // 캘린더 — 필터 적용 시 숨김(리스트만, 사용자 결정·web 정합).
+                  if (!(advCount > 0 || _assetIdFilter != null)) ...[
                   _TxmCalendar(
                     month: _month,
                     selected: _selected,
@@ -382,6 +420,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                     onToggleExpand: () => setState(() => _expanded = !_expanded),
                     tokens: t,
                   ),
+                  ],
                   Container(height: 1, color: t.borderDefault),
                   // 거래 리스트 — 날짜 그룹
                   Padding(
@@ -818,9 +857,10 @@ class _TxmCalendar extends StatelessWidget {
                       fontSize: 10,
                       fontWeight: isSel ? PFontWeight.bold : PFontWeight.semi,
                       letterSpacing: -0.2,
-                      color: isSel
-                          ? t.fgPrimary
-                          : (data != null && data.out == 0 ? t.fgBrand : t.fgTertiary),
+                      // 지출 빨강·수입 파랑 — 아래 리스트와 동일(사용자 결정).
+                      color: data == null
+                          ? t.fgTertiary
+                          : (data.out > 0 ? t.fgExpense : t.fgBrand),
                       fontFeatures: const [FontFeature.tabularFigures()],
                     ),
                   ),
