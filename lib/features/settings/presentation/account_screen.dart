@@ -67,7 +67,8 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
         children: [
           // ── 프로필 헤더 — web: 중앙 정렬 avatar 72 + 이름 + 이메일 + 편집/Pro + 가입 시기
           PCard(
-            variant: PCardVariant.shadow,
+            // 자산 요약과 동일한 keep 카드(raised) — surface 배경 위에서 확실히 띄움.
+            variant: PCardVariant.raised,
             padding: const EdgeInsets.symmetric(
               vertical: 28,
               horizontal: PSpace.x24,
