@@ -926,27 +926,37 @@ class _TxmCalendar extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 3),
-                // 지출·수입 병기(각 줄) — 색은 아래 리스트와 동일(사용자 결정).
+                // 지출·수입 병기(각 줄) — 줄바꿈 없이 말줄임 + 전체 금액 Tooltip(사용자 결정).
                 if (data != null && data.out > 0)
-                  Text(
-                    '-${masked ? '••••' : krw(data.out)}',
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: isSel ? PFontWeight.bold : PFontWeight.semi,
-                      letterSpacing: -0.2,
-                      color: t.fgExpense,
-                      fontFeatures: const [FontFeature.tabularFigures()],
+                  Tooltip(
+                    message: '-${masked ? '••••' : krw(data.out)}',
+                    child: Text(
+                      '-${masked ? '••••' : krw(data.out)}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: isSel ? PFontWeight.bold : PFontWeight.semi,
+                        letterSpacing: -0.2,
+                        color: t.fgExpense,
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                      ),
                     ),
                   ),
                 if (data != null && data.inn > 0)
-                  Text(
-                    '+${masked ? '••••' : krw(data.inn)}',
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: isSel ? PFontWeight.bold : PFontWeight.semi,
-                      letterSpacing: -0.2,
-                      color: t.fgBrand,
-                      fontFeatures: const [FontFeature.tabularFigures()],
+                  Tooltip(
+                    message: '+${masked ? '••••' : krw(data.inn)}',
+                    child: Text(
+                      '+${masked ? '••••' : krw(data.inn)}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: isSel ? PFontWeight.bold : PFontWeight.semi,
+                        letterSpacing: -0.2,
+                        color: t.fgBrand,
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                      ),
                     ),
                   ),
                 if (data == null) const SizedBox(height: 12),
