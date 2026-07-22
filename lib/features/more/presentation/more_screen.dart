@@ -113,13 +113,12 @@ class _MoreScreenState extends ConsumerState<MoreScreen> {
           ]
         : groups;
 
-    return ListView(
-      // design MoreScreen: 컨테이너 padding '0 0 32px' — 좌우는 요소별 20.
-      padding: const EdgeInsets.all(PSpace.x24),
+    return Column(
       children: [
-        // 검색 인풋 — design padding '4px 16px 12px'
+        // 검색 인풋 — 리스트 스크롤과 무관하게 상단 고정.
         Padding(
-          padding: const EdgeInsets.only(bottom: PSpace.x12),
+          padding: const EdgeInsets.fromLTRB(
+              PSpace.x24, PSpace.x4, PSpace.x24, PSpace.x8),
           child: PSearchField(
             hint: l.moreSearchHint,
             controller: _ctrl,
@@ -127,6 +126,11 @@ class _MoreScreenState extends ConsumerState<MoreScreen> {
             onChanged: (v) => setState(() => _query = v),
           ),
         ),
+        Expanded(
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(
+                PSpace.x24, 0, PSpace.x24, PSpace.x24),
+            children: [
 
         if (isSearching && visible.isEmpty)
           Center(
@@ -184,6 +188,9 @@ class _MoreScreenState extends ConsumerState<MoreScreen> {
               ),
             ),
           ],
+            ],
+          ),
+        ),
       ],
     );
   }
