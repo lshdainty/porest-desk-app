@@ -80,7 +80,8 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                   width: 72,
                   height: 72,
                   decoration: BoxDecoration(
-                    color: t.bgBrand,
+                    // 아바타 채움은 다크에서도 primary 고정(bgBrandSolid, 사용자 결정·web 정합).
+                    color: t.bgBrandSolid,
                     shape: BoxShape.circle,
                   ),
                   alignment: Alignment.center,
@@ -166,10 +167,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           // ── 보안 — web: desc 우측 정렬 + chevron/switch
           _SectionLabel(label: l.accountSecurity, tokens: t),
           const SizedBox(height: PSpace.x8),
-          PCard(
-            variant: PCardVariant.shadow,
-            padding: EdgeInsets.zero,
-            child: Column(
+            Column(
               children: [
                 _AccountRow(
                   icon: LucideIcons.key,
@@ -221,16 +219,12 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                 ),
               ],
             ),
-          ),
           const SizedBox(height: PSpace.x32),
 
           // ── 연결된 계정 — web: 레터 아이콘 + '연결 안 됨' + 연결 버튼
           _SectionLabel(label: l.accountConnected, tokens: t),
           const SizedBox(height: PSpace.x8),
-          PCard(
-            variant: PCardVariant.shadow,
-            padding: EdgeInsets.zero,
-            child: Column(
+            Column(
               children: [
                 for (final social in _socialItems) ...[
                   if (social != _socialItems.first) const PDivider(),
@@ -250,18 +244,14 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                 ],
               ],
             ),
-          ),
           const SizedBox(height: PSpace.x32),
 
           // ── 구독·결제 — Porest Pro 단일 행 → 구독 관리 시트(일반/프로·결제)
           _SectionLabel(label: l.accountBilling, tokens: t),
           const SizedBox(height: PSpace.x8),
-          PCard(
-            variant: PCardVariant.shadow,
-            padding: EdgeInsets.zero,
             // 구독·결제 — 디자인대로 제목/부제 세로 스택 + 우측 가격/배지 커스텀 행.
             // (generic _AccountRow 가로 desc 는 긴 부제에서 label 이 글자단위로 깨짐)
-            child: InkWell(
+            InkWell(
               onTap: () => showSubscriptionSheet(context),
               borderRadius: PRadius.brLg,
               child: Padding(
@@ -335,7 +325,6 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                 ),
               ),
             ),
-          ),
 
           // ── 증권 데이터 연동 — 구독(Pro) 시에만 노출(별도 화면 아님, 인라인)
           if (hasSecurities) ...[
@@ -347,10 +336,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           // ── 계정 관리 — web: 로그아웃(일반) / 회원 탈퇴(danger)
           _SectionLabel(label: l.accountManage, tokens: t),
           const SizedBox(height: PSpace.x8),
-          PCard(
-            variant: PCardVariant.shadow,
-            padding: EdgeInsets.zero,
-            child: Column(
+            Column(
               children: [
                 _AccountRow(
                   icon: LucideIcons.logOut,
@@ -372,7 +358,6 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                 ),
               ],
             ),
-          ),
 
           const SizedBox(height: PSpace.x32),
         ],
