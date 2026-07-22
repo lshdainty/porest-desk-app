@@ -814,7 +814,6 @@ class _PaceCard extends StatelessWidget {
             ? PBadgeVariant.softSuccess
             : PBadgeVariant.softWarning,
       ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -980,7 +979,6 @@ class _StatusTiles extends StatelessWidget {
     // 카드 다이어트 — 플랫 섹션.
     return PFlatSection(
       title: l.budgetStatusTitle,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1132,7 +1130,6 @@ class _CategoryListCard extends StatelessWidget {
         style: PTypo.caption.copyWith(color: tokens.fgTertiary),
       ),
       // 관리 행 좌우 inset 웹 px-2(8) 정합(사용자 결정).
-      contentPadding: const EdgeInsets.symmetric(horizontal: PSpace.x8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1342,7 +1339,6 @@ class _ComplianceCard extends StatelessWidget {
         l.budgetComplianceSubtitle,
         style: PTypo.caption.copyWith(color: tokens.fgTertiary),
       ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1687,7 +1683,7 @@ class _BudgetLoadingSkeleton extends StatelessWidget {
         const SizedBox(height: PSpace.x32),
         // _PaceCard — 플랫 섹션 스켈레톤 (header + 게이지 + 2-column PaceStat).
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
+          padding: EdgeInsets.zero,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
