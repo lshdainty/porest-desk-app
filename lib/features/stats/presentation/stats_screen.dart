@@ -873,16 +873,16 @@ class _HeatmapSkeleton extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  PSkeleton.line(width: 28, height: 12),
+                  PSkeleton.line(width: 28, height: 13),
                   SizedBox(height: 2),
-                  PSkeleton.line(width: 40, height: 9),
+                  PSkeleton.line(width: 40, height: 12),
                 ],
               ),
             ),
             for (var c = 0; c < _heatCols.length; c++)
               const Expanded(
                 child: Padding(
-                  padding: EdgeInsets.all(2),
+                  padding: EdgeInsets.all(3),
                   child: AspectRatio(aspectRatio: 1, child: PSkeleton()),
                 ),
               ),
@@ -897,17 +897,14 @@ class _HeatmapSkeleton extends StatelessWidget {
             for (var c = 0; c < _heatCols.length; c++)
               const Expanded(
                 child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 2),
+                  padding: EdgeInsets.only(bottom: 4),
                   child: Center(child: PSkeleton.line(width: 12, height: 12)),
                 ),
               ),
           ],
         ),
         const SizedBox(height: 6),
-        for (var r = 0; r < _heatRows.length; r++) ...[
-          cellRow(),
-          if (r < _heatRows.length - 1) const SizedBox(height: 4),
-        ],
+        for (var r = 0; r < _heatRows.length; r++) cellRow(),
         const SizedBox(height: 14),
         // 범례 행
         Row(
@@ -1381,6 +1378,7 @@ class _TopMerchantsCard extends StatelessWidget {
     final top = sorted.take(5).toList();
     final maxAmt = top.isEmpty ? 1 : top.first.totalAmount;
     return _Card(
+      padding: EdgeInsets.zero, // 리스트 좌우 inset 제거(사용자 결정, 웹 동기)
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1559,13 +1557,13 @@ class _HeatmapCard extends StatelessWidget {
     }
 
     return _Card(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.zero, // 웹 히트맵은 섹션 inset 없이 풀폭
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _CardHeader(title: _CardTitle(l.statsPatternTitle)),
           Padding(
-            padding: const EdgeInsets.only(bottom: 14),
+            padding: const EdgeInsets.only(bottom: PSpace.x16),
             child: Text(
               l.statsPatternDesc,
               style: PTypo.caption.copyWith(color: t.fgTertiary),
@@ -1594,7 +1592,7 @@ class _HeatmapCard extends StatelessWidget {
                 for (final col in _heatCols)
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 2),
+                      padding: const EdgeInsets.only(bottom: 4),
                       child: Text(
                         weekdayLabels(mondayFirst: true)[_heatCols.indexOf(col)],
                         textAlign: TextAlign.center,
@@ -1618,17 +1616,16 @@ class _HeatmapCard extends StatelessWidget {
                       children: [
                         Text(
                           _heatRowLabel(l, r),
-                          style: PTypo.caption.copyWith(
+                          style: PTypo.bodySm.copyWith(
+                            // 웹 라벨 label-sm(13)/700 정합
                             color: t.fgPrimary,
                             fontWeight: PFontWeight.bold,
                           ),
                         ),
                         Text(
                           _heatRows[r].sub,
-                          style: PTypo.micro.copyWith(
-                            color: t.fgTertiary,
-                            fontSize: PFontSize.micro,
-                          ),
+                          // 웹 서브 caption(12) 정합
+                          style: PTypo.caption.copyWith(color: t.fgTertiary),
                         ),
                       ],
                     ),
@@ -1636,7 +1633,8 @@ class _HeatmapCard extends StatelessWidget {
                   for (var c = 0; c < _heatCols.length; c++)
                     Expanded(
                       child: Padding(
-                        padding: const EdgeInsets.all(2),
+                        // 웹 grid gap 6 정합 — 인접 셀 사이 3+3
+                        padding: const EdgeInsets.all(3),
                         child: AspectRatio(
                           aspectRatio: 1,
                           child: Container(
@@ -1669,7 +1667,6 @@ class _HeatmapCard extends StatelessWidget {
                     ),
                 ],
               ),
-              if (r < _heatRows.length - 1) const SizedBox(height: 4),
             ],
             const SizedBox(height: 14),
             Row(
