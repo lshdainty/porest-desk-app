@@ -668,8 +668,9 @@ class _PeriodTrigger extends StatelessWidget {
 /// 라벨(헤더)은 page padding edge(0)에, content 는 _Card 의 inset(8) 안쪽에 —
 /// 자산 `flat-group__head`(0) + `.acc-card`(inset) 리듬 정합. _Card 의 가로 inset(8=web spacing-sm)을
 /// Transform(paint-only, 레이아웃·높이 영향 없음)으로 상쇄: title 좌 −8, trailing 우 +8.
-/// 끌어낸 edge(24px abs)는 ListView content 경계라 clip 없음.
 class _CardHeader extends StatelessWidget {
+  // 라벨·trailing 은 페이지 inset(24)에서 그대로 시작 — 웹 Section 헤더 정합.
+  // (_Card 가 inset 8 을 갖던 시절의 Transform(-8/+8) edge-escape 는 제거.)
   const _CardHeader({required this.title, this.trailing});
   final Widget title;
   final Widget? trailing;
@@ -680,17 +681,8 @@ class _CardHeader extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Expanded(
-            child: Transform.translate(
-              offset: const Offset(-8, 0),
-              child: title,
-            ),
-          ),
-          if (trailing != null)
-            Transform.translate(
-              offset: const Offset(8, 0),
-              child: trailing,
-            ),
+          Expanded(child: title),
+          ?trailing,
         ],
       ),
     );
