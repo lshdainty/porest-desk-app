@@ -63,6 +63,7 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
 
   final Map<String, GlobalKey> _dayKeys = {};
   final ScrollController _scrollCtrl = ScrollController();
+  final GlobalKey _collapseKey = GlobalKey();
   final GlobalKey _listKey = GlobalKey();
   bool _lock = false;
   Timer? _lockTimer;
@@ -109,7 +110,15 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
   void _onScroll() {
     if (!_scrollCtrl.hasClients) return;
     final st = _scrollCtrl.offset;
-    final next = _compact ? st > 24 : st > 72;
+    // 콘텐츠가 짧으면 접힘(−collapse 높이) 순간 offset이 maxScrollExtent에
+    // clamp돼 해제 임계 아래로 떨어지며 접힘↔펼침 무한 플리커 — 접힌 뒤에도
+    // 진입 임계(72) 위에 남을 스크롤 여유가 있을 때만 진입.
+    final collapseH = _compact
+        ? 0.0
+        : (_collapseKey.currentContext?.size?.height ?? 0.0);
+    final canStay =
+        _scrollCtrl.position.maxScrollExtent - collapseH > 72;
+    final next = _compact ? st > 24 : st > 72 && canStay;
     if (next != _compact) {
       setState(() {
         _compact = next;
@@ -341,6 +350,7 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
         ),
         // 오늘 상태 + [밤하늘] 토글 — 스크롤 시 접힘.
         ClipRect(
+          key: _collapseKey,
           child: AnimatedSize(
             duration: const Duration(milliseconds: 220),
             curve: Curves.easeOut,
