@@ -19,6 +19,7 @@ class PCheckbox extends StatelessWidget {
     required this.value,
     required this.onChanged,
     this.size = PCheckboxSize.md,
+    this.dense = false,
     this.tristate = false,
     this.error = false,
     this.label,
@@ -33,6 +34,10 @@ class PCheckbox extends StatelessWidget {
   final ValueChanged<bool?>? onChanged;
 
   final PCheckboxSize size;
+
+  /// 행 전체가 탭 영역(InkWell 리스트 행 등)일 때 자체 44 히트박스 생략 —
+  /// control 크기만 차지. spec "row clickable로 44+ 확보" 패턴의 행 안 배치용.
+  final bool dense;
 
   /// indeterminate 상태 허용 (parent-child 그룹).
   final bool tristate;
@@ -124,11 +129,13 @@ class PCheckbox extends StatelessWidget {
           onTap: disabled
               ? null
               : () => onChanged!(indeterminate ? false : !checked),
-          child: SizedBox(
-            width: 44,
-            height: 44,
-            child: Center(child: control),
-          ),
+          child: dense
+              ? control
+              : SizedBox(
+                  width: 44,
+                  height: 44,
+                  child: Center(child: control),
+                ),
         ),
       );
       return helperText == null

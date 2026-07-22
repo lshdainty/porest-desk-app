@@ -398,6 +398,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
                 child: Row(
                   children: [
                     PCheckbox(
+                      dense: true,
                       value: _selected.contains(_types[i].name),
                       onChanged: (_) => _toggleType(_types[i].name),
                     ),
