@@ -393,7 +393,8 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
             InkWell(
               onTap: () => _toggleType(_types[i].name),
               child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: PSpace.x12),
+                // web 행 '12px 4px' 정합(사용자 결정).
+                padding: const EdgeInsets.symmetric(vertical: PSpace.x12, horizontal: PSpace.x4),
                 child: Row(
                   children: [
                     PCheckbox(
