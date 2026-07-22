@@ -57,13 +57,22 @@ class CollectionCard extends StatelessWidget {
             style: PTypo.caption.copyWith(color: t.fgTertiary, fontSize: 11.5),
           ),
           const SizedBox(height: 8),
-          for (final entry in collection.entries)
-            _CollectionRow(
-              entry: entry,
-              isToday: entry.constellation.constellationKey == todayKey,
-              t: t,
-              onTap: () => showConstellationDetailSheet(context, entry),
+          // 도감 리스트 — 페이지 전체 스크롤 방지, 리스트 안에서 스크롤(웹 420 동기).
+          SizedBox(
+            height: 420,
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                for (final entry in collection.entries)
+                  _CollectionRow(
+                    entry: entry,
+                    isToday: entry.constellation.constellationKey == todayKey,
+                    t: t,
+                    onTap: () => showConstellationDetailSheet(context, entry),
+                  ),
+              ],
             ),
+          ),
         ],
       ),
     );
@@ -101,7 +110,8 @@ class _CollectionRow extends StatelessWidget {
               decoration: BoxDecoration(
                 color: collected
                     ? Color.alphaBlend(color.withValues(alpha: 0.14), t.bgSurface)
-                    : t.bgSunken,
+                    // 웹 --bg-sunken(=앱 bgMuted) 정합 — 앱 bgSunken 은 페이지색이라 과진.
+                    : t.bgMuted,
                 borderRadius: PRadius.brMd,
               ),
               alignment: Alignment.center,
