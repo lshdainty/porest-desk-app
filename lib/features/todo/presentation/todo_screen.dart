@@ -362,7 +362,7 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
                     children: [
                       Padding(
                         padding:
-                            const EdgeInsets.fromLTRB(PSpace.x20, 8, PSpace.x20, 0),
+                            const EdgeInsets.fromLTRB(PSpace.x24, 8, PSpace.x24, 0),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -410,7 +410,7 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
                       if (_skyOpen && constToday != null)
                         Padding(
                           padding: const EdgeInsets.fromLTRB(
-                              PSpace.x20, 14, PSpace.x20, 0),
+                              PSpace.x24, 14, PSpace.x24, 0),
                           child: Column(
                             children: [
                               NightSkyHero(
@@ -478,7 +478,7 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
     final listChildren = <Widget>[
       if (dayKeysSorted.isEmpty && noDue.isEmpty)
         Padding(
-          padding: const EdgeInsets.fromLTRB(20, 56, 20, 20),
+          padding: const EdgeInsets.fromLTRB(PSpace.x24, 56, PSpace.x24, 20),
           child: Center(
             child: Column(
               children: [
@@ -548,7 +548,7 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
             child: ListView(
               key: _listKey,
               controller: _scrollCtrl,
-              padding: const EdgeInsets.fromLTRB(PSpace.x20, 0, PSpace.x20, 96),
+              padding: const EdgeInsets.fromLTRB(PSpace.x24, 0, PSpace.x24, 96),
               children: listChildren,
             ),
           ),
@@ -629,7 +629,7 @@ class _MonthNav extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = tokens;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
+      padding: const EdgeInsets.symmetric(horizontal: PSpace.x24),
       child: Row(
         children: [
           _btn(LucideIcons.chevronLeft, onPrev),
@@ -885,7 +885,7 @@ class _LedgerCalendar extends StatelessWidget {
 
     final dows = weekdayLabels();
     return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+      padding: const EdgeInsets.fromLTRB(PSpace.x24, 12, PSpace.x24, 0),
       child: Column(
         children: [
           Row(
@@ -1206,7 +1206,7 @@ class _FilterSheetBodyState extends State<_FilterSheetBody> {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(PSpace.x20, 0, PSpace.x20, 28),
+      padding: const EdgeInsets.fromLTRB(PSpace.x24, 0, PSpace.x24, 28),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -1394,7 +1394,7 @@ class _LedgerSkeleton extends StatelessWidget {
           tokens: t,
         ),
         const Padding(
-          padding: EdgeInsets.fromLTRB(PSpace.x20, 8, PSpace.x20, 0),
+          padding: EdgeInsets.fromLTRB(PSpace.x24, 8, PSpace.x24, 0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -1405,7 +1405,7 @@ class _LedgerSkeleton extends StatelessWidget {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+          padding: const EdgeInsets.fromLTRB(PSpace.x24, 12, PSpace.x24, 0),
           child: Row(
             children: [
               for (var i = 0; i < 7; i++)
@@ -1430,7 +1430,7 @@ class _LedgerSkeleton extends StatelessWidget {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.fromLTRB(12, 0, 12, 10),
+          padding: const EdgeInsets.fromLTRB(PSpace.x24, 0, PSpace.x24, 10),
           child: Row(
             children: [
               for (var i = 0; i < 7; i++)
@@ -1447,7 +1447,7 @@ class _LedgerSkeleton extends StatelessWidget {
         Expanded(
           child: ListView(
             physics: const NeverScrollableScrollPhysics(),
-            padding: const EdgeInsets.fromLTRB(PSpace.x20, 24, PSpace.x20, 28),
+            padding: const EdgeInsets.fromLTRB(PSpace.x24, 24, PSpace.x24, 28),
             children: [
               const PSkeleton.line(width: 140, height: 13),
               const SizedBox(height: 8),
