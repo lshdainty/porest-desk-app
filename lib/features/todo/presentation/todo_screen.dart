@@ -7,6 +7,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
+import 'package:porest_desk_app/app/theme/colors.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/format/date.dart';
@@ -774,7 +775,8 @@ class _LedgerCalendar extends StatelessWidget {
 
     Color numColor(String ds, int dow) {
       if (ds.compareTo(todayStr) > 0) return t.fgTertiary;
-      if (dow == 0) return t.fgExpense;
+      // 일요일 — 다크에서도 light 값 고정(design --color-chart-red, 사용자 결정)
+      if (dow == 0) return PorestPalette.chartRed;
       if (dow == 6) return t.fgBrand;
       return t.fgPrimary;
     }
@@ -885,7 +887,7 @@ class _LedgerCalendar extends StatelessWidget {
 
     final dows = weekdayLabels();
     return Padding(
-      padding: const EdgeInsets.fromLTRB(PSpace.x24, 12, PSpace.x24, 0),
+      padding: const EdgeInsets.fromLTRB(PSpace.x16, 12, PSpace.x16, 0),
       child: Column(
         children: [
           Row(
@@ -900,7 +902,7 @@ class _LedgerCalendar extends StatelessWidget {
                       style: PTypo.caption.copyWith(
                         fontWeight: PFontWeight.semi,
                         color: i == 0
-                            ? t.fgExpense
+                            ? PorestPalette.chartRed
                             : i == 6
                                 ? t.fgBrand
                                 : t.fgTertiary,
@@ -1405,7 +1407,7 @@ class _LedgerSkeleton extends StatelessWidget {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.fromLTRB(PSpace.x24, 12, PSpace.x24, 0),
+          padding: const EdgeInsets.fromLTRB(PSpace.x16, 12, PSpace.x16, 0),
           child: Row(
             children: [
               for (var i = 0; i < 7; i++)
@@ -1418,7 +1420,7 @@ class _LedgerSkeleton extends StatelessWidget {
                       style: PTypo.caption.copyWith(
                         fontWeight: PFontWeight.semi,
                         color: i == 0
-                            ? t.fgExpense
+                            ? PorestPalette.chartRed
                             : i == 6
                                 ? t.fgBrand
                                 : t.fgTertiary,
@@ -1430,7 +1432,7 @@ class _LedgerSkeleton extends StatelessWidget {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.fromLTRB(PSpace.x24, 0, PSpace.x24, 10),
+          padding: const EdgeInsets.fromLTRB(PSpace.x16, 0, PSpace.x16, 10),
           child: Row(
             children: [
               for (var i = 0; i < 7; i++)
