@@ -10,7 +10,6 @@ import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_dropdown_menu.dart';
 import 'package:porest_desk_app/shared/widgets/p_floating_action_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
@@ -43,46 +42,9 @@ enum _TodoFilterTab { today, week, all, done }
 
 class _TodoScreenState extends ConsumerState<TodoScreen> {
   _TodoFilterTab _tab = _TodoFilterTab.today;
-  final _quickAddCtrl = TextEditingController();
-  bool _quickAdding = false;
 
   /// 전체(status=null) fetch — 칸반과 동일 family 키 공유.
   static const TodoFilter _allFilter = (status: null, priority: null);
-
-  @override
-  void dispose() {
-    _quickAddCtrl.dispose();
-    super.dispose();
-  }
-
-  Future<void> _quickAdd() async {
-    final title = _quickAddCtrl.text.trim();
-    if (title.isEmpty || _quickAdding) return;
-    setState(() => _quickAdding = true);
-    try {
-      final repo = await ref.read(todoRepositoryProvider.future);
-      // title 만으로 생성: due=오늘, priority MEDIUM, tag '개인'(category).
-      final today = DateTime.now();
-      await repo.create(
-        title: title,
-        priority: 'MEDIUM',
-        category: kTodoDefaultTag,
-        dueDate: _fmtDate(today),
-      );
-      _quickAddCtrl.clear();
-      ref.invalidate(todoListProvider);
-      invalidateConstellation(ref);
-    } on ApiException catch (e) {
-      if (!mounted) return;
-      showPSnackBar(
-        context,
-        '${AppLocalizations.of(context).todoAddFailed}: ${e.message}',
-        severity: PSnackSeverity.error,
-      );
-    } finally {
-      if (mounted) setState(() => _quickAdding = false);
-    }
-  }
 
   Future<void> _toggleDone(Todo t) async {
     try {
@@ -253,17 +215,6 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
           const SizedBox(height: 14),
         ],
 
-        // ── 퀵추가 ──
-        _QuickAdd(
-          controller: _quickAddCtrl,
-          adding: _quickAdding,
-          onAdd: _quickAdd,
-          onDetail: () => showTodoEditDialog(context),
-          onChanged: () => setState(() {}),
-          t: t,
-        ),
-        const SizedBox(height: 14),
-
         // ── 필터 칩 4종 → PTabs(pills, sm) (가계부 필터 선례 동일) ──
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
@@ -347,115 +298,6 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
 }
 
 /// 통계 카드 — 라벨(uppercase tracking) + 숫자(.num) + 단위, 완료율은 progress bar.
-class _QuickAdd extends StatefulWidget {
-  const _QuickAdd({
-    required this.controller,
-    required this.adding,
-    required this.onAdd,
-    required this.onDetail,
-    required this.onChanged,
-    required this.t,
-  });
-  final TextEditingController controller;
-  final bool adding;
-  final VoidCallback onAdd;
-  final VoidCallback onDetail;
-  final VoidCallback onChanged;
-  final PorestTokens t;
-
-  @override
-  State<_QuickAdd> createState() => _QuickAddState();
-}
-
-class _QuickAddState extends State<_QuickAdd> {
-  final _focusNode = FocusNode();
-
-  @override
-  void initState() {
-    super.initState();
-    _focusNode.addListener(_onFocusChange);
-  }
-
-  void _onFocusChange() => setState(() {});
-
-  @override
-  void dispose() {
-    _focusNode.removeListener(_onFocusChange);
-    _focusNode.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final t = widget.t;
-    final l = AppLocalizations.of(context);
-    final focused = _focusNode.hasFocus;
-    return Container(
-      padding: const EdgeInsets.all(6),
-      decoration: BoxDecoration(
-        color: t.bgSurface,
-        borderRadius: PRadius.brLg,
-        boxShadow: t.shadowSm,
-        // 항상 1.5px 보더를 예약(transparent)해 포커스 전환 시 레이아웃 흔들림 방지.
-        border: Border.all(
-          color: focused ? t.borderFocus : Colors.transparent,
-          width: 1.5,
-        ),
-      ),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 36,
-            height: 36,
-            child: Icon(LucideIcons.plus, size: 18, color: t.fgTertiary),
-          ),
-          Expanded(
-            child: TextField(
-              controller: widget.controller,
-              focusNode: _focusNode,
-              enabled: !widget.adding,
-              style: PTypo.body.copyWith(color: t.fgPrimary),
-              cursorColor: t.fgBrand,
-              decoration: InputDecoration(
-                isCollapsed: true,
-                contentPadding: const EdgeInsets.symmetric(vertical: 8),
-                // input 자체는 박스 없이 완전 투명 — 포커스 표시는 바깥 카드가 담당.
-                filled: false,
-                border: InputBorder.none,
-                enabledBorder: InputBorder.none,
-                focusedBorder: InputBorder.none,
-                disabledBorder: InputBorder.none,
-                errorBorder: InputBorder.none,
-                focusedErrorBorder: InputBorder.none,
-                hintText: l.todoQuickAddPlaceholder,
-                hintStyle: PTypo.body.copyWith(color: t.fgPlaceholder),
-              ),
-              onChanged: (_) => widget.onChanged(),
-              onSubmitted: (_) => widget.onAdd(),
-            ),
-          ),
-          const SizedBox(width: 4),
-          PButton(
-            label: l.calAdd,
-            size: PButtonSize.sm,
-            loading: widget.adding,
-            onPressed: widget.adding ? null : widget.onAdd,
-          ),
-          const SizedBox(width: 4),
-          PButton(
-            label: l.todoDetail,
-            icon: LucideIcons.settings2,
-            size: PButtonSize.sm,
-            variant: PButtonVariant.outline,
-            tooltip: l.todoDetail,
-            onPressed: widget.onDetail,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 /// 마감일 그룹 헤더 — '5월 19일 (월) · N건', borderBottom subtle.
 class _GroupHeader extends StatelessWidget {
   const _GroupHeader({required this.label, required this.t});
@@ -705,15 +547,6 @@ class _TodoSkeleton extends StatefulWidget {
 }
 
 class _TodoSkeletonState extends State<_TodoSkeleton> {
-  // 정적 퀵추가 입력(실제 렌더)용 컨트롤러 — 상호작용 없음, dispose 보장.
-  final _quickAddCtrl = TextEditingController();
-
-  @override
-  void dispose() {
-    _quickAddCtrl.dispose();
-    super.dispose();
-  }
-
   // 필터 탭 라벨 — 카운트는 데이터라 로딩 중엔 0(실제 `counts[tab] ?? 0` 폴백 포맷 정합).
   String _tabLabel(BuildContext context, _TodoFilterTab tab) {
     final l = AppLocalizations.of(context);
@@ -728,24 +561,12 @@ class _TodoSkeletonState extends State<_TodoSkeleton> {
 
   @override
   Widget build(BuildContext context) {
-    final t = widget.tokens;
     return ListView(
       padding: const EdgeInsets.fromLTRB(PSpace.x24, PSpace.x16, PSpace.x24, 96),
       physics: const NeverScrollableScrollPhysics(),
       children: [
         // ── 밤하늘 히어로 shell — 고정 다크 프레임(정적) + 데이터 텍스트 placeholder ──
         const _HeroSkeleton(),
-        const SizedBox(height: 14),
-
-        // ── 퀵추가 — 정적 입력 틀이므로 스켈레톤 금지, 실제 렌더(no-op) ──
-        _QuickAdd(
-          controller: _quickAddCtrl,
-          adding: false,
-          onAdd: () {},
-          onDetail: () {},
-          onChanged: () {},
-          t: t,
-        ),
         const SizedBox(height: 14),
 
         // ── 필터 탭 — 정적(로딩 중에도 탭 그대로) ──
