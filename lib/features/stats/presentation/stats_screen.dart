@@ -598,17 +598,12 @@ class _CompareTab extends ConsumerWidget {
 /// 카드 배경/그림자/radius 없이 콘텐츠 inset(가로 10)만. 섹션 내부 헤더는
 /// 각 섹션이 자체 렌더 — 섹션 사이 여백(36)이 구분을 담당한다.
 class _Card extends StatelessWidget {
-  const _Card({required this.child, this.padding});
+  // 웹 Section 정합 — 라벨·콘텐츠 모두 페이지 inset에서 시작(추가 inset 0).
+  // 웹 contentInset(+8)을 쓰는 도넛 범례·비교 증감은 행 자체 padding이 흡수.
+  const _Card({required this.child});
   final Widget child;
-  final EdgeInsets? padding;
   @override
-  Widget build(BuildContext context) {
-    return Padding(
-      // content 좌우 inset = web Section contentInset(spacing-sm=8) 정합.
-      padding: padding ?? const EdgeInsets.symmetric(horizontal: 8),
-      child: child,
-    );
-  }
+  Widget build(BuildContext context) => child;
 }
 
 /// 카테고리 카드 우측 trigger — 가계부 FilterDialog 패턴 정합.
@@ -747,7 +742,7 @@ class _DonutCardSkeleton extends StatelessWidget {
         const SizedBox(height: 14),
         for (var i = 0; i < 5; i++)
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             child: Row(
               children: [
                 PSkeleton.circle(size: 10),
@@ -817,7 +812,7 @@ class _CompareListSkeleton extends StatelessWidget {
       children: [
         for (var i = 0; i < 5; i++)
           Container(
-            padding: const EdgeInsets.symmetric(vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
             decoration: i < 4
                 ? BoxDecoration(
                     border: Border(bottom: BorderSide(color: t.borderSubtle)),
@@ -1316,7 +1311,7 @@ class _DonutLegendRow extends StatelessWidget {
       onTap: onTap,
       borderRadius: PRadius.brSm,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         child: Row(
           children: [
             Container(
@@ -1378,7 +1373,6 @@ class _TopMerchantsCard extends StatelessWidget {
     final top = sorted.take(5).toList();
     final maxAmt = top.isEmpty ? 1 : top.first.totalAmount;
     return _Card(
-      padding: EdgeInsets.zero, // 리스트 좌우 inset 제거(사용자 결정, 웹 동기)
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1557,7 +1551,6 @@ class _HeatmapCard extends StatelessWidget {
     }
 
     return _Card(
-      padding: EdgeInsets.zero, // 웹 히트맵은 섹션 inset 없이 풀폭
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -3833,7 +3826,8 @@ class _CompareDeltaRow extends StatelessWidget {
     final sign = diff > 0 ? '+' : (diff < 0 ? '−' : '');
 
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12),
+      // 웹 contentInset(+8) 흡수 — 라벨은 0, 행만 살짝 inset.
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
       decoration: showDivider
           ? BoxDecoration(
               border: Border(bottom: BorderSide(color: t.borderSubtle)),
