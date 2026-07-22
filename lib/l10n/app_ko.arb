@@ -2786,5 +2786,221 @@
         "type": "String"
       }
     }
+  },
+  "tdmTodayLeft": "오늘 할 일 {count}개",
+  "@tdmTodayLeft": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tdmTodayDone": "오늘 할 일 끝!",
+  "tdmNightSkyBtn": "밤하늘",
+  "tdmStarlightHint": "별빛 {lit}/{goal} · {left}개 더 모으면 {name} 수집",
+  "@tdmStarlightHint": {
+    "placeholders": {
+      "lit": {
+        "type": "int"
+      },
+      "goal": {
+        "type": "int"
+      },
+      "left": {
+        "type": "int"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "tdmCollectedHint": "{name} 수집 완료 · 연속 {streak}일",
+  "@tdmCollectedHint": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "streak": {
+        "type": "int"
+      }
+    }
+  },
+  "tdmDoneRatio": "{done}/{total} 완료",
+  "@tdmDoneRatio": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "tdmFilterTag": "태그",
+  "tdmHideDone": "완료한 할 일 숨기기",
+  "tdmEmptyMonth": "{month} 할 일이 없어요",
+  "@tdmEmptyMonth": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "tdmEmptyMonthDesc": "오른쪽 아래 + 버튼으로 추가해보세요.",
+  "tdmEmptyFilter": "조건에 맞는 할 일이 없어요",
+  "tdmEmptyFilterDesc": "필터를 조정하거나 초기화해보세요.",
+  "tdmStarToastGain": "별빛 +{gain} · 수집까지 {left}별",
+  "@tdmStarToastGain": {
+    "placeholders": {
+      "gain": {
+        "type": "int"
+      },
+      "left": {
+        "type": "int"
+      }
+    }
+  },
+  "tdmStarToastCollected": "별빛 +{gain} · 오늘의 별자리 수집!",
+  "@tdmStarToastCollected": {
+    "placeholders": {
+      "gain": {
+        "type": "int"
+      }
+    }
+  },
+  "nightSkyTitle": "밤하늘",
+  "forestReportTitle": "관측 리포트",
+  "fcolViewCta": "감상하기",
+  "fcolPreviewCta": "미리보기",
+  "fcolLockedHint": "별빛 {count}개를 하룻밤에 모으면 만날 수 있어요.",
+  "@fcolLockedHint": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "frpObsResult": "관측 결과 :",
+  "frpObsToday": "{name} {lit}/{goal} 진행 중",
+  "@frpObsToday": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "lit": {
+        "type": "int"
+      },
+      "goal": {
+        "type": "int"
+      }
+    }
+  },
+  "frpObsCollected": "{name} 수집!",
+  "@frpObsCollected": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "frpObsWithered": "흐린 밤 · 구름 보호로 스트릭 유지",
+  "frpObsRest": "쉬어간 밤",
+  "frpStampDays": "{count}일째",
+  "@frpStampDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "frpStampLabel": "연속 관측!",
+  "frpStarGather": "별빛 모으기",
+  "frpPctBadge": "{pct}% 달성",
+  "@frpPctBadge": {
+    "placeholders": {
+      "pct": {
+        "type": "int"
+      }
+    }
+  },
+  "frpTileStar": "모은 별빛",
+  "frpTileStarVal": "{count}개",
+  "@frpTileStarVal": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "frpTileDone": "완료한 할 일",
+  "frpTileDoneVal": "{count}건",
+  "@frpTileDoneVal": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "frpAnalysis": "별빛 분석",
+  "frpLegendItem": "{label} 완료: {count}",
+  "@frpLegendItem": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "frpMissed": "못다 켠 별",
+  "frpMissedAllDone": "오늘 하늘의 별을 모두 켰어요. 남은 별빛은 내일 밤으로!",
+  "frpMissedCount": "{count}개",
+  "@frpMissedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "frpFuture": "아직 오지 않은 밤이에요",
+  "frpAsOf": "{ts} 기준",
+  "@frpAsOf": {
+    "placeholders": {
+      "ts": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsMenuTodoTag": "할일 태그",
+  "ttagUsage": "할 일 {count}건에 사용 중",
+  "@ttagUsage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ttagEditTitle": "태그 수정",
+  "fcolOwnBadge": "수집 {count}회",
+  "@fcolOwnBadge": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ttagDesc": "할 일에 붙이는 태그예요. 리스트 필터와 태그별 분포에 사용돼요.",
+  "ttagAddCta": "태그 추가",
+  "ttagColorLabel": "색상",
+  "ttagNameLabel": "이름",
+  "ttagEmpty": "태그가 없어요",
+  "ttagDeleteDesc": "이 태그를 쓰는 할 일 {count}건은 태그 없음으로 남아요.",
+  "@ttagDeleteDesc": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

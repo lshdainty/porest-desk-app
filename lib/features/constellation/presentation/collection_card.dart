@@ -10,8 +10,8 @@ import 'package:porest_desk_app/features/constellation/presentation/constellatio
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 
-/// 별자리 도감 — 전체 목록(수집 횟수/미수집), 탭 시 상세 감상 시트.
-/// 웹 CollectionCard 미러 (디자인 SoT: forest.jsx ForestCollection).
+/// 별자리 도감 v2 — 실루엣 잠금 + 뱃지 수집 리스트 (design forest-report.jsx
+/// ForestCollectionV2 / .fcol-* 미러). 행 탭 CTA → 상세 감상 시트.
 class CollectionCard extends StatelessWidget {
   const CollectionCard({
     super.key,
@@ -22,19 +22,34 @@ class CollectionCard extends StatelessWidget {
   final ConstellationCollectionData collection;
   final String todayKey;
 
+  /// 'NEW' — 가장 최근 첫 수집(수집 1회 중 lastCollectedDate 최신).
+  String? _newestKey() {
+    String? key;
+    String latest = '';
+    for (final e in collection.entries) {
+      if (e.collectCount != 1) continue;
+      final d = e.lastCollectedDate ?? '';
+      if (d.compareTo(latest) > 0) {
+        latest = d;
+        key = e.constellation.constellationKey;
+      }
+    }
+    return key;
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
+    final newest = _newestKey();
 
-    // 카드 다이어트 — design forest.jsx MyForest/ForestCollection(.p-card)는
-    // 모바일에서 플랫: 카드 없이 sec-head + 콘텐츠만 (inset 10).
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+    // 카드 다이어트(.m-subpage 플랫) — sec-head + 헤어라인 행 리스트.
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(6, 0, 6, 4),
+          child: Row(
             children: [
               Text(
                 l.constCollectionTitle,
@@ -44,6 +59,8 @@ class CollectionCard extends StatelessWidget {
                 ),
               ),
               const Spacer(),
+              Icon(LucideIcons.sparkles, size: 12, color: t.fgTertiary),
+              const SizedBox(width: 4),
               Text(
                 l.constCollectionProgress(
                     collection.collectedKinds, collection.entries.length),
@@ -51,25 +68,172 @@ class CollectionCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 4),
-          Text(
-            l.constCollectionSubtitle,
-            style: PTypo.caption.copyWith(color: t.fgTertiary, fontSize: 11.5),
+        ),
+        for (var i = 0; i < collection.entries.length; i++)
+          _FcolRow(
+            entry: collection.entries[i],
+            isToday: collection.entries[i].constellation.constellationKey ==
+                todayKey,
+            isNew: collection.entries[i].constellation.constellationKey ==
+                newest,
+            first: i == 0,
+            t: t,
+            onOpen: () => showConstellationDetailSheet(
+                context, collection.entries[i]),
           ),
-          const SizedBox(height: 8),
-          // 도감 리스트 — 페이지 전체 스크롤 방지, 리스트 안에서 스크롤(웹 420 동기).
-          SizedBox(
-            height: 420,
-            child: ListView(
-              padding: EdgeInsets.zero,
+      ],
+    );
+  }
+}
+
+/// 도감 행 (design .fcol-row) — 78px 아트 + 이름/뱃지 + 설명·잠금힌트 + CTA.
+class _FcolRow extends StatelessWidget {
+  const _FcolRow({
+    required this.entry,
+    required this.isToday,
+    required this.isNew,
+    required this.first,
+    required this.t,
+    required this.onOpen,
+  });
+
+  final CollectionEntry entry;
+  final bool isToday;
+  final bool isNew;
+  final bool first;
+  final PorestTokens t;
+  final VoidCallback onOpen;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final owned = entry.collected;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: PSpace.x16),
+      decoration: BoxDecoration(
+        border: first
+            ? null
+            : Border(top: BorderSide(color: t.borderSubtle)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 아트 — owned: 밤하늘 그라디언트 점등 / locked: sunken 실루엣.
+          Container(
+            width: 78,
+            height: 78,
+            decoration: BoxDecoration(
+              borderRadius: const BorderRadius.all(Radius.circular(14)),
+              gradient: owned
+                  ? const LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [Color(0xFF0D1430), Color(0xFF1F2C5E)],
+                    )
+                  : null,
+              color: owned ? null : t.bgMuted,
+            ),
+            alignment: Alignment.center,
+            child: Opacity(
+              opacity: owned ? 1 : 0.85,
+              child: ConstellationIcon(
+                info: entry.constellation,
+                color: owned ? const Color(0xFFDFE7FF) : t.fgTertiary,
+                size: owned ? 56 : 56,
+                dim: !owned,
+                lit: owned ? null : 0,
+                glow: owned,
+              ),
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                for (final entry in collection.entries)
-                  _CollectionRow(
-                    entry: entry,
-                    isToday: entry.constellation.constellationKey == todayKey,
-                    t: t,
-                    onTap: () => showConstellationDetailSheet(context, entry),
+                Wrap(
+                  spacing: 5,
+                  runSpacing: 4,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    Text(
+                      constellationName(entry.constellation),
+                      style: TextStyle(
+                        fontFamily: PTypo.sans,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: -0.15,
+                        color: owned ? t.fgPrimary : t.fgTertiary,
+                      ),
+                    ),
+                    if (isToday)
+                      _FcolBadge(
+                        icon: LucideIcons.crown,
+                        label: l.constCollectionTodayBadge,
+                        bg: t.bgBrandSolid,
+                        fg: t.fgOnBrand,
+                      ),
+                    if (isNew && owned)
+                      _FcolBadge(
+                        label: 'NEW',
+                        bg: constellationColor(context, 'orange'),
+                        fg: Colors.white,
+                      ),
+                    if (owned)
+                      _FcolBadge(
+                        label: l.fcolOwnBadge(entry.collectCount),
+                        bg: t.bgBrandSubtle,
+                        fg: t.fgBrandStrong,
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  owned
+                      ? constellationDesc(entry.constellation)
+                      : l.fcolLockedHint(entry.constellation.starCount),
+                  style: PTypo.caption.copyWith(
+                    color: t.fgTertiary,
+                    fontSize: 12.5,
+                    height: 1.5,
                   ),
+                ),
+                const SizedBox(height: 9),
+                // CTA — 감상하기/미리보기 (design .fcol-cta pill).
+                Material(
+                  color: Colors.transparent,
+                  borderRadius: PRadius.brFull,
+                  child: InkWell(
+                    onTap: onOpen,
+                    borderRadius: PRadius.brFull,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 7),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: t.borderDefault),
+                        borderRadius: PRadius.brFull,
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            owned ? l.fcolViewCta : l.fcolPreviewCta,
+                            style: TextStyle(
+                              fontFamily: PTypo.sans,
+                              fontSize: 12.5,
+                              fontWeight: PFontWeight.bold,
+                              color: t.fgPrimary,
+                            ),
+                          ),
+                          const SizedBox(width: 3),
+                          Icon(LucideIcons.chevronRight,
+                              size: 12, color: t.fgPrimary),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -79,111 +243,44 @@ class CollectionCard extends StatelessWidget {
   }
 }
 
-class _CollectionRow extends StatelessWidget {
-  const _CollectionRow({
-    required this.entry,
-    required this.isToday,
-    required this.t,
-    required this.onTap,
+class _FcolBadge extends StatelessWidget {
+  const _FcolBadge({
+    this.icon,
+    required this.label,
+    required this.bg,
+    required this.fg,
   });
 
-  final CollectionEntry entry;
-  final bool isToday;
-  final PorestTokens t;
-  final VoidCallback onTap;
+  final IconData? icon;
+  final String label;
+  final Color bg;
+  final Color fg;
 
   @override
   Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    final collected = entry.collected;
-    final color = constellationColor(context, entry.constellation.colorKey);
-    return InkWell(
-      onTap: onTap,
-      borderRadius: PRadius.brMd,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
-        child: Row(
-          children: [
-            Container(
-              width: 34,
-              height: 34,
-              decoration: BoxDecoration(
-                color: collected
-                    ? Color.alphaBlend(color.withValues(alpha: 0.14), t.bgSurface)
-                    // 웹 --bg-sunken(=앱 bgMuted) 정합 — 앱 bgSunken 은 페이지색이라 과진.
-                    : t.bgMuted,
-                borderRadius: PRadius.brMd,
-              ),
-              alignment: Alignment.center,
-              child: ConstellationIcon(
-                info: entry.constellation,
-                color: collected ? color : t.fgTertiary,
-                size: 24,
-                dim: !collected,
-                linesOnly: true,
-              ),
-            ),
-            const SizedBox(width: PSpace.x12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Flexible(
-                        child: Text(
-                          constellationName(entry.constellation),
-                          overflow: TextOverflow.ellipsis,
-                          style: PTypo.bodySm.copyWith(
-                            fontSize: 13.5,
-                            fontWeight: PFontWeight.semi,
-                            color: collected ? t.fgPrimary : t.fgTertiary,
-                          ),
-                        ),
-                      ),
-                      if (isToday) ...[
-                        const SizedBox(width: 6),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                          decoration: BoxDecoration(
-                            color: Color.alphaBlend(
-                                t.fgBrand.withValues(alpha: 0.10), t.bgSurface),
-                            borderRadius: BorderRadius.circular(999),
-                          ),
-                          child: Text(
-                            l.constCollectionTodayBadge,
-                            style: TextStyle(
-                              fontFamily: PTypo.sans,
-                              fontSize: 10,
-                              fontWeight: PFontWeight.bold,
-                              color: t.fgBrand,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                  const SizedBox(height: 1),
-                  Text(
-                    l.constCollectionStarCount(entry.constellation.starCount),
-                    style: PTypo.caption.copyWith(color: t.fgTertiary, fontSize: 11.5),
-                  ),
-                ],
-              ),
-            ),
-            Text(
-              collected
-                  ? l.constCollectionTimes(entry.collectCount)
-                  : l.constCollectionNotCollected,
-              style: PTypo.caption.copyWith(
-                fontWeight: PFontWeight.semi,
-                color: collected ? t.fgSecondary : t.fgTertiary,
-              ),
-            ),
-            const SizedBox(width: 4),
-            Icon(LucideIcons.chevronRight, size: 14, color: t.fgTertiary),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (icon != null) ...[
+            Icon(icon, size: 9, color: fg),
+            const SizedBox(width: 3),
           ],
-        ),
+          Text(
+            label,
+            style: TextStyle(
+              fontFamily: PTypo.sans,
+              fontSize: 10,
+              fontWeight: FontWeight.w800,
+              color: fg,
+            ),
+          ),
+        ],
       ),
     );
   }

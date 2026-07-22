@@ -4890,4 +4890,191 @@ class AppLocalizationsKo extends AppLocalizations {
   String expChipMax(String amount) {
     return '$amount 이하';
   }
+
+  @override
+  String tdmTodayLeft(int count) {
+    return '오늘 할 일 $count개';
+  }
+
+  @override
+  String get tdmTodayDone => '오늘 할 일 끝!';
+
+  @override
+  String get tdmNightSkyBtn => '밤하늘';
+
+  @override
+  String tdmStarlightHint(int lit, int goal, int left, String name) {
+    return '별빛 $lit/$goal · $left개 더 모으면 $name 수집';
+  }
+
+  @override
+  String tdmCollectedHint(String name, int streak) {
+    return '$name 수집 완료 · 연속 $streak일';
+  }
+
+  @override
+  String tdmDoneRatio(int done, int total) {
+    return '$done/$total 완료';
+  }
+
+  @override
+  String get tdmFilterTag => '태그';
+
+  @override
+  String get tdmHideDone => '완료한 할 일 숨기기';
+
+  @override
+  String tdmEmptyMonth(String month) {
+    return '$month 할 일이 없어요';
+  }
+
+  @override
+  String get tdmEmptyMonthDesc => '오른쪽 아래 + 버튼으로 추가해보세요.';
+
+  @override
+  String get tdmEmptyFilter => '조건에 맞는 할 일이 없어요';
+
+  @override
+  String get tdmEmptyFilterDesc => '필터를 조정하거나 초기화해보세요.';
+
+  @override
+  String tdmStarToastGain(int gain, int left) {
+    return '별빛 +$gain · 수집까지 $left별';
+  }
+
+  @override
+  String tdmStarToastCollected(int gain) {
+    return '별빛 +$gain · 오늘의 별자리 수집!';
+  }
+
+  @override
+  String get nightSkyTitle => '밤하늘';
+
+  @override
+  String get forestReportTitle => '관측 리포트';
+
+  @override
+  String get fcolViewCta => '감상하기';
+
+  @override
+  String get fcolPreviewCta => '미리보기';
+
+  @override
+  String fcolLockedHint(int count) {
+    return '별빛 $count개를 하룻밤에 모으면 만날 수 있어요.';
+  }
+
+  @override
+  String get frpObsResult => '관측 결과 :';
+
+  @override
+  String frpObsToday(String name, int lit, int goal) {
+    return '$name $lit/$goal 진행 중';
+  }
+
+  @override
+  String frpObsCollected(String name) {
+    return '$name 수집!';
+  }
+
+  @override
+  String get frpObsWithered => '흐린 밤 · 구름 보호로 스트릭 유지';
+
+  @override
+  String get frpObsRest => '쉬어간 밤';
+
+  @override
+  String frpStampDays(int count) {
+    return '$count일째';
+  }
+
+  @override
+  String get frpStampLabel => '연속 관측!';
+
+  @override
+  String get frpStarGather => '별빛 모으기';
+
+  @override
+  String frpPctBadge(int pct) {
+    return '$pct% 달성';
+  }
+
+  @override
+  String get frpTileStar => '모은 별빛';
+
+  @override
+  String frpTileStarVal(int count) {
+    return '$count개';
+  }
+
+  @override
+  String get frpTileDone => '완료한 할 일';
+
+  @override
+  String frpTileDoneVal(int count) {
+    return '$count건';
+  }
+
+  @override
+  String get frpAnalysis => '별빛 분석';
+
+  @override
+  String frpLegendItem(String label, int count) {
+    return '$label 완료: $count';
+  }
+
+  @override
+  String get frpMissed => '못다 켠 별';
+
+  @override
+  String get frpMissedAllDone => '오늘 하늘의 별을 모두 켰어요. 남은 별빛은 내일 밤으로!';
+
+  @override
+  String frpMissedCount(int count) {
+    return '$count개';
+  }
+
+  @override
+  String get frpFuture => '아직 오지 않은 밤이에요';
+
+  @override
+  String frpAsOf(String ts) {
+    return '$ts 기준';
+  }
+
+  @override
+  String get settingsMenuTodoTag => '할일 태그';
+
+  @override
+  String ttagUsage(int count) {
+    return '할 일 $count건에 사용 중';
+  }
+
+  @override
+  String get ttagEditTitle => '태그 수정';
+
+  @override
+  String fcolOwnBadge(int count) {
+    return '수집 $count회';
+  }
+
+  @override
+  String get ttagDesc => '할 일에 붙이는 태그예요. 리스트 필터와 태그별 분포에 사용돼요.';
+
+  @override
+  String get ttagAddCta => '태그 추가';
+
+  @override
+  String get ttagColorLabel => '색상';
+
+  @override
+  String get ttagNameLabel => '이름';
+
+  @override
+  String get ttagEmpty => '태그가 없어요';
+
+  @override
+  String ttagDeleteDesc(int count) {
+    return '이 태그를 쓰는 할 일 $count건은 태그 없음으로 남아요.';
+  }
 }

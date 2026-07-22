@@ -7,6 +7,7 @@ import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/auth/auth_notifier.dart';
+import 'package:porest_desk_app/features/todo/presentation/todo_tag_management_dialog.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_avatar.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
@@ -49,6 +50,11 @@ List<_SettingsGroup> _buildGroups(BuildContext ctx) {
         _SettingsItem(
           label: l.settingsMenuPreset,
           onTap: (c) => c.push('/presets'),
+        ),
+        // 할일 태그 관리 — design settings-todo-tags.jsx (설정 하위 진입).
+        _SettingsItem(
+          label: l.settingsMenuTodoTag,
+          onTap: (c) => showTodoTagManagementDialog(c),
         ),
       ],
     ),

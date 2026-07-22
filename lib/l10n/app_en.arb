@@ -2649,5 +2649,221 @@
         "type": "String"
       }
     }
+  },
+  "tdmTodayLeft": "{count} to-dos today",
+  "@tdmTodayLeft": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tdmTodayDone": "All done for today!",
+  "tdmNightSkyBtn": "Night sky",
+  "tdmStarlightHint": "Starlight {lit}/{goal} · {left} more to collect {name}",
+  "@tdmStarlightHint": {
+    "placeholders": {
+      "lit": {
+        "type": "int"
+      },
+      "goal": {
+        "type": "int"
+      },
+      "left": {
+        "type": "int"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "tdmCollectedHint": "{name} collected · {streak}-day streak",
+  "@tdmCollectedHint": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "streak": {
+        "type": "int"
+      }
+    }
+  },
+  "tdmDoneRatio": "{done}/{total} done",
+  "@tdmDoneRatio": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "tdmFilterTag": "Tags",
+  "tdmHideDone": "Hide completed",
+  "tdmEmptyMonth": "No to-dos in {month}",
+  "@tdmEmptyMonth": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "tdmEmptyMonthDesc": "Add one with the + button below.",
+  "tdmEmptyFilter": "No to-dos match the filters",
+  "tdmEmptyFilterDesc": "Adjust or reset the filters.",
+  "tdmStarToastGain": "Starlight +{gain} · {left} to collect",
+  "@tdmStarToastGain": {
+    "placeholders": {
+      "gain": {
+        "type": "int"
+      },
+      "left": {
+        "type": "int"
+      }
+    }
+  },
+  "tdmStarToastCollected": "Starlight +{gain} · today's constellation collected!",
+  "@tdmStarToastCollected": {
+    "placeholders": {
+      "gain": {
+        "type": "int"
+      }
+    }
+  },
+  "nightSkyTitle": "Night sky",
+  "forestReportTitle": "Observation report",
+  "fcolViewCta": "View",
+  "fcolPreviewCta": "Preview",
+  "fcolLockedHint": "Gather {count} starlight in one night to meet it.",
+  "@fcolLockedHint": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "frpObsResult": "Observation:",
+  "frpObsToday": "{name} {lit}/{goal} in progress",
+  "@frpObsToday": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "lit": {
+        "type": "int"
+      },
+      "goal": {
+        "type": "int"
+      }
+    }
+  },
+  "frpObsCollected": "{name} collected!",
+  "@frpObsCollected": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "frpObsWithered": "Cloudy night · streak kept by cloud guard",
+  "frpObsRest": "A restful night",
+  "frpStampDays": "Day {count}",
+  "@frpStampDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "frpStampLabel": "streak!",
+  "frpStarGather": "Starlight gathering",
+  "frpPctBadge": "{pct}% achieved",
+  "@frpPctBadge": {
+    "placeholders": {
+      "pct": {
+        "type": "int"
+      }
+    }
+  },
+  "frpTileStar": "Starlight gathered",
+  "frpTileStarVal": "{count}",
+  "@frpTileStarVal": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "frpTileDone": "To-dos completed",
+  "frpTileDoneVal": "{count}",
+  "@frpTileDoneVal": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "frpAnalysis": "Starlight analysis",
+  "frpLegendItem": "{label} done: {count}",
+  "@frpLegendItem": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "frpMissed": "Stars left unlit",
+  "frpMissedAllDone": "You lit every star tonight. The rest waits for tomorrow!",
+  "frpMissedCount": "{count}",
+  "@frpMissedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "frpFuture": "That night hasn't come yet",
+  "frpAsOf": "as of {ts}",
+  "@frpAsOf": {
+    "placeholders": {
+      "ts": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsMenuTodoTag": "To-do tags",
+  "ttagUsage": "Used by {count} to-dos",
+  "@ttagUsage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ttagEditTitle": "Edit tag",
+  "fcolOwnBadge": "Collected ×{count}",
+  "@fcolOwnBadge": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ttagDesc": "Tags you attach to to-dos. Used for list filters and tag breakdowns.",
+  "ttagAddCta": "Add tag",
+  "ttagColorLabel": "Color",
+  "ttagNameLabel": "Name",
+  "ttagEmpty": "No tags yet",
+  "ttagDeleteDesc": "{count} to-dos using this tag will become untagged.",
+  "@ttagDeleteDesc": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

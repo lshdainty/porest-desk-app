@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -7,64 +9,218 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/core/format/date.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
-import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_dropdown_menu.dart';
-import 'package:porest_desk_app/shared/widgets/p_floating_action_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
-import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
-import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
-import 'package:porest_desk_app/features/todo/application/todo_providers.dart';
 import 'package:porest_desk_app/features/constellation/application/constellation_providers.dart';
-import 'package:porest_desk_app/features/constellation/presentation/collection_card.dart';
-import 'package:porest_desk_app/features/constellation/presentation/my_sky_card.dart';
+import 'package:porest_desk_app/features/constellation/domain/constellation.dart';
+import 'package:porest_desk_app/features/constellation/presentation/constellation_painter.dart';
 import 'package:porest_desk_app/features/constellation/presentation/night_sky_hero.dart';
+import 'package:porest_desk_app/features/todo/application/todo_providers.dart';
 import 'package:porest_desk_app/features/todo/domain/todo.dart';
 import 'package:porest_desk_app/features/todo/domain/todo_meta.dart';
-import 'package:porest_desk_app/features/todo/presentation/todo_edit_dialog.dart';
 import 'package:porest_desk_app/features/todo/presentation/todo_detail_dialog.dart';
+import 'package:porest_desk_app/features/todo/presentation/todo_edit_dialog.dart';
 import 'package:porest_desk_app/features/todo/presentation/todo_project_management_dialog.dart';
 import 'package:porest_desk_app/features/todo/presentation/todo_tag_management_dialog.dart';
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
+import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
+import 'package:porest_desk_app/shared/widgets/p_badge.dart';
+import 'package:porest_desk_app/shared/widgets/p_button.dart';
+import 'package:porest_desk_app/shared/widgets/p_dropdown_menu.dart';
+import 'package:porest_desk_app/shared/widgets/p_floating_action_button.dart';
+import 'package:porest_desk_app/shared/widgets/p_modal.dart';
+import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
+import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 
-/// 할일 — 토스 톤 통계/퀵추가/필터/마감일 그룹 리스트 (web `TodoScreen` mobile 미러).
+/// 할일 — 모바일 원장 (design todo-mobile.jsx TodoMobileLedger 미러).
 ///
-/// AppBar 의 리스트/칸반 토글 + 프로젝트/태그 관리 메뉴는 기존 기능 보존.
-/// 데이터는 status=null 전체 fetch(칸반과 동일) 후 클라이언트 필터/그룹/통계.
+/// 상단 고정: 월 네비+필터 / 오늘 남은 할 일+별빛 인사이트+[밤하늘] 토글 /
+/// 접이식 캘린더(선택 주 1줄 ↔ 월 전체, 셀에 별자리★·구름·건수 마크).
+/// 아래: 일별 그룹 리스트 — 스크롤 스파이 ↔ 캘린더 선택 동기화.
+/// 밤하늘 게임 요소는 [밤하늘] 패널 + 전용 화면(/night-sky, /forest-report)으로 분리.
 class TodoScreen extends ConsumerStatefulWidget {
   const TodoScreen({super.key});
   @override
   ConsumerState<TodoScreen> createState() => _TodoScreenState();
 }
 
-/// 리스트 뷰 필터 4종.
-enum _TodoFilterTab { today, week, all, done }
-
 class _TodoScreenState extends ConsumerState<TodoScreen> {
-  _TodoFilterTab _tab = _TodoFilterTab.today;
-
-  /// 전체(status=null) fetch — 칸반과 동일 family 키 공유.
+  /// 전체(status=null) fetch — 상세/칸반과 동일 family 키 공유.
   static const TodoFilter _allFilter = (status: null, priority: null);
 
-  Future<void> _toggleDone(Todo t) async {
+  late DateTime _month = monthStart(DateTime.now());
+  String? _selected;
+  bool _expanded = false;
+  bool _skyOpen = false;
+  bool _compact = false; // 스크롤 시 상태 영역 접힘 (design txm-pin--compact)
+
+  // 필터 시트 상태 — 태그·우선순위 다중 + 완료 숨김.
+  Set<String> _fTags = {};
+  Set<String> _fPrios = {};
+  bool _hideDone = false;
+  bool get _filterActive =>
+      _fTags.isNotEmpty || _fPrios.isNotEmpty || _hideDone;
+
+  final Map<String, GlobalKey> _dayKeys = {};
+  final ScrollController _scrollCtrl = ScrollController();
+  final GlobalKey _listKey = GlobalKey();
+  bool _lock = false;
+  Timer? _lockTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    final today = DateTime.now();
+    _selected = _ymd(today);
+    _scrollCtrl.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _lockTimer?.cancel();
+    _scrollCtrl.removeListener(_onScroll);
+    _scrollCtrl.dispose();
+    super.dispose();
+  }
+
+  static String _ymd(DateTime d) =>
+      '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+
+  /// 태그 — 서버 태그명 그대로(빈 값은 기본 태그).
+  static String _tagOf(Todo x) {
+    final v = x.category?.trim();
+    return (v == null || v.isEmpty) ? kTodoDefaultTag : v;
+  }
+
+  /// 별빛 가중치 — 중요 3 · 보통 2 · 여유 1 (design FOREST_WEIGHT).
+  static int _weight(String? prio) => switch (prio) {
+        'HIGH' => 3,
+        'LOW' => 1,
+        _ => 2,
+      };
+
+  void _lockFor(int ms) {
+    _lock = true;
+    _lockTimer?.cancel();
+    _lockTimer = Timer(Duration(milliseconds: ms), () => _lock = false);
+  }
+
+  /// 스크롤 스파이 — compact 히스테리시스(72/24) + 맨 위 그룹 → 선택일 동기.
+  void _onScroll() {
+    if (!_scrollCtrl.hasClients) return;
+    final st = _scrollCtrl.offset;
+    final next = _compact ? st > 24 : st > 72;
+    if (next != _compact) {
+      setState(() {
+        _compact = next;
+        if (next) _expanded = false;
+      });
+    }
+    if (_lock) return;
+    final listBox = _listKey.currentContext?.findRenderObject() as RenderBox?;
+    if (listBox == null) return;
+    final listTop = listBox.localToGlobal(Offset.zero).dy;
+    double best = double.negativeInfinity;
+    String? cur;
+    for (final e in _dayKeys.entries) {
+      final box = e.value.currentContext?.findRenderObject() as RenderBox?;
+      if (box == null) continue;
+      final top = box.localToGlobal(Offset.zero).dy - listTop;
+      if (top <= 28 && top > best) {
+        best = top;
+        cur = e.key;
+      }
+    }
+    if (cur != null && cur != _selected) {
+      setState(() => _selected = cur);
+    }
+  }
+
+  void _goMonth(int dir) {
+    final next = DateTime(_month.year, _month.month + dir, 1);
+    final today = DateTime.now();
+    setState(() {
+      _month = next;
+      _expanded = false;
+      _selected = (today.year == next.year && today.month == next.month)
+          ? _ymd(today)
+          : null;
+    });
+    _lockFor(800);
+    if (_scrollCtrl.hasClients) {
+      _scrollCtrl.animateTo(0,
+          duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
+    }
+  }
+
+  void _scrollToDay(String ds) {
+    _lockFor(800);
+    setState(() {
+      _expanded = false;
+      _compact = true;
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final ctx = _dayKeys[ds]?.currentContext;
+      if (ctx == null) return;
+      Scrollable.ensureVisible(ctx,
+          duration: const Duration(milliseconds: 300), alignment: 0.02);
+    });
+  }
+
+  Future<void> _toggleDone(Todo x) async {
+    final l = AppLocalizations.of(context);
+    final wasDone = x.done;
     try {
       final repo = await ref.read(todoRepositoryProvider.future);
-      await repo.setStatus(t.rowId, t.done ? 'PENDING' : 'COMPLETED');
+      await repo.setStatus(x.rowId, wasDone ? 'PENDING' : 'COMPLETED');
       ref.invalidate(todoListProvider);
-      // 별자리 게이미피케이션 — 완료 토글은 별빛 적립/회수 부수효과를 가짐
+      // 별빛 적립/회수 부수효과 — 별자리 상태 일괄 갱신.
+      final constToday = ref.read(constellationTodayProvider).value;
       invalidateConstellation(ref);
+      if (!mounted) return;
+      // 완료 전환 시 별빛 토스트 (design starToast) — 서버 재계산 전 클라 예측.
+      if (!wasDone && constToday != null && !constToday.collected) {
+        final gain = _weight(x.priority);
+        final left = constToday.goal - (constToday.points + gain);
+        showPSnackBar(
+          context,
+          left <= 0
+              ? l.tdmStarToastCollected(gain)
+              : l.tdmStarToastGain(gain, left),
+          severity: PSnackSeverity.success,
+        );
+      }
     } on ApiException catch (e) {
       if (!mounted) return;
       showPSnackBar(
         context,
-        '${AppLocalizations.of(context).todoActionFailed}: ${e.message}',
+        '${l.todoActionFailed}: ${e.message}',
         severity: PSnackSeverity.error,
       );
     }
   }
 
-  String _fmtDate(DateTime d) =>
-      '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+  Future<void> _openFilter(List<Todo> all) async {
+    final tags = <String>{for (final x in all) _tagOf(x)}.toList()..sort();
+    await showPSheet<void>(
+      context,
+      title: AppLocalizations.of(context).expFilter,
+      shrinkWrap: true,
+      contentBuilder: (ctx, _) => _FilterSheetBody(
+        allTags: tags,
+        tags: _fTags,
+        prios: _fPrios,
+        hideDone: _hideDone,
+        onApply: (tags, prios, hideDone) {
+          setState(() {
+            _fTags = tags;
+            _fPrios = prios;
+            _hideDone = hideDone;
+          });
+        },
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -104,352 +260,880 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
         tooltip: l.todoAdd,
         onPressed: () => showTodoEditDialog(context),
       ),
-      body: RefreshIndicator(
-        color: t.bgBrand,
-        onRefresh: () async {
-          ref.invalidate(todoListProvider(_allFilter));
-          await ref.read(todoListProvider(_allFilter).future);
-        },
-        child: listAsync.when(
-          loading: () => _TodoSkeleton(tokens: t),
-          error: (e, _) => ListView(
-            padding: const EdgeInsets.all(PSpace.x16),
-            children: [
-              Text(
-                '${l.todoLoadError}\n$e',
-                style: PTypo.bodySm.copyWith(color: t.statusDanger),
-              ),
-            ],
-          ),
-          data: (all) => _buildBody(context, t, all),
+      body: listAsync.when(
+        loading: () => const _LedgerSkeleton(),
+        error: (e, _) => ListView(
+          padding: const EdgeInsets.all(PSpace.x16),
+          children: [
+            Text(
+              '${l.todoLoadError}\n$e',
+              style: PTypo.bodySm.copyWith(color: t.statusDanger),
+            ),
+          ],
         ),
+        data: (all) => _buildBody(context, t, l, all),
       ),
     );
   }
 
-  Widget _buildBody(BuildContext context, PorestTokens t, List<Todo> all) {
-    // 별자리 게이미피케이션 — 로딩/실패 시 null → 해당 카드 미렌더(graceful)
+  Widget _buildBody(
+      BuildContext context, PorestTokens t, AppLocalizations l, List<Todo> all) {
     final constToday = ref.watch(constellationTodayProvider).value;
-    final constSky = ref.watch(constellationSkyProvider).value;
-    final constCollection = ref.watch(constellationCollectionProvider).value;
-    final l = AppLocalizations.of(context);
+    final sky = ref.watch(constellationSkyProvider).value ?? const <SkyDay>[];
+    final skyByDate = {for (final d in sky) d.date: d};
+
     final today = DateTime.now();
+    final todayYmd = _ymd(today);
+    final ymPrefix =
+        '${_month.year.toString().padLeft(4, '0')}-${_month.month.toString().padLeft(2, '0')}';
 
-    // ── 통계 (전체 기준) ──
-    final incomplete = all.where((x) => !x.done).toList();
-    final todayCount = incomplete
-        .where((x) => x.due != null && _isSameDay(x.due!, today))
-        .length;
-    final weekCount = incomplete.where((x) {
-      if (x.due == null) return false;
-      final diff = dateOnly(x.due!).difference(dateOnly(today)).inDays;
-      return diff >= 0 && diff <= 7;
-    }).length;
-    final completedCount = all.where((x) => x.done).length;
-    // 오늘 완료 건수 — 완료 이벤트(completedAt) 기준 (히어로 캡션용)
-    final todayIso = _fmtDate(today);
-    final doneToday = all
-        .where((x) => x.done && (x.completedAt ?? '').startsWith(todayIso))
-        .length;
+    bool passFilter(Todo x) =>
+        (_fTags.isEmpty || _fTags.contains(_tagOf(x))) &&
+        (_fPrios.isEmpty || _fPrios.contains(x.priority ?? 'MEDIUM')) &&
+        (!_hideDone || !x.done);
 
-    // ── 필터 카운트 ──
-    final counts = <_TodoFilterTab, int>{
-      _TodoFilterTab.today: todayCount,
-      _TodoFilterTab.week: weekCount,
-      _TodoFilterTab.all: incomplete.length,
-      _TodoFilterTab.done: completedCount,
-    };
+    // 이 달 할일(마감일 기준) + 마감일 없는 할일(맨 아래 별도 그룹 — 유실 방지).
+    final monthTodos = all
+        .where((x) => x.due != null && _ymd(x.due!).startsWith(ymPrefix))
+        .where(passFilter)
+        .toList();
+    final noDue = all.where((x) => x.due == null).where(passFilter).toList();
 
-    // ── 현재 탭 필터 적용 ──
-    final filtered = all.where((x) {
-      switch (_tab) {
-        case _TodoFilterTab.today:
-          return !x.done && x.due != null && _isSameDay(x.due!, today);
-        case _TodoFilterTab.week:
-          if (x.done || x.due == null) return false;
-          final diff = dateOnly(x.due!).difference(dateOnly(today)).inDays;
-          return diff >= 0 && diff <= 7;
-        case _TodoFilterTab.all:
-          return !x.done;
-        case _TodoFilterTab.done:
-          return x.done;
-      }
-    }).toList();
-
-    // ── 정렬: 우선순위 desc → due asc(없으면 맨 뒤) ──
-    filtered.sort((a, b) {
-      final pr = todoPrioRank(b.priority).compareTo(todoPrioRank(a.priority));
-      if (pr != 0) return pr;
-      final ad = a.due, bd = b.due;
-      if (ad == null && bd == null) return 0;
-      if (ad == null) return 1;
-      if (bd == null) return -1;
-      return ad.compareTo(bd);
-    });
-
-    // ── due(YYYY-MM-DD)별 그룹 (없으면 맨 뒤) ──
-    final groups = <String, List<Todo>>{};
-    for (final x in filtered) {
-      final key = x.due == null ? '' : _fmtDate(x.due!);
-      (groups[key] ??= <Todo>[]).add(x);
+    // 일별 그룹 (asc) — 캘린더 마크·리스트 공유.
+    final byDay = <String, List<Todo>>{};
+    for (final x in monthTodos) {
+      (byDay[_ymd(x.due!)] ??= <Todo>[]).add(x);
     }
-    final groupKeys = groups.keys.toList()
-      ..sort((a, b) {
-        if (a == b) return 0;
-        if (a.isEmpty) return 1; // 마감일 없음 → 맨 뒤
-        if (b.isEmpty) return -1;
-        return a.compareTo(b);
+    final dayKeysSorted = byDay.keys.toList()..sort();
+    for (final g in byDay.values) {
+      g.sort((a, b) {
+        final pr =
+            todoPrioRank(b.priority).compareTo(todoPrioRank(a.priority));
+        if (pr != 0) return pr;
+        return (a.due ?? today).compareTo(b.due ?? today);
       });
+    }
+    _dayKeys.removeWhere(
+        (k, _) => !byDay.containsKey(k) && k != _kNoDueGroup);
+    for (final k in dayKeysSorted) {
+      _dayKeys.putIfAbsent(k, () => GlobalKey());
+    }
+    if (noDue.isNotEmpty) {
+      _dayKeys.putIfAbsent(_kNoDueGroup, () => GlobalKey());
+    }
 
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(
-        PSpace.x24,
-        PSpace.x16,
-        PSpace.x24,
-        96,
-      ),
+    final todayLeft =
+        all.where((x) => !x.done && x.due != null && _ymd(x.due!) == todayYmd).length;
+
+    // ── 상단 고정(pin) ──
+    final pin = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // ── 밤하늘 히어로 (별자리 게이미피케이션 — 통계 카드 대체, 디자인 정합) ──
-        if (constToday != null) ...[
-          NightSkyHero(today: constToday, doneToday: doneToday),
-          const SizedBox(height: 14),
-        ],
-
-        // ── 필터 칩 4종 → PTabs(pills, sm) (가계부 필터 선례 동일) ──
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: PTabs<_TodoFilterTab>(
-            value: _tab,
-            onChanged: (tab) => setState(() => _tab = tab),
-            variant: PTabsVariant.pills,
-            size: PTabsSize.sm,
-            items: [
-              for (final tab in _TodoFilterTab.values)
-                PTabItem(
-                  value: tab,
-                  label: '${_tabLabel(tab)} ${counts[tab] ?? 0}',
-                ),
-            ],
-          ),
+        const SizedBox(height: 10),
+        _MonthNav(
+          label: monthOnly(_month),
+          onPrev: () => _goMonth(-1),
+          onNext: () => _goMonth(1),
+          filterActive: _filterActive,
+          filterCount: _fTags.length + _fPrios.length + (_hideDone ? 1 : 0),
+          onOpenFilter: () => _openFilter(all),
+          tokens: t,
         ),
-        const SizedBox(height: 14),
-
-        // ── 리스트 (마감일 그룹) or 빈 상태 — 카드 다이어트: 플랫 (design .p-card 플랫화) ──
-        filtered.isEmpty
-            ? SizedBox(
-                width: double.infinity,
-                child: _EmptyTodo(tab: _tab),
-              )
-            : Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    for (final key in groupKeys) ...[
-                      _GroupHeader(
-                        label: todoGroupLabel(
-                          l,
-                          key.isEmpty ? null : DateTime.parse(key),
-                          groups[key]!.length,
+        // 오늘 상태 + [밤하늘] 토글 — 스크롤 시 접힘.
+        ClipRect(
+          child: AnimatedSize(
+            duration: const Duration(milliseconds: 220),
+            curve: Curves.easeOut,
+            alignment: Alignment.topCenter,
+            child: _compact
+                ? const SizedBox(width: double.infinity)
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding:
+                            const EdgeInsets.fromLTRB(PSpace.x20, 8, PSpace.x20, 0),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    todayLeft > 0
+                                        ? l.tdmTodayLeft(todayLeft)
+                                        : l.tdmTodayDone,
+                                    style: TextStyle(
+                                      fontFamily: PTypo.sans,
+                                      fontSize: 28,
+                                      fontWeight: FontWeight.w800,
+                                      letterSpacing: -0.56,
+                                      height: 1.15,
+                                      color: t.fgPrimary,
+                                      fontFeatures: const [
+                                        FontFeature.tabularFigures()
+                                      ],
+                                    ),
+                                  ),
+                                  if (constToday != null)
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 7),
+                                      child: _StarlightHint(
+                                          today: constToday, t: t),
+                                    ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: PSpace.x12),
+                            _SkyToggleBtn(
+                              on: _skyOpen,
+                              label: l.tdmNightSkyBtn,
+                              onTap: () =>
+                                  setState(() => _skyOpen = !_skyOpen),
+                              tokens: t,
+                            ),
+                          ],
                         ),
-                        t: t,
                       ),
-                      for (final todo in groups[key]!)
-                        _TodoRow(
-                          todo: todo,
-                          today: today,
-                          onToggle: () => _toggleDone(todo),
-                          onTap: () => showTodoDetailDialog(context, todo),
+                      // 밤하늘 패널 — 히어로 + 관측 리포트/도감 진입 (design .tdm-sky).
+                      if (_skyOpen && constToday != null)
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(
+                              PSpace.x20, 14, PSpace.x20, 0),
+                          child: Column(
+                            children: [
+                              NightSkyHero(
+                                today: constToday,
+                                doneToday: all
+                                    .where((x) =>
+                                        x.done &&
+                                        (x.completedAt ?? '')
+                                            .startsWith(todayYmd))
+                                    .length,
+                              ),
+                              const SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: PButton(
+                                      label: l.forestReportTitle,
+                                      icon: LucideIcons.telescope,
+                                      variant: PButtonVariant.outline,
+                                      size: PButtonSize.sm,
+                                      onPressed: () =>
+                                          context.push('/forest-report'),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: PButton(
+                                      label: l.nightSkyTitle,
+                                      icon: LucideIcons.sparkles,
+                                      variant: PButtonVariant.outline,
+                                      size: PButtonSize.sm,
+                                      onPressed: () =>
+                                          context.push('/night-sky'),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                     ],
-                  ],
+                  ),
+          ),
+        ),
+        // 접이식 캘린더 — 셀 마크: 수집★/구름/남은 건수/완료 체크.
+        _LedgerCalendar(
+          month: _month,
+          selected: _selected,
+          expanded: _expanded,
+          byDay: byDay,
+          skyByDate: skyByDate,
+          constToday: constToday,
+          onSelect: (ds) {
+            setState(() => _selected = ds);
+            if (byDay.containsKey(ds)) _scrollToDay(ds);
+          },
+          onToggleExpand: () => setState(() => _expanded = !_expanded),
+          tokens: t,
+        ),
+        Container(height: 1, color: t.borderDefault),
+      ],
+    );
+
+    // ── 일별 리스트 ──
+    final listChildren = <Widget>[
+      if (dayKeysSorted.isEmpty && noDue.isEmpty)
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 56, 20, 20),
+          child: Center(
+            child: Column(
+              children: [
+                Icon(
+                  _filterActive ? LucideIcons.filterX : LucideIcons.checkCheck,
+                  size: 36,
+                  color: t.fgTertiary,
                 ),
-        if (constSky != null &&
-            constToday != null &&
-            constCollection != null) ...[
-          const SizedBox(height: 14),
-          MySkyCard(
-            sky: constSky,
-            today: constToday,
-            entries: constCollection.entries,
+                const SizedBox(height: 12),
+                Text(
+                  _filterActive
+                      ? l.tdmEmptyFilter
+                      : l.tdmEmptyMonth(monthOnly(_month)),
+                  style: PTypo.bodySm.copyWith(
+                    color: t.fgPrimary,
+                    fontWeight: PFontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  _filterActive ? l.tdmEmptyFilterDesc : l.tdmEmptyMonthDesc,
+                  textAlign: TextAlign.center,
+                  style: PTypo.bodySm.copyWith(color: t.fgTertiary),
+                ),
+              ],
+            ),
           ),
-        ],
-        if (constCollection != null && constToday != null) ...[
-          const SizedBox(height: 14),
-          CollectionCard(
-            collection: constCollection,
-            todayKey: constToday.constellation.constellationKey,
+        )
+      else ...[
+        for (final key in dayKeysSorted)
+          KeyedSubtree(
+            key: _dayKeys[key],
+            child: _DayGroup(
+              ymd: key,
+              items: byDay[key]!,
+              today: today,
+              onToggle: _toggleDone,
+              onTap: (x) => showTodoDetailDialog(context, x),
+            ),
           ),
-        ],
+        if (noDue.isNotEmpty)
+          KeyedSubtree(
+            key: _dayKeys[_kNoDueGroup],
+            child: _DayGroup(
+              ymd: null,
+              items: noDue,
+              today: today,
+              onToggle: _toggleDone,
+              onTap: (x) => showTodoDetailDialog(context, x),
+            ),
+          ),
+      ],
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        pin,
+        Expanded(
+          child: RefreshIndicator(
+            color: t.bgBrand,
+            onRefresh: () async {
+              ref.invalidate(todoListProvider(_allFilter));
+              invalidateConstellation(ref);
+              await ref.read(todoListProvider(_allFilter).future);
+            },
+            child: ListView(
+              key: _listKey,
+              controller: _scrollCtrl,
+              padding: const EdgeInsets.fromLTRB(PSpace.x20, 0, PSpace.x20, 96),
+              children: listChildren,
+            ),
+          ),
+        ),
       ],
     );
   }
-
-  bool _isSameDay(DateTime a, DateTime b) =>
-      a.year == b.year && a.month == b.month && a.day == b.day;
-
-  String _tabLabel(_TodoFilterTab tab) {
-    final l = AppLocalizations.of(context);
-    return switch (tab) {
-      _TodoFilterTab.today => l.calToday,
-      _TodoFilterTab.week => l.expPeriodWeek,
-      _TodoFilterTab.all => l.todoStatusAll,
-      _TodoFilterTab.done => l.todoStatusCompleted,
-    };
-  }
 }
 
-/// 통계 카드 — 라벨(uppercase tracking) + 숫자(.num) + 단위, 완료율은 progress bar.
-/// 마감일 그룹 헤더 — '5월 19일 (월) · N건', borderBottom subtle.
-class _GroupHeader extends StatelessWidget {
-  const _GroupHeader({required this.label, required this.t});
-  final String label;
+const _kNoDueGroup = '__no_due__';
+
+/// 별빛 인사이트 한 줄 — "별빛 l/g · N개 더 모으면 {별자리} 수집" / 수집 완료.
+class _StarlightHint extends StatelessWidget {
+  const _StarlightHint({required this.today, required this.t});
+  final ConstellationToday today;
   final PorestTokens t;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(0, 12, 0, 6),
-      margin: const EdgeInsets.only(bottom: 4),
-      decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: t.borderSubtle)),
+    final l = AppLocalizations.of(context);
+    final name = constellationName(today.constellation);
+    final lit = today.points > today.goal ? today.goal : today.points;
+    final text = today.collected
+        ? l.tdmCollectedHint(name, today.streak)
+        : l.tdmStarlightHint(lit, today.goal, today.goal - lit, name);
+    // 하이라이트(별빛 n/g · 별자리명)는 문장 통짜 색 대신 브랜드 굵게 — l10n 어순 안전.
+    return Text(
+      text,
+      style: PTypo.bodySm.copyWith(color: t.fgSecondary),
+    );
+  }
+}
+
+/// 월 네비 — ‹ M월 › + 우측 필터 (design .txm-monthnav, 할일은 추가 버튼 없음 — FAB 담당).
+class _MonthNav extends StatelessWidget {
+  const _MonthNav({
+    required this.label,
+    required this.onPrev,
+    required this.onNext,
+    required this.filterActive,
+    required this.filterCount,
+    required this.onOpenFilter,
+    required this.tokens,
+  });
+  final String label;
+  final VoidCallback onPrev;
+  final VoidCallback onNext;
+  final bool filterActive;
+  final int filterCount;
+  final VoidCallback onOpenFilter;
+  final PorestTokens tokens;
+
+  Widget _btn(IconData icon, VoidCallback onTap,
+      {Color? bg, Color? fg, Widget? badge}) {
+    return Material(
+      color: bg ?? Colors.transparent,
+      borderRadius: const BorderRadius.all(Radius.circular(10)),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: const BorderRadius.all(Radius.circular(10)),
+        child: SizedBox(
+          width: 36,
+          height: 36,
+          child: Stack(
+            clipBehavior: Clip.none,
+            alignment: Alignment.center,
+            children: [
+              Icon(icon, size: 19, color: fg ?? tokens.fgSecondary),
+              if (badge != null) Positioned(right: -2, top: -2, child: badge),
+            ],
+          ),
+        ),
       ),
-      child: Text(
-        label,
-        style: PTypo.micro.copyWith(
-          color: t.fgTertiary,
-          fontWeight: PFontWeight.bold,
-          letterSpacing: 0.44,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = tokens;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: Row(
+        children: [
+          _btn(LucideIcons.chevronLeft, onPrev),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Text(
+              label,
+              style: TextStyle(
+                fontFamily: PTypo.sans,
+                fontSize: 17,
+                fontWeight: FontWeight.w800,
+                letterSpacing: -0.17,
+                color: t.fgPrimary,
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
+            ),
+          ),
+          _btn(LucideIcons.chevronRight, onNext),
+          const Spacer(),
+          _btn(
+            LucideIcons.slidersHorizontal,
+            onOpenFilter,
+            bg: filterActive ? t.bgBrandSubtle : null,
+            fg: filterActive ? t.fgBrandStrong : t.fgSecondary,
+            badge: filterActive && filterCount > 0
+                ? PBadge(label: '$filterCount', variant: PBadgeVariant.primary)
+                : null,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// [밤하늘] 토글 버튼 (design .txm-sumbtn 재사용 + sparkles).
+class _SkyToggleBtn extends StatelessWidget {
+  const _SkyToggleBtn({
+    required this.on,
+    required this.label,
+    required this.onTap,
+    required this.tokens,
+  });
+  final bool on;
+  final String label;
+  final VoidCallback onTap;
+  final PorestTokens tokens;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = tokens;
+    return Material(
+      color: on ? t.bgBrandSubtle : Colors.transparent,
+      borderRadius: const BorderRadius.all(Radius.circular(12)),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: const BorderRadius.all(Radius.circular(12)),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+          decoration: BoxDecoration(
+            border: Border.all(color: on ? t.borderBrand : t.borderDefault),
+            borderRadius: const BorderRadius.all(Radius.circular(12)),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                LucideIcons.sparkles,
+                size: 13,
+                color: on ? t.fgBrandStrong : t.fgPrimary,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                label,
+                style: PTypo.bodySm.copyWith(
+                  color: on ? t.fgBrandStrong : t.fgPrimary,
+                  fontWeight: PFontWeight.semi,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-/// 할일 행 — 원형 체크(22) + 제목 + 메타(상대시간·태그·메모) + 우선순위 칩.
+/// 접이식 캘린더 — 접힘: 선택 주 1줄 / 펼침: 월 전체 (design .txm-cal + 할일 마크).
+class _LedgerCalendar extends StatelessWidget {
+  const _LedgerCalendar({
+    required this.month,
+    required this.selected,
+    required this.expanded,
+    required this.byDay,
+    required this.skyByDate,
+    required this.constToday,
+    required this.onSelect,
+    required this.onToggleExpand,
+    required this.tokens,
+  });
+  final DateTime month;
+  final String? selected;
+  final bool expanded;
+  final Map<String, List<Todo>> byDay;
+  final Map<String, SkyDay> skyByDate;
+  final ConstellationToday? constToday;
+  final ValueChanged<String> onSelect;
+  final VoidCallback onToggleExpand;
+  final PorestTokens tokens;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = tokens;
+    final l = AppLocalizations.of(context);
+    final today = DateTime.now();
+    final todayStr = _TodoScreenState._ymd(today);
+    final firstDow = DateTime(month.year, month.month, 1).weekday % 7;
+    final dim = DateTime(month.year, month.month + 1, 0).day;
+    final cells = <({int d, String ds})?>[];
+    for (var i = 0; i < firstDow; i++) {
+      cells.add(null);
+    }
+    for (var d = 1; d <= dim; d++) {
+      cells.add((
+        d: d,
+        ds: '${month.year}-${month.month.toString().padLeft(2, '0')}-${d.toString().padLeft(2, '0')}',
+      ));
+    }
+    while (cells.length % 7 != 0) {
+      cells.add(null);
+    }
+    final weeks = <List<({int d, String ds})?>>[];
+    for (var i = 0; i < cells.length; i += 7) {
+      weeks.add(cells.sublist(i, i + 7));
+    }
+    var selWeek =
+        weeks.indexWhere((w) => w.any((c) => c != null && c.ds == selected));
+    if (selWeek < 0) {
+      selWeek =
+          weeks.indexWhere((w) => w.any((c) => c != null && c.ds == todayStr));
+    }
+    if (selWeek < 0) selWeek = 0;
+
+    Color numColor(String ds, int dow) {
+      if (ds.compareTo(todayStr) > 0) return t.fgTertiary;
+      if (dow == 0) return t.fgExpense;
+      if (dow == 6) return t.fgBrand;
+      return t.fgPrimary;
+    }
+
+    /// 셀 아래 마크 — 오늘: 수집★/남은 N건, 과거: 수집★·구름, 그 외: N건/완료 체크.
+    Widget mark(String ds) {
+      final items = byDay[ds];
+      final left = items == null ? 0 : items.where((x) => !x.done).length;
+      final isToday = ds == todayStr;
+      final sky = skyByDate[ds];
+
+      if (isToday) {
+        if (constToday?.collected == true) {
+          return Icon(
+            LucideIcons.star,
+            size: 10,
+            color: constellationColor(
+                context, constToday!.constellation.colorKey),
+          );
+        }
+        if (left > 0) {
+          return Text(
+            l.frpTileDoneVal(left),
+            style: TextStyle(
+              fontFamily: PTypo.sans,
+              fontSize: 10,
+              fontWeight: PFontWeight.bold,
+              color: t.fgBrand,
+              fontFeatures: const [FontFeature.tabularFigures()],
+            ),
+          );
+        }
+        return const SizedBox.shrink();
+      }
+      if (sky != null && sky.isGrown && sky.colorKey != null) {
+        return Icon(
+          LucideIcons.star,
+          size: 10,
+          color: constellationColor(context, sky.colorKey!),
+        );
+      }
+      if (sky != null && sky.isWithered) {
+        return Icon(LucideIcons.cloudy, size: 10, color: t.fgTertiary);
+      }
+      if (items != null) {
+        return left > 0
+            ? Text(
+                l.frpTileDoneVal(left),
+                style: TextStyle(
+                  fontFamily: PTypo.sans,
+                  fontSize: 10,
+                  fontWeight: PFontWeight.semi,
+                  color: t.fgTertiary,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
+              )
+            : Icon(
+                LucideIcons.check,
+                size: 10,
+                color: constellationColor(context, 'green'),
+              );
+      }
+      return const SizedBox.shrink();
+    }
+
+    Widget cell(({int d, String ds})? c, int i) {
+      if (c == null) return const Expanded(child: SizedBox(height: 56));
+      final isSel = c.ds == selected;
+      final future = c.ds.compareTo(todayStr) > 0;
+      return Expanded(
+        child: InkWell(
+          onTap: () => onSelect(c.ds),
+          borderRadius: const BorderRadius.all(Radius.circular(12)),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(0, 4, 0, 8),
+            child: Column(
+              children: [
+                Container(
+                  width: 33,
+                  height: 33,
+                  alignment: Alignment.center,
+                  decoration: isSel
+                      ? BoxDecoration(
+                          color: t.bgBrandSolid, shape: BoxShape.circle)
+                      : null,
+                  child: Opacity(
+                    opacity: !isSel && future ? 0.55 : 1,
+                    child: Text(
+                      '${c.d}',
+                      style: TextStyle(
+                        fontFamily: PTypo.sans,
+                        fontSize: PFontSize.bodyMd,
+                        fontWeight: isSel ? PFontWeight.bold : PFontWeight.semi,
+                        color: isSel ? t.fgOnBrand : numColor(c.ds, i % 7),
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 3),
+                SizedBox(height: 12, child: Center(child: mark(c.ds))),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    final dows = weekdayLabels();
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              for (var i = 0; i < 7; i++)
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 6, 0, 8),
+                    child: Text(
+                      dows[i],
+                      textAlign: TextAlign.center,
+                      style: PTypo.caption.copyWith(
+                        fontWeight: PFontWeight.semi,
+                        color: i == 0
+                            ? t.fgExpense
+                            : i == 6
+                                ? t.fgBrand
+                                : t.fgTertiary,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          for (final w in expanded ? weeks : [weeks[selWeek]])
+            Row(children: [for (var i = 0; i < 7; i++) cell(w[i], i)]),
+          InkWell(
+            onTap: onToggleExpand,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(0, 2, 0, 10),
+              child: Center(
+                child: Icon(
+                  expanded ? LucideIcons.chevronUp : LucideIcons.chevronDown,
+                  size: 20,
+                  color: t.fgTertiary,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 일별 그룹 — 날짜 헤더("yy. m. d(dow) · 오늘" + N/N 완료) + tdm 행.
+class _DayGroup extends StatelessWidget {
+  const _DayGroup({
+    required this.ymd,
+    required this.items,
+    required this.today,
+    required this.onToggle,
+    required this.onTap,
+  });
+
+  /// null = 마감일 없음 그룹.
+  final String? ymd;
+  final List<Todo> items;
+  final DateTime today;
+  final ValueChanged<Todo> onToggle;
+  final ValueChanged<Todo> onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final l = AppLocalizations.of(context);
+    final doneN = items.where((x) => x.done).length;
+
+    String head;
+    String? rel;
+    if (ymd == null) {
+      head = l.todoNoDue;
+    } else {
+      final d = DateTime.parse(ymd!);
+      head = '${d.year % 100}. ${d.month}. ${d.day}(${formatDay(d).dow})';
+      final diff = dateOnly(d).difference(dateOnly(today)).inDays;
+      rel = diff == 0
+          ? l.dateToday
+          : diff == 1
+              ? l.dateTomorrow
+              : diff == -1
+                  ? l.dateYesterday
+                  : null;
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(top: PSpace.x24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              Text(
+                head,
+                style: PTypo.bodySm.copyWith(
+                  color: t.fgSecondary,
+                  fontWeight: PFontWeight.semi,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
+              ),
+              if (rel != null)
+                Text(
+                  ' · $rel',
+                  style: PTypo.bodySm.copyWith(color: t.fgTertiary),
+                ),
+              const Spacer(),
+              Text(
+                l.tdmDoneRatio(doneN, items.length),
+                style: PTypo.caption.copyWith(
+                  fontSize: 12.5,
+                  fontWeight: PFontWeight.semi,
+                  color: doneN == items.length
+                      ? constellationColor(context, 'green')
+                      : t.fgTertiary,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
+              ),
+            ],
+          ),
+          for (var i = 0; i < items.length; i++)
+            _TodoRow(
+              todo: items[i],
+              today: today,
+              last: i == items.length - 1,
+              onToggle: () => onToggle(items[i]),
+              onTap: () => onTap(items[i]),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 할일 행 (design .tdm-row) — 체크(24, 연체 빨강 테두리) + 제목/메타 + 우선순위 pill.
 class _TodoRow extends StatelessWidget {
   const _TodoRow({
     required this.todo,
     required this.today,
+    required this.last,
     required this.onToggle,
     required this.onTap,
   });
   final Todo todo;
   final DateTime today;
+  final bool last;
   final VoidCallback onToggle;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final l = AppLocalizations.of(context);
     final overdue = !todo.done && isTodoOverdue(todo.due, today);
     final overdueColor = todoOverdueColor(context);
     final prio = todoPrioOf(todo.priority);
-    final tag = todoTagOrDefault(todo.category);
+    final l = AppLocalizations.of(context);
+    final tag = _TodoScreenState._tagOf(todo);
     final hasNote = (todo.content ?? '').trim().isNotEmpty;
 
     return InkWell(
       onTap: onTap,
-      child: Opacity(
-        opacity: todo.done ? 0.55 : 1,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 원형 체크 22px.
-              GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: onToggle,
-                child: Container(
-                  width: 22,
-                  height: 22,
-                  decoration: BoxDecoration(
-                    color: todo.done ? t.bgBrandSolid : Colors.transparent,
-                    shape: BoxShape.circle,
-                    border: todo.done
-                        ? null
-                        : Border.all(
-                            color: overdue ? overdueColor : t.borderStrong,
-                            width: 2,
-                          ),
+      child: Container(
+        decoration: BoxDecoration(
+          border: last
+              ? null
+              : Border(bottom: BorderSide(color: t.borderSubtle)),
+        ),
+        child: Opacity(
+          opacity: todo.done ? 0.55 : 1,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 13),
+            child: Row(
+              children: [
+                GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: onToggle,
+                  child: Container(
+                    width: 24,
+                    height: 24,
+                    decoration: BoxDecoration(
+                      color: todo.done ? t.bgBrandSolid : Colors.transparent,
+                      shape: BoxShape.circle,
+                      border: todo.done
+                          ? null
+                          : Border.all(
+                              color: overdue ? overdueColor : t.borderStrong,
+                              width: 2,
+                            ),
+                    ),
+                    child: todo.done
+                        ? const Icon(
+                            LucideIcons.check,
+                            size: 13,
+                            color: Colors.white,
+                          )
+                        : null,
                   ),
-                  child: todo.done
-                      ? const Icon(
-                          LucideIcons.check,
-                          size: 13,
-                          color: Colors.white,
-                        )
-                      : null,
                 ),
-              ),
-              const SizedBox(width: 12),
-              // 제목 + 메타.
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      todo.title,
-                      style: PTypo.body.copyWith(
-                        color: t.fgPrimary,
-                        fontWeight: PFontWeight.semi,
-                        letterSpacing: -0.14,
-                        decoration: todo.done
-                            ? TextDecoration.lineThrough
-                            : null,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        todo.title,
+                        style: TextStyle(
+                          fontFamily: PTypo.sans,
+                          fontSize: 15,
+                          fontWeight: PFontWeight.semi,
+                          letterSpacing: -0.15,
+                          color: t.fgPrimary,
+                          decoration:
+                              todo.done ? TextDecoration.lineThrough : null,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Text(
-                          todoRelativeDate(l, todo.due, today),
-                          style: PTypo.caption.copyWith(
-                            color: overdue ? overdueColor : t.fgTertiary,
-                            fontWeight: overdue
-                                ? PFontWeight.semi
-                                : PFontWeight.medium,
+                      const SizedBox(height: 3),
+                      Row(
+                        children: [
+                          Text(
+                            tag,
+                            style: PTypo.caption.copyWith(
+                                color: t.fgTertiary, fontSize: 12.5),
                           ),
-                        ),
-                        _MetaDot(t: t),
-                        Text(
-                          tag,
-                          style: PTypo.caption.copyWith(color: t.fgTertiary),
-                        ),
-                        if (hasNote) ...[
-                          _MetaDot(t: t),
-                          Icon(
-                            LucideIcons.alignLeft,
-                            size: 11,
-                            color: t.fgTertiary,
-                          ),
+                          if (hasNote) ...[
+                            _MetaDot(t: t),
+                            Icon(
+                              LucideIcons.alignLeft,
+                              size: 11,
+                              color: t.fgTertiary,
+                            ),
+                          ],
                         ],
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 8),
-              // 우선순위 칩.
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: prio.bg(context),
-                  borderRadius: PRadius.brSm,
-                ),
-                child: Text(
-                  todoPrioLabel(l, todo.priority),
-                  style: PTypo.micro.copyWith(
-                    color: prio.color(context),
-                    fontWeight: PFontWeight.semi,
-                    letterSpacing: 0,
+                      ),
+                    ],
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(width: 8),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: prio.bg(context),
+                    borderRadius: PRadius.brSm,
+                  ),
+                  child: Text(
+                    todoPrioLabel(l, todo.priority),
+                    style: PTypo.micro.copyWith(
+                      color: prio.color(context),
+                      fontWeight: PFontWeight.bold,
+                      letterSpacing: 0,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -464,7 +1148,7 @@ class _MetaDot extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 7),
       child: Container(
         width: 2,
         height: 2,
@@ -477,56 +1161,137 @@ class _MetaDot extends StatelessWidget {
   }
 }
 
-/// 빈 상태 — 56px 원형 아이콘 + 탭별 문구.
-class _EmptyTodo extends StatelessWidget {
-  const _EmptyTodo({required this.tab});
-  final _TodoFilterTab tab;
+/// 필터 시트 — 태그·우선순위 칩 + 완료 숨김 + 초기화/완료 (design 필터 시트).
+class _FilterSheetBody extends StatefulWidget {
+  const _FilterSheetBody({
+    required this.allTags,
+    required this.tags,
+    required this.prios,
+    required this.hideDone,
+    required this.onApply,
+  });
+  final List<String> allTags;
+  final Set<String> tags;
+  final Set<String> prios;
+  final bool hideDone;
+  final void Function(Set<String>, Set<String>, bool) onApply;
+
+  @override
+  State<_FilterSheetBody> createState() => _FilterSheetBodyState();
+}
+
+class _FilterSheetBodyState extends State<_FilterSheetBody> {
+  late Set<String> _tags = {...widget.tags};
+  late Set<String> _prios = {...widget.prios};
+  late bool _hideDone = widget.hideDone;
+
+  bool get _active => _tags.isNotEmpty || _prios.isNotEmpty || _hideDone;
+
+  /// 변경 즉시 반영(시트 밖 리스트도 갱신) — 완료 버튼은 닫기만.
+  void _sync() =>
+      widget.onApply({..._tags}, {..._prios}, _hideDone);
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
-    final isDone = tab == _TodoFilterTab.done;
-    final title = switch (tab) {
-      _TodoFilterTab.today => l.todoEmptyToday,
-      _TodoFilterTab.week => l.todoEmptyWeek,
-      _TodoFilterTab.done => l.todoEmptyDone,
-      _TodoFilterTab.all => l.todoEmptyAll,
-    };
-    final sub = isDone ? l.todoEmptyDoneHint : l.todoEmptyAddHint;
-
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 20),
+      padding: const EdgeInsets.fromLTRB(PSpace.x20, 0, PSpace.x20, 28),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            width: 56,
-            height: 56,
-            decoration: BoxDecoration(
-              color: t.bgSunken,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              isDone ? LucideIcons.checkCheck : LucideIcons.sparkles,
-              size: 24,
+          Text(
+            l.tdmFilterTag,
+            style: PTypo.caption.copyWith(
+              fontSize: 12.5,
+              fontWeight: PFontWeight.bold,
               color: t.fgTertiary,
             ),
           ),
-          const SizedBox(height: 14),
-          Text(
-            title,
-            style: PTypo.body.copyWith(
-              fontSize: PFontSize.bodyMd,
-              color: t.fgPrimary,
-              fontWeight: PFontWeight.bold,
-            ),
-            textAlign: TextAlign.center,
+          const SizedBox(height: 9),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final tag in widget.allTags)
+                _FilterChip(
+                  label: tag,
+                  on: _tags.contains(tag),
+                  onTap: () => setState(() {
+                    _tags.contains(tag) ? _tags.remove(tag) : _tags.add(tag);
+                    _sync();
+                  }),
+                  t: t,
+                ),
+            ],
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 18),
           Text(
-            sub,
-            style: PTypo.bodySm.copyWith(color: t.fgTertiary),
-            textAlign: TextAlign.center,
+            l.todoPriorityLabel,
+            style: PTypo.caption.copyWith(
+              fontSize: 12.5,
+              fontWeight: PFontWeight.bold,
+              color: t.fgTertiary,
+            ),
+          ),
+          const SizedBox(height: 9),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final p in kTodoPrios)
+                _FilterChip(
+                  label: todoPrioLabel(l, p.code),
+                  dotColor: p.color(context),
+                  on: _prios.contains(p.code),
+                  onTap: () => setState(() {
+                    _prios.contains(p.code)
+                        ? _prios.remove(p.code)
+                        : _prios.add(p.code);
+                    _sync();
+                  }),
+                  t: t,
+                ),
+            ],
+          ),
+          const SizedBox(height: 18),
+          _FilterChip(
+            label: l.tdmHideDone,
+            icon: LucideIcons.check,
+            on: _hideDone,
+            onTap: () => setState(() {
+              _hideDone = !_hideDone;
+              _sync();
+            }),
+            t: t,
+          ),
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              Expanded(
+                child: PButton(
+                  label: l.actionReset,
+                  variant: PButtonVariant.outline,
+                  onPressed: !_active
+                      ? null
+                      : () => setState(() {
+                            _tags = {};
+                            _prios = {};
+                            _hideDone = false;
+                            _sync();
+                          }),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                flex: 2,
+                child: PButton(
+                  label: l.actionDone,
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -534,315 +1299,174 @@ class _EmptyTodo extends StatelessWidget {
   }
 }
 
-/// 리스트 뷰 skeleton — 실제 `_buildBody`(히어로·퀵추가·필터·플랫 리스트·별자리 카드) 미러.
-///
-/// 규칙: 정적 UI 틀(퀵추가 입력·필터 탭·그룹 헤더)은 실제 렌더, 서버 데이터 영역
-/// (히어로 텍스트·할일 행·별자리 그리드/목록)만 placeholder → 로딩→데이터 전환 점프 최소화.
-class _TodoSkeleton extends StatefulWidget {
-  const _TodoSkeleton({required this.tokens});
-  final PorestTokens tokens;
-
-  @override
-  State<_TodoSkeleton> createState() => _TodoSkeletonState();
-}
-
-class _TodoSkeletonState extends State<_TodoSkeleton> {
-  // 필터 탭 라벨 — 카운트는 데이터라 로딩 중엔 0(실제 `counts[tab] ?? 0` 폴백 포맷 정합).
-  String _tabLabel(BuildContext context, _TodoFilterTab tab) {
-    final l = AppLocalizations.of(context);
-    final label = switch (tab) {
-      _TodoFilterTab.today => l.calToday,
-      _TodoFilterTab.week => l.expPeriodWeek,
-      _TodoFilterTab.all => l.todoStatusAll,
-      _TodoFilterTab.done => l.todoStatusCompleted,
-    };
-    return '$label 0';
-  }
+/// 필터 칩 (design .tdm-chip) — 선택 시 brand 틴트.
+class _FilterChip extends StatelessWidget {
+  const _FilterChip({
+    required this.label,
+    required this.on,
+    required this.onTap,
+    required this.t,
+    this.dotColor,
+    this.icon,
+  });
+  final String label;
+  final bool on;
+  final VoidCallback onTap;
+  final PorestTokens t;
+  final Color? dotColor;
+  final IconData? icon;
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(PSpace.x24, PSpace.x16, PSpace.x24, 96),
-      physics: const NeverScrollableScrollPhysics(),
-      children: [
-        // ── 밤하늘 히어로 shell — 고정 다크 프레임(정적) + 데이터 텍스트 placeholder ──
-        const _HeroSkeleton(),
-        const SizedBox(height: 14),
-
-        // ── 필터 탭 — 정적(로딩 중에도 탭 그대로) ──
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: PTabs<_TodoFilterTab>(
-            value: _TodoFilterTab.today,
-            onChanged: (_) {},
-            variant: PTabsVariant.pills,
-            size: PTabsSize.sm,
-            items: [
-              for (final tab in _TodoFilterTab.values)
-                PTabItem(value: tab, label: _tabLabel(context, tab)),
+    return Material(
+      color: on ? t.bgBrandSubtle : Colors.transparent,
+      borderRadius: PRadius.brFull,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: PRadius.brFull,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+          decoration: BoxDecoration(
+            border: Border.all(color: on ? t.borderBrand : t.borderDefault),
+            borderRadius: PRadius.brFull,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (dotColor != null) ...[
+                Container(
+                  width: 7,
+                  height: 7,
+                  decoration:
+                      BoxDecoration(color: dotColor, shape: BoxShape.circle),
+                ),
+                const SizedBox(width: 6),
+              ],
+              if (icon != null) ...[
+                Icon(icon, size: 12, color: on ? t.fgBrandStrong : t.fgPrimary),
+                const SizedBox(width: 6),
+              ],
+              Text(
+                label,
+                style: PTypo.bodySm.copyWith(
+                  fontSize: 13.5,
+                  fontWeight: PFontWeight.semi,
+                  color: on ? t.fgBrandStrong : t.fgPrimary,
+                ),
+              ),
             ],
           ),
         ),
-        const SizedBox(height: 14),
-
-        // ── 리스트 — 데이터 영역: 플랫(카드 미포함), 그룹 헤더 + 행 placeholder ──
-        const _ListSkeleton(),
-
-        // ── 나의 밤하늘 / 도감 — 데이터 영역(하단): 섹션 헤더 + 행 placeholder ──
-        const SizedBox(height: 14),
-        const _MySkySkeleton(),
-        const SizedBox(height: 14),
-        const _CollectionSkeleton(),
-      ],
-    );
-  }
-}
-
-/// 히어로 skeleton — `NightSkyHero`의 고정 다크 그라디언트 프레임(정적)을 그대로 렌더하고,
-/// 서버 데이터 의존 텍스트(목표·별자리명·캡션·스트릭)만 흰색 알파 placeholder.
-/// (히어로는 라이트/다크 공통 고정 다크 팔레트 → 토큰 기반 PSkeleton 대신 흰색 알파 사용.)
-class _HeroSkeleton extends StatelessWidget {
-  const _HeroSkeleton();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 168,
-      clipBehavior: Clip.antiAlias,
-      decoration: const BoxDecoration(
-        borderRadius: PRadius.brLg,
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF0D1430), Color(0xFF17224A), Color(0xFF1F2C5E)],
-          stops: [0, 0.55, 1],
-        ),
-      ),
-      child: const Stack(
-        children: [
-          // 은은한 달빛 (정적)
-          Positioned(
-            top: -40,
-            right: -20,
-            child: SizedBox(
-              width: 180,
-              height: 180,
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [Color(0x299AB0FF), Colors.transparent],
-                    stops: [0, 0.65],
-                  ),
-                ),
-              ),
-            ),
-          ),
-          // 달 (정적)
-          Positioned(
-            top: 14,
-            right: 16,
-            child: Icon(LucideIcons.moon, size: 15, color: Color(0x8CD2DCFF)),
-          ),
-          // 좌상단: 오늘의 목표 라벨 + 별자리명 (데이터)
-          Positioned(
-            top: 12,
-            left: 16,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _HeroBar(width: 60, height: 9),
-                SizedBox(height: 7),
-                _HeroBar(width: 110, height: 16),
-              ],
-            ),
-          ),
-          // 좌하단: 진행 캡션 (데이터)
-          Positioned(
-            left: 16,
-            bottom: 14,
-            child: _HeroBar(width: 150, height: 10),
-          ),
-          // 우하단: 스트릭 배지 + 보호 (데이터)
-          Positioned(
-            right: 14,
-            bottom: 13,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                _HeroBar(width: 74, height: 24, radius: 999),
-                SizedBox(height: 6),
-                _HeroBar(width: 58, height: 11),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }
 }
 
-/// 히어로(고정 다크) 내부 placeholder bar — 흰색 알파(NightSkyHero 배지 톤 정합).
-class _HeroBar extends StatelessWidget {
-  const _HeroBar({required this.width, required this.height, this.radius = 6});
-  final double width;
-  final double height;
-  final double radius;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: width,
-      height: height,
-      decoration: BoxDecoration(
-        color: const Color(0x1FFFFFFF),
-        borderRadius: BorderRadius.circular(radius),
-      ),
-    );
-  }
-}
-
-/// 리스트 skeleton — 플랫(카드 미포함), `_GroupHeader` + `_TodoRow` 구조 미러.
-class _ListSkeleton extends StatelessWidget {
-  const _ListSkeleton();
-
-  // 제목 라인 폭 — 결정적 시퀀스(매 렌더 동일 시각).
-  static const _titleWidths = [160.0, 120.0, 184.0, 104.0, 148.0];
+/// 원장 skeleton — 정적 틀(월네비·요일 헤더) 실렌더, 데이터 영역만 placeholder.
+class _LedgerSkeleton extends StatelessWidget {
+  const _LedgerSkeleton();
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final dows = weekdayLabels();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // 그룹 헤더 placeholder — `_GroupHeader`(하단 보더 + 패딩) 미러.
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.fromLTRB(0, 12, 0, 6),
-          margin: const EdgeInsets.only(bottom: 4),
-          decoration: BoxDecoration(
-            border: Border(bottom: BorderSide(color: t.borderSubtle)),
-          ),
-          child: const PSkeleton.line(width: 96, height: 11),
+        const SizedBox(height: 10),
+        _MonthNav(
+          label: monthOnly(DateTime.now()),
+          onPrev: () {},
+          onNext: () {},
+          filterActive: false,
+          filterCount: 0,
+          onOpenFilter: () {},
+          tokens: t,
         ),
-        // 할일 행 placeholder — `_TodoRow`(원형 체크 + 제목/메타 + 우선순위 칩) 미러.
-        for (final w in _titleWidths)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                PSkeleton.circle(size: 22),
-                const SizedBox(width: 12),
+        const Padding(
+          padding: EdgeInsets.fromLTRB(PSpace.x20, 8, PSpace.x20, 0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              PSkeleton.line(width: 180, height: 32),
+              SizedBox(height: 8),
+              PSkeleton.line(width: 220, height: 16),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+          child: Row(
+            children: [
+              for (var i = 0; i < 7; i++)
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 6, 0, 8),
+                    child: Text(
+                      dows[i],
+                      textAlign: TextAlign.center,
+                      style: PTypo.caption.copyWith(
+                        fontWeight: PFontWeight.semi,
+                        color: i == 0
+                            ? t.fgExpense
+                            : i == 6
+                                ? t.fgBrand
+                                : t.fgTertiary,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(12, 0, 12, 10),
+          child: Row(
+            children: [
+              for (var i = 0; i < 7; i++)
+                const Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+                    child: PSkeleton(width: 33, height: 33),
+                  ),
+                ),
+            ],
+          ),
+        ),
+        Container(height: 1, color: t.borderDefault),
+        Expanded(
+          child: ListView(
+            physics: const NeverScrollableScrollPhysics(),
+            padding: const EdgeInsets.fromLTRB(PSpace.x20, 24, PSpace.x20, 28),
+            children: [
+              const PSkeleton.line(width: 140, height: 13),
+              const SizedBox(height: 8),
+              for (final w in const [160.0, 120.0, 184.0, 104.0, 148.0])
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 13),
+                  child: Row(
                     children: [
-                      PSkeleton.line(width: w),
-                      const SizedBox(height: 4),
-                      const PSkeleton.line(width: 80, height: 12),
+                      PSkeleton.circle(size: 24),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            PSkeleton.line(width: w),
+                            const SizedBox(height: 4),
+                            const PSkeleton.line(width: 80, height: 12),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      const PSkeleton(width: 40, height: 20),
                     ],
                   ),
                 ),
-                const SizedBox(width: 8),
-                const PSkeleton(width: 40, height: 20),
-              ],
-            ),
+            ],
           ),
+        ),
       ],
-    );
-  }
-}
-
-/// 나의 밤하늘 skeleton — `MySkyCard`(플랫, inset 10) 섹션 헤더 + 2주 7열 그리드 미러.
-class _MySkySkeleton extends StatelessWidget {
-  const _MySkySkeleton();
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Row(
-            children: [
-              PSkeleton.line(width: 96, height: 18),
-              Spacer(),
-              PSkeleton.line(width: 56, height: 12),
-            ],
-          ),
-          const SizedBox(height: 4),
-          const PSkeleton.line(width: 180, height: 11),
-          const SizedBox(height: 12),
-          // 2주 7열 관측 그리드 — 셀 AspectRatio(1).
-          for (int r = 0; r < 2; r++) ...[
-            Row(
-              children: [
-                for (int i = 0; i < 7; i++) ...[
-                  if (i > 0) const SizedBox(width: 6),
-                  const Expanded(
-                    child: AspectRatio(
-                      aspectRatio: 1,
-                      child: PSkeleton(borderRadius: PRadius.brMd),
-                    ),
-                  ),
-                ],
-              ],
-            ),
-            const SizedBox(height: 6),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-/// 도감 skeleton — `CollectionCard`(플랫, inset 10) 섹션 헤더 + `_CollectionRow` 목록 미러.
-class _CollectionSkeleton extends StatelessWidget {
-  const _CollectionSkeleton();
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Row(
-            children: [
-              PSkeleton.line(width: 72, height: 18),
-              Spacer(),
-              PSkeleton.line(width: 48, height: 12),
-            ],
-          ),
-          const SizedBox(height: 4),
-          const PSkeleton.line(width: 200, height: 11),
-          const SizedBox(height: 8),
-          // 도감 행 placeholder — `_CollectionRow`(아이콘 타일 + 이름/별수 + 횟수 + chevron) 미러.
-          for (int i = 0; i < 4; i++)
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 6, vertical: 8),
-              child: Row(
-                children: [
-                  PSkeleton(width: 34, height: 34, borderRadius: PRadius.brMd),
-                  SizedBox(width: PSpace.x12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        PSkeleton.line(width: 120, height: 13),
-                        SizedBox(height: 3),
-                        PSkeleton.line(width: 64, height: 11),
-                      ],
-                    ),
-                  ),
-                  PSkeleton.line(width: 40, height: 12),
-                ],
-              ),
-            ),
-        ],
-      ),
     );
   }
 }
