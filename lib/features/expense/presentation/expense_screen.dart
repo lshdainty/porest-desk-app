@@ -248,7 +248,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
     return expensesAsync.when(
       loading: () => _TxmSkeleton(monthLabel: _monthLabel(_month)),
       error: (e, _) => Padding(
-        padding: const EdgeInsets.all(PSpace.x20),
+        padding: const EdgeInsets.all(PSpace.x24),
         child: _ErrorBox(
           message: '${l.expLoadError}\n$e',
           onRetry: () => ref.invalidate(monthExpensesProvider(_key)),
@@ -391,7 +391,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(PSpace.x20, 8, PSpace.x20, 0),
+                    padding: const EdgeInsets.fromLTRB(PSpace.x24, 8, PSpace.x24, 0),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -436,7 +436,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                   ),
                   if (_sumOpen)
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(PSpace.x20, 14, PSpace.x20, 0),
+                      padding: const EdgeInsets.fromLTRB(PSpace.x24, 14, PSpace.x24, 0),
                       child: PCard(
                         variant: PCardVariant.raised,
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -500,7 +500,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
               final listChildren = <Widget>[
                         if (groupKeys.isEmpty)
                           Padding(
-                            padding: const EdgeInsets.fromLTRB(20, 56, 20, 20),
+                            padding: const EdgeInsets.fromLTRB(PSpace.x24, 56, PSpace.x24, 20),
                             child: Center(
                               child: Column(
                                 children: [
@@ -583,7 +583,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                         key: _listKey,
                         controller: _scrollCtrl,
                         padding: const EdgeInsets.fromLTRB(
-                            PSpace.x20, 0, PSpace.x20, 28),
+                            PSpace.x24, 0, PSpace.x24, 28),
                         children: listChildren,
                       ),
                     ),
@@ -721,7 +721,7 @@ class _TxmMonthNav extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = tokens;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
+      padding: const EdgeInsets.symmetric(horizontal: PSpace.x24),
       child: Row(
         children: [
           if (showMonth) ...[
@@ -1002,7 +1002,7 @@ class _TxmCalendar extends StatelessWidget {
 
     final dows = weekdayLabels();
     return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+      padding: const EdgeInsets.fromLTRB(PSpace.x24, 12, PSpace.x24, 0),
       child: Column(
         children: [
           Row(
@@ -1301,7 +1301,7 @@ class _FilterChipsRow extends ConsumerWidget {
     if (chips.isEmpty) return const SizedBox.shrink();
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
-      padding: const EdgeInsets.fromLTRB(PSpace.x20, 8, PSpace.x20, 0),
+      padding: const EdgeInsets.fromLTRB(PSpace.x24, 8, PSpace.x24, 0),
       child: Row(
         children: [
           for (var i = 0; i < chips.length; i++) ...[
@@ -1346,7 +1346,7 @@ class _TxmSkeleton extends StatelessWidget {
           tokens: t,
         ),
         Padding(
-          padding: const EdgeInsets.fromLTRB(PSpace.x20, 8, PSpace.x20, 0),
+          padding: const EdgeInsets.fromLTRB(PSpace.x24, 8, PSpace.x24, 0),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -1371,7 +1371,7 @@ class _TxmSkeleton extends StatelessWidget {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+          padding: const EdgeInsets.fromLTRB(PSpace.x24, 12, PSpace.x24, 0),
           child: Column(
             children: [
               Row(
@@ -1445,7 +1445,7 @@ class _TxmSkeleton extends StatelessWidget {
         Container(height: 1, color: t.borderDefault),
         Expanded(
           child: ListView(
-            padding: const EdgeInsets.fromLTRB(PSpace.x20, 24, PSpace.x20, 28),
+            padding: const EdgeInsets.fromLTRB(PSpace.x24, 24, PSpace.x24, 28),
             children: const [
               _ExpenseDayGroupSkeleton(rows: 3),
               SizedBox(height: PSpace.x16),
