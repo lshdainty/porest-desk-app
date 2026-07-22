@@ -9127,6 +9127,300 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'{amount} 이하'**
   String expChipMax(String amount);
+
+  /// No description provided for @tdmTodayLeft.
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘 할 일 {count}개'**
+  String tdmTodayLeft(int count);
+
+  /// No description provided for @tdmTodayDone.
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘 할 일 끝!'**
+  String get tdmTodayDone;
+
+  /// No description provided for @tdmNightSkyBtn.
+  ///
+  /// In ko, this message translates to:
+  /// **'밤하늘'**
+  String get tdmNightSkyBtn;
+
+  /// No description provided for @tdmStarlightHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'별빛 {lit}/{goal} · {left}개 더 모으면 {name} 수집'**
+  String tdmStarlightHint(int lit, int goal, int left, String name);
+
+  /// No description provided for @tdmCollectedHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name} 수집 완료 · 연속 {streak}일'**
+  String tdmCollectedHint(String name, int streak);
+
+  /// No description provided for @tdmDoneRatio.
+  ///
+  /// In ko, this message translates to:
+  /// **'{done}/{total} 완료'**
+  String tdmDoneRatio(int done, int total);
+
+  /// No description provided for @tdmFilterTag.
+  ///
+  /// In ko, this message translates to:
+  /// **'태그'**
+  String get tdmFilterTag;
+
+  /// No description provided for @tdmHideDone.
+  ///
+  /// In ko, this message translates to:
+  /// **'완료한 할 일 숨기기'**
+  String get tdmHideDone;
+
+  /// No description provided for @tdmEmptyMonth.
+  ///
+  /// In ko, this message translates to:
+  /// **'{month} 할 일이 없어요'**
+  String tdmEmptyMonth(String month);
+
+  /// No description provided for @tdmEmptyMonthDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'오른쪽 아래 + 버튼으로 추가해보세요.'**
+  String get tdmEmptyMonthDesc;
+
+  /// No description provided for @tdmEmptyFilter.
+  ///
+  /// In ko, this message translates to:
+  /// **'조건에 맞는 할 일이 없어요'**
+  String get tdmEmptyFilter;
+
+  /// No description provided for @tdmEmptyFilterDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'필터를 조정하거나 초기화해보세요.'**
+  String get tdmEmptyFilterDesc;
+
+  /// No description provided for @tdmStarToastGain.
+  ///
+  /// In ko, this message translates to:
+  /// **'별빛 +{gain} · 수집까지 {left}별'**
+  String tdmStarToastGain(int gain, int left);
+
+  /// No description provided for @tdmStarToastCollected.
+  ///
+  /// In ko, this message translates to:
+  /// **'별빛 +{gain} · 오늘의 별자리 수집!'**
+  String tdmStarToastCollected(int gain);
+
+  /// No description provided for @nightSkyTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'밤하늘'**
+  String get nightSkyTitle;
+
+  /// No description provided for @forestReportTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'관측 리포트'**
+  String get forestReportTitle;
+
+  /// No description provided for @fcolViewCta.
+  ///
+  /// In ko, this message translates to:
+  /// **'감상하기'**
+  String get fcolViewCta;
+
+  /// No description provided for @fcolPreviewCta.
+  ///
+  /// In ko, this message translates to:
+  /// **'미리보기'**
+  String get fcolPreviewCta;
+
+  /// No description provided for @fcolLockedHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'별빛 {count}개를 하룻밤에 모으면 만날 수 있어요.'**
+  String fcolLockedHint(int count);
+
+  /// No description provided for @frpObsResult.
+  ///
+  /// In ko, this message translates to:
+  /// **'관측 결과 :'**
+  String get frpObsResult;
+
+  /// No description provided for @frpObsToday.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name} {lit}/{goal} 진행 중'**
+  String frpObsToday(String name, int lit, int goal);
+
+  /// No description provided for @frpObsCollected.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name} 수집!'**
+  String frpObsCollected(String name);
+
+  /// No description provided for @frpObsWithered.
+  ///
+  /// In ko, this message translates to:
+  /// **'흐린 밤 · 구름 보호로 스트릭 유지'**
+  String get frpObsWithered;
+
+  /// No description provided for @frpObsRest.
+  ///
+  /// In ko, this message translates to:
+  /// **'쉬어간 밤'**
+  String get frpObsRest;
+
+  /// No description provided for @frpStampDays.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}일째'**
+  String frpStampDays(int count);
+
+  /// No description provided for @frpStampLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'연속 관측!'**
+  String get frpStampLabel;
+
+  /// No description provided for @frpStarGather.
+  ///
+  /// In ko, this message translates to:
+  /// **'별빛 모으기'**
+  String get frpStarGather;
+
+  /// No description provided for @frpPctBadge.
+  ///
+  /// In ko, this message translates to:
+  /// **'{pct}% 달성'**
+  String frpPctBadge(int pct);
+
+  /// No description provided for @frpTileStar.
+  ///
+  /// In ko, this message translates to:
+  /// **'모은 별빛'**
+  String get frpTileStar;
+
+  /// No description provided for @frpTileStarVal.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}개'**
+  String frpTileStarVal(int count);
+
+  /// No description provided for @frpTileDone.
+  ///
+  /// In ko, this message translates to:
+  /// **'완료한 할 일'**
+  String get frpTileDone;
+
+  /// No description provided for @frpTileDoneVal.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}건'**
+  String frpTileDoneVal(int count);
+
+  /// No description provided for @frpAnalysis.
+  ///
+  /// In ko, this message translates to:
+  /// **'별빛 분석'**
+  String get frpAnalysis;
+
+  /// No description provided for @frpLegendItem.
+  ///
+  /// In ko, this message translates to:
+  /// **'{label} 완료: {count}'**
+  String frpLegendItem(String label, int count);
+
+  /// No description provided for @frpMissed.
+  ///
+  /// In ko, this message translates to:
+  /// **'못다 켠 별'**
+  String get frpMissed;
+
+  /// No description provided for @frpMissedAllDone.
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘 하늘의 별을 모두 켰어요. 남은 별빛은 내일 밤으로!'**
+  String get frpMissedAllDone;
+
+  /// No description provided for @frpMissedCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}개'**
+  String frpMissedCount(int count);
+
+  /// No description provided for @frpFuture.
+  ///
+  /// In ko, this message translates to:
+  /// **'아직 오지 않은 밤이에요'**
+  String get frpFuture;
+
+  /// No description provided for @frpAsOf.
+  ///
+  /// In ko, this message translates to:
+  /// **'{ts} 기준'**
+  String frpAsOf(String ts);
+
+  /// No description provided for @settingsMenuTodoTag.
+  ///
+  /// In ko, this message translates to:
+  /// **'할일 태그'**
+  String get settingsMenuTodoTag;
+
+  /// No description provided for @ttagUsage.
+  ///
+  /// In ko, this message translates to:
+  /// **'할 일 {count}건에 사용 중'**
+  String ttagUsage(int count);
+
+  /// No description provided for @ttagEditTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'태그 수정'**
+  String get ttagEditTitle;
+
+  /// No description provided for @fcolOwnBadge.
+  ///
+  /// In ko, this message translates to:
+  /// **'수집 {count}회'**
+  String fcolOwnBadge(int count);
+
+  /// No description provided for @ttagDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'할 일에 붙이는 태그예요. 리스트 필터와 태그별 분포에 사용돼요.'**
+  String get ttagDesc;
+
+  /// No description provided for @ttagAddCta.
+  ///
+  /// In ko, this message translates to:
+  /// **'태그 추가'**
+  String get ttagAddCta;
+
+  /// No description provided for @ttagColorLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'색상'**
+  String get ttagColorLabel;
+
+  /// No description provided for @ttagNameLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'이름'**
+  String get ttagNameLabel;
+
+  /// No description provided for @ttagEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'태그가 없어요'**
+  String get ttagEmpty;
+
+  /// No description provided for @ttagDeleteDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 태그를 쓰는 할 일 {count}건은 태그 없음으로 남아요.'**
+  String ttagDeleteDesc(int count);
 }
 
 class _AppLocalizationsDelegate

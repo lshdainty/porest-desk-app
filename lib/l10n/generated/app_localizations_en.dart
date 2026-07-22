@@ -4944,4 +4944,193 @@ class AppLocalizationsEn extends AppLocalizations {
   String expChipMax(String amount) {
     return 'Max $amount';
   }
+
+  @override
+  String tdmTodayLeft(int count) {
+    return '$count to-dos today';
+  }
+
+  @override
+  String get tdmTodayDone => 'All done for today!';
+
+  @override
+  String get tdmNightSkyBtn => 'Night sky';
+
+  @override
+  String tdmStarlightHint(int lit, int goal, int left, String name) {
+    return 'Starlight $lit/$goal · $left more to collect $name';
+  }
+
+  @override
+  String tdmCollectedHint(String name, int streak) {
+    return '$name collected · $streak-day streak';
+  }
+
+  @override
+  String tdmDoneRatio(int done, int total) {
+    return '$done/$total done';
+  }
+
+  @override
+  String get tdmFilterTag => 'Tags';
+
+  @override
+  String get tdmHideDone => 'Hide completed';
+
+  @override
+  String tdmEmptyMonth(String month) {
+    return 'No to-dos in $month';
+  }
+
+  @override
+  String get tdmEmptyMonthDesc => 'Add one with the + button below.';
+
+  @override
+  String get tdmEmptyFilter => 'No to-dos match the filters';
+
+  @override
+  String get tdmEmptyFilterDesc => 'Adjust or reset the filters.';
+
+  @override
+  String tdmStarToastGain(int gain, int left) {
+    return 'Starlight +$gain · $left to collect';
+  }
+
+  @override
+  String tdmStarToastCollected(int gain) {
+    return 'Starlight +$gain · today\'s constellation collected!';
+  }
+
+  @override
+  String get nightSkyTitle => 'Night sky';
+
+  @override
+  String get forestReportTitle => 'Observation report';
+
+  @override
+  String get fcolViewCta => 'View';
+
+  @override
+  String get fcolPreviewCta => 'Preview';
+
+  @override
+  String fcolLockedHint(int count) {
+    return 'Gather $count starlight in one night to meet it.';
+  }
+
+  @override
+  String get frpObsResult => 'Observation:';
+
+  @override
+  String frpObsToday(String name, int lit, int goal) {
+    return '$name $lit/$goal in progress';
+  }
+
+  @override
+  String frpObsCollected(String name) {
+    return '$name collected!';
+  }
+
+  @override
+  String get frpObsWithered => 'Cloudy night · streak kept by cloud guard';
+
+  @override
+  String get frpObsRest => 'A restful night';
+
+  @override
+  String frpStampDays(int count) {
+    return 'Day $count';
+  }
+
+  @override
+  String get frpStampLabel => 'streak!';
+
+  @override
+  String get frpStarGather => 'Starlight gathering';
+
+  @override
+  String frpPctBadge(int pct) {
+    return '$pct% achieved';
+  }
+
+  @override
+  String get frpTileStar => 'Starlight gathered';
+
+  @override
+  String frpTileStarVal(int count) {
+    return '$count';
+  }
+
+  @override
+  String get frpTileDone => 'To-dos completed';
+
+  @override
+  String frpTileDoneVal(int count) {
+    return '$count';
+  }
+
+  @override
+  String get frpAnalysis => 'Starlight analysis';
+
+  @override
+  String frpLegendItem(String label, int count) {
+    return '$label done: $count';
+  }
+
+  @override
+  String get frpMissed => 'Stars left unlit';
+
+  @override
+  String get frpMissedAllDone =>
+      'You lit every star tonight. The rest waits for tomorrow!';
+
+  @override
+  String frpMissedCount(int count) {
+    return '$count';
+  }
+
+  @override
+  String get frpFuture => 'That night hasn\'t come yet';
+
+  @override
+  String frpAsOf(String ts) {
+    return 'as of $ts';
+  }
+
+  @override
+  String get settingsMenuTodoTag => 'To-do tags';
+
+  @override
+  String ttagUsage(int count) {
+    return 'Used by $count to-dos';
+  }
+
+  @override
+  String get ttagEditTitle => 'Edit tag';
+
+  @override
+  String fcolOwnBadge(int count) {
+    return 'Collected ×$count';
+  }
+
+  @override
+  String get ttagDesc =>
+      'Tags you attach to to-dos. Used for list filters and tag breakdowns.';
+
+  @override
+  String get ttagAddCta => 'Add tag';
+
+  @override
+  String get ttagColorLabel => 'Color';
+
+  @override
+  String get ttagNameLabel => 'Name';
+
+  @override
+  String get ttagEmpty => 'No tags yet';
+
+  @override
+  String ttagDeleteDesc(int count) {
+    return '$count to-dos using this tag will become untagged.';
+  }
 }

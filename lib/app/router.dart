@@ -22,6 +22,8 @@ import 'package:porest_desk_app/features/notification/presentation/notification_
 import 'package:porest_desk_app/features/preset/presentation/preset_screen.dart';
 import 'package:porest_desk_app/features/saving_goal/presentation/saving_goal_screen.dart';
 import 'package:porest_desk_app/features/search/presentation/search_screen.dart';
+import 'package:porest_desk_app/features/constellation/presentation/forest_report_screen.dart';
+import 'package:porest_desk_app/features/constellation/presentation/night_sky_screen.dart';
 import 'package:porest_desk_app/features/todo/presentation/todo_screen.dart';
 import 'package:porest_desk_app/features/auth/presentation/login_screen.dart';
 import 'package:porest_desk_app/features/auth/presentation/splash_screen.dart';
@@ -83,6 +85,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/search', builder: (_, _) => const SearchScreen()),
       GoRoute(path: '/memos', builder: (_, _) => const MemoScreen()),
       GoRoute(path: '/todos', builder: (_, _) => const TodoScreen()),
+      // 밤하늘(성장·수집)·관측 리포트 — 할일 화면 [밤하늘] 패널에서 push 진입.
+      GoRoute(path: '/night-sky', builder: (_, _) => const NightSkyScreen()),
+      GoRoute(
+          path: '/forest-report',
+          builder: (_, _) => const ForestReportScreen()),
       GoRoute(
           path: '/settings/calendar-share',
           builder: (_, _) => const CalendarShareScreen()),
