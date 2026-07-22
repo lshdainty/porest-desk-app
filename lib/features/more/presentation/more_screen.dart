@@ -115,11 +115,11 @@ class _MoreScreenState extends ConsumerState<MoreScreen> {
 
     return ListView(
       // design MoreScreen: 컨테이너 padding '0 0 32px' — 좌우는 요소별 20.
-      padding: const EdgeInsets.only(bottom: PSpace.x32),
+      padding: const EdgeInsets.all(PSpace.x24),
       children: [
         // 검색 인풋 — design padding '4px 16px 12px'
         Padding(
-          padding: const EdgeInsets.fromLTRB(PSpace.x16, PSpace.x4, PSpace.x16, PSpace.x12),
+          padding: const EdgeInsets.only(bottom: PSpace.x12),
           child: PSearchField(
             hint: l.moreSearchHint,
             controller: _ctrl,
@@ -146,12 +146,12 @@ class _MoreScreenState extends ConsumerState<MoreScreen> {
               Container(
                 height: 1,
                 margin: const EdgeInsets.symmetric(
-                    vertical: 14, horizontal: PSpace.x20),
+                    vertical: 14),
                 color: t.borderSubtle,
               ),
             // 그룹 라벨 — design 16/700, padding '14px 20px 2px'
             Padding(
-              padding: const EdgeInsets.fromLTRB(PSpace.x20, 14, PSpace.x20, 2),
+              padding: const EdgeInsets.only(top: 14, bottom: 2),
               child: Text(
                 visible[gi].label,
                 style: TextStyle(
@@ -165,7 +165,7 @@ class _MoreScreenState extends ConsumerState<MoreScreen> {
             ),
             // 2열 텍스트 링크 그리드 — design padding '6px 20px 4px', columnGap 16
             Padding(
-              padding: const EdgeInsets.fromLTRB(PSpace.x20, 6, PSpace.x20, 4),
+              padding: const EdgeInsets.only(top: 6, bottom: 4),
               child: Column(
                 children: [
                   for (int r = 0; r < visible[gi].items.length; r += 2)

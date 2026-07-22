@@ -127,7 +127,7 @@ class SettingsScreen extends ConsumerWidget {
       ),
       body: ListView(
         // design m-settings-list: padding '8px 0 32px' — 좌우는 요소별 20.
-        padding: const EdgeInsets.only(top: PSpace.x8, bottom: PSpace.x32),
+        padding: const EdgeInsets.all(PSpace.x24),
         children: [
           // 내 정보 — 카드 없이 이름 헤더 행 (design ProfileCard 폐기판).
           if (user != null) ...[
@@ -135,7 +135,7 @@ class SettingsScreen extends ConsumerWidget {
               onTap: () => context.push('/account'),
               child: Padding(
                 padding:
-                    const EdgeInsets.fromLTRB(PSpace.x20, 14, PSpace.x20, 18),
+                    const EdgeInsets.only(top: 14, bottom: 18),
                 child: Row(
                   children: [
                     PAvatar(
@@ -182,7 +182,7 @@ class SettingsScreen extends ConsumerWidget {
             ),
             Container(
               height: 1,
-              margin: const EdgeInsets.fromLTRB(PSpace.x20, 0, PSpace.x20, 4),
+              margin: const EdgeInsets.only(bottom: 4),
               color: t.borderSubtle,
             ),
           ],
@@ -193,11 +193,11 @@ class SettingsScreen extends ConsumerWidget {
               Container(
                 height: 1,
                 margin: const EdgeInsets.symmetric(
-                    vertical: PSpace.x12, horizontal: PSpace.x20),
+                    vertical: PSpace.x12),
                 color: t.borderSubtle,
               ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(PSpace.x20, 14, PSpace.x20, 4),
+              padding: const EdgeInsets.only(top: 14, bottom: 4),
               child: Text(
                 groups[gi].label,
                 style: TextStyle(
@@ -230,10 +230,7 @@ class _SettingsRow extends StatelessWidget {
     return InkWell(
       onTap: enabled ? () => item.onTap!(context) : null,
       child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: PSpace.x20,
-          vertical: 13,
-        ),
+        padding: const EdgeInsets.symmetric(vertical: 13),
         child: Row(
           children: [
             Expanded(
