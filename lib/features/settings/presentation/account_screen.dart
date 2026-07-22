@@ -176,7 +176,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                   tokens: t,
                   onTap: () => showPasswordChangeDialog(context),
                 ),
-                // web 정합 — 비밀번호 변경 아래 구분선 없음.
+                const PDivider(),
                 _AccountRow(
                   icon: LucideIcons.monitor,
                   label: l.accountTwoFa,
@@ -525,7 +525,7 @@ class _SectionLabel extends StatelessWidget {
         label,
         style: TextStyle(
           fontFamily: PTypo.sans,
-          fontSize: PFontSize.caption,
+          fontSize: PFontSize.bodySm, // 웹 섹션 라벨 13 정합
           fontWeight: PFontWeight.bold,
           color: tokens.fgPrimary,
         ),
