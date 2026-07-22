@@ -62,10 +62,8 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
         elevation: 0,
       ),
       body: ListView(
-        padding: const EdgeInsets.symmetric(
-          horizontal: PSpace.x20,
-          vertical: PSpace.x24,
-        ),
+        // 최상위 24 통일(사용자 결정, web --spacing-xl 정합).
+        padding: const EdgeInsets.all(PSpace.x24),
         children: [
           // ── 프로필 헤더 — web: 중앙 정렬 avatar 72 + 이름 + 이메일 + 편집/Pro + 가입 시기
           PCard(
@@ -255,8 +253,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
               onTap: () => showSubscriptionSheet(context),
               borderRadius: PRadius.brLg,
               child: Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: PSpace.x16, vertical: 14),
+                padding: const EdgeInsets.symmetric(vertical: 14),
                 child: Row(
                   children: [
                     Container(
@@ -456,11 +453,8 @@ class _AccountRow extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Padding(
-        // web row '14px 16px' 정합.
-        padding: const EdgeInsets.symmetric(
-          horizontal: PSpace.x16,
-          vertical: 14,
-        ),
+        // web row '14px 0' 정합 — 좌우 inset 삭제(사용자 결정).
+        padding: const EdgeInsets.symmetric(vertical: 14),
         child: Row(
           children: [
             // web: 24px 아이콘 슬롯 (레터 아이콘은 15/700 텍스트)
@@ -525,7 +519,7 @@ class _SectionLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 2),
+      padding: EdgeInsets.zero, // label 좌 inset 삭제(사용자 결정)
       child: Text(
         label,
         style: TextStyle(
