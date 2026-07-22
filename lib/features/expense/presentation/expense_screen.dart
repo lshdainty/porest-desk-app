@@ -17,6 +17,7 @@ import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_badge.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_card.dart';
+import 'package:porest_desk_app/shared/widgets/p_chart_tooltip.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
@@ -926,37 +927,59 @@ class _TxmCalendar extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 3),
-                // 지출·수입 병기(각 줄) — 줄바꿈 없이 말줄임 + 전체 금액 Tooltip(사용자 결정).
-                if (data != null && data.out > 0)
+                // 지출·수입 병기(각 줄) — 말줄임 + 차트형 툴팁(지출·수입 모두, 사용자 결정).
+                if (data != null)
                   Tooltip(
-                    message: '-${masked ? '••••' : krw(data.out)}',
-                    child: Text(
-                      '-${masked ? '••••' : krw(data.out)}',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: isSel ? PFontWeight.bold : PFontWeight.semi,
-                        letterSpacing: -0.2,
-                        color: t.fgExpense,
-                        fontFeatures: const [FontFeature.tabularFigures()],
+                    richMessage: WidgetSpan(
+                      child: PChartTooltipBox(
+                        title: '${int.parse(c.ds.substring(5, 7))}. ${c.d}',
+                        rows: [
+                          PChartTooltipRowData(
+                            color: t.fgExpense,
+                            label: AppLocalizations.of(context).expSummaryExpense,
+                            amount: krwSigned(data.out, masked, sign: '−', unit: true),
+                            amountColor: t.fgExpense,
+                          ),
+                          PChartTooltipRowData(
+                            color: t.fgBrand,
+                            label: AppLocalizations.of(context).expSummaryIncome,
+                            amount: krwSigned(data.inn, masked, sign: '+', unit: true),
+                            amountColor: t.fgBrand,
+                          ),
+                        ],
                       ),
                     ),
-                  ),
-                if (data != null && data.inn > 0)
-                  Tooltip(
-                    message: '+${masked ? '••••' : krw(data.inn)}',
-                    child: Text(
-                      '+${masked ? '••••' : krw(data.inn)}',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: isSel ? PFontWeight.bold : PFontWeight.semi,
-                        letterSpacing: -0.2,
-                        color: t.fgBrand,
-                        fontFeatures: const [FontFeature.tabularFigures()],
-                      ),
+                    decoration: const BoxDecoration(color: Colors.transparent),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (data.out > 0)
+                          Text(
+                            '-${masked ? '••••' : krw(data.out)}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: isSel ? PFontWeight.bold : PFontWeight.semi,
+                              letterSpacing: -0.2,
+                              color: t.fgExpense,
+                              fontFeatures: const [FontFeature.tabularFigures()],
+                            ),
+                          ),
+                        if (data.inn > 0)
+                          Text(
+                            '+${masked ? '••••' : krw(data.inn)}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: isSel ? PFontWeight.bold : PFontWeight.semi,
+                              letterSpacing: -0.2,
+                              color: t.fgBrand,
+                              fontFeatures: const [FontFeature.tabularFigures()],
+                            ),
+                          ),
+                      ],
                     ),
                   ),
                 if (data == null) const SizedBox(height: 12),
