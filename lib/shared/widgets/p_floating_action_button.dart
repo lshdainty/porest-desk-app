@@ -24,14 +24,24 @@ class PFloatingActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    return FloatingActionButton(
-      heroTag: heroTag,
-      tooltip: tooltip,
-      // 채운 액션 버튼 — solid 고정 (다크에서도 primary, bgBrand 는 light 라 부적합)
-      backgroundColor: t.bgBrandSolid,
-      foregroundColor: t.fgOnBrand,
-      onPressed: onPressed,
-      child: Icon(icon),
+    // 웹 Fab 미러 — 52px 완전 원형, brand 채움(다크에서도 primary 고정),
+    // shadow-lg 상당 elevation, 아이콘 22 (M3 기본 FAB 56/라운드사각 대체).
+    Widget fab = Material(
+      color: t.bgBrandSolid,
+      shape: const CircleBorder(),
+      elevation: 6,
+      child: InkWell(
+        customBorder: const CircleBorder(),
+        onTap: onPressed,
+        child: SizedBox(
+          width: 52,
+          height: 52,
+          child: Icon(icon, size: 22, color: t.fgOnBrand),
+        ),
+      ),
     );
+    if (tooltip != null) fab = Tooltip(message: tooltip!, child: fab);
+    if (heroTag != null) fab = Hero(tag: heroTag!, child: fab);
+    return fab;
   }
 }
