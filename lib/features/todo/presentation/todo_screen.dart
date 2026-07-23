@@ -388,7 +388,12 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
                               on: _skyOpen,
                               label: l.tdmNightSkyBtn,
                               onTap: () =>
-                                  setState(() => _skyOpen = !_skyOpen),
+                                  // 월 전체 캘린더와 동시 열면 고정 pin이
+                                  // 화면 초과 — 상호 배타(가계부 정합).
+                                  setState(() {
+                                _skyOpen = !_skyOpen;
+                                if (_skyOpen) _expanded = false;
+                              }),
                               tokens: t,
                             ),
                           ],
@@ -455,7 +460,10 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
             setState(() => _selected = ds);
             if (byDay.containsKey(ds)) _scrollToDay(ds);
           },
-          onToggleExpand: () => setState(() => _expanded = !_expanded),
+          onToggleExpand: () => setState(() {
+            _expanded = !_expanded;
+            if (_expanded) _skyOpen = false;
+          }),
           tokens: t,
         ),
         Container(height: 1, color: t.borderDefault),
