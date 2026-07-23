@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$EventLabel {
 
- int get rowId; int? get userRowId; String get labelName; String? get color; int? get sortOrder;
+ int get rowId; int? get userRowId; String get labelName; String? get color; int? get sortOrder; int get usageCount;
 /// Create a copy of EventLabel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $EventLabelCopyWith<EventLabel> get copyWith => _$EventLabelCopyWithImpl<EventLa
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is EventLabel&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.userRowId, userRowId) || other.userRowId == userRowId)&&(identical(other.labelName, labelName) || other.labelName == labelName)&&(identical(other.color, color) || other.color == color)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is EventLabel&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.userRowId, userRowId) || other.userRowId == userRowId)&&(identical(other.labelName, labelName) || other.labelName == labelName)&&(identical(other.color, color) || other.color == color)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder)&&(identical(other.usageCount, usageCount) || other.usageCount == usageCount));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,rowId,userRowId,labelName,color,sortOrder);
+int get hashCode => Object.hash(runtimeType,rowId,userRowId,labelName,color,sortOrder,usageCount);
 
 @override
 String toString() {
-  return 'EventLabel(rowId: $rowId, userRowId: $userRowId, labelName: $labelName, color: $color, sortOrder: $sortOrder)';
+  return 'EventLabel(rowId: $rowId, userRowId: $userRowId, labelName: $labelName, color: $color, sortOrder: $sortOrder, usageCount: $usageCount)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $EventLabelCopyWith<$Res>  {
   factory $EventLabelCopyWith(EventLabel value, $Res Function(EventLabel) _then) = _$EventLabelCopyWithImpl;
 @useResult
 $Res call({
- int rowId, int? userRowId, String labelName, String? color, int? sortOrder
+ int rowId, int? userRowId, String labelName, String? color, int? sortOrder, int usageCount
 });
 
 
@@ -65,14 +65,15 @@ class _$EventLabelCopyWithImpl<$Res>
 
 /// Create a copy of EventLabel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? rowId = null,Object? userRowId = freezed,Object? labelName = null,Object? color = freezed,Object? sortOrder = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? rowId = null,Object? userRowId = freezed,Object? labelName = null,Object? color = freezed,Object? sortOrder = freezed,Object? usageCount = null,}) {
   return _then(_self.copyWith(
 rowId: null == rowId ? _self.rowId : rowId // ignore: cast_nullable_to_non_nullable
 as int,userRowId: freezed == userRowId ? _self.userRowId : userRowId // ignore: cast_nullable_to_non_nullable
 as int?,labelName: null == labelName ? _self.labelName : labelName // ignore: cast_nullable_to_non_nullable
 as String,color: freezed == color ? _self.color : color // ignore: cast_nullable_to_non_nullable
 as String?,sortOrder: freezed == sortOrder ? _self.sortOrder : sortOrder // ignore: cast_nullable_to_non_nullable
-as int?,
+as int?,usageCount: null == usageCount ? _self.usageCount : usageCount // ignore: cast_nullable_to_non_nullable
+as int,
   ));
 }
 
@@ -157,10 +158,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int rowId,  int? userRowId,  String labelName,  String? color,  int? sortOrder)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int rowId,  int? userRowId,  String labelName,  String? color,  int? sortOrder,  int usageCount)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _EventLabel() when $default != null:
-return $default(_that.rowId,_that.userRowId,_that.labelName,_that.color,_that.sortOrder);case _:
+return $default(_that.rowId,_that.userRowId,_that.labelName,_that.color,_that.sortOrder,_that.usageCount);case _:
   return orElse();
 
 }
@@ -178,10 +179,10 @@ return $default(_that.rowId,_that.userRowId,_that.labelName,_that.color,_that.so
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int rowId,  int? userRowId,  String labelName,  String? color,  int? sortOrder)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int rowId,  int? userRowId,  String labelName,  String? color,  int? sortOrder,  int usageCount)  $default,) {final _that = this;
 switch (_that) {
 case _EventLabel():
-return $default(_that.rowId,_that.userRowId,_that.labelName,_that.color,_that.sortOrder);case _:
+return $default(_that.rowId,_that.userRowId,_that.labelName,_that.color,_that.sortOrder,_that.usageCount);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -198,10 +199,10 @@ return $default(_that.rowId,_that.userRowId,_that.labelName,_that.color,_that.so
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int rowId,  int? userRowId,  String labelName,  String? color,  int? sortOrder)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int rowId,  int? userRowId,  String labelName,  String? color,  int? sortOrder,  int usageCount)?  $default,) {final _that = this;
 switch (_that) {
 case _EventLabel() when $default != null:
-return $default(_that.rowId,_that.userRowId,_that.labelName,_that.color,_that.sortOrder);case _:
+return $default(_that.rowId,_that.userRowId,_that.labelName,_that.color,_that.sortOrder,_that.usageCount);case _:
   return null;
 
 }
@@ -213,7 +214,7 @@ return $default(_that.rowId,_that.userRowId,_that.labelName,_that.color,_that.so
 @JsonSerializable()
 
 class _EventLabel implements EventLabel {
-  const _EventLabel({required this.rowId, this.userRowId, required this.labelName, this.color, this.sortOrder});
+  const _EventLabel({required this.rowId, this.userRowId, required this.labelName, this.color, this.sortOrder, this.usageCount = 0});
   factory _EventLabel.fromJson(Map<String, dynamic> json) => _$EventLabelFromJson(json);
 
 @override final  int rowId;
@@ -221,6 +222,7 @@ class _EventLabel implements EventLabel {
 @override final  String labelName;
 @override final  String? color;
 @override final  int? sortOrder;
+@override@JsonKey() final  int usageCount;
 
 /// Create a copy of EventLabel
 /// with the given fields replaced by the non-null parameter values.
@@ -235,16 +237,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _EventLabel&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.userRowId, userRowId) || other.userRowId == userRowId)&&(identical(other.labelName, labelName) || other.labelName == labelName)&&(identical(other.color, color) || other.color == color)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _EventLabel&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.userRowId, userRowId) || other.userRowId == userRowId)&&(identical(other.labelName, labelName) || other.labelName == labelName)&&(identical(other.color, color) || other.color == color)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder)&&(identical(other.usageCount, usageCount) || other.usageCount == usageCount));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,rowId,userRowId,labelName,color,sortOrder);
+int get hashCode => Object.hash(runtimeType,rowId,userRowId,labelName,color,sortOrder,usageCount);
 
 @override
 String toString() {
-  return 'EventLabel(rowId: $rowId, userRowId: $userRowId, labelName: $labelName, color: $color, sortOrder: $sortOrder)';
+  return 'EventLabel(rowId: $rowId, userRowId: $userRowId, labelName: $labelName, color: $color, sortOrder: $sortOrder, usageCount: $usageCount)';
 }
 
 
@@ -255,7 +257,7 @@ abstract mixin class _$EventLabelCopyWith<$Res> implements $EventLabelCopyWith<$
   factory _$EventLabelCopyWith(_EventLabel value, $Res Function(_EventLabel) _then) = __$EventLabelCopyWithImpl;
 @override @useResult
 $Res call({
- int rowId, int? userRowId, String labelName, String? color, int? sortOrder
+ int rowId, int? userRowId, String labelName, String? color, int? sortOrder, int usageCount
 });
 
 
@@ -272,14 +274,15 @@ class __$EventLabelCopyWithImpl<$Res>
 
 /// Create a copy of EventLabel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? rowId = null,Object? userRowId = freezed,Object? labelName = null,Object? color = freezed,Object? sortOrder = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? rowId = null,Object? userRowId = freezed,Object? labelName = null,Object? color = freezed,Object? sortOrder = freezed,Object? usageCount = null,}) {
   return _then(_EventLabel(
 rowId: null == rowId ? _self.rowId : rowId // ignore: cast_nullable_to_non_nullable
 as int,userRowId: freezed == userRowId ? _self.userRowId : userRowId // ignore: cast_nullable_to_non_nullable
 as int?,labelName: null == labelName ? _self.labelName : labelName // ignore: cast_nullable_to_non_nullable
 as String,color: freezed == color ? _self.color : color // ignore: cast_nullable_to_non_nullable
 as String?,sortOrder: freezed == sortOrder ? _self.sortOrder : sortOrder // ignore: cast_nullable_to_non_nullable
-as int?,
+as int?,usageCount: null == usageCount ? _self.usageCount : usageCount // ignore: cast_nullable_to_non_nullable
+as int,
   ));
 }
 

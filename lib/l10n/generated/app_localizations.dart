@@ -9371,8 +9371,14 @@ abstract class AppLocalizations {
   /// No description provided for @ttagUsage.
   ///
   /// In ko, this message translates to:
-  /// **'할 일 {count}건에 사용 중'**
+  /// **'{count}건에 사용 중'**
   String ttagUsage(int count);
+
+  /// No description provided for @calLabelUsage.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}건에 사용 중'**
+  String calLabelUsage(Object count);
 
   /// No description provided for @ttagEditTitle.
   ///

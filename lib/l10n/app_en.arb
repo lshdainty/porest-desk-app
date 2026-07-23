@@ -2837,6 +2837,8 @@
   },
   "settingsMenuTodoTag": "To-do tags",
   "ttagUsage": "Used by {count} to-dos",
+  "calLabelUsage": "Used by {count} events",
+  "@calLabelUsage": {"placeholders": {"count": {}}},
   "@ttagUsage": {
     "placeholders": {
       "count": {
