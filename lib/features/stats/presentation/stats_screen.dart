@@ -29,6 +29,7 @@ import 'package:porest_desk_app/features/expense/application/expense_providers.d
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
 import 'package:porest_desk_app/features/stats/application/stats_providers.dart';
 import 'package:porest_desk_app/features/stats/domain/stats_models.dart';
+import 'package:porest_desk_app/shared/widgets/p_tab_bar.dart';
 
 /// 통계·분석 화면 (front `StatsPage` 미러).
 ///
@@ -437,11 +438,12 @@ class _CategoryTab extends ConsumerWidget {
       },
       child: ListView(
         // 카드 다이어트 — design StatsScreen: padding 24/16/24/24 (LTRB) + 섹션 gap 32.
-        padding: const EdgeInsets.fromLTRB(
+        padding: EdgeInsets.fromLTRB(
           PSpace.x24,
           PSpace.x16,
           PSpace.x24,
-          PSpace.x24,
+          // 플로팅 탭바 보상
+          pTabBarBottomInset(context),
         ),
         children: [
           _DonutCard(
@@ -489,11 +491,12 @@ class _TrendTab extends ConsumerWidget {
       },
       child: ListView(
         // 카드 다이어트 — design StatsScreen: padding 24/16/24/24 (LTRB) + 섹션 gap 32.
-        padding: const EdgeInsets.fromLTRB(
+        padding: EdgeInsets.fromLTRB(
           PSpace.x24,
           PSpace.x16,
           PSpace.x24,
-          PSpace.x24,
+          // 플로팅 탭바 보상
+          pTabBarBottomInset(context),
         ),
         children: [
           _TrendBigCard(
@@ -550,11 +553,12 @@ class _CompareTab extends ConsumerWidget {
       },
       child: ListView(
         // 카드 다이어트 — design StatsScreen: padding 24/16/24/24 (LTRB) + 섹션 gap 32.
-        padding: const EdgeInsets.fromLTRB(
+        padding: EdgeInsets.fromLTRB(
           PSpace.x24,
           PSpace.x16,
           PSpace.x24,
-          PSpace.x24,
+          // 플로팅 탭바 보상
+          pTabBarBottomInset(context),
         ),
         children: [
           _CompareSummaryGrid(

@@ -8,6 +8,7 @@ import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/features/subscription/application/subscription_providers.dart';
 import 'package:porest_desk_app/shared/widgets/p_search_field.dart';
+import 'package:porest_desk_app/shared/widgets/p_tab_bar.dart';
 
 class _NavItem {
   const _NavItem({
@@ -128,8 +129,9 @@ class _MoreScreenState extends ConsumerState<MoreScreen> {
         ),
         Expanded(
           child: ListView(
-            padding: const EdgeInsets.fromLTRB(
-                PSpace.x24, 0, PSpace.x24, PSpace.x24),
+            // 하단 — 플로팅 탭바 보상.
+            padding: EdgeInsets.fromLTRB(
+                PSpace.x24, 0, PSpace.x24, pTabBarBottomInset(context)),
             children: [
 
         if (isSearching && visible.isEmpty)

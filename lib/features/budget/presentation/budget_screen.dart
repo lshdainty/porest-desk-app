@@ -29,6 +29,7 @@ import 'package:porest_desk_app/features/budget/application/budget_providers.dar
 import 'package:porest_desk_app/features/budget/domain/budget.dart';
 import 'package:porest_desk_app/features/budget/domain/budget_compliance.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
+import 'package:porest_desk_app/shared/widgets/p_tab_bar.dart';
 
 const double _warnThreshold = 85;
 
@@ -86,11 +87,12 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
         },
         // 카드 다이어트 — design BudgetScreen mobile: padding 16/20/24 + 섹션 gap 36.
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(
+          padding: EdgeInsets.fromLTRB(
             PSpace.x24,
             PSpace.x16,
             PSpace.x24,
-            PSpace.x24,
+            // 플로팅 탭바 보상
+            pTabBarBottomInset(context),
           ),
           children: [
             _MonthBar(
