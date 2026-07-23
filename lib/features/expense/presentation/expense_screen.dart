@@ -429,7 +429,12 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                         _TxmSumBtn(
                           on: _sumOpen,
                           label: l.txmSpendSummary,
-                          onTap: () => setState(() => _sumOpen = !_sumOpen),
+                          // 월 전체 캘린더와 동시 열면 고정 pin이 화면을
+                          // 초과(overflow) — 상호 배타로 접는다.
+                          onTap: () => setState(() {
+                            _sumOpen = !_sumOpen;
+                            if (_sumOpen) _expanded = false;
+                          }),
                           tokens: t,
                         ),
                       ],
@@ -489,7 +494,10 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                       setState(() => _selected = ds);
                       if (byDay.containsKey(ds)) _scrollToDay(ds);
                     },
-                    onToggleExpand: () => setState(() => _expanded = !_expanded),
+                    onToggleExpand: () => setState(() {
+                      _expanded = !_expanded;
+                      if (_expanded) _sumOpen = false;
+                    }),
                     tokens: t,
                   ),
                   ],
