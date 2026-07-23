@@ -11,6 +11,7 @@ abstract class EventLabel with _$EventLabel {
     required String labelName,
     String? color,
     int? sortOrder,
+    @Default(0) int usageCount,
   }) = _EventLabel;
 
   factory EventLabel.fromJson(Map<String, dynamic> json) =>

@@ -239,13 +239,23 @@ class _LabelRow extends StatelessWidget {
             // web 정합 — 아이콘↔텍스트 gap 14.
             const SizedBox(width: 14),
             Expanded(
-              child: Text(label.labelName,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: PTypo.body.copyWith(
-                    color: t.fgPrimary,
-                    fontWeight: PFontWeight.semi,
-                  )),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(label.labelName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: PTypo.body.copyWith(
+                        color: t.fgPrimary,
+                        fontWeight: PFontWeight.semi,
+                      )),
+                  const SizedBox(height: 2),
+                  // 사용 중 일정 수 — 할일 태그 행 정합.
+                  Text(l.calLabelUsage(label.usageCount),
+                      style: PTypo.caption.copyWith(
+                          color: t.fgTertiary, fontSize: 12.5)),
+                ],
+              ),
             ),
             PButton.icon(
               icon: LucideIcons.trash2,

@@ -2973,7 +2973,9 @@
     }
   },
   "settingsMenuTodoTag": "할일 태그",
-  "ttagUsage": "할 일 {count}건에 사용 중",
+  "ttagUsage": "{count}건에 사용 중",
+  "calLabelUsage": "{count}건에 사용 중",
+  "@calLabelUsage": {"placeholders": {"count": {}}},
   "@ttagUsage": {
     "placeholders": {
       "count": {

@@ -5106,6 +5106,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String calLabelUsage(Object count) {
+    return 'Used by $count events';
+  }
+
+  @override
   String get ttagEditTitle => 'Edit tag';
 
   @override

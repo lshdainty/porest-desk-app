@@ -12,6 +12,7 @@ _EventLabel _$EventLabelFromJson(Map<String, dynamic> json) => _EventLabel(
   labelName: json['labelName'] as String,
   color: json['color'] as String?,
   sortOrder: (json['sortOrder'] as num?)?.toInt(),
+  usageCount: (json['usageCount'] as num?)?.toInt() ?? 0,
 );
 
 Map<String, dynamic> _$EventLabelToJson(_EventLabel instance) =>
@@ -21,4 +22,5 @@ Map<String, dynamic> _$EventLabelToJson(_EventLabel instance) =>
       'labelName': instance.labelName,
       'color': instance.color,
       'sortOrder': instance.sortOrder,
+      'usageCount': instance.usageCount,
     };

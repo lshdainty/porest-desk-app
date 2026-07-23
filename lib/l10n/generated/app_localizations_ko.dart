@@ -5047,7 +5047,12 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String ttagUsage(int count) {
-    return '할 일 $count건에 사용 중';
+    return '$count건에 사용 중';
+  }
+
+  @override
+  String calLabelUsage(Object count) {
+    return '$count건에 사용 중';
   }
 
   @override
