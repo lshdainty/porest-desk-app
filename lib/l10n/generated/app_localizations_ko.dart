@@ -5059,6 +5059,9 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
+  String get ttagTitle => '할일 태그';
+
+  @override
   String get ttagDesc => '할 일에 붙이는 태그예요. 리스트 필터와 태그별 분포에 사용돼요.';
 
   @override

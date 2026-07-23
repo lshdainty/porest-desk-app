@@ -12,6 +12,7 @@ import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/features/todo/application/todo_providers.dart';
 import 'package:porest_desk_app/features/todo/domain/todo_tag.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
+import 'package:porest_desk_app/shared/widgets/p_card.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_color_picker.dart';
@@ -62,18 +63,6 @@ class _TodoTagManagementScreenState extends State<TodoTagManagementScreen> {
   }
 }
 
-/// 8 tone — design TTAG_TONES(blue/green/violet/orange/pink/red/yellow/brown).
-/// 저장은 hex(chart base) — 기존 백엔드 color 필드·solidSwatchColor 해석 그대로.
-const _tagPalette = <String>[
-  '#2c70bf', // blue
-  '#2d8060', // green
-  '#8b4dba', // violet
-  '#b36418', // orange
-  '#b83b7a', // pink
-  '#c73838', // red
-  '#8c7400', // yellow
-  '#9a6536', // brown
-];
 
 class _Body extends ConsumerStatefulWidget {
   const _Body({required this.scrollController});
@@ -174,14 +163,12 @@ class _BodyState extends ConsumerState<_Body> {
       controller: widget.scrollController,
       padding: const EdgeInsets.fromLTRB(PSpace.x20, 0, PSpace.x20, PSpace.x20),
       children: [
-        // 헤더 설명 (design 상단 desc).
-        Padding(
-          padding: const EdgeInsets.fromLTRB(4, 2, 4, 12),
-          child: Text(
-            l.ttagDesc,
-            style: PTypo.bodySm.copyWith(color: t.fgTertiary, height: 1.5),
-          ),
+        // 안내 카드 — 캘린더 라벨 _IntroCard 정합(제목+설명+새 태그 버튼).
+        _TagIntroCard(
+          tokens: t,
+          onAdd: _busy ? null : () => _openEdit(null),
         ),
+        const SizedBox(height: PSpace.x32),
         tagsAsync.when(
           loading: () => const Padding(
             padding: EdgeInsets.symmetric(vertical: PSpace.x8),
@@ -192,7 +179,14 @@ class _BodyState extends ConsumerState<_Body> {
             style: PTypo.caption.copyWith(color: t.statusDanger),
           ),
           data: (tags) => Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // label·list 한 묶음 gap 0 — 캘린더 라벨 카운트 라벨 정합.
+              Text('${l.ttagTitle} · ${tags.length}',
+                  style: PTypo.bodySm.copyWith(
+                    color: t.fgPrimary,
+                    fontWeight: PFontWeight.bold,
+                  )),
               if (tags.isEmpty)
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 32),
@@ -222,35 +216,6 @@ class _BodyState extends ConsumerState<_Body> {
                         _delete(tags[i], usageByName[tags[i].tagName] ?? 0),
                     t: t,
                   ),
-              // 하단 고스트 '새 태그' 행 (design mobile 추가 행).
-              InkWell(
-                onTap: _busy ? null : () => _openEdit(null),
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  decoration: BoxDecoration(
-                    border: tags.isEmpty
-                        ? null
-                        : Border(top: BorderSide(color: t.borderSubtle)),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(LucideIcons.plus, size: 15, color: t.fgBrand),
-                      const SizedBox(width: 6),
-                      Text(
-                        l.todoNewTag,
-                        style: TextStyle(
-                          fontFamily: PTypo.sans,
-                          fontSize: 14.5,
-                          fontWeight: PFontWeight.bold,
-                          color: t.fgBrand,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
             ],
           ),
         ),
@@ -260,6 +225,61 @@ class _BodyState extends ConsumerState<_Body> {
 }
 
 /// 태그 행 — 아이콘 틴트 타일 + 이름/"할 일 N건에 사용 중" + 삭제 + chevron.
+/// 안내 카드 — 캘린더 라벨 _IntroCard 미러(제목·설명 + 새 태그 버튼).
+class _TagIntroCard extends StatelessWidget {
+  const _TagIntroCard({required this.tokens, required this.onAdd});
+  final PorestTokens tokens;
+  final VoidCallback? onAdd;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = tokens;
+    final l = AppLocalizations.of(context);
+    return PCard(
+      variant: PCardVariant.brand,
+      padding: const EdgeInsets.all(PSpace.x16),
+      child: Row(
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              // fill 은 다크에서도 primary 고정(bgBrandSolid) — web --bg-brand 정합.
+              color: t.bgBrandSolid,
+              borderRadius: PRadius.brMd,
+            ),
+            alignment: Alignment.center,
+            child: Icon(LucideIcons.tag, size: 18, color: t.fgOnBrand),
+          ),
+          const SizedBox(width: PSpace.x12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(l.ttagTitle,
+                    style: PTypo.bodySm.copyWith(
+                      color: t.fgPrimary,
+                      fontWeight: PFontWeight.bold,
+                    )),
+                const SizedBox(height: 2),
+                Text(l.ttagDesc,
+                    style: PTypo.caption.copyWith(color: t.fgSecondary)),
+              ],
+            ),
+          ),
+          const SizedBox(width: PSpace.x8),
+          PButton(
+            label: l.todoNewTag,
+            icon: LucideIcons.plus,
+            size: PButtonSize.sm,
+            onPressed: onAdd,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _TagRow extends StatelessWidget {
   const _TagRow({
     required this.tag,
@@ -358,7 +378,7 @@ Future<TodoTagDraft?> showTodoTagEditSheet(
   controller.setCanSubmit((tag?.tagName ?? '').trim().isNotEmpty);
   String selectedColor = () {
     final c = tag?.color;
-    return (c != null && c.isNotEmpty) ? c : _tagPalette.first;
+    return (c != null && c.isNotEmpty) ? c : kPDefaultPalette.first;
   }();
 
   controller.onSubmit = () async {
@@ -478,10 +498,9 @@ class _TagEditBodyState extends State<_TagEditBody> {
           Text(l.ttagColorLabel,
               style: PTypo.caption.copyWith(color: t.fgSecondary)),
           const SizedBox(height: PSpace.x8),
+          // 공통 색상 선택기 — 캘린더 라벨과 동일(기본 팔레트).
           PColorPicker(
             selected: _color,
-            palette: _tagPalette,
-            columns: 4,
             onChanged: (c) {
               setState(() => _color = c);
               widget.onColorChanged(c);

@@ -2990,6 +2990,7 @@
       }
     }
   },
+  "ttagTitle": "할일 태그",
   "ttagDesc": "할 일에 붙이는 태그예요. 리스트 필터와 태그별 분포에 사용돼요.",
   "ttagAddCta": "태그 추가",
   "ttagColorLabel": "색상",
