@@ -30,6 +30,7 @@ import 'package:porest_desk_app/features/stats/application/stats_providers.dart'
 import 'package:porest_desk_app/features/stats/domain/stats_models.dart';
 import 'package:porest_desk_app/features/dashboard/application/dashboard_providers.dart';
 import 'package:porest_desk_app/features/dashboard/domain/dashboard_summary.dart';
+import 'package:porest_desk_app/shared/widgets/p_tab_bar.dart';
 
 /// 홈 / 대시보드 — porest-desk-front HomeMobile 정확 미러.
 class DashboardScreen extends ConsumerStatefulWidget {
@@ -93,8 +94,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       // 카드 다이어트 — design HomeMobile: padding 20/20/24 + 섹션 gap 36.
       // 카드 대신 페이지 padding + 섹션 간 넓은 여백이 콘텐츠를 구분한다.
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(
-            PSpace.x24, PSpace.x20, PSpace.x24, PSpace.x24),
+        // 하단 — 플로팅 탭바 보상(pTabBarBottomInset).
+        padding: EdgeInsets.fromLTRB(
+            PSpace.x24, PSpace.x20, PSpace.x24, pTabBarBottomInset(context)),
         children: [
           _BalanceHero(
               summaryAsync: summaryAsync,

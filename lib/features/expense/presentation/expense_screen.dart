@@ -27,6 +27,7 @@ import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
 import 'package:porest_desk_app/features/expense/presentation/add_tx_sheet.dart';
 import 'package:porest_desk_app/features/expense/presentation/filter_dialog.dart';
 import 'package:porest_desk_app/features/expense/presentation/widgets/expense_row.dart';
+import 'package:porest_desk_app/shared/widgets/p_tab_bar.dart';
 
 /// 가계부 화면 — 백엔드 `/expenses` 직접 호출.
 class ExpenseScreen extends ConsumerStatefulWidget {
@@ -591,8 +592,9 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                       child: ListView(
                         key: _listKey,
                         controller: _scrollCtrl,
-                        padding: const EdgeInsets.fromLTRB(
-                            PSpace.x24, 0, PSpace.x24, 28),
+                        // 하단 — 플로팅 탭바 보상.
+                        padding: EdgeInsets.fromLTRB(PSpace.x24, 0,
+                            PSpace.x24, pTabBarBottomInset(context)),
                         children: listChildren,
                       ),
                     ),

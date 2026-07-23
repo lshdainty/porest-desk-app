@@ -22,6 +22,7 @@ import 'package:porest_desk_app/features/asset/domain/asset_summary.dart';
 import 'package:porest_desk_app/features/asset/presentation/asset_edit_dialog.dart';
 import 'package:porest_desk_app/features/asset/presentation/widgets/asset_logo.dart';
 import 'package:porest_desk_app/features/asset/presentation/widgets/net_worth_chart.dart';
+import 'package:porest_desk_app/shared/widgets/p_tab_bar.dart';
 
 const _accountTypes = {'BANK_ACCOUNT', 'SAVINGS', 'CASH'};
 const _cardTypes = {'CREDIT_CARD', 'CHECK_CARD'};
@@ -214,11 +215,12 @@ class _AssetBody extends StatelessWidget {
     // 카드 다이어트 — design AssetsScreen mobile: padding 16/20/24 + 섹션 gap 36.
     // 총순자산 요약만 keep(raised) 카드, 그룹들은 flat-group(라벨+총액+행).
     return ListView(
-      padding: const EdgeInsets.fromLTRB(
+      padding: EdgeInsets.fromLTRB(
         PSpace.x24,
         PSpace.x16,
         PSpace.x24,
-        PSpace.x24,
+        // 플로팅 탭바 보상
+        pTabBarBottomInset(context),
       ),
       children: [
         _SummaryCard(
@@ -799,11 +801,11 @@ class _AssetPageSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(
+      padding: EdgeInsets.fromLTRB(
         PSpace.x24,
         PSpace.x16,
         PSpace.x24,
-        PSpace.x24,
+        pTabBarBottomInset(context),
       ),
       children: const [
         _AssetSummaryCardSkeleton(),

@@ -23,6 +23,7 @@ import 'package:porest_desk_app/features/calendar/domain/holiday.dart';
 import 'package:porest_desk_app/features/calendar/domain/user_calendar.dart';
 import 'package:porest_desk_app/features/calendar/presentation/calendar_event_dialog.dart';
 import 'package:porest_desk_app/features/calendar/presentation/calendar_event_detail_dialog.dart';
+import 'package:porest_desk_app/shared/widgets/p_tab_bar.dart';
 
 class CalendarScreen extends ConsumerStatefulWidget {
   const CalendarScreen({super.key});
@@ -908,8 +909,9 @@ class _DayEventsSheetBody extends StatelessWidget {
     final total = holidays.length + events.length;
     return ListView(
       controller: scrollController,
-      padding: const EdgeInsets.symmetric(
-          horizontal: PSpace.x20, vertical: PSpace.x24),
+      // 하단 — 플로팅 탭바 보상.
+      padding: EdgeInsets.fromLTRB(
+          PSpace.x20, PSpace.x24, PSpace.x20, pTabBarBottomInset(context)),
       children: [
         Row(
           children: [
