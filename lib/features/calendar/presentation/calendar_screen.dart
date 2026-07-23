@@ -85,9 +85,19 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           tokens: t,
         ),
         if (firstLoading)
-          Expanded(child: _CalendarGridSkeleton(tokens: t))
+          Expanded(
+            child: Padding(
+              // 플로팅 탭바 보상 — 그리드가 바 뒤까지 확장되지 않게(셸 화면 공통).
+              padding:
+                  EdgeInsets.only(bottom: pTabBarBottomInset(context)),
+              child: _CalendarGridSkeleton(tokens: t),
+            ),
+          )
         else
         Expanded(
+          child: Padding(
+          // 플로팅 탭바 보상 — 그리드가 바 뒤까지 확장되지 않게(셸 화면 공통).
+          padding: EdgeInsets.only(bottom: pTabBarBottomInset(context)),
           child: TableCalendar<CalendarEvent>(
             firstDay: DateTime(2020),
             lastDay: DateTime(2030),
@@ -158,6 +168,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                   tokens: t),
               markerBuilder: (_, _, _) => const SizedBox.shrink(),
             ),
+          ),
           ),
         ),
       ],
