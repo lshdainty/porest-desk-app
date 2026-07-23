@@ -32,29 +32,26 @@ String todoTagOrDefault(String? raw) {
 
 /// 우선순위 메타 — 라벨 + chip 색/배경.
 ///
-/// high = chart-red(테마 적응) + bg 14% 틴트(surface 혼합)
-/// med  = chart-orange + 14% 틴트
-/// low  = fg-tertiary + bg-sunken
+/// 중요=error(빨강) / 보통=warning(노랑) / 여유=info(파랑) —
+/// status*Fg 토큰은 다크에서 *-light 로 스왑(웹 status-*-fg 정합, 사용자 결정).
 class TodoPrioMeta {
   const TodoPrioMeta(this.code, this.label);
   final String code;
   final String label;
 
-  /// 칩/아이콘 전경색 (테마 적응).
+  /// 칩/아이콘 전경색 (다크 light 스왑 내장 토큰).
   Color color(BuildContext context) {
     final t = context.tokens;
     return switch (code) {
-      'HIGH' => resolveChartColor(context, '#c73838', fallback: t.statusDanger),
-      'MEDIUM' =>
-        resolveChartColor(context, '#b36418', fallback: t.statusWarning),
-      _ => t.fgTertiary,
+      'HIGH' => t.statusDangerFg,
+      'MEDIUM' => t.statusWarningFg,
+      _ => t.statusInfoFg,
     };
   }
 
-  /// 칩/아이콘 배경 — high/med 는 색 14% 틴트(surface 불투명 혼합), low 는 bg-sunken.
+  /// 칩/아이콘 배경 — 색 14% 틴트(surface 불투명 혼합).
   Color bg(BuildContext context) {
     final t = context.tokens;
-    if (code == 'LOW') return t.bgSunken;
     return Color.lerp(t.bgSurface, color(context), 0.14)!;
   }
 }
