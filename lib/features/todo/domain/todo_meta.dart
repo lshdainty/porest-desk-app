@@ -10,24 +10,14 @@ import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 /// 웹 `screens-life.jsx` `TODO_TAGS` / `TODO_PRIO` / `lifeRelativeDate` 미러.
 /// tag 는 기존 `category` 필드에 저장(자유 텍스트 → select 7종).
 
-/// 태그 7종 — 기본 '개인'. 저장은 todo.category 필드.
-const kTodoTags = <String>[
-  '가계부',
-  '자산',
-  '결제',
-  '업무',
-  '개인',
-  '건강',
-  '고정비',
-];
-
+/// 기본 태그 — 빈 category 폴백. 태그 목록은 서버 태그 마스터
+/// (todoTagListProvider)가 SoT — 하드코딩 목록 강제 없음.
 const kTodoDefaultTag = '개인';
 
-/// 미정의/빈 category → 기본 '개인'.
+/// 빈 category → 기본 '개인'. (서버 태그 자유화 — 목록 밖 값도 그대로 표시)
 String todoTagOrDefault(String? raw) {
   final v = raw?.trim();
-  if (v == null || v.isEmpty) return kTodoDefaultTag;
-  return kTodoTags.contains(v) ? v : kTodoDefaultTag;
+  return (v == null || v.isEmpty) ? kTodoDefaultTag : v;
 }
 
 /// 우선순위 메타 — 라벨 + chip 색/배경.

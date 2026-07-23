@@ -83,6 +83,17 @@ class _BodyState extends ConsumerState<_Body> {
   bool get _canSubmit =>
       !_submitting && _titleCtrl.text.trim().isNotEmpty;
 
+  /// 태그 선택지 — 서버 태그명 + 현재 값(미포함 시) + 기본 태그 보장.
+  List<String> _tagChoices() {
+    final server = ref.watch(todoTagListProvider).value ?? const [];
+    final names = [for (final t in server) t.tagName];
+    return [
+      if (!names.contains(_tag)) _tag,
+      ...names,
+      if (names.isEmpty && _tag != kTodoDefaultTag) kTodoDefaultTag,
+    ];
+  }
+
   @override
   void dispose() {
     _titleCtrl.dispose();
@@ -218,8 +229,10 @@ class _BodyState extends ConsumerState<_Body> {
                     PSelect<String>(
                       value: _tag,
                       title: l.todoTagSelect,
+                      // 서버 태그 마스터(설정 > 할일 태그) — 현재 값이 목록에
+                      // 없으면(과거 데이터·삭제된 태그) 맨 앞에 유지해 보존.
                       items: [
-                        for (final tag in kTodoTags)
+                        for (final tag in _tagChoices())
                           PSelectItem<String>(value: tag, label: tag),
                       ],
                       onChanged: (v) =>
