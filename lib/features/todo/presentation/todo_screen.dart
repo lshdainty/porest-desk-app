@@ -208,7 +208,13 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
   }
 
   Future<void> _openFilter(List<Todo> all) async {
-    final tags = <String>{for (final x in all) _tagOf(x)}.toList()..sort();
+    // 서버 태그 마스터 ∪ 사용 중 category — 웹 TodoPage 병합 정합.
+    final server = ref.read(todoTagListProvider).value ?? const [];
+    final tags = <String>{
+      for (final t in server) t.tagName,
+      for (final x in all) _tagOf(x),
+    }.toList()
+      ..sort();
     await showPSheet<void>(
       context,
       title: AppLocalizations.of(context).expFilter,
