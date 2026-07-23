@@ -7,7 +7,6 @@ import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/auth/auth_notifier.dart';
-import 'package:porest_desk_app/features/todo/presentation/todo_tag_management_dialog.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_avatar.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
@@ -51,10 +50,19 @@ List<_SettingsGroup> _buildGroups(BuildContext ctx) {
           label: l.settingsMenuPreset,
           onTap: (c) => c.push('/presets'),
         ),
-        // 할일 태그 관리 — design settings-todo-tags.jsx (설정 하위 진입).
+      ],
+    ),
+    // 태그 · 라벨 — design screens-settings.jsx 신판(할일 태그 + 캘린더 라벨).
+    _SettingsGroup(
+      label: l.settingsGroupTagsLabels,
+      items: [
         _SettingsItem(
           label: l.settingsMenuTodoTag,
-          onTap: (c) => showTodoTagManagementDialog(c),
+          onTap: (c) => c.push('/settings/todo-tags'),
+        ),
+        _SettingsItem(
+          label: l.settingsMenuCalendarLabel,
+          onTap: (c) => c.push('/settings/calendar-labels'),
         ),
       ],
     ),
@@ -64,10 +72,6 @@ List<_SettingsGroup> _buildGroups(BuildContext ctx) {
         _SettingsItem(
           label: l.settingsMenuCalendarShare,
           onTap: (c) => c.push('/settings/calendar-share'),
-        ),
-        _SettingsItem(
-          label: l.settingsMenuCalendarLabel,
-          onTap: (c) => c.push('/settings/calendar-labels'),
         ),
       ],
     ),

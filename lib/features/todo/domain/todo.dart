@@ -19,8 +19,6 @@ abstract class Todo with _$Todo {
     String? completedAt,
     int? sortOrder,
     String? isPinned,
-    int? projectRowId,
-    String? projectName,
     int? parentRowId,
     @Default(0) int subtaskCount,
     @Default(0) int subtaskCompletedCount,

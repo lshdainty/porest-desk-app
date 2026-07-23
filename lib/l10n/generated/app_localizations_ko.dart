@@ -767,9 +767,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get todoSubtaskAddHint => '+ 하위 작업 추가';
 
   @override
-  String get todoProjectMgmt => '프로젝트 관리';
-
-  @override
   String get todoTagMgmt => '태그 관리';
 
   @override
@@ -2740,6 +2737,9 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get settingsMenuPreset => '프리셋 관리';
+
+  @override
+  String get settingsGroupTagsLabels => '태그 · 라벨';
 
   @override
   String get settingsGroupShare => '공유·소통';

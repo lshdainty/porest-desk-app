@@ -25,6 +25,7 @@ import 'package:porest_desk_app/features/search/presentation/search_screen.dart'
 import 'package:porest_desk_app/features/constellation/presentation/forest_report_screen.dart';
 import 'package:porest_desk_app/features/constellation/presentation/night_sky_screen.dart';
 import 'package:porest_desk_app/features/todo/presentation/todo_screen.dart';
+import 'package:porest_desk_app/features/todo/presentation/todo_tag_management_screen.dart';
 import 'package:porest_desk_app/features/auth/presentation/login_screen.dart';
 import 'package:porest_desk_app/features/auth/presentation/splash_screen.dart';
 import 'package:porest_desk_app/features/dashboard/presentation/dashboard_screen.dart';
@@ -96,6 +97,9 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
           path: '/settings/calendar-labels',
           builder: (_, _) => const CalendarLabelsScreen()),
+      GoRoute(
+          path: '/settings/todo-tags',
+          builder: (_, _) => const TodoTagManagementScreen()),
       GoRoute(
           path: '/settings/appearance',
           builder: (_, _) => const AppearanceScreen()),

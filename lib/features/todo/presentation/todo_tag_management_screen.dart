@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:porest_desk_app/app/theme/spacing.dart';
@@ -11,6 +12,7 @@ import 'package:porest_desk_app/features/todo/application/todo_providers.dart';
 import 'package:porest_desk_app/features/todo/domain/todo_tag.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
+import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_color_picker.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
@@ -19,16 +21,44 @@ import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
 
 /// 할일 태그 관리 — design settings-todo-tags.jsx TodoTagManager 미러.
 ///
-/// 태그 리스트(아이콘 틴트 타일 + "할 일 N건에 사용 중" + 삭제) + 행 탭 →
-/// 이름+8 tone 스와치 편집 시트, 하단 고스트 '새 태그' 행.
-/// 사용 건수는 할일 목록(category=태그명) 클라 집계.
-void showTodoTagManagementDialog(BuildContext context) {
-  final l = AppLocalizations.of(context);
-  showPSheet<void>(
-    context,
-    title: l.todoTagMgmt,
-    contentBuilder: (ctx, scrollCtrl) => _Body(scrollController: scrollCtrl),
-  );
+/// 설정 하위 풀스크린 화면(캘린더 라벨 화면 셸 정합). 태그 리스트(아이콘
+/// 틴트 타일 + "할 일 N건에 사용 중" + 삭제) + 행 탭 → 이름+8 tone 스와치
+/// 편집 시트, 하단 고스트 '새 태그' 행. 사용 건수는 category=태그명 클라 집계.
+class TodoTagManagementScreen extends StatefulWidget {
+  const TodoTagManagementScreen({super.key});
+
+  @override
+  State<TodoTagManagementScreen> createState() =>
+      _TodoTagManagementScreenState();
+}
+
+class _TodoTagManagementScreenState extends State<TodoTagManagementScreen> {
+  final ScrollController _scrollCtrl = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final l = AppLocalizations.of(context);
+    return Scaffold(
+      backgroundColor: t.bgSurface,
+      appBar: AppBar(
+        leadingWidth: PBackButton.leadingWidth,
+        titleSpacing: 0,
+        leading: PBackButton(onPressed: () => context.pop()),
+        title: Text(l.todoTagMgmt),
+        backgroundColor: t.bgSurface,
+        foregroundColor: t.fgPrimary,
+        elevation: 0,
+      ),
+      body: _Body(scrollController: _scrollCtrl),
+    );
+  }
 }
 
 /// 8 tone — design TTAG_TONES(blue/green/violet/orange/pink/red/yellow/brown).

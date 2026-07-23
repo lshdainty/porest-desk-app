@@ -34,7 +34,6 @@ void invalidateKeepAliveProviders(WidgetRef ref) {
   ref.invalidate(cardBenefitMappingsProvider);
   ref.invalidate(assetsProvider);
   ref.invalidate(netWorthTrendProvider);
-  ref.invalidate(todoProjectListProvider);
   ref.invalidate(todoTagListProvider);
   ref.invalidate(memoFolderListProvider);
   ref.invalidate(budgetComplianceProvider);

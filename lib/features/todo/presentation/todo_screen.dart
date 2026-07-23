@@ -21,13 +21,10 @@ import 'package:porest_desk_app/features/todo/domain/todo.dart';
 import 'package:porest_desk_app/features/todo/domain/todo_meta.dart';
 import 'package:porest_desk_app/features/todo/presentation/todo_detail_dialog.dart';
 import 'package:porest_desk_app/features/todo/presentation/todo_edit_dialog.dart';
-import 'package:porest_desk_app/features/todo/presentation/todo_project_management_dialog.dart';
-import 'package:porest_desk_app/features/todo/presentation/todo_tag_management_dialog.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_badge.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_dropdown_menu.dart';
 import 'package:porest_desk_app/shared/widgets/p_floating_action_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
@@ -248,22 +245,6 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
         backgroundColor: t.bgSurface,
         foregroundColor: t.fgPrimary,
         elevation: 0,
-        actions: [
-          PDropdownMenu(
-            iconColor: t.fgSecondary,
-            iconSize: 24,
-            entries: [
-              PDropdownItem(
-                label: l.todoProjectMgmt,
-                onTap: () => showTodoProjectManagementDialog(context),
-              ),
-              PDropdownItem(
-                label: l.todoTagMgmt,
-                onTap: () => showTodoTagManagementDialog(context),
-              ),
-            ],
-          ),
-        ],
       ),
       floatingActionButton: PFloatingActionButton(
         icon: LucideIcons.plus,

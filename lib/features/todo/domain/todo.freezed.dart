@@ -19,7 +19,7 @@ mixin _$Todo {
  String get title; String? get content; String? get priority;// 'HIGH' | 'MEDIUM' | 'LOW'
  String? get category; String? get status;// 'PENDING' | 'IN_PROGRESS' | 'COMPLETED'
  String? get dueDate;// 'YYYY-MM-DD'
- String? get completedAt; int? get sortOrder; String? get isPinned; int? get projectRowId; String? get projectName; int? get parentRowId; int get subtaskCount; int get subtaskCompletedCount; String? get createAt; String? get modifyAt;
+ String? get completedAt; int? get sortOrder; String? get isPinned; int? get parentRowId; int get subtaskCount; int get subtaskCompletedCount; String? get createAt; String? get modifyAt;
 /// Create a copy of Todo
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -32,16 +32,16 @@ $TodoCopyWith<Todo> get copyWith => _$TodoCopyWithImpl<Todo>(this as Todo, _$ide
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Todo&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.userRowId, userRowId) || other.userRowId == userRowId)&&(identical(other.type, type) || other.type == type)&&(identical(other.title, title) || other.title == title)&&(identical(other.content, content) || other.content == content)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.category, category) || other.category == category)&&(identical(other.status, status) || other.status == status)&&(identical(other.dueDate, dueDate) || other.dueDate == dueDate)&&(identical(other.completedAt, completedAt) || other.completedAt == completedAt)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder)&&(identical(other.isPinned, isPinned) || other.isPinned == isPinned)&&(identical(other.projectRowId, projectRowId) || other.projectRowId == projectRowId)&&(identical(other.projectName, projectName) || other.projectName == projectName)&&(identical(other.parentRowId, parentRowId) || other.parentRowId == parentRowId)&&(identical(other.subtaskCount, subtaskCount) || other.subtaskCount == subtaskCount)&&(identical(other.subtaskCompletedCount, subtaskCompletedCount) || other.subtaskCompletedCount == subtaskCompletedCount)&&(identical(other.createAt, createAt) || other.createAt == createAt)&&(identical(other.modifyAt, modifyAt) || other.modifyAt == modifyAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Todo&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.userRowId, userRowId) || other.userRowId == userRowId)&&(identical(other.type, type) || other.type == type)&&(identical(other.title, title) || other.title == title)&&(identical(other.content, content) || other.content == content)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.category, category) || other.category == category)&&(identical(other.status, status) || other.status == status)&&(identical(other.dueDate, dueDate) || other.dueDate == dueDate)&&(identical(other.completedAt, completedAt) || other.completedAt == completedAt)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder)&&(identical(other.isPinned, isPinned) || other.isPinned == isPinned)&&(identical(other.parentRowId, parentRowId) || other.parentRowId == parentRowId)&&(identical(other.subtaskCount, subtaskCount) || other.subtaskCount == subtaskCount)&&(identical(other.subtaskCompletedCount, subtaskCompletedCount) || other.subtaskCompletedCount == subtaskCompletedCount)&&(identical(other.createAt, createAt) || other.createAt == createAt)&&(identical(other.modifyAt, modifyAt) || other.modifyAt == modifyAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,rowId,userRowId,type,title,content,priority,category,status,dueDate,completedAt,sortOrder,isPinned,projectRowId,projectName,parentRowId,subtaskCount,subtaskCompletedCount,createAt,modifyAt]);
+int get hashCode => Object.hash(runtimeType,rowId,userRowId,type,title,content,priority,category,status,dueDate,completedAt,sortOrder,isPinned,parentRowId,subtaskCount,subtaskCompletedCount,createAt,modifyAt);
 
 @override
 String toString() {
-  return 'Todo(rowId: $rowId, userRowId: $userRowId, type: $type, title: $title, content: $content, priority: $priority, category: $category, status: $status, dueDate: $dueDate, completedAt: $completedAt, sortOrder: $sortOrder, isPinned: $isPinned, projectRowId: $projectRowId, projectName: $projectName, parentRowId: $parentRowId, subtaskCount: $subtaskCount, subtaskCompletedCount: $subtaskCompletedCount, createAt: $createAt, modifyAt: $modifyAt)';
+  return 'Todo(rowId: $rowId, userRowId: $userRowId, type: $type, title: $title, content: $content, priority: $priority, category: $category, status: $status, dueDate: $dueDate, completedAt: $completedAt, sortOrder: $sortOrder, isPinned: $isPinned, parentRowId: $parentRowId, subtaskCount: $subtaskCount, subtaskCompletedCount: $subtaskCompletedCount, createAt: $createAt, modifyAt: $modifyAt)';
 }
 
 
@@ -52,7 +52,7 @@ abstract mixin class $TodoCopyWith<$Res>  {
   factory $TodoCopyWith(Todo value, $Res Function(Todo) _then) = _$TodoCopyWithImpl;
 @useResult
 $Res call({
- int rowId, int? userRowId, String? type, String title, String? content, String? priority, String? category, String? status, String? dueDate, String? completedAt, int? sortOrder, String? isPinned, int? projectRowId, String? projectName, int? parentRowId, int subtaskCount, int subtaskCompletedCount, String? createAt, String? modifyAt
+ int rowId, int? userRowId, String? type, String title, String? content, String? priority, String? category, String? status, String? dueDate, String? completedAt, int? sortOrder, String? isPinned, int? parentRowId, int subtaskCount, int subtaskCompletedCount, String? createAt, String? modifyAt
 });
 
 
@@ -69,7 +69,7 @@ class _$TodoCopyWithImpl<$Res>
 
 /// Create a copy of Todo
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? rowId = null,Object? userRowId = freezed,Object? type = freezed,Object? title = null,Object? content = freezed,Object? priority = freezed,Object? category = freezed,Object? status = freezed,Object? dueDate = freezed,Object? completedAt = freezed,Object? sortOrder = freezed,Object? isPinned = freezed,Object? projectRowId = freezed,Object? projectName = freezed,Object? parentRowId = freezed,Object? subtaskCount = null,Object? subtaskCompletedCount = null,Object? createAt = freezed,Object? modifyAt = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? rowId = null,Object? userRowId = freezed,Object? type = freezed,Object? title = null,Object? content = freezed,Object? priority = freezed,Object? category = freezed,Object? status = freezed,Object? dueDate = freezed,Object? completedAt = freezed,Object? sortOrder = freezed,Object? isPinned = freezed,Object? parentRowId = freezed,Object? subtaskCount = null,Object? subtaskCompletedCount = null,Object? createAt = freezed,Object? modifyAt = freezed,}) {
   return _then(_self.copyWith(
 rowId: null == rowId ? _self.rowId : rowId // ignore: cast_nullable_to_non_nullable
 as int,userRowId: freezed == userRowId ? _self.userRowId : userRowId // ignore: cast_nullable_to_non_nullable
@@ -83,8 +83,6 @@ as String?,dueDate: freezed == dueDate ? _self.dueDate : dueDate // ignore: cast
 as String?,completedAt: freezed == completedAt ? _self.completedAt : completedAt // ignore: cast_nullable_to_non_nullable
 as String?,sortOrder: freezed == sortOrder ? _self.sortOrder : sortOrder // ignore: cast_nullable_to_non_nullable
 as int?,isPinned: freezed == isPinned ? _self.isPinned : isPinned // ignore: cast_nullable_to_non_nullable
-as String?,projectRowId: freezed == projectRowId ? _self.projectRowId : projectRowId // ignore: cast_nullable_to_non_nullable
-as int?,projectName: freezed == projectName ? _self.projectName : projectName // ignore: cast_nullable_to_non_nullable
 as String?,parentRowId: freezed == parentRowId ? _self.parentRowId : parentRowId // ignore: cast_nullable_to_non_nullable
 as int?,subtaskCount: null == subtaskCount ? _self.subtaskCount : subtaskCount // ignore: cast_nullable_to_non_nullable
 as int,subtaskCompletedCount: null == subtaskCompletedCount ? _self.subtaskCompletedCount : subtaskCompletedCount // ignore: cast_nullable_to_non_nullable
@@ -175,10 +173,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int rowId,  int? userRowId,  String? type,  String title,  String? content,  String? priority,  String? category,  String? status,  String? dueDate,  String? completedAt,  int? sortOrder,  String? isPinned,  int? projectRowId,  String? projectName,  int? parentRowId,  int subtaskCount,  int subtaskCompletedCount,  String? createAt,  String? modifyAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int rowId,  int? userRowId,  String? type,  String title,  String? content,  String? priority,  String? category,  String? status,  String? dueDate,  String? completedAt,  int? sortOrder,  String? isPinned,  int? parentRowId,  int subtaskCount,  int subtaskCompletedCount,  String? createAt,  String? modifyAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Todo() when $default != null:
-return $default(_that.rowId,_that.userRowId,_that.type,_that.title,_that.content,_that.priority,_that.category,_that.status,_that.dueDate,_that.completedAt,_that.sortOrder,_that.isPinned,_that.projectRowId,_that.projectName,_that.parentRowId,_that.subtaskCount,_that.subtaskCompletedCount,_that.createAt,_that.modifyAt);case _:
+return $default(_that.rowId,_that.userRowId,_that.type,_that.title,_that.content,_that.priority,_that.category,_that.status,_that.dueDate,_that.completedAt,_that.sortOrder,_that.isPinned,_that.parentRowId,_that.subtaskCount,_that.subtaskCompletedCount,_that.createAt,_that.modifyAt);case _:
   return orElse();
 
 }
@@ -196,10 +194,10 @@ return $default(_that.rowId,_that.userRowId,_that.type,_that.title,_that.content
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int rowId,  int? userRowId,  String? type,  String title,  String? content,  String? priority,  String? category,  String? status,  String? dueDate,  String? completedAt,  int? sortOrder,  String? isPinned,  int? projectRowId,  String? projectName,  int? parentRowId,  int subtaskCount,  int subtaskCompletedCount,  String? createAt,  String? modifyAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int rowId,  int? userRowId,  String? type,  String title,  String? content,  String? priority,  String? category,  String? status,  String? dueDate,  String? completedAt,  int? sortOrder,  String? isPinned,  int? parentRowId,  int subtaskCount,  int subtaskCompletedCount,  String? createAt,  String? modifyAt)  $default,) {final _that = this;
 switch (_that) {
 case _Todo():
-return $default(_that.rowId,_that.userRowId,_that.type,_that.title,_that.content,_that.priority,_that.category,_that.status,_that.dueDate,_that.completedAt,_that.sortOrder,_that.isPinned,_that.projectRowId,_that.projectName,_that.parentRowId,_that.subtaskCount,_that.subtaskCompletedCount,_that.createAt,_that.modifyAt);case _:
+return $default(_that.rowId,_that.userRowId,_that.type,_that.title,_that.content,_that.priority,_that.category,_that.status,_that.dueDate,_that.completedAt,_that.sortOrder,_that.isPinned,_that.parentRowId,_that.subtaskCount,_that.subtaskCompletedCount,_that.createAt,_that.modifyAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -216,10 +214,10 @@ return $default(_that.rowId,_that.userRowId,_that.type,_that.title,_that.content
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int rowId,  int? userRowId,  String? type,  String title,  String? content,  String? priority,  String? category,  String? status,  String? dueDate,  String? completedAt,  int? sortOrder,  String? isPinned,  int? projectRowId,  String? projectName,  int? parentRowId,  int subtaskCount,  int subtaskCompletedCount,  String? createAt,  String? modifyAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int rowId,  int? userRowId,  String? type,  String title,  String? content,  String? priority,  String? category,  String? status,  String? dueDate,  String? completedAt,  int? sortOrder,  String? isPinned,  int? parentRowId,  int subtaskCount,  int subtaskCompletedCount,  String? createAt,  String? modifyAt)?  $default,) {final _that = this;
 switch (_that) {
 case _Todo() when $default != null:
-return $default(_that.rowId,_that.userRowId,_that.type,_that.title,_that.content,_that.priority,_that.category,_that.status,_that.dueDate,_that.completedAt,_that.sortOrder,_that.isPinned,_that.projectRowId,_that.projectName,_that.parentRowId,_that.subtaskCount,_that.subtaskCompletedCount,_that.createAt,_that.modifyAt);case _:
+return $default(_that.rowId,_that.userRowId,_that.type,_that.title,_that.content,_that.priority,_that.category,_that.status,_that.dueDate,_that.completedAt,_that.sortOrder,_that.isPinned,_that.parentRowId,_that.subtaskCount,_that.subtaskCompletedCount,_that.createAt,_that.modifyAt);case _:
   return null;
 
 }
@@ -231,7 +229,7 @@ return $default(_that.rowId,_that.userRowId,_that.type,_that.title,_that.content
 @JsonSerializable()
 
 class _Todo implements Todo {
-  const _Todo({required this.rowId, this.userRowId, this.type, required this.title, this.content, this.priority, this.category, this.status, this.dueDate, this.completedAt, this.sortOrder, this.isPinned, this.projectRowId, this.projectName, this.parentRowId, this.subtaskCount = 0, this.subtaskCompletedCount = 0, this.createAt, this.modifyAt});
+  const _Todo({required this.rowId, this.userRowId, this.type, required this.title, this.content, this.priority, this.category, this.status, this.dueDate, this.completedAt, this.sortOrder, this.isPinned, this.parentRowId, this.subtaskCount = 0, this.subtaskCompletedCount = 0, this.createAt, this.modifyAt});
   factory _Todo.fromJson(Map<String, dynamic> json) => _$TodoFromJson(json);
 
 @override final  int rowId;
@@ -250,8 +248,6 @@ class _Todo implements Todo {
 @override final  String? completedAt;
 @override final  int? sortOrder;
 @override final  String? isPinned;
-@override final  int? projectRowId;
-@override final  String? projectName;
 @override final  int? parentRowId;
 @override@JsonKey() final  int subtaskCount;
 @override@JsonKey() final  int subtaskCompletedCount;
@@ -271,16 +267,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Todo&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.userRowId, userRowId) || other.userRowId == userRowId)&&(identical(other.type, type) || other.type == type)&&(identical(other.title, title) || other.title == title)&&(identical(other.content, content) || other.content == content)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.category, category) || other.category == category)&&(identical(other.status, status) || other.status == status)&&(identical(other.dueDate, dueDate) || other.dueDate == dueDate)&&(identical(other.completedAt, completedAt) || other.completedAt == completedAt)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder)&&(identical(other.isPinned, isPinned) || other.isPinned == isPinned)&&(identical(other.projectRowId, projectRowId) || other.projectRowId == projectRowId)&&(identical(other.projectName, projectName) || other.projectName == projectName)&&(identical(other.parentRowId, parentRowId) || other.parentRowId == parentRowId)&&(identical(other.subtaskCount, subtaskCount) || other.subtaskCount == subtaskCount)&&(identical(other.subtaskCompletedCount, subtaskCompletedCount) || other.subtaskCompletedCount == subtaskCompletedCount)&&(identical(other.createAt, createAt) || other.createAt == createAt)&&(identical(other.modifyAt, modifyAt) || other.modifyAt == modifyAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Todo&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.userRowId, userRowId) || other.userRowId == userRowId)&&(identical(other.type, type) || other.type == type)&&(identical(other.title, title) || other.title == title)&&(identical(other.content, content) || other.content == content)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.category, category) || other.category == category)&&(identical(other.status, status) || other.status == status)&&(identical(other.dueDate, dueDate) || other.dueDate == dueDate)&&(identical(other.completedAt, completedAt) || other.completedAt == completedAt)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder)&&(identical(other.isPinned, isPinned) || other.isPinned == isPinned)&&(identical(other.parentRowId, parentRowId) || other.parentRowId == parentRowId)&&(identical(other.subtaskCount, subtaskCount) || other.subtaskCount == subtaskCount)&&(identical(other.subtaskCompletedCount, subtaskCompletedCount) || other.subtaskCompletedCount == subtaskCompletedCount)&&(identical(other.createAt, createAt) || other.createAt == createAt)&&(identical(other.modifyAt, modifyAt) || other.modifyAt == modifyAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,rowId,userRowId,type,title,content,priority,category,status,dueDate,completedAt,sortOrder,isPinned,projectRowId,projectName,parentRowId,subtaskCount,subtaskCompletedCount,createAt,modifyAt]);
+int get hashCode => Object.hash(runtimeType,rowId,userRowId,type,title,content,priority,category,status,dueDate,completedAt,sortOrder,isPinned,parentRowId,subtaskCount,subtaskCompletedCount,createAt,modifyAt);
 
 @override
 String toString() {
-  return 'Todo(rowId: $rowId, userRowId: $userRowId, type: $type, title: $title, content: $content, priority: $priority, category: $category, status: $status, dueDate: $dueDate, completedAt: $completedAt, sortOrder: $sortOrder, isPinned: $isPinned, projectRowId: $projectRowId, projectName: $projectName, parentRowId: $parentRowId, subtaskCount: $subtaskCount, subtaskCompletedCount: $subtaskCompletedCount, createAt: $createAt, modifyAt: $modifyAt)';
+  return 'Todo(rowId: $rowId, userRowId: $userRowId, type: $type, title: $title, content: $content, priority: $priority, category: $category, status: $status, dueDate: $dueDate, completedAt: $completedAt, sortOrder: $sortOrder, isPinned: $isPinned, parentRowId: $parentRowId, subtaskCount: $subtaskCount, subtaskCompletedCount: $subtaskCompletedCount, createAt: $createAt, modifyAt: $modifyAt)';
 }
 
 
@@ -291,7 +287,7 @@ abstract mixin class _$TodoCopyWith<$Res> implements $TodoCopyWith<$Res> {
   factory _$TodoCopyWith(_Todo value, $Res Function(_Todo) _then) = __$TodoCopyWithImpl;
 @override @useResult
 $Res call({
- int rowId, int? userRowId, String? type, String title, String? content, String? priority, String? category, String? status, String? dueDate, String? completedAt, int? sortOrder, String? isPinned, int? projectRowId, String? projectName, int? parentRowId, int subtaskCount, int subtaskCompletedCount, String? createAt, String? modifyAt
+ int rowId, int? userRowId, String? type, String title, String? content, String? priority, String? category, String? status, String? dueDate, String? completedAt, int? sortOrder, String? isPinned, int? parentRowId, int subtaskCount, int subtaskCompletedCount, String? createAt, String? modifyAt
 });
 
 
@@ -308,7 +304,7 @@ class __$TodoCopyWithImpl<$Res>
 
 /// Create a copy of Todo
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? rowId = null,Object? userRowId = freezed,Object? type = freezed,Object? title = null,Object? content = freezed,Object? priority = freezed,Object? category = freezed,Object? status = freezed,Object? dueDate = freezed,Object? completedAt = freezed,Object? sortOrder = freezed,Object? isPinned = freezed,Object? projectRowId = freezed,Object? projectName = freezed,Object? parentRowId = freezed,Object? subtaskCount = null,Object? subtaskCompletedCount = null,Object? createAt = freezed,Object? modifyAt = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? rowId = null,Object? userRowId = freezed,Object? type = freezed,Object? title = null,Object? content = freezed,Object? priority = freezed,Object? category = freezed,Object? status = freezed,Object? dueDate = freezed,Object? completedAt = freezed,Object? sortOrder = freezed,Object? isPinned = freezed,Object? parentRowId = freezed,Object? subtaskCount = null,Object? subtaskCompletedCount = null,Object? createAt = freezed,Object? modifyAt = freezed,}) {
   return _then(_Todo(
 rowId: null == rowId ? _self.rowId : rowId // ignore: cast_nullable_to_non_nullable
 as int,userRowId: freezed == userRowId ? _self.userRowId : userRowId // ignore: cast_nullable_to_non_nullable
@@ -322,8 +318,6 @@ as String?,dueDate: freezed == dueDate ? _self.dueDate : dueDate // ignore: cast
 as String?,completedAt: freezed == completedAt ? _self.completedAt : completedAt // ignore: cast_nullable_to_non_nullable
 as String?,sortOrder: freezed == sortOrder ? _self.sortOrder : sortOrder // ignore: cast_nullable_to_non_nullable
 as int?,isPinned: freezed == isPinned ? _self.isPinned : isPinned // ignore: cast_nullable_to_non_nullable
-as String?,projectRowId: freezed == projectRowId ? _self.projectRowId : projectRowId // ignore: cast_nullable_to_non_nullable
-as int?,projectName: freezed == projectName ? _self.projectName : projectName // ignore: cast_nullable_to_non_nullable
 as String?,parentRowId: freezed == parentRowId ? _self.parentRowId : parentRowId // ignore: cast_nullable_to_non_nullable
 as int?,subtaskCount: null == subtaskCount ? _self.subtaskCount : subtaskCount // ignore: cast_nullable_to_non_nullable
 as int,subtaskCompletedCount: null == subtaskCompletedCount ? _self.subtaskCompletedCount : subtaskCompletedCount // ignore: cast_nullable_to_non_nullable
