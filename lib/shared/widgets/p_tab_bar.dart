@@ -302,19 +302,29 @@ class PTabBarItem extends StatelessWidget {
       borderRadius: BorderRadius.circular(999),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 22, color: color),
-          if (!compact) ...[
-            const SizedBox(height: 3),
-            Text(
-              label,
-              style: PTypo.micro.copyWith(
-                fontSize: 10.5,
-                color: color,
-                fontWeight: selected ? PFontWeight.semi : PFontWeight.medium,
+          if (!compact)
+            // 확장 복원 애니메이션 중(바 높이 48→66) 라벨이 먼저 렌더되며
+            // 중간 프레임에서 수 px 넘침 — 가용 부족 시 자연 축소로 방어.
+            Flexible(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 3),
+                  child: Text(
+                    label,
+                    style: PTypo.micro.copyWith(
+                      fontSize: 10.5,
+                      color: color,
+                      fontWeight:
+                          selected ? PFontWeight.semi : PFontWeight.medium,
+                    ),
+                  ),
+                ),
               ),
             ),
-          ],
         ],
       ),
     );
