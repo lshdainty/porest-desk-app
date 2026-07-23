@@ -1,11 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:porest_desk_app/core/network/dio_provider.dart';
-import 'package:porest_desk_app/features/todo/data/todo_project_repository.dart';
 import 'package:porest_desk_app/features/todo/data/todo_repository.dart';
 import 'package:porest_desk_app/features/todo/data/todo_tag_repository.dart';
 import 'package:porest_desk_app/features/todo/domain/todo.dart';
-import 'package:porest_desk_app/features/todo/domain/todo_project.dart';
 import 'package:porest_desk_app/features/todo/domain/todo_stats.dart';
 import 'package:porest_desk_app/features/todo/domain/todo_tag.dart';
 
@@ -40,21 +38,6 @@ final todoSubtasksProvider =
 final todoStatsProvider = FutureProvider<TodoStats>((ref) async {
   final repo = await ref.watch(todoRepositoryProvider.future);
   return repo.stats();
-});
-
-// ─── TodoProject ────────────────────────────────────────────
-
-final todoProjectRepositoryProvider =
-    FutureProvider<TodoProjectRepository>((ref) async {
-  final dio = await ref.watch(dioProvider.future);
-  return TodoProjectRepository(dio);
-});
-
-final todoProjectListProvider =
-    FutureProvider<List<TodoProject>>((ref) async {
-  ref.keepAlive();
-  final repo = await ref.watch(todoProjectRepositoryProvider.future);
-  return repo.list();
 });
 
 // ─── TodoTag ────────────────────────────────────────────────

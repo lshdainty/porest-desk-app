@@ -777,9 +777,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get todoSubtaskAddHint => '+ Add subtask';
 
   @override
-  String get todoProjectMgmt => 'Projects';
-
-  @override
   String get todoTagMgmt => 'Tags';
 
   @override
@@ -2765,6 +2762,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsMenuPreset => 'Preset Management';
+
+  @override
+  String get settingsGroupTagsLabels => 'Tags · Labels';
 
   @override
   String get settingsGroupShare => 'Sharing & Communication';

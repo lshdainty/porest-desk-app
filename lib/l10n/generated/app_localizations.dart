@@ -1544,12 +1544,6 @@ abstract class AppLocalizations {
   /// **'+ 하위 작업 추가'**
   String get todoSubtaskAddHint;
 
-  /// No description provided for @todoProjectMgmt.
-  ///
-  /// In ko, this message translates to:
-  /// **'프로젝트 관리'**
-  String get todoProjectMgmt;
-
   /// No description provided for @todoTagMgmt.
   ///
   /// In ko, this message translates to:
@@ -5197,6 +5191,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'프리셋 관리'**
   String get settingsMenuPreset;
+
+  /// No description provided for @settingsGroupTagsLabels.
+  ///
+  /// In ko, this message translates to:
+  /// **'태그 · 라벨'**
+  String get settingsGroupTagsLabels;
 
   /// No description provided for @settingsGroupShare.
   ///
