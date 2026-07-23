@@ -7,7 +7,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:porest_desk_app/app/theme/colors.dart';
+import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/format/date.dart';
@@ -775,8 +775,8 @@ class _LedgerCalendar extends StatelessWidget {
 
     Color numColor(String ds, int dow) {
       if (ds.compareTo(todayStr) > 0) return t.fgTertiary;
-      // 일요일 — 다크에서도 light 값 고정(design --color-chart-red, 사용자 결정)
-      if (dow == 0) return PorestPalette.chartRed;
+      // 일요일 — 다크에서 light variant 스왑(웹 --color-cat-red 정합, 사용자 결정)
+      if (dow == 0) return chartRedOf(context);
       if (dow == 6) return t.fgBrand;
       return t.fgPrimary;
     }
@@ -902,7 +902,7 @@ class _LedgerCalendar extends StatelessWidget {
                       style: PTypo.caption.copyWith(
                         fontWeight: PFontWeight.semi,
                         color: i == 0
-                            ? PorestPalette.chartRed
+                            ? chartRedOf(context)
                             : i == 6
                                 ? t.fgBrand
                                 : t.fgTertiary,
@@ -1420,7 +1420,7 @@ class _LedgerSkeleton extends StatelessWidget {
                       style: PTypo.caption.copyWith(
                         fontWeight: PFontWeight.semi,
                         color: i == 0
-                            ? PorestPalette.chartRed
+                            ? chartRedOf(context)
                             : i == 6
                                 ? t.fgBrand
                                 : t.fgTertiary,

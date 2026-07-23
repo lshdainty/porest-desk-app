@@ -99,6 +99,13 @@ Color softBg(BuildContext context, Color base) {
 ///   — 웹 `--swatch-lift`(라이트 0% / 다크 38%, getPaletteByColor 커스텀 분기) 정합.
 ///   삼성 네이비(#1428A0)처럼 어두운 브랜드 색이 다크 배경에 묻히는 것 방지.
 /// - null / 빈 값 / 잘못된 형식 → fallback (테마 인지 토큰이므로 lift 없음)
+/// chart red 시멘틱(캘린더 일요일 등) — 다크에서 light variant 스왑.
+/// 웹 `--color-cat-red`(라이트 chart-red / 다크 chart-red-light) 미러.
+Color chartRedOf(BuildContext context) =>
+    Theme.of(context).brightness == Brightness.dark
+        ? const Color(0xFFECA0A0) // chart-red-light
+        : const Color(0xFFC73838); // chart-red
+
 Color resolveChartColor(
   BuildContext context,
   String? rawHex, {
