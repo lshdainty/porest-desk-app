@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -71,10 +72,9 @@ class _PTabBarScope extends InheritedWidget {
 }
 
 /// 플로팅 탭바가 콘텐츠 하단을 덮지 않도록 셸 화면 스크롤에 줄 보상 여백 —
-/// 웹 `.m-app--tabbar .m-scroll > :last-child { padding-bottom: 104px }` 정합
-/// (+ 기기 안전영역).
+/// 바 top(하단 마진 + 66) + 여유 24. 웹 104 보상과 동일 식(safe 0 → 104).
 double pTabBarBottomInset(BuildContext context) =>
-    104 + MediaQuery.of(context).padding.bottom;
+    90 + math.max(14, MediaQuery.of(context).padding.bottom - 6);
 
 class PTabBar extends StatefulWidget {
   const PTabBar({
@@ -160,7 +160,11 @@ class _PTabBarState extends State<PTabBar> {
       margin: EdgeInsets.only(
         left: compact ? 36 : 14,
         right: compact ? 36 : 14,
-        bottom: (compact ? 12 : 14) + mq.padding.bottom,
+        // 안전영역을 통째로 더하지 않고 겹쳐 배치 — 홈 인디케이터만 살짝
+        // 피한다(인스타그램 배치, 사용자 결정). 인디케이터 없는 기기는 14/12.
+        bottom: compact
+            ? math.max(12, mq.padding.bottom - 8)
+            : math.max(14, mq.padding.bottom - 6),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(999),
