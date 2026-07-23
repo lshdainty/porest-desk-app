@@ -5114,6 +5114,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get ttagTitle => 'Todo tags';
+
+  @override
   String get ttagDesc =>
       'Tags you attach to to-dos. Used for list filters and tag breakdowns.';
 

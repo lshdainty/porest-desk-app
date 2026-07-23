@@ -9386,6 +9386,12 @@ abstract class AppLocalizations {
   /// **'수집 {count}회'**
   String fcolOwnBadge(int count);
 
+  /// No description provided for @ttagTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'할일 태그'**
+  String get ttagTitle;
+
   /// No description provided for @ttagDesc.
   ///
   /// In ko, this message translates to:

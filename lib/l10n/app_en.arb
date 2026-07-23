@@ -2853,6 +2853,7 @@
       }
     }
   },
+  "ttagTitle": "Todo tags",
   "ttagDesc": "Tags you attach to to-dos. Used for list filters and tag breakdowns.",
   "ttagAddCta": "Add tag",
   "ttagColorLabel": "Color",
