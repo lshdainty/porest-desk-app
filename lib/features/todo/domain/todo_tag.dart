@@ -7,6 +7,7 @@ class TodoTag {
     this.color,
     this.createAt,
     this.modifyAt,
+    this.usageCount = 0,
   });
 
   final int rowId;
@@ -16,6 +17,9 @@ class TodoTag {
   final String? createAt;
   final String? modifyAt;
 
+  /// 사용 중 할일 수 — 서버 GROUP BY 집계.
+  final int usageCount;
+
   factory TodoTag.fromJson(Map<String, dynamic> json) {
     return TodoTag(
       rowId: (json['rowId'] as num).toInt(),
@@ -24,6 +28,7 @@ class TodoTag {
       color: json['color'] as String?,
       createAt: json['createAt'] as String?,
       modifyAt: json['modifyAt'] as String?,
+      usageCount: (json['usageCount'] as num?)?.toInt() ?? 0,
     );
   }
 }

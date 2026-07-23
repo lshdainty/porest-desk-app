@@ -72,7 +72,6 @@ class _Body extends ConsumerStatefulWidget {
 }
 
 class _BodyState extends ConsumerState<_Body> {
-  static const TodoFilter _allFilter = (status: null, priority: null);
   bool _busy = false;
 
   @override
@@ -148,16 +147,6 @@ class _BodyState extends ConsumerState<_Body> {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
     final tagsAsync = ref.watch(todoTagListProvider);
-    // 사용 건수 — 할일 category(태그명) 클라 집계 (design t.count).
-    final todos = ref.watch(todoListProvider(_allFilter)).value;
-    final usageByName = <String, int>{};
-    if (todos != null) {
-      for (final x in todos) {
-        final v = x.category?.trim();
-        if (v == null || v.isEmpty) continue;
-        usageByName[v] = (usageByName[v] ?? 0) + 1;
-      }
-    }
 
     return ListView(
       controller: widget.scrollController,
@@ -208,12 +197,12 @@ class _BodyState extends ConsumerState<_Body> {
                 for (var i = 0; i < tags.length; i++)
                   _TagRow(
                     tag: tags[i],
-                    usage: usageByName[tags[i].tagName] ?? 0,
+                    // 서버 GROUP BY 집계 — 클라 전체 할일 로드 제거.
+                    usage: tags[i].usageCount,
                     first: i == 0,
                     busy: _busy,
                     onTap: () => _openEdit(tags[i]),
-                    onDelete: () =>
-                        _delete(tags[i], usageByName[tags[i].tagName] ?? 0),
+                    onDelete: () => _delete(tags[i], tags[i].usageCount),
                     t: t,
                   ),
             ],
