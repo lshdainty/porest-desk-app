@@ -374,7 +374,7 @@ class PTabBarFab extends StatelessWidget {
   }
 }
 
-/// money 모드 ← 버튼 — sunken 필.
+/// money 모드 ← 버튼 — 배경 없는 아이콘(웹 시각 정합, 사용자 결정).
 class PTabBarBack extends StatelessWidget {
   const PTabBarBack({super.key, required this.onTap});
   final VoidCallback onTap;
@@ -390,10 +390,6 @@ class PTabBarBack extends StatelessWidget {
         curve: PMotion.standard,
         width: size,
         height: size,
-        decoration: BoxDecoration(
-          color: t.bgSunken,
-          shape: BoxShape.circle,
-        ),
         child: Material(
           color: Colors.transparent,
           shape: const CircleBorder(),
