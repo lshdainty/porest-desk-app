@@ -330,6 +330,8 @@ class _TagRow extends StatelessWidget {
             PButton.icon(
               icon: LucideIcons.trash2,
               size: PButtonSize.sm,
+              // 캘린더 라벨 행 정합 — 삭제는 빨강(fgExpense, 다크 스왑).
+              iconColor: t.fgExpense,
               onPressed: busy ? null : onDelete,
             ),
             Icon(LucideIcons.chevronRight, size: 15, color: t.fgTertiary),
