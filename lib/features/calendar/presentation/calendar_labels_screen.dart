@@ -255,6 +255,8 @@ class _LabelRow extends StatelessWidget {
               tooltip: l.actionDelete,
               onPressed: onDelete,
             ),
+            // 행 탭=편집 진입 표시 — 할일 태그 행 정합.
+            Icon(LucideIcons.chevronRight, size: 15, color: t.fgTertiary),
           ],
         ),
       ),
@@ -305,8 +307,9 @@ void _showLabelEditor(
   showPSheet<void>(
     context,
     title: existing == null ? l.calNewLabel : l.calEditLabel,
-    contentBuilder: (ctx, scrollCtrl) => _LabelEditorBody(
-      scrollController: scrollCtrl,
+    // content 높이에 맞춰 렌더 — 짧은 폼이 85% 고정 높이로 뜨지 않게.
+    shrinkWrap: true,
+    contentBuilder: (ctx, _) => _LabelEditorBody(
       nameController: nameCtrl,
       initialColor: selectedColor,
       controller: controller,
@@ -319,13 +322,11 @@ void _showLabelEditor(
 
 class _LabelEditorBody extends StatefulWidget {
   const _LabelEditorBody({
-    required this.scrollController,
     required this.nameController,
     required this.initialColor,
     required this.controller,
     required this.onColorChanged,
   });
-  final ScrollController scrollController;
   final TextEditingController nameController;
   final String initialColor;
   final PSheetController controller;
@@ -350,11 +351,12 @@ class _LabelEditorBodyState extends State<_LabelEditorBody> {
     final l = AppLocalizations.of(context);
     final swatch = solidSwatchColor(context, _color, fallback: t.fgBrand);
     final preview = widget.nameController.text.trim();
-    return ListView(
-      controller: widget.scrollController,
+    return Padding(
       padding:
           const EdgeInsets.fromLTRB(PSpace.x16, 0, PSpace.x16, PSpace.x16),
-      children: [
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
         // 미리보기
         Container(
           padding: const EdgeInsets.all(PSpace.x16),
@@ -418,7 +420,8 @@ class _LabelEditorBodyState extends State<_LabelEditorBody> {
             widget.onColorChanged(hex);
           },
         ),
-      ],
+        ],
+      ),
     );
   }
 }
