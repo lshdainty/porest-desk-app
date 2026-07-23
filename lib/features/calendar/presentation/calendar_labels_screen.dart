@@ -366,11 +366,14 @@ class _LabelEditorBodyState extends State<_LabelEditorBody> {
           ),
           child: Row(
             children: [
+              // 웹 정합 — 40 radius-md 타일 + tag 아이콘 (원형 아님).
               Container(
-                width: 36,
-                height: 36,
+                width: 40,
+                height: 40,
                 decoration:
-                    BoxDecoration(color: swatch, shape: BoxShape.circle),
+                    BoxDecoration(color: swatch, borderRadius: PRadius.brMd),
+                alignment: Alignment.center,
+                child: Icon(LucideIcons.tag, size: 18, color: t.fgOnBrand),
               ),
               const SizedBox(width: PSpace.x12),
               Expanded(
@@ -378,12 +381,17 @@ class _LabelEditorBodyState extends State<_LabelEditorBody> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(l.calPreview,
-                        style: PTypo.micro.copyWith(color: t.fgTertiary)),
+                        // 웹 badge(11)/600 정합 — 색은 중립(tertiary) 유지.
+                        style: PTypo.micro.copyWith(
+                            color: t.fgTertiary,
+                            fontWeight: PFontWeight.semi,
+                            letterSpacing: 0.22)),
                     const SizedBox(height: 2),
                     Text(preview.isEmpty ? l.calNewLabel : preview,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: PTypo.body.copyWith(
+                        // 웹 body-lg(16)/700 정합 — 색은 중립(primary) 유지.
+                        style: PTypo.bodyLg.copyWith(
                           color: t.fgPrimary,
                           fontWeight: PFontWeight.bold,
                         )),
