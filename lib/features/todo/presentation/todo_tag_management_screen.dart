@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
@@ -345,91 +346,146 @@ class _TagRow extends StatelessWidget {
 /// 편집 시트 결과 — 이름 + hex 색.
 typedef TodoTagDraft = ({String name, String color});
 
-/// 태그 편집 시트 — 이름 + 8 tone 스와치 + 저장/태그 추가 (design TodoTagEditSheet).
+/// 태그 편집 시트 — 캘린더 라벨 편집 시트와 동일 구성(미리보기 카드 +
+/// 이름 + 스와치 + 취소/저장 푸터). 팔레트만 태그 8 tone.
 Future<TodoTagDraft?> showTodoTagEditSheet(
   BuildContext context, {
   TodoTag? tag,
 }) {
   final l = AppLocalizations.of(context);
+  final nameCtrl = TextEditingController(text: tag?.tagName ?? '');
+  final controller = PSheetController();
+  controller.setCanSubmit((tag?.tagName ?? '').trim().isNotEmpty);
+  String selectedColor = () {
+    final c = tag?.color;
+    return (c != null && c.isNotEmpty) ? c : _tagPalette.first;
+  }();
+
+  controller.onSubmit = () async {
+    final name = nameCtrl.text.trim();
+    if (name.isEmpty) return;
+    if (!context.mounted) return;
+    Navigator.of(context).pop((name: name, color: selectedColor));
+  };
+
   return showPSheet<TodoTagDraft>(
     context,
     title: tag == null ? l.todoNewTag : l.ttagEditTitle,
     shrinkWrap: true,
-    contentBuilder: (ctx, _) => _TagEditBody(tag: tag),
+    contentBuilder: (ctx, _) => _TagEditBody(
+      nameController: nameCtrl,
+      initialColor: selectedColor,
+      controller: controller,
+      fallbackName: l.todoNewTag,
+      onColorChanged: (c) => selectedColor = c,
+    ),
+    footerBuilder: (ctx) =>
+        PSheetFooter(controller: controller, submitLabel: l.actionSave),
   );
 }
 
 class _TagEditBody extends StatefulWidget {
-  const _TagEditBody({required this.tag});
-  final TodoTag? tag;
+  const _TagEditBody({
+    required this.nameController,
+    required this.initialColor,
+    required this.controller,
+    required this.fallbackName,
+    required this.onColorChanged,
+  });
+  final TextEditingController nameController;
+  final String initialColor;
+  final PSheetController controller;
+  final String fallbackName;
+  final ValueChanged<String> onColorChanged;
+
   @override
   State<_TagEditBody> createState() => _TagEditBodyState();
 }
 
 class _TagEditBodyState extends State<_TagEditBody> {
-  late final TextEditingController _ctrl =
-      TextEditingController(text: widget.tag?.tagName ?? '');
-  late String _color = () {
-    final c = widget.tag?.color;
-    return (c != null && c.isNotEmpty) ? c : _tagPalette.first;
-  }();
-
-  @override
-  void dispose() {
-    _ctrl.dispose();
-    super.dispose();
-  }
+  late String _color = widget.initialColor;
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
-    final ok = _ctrl.text.trim().isNotEmpty;
+    final swatch = solidSwatchColor(context, _color, fallback: t.fgBrand);
+    final preview = widget.nameController.text.trim();
     return Padding(
-      padding: const EdgeInsets.fromLTRB(PSpace.x20, 0, PSpace.x20, 28),
+      padding:
+          const EdgeInsets.fromLTRB(PSpace.x16, 0, PSpace.x16, PSpace.x16),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            l.ttagNameLabel,
-            style: PTypo.bodySm.copyWith(
-              color: t.fgPrimary,
-              fontWeight: PFontWeight.semi,
+          // 미리보기 — 캘린더 라벨 편집 카드와 동일 구성.
+          Container(
+            padding: const EdgeInsets.all(PSpace.x16),
+            decoration: BoxDecoration(
+              color: softBg(context, swatch),
+              borderRadius: PRadius.brMd,
             ),
-          ),
-          const SizedBox(height: PSpace.x8),
-          PTextInput(
-            controller: _ctrl,
-            autofocus: true,
-            placeholder: l.todoTagNamePlaceholder,
-            onChanged: (_) => setState(() {}),
+            child: Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                      color: swatch, borderRadius: PRadius.brMd),
+                  alignment: Alignment.center,
+                  child: Icon(LucideIcons.tag, size: 18, color: t.fgOnBrand),
+                ),
+                const SizedBox(width: PSpace.x12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(l.calPreview,
+                          style: PTypo.micro.copyWith(
+                              color: t.fgTertiary,
+                              fontWeight: PFontWeight.semi,
+                              letterSpacing: 0.22)),
+                      const SizedBox(height: 2),
+                      Text(preview.isEmpty ? widget.fallbackName : preview,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: PTypo.bodyLg.copyWith(
+                            color: t.fgPrimary,
+                            fontWeight: PFontWeight.bold,
+                          )),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: PSpace.x16),
-          Text(
-            l.ttagColorLabel,
-            style: PTypo.bodySm.copyWith(
-              color: t.fgPrimary,
-              fontWeight: PFontWeight.semi,
-            ),
+
+          // 이름
+          Text(l.ttagNameLabel,
+              style: PTypo.caption.copyWith(color: t.fgSecondary)),
+          const SizedBox(height: PSpace.x4),
+          PTextInput(
+            controller: widget.nameController,
+            placeholder: l.todoTagNamePlaceholder,
+            onChanged: (v) {
+              widget.controller.setCanSubmit(v.trim().isNotEmpty);
+              setState(() {});
+            },
           ),
+          const SizedBox(height: PSpace.x16),
+
+          // 색상
+          Text(l.ttagColorLabel,
+              style: PTypo.caption.copyWith(color: t.fgSecondary)),
           const SizedBox(height: PSpace.x8),
           PColorPicker(
             selected: _color,
             palette: _tagPalette,
             columns: 4,
-            onChanged: (c) => setState(() => _color = c),
-          ),
-          const SizedBox(height: PSpace.x20),
-          SizedBox(
-            width: double.infinity,
-            child: PButton(
-              label: widget.tag == null ? l.ttagAddCta : l.actionSave,
-              onPressed: !ok
-                  ? null
-                  : () => Navigator.of(context)
-                      .pop((name: _ctrl.text.trim(), color: _color)),
-            ),
+            onChanged: (c) {
+              setState(() => _color = c);
+              widget.onColorChanged(c);
+            },
           ),
         ],
       ),
