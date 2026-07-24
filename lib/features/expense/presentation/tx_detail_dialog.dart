@@ -12,7 +12,7 @@ import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
 import 'package:porest_desk_app/core/sync/keep_alive_refresh.dart';
 import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
-import 'package:porest_desk_app/shared/widgets/p_badge.dart';
+import 'package:porest_desk_app/shared/widgets/p_detail.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
 import 'package:porest_desk_app/features/expense_split/application/expense_split_providers.dart';
@@ -199,228 +199,181 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
       controller: widget.scrollController,
       padding: const EdgeInsets.fromLTRB(PSpace.x20, 0, PSpace.x20, PSpace.x16),
       children: [
-        // Hero card
-        Container(
-          padding: const EdgeInsets.all(22),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Color.alphaBlend(fg.withValues(alpha: 0.18), t.bgSurface),
-                t.bgSurface,
-              ],
-              stops: const [0.0, 0.85],
+        // Hero — 플랫 좌측 정렬(design 신판 토스 톤, PDetailHero)
+        PDetailHero(
+          icon: Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: softBg(context, fg),
+              borderRadius: PRadius.tile(32),
             ),
-            border: Border.all(color: fg.withValues(alpha: 0.2)),
-            borderRadius: PRadius.brXl,
+            alignment: Alignment.center,
+            child: Icon(icon, size: 16, color: fg),
           ),
-          child: Column(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: fg.withValues(alpha: 0.18),
-                  borderRadius: PRadius.tile(40),
+          title: displayMerchant,
+          meta: dayStr == null
+              ? null
+              : (timeLabel != null ? '$dayStr · $timeLabel' : dayStr),
+          amount: RichText(
+            text: TextSpan(
+              children: [
+                TextSpan(
+                  text: amountText,
+                  style: TextStyle(
+                    fontFamily: PTypo.sans,
+                    color: amountColor,
+                    fontSize: PFontSize.h1,
+                    fontWeight: PFontWeight.bold,
+                    letterSpacing: -0.9,
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
                 ),
-                alignment: Alignment.center,
-                child: Icon(icon, size: 20, color: fg),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                displayMerchant,
-                style: PTypo.bodySm.copyWith(
-                  color: t.fgSecondary,
-                  fontWeight: PFontWeight.medium,
-                ),
-              ),
-              const SizedBox(height: 4),
-              RichText(
-                text: TextSpan(
-                  children: [
-                    TextSpan(
-                      text: amountText,
-                      style: TextStyle(
-                        color: amountColor,
-                        fontSize: PFontSize.displayMd,
-                        fontWeight: PFontWeight.bold,
-                        letterSpacing: -1.02,
-                      ),
+                if (!masked)
+                  TextSpan(
+                    text: wonUnit(),
+                    style: TextStyle(
+                      fontFamily: PTypo.sans,
+                      color: amountColor,
+                      fontSize: PFontSize.h4,
+                      fontWeight: PFontWeight.bold,
                     ),
-                    if (!masked)
-                      TextSpan(
-                        text: wonUnit(),
-                        style: TextStyle(
-                          color: amountColor,
-                          fontSize: PFontSize.h4,
-                          fontWeight: PFontWeight.bold,
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-              if (dayStr != null) ...[
-                const SizedBox(height: 6),
-                Text(
-                  timeLabel != null ? '$dayStr · $timeLabel' : dayStr,
-                  style: PTypo.caption.copyWith(color: t.fgTertiary),
-                ),
+                  ),
               ],
-            ],
+            ),
           ),
         ),
-        const SizedBox(height: 18),
-        // Field rows
-        Container(
-          decoration: BoxDecoration(
-            color: t.borderSubtle,
-            border: Border.all(color: t.borderSubtle),
-            borderRadius: PRadius.brLg,
-          ),
-          child: Column(
-            children: [
-              _FieldRow(
-                label: l.expCategory,
-                tokens: t,
-                isFirst: true,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 10,
-                      height: 10,
-                      decoration: BoxDecoration(
-                        color: fg,
-                        borderRadius: PRadius.brXs,
-                      ),
+        // Fields — 카드 없는 플랫 행(PDetailField, 웹 body-sm=앱 body 정합)
+        PDetailFieldGroup(
+          children: [
+            PDetailField(
+              label: l.expCategory,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 10,
+                    height: 10,
+                    decoration: BoxDecoration(
+                      color: fg,
+                      borderRadius: PRadius.brXs,
                     ),
-                    const SizedBox(width: 8),
-                    Text(
-                      e.categoryName ?? l.expUncategorized,
-                      style: PTypo.bodySm.copyWith(
-                        color: t.fgPrimary,
-                        fontWeight: PFontWeight.semi,
-                      ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    e.categoryName ?? l.expUncategorized,
+                    style: PTypo.body.copyWith(
+                      color: t.fgPrimary,
+                      fontWeight: PFontWeight.semi,
                     ),
-                  ],
+                  ),
+                ],
+              ),
+            ),
+            PDetailField(
+              label: l.expAmount,
+              child: Text(
+                '$amountText${masked ? '' : wonUnit()}',
+                style: PTypo.body.copyWith(
+                  color: t.fgPrimary,
+                  fontWeight: PFontWeight.bold,
                 ),
               ),
-              _FieldRow(
-                label: l.expAmount,
-                tokens: t,
+            ),
+            if (assetLabel != null)
+              PDetailField(
+                label: l.expAccountCard,
                 child: Text(
-                  '$amountText${masked ? '' : wonUnit()}',
-                  style: PTypo.bodySm.copyWith(
+                  assetLabel,
+                  style: PTypo.body.copyWith(
                     color: t.fgPrimary,
-                    fontWeight: PFontWeight.bold,
-                  ),
-                ),
-              ),
-              if (assetLabel != null)
-                _FieldRow(
-                  label: l.expAccountCard,
-                  tokens: t,
-                  child: Text(
-                    assetLabel,
-                    style: PTypo.bodySm.copyWith(
-                      color: t.fgPrimary,
-                      fontWeight: PFontWeight.medium,
-                    ),
-                  ),
-                ),
-              if (paymentLabel.isNotEmpty)
-                _FieldRow(
-                  label: l.expPaymentMethod,
-                  tokens: t,
-                  child: Text(
-                    paymentLabel,
-                    style: PTypo.bodySm.copyWith(
-                      color: t.fgPrimary,
-                      fontWeight: PFontWeight.medium,
-                    ),
-                  ),
-                ),
-              if (dayStr != null)
-                _FieldRow(
-                  label: l.expDateTime,
-                  tokens: t,
-                  child: Text(
-                    timeLabel != null ? '$dayStr $timeLabel' : dayStr,
-                    style: PTypo.bodySm.copyWith(
-                      color: t.fgPrimary,
-                      fontWeight: PFontWeight.medium,
-                    ),
-                  ),
-                ),
-              _FieldRow(
-                label: l.expDescription,
-                tokens: t,
-                isLast: true,
-                child: Text(
-                  (e.description ?? '').isEmpty ? l.expValueNone : e.description!,
-                  style: PTypo.bodySm.copyWith(
-                    color: (e.description ?? '').isEmpty
-                        ? t.fgTertiary
-                        : t.fgPrimary,
                     fontWeight: PFontWeight.medium,
                   ),
                 ),
               ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
-        // Quick action grid (3-col)
-        Row(
-          children: [
-            Expanded(
-              child: _QuickBtn(
-                icon: LucideIcons.scissors,
-                label: l.expSplit,
-                tokens: t,
-                badge: splitCount > 0 ? l.expItemsCount(splitCount) : null,
-                onTap: _deleting
-                    ? null
-                    : () {
-                        Navigator.of(context).pop();
-                        showSplitTxDialog(context, e);
-                      },
+            if (paymentLabel.isNotEmpty)
+              PDetailField(
+                label: l.expPaymentMethod,
+                child: Text(
+                  paymentLabel,
+                  style: PTypo.body.copyWith(
+                    color: t.fgPrimary,
+                    fontWeight: PFontWeight.medium,
+                  ),
+                ),
               ),
-            ),
-            const SizedBox(width: 6),
-            Expanded(
-              child: _QuickBtn(
-                icon: LucideIcons.repeat,
-                label: l.expConvertRecurring,
-                tokens: t,
-                onTap: _deleting
-                    ? null
-                    : () {
-                        Navigator.of(context).pop();
-                        showRecurringSettingsDialog(context, expense: e);
-                      },
+            if (dayStr != null)
+              PDetailField(
+                label: l.expDateTime,
+                child: Text(
+                  timeLabel != null ? '$dayStr $timeLabel' : dayStr,
+                  style: PTypo.body.copyWith(
+                    color: t.fgPrimary,
+                    fontWeight: PFontWeight.medium,
+                  ),
+                ),
               ),
-            ),
-            const SizedBox(width: 6),
-            Expanded(
-              child: _QuickBtn(
-                icon: LucideIcons.users,
-                label: l.dutchTitle,
-                tokens: t,
-                onTap: _deleting
-                    ? null
-                    : () {
-                        Navigator.of(context).pop();
-                        showDutchPayFromTxDialog(context, e);
-                      },
+            PDetailField(
+              label: l.expDescription,
+              child: Text(
+                (e.description ?? '').isEmpty ? l.expValueNone : e.description!,
+                style: PTypo.body.copyWith(
+                  color: (e.description ?? '').isEmpty
+                      ? t.fgTertiary
+                      : t.fgPrimary,
+                  fontWeight: PFontWeight.medium,
+                ),
               ),
             ),
           ],
         ),
+        // Quick actions — 원형 아이콘 3열(PDetailQuickAction, 연결 시 active)
+        PDetailSection(
+          child: Row(
+            children: [
+              Expanded(
+                child: PDetailQuickAction(
+                  icon: LucideIcons.scissors,
+                  label: l.expSplit,
+                  active: splitCount > 0,
+                  badge: splitCount > 0 ? l.expItemsCount(splitCount) : null,
+                  onTap: _deleting
+                      ? null
+                      : () {
+                          Navigator.of(context).pop();
+                          showSplitTxDialog(context, e);
+                        },
+                ),
+              ),
+              Expanded(
+                child: PDetailQuickAction(
+                  icon: LucideIcons.repeat,
+                  label: l.expConvertRecurring,
+                  onTap: _deleting
+                      ? null
+                      : () {
+                          Navigator.of(context).pop();
+                          showRecurringSettingsDialog(context, expense: e);
+                        },
+                ),
+              ),
+              Expanded(
+                child: PDetailQuickAction(
+                  icon: LucideIcons.users,
+                  label: l.dutchTitle,
+                  onTap: _deleting
+                      ? null
+                      : () {
+                          Navigator.of(context).pop();
+                          showDutchPayFromTxDialog(context, e);
+                        },
+                ),
+              ),
+            ],
+          ),
+        ),
         // 분할 내역 요약 — 분할이 있으면 접을 수 있는 카드로 항목·비율 표시(쉬운 확인)
-        if (splits.isNotEmpty) ...[
-          const SizedBox(height: 12),
+        if (splits.isNotEmpty)
           _SplitSummaryCard(
             splits: splits,
             isIncome: isIncome,
@@ -430,7 +383,6 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
             onToggle: () => setState(() => _splitExpanded = !_splitExpanded),
             tokens: t,
           ),
-        ],
         // Merchant history — 같은 가맹점·같은 달 이전 거래
         if ((e.merchant ?? '').isNotEmpty && dayStr != null)
           _MerchantHistorySection(
@@ -465,7 +417,6 @@ class _MerchantHistorySection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final t = tokens;
     final l = AppLocalizations.of(context);
     final async = ref.watch(
       merchantMonthExpensesProvider((
@@ -482,173 +433,40 @@ class _MerchantHistorySection extends ConsumerWidget {
     final monthTotal = all.fold<int>(0, (s, x) => s + x.amount.abs());
     final categories = ref.watch(categoriesProvider).value ?? const [];
 
-    return Padding(
-      padding: const EdgeInsets.only(top: 22),
+    // 섹션 제목 + 2열 스플릿 통계(이번 달 거래/총 금액) + 플랫 리스트 —
+    // design 신판(카드 제거), 마스킹 시 '원' 미노출(web MaskAmount 컨벤션).
+    return PDetailSection(
+      title: Text(l.expPrevTxAt(merchant)),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.baseline,
-              textBaseline: TextBaseline.alphabetic,
-              children: [
-                Text(
-                  l.expPrevTxAt(merchant),
-                  style: PTypo.bodySm.copyWith(
-                    color: t.fgPrimary,
-                    fontWeight: PFontWeight.bold,
-                  ),
+            padding: const EdgeInsets.only(top: PSpace.x4, bottom: PSpace.x4),
+            child: PDetailStatSplit(
+              items: [
+                PDetailStat(
+                  label: l.expThisMonth,
+                  value: l.expTimesCount(monthCount),
                 ),
-                const Spacer(),
-                RichText(
-                  text: TextSpan(
-                    style: PTypo.caption.copyWith(color: t.fgTertiary),
-                    children: [
-                      TextSpan(text: '${l.expThisMonth} '),
-                      TextSpan(
-                        // 마스킹 시 '원' 미노출 — web MaskAmount+HideUnit 컨벤션
-                        text: masked
-                            ? '${l.expTimesCount(monthCount)} · ••••••'
-                            : '${l.expTimesCount(monthCount)} · ${krwSigned(monthTotal, false, unit: true)}',
-                        style: PTypo.caption.copyWith(
-                          color: t.fgSecondary,
-                          fontWeight: PFontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
+                PDetailStat(
+                  label: l.expTotal,
+                  value: masked
+                      ? '••••••'
+                      : krwSigned(monthTotal, false, unit: true),
+                  // 지출 합계 빨강 — 다크 light variant 스왑(웹 cat-red 정합)
+                  valueColor: chartRedOf(context),
                 ),
               ],
             ),
           ),
-          Container(
-            decoration: BoxDecoration(
-              color: t.bgSurface,
-              border: Border.all(color: t.borderSubtle),
-              borderRadius: PRadius.brLg,
-            ),
-            // 가로 패딩 0 — ExpenseRow 가 자체 가로 16px 인셋을 가지므로(메인 리스트와 동일).
-            // 카드 14 + row 16 이중 패딩으로 아이콘·금액이 과하게 들어가던 문제 수정(웹 정합).
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: Column(
-              children: [
-                for (final h in history)
-                  ExpenseRow(
-                    expense: h,
-                    category: h.categoryRowId == null
-                        ? null
-                        : categories.byRowId(h.categoryRowId!),
-                    masked: masked,
-                    interactive: false,
-                  ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _FieldRow extends StatelessWidget {
-  const _FieldRow({
-    required this.label,
-    required this.child,
-    required this.tokens,
-    this.isFirst = false,
-    this.isLast = false,
-  });
-  final String label;
-  final Widget child;
-  final PorestTokens tokens;
-  final bool isFirst;
-  final bool isLast;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: tokens.bgSurface,
-        borderRadius: BorderRadius.vertical(
-          top: isFirst ? const Radius.circular(PRadius.lg) : Radius.zero,
-          bottom: isLast ? const Radius.circular(PRadius.lg) : Radius.zero,
-        ),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: PSpace.x16, vertical: 14),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 72,
-            child: Text(
-              label,
-              style: PTypo.caption.copyWith(color: tokens.fgTertiary),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Align(alignment: Alignment.centerRight, child: child),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _QuickBtn extends StatelessWidget {
-  const _QuickBtn({
-    required this.icon,
-    required this.label,
-    required this.tokens,
-    required this.onTap,
-    this.badge,
-  });
-  final IconData icon;
-  final String label;
-  final PorestTokens tokens;
-  final VoidCallback? onTap;
-  /// 우상단 배지(예: 분할 개수 'N개'). null 이면 미표시.
-  final String? badge;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: PRadius.brLg,
-      child: Stack(
-        children: [
-          Container(
-            // Stack(loose) 안에서 카드가 내용 폭으로 줄지 않도록 폭을 채운다(Expanded 3등분 유지).
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 16),
-            decoration: BoxDecoration(
-              color: tokens.bgSurface,
-              border: Border.all(color: tokens.borderSubtle),
-              borderRadius: PRadius.brLg,
-            ),
-            child: Column(
-              children: [
-                Icon(
-                  icon,
-                  size: 18,
-                  color: onTap == null ? tokens.fgTertiary : tokens.fgSecondary,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  label,
-                  style: PTypo.caption.copyWith(
-                    color: onTap == null ? tokens.fgTertiary : tokens.fgSecondary,
-                    fontWeight: PFontWeight.semi,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          if (badge != null)
-            Positioned(
-              top: 6,
-              right: 6,
-              child: PBadge(label: badge!, variant: PBadgeVariant.softBrand),
+          for (final h in history)
+            ExpenseRow(
+              expense: h,
+              category: h.categoryRowId == null
+                  ? null
+                  : categories.byRowId(h.categoryRowId!),
+              masked: masked,
+              interactive: false,
             ),
         ],
       ),
@@ -684,66 +502,48 @@ class _SplitSummaryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = tokens;
     final l = AppLocalizations.of(context);
-    return Container(
-      decoration: BoxDecoration(
-        color: t.bgSurface,
-        border: Border.all(color: t.borderSubtle),
-        borderRadius: PRadius.brLg,
+    return PDetailSection(
+      title: InkWell(
+        onTap: onToggle,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('${l.expSplit} ${l.expItemsCount(splits.length)}'),
+            const SizedBox(width: 6),
+            Icon(
+                expanded ? LucideIcons.chevronUp : LucideIcons.chevronDown,
+                size: 16,
+                color: t.fgTertiary),
+          ],
+        ),
       ),
+      trailing: Text('${l.expTotal} ${krwSigned(total, false, unit: true)}',
+          style: PTypo.caption.copyWith(color: t.fgTertiary)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          InkWell(
-            onTap: onToggle,
-            borderRadius: PRadius.brLg,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          ClipRRect(
+            borderRadius: PRadius.brFull,
+            child: SizedBox(
+              height: 8,
               child: Row(
                 children: [
-                  Icon(LucideIcons.split, size: 16, color: t.fgBrand),
-                  const SizedBox(width: 8),
-                  Text('${l.expSplit} ${l.expItemsCount(splits.length)}',
-                      style: PTypo.bodySm.copyWith(
-                          color: t.fgPrimary, fontWeight: PFontWeight.bold)),
-                  const SizedBox(width: 8),
-                  Text('${l.expTotal} ${krwSigned(total, false, unit: true)}',
-                      style: PTypo.caption.copyWith(color: t.fgTertiary)),
-                  const Spacer(),
-                  Icon(
-                      expanded
-                          ? LucideIcons.chevronUp
-                          : LucideIcons.chevronDown,
-                      size: 18,
-                      color: t.fgTertiary),
+                  for (final s in splits)
+                    if (total > 0 && s.amount > 0)
+                      Flexible(
+                        flex: s.amount,
+                        child: Container(
+                            color: _colorFor(context, s.categoryRowId)),
+                      ),
                 ],
               ),
             ),
           ),
-          if (expanded) ...[
-            Padding(
-              padding: const EdgeInsets.fromLTRB(14, 0, 14, 12),
-              child: ClipRRect(
-                borderRadius: PRadius.brFull,
-                child: SizedBox(
-                  height: 8,
-                  child: Row(
-                    children: [
-                      for (final s in splits)
-                        if (total > 0 && s.amount > 0)
-                          Flexible(
-                            flex: s.amount,
-                            child: Container(
-                                color: _colorFor(context, s.categoryRowId)),
-                          ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+          if (expanded)
             for (int i = 0; i < splits.length; i++)
               Padding(
-                padding: EdgeInsets.fromLTRB(
-                    14, 0, 14, i == splits.length - 1 ? 12 : 10),
+                padding: EdgeInsets.only(
+                    top: 10, bottom: i == splits.length - 1 ? 0 : 0),
                 child: Row(
                   children: [
                     Container(
@@ -790,7 +590,6 @@ class _SplitSummaryCard extends StatelessWidget {
                   ],
                 ),
               ),
-          ],
         ],
       ),
     );
