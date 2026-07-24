@@ -1172,6 +1172,8 @@
   "dutchSplitCustomSub": "각자 다르게",
   "dutchIncludeMyself": "나도 포함해서 분배",
   "dutchIncludeMyselfDesc": "내 몫도 계산됩니다",
+  "dutchIncludeMyselfOffDesc": "내가 전액 결제, 다른 사람 몫만 받아요",
+  "dutchSourceSub": "참여자에게 송금 요청",
   "dutchRequestMsgLabel": "요청 메시지 (선택)",
   "dutchRequestMsgPlaceholder": "참여자에게 함께 보낼 한마디를 적어주세요",
   "dutchShortBy": "합계가 총액보다 {amount}원 부족합니다.",
@@ -1788,6 +1790,7 @@
   "recurringNotifyDayBefore": "하루 전 알림",
   "recurringNotifyDesc": "결제·이체 예정일 전날 알림을 보냅니다",
   "recurringNextDates": "다음 예정일",
+  "recurringSourceSub": "구독료·월세 등 정기 거래에 쓰여요",
   "recurringStartFrom": "{date} 시작",
   "@recurringStartFrom": {
     "placeholders": {

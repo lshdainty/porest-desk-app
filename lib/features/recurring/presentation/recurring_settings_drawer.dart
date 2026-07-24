@@ -16,6 +16,7 @@ import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
 import 'package:porest_desk_app/shared/widgets/p_category_tile.dart';
 import 'package:porest_desk_app/shared/widgets/p_date_input.dart';
+import 'package:porest_desk_app/shared/widgets/p_detail.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_progress.dart';
 import 'package:porest_desk_app/shared/widgets/p_section_label.dart';
@@ -335,14 +336,40 @@ class _RecurringSettingsBodyState
         summaryAmount = e.amount;
         summaryType = e.expenseType;
       }
-      topWidget = _SourceCard(
+      final isIncome = summaryType == 'INCOME';
+      topWidget = PDetailSourceTx(
+        icon: Container(
+          width: 32,
+          height: 32,
+          decoration: BoxDecoration(
+            color: softBg(context, fg),
+            borderRadius: PRadius.tile(32),
+          ),
+          alignment: Alignment.center,
+          child: Icon(iconData, size: 16, color: fg),
+        ),
         title: summaryTitle,
-        amount: summaryAmount,
-        expenseType: summaryType,
-        startDate: _startDay,
-        iconData: iconData,
-        fg: fg,
-        tokens: t,
+        sub: '${l.recurringStartFrom(_startDay)} · ${l.recurringSourceSub}',
+        amount: RichText(
+          text: TextSpan(
+            children: [
+              TextSpan(
+                text: '${isIncome ? '+' : '−'}${krw(summaryAmount.abs())}',
+                style: PTypo.bodyLg.copyWith(
+                  color: t.fgPrimary,
+                  fontWeight: PFontWeight.bold,
+                ),
+              ),
+              TextSpan(
+                text: wonUnit(),
+                style: PTypo.body.copyWith(
+                  color: t.fgPrimary,
+                  fontWeight: PFontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ),
       );
     }
 
@@ -362,16 +389,20 @@ class _RecurringSettingsBodyState
       controller: widget.scrollController,
       padding: const EdgeInsets.fromLTRB(PSpace.x16, 0, PSpace.x16, PSpace.x16),
       children: [
-        Text(
-          l.recurringIntro,
-          style: PTypo.bodySm.copyWith(
-            color: t.fgSecondary,
-            height: PLineHeight.normal,
+        // add: intro ¶ + 입력 필드 / from-tx·edit: 기준 거래 플랫 행(설명은 sub 통합)
+        if (_isAdd) ...[
+          Text(
+            l.recurringIntro,
+            style: PTypo.bodySm.copyWith(
+              color: t.fgSecondary,
+              height: PLineHeight.normal,
+            ),
           ),
-        ),
-        const SizedBox(height: 14),
-        topWidget,
-        const SizedBox(height: 18),
+          const SizedBox(height: 14),
+          topWidget,
+          const SizedBox(height: 18),
+        ] else
+          topWidget,
 
         _Section(
           title: l.recurringFrequencyLabel,
@@ -540,161 +571,50 @@ class _RecurringSettingsBodyState
           ),
         ),
 
-        if (nextDates.isNotEmpty) ...[
-          const SizedBox(height: 6),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: t.bgSurface,
-              border: Border.all(color: t.borderSubtle),
-              borderRadius: PRadius.brLg,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+        // 다음 예정일 — 플랫 섹션 (border-top + 필 칩)
+        if (nextDates.isNotEmpty)
+          PDetailSection(
+            title: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Row(
-                  children: [
-                    Icon(LucideIcons.calendar, size: 13, color: t.fgSecondary),
-                    const SizedBox(width: 6),
-                    Text(
-                      l.recurringNextDates,
+                Icon(LucideIcons.calendar, size: 13, color: t.fgPrimary),
+                const SizedBox(width: 5),
+                Text(l.recurringNextDates),
+              ],
+            ),
+            child: Wrap(
+              spacing: PSpace.x8,
+              runSpacing: PSpace.x8,
+              children: [
+                for (final d in nextDates)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: t.bgSunken,
+                      borderRadius: PRadius.brFull,
+                    ),
+                    child: Text(
+                      localeIsEn()
+                          ? formatDay(d).md
+                          : '${d.month.toString().padLeft(2, '0')}월 ${d.day.toString().padLeft(2, '0')}일',
                       style: PTypo.caption.copyWith(
                         color: t.fgPrimary,
-                        fontWeight: PFontWeight.bold,
+                        fontWeight: PFontWeight.semi,
                       ),
                     ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 6,
-                  runSpacing: 6,
-                  children: [
-                    for (final d in nextDates)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: t.bgMuted,
-                          borderRadius: PRadius.brFull,
-                          border: Border.all(color: t.borderSubtle),
-                        ),
-                        child: Text(
-                          localeIsEn()
-                              ? formatDay(d).md
-                              : '${d.month.toString().padLeft(2, '0')}월 ${d.day.toString().padLeft(2, '0')}일',
-                          style: PTypo.caption.copyWith(
-                            color: t.fgPrimary,
-                            fontWeight: PFontWeight.semi,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
+                  ),
               ],
             ),
           ),
-        ],
       ],
     );
   }
 }
 
 // ─── widgets ────────────────────────────────────────────────────────────────
-
-/// 읽기 전용 거래/반복 요약 카드 (생성·수정 공용).
-class _SourceCard extends StatelessWidget {
-  const _SourceCard({
-    required this.title,
-    required this.amount,
-    required this.expenseType,
-    required this.startDate,
-    required this.iconData,
-    required this.fg,
-    required this.tokens,
-  });
-  final String title;
-  final int amount;
-  final String expenseType;
-  final String startDate;
-  final IconData iconData;
-  final Color fg;
-  final PorestTokens tokens;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    final isIncome = expenseType == 'INCOME';
-    final amountText = '${isIncome ? '+' : '−'}${krw(amount.abs())}';
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: tokens.bgSurface,
-        border: Border.all(color: tokens.borderSubtle),
-        borderRadius: PRadius.brLg,
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 38,
-            height: 38,
-            decoration: BoxDecoration(
-              color: fg.withValues(alpha: 0.14),
-              borderRadius: PRadius.brLg,
-            ),
-            alignment: Alignment.center,
-            child: Icon(iconData, size: 18, color: fg),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: PTypo.bodySm.copyWith(
-                    color: tokens.fgPrimary,
-                    fontWeight: PFontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  l.recurringStartFrom(startDate),
-                  style: PTypo.caption.copyWith(color: tokens.fgTertiary),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
-          RichText(
-            text: TextSpan(
-              children: [
-                TextSpan(
-                  text: amountText,
-                  style: PTypo.body.copyWith(
-                    color: tokens.fgPrimary,
-                    fontWeight: PFontWeight.bold,
-                  ),
-                ),
-                TextSpan(
-                  text: wonUnit(),
-                  style: PTypo.bodySm.copyWith(
-                    color: tokens.fgPrimary,
-                    fontWeight: PFontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 class _Section extends StatelessWidget {
   const _Section({required this.title, required this.child});
@@ -744,24 +664,21 @@ class _DowGrid extends StatelessWidget {
             child: GestureDetector(
               onTap: () => onChanged(i),
               child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 10),
+                padding: const EdgeInsets.symmetric(vertical: 11),
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: i == value ? tokens.bgBrandSubtle : tokens.bgSurface,
-                  border: Border.all(
-                    color: i == value
-                        ? tokens.borderBrand
-                        : tokens.borderSubtle,
-                  ),
+                  color: i == value ? tokens.bgBrandSubtle : tokens.bgSunken,
                   borderRadius: PRadius.brFull,
                 ),
                 child: Text(
                   labels[i],
                   style: PTypo.bodySm.copyWith(
-                    color: i == value ? tokens.fgBrandStrong : tokens.fgPrimary,
+                    color: i == value
+                        ? tokens.fgBrandStrong
+                        : tokens.fgSecondary,
                     fontWeight: i == value
                         ? PFontWeight.bold
-                        : PFontWeight.medium,
+                        : PFontWeight.semi,
                   ),
                 ),
               ),
@@ -791,25 +708,19 @@ class _RadioCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // design RadioRow — 플랫(카드 박스 없음), 선택 시 제목만 강조.
     return InkWell(
       onTap: onSelect,
-      borderRadius: PRadius.brLg,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        decoration: BoxDecoration(
-          color: selected ? tokens.bgBrandSubtle : tokens.bgSurface,
-          border: Border.all(
-            color: selected ? tokens.borderBrand : tokens.borderSubtle,
-          ),
-          borderRadius: PRadius.brLg,
-        ),
+      borderRadius: PRadius.brMd,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 11),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
               margin: const EdgeInsets.only(top: 2),
-              width: 16,
-              height: 16,
+              width: 17,
+              height: 17,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: selected ? tokens.borderBrand : Colors.transparent,
@@ -831,27 +742,27 @@ class _RadioCard extends StatelessWidget {
                     )
                   : null,
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: 11),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
-                    style: PTypo.bodySm.copyWith(
-                      color: tokens.fgPrimary,
-                      fontWeight: PFontWeight.bold,
+                    style: PTypo.body.copyWith(
+                      color: selected ? tokens.fgPrimary : tokens.fgSecondary,
+                      fontWeight: PFontWeight.semi,
                     ),
                   ),
                   if (subtitle != null) ...[
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 2),
                     Text(
                       subtitle!,
-                      style: PTypo.caption.copyWith(color: tokens.fgSecondary),
+                      style: PTypo.caption.copyWith(color: tokens.fgTertiary),
                     ),
                   ],
                   if (subtitleChild != null) ...[
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 2),
                     subtitleChild!,
                   ],
                 ],
@@ -882,47 +793,47 @@ class _ToggleRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: tokens.bgSurface,
-        border: Border.all(color: tokens.borderSubtle),
-        borderRadius: PRadius.brLg,
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: tokens.bgMuted,
-              borderRadius: PRadius.brMd,
+    // design ToggleRow — 플랫(카드 박스 없음), 아이콘 36 원형 sunken, 행 탭 토글.
+    return InkWell(
+      onTap: () => onChanged(!value),
+      borderRadius: PRadius.brMd,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 11),
+        child: Row(
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: tokens.bgSunken,
+                shape: BoxShape.circle,
+              ),
+              alignment: Alignment.center,
+              child: Icon(icon, size: 15, color: tokens.fgSecondary),
             ),
-            alignment: Alignment.center,
-            child: Icon(icon, size: 16, color: tokens.fgSecondary),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: PTypo.bodySm.copyWith(
-                    color: tokens.fgPrimary,
-                    fontWeight: PFontWeight.bold,
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: PTypo.body.copyWith(
+                      color: tokens.fgPrimary,
+                      fontWeight: PFontWeight.semi,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  subtitle,
-                  style: PTypo.caption.copyWith(color: tokens.fgTertiary),
-                ),
-              ],
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: PTypo.caption.copyWith(color: tokens.fgTertiary),
+                  ),
+                ],
+              ),
             ),
-          ),
-          PSwitch(value: value, onChanged: onChanged),
-        ],
+            PSwitch(value: value, onChanged: onChanged),
+          ],
+        ),
       ),
     );
   }

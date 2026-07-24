@@ -2155,6 +2155,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dutchIncludeMyselfDesc => 'Your share is calculated too';
 
   @override
+  String get dutchIncludeMyselfOffDesc =>
+      'You paid in full, collect only others\' shares';
+
+  @override
+  String get dutchSourceSub => 'Request payments from participants';
+
+  @override
   String get dutchRequestMsgLabel => 'Request message (optional)';
 
   @override
@@ -3397,6 +3404,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get recurringNextDates => 'Next dates';
+
+  @override
+  String get recurringSourceSub =>
+      'For subscriptions·rent and other regular payments';
 
   @override
   String recurringStartFrom(String date) {

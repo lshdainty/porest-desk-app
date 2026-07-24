@@ -16,6 +16,7 @@ import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
 import 'package:porest_desk_app/shared/widgets/p_badge.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
+import 'package:porest_desk_app/shared/widgets/p_detail.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
@@ -320,73 +321,37 @@ class _BodyState extends ConsumerState<_Body> {
       padding: const EdgeInsets.fromLTRB(
           PSpace.x16, 0, PSpace.x16, PSpace.x16),
       children: [
-                Text(
-                  l.dutchFromTxDesc,
-                  style: PTypo.bodySm.copyWith(
-                      color: t.fgSecondary, height: PLineHeight.normal),
-                ),
-                const SizedBox(height: 14),
-
-                // Source card
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 14, vertical: 12),
-                  decoration: BoxDecoration(
-                    color: t.bgSurface,
-                    border: Border.all(color: t.borderSubtle),
-                    borderRadius: PRadius.brLg,
+                // 기준 거래 — 플랫 행 (설명은 sub 통합)
+                PDetailSourceTx(
+                  icon: Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: softBg(context, fg),
+                      borderRadius: PRadius.tile(32),
+                    ),
+                    alignment: Alignment.center,
+                    child: Icon(iconData, size: 16, color: fg),
                   ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 38,
-                        height: 38,
-                        decoration: BoxDecoration(
-                          color: fg.withValues(alpha: 0.14),
-                          borderRadius: PRadius.brLg,
-                        ),
-                        alignment: Alignment.center,
-                        child: Icon(iconData, size: 18, color: fg),
+                  title: _defaultTitle,
+                  sub: '$_expenseDateTime · ${l.dutchSourceSub}',
+                  amount: RichText(
+                    text: TextSpan(children: [
+                      TextSpan(
+                        text: krw(_totalAbs),
+                        style: PTypo.bodyLg.copyWith(
+                            color: t.fgPrimary,
+                            fontWeight: PFontWeight.bold),
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(_defaultTitle,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: PTypo.bodySm.copyWith(
-                                    color: t.fgPrimary,
-                                    fontWeight: PFontWeight.bold)),
-                            const SizedBox(height: 2),
-                            Text(_expenseDateTime,
-                                style: PTypo.caption
-                                    .copyWith(color: t.fgTertiary)),
-                          ],
-                        ),
+                      TextSpan(
+                        text: wonUnit(),
+                        style: PTypo.body.copyWith(
+                            color: t.fgPrimary,
+                            fontWeight: PFontWeight.bold),
                       ),
-                      const SizedBox(width: 8),
-                      RichText(
-                        text: TextSpan(children: [
-                          TextSpan(
-                            text: krw(_totalAbs),
-                            style: PTypo.body.copyWith(
-                                color: t.fgPrimary,
-                                fontWeight: PFontWeight.bold),
-                          ),
-                          TextSpan(
-                            text: wonUnit(),
-                            style: PTypo.bodySm.copyWith(
-                                color: t.fgPrimary,
-                                fontWeight: PFontWeight.bold),
-                          ),
-                        ]),
-                      ),
-                    ],
+                    ]),
                   ),
                 ),
-                const SizedBox(height: 18),
 
                 // 분배 방식
                 _Section(
@@ -430,30 +395,25 @@ class _BodyState extends ConsumerState<_Body> {
                   ),
                 ),
 
-                // 나도 포함
+                // 나도 포함 — 플랫 행
                 InkWell(
-                  borderRadius: PRadius.brLg,
+                  borderRadius: PRadius.brMd,
                   onTap: () => setState(() => _includeMyself = !_includeMyself),
-                  child: Container(
+                  child: Padding(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 14, vertical: 12),
-                    decoration: BoxDecoration(
-                      color: t.bgSurface,
-                      border: Border.all(color: t.borderSubtle),
-                      borderRadius: PRadius.brLg,
-                    ),
+                        horizontal: 2, vertical: 11),
                     child: Row(
                       children: [
                         Container(
-                          width: 18,
-                          height: 18,
+                          width: 17,
+                          height: 17,
                           decoration: BoxDecoration(
                             color: _includeMyself
-                                ? t.borderBrand
+                                ? t.bgBrandSolid
                                 : Colors.transparent,
                             border: Border.all(
                               color: _includeMyself
-                                  ? t.borderBrand
+                                  ? t.bgBrandSolid
                                   : t.borderDefault,
                               width: 2,
                             ),
@@ -468,18 +428,21 @@ class _BodyState extends ConsumerState<_Body> {
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(l.dutchIncludeMyself,
-                              style: PTypo.bodySm.copyWith(
+                              style: PTypo.body.copyWith(
                                   color: t.fgPrimary,
-                                  fontWeight: PFontWeight.bold)),
+                                  fontWeight: PFontWeight.semi)),
                         ),
-                        Text(l.dutchIncludeMyselfDesc,
+                        Text(
+                            _includeMyself
+                                ? l.dutchIncludeMyselfDesc
+                                : l.dutchIncludeMyselfOffDesc,
                             style: PTypo.caption
                                 .copyWith(color: t.fgTertiary)),
                       ],
                     ),
                   ),
                 ),
-                const SizedBox(height: 18),
+                const SizedBox(height: 10),
 
                 // 참여자 헤더
                 Padding(
@@ -542,8 +505,6 @@ class _BodyState extends ConsumerState<_Body> {
                     },
                     tokens: t,
                   ),
-                  if (i < participants.length - 1)
-                    const SizedBox(height: 8),
                 ],
 
                 const SizedBox(height: 12),
@@ -697,17 +658,14 @@ class _SplitCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // design 3-card selector — sunken/brand-subtle 무보더 플랫 카드.
     return InkWell(
       onTap: onTap,
       borderRadius: PRadius.brLg,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 11),
         decoration: BoxDecoration(
-          color: selected ? tokens.bgBrandSubtle : tokens.bgSurface,
-          border: Border.all(
-            color:
-                selected ? tokens.borderBrand : tokens.borderSubtle,
-          ),
+          color: selected ? tokens.bgBrandSubtle : tokens.bgSunken,
           borderRadius: PRadius.brLg,
         ),
         child: Column(
@@ -782,18 +740,14 @@ class _ParticipantRow extends StatelessWidget {
             fallback: tokens.fgBrand);
     final firstChar =
         participant.name.isEmpty ? '?' : participant.name.characters.first;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      decoration: BoxDecoration(
-        color: tokens.bgSurface,
-        border: Border.all(color: tokens.borderSubtle),
-        borderRadius: PRadius.brLg,
-      ),
+    // design participant row — 플랫(카드 박스 없음), 아바타 36.
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
       child: Row(
         children: [
           Container(
-            width: 32,
-            height: 32,
+            width: 36,
+            height: 36,
             decoration: BoxDecoration(
               color: palette.withValues(alpha: 0.18),
               shape: BoxShape.circle,
@@ -803,7 +757,7 @@ class _ParticipantRow extends StatelessWidget {
                 style: PTypo.bodySm.copyWith(
                     color: palette, fontWeight: PFontWeight.bold)),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 11),
           Expanded(
             child: Row(
               children: [
@@ -811,7 +765,7 @@ class _ParticipantRow extends StatelessWidget {
                   child: Text(participant.name,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: PTypo.bodySm.copyWith(
+                      style: PTypo.body.copyWith(
                           color: tokens.fgPrimary,
                           fontWeight: PFontWeight.semi)),
                 ),

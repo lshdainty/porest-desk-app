@@ -1169,6 +1169,8 @@
   "dutchSplitCustomSub": "Each differently",
   "dutchIncludeMyself": "Include myself in the split",
   "dutchIncludeMyselfDesc": "Your share is calculated too",
+  "dutchIncludeMyselfOffDesc": "You paid in full, collect only others' shares",
+  "dutchSourceSub": "Request payments from participants",
   "dutchRequestMsgLabel": "Request message (optional)",
   "dutchRequestMsgPlaceholder": "Add a note to send to participants",
   "dutchShortBy": "The total is {amount}원 short.",
@@ -1785,6 +1787,7 @@
   "recurringNotifyDayBefore": "Day-before alert",
   "recurringNotifyDesc": "Send an alert the day before the payment/transfer",
   "recurringNextDates": "Next dates",
+  "recurringSourceSub": "For subscriptions·rent and other regular payments",
   "recurringStartFrom": "Starts {date}",
   "@recurringStartFrom": {
     "placeholders": {

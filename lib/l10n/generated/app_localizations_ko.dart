@@ -2136,6 +2136,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get dutchIncludeMyselfDesc => '내 몫도 계산됩니다';
 
   @override
+  String get dutchIncludeMyselfOffDesc => '내가 전액 결제, 다른 사람 몫만 받아요';
+
+  @override
+  String get dutchSourceSub => '참여자에게 송금 요청';
+
+  @override
   String get dutchRequestMsgLabel => '요청 메시지 (선택)';
 
   @override
@@ -3362,6 +3368,9 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get recurringNextDates => '다음 예정일';
+
+  @override
+  String get recurringSourceSub => '구독료·월세 등 정기 거래에 쓰여요';
 
   @override
   String recurringStartFrom(String date) {
