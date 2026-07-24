@@ -7,6 +7,7 @@ import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart';
+import 'package:porest_desk_app/core/format/date.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
@@ -433,6 +434,14 @@ class _MerchantHistorySection extends ConsumerWidget {
     final monthTotal = all.fold<int>(0, (s, x) => s + x.amount.abs());
     final categories = ref.watch(categoriesProvider).value ?? const [];
 
+    // 가계부 메인 리스트 미러 — 날짜별 그룹(provider 최신순 유지).
+    // 일 합계는 상단 스탯이 대신하므로 헤더는 날짜(요일)만.
+    final dayGroups = <String, List<Expense>>{};
+    for (final h in history) {
+      final k = h.expenseDateOnly ?? '';
+      dayGroups.putIfAbsent(k, () => <Expense>[]).add(h);
+    }
+
     // 섹션 제목 + 2열 스플릿 통계(이번 달 거래/총 금액) + 플랫 리스트 —
     // design 신판(카드 제거), 마스킹 시 '원' 미노출(web MaskAmount 컨벤션).
     return PDetailSection(
@@ -459,15 +468,35 @@ class _MerchantHistorySection extends ConsumerWidget {
               ],
             ),
           ),
-          for (final h in history)
-            ExpenseRow(
-              expense: h,
-              category: h.categoryRowId == null
-                  ? null
-                  : categories.byRowId(h.categoryRowId!),
-              masked: masked,
-              interactive: false,
+          for (final entry in dayGroups.entries) ...[
+            // txm dayhead 미러 — "yy. m. d(요일)" (expense_screen _DayGroup 정합)
+            Padding(
+              padding: const EdgeInsets.only(top: PSpace.x12, bottom: 6),
+              child: Builder(builder: (context) {
+                final d = DateTime.tryParse(entry.key);
+                final label = d == null
+                    ? entry.key
+                    : '${d.year % 100}. ${d.month}. ${d.day}(${formatDay(d).dow})';
+                return Text(
+                  label,
+                  style: PTypo.bodySm.copyWith(
+                    color: tokens.fgSecondary,
+                    fontWeight: PFontWeight.semi,
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
+                );
+              }),
             ),
+            for (final h in entry.value)
+              ExpenseRow(
+                expense: h,
+                category: h.categoryRowId == null
+                    ? null
+                    : categories.byRowId(h.categoryRowId!),
+                masked: masked,
+                interactive: false,
+              ),
+          ],
         ],
       ),
     );
