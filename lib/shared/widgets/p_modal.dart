@@ -201,6 +201,10 @@ Future<T?> showPSheet<T>(
 }) {
   return showModalBottomSheet<T>(
     context: context,
+    // 셸 branch Navigator 가 아닌 root 에 띄운다 — 플로팅 탭바
+    // (셸 bottomNavigationBar) 가 시트 위에 그려져 하단 액션을 가리는
+    // 문제 방지(웹은 시트 z-index 가 탭바 위, 동일 정합).
+    useRootNavigator: true,
     isScrollControlled: true,
     backgroundColor: context.tokens.bgSurface,
     shape: const RoundedRectangleBorder(
