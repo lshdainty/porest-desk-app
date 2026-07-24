@@ -1040,7 +1040,11 @@ class _TxmCalendar extends StatelessWidget {
             ],
           ),
           for (final w in expanded ? weeks : [weeks[selWeek]])
-            Row(children: [for (var i = 0; i < 7; i++) cell(w[i], i)]),
+            Row(
+                // 금액 줄 수가 달라도 날짜 숫자 y 고정 — Row 기본 center 가
+                // 낮은 셀을 세로 중앙으로 밀던 문제(토스 정렬 정합).
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [for (var i = 0; i < 7; i++) cell(w[i], i)]),
           InkWell(
             onTap: onToggleExpand,
             child: Padding(
