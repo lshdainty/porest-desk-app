@@ -4058,6 +4058,18 @@ abstract class AppLocalizations {
   /// **'내 몫도 계산됩니다'**
   String get dutchIncludeMyselfDesc;
 
+  /// No description provided for @dutchIncludeMyselfOffDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'내가 전액 결제, 다른 사람 몫만 받아요'**
+  String get dutchIncludeMyselfOffDesc;
+
+  /// No description provided for @dutchSourceSub.
+  ///
+  /// In ko, this message translates to:
+  /// **'참여자에게 송금 요청'**
+  String get dutchSourceSub;
+
   /// No description provided for @dutchRequestMsgLabel.
   ///
   /// In ko, this message translates to:
@@ -6379,6 +6391,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'다음 예정일'**
   String get recurringNextDates;
+
+  /// No description provided for @recurringSourceSub.
+  ///
+  /// In ko, this message translates to:
+  /// **'구독료·월세 등 정기 거래에 쓰여요'**
+  String get recurringSourceSub;
 
   /// No description provided for @recurringStartFrom.
   ///

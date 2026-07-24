@@ -77,6 +77,71 @@ class PDetailHero extends StatelessWidget {
   }
 }
 
+/// 기준 거래 플랫 행 — 서브 다이얼로그(분할·더치·반복) 상단 공통. 하단 구분선 포함.
+class PDetailSourceTx extends StatelessWidget {
+  const PDetailSourceTx({
+    super.key,
+    this.icon,
+    required this.title,
+    this.sub,
+    required this.amount,
+  });
+
+  /// 좌측 카테고리 아이콘 노드 (32 softBg 타일 등).
+  final Widget? icon;
+  final String title;
+
+  /// 하단 보조 줄 (날짜 · 용도 설명 등).
+  final String? sub;
+
+  /// 우측 금액 슬롯 — 색·부호는 사용처가 지정(bodyLg/bold 권장).
+  final Widget amount;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return Container(
+      margin: const EdgeInsets.only(bottom: PSpace.x16),
+      padding: const EdgeInsets.fromLTRB(2, 2, 2, PSpace.x16),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: t.borderSubtle)),
+      ),
+      child: Row(
+        children: [
+          if (icon != null) ...[icon!, const SizedBox(width: PSpace.x12)],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: PTypo.body.copyWith(
+                    color: t.fgPrimary,
+                    fontWeight: PFontWeight.semi,
+                  ),
+                ),
+                if (sub != null) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    sub!,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: PTypo.caption.copyWith(color: t.fgTertiary),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(width: PSpace.x12),
+          amount,
+        ],
+      ),
+    );
+  }
+}
+
 /// 필드 묶음 — 히어로와 border-top 으로 구분되는 플랫 영역.
 class PDetailFieldGroup extends StatelessWidget {
   const PDetailFieldGroup({super.key, required this.children});
