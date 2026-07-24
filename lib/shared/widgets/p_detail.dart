@@ -8,7 +8,7 @@ import 'package:porest_desk_app/shared/widgets/p_badge.dart';
 
 /// Porest Detail — 상세 다이얼로그/드로어 공통 레이아웃.
 /// 웹 shared/ui/porest/detail.tsx 미러 — design dialogs.jsx TxDetailDialog
-/// 신판(토스 톤 플랫). 값은 porest 토큰 스냅(31/29→h1, 14.5→body, 15→14,
+/// 신판(토스 톤 플랫). 값은 porest 토큰 스냅(31/29→displayMd, 14.5→body, 15→14,
 /// 12.5→caption, 46→44). 카드 박스 없는 플랫 구성 — 구획은 border-top 만.
 ///
 ///   PDetailHero(icon: …, title: '가맹점', meta: '2026-07-18 · 12:30',
@@ -32,7 +32,7 @@ class PDetailHero extends StatelessWidget {
   final Widget? icon;
   final String title;
 
-  /// 큰 금액 슬롯 — 색·마스킹은 사용처가 지정(h1/800 권장).
+  /// 큰 금액 슬롯 — 색·마스킹은 사용처가 지정(displayMd/800 권장).
   final Widget amount;
 
   /// 하단 보조 줄 (날짜·시간 등).
