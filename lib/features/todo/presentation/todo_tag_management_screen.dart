@@ -374,7 +374,10 @@ Future<TodoTagDraft?> showTodoTagEditSheet(
     final name = nameCtrl.text.trim();
     if (name.isEmpty) return;
     if (!context.mounted) return;
-    Navigator.of(context).pop((name: name, color: selectedColor));
+    // 시트는 root navigator 에 떠 있음(p_modal useRootNavigator) — 외부
+    // context 로 branch nav 를 pop 하면 화면이 닫히므로 root 명시.
+    Navigator.of(context, rootNavigator: true)
+        .pop((name: name, color: selectedColor));
   };
 
   return showPSheet<TodoTagDraft>(

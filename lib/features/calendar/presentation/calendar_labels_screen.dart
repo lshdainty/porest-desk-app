@@ -302,7 +302,8 @@ void _showLabelEditor(
       }
       ref.invalidate(eventLabelsProvider);
       if (!context.mounted) return;
-      Navigator.of(context).pop();
+      // 시트는 root navigator 소속(p_modal useRootNavigator) — root 명시.
+      Navigator.of(context, rootNavigator: true).pop();
     } on ApiException catch (e) {
       if (!context.mounted) return;
       showPSnackBar(context, '${l.calSaveFailed}: ${e.message}',

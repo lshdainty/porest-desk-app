@@ -345,7 +345,8 @@ void _showCreateDialog(BuildContext context, WidgetRef ref) {
       await repo.create(calendarName: nameCtrl.text.trim(), color: selectedColor);
       ref.invalidate(userCalendarListProvider);
       if (!context.mounted) return;
-      Navigator.of(context).pop();
+      // 시트는 root navigator 소속(p_modal useRootNavigator) — root 명시.
+      Navigator.of(context, rootNavigator: true).pop();
     } on ApiException catch (e) {
       if (!context.mounted) return;
       showPSnackBar(context, '${l.calActionFailed}: ${e.message}', severity: PSnackSeverity.error);
@@ -400,7 +401,8 @@ void _showJoinDialog(BuildContext context, WidgetRef ref) {
       final joined = await repo.joinByCode(codeCtrl.text.trim().toUpperCase());
       ref.invalidate(userCalendarListProvider);
       if (!context.mounted) return;
-      Navigator.of(context).pop();
+      // 시트는 root navigator 소속(p_modal useRootNavigator) — root 명시.
+      Navigator.of(context, rootNavigator: true).pop();
       showPSnackBar(context, l.calJoinedCalendar(joined.calendarName), severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!context.mounted) return;
