@@ -223,9 +223,9 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                   style: TextStyle(
                     fontFamily: PTypo.sans,
                     color: amountColor,
-                    fontSize: PFontSize.h1,
+                    fontSize: PFontSize.displayMd,
                     fontWeight: PFontWeight.bold,
-                    letterSpacing: -0.9,
+                    letterSpacing: -0.96,
                     fontFeatures: const [FontFeature.tabularFigures()],
                   ),
                 ),
