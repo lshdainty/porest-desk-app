@@ -391,7 +391,8 @@ class PTabBarBack extends StatelessWidget {
         width: size,
         height: size,
         child: Material(
-          color: Colors.transparent,
+          // 웹 TabBarBack 정합 — bg-sunken 원형 배경 + fg-secondary 아이콘.
+          color: t.bgSunken,
           shape: const CircleBorder(),
           child: InkWell(
             onTap: onTap,
