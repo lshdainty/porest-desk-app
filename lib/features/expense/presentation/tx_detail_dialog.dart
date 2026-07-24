@@ -469,21 +469,36 @@ class _MerchantHistorySection extends ConsumerWidget {
             ),
           ),
           for (final entry in dayGroups.entries) ...[
-            // txm dayhead 미러 — "yy. m. d(요일)" (expense_screen _DayGroup 정합)
+            // 웹 DateGroupHeader 미러 — "7월 8일"(primary/bold) + "수"(tertiary).
+            // 이번 달 내역이므로 연도 없이 날짜만(사용자 결정).
             Padding(
               padding: const EdgeInsets.only(top: PSpace.x12, bottom: 6),
               child: Builder(builder: (context) {
                 final d = DateTime.tryParse(entry.key);
-                final label = d == null
-                    ? entry.key
-                    : '${d.year % 100}. ${d.month}. ${d.day}(${formatDay(d).dow})';
-                return Text(
-                  label,
-                  style: PTypo.bodySm.copyWith(
-                    color: tokens.fgSecondary,
-                    fontWeight: PFontWeight.semi,
-                    fontFeatures: const [FontFeature.tabularFigures()],
-                  ),
+                if (d == null) {
+                  return Text(
+                    entry.key,
+                    style:
+                        PTypo.bodySm.copyWith(color: tokens.fgSecondary),
+                  );
+                }
+                final label = formatDay(d);
+                return Row(
+                  children: [
+                    Text(
+                      label.md,
+                      style: PTypo.bodySm.copyWith(
+                        color: tokens.fgPrimary,
+                        fontWeight: PFontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(width: PSpace.x8),
+                    Text(
+                      label.dow,
+                      style:
+                          PTypo.bodySm.copyWith(color: tokens.fgTertiary),
+                    ),
+                  ],
                 );
               }),
             ),
