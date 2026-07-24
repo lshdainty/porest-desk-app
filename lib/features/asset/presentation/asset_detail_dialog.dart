@@ -11,6 +11,7 @@ import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/core/format/chart_axis.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart';
+import 'package:porest_desk_app/core/format/date.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/settings/hide_amounts_unlock_dialog.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
@@ -1023,42 +1024,37 @@ class _RecentExpenses extends StatelessWidget {
     final list = async.value ?? const <Expense>[];
     if (async.isLoading && list.isEmpty) {
       // 서버 거래내역 로딩 중 — 실제 _ExpenseRow(아이콘 36 + 2줄 + 금액) 그대로 스켈레톤.
-      return PCard(
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-        variant: PCardVariant.bordered,
-        child: Column(
-          children: [
-            for (int i = 0; i < 4; i++)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                child: Row(
-                  children: [
-                    PSkeleton(width: 36, height: 36, borderRadius: PRadius.tile(36)),
-                    const SizedBox(width: 12),
-                    const Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          PSkeleton.line(width: 120, height: 14),
-                          SizedBox(height: 4),
-                          PSkeleton.line(width: 80, height: 11),
-                        ],
-                      ),
+      return Column(
+        children: [
+          for (int i = 0; i < 4; i++)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: Row(
+                children: [
+                  PSkeleton(width: 36, height: 36, borderRadius: PRadius.tile(36)),
+                  const SizedBox(width: 12),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        PSkeleton.line(width: 120, height: 14),
+                        SizedBox(height: 4),
+                        PSkeleton.line(width: 80, height: 11),
+                      ],
                     ),
-                    const SizedBox(width: 12),
-                    const PSkeleton.line(width: 56, height: 14),
-                  ],
-                ),
+                  ),
+                  const SizedBox(width: 12),
+                  const PSkeleton.line(width: 56, height: 14),
+                ],
               ),
-          ],
-        ),
+            ),
+        ],
       );
     }
     if (list.isEmpty) {
-      return PCard(
+      return Padding(
         padding: const EdgeInsets.symmetric(vertical: 24),
-        variant: PCardVariant.bordered,
         child: Center(
           child: Text(
             AppLocalizations.of(context).assetNoLinkedTx,
@@ -1067,15 +1063,94 @@ class _RecentExpenses extends StatelessWidget {
         ),
       );
     }
-    return PCard(
-      variant: PCardVariant.bordered,
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-      child: Column(
-        children: [
-          for (final e in list)
+
+    // 가계부 메인 리스트 미러 — 카드 제거, 날짜 그룹 헤더(웹 DateGroupHeader
+    // 정합: 날짜 primary/bold + 요일 tertiary + 우측 일 지출/수입 합계) + 플랫 행.
+    final dayGroups = <String, List<Expense>>{};
+    for (final e in list) {
+      dayGroups.putIfAbsent(e.expenseDateOnly ?? '', () => <Expense>[]).add(e);
+    }
+    final entries = dayGroups.entries.toList();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (var gi = 0; gi < entries.length; gi++) ...[
+          Padding(
+            padding: EdgeInsets.only(top: gi == 0 ? 0 : PSpace.x16, bottom: 6),
+            child: _DayGroupHeader(
+              dayKey: entries[gi].key,
+              items: entries[gi].value,
+              masked: masked,
+              tokens: tokens,
+            ),
+          ),
+          for (final e in entries[gi].value)
             _ExpenseRow(expense: e, masked: masked, tokens: tokens),
         ],
-      ),
+      ],
+    );
+  }
+}
+
+/// 날짜 그룹 헤더 — 웹 DateGroupHeader 미러 ("7월 8일" + "수" + 일 합계).
+class _DayGroupHeader extends StatelessWidget {
+  const _DayGroupHeader({
+    required this.dayKey,
+    required this.items,
+    required this.masked,
+    required this.tokens,
+  });
+  final String dayKey;
+  final List<Expense> items;
+  final bool masked;
+  final PorestTokens tokens;
+
+  @override
+  Widget build(BuildContext context) {
+    final d = DateTime.tryParse(dayKey);
+    final label = d == null ? null : formatDay(d);
+    final dayExpense = items
+        .where((e) => e.expenseType == 'EXPENSE')
+        .fold<int>(0, (s, e) => s + e.amount.abs());
+    final dayIncome = items
+        .where((e) => e.expenseType == 'INCOME')
+        .fold<int>(0, (s, e) => s + e.amount.abs());
+    return Row(
+      children: [
+        Text(
+          label?.md ?? dayKey,
+          style: PTypo.bodySm.copyWith(
+            color: tokens.fgPrimary,
+            fontWeight: PFontWeight.bold,
+          ),
+        ),
+        if (label != null) ...[
+          const SizedBox(width: PSpace.x8),
+          Text(
+            label.dow,
+            style: PTypo.bodySm.copyWith(color: tokens.fgTertiary),
+          ),
+        ],
+        const Spacer(),
+        if (dayExpense > 0)
+          Text(
+            krwSigned(dayExpense, masked, sign: '−', unit: true),
+            style: PTypo.caption.copyWith(
+              color: tokens.fgExpense,
+              fontWeight: PFontWeight.semi,
+            ),
+          ),
+        if (dayIncome > 0) ...[
+          if (dayExpense > 0) const SizedBox(width: PSpace.x8),
+          Text(
+            krwSigned(dayIncome, masked, sign: '+', unit: true),
+            style: PTypo.caption.copyWith(
+              color: tokens.fgIncome,
+              fontWeight: PFontWeight.semi,
+            ),
+          ),
+        ],
+      ],
     );
   }
 }
