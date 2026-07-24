@@ -183,15 +183,17 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       contentBuilder: (ctx, scrollCtrl) => _MonthYearPickerSheet(
         initial: _focused,
         scrollController: scrollCtrl,
+        // showPSheet 는 root navigator 에 뜸 — State context 로 pop 하면 탭 안
+        // 페이지가 pop 되므로(스택 소진 크래시) rootNavigator 지정 필수.
         onSelect: (date) {
-          Navigator.of(context).pop();
+          Navigator.of(context, rootNavigator: true).pop();
           setState(() {
             _focused = date;
             _selected = date;
           });
         },
         onToday: () {
-          Navigator.of(context).pop();
+          Navigator.of(context, rootNavigator: true).pop();
           final now = DateTime.now();
           setState(() {
             _focused = now;
@@ -209,7 +211,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       shrinkWrap: true, // 컨텐츠 높이에 맞춤(아래 빈 공간 제거)
       contentBuilder: (ctx, _) => _CalendarFilterSheetBody(
         onManage: () {
-          Navigator.of(context).pop();
+          Navigator.of(context, rootNavigator: true).pop();
           context.push('/settings/calendar-share');
         },
       ),
@@ -250,11 +252,11 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         holidays: dayHolidays,
         scrollController: scrollCtrl,
         onAdd: () {
-          Navigator.of(context).pop();
+          Navigator.of(context, rootNavigator: true).pop();
           showCalendarEventDialog(context, defaultDate: day);
         },
         onTapEvent: (e) {
-          Navigator.of(context).pop();
+          Navigator.of(context, rootNavigator: true).pop();
           showCalendarEventDetailDialog(context, e);
         },
       ),
