@@ -547,12 +547,15 @@ class _SplitSummaryCard extends StatelessWidget {
     final t = tokens;
     final l = AppLocalizations.of(context);
     return PDetailSection(
-      title: InkWell(
+      title: Text('${l.expSplit} ${l.expItemsCount(splits.length)}'),
+      // 접기 토글 — 합계 우측 chevron (사용자 결정, 웹 정합)
+      trailing: InkWell(
         onTap: onToggle,
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('${l.expSplit} ${l.expItemsCount(splits.length)}'),
+            Text('${l.expTotal} ${krwSigned(total, false, unit: true)}',
+                style: PTypo.caption.copyWith(color: t.fgTertiary)),
             const SizedBox(width: 6),
             Icon(
                 expanded ? LucideIcons.chevronUp : LucideIcons.chevronDown,
@@ -561,8 +564,6 @@ class _SplitSummaryCard extends StatelessWidget {
           ],
         ),
       ),
-      trailing: Text('${l.expTotal} ${krwSigned(total, false, unit: true)}',
-          style: PTypo.caption.copyWith(color: t.fgTertiary)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
