@@ -7,7 +7,6 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/format/date.dart';
@@ -770,8 +769,8 @@ class _LedgerCalendar extends StatelessWidget {
 
     Color numColor(String ds, int dow) {
       if (ds.compareTo(todayStr) > 0) return t.fgTertiary;
-      // 일요일 — 다크에서 light variant 스왑(웹 --color-cat-red 정합, 사용자 결정)
-      if (dow == 0) return chartRedOf(context);
+      // 일요일 — 캘린더 화면 정합(fgExpense, 사용자 결정)
+      if (dow == 0) return t.fgExpense;
       if (dow == 6) return t.fgBrand;
       return t.fgPrimary;
     }
@@ -894,13 +893,14 @@ class _LedgerCalendar extends StatelessWidget {
                     child: Text(
                       dows[i],
                       textAlign: TextAlign.center,
+                      // 평일 색 캘린더 정합(secondary) — 색상만, 굵기 기존 유지(사용자 결정)
                       style: PTypo.caption.copyWith(
                         fontWeight: PFontWeight.semi,
                         color: i == 0
-                            ? chartRedOf(context)
+                            ? t.fgExpense
                             : i == 6
                                 ? t.fgBrand
-                                : t.fgTertiary,
+                                : t.fgSecondary,
                       ),
                     ),
                   ),
@@ -1416,13 +1416,14 @@ class _LedgerSkeleton extends StatelessWidget {
                     child: Text(
                       dows[i],
                       textAlign: TextAlign.center,
+                      // 평일 색 캘린더 정합(secondary) — 색상만, 굵기 기존 유지(사용자 결정)
                       style: PTypo.caption.copyWith(
                         fontWeight: PFontWeight.semi,
                         color: i == 0
-                            ? chartRedOf(context)
+                            ? t.fgExpense
                             : i == 6
                                 ? t.fgBrand
-                                : t.fgTertiary,
+                                : t.fgSecondary,
                       ),
                     ),
                   ),
