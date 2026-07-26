@@ -1026,13 +1026,14 @@ class _TxmCalendar extends StatelessWidget {
                     child: Text(
                       dows[i],
                       textAlign: TextAlign.center,
+                      // 평일 색 캘린더 정합(secondary) — 색상만, 굵기 기존 유지(사용자 결정)
                       style: PTypo.caption.copyWith(
                         fontWeight: PFontWeight.semi,
                         color: i == 0
                             ? t.fgExpense
                             : i == 6
                                 ? t.fgBrand
-                                : t.fgTertiary,
+                                : t.fgSecondary,
                       ),
                     ),
                   ),
