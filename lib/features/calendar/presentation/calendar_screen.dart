@@ -698,9 +698,9 @@ class _DayCell extends StatelessWidget {
       width: PSpace.x24,
       height: PSpace.x24,
       alignment: Alignment.center,
-      // web 오늘 셀 정합 — bg-[var(--fg-brand)] solid 원 (다크 primary-light 자동)
+      // 오늘 원 — 가계부 월그리드 선택 원 정합(bgBrandSolid, 다크 primary 고정. 사용자 결정)
       decoration: (isToday && !isOutside)
-          ? BoxDecoration(color: t.fgBrand, shape: BoxShape.circle)
+          ? BoxDecoration(color: t.bgBrandSolid, shape: BoxShape.circle)
           : null,
       child: Text(
         '${day.day}',

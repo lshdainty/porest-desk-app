@@ -908,8 +908,8 @@ class _TxmCalendar extends StatelessWidget {
 
     Color numColor(String ds, int dow) {
       if (ds.compareTo(todayStr) > 0) return t.fgTertiary;
-      // 일요일 — 다크에서 light variant 스왑(웹 --color-cat-red 정합, 사용자 결정)
-      if (dow == 0) return chartRedOf(context);
+      // 일요일 — 캘린더 화면 정합(fgExpense, 사용자 결정)
+      if (dow == 0) return t.fgExpense;
       if (dow == 6) return t.fgBrand;
       return t.fgPrimary;
     }
@@ -1029,7 +1029,7 @@ class _TxmCalendar extends StatelessWidget {
                       style: PTypo.caption.copyWith(
                         fontWeight: PFontWeight.semi,
                         color: i == 0
-                            ? chartRedOf(context)
+                            ? t.fgExpense
                             : i == 6
                                 ? t.fgBrand
                                 : t.fgTertiary,
