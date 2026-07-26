@@ -34,8 +34,10 @@ class PCategoryTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
         decoration: BoxDecoration(
           color: active ? t.bgBrandSubtle : Colors.transparent,
+          // 비활성 보더 제거(design 신판, 웹 CategoryTile 정합) —
+          // transparent 로 두어 active 전환 시 1px 시프트 방지.
           border: Border.all(
-              color: active ? t.borderBrand : t.borderSubtle),
+              color: active ? t.borderBrand : Colors.transparent),
           borderRadius: PRadius.brLg,
         ),
         child: Column(
