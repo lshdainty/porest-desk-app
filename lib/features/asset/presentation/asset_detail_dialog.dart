@@ -1028,7 +1028,7 @@ class _RecentExpenses extends StatelessWidget {
         children: [
           for (int i = 0; i < 4; i++)
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10),
+              padding: const EdgeInsets.symmetric(vertical: 12),
               child: Row(
                 children: [
                   PSkeleton(width: 36, height: 36, borderRadius: PRadius.tile(36)),
@@ -1075,8 +1075,9 @@ class _RecentExpenses extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         for (var gi = 0; gi < entries.length; gi++) ...[
+          // 헤더-행 간격은 행 자체 pt 12(웹 LedgerRow py-3)가 담당 — bottom 0.
           Padding(
-            padding: EdgeInsets.only(top: gi == 0 ? 0 : PSpace.x16, bottom: 6),
+            padding: EdgeInsets.only(top: gi == 0 ? 0 : PSpace.x16),
             child: _DayGroupHeader(
               dayKey: entries[gi].key,
               items: entries[gi].value,
@@ -1182,7 +1183,8 @@ class _ExpenseRow extends StatelessWidget {
       onTap: () => showTxDetailDialog(context, expense),
       borderRadius: PRadius.brMd,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        // 웹 LedgerRow 정합 — py-3(12), 좌우 0(헤더와 좌측 라인 일치).
+        padding: const EdgeInsets.symmetric(vertical: 12),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
