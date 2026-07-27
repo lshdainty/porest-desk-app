@@ -51,6 +51,22 @@ final expensesByAssetProvider =
   return all.take(key.limit).toList();
 });
 
+/// 자산+기간 거래 (카드 상세 이용 내역 — 선택 회차의 청구 기간 필터, 최신순).
+typedef AssetPeriodKey = ({int assetId, String startDate, String endDate});
+
+final assetPeriodExpensesProvider =
+    FutureProvider.family<List<Expense>, AssetPeriodKey>((ref, key) async {
+  final repo = await ref.watch(expenseRepositoryProvider.future);
+  final all = await repo.search(
+    assetId: key.assetId,
+    startDate: key.startDate,
+    endDate: key.endDate,
+  );
+  all.sort((a, b) =>
+      (b.expenseDate ?? '').compareTo(a.expenseDate ?? ''));
+  return all;
+});
+
 /// 캘린더 이벤트별 연결 거래 (#252).
 final expensesByCalendarEventProvider =
     FutureProvider.family<List<Expense>, int>((ref, eventId) async {

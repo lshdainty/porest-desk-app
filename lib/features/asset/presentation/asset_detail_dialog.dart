@@ -191,7 +191,6 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
           _CardDetailBody(
             asset: asset,
             masked: masked,
-            recentAsync: recentAsync,
             onEdit: widget.onEdit,
           ),
         ] else ...[
@@ -1321,8 +1320,12 @@ class _CardPerfBadge extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 12),
       decoration: BoxDecoration(
+        // 웹 color-mix(in oklab, cat-green 10%, surface) 결과값 고정
+        // (sRGB alphaBlend 10% 는 녹색기가 죽어 웹과 어긋남 — oklab 혼합 미러)
         color: done
-            ? Color.alphaBlend(green.withValues(alpha: 0.10), t.bgSurface)
+            ? (Theme.of(context).brightness == Brightness.dark
+                ? const Color(0xFF2B3840)
+                : const Color(0xFFEAF2EE))
             : t.bgSunken,
         borderRadius: PRadius.brLg,
       ),
@@ -1378,12 +1381,10 @@ class _CardDetailBody extends ConsumerStatefulWidget {
   const _CardDetailBody({
     required this.asset,
     required this.masked,
-    required this.recentAsync,
     this.onEdit,
   });
   final Asset asset;
   final bool masked;
-  final AsyncValue<List<Expense>> recentAsync;
   final VoidCallback? onEdit;
 
   @override
@@ -1624,6 +1625,16 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
     final periodText = st?.periodStart != null && st?.periodEnd != null
         ? '${_fmtDate(st!.periodStart!)} ~ ${_fmtDate(st.periodEnd!)}'
         : null;
+    // 이용 내역 — 선택 회차의 청구 기간(전월 1일~말일)만 조회(사용자 결정).
+    // 기간 미확정(폴백 회차)이면 카드 전체 최근 12건.
+    final usageAsync = st?.periodStart != null && st?.periodEnd != null
+        ? ref.watch(assetPeriodExpensesProvider((
+            assetId: asset.rowId,
+            startDate: st!.periodStart!,
+            endDate: st.periodEnd!,
+          )))
+        : ref.watch(
+            expensesByAssetProvider((assetId: asset.rowId, limit: 12)));
 
     if (billingAsync.isLoading && b == null) {
       return const Padding(
@@ -1942,10 +1953,10 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
                       fontWeight: PFontWeight.bold,
                     ),
                   ),
-                  if ((widget.recentAsync.value?.length ?? 0) > 0) ...[
+                  if ((usageAsync.value?.length ?? 0) > 0) ...[
                     const SizedBox(width: 5),
                     Text(
-                      '${widget.recentAsync.value!.length}',
+                      '${usageAsync.value!.length}',
                       style: PTypo.body.copyWith(
                         color: t.fgBrand,
                         fontWeight: PFontWeight.bold,
@@ -2005,11 +2016,15 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
                 ),
               ),
               if (_sort == _UsageSort.recent)
-                _RecentExpenses(
-                    async: widget.recentAsync, masked: masked, tokens: t)
+                // 정렬 탭 ↔ 첫 날짜 그룹 간격 — 웹 paddingTop 16 정합(사용자 결정)
+                Padding(
+                  padding: const EdgeInsets.only(top: PSpace.x16),
+                  child: _RecentExpenses(
+                      async: usageAsync, masked: masked, tokens: t),
+                )
               else
                 Builder(builder: (context) {
-                  final list = [...(widget.recentAsync.value ?? const <Expense>[])];
+                  final list = [...(usageAsync.value ?? const <Expense>[])];
                   if (list.isEmpty) {
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 28),
