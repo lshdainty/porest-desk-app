@@ -717,6 +717,67 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetUpcomingPayment => '결제 예정';
 
   @override
+  String get assetScheduledTag => '예정';
+
+  @override
+  String get assetPaidDone => '결제 완료';
+
+  @override
+  String assetUsagePeriod(String period) {
+    return '카드 이용 기간 $period';
+  }
+
+  @override
+  String get assetLimitSettings => '한도 · 결제 설정';
+
+  @override
+  String get assetLimitUsage => '한도 사용';
+
+  @override
+  String assetLimitPctUsed(int pct) {
+    return '$pct% 사용';
+  }
+
+  @override
+  String assetLimitOf(String used, String limit) {
+    return '$used / 한도 $limit';
+  }
+
+  @override
+  String assetLimitRemain(String amount) {
+    return '잔여 $amount';
+  }
+
+  @override
+  String get assetLimitEdit => '한도 · 결제일 변경';
+
+  @override
+  String get assetPerfDone => '이번 달 실적 달성';
+
+  @override
+  String assetPerfRemain(String amount) {
+    return '실적까지 $amount';
+  }
+
+  @override
+  String get assetUsageHistory => '이용 내역';
+
+  @override
+  String get assetSortRecent => '최근순';
+
+  @override
+  String get assetSortAmount => '고액순';
+
+  @override
+  String get assetSortCategory => '카테고리별';
+
+  @override
+  String get assetPeriodPick => '기간 선택';
+
+  @override
+  String get assetNoUsage => '이용 내역이 없어요.';
+
+  @override
   String assetBillingPeriod(String start, String end) {
     return '$start~$end 사용분';
   }

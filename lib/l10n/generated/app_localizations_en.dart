@@ -727,6 +727,67 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetUpcomingPayment => 'Upcoming payment';
 
   @override
+  String get assetScheduledTag => 'Upcoming';
+
+  @override
+  String get assetPaidDone => 'Paid';
+
+  @override
+  String assetUsagePeriod(String period) {
+    return 'Card usage period $period';
+  }
+
+  @override
+  String get assetLimitSettings => 'Limit · payment';
+
+  @override
+  String get assetLimitUsage => 'Limit usage';
+
+  @override
+  String assetLimitPctUsed(int pct) {
+    return '$pct% used';
+  }
+
+  @override
+  String assetLimitOf(String used, String limit) {
+    return '$used / Limit $limit';
+  }
+
+  @override
+  String assetLimitRemain(String amount) {
+    return 'Remaining $amount';
+  }
+
+  @override
+  String get assetLimitEdit => 'Edit limit · payment day';
+
+  @override
+  String get assetPerfDone => 'Monthly target met';
+
+  @override
+  String assetPerfRemain(String amount) {
+    return '$amount to target';
+  }
+
+  @override
+  String get assetUsageHistory => 'Usage history';
+
+  @override
+  String get assetSortRecent => 'Recent';
+
+  @override
+  String get assetSortAmount => 'Amount';
+
+  @override
+  String get assetSortCategory => 'Category';
+
+  @override
+  String get assetPeriodPick => 'Select period';
+
+  @override
+  String get assetNoUsage => 'No usage history yet.';
+
+  @override
   String assetBillingPeriod(String start, String end) {
     return 'Usage $start–$end';
   }

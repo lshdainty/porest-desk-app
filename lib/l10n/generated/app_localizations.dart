@@ -1448,6 +1448,108 @@ abstract class AppLocalizations {
   /// **'결제 예정'**
   String get assetUpcomingPayment;
 
+  /// No description provided for @assetScheduledTag.
+  ///
+  /// In ko, this message translates to:
+  /// **'예정'**
+  String get assetScheduledTag;
+
+  /// No description provided for @assetPaidDone.
+  ///
+  /// In ko, this message translates to:
+  /// **'결제 완료'**
+  String get assetPaidDone;
+
+  /// No description provided for @assetUsagePeriod.
+  ///
+  /// In ko, this message translates to:
+  /// **'카드 이용 기간 {period}'**
+  String assetUsagePeriod(String period);
+
+  /// No description provided for @assetLimitSettings.
+  ///
+  /// In ko, this message translates to:
+  /// **'한도 · 결제 설정'**
+  String get assetLimitSettings;
+
+  /// No description provided for @assetLimitUsage.
+  ///
+  /// In ko, this message translates to:
+  /// **'한도 사용'**
+  String get assetLimitUsage;
+
+  /// No description provided for @assetLimitPctUsed.
+  ///
+  /// In ko, this message translates to:
+  /// **'{pct}% 사용'**
+  String assetLimitPctUsed(int pct);
+
+  /// No description provided for @assetLimitOf.
+  ///
+  /// In ko, this message translates to:
+  /// **'{used} / 한도 {limit}'**
+  String assetLimitOf(String used, String limit);
+
+  /// No description provided for @assetLimitRemain.
+  ///
+  /// In ko, this message translates to:
+  /// **'잔여 {amount}'**
+  String assetLimitRemain(String amount);
+
+  /// No description provided for @assetLimitEdit.
+  ///
+  /// In ko, this message translates to:
+  /// **'한도 · 결제일 변경'**
+  String get assetLimitEdit;
+
+  /// No description provided for @assetPerfDone.
+  ///
+  /// In ko, this message translates to:
+  /// **'이번 달 실적 달성'**
+  String get assetPerfDone;
+
+  /// No description provided for @assetPerfRemain.
+  ///
+  /// In ko, this message translates to:
+  /// **'실적까지 {amount}'**
+  String assetPerfRemain(String amount);
+
+  /// No description provided for @assetUsageHistory.
+  ///
+  /// In ko, this message translates to:
+  /// **'이용 내역'**
+  String get assetUsageHistory;
+
+  /// No description provided for @assetSortRecent.
+  ///
+  /// In ko, this message translates to:
+  /// **'최근순'**
+  String get assetSortRecent;
+
+  /// No description provided for @assetSortAmount.
+  ///
+  /// In ko, this message translates to:
+  /// **'고액순'**
+  String get assetSortAmount;
+
+  /// No description provided for @assetSortCategory.
+  ///
+  /// In ko, this message translates to:
+  /// **'카테고리별'**
+  String get assetSortCategory;
+
+  /// No description provided for @assetPeriodPick.
+  ///
+  /// In ko, this message translates to:
+  /// **'기간 선택'**
+  String get assetPeriodPick;
+
+  /// No description provided for @assetNoUsage.
+  ///
+  /// In ko, this message translates to:
+  /// **'이용 내역이 없어요.'**
+  String get assetNoUsage;
+
   /// No description provided for @assetBillingPeriod.
   ///
   /// In ko, this message translates to:
