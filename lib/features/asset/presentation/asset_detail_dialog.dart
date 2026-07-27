@@ -1982,24 +1982,26 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
                   ),
                 ],
               ),
+              // 정렬 — 통계 화면과 동일한 pills 탭(공용, 사용자 결정)
               Padding(
                 padding: const EdgeInsets.only(top: 12, bottom: 2),
-                child: Row(
-                  children: [
-                    for (final o in _UsageSort.values) ...[
-                      if (o != _UsageSort.values.first)
-                        const SizedBox(width: 7),
-                      _UsageSortChip(
-                        label: switch (o) {
-                          _UsageSort.recent => l.assetSortRecent,
-                          _UsageSort.amount => l.assetSortAmount,
-                          _UsageSort.category => l.assetSortCategory,
-                        },
-                        selected: _sort == o,
-                        onTap: () => setState(() => _sort = o),
-                      ),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: PTabs<_UsageSort>(
+                    value: _sort,
+                    variant: PTabsVariant.pills,
+                    size: PTabsSize.sm,
+                    items: [
+                      PTabItem(
+                          value: _UsageSort.recent, label: l.assetSortRecent),
+                      PTabItem(
+                          value: _UsageSort.amount, label: l.assetSortAmount),
+                      PTabItem(
+                          value: _UsageSort.category,
+                          label: l.assetSortCategory),
                     ],
-                  ],
+                    onChanged: (v) => setState(() => _sort = v),
+                  ),
                 ),
               ),
               if (_sort == _UsageSort.recent)
@@ -2096,41 +2098,6 @@ class _CardActionTile extends StatelessWidget {
                 ),
               ),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// 이용 내역 정렬 칩 — sunken / 선택 시 brand 채움(design cdt-chip, 웹 정합).
-class _UsageSortChip extends StatelessWidget {
-  const _UsageSortChip({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    return InkWell(
-      borderRadius: PRadius.brFull,
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        decoration: BoxDecoration(
-          color: selected ? t.bgBrandSolid : t.bgSunken,
-          borderRadius: PRadius.brFull,
-        ),
-        child: Text(
-          label,
-          style: PTypo.caption.copyWith(
-            color: selected ? t.fgOnBrand : t.fgSecondary,
-            fontWeight: selected ? PFontWeight.bold : PFontWeight.semi,
           ),
         ),
       ),
