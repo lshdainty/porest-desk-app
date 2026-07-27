@@ -628,8 +628,9 @@ class _SplitSummaryCard extends StatelessWidget {
                     Text(
                       krwSigned(splits[i].amount, false,
                           sign: isIncome ? '+' : '−', unit: true),
+                      // 행 금액 중립색 — 가계부 리스트 정합(사용자 결정)
                       style: PTypo.bodySm.copyWith(
-                          color: isIncome ? t.fgIncome : t.fgExpense,
+                          color: t.fgPrimary,
                           fontWeight: PFontWeight.bold),
                     ),
                   ],
