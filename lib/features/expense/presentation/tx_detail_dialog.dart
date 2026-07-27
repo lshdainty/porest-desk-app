@@ -191,7 +191,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
     final displayMerchant =
         e.merchant ?? e.description ?? e.categoryName ?? l.expTxFallback;
     // 웹 TxDetailDialog 매칭: 수입=fg-brand (초록), 지출=fg-primary (검정)
-    final amountColor = isIncome ? t.fgIncome : t.fgPrimary;
+    final amountColor = t.fgPrimary;
     final amountText = masked
         ? '••••••'
         : '${isIncome ? '+' : '−'}${krw(e.amount, abs: true)}';
@@ -462,8 +462,6 @@ class _MerchantHistorySection extends ConsumerWidget {
                   value: masked
                       ? '••••••'
                       : krwSigned(monthTotal, false, unit: true),
-                  // 지출 합계 빨강 — 다크 light variant 스왑(웹 cat-red 정합)
-                  valueColor: chartRedOf(context),
                 ),
               ],
             ),
