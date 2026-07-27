@@ -729,11 +729,10 @@ class _HeroCard extends StatelessWidget {
             text: TextSpan(
               children: [
                 TextSpan(
-                  text: masked
-                      ? '••••••'
-                      : '${isCard && absBalance > 0 ? '−' : ''}${krw(absBalance)}',
+                  // 카드도 부호 없이 중립색 — 결제 예정 금액 표기(사용자 결정)
+                  text: masked ? '••••••' : krw(absBalance),
                   style: PTypo.h1.copyWith(
-                    color: isCard ? t.statusDangerFg : t.fgPrimary,
+                    color: t.fgPrimary,
                     fontWeight: PFontWeight.bold,
                     letterSpacing: -0.6,
                   ),
@@ -742,7 +741,7 @@ class _HeroCard extends StatelessWidget {
                   TextSpan(
                     text: wonUnit(),
                     style: PTypo.body.copyWith(
-                      color: isCard ? t.statusDangerFg : t.fgPrimary,
+                      color: t.fgPrimary,
                       fontWeight: PFontWeight.bold,
                     ),
                   ),
@@ -1368,9 +1367,7 @@ class _CardBillingSectionState extends ConsumerState<_CardBillingSection> {
                         TextSpan(
                           text: masked ? '••••••' : krw(b.upcomingAmount),
                           style: PTypo.h2.copyWith(
-                            color: b.upcomingAmount > 0
-                                ? t.statusDangerFg
-                                : t.fgPrimary,
+                            color: t.fgPrimary,
                             fontWeight: PFontWeight.bold,
                             letterSpacing: -0.4,
                           ),
@@ -1379,9 +1376,7 @@ class _CardBillingSectionState extends ConsumerState<_CardBillingSection> {
                           TextSpan(
                             text: wonUnit(),
                             style: PTypo.bodySm.copyWith(
-                              color: b.upcomingAmount > 0
-                                  ? t.statusDangerFg
-                                  : t.fgPrimary,
+                              color: t.fgPrimary,
                               fontWeight: PFontWeight.bold,
                             ),
                           ),
