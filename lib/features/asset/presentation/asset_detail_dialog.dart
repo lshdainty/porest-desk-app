@@ -1410,16 +1410,43 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
         periodEnd: b.upcomingPeriodEnd,
       ));
     }
+    // 과거 회차 — 결제월별 합산: 같은 달에 여러 번(선결제 등) 결제해도 월 1행(사용자 결정).
+    // 라벨은 정규 결제일(paymentDay, 말일 보정), 기간은 결제월의 전월 1일~말일(백엔드 회차 규칙 미러).
+    String pad2(int n) => n.toString().padLeft(2, '0');
+    final byMonth = <String, ({int amount, String latest})>{};
     for (final h in b?.history ?? const <BillingItem>[]) {
       if (h.status != 'COMPLETED') continue;
-      final d = DateTime.tryParse(h.paymentDate);
+      final ym = h.paymentDate.substring(0, 7);
+      final cur = byMonth[ym];
+      byMonth[ym] = cur == null
+          ? (amount: h.billingAmount, latest: h.paymentDate)
+          : (
+              amount: cur.amount + h.billingAmount,
+              latest: h.paymentDate.compareTo(cur.latest) > 0
+                  ? h.paymentDate
+                  : cur.latest,
+            );
+    }
+    for (final entry in byMonth.entries) {
+      final parts = entry.key.split('-');
+      final y = int.tryParse(parts[0]);
+      final m = int.tryParse(parts[1]);
+      if (y == null || m == null) continue;
+      final lastDay = DateTime(y, m + 1, 0).day;
+      final rawDay =
+          b?.paymentDay ?? int.tryParse(entry.value.latest.substring(8, 10)) ?? 1;
+      final day = rawDay > lastDay ? lastDay : rawDay;
+      final paymentDate = '${entry.key}-${pad2(day)}';
+      final py = m == 1 ? y - 1 : y;
+      final pm = m == 1 ? 12 : m - 1;
+      final pLast = DateTime(py, pm + 1, 0).day;
       out.add(_CardStatement(
-        label: d != null ? formatDay(d).md : h.paymentDate,
+        label: formatDay(DateTime(y, m, day)).md,
         scheduled: false,
-        amount: h.billingAmount,
-        paymentDate: h.paymentDate,
-        periodStart: h.periodStart,
-        periodEnd: h.periodEnd,
+        amount: entry.value.amount,
+        paymentDate: paymentDate,
+        periodStart: '$py-${pad2(pm)}-01',
+        periodEnd: '$py-${pad2(pm)}-${pad2(pLast)}',
       ));
     }
     return out;
