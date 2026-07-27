@@ -180,7 +180,6 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
         _HeroCard(
           asset: asset,
           meta: meta,
-          brandFg: brandFg,
           valueLabel: valueLabel,
           isCard: isCard,
           masked: masked,
@@ -637,7 +636,6 @@ class _HeroCard extends StatelessWidget {
   const _HeroCard({
     required this.asset,
     required this.meta,
-    required this.brandFg,
     required this.valueLabel,
     required this.isCard,
     required this.masked,
@@ -645,7 +643,6 @@ class _HeroCard extends StatelessWidget {
   });
   final Asset asset;
   final AssetTypeMeta meta;
-  final Color brandFg;
   final String valueLabel;
   final bool isCard;
   final bool masked;
@@ -664,24 +661,17 @@ class _HeroCard extends StatelessWidget {
     ].where((s) => s != null && s.isNotEmpty).join(' · ');
     // 카드 히어로("이번 달 결제 예정")는 회차 결제예정액 — 잔액 전액이 아님(사용자 결정).
     final absBalance = billingAmount ?? (asset.balance ?? 0).abs();
-    return Container(
-      padding: const EdgeInsets.all(PSpace.xl),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            brandFg.withValues(alpha: 0.12),
-            brandFg.withValues(alpha: 0.04),
-          ],
-        ),
-        border: Border.all(color: brandFg.withValues(alpha: 0.22), width: 1),
-        borderRadius: PRadius.brXl,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+    // 플랫 히어로(design 신판) — 그라데이션 카드 제거, 이름 행 아래 구분선만.
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.only(bottom: 14),
+          margin: const EdgeInsets.only(bottom: 14),
+          decoration: BoxDecoration(
+            border: Border(bottom: BorderSide(color: t.borderSubtle)),
+          ),
+          child: Row(
             children: [
               // web hero 정합 — 타입 글리프 대신 AssetLogo 모노그램 (icon 제거 마이그 잔재 정리)
               AssetLogo(asset: asset, size: 48),
@@ -714,42 +704,41 @@ class _HeroCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 14),
-          Text(
-            valueLabel,
-            style: PTypo.micro.copyWith(
-              color: t.fgTertiary,
-              fontWeight: PFontWeight.semi,
-              letterSpacing: 0.4,
-            ),
+        ),
+        Text(
+          valueLabel,
+          style: PTypo.micro.copyWith(
+            color: t.fgTertiary,
+            fontWeight: PFontWeight.semi,
+            letterSpacing: 0.4,
           ),
-          const SizedBox(height: 4),
-          // 큰 금액 — 숫자/원 분리해서 원 폰트만 작게.
-          RichText(
-            text: TextSpan(
-              children: [
+        ),
+        const SizedBox(height: 4),
+        // 큰 금액 — 숫자/원 분리해서 원 폰트만 작게.
+        RichText(
+          text: TextSpan(
+            children: [
+              TextSpan(
+                // 카드도 부호 없이 중립색 — 결제 예정 금액 표기(사용자 결정)
+                text: masked ? '••••••' : krw(absBalance),
+                style: PTypo.h1.copyWith(
+                  color: t.fgPrimary,
+                  fontWeight: PFontWeight.bold,
+                  letterSpacing: -0.6,
+                ),
+              ),
+              if (!masked)
                 TextSpan(
-                  // 카드도 부호 없이 중립색 — 결제 예정 금액 표기(사용자 결정)
-                  text: masked ? '••••••' : krw(absBalance),
-                  style: PTypo.h1.copyWith(
+                  text: wonUnit(),
+                  style: PTypo.body.copyWith(
                     color: t.fgPrimary,
                     fontWeight: PFontWeight.bold,
-                    letterSpacing: -0.6,
                   ),
                 ),
-                if (!masked)
-                  TextSpan(
-                    text: wonUnit(),
-                    style: PTypo.body.copyWith(
-                      color: t.fgPrimary,
-                      fontWeight: PFontWeight.bold,
-                    ),
-                  ),
-              ],
-            ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
