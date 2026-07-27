@@ -384,7 +384,7 @@ class _ManageRow extends StatelessWidget {
                             ? krwSigned(balance.abs(), false, sign: '−', unit: true)
                             : krwSigned(balance.abs(), false, unit: true),
                     style: TextStyle(
-                      color: isNeg ? t.fgExpense : t.fgPrimary,
+                      color: t.fgPrimary,
                       fontSize: PFontSize.bodySm,
                       fontWeight: PFontWeight.bold,
                       letterSpacing: -0.32,

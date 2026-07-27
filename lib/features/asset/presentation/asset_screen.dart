@@ -697,8 +697,9 @@ class _AssetCard extends StatelessWidget {
                         : isNeg
                         ? krwSigned(balance.abs(), false, sign: '−', unit: true)
                         : krwSigned(balance.abs(), false, unit: true),
+                    // 행 금액 중립색 — 부호(−)만 유지(사용자 결정)
                     style: TextStyle(
-                      color: isNeg ? t.fgExpense : t.fgPrimary,
+                      color: t.fgPrimary,
                       fontSize: PFontSize.bodyLg,
                       fontWeight: PFontWeight.bold,
                       letterSpacing: -0.32,
