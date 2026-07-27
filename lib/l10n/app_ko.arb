@@ -343,6 +343,13 @@
   "assetPayFailed": "결제 실패",
   "assetBillingLoadError": "청구 정보를 불러오지 못했어요",
   "assetUpcomingPayment": "결제 예정",
+  "assetBillingPeriod": "{start}~{end} 사용분",
+  "@assetBillingPeriod": {
+    "placeholders": {
+      "start": {"type": "String"},
+      "end": {"type": "String"}
+    }
+  },
   "assetMonthlyPaymentDay": "매월 {day}일 결제",
   "@assetMonthlyPaymentDay": {
     "placeholders": {

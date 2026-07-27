@@ -340,6 +340,13 @@
   "assetPayFailed": "Payment failed",
   "assetBillingLoadError": "Couldn't load billing info",
   "assetUpcomingPayment": "Upcoming payment",
+  "assetBillingPeriod": "Usage {start}\u2013{end}",
+  "@assetBillingPeriod": {
+    "placeholders": {
+      "start": {"type": "String"},
+      "end": {"type": "String"}
+    }
+  },
   "assetMonthlyPaymentDay": "Paid on day {day} each month",
   "@assetMonthlyPaymentDay": {
     "placeholders": {

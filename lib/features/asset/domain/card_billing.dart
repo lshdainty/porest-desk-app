@@ -31,7 +31,11 @@ abstract class BillingItem with _$BillingItem {
 abstract class CardBilling with _$CardBilling {
   const factory CardBilling({
     required int cardAssetRowId,
-    required int upcomingAmount, // = abs(카드 balance), 이번 결제예정액
+    // 다가오는 결제 회차의 결제예정액 = 청구 기간(결제일의 전월 1일~말일)
+    // 순사용액 − 같은 회차 기결제액(선결제 차감). 결제일 미설정 시 잔액 전액.
+    required int upcomingAmount,
+    String? upcomingPeriodStart, // 회차 청구 기간 'yyyy-MM-dd' | null
+    String? upcomingPeriodEnd,
     String? nextPaymentDate, // 'yyyy-MM-dd' | null
     int? paymentDay, // 1~31 | null
     int? paymentAssetRowId,

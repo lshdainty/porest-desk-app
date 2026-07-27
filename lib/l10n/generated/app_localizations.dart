@@ -1448,6 +1448,12 @@ abstract class AppLocalizations {
   /// **'결제 예정'**
   String get assetUpcomingPayment;
 
+  /// No description provided for @assetBillingPeriod.
+  ///
+  /// In ko, this message translates to:
+  /// **'{start}~{end} 사용분'**
+  String assetBillingPeriod(String start, String end);
+
   /// No description provided for @assetMonthlyPaymentDay.
   ///
   /// In ko, this message translates to:

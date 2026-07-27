@@ -168,6 +168,10 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
     final recentAsync = ref.watch(
       expensesByAssetProvider((assetId: asset.rowId, limit: 12)),
     );
+    // 카드 히어로는 회차 결제예정액(_CardBillingSection 과 같은 provider — 중복 요청 없음).
+    final heroBillingAmount = asset.assetType == 'CREDIT_CARD'
+        ? ref.watch(cardBillingProvider(asset.rowId)).value?.upcomingAmount
+        : null;
 
     return ListView(
       controller: widget.scrollController,
@@ -180,6 +184,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
           valueLabel: valueLabel,
           isCard: isCard,
           masked: masked,
+          billingAmount: heroBillingAmount,
         ),
         const SizedBox(height: PSpace.x16),
         if (isCard) ...[
@@ -636,6 +641,7 @@ class _HeroCard extends StatelessWidget {
     required this.valueLabel,
     required this.isCard,
     required this.masked,
+    this.billingAmount,
   });
   final Asset asset;
   final AssetTypeMeta meta;
@@ -643,6 +649,9 @@ class _HeroCard extends StatelessWidget {
   final String valueLabel;
   final bool isCard;
   final bool masked;
+
+  /// 신용카드 회차 결제예정액 override — null 이면 잔액 표시(로딩/비카드).
+  final int? billingAmount;
 
   @override
   Widget build(BuildContext context) {
@@ -653,7 +662,8 @@ class _HeroCard extends StatelessWidget {
       assetTypeLabel(l, asset.assetType),
       asset.memo,
     ].where((s) => s != null && s.isNotEmpty).join(' · ');
-    final absBalance = (asset.balance ?? 0).abs();
+    // 카드 히어로("이번 달 결제 예정")는 회차 결제예정액 — 잔액 전액이 아님(사용자 결정).
+    final absBalance = billingAmount ?? (asset.balance ?? 0).abs();
     return Container(
       padding: const EdgeInsets.all(PSpace.xl),
       decoration: BoxDecoration(
@@ -1390,8 +1400,13 @@ class _CardBillingSectionState extends ConsumerState<_CardBillingSection> {
               ),
               if (b.paymentDay != null) ...[
                 const SizedBox(height: 6),
-                Text(l.assetMonthlyPaymentDay(b.paymentDay!),
-                    style: PTypo.caption.copyWith(color: t.fgTertiary)),
+                // 이 회차의 청구 기간(결제일의 전월 1일~말일) 병기 — 회차 모델 명시(웹 정합)
+                Text(
+                  b.upcomingPeriodStart != null && b.upcomingPeriodEnd != null
+                      ? '${l.assetMonthlyPaymentDay(b.paymentDay!)} · ${l.assetBillingPeriod(_fmtDate(b.upcomingPeriodStart!), _fmtDate(b.upcomingPeriodEnd!))}'
+                      : l.assetMonthlyPaymentDay(b.paymentDay!),
+                  style: PTypo.caption.copyWith(color: t.fgTertiary),
+                ),
               ],
               if (b.history.isNotEmpty) ...[
                 const SizedBox(height: PSpace.x12),
