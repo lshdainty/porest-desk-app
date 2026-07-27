@@ -32,7 +32,6 @@ class ExpenseRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
-    final positive = expense.signedAmount > 0;
 
     // 카테고리 색은 백엔드 카테고리 우선, 없으면 거래에 임베드된 categoryColor, 없으면 토큰
     final colorRaw = category?.color ?? expense.categoryColor;
@@ -103,8 +102,9 @@ class ExpenseRow extends StatelessWidget {
             Text(
               krwSigned(expense.signedAmount, masked,
                   sign: expense.signedAmount > 0 ? '+' : '', unit: true),
+              // 행 금액은 지출/수입 무관 일반 텍스트색 — 색 구분은 날짜 헤더 일 합계만(사용자 결정).
               style: PTypo.money.copyWith(
-                  color: positive ? t.fgIncome : t.fgExpense,
+                  color: t.fgPrimary,
                   fontWeight: PFontWeight.bold,
                   letterSpacing: -0.14),
             ),

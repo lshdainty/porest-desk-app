@@ -1168,7 +1168,6 @@ class _ExpenseRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    final isIncome = expense.expenseType == 'INCOME';
     final color = resolveChartColor(context, expense.categoryColor, fallback: tokens.fgBrand);
     final bg = softBg(context, color);
     final title =
@@ -1231,7 +1230,7 @@ class _ExpenseRow extends StatelessWidget {
                   : krwSigned(expense.signedAmount, false,
                       sign: expense.signedAmount > 0 ? '+' : '', unit: true),
               style: PTypo.bodySm.copyWith(
-                color: isIncome ? tokens.fgIncome : tokens.fgExpense,
+                color: tokens.fgPrimary,
                 fontWeight: PFontWeight.bold,
               ),
             ),
