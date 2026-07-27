@@ -717,6 +717,11 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetUpcomingPayment => '결제 예정';
 
   @override
+  String assetBillingPeriod(String start, String end) {
+    return '$start~$end 사용분';
+  }
+
+  @override
   String assetMonthlyPaymentDay(int day) {
     return '매월 $day일 결제';
   }

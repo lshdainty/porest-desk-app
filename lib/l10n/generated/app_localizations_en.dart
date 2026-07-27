@@ -727,6 +727,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetUpcomingPayment => 'Upcoming payment';
 
   @override
+  String assetBillingPeriod(String start, String end) {
+    return 'Usage $start–$end';
+  }
+
+  @override
   String assetMonthlyPaymentDay(int day) {
     return 'Paid on day $day each month';
   }

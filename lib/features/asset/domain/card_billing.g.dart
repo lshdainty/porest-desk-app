@@ -36,6 +36,8 @@ Map<String, dynamic> _$BillingItemToJson(_BillingItem instance) =>
 _CardBilling _$CardBillingFromJson(Map<String, dynamic> json) => _CardBilling(
   cardAssetRowId: (json['cardAssetRowId'] as num).toInt(),
   upcomingAmount: (json['upcomingAmount'] as num).toInt(),
+  upcomingPeriodStart: json['upcomingPeriodStart'] as String?,
+  upcomingPeriodEnd: json['upcomingPeriodEnd'] as String?,
   nextPaymentDate: json['nextPaymentDate'] as String?,
   paymentDay: (json['paymentDay'] as num?)?.toInt(),
   paymentAssetRowId: (json['paymentAssetRowId'] as num?)?.toInt(),
@@ -50,6 +52,8 @@ Map<String, dynamic> _$CardBillingToJson(_CardBilling instance) =>
     <String, dynamic>{
       'cardAssetRowId': instance.cardAssetRowId,
       'upcomingAmount': instance.upcomingAmount,
+      'upcomingPeriodStart': instance.upcomingPeriodStart,
+      'upcomingPeriodEnd': instance.upcomingPeriodEnd,
       'nextPaymentDate': instance.nextPaymentDate,
       'paymentDay': instance.paymentDay,
       'paymentAssetRowId': instance.paymentAssetRowId,
