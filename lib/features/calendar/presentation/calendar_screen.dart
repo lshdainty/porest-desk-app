@@ -133,7 +133,8 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                 } else if (day.weekday == DateTime.saturday) {
                   color = t.fgBrand;
                 } else {
-                  color = t.fgSecondary;
+                  // 평일 = 일반 텍스트색(가계부 요일 헤더 정합, 사용자 결정)
+                  color = t.fgPrimary;
                 }
                 return Center(
                   child: Text(
