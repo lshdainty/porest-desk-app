@@ -298,24 +298,7 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
                   placeholder:
                       _selected?.cardName ?? l.assetCardNicknamePlaceholder,
                 ),
-                const SizedBox(height: PSpace.x20),
-
-                // 현재 사용액 (원) ───────────────────
-                Text(l.assetCurrentUsage,
-                    style: PTypo.caption.copyWith(
-                        color: t.fgPrimary, fontWeight: PFontWeight.medium)),
-                const SizedBox(height: PSpace.x8),
-                PTextInput(
-                  controller: _balanceCtrl,
-                  keyboardType: const TextInputType.numberWithOptions(
-                      signed: true),
-                  placeholder: '0',
-                ),
-                const SizedBox(height: 6),
-                Text(l.assetCurrentUsageHint,
-                    style: PTypo.micro.copyWith(color: t.fgTertiary)),
-
-                // 청구 사이클 (신용카드 전용) ──────────────
+                // 신용카드 — design 신판 순서: 신용한도 → 결제일 → 현재 사용액 → 결제 계좌(연동 유지)
                 if (isCredit) ...[
                   const SizedBox(height: PSpace.x20),
                   // 신용한도 (원)
@@ -347,8 +330,27 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
                     ],
                     onChanged: (v) => setState(() => _paymentDay = v),
                   ),
+                ],
+                const SizedBox(height: PSpace.x20),
+
+                // 현재 사용액 (원) ───────────────────
+                Text(l.assetCurrentUsage,
+                    style: PTypo.caption.copyWith(
+                        color: t.fgPrimary, fontWeight: PFontWeight.medium)),
+                const SizedBox(height: PSpace.x8),
+                PTextInput(
+                  controller: _balanceCtrl,
+                  keyboardType: const TextInputType.numberWithOptions(
+                      signed: true),
+                  placeholder: '0',
+                ),
+                const SizedBox(height: 6),
+                Text(l.assetCurrentUsageHint,
+                    style: PTypo.micro.copyWith(color: t.fgTertiary)),
+
+                // 결제 출금계좌 (신용카드 전용)
+                if (isCredit) ...[
                   const SizedBox(height: PSpace.x20),
-                  // 결제 출금계좌
                   Text(l.assetPaymentAccountLabel,
                       style: PTypo.caption.copyWith(
                           color: t.fgPrimary, fontWeight: PFontWeight.medium)),
