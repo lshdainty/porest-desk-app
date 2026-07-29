@@ -157,7 +157,8 @@ class _DutchPayScreenState extends ConsumerState<DutchPayScreen> {
           child: PTabs<_DutchTab>(
             value: _tab,
             onChanged: (v) => setState(() => _tab = v),
-            variant: PTabsVariant.container,
+            // pills — 트랙 없는 평면 배치 + active brand 채움(웹 정합, 사용자 결정)
+            variant: PTabsVariant.pills,
             size: PTabsSize.sm,
             expand: false,
             items: [
@@ -943,7 +944,8 @@ class _DutchPaySkeleton extends StatelessWidget {
           child: PTabs<_DutchTab>(
             value: tab,
             onChanged: onTabChanged,
-            variant: PTabsVariant.container,
+            // pills — 트랙 없는 평면 배치 + active brand 채움(웹 정합, 사용자 결정)
+            variant: PTabsVariant.pills,
             size: PTabsSize.sm,
             expand: false,
             items: [
