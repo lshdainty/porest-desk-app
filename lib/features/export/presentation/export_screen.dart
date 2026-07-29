@@ -16,7 +16,7 @@ import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_checkbox.dart';
 import 'package:porest_desk_app/shared/widgets/p_date_input.dart';
 import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
-import 'package:porest_desk_app/shared/widgets/p_segmented.dart';
+import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/shared/widgets/p_switch.dart';
 import 'package:porest_desk_app/features/export/data/export_repository.dart';
 import 'package:porest_desk_app/features/import/presentation/import_view.dart';
@@ -263,15 +263,21 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(PSpace.x20, PSpace.x16, PSpace.x20, 0),
-            child: PSegmented<String>(
-              value: _mode,
-              // 색: primary 채움 대신 절제 톤 — 웹/데스크톱 정합(사용자 결정)
-              variant: PSegmentedVariant.subtle,
-              onChanged: (v) => setState(() => _mode = v),
-              options: [
-                PSegmentOption(value: 'export', label: l.exportTab),
-                PSegmentOption(value: 'import', label: l.importTab),
-              ],
+            // pills — 트랙 없는 평면 배치 + active brand 채움(웹 정합, 사용자 결정).
+            // 폭도 내용 폭만 — 전체 폭 세그먼트 아님.
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: PTabs<String>(
+                value: _mode,
+                onChanged: (v) => setState(() => _mode = v),
+                variant: PTabsVariant.pills,
+                size: PTabsSize.sm,
+                expand: false,
+                items: [
+                  PTabItem(value: 'export', label: l.exportTab),
+                  PTabItem(value: 'import', label: l.importTab),
+                ],
+              ),
             ),
           ),
           Expanded(
