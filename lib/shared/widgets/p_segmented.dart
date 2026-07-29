@@ -18,6 +18,11 @@ import 'package:porest_desk_app/app/theme/typography.dart';
 ///   ],
 /// )
 /// ```
+/// 활성 아이템 톤 — 웹 ToggleGroup variant 정합.
+/// - [solid]: primary 채움 + on-brand 글씨(강조. 구독 월/연 등)
+/// - [subtle]: surface-input 채움 + primary 글씨(절제. 데이터 내보내기/가져오기 등)
+enum PSegmentedVariant { solid, subtle }
+
 class PSegmentOption<T> {
   const PSegmentOption({required this.value, required this.label});
   final T value;
@@ -30,11 +35,15 @@ class PSegmented<T> extends StatelessWidget {
     required this.value,
     required this.onChanged,
     required this.options,
+    this.variant = PSegmentedVariant.solid,
   });
 
   final T value;
   final ValueChanged<T> onChanged;
   final List<PSegmentOption<T>> options;
+
+  /// 활성 톤 — 기본 solid(primary 채움). subtle 은 웹 segmented-subtle 미러.
+  final PSegmentedVariant variant;
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +70,9 @@ class PSegmented<T> extends StatelessWidget {
                     // active 채움은 bgBrandSolid(다크에서도 primary 고정) — bgBrand 는 다크에서
                     // primary-light 로 밝아짐. 웹 ToggleGroup segmented(active=primary) 정합.
                     color: o.value == value
-                        ? t.bgBrandSolid
+                        ? (variant == PSegmentedVariant.subtle
+                            ? t.bgMuted
+                            : t.bgBrandSolid)
                         : Colors.transparent,
                     borderRadius: PRadius.brSm,
                   ),
@@ -69,7 +80,9 @@ class PSegmented<T> extends StatelessWidget {
                   child: Text(o.label,
                       style: PTypo.caption.copyWith(
                           color: o.value == value
-                              ? t.fgOnBrand
+                              ? (variant == PSegmentedVariant.subtle
+                                  ? t.fgPrimary
+                                  : t.fgOnBrand)
                               : t.fgSecondary,
                           fontWeight: PFontWeight.semi)),
                 ),
