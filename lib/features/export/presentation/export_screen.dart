@@ -263,21 +263,18 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(PSpace.x20, PSpace.x16, PSpace.x20, 0),
-            // pills — 트랙 없는 평면 배치 + active brand 채움(웹 정합, 사용자 결정).
-            // 폭도 내용 폭만 — 전체 폭 세그먼트 아님.
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: PTabs<String>(
-                value: _mode,
-                onChanged: (v) => setState(() => _mode = v),
-                variant: PTabsVariant.pills,
-                size: PTabsSize.sm,
-                expand: false,
-                items: [
-                  PTabItem(value: 'export', label: l.exportTab),
-                  PTabItem(value: 'import', label: l.importTab),
-                ],
-              ),
+            // 언어 설정과 동일한 container 세그먼트(풀폭 균등, 웹 정합·사용자 결정) —
+            // 트랙(bgMuted) + active = surface pill + shadow.
+            child: PTabs<String>(
+              value: _mode,
+              onChanged: (v) => setState(() => _mode = v),
+              variant: PTabsVariant.container,
+              size: PTabsSize.sm,
+              expand: true,
+              items: [
+                PTabItem(value: 'export', label: l.exportTab),
+                PTabItem(value: 'import', label: l.importTab),
+              ],
             ),
           ),
           Expanded(
