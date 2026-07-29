@@ -18,7 +18,7 @@ import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_badge.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_dropdown_menu.dart';
-import 'package:porest_desk_app/shared/widgets/p_toggle.dart';
+import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/shared/widgets/p_card.dart';
 import 'package:porest_desk_app/shared/widgets/p_divider.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
@@ -174,18 +174,52 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // 1행: 전체 목록 (좌) + 추가 버튼 (우, accent 강조)
+                            // 1행: 라벨만
+                            Text(
+                              l.recurringAllList,
+                              // 웹 --text-body-sm(14) 정합 — 앱 bodySm 은 13이라 body(14) 사용.
+                              style: PTypo.body.copyWith(
+                                color: t.fgPrimary,
+                                fontWeight: PFontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: PSpace.x4), // 라벨↔toggle 4(사용자 결정)
+                            // 2행: 필터 토글(좌, 넘치면 가로 스크롤·스크롤바 없음) + 추가 버튼(우)
                             Row(
                               children: [
-                                Text(
-                                  l.recurringAllList,
-                                  // 웹 --text-body-sm(14) 정합 — 앱 bodySm 은 13이라 body(14) 사용.
-                                  style: PTypo.body.copyWith(
-                                    color: t.fgPrimary,
-                                    fontWeight: PFontWeight.bold,
+                                Expanded(
+                                  child: SingleChildScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    // Flutter SingleChildScrollView 는 기본적으로 스크롤바를 그리지 않음
+                                    // (Scrollbar 위젯 미적용) — 웹 scrollbar-hide 와 동일 효과.
+                                    child: PTabs<_Filter>(
+                                      value: _filter,
+                                      onChanged: (v) => setState(() => _filter = v),
+                                      variant: PTabsVariant.pills,
+                                      size: PTabsSize.sm,
+                                      items: [
+                                        PTabItem(
+                                            value: _Filter.all,
+                                            label: l.recurringFilterAll(items.length)),
+                                        PTabItem(
+                                            value: _Filter.expense,
+                                            label: l.recurringFilterExpense(items
+                                                .where((i) => i.expenseType == 'EXPENSE' && i.isActive == 'Y')
+                                                .length)),
+                                        PTabItem(
+                                            value: _Filter.income,
+                                            label: l.recurringFilterIncome(items
+                                                .where((i) => i.expenseType == 'INCOME' && i.isActive == 'Y')
+                                                .length)),
+                                        PTabItem(
+                                            value: _Filter.paused,
+                                            label: l.recurringFilterPaused(
+                                                items.where((i) => i.isActive != 'Y').length)),
+                                      ],
+                                    ),
                                   ),
                                 ),
-                                const Spacer(),
+                                const SizedBox(width: PSpace.x8),
                                 PButton(
                                   label: l.recurringAdd,
                                   icon: LucideIcons.plus,
@@ -194,35 +228,6 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
                                   onPressed: () =>
                                       showRecurringSettingsDialog(context),
                                 ),
-                              ],
-                            ),
-                            const SizedBox(height: PSpace.x4), // 전체목록↔toggle 4(사용자 결정)
-                            // 2행: 필터 single toggle
-                            Row(
-                              children: [
-                                for (final e in <(_Filter, String)>[
-                                  (_Filter.all, l.recurringFilterAll(items.length)),
-                                  (
-                                    _Filter.expense,
-                                    l.recurringFilterExpense(items.where((i) => i.expenseType == 'EXPENSE' && i.isActive == 'Y').length),
-                                  ),
-                                  (
-                                    _Filter.income,
-                                    l.recurringFilterIncome(items.where((i) => i.expenseType == 'INCOME' && i.isActive == 'Y').length),
-                                  ),
-                                  (
-                                    _Filter.paused,
-                                    l.recurringFilterPaused(items.where((i) => i.isActive != 'Y').length),
-                                  ),
-                                ]) ...[
-                                  PToggle(
-                                    pressed: _filter == e.$1,
-                                    onChanged: (_) =>
-                                        setState(() => _filter = e.$1),
-                                    label: e.$2,
-                                    size: PToggleSize.sm,
-                                  ),
-                                ],
                               ],
                             ),
                           ],
@@ -831,6 +836,17 @@ class _RecurringSkeleton extends StatelessWidget {
                             fontWeight: PFontWeight.bold,
                           ),
                         ),
+                      ],
+                    ),
+                    const SizedBox(height: PSpace.x4),
+                    // 필터 칩(카운트=데이터) placeholder + 추가 버튼 — 실제 렌더 정합(같은 줄).
+                    Row(
+                      children: [
+                        const PSkeleton(width: 56, height: 32, borderRadius: PRadius.brSm),
+                        const SizedBox(width: PSpace.x4),
+                        const PSkeleton(width: 56, height: 32, borderRadius: PRadius.brSm),
+                        const SizedBox(width: PSpace.x4),
+                        const PSkeleton(width: 56, height: 32, borderRadius: PRadius.brSm),
                         const Spacer(),
                         PButton(
                           label: l.recurringAdd,
@@ -839,19 +855,6 @@ class _RecurringSkeleton extends StatelessWidget {
                           size: PButtonSize.sm,
                           onPressed: null,
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: PSpace.x4),
-                    // 필터 칩(카운트=데이터) placeholder — 칩 4개, sm toggle 높이 32.
-                    Row(
-                      children: const [
-                        PSkeleton(width: 56, height: 32, borderRadius: PRadius.brSm),
-                        SizedBox(width: PSpace.x4),
-                        PSkeleton(width: 56, height: 32, borderRadius: PRadius.brSm),
-                        SizedBox(width: PSpace.x4),
-                        PSkeleton(width: 56, height: 32, borderRadius: PRadius.brSm),
-                        SizedBox(width: PSpace.x4),
-                        PSkeleton(width: 56, height: 32, borderRadius: PRadius.brSm),
                       ],
                     ),
                   ],
