@@ -265,6 +265,8 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
             padding: const EdgeInsets.fromLTRB(PSpace.x20, PSpace.x16, PSpace.x20, 0),
             child: PSegmented<String>(
               value: _mode,
+              // 색: primary 채움 대신 절제 톤 — 웹/데스크톱 정합(사용자 결정)
+              variant: PSegmentedVariant.subtle,
               onChanged: (v) => setState(() => _mode = v),
               options: [
                 PSegmentOption(value: 'export', label: l.exportTab),
