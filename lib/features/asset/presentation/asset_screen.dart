@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:porest_desk_app/app/theme/radius.dart';
@@ -9,9 +10,12 @@ import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
+import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/settings/hide_amounts_unlock_dialog.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
+import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
+import 'package:porest_desk_app/shared/widgets/p_badge.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_card.dart';
 import 'package:porest_desk_app/shared/widgets/p_flat_section.dart';
@@ -22,6 +26,8 @@ import 'package:porest_desk_app/features/asset/domain/asset_summary.dart';
 import 'package:porest_desk_app/features/asset/presentation/asset_edit_dialog.dart';
 import 'package:porest_desk_app/features/asset/presentation/widgets/asset_logo.dart';
 import 'package:porest_desk_app/features/asset/presentation/widgets/net_worth_chart.dart';
+import 'package:porest_desk_app/features/saving_goal/application/saving_goal_providers.dart';
+import 'package:porest_desk_app/features/saving_goal/domain/saving_goal.dart';
 import 'package:porest_desk_app/shared/widgets/p_tab_bar.dart';
 
 const _accountTypes = {'BANK_ACCOUNT', 'SAVINGS', 'CASH'};
@@ -82,6 +88,7 @@ class _AssetScreenState extends ConsumerState<AssetScreen> {
           ref.invalidate(assetSummaryProvider);
           ref.invalidate(netWorthTrendProvider);
           ref.invalidate(tossValuationMapProvider);
+          ref.invalidate(savingGoalListProvider);
           await ref.read(assetsProvider.future);
         },
         child: assetsAsync.when(
@@ -115,6 +122,7 @@ class _AssetScreenState extends ConsumerState<AssetScreen> {
               assets: liveAssets,
               summary: summary,
               summaryDelta: summaryDelta,
+              goals: ref.watch(savingGoalListProvider),
               masked: settings.hideAmounts,
               onToggleMask: () => toggleHideAmountsWithUnlock(context, ref),
               tokens: t,
@@ -131,6 +139,7 @@ class _AssetBody extends StatelessWidget {
     required this.assets,
     required this.summary,
     required this.summaryDelta,
+    required this.goals,
     required this.masked,
     required this.onToggleMask,
     required this.tokens,
@@ -140,6 +149,8 @@ class _AssetBody extends StatelessWidget {
   final AssetSummary? summary;
   // 토스 라이브 평가액 보정분(라이브−DB). summary(DB 기준) 순자산/변화에 더한다.
   final int summaryDelta;
+  // 저축 목표 — 조회 전용 섹션 (관리는 설정 > 저축 목표).
+  final AsyncValue<List<SavingGoal>> goals;
   final bool masked;
   final VoidCallback onToggleMask;
   final PorestTokens tokens;
@@ -278,6 +289,179 @@ class _AssetBody extends StatelessWidget {
             kind: _GroupKind.loan,
           ),
         ],
+        const SizedBox(height: PSpace.x32),
+        _SavingGoalsSection(goals: goals, masked: masked, tokens: tokens),
+      ],
+    );
+  }
+}
+
+/// 저축 목표 — 조회 전용 flat 섹션 (design AssetsScreen GoalsCard / 웹 SavingGoalsCard 미러).
+/// 추가·수정·삭제는 '관리 >' 링크로 설정 > 저축 목표에서.
+class _SavingGoalsSection extends StatelessWidget {
+  const _SavingGoalsSection({
+    required this.goals,
+    required this.masked,
+    required this.tokens,
+  });
+
+  final AsyncValue<List<SavingGoal>> goals;
+  final bool masked;
+  final PorestTokens tokens;
+
+  String? _deadlineLabel(SavingGoal g) {
+    final raw = g.deadlineDate;
+    if (raw == null || raw.isEmpty) return null;
+    final d = DateTime.tryParse(raw);
+    if (d == null) return null;
+    return '${d.year}.${d.month.toString().padLeft(2, '0')}';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final items = goals.asData?.value ?? const <SavingGoal>[];
+    final loading = goals.isLoading && items.isEmpty;
+    return PFlatSection(
+      title: l.navSavingGoals,
+      trailing: PFlatSectionLink(
+        label: l.savingGoalManageLink,
+        onTap: () => context.push('/saving-goals'),
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+      child: loading
+          ? Column(
+              children: [
+                for (int i = 0; i < 2; i++) ...[
+                  if (i > 0) const SizedBox(height: PSpace.x16),
+                  Row(
+                    children: [
+                      PSkeleton(
+                          width: 32, height: 32, borderRadius: PRadius.tile(32)),
+                      const SizedBox(width: PSpace.x8),
+                      const Expanded(child: PSkeleton.line(width: 120)),
+                      const PSkeleton.line(width: 48, height: 12),
+                    ],
+                  ),
+                ],
+              ],
+            )
+          : items.isEmpty
+              ? Padding(
+                  padding: const EdgeInsets.symmetric(vertical: PSpace.x20),
+                  child: Center(
+                    child: Text(
+                      l.savingGoalManagePrompt,
+                      style: PTypo.bodySm.copyWith(color: tokens.fgTertiary),
+                    ),
+                  ),
+                )
+              : Column(
+                  children: [
+                    for (int i = 0; i < items.length; i++) ...[
+                      if (i > 0) const SizedBox(height: PSpace.x16),
+                      _SavingGoalRow(
+                        goal: items[i],
+                        masked: masked,
+                        tokens: tokens,
+                        deadlineLabel: _deadlineLabel(items[i]),
+                      ),
+                    ],
+                  ],
+                ),
+    );
+  }
+}
+
+/// 저축 목표 행 — 아이콘 타일 + 이름·기한 + %/금액 + 진행바 (웹 SavingGoalItem 미러).
+class _SavingGoalRow extends StatelessWidget {
+  const _SavingGoalRow({
+    required this.goal,
+    required this.masked,
+    required this.tokens,
+    required this.deadlineLabel,
+  });
+
+  final SavingGoal goal;
+  final bool masked;
+  final PorestTokens tokens;
+  final String? deadlineLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final color =
+        resolveChartColor(context, goal.color, fallback: tokens.fgBrand);
+    final bg = softBg(context, color);
+    final pct = (goal.progress * 100).round();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              width: 32,
+              height: 32,
+              decoration:
+                  BoxDecoration(color: bg, borderRadius: PRadius.tile(32)),
+              alignment: Alignment.center,
+              child: Icon(
+                  lucideByName(goal.icon, fallback: LucideIcons.piggyBank),
+                  size: 15,
+                  color: color),
+            ),
+            const SizedBox(width: PSpace.x8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(goal.title,
+                            overflow: TextOverflow.ellipsis,
+                            style: PTypo.body.copyWith(
+                                color: tokens.fgPrimary,
+                                fontWeight: PFontWeight.semi)),
+                      ),
+                      if (goal.achieved) ...[
+                        const SizedBox(width: 6),
+                        PBadge(
+                            label: l.savingGoalAchieved,
+                            variant: PBadgeVariant.softSuccess),
+                      ],
+                    ],
+                  ),
+                  Text(deadlineLabel ?? l.savingGoalNoDeadline,
+                      style:
+                          PTypo.caption.copyWith(color: tokens.fgTertiary)),
+                ],
+              ),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text('$pct%',
+                    style: PTypo.bodySm.copyWith(
+                        color: tokens.fgPrimary,
+                        fontWeight: PFontWeight.bold)),
+                Text(
+                    '${krwMasked(goal.currentAmount, masked, mask: '••••')} / ${krwMasked(goal.targetAmount, masked, mask: '••••')}',
+                    style: PTypo.micro.copyWith(color: tokens.fgTertiary)),
+              ],
+            ),
+          ],
+        ),
+        const SizedBox(height: PSpace.x8),
+        ClipRRect(
+          borderRadius: PRadius.brXs,
+          child: LinearProgressIndicator(
+            value: goal.progress,
+            minHeight: 6,
+            backgroundColor: tokens.bgTrack,
+            color: color,
+          ),
+        ),
       ],
     );
   }

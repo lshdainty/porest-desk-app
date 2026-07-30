@@ -56,7 +56,7 @@
   "navCategories": "카테고리",
   "navPresets": "프리셋",
   "navCards": "카드 관리",
-  "navSavingGoals": "저금 목표",
+  "navSavingGoals": "저축 목표",
   "navExport": "내보내기",
   "navLogout": "로그아웃",
   "navChangePassword": "비밀번호 변경",
@@ -346,19 +346,52 @@
   "assetScheduledTag": "예정",
   "assetPaidDone": "결제 완료",
   "assetUsagePeriod": "카드 이용 기간 {period}",
-  "@assetUsagePeriod": {"placeholders": {"period": {"type": "String"}}},
+  "@assetUsagePeriod": {
+    "placeholders": {
+      "period": {
+        "type": "String"
+      }
+    }
+  },
   "assetLimitSettings": "한도 · 결제 설정",
   "assetLimitUsage": "한도 사용",
   "assetLimitPctUsed": "{pct}% 사용",
-  "@assetLimitPctUsed": {"placeholders": {"pct": {"type": "int"}}},
+  "@assetLimitPctUsed": {
+    "placeholders": {
+      "pct": {
+        "type": "int"
+      }
+    }
+  },
   "assetLimitOf": "{used} / 한도 {limit}",
-  "@assetLimitOf": {"placeholders": {"used": {"type": "String"}, "limit": {"type": "String"}}},
+  "@assetLimitOf": {
+    "placeholders": {
+      "used": {
+        "type": "String"
+      },
+      "limit": {
+        "type": "String"
+      }
+    }
+  },
   "assetLimitRemain": "잔여 {amount}",
-  "@assetLimitRemain": {"placeholders": {"amount": {"type": "String"}}},
+  "@assetLimitRemain": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "assetLimitEdit": "한도 · 결제일 변경",
   "assetPerfDone": "이번 달 실적 달성",
   "assetPerfRemain": "실적까지 {amount}",
-  "@assetPerfRemain": {"placeholders": {"amount": {"type": "String"}}},
+  "@assetPerfRemain": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "assetUsageHistory": "이용 내역",
   "assetSortRecent": "최근순",
   "assetSortAmount": "고액순",
@@ -368,8 +401,12 @@
   "assetBillingPeriod": "{start}~{end} 사용분",
   "@assetBillingPeriod": {
     "placeholders": {
-      "start": {"type": "String"},
-      "end": {"type": "String"}
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
     }
   },
   "assetMonthlyPaymentDay": "매월 {day}일 결제",
@@ -1842,24 +1879,29 @@
       }
     }
   },
-  "savingGoalLoadError": "저금 목표 로드 실패",
-  "savingGoalEmpty": "등록된 저금 목표가 없습니다",
-  "savingGoalContribute": "적립",
-  "savingGoalContributeTitle": "\"{title}\" 적립",
-  "@savingGoalContributeTitle": {
+  "savingGoalLoadError": "저축 목표 로드 실패",
+  "savingGoalOverallProgress": "전체 진행률",
+  "savingGoalListCount": "목표 목록 · {n}개",
+  "@savingGoalListCount": {
     "placeholders": {
-      "title": {
-        "type": "String"
+      "n": {
+        "type": "int"
       }
     }
   },
-  "savingGoalAmountHint": "금액 (음수 가능)",
+  "savingGoalAddAction": "목표 추가",
+  "savingGoalManagePrompt": "설정에서 저축 목표를 추가해보세요",
+  "savingGoalManageLink": "관리",
+  "savingGoalNoDeadline": "기한 없음",
+  "savingGoalCurrentLabel": "현재 모은 금액",
+  "savingGoalIconLabel": "아이콘",
+  "savingGoalEmpty": "아직 저축 목표가 없어요. ‘목표 추가’로 시작해보세요.",
   "savingGoalActionFailed": "실패",
   "savingGoalAchieved": "달성!",
-  "savingGoalAdd": "저금 목표 추가",
-  "savingGoalEdit": "저금 목표 수정",
+  "savingGoalAdd": "저축 목표 추가",
+  "savingGoalEdit": "저축 목표 수정",
   "savingGoalSubmitAdd": "추가",
-  "savingGoalDeleteTitle": "저금 목표 삭제",
+  "savingGoalDeleteTitle": "저축 목표 삭제",
   "savingGoalDeleteConfirm": "\"{title}\"을(를) 삭제할까요?",
   "@savingGoalDeleteConfirm": {
     "placeholders": {
@@ -1875,8 +1917,6 @@
   "savingGoalDeadlineLabel": "마감일 (선택)",
   "savingGoalDeadlineHint": "미설정",
   "savingGoalColorLabel": "색상",
-  "savingGoalDescLabel": "설명 (선택)",
-  "savingGoalDescHint": "메모",
   "searchAdvancedFilter": "고급 필터",
   "searchHint": "거래 검색...",
   "searchStartHint": "시작",
@@ -2604,13 +2644,6 @@
   "memoDetailTitle": "메모 상세",
   "memoDetailPinned": "고정됨",
   "memoDetailNoContent": "내용 없음",
-  "savingGoalDetailTitle": "저금 목표 상세",
-  "savingGoalDetailCurrent": "현재 모은 금액",
-  "savingGoalDetailRemaining": "남은 금액",
-  "savingGoalDetailDeadline": "목표일",
-  "savingGoalDetailDeadlineNone": "미설정",
-  "savingGoalDetailDescription": "설명",
-  "savingGoalDetailAchievedAt": "달성일",
   "calEventDetailTitle": "일정 상세",
   "calDetailNone": "없음",
   "exportTab": "내보내기",
@@ -3007,7 +3040,11 @@
   "settingsMenuTodoTag": "할일 태그",
   "ttagUsage": "{count}건에 사용 중",
   "calLabelUsage": "{count}건에 사용 중",
-  "@calLabelUsage": {"placeholders": {"count": {}}},
+  "@calLabelUsage": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "@ttagUsage": {
     "placeholders": {
       "count": {

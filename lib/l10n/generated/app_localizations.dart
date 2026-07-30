@@ -419,7 +419,7 @@ abstract class AppLocalizations {
   /// No description provided for @navSavingGoals.
   ///
   /// In ko, this message translates to:
-  /// **'저금 목표'**
+  /// **'저축 목표'**
   String get navSavingGoals;
 
   /// No description provided for @navExport.
@@ -6557,32 +6557,62 @@ abstract class AppLocalizations {
   /// No description provided for @savingGoalLoadError.
   ///
   /// In ko, this message translates to:
-  /// **'저금 목표 로드 실패'**
+  /// **'저축 목표 로드 실패'**
   String get savingGoalLoadError;
+
+  /// No description provided for @savingGoalOverallProgress.
+  ///
+  /// In ko, this message translates to:
+  /// **'전체 진행률'**
+  String get savingGoalOverallProgress;
+
+  /// No description provided for @savingGoalListCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'목표 목록 · {n}개'**
+  String savingGoalListCount(int n);
+
+  /// No description provided for @savingGoalAddAction.
+  ///
+  /// In ko, this message translates to:
+  /// **'목표 추가'**
+  String get savingGoalAddAction;
+
+  /// No description provided for @savingGoalManagePrompt.
+  ///
+  /// In ko, this message translates to:
+  /// **'설정에서 저축 목표를 추가해보세요'**
+  String get savingGoalManagePrompt;
+
+  /// No description provided for @savingGoalManageLink.
+  ///
+  /// In ko, this message translates to:
+  /// **'관리'**
+  String get savingGoalManageLink;
+
+  /// No description provided for @savingGoalNoDeadline.
+  ///
+  /// In ko, this message translates to:
+  /// **'기한 없음'**
+  String get savingGoalNoDeadline;
+
+  /// No description provided for @savingGoalCurrentLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'현재 모은 금액'**
+  String get savingGoalCurrentLabel;
+
+  /// No description provided for @savingGoalIconLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'아이콘'**
+  String get savingGoalIconLabel;
 
   /// No description provided for @savingGoalEmpty.
   ///
   /// In ko, this message translates to:
-  /// **'등록된 저금 목표가 없습니다'**
+  /// **'아직 저축 목표가 없어요. ‘목표 추가’로 시작해보세요.'**
   String get savingGoalEmpty;
-
-  /// No description provided for @savingGoalContribute.
-  ///
-  /// In ko, this message translates to:
-  /// **'적립'**
-  String get savingGoalContribute;
-
-  /// No description provided for @savingGoalContributeTitle.
-  ///
-  /// In ko, this message translates to:
-  /// **'\"{title}\" 적립'**
-  String savingGoalContributeTitle(String title);
-
-  /// No description provided for @savingGoalAmountHint.
-  ///
-  /// In ko, this message translates to:
-  /// **'금액 (음수 가능)'**
-  String get savingGoalAmountHint;
 
   /// No description provided for @savingGoalActionFailed.
   ///
@@ -6599,13 +6629,13 @@ abstract class AppLocalizations {
   /// No description provided for @savingGoalAdd.
   ///
   /// In ko, this message translates to:
-  /// **'저금 목표 추가'**
+  /// **'저축 목표 추가'**
   String get savingGoalAdd;
 
   /// No description provided for @savingGoalEdit.
   ///
   /// In ko, this message translates to:
-  /// **'저금 목표 수정'**
+  /// **'저축 목표 수정'**
   String get savingGoalEdit;
 
   /// No description provided for @savingGoalSubmitAdd.
@@ -6617,7 +6647,7 @@ abstract class AppLocalizations {
   /// No description provided for @savingGoalDeleteTitle.
   ///
   /// In ko, this message translates to:
-  /// **'저금 목표 삭제'**
+  /// **'저축 목표 삭제'**
   String get savingGoalDeleteTitle;
 
   /// No description provided for @savingGoalDeleteConfirm.
@@ -6667,18 +6697,6 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'색상'**
   String get savingGoalColorLabel;
-
-  /// No description provided for @savingGoalDescLabel.
-  ///
-  /// In ko, this message translates to:
-  /// **'설명 (선택)'**
-  String get savingGoalDescLabel;
-
-  /// No description provided for @savingGoalDescHint.
-  ///
-  /// In ko, this message translates to:
-  /// **'메모'**
-  String get savingGoalDescHint;
 
   /// No description provided for @searchAdvancedFilter.
   ///
@@ -8731,48 +8749,6 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'내용 없음'**
   String get memoDetailNoContent;
-
-  /// No description provided for @savingGoalDetailTitle.
-  ///
-  /// In ko, this message translates to:
-  /// **'저금 목표 상세'**
-  String get savingGoalDetailTitle;
-
-  /// No description provided for @savingGoalDetailCurrent.
-  ///
-  /// In ko, this message translates to:
-  /// **'현재 모은 금액'**
-  String get savingGoalDetailCurrent;
-
-  /// No description provided for @savingGoalDetailRemaining.
-  ///
-  /// In ko, this message translates to:
-  /// **'남은 금액'**
-  String get savingGoalDetailRemaining;
-
-  /// No description provided for @savingGoalDetailDeadline.
-  ///
-  /// In ko, this message translates to:
-  /// **'목표일'**
-  String get savingGoalDetailDeadline;
-
-  /// No description provided for @savingGoalDetailDeadlineNone.
-  ///
-  /// In ko, this message translates to:
-  /// **'미설정'**
-  String get savingGoalDetailDeadlineNone;
-
-  /// No description provided for @savingGoalDetailDescription.
-  ///
-  /// In ko, this message translates to:
-  /// **'설명'**
-  String get savingGoalDetailDescription;
-
-  /// No description provided for @savingGoalDetailAchievedAt.
-  ///
-  /// In ko, this message translates to:
-  /// **'달성일'**
-  String get savingGoalDetailAchievedAt;
 
   /// No description provided for @calEventDetailTitle.
   ///

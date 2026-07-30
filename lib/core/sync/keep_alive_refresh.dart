@@ -6,6 +6,7 @@ import 'package:porest_desk_app/features/calendar/application/calendar_providers
 import 'package:porest_desk_app/features/card/application/card_providers.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
 import 'package:porest_desk_app/features/memo/application/memo_providers.dart';
+import 'package:porest_desk_app/features/saving_goal/application/saving_goal_providers.dart';
 import 'package:porest_desk_app/features/todo/application/todo_providers.dart';
 
 /// 거래(expense) 변경 후 자산 관련 provider 무효화.
@@ -54,6 +55,8 @@ void invalidateKeepAliveForRoute(WidgetRef ref, String path) {
     case '/assets':
       ref.invalidate(assetsProvider);
       ref.invalidate(netWorthTrendProvider);
+      // 자산 화면 저축 목표 조회 섹션 — 셸 상주 watch 로 dispose 안 되므로 진입 시 갱신.
+      ref.invalidate(savingGoalListProvider);
     case '/stats':
       ref.invalidate(categoriesProvider);
     case '/budget':

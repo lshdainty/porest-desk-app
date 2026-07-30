@@ -3507,18 +3507,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get savingGoalLoadError => 'Failed to load saving goals';
 
   @override
-  String get savingGoalEmpty => 'No saving goals yet';
+  String get savingGoalOverallProgress => 'Overall progress';
 
   @override
-  String get savingGoalContribute => 'Contribute';
-
-  @override
-  String savingGoalContributeTitle(String title) {
-    return 'Contribute to \"$title\"';
+  String savingGoalListCount(int n) {
+    return 'Goals · $n';
   }
 
   @override
-  String get savingGoalAmountHint => 'Amount (negative allowed)';
+  String get savingGoalAddAction => 'Add goal';
+
+  @override
+  String get savingGoalManagePrompt => 'Add saving goals in Settings';
+
+  @override
+  String get savingGoalManageLink => 'Manage';
+
+  @override
+  String get savingGoalNoDeadline => 'No deadline';
+
+  @override
+  String get savingGoalCurrentLabel => 'Amount saved';
+
+  @override
+  String get savingGoalIconLabel => 'Icon';
+
+  @override
+  String get savingGoalEmpty => 'No saving goals yet. Start with ‘Add goal’.';
 
   @override
   String get savingGoalActionFailed => 'Failed';
@@ -3563,12 +3578,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get savingGoalColorLabel => 'Color';
-
-  @override
-  String get savingGoalDescLabel => 'Description (optional)';
-
-  @override
-  String get savingGoalDescHint => 'Note';
 
   @override
   String get searchAdvancedFilter => 'Advanced filter';
@@ -4719,27 +4728,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get memoDetailNoContent => 'No content';
-
-  @override
-  String get savingGoalDetailTitle => 'Saving goal details';
-
-  @override
-  String get savingGoalDetailCurrent => 'Amount saved';
-
-  @override
-  String get savingGoalDetailRemaining => 'Remaining';
-
-  @override
-  String get savingGoalDetailDeadline => 'Target date';
-
-  @override
-  String get savingGoalDetailDeadlineNone => 'Not set';
-
-  @override
-  String get savingGoalDetailDescription => 'Description';
-
-  @override
-  String get savingGoalDetailAchievedAt => 'Achieved on';
 
   @override
   String get calEventDetailTitle => 'Event details';

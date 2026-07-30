@@ -343,30 +343,67 @@
   "assetScheduledTag": "Upcoming",
   "assetPaidDone": "Paid",
   "assetUsagePeriod": "Card usage period {period}",
-  "@assetUsagePeriod": {"placeholders": {"period": {"type": "String"}}},
+  "@assetUsagePeriod": {
+    "placeholders": {
+      "period": {
+        "type": "String"
+      }
+    }
+  },
   "assetLimitSettings": "Limit · payment",
   "assetLimitUsage": "Limit usage",
   "assetLimitPctUsed": "{pct}% used",
-  "@assetLimitPctUsed": {"placeholders": {"pct": {"type": "int"}}},
+  "@assetLimitPctUsed": {
+    "placeholders": {
+      "pct": {
+        "type": "int"
+      }
+    }
+  },
   "assetLimitOf": "{used} / Limit {limit}",
-  "@assetLimitOf": {"placeholders": {"used": {"type": "String"}, "limit": {"type": "String"}}},
+  "@assetLimitOf": {
+    "placeholders": {
+      "used": {
+        "type": "String"
+      },
+      "limit": {
+        "type": "String"
+      }
+    }
+  },
   "assetLimitRemain": "Remaining {amount}",
-  "@assetLimitRemain": {"placeholders": {"amount": {"type": "String"}}},
+  "@assetLimitRemain": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "assetLimitEdit": "Edit limit · payment day",
   "assetPerfDone": "Monthly target met",
   "assetPerfRemain": "{amount} to target",
-  "@assetPerfRemain": {"placeholders": {"amount": {"type": "String"}}},
+  "@assetPerfRemain": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "assetUsageHistory": "Usage history",
   "assetSortRecent": "Recent",
   "assetSortAmount": "Amount",
   "assetSortCategory": "Category",
   "assetPeriodPick": "Select period",
   "assetNoUsage": "No usage history yet.",
-  "assetBillingPeriod": "Usage {start}\u2013{end}",
+  "assetBillingPeriod": "Usage {start}–{end}",
   "@assetBillingPeriod": {
     "placeholders": {
-      "start": {"type": "String"},
-      "end": {"type": "String"}
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
     }
   },
   "assetMonthlyPaymentDay": "Paid on day {day} each month",
@@ -1840,17 +1877,22 @@
     }
   },
   "savingGoalLoadError": "Failed to load saving goals",
-  "savingGoalEmpty": "No saving goals yet",
-  "savingGoalContribute": "Contribute",
-  "savingGoalContributeTitle": "Contribute to \"{title}\"",
-  "@savingGoalContributeTitle": {
+  "savingGoalOverallProgress": "Overall progress",
+  "savingGoalListCount": "Goals · {n}",
+  "@savingGoalListCount": {
     "placeholders": {
-      "title": {
-        "type": "String"
+      "n": {
+        "type": "int"
       }
     }
   },
-  "savingGoalAmountHint": "Amount (negative allowed)",
+  "savingGoalAddAction": "Add goal",
+  "savingGoalManagePrompt": "Add saving goals in Settings",
+  "savingGoalManageLink": "Manage",
+  "savingGoalNoDeadline": "No deadline",
+  "savingGoalCurrentLabel": "Amount saved",
+  "savingGoalIconLabel": "Icon",
+  "savingGoalEmpty": "No saving goals yet. Start with ‘Add goal’.",
   "savingGoalActionFailed": "Failed",
   "savingGoalAchieved": "Achieved!",
   "savingGoalAdd": "Add saving goal",
@@ -1872,8 +1914,6 @@
   "savingGoalDeadlineLabel": "Deadline (optional)",
   "savingGoalDeadlineHint": "Not set",
   "savingGoalColorLabel": "Color",
-  "savingGoalDescLabel": "Description (optional)",
-  "savingGoalDescHint": "Note",
   "searchAdvancedFilter": "Advanced filter",
   "searchHint": "Search transactions...",
   "searchStartHint": "Start",
@@ -2553,13 +2593,6 @@
   "memoDetailTitle": "Memo details",
   "memoDetailPinned": "Pinned",
   "memoDetailNoContent": "No content",
-  "savingGoalDetailTitle": "Saving goal details",
-  "savingGoalDetailCurrent": "Amount saved",
-  "savingGoalDetailRemaining": "Remaining",
-  "savingGoalDetailDeadline": "Target date",
-  "savingGoalDetailDeadlineNone": "Not set",
-  "savingGoalDetailDescription": "Description",
-  "savingGoalDetailAchievedAt": "Achieved on",
   "calEventDetailTitle": "Event details",
   "calDetailNone": "None",
   "exportTab": "Export",
@@ -2870,7 +2903,11 @@
   "settingsMenuTodoTag": "To-do tags",
   "ttagUsage": "Used by {count} to-dos",
   "calLabelUsage": "Used by {count} events",
-  "@calLabelUsage": {"placeholders": {"count": {}}},
+  "@calLabelUsage": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "@ttagUsage": {
     "placeholders": {
       "count": {

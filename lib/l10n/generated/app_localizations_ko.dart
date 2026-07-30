@@ -168,7 +168,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get navCards => '카드 관리';
 
   @override
-  String get navSavingGoals => '저금 목표';
+  String get navSavingGoals => '저축 목표';
 
   @override
   String get navExport => '내보내기';
@@ -3467,21 +3467,36 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get savingGoalLoadError => '저금 목표 로드 실패';
+  String get savingGoalLoadError => '저축 목표 로드 실패';
 
   @override
-  String get savingGoalEmpty => '등록된 저금 목표가 없습니다';
+  String get savingGoalOverallProgress => '전체 진행률';
 
   @override
-  String get savingGoalContribute => '적립';
-
-  @override
-  String savingGoalContributeTitle(String title) {
-    return '\"$title\" 적립';
+  String savingGoalListCount(int n) {
+    return '목표 목록 · $n개';
   }
 
   @override
-  String get savingGoalAmountHint => '금액 (음수 가능)';
+  String get savingGoalAddAction => '목표 추가';
+
+  @override
+  String get savingGoalManagePrompt => '설정에서 저축 목표를 추가해보세요';
+
+  @override
+  String get savingGoalManageLink => '관리';
+
+  @override
+  String get savingGoalNoDeadline => '기한 없음';
+
+  @override
+  String get savingGoalCurrentLabel => '현재 모은 금액';
+
+  @override
+  String get savingGoalIconLabel => '아이콘';
+
+  @override
+  String get savingGoalEmpty => '아직 저축 목표가 없어요. ‘목표 추가’로 시작해보세요.';
 
   @override
   String get savingGoalActionFailed => '실패';
@@ -3490,16 +3505,16 @@ class AppLocalizationsKo extends AppLocalizations {
   String get savingGoalAchieved => '달성!';
 
   @override
-  String get savingGoalAdd => '저금 목표 추가';
+  String get savingGoalAdd => '저축 목표 추가';
 
   @override
-  String get savingGoalEdit => '저금 목표 수정';
+  String get savingGoalEdit => '저축 목표 수정';
 
   @override
   String get savingGoalSubmitAdd => '추가';
 
   @override
-  String get savingGoalDeleteTitle => '저금 목표 삭제';
+  String get savingGoalDeleteTitle => '저축 목표 삭제';
 
   @override
   String savingGoalDeleteConfirm(String title) {
@@ -3526,12 +3541,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get savingGoalColorLabel => '색상';
-
-  @override
-  String get savingGoalDescLabel => '설명 (선택)';
-
-  @override
-  String get savingGoalDescHint => '메모';
 
   @override
   String get searchAdvancedFilter => '고급 필터';
@@ -4667,27 +4676,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get memoDetailNoContent => '내용 없음';
-
-  @override
-  String get savingGoalDetailTitle => '저금 목표 상세';
-
-  @override
-  String get savingGoalDetailCurrent => '현재 모은 금액';
-
-  @override
-  String get savingGoalDetailRemaining => '남은 금액';
-
-  @override
-  String get savingGoalDetailDeadline => '목표일';
-
-  @override
-  String get savingGoalDetailDeadlineNone => '미설정';
-
-  @override
-  String get savingGoalDetailDescription => '설명';
-
-  @override
-  String get savingGoalDetailAchievedAt => '달성일';
 
   @override
   String get calEventDetailTitle => '일정 상세';
