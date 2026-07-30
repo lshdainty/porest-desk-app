@@ -11,6 +11,7 @@ import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
 import 'package:porest_desk_app/shared/widgets/p_color_picker.dart';
+import 'package:porest_desk_app/shared/widgets/p_icon_picker.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_select.dart';
 import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
@@ -21,7 +22,6 @@ import 'package:porest_desk_app/features/dashboard/application/dashboard_provide
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
 import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
 import 'package:porest_desk_app/features/stats/application/stats_providers.dart';
-import 'package:porest_desk_app/features/category/presentation/category_palette.dart';
 
 /// 카테고리 추가/편집 시트 — 웹 `CategoryEditDialog.tsx` 미러.
 ///
@@ -453,33 +453,12 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
         ),
         const SizedBox(height: PSpace.x16),
 
-        // 아이콘 — 웹 ICON_CHOICES 34종.
+        // 아이콘 — 전체 검색·선택, 웹 CategoryEditDialog 와 동일한 공통 픽커.
         Text(l.categoryIconLabel, style: PTypo.caption.copyWith(color: t.fgSecondary)),
         const SizedBox(height: PSpace.x8),
-        Wrap(
-          spacing: PSpace.x8,
-          runSpacing: PSpace.x8,
-          children: [
-            for (final name in kCategoryIcons)
-              GestureDetector(
-                onTap: () => setState(() => _icon = name),
-                child: Container(
-                  width: 38,
-                  height: 38,
-                  decoration: BoxDecoration(
-                    color: name == _icon ? t.bgBrandSubtle : t.bgMuted,
-                    borderRadius: PRadius.brSm,
-                    border: Border.all(
-                      color: name == _icon ? t.borderBrand : t.borderSubtle,
-                      width: name == _icon ? 1.5 : 1,
-                    ),
-                  ),
-                  child: Icon(lucideByName(name),
-                      size: 18,
-                      color: name == _icon ? t.fgBrand : t.fgSecondary),
-                ),
-              ),
-          ],
+        PIconPicker(
+          value: _icon,
+          onChanged: (v) => setState(() => _icon = v),
         ),
       ],
     );

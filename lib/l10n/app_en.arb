@@ -2911,5 +2911,25 @@
         "type": "int"
       }
     }
+  },
+  "iconPickerTitle": "Select icon",
+  "iconPickerSearchHint": "Search icons...",
+  "iconPickerNone": "None",
+  "iconPickerNoResults": "No results found",
+  "iconPickerResultCount": "{count} results",
+  "@iconPickerResultCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "iconPickerTotalHint": "{count} total · scroll for more",
+  "@iconPickerTotalHint": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

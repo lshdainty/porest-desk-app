@@ -9463,6 +9463,42 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'이 태그를 쓰는 할 일 {count}건은 태그 없음으로 남아요.'**
   String ttagDeleteDesc(int count);
+
+  /// No description provided for @iconPickerTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'아이콘 선택'**
+  String get iconPickerTitle;
+
+  /// No description provided for @iconPickerSearchHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'아이콘 검색...'**
+  String get iconPickerSearchHint;
+
+  /// No description provided for @iconPickerNone.
+  ///
+  /// In ko, this message translates to:
+  /// **'없음'**
+  String get iconPickerNone;
+
+  /// No description provided for @iconPickerNoResults.
+  ///
+  /// In ko, this message translates to:
+  /// **'검색 결과가 없습니다'**
+  String get iconPickerNoResults;
+
+  /// No description provided for @iconPickerResultCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}개 결과'**
+  String iconPickerResultCount(int count);
+
+  /// No description provided for @iconPickerTotalHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'전체 {count}개 · 스크롤해서 더 보기'**
+  String iconPickerTotalHint(int count);
 }
 
 class _AppLocalizationsDelegate

@@ -3048,5 +3048,25 @@
         "type": "int"
       }
     }
+  },
+  "iconPickerTitle": "아이콘 선택",
+  "iconPickerSearchHint": "아이콘 검색...",
+  "iconPickerNone": "없음",
+  "iconPickerNoResults": "검색 결과가 없습니다",
+  "iconPickerResultCount": "{count}개 결과",
+  "@iconPickerResultCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "iconPickerTotalHint": "전체 {count}개 · 스크롤해서 더 보기",
+  "@iconPickerTotalHint": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

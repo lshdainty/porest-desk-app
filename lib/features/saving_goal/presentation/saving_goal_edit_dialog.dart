@@ -5,31 +5,19 @@ import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart';
+import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
 import 'package:porest_desk_app/shared/widgets/p_date_input.dart';
+import 'package:porest_desk_app/shared/widgets/p_icon_picker.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_color_picker.dart';
 import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
 import 'package:porest_desk_app/features/saving_goal/application/saving_goal_providers.dart';
 import 'package:porest_desk_app/features/saving_goal/domain/saving_goal.dart';
-
-/// 저축 목표 아이콘 10종 — 웹 SavingGoalAddDialog GOAL_ICONS / design GoalEditDialog 정합.
-const List<String> kSavingGoalIcons = [
-  'plane',
-  'shield',
-  'laptop',
-  'home',
-  'graduation-cap',
-  'gift',
-  'car',
-  'heart',
-  'piggy-bank',
-  'wallet',
-];
 
 void showSavingGoalEditDialog(BuildContext context, {SavingGoal? edit}) {
   final l = AppLocalizations.of(context);
@@ -85,10 +73,9 @@ class _BodyState extends ConsumerState<_Body> {
     _deadline = widget.edit?.deadlineDate == null
         ? null
         : DateTime.tryParse(widget.edit!.deadlineDate!);
+    // 전체 아이콘 픽커 도입으로 저장된 이름을 그대로 존중한다(10종 강제 대체 제거).
     final editIcon = widget.edit?.icon;
-    _icon = editIcon != null && kSavingGoalIcons.contains(editIcon)
-        ? editIcon
-        : 'piggy-bank';
+    _icon = editIcon != null && editIcon.isNotEmpty ? editIcon : 'piggy-bank';
     final editColor = widget.edit?.color?.toLowerCase();
     _color = editColor != null && kChartBaseHexes.contains(editColor)
         ? editColor
@@ -207,6 +194,17 @@ class _BodyState extends ConsumerState<_Body> {
       padding: const EdgeInsets.fromLTRB(
           PSpace.x16, 0, PSpace.x16, PSpace.x16),
       children: [
+          // 입력값 실시간 미리보기 — 웹 SavingGoalAddDialog Preview 정합.
+          // 이름·금액 PTextInput 의 onChanged setState 가 있어 별도 리스너 없이 갱신된다.
+          _Preview(
+            title: _titleCtrl.text.trim(),
+            deadline: _deadline,
+            icon: _icon,
+            colorHex: _color,
+            current: _current,
+            target: int.tryParse(_amountCtrl.text.replaceAll(',', '')) ?? 0,
+          ),
+          const SizedBox(height: PSpace.x16),
           Text(l.savingGoalNameLabel,
               style: PTypo.caption.copyWith(color: t.fgSecondary)),
           const SizedBox(height: PSpace.x4),
@@ -271,31 +269,12 @@ class _BodyState extends ConsumerState<_Body> {
           Text(l.savingGoalIconLabel,
               style: PTypo.caption.copyWith(color: t.fgSecondary)),
           const SizedBox(height: PSpace.x8),
-          // 아이콘 10종 — 카테고리 편집 아이콘 피커와 동일 타일 패턴.
-          Wrap(
-            spacing: PSpace.x8,
-            runSpacing: PSpace.x8,
-            children: [
-              for (final name in kSavingGoalIcons)
-                GestureDetector(
-                  onTap: () => setState(() => _icon = name),
-                  child: Container(
-                    width: 38,
-                    height: 38,
-                    decoration: BoxDecoration(
-                      color: name == _icon ? t.bgBrandSubtle : t.bgMuted,
-                      borderRadius: PRadius.brSm,
-                      border: Border.all(
-                        color: name == _icon ? t.borderBrand : t.borderSubtle,
-                        width: name == _icon ? 1.5 : 1,
-                      ),
-                    ),
-                    child: Icon(lucideByName(name),
-                        size: 18,
-                        color: name == _icon ? t.fgBrand : t.fgSecondary),
-                  ),
-                ),
-            ],
+          // 전체 아이콘 검색·선택 — 웹 SavingGoalAddDialog 와 동일한 공통 픽커.
+          // '없음' 선택은 저축 목표 기본 아이콘(piggy-bank)으로 대체(웹 정합).
+          PIconPicker(
+            value: _icon,
+            onChanged: (v) =>
+                setState(() => _icon = v.isEmpty ? 'piggy-bank' : v),
           ),
           const SizedBox(height: PSpace.x16),
           Text(l.savingGoalColorLabel,
@@ -306,6 +285,102 @@ class _BodyState extends ConsumerState<_Body> {
             onChanged: (hex) => setState(() => _color = hex),
           ),
       ],
+    );
+  }
+}
+
+/// 입력값 실시간 미리보기 — 웹 SavingGoalAddDialog Preview(bg-canvas 박스) 미러.
+/// 아이콘 타일·게이지는 목록 화면 `_GoalCard` 와 같은 다크 스왑 팔레트를 쓴다.
+class _Preview extends StatelessWidget {
+  const _Preview({
+    required this.title,
+    required this.deadline,
+    required this.icon,
+    required this.colorHex,
+    required this.current,
+    required this.target,
+  });
+  final String title;
+  final DateTime? deadline;
+  final String icon;
+  final String colorHex;
+  final int current;
+  final int target;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final l = AppLocalizations.of(context);
+    final color = resolveChartColor(context, colorHex, fallback: t.fgBrand);
+    final bg = softBg(context, color);
+    final progress = target > 0 ? (current / target).clamp(0.0, 1.0) : 0.0;
+    final pct = target > 0 ? (current / target * 100).round() : 0;
+    final deadlineLabel = deadline == null
+        ? l.savingGoalNoDeadline
+        : '${deadline!.year}.${deadline!.month.toString().padLeft(2, '0')}';
+
+    return Container(
+      padding: const EdgeInsets.all(PSpace.x16),
+      decoration: BoxDecoration(
+        color: t.bgCanvas,
+        borderRadius: PRadius.brLg,
+        border: Border.all(color: t.borderSubtle),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration:
+                    BoxDecoration(color: bg, borderRadius: PRadius.tile(36)),
+                alignment: Alignment.center,
+                child: Icon(lucideByName(icon), size: 17, color: color),
+              ),
+              const SizedBox(width: PSpace.x12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title.isEmpty ? l.savingGoalNameLabel : title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: PTypo.bodySm.copyWith(
+                          color: t.fgPrimary, fontWeight: PFontWeight.bold),
+                    ),
+                    Text(deadlineLabel,
+                        style: PTypo.caption.copyWith(color: t.fgTertiary)),
+                  ],
+                ),
+              ),
+              const SizedBox(width: PSpace.x12),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text('$pct%',
+                      style: PTypo.bodySm.copyWith(
+                          color: t.fgPrimary, fontWeight: PFontWeight.bold)),
+                  Text('${krw(current)} / ${krw(target)}',
+                      style: PTypo.micro.copyWith(color: t.fgTertiary)),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: PSpace.x12),
+          ClipRRect(
+            borderRadius: PRadius.brXs,
+            child: LinearProgressIndicator(
+              value: progress,
+              minHeight: 6,
+              backgroundColor: t.bgTrack,
+              color: color,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
