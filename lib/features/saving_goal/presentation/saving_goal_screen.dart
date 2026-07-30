@@ -16,7 +16,7 @@ import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_badge.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_card.dart';
-import 'package:porest_desk_app/shared/widgets/p_empty_state.dart';
+import 'package:porest_desk_app/shared/widgets/p_divider.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
 import 'package:porest_desk_app/features/saving_goal/application/saving_goal_providers.dart';
 import 'package:porest_desk_app/features/saving_goal/domain/saving_goal.dart';
@@ -138,13 +138,20 @@ class SavingGoalScreen extends ConsumerWidget {
                 const SizedBox(height: PSpace.x8),
 
                 if (items.isEmpty)
-                  PEmptyState(
-                    icon: LucideIcons.piggyBank,
-                    message: l.savingGoalEmpty,
+                  // 카드 다이어트(recurring_screen _EmptyState 정합) — 아이콘·카드 없이 중앙 단문.
+                  Padding(
+                    padding: const EdgeInsets.all(PSpace.x40),
+                    child: Center(
+                      child: Text(
+                        l.savingGoalEmpty,
+                        textAlign: TextAlign.center,
+                        style: PTypo.bodySm.copyWith(color: t.fgTertiary),
+                      ),
+                    ),
                   )
                 else
                   for (int i = 0; i < items.length; i++) ...[
-                    if (i > 0) const SizedBox(height: PSpace.x8),
+                    if (i > 0) const PDivider(),
                     _GoalCard(
                       goal: items[i],
                       masked: settings.hideAmounts,
@@ -217,81 +224,92 @@ class _GoalCard extends StatelessWidget {
     final color = resolveChartColor(context, goal.color, fallback: tokens.fgBrand);
     final bg = softBg(context, color);
     final pct = (goal.progress * 100).round();
-    return PCard(
-      padding: const EdgeInsets.all(PSpace.x16),
-      onTap: onEdit,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+    // 카드 다이어트(recurring_screen 정합) — 항목마다 카드를 두지 않고 행 사이 PDivider 로만
+    // 구분한다. 페이지 배경 위에 카드가 겹겹이 쌓이면 keep 카드(요약)의 위계가 죽는다.
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onEdit,
+        child: Padding(
+          // 행 좌우 inset 4(사용자 결정) — 라벨·추가 버튼은 inset 0.
+          padding: const EdgeInsets.symmetric(
+            horizontal: PSpace.x4,
+            vertical: PSpace.x12,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                    color: bg, borderRadius: PRadius.tile(40)),
-                alignment: Alignment.center,
-                child: Icon(lucideByName(goal.icon, fallback: LucideIcons.piggyBank),
-                    size: 19, color: color),
-              ),
-              const SizedBox(width: PSpace.x12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
+              Row(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                        color: bg, borderRadius: PRadius.tile(40)),
+                    alignment: Alignment.center,
+                    child: Icon(lucideByName(goal.icon, fallback: LucideIcons.piggyBank),
+                        size: 19, color: color),
+                  ),
+                  const SizedBox(width: PSpace.x12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Flexible(
-                          child: Text(goal.title,
-                              overflow: TextOverflow.ellipsis,
-                              style: PTypo.body.copyWith(
-                                  color: tokens.fgPrimary,
-                                  fontWeight: PFontWeight.bold)),
+                        Row(
+                          children: [
+                            Flexible(
+                              child: Text(goal.title,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: PTypo.body.copyWith(
+                                      color: tokens.fgPrimary,
+                                      fontWeight: PFontWeight.bold)),
+                            ),
+                            if (goal.achieved) ...[
+                              const SizedBox(width: 6),
+                              PBadge(
+                                  label: l.savingGoalAchieved,
+                                  variant: PBadgeVariant.softSuccess),
+                            ],
+                          ],
                         ),
-                        if (goal.achieved) ...[
-                          const SizedBox(width: 6),
-                          PBadge(
-                              label: l.savingGoalAchieved,
-                              variant: PBadgeVariant.softSuccess),
-                        ],
+                        const SizedBox(height: 1),
+                        Text(_deadlineLabel() ?? l.savingGoalNoDeadline,
+                            style: PTypo.caption
+                                .copyWith(color: tokens.fgTertiary)),
                       ],
                     ),
-                    const SizedBox(height: 1),
-                    Text(_deadlineLabel() ?? l.savingGoalNoDeadline,
-                        style: PTypo.caption
-                            .copyWith(color: tokens.fgTertiary)),
-                  ],
+                  ),
+                  Icon(LucideIcons.chevronRight,
+                      size: 18, color: tokens.fgTertiary),
+                ],
+              ),
+              const SizedBox(height: PSpace.x12),
+              Row(
+                children: [
+                  Text(
+                      '${krwMasked(goal.currentAmount, masked, mask: '••••')} / ${krwSigned(goal.targetAmount, masked, unit: true, mask: '••••')}',
+                      style: PTypo.caption.copyWith(
+                          color: tokens.fgSecondary,
+                          fontWeight: PFontWeight.semi)),
+                  const Spacer(),
+                  Text('$pct%',
+                      style: PTypo.bodySm.copyWith(
+                          color: color, fontWeight: PFontWeight.bold)),
+                ],
+              ),
+              const SizedBox(height: 6),
+              ClipRRect(
+                borderRadius: PRadius.brXs,
+                child: LinearProgressIndicator(
+                  value: goal.progress,
+                  minHeight: 6,
+                  backgroundColor: tokens.bgTrack,
+                  color: color,
                 ),
               ),
-              Icon(LucideIcons.chevronRight,
-                  size: 18, color: tokens.fgTertiary),
             ],
           ),
-          const SizedBox(height: PSpace.x12),
-          Row(
-            children: [
-              Text(
-                  '${krwMasked(goal.currentAmount, masked, mask: '••••')} / ${krwSigned(goal.targetAmount, masked, unit: true, mask: '••••')}',
-                  style: PTypo.caption.copyWith(
-                      color: tokens.fgSecondary,
-                      fontWeight: PFontWeight.semi)),
-              const Spacer(),
-              Text('$pct%',
-                  style: PTypo.bodySm.copyWith(
-                      color: color, fontWeight: PFontWeight.bold)),
-            ],
-          ),
-          const SizedBox(height: 6),
-          ClipRRect(
-            borderRadius: PRadius.brXs,
-            child: LinearProgressIndicator(
-              value: goal.progress,
-              minHeight: 6,
-              backgroundColor: tokens.bgTrack,
-              color: color,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
