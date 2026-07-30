@@ -39,6 +39,7 @@ List<_NavGroup> _buildGroups(BuildContext ctx, {required bool hasSecurities}) {
       if (hasSecurities)
         _NavItem(label: l.moreItemStocks, desc: l.moreDescStocks, onTap: (c) => c.push('/stocks')),
       _NavItem(label: l.navBudget, desc: l.moreDescBudget, onTap: (c) => c.go('/budget')),
+      _NavItem(label: l.navSavingGoals, desc: l.moreDescSavingGoal, onTap: (c) => c.push('/saving-goals')),
       _NavItem(label: l.moreItemStats, desc: l.moreDescStats, onTap: (c) => c.go('/stats')),
       _NavItem(label: l.navRecurring, desc: l.moreDescRecurring, onTap: (c) => c.push('/recurring')),
       _NavItem(label: l.moreItemAccountCard, desc: l.moreDescAccountCard, onTap: (c) => c.push('/account-card-manage')),

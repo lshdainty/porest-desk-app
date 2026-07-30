@@ -5096,6 +5096,12 @@ abstract class AppLocalizations {
   /// **'월간 · 카테고리별'**
   String get moreDescBudget;
 
+  /// No description provided for @moreDescSavingGoal.
+  ///
+  /// In ko, this message translates to:
+  /// **'목표 · 진행률'**
+  String get moreDescSavingGoal;
+
   /// No description provided for @moreDescStats.
   ///
   /// In ko, this message translates to:

@@ -2699,6 +2699,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get moreDescBudget => '월간 · 카테고리별';
 
   @override
+  String get moreDescSavingGoal => '목표 · 진행률';
+
+  @override
   String get moreDescStats => '카테고리 · 트렌드 · 비교';
 
   @override

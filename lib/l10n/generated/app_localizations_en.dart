@@ -2725,6 +2725,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get moreDescBudget => 'Monthly · By category';
 
   @override
+  String get moreDescSavingGoal => 'Goals · Progress';
+
+  @override
   String get moreDescStats => 'Category · Trends · Comparison';
 
   @override
