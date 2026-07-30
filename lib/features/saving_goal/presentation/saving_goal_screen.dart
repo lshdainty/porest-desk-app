@@ -125,12 +125,13 @@ class SavingGoalScreen extends ConsumerWidget {
                             color: t.fgPrimary,
                             fontWeight: PFontWeight.bold)),
                     const Spacer(),
+                    // accent = 라벨·아이콘 모두 fgBrand (recurring_screen 추가 버튼 정합).
+                    // ghost + iconColor 조합은 아이콘만 브랜드색이라 웹과 어긋났다.
                     PButton(
                       label: l.savingGoalAddAction,
                       icon: LucideIcons.plus,
-                      variant: PButtonVariant.ghost,
+                      variant: PButtonVariant.accent,
                       size: PButtonSize.sm,
-                      iconColor: t.fgBrand,
                       onPressed: () => showSavingGoalEditDialog(context),
                     ),
                   ],
