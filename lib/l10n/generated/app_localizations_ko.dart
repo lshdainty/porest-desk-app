@@ -5108,4 +5108,26 @@ class AppLocalizationsKo extends AppLocalizations {
   String ttagDeleteDesc(int count) {
     return '이 태그를 쓰는 할 일 $count건은 태그 없음으로 남아요.';
   }
+
+  @override
+  String get iconPickerTitle => '아이콘 선택';
+
+  @override
+  String get iconPickerSearchHint => '아이콘 검색...';
+
+  @override
+  String get iconPickerNone => '없음';
+
+  @override
+  String get iconPickerNoResults => '검색 결과가 없습니다';
+
+  @override
+  String iconPickerResultCount(int count) {
+    return '$count개 결과';
+  }
+
+  @override
+  String iconPickerTotalHint(int count) {
+    return '전체 $count개 · 스크롤해서 더 보기';
+  }
 }

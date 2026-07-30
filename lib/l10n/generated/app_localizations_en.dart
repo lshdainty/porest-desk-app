@@ -5166,4 +5166,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String ttagDeleteDesc(int count) {
     return '$count to-dos using this tag will become untagged.';
   }
+
+  @override
+  String get iconPickerTitle => 'Select icon';
+
+  @override
+  String get iconPickerSearchHint => 'Search icons...';
+
+  @override
+  String get iconPickerNone => 'None';
+
+  @override
+  String get iconPickerNoResults => 'No results found';
+
+  @override
+  String iconPickerResultCount(int count) {
+    return '$count results';
+  }
+
+  @override
+  String iconPickerTotalHint(int count) {
+    return '$count total · scroll for more';
+  }
 }

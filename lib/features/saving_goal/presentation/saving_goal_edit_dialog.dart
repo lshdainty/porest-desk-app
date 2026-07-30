@@ -11,26 +11,13 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
 import 'package:porest_desk_app/shared/widgets/p_date_input.dart';
+import 'package:porest_desk_app/shared/widgets/p_icon_picker.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_color_picker.dart';
 import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
 import 'package:porest_desk_app/features/saving_goal/application/saving_goal_providers.dart';
 import 'package:porest_desk_app/features/saving_goal/domain/saving_goal.dart';
-
-/// 저축 목표 아이콘 10종 — 웹 SavingGoalAddDialog GOAL_ICONS / design GoalEditDialog 정합.
-const List<String> kSavingGoalIcons = [
-  'plane',
-  'shield',
-  'laptop',
-  'home',
-  'graduation-cap',
-  'gift',
-  'car',
-  'heart',
-  'piggy-bank',
-  'wallet',
-];
 
 void showSavingGoalEditDialog(BuildContext context, {SavingGoal? edit}) {
   final l = AppLocalizations.of(context);
@@ -86,10 +73,9 @@ class _BodyState extends ConsumerState<_Body> {
     _deadline = widget.edit?.deadlineDate == null
         ? null
         : DateTime.tryParse(widget.edit!.deadlineDate!);
+    // 전체 아이콘 픽커 도입으로 저장된 이름을 그대로 존중한다(10종 강제 대체 제거).
     final editIcon = widget.edit?.icon;
-    _icon = editIcon != null && kSavingGoalIcons.contains(editIcon)
-        ? editIcon
-        : 'piggy-bank';
+    _icon = editIcon != null && editIcon.isNotEmpty ? editIcon : 'piggy-bank';
     final editColor = widget.edit?.color?.toLowerCase();
     _color = editColor != null && kChartBaseHexes.contains(editColor)
         ? editColor
@@ -283,31 +269,12 @@ class _BodyState extends ConsumerState<_Body> {
           Text(l.savingGoalIconLabel,
               style: PTypo.caption.copyWith(color: t.fgSecondary)),
           const SizedBox(height: PSpace.x8),
-          // 아이콘 10종 — 카테고리 편집 아이콘 피커와 동일 타일 패턴.
-          Wrap(
-            spacing: PSpace.x8,
-            runSpacing: PSpace.x8,
-            children: [
-              for (final name in kSavingGoalIcons)
-                GestureDetector(
-                  onTap: () => setState(() => _icon = name),
-                  child: Container(
-                    width: 38,
-                    height: 38,
-                    decoration: BoxDecoration(
-                      color: name == _icon ? t.bgBrandSubtle : t.bgMuted,
-                      borderRadius: PRadius.brSm,
-                      border: Border.all(
-                        color: name == _icon ? t.borderBrand : t.borderSubtle,
-                        width: name == _icon ? 1.5 : 1,
-                      ),
-                    ),
-                    child: Icon(lucideByName(name),
-                        size: 18,
-                        color: name == _icon ? t.fgBrand : t.fgSecondary),
-                  ),
-                ),
-            ],
+          // 전체 아이콘 검색·선택 — 웹 SavingGoalAddDialog 와 동일한 공통 픽커.
+          // '없음' 선택은 저축 목표 기본 아이콘(piggy-bank)으로 대체(웹 정합).
+          PIconPicker(
+            value: _icon,
+            onChanged: (v) =>
+                setState(() => _icon = v.isEmpty ? 'piggy-bank' : v),
           ),
           const SizedBox(height: PSpace.x16),
           Text(l.savingGoalColorLabel,
