@@ -899,9 +899,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get calLabelMgmt => '라벨 관리';
 
   @override
-  String get calHolidayMgmt => '공휴일 관리';
-
-  @override
   String get calMyCalendars => '내 캘린더';
 
   @override
@@ -990,9 +987,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get calInviteCodePlaceholder => '예: ABC123';
-
-  @override
-  String get calHolidayNamePlaceholder => '휴일 이름';
 
   @override
   String get calRecurrenceNone => '반복 없음';
@@ -1204,38 +1198,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get calChangeToViewer => '읽기 전용으로';
 
   @override
-  String get calAddCustomHoliday => '사용자 휴일 추가';
-
-  @override
-  String get calRepeatYearlyLabel => '매년 반복';
-
-  @override
   String get calAdd => '추가';
-
-  @override
-  String calYearHolidays(int year) {
-    return '$year년 휴일';
-  }
-
-  @override
-  String get calNoHolidays => '등록된 휴일이 없습니다';
-
-  @override
-  String get calDeleteHolidayTitle => '휴일 삭제';
-
-  @override
-  String calDeleteHolidayConfirm(String name) {
-    return '$name 삭제할까요?';
-  }
-
-  @override
-  String get calHolidayTypeCustom => '사용자';
-
-  @override
-  String get calHolidayTypeSubstitute => '대체';
-
-  @override
-  String get calHolidayTypePublic => '공휴일';
 
   @override
   String get calActionFailed => '실패';
@@ -1245,9 +1208,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get calDeleteFailed => '삭제 실패';
-
-  @override
-  String get calAddFailed => '추가 실패';
 
   @override
   String get calJoinFailed => '참여 실패';
@@ -1263,9 +1223,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get calMemberLoadError => '멤버 로드 실패';
-
-  @override
-  String get calHolidayLoadError => '휴일 로드 실패';
 
   @override
   String get dashTitle => '홈';

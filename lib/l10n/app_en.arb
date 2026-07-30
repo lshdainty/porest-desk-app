@@ -451,7 +451,6 @@
   "calEventEdit": "Edit event",
   "calEventDelete": "Delete event",
   "calLabelMgmt": "Labels",
-  "calHolidayMgmt": "Holidays",
   "calMyCalendars": "My calendars",
   "calAllDay": "All day",
   "calRepeat": "Repeat",
@@ -482,7 +481,6 @@
   "calCalendarNamePlaceholder": "e.g. Family, Work, Workouts",
   "calCalendarNameFieldPlaceholder": "Calendar name",
   "calInviteCodePlaceholder": "e.g. ABC123",
-  "calHolidayNamePlaceholder": "Holiday name",
   "calRecurrenceNone": "No repeat",
   "calReminderMinutesBefore": "{n} min before",
   "@calReminderMinutesBefore": {
@@ -635,40 +633,15 @@
   "calMeSuffix": "(me)",
   "calChangeToEditor": "Change to editor",
   "calChangeToViewer": "Change to viewer",
-  "calAddCustomHoliday": "Add custom holiday",
-  "calRepeatYearlyLabel": "Repeat yearly",
   "calAdd": "Add",
-  "calYearHolidays": "{year} holidays",
-  "@calYearHolidays": {
-    "placeholders": {
-      "year": {
-        "type": "int"
-      }
-    }
-  },
-  "calNoHolidays": "No holidays registered",
-  "calDeleteHolidayTitle": "Delete holiday",
-  "calDeleteHolidayConfirm": "Delete {name}?",
-  "@calDeleteHolidayConfirm": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "calHolidayTypeCustom": "Custom",
-  "calHolidayTypeSubstitute": "Substitute",
-  "calHolidayTypePublic": "Public",
   "calActionFailed": "Failed",
   "calSaveFailed": "Save failed",
   "calDeleteFailed": "Delete failed",
-  "calAddFailed": "Add failed",
   "calJoinFailed": "Failed to join",
   "calUpdateFailed": "Update failed",
   "calCalendarLoadError": "Failed to load calendars",
   "calLabelLoadError": "Failed to load labels",
   "calMemberLoadError": "Failed to load members",
-  "calHolidayLoadError": "Failed to load holidays",
   "dashTitle": "Home",
   "dashGreeting": "Have a great day",
   "dashTotalAssets": "Total assets",

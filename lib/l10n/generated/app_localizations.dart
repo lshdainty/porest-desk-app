@@ -1784,12 +1784,6 @@ abstract class AppLocalizations {
   /// **'라벨 관리'**
   String get calLabelMgmt;
 
-  /// No description provided for @calHolidayMgmt.
-  ///
-  /// In ko, this message translates to:
-  /// **'공휴일 관리'**
-  String get calHolidayMgmt;
-
   /// No description provided for @calMyCalendars.
   ///
   /// In ko, this message translates to:
@@ -1969,12 +1963,6 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'예: ABC123'**
   String get calInviteCodePlaceholder;
-
-  /// No description provided for @calHolidayNamePlaceholder.
-  ///
-  /// In ko, this message translates to:
-  /// **'휴일 이름'**
-  String get calHolidayNamePlaceholder;
 
   /// No description provided for @calRecurrenceNone.
   ///
@@ -2342,65 +2330,11 @@ abstract class AppLocalizations {
   /// **'읽기 전용으로'**
   String get calChangeToViewer;
 
-  /// No description provided for @calAddCustomHoliday.
-  ///
-  /// In ko, this message translates to:
-  /// **'사용자 휴일 추가'**
-  String get calAddCustomHoliday;
-
-  /// No description provided for @calRepeatYearlyLabel.
-  ///
-  /// In ko, this message translates to:
-  /// **'매년 반복'**
-  String get calRepeatYearlyLabel;
-
   /// No description provided for @calAdd.
   ///
   /// In ko, this message translates to:
   /// **'추가'**
   String get calAdd;
-
-  /// No description provided for @calYearHolidays.
-  ///
-  /// In ko, this message translates to:
-  /// **'{year}년 휴일'**
-  String calYearHolidays(int year);
-
-  /// No description provided for @calNoHolidays.
-  ///
-  /// In ko, this message translates to:
-  /// **'등록된 휴일이 없습니다'**
-  String get calNoHolidays;
-
-  /// No description provided for @calDeleteHolidayTitle.
-  ///
-  /// In ko, this message translates to:
-  /// **'휴일 삭제'**
-  String get calDeleteHolidayTitle;
-
-  /// No description provided for @calDeleteHolidayConfirm.
-  ///
-  /// In ko, this message translates to:
-  /// **'{name} 삭제할까요?'**
-  String calDeleteHolidayConfirm(String name);
-
-  /// No description provided for @calHolidayTypeCustom.
-  ///
-  /// In ko, this message translates to:
-  /// **'사용자'**
-  String get calHolidayTypeCustom;
-
-  /// No description provided for @calHolidayTypeSubstitute.
-  ///
-  /// In ko, this message translates to:
-  /// **'대체'**
-  String get calHolidayTypeSubstitute;
-
-  /// No description provided for @calHolidayTypePublic.
-  ///
-  /// In ko, this message translates to:
-  /// **'공휴일'**
-  String get calHolidayTypePublic;
 
   /// No description provided for @calActionFailed.
   ///
@@ -2419,12 +2353,6 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'삭제 실패'**
   String get calDeleteFailed;
-
-  /// No description provided for @calAddFailed.
-  ///
-  /// In ko, this message translates to:
-  /// **'추가 실패'**
-  String get calAddFailed;
 
   /// No description provided for @calJoinFailed.
   ///
@@ -2455,12 +2383,6 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'멤버 로드 실패'**
   String get calMemberLoadError;
-
-  /// No description provided for @calHolidayLoadError.
-  ///
-  /// In ko, this message translates to:
-  /// **'휴일 로드 실패'**
-  String get calHolidayLoadError;
 
   /// No description provided for @dashTitle.
   ///
