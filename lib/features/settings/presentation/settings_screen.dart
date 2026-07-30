@@ -43,6 +43,10 @@ List<_SettingsGroup> _buildGroups(BuildContext ctx) {
           onTap: (c) => c.push('/budget/settings'),
         ),
         _SettingsItem(
+          label: l.navSavingGoals,
+          onTap: (c) => c.push('/saving-goals'),
+        ),
+        _SettingsItem(
           label: l.settingsMenuRecurring,
           onTap: (c) => c.push('/recurring'),
         ),
