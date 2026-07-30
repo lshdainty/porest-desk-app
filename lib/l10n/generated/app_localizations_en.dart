@@ -909,9 +909,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get calLabelMgmt => 'Labels';
 
   @override
-  String get calHolidayMgmt => 'Holidays';
-
-  @override
   String get calMyCalendars => 'My calendars';
 
   @override
@@ -1000,9 +997,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get calInviteCodePlaceholder => 'e.g. ABC123';
-
-  @override
-  String get calHolidayNamePlaceholder => 'Holiday name';
 
   @override
   String get calRecurrenceNone => 'No repeat';
@@ -1218,38 +1212,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get calChangeToViewer => 'Change to viewer';
 
   @override
-  String get calAddCustomHoliday => 'Add custom holiday';
-
-  @override
-  String get calRepeatYearlyLabel => 'Repeat yearly';
-
-  @override
   String get calAdd => 'Add';
-
-  @override
-  String calYearHolidays(int year) {
-    return '$year holidays';
-  }
-
-  @override
-  String get calNoHolidays => 'No holidays registered';
-
-  @override
-  String get calDeleteHolidayTitle => 'Delete holiday';
-
-  @override
-  String calDeleteHolidayConfirm(String name) {
-    return 'Delete $name?';
-  }
-
-  @override
-  String get calHolidayTypeCustom => 'Custom';
-
-  @override
-  String get calHolidayTypeSubstitute => 'Substitute';
-
-  @override
-  String get calHolidayTypePublic => 'Public';
 
   @override
   String get calActionFailed => 'Failed';
@@ -1259,9 +1222,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get calDeleteFailed => 'Delete failed';
-
-  @override
-  String get calAddFailed => 'Add failed';
 
   @override
   String get calJoinFailed => 'Failed to join';
@@ -1277,9 +1237,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get calMemberLoadError => 'Failed to load members';
-
-  @override
-  String get calHolidayLoadError => 'Failed to load holidays';
 
   @override
   String get dashTitle => 'Home';
