@@ -5,6 +5,7 @@ import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart';
+import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
@@ -207,6 +208,17 @@ class _BodyState extends ConsumerState<_Body> {
       padding: const EdgeInsets.fromLTRB(
           PSpace.x16, 0, PSpace.x16, PSpace.x16),
       children: [
+          // 입력값 실시간 미리보기 — 웹 SavingGoalAddDialog Preview 정합.
+          // 이름·금액 PTextInput 의 onChanged setState 가 있어 별도 리스너 없이 갱신된다.
+          _Preview(
+            title: _titleCtrl.text.trim(),
+            deadline: _deadline,
+            icon: _icon,
+            colorHex: _color,
+            current: _current,
+            target: int.tryParse(_amountCtrl.text.replaceAll(',', '')) ?? 0,
+          ),
+          const SizedBox(height: PSpace.x16),
           Text(l.savingGoalNameLabel,
               style: PTypo.caption.copyWith(color: t.fgSecondary)),
           const SizedBox(height: PSpace.x4),
@@ -306,6 +318,102 @@ class _BodyState extends ConsumerState<_Body> {
             onChanged: (hex) => setState(() => _color = hex),
           ),
       ],
+    );
+  }
+}
+
+/// 입력값 실시간 미리보기 — 웹 SavingGoalAddDialog Preview(bg-canvas 박스) 미러.
+/// 아이콘 타일·게이지는 목록 화면 `_GoalCard` 와 같은 다크 스왑 팔레트를 쓴다.
+class _Preview extends StatelessWidget {
+  const _Preview({
+    required this.title,
+    required this.deadline,
+    required this.icon,
+    required this.colorHex,
+    required this.current,
+    required this.target,
+  });
+  final String title;
+  final DateTime? deadline;
+  final String icon;
+  final String colorHex;
+  final int current;
+  final int target;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final l = AppLocalizations.of(context);
+    final color = resolveChartColor(context, colorHex, fallback: t.fgBrand);
+    final bg = softBg(context, color);
+    final progress = target > 0 ? (current / target).clamp(0.0, 1.0) : 0.0;
+    final pct = target > 0 ? (current / target * 100).round() : 0;
+    final deadlineLabel = deadline == null
+        ? l.savingGoalNoDeadline
+        : '${deadline!.year}.${deadline!.month.toString().padLeft(2, '0')}';
+
+    return Container(
+      padding: const EdgeInsets.all(PSpace.x16),
+      decoration: BoxDecoration(
+        color: t.bgCanvas,
+        borderRadius: PRadius.brLg,
+        border: Border.all(color: t.borderSubtle),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration:
+                    BoxDecoration(color: bg, borderRadius: PRadius.tile(36)),
+                alignment: Alignment.center,
+                child: Icon(lucideByName(icon), size: 17, color: color),
+              ),
+              const SizedBox(width: PSpace.x12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title.isEmpty ? l.savingGoalNameLabel : title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: PTypo.bodySm.copyWith(
+                          color: t.fgPrimary, fontWeight: PFontWeight.bold),
+                    ),
+                    Text(deadlineLabel,
+                        style: PTypo.caption.copyWith(color: t.fgTertiary)),
+                  ],
+                ),
+              ),
+              const SizedBox(width: PSpace.x12),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text('$pct%',
+                      style: PTypo.bodySm.copyWith(
+                          color: t.fgPrimary, fontWeight: PFontWeight.bold)),
+                  Text('${krw(current)} / ${krw(target)}',
+                      style: PTypo.micro.copyWith(color: t.fgTertiary)),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: PSpace.x12),
+          ClipRRect(
+            borderRadius: PRadius.brXs,
+            child: LinearProgressIndicator(
+              value: progress,
+              minHeight: 6,
+              backgroundColor: t.bgTrack,
+              color: color,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
