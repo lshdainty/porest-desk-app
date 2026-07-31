@@ -669,6 +669,51 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetStockSearchHint => '종목명·코드 검색 (예: 삼성전자, 005930)';
 
   @override
+  String get stockMarketKospi => '코스피';
+
+  @override
+  String get stockMarketKosdaq => '코스닥';
+
+  @override
+  String get stockMarketKonex => '코넥스';
+
+  @override
+  String get stockMarketKrxIdx => 'KRX 지수';
+
+  @override
+  String get stockMarketNas => '나스닥';
+
+  @override
+  String get stockMarketNys => '뉴욕';
+
+  @override
+  String get stockMarketAms => '아멕스';
+
+  @override
+  String get stockMarketShs => '상해';
+
+  @override
+  String get stockMarketShi => '상해지수';
+
+  @override
+  String get stockMarketSzs => '심천';
+
+  @override
+  String get stockMarketSzi => '심천지수';
+
+  @override
+  String get stockMarketTse => '도쿄';
+
+  @override
+  String get stockMarketHks => '홍콩';
+
+  @override
+  String get stockMarketHnx => '하노이';
+
+  @override
+  String get stockMarketHsx => '호치민';
+
+  @override
   String assetLinkByCode(String code) {
     return '「$code」 코드로 연결';
   }

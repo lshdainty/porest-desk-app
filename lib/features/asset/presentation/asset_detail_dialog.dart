@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -31,8 +33,9 @@ import 'package:porest_desk_app/features/expense/application/expense_providers.d
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
 import 'package:porest_desk_app/features/expense/presentation/tx_detail_dialog.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
-import 'package:porest_desk_app/features/stocks/data/krx_stock_master.dart';
-import 'package:porest_desk_app/features/stocks/data/stocks_mock.dart';
+import 'package:porest_desk_app/features/stocks/application/stocks_providers.dart';
+import 'package:porest_desk_app/features/stocks/data/stock_master_dto.dart';
+import 'package:porest_desk_app/features/stocks/presentation/stock_market_label.dart';
 import 'package:porest_desk_app/features/subscription/application/subscription_providers.dart';
 import 'package:porest_desk_app/features/asset/domain/asset.dart';
 import 'package:porest_desk_app/features/asset/domain/asset_transfer.dart';
@@ -315,25 +318,36 @@ class _TossLinkSectionState extends ConsumerState<_TossLinkSection> {
   bool _busy = false;
   bool _editingQty = false;
   ({String symbol, int quantity})? _linked;
+  // 서버 검색 디바운스 — 키 입력마다 요청이 나가지 않게 300ms 지연.
+  Timer? _searchDebounce;
+  String _debouncedQuery = '';
 
   @override
   void initState() {
     super.initState();
     final a = widget.asset;
-    _queryCtrl = TextEditingController()..addListener(() => setState(() {}));
+    _queryCtrl = TextEditingController()..addListener(_onQueryChanged);
     _qtyCtrl = TextEditingController(
       text: a.tossQuantity != null ? '${a.tossQuantity}' : '',
     );
     _editQtyCtrl = TextEditingController();
     _selSymbol = a.tossSymbol;
-    if (a.tossSymbol != null) _selName = findStock(a.tossSymbol!)?.name;
     if (a.tossSymbol != null && a.tossQuantity != null) {
       _linked = (symbol: a.tossSymbol!, quantity: a.tossQuantity!);
     }
   }
 
+  void _onQueryChanged() {
+    setState(() {});
+    _searchDebounce?.cancel();
+    _searchDebounce = Timer(const Duration(milliseconds: 300), () {
+      if (mounted) setState(() => _debouncedQuery = _queryCtrl.text.trim());
+    });
+  }
+
   @override
   void dispose() {
+    _searchDebounce?.cancel();
     _queryCtrl.dispose();
     _qtyCtrl.dispose();
     _editQtyCtrl.dispose();
@@ -420,10 +434,6 @@ class _TossLinkSectionState extends ConsumerState<_TossLinkSection> {
     }
   }
 
-  /// 종목코드 → 이름 (KRX 마스터 우선, 해외 등은 kStocks 폴백).
-  String? _nameOf(KrxStockMaster? master, String ticker) =>
-      master?.byTicker(ticker)?.name ?? findStock(ticker)?.name;
-
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
@@ -433,12 +443,15 @@ class _TossLinkSectionState extends ConsumerState<_TossLinkSection> {
         (features?.hasSecurities ?? false) && (features?.tossConnected ?? false);
     if (!enabled) return const SizedBox.shrink();
 
-    // KRX 종목 마스터(이름↔코드). 로딩 중이면 null → kStocks 폴백.
-    final master = ref.watch(krxStockMasterProvider).asData?.value;
+    // 연결/선택된 종목코드의 이름 조회 (서버 종목 마스터).
+    final resolvedName = ref
+        .watch(stockSymbolNameProvider(_linked?.symbol ?? _selSymbol ?? ''))
+        .asData
+        ?.value;
 
     if (_linked != null) {
       final linked = _linked!;
-      final name = _nameOf(master, linked.symbol) ?? linked.symbol;
+      final name = resolvedName ?? linked.symbol;
       return PCard(
         variant: PCardVariant.bordered,
         child: Column(
@@ -521,21 +534,16 @@ class _TossLinkSectionState extends ConsumerState<_TossLinkSection> {
     }
 
     final q = _queryCtrl.text.trim();
-    // KRX 마스터(이름→코드) 우선 검색 + 해외 등 kStocks 보강(마스터엔 국내만 있음).
-    final matches = <({String ticker, String name})>[];
-    if (q.isNotEmpty) {
-      for (final s in master?.search(q, limit: 8) ?? const []) {
-        matches.add((ticker: s.ticker, name: s.name));
-      }
-      for (final s in kStocks) {
-        if (matches.length >= 8) break;
-        if (matches.any((m) => m.ticker == s.ticker)) continue;
-        if (s.name.contains(q) || s.ticker.toUpperCase().contains(q.toUpperCase())) {
-          matches.add((ticker: s.ticker, name: s.name));
-        }
-      }
-    }
-    final codeFallback = q.isNotEmpty && matches.isEmpty ? q.toUpperCase() : null;
+    // 종목 검색 (서버 stock_master — 국내 + 해외 6개국, 디바운스된 검색어).
+    final searchAsync = ref.watch(stockSearchProvider(_debouncedQuery));
+    final matches = searchAsync.asData?.value ?? const <StockMasterItem>[];
+    // 마스터에 없는 코드 직접 연결 폴백 — 검색 응답이 끝난 뒤에만 노출해 깜빡임을 막는다.
+    final codeFallback = q.isNotEmpty &&
+            q == _debouncedQuery &&
+            searchAsync.hasValue &&
+            matches.isEmpty
+        ? q.toUpperCase()
+        : null;
     final qty = int.tryParse(_qtyCtrl.text.replaceAll(',', '')) ?? 0;
     final canLink = _selSymbol != null && qty > 0 && !_busy;
 
@@ -562,7 +570,7 @@ class _TossLinkSectionState extends ConsumerState<_TossLinkSection> {
               children: [
                 PChip(
                   label:
-                      '${_selName ?? _nameOf(master, _selSymbol!) ?? _selSymbol!} (${_selSymbol!})',
+                      '${_selName ?? resolvedName ?? _selSymbol!} (${_selSymbol!})',
                   selected: true,
                   onTap: () => setState(() {
                     _selSymbol = null;
@@ -587,11 +595,12 @@ class _TossLinkSectionState extends ConsumerState<_TossLinkSection> {
                 children: [
                   for (final s in matches)
                     PChip(
-                      label: '${s.name} (${s.ticker})',
+                      label:
+                          '${s.nameKr} (${s.symbol} · ${stockMarketLabel(l, s.marketCode)})',
                       selected: false,
                       onTap: () => setState(() {
-                        _selSymbol = s.ticker;
-                        _selName = s.name;
+                        _selSymbol = s.symbol;
+                        _selName = s.nameKr;
                         _queryCtrl.clear();
                       }),
                     ),

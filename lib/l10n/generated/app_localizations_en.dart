@@ -679,6 +679,51 @@ class AppLocalizationsEn extends AppLocalizations {
       'Search ticker or code (e.g. Samsung Elec, 005930)';
 
   @override
+  String get stockMarketKospi => 'KOSPI';
+
+  @override
+  String get stockMarketKosdaq => 'KOSDAQ';
+
+  @override
+  String get stockMarketKonex => 'KONEX';
+
+  @override
+  String get stockMarketKrxIdx => 'KRX Index';
+
+  @override
+  String get stockMarketNas => 'NASDAQ';
+
+  @override
+  String get stockMarketNys => 'NYSE';
+
+  @override
+  String get stockMarketAms => 'AMEX';
+
+  @override
+  String get stockMarketShs => 'Shanghai';
+
+  @override
+  String get stockMarketShi => 'SSE Index';
+
+  @override
+  String get stockMarketSzs => 'Shenzhen';
+
+  @override
+  String get stockMarketSzi => 'SZSE Index';
+
+  @override
+  String get stockMarketTse => 'Tokyo';
+
+  @override
+  String get stockMarketHks => 'Hong Kong';
+
+  @override
+  String get stockMarketHnx => 'Hanoi';
+
+  @override
+  String get stockMarketHsx => 'Ho Chi Minh';
+
+  @override
   String assetLinkByCode(String code) {
     return 'Link by code \"$code\"';
   }
