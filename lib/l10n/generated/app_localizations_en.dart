@@ -646,6 +646,70 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetTossLinked => 'Toss linked';
 
   @override
+  String get assetHoldings => 'Holdings';
+
+  @override
+  String assetHoldingsSummary(int count, String amount) {
+    return '$count holdings · ₩$amount';
+  }
+
+  @override
+  String assetHoldingRep(String name, int count) {
+    return '$name +$count more';
+  }
+
+  @override
+  String get assetNoHoldings => 'No holdings';
+
+  @override
+  String get assetHoldingLinkedBadge => 'Linked';
+
+  @override
+  String assetHoldingLinkedSub(String price) {
+    return 'Price $price × qty';
+  }
+
+  @override
+  String get assetHoldingManualSub => 'Manual value';
+
+  @override
+  String assetHoldingLinkedDetail(int qty, String price) {
+    return '$qty shares · linked at $price';
+  }
+
+  @override
+  String get assetHoldingManualDetail => 'Manual entry';
+
+  @override
+  String get assetHoldingsEmptyEdit =>
+      'Search to add holdings. Linked holdings are valued automatically at price × quantity.';
+
+  @override
+  String get assetHoldingsEmptyDetail => 'No holdings yet. Add them from Edit.';
+
+  @override
+  String get assetHoldingSearchHint =>
+      'Search name/ticker to add (e.g. Samsung, NVDA)';
+
+  @override
+  String assetHoldingAddManual(String name) {
+    return 'Add \"$name\" manually — enter value';
+  }
+
+  @override
+  String get assetSharesUnit => 'sh';
+
+  @override
+  String assetInvestHoldingsSub(int count) {
+    return 'Investment · $count holdings';
+  }
+
+  @override
+  String assetTodayChange(String amount) {
+    return 'Today $amount';
+  }
+
+  @override
   String assetSharesCount(int n) {
     return '$n shares';
   }

@@ -8,6 +8,7 @@ import 'package:porest_desk_app/features/asset/domain/asset_transfer.dart';
 import 'package:porest_desk_app/features/asset/domain/card_billing.dart';
 import 'package:porest_desk_app/features/asset/domain/net_worth_point.dart';
 import 'package:porest_desk_app/features/stocks/application/stocks_providers.dart';
+import 'package:porest_desk_app/features/stocks/data/toss_dto.dart';
 import 'package:porest_desk_app/features/subscription/application/subscription_providers.dart';
 
 final assetRepositoryProvider = FutureProvider<AssetRepository>((ref) async {
@@ -74,56 +75,139 @@ final cardBillingProvider =
 bool _isForeignCurrency(String? currency) =>
     currency != null && currency.isNotEmpty && currency.toUpperCase() != 'KRW';
 
-/// 토스에 연결된 투자 자산의 라이브 평가액(KRW) 맵 (assetRowId → 평가액).
+/// 투자 자산 라이브 평가 1건 — 평가액(KRW) + 전일 대비 등락액(계산 가능할 때만).
+typedef InvestmentValuation = ({int value, int? changeAmt});
+
+/// 투자 자산 라이브 평가 맵 (assetRowId → 평가액·등락액).
 ///
-/// - 평가액 = 토스 현재가(toss_symbol) × 보유수량(toss_quantity). 토스 계좌 보유분과 무관하게
-///   시세만 빌려 계산하므로, 타 증권사 보유 주식도 토스 시세로 실시간 평가된다.
-/// - 해외 종목(통화≠KRW)은 토스 시세가 외화(USD 등)이므로 토스 환율(USD→KRW)로 원화 환산한다.
-///   환율 조회 실패 시 해외 종목은 맵에서 제외(기존 잔액 유지), 국내(KRW) 종목은 정상 처리.
-/// - 프로(SECURITIES) + 토스 연결 사용자가 아니거나 연결 자산이 없으면 빈 맵 → 오버레이 무효과.
+/// - holdings 가 있는 자산(신규 모델): 평가액 = Σ 직접입력(holdingValue)
+///   + Σ 연동(토스 현재가 × 수량, 해외 종목은 토스 환율로 KRW 환산).
+///   연동 보유의 가격을 하나라도 못 구하면 그 자산은 맵에서 제외(서버 스냅샷 잔액 유지).
+///   등락액 = Σ 연동 (현재가 − 전일종가) × 수량 — 전일종가가 조회된 종목만 합산,
+///   하나도 없으면 null(등락 미표시).
+/// - holdings 가 없는 자산: 기존 tossSymbol/tossQuantity 단일 연동 경로(deprecated) 유지.
+/// - 직접입력만 있는 자산은 시세가 불필요하므로 게이트(프로+토스연결)와 무관하게 평가.
 /// - 화면에서 invalidate 하면 시세를 재조회해 실시간 갱신된다.
-final tossValuationMapProvider = FutureProvider<Map<int, int>>((ref) async {
+final investmentValuationMapProvider =
+    FutureProvider<Map<int, InvestmentValuation>>((ref) async {
   final features = ref.watch(myFeaturesProvider).asData?.value;
-  final enabled = (features?.hasSecurities ?? false) && (features?.tossConnected ?? false);
-  if (!enabled) return const {};
+  final enabled =
+      (features?.hasSecurities ?? false) && (features?.tossConnected ?? false);
   final assets = await ref.watch(assetsProvider.future);
-  final linked = assets
-      .where((a) => (a.tossSymbol?.isNotEmpty ?? false) && a.tossQuantity != null)
-      .toList();
-  if (linked.isEmpty) return const {};
-  final symbols = {for (final a in linked) a.tossSymbol!}.toList();
-  try {
-    final repo = await ref.watch(stocksRepositoryProvider.future);
-    final prices = await repo.getPrices(symbols);
-    final priceBySymbol = {for (final p in prices) p.symbol: p};
 
-    // 해외 종목이 하나라도 있으면 환율(USD→KRW)을 1회 조회.
-    final hasForeign = prices.any((p) => _isForeignCurrency(p.currency));
-    double fxRate = 0;
-    if (hasForeign) {
-      try {
-        fxRate = (await repo.getExchangeRate()).rateValue;
-      } catch (_) {
-        fxRate = 0; // 환율 실패 — 해외 종목은 환산 불가로 제외.
-      }
-    }
+  final targets = assets.where((a) => a.assetType == 'INVESTMENT').toList();
+  if (targets.isEmpty) return const {};
 
-    final map = <int, int>{};
-    for (final a in linked) {
-      final p = priceBySymbol[a.tossSymbol];
-      if (p == null) continue;
-      if (_isForeignCurrency(p.currency)) {
-        if (fxRate <= 0) continue; // 환율 없으면 제외 → 기존 잔액 유지
-        map[a.rowId] = (p.priceValue * fxRate * a.tossQuantity!).round();
-      } else {
-        map[a.rowId] = (p.priceValue * a.tossQuantity!).round();
+  // 시세가 필요한 심볼 수집 — holdings 의 linked + 레거시 단일 연동.
+  final symbols = <String>{};
+  for (final a in targets) {
+    if (a.holdings.isNotEmpty) {
+      for (final h in a.holdings) {
+        if (h.linked && (h.tossSymbol?.isNotEmpty ?? false)) {
+          symbols.add(h.tossSymbol!);
+        }
       }
+    } else if ((a.tossSymbol?.isNotEmpty ?? false) && a.tossQuantity != null) {
+      symbols.add(a.tossSymbol!);
     }
-    return map;
-  } catch (_) {
-    // 토스 미설정/조회 실패 — 오버레이 없이 기존 잔액 유지.
-    return const {};
   }
+
+  var priceBySymbol = const <String, TossPrice>{};
+  var fxRate = 0.0;
+  final prevBySymbol = <String, double>{};
+  if (enabled && symbols.isNotEmpty) {
+    try {
+      final repo = await ref.watch(stocksRepositoryProvider.future);
+      final prices = await repo.getPrices(symbols.toList());
+      priceBySymbol = {for (final p in prices) p.symbol: p};
+      if (prices.any((p) => _isForeignCurrency(p.currency))) {
+        try {
+          fxRate = (await repo.getExchangeRate()).rateValue;
+        } catch (_) {
+          fxRate = 0; // 환율 실패 — 해외 종목은 환산 불가로 제외.
+        }
+      }
+      // 전일종가 — 심볼별 일봉 도출(캐시 family). 실패 심볼은 등락 계산에서 제외.
+      for (final s in symbols) {
+        try {
+          final prev = await ref.watch(prevCloseProvider(s).future);
+          if (prev != null && prev > 0) prevBySymbol[s] = prev;
+        } catch (_) {}
+      }
+    } catch (_) {
+      priceBySymbol = const {};
+    }
+  }
+
+  // 심볼 1주의 KRW 평가가 — 가격 없거나 환산 불가면 null.
+  double? unitKrw(String symbol) {
+    final p = priceBySymbol[symbol];
+    if (p == null) return null;
+    if (_isForeignCurrency(p.currency)) {
+      if (fxRate <= 0) return null;
+      return p.priceValue * fxRate;
+    }
+    return p.priceValue;
+  }
+
+  double? unitPrevKrw(String symbol) {
+    final p = priceBySymbol[symbol];
+    final prev = prevBySymbol[symbol];
+    if (p == null || prev == null) return null;
+    if (_isForeignCurrency(p.currency)) {
+      if (fxRate <= 0) return null;
+      return prev * fxRate;
+    }
+    return prev;
+  }
+
+  final map = <int, InvestmentValuation>{};
+  for (final a in targets) {
+    if (a.holdings.isNotEmpty) {
+      var total = 0.0;
+      var change = 0.0;
+      var hasChange = false;
+      var priceable = true;
+      for (final h in a.holdings) {
+        if (h.linked) {
+          final sym = h.tossSymbol ?? '';
+          final unit = sym.isEmpty ? null : unitKrw(sym);
+          if (unit == null) {
+            priceable = false;
+            break; // 연동가 미확보 — 서버 스냅샷 잔액 유지.
+          }
+          final qty = h.quantity ?? 0;
+          total += unit * qty;
+          final prevUnit = unitPrevKrw(sym);
+          if (prevUnit != null) {
+            change += (unit - prevUnit) * qty;
+            hasChange = true;
+          }
+        } else {
+          total += (h.holdingValue ?? 0).toDouble();
+        }
+      }
+      if (!priceable) continue;
+      map[a.rowId] =
+          (value: total.round(), changeAmt: hasChange ? change.round() : null);
+    } else if ((a.tossSymbol?.isNotEmpty ?? false) && a.tossQuantity != null) {
+      final unit = unitKrw(a.tossSymbol!);
+      if (unit == null) continue;
+      final qty = a.tossQuantity!;
+      final prevUnit = unitPrevKrw(a.tossSymbol!);
+      map[a.rowId] = (
+        value: (unit * qty).round(),
+        changeAmt: prevUnit != null ? ((unit - prevUnit) * qty).round() : null,
+      );
+    }
+  }
+  return map;
+});
+
+/// (호환) 토스 연동 투자 자산의 라이브 평가액(KRW) 맵 — investmentValuationMapProvider 의 value 투영.
+final tossValuationMapProvider = FutureProvider<Map<int, int>>((ref) async {
+  final m = await ref.watch(investmentValuationMapProvider.future);
+  return {for (final e in m.entries) e.key: e.value.value};
 });
 
 extension AssetListX on List<Asset> {

@@ -285,6 +285,60 @@
   "assetQtyUpdated": "보유 수량을 수정했어요",
   "assetUpdateFailed": "수정 실패",
   "assetTossLinked": "토스 연동 중",
+  "assetHoldings": "보유 종목",
+  "assetHoldingsSummary": "{count}종목 · {amount}원",
+  "@assetHoldingsSummary": {
+    "placeholders": {
+      "count": {"type": "int"},
+      "amount": {"type": "String"}
+    }
+  },
+  "assetHoldingRep": "{name} 외 {count}종목",
+  "@assetHoldingRep": {
+    "placeholders": {
+      "name": {"type": "String"},
+      "count": {"type": "int"}
+    }
+  },
+  "assetNoHoldings": "보유 종목 없음",
+  "assetHoldingLinkedBadge": "연동",
+  "assetHoldingLinkedSub": "현재가 {price} × 수량",
+  "@assetHoldingLinkedSub": {
+    "placeholders": {
+      "price": {"type": "String"}
+    }
+  },
+  "assetHoldingManualSub": "평가액 직접 입력",
+  "assetHoldingLinkedDetail": "{qty}주 · 현재가 {price} 연동",
+  "@assetHoldingLinkedDetail": {
+    "placeholders": {
+      "qty": {"type": "int"},
+      "price": {"type": "String"}
+    }
+  },
+  "assetHoldingManualDetail": "직접 입력",
+  "assetHoldingsEmptyEdit": "검색으로 보유 종목을 추가하세요. 연동 종목은 현재가 × 수량으로 평가액이 자동 계산돼요.",
+  "assetHoldingsEmptyDetail": "보유 종목이 없어요. 편집에서 종목을 추가해보세요.",
+  "assetHoldingSearchHint": "종목명·티커 검색 후 추가 (예: 삼성전자, NVDA)",
+  "assetHoldingAddManual": "\"{name}\" 직접 추가 — 평가액 입력",
+  "@assetHoldingAddManual": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "assetSharesUnit": "주",
+  "assetInvestHoldingsSub": "투자 · 보유 {count}종목",
+  "@assetInvestHoldingsSub": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "assetTodayChange": "오늘 {amount}원",
+  "@assetTodayChange": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
   "assetSharesCount": "{n}주",
   "@assetSharesCount": {
     "placeholders": {

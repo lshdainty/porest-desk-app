@@ -51,7 +51,7 @@ class _AssetScreenState extends ConsumerState<AssetScreen> {
     // 토스 연결 평가액 라이브 갱신 — 시세(현재가)를 10초마다 재조회.
     // 게이트 OFF(비프로/미연결)·연결 자산 없음이면 빈 맵이라 NOP.
     _valuationTimer = Timer.periodic(const Duration(seconds: 10), (_) {
-      if (mounted) ref.invalidate(tossValuationMapProvider);
+      if (mounted) ref.invalidate(investmentValuationMapProvider);
     });
   }
 
@@ -70,9 +70,10 @@ class _AssetScreenState extends ConsumerState<AssetScreen> {
     final summaryAsync = ref.watch(
       assetSummaryProvider((year: null, month: null)),
     );
-    // 토스 연결 투자 자산의 라이브 평가액(KRW) 맵 — assetRowId → 평가액 (게이트 OFF면 빈 맵).
-    final valMap =
-        ref.watch(tossValuationMapProvider).asData?.value ?? const <int, int>{};
+    // 투자 자산 라이브 평가(평가액·등락) 맵 — holdings/레거시 연동 공용. 게이트 OFF·미평가 시 빈 맵.
+    final invMap = ref.watch(investmentValuationMapProvider).asData?.value ??
+        const <int, InvestmentValuation>{};
+    final valMap = {for (final e in invMap.entries) e.key: e.value.value};
 
     return Scaffold(
       backgroundColor: t.bgSurface,
@@ -87,7 +88,7 @@ class _AssetScreenState extends ConsumerState<AssetScreen> {
           ref.invalidate(assetsProvider);
           ref.invalidate(assetSummaryProvider);
           ref.invalidate(netWorthTrendProvider);
-          ref.invalidate(tossValuationMapProvider);
+          ref.invalidate(investmentValuationMapProvider);
           ref.invalidate(savingGoalListProvider);
           await ref.read(assetsProvider.future);
         },
@@ -122,6 +123,7 @@ class _AssetScreenState extends ConsumerState<AssetScreen> {
               assets: liveAssets,
               summary: summary,
               summaryDelta: summaryDelta,
+              valuations: invMap,
               goals: ref.watch(savingGoalListProvider),
               masked: settings.hideAmounts,
               onToggleMask: () => toggleHideAmountsWithUnlock(context, ref),
@@ -139,6 +141,7 @@ class _AssetBody extends StatelessWidget {
     required this.assets,
     required this.summary,
     required this.summaryDelta,
+    required this.valuations,
     required this.goals,
     required this.masked,
     required this.onToggleMask,
@@ -149,6 +152,8 @@ class _AssetBody extends StatelessWidget {
   final AssetSummary? summary;
   // 토스 라이브 평가액 보정분(라이브−DB). summary(DB 기준) 순자산/변화에 더한다.
   final int summaryDelta;
+  // 투자 자산 라이브 평가 맵 — 행 등락 표시용.
+  final Map<int, InvestmentValuation> valuations;
   // 저축 목표 — 조회 전용 섹션 (관리는 설정 > 저축 목표).
   final AsyncValue<List<SavingGoal>> goals;
   final bool masked;
@@ -263,6 +268,7 @@ class _AssetBody extends StatelessWidget {
             masked: masked,
             tokens: tokens,
             kind: _GroupKind.investment,
+            valuations: valuations,
           ),
         ],
         const SizedBox(height: PSpace.x32),
@@ -702,6 +708,7 @@ class _TypeGroup extends StatelessWidget {
     required this.kind,
     this.totalColor,
     this.negativeTotal = false,
+    this.valuations = const {},
   });
   final String title;
   final List<Asset> assets;
@@ -711,6 +718,8 @@ class _TypeGroup extends StatelessWidget {
   final _GroupKind kind;
   final Color? totalColor;
   final bool negativeTotal;
+  // 투자 그룹 전용 — 행 등락(오늘 변화) 표시.
+  final Map<int, InvestmentValuation> valuations;
 
   @override
   Widget build(BuildContext context) {
@@ -758,6 +767,7 @@ class _TypeGroup extends StatelessWidget {
                 masked: masked,
                 negativeAmount: negativeTotal,
                 tokens: tokens,
+                valuation: valuations[assets[i].rowId],
               ),
         ],
       ),
@@ -771,11 +781,14 @@ class _AssetCard extends StatelessWidget {
     required this.masked,
     required this.negativeAmount,
     required this.tokens,
+    this.valuation,
   });
   final Asset asset;
   final bool masked;
   final bool negativeAmount;
   final PorestTokens tokens;
+  // 투자 자산 라이브 평가(등락 표시용) — 투자 외엔 null.
+  final InvestmentValuation? valuation;
 
   @override
   Widget build(BuildContext context) {
@@ -831,7 +844,21 @@ class _AssetCard extends StatelessWidget {
                         ],
                       ],
                     ),
-                    if (asset.memo != null && asset.memo!.isNotEmpty)
+                    if (asset.assetType == 'INVESTMENT' &&
+                        asset.holdings.isNotEmpty)
+                      // design 투자 행 서브 — 대표 종목 "외 N종목" (memo 는 상세에서).
+                      Padding(
+                        padding: const EdgeInsets.only(top: 1),
+                        child: Text(
+                          _holdingsRep(l, asset.holdings),
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: t.fgTertiary,
+                            fontSize: PFontSize.caption,
+                          ),
+                        ),
+                      )
+                    else if (asset.memo != null && asset.memo!.isNotEmpty)
                       Padding(
                         padding: const EdgeInsets.only(top: 1),
                         child: Text(
@@ -890,6 +917,32 @@ class _AssetCard extends StatelessWidget {
                       fontFeatures: const [FontFeature.tabularFigures()],
                     ),
                   ),
+                  // 투자 행 등락 — design: +N% (+M원), 상승=빨강/하락=파랑(국내 통념).
+                  if (!masked &&
+                      valuation != null &&
+                      valuation!.changeAmt != null) ...[
+                    const SizedBox(height: 2),
+                    Builder(builder: (context) {
+                      final chg = valuation!.changeAmt!;
+                      final base = valuation!.value - chg;
+                      final pct = base == 0 ? 0.0 : chg / base * 100;
+                      final up = chg >= 0;
+                      final color = up ? t.statusDangerFg : t.fgBrand;
+                      final pctText =
+                          '${up ? '+' : ''}${pct.toStringAsFixed(1)}%';
+                      final amtText = krwSigned(chg.abs(), false,
+                          sign: up ? '+' : '−', unit: true);
+                      return Text(
+                        '$pctText ($amtText)',
+                        style: TextStyle(
+                          color: color,
+                          fontSize: PFontSize.micro,
+                          fontWeight: PFontWeight.semi,
+                          fontFeatures: const [FontFeature.tabularFigures()],
+                        ),
+                      );
+                    }),
+                  ],
                   // 총액에서 제외된 자산이면 금액 아래 '총액 제외' 표기 (관리 화면 정합)
                   if (asset.isIncludedInTotal == 'N') ...[
                     const SizedBox(height: 2),
@@ -909,6 +962,16 @@ class _AssetCard extends StatelessWidget {
       ),
     );
   }
+}
+
+/// 투자 보유 요약 서브라인 — "대표종목 외 N종목" / 단일 이름 / 빈 목록 문구.
+String _holdingsRep(AppLocalizations l, List<AssetHolding> holdings) {
+  if (holdings.isEmpty) return l.assetNoHoldings;
+  String nameOf(AssetHolding h) =>
+      (h.holdingName?.isNotEmpty ?? false) ? h.holdingName! : (h.tossSymbol ?? '');
+  final first = nameOf(holdings.first);
+  if (holdings.length == 1) return first;
+  return l.assetHoldingRep(first, holdings.length - 1);
 }
 
 /// 신용카드 사용률 게이지 — abs(balance)/creditLimit.

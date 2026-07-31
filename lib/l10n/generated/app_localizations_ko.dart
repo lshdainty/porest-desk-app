@@ -637,6 +637,69 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetTossLinked => '토스 연동 중';
 
   @override
+  String get assetHoldings => '보유 종목';
+
+  @override
+  String assetHoldingsSummary(int count, String amount) {
+    return '$count종목 · $amount원';
+  }
+
+  @override
+  String assetHoldingRep(String name, int count) {
+    return '$name 외 $count종목';
+  }
+
+  @override
+  String get assetNoHoldings => '보유 종목 없음';
+
+  @override
+  String get assetHoldingLinkedBadge => '연동';
+
+  @override
+  String assetHoldingLinkedSub(String price) {
+    return '현재가 $price × 수량';
+  }
+
+  @override
+  String get assetHoldingManualSub => '평가액 직접 입력';
+
+  @override
+  String assetHoldingLinkedDetail(int qty, String price) {
+    return '$qty주 · 현재가 $price 연동';
+  }
+
+  @override
+  String get assetHoldingManualDetail => '직접 입력';
+
+  @override
+  String get assetHoldingsEmptyEdit =>
+      '검색으로 보유 종목을 추가하세요. 연동 종목은 현재가 × 수량으로 평가액이 자동 계산돼요.';
+
+  @override
+  String get assetHoldingsEmptyDetail => '보유 종목이 없어요. 편집에서 종목을 추가해보세요.';
+
+  @override
+  String get assetHoldingSearchHint => '종목명·티커 검색 후 추가 (예: 삼성전자, NVDA)';
+
+  @override
+  String assetHoldingAddManual(String name) {
+    return '\"$name\" 직접 추가 — 평가액 입력';
+  }
+
+  @override
+  String get assetSharesUnit => '주';
+
+  @override
+  String assetInvestHoldingsSub(int count) {
+    return '투자 · 보유 $count종목';
+  }
+
+  @override
+  String assetTodayChange(String amount) {
+    return '오늘 $amount원';
+  }
+
+  @override
   String assetSharesCount(int n) {
     return '$n주';
   }

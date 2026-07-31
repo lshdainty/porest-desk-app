@@ -1310,6 +1310,102 @@ abstract class AppLocalizations {
   /// **'토스 연동 중'**
   String get assetTossLinked;
 
+  /// No description provided for @assetHoldings.
+  ///
+  /// In ko, this message translates to:
+  /// **'보유 종목'**
+  String get assetHoldings;
+
+  /// No description provided for @assetHoldingsSummary.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}종목 · {amount}원'**
+  String assetHoldingsSummary(int count, String amount);
+
+  /// No description provided for @assetHoldingRep.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name} 외 {count}종목'**
+  String assetHoldingRep(String name, int count);
+
+  /// No description provided for @assetNoHoldings.
+  ///
+  /// In ko, this message translates to:
+  /// **'보유 종목 없음'**
+  String get assetNoHoldings;
+
+  /// No description provided for @assetHoldingLinkedBadge.
+  ///
+  /// In ko, this message translates to:
+  /// **'연동'**
+  String get assetHoldingLinkedBadge;
+
+  /// No description provided for @assetHoldingLinkedSub.
+  ///
+  /// In ko, this message translates to:
+  /// **'현재가 {price} × 수량'**
+  String assetHoldingLinkedSub(String price);
+
+  /// No description provided for @assetHoldingManualSub.
+  ///
+  /// In ko, this message translates to:
+  /// **'평가액 직접 입력'**
+  String get assetHoldingManualSub;
+
+  /// No description provided for @assetHoldingLinkedDetail.
+  ///
+  /// In ko, this message translates to:
+  /// **'{qty}주 · 현재가 {price} 연동'**
+  String assetHoldingLinkedDetail(int qty, String price);
+
+  /// No description provided for @assetHoldingManualDetail.
+  ///
+  /// In ko, this message translates to:
+  /// **'직접 입력'**
+  String get assetHoldingManualDetail;
+
+  /// No description provided for @assetHoldingsEmptyEdit.
+  ///
+  /// In ko, this message translates to:
+  /// **'검색으로 보유 종목을 추가하세요. 연동 종목은 현재가 × 수량으로 평가액이 자동 계산돼요.'**
+  String get assetHoldingsEmptyEdit;
+
+  /// No description provided for @assetHoldingsEmptyDetail.
+  ///
+  /// In ko, this message translates to:
+  /// **'보유 종목이 없어요. 편집에서 종목을 추가해보세요.'**
+  String get assetHoldingsEmptyDetail;
+
+  /// No description provided for @assetHoldingSearchHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'종목명·티커 검색 후 추가 (예: 삼성전자, NVDA)'**
+  String get assetHoldingSearchHint;
+
+  /// No description provided for @assetHoldingAddManual.
+  ///
+  /// In ko, this message translates to:
+  /// **'\"{name}\" 직접 추가 — 평가액 입력'**
+  String assetHoldingAddManual(String name);
+
+  /// No description provided for @assetSharesUnit.
+  ///
+  /// In ko, this message translates to:
+  /// **'주'**
+  String get assetSharesUnit;
+
+  /// No description provided for @assetInvestHoldingsSub.
+  ///
+  /// In ko, this message translates to:
+  /// **'투자 · 보유 {count}종목'**
+  String assetInvestHoldingsSub(int count);
+
+  /// No description provided for @assetTodayChange.
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘 {amount}원'**
+  String assetTodayChange(String amount);
+
   /// No description provided for @assetSharesCount.
   ///
   /// In ko, this message translates to:

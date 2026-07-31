@@ -282,6 +282,60 @@
   "assetQtyUpdated": "Updated quantity",
   "assetUpdateFailed": "Update failed",
   "assetTossLinked": "Toss linked",
+  "assetHoldings": "Holdings",
+  "assetHoldingsSummary": "{count} holdings · ₩{amount}",
+  "@assetHoldingsSummary": {
+    "placeholders": {
+      "count": {"type": "int"},
+      "amount": {"type": "String"}
+    }
+  },
+  "assetHoldingRep": "{name} +{count} more",
+  "@assetHoldingRep": {
+    "placeholders": {
+      "name": {"type": "String"},
+      "count": {"type": "int"}
+    }
+  },
+  "assetNoHoldings": "No holdings",
+  "assetHoldingLinkedBadge": "Linked",
+  "assetHoldingLinkedSub": "Price {price} × qty",
+  "@assetHoldingLinkedSub": {
+    "placeholders": {
+      "price": {"type": "String"}
+    }
+  },
+  "assetHoldingManualSub": "Manual value",
+  "assetHoldingLinkedDetail": "{qty} shares · linked at {price}",
+  "@assetHoldingLinkedDetail": {
+    "placeholders": {
+      "qty": {"type": "int"},
+      "price": {"type": "String"}
+    }
+  },
+  "assetHoldingManualDetail": "Manual entry",
+  "assetHoldingsEmptyEdit": "Search to add holdings. Linked holdings are valued automatically at price × quantity.",
+  "assetHoldingsEmptyDetail": "No holdings yet. Add them from Edit.",
+  "assetHoldingSearchHint": "Search name/ticker to add (e.g. Samsung, NVDA)",
+  "assetHoldingAddManual": "Add \"{name}\" manually — enter value",
+  "@assetHoldingAddManual": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "assetSharesUnit": "sh",
+  "assetInvestHoldingsSub": "Investment · {count} holdings",
+  "@assetInvestHoldingsSub": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "assetTodayChange": "Today {amount}",
+  "@assetTodayChange": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
   "assetSharesCount": "{n} shares",
   "@assetSharesCount": {
     "placeholders": {

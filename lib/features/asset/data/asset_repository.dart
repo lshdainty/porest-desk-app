@@ -109,6 +109,8 @@ class AssetRepository {
     int? creditLimit,
     int? paymentDay,
     int? paymentAssetRowId,
+    // 투자 보유 종목 (INVESTMENT 전용) — 전달 시 전체 교체.
+    List<AssetHolding>? holdings,
   }) async {
     try {
       final res = await _dio.post<Map<String, dynamic>>(
@@ -127,6 +129,7 @@ class AssetRepository {
           'creditLimit': ?creditLimit,
           'paymentDay': ?paymentDay,
           'paymentAssetRowId': ?paymentAssetRowId,
+          'holdings': ?holdings?.map(_holdingBody).toList(),
         },
       );
       return _unwrap(res, Asset.fromJson);
@@ -149,6 +152,8 @@ class AssetRepository {
     int? creditLimit,
     int? paymentDay,
     int? paymentAssetRowId,
+    // 투자 보유 종목 (INVESTMENT 전용) — 전달 시 전체 교체.
+    List<AssetHolding>? holdings,
   }) async {
     try {
       final res = await _dio.put<Map<String, dynamic>>(
@@ -166,6 +171,7 @@ class AssetRepository {
           'creditLimit': ?creditLimit,
           'paymentDay': ?paymentDay,
           'paymentAssetRowId': ?paymentAssetRowId,
+          'holdings': ?holdings?.map(_holdingBody).toList(),
         },
       );
       return _unwrap(res, Asset.fromJson);
@@ -173,6 +179,20 @@ class AssetRepository {
       throw ApiException.fromDio(e);
     }
   }
+
+  /// holdings 요청 바디 — linked ↔ manual 별 필요한 필드만 직렬화.
+  static Map<String, dynamic> _holdingBody(AssetHolding h) => {
+        'rowId': ?h.rowId,
+        'linked': h.linked,
+        if (h.linked) ...{
+          'tossSymbol': h.tossSymbol,
+          'quantity': h.quantity ?? 0,
+        } else ...{
+          'holdingName': h.holdingName,
+          'holdingValue': h.holdingValue ?? 0,
+        },
+        'sortOrder': ?h.sortOrder,
+      };
 
   Future<void> delete(int id) async {
     try {

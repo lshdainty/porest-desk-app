@@ -23,6 +23,11 @@ _Asset _$AssetFromJson(Map<String, dynamic> json) => _Asset(
   paymentAssetRowId: (json['paymentAssetRowId'] as num?)?.toInt(),
   tossSymbol: json['tossSymbol'] as String?,
   tossQuantity: (json['tossQuantity'] as num?)?.toInt(),
+  holdings:
+      (json['holdings'] as List<dynamic>?)
+          ?.map((e) => AssetHolding.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const <AssetHolding>[],
 );
 
 Map<String, dynamic> _$AssetToJson(_Asset instance) => <String, dynamic>{
@@ -42,4 +47,27 @@ Map<String, dynamic> _$AssetToJson(_Asset instance) => <String, dynamic>{
   'paymentAssetRowId': instance.paymentAssetRowId,
   'tossSymbol': instance.tossSymbol,
   'tossQuantity': instance.tossQuantity,
+  'holdings': instance.holdings,
 };
+
+_AssetHolding _$AssetHoldingFromJson(Map<String, dynamic> json) =>
+    _AssetHolding(
+      rowId: (json['rowId'] as num?)?.toInt(),
+      linked: json['linked'] as bool? ?? false,
+      tossSymbol: json['tossSymbol'] as String?,
+      quantity: (json['quantity'] as num?)?.toInt(),
+      holdingName: json['holdingName'] as String?,
+      holdingValue: (json['holdingValue'] as num?)?.toInt(),
+      sortOrder: (json['sortOrder'] as num?)?.toInt(),
+    );
+
+Map<String, dynamic> _$AssetHoldingToJson(_AssetHolding instance) =>
+    <String, dynamic>{
+      'rowId': instance.rowId,
+      'linked': instance.linked,
+      'tossSymbol': instance.tossSymbol,
+      'quantity': instance.quantity,
+      'holdingName': instance.holdingName,
+      'holdingValue': instance.holdingValue,
+      'sortOrder': instance.sortOrder,
+    };
