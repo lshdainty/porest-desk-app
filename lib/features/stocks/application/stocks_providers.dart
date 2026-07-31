@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:porest_desk_app/core/network/dio_provider.dart';
 import 'package:porest_desk_app/features/stocks/data/stocks_mock.dart';
+import 'package:porest_desk_app/features/stocks/data/stock_master_dto.dart';
 import 'package:porest_desk_app/features/stocks/data/stocks_repository.dart';
 import 'package:porest_desk_app/features/stocks/data/toss_dto.dart';
 
@@ -158,6 +159,42 @@ final tossMarketCalendarUsProvider =
   try {
     final repo = await ref.watch(stocksRepositoryProvider.future);
     return await repo.getMarketCalendarUs();
+  } catch (_) {
+    return null;
+  }
+});
+
+/// 종목 마스터 검색 (서버 stock_master — 국내 + 해외 6개국). 검색어별 캐시.
+/// 에러(미기동 등) 시 빈 목록 → 화면은 코드 직접입력 폴백으로 동작.
+final stockSearchProvider =
+    FutureProvider.family<List<StockMasterItem>, String>((ref, query) async {
+  final q = query.trim();
+  if (q.isEmpty) return const [];
+  try {
+    final repo = await ref.watch(stocksRepositoryProvider.future);
+    return await repo.searchStocks(q);
+  } catch (_) {
+    return const [];
+  }
+});
+
+/// 심볼 → 한글 종목명 (연결된 종목 표시용). 심볼 정확 일치만 취하고 없으면 null.
+/// 국내 005930 과 상해 600519 처럼 시장 간 심볼이 겹칠 수 있어 토스 시세 대상(KR/US)을 우선한다.
+final stockSymbolNameProvider =
+    FutureProvider.family<String?, String>((ref, symbol) async {
+  final sym = symbol.trim();
+  if (sym.isEmpty) return null;
+  try {
+    final repo = await ref.watch(stocksRepositoryProvider.future);
+    final items = await repo.searchStocks(sym, size: 20);
+    final exact = items
+        .where((s) => s.symbol.toUpperCase() == sym.toUpperCase())
+        .toList();
+    if (exact.isEmpty) return null;
+    for (final s in exact) {
+      if (s.countryCode == 'KR' || s.countryCode == 'US') return s.nameKr;
+    }
+    return exact.first.nameKr;
   } catch (_) {
     return null;
   }

@@ -72,7 +72,6 @@ flutter:
 
   assets:
     - assets/fonts/
-    - assets/data/krx_stocks.json
 
   fonts:
     - family: Pretendard

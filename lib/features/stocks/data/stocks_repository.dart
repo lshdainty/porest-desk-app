@@ -6,6 +6,7 @@ library;
 import 'package:dio/dio.dart';
 
 import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/features/stocks/data/stock_master_dto.dart';
 import 'package:porest_desk_app/features/stocks/data/toss_dto.dart';
 
 class StocksRepository {
@@ -20,6 +21,27 @@ class StocksRepository {
     final body = res.data;
     if (body is Map<String, dynamic>) return body['data'];
     return body;
+  }
+
+  // 종목 마스터 검색 (구독 게이트 없음 — 로그인만 필요) ---------------------
+
+  /// 한글명·영문명·심볼 부분일치 검색 상위 [size]개.
+  /// 정확 일치 > prefix > 부분 일치 정렬은 서버(stock_master)가 보장한다.
+  Future<List<StockMasterItem>> searchStocks(String keyword,
+      {int size = 8}) async {
+    try {
+      final res = await _dio.get<dynamic>(
+        '/stocks',
+        queryParameters: {'keyword': keyword, 'size': size},
+      );
+      final page = _payload(res) as Map<String, dynamic>? ?? {};
+      final list = (page['content'] as List? ?? []);
+      return list
+          .map((e) => StockMasterItem.fromJson(e as Map<String, dynamic>))
+          .toList();
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
   }
 
   // 시세 ----------------------------------------------------------------

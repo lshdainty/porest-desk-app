@@ -1364,6 +1364,96 @@ abstract class AppLocalizations {
   /// **'종목명·코드 검색 (예: 삼성전자, 005930)'**
   String get assetStockSearchHint;
 
+  /// No description provided for @stockMarketKospi.
+  ///
+  /// In ko, this message translates to:
+  /// **'코스피'**
+  String get stockMarketKospi;
+
+  /// No description provided for @stockMarketKosdaq.
+  ///
+  /// In ko, this message translates to:
+  /// **'코스닥'**
+  String get stockMarketKosdaq;
+
+  /// No description provided for @stockMarketKonex.
+  ///
+  /// In ko, this message translates to:
+  /// **'코넥스'**
+  String get stockMarketKonex;
+
+  /// No description provided for @stockMarketKrxIdx.
+  ///
+  /// In ko, this message translates to:
+  /// **'KRX 지수'**
+  String get stockMarketKrxIdx;
+
+  /// No description provided for @stockMarketNas.
+  ///
+  /// In ko, this message translates to:
+  /// **'나스닥'**
+  String get stockMarketNas;
+
+  /// No description provided for @stockMarketNys.
+  ///
+  /// In ko, this message translates to:
+  /// **'뉴욕'**
+  String get stockMarketNys;
+
+  /// No description provided for @stockMarketAms.
+  ///
+  /// In ko, this message translates to:
+  /// **'아멕스'**
+  String get stockMarketAms;
+
+  /// No description provided for @stockMarketShs.
+  ///
+  /// In ko, this message translates to:
+  /// **'상해'**
+  String get stockMarketShs;
+
+  /// No description provided for @stockMarketShi.
+  ///
+  /// In ko, this message translates to:
+  /// **'상해지수'**
+  String get stockMarketShi;
+
+  /// No description provided for @stockMarketSzs.
+  ///
+  /// In ko, this message translates to:
+  /// **'심천'**
+  String get stockMarketSzs;
+
+  /// No description provided for @stockMarketSzi.
+  ///
+  /// In ko, this message translates to:
+  /// **'심천지수'**
+  String get stockMarketSzi;
+
+  /// No description provided for @stockMarketTse.
+  ///
+  /// In ko, this message translates to:
+  /// **'도쿄'**
+  String get stockMarketTse;
+
+  /// No description provided for @stockMarketHks.
+  ///
+  /// In ko, this message translates to:
+  /// **'홍콩'**
+  String get stockMarketHks;
+
+  /// No description provided for @stockMarketHnx.
+  ///
+  /// In ko, this message translates to:
+  /// **'하노이'**
+  String get stockMarketHnx;
+
+  /// No description provided for @stockMarketHsx.
+  ///
+  /// In ko, this message translates to:
+  /// **'호치민'**
+  String get stockMarketHsx;
+
   /// No description provided for @assetLinkByCode.
   ///
   /// In ko, this message translates to:
