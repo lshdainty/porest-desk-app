@@ -19,23 +19,18 @@ import 'package:porest_desk_app/core/settings/hide_amounts_unlock_dialog.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
-import 'package:porest_desk_app/shared/widgets/p_badge.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_card.dart';
-import 'package:porest_desk_app/shared/widgets/p_chip.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
 import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
-import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
 import 'package:porest_desk_app/features/card/application/card_providers.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
 import 'package:porest_desk_app/features/expense/presentation/tx_detail_dialog.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
 import 'package:porest_desk_app/features/stocks/application/stocks_providers.dart';
-import 'package:porest_desk_app/features/stocks/data/stock_master_dto.dart';
-import 'package:porest_desk_app/features/stocks/presentation/stock_market_label.dart';
+import 'package:porest_desk_app/features/stocks/data/toss_dto.dart';
 import 'package:porest_desk_app/features/subscription/application/subscription_providers.dart';
 import 'package:porest_desk_app/features/asset/domain/asset.dart';
 import 'package:porest_desk_app/features/asset/domain/asset_transfer.dart';
@@ -204,7 +199,8 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
           const SizedBox(height: PSpace.x16),
         ],
         if (isInv) ...[
-          _TossLinkSection(asset: asset),
+          _InvChangeLine(assetRowId: asset.rowId, masked: masked),
+          _HoldingsSection(asset: asset, onEdit: widget.onEdit),
           const SizedBox(height: PSpace.x16),
         ],
 
@@ -298,347 +294,298 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
   }
 }
 
-/// 투자 자산 ↔ 토스 종목 연결 섹션 (프로(SECURITIES)+토스 연결 사용자에게만 노출).
-/// 종목 + 보유수량을 등록하면 토스 현재가 × 수량으로 평가액이 실시간 계산된다.
-/// 토스 계좌 보유분과 무관 — 시세만 빌려 타 증권사 보유 주식도 평가.
-class _TossLinkSection extends ConsumerStatefulWidget {
-  const _TossLinkSection({required this.asset});
-  final Asset asset;
+/// 투자 히어로 아래 등락 라인 — design: "+N% · 오늘 ±M원" (상승=빨강/하락=파랑).
+/// 라이브 평가(연동가·전일종가) 가능할 때만 표시.
+class _InvChangeLine extends ConsumerWidget {
+  const _InvChangeLine({required this.assetRowId, required this.masked});
+  final int assetRowId;
+  final bool masked;
 
   @override
-  ConsumerState<_TossLinkSection> createState() => _TossLinkSectionState();
-}
-
-class _TossLinkSectionState extends ConsumerState<_TossLinkSection> {
-  late final TextEditingController _queryCtrl;
-  late final TextEditingController _qtyCtrl;
-  late final TextEditingController _editQtyCtrl;
-  String? _selSymbol;
-  String? _selName;
-  bool _busy = false;
-  bool _editingQty = false;
-  ({String symbol, int quantity})? _linked;
-  // 서버 검색 디바운스 — 키 입력마다 요청이 나가지 않게 300ms 지연.
-  Timer? _searchDebounce;
-  String _debouncedQuery = '';
-
-  @override
-  void initState() {
-    super.initState();
-    final a = widget.asset;
-    _queryCtrl = TextEditingController()..addListener(_onQueryChanged);
-    _qtyCtrl = TextEditingController(
-      text: a.tossQuantity != null ? '${a.tossQuantity}' : '',
-    );
-    _editQtyCtrl = TextEditingController();
-    _selSymbol = a.tossSymbol;
-    if (a.tossSymbol != null && a.tossQuantity != null) {
-      _linked = (symbol: a.tossSymbol!, quantity: a.tossQuantity!);
-    }
-  }
-
-  void _onQueryChanged() {
-    setState(() {});
-    _searchDebounce?.cancel();
-    _searchDebounce = Timer(const Duration(milliseconds: 300), () {
-      if (mounted) setState(() => _debouncedQuery = _queryCtrl.text.trim());
-    });
-  }
-
-  @override
-  void dispose() {
-    _searchDebounce?.cancel();
-    _queryCtrl.dispose();
-    _qtyCtrl.dispose();
-    _editQtyCtrl.dispose();
-    super.dispose();
-  }
-
-  Future<void> _link() async {
-    final symbol = _selSymbol;
-    final qty = int.tryParse(_qtyCtrl.text.replaceAll(',', '')) ?? 0;
-    if (symbol == null || qty <= 0 || _busy) return;
-    final l = AppLocalizations.of(context);
-    setState(() => _busy = true);
-    try {
-      final repo = await ref.read(assetRepositoryProvider.future);
-      await repo.linkTossSymbol(widget.asset.rowId, symbol, qty);
-      ref.invalidate(assetsProvider);
-      ref.invalidate(tossValuationMapProvider);
-      if (!mounted) return;
-      setState(() => _linked = (symbol: symbol, quantity: qty));
-      showPSnackBar(context, l.assetTossLinkStarted,
-          severity: PSnackSeverity.success);
-    } on ApiException catch (e) {
-      if (!mounted) return;
-      showPSnackBar(context, '${l.assetLinkFailed}: ${e.message}',
-          severity: PSnackSeverity.error);
-    } finally {
-      if (mounted) setState(() => _busy = false);
-    }
-  }
-
-  Future<void> _unlink() async {
-    if (_busy) return;
-    final l = AppLocalizations.of(context);
-    setState(() => _busy = true);
-    try {
-      final repo = await ref.read(assetRepositoryProvider.future);
-      await repo.unlinkTossSymbol(widget.asset.rowId);
-      ref.invalidate(assetsProvider);
-      ref.invalidate(tossValuationMapProvider);
-      if (!mounted) return;
-      setState(() {
-        _linked = null;
-        _selSymbol = null;
-        _selName = null;
-        _qtyCtrl.clear();
-        _queryCtrl.clear();
-      });
-      showPSnackBar(context, l.assetTossUnlinked,
-          severity: PSnackSeverity.success);
-    } on ApiException catch (e) {
-      if (!mounted) return;
-      showPSnackBar(context, '${l.assetUnlinkFailed}: ${e.message}',
-          severity: PSnackSeverity.error);
-    } finally {
-      if (mounted) setState(() => _busy = false);
-    }
-  }
-
-  /// 보유 수량만 수정 — 같은 종목코드로 재연결(백엔드가 수량 갱신 + 평가액 스냅샷 재적재).
-  Future<void> _saveQty() async {
-    final linked = _linked;
-    final qty = int.tryParse(_editQtyCtrl.text.replaceAll(',', '')) ?? 0;
-    if (linked == null || qty <= 0 || _busy) return;
-    final l = AppLocalizations.of(context);
-    setState(() => _busy = true);
-    try {
-      final repo = await ref.read(assetRepositoryProvider.future);
-      await repo.linkTossSymbol(widget.asset.rowId, linked.symbol, qty);
-      ref.invalidate(assetsProvider);
-      ref.invalidate(tossValuationMapProvider);
-      if (!mounted) return;
-      setState(() {
-        _linked = (symbol: linked.symbol, quantity: qty);
-        _editingQty = false;
-      });
-      showPSnackBar(context, l.assetQtyUpdated,
-          severity: PSnackSeverity.success);
-    } on ApiException catch (e) {
-      if (!mounted) return;
-      showPSnackBar(context, '${l.assetUpdateFailed}: ${e.message}',
-          severity: PSnackSeverity.error);
-    } finally {
-      if (mounted) setState(() => _busy = false);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
-    final features = ref.watch(myFeaturesProvider).asData?.value;
-    final enabled =
-        (features?.hasSecurities ?? false) && (features?.tossConnected ?? false);
-    if (!enabled) return const SizedBox.shrink();
-
-    // 연결/선택된 종목코드의 이름 조회 (서버 종목 마스터).
-    final resolvedName = ref
-        .watch(stockSymbolNameProvider(_linked?.symbol ?? _selSymbol ?? ''))
+    final v = ref
+        .watch(investmentValuationMapProvider)
         .asData
-        ?.value;
-
-    if (_linked != null) {
-      final linked = _linked!;
-      final name = resolvedName ?? linked.symbol;
-      return PCard(
-        variant: PCardVariant.bordered,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                PBadge(label: l.assetTossLinked),
-                const SizedBox(width: PSpace.x8),
-                Expanded(
-                  child: Text(
-                    '$name · ${l.assetSharesCount(linked.quantity)}',
-                    style: PTypo.bodySm.copyWith(
-                      color: t.fgPrimary,
-                      fontWeight: PFontWeight.bold,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: PSpace.x8),
-            Text(
-              l.assetTossValuationFormula(linked.quantity),
-              style: PTypo.caption.copyWith(color: t.fgTertiary),
-            ),
-            const SizedBox(height: PSpace.x12),
-            if (_editingQty) ...[
-              PTextInput(
-                controller: _editQtyCtrl,
-                keyboardType: TextInputType.number,
-                placeholder: l.assetHoldingQty,
-              ),
-              const SizedBox(height: PSpace.x8),
-              Row(
-                children: [
-                  PButton(
-                    label: l.actionSave,
-                    size: PButtonSize.sm,
-                    loading: _busy,
-                    onPressed: _busy ? null : _saveQty,
-                  ),
-                  const SizedBox(width: PSpace.x8),
-                  PButton(
-                    label: l.actionCancel,
-                    variant: PButtonVariant.secondary,
-                    size: PButtonSize.sm,
-                    onPressed:
-                        _busy ? null : () => setState(() => _editingQty = false),
-                  ),
-                ],
-              ),
-            ] else
-              Row(
-                children: [
-                  PButton(
-                    label: l.assetEditQty,
-                    size: PButtonSize.sm,
-                    onPressed: _busy
-                        ? null
-                        : () => setState(() {
-                            _editQtyCtrl.text = '${linked.quantity}';
-                            _editingQty = true;
-                          }),
-                  ),
-                  const SizedBox(width: PSpace.x8),
-                  PButton(
-                    label: l.assetUnlink,
-                    variant: PButtonVariant.secondary,
-                    size: PButtonSize.sm,
-                    loading: _busy,
-                    onPressed: _busy ? null : _unlink,
-                  ),
-                ],
-              ),
-          ],
-        ),
-      );
-    }
-
-    final q = _queryCtrl.text.trim();
-    // 종목 검색 (서버 stock_master — 국내 + 해외 6개국, 디바운스된 검색어).
-    final searchAsync = ref.watch(stockSearchProvider(_debouncedQuery));
-    final matches = searchAsync.asData?.value ?? const <StockMasterItem>[];
-    // 마스터에 없는 코드 직접 연결 폴백 — 검색 응답이 끝난 뒤에만 노출해 깜빡임을 막는다.
-    final codeFallback = q.isNotEmpty &&
-            q == _debouncedQuery &&
-            searchAsync.hasValue &&
-            matches.isEmpty
-        ? q.toUpperCase()
-        : null;
-    final qty = int.tryParse(_qtyCtrl.text.replaceAll(',', '')) ?? 0;
-    final canLink = _selSymbol != null && qty > 0 && !_busy;
-
-    return PCard(
-      variant: PCardVariant.bordered,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        ?.value[assetRowId];
+    final chg = v?.changeAmt;
+    if (masked || v == null || chg == null) return const SizedBox.shrink();
+    final base = v.value - chg;
+    final pct = base == 0 ? 0.0 : chg / base * 100;
+    final up = chg >= 0;
+    final color = up ? t.statusDangerFg : t.fgBrand;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: PSpace.x16),
+      child: Row(
         children: [
           Text(
-            l.assetTossRealtimeTitle,
-            style: PTypo.bodySm
-                .copyWith(color: t.fgPrimary, fontWeight: PFontWeight.bold),
-          ),
-          const SizedBox(height: PSpace.x4),
-          Text(
-            l.assetTossRealtimeDesc,
-            style: PTypo.caption.copyWith(color: t.fgTertiary),
-          ),
-          const SizedBox(height: PSpace.x12),
-
-          // 선택된 종목 (있으면 chip, 없으면 검색)
-          if (_selSymbol != null)
-            Row(
-              children: [
-                PChip(
-                  label:
-                      '${_selName ?? resolvedName ?? _selSymbol!} (${_selSymbol!})',
-                  selected: true,
-                  onTap: () => setState(() {
-                    _selSymbol = null;
-                    _selName = null;
-                  }),
-                ),
-                const SizedBox(width: PSpace.x8),
-                Text(l.assetTapToChange,
-                    style: PTypo.micro.copyWith(color: t.fgTertiary)),
-              ],
-            )
-          else ...[
-            PTextInput(
-              controller: _queryCtrl,
-              placeholder: l.assetStockSearchHint,
+            '${up ? '+' : ''}${pct.toStringAsFixed(1)}%',
+            style: PTypo.bodySm.copyWith(
+              color: color,
+              fontWeight: PFontWeight.bold,
+              fontFeatures: const [FontFeature.tabularFigures()],
             ),
-            if (matches.isNotEmpty || codeFallback != null) ...[
-              const SizedBox(height: PSpace.x8),
-              Wrap(
-                spacing: 6,
-                runSpacing: 6,
-                children: [
-                  for (final s in matches)
-                    PChip(
-                      label:
-                          '${s.nameKr} (${s.symbol} · ${stockMarketLabel(l, s.marketCode)})',
-                      selected: false,
-                      onTap: () => setState(() {
-                        _selSymbol = s.symbol;
-                        _selName = s.nameKr;
-                        _queryCtrl.clear();
-                      }),
-                    ),
-                  if (codeFallback != null)
-                    PChip(
-                      label: l.assetLinkByCode(codeFallback),
-                      selected: false,
-                      onTap: () => setState(() {
-                        _selSymbol = codeFallback;
-                        _selName = null;
-                        _queryCtrl.clear();
-                      }),
-                    ),
-                ],
-              ),
-            ],
-          ],
-
-          const SizedBox(height: PSpace.x12),
-          Row(
-            children: [
-              Expanded(
-                child: PTextInput(
-                  controller: _qtyCtrl,
-                  keyboardType: TextInputType.number,
-                  placeholder: l.assetHoldingQty,
-                ),
-              ),
-              const SizedBox(width: PSpace.x8),
-              PButton(
-                label: l.assetLink,
-                size: PButtonSize.sm,
-                loading: _busy,
-                onPressed: canLink ? _link : null,
-              ),
-            ],
+          ),
+          const SizedBox(width: PSpace.x8),
+          Text(
+            l.assetTodayChange(
+              krwSigned(chg.abs(), false, sign: up ? '+' : '−'),
+            ),
+            style: PTypo.caption.copyWith(
+              color: t.fgTertiary,
+              fontFeatures: const [FontFeature.tabularFigures()],
+            ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// 투자 보유 종목 섹션 — design AssetDetailDialog '보유 종목' 플랫 리스트 미러.
+/// linked: "N주 · 현재가 X 연동" + 등락% / manual: "직접 입력". 행 탭 → 편집.
+/// 레거시 단일 연동(tossSymbol/tossQuantity) 자산은 가상 1건으로 표시(편집에서 이관).
+class _HoldingsSection extends ConsumerWidget {
+  const _HoldingsSection({required this.asset, this.onEdit});
+  final Asset asset;
+  final VoidCallback? onEdit;
+
+  List<AssetHolding> get _holdings {
+    if (asset.holdings.isNotEmpty) return asset.holdings;
+    if ((asset.tossSymbol?.isNotEmpty ?? false) && asset.tossQuantity != null) {
+      return [
+        AssetHolding(
+          linked: true,
+          tossSymbol: asset.tossSymbol,
+          quantity: asset.tossQuantity,
+        ),
+      ];
+    }
+    return const [];
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = context.tokens;
+    final l = AppLocalizations.of(context);
+    final holdings = _holdings;
+
+    // 연동 심볼 시세 — 게이트(프로+토스연결) ON 일 때만 조회.
+    final features = ref.watch(myFeaturesProvider).asData?.value;
+    final gate =
+        (features?.hasSecurities ?? false) && (features?.tossConnected ?? false);
+    final symbols = [
+      for (final h in holdings)
+        if (h.linked && (h.tossSymbol?.isNotEmpty ?? false)) h.tossSymbol!,
+    ];
+    final prices = gate && symbols.isNotEmpty
+        ? (ref
+                .watch(tossPricesProvider((symbols.toSet().toList()..sort())
+                    .join(',')))
+                .asData
+                ?.value ??
+            const [])
+        : const <TossPrice>[];
+    final priceBySymbol = {for (final p in prices) p.symbol: p};
+    final hasForeign = prices.any((p) {
+      final cur = p.currency;
+      return cur != null && cur.isNotEmpty && cur.toUpperCase() != 'KRW';
+    });
+    final fx = hasForeign
+        ? ref.watch(tossExchangeRateProvider).asData?.value?.rateValue ?? 0.0
+        : 0.0;
+
+    double? unitKrw(String symbol) {
+      final p = priceBySymbol[symbol];
+      if (p == null) return null;
+      final foreign = p.currency != null &&
+          p.currency!.isNotEmpty &&
+          p.currency!.toUpperCase() != 'KRW';
+      if (foreign) return fx > 0 ? p.priceValue * fx : null;
+      return p.priceValue;
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              l.assetHoldings,
+              style: PTypo.bodySm.copyWith(
+                color: t.fgPrimary,
+                fontWeight: PFontWeight.bold,
+              ),
+            ),
+            const SizedBox(width: 6),
+            Text(
+              '${holdings.length}',
+              style: PTypo.bodySm.copyWith(
+                color: t.fgBrand,
+                fontWeight: PFontWeight.bold,
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
+            ),
+          ],
+        ),
+        if (holdings.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: PSpace.x20),
+            child: Center(
+              child: Text(
+                l.assetHoldingsEmptyDetail,
+                style: PTypo.bodySm.copyWith(color: t.fgTertiary),
+              ),
+            ),
+          )
+        else
+          for (int i = 0; i < holdings.length; i++)
+            _HoldingRow(
+              holding: holdings[i],
+              first: i == 0,
+              unitKrw: holdings[i].linked &&
+                      (holdings[i].tossSymbol?.isNotEmpty ?? false)
+                  ? unitKrw(holdings[i].tossSymbol!)
+                  : null,
+              rawPrice: holdings[i].linked
+                  ? priceBySymbol[holdings[i].tossSymbol]
+                  : null,
+              onTap: onEdit,
+            ),
+      ],
+    );
+  }
+}
+
+/// 보유 종목 1행 — design 플랫 행(이름/서브 · 평가액/등락% · chevron).
+class _HoldingRow extends ConsumerWidget {
+  const _HoldingRow({
+    required this.holding,
+    required this.first,
+    required this.unitKrw,
+    required this.rawPrice,
+    this.onTap,
+  });
+  final AssetHolding holding;
+  final bool first;
+  final double? unitKrw; // 연동 1주 KRW 환산가 (미확보 시 null)
+  final TossPrice? rawPrice; // 표시용 원통화 현재가
+  final VoidCallback? onTap;
+
+  String _fmtRawPrice(TossPrice p) {
+    final foreign = p.currency != null &&
+        p.currency!.isNotEmpty &&
+        p.currency!.toUpperCase() != 'KRW';
+    if (foreign) {
+      return '\$${p.priceValue.toStringAsFixed(2)}';
+    }
+    return '${krw(p.priceValue.round())}원';
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = context.tokens;
+    final l = AppLocalizations.of(context);
+    final h = holding;
+    final name = (h.holdingName?.isNotEmpty ?? false)
+        ? h.holdingName!
+        : (h.tossSymbol ?? '');
+
+    // 서브 — linked: "{qty}주 · 현재가 {price} 연동" / manual: "직접 입력".
+    final String sub;
+    if (h.linked) {
+      sub = rawPrice != null
+          ? l.assetHoldingLinkedDetail(h.quantity ?? 0, _fmtRawPrice(rawPrice!))
+          : '${l.assetSharesCount(h.quantity ?? 0)} · ${l.assetHoldingLinkedBadge}';
+    } else {
+      sub = l.assetHoldingManualDetail;
+    }
+
+    // 평가액 — linked: 라이브(가격×수량), 폴백 서버 스냅샷(holdingValue) / manual: holdingValue.
+    final int? value = h.linked
+        ? (unitKrw != null
+            ? (unitKrw! * (h.quantity ?? 0)).round()
+            : h.holdingValue)
+        : (h.holdingValue ?? 0);
+
+    // 등락% — 연동 + 전일종가 확보 시.
+    final prev = h.linked && (h.tossSymbol?.isNotEmpty ?? false)
+        ? ref.watch(prevCloseProvider(h.tossSymbol!)).asData?.value
+        : null;
+    double? pct;
+    if (h.linked && rawPrice != null && prev != null && prev > 0) {
+      pct = (rawPrice!.priceValue - prev) / prev * 100;
+    }
+
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: PSpace.x12),
+        decoration: BoxDecoration(
+          border: first
+              ? null
+              : Border(top: BorderSide(color: t.borderSubtle)),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: PTypo.body.copyWith(
+                      color: t.fgPrimary,
+                      fontWeight: PFontWeight.semi,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    sub,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: PTypo.caption.copyWith(
+                      color: t.fgTertiary,
+                      fontFeatures: const [FontFeature.tabularFigures()],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: PSpace.x12),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  value != null ? '${krw(value)}원' : '—',
+                  style: PTypo.bodySm.copyWith(
+                    color: t.fgPrimary,
+                    fontWeight: PFontWeight.bold,
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
+                ),
+                if (pct != null) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    '${pct >= 0 ? '+' : ''}${pct.toStringAsFixed(2)}%',
+                    style: PTypo.micro.copyWith(
+                      color: pct >= 0 ? t.statusDangerFg : t.fgBrand,
+                      fontWeight: PFontWeight.semi,
+                      fontFeatures: const [FontFeature.tabularFigures()],
+                    ),
+                  ),
+                ],
+              ],
+            ),
+            if (onTap != null) ...[
+              const SizedBox(width: PSpace.x8),
+              Icon(LucideIcons.chevronRight, size: 15, color: t.fgTertiary),
+            ],
+          ],
+        ),
       ),
     );
   }
