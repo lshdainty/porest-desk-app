@@ -500,3 +500,81 @@ class TossUsMarketCalendar {
     );
   }
 }
+
+// ---- 랭킹 / 시장 지표 -------------------------------------------------------
+
+/// 랭킹 종목 가격. changeRate 는 소수 비율(0.0125 = 1.25%).
+class TossRankingPrice {
+  const TossRankingPrice({required this.lastPrice, required this.basePrice, this.changeRate});
+  final String lastPrice;
+  final String basePrice;
+  final String? changeRate;
+
+  factory TossRankingPrice.fromJson(Map<String, dynamic> j) => TossRankingPrice(
+        lastPrice: (j['lastPrice'] as String?) ?? '0',
+        basePrice: (j['basePrice'] as String?) ?? '0',
+        changeRate: j['changeRate'] as String?,
+      );
+
+  double get lastPriceValue => double.tryParse(lastPrice) ?? 0;
+  double? get changePct {
+    final r = changeRate == null ? null : double.tryParse(changeRate!);
+    return r == null ? null : r * 100;
+  }
+}
+
+class TossRankingItem {
+  const TossRankingItem({
+    required this.rank,
+    required this.symbol,
+    required this.currency,
+    required this.price,
+    required this.tradingVolume,
+    required this.tradingAmount,
+  });
+
+  final int rank;
+  final String symbol;
+  final String currency;
+  final TossRankingPrice price;
+  final String tradingVolume;
+  final String tradingAmount;
+
+  factory TossRankingItem.fromJson(Map<String, dynamic> j) => TossRankingItem(
+        rank: (j['rank'] as num?)?.toInt() ?? 0,
+        symbol: (j['symbol'] as String?) ?? '',
+        currency: (j['currency'] as String?) ?? 'KRW',
+        price: TossRankingPrice.fromJson((j['price'] as Map<String, dynamic>?) ?? {}),
+        tradingVolume: (j['tradingVolume'] as String?) ?? '0',
+        tradingAmount: (j['tradingAmount'] as String?) ?? '0',
+      );
+}
+
+class TossRankingResponse {
+  const TossRankingResponse({this.rankedAt, required this.rankings});
+  final String? rankedAt;
+  final List<TossRankingItem> rankings;
+
+  factory TossRankingResponse.fromJson(Map<String, dynamic> j) => TossRankingResponse(
+        rankedAt: j['rankedAt'] as String?,
+        rankings: ((j['rankings'] as List?) ?? [])
+            .map((e) => TossRankingItem.fromJson(e as Map<String, dynamic>))
+            .toList(),
+      );
+}
+
+/// 시장 지표 현재가 (지수: 포인트, 국채: 수익률 %). 토스 카탈로그 8종만 지원.
+class TossIndicatorPrice {
+  const TossIndicatorPrice({required this.symbol, required this.lastPrice, this.timestamp});
+  final String symbol;
+  final String lastPrice;
+  final String? timestamp;
+
+  factory TossIndicatorPrice.fromJson(Map<String, dynamic> j) => TossIndicatorPrice(
+        symbol: (j['symbol'] as String?) ?? '',
+        lastPrice: (j['lastPrice'] as String?) ?? '0',
+        timestamp: j['timestamp'] as String?,
+      );
+
+  double get priceValue => double.tryParse(lastPrice) ?? 0;
+}

@@ -7742,6 +7742,90 @@ abstract class AppLocalizations {
   /// **'등락률'**
   String get stocksChangeRate;
 
+  /// No description provided for @stocksSearchHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'종목명·심볼로 검색하세요 (국내 + 미국·중국·일본·홍콩·베트남)'**
+  String get stocksSearchHint;
+
+  /// No description provided for @stocksPriceUnavailable.
+  ///
+  /// In ko, this message translates to:
+  /// **'토스 시세 미지원 종목이에요 (국내·미국만 제공)'**
+  String get stocksPriceUnavailable;
+
+  /// No description provided for @stocksRankingLoading.
+  ///
+  /// In ko, this message translates to:
+  /// **'랭킹을 불러오는 중…'**
+  String get stocksRankingLoading;
+
+  /// No description provided for @stocksRankingEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'집계된 랭킹이 없어요'**
+  String get stocksRankingEmpty;
+
+  /// No description provided for @stocksWatchDefaultGroupName.
+  ///
+  /// In ko, this message translates to:
+  /// **'관심'**
+  String get stocksWatchDefaultGroupName;
+
+  /// No description provided for @stocksWatchGroupAdd.
+  ///
+  /// In ko, this message translates to:
+  /// **'그룹 추가'**
+  String get stocksWatchGroupAdd;
+
+  /// No description provided for @stocksWatchGroupRename.
+  ///
+  /// In ko, this message translates to:
+  /// **'그룹 이름 변경'**
+  String get stocksWatchGroupRename;
+
+  /// No description provided for @stocksWatchGroupDelete.
+  ///
+  /// In ko, this message translates to:
+  /// **'그룹 삭제'**
+  String get stocksWatchGroupDelete;
+
+  /// No description provided for @stocksWatchGroupNamePlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'그룹 이름'**
+  String get stocksWatchGroupNamePlaceholder;
+
+  /// No description provided for @stocksWatchGroupDeleteConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'그룹과 담긴 종목이 함께 삭제됩니다. 계속할까요?'**
+  String get stocksWatchGroupDeleteConfirm;
+
+  /// No description provided for @stocksWatchGroupSaveFail.
+  ///
+  /// In ko, this message translates to:
+  /// **'관심목록 그룹 저장에 실패했어요'**
+  String get stocksWatchGroupSaveFail;
+
+  /// No description provided for @stocksWatchAddFail.
+  ///
+  /// In ko, this message translates to:
+  /// **'관심 등록에 실패했어요'**
+  String get stocksWatchAddFail;
+
+  /// No description provided for @stocksMarketToggleKr.
+  ///
+  /// In ko, this message translates to:
+  /// **'국내'**
+  String get stocksMarketToggleKr;
+
+  /// No description provided for @stocksMarketToggleUs.
+  ///
+  /// In ko, this message translates to:
+  /// **'미국'**
+  String get stocksMarketToggleUs;
+
   /// No description provided for @todoAdd.
   ///
   /// In ko, this message translates to:

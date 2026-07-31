@@ -1,44 +1,105 @@
 /// 토스증권 Open API 연동 Riverpod providers.
-/// 모든 provider 는 에러(키 미설정 503·미기동)를 삼키고 null/false 로 폴백 → 화면은 mock 유지.
+/// 모든 provider 는 에러(키 미설정 503·미기동)를 삼키고 null/빈 값으로 폴백한다.
 library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:porest_desk_app/core/network/dio_provider.dart';
-import 'package:porest_desk_app/features/stocks/data/stocks_mock.dart';
 import 'package:porest_desk_app/features/stocks/data/stock_master_dto.dart';
 import 'package:porest_desk_app/features/stocks/data/stocks_repository.dart';
 import 'package:porest_desk_app/features/stocks/data/toss_dto.dart';
+import 'package:porest_desk_app/features/stocks/data/watch_dto.dart';
 
 final stocksRepositoryProvider = FutureProvider<StocksRepository>((ref) async {
   final dio = await ref.watch(dioProvider.future);
   return StocksRepository(dio);
 });
 
-/// 화면 진입 시 전체 종목 라이브 시세 + 환율을 받아 mock 모듈에 적용.
-/// 키 있으면 실데이터(kStocks[].price / kFxUsdKrw 갱신), 없으면 mock 유지. applied 여부 반환.
-final stockLiveOverlayProvider = FutureProvider<bool>((ref) async {
-  var applied = false;
-  final StocksRepository repo;
+/// 여러 종목 현재가 (콤마 조인 심볼 키 — 리스트 배치 1콜). 에러 시 빈 목록.
+final tossPricesProvider =
+    FutureProvider.family<List<TossPrice>, String>((ref, joinedSymbols) async {
+  if (joinedSymbols.isEmpty) return const [];
   try {
-    repo = await ref.watch(stocksRepositoryProvider.future);
+    final repo = await ref.watch(stocksRepositoryProvider.future);
+    return await repo.getPrices(joinedSymbols.split(','));
   } catch (_) {
-    return false;
+    return const [];
   }
+});
+
+/// USD→KRW 환율. 에러/미설정 시 null.
+final tossExchangeRateProvider = FutureProvider<TossExchangeRate?>((ref) async {
   try {
-    final prices = await repo.getPrices(kStocks.map((s) => s.ticker).toList());
-    final map = {for (final p in prices) p.symbol: p.priceValue};
-    if (applyLivePrices(map)) applied = true;
+    final repo = await ref.watch(stocksRepositoryProvider.future);
+    return await repo.getExchangeRate();
   } catch (_) {
-    // 키 없음/미기동 → mock 시세 유지
+    return null;
   }
+});
+
+/// 전일 종가. 토스 /prices 엔 기준가·등락률이 없어 일봉으로 도출한다.
+/// 오늘 날짜 캔들을 제외한 마지막 종가 = 전일 종가 (장 시작 전이면 마지막 캔들이 곧 전일).
+final prevCloseProvider = FutureProvider.family<double?, String>((ref, symbol) async {
+  if (symbol.isEmpty) return null;
   try {
-    final fx = await repo.getExchangeRate();
-    if (setLiveFx(fx.rateValue)) applied = true;
+    final repo = await ref.watch(stocksRepositoryProvider.future);
+    final page = await repo.getCandles(symbol, '1d', count: 3);
+    if (page.candles.isEmpty) return null;
+    final today = DateTime.now().toIso8601String().substring(0, 10);
+    for (final c in page.candles.reversed) {
+      if (!c.timestamp.startsWith(today)) {
+        final v = double.tryParse(c.closePrice);
+        return (v != null && v > 0) ? v : null;
+      }
+    }
+    final v = double.tryParse(page.candles.first.closePrice);
+    return (v != null && v > 0) ? v : null;
   } catch (_) {
-    // mock 환율 유지
+    return null;
   }
-  return applied;
+});
+
+/// 등락률(%) = (현재가 − 전일종가) / 전일종가. 어느 한쪽이 없으면 null.
+double? changePctOf(double? lastPrice, double? prevClose) {
+  if (lastPrice == null || prevClose == null || prevClose <= 0) return null;
+  return (lastPrice - prevClose) / prevClose * 100;
+}
+
+/// 주식 랭킹 (발견 탭). 키 = "type|marketCountry|duration". 에러 시 빈 랭킹.
+final tossRankingsProvider =
+    FutureProvider.family<TossRankingResponse, String>((ref, key) async {
+  final parts = key.split('|');
+  try {
+    final repo = await ref.watch(stocksRepositoryProvider.future);
+    return await repo.getRankings(
+      type: parts[0],
+      marketCountry: parts[1],
+      duration: parts[2],
+    );
+  } catch (_) {
+    return const TossRankingResponse(rankings: []);
+  }
+});
+
+/// 국내 지수 현재가 (KOSPI·KOSDAQ). 에러 시 빈 목록.
+final tossIndicatorPricesProvider =
+    FutureProvider<List<TossIndicatorPrice>>((ref) async {
+  try {
+    final repo = await ref.watch(stocksRepositoryProvider.future);
+    return await repo.getIndicatorPrices(const ['KOSPI', 'KOSDAQ']);
+  } catch (_) {
+    return const [];
+  }
+});
+
+/// 관심목록 (서버 stock-watch). 에러 시 빈 목록 — 화면은 빈 상태 표시.
+final watchGroupsProvider = FutureProvider<List<StockWatchGroup>>((ref) async {
+  try {
+    final repo = await ref.watch(stocksRepositoryProvider.future);
+    return await repo.getWatchGroups();
+  } catch (_) {
+    return const [];
+  }
 });
 
 /// 종목 호가 (라이브). 에러/미설정 시 null → 호가창 빈 상태 (mock 폴백 없음).

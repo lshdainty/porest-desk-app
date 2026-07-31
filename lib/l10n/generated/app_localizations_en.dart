@@ -4146,6 +4146,51 @@ class AppLocalizationsEn extends AppLocalizations {
   String get stocksChangeRate => 'Change';
 
   @override
+  String get stocksSearchHint =>
+      'Search by name or symbol (KR + US·CN·JP·HK·VN)';
+
+  @override
+  String get stocksPriceUnavailable =>
+      'Price unavailable via Toss (KR·US only)';
+
+  @override
+  String get stocksRankingLoading => 'Loading rankings…';
+
+  @override
+  String get stocksRankingEmpty => 'No rankings available';
+
+  @override
+  String get stocksWatchDefaultGroupName => 'Watchlist';
+
+  @override
+  String get stocksWatchGroupAdd => 'Add group';
+
+  @override
+  String get stocksWatchGroupRename => 'Rename group';
+
+  @override
+  String get stocksWatchGroupDelete => 'Delete group';
+
+  @override
+  String get stocksWatchGroupNamePlaceholder => 'Group name';
+
+  @override
+  String get stocksWatchGroupDeleteConfirm =>
+      'The group and its stocks will be removed. Continue?';
+
+  @override
+  String get stocksWatchGroupSaveFail => 'Failed to save watchlist group';
+
+  @override
+  String get stocksWatchAddFail => 'Failed to add to watchlist';
+
+  @override
+  String get stocksMarketToggleKr => 'KR';
+
+  @override
+  String get stocksMarketToggleUs => 'US';
+
+  @override
   String get todoAdd => 'Add todo';
 
   @override

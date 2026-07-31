@@ -4102,6 +4102,48 @@ class AppLocalizationsKo extends AppLocalizations {
   String get stocksChangeRate => '등락률';
 
   @override
+  String get stocksSearchHint => '종목명·심볼로 검색하세요 (국내 + 미국·중국·일본·홍콩·베트남)';
+
+  @override
+  String get stocksPriceUnavailable => '토스 시세 미지원 종목이에요 (국내·미국만 제공)';
+
+  @override
+  String get stocksRankingLoading => '랭킹을 불러오는 중…';
+
+  @override
+  String get stocksRankingEmpty => '집계된 랭킹이 없어요';
+
+  @override
+  String get stocksWatchDefaultGroupName => '관심';
+
+  @override
+  String get stocksWatchGroupAdd => '그룹 추가';
+
+  @override
+  String get stocksWatchGroupRename => '그룹 이름 변경';
+
+  @override
+  String get stocksWatchGroupDelete => '그룹 삭제';
+
+  @override
+  String get stocksWatchGroupNamePlaceholder => '그룹 이름';
+
+  @override
+  String get stocksWatchGroupDeleteConfirm => '그룹과 담긴 종목이 함께 삭제됩니다. 계속할까요?';
+
+  @override
+  String get stocksWatchGroupSaveFail => '관심목록 그룹 저장에 실패했어요';
+
+  @override
+  String get stocksWatchAddFail => '관심 등록에 실패했어요';
+
+  @override
+  String get stocksMarketToggleKr => '국내';
+
+  @override
+  String get stocksMarketToggleUs => '미국';
+
+  @override
   String get todoAdd => '할 일 추가';
 
   @override
