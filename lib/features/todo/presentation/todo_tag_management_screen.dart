@@ -152,11 +152,8 @@ class _BodyState extends ConsumerState<_Body> {
       controller: widget.scrollController,
       padding: const EdgeInsets.fromLTRB(PSpace.x20, 0, PSpace.x20, PSpace.x20),
       children: [
-        // 안내 카드 — 캘린더 라벨 _IntroCard 정합(제목+설명+새 태그 버튼).
-        _TagIntroCard(
-          tokens: t,
-          onAdd: _busy ? null : () => _openEdit(null),
-        ),
+        // 안내 카드 — 캘린더 라벨 _IntroCard 정합(제목+설명).
+        _TagIntroCard(tokens: t),
         const SizedBox(height: PSpace.x32),
         tagsAsync.when(
           loading: () => const Padding(
@@ -171,11 +168,24 @@ class _BodyState extends ConsumerState<_Body> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // label·list 한 묶음 gap 0 — 캘린더 라벨 카운트 라벨 정합.
-              Text('${l.ttagTitle} · ${tags.length}',
-                  style: PTypo.bodySm.copyWith(
-                    color: t.fgPrimary,
-                    fontWeight: PFontWeight.bold,
-                  )),
+              // 라벨행 우측 텍스트(accent) 추가 버튼 — 프리셋 정합(filled 안내카드 버튼 폐기)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('${l.ttagTitle} · ${tags.length}',
+                      style: PTypo.bodySm.copyWith(
+                        color: t.fgPrimary,
+                        fontWeight: PFontWeight.bold,
+                      )),
+                  PButton(
+                    label: l.todoNewTag,
+                    icon: LucideIcons.plus,
+                    variant: PButtonVariant.accent,
+                    size: PButtonSize.sm,
+                    onPressed: _busy ? null : () => _openEdit(null),
+                  ),
+                ],
+              ),
               if (tags.isEmpty)
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 32),
@@ -214,11 +224,10 @@ class _BodyState extends ConsumerState<_Body> {
 }
 
 /// 태그 행 — 아이콘 틴트 타일 + 이름/"할 일 N건에 사용 중" + 삭제 + chevron.
-/// 안내 카드 — 캘린더 라벨 _IntroCard 미러(제목·설명 + 새 태그 버튼).
+/// 안내 카드 — 캘린더 라벨 _IntroCard 미러(제목·설명).
 class _TagIntroCard extends StatelessWidget {
-  const _TagIntroCard({required this.tokens, required this.onAdd});
+  const _TagIntroCard({required this.tokens});
   final PorestTokens tokens;
-  final VoidCallback? onAdd;
 
   @override
   Widget build(BuildContext context) {
@@ -255,13 +264,6 @@ class _TagIntroCard extends StatelessWidget {
                     style: PTypo.caption.copyWith(color: t.fgSecondary)),
               ],
             ),
-          ),
-          const SizedBox(width: PSpace.x8),
-          PButton(
-            label: l.todoNewTag,
-            icon: LucideIcons.plus,
-            size: PButtonSize.sm,
-            onPressed: onAdd,
           ),
         ],
       ),

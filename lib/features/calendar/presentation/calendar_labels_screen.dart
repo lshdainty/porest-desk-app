@@ -75,10 +75,7 @@ class _CalendarLabelsScreenState extends ConsumerState<CalendarLabelsScreen> {
               horizontal: PSpace.x20, vertical: PSpace.x24),
           children: [
             // 안내 카드
-            _IntroCard(
-              tokens: t,
-              onAdd: () => _showLabelEditor(context, ref, null),
-            ),
+            _IntroCard(tokens: t),
             const SizedBox(height: PSpace.x32),
 
             labelsAsync.when(
@@ -93,11 +90,24 @@ class _CalendarLabelsScreenState extends ConsumerState<CalendarLabelsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // label padding 제거(사용자 결정, web 정합) — label·list 한 묶음 gap 0.
-                    Text(l.calAllLabelsCount(labels.length),
-                        style: PTypo.bodySm.copyWith(
-                          color: t.fgPrimary,
-                          fontWeight: PFontWeight.bold,
-                        )),
+                    // 라벨행 우측 텍스트(accent) 추가 버튼 — 프리셋 정합(filled 안내카드 버튼 폐기)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(l.calAllLabelsCount(labels.length),
+                            style: PTypo.bodySm.copyWith(
+                              color: t.fgPrimary,
+                              fontWeight: PFontWeight.bold,
+                            )),
+                        PButton(
+                          label: l.calNewLabel,
+                          icon: LucideIcons.plus,
+                          variant: PButtonVariant.accent,
+                          size: PButtonSize.sm,
+                          onPressed: () => _showLabelEditor(context, ref, null),
+                        ),
+                      ],
+                    ),
                     if (labels.isEmpty)
                       // 카드 다이어트 — 빈 상태 플랫.
                       Padding(
@@ -138,9 +148,8 @@ class _CalendarLabelsScreenState extends ConsumerState<CalendarLabelsScreen> {
 }
 
 class _IntroCard extends StatelessWidget {
-  const _IntroCard({required this.tokens, required this.onAdd});
+  const _IntroCard({required this.tokens});
   final PorestTokens tokens;
-  final VoidCallback onAdd;
 
   @override
   Widget build(BuildContext context) {
@@ -177,13 +186,6 @@ class _IntroCard extends StatelessWidget {
                     style: PTypo.caption.copyWith(color: t.fgSecondary)),
               ],
             ),
-          ),
-          const SizedBox(width: PSpace.x8),
-          PButton(
-            label: l.calNewLabel,
-            icon: LucideIcons.plus,
-            size: PButtonSize.sm,
-            onPressed: onAdd,
           ),
         ],
       ),
