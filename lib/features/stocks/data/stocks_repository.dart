@@ -8,6 +8,7 @@ import 'package:dio/dio.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/features/stocks/data/stock_master_dto.dart';
 import 'package:porest_desk_app/features/stocks/data/toss_dto.dart';
+import 'package:porest_desk_app/features/stocks/data/watch_dto.dart';
 
 class StocksRepository {
   StocksRepository(this._dio);
@@ -252,6 +253,116 @@ class StocksRepository {
       );
       return TossUsMarketCalendar.fromJson(
           _payload(res) as Map<String, dynamic>? ?? {});
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  // 랭킹 / 시장 지표 ------------------------------------------------------
+
+  /// 주식 랭킹 (등락률 포함, 상위 100). TOP_GAINERS/LOSERS 는 realtime 미지원.
+  Future<TossRankingResponse> getRankings({
+    required String type,
+    required String marketCountry,
+    required String duration,
+    int count = 10,
+  }) async {
+    try {
+      final res = await _dio.get<dynamic>(
+        '/toss/rankings',
+        queryParameters: {
+          'type': type,
+          'marketCountry': marketCountry,
+          'duration': duration,
+          'count': count,
+        },
+      );
+      return TossRankingResponse.fromJson(
+          _payload(res) as Map<String, dynamic>? ?? {});
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  /// 시장 지표 현재가 (KOSPI·KOSDAQ 지수 등 토스 카탈로그 8종).
+  Future<List<TossIndicatorPrice>> getIndicatorPrices(List<String> symbols) async {
+    try {
+      final res = await _dio.get<dynamic>(
+        '/toss/market-indicators/prices',
+        queryParameters: {'symbols': symbols.join(',')},
+      );
+      final list = (_payload(res) as List? ?? []);
+      return list
+          .map((e) => TossIndicatorPrice.fromJson(e as Map<String, dynamic>))
+          .toList();
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  // 관심목록 (서버 stock-watch, 게이트 없음) --------------------------------
+
+  Future<List<StockWatchGroup>> getWatchGroups() async {
+    try {
+      final res = await _dio.get<dynamic>('/stock-watch/groups');
+      final list = (_payload(res) as List? ?? []);
+      return list
+          .map((e) => StockWatchGroup.fromJson(e as Map<String, dynamic>))
+          .toList();
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  Future<StockWatchGroup> createWatchGroup(String groupName) async {
+    try {
+      final res = await _dio.post<dynamic>(
+        '/stock-watch/groups',
+        data: {'groupName': groupName},
+      );
+      return StockWatchGroup.fromJson(_payload(res) as Map<String, dynamic>);
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  Future<StockWatchGroup> renameWatchGroup(int groupId, String groupName) async {
+    try {
+      final res = await _dio.put<dynamic>(
+        '/stock-watch/groups/$groupId',
+        data: {'groupName': groupName},
+      );
+      return StockWatchGroup.fromJson(_payload(res) as Map<String, dynamic>);
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  Future<void> deleteWatchGroup(int groupId) async {
+    try {
+      await _dio.delete<dynamic>('/stock-watch/groups/$groupId');
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  /// marketCode 미지정 시 서버가 심볼 정확 일치 중 KR/US 시장을 우선 해석한다.
+  Future<WatchItem> addWatchItem(int groupId, String symbol,
+      {String? marketCode}) async {
+    try {
+      final res = await _dio.post<dynamic>(
+        '/stock-watch/groups/$groupId/items',
+        data: {'symbol': symbol, 'marketCode': ?marketCode},
+      );
+      return WatchItem.fromJson(_payload(res) as Map<String, dynamic>);
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  Future<void> removeWatchItem(int itemId) async {
+    try {
+      await _dio.delete<dynamic>('/stock-watch/items/$itemId');
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }
