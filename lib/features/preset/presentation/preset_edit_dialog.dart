@@ -239,6 +239,11 @@ class _BodyState extends ConsumerState<_Body> {
             onSelect: (id) => setState(() => _categoryRowId = id),
           ),
         ),
+        // 세부 카테고리 — 반복거래와 동일 패턴: 자식이 있으면 상위/세부 선택으로 변경 가능
+        categoriesAsync.maybeWhen(
+          data: (cats) => _buildSubcategorySelect(l, cats),
+          orElse: () => const SizedBox.shrink(),
+        ),
         const SizedBox(height: 14),
 
         // ④ 기본 내역
@@ -299,6 +304,54 @@ class _BodyState extends ConsumerState<_Body> {
           onToggle: (v) => setState(() => _lockAmount = v),
         ),
       ],
+    );
+  }
+
+  /// 세부 카테고리 선택 — 반복거래(recurring_settings_drawer)와 동일 패턴.
+  /// 선택된 상위에 자식이 있으면 [상위 (상위), ...자식들] PSelect 로 변경 가능하게.
+  Widget _buildSubcategorySelect(AppLocalizations l, List<ExpenseCategory> cats) {
+    bool isTop(ExpenseCategory c) => c.parentRowId == null || c.parentRowId == 0;
+
+    final childrenByParent = <int, List<ExpenseCategory>>{};
+    for (final c in cats) {
+      if (isTop(c) || c.expenseType != _type) continue;
+      childrenByParent.putIfAbsent(c.parentRowId!, () => []).add(c);
+    }
+    for (final list in childrenByParent.values) {
+      list.sort((a, b) => (a.sortOrder ?? 0).compareTo(b.sortOrder ?? 0));
+    }
+
+    final selectedCat =
+        _categoryRowId == null ? null : cats.byRowId(_categoryRowId!);
+    final selectedParentId = selectedCat == null
+        ? null
+        : (isTop(selectedCat) ? selectedCat.rowId : selectedCat.parentRowId);
+    final children = selectedParentId == null
+        ? const <ExpenseCategory>[]
+        : (childrenByParent[selectedParentId] ?? const []);
+    if (selectedParentId == null || children.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    final parentName = cats.byRowId(selectedParentId)?.categoryName ?? '';
+    return Padding(
+      padding: const EdgeInsets.only(top: 10),
+      child: PSelect<int>(
+        value: _categoryRowId,
+        placeholder: l.expSubcategory,
+        title: l.expSubcategory,
+        items: [
+          PSelectItem(
+            value: selectedParentId,
+            label: l.recurringParentCategory(parentName),
+          ),
+          for (final child in children)
+            PSelectItem(value: child.rowId, label: child.categoryName),
+        ],
+        onChanged: (v) {
+          if (v != null) setState(() => _categoryRowId = v);
+        },
+      ),
     );
   }
 
