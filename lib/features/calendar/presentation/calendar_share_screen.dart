@@ -81,7 +81,7 @@ class _CalendarShareScreenState extends ConsumerState<CalendarShareScreen> {
           padding: const EdgeInsets.symmetric(
               horizontal: PSpace.x20, vertical: PSpace.x24),
           children: [
-            _IntroCard(tokens: t, onCreate: () => _showCreateDialog(context, ref)),
+            _IntroCard(tokens: t),
             const SizedBox(height: PSpace.x32),
             listAsync.when(
               loading: () => const PListSkeleton(rows: 4, showAvatar: true),
@@ -90,7 +90,11 @@ class _CalendarShareScreenState extends ConsumerState<CalendarShareScreen> {
                 child: Text('${l.calCalendarLoadError}\n$e',
                     style: PTypo.bodySm.copyWith(color: t.statusDanger)),
               ),
-              data: (calendars) => _CalendarSections(calendars: calendars, tokens: t),
+              data: (calendars) => _CalendarSections(
+                calendars: calendars,
+                tokens: t,
+                onCreate: () => _showCreateDialog(context, ref),
+              ),
             ),
             const SizedBox(height: PSpace.x32),
             _JoinCard(tokens: t, onJoin: () => _showJoinDialog(context, ref)),
@@ -111,9 +115,8 @@ class _CalendarShareScreenState extends ConsumerState<CalendarShareScreen> {
     };
 
 class _IntroCard extends StatelessWidget {
-  const _IntroCard({required this.tokens, required this.onCreate});
+  const _IntroCard({required this.tokens});
   final PorestTokens tokens;
-  final VoidCallback onCreate;
 
   @override
   Widget build(BuildContext context) {
@@ -146,13 +149,6 @@ class _IntroCard extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: PSpace.x8),
-          PButton(
-            label: l.calNewCalendar,
-            icon: LucideIcons.plus,
-            size: PButtonSize.sm,
-            onPressed: onCreate,
-          ),
         ],
       ),
     );
@@ -160,9 +156,10 @@ class _IntroCard extends StatelessWidget {
 }
 
 class _CalendarSections extends StatelessWidget {
-  const _CalendarSections({required this.calendars, required this.tokens});
+  const _CalendarSections({required this.calendars, required this.tokens, required this.onCreate});
   final List<UserCalendar> calendars;
   final PorestTokens tokens;
+  final VoidCallback onCreate;
 
   @override
   Widget build(BuildContext context) {
@@ -173,7 +170,20 @@ class _CalendarSections extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _Section(title: l.calMyCalendarsCount(owned.length), tokens: t, calendars: owned, emptyText: l.calNoOwnedCalendars),
+        _Section(
+          title: l.calMyCalendarsCount(owned.length),
+          tokens: t,
+          calendars: owned,
+          emptyText: l.calNoOwnedCalendars,
+          // 라벨행 우측 텍스트(accent) 추가 버튼 — 프리셋 정합(사용자 결정, filled 안내카드 버튼 폐기)
+          action: PButton(
+            label: l.calNewCalendar,
+            icon: LucideIcons.plus,
+            variant: PButtonVariant.accent,
+            size: PButtonSize.sm,
+            onPressed: onCreate,
+          ),
+        ),
         const SizedBox(height: PSpace.x32),
         _Section(title: l.calSharedCalendarsCount(shared.length), tokens: t, calendars: shared, emptyText: l.calNoSharedCalendars),
       ],
@@ -182,11 +192,14 @@ class _CalendarSections extends StatelessWidget {
 }
 
 class _Section extends StatelessWidget {
-  const _Section({required this.title, required this.tokens, required this.calendars, required this.emptyText});
+  const _Section({required this.title, required this.tokens, required this.calendars, required this.emptyText, this.action});
   final String title;
   final PorestTokens tokens;
   final List<UserCalendar> calendars;
   final String emptyText;
+
+  /// 라벨행 우측 액션(텍스트 버튼 등) — 없으면 라벨만.
+  final Widget? action;
 
   @override
   Widget build(BuildContext context) {
@@ -195,7 +208,13 @@ class _Section extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // label padding 제거(사용자 결정, web 정합) — label·list 한 묶음.
-        Text(title, style: PTypo.bodySm.copyWith(color: t.fgPrimary, fontWeight: PFontWeight.bold)),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(title, style: PTypo.bodySm.copyWith(color: t.fgPrimary, fontWeight: PFontWeight.bold)),
+            ?action,
+          ],
+        ),
         if (calendars.isEmpty)
           // 카드 다이어트 — 빈 상태 플랫.
           Padding(
