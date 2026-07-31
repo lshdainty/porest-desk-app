@@ -194,6 +194,12 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
 
   // ── 보유 종목 상태 조작 ────────────────────────────────────────
   void _addLinked(StockMasterItem s) {
+    // 시세 게이트 OFF(비구독·토스 미연결)면 연동해도 평가액을 못 구하므로 수동 항목으로 추가
+    // — 사용자가 평가액을 직접 입력해 합계에 반영(사용자 결정).
+    if (!_liveEnabled) {
+      _addManual(s.nameKr);
+      return;
+    }
     setState(() {
       _holdings = [
         ..._holdings,
@@ -241,6 +247,12 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
           if (i != index) _holdings[i],
       ];
     });
+  }
+
+  /// 시세 연동 가능 여부 — 증권 구독 + 토스 연결 둘 다여야 실시간 평가가 가능하다.
+  bool get _liveEnabled {
+    final features = ref.read(myFeaturesProvider).asData?.value;
+    return (features?.hasSecurities ?? false) && (features?.tossConnected ?? false);
   }
 
   /// 연동 심볼 1주 KRW 환산가 맵 — 게이트 OFF·시세 미확보 심볼은 null.
