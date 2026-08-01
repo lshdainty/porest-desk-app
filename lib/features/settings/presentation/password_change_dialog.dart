@@ -141,14 +141,16 @@ class _PasswordChangeDialogState extends ConsumerState<_PasswordChangeDialog> {
               placeholder: l.passwordConfirmPlaceholder,
               onChanged: (_) => setState(() {}),
             ),
-            if (_newCtrl.text.isNotEmpty &&
-                _confirmCtrl.text.isNotEmpty &&
-                _newCtrl.text != _confirmCtrl.text)
-              Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: Text(l.passwordMismatch,
-                    style:
-                        PTypo.caption.copyWith(color: t.statusDanger)),
+            // 입력 중 실시간 일치 표시 — 위 규칙 체크리스트와 같은 문법(체크/X).
+            // 확인 입력이 비면 표시하지 않는다(입력 시작 전부터 불일치로 겁주지 않게).
+            if (_confirmCtrl.text.isNotEmpty)
+              _RuleRow(
+                ok: _newCtrl.text == _confirmCtrl.text,
+                label: _newCtrl.text == _confirmCtrl.text
+                    ? l.passwordMatched
+                    : l.passwordMismatch,
+                // 불일치는 규칙 미달(아직 채우는 중)과 달리 두 값이 어긋난 '충돌'
+                failColor: t.statusDanger,
               ),
             if (_error != null)
               Padding(
@@ -179,15 +181,19 @@ class _PasswordChangeDialogState extends ConsumerState<_PasswordChangeDialog> {
 
 /// 규칙 한 줄 — 충족=체크 / 미달=X
 class _RuleRow extends StatelessWidget {
-  const _RuleRow({required this.ok, required this.label});
+  const _RuleRow({required this.ok, required this.label, this.failColor});
 
   final bool ok;
   final String label;
 
+  /// 미달일 때 색. 규칙은 아직 채우는 중이라 기본 muted 를 쓰고,
+  /// 확인 입력 불일치는 두 값이 어긋난 '충돌'이라 호출처가 danger 를 넘긴다.
+  final Color? failColor;
+
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final color = ok ? t.statusSuccessFg : t.fgTertiary;
+    final color = ok ? t.statusSuccessFg : (failColor ?? t.fgTertiary);
     return Padding(
       padding: const EdgeInsets.only(top: PSpace.xs),
       child: Row(

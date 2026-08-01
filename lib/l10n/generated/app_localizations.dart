@@ -5630,6 +5630,12 @@ abstract class AppLocalizations {
   /// **'새 비밀번호가 일치하지 않습니다'**
   String get passwordMismatch;
 
+  /// No description provided for @passwordMatched.
+  ///
+  /// In ko, this message translates to:
+  /// **'새 비밀번호가 일치합니다'**
+  String get passwordMatched;
+
   /// No description provided for @passwordRuleLength.
   ///
   /// In ko, this message translates to:

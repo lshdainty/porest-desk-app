@@ -3009,6 +3009,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get passwordMismatch => 'New passwords do not match';
 
   @override
+  String get passwordMatched => 'New passwords match';
+
+  @override
   String get passwordRuleLength => 'At least 8 characters';
 
   @override
