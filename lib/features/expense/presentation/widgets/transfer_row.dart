@@ -45,9 +45,13 @@ class TransferRow extends StatelessWidget {
 
     final route =
         '${transfer.fromAssetName ?? '-'} → ${transfer.toAssetName ?? '-'}';
+    // 시각 표시 — 00:00 이면 생략(ExpenseRow 와 동일 규칙).
+    final raw = transfer.transferDate ?? '';
+    final hhmm = raw.length >= 16 ? raw.substring(11, 16) : '';
+    final timeLabel = (hhmm.isNotEmpty && hhmm != '00:00') ? ' · $hhmm' : '';
     final sub = fee > 0
-        ? '$route · ${l.transferFeePrefix} ${krwSigned(fee, masked)}'
-        : route;
+        ? '$route · ${l.transferFeePrefix} ${krwSigned(fee, masked)}$timeLabel'
+        : '$route$timeLabel';
 
     return InkWell(
       onTap: onTap,

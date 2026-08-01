@@ -229,7 +229,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
           amount: amount,
           fee: fee,
           description: desc,
-          transferDate: isoDate,
+          transferDate: dateStr,
         );
         ref.invalidate(monthExpensesProvider((year: d.year, month: d.month)));
         invalidateAssetsAfterExpense(ref);
@@ -1357,18 +1357,11 @@ class _TxInputForm extends ConsumerWidget {
         ],
 
         // 날짜(·시간)
-        PSectionLabel(c.type != 'TRANSFER' ? l.expDateTime : l.expDate),
+        // 이체도 시각을 받는다 — transfer_date 가 DATETIME 이라, 시각이 있어야
+        // 같은 날 잔액수정보다 뒤에 일어난 이체가 절대 앵커에 지워지지 않는다.
+        PSectionLabel(l.expDateTime),
         const SizedBox(height: PSpace.x4),
-        (c.type == 'TRANSFER')
-            ? PDateInput(
-                value: c.date,
-                onChanged: (d) {
-                  if (d != null) _set(() => c.date = d);
-                },
-                firstDate: DateTime(2020),
-                lastDate: DateTime(2030, 12, 31),
-              )
-            : Row(
+        Row(
                 children: [
                   Expanded(
                     child: PDateInput(

@@ -262,7 +262,7 @@ class AssetRepository {
     required int amount,
     int? fee,
     String? description,
-    required String transferDate, // 'YYYY-MM-DD'
+    required String transferDate, // ISO-LOCAL-DATETIME 'YYYY-MM-DDTHH:mm:ss'
   }) async {
     try {
       await _dio.post<dynamic>(

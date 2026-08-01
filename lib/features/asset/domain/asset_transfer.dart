@@ -23,7 +23,7 @@ class AssetTransfer {
   final int amount;
   final int? fee;
   final String? description;
-  final String? transferDate; // YYYY-MM-DD
+  final String? transferDate; // ISO-LOCAL-DATETIME (YYYY-MM-DDTHH:mm:ss)
   final String? createAt;
 
   factory AssetTransfer.fromJson(Map<String, dynamic> json) {
