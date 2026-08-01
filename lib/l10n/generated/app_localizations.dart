@@ -3725,7 +3725,7 @@ abstract class AppLocalizations {
   /// No description provided for @categoryNameDuplicate.
   ///
   /// In ko, this message translates to:
-  /// **'같은 이름의 카테고리가 있습니다.'**
+  /// **'같은 위치에 같은 이름의 카테고리가 있습니다.'**
   String get categoryNameDuplicate;
 
   /// No description provided for @categoryParent.
