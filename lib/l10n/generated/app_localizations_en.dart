@@ -1519,6 +1519,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get expTypeExpense => 'Expense';
 
   @override
+  String get transferFeePrefix => 'Fee';
+
+  @override
+  String get transferWithdrawn => 'Total withdrawn';
+
+  @override
+  String get transferDeleted => 'Transfer deleted';
+
+  @override
+  String get transferDeleteConfirm =>
+      'Delete this transfer? Both assets\' balances will be restored.';
+
+  @override
   String get expTypeTransfer => 'Transfer';
 
   @override

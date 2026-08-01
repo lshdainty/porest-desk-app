@@ -20,13 +20,16 @@ import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_card.dart';
 import 'package:porest_desk_app/shared/widgets/p_chart_tooltip.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
-import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
 import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
 import 'package:porest_desk_app/features/expense/presentation/add_tx_sheet.dart';
 import 'package:porest_desk_app/features/expense/presentation/filter_dialog.dart';
 import 'package:porest_desk_app/features/expense/presentation/widgets/expense_row.dart';
+import 'package:porest_desk_app/features/expense/presentation/widgets/transfer_row.dart';
+import 'package:porest_desk_app/features/expense/presentation/transfer_detail_sheet.dart';
+import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
+import 'package:porest_desk_app/features/asset/domain/asset_transfer.dart';
 import 'package:porest_desk_app/shared/widgets/p_tab_bar.dart';
 
 /// 가계부 화면 — 백엔드 `/expenses` 직접 호출.
@@ -243,6 +246,12 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
     final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
     final categoriesAsync = ref.watch(categoriesProvider);
     final expensesAsync = ref.watch(monthExpensesProvider(_key));
+    // 이체는 asset_transfer 별도 테이블이라 거래 목록에 섞여 오지 않는다.
+    // 같은 달 범위로 따로 받아 화면 단에서만 합친다(통계·예산 같은 지출 전용 경로 보호).
+    final transfersAsync = ref.watch(assetTransfersProvider((
+      startDate: _ymdOf(DateTime(_month.year, _month.month, 1)),
+      endDate: _ymdOf(DateTime(_month.year, _month.month + 1, 0)),
+    )));
     // 인사이트(지난달 대비) — 지난달 거래도 함께 구독(family 캐시).
     final prevAsync = ref.watch(monthExpensesProvider(_prevKey));
 
@@ -336,8 +345,31 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                 final d = e.expenseDateOnly ?? '';
                 groups.putIfAbsent(d, () => []).add(e);
               }
-              final groupKeys = groups.keys.toList();
-              _dayKeys.removeWhere((k, _) => !groups.containsKey(k));
+
+              // 이체 필터 — 이체에 개념이 없는 필터(카테고리·유형)가 걸리면 대상에서 뺀다.
+              // 자산 필터는 보내는 쪽·받는 쪽 둘 다 매칭(한 건이 자산 두 개에 걸침).
+              final transferGroups = <String, List<AssetTransfer>>{};
+              final typeFiltered = _advFilter.types.length == 1;
+              if (!typeFiltered && _advFilter.categoryIds.isEmpty) {
+                for (final tr in (transfersAsync.value ?? const <AssetTransfer>[])) {
+                  if (_advFilter.assetIds.isNotEmpty &&
+                      !_advFilter.assetIds.contains(tr.fromAssetRowId) &&
+                      !_advFilter.assetIds.contains(tr.toAssetRowId)) {
+                    continue;
+                  }
+                  if (_advFilter.min != null && tr.amount < _advFilter.min!) continue;
+                  if (_advFilter.max != null && tr.amount > _advFilter.max!) continue;
+                  final d = tr.transferDate ?? '';
+                  if (d.isEmpty) continue;
+                  transferGroups.putIfAbsent(d, () => []).add(tr);
+                }
+              }
+
+              // 이체만 있는 날도 그룹이 나와야 한다.
+              final groupKeys = <String>{...groups.keys, ...transferGroups.keys}.toList()
+                ..sort((a, b) => b.compareTo(a));
+              _dayKeys.removeWhere(
+                  (k, _) => !groups.containsKey(k) && !transferGroups.containsKey(k));
               for (final k in groupKeys) {
                 _dayKeys.putIfAbsent(k, () => GlobalKey());
               }
@@ -539,7 +571,8 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                               key: _dayKeys[key],
                               child: _DayGroup(
                                 date: parseIsoDate(key),
-                                items: groups[key]!,
+                                items: groups[key] ?? const [],
+                                transfers: transferGroups[key] ?? const [],
                                 categoriesAsync: categoriesAsync,
                                 masked: settings.hideAmounts,
                                 rowKeys: _rowKeys,
@@ -1071,11 +1104,15 @@ class _DayGroup extends ConsumerWidget {
     required this.items,
     required this.categoriesAsync,
     required this.masked,
+    this.transfers = const [],
     this.rowKeys,
     this.focusTxId,
   });
   final DateTime date;
   final List<Expense> items;
+  /// 그날의 이체. 지출/수입 합계에는 넣지 않고 행만 뒤에 붙인다
+  /// (이체는 자산 간 이동이라 순자산 증감이 0 — 합계에 넣으면 월 통계가 부풀어 오른다).
+  final List<AssetTransfer> transfers;
   final AsyncValue<dynamic> categoriesAsync;
   final bool masked;
   final Map<int, GlobalKey>? rowKeys;
@@ -1177,6 +1214,14 @@ class _DayGroup extends ConsumerWidget {
                       ),
                     );
                   },
+                ),
+              // 이체는 시각이 없어(LocalDate) 그날의 맨 뒤 — web 정렬(내림차순)과 동일한 자리.
+              for (final tr in transfers)
+                TransferRow(
+                  key: ValueKey('t${tr.rowId}'),
+                  transfer: tr,
+                  masked: masked,
+                  onTap: () => showTransferDetailSheet(context, tr),
                 ),
             ],
           ),

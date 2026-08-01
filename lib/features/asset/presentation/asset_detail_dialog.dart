@@ -38,6 +38,8 @@ import 'package:porest_desk_app/features/asset/domain/card_billing.dart';
 import 'package:porest_desk_app/shared/widgets/p_chart_tooltip.dart';
 import 'package:porest_desk_app/features/asset/domain/asset_type_meta.dart';
 import 'package:porest_desk_app/features/asset/presentation/widgets/asset_logo.dart';
+import 'package:porest_desk_app/features/expense/presentation/transfer_detail_sheet.dart';
+import 'package:porest_desk_app/features/expense/presentation/widgets/transfer_row.dart';
 
 /// 자산 상세 — front `AssetDetailDialog` 모바일 미러.
 ///
@@ -170,6 +172,15 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
     final recentAsync = ref.watch(
       expensesByAssetProvider((assetId: asset.rowId, limit: 12)),
     );
+    // 이체는 expense 가 아니라 asset_transfer — 따로 받아 이 자산에 걸린 것만 추린다.
+    // 한 건이 자산 두 개에 걸치므로 보내는 쪽·받는 쪽 둘 다 확인한다(서버 필터는 기간만 지원).
+    final assetTransfers = (ref
+                .watch(assetTransfersProvider((startDate: null, endDate: null)))
+                .value ??
+            const <AssetTransfer>[])
+        .where((tr) =>
+            tr.fromAssetRowId == asset.rowId || tr.toAssetRowId == asset.rowId)
+        .toList();
     // CREDIT_CARD 는 신판 카드 상세 본문(_CardDetailBody) — 회차 히어로가 금액 담당.
     final isCredit = asset.assetType == 'CREDIT_CARD';
 
@@ -287,7 +298,12 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
           ],
         ),
         const SizedBox(height: PSpace.x8),
-        _RecentExpenses(async: recentAsync, masked: masked, tokens: t),
+        _RecentExpenses(
+            async: recentAsync,
+            transfers: assetTransfers,
+            perspectiveAssetRowId: asset.rowId,
+            masked: masked,
+            tokens: t),
         ],
       ],
     );
@@ -975,10 +991,16 @@ class _RecentExpenses extends StatelessWidget {
     required this.async,
     required this.masked,
     required this.tokens,
+    this.transfers = const [],
+    this.perspectiveAssetRowId,
   });
   final AsyncValue<List<Expense>> async;
   final bool masked;
   final PorestTokens tokens;
+  /// 이 자산에 걸린 이체. 지출/수입 일 합계에는 넣지 않고 그날 행 뒤에만 붙인다.
+  final List<AssetTransfer> transfers;
+  /// 부호 기준 자산 — 출금이면 -(금액+수수료), 입금이면 +금액.
+  final int? perspectiveAssetRowId;
   @override
   Widget build(BuildContext context) {
     final list = async.value ?? const <Expense>[];
@@ -1047,6 +1069,16 @@ class _RecentExpenses extends StatelessWidget {
           ),
           for (final e in entries[gi].value)
             _ExpenseRow(expense: e, masked: masked, tokens: tokens),
+          // 이체는 시각이 없어(LocalDate) 그날의 맨 뒤 — web 정렬과 같은 자리.
+          for (final tr
+              in transfers.where((x) => x.transferDate == entries[gi].key))
+            TransferRow(
+              key: ValueKey('t${tr.rowId}'),
+              transfer: tr,
+              masked: masked,
+              perspectiveAssetRowId: perspectiveAssetRowId,
+              onTap: () => showTransferDetailSheet(context, tr),
+            ),
         ],
       ],
     );
