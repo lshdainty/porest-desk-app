@@ -2981,6 +2981,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get passwordMismatch => '새 비밀번호가 일치하지 않습니다';
 
   @override
+  String get passwordMatched => '새 비밀번호가 일치합니다';
+
+  @override
   String get passwordRuleLength => '8자 이상';
 
   @override

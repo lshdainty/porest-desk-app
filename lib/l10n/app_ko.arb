@@ -1634,6 +1634,7 @@
   "passwordNewConfirm": "새 비밀번호 확인",
   "passwordConfirmPlaceholder": "한 번 더 입력",
   "passwordMismatch": "새 비밀번호가 일치하지 않습니다",
+  "passwordMatched": "새 비밀번호가 일치합니다",
   "passwordRuleLength": "8자 이상",
   "passwordRuleSpecial": "특수문자 1자 이상",
   "passwordSameAsCurrent": "현재 비밀번호와 다른 비밀번호를 입력해주세요",

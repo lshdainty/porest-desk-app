@@ -1631,6 +1631,7 @@
   "passwordNewConfirm": "Confirm new password",
   "passwordConfirmPlaceholder": "Enter once more",
   "passwordMismatch": "New passwords do not match",
+  "passwordMatched": "New passwords match",
   "passwordRuleLength": "At least 8 characters",
   "passwordRuleSpecial": "At least 1 special character",
   "passwordSameAsCurrent": "New password must be different from the current one",
