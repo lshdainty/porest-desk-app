@@ -1504,6 +1504,18 @@ class AppLocalizationsKo extends AppLocalizations {
   String get expTypeExpense => '지출';
 
   @override
+  String get transferFeePrefix => '수수료';
+
+  @override
+  String get transferWithdrawn => '출금 합계';
+
+  @override
+  String get transferDeleted => '이체를 삭제했어요';
+
+  @override
+  String get transferDeleteConfirm => '이 이체를 삭제할까요? 양쪽 자산의 잔액이 되돌아갑니다';
+
+  @override
   String get expTypeTransfer => '이체';
 
   @override

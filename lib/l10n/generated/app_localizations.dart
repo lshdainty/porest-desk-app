@@ -2900,6 +2900,30 @@ abstract class AppLocalizations {
   /// **'지출'**
   String get expTypeExpense;
 
+  /// No description provided for @transferFeePrefix.
+  ///
+  /// In ko, this message translates to:
+  /// **'수수료'**
+  String get transferFeePrefix;
+
+  /// No description provided for @transferWithdrawn.
+  ///
+  /// In ko, this message translates to:
+  /// **'출금 합계'**
+  String get transferWithdrawn;
+
+  /// No description provided for @transferDeleted.
+  ///
+  /// In ko, this message translates to:
+  /// **'이체를 삭제했어요'**
+  String get transferDeleted;
+
+  /// No description provided for @transferDeleteConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 이체를 삭제할까요? 양쪽 자산의 잔액이 되돌아갑니다'**
+  String get transferDeleteConfirm;
+
   /// No description provided for @expTypeTransfer.
   ///
   /// In ko, this message translates to:
