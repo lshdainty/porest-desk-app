@@ -1959,7 +1959,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get categoryNameTooLong => '이름은 12자 이내로 입력해 주세요.';
 
   @override
-  String get categoryNameDuplicate => '같은 이름의 카테고리가 있습니다.';
+  String get categoryNameDuplicate => '같은 위치에 같은 이름의 카테고리가 있습니다.';
 
   @override
   String get categoryParent => '상위 카테고리';

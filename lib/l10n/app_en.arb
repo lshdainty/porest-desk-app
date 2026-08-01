@@ -1077,7 +1077,7 @@
   "categoryEdit": "Edit category",
   "categoryNameRequired": "Please enter a name.",
   "categoryNameTooLong": "Name must be 12 characters or fewer.",
-  "categoryNameDuplicate": "A category with the same name already exists.",
+  "categoryNameDuplicate": "A category with this name already exists in this location.",
   "categoryParent": "Parent category",
   "categoryBudgetExceedTitle": "Budget exceeded",
   "categoryBudgetExceedMessage": "Moving will exceed the \"{parent}\" budget by {amount}. Move anyway?",

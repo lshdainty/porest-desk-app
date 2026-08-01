@@ -1976,7 +1976,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get categoryNameDuplicate =>
-      'A category with the same name already exists.';
+      'A category with this name already exists in this location.';
 
   @override
   String get categoryParent => 'Parent category';

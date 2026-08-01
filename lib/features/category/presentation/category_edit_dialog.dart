@@ -114,9 +114,14 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
 
   String get _nameTrim => _nameCtrl.text.trim();
 
-  /// 이름 중복 — 웹 정합: expenseType 무관 전체에서 자기 자신 제외 동명 검사.
+  /// 이름 중복 — 서버 규칙과 동일 범위: 같은 상위(부모) · 같은 타입 안에서만 금지.
+  /// (지출 '이자'와 수입 '이자', '생활>관리비'와 '주거>관리비' 처럼 위치·타입이 다르면 허용)
   bool get _duplicate => _categories.any(
-        (c) => c.categoryName == _nameTrim && c.rowId != widget.edit?.rowId,
+        (c) =>
+            c.categoryName == _nameTrim &&
+            c.rowId != widget.edit?.rowId &&
+            c.expenseType == _expenseType &&
+            c.parentRowId == _parentRowId,
       );
 
   bool get _valid =>

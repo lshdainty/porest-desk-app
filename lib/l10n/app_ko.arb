@@ -1080,7 +1080,7 @@
   "categoryEdit": "카테고리 편집",
   "categoryNameRequired": "이름을 입력해 주세요.",
   "categoryNameTooLong": "이름은 12자 이내로 입력해 주세요.",
-  "categoryNameDuplicate": "같은 이름의 카테고리가 있습니다.",
+  "categoryNameDuplicate": "같은 위치에 같은 이름의 카테고리가 있습니다.",
   "categoryParent": "상위 카테고리",
   "categoryBudgetExceedTitle": "예산 초과 확인",
   "categoryBudgetExceedMessage": "이동하면 \"{parent}\" 예산을 {amount} 초과합니다. 그래도 이동할까요?",
