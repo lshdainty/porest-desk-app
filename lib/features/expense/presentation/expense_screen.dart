@@ -359,8 +359,10 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                   }
                   if (_advFilter.min != null && tr.amount < _advFilter.min!) continue;
                   if (_advFilter.max != null && tr.amount > _advFilter.max!) continue;
-                  final d = tr.transferDate ?? '';
-                  if (d.isEmpty) continue;
+                  // transferDate 가 DATETIME 이라 그룹 키는 날짜 부분만 쓴다.
+                  final raw = tr.transferDate ?? '';
+                  if (raw.length < 10) continue;
+                  final d = raw.substring(0, 10);
                   transferGroups.putIfAbsent(d, () => []).add(tr);
                 }
               }

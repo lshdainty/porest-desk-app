@@ -1070,8 +1070,9 @@ class _RecentExpenses extends StatelessWidget {
           for (final e in entries[gi].value)
             _ExpenseRow(expense: e, masked: masked, tokens: tokens),
           // 이체는 시각이 없어(LocalDate) 그날의 맨 뒤 — web 정렬과 같은 자리.
-          for (final tr
-              in transfers.where((x) => x.transferDate == entries[gi].key))
+          for (final tr in transfers.where((x) =>
+              (x.transferDate ?? '').length >= 10 &&
+              x.transferDate!.substring(0, 10) == entries[gi].key))
             TransferRow(
               key: ValueKey('t${tr.rowId}'),
               transfer: tr,

@@ -110,7 +110,7 @@ class _TransferDetailBodyState extends ConsumerState<_TransferDetailBody> {
       // 보내는 쪽에서 실제로 빠져나간 금액 — 수수료가 있으면 이체 금액과 다르다.
       if (fee > 0)
         (l.transferWithdrawn, krwSigned(tr.amount + fee, false, unit: true)),
-      (l.expDate, tr.transferDate ?? '-'),
+      (l.expDate, (tr.transferDate ?? '-').replaceFirst('T', ' ')),
       if ((tr.description ?? '').isNotEmpty) (l.expDescription, tr.description!),
     ];
 
