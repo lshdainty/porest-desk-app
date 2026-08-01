@@ -2996,7 +2996,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get passwordNew => 'New password';
 
   @override
-  String get passwordNewPlaceholder => '8 or more characters';
+  String get passwordNewPlaceholder =>
+      '8+ characters, incl. a special character';
 
   @override
   String get passwordNewConfirm => 'Confirm new password';
@@ -3006,6 +3007,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get passwordMismatch => 'New passwords do not match';
+
+  @override
+  String get passwordRuleLength => 'At least 8 characters';
+
+  @override
+  String get passwordRuleSpecial => 'At least 1 special character';
+
+  @override
+  String get passwordSameAsCurrent =>
+      'New password must be different from the current one';
 
   @override
   String get passwordChangeAction => 'Change';

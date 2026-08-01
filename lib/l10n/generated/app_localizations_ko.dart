@@ -2969,7 +2969,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get passwordNew => '새 비밀번호';
 
   @override
-  String get passwordNewPlaceholder => '8자 이상';
+  String get passwordNewPlaceholder => '8자 이상, 특수문자 포함';
 
   @override
   String get passwordNewConfirm => '새 비밀번호 확인';
@@ -2979,6 +2979,15 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get passwordMismatch => '새 비밀번호가 일치하지 않습니다';
+
+  @override
+  String get passwordRuleLength => '8자 이상';
+
+  @override
+  String get passwordRuleSpecial => '특수문자 1자 이상';
+
+  @override
+  String get passwordSameAsCurrent => '현재 비밀번호와 다른 비밀번호를 입력해주세요';
 
   @override
   String get passwordChangeAction => '변경';

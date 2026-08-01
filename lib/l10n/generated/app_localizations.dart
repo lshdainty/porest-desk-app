@@ -5609,7 +5609,7 @@ abstract class AppLocalizations {
   /// No description provided for @passwordNewPlaceholder.
   ///
   /// In ko, this message translates to:
-  /// **'8자 이상'**
+  /// **'8자 이상, 특수문자 포함'**
   String get passwordNewPlaceholder;
 
   /// No description provided for @passwordNewConfirm.
@@ -5629,6 +5629,24 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'새 비밀번호가 일치하지 않습니다'**
   String get passwordMismatch;
+
+  /// No description provided for @passwordRuleLength.
+  ///
+  /// In ko, this message translates to:
+  /// **'8자 이상'**
+  String get passwordRuleLength;
+
+  /// No description provided for @passwordRuleSpecial.
+  ///
+  /// In ko, this message translates to:
+  /// **'특수문자 1자 이상'**
+  String get passwordRuleSpecial;
+
+  /// No description provided for @passwordSameAsCurrent.
+  ///
+  /// In ko, this message translates to:
+  /// **'현재 비밀번호와 다른 비밀번호를 입력해주세요'**
+  String get passwordSameAsCurrent;
 
   /// No description provided for @passwordChangeAction.
   ///
