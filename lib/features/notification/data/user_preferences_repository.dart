@@ -39,6 +39,7 @@ class UserPreferences {
     required this.vibrationEnabled,
     required this.emailEnabled,
     required this.emailFrequency,
+    required this.timezone,
   });
 
   /// 마스터 토글.
@@ -70,6 +71,9 @@ class UserPreferences {
   /// DAILY | WEEKLY | MONTHLY.
   final String emailFrequency;
 
+  /// 표시 기준 지역(IANA 타임존 ID). 서버가 이 값으로 "오늘"을 판단한다.
+  final String timezone;
+
   /// 서버 응답 누락 필드는 합리적 기본값으로 보강 (방어적 디코딩).
   factory UserPreferences.fromJson(Map<String, dynamic> json) {
     return UserPreferences(
@@ -93,6 +97,7 @@ class UserPreferences {
       emailEnabled: json['emailEnabled'] as bool? ?? false,
       emailFrequency:
           json['emailFrequency'] as String? ?? EmailFrequency.weekly,
+      timezone: json['timezone'] as String? ?? 'Asia/Seoul',
     );
   }
 
@@ -113,6 +118,7 @@ class UserPreferences {
     bool? vibrationEnabled,
     bool? emailEnabled,
     String? emailFrequency,
+    String? timezone,
   }) {
     return UserPreferences(
       pushEnabled: pushEnabled ?? this.pushEnabled,
@@ -131,6 +137,7 @@ class UserPreferences {
       vibrationEnabled: vibrationEnabled ?? this.vibrationEnabled,
       emailEnabled: emailEnabled ?? this.emailEnabled,
       emailFrequency: emailFrequency ?? this.emailFrequency,
+      timezone: timezone ?? this.timezone,
     );
   }
 }

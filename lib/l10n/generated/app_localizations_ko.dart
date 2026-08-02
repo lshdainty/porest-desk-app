@@ -2954,6 +2954,15 @@ class AppLocalizationsKo extends AppLocalizations {
   String get appearanceHideAmountDesc => '모든 화면의 금액을 ••••로 표시합니다';
 
   @override
+  String get appearanceRegion => '표시 기준 지역';
+
+  @override
+  String get appearanceRegionPlaceholder => '지역 선택';
+
+  @override
+  String get appearanceRegionDesc => '선택한 지역 기준으로 날짜와 시간이 표시돼요';
+
+  @override
   String get appearanceCurrency => '기본 통화';
 
   @override

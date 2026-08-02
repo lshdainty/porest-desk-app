@@ -5576,6 +5576,24 @@ abstract class AppLocalizations {
   /// **'모든 화면의 금액을 ••••로 표시합니다'**
   String get appearanceHideAmountDesc;
 
+  /// No description provided for @appearanceRegion.
+  ///
+  /// In ko, this message translates to:
+  /// **'표시 기준 지역'**
+  String get appearanceRegion;
+
+  /// No description provided for @appearanceRegionPlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'지역 선택'**
+  String get appearanceRegionPlaceholder;
+
+  /// No description provided for @appearanceRegionDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'선택한 지역 기준으로 날짜와 시간이 표시돼요'**
+  String get appearanceRegionDesc;
+
   /// No description provided for @appearanceCurrency.
   ///
   /// In ko, this message translates to:

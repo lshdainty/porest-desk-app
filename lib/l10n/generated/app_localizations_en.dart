@@ -2982,6 +2982,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appearanceHideAmountDesc => 'Display all amounts as ••••';
 
   @override
+  String get appearanceRegion => 'Display region';
+
+  @override
+  String get appearanceRegionPlaceholder => 'Select a region';
+
+  @override
+  String get appearanceRegionDesc =>
+      'Dates and times are shown in the selected region';
+
+  @override
   String get appearanceCurrency => 'Default currency';
 
   @override

@@ -16,6 +16,9 @@ import 'package:porest_desk_app/shared/widgets/p_switch.dart';
 import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_tile.dart';
+import 'package:porest_desk_app/core/settings/regions.dart';
+import 'package:porest_desk_app/features/notification/application/user_preferences_providers.dart';
+import 'package:porest_desk_app/shared/widgets/p_select.dart';
 
 /// 표시 설정 화면 — AppBar + AppearanceSection (설정 메뉴 '표시 설정' 진입).
 class AppearanceScreen extends StatelessWidget {
@@ -61,6 +64,8 @@ class AppearanceSection extends ConsumerWidget {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
     final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
+    final prefs = ref.watch(userPreferencesProvider).value;
+    final isEn = Localizations.localeOf(context).languageCode == 'en';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -206,6 +211,34 @@ class AppearanceSection extends ConsumerWidget {
                   default:
                     notifier.setLocale(null);
                 }
+              },
+            ),
+          ],
+        ),
+        const SizedBox(height: PSpace.x32),
+        // 세트 — 표시 기준 지역. 테마·통화와 달리 로컬이 아니라 서버에 저장한다:
+        // 서버가 이 값으로 "오늘"을 판단하므로 로컬에만 두면 표기와 계산이 어긋난다.
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            PSectionLabel(l.appearanceRegion,
+                variant: PSectionLabelVariant.section),
+            const SizedBox(height: PSpace.x8),
+            PSelect<String>(
+              value: prefs?.timezone,
+              enabled: prefs != null,
+              placeholder: l.appearanceRegionPlaceholder,
+              helperText: l.appearanceRegionDesc,
+              items: [
+                for (final o in regionOptionsWith(prefs?.timezone))
+                  PSelectItem(value: o.value, label: isEn ? o.en : o.ko),
+              ],
+              onChanged: (tz) {
+                if (tz == null || tz == prefs?.timezone) return;
+                ref.read(userPreferencesProvider.notifier).patch(
+                      {'timezone': tz},
+                      optimistic: (prev) => prev.copyWith(timezone: tz),
+                    );
               },
             ),
           ],
