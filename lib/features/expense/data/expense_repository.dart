@@ -253,6 +253,55 @@ class ExpenseRepository {
     }
   }
 
+  /// 카테고리에 달린 거래를 다른 카테고리로 일괄 이동.
+  /// POST /expense/category/{id}/move-transactions
+  ///
+  /// 거래가 직접 달린 카테고리는 부모가 될 수 없어 하위를 만들 수 없는데, 그걸 푸는 방법.
+  Future<int> moveCategoryTransactions(int id, int targetCategoryRowId) async {
+    try {
+      final res = await _dio.post<Map<String, dynamic>>(
+        '/expense/category/$id/move-transactions',
+        data: {'targetCategoryRowId': targetCategoryRowId},
+      );
+      return _movedCount(res.data);
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  /// 하위 카테고리를 만들면서 이 카테고리의 거래를 그리로 옮긴다.
+  /// POST /expense/category/{id}/split-into-child
+  ///
+  /// 거래가 있어 하위를 못 만들고, 옮길 하위가 없어 거래도 못 옮기는 교착을 푼다.
+  Future<int> splitCategoryIntoChild(
+    int id, {
+    required String childName,
+    required String icon,
+    required String color,
+  }) async {
+    try {
+      final res = await _dio.post<Map<String, dynamic>>(
+        '/expense/category/$id/split-into-child',
+        data: {'childName': childName, 'icon': icon, 'color': color},
+      );
+      return _movedCount(res.data);
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  /// 이동 응답(거래·반복거래·분할)의 합계 — 사용자에겐 "몇 건 옮겼는지"만 보여준다.
+  int _movedCount(Map<String, dynamic>? raw) {
+    final body = ApiResponse<Map<String, dynamic>>.fromJson(
+      raw ?? const {},
+      (d) => (d as Map?)?.cast<String, dynamic>() ?? const {},
+    );
+    final d = body.data ?? const <String, dynamic>{};
+    return ((d['expenses'] as num?)?.toInt() ?? 0) +
+        ((d['recurring'] as num?)?.toInt() ?? 0) +
+        ((d['splits'] as num?)?.toInt() ?? 0);
+  }
+
   /// 카테고리 정렬 순서 + 부모 변경. PATCH /expense/categories/reorder.
   /// [items] = (categoryRowId, sortOrder, parentRowId?) tuple 목록.
   Future<void> reorderCategories(
