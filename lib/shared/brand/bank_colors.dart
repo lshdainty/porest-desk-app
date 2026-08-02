@@ -113,7 +113,7 @@ const List<BankEntry> bankEntries = <BankEntry>[
   BankEntry(
       name: '케이뱅크',
       category: BankCategory.internetBank,
-      color: BrandColor(bg: Color(0xFFFF6F20)),
+      color: BrandColor(bg: Color(0xFF0214A1)),
       aliases: ['K뱅크', 'K Bank']),
 
   // 지방은행
