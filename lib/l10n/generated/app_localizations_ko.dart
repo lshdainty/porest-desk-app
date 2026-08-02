@@ -4909,6 +4909,79 @@ class AppLocalizationsKo extends AppLocalizations {
   String get importNotMapped => '가져오지 않음';
 
   @override
+  String get importFieldSubcategory => '소분류';
+
+  @override
+  String get importFieldTime => '시간';
+
+  @override
+  String get importFieldMerchant => '거래처';
+
+  @override
+  String get importFieldPaymentMethod => '결제수단';
+
+  @override
+  String importBlockedTitle(String names) {
+    return '$names 카테고리에 거래가 직접 등록돼 있어 하위 분류를 만들 수 없어요';
+  }
+
+  @override
+  String get importBlockedDesc =>
+      '해당 대분류를 쓰는 행은 저장에 실패해요. 그 카테고리의 거래를 하위로 옮기거나 파일의 분류를 바꿔주세요';
+
+  @override
+  String get categoryMoveTxAction => '옮기기';
+
+  @override
+  String get categoryMoveTxTitle => '거래 옮기기';
+
+  @override
+  String get categoryMoveTxEntry => '거래 옮기기';
+
+  @override
+  String get categoryMoveTxEntryDesc =>
+      '거래가 달린 카테고리는 하위 분류를 만들 수 없어요. 거래를 옮기면 만들 수 있어요';
+
+  @override
+  String categoryMoveTxDesc(String name) {
+    return '$name 에 달린 거래·반복거래·분할을 모두 옮겨요';
+  }
+
+  @override
+  String get categoryMoveTxModeNew => '새 하위 만들기';
+
+  @override
+  String get categoryMoveTxModeExisting => '기존 카테고리로';
+
+  @override
+  String get categoryMoveTxChildName => '만들 하위 이름';
+
+  @override
+  String get categoryMoveTxChildPlaceholder => '예: 강의';
+
+  @override
+  String categoryMoveTxNewHint(String name) {
+    return '$name 아래에 만들고 거래를 모두 그리로 옮겨요. 그러면 다른 하위도 만들 수 있어요';
+  }
+
+  @override
+  String get categoryMoveTxTarget => '옮길 카테고리';
+
+  @override
+  String get categoryMoveTxTargetPlaceholder => '카테고리 선택';
+
+  @override
+  String get categoryMoveTxHint => '같은 유형의 말단 카테고리만 고를 수 있어요';
+
+  @override
+  String get categoryMoveTxNoTarget => '옮길 수 있는 카테고리가 없어요. 먼저 하나 만들어주세요';
+
+  @override
+  String categoryMoveTxDone(int count) {
+    return '$count건을 옮겼어요';
+  }
+
+  @override
   String get importFieldDate => '날짜';
 
   @override

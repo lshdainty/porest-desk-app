@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
@@ -22,6 +23,7 @@ import 'package:porest_desk_app/features/dashboard/application/dashboard_provide
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
 import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
 import 'package:porest_desk_app/features/stats/application/stats_providers.dart';
+import 'package:porest_desk_app/features/category/presentation/category_move_tx_sheet.dart';
 
 /// 카테고리 추가/편집 시트 — 웹 `CategoryEditDialog.tsx` 미러.
 ///
@@ -465,6 +467,34 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
           value: _icon,
           onChanged: (v) => setState(() => _icon = v),
         ),
+
+        // 거래 옮기기 — 거래가 직접 달린 카테고리는 하위 분류를 만들 수 없다.
+        // 그걸 푸는 유일한 방법이라 편집 화면에서 바로 갈 수 있게 둔다(web 정합).
+        if (_isEdit) ...[
+          const SizedBox(height: PSpace.x20),
+          Divider(height: 1, color: t.borderSubtle),
+          const SizedBox(height: PSpace.x16),
+          InkWell(
+            onTap: () {
+              final all = ref.read(categoriesProvider).value ?? const [];
+              Navigator.of(context).pop();
+              showCategoryMoveTxSheet(context, source: widget.edit!, categories: all);
+            },
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(LucideIcons.arrowRightLeft, size: 14, color: t.fgBrand),
+                const SizedBox(width: PSpace.x4),
+                Text(l.categoryMoveTxEntry,
+                    style: PTypo.caption.copyWith(
+                        color: t.fgBrand, fontWeight: PFontWeight.semi)),
+              ],
+            ),
+          ),
+          const SizedBox(height: PSpace.x4),
+          Text(l.categoryMoveTxEntryDesc,
+              style: PTypo.micro.copyWith(color: t.fgTertiary)),
+        ],
       ],
     );
   }

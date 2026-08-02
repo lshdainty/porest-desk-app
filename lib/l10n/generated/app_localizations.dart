@@ -9182,6 +9182,132 @@ abstract class AppLocalizations {
   /// **'가져오지 않음'**
   String get importNotMapped;
 
+  /// No description provided for @importFieldSubcategory.
+  ///
+  /// In ko, this message translates to:
+  /// **'소분류'**
+  String get importFieldSubcategory;
+
+  /// No description provided for @importFieldTime.
+  ///
+  /// In ko, this message translates to:
+  /// **'시간'**
+  String get importFieldTime;
+
+  /// No description provided for @importFieldMerchant.
+  ///
+  /// In ko, this message translates to:
+  /// **'거래처'**
+  String get importFieldMerchant;
+
+  /// No description provided for @importFieldPaymentMethod.
+  ///
+  /// In ko, this message translates to:
+  /// **'결제수단'**
+  String get importFieldPaymentMethod;
+
+  /// No description provided for @importBlockedTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'{names} 카테고리에 거래가 직접 등록돼 있어 하위 분류를 만들 수 없어요'**
+  String importBlockedTitle(String names);
+
+  /// No description provided for @importBlockedDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'해당 대분류를 쓰는 행은 저장에 실패해요. 그 카테고리의 거래를 하위로 옮기거나 파일의 분류를 바꿔주세요'**
+  String get importBlockedDesc;
+
+  /// No description provided for @categoryMoveTxAction.
+  ///
+  /// In ko, this message translates to:
+  /// **'옮기기'**
+  String get categoryMoveTxAction;
+
+  /// No description provided for @categoryMoveTxTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'거래 옮기기'**
+  String get categoryMoveTxTitle;
+
+  /// No description provided for @categoryMoveTxEntry.
+  ///
+  /// In ko, this message translates to:
+  /// **'거래 옮기기'**
+  String get categoryMoveTxEntry;
+
+  /// No description provided for @categoryMoveTxEntryDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'거래가 달린 카테고리는 하위 분류를 만들 수 없어요. 거래를 옮기면 만들 수 있어요'**
+  String get categoryMoveTxEntryDesc;
+
+  /// No description provided for @categoryMoveTxDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name} 에 달린 거래·반복거래·분할을 모두 옮겨요'**
+  String categoryMoveTxDesc(String name);
+
+  /// No description provided for @categoryMoveTxModeNew.
+  ///
+  /// In ko, this message translates to:
+  /// **'새 하위 만들기'**
+  String get categoryMoveTxModeNew;
+
+  /// No description provided for @categoryMoveTxModeExisting.
+  ///
+  /// In ko, this message translates to:
+  /// **'기존 카테고리로'**
+  String get categoryMoveTxModeExisting;
+
+  /// No description provided for @categoryMoveTxChildName.
+  ///
+  /// In ko, this message translates to:
+  /// **'만들 하위 이름'**
+  String get categoryMoveTxChildName;
+
+  /// No description provided for @categoryMoveTxChildPlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'예: 강의'**
+  String get categoryMoveTxChildPlaceholder;
+
+  /// No description provided for @categoryMoveTxNewHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name} 아래에 만들고 거래를 모두 그리로 옮겨요. 그러면 다른 하위도 만들 수 있어요'**
+  String categoryMoveTxNewHint(String name);
+
+  /// No description provided for @categoryMoveTxTarget.
+  ///
+  /// In ko, this message translates to:
+  /// **'옮길 카테고리'**
+  String get categoryMoveTxTarget;
+
+  /// No description provided for @categoryMoveTxTargetPlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'카테고리 선택'**
+  String get categoryMoveTxTargetPlaceholder;
+
+  /// No description provided for @categoryMoveTxHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'같은 유형의 말단 카테고리만 고를 수 있어요'**
+  String get categoryMoveTxHint;
+
+  /// No description provided for @categoryMoveTxNoTarget.
+  ///
+  /// In ko, this message translates to:
+  /// **'옮길 수 있는 카테고리가 없어요. 먼저 하나 만들어주세요'**
+  String get categoryMoveTxNoTarget;
+
+  /// No description provided for @categoryMoveTxDone.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}건을 옮겼어요'**
+  String categoryMoveTxDone(int count);
+
   /// No description provided for @importFieldDate.
   ///
   /// In ko, this message translates to:

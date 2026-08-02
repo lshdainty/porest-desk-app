@@ -36,8 +36,17 @@ const List<_FieldMeta> _fields = [
   (key: 'CATEGORY', label: _fCategory, required: false),
   (key: 'ASSET', label: _fAsset, required: false),
   (key: 'MEMO', label: _fMemo, required: false),
+  // 소스에 따라 있을 수도 없을 수도 있는 열 — 자동매핑이 잡으면 채워지고 없으면 '사용 안 함'.
+  (key: 'SUBCATEGORY', label: _fSubcategory, required: false),
+  (key: 'TIME', label: _fTime, required: false),
+  (key: 'MERCHANT', label: _fMerchant, required: false),
+  (key: 'PAYMENT_METHOD', label: _fPaymentMethod, required: false),
 ];
 
+String _fSubcategory(AppLocalizations l) => l.importFieldSubcategory;
+String _fTime(AppLocalizations l) => l.importFieldTime;
+String _fMerchant(AppLocalizations l) => l.importFieldMerchant;
+String _fPaymentMethod(AppLocalizations l) => l.importFieldPaymentMethod;
 String _fDate(AppLocalizations l) => l.importFieldDate;
 String _fAmount(AppLocalizations l) => l.importFieldAmount;
 String _fType(AppLocalizations l) => l.importFieldType;
@@ -286,6 +295,38 @@ class _ImportViewState extends ConsumerState<ImportView> {
   List<Widget> _mappingStep(PorestTokens t, ImportAnalyzeResult a) {
     final l = AppLocalizations.of(context);
     return [
+      // 실행하면 반드시 실패할 행을 미리 알린다 — 넣고 나서 실패 숫자만 보면 원인을 알 수 없다.
+      if (a.blockedParents.isNotEmpty) ...[
+        Container(
+          padding: const EdgeInsets.all(PSpace.x16),
+          decoration: BoxDecoration(
+            color: t.bgMuted,
+            borderRadius: PRadius.brLg,
+            border: Border.all(color: t.statusDanger.withValues(alpha: 0.4)),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(LucideIcons.triangleAlert, size: 17, color: t.statusDanger),
+              const SizedBox(width: PSpace.x8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(l.importBlockedTitle(a.blockedParents.join(', ')),
+                        style: PTypo.bodySm
+                            .copyWith(color: t.fgPrimary, fontWeight: PFontWeight.semi)),
+                    const SizedBox(height: 3),
+                    Text(l.importBlockedDesc,
+                        style: PTypo.caption.copyWith(color: t.fgTertiary)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: PSpace.x16),
+      ],
       _cardShell(
         t,
         title: l.importFileTitle,

@@ -68,6 +68,7 @@ class ImportAnalyzeResult {
     required this.columns,
     required this.suggestedMapping,
     required this.preview,
+    required this.blockedParents,
   });
   final String fileName;
   final int totalRows;
@@ -76,6 +77,10 @@ class ImportAnalyzeResult {
   final List<ImportColumn> columns;
   final Map<String, int> suggestedMapping; // ImportField.name → 열 인덱스
   final List<ImportPreviewRow> preview;
+
+  /// 거래가 직접 달려 있어 하위를 만들 수 없는 대분류 이름들.
+  /// 비어 있지 않으면 그 대분류를 쓰는 행이 전부 실패하므로 실행 전에 알려야 한다.
+  final List<String> blockedParents;
 
   factory ImportAnalyzeResult.fromJson(Map<String, dynamic> j) => ImportAnalyzeResult(
         fileName: j['fileName'] as String? ?? '',
@@ -89,6 +94,9 @@ class ImportAnalyzeResult {
             .map((k, v) => MapEntry(k.toString(), (v as num).toInt())),
         preview: ((j['preview'] as List?) ?? [])
             .map((e) => ImportPreviewRow.fromJson((e as Map).cast<String, dynamic>()))
+            .toList(),
+        blockedParents: ((j['blockedParents'] as List?) ?? [])
+            .map((e) => e.toString())
             .toList(),
       );
 }

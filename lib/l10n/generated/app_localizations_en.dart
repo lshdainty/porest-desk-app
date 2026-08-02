@@ -4971,6 +4971,80 @@ class AppLocalizationsEn extends AppLocalizations {
   String get importNotMapped => 'Don\'t import';
 
   @override
+  String get importFieldSubcategory => 'Subcategory';
+
+  @override
+  String get importFieldTime => 'Time';
+
+  @override
+  String get importFieldMerchant => 'Merchant';
+
+  @override
+  String get importFieldPaymentMethod => 'Payment method';
+
+  @override
+  String importBlockedTitle(String names) {
+    return 'Cannot create subcategories under $names — it already has transactions';
+  }
+
+  @override
+  String get importBlockedDesc =>
+      'Rows using it will fail. Move its transactions into a subcategory or change the category in the file';
+
+  @override
+  String get categoryMoveTxAction => 'Move';
+
+  @override
+  String get categoryMoveTxTitle => 'Move transactions';
+
+  @override
+  String get categoryMoveTxEntry => 'Move transactions';
+
+  @override
+  String get categoryMoveTxEntryDesc =>
+      'A category with transactions cannot have subcategories. Move them to enable it';
+
+  @override
+  String categoryMoveTxDesc(String name) {
+    return 'Moves all transactions, recurring and splits from $name';
+  }
+
+  @override
+  String get categoryMoveTxModeNew => 'Create subcategory';
+
+  @override
+  String get categoryMoveTxModeExisting => 'Move to existing';
+
+  @override
+  String get categoryMoveTxChildName => 'New subcategory name';
+
+  @override
+  String get categoryMoveTxChildPlaceholder => 'e.g. Lectures';
+
+  @override
+  String categoryMoveTxNewHint(String name) {
+    return 'Creates it under $name and moves all transactions there, so you can add more subcategories';
+  }
+
+  @override
+  String get categoryMoveTxTarget => 'Target category';
+
+  @override
+  String get categoryMoveTxTargetPlaceholder => 'Select a category';
+
+  @override
+  String get categoryMoveTxHint =>
+      'Only leaf categories of the same type can be selected';
+
+  @override
+  String get categoryMoveTxNoTarget => 'No target available — create one first';
+
+  @override
+  String categoryMoveTxDone(int count) {
+    return 'Moved $count items';
+  }
+
+  @override
   String get importFieldDate => 'Date';
 
   @override
