@@ -178,8 +178,10 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
     final name = nickname.isNotEmpty
         ? nickname
         : (_selected?.cardName ?? edit?.assetName ?? l.assetNewCard);
-    final outstanding =
-        int.tryParse(_balanceCtrl.text.replaceAll(',', '')) ?? 0;
+    // 체크카드는 잔액을 들지 않는다 — 사용액은 연결 계좌에서 이미 빠져 있다.
+    final outstanding = _cardType == _CardType.credit
+        ? (int.tryParse(_balanceCtrl.text.replaceAll(',', '')) ?? 0)
+        : 0;
     final company = _selected?.company?.name ?? edit?.institution;
     final catalogRowId = _selected?.rowId ?? edit?.cardCatalog?.rowId;
     // 청구 사이클 필드는 신용카드일 때만. 빈 한도는 null 로 전송.
@@ -205,7 +207,8 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
           cardCatalogRowId: catalogRowId,
           creditLimit: creditLimit,
           paymentDay: isCredit ? _paymentDay : null,
-          paymentAssetRowId: isCredit ? _paymentAssetRowId : null,
+          // 계좌 연결은 두 종류 다 쓴다 — 신용은 결제일 자동이체, 체크는 즉시 차감.
+          paymentAssetRowId: _paymentAssetRowId,
         );
       } else {
         await repo.create(
@@ -218,7 +221,8 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
           cardCatalogRowId: catalogRowId,
           creditLimit: creditLimit,
           paymentDay: isCredit ? _paymentDay : null,
-          paymentAssetRowId: isCredit ? _paymentAssetRowId : null,
+          // 계좌 연결은 두 종류 다 쓴다 — 신용은 결제일 자동이체, 체크는 즉시 차감.
+          paymentAssetRowId: _paymentAssetRowId,
         );
       }
       ref.invalidate(assetsProvider);
@@ -426,53 +430,57 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
                     onChanged: (v) => setState(() => _paymentDay = v),
                   ),
                 ],
-                const SizedBox(height: PSpace.x20),
-
                 // 현재 사용액 (원) ───────────────────
-                Text(l.assetCurrentUsage,
-                    style: PTypo.caption.copyWith(
-                        color: t.fgPrimary, fontWeight: PFontWeight.medium)),
-                const SizedBox(height: PSpace.x8),
-                PTextInput(
-                  controller: _balanceCtrl,
-                  keyboardType: const TextInputType.numberWithOptions(
-                      signed: true),
-                  placeholder: '0',
-                ),
-                const SizedBox(height: 6),
-                Text(l.assetCurrentUsageHint,
-                    style: PTypo.micro.copyWith(color: t.fgTertiary)),
-
-                // 결제 출금계좌 (신용카드 전용)
+                // 체크카드는 잔액 개념이 없다 — 긁는 즉시 연결 계좌에서 빠지므로
+                // 카드가 들고 있을 금액이 없다. 신용카드만 결제일까지 사용액을 든다.
                 if (isCredit) ...[
                   const SizedBox(height: PSpace.x20),
-                  Text(l.assetPaymentAccountLabel,
+                  Text(l.assetCurrentUsage,
                       style: PTypo.caption.copyWith(
                           color: t.fgPrimary, fontWeight: PFontWeight.medium)),
                   const SizedBox(height: PSpace.x8),
-                  PSelect<int>(
-                    value: _paymentAssetRowId,
-                    placeholder: bankAccounts.isEmpty
-                        ? l.assetNoBankAccounts
-                        : l.assetPaymentAccountSelect,
-                    title: l.assetPaymentAccount,
-                    enabled: bankAccounts.isNotEmpty,
-                    items: [
-                      for (final a in bankAccounts)
-                        PSelectItem(
-                          value: a.rowId,
-                          label: a.institution != null &&
-                                  a.institution!.isNotEmpty
-                              ? '${a.assetName} · ${a.institution}'
-                              : a.assetName,
-                        ),
-                    ],
-                    onChanged: (v) => setState(() => _paymentAssetRowId = v),
+                  PTextInput(
+                    controller: _balanceCtrl,
+                    keyboardType: const TextInputType.numberWithOptions(
+                        signed: true),
+                    placeholder: '0',
                   ),
                   const SizedBox(height: 6),
-                  Text(l.assetPaymentAccountHint,
+                  Text(l.assetCurrentUsageHint,
                       style: PTypo.micro.copyWith(color: t.fgTertiary)),
                 ],
+
+                // 계좌 연결 — 신용카드는 결제일에 여기서 한 번에 빠지고,
+                // 체크카드는 긁는 즉시 빠진다. 의미가 달라 라벨을 나눈다.
+                const SizedBox(height: PSpace.x20),
+                Text(isCredit ? l.assetPaymentAccountLabel : l.assetLinkedAccountLabel,
+                    style: PTypo.caption.copyWith(
+                        color: t.fgPrimary, fontWeight: PFontWeight.medium)),
+                const SizedBox(height: PSpace.x8),
+                PSelect<int>(
+                  value: _paymentAssetRowId,
+                  placeholder: bankAccounts.isEmpty
+                      ? l.assetNoBankAccounts
+                      : (isCredit
+                          ? l.assetPaymentAccountSelect
+                          : l.assetLinkedAccountSelect),
+                  title: isCredit ? l.assetPaymentAccount : l.assetLinkedAccount,
+                  enabled: bankAccounts.isNotEmpty,
+                  items: [
+                    for (final a in bankAccounts)
+                      PSelectItem(
+                        value: a.rowId,
+                        label: a.institution != null &&
+                                a.institution!.isNotEmpty
+                            ? '${a.assetName} · ${a.institution}'
+                            : a.assetName,
+                      ),
+                  ],
+                  onChanged: (v) => setState(() => _paymentAssetRowId = v),
+                ),
+                const SizedBox(height: 6),
+                Text(isCredit ? l.assetPaymentAccountHint : l.assetLinkedAccountHint,
+                    style: PTypo.micro.copyWith(color: t.fgTertiary)),
 
                 // 전체 자산 합계 포함 토글 ──────────────
                 const SizedBox(height: PSpace.x20),

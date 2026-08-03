@@ -434,6 +434,18 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetPaymentDay => '결제일';
 
   @override
+  String get assetLinkedAccount => '연결 계좌';
+
+  @override
+  String get assetLinkedAccountLabel => '연결 계좌';
+
+  @override
+  String get assetLinkedAccountSelect => '연결 계좌 선택';
+
+  @override
+  String get assetLinkedAccountHint => '이 카드로 결제하면 이 계좌에서 바로 빠져나가요.';
+
+  @override
   String get assetPaymentAccountLabel => '결제 출금계좌 (선택)';
 
   @override

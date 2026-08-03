@@ -438,6 +438,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetPaymentDay => 'Payment day';
 
   @override
+  String get assetLinkedAccount => 'Linked account';
+
+  @override
+  String get assetLinkedAccountLabel => 'Linked account';
+
+  @override
+  String get assetLinkedAccountSelect => 'Select linked account';
+
+  @override
+  String get assetLinkedAccountHint =>
+      'Spending on this card is deducted from this account right away.';
+
+  @override
   String get assetPaymentAccountLabel => 'Payment account (optional)';
 
   @override
