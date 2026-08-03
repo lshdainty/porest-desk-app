@@ -181,10 +181,10 @@ class _RecurringSettingsBodyState
     if (_isEdit) return true;
     if (_isAdd) {
       final i = _txInput!;
-      return i.amountInt > 0 && i.categoryRowId != null && i.assetRowId != null;
+      // 자산은 선택사항 — 거래 폼과 같은 규칙(웹 정합).
+      return i.amountInt > 0 && i.categoryRowId != null;
     }
-    return widget.expense!.categoryRowId != null &&
-        widget.expense!.assetRowId != null;
+    return widget.expense!.categoryRowId != null;
   }
 
   Future<void> _save() async {
@@ -231,7 +231,7 @@ class _RecurringSettingsBodyState
         final i = _txInput!;
         await repo.create(
           categoryRowId: i.categoryRowId!,
-          assetRowId: i.assetRowId!,
+          assetRowId: i.assetRowId,
           sourceExpenseRowId: null,
           expenseType: i.type,
           amount: i.amountInt,
@@ -252,7 +252,7 @@ class _RecurringSettingsBodyState
         final e = widget.expense!;
         await repo.create(
           categoryRowId: e.categoryRowId!,
-          assetRowId: e.assetRowId!,
+          assetRowId: e.assetRowId,
           sourceExpenseRowId: e.rowId,
           expenseType: e.expenseType,
           amount: e.amount.abs(),

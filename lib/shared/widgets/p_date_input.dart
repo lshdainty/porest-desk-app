@@ -117,10 +117,15 @@ class PTimeInput extends StatelessWidget {
           children: [
             Icon(LucideIcons.clock, size: 16, color: t.fgSecondary),
             const SizedBox(width: PSpace.x8),
-            Text(
-              value != null ? _fmt(value!) : (placeholder ?? l.pickTime),
-              style: PTypo.bodyLg.copyWith(
-                color: value != null ? t.fgPrimary : t.fgTertiary,
+            // 날짜 입력과 같은 처리 — 좁은 폭에서 라벨이 넘치지 않게.
+            Expanded(
+              child: Text(
+                value != null ? _fmt(value!) : (placeholder ?? l.pickTime),
+                style: PTypo.bodyLg.copyWith(
+                  color: value != null ? t.fgPrimary : t.fgTertiary,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],

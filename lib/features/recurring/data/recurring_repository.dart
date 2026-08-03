@@ -33,7 +33,7 @@ class RecurringRepository {
 
   Future<void> create({
     required int categoryRowId,
-    required int assetRowId,
+    int? assetRowId, // 자산 미연결 반복거래 허용 — 서버도 nullable
     int? sourceExpenseRowId,
     required String expenseType,
     required int amount,
@@ -81,7 +81,7 @@ class RecurringRepository {
   Future<void> update({
     required int id,
     required int categoryRowId,
-    required int assetRowId,
+    int? assetRowId, // 자산 미연결 반복거래 허용 — 서버도 nullable
     required String expenseType,
     required int amount,
     required String frequency,
