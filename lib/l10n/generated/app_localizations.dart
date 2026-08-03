@@ -920,6 +920,30 @@ abstract class AppLocalizations {
   /// **'결제일'**
   String get assetPaymentDay;
 
+  /// No description provided for @assetLinkedAccount.
+  ///
+  /// In ko, this message translates to:
+  /// **'연결 계좌'**
+  String get assetLinkedAccount;
+
+  /// No description provided for @assetLinkedAccountLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'연결 계좌'**
+  String get assetLinkedAccountLabel;
+
+  /// No description provided for @assetLinkedAccountSelect.
+  ///
+  /// In ko, this message translates to:
+  /// **'연결 계좌 선택'**
+  String get assetLinkedAccountSelect;
+
+  /// No description provided for @assetLinkedAccountHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 카드로 결제하면 이 계좌에서 바로 빠져나가요.'**
+  String get assetLinkedAccountHint;
+
   /// No description provided for @assetPaymentAccountLabel.
   ///
   /// In ko, this message translates to:
