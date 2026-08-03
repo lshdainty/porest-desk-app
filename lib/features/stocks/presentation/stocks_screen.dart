@@ -458,7 +458,8 @@ class _SearchSheetBodyState extends ConsumerState<_SearchSheetBody> {
               name: s.nameKr.isNotEmpty ? s.nameKr : s.symbol,
               countryCode: s.countryCode,
               currency: s.currency,
-              sub: stockMarketLabel(l, s.marketCode),
+              sub: '${stockMarketLabel(l, s.marketCode)}'
+                  ' · ${stockSecurityTypeLabel(l, s.securityType)}',
               // 검색 행은 시세 미표시 (웹 right=<span/> 미러).
               right: const SizedBox.shrink(),
               onTap: () => widget.onPick(s.symbol),
@@ -623,27 +624,38 @@ String _fmtByCurrency(double price, String currency) {
   return '${krw(whole)}$fracStr $currency';
 }
 
+/// 지수 포인트 표기 — 천단위 구분 + 소수 2자리(뒤 0 은 생략). 통화 기호가 없다.
+String _fmtIndexPoint(double v) {
+  final cents = (v * 100).round();
+  final whole = cents ~/ 100;
+  final frac = (cents % 100).abs();
+  if (frac == 0) return krw(whole);
+  return frac % 10 == 0
+      ? '${krw(whole)}.${frac ~/ 10}'
+      : '${krw(whole)}.${frac.toString().padLeft(2, '0')}';
+}
+
 String _two(int v) => v.toString().padLeft(2, '0');
 
 // ---- 매수 유의사항 라벨 (토스 warningType → 한글) ----------------------------
 
-const Map<String, String> _kWarningLabels = {
-  'LIQUIDATION_TRADING': '정리매매',
-  'OVERHEATED': '단기과열',
-  'SHORT_TERM_OVERHEAT': '단기과열',
-  'EXCESSIVE_RISE': '이상급등',
-  'INVESTMENT_WARNING': '투자경고',
-  'INVESTMENT_RISK': '투자위험',
-  'INVESTMENT_CAUTION': '투자주의',
-  'VI': 'VI 발동',
-  'VI_STATIC': '정적 VI',
-  'VI_DYNAMIC': '동적 VI',
-  'VI_STATIC_AND_DYNAMIC': 'VI 발동',
-  'STOCK_WARRANTS': '신주인수권',
-  'ADMINISTRATIVE': '관리종목',
-  'ADJUSTMENT_OF_SHARES': '주식병합·분할',
-};
-String _warningLabel(String type) => _kWarningLabels[type] ?? type;
+/// 토스 warningType → 로케일 라벨 (웹 `warning.*` 키 미러). 모르는 타입은 원문 노출.
+String _warningLabel(AppLocalizations l, String type) => switch (type) {
+      'LIQUIDATION_TRADING' => l.stocksWarningLiquidationTrading,
+      'OVERHEATED' => l.stocksWarningOverheated,
+      'SHORT_TERM_OVERHEAT' => l.stocksWarningShortTermOverheat,
+      'EXCESSIVE_RISE' => l.stocksWarningExcessiveRise,
+      'INVESTMENT_WARNING' => l.stocksWarningInvestmentWarning,
+      'INVESTMENT_RISK' => l.stocksWarningInvestmentRisk,
+      'INVESTMENT_CAUTION' => l.stocksWarningInvestmentCaution,
+      'VI' || 'VI_STATIC_AND_DYNAMIC' => l.stocksWarningVi,
+      'VI_STATIC' => l.stocksWarningViStatic,
+      'VI_DYNAMIC' => l.stocksWarningViDynamic,
+      'STOCK_WARRANTS' => l.stocksWarningStockWarrants,
+      'ADMINISTRATIVE' => l.stocksWarningAdministrative,
+      'ADJUSTMENT_OF_SHARES' => l.stocksWarningAdjustmentOfShares,
+      _ => type,
+    };
 
 // ---- 장 상태 계산 (시장 현지 시각 vs 정규장 운영시간) -------------------------
 
@@ -711,9 +723,14 @@ class _MarketStatusBar extends ConsumerWidget {
       (name: l.stocksMarketKr, open: kr.open, detail: kr.detail),
       (name: l.stocksMarketUs, open: us.open, detail: us.detail),
     ];
+    // 국내 지수 현재가 (토스 시장지표 — 코스피·코스닥 포인트). 미조회·0 이면 표시하지 않는다.
+    final indices = (ref.watch(tossIndicatorPricesProvider).asData?.value ?? [])
+        .where((i) => i.priceValue > 0)
+        .toList();
     return Wrap(
       spacing: PSpace.x8,
       runSpacing: PSpace.x8,
+      crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         for (final m in markets)
           Container(
@@ -754,6 +771,33 @@ class _MarketStatusBar extends ConsumerWidget {
                 ),
               ],
             ),
+          ),
+        // 지수는 장 상태 pill 과 달리 배경 없이 텍스트만 (웹 MarketStatusBar 미러).
+        for (final i in indices)
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                i.symbol == 'KOSPI' ? l.stockMarketKospi : l.stockMarketKosdaq,
+                style: TextStyle(
+                  fontFamily: PTypo.sans,
+                  fontSize: 12.5,
+                  fontWeight: PFontWeight.semi,
+                  color: t.fgSecondary,
+                ),
+              ),
+              const SizedBox(width: 5),
+              Text(
+                _fmtIndexPoint(i.priceValue),
+                style: TextStyle(
+                  fontFamily: PTypo.sans,
+                  fontFeatures: _tnum,
+                  fontSize: 12.5,
+                  fontWeight: PFontWeight.bold,
+                  color: t.fgPrimary,
+                ),
+              ),
+            ],
           ),
       ],
     );
@@ -1181,7 +1225,7 @@ class _SummaryCard extends ConsumerWidget {
                   l.stocksPurchaseAmount,
                   masked ? '••••' : krwSigned(totalCost, false, unit: true)
                 ),
-                (l.stocksHoldingsLabel, '${h.items.length}개'),
+                (l.stocksHoldingsLabel, l.stocksUnitCount(h.items.length)),
                 (
                   l.stocksExchangeRate,
                   fxRate != null ? '₩${krw(fxRate.round())}' : '—'
@@ -1218,7 +1262,17 @@ class _SummaryCard extends ConsumerWidget {
 
 // ---- 차트 기간 탭 목록 (차트 자체는 ChartWebView = desk-front 임베드) -----------
 
+/// 기간 값은 ChartWebView 임베드 querystring 의 식별자라 보존하고, 표시 라벨만 로케일로 바꾼다
+/// (웹 `RANGE_LABEL_KEY` 미러).
 const _kRanges = ['1D', '1주', '1개월', '3개월', '1년'];
+
+String _rangeLabel(AppLocalizations l, String range) => switch (range) {
+      '1주' => l.stocksRange1w,
+      '1개월' => l.stocksRange1m,
+      '3개월' => l.stocksRange3m,
+      '1년' => l.stocksRange1y,
+      _ => l.stocksRange1d,
+    };
 
 // ---- 종목 상세 ---------------------------------------------------------------
 
@@ -1363,7 +1417,7 @@ class _StockDetailBodyState extends ConsumerState<_StockDetailBody> {
                       const SizedBox(width: 6),
                       Flexible(
                         child: Text(
-                          '· ${info?.isEtf == true || master?.securityType == 'ETF' ? 'ETF' : l.stocksInstrumentStock}',
+                          '· ${info?.isEtf == true ? 'ETF' : stockSecurityTypeLabel(l, master?.securityType ?? 'STOCK')}',
                           overflow: TextOverflow.ellipsis,
                           style: PTypo.caption.copyWith(color: t.fgTertiary),
                         ),
@@ -1444,7 +1498,7 @@ class _StockDetailBodyState extends ConsumerState<_StockDetailBody> {
             children: [
               for (final w in warnings)
                 PBadge(
-                  label: _warningLabel(w.warningType),
+                  label: _warningLabel(l, w.warningType),
                   variant: PBadgeVariant.softWarning,
                   icon: LucideIcons.triangleAlert,
                 ),
@@ -1472,7 +1526,8 @@ class _StockDetailBodyState extends ConsumerState<_StockDetailBody> {
                 size: PTabsSize.sm,
                 expand: true,
                 items: [
-                  for (final r in _kRanges) PTabItem(value: r, label: r),
+                  for (final r in _kRanges)
+                    PTabItem(value: r, label: _rangeLabel(l, r)),
                 ],
               ),
             ],
@@ -1579,6 +1634,7 @@ class _HoldingDetailCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     final h = holding;
     final ev = h.marketValueAmountValue.round();
     final pnl = h.profitLossAmountValue.round();
@@ -1588,16 +1644,14 @@ class _HoldingDetailCard extends StatelessWidget {
     final fees = h.feesValue.round();
     final avg = h.averagePurchasePriceValue;
     final qty = h.quantityValue;
-    final qtyLabel = qty == qty.roundToDouble()
-        ? '${qty.round()}주'
-        : '${qty.toStringAsFixed(4)}주';
+    final qtyLabel = l.stocksSharesUnit(
+        qty == qty.roundToDouble() ? '${qty.round()}' : qty.toStringAsFixed(4));
 
     String money(int v) => masked ? '••••' : krwSigned(v, false, unit: true);
     String moneySigned(int v) => masked
         ? '••••'
         : krwSigned(v.abs(), false, sign: v >= 0 ? '+' : '−', unit: true);
 
-    final l = AppLocalizations.of(context);
     final rows = <(String, String, Color)>[
       (l.stocksEvalAmount, money(ev), t.fgPrimary),
       (l.stocksEvalPnl, moneySigned(pnl), _trendColor(t, pnl.toDouble())),
@@ -1762,7 +1816,9 @@ class _StockInfoCard extends ConsumerWidget {
       (
         // 거래정지는 토스 status(분류성 값)가 아니라 KRX 거래정지 플래그로 판정.
         l.stocksTradingStatus,
-        info?.koreanMarketDetail?.krxTradingSuspended == true ? '거래정지' : '정상',
+        info?.koreanMarketDetail?.krxTradingSuspended == true
+            ? l.stocksTradingSuspended
+            : l.stocksTradingNormal,
         info?.koreanMarketDetail?.krxTradingSuspended == true
             ? t.statusDangerFg
             : t.statusSuccessFg

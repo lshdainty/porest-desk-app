@@ -1460,6 +1460,18 @@ abstract class AppLocalizations {
   /// **'종목명·코드 검색 (예: 삼성전자, 005930)'**
   String get assetStockSearchHint;
 
+  /// No description provided for @stockSecurityTypeIndex.
+  ///
+  /// In ko, this message translates to:
+  /// **'지수'**
+  String get stockSecurityTypeIndex;
+
+  /// No description provided for @stockSecurityTypeWarrant.
+  ///
+  /// In ko, this message translates to:
+  /// **'워런트'**
+  String get stockSecurityTypeWarrant;
+
   /// No description provided for @stockMarketKospi.
   ///
   /// In ko, this message translates to:
@@ -7513,6 +7525,138 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'{qty}주 보유'**
   String stocksSharesHeld(String qty);
+
+  /// No description provided for @stocksRange1d.
+  ///
+  /// In ko, this message translates to:
+  /// **'1D'**
+  String get stocksRange1d;
+
+  /// No description provided for @stocksRange1w.
+  ///
+  /// In ko, this message translates to:
+  /// **'1주'**
+  String get stocksRange1w;
+
+  /// No description provided for @stocksRange1m.
+  ///
+  /// In ko, this message translates to:
+  /// **'1개월'**
+  String get stocksRange1m;
+
+  /// No description provided for @stocksRange3m.
+  ///
+  /// In ko, this message translates to:
+  /// **'3개월'**
+  String get stocksRange3m;
+
+  /// No description provided for @stocksRange1y.
+  ///
+  /// In ko, this message translates to:
+  /// **'1년'**
+  String get stocksRange1y;
+
+  /// No description provided for @stocksUnitCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}개'**
+  String stocksUnitCount(int count);
+
+  /// No description provided for @stocksSharesUnit.
+  ///
+  /// In ko, this message translates to:
+  /// **'{qty}주'**
+  String stocksSharesUnit(String qty);
+
+  /// No description provided for @stocksTradingSuspended.
+  ///
+  /// In ko, this message translates to:
+  /// **'거래정지'**
+  String get stocksTradingSuspended;
+
+  /// No description provided for @stocksTradingNormal.
+  ///
+  /// In ko, this message translates to:
+  /// **'정상'**
+  String get stocksTradingNormal;
+
+  /// No description provided for @stocksWarningLiquidationTrading.
+  ///
+  /// In ko, this message translates to:
+  /// **'정리매매'**
+  String get stocksWarningLiquidationTrading;
+
+  /// No description provided for @stocksWarningOverheated.
+  ///
+  /// In ko, this message translates to:
+  /// **'단기과열'**
+  String get stocksWarningOverheated;
+
+  /// No description provided for @stocksWarningShortTermOverheat.
+  ///
+  /// In ko, this message translates to:
+  /// **'단기과열'**
+  String get stocksWarningShortTermOverheat;
+
+  /// No description provided for @stocksWarningExcessiveRise.
+  ///
+  /// In ko, this message translates to:
+  /// **'이상급등'**
+  String get stocksWarningExcessiveRise;
+
+  /// No description provided for @stocksWarningInvestmentWarning.
+  ///
+  /// In ko, this message translates to:
+  /// **'투자경고'**
+  String get stocksWarningInvestmentWarning;
+
+  /// No description provided for @stocksWarningInvestmentRisk.
+  ///
+  /// In ko, this message translates to:
+  /// **'투자위험'**
+  String get stocksWarningInvestmentRisk;
+
+  /// No description provided for @stocksWarningInvestmentCaution.
+  ///
+  /// In ko, this message translates to:
+  /// **'투자주의'**
+  String get stocksWarningInvestmentCaution;
+
+  /// No description provided for @stocksWarningVi.
+  ///
+  /// In ko, this message translates to:
+  /// **'VI 발동'**
+  String get stocksWarningVi;
+
+  /// No description provided for @stocksWarningViStatic.
+  ///
+  /// In ko, this message translates to:
+  /// **'정적 VI'**
+  String get stocksWarningViStatic;
+
+  /// No description provided for @stocksWarningViDynamic.
+  ///
+  /// In ko, this message translates to:
+  /// **'동적 VI'**
+  String get stocksWarningViDynamic;
+
+  /// No description provided for @stocksWarningStockWarrants.
+  ///
+  /// In ko, this message translates to:
+  /// **'신주인수권'**
+  String get stocksWarningStockWarrants;
+
+  /// No description provided for @stocksWarningAdministrative.
+  ///
+  /// In ko, this message translates to:
+  /// **'관리종목'**
+  String get stocksWarningAdministrative;
+
+  /// No description provided for @stocksWarningAdjustmentOfShares.
+  ///
+  /// In ko, this message translates to:
+  /// **'주식병합·분할'**
+  String get stocksWarningAdjustmentOfShares;
 
   /// No description provided for @stocksNoWatchlist.
   ///

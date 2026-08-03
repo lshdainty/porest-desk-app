@@ -22,3 +22,12 @@ String stockMarketLabel(AppLocalizations l, String marketCode) =>
       'HSX' => l.stockMarketHsx,
       _ => marketCode,
     };
+
+/// 종목 유형 → 로케일 라벨 (웹 `securityType.*` 미러). ETF 는 그대로 노출한다.
+String stockSecurityTypeLabel(AppLocalizations l, String securityType) =>
+    switch (securityType) {
+      'ETF' => 'ETF',
+      'INDEX' => l.stockSecurityTypeIndex,
+      'WARRANT' => l.stockSecurityTypeWarrant,
+      _ => l.stocksInstrumentStock,
+    };
