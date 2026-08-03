@@ -26,6 +26,7 @@ import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
 import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
+import 'package:porest_desk_app/features/asset/domain/asset.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
 import 'package:porest_desk_app/features/recurring/application/recurring_providers.dart';
@@ -908,6 +909,21 @@ const Map<String, List<String>?> _txPaymentAssetTypes = {
   'OTHER': null,
 };
 
+/// 결제 수단 + 거래 타입으로 계좌·카드 후보를 고른다.
+///
+/// 지출에선 예·적금(SAVINGS: 청약·정기예금·정기적금)을 뺀다 — 만기 전까지 묶인 돈이라
+/// 거기서 직접 결제나 출금이 나가지 않는다(납입·해지는 이체로 처리).
+/// 수입은 이자가 그 계좌로 직접 들어오므로 남긴다.
+bool _allowTxAsset(Asset a, String paymentMethod, String type) {
+  final allowed = paymentMethod.isNotEmpty
+      ? _txPaymentAssetTypes[paymentMethod]
+      : null;
+  if (allowed != null && !allowed.contains(a.assetType)) return false;
+  if (type == 'EXPENSE' && a.assetType == 'SAVINGS') return false;
+  return true;
+}
+
+
 /// 반복 추가 전용 거래 입력 상태 (지출/수입). 시간/이체 없음.
 class _TxInputController {
   _TxInputController({DateTime? date})
@@ -1152,15 +1168,12 @@ class _TxFields extends ConsumerWidget {
           ],
           onChanged: (v) => _set(() {
             c.paymentMethod = v ?? '';
-            if (c.paymentMethod.isNotEmpty && c.assetRowId != null) {
-              final allowed = _txPaymentAssetTypes[c.paymentMethod];
-              if (allowed != null) {
-                final assets = assetsAsync.value ?? const [];
-                final cur =
-                    assets.where((a) => a.rowId == c.assetRowId).firstOrNull;
-                if (cur != null && !allowed.contains(cur.assetType)) {
-                  c.assetRowId = null;
-                }
+            if (c.assetRowId != null) {
+              final assets = assetsAsync.value ?? const [];
+              final cur =
+                  assets.where((a) => a.rowId == c.assetRowId).firstOrNull;
+              if (cur != null && !_allowTxAsset(cur, c.paymentMethod, c.type)) {
+                c.assetRowId = null;
               }
             }
           }),
@@ -1180,12 +1193,9 @@ class _TxFields extends ConsumerWidget {
             style: PTypo.caption.copyWith(color: t.statusDanger),
           ),
           data: (assets) {
-            final allowed = c.paymentMethod.isNotEmpty
-                ? _txPaymentAssetTypes[c.paymentMethod]
-                : null;
-            final filtered = allowed == null
-                ? assets
-                : assets.where((a) => allowed.contains(a.assetType)).toList();
+            final filtered = assets
+                .where((a) => _allowTxAsset(a, c.paymentMethod, c.type))
+                .toList();
             return _SelectField<int>(
               value: c.assetRowId,
               hint: l.recurringSelectNone,
