@@ -26,6 +26,7 @@ import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
+import 'package:porest_desk_app/features/asset/domain/asset.dart';
 import 'package:porest_desk_app/features/preset/application/preset_providers.dart';
 import 'package:porest_desk_app/features/preset/domain/expense_template.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
@@ -932,6 +933,13 @@ const Map<String, List<String>?> _txPaymentAssetTypes = {
   'OTHER': null,
 };
 
+/// 이체 대상 자산 — 체크카드는 뺀다. 잔액을 들지 않는 자산이라(긁는 즉시 연결 계좌에서
+/// 빠진다) 이체할 잔액이 없고, 걸면 카드에 있을 수 없는 잔액이 생긴다.
+/// 신용카드는 결제일 자동이체 대상이라 그대로 둔다.
+List<Asset> _transferAssets(List<Asset> assets) =>
+    assets.where((a) => a.assetType != 'CHECK_CARD').toList(growable: false);
+
+
 /// 거래 입력 상태 (지출/수입/이체).
 class _TxInputController {
   _TxInputController({
@@ -1305,7 +1313,7 @@ class _TxInputForm extends ConsumerWidget {
               value: c.assetRowId,
               hint: l.expSelect,
               items: [
-                for (final a in assets)
+                for (final a in _transferAssets(assets))
                   _SelectOption<int>(
                     a.rowId,
                     a.institution != null
@@ -1326,7 +1334,8 @@ class _TxInputForm extends ConsumerWidget {
               value: c.toAssetRowId,
               hint: l.expSelect,
               items: [
-                for (final a in assets.where((a) => a.rowId != c.assetRowId))
+                for (final a in _transferAssets(assets)
+                    .where((a) => a.rowId != c.assetRowId))
                   _SelectOption<int>(
                     a.rowId,
                     a.institution != null
