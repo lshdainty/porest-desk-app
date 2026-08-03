@@ -4,7 +4,6 @@ part 'asset.freezed.dart';
 part 'asset.g.dart';
 
 /// 백엔드 `AssetApiDto.AssetResponse` 1:1 매핑.
-/// `cardCatalog` 같은 nested 필드는 v0.1 에선 사용 안 하므로 제외.
 @freezed
 abstract class Asset with _$Asset {
   const factory Asset({
@@ -23,6 +22,8 @@ abstract class Asset with _$Asset {
     int? creditLimit, // 신용 한도
     int? paymentDay, // 결제일 (1~31)
     int? paymentAssetRowId, // 결제 출금계좌 자산 rowId
+    // 연결된 카드 상품 (카드 자산 전용, nullable) — 편집 진입 시 선택 상태 복원용.
+    AssetCardCatalog? cardCatalog,
     // 토스 연동 (INVESTMENT 전용, nullable). 토스 현재가 × 보유수량으로 평가액 실시간 계산.
     // deprecated — holdings(다건)로 대체. 서버 필드 잔존으로 파싱만 유지.
     String? tossSymbol, // 토스 연동 종목코드
@@ -33,6 +34,22 @@ abstract class Asset with _$Asset {
   }) = _Asset;
 
   factory Asset.fromJson(Map<String, dynamic> json) => _$AssetFromJson(json);
+}
+
+/// 자산에 연결된 카드 상품 요약 — 백엔드 `CardCatalogBriefResponse` 미러.
+/// 카드 편집 화면에서 기존 상품을 고른 상태로 되살리는 데 쓴다.
+@freezed
+abstract class AssetCardCatalog with _$AssetCardCatalog {
+  const factory AssetCardCatalog({
+    required int rowId,
+    required String cardName,
+    String? imgUrl,
+    String? companyName,
+    String? companyLogoUrl,
+  }) = _AssetCardCatalog;
+
+  factory AssetCardCatalog.fromJson(Map<String, dynamic> json) =>
+      _$AssetCardCatalogFromJson(json);
 }
 
 /// 투자 보유 종목 1건 — 백엔드 `holdings[]` 계약 미러.

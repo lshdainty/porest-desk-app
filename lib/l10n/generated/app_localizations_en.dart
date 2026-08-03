@@ -469,6 +469,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetCardAdded => 'Card added';
 
   @override
+  String get assetCardEdit => 'Edit card';
+
+  @override
+  String get assetCardUpdated => 'Card updated';
+
+  @override
+  String get assetCardDelete => 'Delete card';
+
+  @override
+  String get assetCardDeleteConfirm =>
+      'Delete this card? Linked transactions are kept.';
+
+  @override
+  String get assetCardDeleted => 'Card deleted';
+
+  @override
   String get assetCardType => 'Card type';
 
   @override

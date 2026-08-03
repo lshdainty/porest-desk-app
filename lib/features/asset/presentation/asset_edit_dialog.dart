@@ -10,7 +10,7 @@ import 'package:porest_desk_app/features/asset/presentation/investment_add_dialo
 ///
 /// front 와 동일한 구조:
 /// - 계좌 추가/편집 → [showAccountAddDialog] / [showAccountEditDialog]
-/// - 카드 추가     → [card.showCardAddDialog]
+/// - 카드 추가/편집 → [card.showCardAddDialog] / [card.showCardEditDialog]
 /// - 투자 추가/편집 → [inv.showInvestmentAddDialog] / [inv.showInvestmentEditDialog]
 /// - 자산 상세     → [showAssetDetailRich]
 
@@ -38,11 +38,12 @@ void showAssetDetailDialog(BuildContext context, Asset asset) {
 /// 자산 편집 폼 — assetType 별로 적절한 편집 다이얼로그로 분기.
 /// front `AssetEditDialog` 미러.
 void showAssetEditForm(BuildContext context, Asset asset) {
-  if (asset.assetType == 'INVESTMENT') {
-    inv.showInvestmentEditDialog(context, asset);
-  } else {
-    // 카드 (CREDIT_CARD/CHECK_CARD) 도 v0.1 에선 계좌 편집 폼 공유.
-    // 카드 편집 다이얼로그 분리는 추후 처리.
-    showAccountEditDialog(context, asset);
+  switch (asset.assetType) {
+    case 'INVESTMENT':
+      inv.showInvestmentEditDialog(context, asset);
+    case 'CREDIT_CARD' || 'CHECK_CARD':
+      card.showCardEditDialog(context, asset);
+    default:
+      showAccountEditDialog(context, asset);
   }
 }

@@ -25,7 +25,7 @@ import 'package:porest_desk_app/features/asset/application/asset_providers.dart'
 import 'package:porest_desk_app/features/asset/domain/asset.dart';
 import 'package:porest_desk_app/features/asset/presentation/include_in_total_card.dart';
 
-/// 카드 추가 다이얼로그 — front `CardAddDialog` 미러.
+/// 카드 추가/편집 다이얼로그 — front `AssetEditDialog`(group='card') 미러.
 ///
 /// 계좌·투자 다이얼로그와 동일한 패턴 (showModalBottomSheet +
 /// DraggableScrollableSheet, 헤더/푸터 border 없음).
@@ -36,19 +36,27 @@ import 'package:porest_desk_app/features/asset/presentation/include_in_total_car
 /// - 카드 상품 — 검색 + 단종 포함 토글 + 카탈로그 리스트 (선택)
 /// - 별칭 (선택)
 /// - 현재 사용액 (원)  → 청구 예정 금액. 총 부채에 반영.
-void showCardAddDialog(BuildContext context) {
+void showCardAddDialog(BuildContext context) => _open(context, edit: null);
+
+/// 카드 편집 — 기존 카드 자산을 받아 동일 폼 재사용.
+/// 계좌 폼을 쓰면 은행 브랜드·계좌번호가 뜨고 카드 상품을 못 바꾼다.
+void showCardEditDialog(BuildContext context, Asset asset) =>
+    _open(context, edit: asset);
+
+void _open(BuildContext context, {required Asset? edit}) {
   final l = AppLocalizations.of(context);
   final controller = PSheetController();
   showPSheet<void>(
     context,
-    title: l.assetCardAdd,
+    title: edit == null ? l.assetCardAdd : l.assetCardEdit,
     contentBuilder: (ctx, scrollCtrl) => _CardAddBody(
+      edit: edit,
       scrollController: scrollCtrl,
       controller: controller,
     ),
     footerBuilder: (ctx) => PSheetFooter(
       controller: controller,
-      submitLabel: l.calAdd,
+      submitLabel: edit != null ? l.actionSave : l.calAdd,
     ),
   ).whenComplete(controller.dispose);
 }
@@ -72,9 +80,11 @@ extension on _CardType {
 
 class _CardAddBody extends ConsumerStatefulWidget {
   const _CardAddBody({
+    required this.edit,
     required this.scrollController,
     required this.controller,
   });
+  final Asset? edit;
   final ScrollController scrollController;
   final PSheetController controller;
   @override
@@ -87,32 +97,67 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
   late final TextEditingController _balanceCtrl;
   late final TextEditingController _creditLimitCtrl;
 
-  _CardType _cardType = _CardType.credit;
+  late _CardType _cardType;
   bool _includeDiscontinued = false;
-  bool _includeInTotal = true;
+  late bool _includeInTotal;
   CardCatalogSummary? _selected;
   int? _paymentDay; // 결제일 1~31
   int? _paymentAssetRowId; // 결제 출금계좌 자산 rowId
   bool _submitting = false;
+  bool _deleting = false;
+
+  bool get _isEdit => widget.edit != null;
+
+  /// 편집은 상품을 다시 고르지 않아도 별칭·금액만 바꿔 저장할 수 있어야 한다.
+  bool get _canSubmit =>
+      !_submitting && !_deleting && (_isEdit || _selected != null);
 
   @override
   void initState() {
     super.initState();
+    final e = widget.edit;
+    _cardType =
+        e?.assetType == 'CHECK_CARD' ? _CardType.check : _CardType.credit;
     _keywordCtrl = TextEditingController()..addListener(_onChanged);
-    _nicknameCtrl = TextEditingController()..addListener(_onChanged);
-    _balanceCtrl = TextEditingController(text: '0');
-    _creditLimitCtrl = TextEditingController();
+    _nicknameCtrl = TextEditingController(text: e?.assetName ?? '')
+      ..addListener(_onChanged);
+    _balanceCtrl = TextEditingController(text: (e?.balance ?? 0).toString());
+    _creditLimitCtrl =
+        TextEditingController(text: e?.creditLimit?.toString() ?? '');
+    _paymentDay = e?.paymentDay;
+    _paymentAssetRowId = e?.paymentAssetRowId;
+    _includeInTotal = e == null ? true : e.isIncludedInTotal == 'Y';
+    // 연결된 상품을 고른 상태로 되살린다. 카탈로그 목록은 rowId 로 하이라이트하므로
+    // 요약(rowId·이름·이미지·발급사)만 있으면 충분하다.
+    final c = e?.cardCatalog;
+    if (c != null) {
+      _selected = CardCatalogSummary(
+        rowId: c.rowId,
+        cardName: c.cardName,
+        cardType: _cardType.apiCode,
+        imgUrl: c.imgUrl,
+        company: c.companyName == null
+            ? null
+            : CardCompany(name: c.companyName, logoUrl: c.companyLogoUrl),
+      );
+    }
     widget.controller.onSubmit = _submit;
+    if (e != null) widget.controller.onDelete = _delete;
   }
 
   void _setSubmitting(bool v) {
     setState(() => _submitting = v);
-    widget.controller.setSubmitting(v);
+    widget.controller.setSubmitting(v || _deleting);
+  }
+
+  void _setDeleting(bool v) {
+    setState(() => _deleting = v);
+    widget.controller.setSubmitting(v || _submitting);
   }
 
   void _onChanged() {
     setState(() {});
-    widget.controller.setCanSubmit(_selected != null && !_submitting);
+    widget.controller.setCanSubmit(_canSubmit);
   }
 
   @override
@@ -125,14 +170,18 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
   }
 
   Future<void> _submit() async {
-    if (_submitting || _selected == null) return;
+    if (!_canSubmit) return;
     final l = AppLocalizations.of(context);
-    final selected = _selected!;
+    final edit = widget.edit;
     final nickname = _nicknameCtrl.text.trim();
-    final name = nickname.isEmpty ? selected.cardName : nickname;
+    // 편집에서 상품을 다시 고르지 않았으면 기존 값으로 채운다.
+    final name = nickname.isNotEmpty
+        ? nickname
+        : (_selected?.cardName ?? edit?.assetName ?? l.assetNewCard);
     final outstanding =
         int.tryParse(_balanceCtrl.text.replaceAll(',', '')) ?? 0;
-    final company = selected.company?.name;
+    final company = _selected?.company?.name ?? edit?.institution;
+    final catalogRowId = _selected?.rowId ?? edit?.cardCatalog?.rowId;
     // 청구 사이클 필드는 신용카드일 때만. 빈 한도는 null 로 전송.
     final isCredit = _cardType == _CardType.credit;
     final creditLimit = isCredit
@@ -142,30 +191,76 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
     _setSubmitting(true);
     try {
       final repo = await ref.read(assetRepositoryProvider.future);
-      await repo.create(
-        assetName: name,
-        assetType: _cardType.assetType,
-        balance: outstanding,
-        currency: 'KRW',
-        institution: company,
-        isIncludedInTotal: _includeInTotal ? 'Y' : 'N',
-        cardCatalogRowId: selected.rowId,
-        creditLimit: creditLimit,
-        paymentDay: isCredit ? _paymentDay : null,
-        paymentAssetRowId: isCredit ? _paymentAssetRowId : null,
-      );
       // brand color hex 는 모바일 측에선 별도 파싱이라 institution 으로 추후 매칭.
       // (web 의 color 필드는 같은 효과를 내는 보조 정보)
+      if (edit != null) {
+        await repo.update(
+          id: edit.rowId,
+          assetName: name,
+          assetType: _cardType.assetType,
+          balance: outstanding,
+          currency: 'KRW',
+          institution: company,
+          isIncludedInTotal: _includeInTotal ? 'Y' : 'N',
+          cardCatalogRowId: catalogRowId,
+          creditLimit: creditLimit,
+          paymentDay: isCredit ? _paymentDay : null,
+          paymentAssetRowId: isCredit ? _paymentAssetRowId : null,
+        );
+      } else {
+        await repo.create(
+          assetName: name,
+          assetType: _cardType.assetType,
+          balance: outstanding,
+          currency: 'KRW',
+          institution: company,
+          isIncludedInTotal: _includeInTotal ? 'Y' : 'N',
+          cardCatalogRowId: catalogRowId,
+          creditLimit: creditLimit,
+          paymentDay: isCredit ? _paymentDay : null,
+          paymentAssetRowId: isCredit ? _paymentAssetRowId : null,
+        );
+      }
       ref.invalidate(assetsProvider);
       if (!mounted) return;
       Navigator.of(context).pop();
-      showPSnackBar(context, l.assetCardAdded, severity: PSnackSeverity.success);
+      showPSnackBar(context, edit != null ? l.assetCardUpdated : l.assetCardAdded,
+          severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!mounted) return;
       showPSnackBar(context, '${l.assetActionFailed}: ${e.message}',
           severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setSubmitting(false);
+    }
+  }
+
+  Future<void> _delete() async {
+    if (_deleting || widget.edit == null) return;
+    final l = AppLocalizations.of(context);
+    final ok = await showPConfirmDialog(
+      context,
+      title: l.assetCardDelete,
+      message: l.assetCardDeleteConfirm,
+      confirmLabel: l.actionDelete,
+      destructive: true,
+    );
+    if (!ok || !mounted) return;
+    _setDeleting(true);
+    try {
+      final repo = await ref.read(assetRepositoryProvider.future);
+      await repo.delete(widget.edit!.rowId);
+      ref.invalidate(assetsProvider);
+      if (!mounted) return;
+      Navigator.of(context).pop();
+      showPSnackBar(context, l.assetCardDeleted,
+          severity: PSnackSeverity.success);
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      showPSnackBar(context, '${l.assetDeleteFailed}: ${e.message}',
+          severity: PSnackSeverity.error);
+    } finally {
+      if (mounted) _setDeleting(false);
     }
   }
 
@@ -189,9 +284,7 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
         .where((a) => a.assetType == 'BANK_ACCOUNT')
         .toList(growable: false);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        widget.controller.setCanSubmit(_selected != null && !_submitting);
-      }
+      if (mounted) widget.controller.setCanSubmit(_canSubmit);
     });
 
     return ListView(
@@ -219,7 +312,9 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
                   value: _cardType,
                   onChanged: (v) => setState(() {
                     _cardType = v;
-                    _selected = null; // 종류 바뀌면 선택 초기화
+                    // 신규만 선택 초기화. 편집은 종류를 잘못 눌렀다고 해서
+                    // 연결된 상품까지 잃으면 곤란하다(web 동일).
+                    if (!_isEdit) _selected = null;
                   }),
                   variant: PTabsVariant.container,
                   size: PTabsSize.sm,

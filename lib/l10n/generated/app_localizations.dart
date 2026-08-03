@@ -980,6 +980,36 @@ abstract class AppLocalizations {
   /// **'카드가 추가되었습니다'**
   String get assetCardAdded;
 
+  /// No description provided for @assetCardEdit.
+  ///
+  /// In ko, this message translates to:
+  /// **'카드 편집'**
+  String get assetCardEdit;
+
+  /// No description provided for @assetCardUpdated.
+  ///
+  /// In ko, this message translates to:
+  /// **'카드가 수정되었습니다'**
+  String get assetCardUpdated;
+
+  /// No description provided for @assetCardDelete.
+  ///
+  /// In ko, this message translates to:
+  /// **'카드 삭제'**
+  String get assetCardDelete;
+
+  /// No description provided for @assetCardDeleteConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 카드를 삭제하시겠습니까? 연결된 거래는 유지됩니다.'**
+  String get assetCardDeleteConfirm;
+
+  /// No description provided for @assetCardDeleted.
+  ///
+  /// In ko, this message translates to:
+  /// **'카드가 삭제되었습니다'**
+  String get assetCardDeleted;
+
   /// No description provided for @assetCardType.
   ///
   /// In ko, this message translates to:
