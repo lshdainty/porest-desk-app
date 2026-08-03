@@ -204,7 +204,8 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
           _input.toAssetRowId != null &&
           _input.assetRowId != _input.toAssetRowId;
     }
-    if (_input.categoryRowId == null || _input.assetRowId == null) return false;
+    // 자산은 선택사항 — 자산까지 관리하지 않고 가계부로만 쓰는 사용법을 막지 않는다(웹 정합).
+    if (_input.categoryRowId == null) return false;
     // 분할 합 불일치 시 저장 보류 — 배너의 '분할 내역 맞추기'로 먼저 일치화.
     if (_splitMismatch) return false;
     return true;
@@ -259,7 +260,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
         await repo.update(
           id: widget.edit!.rowId,
           categoryRowId: _input.categoryRowId!,
-          assetRowId: _input.assetRowId!,
+          assetRowId: _input.assetRowId,
           expenseType: _input.type,
           amount: amount,
           expenseDate: dateStr,
@@ -274,7 +275,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
       } else {
         await repo.create(
           categoryRowId: _input.categoryRowId!,
-          assetRowId: _input.assetRowId!,
+          assetRowId: _input.assetRowId,
           expenseType: _input.type,
           amount: amount,
           expenseDate: dateStr,

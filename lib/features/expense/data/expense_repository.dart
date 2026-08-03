@@ -65,7 +65,7 @@ class ExpenseRepository {
 
   Future<Expense> create({
     required int categoryRowId,
-    required int assetRowId,
+    int? assetRowId, // 자산 미연결 거래 허용 — 서버도 nullable
     required String expenseType,
     required int amount,
     required String expenseDate,
@@ -98,7 +98,7 @@ class ExpenseRepository {
   Future<Expense> update({
     required int id,
     required int categoryRowId,
-    required int assetRowId,
+    int? assetRowId, // 자산 미연결 거래 허용 — 서버도 nullable
     required String expenseType,
     required int amount,
     required String expenseDate,
