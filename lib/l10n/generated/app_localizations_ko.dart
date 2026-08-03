@@ -732,6 +732,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetStockSearchHint => '종목명·코드 검색 (예: 삼성전자, 005930)';
 
   @override
+  String get stockSecurityTypeIndex => '지수';
+
+  @override
+  String get stockSecurityTypeWarrant => '워런트';
+
+  @override
   String get stockMarketKospi => '코스피';
 
   @override
@@ -3990,6 +3996,76 @@ class AppLocalizationsKo extends AppLocalizations {
   String stocksSharesHeld(String qty) {
     return '$qty주 보유';
   }
+
+  @override
+  String get stocksRange1d => '1D';
+
+  @override
+  String get stocksRange1w => '1주';
+
+  @override
+  String get stocksRange1m => '1개월';
+
+  @override
+  String get stocksRange3m => '3개월';
+
+  @override
+  String get stocksRange1y => '1년';
+
+  @override
+  String stocksUnitCount(int count) {
+    return '$count개';
+  }
+
+  @override
+  String stocksSharesUnit(String qty) {
+    return '$qty주';
+  }
+
+  @override
+  String get stocksTradingSuspended => '거래정지';
+
+  @override
+  String get stocksTradingNormal => '정상';
+
+  @override
+  String get stocksWarningLiquidationTrading => '정리매매';
+
+  @override
+  String get stocksWarningOverheated => '단기과열';
+
+  @override
+  String get stocksWarningShortTermOverheat => '단기과열';
+
+  @override
+  String get stocksWarningExcessiveRise => '이상급등';
+
+  @override
+  String get stocksWarningInvestmentWarning => '투자경고';
+
+  @override
+  String get stocksWarningInvestmentRisk => '투자위험';
+
+  @override
+  String get stocksWarningInvestmentCaution => '투자주의';
+
+  @override
+  String get stocksWarningVi => 'VI 발동';
+
+  @override
+  String get stocksWarningViStatic => '정적 VI';
+
+  @override
+  String get stocksWarningViDynamic => '동적 VI';
+
+  @override
+  String get stocksWarningStockWarrants => '신주인수권';
+
+  @override
+  String get stocksWarningAdministrative => '관리종목';
+
+  @override
+  String get stocksWarningAdjustmentOfShares => '주식병합·분할';
 
   @override
   String get stocksNoWatchlist => '관심 종목이 없어요. 검색해서 별표를 눌러보세요.';

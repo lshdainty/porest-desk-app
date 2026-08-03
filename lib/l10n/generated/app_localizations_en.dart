@@ -743,6 +743,12 @@ class AppLocalizationsEn extends AppLocalizations {
       'Search ticker or code (e.g. Samsung Elec, 005930)';
 
   @override
+  String get stockSecurityTypeIndex => 'Index';
+
+  @override
+  String get stockSecurityTypeWarrant => 'Warrant';
+
+  @override
   String get stockMarketKospi => 'KOSPI';
 
   @override
@@ -4036,6 +4042,76 @@ class AppLocalizationsEn extends AppLocalizations {
   String stocksSharesHeld(String qty) {
     return 'Holding $qty shares';
   }
+
+  @override
+  String get stocksRange1d => '1D';
+
+  @override
+  String get stocksRange1w => '1W';
+
+  @override
+  String get stocksRange1m => '1M';
+
+  @override
+  String get stocksRange3m => '3M';
+
+  @override
+  String get stocksRange1y => '1Y';
+
+  @override
+  String stocksUnitCount(int count) {
+    return '$count';
+  }
+
+  @override
+  String stocksSharesUnit(String qty) {
+    return '$qty shares';
+  }
+
+  @override
+  String get stocksTradingSuspended => 'Suspended';
+
+  @override
+  String get stocksTradingNormal => 'Normal';
+
+  @override
+  String get stocksWarningLiquidationTrading => 'Liquidation trading';
+
+  @override
+  String get stocksWarningOverheated => 'Overheated';
+
+  @override
+  String get stocksWarningShortTermOverheat => 'Short-term overheat';
+
+  @override
+  String get stocksWarningExcessiveRise => 'Excessive rise';
+
+  @override
+  String get stocksWarningInvestmentWarning => 'Investment warning';
+
+  @override
+  String get stocksWarningInvestmentRisk => 'Investment risk';
+
+  @override
+  String get stocksWarningInvestmentCaution => 'Investment caution';
+
+  @override
+  String get stocksWarningVi => 'Volatility interruption';
+
+  @override
+  String get stocksWarningViStatic => 'Static VI';
+
+  @override
+  String get stocksWarningViDynamic => 'Dynamic VI';
+
+  @override
+  String get stocksWarningStockWarrants => 'Stock warrants';
+
+  @override
+  String get stocksWarningAdministrative => 'Administrative issue';
+
+  @override
+  String get stocksWarningAdjustmentOfShares => 'Share adjustment';
 
   @override
   String get stocksNoWatchlist => 'No watchlist. Search and tap the star.';
