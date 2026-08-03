@@ -464,6 +464,21 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetCardAdded => '카드가 추가되었습니다';
 
   @override
+  String get assetCardEdit => '카드 편집';
+
+  @override
+  String get assetCardUpdated => '카드가 수정되었습니다';
+
+  @override
+  String get assetCardDelete => '카드 삭제';
+
+  @override
+  String get assetCardDeleteConfirm => '이 카드를 삭제하시겠습니까? 연결된 거래는 유지됩니다.';
+
+  @override
+  String get assetCardDeleted => '카드가 삭제되었습니다';
+
+  @override
   String get assetCardType => '카드 종류';
 
   @override

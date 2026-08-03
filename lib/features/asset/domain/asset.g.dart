@@ -21,6 +21,9 @@ _Asset _$AssetFromJson(Map<String, dynamic> json) => _Asset(
   creditLimit: (json['creditLimit'] as num?)?.toInt(),
   paymentDay: (json['paymentDay'] as num?)?.toInt(),
   paymentAssetRowId: (json['paymentAssetRowId'] as num?)?.toInt(),
+  cardCatalog: json['cardCatalog'] == null
+      ? null
+      : AssetCardCatalog.fromJson(json['cardCatalog'] as Map<String, dynamic>),
   tossSymbol: json['tossSymbol'] as String?,
   tossQuantity: (json['tossQuantity'] as num?)?.toInt(),
   holdings:
@@ -45,10 +48,29 @@ Map<String, dynamic> _$AssetToJson(_Asset instance) => <String, dynamic>{
   'creditLimit': instance.creditLimit,
   'paymentDay': instance.paymentDay,
   'paymentAssetRowId': instance.paymentAssetRowId,
+  'cardCatalog': instance.cardCatalog,
   'tossSymbol': instance.tossSymbol,
   'tossQuantity': instance.tossQuantity,
   'holdings': instance.holdings,
 };
+
+_AssetCardCatalog _$AssetCardCatalogFromJson(Map<String, dynamic> json) =>
+    _AssetCardCatalog(
+      rowId: (json['rowId'] as num).toInt(),
+      cardName: json['cardName'] as String,
+      imgUrl: json['imgUrl'] as String?,
+      companyName: json['companyName'] as String?,
+      companyLogoUrl: json['companyLogoUrl'] as String?,
+    );
+
+Map<String, dynamic> _$AssetCardCatalogToJson(_AssetCardCatalog instance) =>
+    <String, dynamic>{
+      'rowId': instance.rowId,
+      'cardName': instance.cardName,
+      'imgUrl': instance.imgUrl,
+      'companyName': instance.companyName,
+      'companyLogoUrl': instance.companyLogoUrl,
+    };
 
 _AssetHolding _$AssetHoldingFromJson(Map<String, dynamic> json) =>
     _AssetHolding(
