@@ -934,6 +934,21 @@ const Map<String, List<String>?> _txPaymentAssetTypes = {
   'OTHER': null,
 };
 
+/// 결제 수단 + 거래 타입으로 계좌·카드 후보를 고른다.
+///
+/// 지출에선 예·적금(SAVINGS: 청약·정기예금·정기적금)을 뺀다 — 만기 전까지 묶인 돈이라
+/// 거기서 직접 결제나 출금이 나가지 않는다(쓰려면 해지해서 입출금으로 옮긴다).
+/// 납입·해지는 이체로 처리하므로 이체 목록에는 그대로 남는다.
+/// 수입은 이자가 그 계좌로 직접 들어오므로 남긴다.
+bool _allowTxAsset(Asset a, String paymentMethod, String type) {
+  final allowed = paymentMethod.isNotEmpty
+      ? _txPaymentAssetTypes[paymentMethod]
+      : null;
+  if (allowed != null && !allowed.contains(a.assetType)) return false;
+  if (type == 'EXPENSE' && a.assetType == 'SAVINGS') return false;
+  return true;
+}
+
 /// 이체 대상 자산 — 체크카드는 뺀다. 잔액을 들지 않는 자산이라(긁는 즉시 연결 계좌에서
 /// 빠진다) 이체할 잔액이 없고, 걸면 카드에 있을 수 없는 잔액이 생긴다.
 /// 신용카드는 결제일 자동이체 대상이라 그대로 둔다.
@@ -1250,15 +1265,13 @@ class _TxInputForm extends ConsumerWidget {
             onChanged: (v) => _set(() {
               c.paymentMethod = v ?? '';
               if (c.paymentMethod.isNotEmpty && c.assetRowId != null) {
-                final allowed = _txPaymentAssetTypes[c.paymentMethod];
-                if (allowed != null) {
-                  final assets = assetsAsync.value ?? const [];
-                  final cur = assets
-                      .where((a) => a.rowId == c.assetRowId)
-                      .firstOrNull;
-                  if (cur != null && !allowed.contains(cur.assetType)) {
-                    c.assetRowId = null;
-                  }
+                final assets = assetsAsync.value ?? const [];
+                final cur = assets
+                    .where((a) => a.rowId == c.assetRowId)
+                    .firstOrNull;
+                if (cur != null &&
+                    !_allowTxAsset(cur, c.paymentMethod, c.type)) {
+                  c.assetRowId = null;
                 }
               }
             }),
@@ -1278,12 +1291,9 @@ class _TxInputForm extends ConsumerWidget {
               style: PTypo.caption.copyWith(color: t.statusDanger),
             ),
             data: (assets) {
-              final allowed = c.paymentMethod.isNotEmpty
-                  ? _txPaymentAssetTypes[c.paymentMethod]
-                  : null;
-              final filtered = allowed == null
-                  ? assets
-                  : assets.where((a) => allowed.contains(a.assetType)).toList();
+              final filtered = assets
+                  .where((a) => _allowTxAsset(a, c.paymentMethod, c.type))
+                  .toList();
               return _SelectField<int>(
                 // null(미선택)도 '선택 안 함'(-1) default로 표시 — 웹 정합.
                 value: c.assetRowId ?? -1,
