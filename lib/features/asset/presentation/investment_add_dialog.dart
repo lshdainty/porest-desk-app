@@ -830,6 +830,7 @@ class _HoldingEditRowState extends State<_HoldingEditRow> {
   // 미연동 전용 — 이름·평가액 직접 입력.
   late final TextEditingController _nameCtrl;
   late final TextEditingController _valueCtrl;
+  late final TextEditingController _costCtrl;
 
   @override
   void initState() {
@@ -840,6 +841,9 @@ class _HoldingEditRowState extends State<_HoldingEditRow> {
     _qtyCtrl = TextEditingController(text: h.quantity ?? '');
     _nameCtrl = TextEditingController(text: h.holdingName ?? '');
     _valueCtrl = TextEditingController(text: '${h.holdingValue ?? 0}');
+    // 매수원가 — 비어 있으면 안 보내고 서버가 기존 값을 잇는다.
+    _costCtrl = TextEditingController(
+        text: h.totalCost != null && h.totalCost! > 0 ? '${h.totalCost}' : '');
   }
 
   @override
@@ -847,6 +851,7 @@ class _HoldingEditRowState extends State<_HoldingEditRow> {
     _qtyCtrl.dispose();
     _nameCtrl.dispose();
     _valueCtrl.dispose();
+    _costCtrl.dispose();
     super.dispose();
   }
 
@@ -856,6 +861,11 @@ class _HoldingEditRowState extends State<_HoldingEditRow> {
   void _onValueChanged(String v) {
     final n = int.tryParse(v.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
     widget.onChanged(widget.holding.copyWith(holdingValue: n));
+  }
+
+  void _onCostChanged(String v) {
+    final n = int.tryParse(v.replaceAll(RegExp(r'[^0-9]'), ''));
+    widget.onChanged(widget.holding.copyWith(totalCost: n));
   }
 
   void _onNameChanged(String v) =>
@@ -930,6 +940,11 @@ class _HoldingEditRowState extends State<_HoldingEditRow> {
                       fontFeatures: const [FontFeature.tabularFigures()],
                     ),
                   ),
+                  _CostField(
+                    controller: _costCtrl,
+                    onChanged: _onCostChanged,
+                    quantity: h.quantityValue,
+                  ),
                 ],
               ),
             )
@@ -996,6 +1011,62 @@ class _HoldingEditRowState extends State<_HoldingEditRow> {
 }
 
 /// 미리보기 타일 — 브랜드 컬러 박스 + 브랜드명 / "보유 N종목 · 합계원" (design Preview).
+/// 매수원가 입력 — 실현손익의 기준.
+///
+/// 매수·매도로 쌓이지만, 앱을 쓰기 전부터 갖고 있던 보유는 여기서 적어 넣어야
+/// 손익이 맞는다. 비워 두면 서버가 같은 종목의 기존 원가를 잇는다.
+class _CostField extends StatelessWidget {
+  const _CostField({
+    required this.controller,
+    required this.onChanged,
+    required this.quantity,
+  });
+  final TextEditingController controller;
+  final ValueChanged<String> onChanged;
+  final double quantity;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final l = AppLocalizations.of(context);
+    final cost = int.tryParse(controller.text.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
+    final avg = (cost > 0 && quantity > 0) ? (cost / quantity).round() : null;
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 6),
+      child: Row(
+        children: [
+          Text(l.holdingTotalCost,
+              style: PTypo.micro.copyWith(color: t.fgTertiary)),
+          const SizedBox(width: 6),
+          SizedBox(
+            width: 104,
+            height: 30,
+            child: PTextInput(
+              controller: controller,
+              keyboardType: TextInputType.number,
+              placeholder: '0',
+              textAlign: TextAlign.right,
+              onChanged: onChanged,
+            ),
+          ),
+          if (avg != null) ...[
+            const SizedBox(width: 6),
+            Flexible(
+              child: Text(
+                l.holdingAvgPriceInline('${krw(avg)}원'),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: PTypo.micro.copyWith(color: t.fgTertiary),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
 class _PreviewTile extends StatelessWidget {
   const _PreviewTile({
     required this.entry,

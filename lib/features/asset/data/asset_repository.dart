@@ -212,6 +212,8 @@ class AssetRepository {
           'holdingValue': h.holdingValue ?? 0,
           'quantity': ?h.quantity,
         },
+        // 안 적었으면 안 보낸다 — 서버가 같은 종목의 기존 원가를 잇는다.
+        'totalCost': ?h.totalCost,
         'sortOrder': ?h.sortOrder,
       };
 
