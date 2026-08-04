@@ -3692,6 +3692,12 @@ abstract class AppLocalizations {
   /// **'유의사항'**
   String get cardCautions;
 
+  /// No description provided for @cardCautionDetailsFallback.
+  ///
+  /// In ko, this message translates to:
+  /// **'세부 사항'**
+  String get cardCautionDetailsFallback;
+
   /// No description provided for @cardBenefits.
   ///
   /// In ko, this message translates to:

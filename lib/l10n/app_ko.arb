@@ -1066,6 +1066,7 @@
   "cardExpandAll": "모두 펼치기",
   "cardCollapseAll": "모두 접기",
   "cardCautions": "유의사항",
+  "cardCautionDetailsFallback": "세부 사항",
   "cardBenefits": "혜택",
   "cardNone": "없음",
   "cardPerfNone": "실적 무관",

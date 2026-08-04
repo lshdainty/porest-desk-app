@@ -1063,6 +1063,7 @@
   "cardExpandAll": "Expand all",
   "cardCollapseAll": "Collapse all",
   "cardCautions": "Notes",
+  "cardCautionDetailsFallback": "Details",
   "cardBenefits": "Benefits",
   "cardNone": "None",
   "cardPerfNone": "No spend requirement",

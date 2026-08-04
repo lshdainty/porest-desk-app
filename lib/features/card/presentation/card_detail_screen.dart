@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import 'package:porest_desk_app/app/theme/motion.dart';
 import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
@@ -11,9 +12,11 @@ import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_badge.dart';
 import 'package:porest_desk_app/shared/widgets/p_card.dart';
+import 'package:porest_desk_app/shared/widgets/p_collapsible.dart';
 import 'package:porest_desk_app/shared/widgets/p_divider.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
 import 'package:porest_desk_app/features/card/application/card_providers.dart';
+import 'package:porest_desk_app/features/card/domain/card_catalog.dart';
 
 class CardDetailScreen extends ConsumerWidget {
   const CardDetailScreen({super.key, required this.catalogId});
@@ -184,24 +187,11 @@ class CardDetailScreen extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      for (final c in d.cautions) ...[
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Icon(LucideIcons.alertTriangle,
-                                  size: 12, color: t.statusWarningFg),
-                              const SizedBox(width: 6),
-                              Expanded(
-                                child: Text(c.summary ?? c.title ?? '',
-                                    style: PTypo.caption.copyWith(
-                                        color: t.statusWarningFg)),
-                              ),
-                            ],
-                          ),
+                      for (final c in d.cautions)
+                        _CautionItem(
+                          caution: c,
+                          fallbackLabel: l.cardCautionDetailsFallback,
                         ),
-                      ],
                     ],
                   ),
                 ),
@@ -329,4 +319,72 @@ class _InfoCard extends StatelessWidget {
       ),
     );
   }
+}
+
+/// 유의사항 한 줄. `detail` 이 있으면 펼쳐 볼 수 있다.
+///
+/// 웹(CardCautionList.tsx)과 같은 구조다 — `summary` 를 제목으로 걸고 `detail` 은
+/// 접어 둔다. 예전에는 `summary ?? title` 만 그려서 **`detail` 이 화면 어디에도
+/// 나오지 않았다**. 카드사 PDF 수집분은 본문이 detail 에만 들어 있는 게 많아,
+/// 유의사항이 제목만 있고 속은 빈 것처럼 보였다.
+///
+/// `detail` 이 없으면 펼칠 게 없으므로 chevron 도 달지 않는다(웹은 트리거를
+/// disabled 로 둔다). `summary` 와 `title` 이 모두 비면 fallback 문구를 쓴다.
+class _CautionItem extends StatelessWidget {
+  const _CautionItem({required this.caution, required this.fallbackLabel});
+
+  final CardBenefit caution;
+  final String fallbackLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final head = (caution.summary ?? caution.title ?? '').trim();
+    final body = (caution.detail ?? '').trim();
+    final label = head.isNotEmpty ? head : fallbackLabel;
+
+    if (body.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: _row(t, label, null),
+      );
+    }
+
+    return PCollapsible(
+      trigger: (context, isOpen, toggle) => InkWell(
+        onTap: toggle,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: _row(t, label, isOpen),
+        ),
+      ),
+      content: Padding(
+        // 아이콘(12) + 간격(6) 만큼 들여써 제목과 본문의 좌측을 맞춘다.
+        padding: const EdgeInsets.only(left: 18, bottom: 6),
+        child:
+            Text(body, style: PTypo.caption.copyWith(color: t.statusWarningFg)),
+      ),
+    );
+  }
+
+  Widget _row(PorestTokens t, String label, bool? isOpen) => Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(LucideIcons.alertTriangle, size: 12, color: t.statusWarningFg),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(label,
+                style: PTypo.caption.copyWith(color: t.statusWarningFg)),
+          ),
+          if (isOpen != null) ...[
+            const SizedBox(width: 6),
+            AnimatedRotation(
+              turns: isOpen ? 0.5 : 0,
+              duration: PMotion.fast,
+              child: Icon(LucideIcons.chevronDown,
+                  size: 12, color: t.statusWarningFg),
+            ),
+          ],
+        ],
+      );
 }

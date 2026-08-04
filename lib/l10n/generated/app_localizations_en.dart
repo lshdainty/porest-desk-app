@@ -1952,6 +1952,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cardCautions => 'Notes';
 
   @override
+  String get cardCautionDetailsFallback => 'Details';
+
+  @override
   String get cardBenefits => 'Benefits';
 
   @override

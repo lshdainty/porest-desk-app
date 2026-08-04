@@ -1933,6 +1933,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get cardCautions => '유의사항';
 
   @override
+  String get cardCautionDetailsFallback => '세부 사항';
+
+  @override
   String get cardBenefits => '혜택';
 
   @override
