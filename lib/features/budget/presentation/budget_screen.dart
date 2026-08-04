@@ -1407,7 +1407,12 @@ class _ComplianceBarChartState extends State<_ComplianceBarChart> {
       100,
       (m, r) => r.compliancePercent > m ? r.compliancePercent : m,
     );
-    final yMax = (maxY * 1.15).clamp(100, 1000).toDouble();
+    // 상한을 두면 안 된다 — 이행률은 한도 대비 지출이라 2,855% 같은 값이 실제로 나온다.
+    // 상한(1000)에 걸리면 toY 가 maxY 를 넘어 막대가 차트 밖으로 그려지고, 위 목록을 덮는다.
+    // web YAxis domain=[0, max(100, dmax)] 정합 — 하한 100 만 두고 위로는 열어 둔다.
+    // ×1.15 는 막대 위 % 라벨 자리(web LabelList 는 Recharts 가 알아서 잡아 준다).
+    // 하한 100 은 위 fold 의 seed 가 이미 보장한다.
+    final yMax = maxY * 1.15;
 
     final chart = BarChart(
       BarChartData(
@@ -1538,7 +1543,8 @@ class _ComplianceBarChartState extends State<_ComplianceBarChart> {
     // 위치는 터치 좌표 기준 동적 배치 (PChartTooltipLayer — 화면 밖 clamp/flip).
     return Stack(
       children: [
-        chart,
+        // 툴팁은 화면 밖으로 나가야 하므로 차트만 클립한다.
+        ClipRect(child: chart),
         if (_touchedIdx != null &&
             _touchedIdx! < rows.length &&
             _touchPos != null)
