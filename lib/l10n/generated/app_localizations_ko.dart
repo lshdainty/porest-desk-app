@@ -598,6 +598,36 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetCryptoExchange => '가상자산거래소';
 
   @override
+  String get assetCategoryCommercialBank => '시중은행';
+
+  @override
+  String get assetCategoryInternetBank => '인터넷은행';
+
+  @override
+  String get assetCategoryLocalBank => '지방은행';
+
+  @override
+  String get assetCategorySpecialBank => '특수은행';
+
+  @override
+  String get assetCategorySavingsInstitution => '저축기관';
+
+  @override
+  String get assetCategoryForeignBank => '외국계';
+
+  @override
+  String get assetCategoryOther => '기타';
+
+  @override
+  String get assetCategoryBrokerage => '증권사';
+
+  @override
+  String get assetCategoryCommodityExchange => '상품거래소';
+
+  @override
+  String get assetCategoryCryptoExchange => '가상자산거래소';
+
+  @override
   String get assetCardDetail => '카드 상세';
 
   @override
@@ -716,6 +746,10 @@ class AppLocalizationsKo extends AppLocalizations {
   @override
   String get assetHoldingsEmptyEdit =>
       '검색으로 보유 종목을 추가하세요. 연동 종목은 현재가 × 수량으로 평가액이 자동 계산돼요.';
+
+  @override
+  String get assetHoldingsEmptyManual =>
+      '위 버튼으로 보유분을 추가하세요. 시세 연동이 없어 평가액은 직접 입력합니다.';
 
   @override
   String get assetHoldingsEmptyDetail => '보유 종목이 없어요. 편집에서 종목을 추가해보세요.';
@@ -869,9 +903,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get assetTxFallback => '거래';
-
-  @override
-  String get assetCategoryOther => '기타';
 
   @override
   String assetPayConfirmMessage(String amount) {

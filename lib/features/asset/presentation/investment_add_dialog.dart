@@ -251,6 +251,31 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
   }
 
   /// 금·코인은 검색 대상이 아니다(토스·마스터 모두 미제공) — 빈 행으로만 담는다.
+  /// 기관이 보유 유형을 정한다 — 증권사에서 코인을, 금거래소에서 주식을 담을 일은 없다.
+  /// 모르는 기관(구버전 데이터·직접 입력)이면 종전대로 셋 다 열어 둔다.
+  String? get _brandHoldingType {
+    for (final e in bankEntries) {
+      if (e.name == _brand) return categoryHoldingType[e.category];
+    }
+    return null;
+  }
+
+  bool get _allowStock =>
+      _brandHoldingType == null || _brandHoldingType == 'STOCK';
+
+  List<AssetHoldingType> get _manualAddTypes {
+    switch (_brandHoldingType) {
+      case 'GOLD':
+        return const [AssetHoldingType.gold];
+      case 'CRYPTO':
+        return const [AssetHoldingType.crypto];
+      case 'STOCK':
+        return const [];
+      default:
+        return const [AssetHoldingType.gold, AssetHoldingType.crypto];
+    }
+  }
+
   void _addTyped(AssetHoldingType type) {
     setState(() {
       _rows = [
@@ -491,12 +516,14 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
             ),
           ],
         ),
-        const SizedBox(height: PSpace.x8),
-        PSearchField(
-          controller: _stockQueryCtrl,
-          hint: l.assetHoldingSearchHint,
-        ),
-        if (_debouncedStockQuery.isNotEmpty) ...[
+        if (_allowStock) ...[
+          const SizedBox(height: PSpace.x8),
+          PSearchField(
+            controller: _stockQueryCtrl,
+            hint: l.assetHoldingSearchHint,
+          ),
+        ],
+        if (_allowStock && _debouncedStockQuery.isNotEmpty) ...[
           const SizedBox(height: PSpace.x8),
           _StockSearchResults(
             query: _debouncedStockQuery,
@@ -510,32 +537,34 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
           ),
         ],
         // 금·코인은 검색으로 담을 수 없다(시세·마스터 미제공) — 빈 행 추가 버튼으로만.
-        const SizedBox(height: PSpace.x8),
-        Row(
-          children: [
-            PButton(
-              label: l.assetHoldingAddGold,
-              icon: LucideIcons.plus,
-              variant: PButtonVariant.outline,
-              size: PButtonSize.sm,
-              onPressed: () => _addTyped(AssetHoldingType.gold),
-            ),
-            const SizedBox(width: 6),
-            PButton(
-              label: l.assetHoldingAddCrypto,
-              icon: LucideIcons.plus,
-              variant: PButtonVariant.outline,
-              size: PButtonSize.sm,
-              onPressed: () => _addTyped(AssetHoldingType.crypto),
-            ),
-          ],
-        ),
+        // 기관이 유형을 정하므로 증권사면 아무것도 안 뜬다(주식은 위 검색으로 담는다).
+        if (_manualAddTypes.isNotEmpty) ...[
+          const SizedBox(height: PSpace.x8),
+          Row(
+            children: [
+              for (final type in _manualAddTypes) ...[
+                if (type != _manualAddTypes.first) const SizedBox(width: 6),
+                PButton(
+                  label: type == AssetHoldingType.gold
+                      ? l.assetHoldingAddGold
+                      : l.assetHoldingAddCrypto,
+                  icon: LucideIcons.plus,
+                  variant: PButtonVariant.outline,
+                  size: PButtonSize.sm,
+                  onPressed: () => _addTyped(type),
+                ),
+              ],
+            ],
+          ),
+        ],
         if (_rows.isEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(
                 vertical: PSpace.x12, horizontal: 2),
             child: Text(
-              l.assetHoldingsEmptyEdit,
+              _allowStock
+                  ? l.assetHoldingsEmptyEdit
+                  : l.assetHoldingsEmptyManual,
               style: PTypo.caption.copyWith(color: t.fgTertiary, height: 1.5),
             ),
           )
@@ -1017,9 +1046,20 @@ class _BrandPicker extends StatelessWidget {
   final String selectedName;
   final ValueChanged<String> onPick;
 
-  /// 카테고리 라벨 — 가상자산 → 가상자산거래소 (web 동일).
-  static String _label(AppLocalizations l, BankCategory c) =>
-      c == BankCategory.cryptoExchange ? l.assetCryptoExchange : c.label;
+  /// 카테고리 라벨 — enum 의 한글 label 은 데이터 원문이고, 화면은 로케일을 따른다
+  /// (영어 사용자에게 '시중은행' 이 그대로 나오면 안 된다). web 동일.
+  static String _label(AppLocalizations l, BankCategory c) => switch (c) {
+        BankCategory.retailBank => l.assetCategoryCommercialBank,
+        BankCategory.internetBank => l.assetCategoryInternetBank,
+        BankCategory.regionalBank => l.assetCategoryLocalBank,
+        BankCategory.specialBank => l.assetCategorySpecialBank,
+        BankCategory.savingsInstitution => l.assetCategorySavingsInstitution,
+        BankCategory.foreignBank => l.assetCategoryForeignBank,
+        BankCategory.other => l.assetCategoryOther,
+        BankCategory.brokerage => l.assetCategoryBrokerage,
+        BankCategory.commodityExchange => l.assetCategoryCommodityExchange,
+        BankCategory.cryptoExchange => l.assetCategoryCryptoExchange,
+      };
 
   @override
   Widget build(BuildContext context) {

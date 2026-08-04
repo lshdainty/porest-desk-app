@@ -18,6 +18,7 @@ enum BankCategory {
   foreignBank('외국계'),
   other('기타'),
   brokerage('증권사'),
+  commodityExchange('상품거래소'),
   cryptoExchange('가상자산');
 
   const BankCategory(this.label);
@@ -37,10 +38,18 @@ class BankEntry {
   final List<String> aliases;
 }
 
-/// 투자 상품 등록 시 선택 가능한 카테고리 (증권사 + 가상자산).
+/// 투자 상품 등록 시 선택 가능한 카테고리 (증권사 + 상품거래소 + 가상자산).
 const Set<BankCategory> investCategories = {
   BankCategory.brokerage,
+  BankCategory.commodityExchange,
   BankCategory.cryptoExchange,
+};
+
+/// 기관이 정해 주는 보유 유형 — 증권사에서 코인을, 금거래소에서 주식을 담을 일은 없다.
+const Map<BankCategory, String> categoryHoldingType = {
+  BankCategory.brokerage: 'STOCK',
+  BankCategory.commodityExchange: 'GOLD',
+  BankCategory.cryptoExchange: 'CRYPTO',
 };
 
 /// 자산 추가 다이얼로그 섹션 표시 순서.
@@ -53,6 +62,7 @@ const List<BankCategory> bankCategoryOrder = [
   BankCategory.foreignBank,
   BankCategory.other,
   BankCategory.brokerage,
+  BankCategory.commodityExchange,
   BankCategory.cryptoExchange,
 ];
 
@@ -369,6 +379,39 @@ const List<BankEntry> bankEntries = <BankEntry>[
       name: '토스증권',
       category: BankCategory.brokerage,
       color: BrandColor(bg: Color(0xFF0064FF))),
+
+  // 상품거래소 (실물 금). 금은방 체인은 표준 기관코드 체계가 없다.
+  // KRX 금시장은 증권사 HTS 로 거래하지만, 담기는 건 g 단위 실물 금이라 여기에 둔다.
+  BankEntry(
+      name: 'KRX 금시장',
+      category: BankCategory.commodityExchange,
+      color: BrandColor(bg: Color(0xFFC9A227), fg: Color(0xFF191919)),
+      aliases: ['한국거래소', 'KRX', '금시장']),
+  BankEntry(
+      name: '한국금거래소',
+      category: BankCategory.commodityExchange,
+      color: BrandColor(bg: Color(0xFFB8232F)),
+      aliases: ['koreagoldx', '금거래소']),
+  BankEntry(
+      name: '한국표준금거래소',
+      category: BankCategory.commodityExchange,
+      color: BrandColor(bg: Color(0xFF8C6A1F)),
+      aliases: ['표준금거래소']),
+  BankEntry(
+      name: '삼성금거래소',
+      category: BankCategory.commodityExchange,
+      color: BrandColor(bg: Color(0xFF1428A0)),
+      aliases: ['삼성금']),
+  BankEntry(
+      name: '한국조폐공사',
+      category: BankCategory.commodityExchange,
+      color: BrandColor(bg: Color(0xFF00594F)),
+      aliases: ['조폐공사', '오롯', 'KOMSCO']),
+  BankEntry(
+      name: '기타 금은방',
+      category: BankCategory.commodityExchange,
+      color: BrandColor(bg: Color(0xFFA78246), fg: Color(0xFF191919)),
+      aliases: ['금은방', '직접보관', '실물']),
 
   // 가상자산
   BankEntry(

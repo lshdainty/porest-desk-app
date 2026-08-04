@@ -1238,6 +1238,66 @@ abstract class AppLocalizations {
   /// **'가상자산거래소'**
   String get assetCryptoExchange;
 
+  /// No description provided for @assetCategoryCommercialBank.
+  ///
+  /// In ko, this message translates to:
+  /// **'시중은행'**
+  String get assetCategoryCommercialBank;
+
+  /// No description provided for @assetCategoryInternetBank.
+  ///
+  /// In ko, this message translates to:
+  /// **'인터넷은행'**
+  String get assetCategoryInternetBank;
+
+  /// No description provided for @assetCategoryLocalBank.
+  ///
+  /// In ko, this message translates to:
+  /// **'지방은행'**
+  String get assetCategoryLocalBank;
+
+  /// No description provided for @assetCategorySpecialBank.
+  ///
+  /// In ko, this message translates to:
+  /// **'특수은행'**
+  String get assetCategorySpecialBank;
+
+  /// No description provided for @assetCategorySavingsInstitution.
+  ///
+  /// In ko, this message translates to:
+  /// **'저축기관'**
+  String get assetCategorySavingsInstitution;
+
+  /// No description provided for @assetCategoryForeignBank.
+  ///
+  /// In ko, this message translates to:
+  /// **'외국계'**
+  String get assetCategoryForeignBank;
+
+  /// No description provided for @assetCategoryOther.
+  ///
+  /// In ko, this message translates to:
+  /// **'기타'**
+  String get assetCategoryOther;
+
+  /// No description provided for @assetCategoryBrokerage.
+  ///
+  /// In ko, this message translates to:
+  /// **'증권사'**
+  String get assetCategoryBrokerage;
+
+  /// No description provided for @assetCategoryCommodityExchange.
+  ///
+  /// In ko, this message translates to:
+  /// **'상품거래소'**
+  String get assetCategoryCommodityExchange;
+
+  /// No description provided for @assetCategoryCryptoExchange.
+  ///
+  /// In ko, this message translates to:
+  /// **'가상자산거래소'**
+  String get assetCategoryCryptoExchange;
+
   /// No description provided for @assetCardDetail.
   ///
   /// In ko, this message translates to:
@@ -1447,6 +1507,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'검색으로 보유 종목을 추가하세요. 연동 종목은 현재가 × 수량으로 평가액이 자동 계산돼요.'**
   String get assetHoldingsEmptyEdit;
+
+  /// No description provided for @assetHoldingsEmptyManual.
+  ///
+  /// In ko, this message translates to:
+  /// **'위 버튼으로 보유분을 추가하세요. 시세 연동이 없어 평가액은 직접 입력합니다.'**
+  String get assetHoldingsEmptyManual;
 
   /// No description provided for @assetHoldingsEmptyDetail.
   ///
@@ -1723,12 +1789,6 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'거래'**
   String get assetTxFallback;
-
-  /// No description provided for @assetCategoryOther.
-  ///
-  /// In ko, this message translates to:
-  /// **'기타'**
-  String get assetCategoryOther;
 
   /// No description provided for @assetPayConfirmMessage.
   ///
