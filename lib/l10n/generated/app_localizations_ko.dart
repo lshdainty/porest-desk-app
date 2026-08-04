@@ -927,6 +927,14 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetPayAction => '결제하기';
 
   @override
+  String get assetPayAmount => '결제 금액';
+
+  @override
+  String assetPayRemainder(String amount) {
+    return '남은 $amount은 결제일에 빠져요';
+  }
+
+  @override
   String get assetPaymentRecorded => '결제가 기록되었습니다';
 
   @override

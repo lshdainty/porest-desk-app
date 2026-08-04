@@ -21,6 +21,7 @@ import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
+import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
 import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
@@ -1456,28 +1457,93 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
     return out;
   }
 
+  /// 결제 시트 — 금액을 고칠 수 있다(부분 선결제). 기본값은 남은 청구액.
+  /// 일부만 내면 나머지는 결제일에 정상적으로 빠진다(서버가 '사용액 − 이미 결제액'으로 잡는다).
   Future<void> _confirmAndPay(CardBilling b) async {
     final l = AppLocalizations.of(context);
-    final dateSuffix = b.nextPaymentDate != null
-        ? l.assetPayConfirmDateSuffix(b.nextPaymentDate!)
-        : '';
-    final ok = await showPConfirmDialog(
+    final upcoming = b.upcomingAmount;
+    final ctrl = TextEditingController(text: upcoming.toString());
+    final sheet = PSheetController();
+
+    int parsed() => int.tryParse(ctrl.text.replaceAll(',', '')) ?? 0;
+    void syncCanSubmit() {
+      final v = parsed();
+      sheet.setCanSubmit(v > 0 && v <= upcoming);
+    }
+
+    ctrl.addListener(syncCanSubmit);
+    int? picked;
+    sheet.onSubmit = () async {
+      picked = parsed();
+      if (mounted) Navigator.of(context, rootNavigator: true).pop();
+    };
+
+    await showPSheet<void>(
       context,
       title: l.assetPayNow,
-      message: '${l.assetPayConfirmMessage(krw(b.upcomingAmount))}$dateSuffix',
-      confirmLabel: l.assetPayAction,
+      shrinkWrap: true,
+      contentBuilder: (ctx, _) {
+        final t = ctx.tokens;
+        return StatefulBuilder(
+          builder: (ctx, setLocal) {
+            ctrl.removeListener(syncCanSubmit);
+            void onChanged() {
+              syncCanSubmit();
+              setLocal(() {});
+            }
+
+            ctrl.addListener(onChanged);
+            final v = parsed();
+            final dateSuffix = b.nextPaymentDate != null
+                ? l.assetPayConfirmDateSuffix(b.nextPaymentDate!)
+                : '';
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  '${l.assetPayConfirmMessage(krw(upcoming))}$dateSuffix',
+                  style: PTypo.body.copyWith(color: t.fgSecondary, height: 1.7),
+                ),
+                const SizedBox(height: PSpace.x20),
+                Text(l.assetPayAmount,
+                    style: PTypo.caption.copyWith(
+                        color: t.fgPrimary, fontWeight: PFontWeight.medium)),
+                const SizedBox(height: PSpace.x8),
+                PTextInput(
+                  controller: ctrl,
+                  keyboardType: const TextInputType.numberWithOptions(),
+                  placeholder: '0',
+                ),
+                if (v > 0 && v < upcoming) ...[
+                  const SizedBox(height: PSpace.x8),
+                  Text(l.assetPayRemainder(krw(upcoming - v)),
+                      style: PTypo.micro.copyWith(color: t.fgTertiary)),
+                ],
+              ],
+            );
+          },
+        );
+      },
+      footerBuilder: (ctx) => PSheetFooter(
+        controller: sheet,
+        submitLabel: l.assetPayAction,
+      ),
     );
-    if (!ok || !mounted) return;
-    await _pay();
+
+    ctrl.dispose();
+    sheet.dispose();
+    if (picked == null || !mounted) return;
+    await _pay(picked!);
   }
 
-  Future<void> _pay() async {
+  Future<void> _pay(int amount) async {
     if (_paying) return;
     final l = AppLocalizations.of(context);
     setState(() => _paying = true);
     try {
       final repo = await ref.read(assetRepositoryProvider.future);
-      await repo.payCard(widget.asset.rowId);
+      await repo.payCard(widget.asset.rowId, amount: amount);
       ref
         ..invalidate(cardBillingProvider(widget.asset.rowId))
         ..invalidate(assetsProvider)

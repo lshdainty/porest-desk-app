@@ -1826,6 +1826,18 @@ abstract class AppLocalizations {
   /// **'결제하기'**
   String get assetPayAction;
 
+  /// No description provided for @assetPayAmount.
+  ///
+  /// In ko, this message translates to:
+  /// **'결제 금액'**
+  String get assetPayAmount;
+
+  /// No description provided for @assetPayRemainder.
+  ///
+  /// In ko, this message translates to:
+  /// **'남은 {amount}은 결제일에 빠져요'**
+  String assetPayRemainder(String amount);
+
   /// No description provided for @assetPaymentRecorded.
   ///
   /// In ko, this message translates to:

@@ -939,6 +939,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetPayAction => 'Pay';
 
   @override
+  String get assetPayAmount => 'Payment amount';
+
+  @override
+  String assetPayRemainder(String amount) {
+    return '$amount remaining will be paid on the payment date';
+  }
+
+  @override
   String get assetPaymentRecorded => 'Payment recorded';
 
   @override

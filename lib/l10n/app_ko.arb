@@ -478,6 +478,11 @@
   },
   "assetPayNow": "지금 결제",
   "assetPayAction": "결제하기",
+  "assetPayAmount": "결제 금액",
+  "assetPayRemainder": "남은 {amount}은 결제일에 빠져요",
+  "@assetPayRemainder": {
+    "placeholders": { "amount": { "type": "String" } }
+  },
   "assetPaymentRecorded": "결제가 기록되었습니다",
   "assetPayFailed": "결제 실패",
   "assetBillingLoadError": "청구 정보를 불러오지 못했어요",
