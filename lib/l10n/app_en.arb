@@ -342,6 +342,8 @@
   "holdingTypeGold": "Gold",
   "holdingTypeCrypto": "Crypto",
   "holdingAvgPrice": "Avg price",
+  "holdingAvgPriceInline": "avg {avg}",
+  "@holdingAvgPriceInline": { "placeholders": { "avg": {"type":"String"} } },
   "holdingTotalCost": "Cost basis",
   "tradeHeldSummary": "Holding {qty} · avg {avg}",
   "@tradeHeldSummary": { "placeholders": { "qty": {"type":"String"}, "avg": {"type":"String"} } },

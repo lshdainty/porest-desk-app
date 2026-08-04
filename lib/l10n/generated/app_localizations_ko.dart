@@ -811,6 +811,11 @@ class AppLocalizationsKo extends AppLocalizations {
   String get holdingAvgPrice => '평단가';
 
   @override
+  String holdingAvgPriceInline(String avg) {
+    return '평단가 $avg';
+  }
+
+  @override
   String get holdingTotalCost => '매수원가';
 
   @override

@@ -825,6 +825,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get holdingAvgPrice => 'Avg price';
 
   @override
+  String holdingAvgPriceInline(String avg) {
+    return 'avg $avg';
+  }
+
+  @override
   String get holdingTotalCost => 'Cost basis';
 
   @override

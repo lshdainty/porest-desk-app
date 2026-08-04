@@ -1652,6 +1652,12 @@ abstract class AppLocalizations {
   /// **'평단가'**
   String get holdingAvgPrice;
 
+  /// No description provided for @holdingAvgPriceInline.
+  ///
+  /// In ko, this message translates to:
+  /// **'평단가 {avg}'**
+  String holdingAvgPriceInline(String avg);
+
   /// No description provided for @holdingTotalCost.
   ///
   /// In ko, this message translates to:

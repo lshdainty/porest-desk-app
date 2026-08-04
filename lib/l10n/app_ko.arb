@@ -345,6 +345,8 @@
   "holdingTypeGold": "금",
   "holdingTypeCrypto": "코인",
   "holdingAvgPrice": "평단가",
+  "holdingAvgPriceInline": "평단가 {avg}",
+  "@holdingAvgPriceInline": { "placeholders": { "avg": {"type":"String"} } },
   "holdingTotalCost": "매수원가",
   "tradeHeldSummary": "보유 {qty} · 평단가 {avg}",
   "@tradeHeldSummary": { "placeholders": { "qty": {"type":"String"}, "avg": {"type":"String"} } },
