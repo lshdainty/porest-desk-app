@@ -609,6 +609,36 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetCryptoExchange => 'Crypto exchange';
 
   @override
+  String get assetCategoryCommercialBank => 'Commercial bank';
+
+  @override
+  String get assetCategoryInternetBank => 'Internet bank';
+
+  @override
+  String get assetCategoryLocalBank => 'Local bank';
+
+  @override
+  String get assetCategorySpecialBank => 'Special bank';
+
+  @override
+  String get assetCategorySavingsInstitution => 'Savings institution';
+
+  @override
+  String get assetCategoryForeignBank => 'Foreign bank';
+
+  @override
+  String get assetCategoryOther => 'Other';
+
+  @override
+  String get assetCategoryBrokerage => 'Brokerage';
+
+  @override
+  String get assetCategoryCommodityExchange => 'Commodity exchange';
+
+  @override
+  String get assetCategoryCryptoExchange => 'Crypto exchange';
+
+  @override
   String get assetCardDetail => 'Card details';
 
   @override
@@ -727,6 +757,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get assetHoldingsEmptyEdit =>
       'Search to add holdings. Linked holdings are valued automatically at price × quantity.';
+
+  @override
+  String get assetHoldingsEmptyManual =>
+      'Add your holdings with the button above. No live price — enter the value yourself.';
 
   @override
   String get assetHoldingsEmptyDetail => 'No holdings yet. Add them from Edit.';
@@ -882,9 +916,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get assetTxFallback => 'Transaction';
-
-  @override
-  String get assetCategoryOther => 'Other';
 
   @override
   String assetPayConfirmMessage(String amount) {
