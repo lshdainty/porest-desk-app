@@ -1460,6 +1460,12 @@ abstract class AppLocalizations {
   /// **'예수금'**
   String get assetCashBalance;
 
+  /// No description provided for @assetCashBalanceHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'매수 대기 자금이에요. 보유 종목을 팔면 이 금액으로 남아요.'**
+  String get assetCashBalanceHint;
+
   /// No description provided for @assetHoldingBalance.
   ///
   /// In ko, this message translates to:
