@@ -22,16 +22,34 @@ String holdingUnitLabel(AppLocalizations l, AssetHoldingType type) =>
       AssetHoldingType.crypto => l.assetHoldingUnitCount,
     };
 
-/// 수량 표기 — 수량은 문자열로 들고 있으므로(정밀도 보존) 그대로 쓰되,
-/// 소수 허용이라 의미 없는 0 만 떼어 낸다 (3 / 3.75 / 0.05). 없으면 '0'.
-String formatHoldingQty(String? q) {
-  var s = (q ?? '').trim();
+/// 유형별 수량 표시 소수 자릿수 — 코인은 잘게 쪼개 사니 8자리까지 보여준다(0.00012345 BTC).
+int _qtyMaxDecimals(AssetHoldingType type) =>
+    type == AssetHoldingType.crypto ? 8 : 3;
+
+/// 수량 표기 — 천단위 콤마 + 유형별 소수 자릿수(뒤 0 은 생략). 없으면 '0'.
+///
+/// 수량은 정밀도 때문에 문자열로 들고 있으므로 문자열을 그대로 다듬는다 —
+/// double 로 바꾸면 자릿수가 흔들려 8자리를 보여주는 의미가 없어진다.
+/// front `formatQty` 미러.
+String formatHoldingQty(String? q,
+    [AssetHoldingType type = AssetHoldingType.stock]) {
+  final s = (q ?? '').trim();
   if (s.isEmpty) return '0';
-  if (s.contains('.')) {
-    s = s.replaceFirst(RegExp(r'0+$'), '');
-    s = s.replaceFirst(RegExp(r'\.$'), '');
-  }
-  return s.isEmpty ? '0' : s;
+  final neg = s.startsWith('-');
+  final body = neg ? s.substring(1) : s;
+  final dot = body.indexOf('.');
+  final intRaw = dot < 0 ? body : body.substring(0, dot);
+  final fracRaw = dot < 0 ? '' : body.substring(dot + 1);
+
+  var intPart = intRaw.replaceFirst(RegExp(r'^0+(?=\d)'), '');
+  if (intPart.isEmpty) intPart = '0';
+  final max = _qtyMaxDecimals(type);
+  var frac = fracRaw.length > max ? fracRaw.substring(0, max) : fracRaw;
+  frac = frac.replaceFirst(RegExp(r'0+$'), '');
+
+  final grouped = intPart.replaceAllMapped(
+      RegExp(r'\B(?=(\d{3})+(?!\d))'), (_) => ',');
+  return '${neg ? '-' : ''}$grouped${frac.isEmpty ? '' : '.$frac'}';
 }
 
 /// 수량 입력 정규화 — 숫자와 소수점 1개만 남긴다.
