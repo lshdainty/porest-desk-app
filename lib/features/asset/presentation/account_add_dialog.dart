@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:porest_desk_app/core/format/currency.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -12,6 +13,7 @@ import 'package:porest_desk_app/shared/brand/bank_colors.dart';
 import 'package:porest_desk_app/shared/widgets/p_chip.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_search_field.dart';
+import 'package:porest_desk_app/shared/widgets/p_select.dart';
 import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
@@ -117,7 +119,9 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
   late final TextEditingController _accountNumberCtrl;
   late final TextEditingController _balanceCtrl;
   late final TextEditingController _memoCtrl;
+  late final TextEditingController _fxRateCtrl;
 
+  late String _currency;
   late String _brand;
   late _SubType _subType;
   late bool _includeInTotal;
@@ -142,6 +146,14 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
       result.add(MapEntry(cat, list));
     }
     return result;
+  }
+
+  /// 1400.000000 을 1400 으로 — 서버가 소수 6자리로 주는 값을 그대로 보여 주면 지저분하다.
+  static String _trimRate(double rate) {
+    final s = rate.toStringAsFixed(6);
+    return s.contains('.')
+        ? s.replaceFirst(RegExp(r'0+$'), '').replaceFirst(RegExp(r'\.$'), '')
+        : s;
   }
 
   static String _norm(String s) =>
@@ -182,6 +194,9 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
     _balanceCtrl =
         TextEditingController(text: (e?.balance ?? 0).toString());
     _memoCtrl = TextEditingController(text: e?.memo ?? '');
+    _currency = e?.currency ?? kDefaultCurrency;
+    _fxRateCtrl = TextEditingController(
+        text: e?.exchangeRate != null ? _trimRate(e!.exchangeRate!) : '');
     _includeInTotal = e == null ? true : e.isIncludedInTotal == 'Y';
     widget.controller.onSubmit = _submit;
     if (widget.edit != null) widget.controller.onDelete = _delete;
@@ -208,6 +223,7 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
     _nicknameCtrl.dispose();
     _accountNumberCtrl.dispose();
     _balanceCtrl.dispose();
+    _fxRateCtrl.dispose();
     _memoCtrl.dispose();
     super.dispose();
   }
@@ -219,6 +235,10 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
     final nickname = _nicknameCtrl.text.trim();
     final name = nickname.isEmpty ? '$brand ${_subType.label(l)}' : nickname;
     final balance = int.tryParse(_balanceCtrl.text.replaceAll(',', '')) ?? 0;
+    // 환율은 외화일 때만 보낸다. 비우면 서버가 1로 잡아 환산 없이 더해진다.
+    final fxRate = isForeignCurrency(_currency)
+        ? double.tryParse(_fxRateCtrl.text.replaceAll(',', ''))
+        : null;
     final accountNumber = _accountNumberCtrl.text.trim();
     final memo = _memoCtrl.text.trim();
     // 신규: 계좌번호를 memo 로 저장. 편집: 사용자가 입력한 메모를 우선,
@@ -243,7 +263,8 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
           assetName: name,
           assetType: assetType,
           balance: balance,
-          currency: 'KRW',
+          currency: _currency,
+          exchangeRate: fxRate,
           institution: brand,
           memo: memoForApi,
           isIncludedInTotal: _includeInTotal ? 'Y' : 'N',
@@ -253,7 +274,8 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
           assetName: name,
           assetType: assetType,
           balance: balance,
-          currency: 'KRW',
+          currency: _currency,
+          exchangeRate: fxRate,
           institution: brand,
           memo: memoForApi,
           isIncludedInTotal: _includeInTotal ? 'Y' : 'N',
@@ -411,6 +433,64 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
                     ),
                   ],
                 ),
+
+                // 통화·환율 — 외화통장. 통화는 자산 유형과 무관하게 연다(해외 카드·외화 대출).
+                const SizedBox(height: PSpace.x20),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(l.assetCurrency,
+                              style: PTypo.caption.copyWith(
+                                  color: t.fgPrimary,
+                                  fontWeight: PFontWeight.medium)),
+                          const SizedBox(height: PSpace.x8),
+                          PSelect<String>(
+                            value: _currency,
+                            items: [
+                              for (final c in kCurrencies)
+                                PSelectItem(
+                                    value: c.code,
+                                    label: '${c.symbol} ${c.code}'),
+                            ],
+                            onChanged: (v) =>
+                                setState(() => _currency = v ?? kDefaultCurrency),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (isForeignCurrency(_currency)) ...[
+                      const SizedBox(width: PSpace.x12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(l.assetExchangeRate,
+                                style: PTypo.caption.copyWith(
+                                    color: t.fgPrimary,
+                                    fontWeight: PFontWeight.medium)),
+                            const SizedBox(height: PSpace.x8),
+                            PTextInput(
+                              controller: _fxRateCtrl,
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                      decimal: true),
+                              placeholder: l.assetExchangeRateHint(_currency),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+                if (isForeignCurrency(_currency)) ...[
+                  const SizedBox(height: PSpace.x8),
+                  Text(l.assetExchangeRateDesc,
+                      style: PTypo.micro.copyWith(color: t.fgTertiary)),
+                ],
 
                 // 메모 — 편집 모드에서만 노출 (web 동일).
                 if (_isEdit) ...[

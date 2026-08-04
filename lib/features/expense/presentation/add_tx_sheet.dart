@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:porest_desk_app/core/format/currency.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -150,6 +151,17 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
       date: date,
       time: time,
     );
+    // 편집·환불은 원거래의 통화를 승계한다 — 해외 결제를 고치는데 원화로 되돌아가면
+    // 원 통화 기록이 조용히 지워진다.
+    final src = e ?? r;
+    if (src?.originalCurrency != null) {
+      _input.currency = src!.originalCurrency!;
+      _input.origAmountCtrl.text = _trimNum(src.originalAmount);
+      _input.fxRateCtrl.text = _trimNum(src.exchangeRate);
+    }
+    if (e?.installmentMonths != null) {
+      _input.installmentMonths = e!.installmentMonths!;
+    }
     widget.controller.onSubmit = _submit;
     if (widget.edit != null) widget.controller.onDelete = _confirmDelete;
     WidgetsBinding.instance.addPostFrameCallback((_) => _syncController());
@@ -236,6 +248,10 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
     // 환불 모드에서만 원거래를 묶는다 — 이 연결이 통계 상계를 만든다.
     final refundOf =
         (widget.refundOf != null && _input.type == 'INCOME') ? widget.refundOf!.rowId : null;
+    // 원 통화는 셋이 함께여야 의미가 있다 — 서버도 반쪽이면 전부 비운다.
+    final origAmount = _input.origAmountOrNull;
+    final origCurrency = origAmount != null ? _input.currency : null;
+    final fxRate = origAmount != null ? _input.fxRateOrNull : null;
     final d = _input.date;
 
     if (_input.type == 'TRANSFER') {
@@ -292,6 +308,9 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
           paymentMethod: payment,
           installmentMonths: installment,
           refundOfExpenseRowId: refundOf,
+          originalAmount: origAmount,
+          originalCurrency: origCurrency,
+          exchangeRate: fxRate,
           // 일치화한 분할이 있으면 금액과 함께 원자적으로 교체(백엔드가 합==금액 검증).
           splits: _reconciledSplits,
         );
@@ -309,6 +328,9 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
           paymentMethod: payment,
           installmentMonths: installment,
           refundOfExpenseRowId: refundOf,
+          originalAmount: origAmount,
+          originalCurrency: origCurrency,
+          exchangeRate: fxRate,
         );
       }
       // 프리셋으로 채운 뒤 일반 저장한 경우 useCount/lastUsedAt 갱신.
@@ -964,6 +986,26 @@ const Map<String, List<String>?> _txPaymentAssetTypes = {
 /// 카드사 공통 할부 개월 — 2~12, 18, 24.
 const List<int> _installmentMonths = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 18, 24];
 
+/// 해외 결제는 $5.50 을 보고 입력하지 원화 환산액을 모른다 — 원 통화 × 환율로 금액을 채운다.
+///
+/// 카드사 실제 청구액이 다르면 금액 칸을 직접 고치면 된다. 원 통화·환율을 다시 건드릴
+/// 때만 다시 계산하므로 손으로 고친 금액을 덮어쓰지 않는다.
+/// 1400.000000 을 1400 으로 — 서버가 소수로 주는 값을 그대로 넣으면 입력칸이 지저분하다.
+String _trimNum(double? v) {
+  if (v == null) return '';
+  final s = v.toStringAsFixed(6);
+  return s.contains('.')
+      ? s.replaceFirst(RegExp(r'0+$'), '').replaceFirst(RegExp(r'\.$'), '')
+      : s;
+}
+
+VoidCallback _syncKrwFromForeign(_TxInputController c) => () {
+      final a = c.origAmountOrNull;
+      final r = c.fxRateOrNull;
+      if (a == null || r == null || a <= 0 || r <= 0) return;
+      c.amountCtrl.text = (a * r).round().toString();
+    };
+
 /// 이자 입력을 보일지 — 대출 상환일 때만.
 ///
 /// 원금은 부채가 줄어드는 자산 이동이지만 이자는 은행으로 아예 나가는 비용이라,
@@ -1021,7 +1063,9 @@ class _TxInputController {
        merchantCtrl = TextEditingController(text: merchant),
        memoCtrl = TextEditingController(text: memo),
        feeCtrl = TextEditingController(),
-       interestCtrl = TextEditingController();
+       interestCtrl = TextEditingController(),
+       origAmountCtrl = TextEditingController(),
+       fxRateCtrl = TextEditingController();
 
   final TextEditingController amountCtrl;
   final TextEditingController merchantCtrl;
@@ -1031,6 +1075,10 @@ class _TxInputController {
   /// 대출 상환의 이자 — 상환액 중 이 금액은 부채를 줄이지 않고 지출로 잡힌다.
   final TextEditingController interestCtrl;
 
+  /// 해외 결제의 원 통화 금액·환율 — 셋이 함께여야 카드사 청구 환율과 대사할 수 있다.
+  final TextEditingController origAmountCtrl;
+  final TextEditingController fxRateCtrl;
+
   String type; // EXPENSE / INCOME / TRANSFER
   int? categoryRowId;
   int? assetRowId; // EXPENSE/INCOME 자산, TRANSFER 출금 자산
@@ -1039,6 +1087,9 @@ class _TxInputController {
 
   /// 할부 개월 — 신용카드 지출에만 의미. 0 = 일시불.
   int installmentMonths = 0;
+
+  /// 결제 통화 — KRW 면 원화 결제(원 통화 기록 없음).
+  String currency = kDefaultCurrency;
   DateTime date;
   TimeOfDay time;
   bool amountLocked = false; // 프리셋 금액 잠금 (applyPreset 에서 set)
@@ -1053,12 +1104,21 @@ class _TxInputController {
   String? get paymentMethodOrNull =>
       paymentMethod.isEmpty ? null : paymentMethod;
 
+  /// 외화 결제인가 — 이체는 두 자산 사이의 이동이라 통화가 자산에 달려 있어 제외.
+  bool get isForeignTx => type != 'TRANSFER' && isForeignCurrency(currency);
+  double? get origAmountOrNull =>
+      isForeignTx ? double.tryParse(origAmountCtrl.text.replaceAll(',', '')) : null;
+  double? get fxRateOrNull =>
+      isForeignTx ? double.tryParse(fxRateCtrl.text.replaceAll(',', '')) : null;
+
   void dispose() {
     amountCtrl.dispose();
     merchantCtrl.dispose();
     memoCtrl.dispose();
     feeCtrl.dispose();
     interestCtrl.dispose();
+    origAmountCtrl.dispose();
+    fxRateCtrl.dispose();
   }
 }
 
@@ -1396,6 +1456,67 @@ class _TxInputForm extends ConsumerWidget {
             ],
             const SizedBox(height: PSpace.x12),
           ],
+
+          // 통화 — 외화면 원 통화 금액·환율이 열리고, 금액(원화)이 자동으로 채워진다.
+          PSectionLabel(l.expCurrency),
+          const SizedBox(height: PSpace.x4),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: _SelectField<String>(
+                  value: c.currency,
+                  hint: kDefaultCurrency,
+                  items: [
+                    for (final cur in kCurrencies)
+                      _SelectOption<String>(cur.code, '${cur.symbol} ${cur.code}'),
+                  ],
+                  onChanged: (v) => _set(() {
+                    c.currency = v ?? kDefaultCurrency;
+                    // 원화로 돌아오면 남은 외화 입력을 지운다(저장 시 흘러들지 않도록).
+                    if (!isForeignCurrency(c.currency)) {
+                      c.origAmountCtrl.clear();
+                      c.fxRateCtrl.clear();
+                    }
+                  }),
+                ),
+              ),
+              if (c.isForeignTx) ...[
+                const SizedBox(width: PSpace.x8),
+                Expanded(
+                  child: PTextInput(
+                    controller: c.origAmountCtrl,
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    placeholder: l.expOriginalAmount,
+                    onChanged: (_) => _set(_syncKrwFromForeign(c)),
+                  ),
+                ),
+                const SizedBox(width: PSpace.x8),
+                Expanded(
+                  child: PTextInput(
+                    controller: c.fxRateCtrl,
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    placeholder: l.expExchangeRate,
+                    onChanged: (_) => _set(_syncKrwFromForeign(c)),
+                  ),
+                ),
+              ],
+            ],
+          ),
+          if (c.isForeignTx &&
+              (c.origAmountOrNull ?? 0) > 0 &&
+              (c.fxRateOrNull ?? 0) > 0) ...[
+            const SizedBox(height: PSpace.x4),
+            Text(
+              l.expFxHint(
+                formatOriginalAmount(
+                    c.origAmountOrNull!, c.currency, Localizations.localeOf(context).toString()),
+                krw((c.origAmountOrNull! * c.fxRateOrNull!).round()),
+              ),
+              style: PTypo.caption.copyWith(color: t.fgTertiary),
+            ),
+          ],
+          const SizedBox(height: PSpace.x12),
         ] else ...[
           // 이체 — 출금/입금/수수료
           PSectionLabel(l.expWithdrawAccount),

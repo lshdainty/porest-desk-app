@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:porest_desk_app/core/format/currency.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -281,6 +282,20 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                 ),
               ),
             ),
+            if (e.originalCurrency != null && e.originalAmount != null)
+              PDetailField(
+                label: l.expForeignPayment,
+                child: Text(
+                  e.exchangeRate != null
+                      ? '${formatOriginalAmount(e.originalAmount!, e.originalCurrency!, Localizations.localeOf(context).toString())} × ${_trimRate(e.exchangeRate!)}'
+                      : formatOriginalAmount(e.originalAmount!, e.originalCurrency!,
+                          Localizations.localeOf(context).toString()),
+                  style: PTypo.body.copyWith(
+                    color: t.fgPrimary,
+                    fontWeight: PFontWeight.medium,
+                  ),
+                ),
+              ),
             if (assetLabel != null)
               PDetailField(
                 label: l.expAccountCard,
@@ -653,4 +668,12 @@ class _SplitSummaryCard extends StatelessWidget {
       ),
     );
   }
+}
+
+/// 1400.000000 을 1400 으로 — 상세에 소수 6자리를 그대로 보여 주면 지저분하다.
+String _trimRate(double rate) {
+  final s = rate.toStringAsFixed(6);
+  return s.contains('.')
+      ? s.replaceFirst(RegExp(r'0+$'), '').replaceFirst(RegExp(r'\.$'), '')
+      : s;
 }

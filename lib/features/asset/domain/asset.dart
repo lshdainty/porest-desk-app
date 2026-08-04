@@ -13,6 +13,8 @@ abstract class Asset with _$Asset {
     required String assetType, // 'CASH' | 'BANK_ACCOUNT' | 'CARD' | 'INVESTMENT' | ...
     int? balance,
     String? currency,
+    /// 원화 환산율 (통화 1단위당 원화). KRW 는 1 — 순자산은 balance × 이 값으로 환산된다.
+    double? exchangeRate,
     String? color,
     String? institution,
     String? memo,
