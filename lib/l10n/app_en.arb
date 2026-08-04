@@ -295,15 +295,23 @@
   "assetHoldingsSummary": "{count} holdings · ₩{amount}",
   "@assetHoldingsSummary": {
     "placeholders": {
-      "count": {"type": "int"},
-      "amount": {"type": "String"}
+      "count": {
+        "type": "int"
+      },
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "assetHoldingRep": "{name} +{count} more",
   "@assetHoldingRep": {
     "placeholders": {
-      "name": {"type": "String"},
-      "count": {"type": "int"}
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
     }
   },
   "assetNoHoldings": "No holdings",
@@ -311,15 +319,21 @@
   "assetHoldingLinkedSub": "Price {price} × qty",
   "@assetHoldingLinkedSub": {
     "placeholders": {
-      "price": {"type": "String"}
+      "price": {
+        "type": "String"
+      }
     }
   },
   "assetHoldingManualSub": "Manual value",
   "assetHoldingLinkedDetail": "{qty} shares · linked at {price}",
   "@assetHoldingLinkedDetail": {
     "placeholders": {
-      "qty": {"type": "String"},
-      "price": {"type": "String"}
+      "qty": {
+        "type": "String"
+      },
+      "price": {
+        "type": "String"
+      }
     }
   },
   "assetHoldingManualDetail": "Manual entry",
@@ -329,7 +343,9 @@
   "assetHoldingAddManual": "Add \"{name}\" manually — enter value",
   "@assetHoldingAddManual": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
   "assetSharesUnit": "sh",
@@ -344,20 +360,28 @@
   "assetHoldingQtyUnit": "{qty} {unit}",
   "@assetHoldingQtyUnit": {
     "placeholders": {
-      "qty": {"type": "String"},
-      "unit": {"type": "String"}
+      "qty": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
     }
   },
   "assetInvestHoldingsSub": "Investment · {count} holdings",
   "@assetInvestHoldingsSub": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "assetTodayChange": "Today {amount}",
   "@assetTodayChange": {
     "placeholders": {
-      "amount": {"type": "String"}
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "assetSharesCount": "{n} shares",
@@ -810,6 +834,27 @@
   "expDate": "Date",
   "expMerchant": "Merchant",
   "expPaymentMethod": "Payment",
+  "expInstallment": "Installment",
+  "expLumpSum": "Lump sum",
+  "expInstallmentMonths": "{months} months",
+  "@expInstallmentMonths": {
+    "placeholders": {
+      "months": {
+        "type": "int"
+      }
+    }
+  },
+  "expInstallmentHint": "About {perMonth} per month for {months} months",
+  "@expInstallmentHint": {
+    "placeholders": {
+      "perMonth": {
+        "type": "String"
+      },
+      "months": {
+        "type": "int"
+      }
+    }
+  },
   "expDescription": "Note",
   "expTypeIncome": "Income",
   "expTypeExpense": "Expense",
@@ -2169,9 +2214,21 @@
   "stocksRange3m": "3M",
   "stocksRange1y": "1Y",
   "stocksUnitCount": "{count}",
-  "@stocksUnitCount": {"placeholders": {"count": {"type": "int"}}},
+  "@stocksUnitCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "stocksSharesUnit": "{qty} shares",
-  "@stocksSharesUnit": {"placeholders": {"qty": {"type": "String"}}},
+  "@stocksSharesUnit": {
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      }
+    }
+  },
   "stocksTradingSuspended": "Suspended",
   "stocksTradingNormal": "Normal",
   "stocksWarningLiquidationTrading": "Liquidation trading",
@@ -2744,26 +2801,50 @@
   "importFieldMerchant": "Merchant",
   "importFieldPaymentMethod": "Payment method",
   "importBlockedTitle": "Cannot create subcategories under {names} — it already has transactions",
-  "@importBlockedTitle": {"placeholders": {"names": {"type": "String"}}},
+  "@importBlockedTitle": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
   "importBlockedDesc": "Rows using it will fail. Move its transactions into a subcategory or change the category in the file",
   "categoryMoveTxAction": "Move",
   "categoryMoveTxTitle": "Move transactions",
   "categoryMoveTxEntry": "Move transactions",
   "categoryMoveTxEntryDesc": "A category with transactions cannot have subcategories. Move them to enable it",
   "categoryMoveTxDesc": "Moves all transactions, recurring and splits from {name}",
-  "@categoryMoveTxDesc": {"placeholders": {"name": {"type": "String"}}},
+  "@categoryMoveTxDesc": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "categoryMoveTxModeNew": "Create subcategory",
   "categoryMoveTxModeExisting": "Move to existing",
   "categoryMoveTxChildName": "New subcategory name",
   "categoryMoveTxChildPlaceholder": "e.g. Lectures",
   "categoryMoveTxNewHint": "Creates it under {name} and moves all transactions there, so you can add more subcategories",
-  "@categoryMoveTxNewHint": {"placeholders": {"name": {"type": "String"}}},
+  "@categoryMoveTxNewHint": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "categoryMoveTxTarget": "Target category",
   "categoryMoveTxTargetPlaceholder": "Select a category",
   "categoryMoveTxHint": "Only leaf categories of the same type can be selected",
   "categoryMoveTxNoTarget": "No target available — create one first",
   "categoryMoveTxDone": "Moved {count} items",
-  "@categoryMoveTxDone": {"placeholders": {"count": {"type": "int"}}},
+  "@categoryMoveTxDone": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "importFieldDate": "Date",
   "importFieldType": "Income/Expense",
   "importFieldAmount": "Amount",

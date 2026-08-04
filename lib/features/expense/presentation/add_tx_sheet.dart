@@ -218,6 +218,8 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
     final desc = _input.memoOrNull;
     final merchant = _input.merchantOrNull;
     final payment = _input.paymentMethodOrNull;
+    // 할부는 신용카드 지출에만 — 그 밖의 조합에선 값을 흘리지 않는다.
+    final installment = _input.installmentMonths > 1 ? _input.installmentMonths : null;
     final d = _input.date;
 
     if (_input.type == 'TRANSFER') {
@@ -267,6 +269,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
           description: desc,
           merchant: merchant,
           paymentMethod: payment,
+          installmentMonths: installment,
           // 일치화한 분할이 있으면 금액과 함께 원자적으로 교체(백엔드가 합==금액 검증).
           splits: _reconciledSplits,
         );
@@ -282,6 +285,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
           description: desc,
           merchant: merchant,
           paymentMethod: payment,
+          installmentMonths: installment,
         );
       }
       // 프리셋으로 채운 뒤 일반 저장한 경우 useCount/lastUsedAt 갱신.
@@ -934,6 +938,16 @@ const Map<String, List<String>?> _txPaymentAssetTypes = {
   'OTHER': null,
 };
 
+/// 카드사 공통 할부 개월 — 2~12, 18, 24.
+const List<int> _installmentMonths = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 18, 24];
+
+/// 할부 입력을 보일지 — 신용카드 지출일 때만.
+bool _showInstallment(_TxInputController c, List<Asset>? assets) {
+  if (c.type != 'EXPENSE' || c.assetRowId == null || assets == null) return false;
+  final picked = assets.where((a) => a.rowId == c.assetRowId).firstOrNull;
+  return picked?.assetType == 'CREDIT_CARD';
+}
+
 /// 결제 수단 + 거래 타입으로 계좌·카드 후보를 고른다.
 ///
 /// 지출에선 예·적금(SAVINGS: 청약·정기예금·정기적금)을 뺀다 — 만기 전까지 묶인 돈이라
@@ -985,6 +999,9 @@ class _TxInputController {
   int? assetRowId; // EXPENSE/INCOME 자산, TRANSFER 출금 자산
   int? toAssetRowId; // TRANSFER 입금 자산 (이체 시 폼에서 set)
   String paymentMethod;
+
+  /// 할부 개월 — 신용카드 지출에만 의미. 0 = 일시불.
+  int installmentMonths = 0;
   DateTime date;
   TimeOfDay time;
   bool amountLocked = false; // 프리셋 금액 잠금 (applyPreset 에서 set)
@@ -1313,6 +1330,34 @@ class _TxInputForm extends ConsumerWidget {
             },
           ),
           const SizedBox(height: PSpace.x12),
+
+          // 할부 — 신용카드 지출에만. 청구는 이 개월 수로 나뉘어 잡힌다.
+          // (체크카드는 긁는 즉시 계좌에서 빠지고, 현금·이체는 나눌 수 없다)
+          if (_showInstallment(c, assetsAsync.value)) ...[
+            PSectionLabel(l.expInstallment),
+            const SizedBox(height: PSpace.x4),
+            _SelectField<int>(
+              value: c.installmentMonths,
+              hint: l.expLumpSum,
+              items: [
+                _SelectOption<int>(0, l.expLumpSum),
+                for (final m in _installmentMonths)
+                  _SelectOption<int>(m, l.expInstallmentMonths(m)),
+              ],
+              onChanged: (v) => _set(() => c.installmentMonths = v ?? 0),
+            ),
+            if (c.installmentMonths > 1 && c.amountInt > 0) ...[
+              const SizedBox(height: PSpace.x4),
+              Text(
+                l.expInstallmentHint(
+                  krw(c.amountInt ~/ c.installmentMonths),
+                  c.installmentMonths,
+                ),
+                style: PTypo.caption.copyWith(color: t.fgTertiary),
+              ),
+            ],
+            const SizedBox(height: PSpace.x12),
+          ],
         ] else ...[
           // 이체 — 출금/입금/수수료
           PSectionLabel(l.expWithdrawAccount),

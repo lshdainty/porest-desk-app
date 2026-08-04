@@ -21,6 +21,8 @@ abstract class Expense with _$Expense {
     String? expenseDate, // ISO LocalDateTime ('YYYY-MM-DDTHH:mm:ss')
     String? merchant,
     String? paymentMethod,
+    /// 할부 개월 (null = 일시불). 신용카드 결제에만 의미.
+    int? installmentMonths,
     int? calendarEventRowId,
     int? todoRowId,
     // 활성 분할 항목들의 카테고리 id (없으면 빈 리스트). 목록 카테고리 필터를 split-aware 하게 매칭.
