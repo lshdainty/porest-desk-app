@@ -2023,6 +2023,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cardNone => 'None';
 
   @override
+  String get cardFeeUnknown => 'Unknown';
+
+  @override
+  String get cardFeeFree => 'Free';
+
+  @override
   String get cardPerfNone => 'No spend requirement';
 
   @override

@@ -3824,6 +3824,18 @@ abstract class AppLocalizations {
   /// **'없음'**
   String get cardNone;
 
+  /// No description provided for @cardFeeUnknown.
+  ///
+  /// In ko, this message translates to:
+  /// **'정보 없음'**
+  String get cardFeeUnknown;
+
+  /// No description provided for @cardFeeFree.
+  ///
+  /// In ko, this message translates to:
+  /// **'무료'**
+  String get cardFeeFree;
+
   /// No description provided for @cardPerfNone.
   ///
   /// In ko, this message translates to:

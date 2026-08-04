@@ -19,6 +19,7 @@ import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
 import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/features/card/application/card_providers.dart';
 import 'package:porest_desk_app/features/card/domain/card_catalog.dart';
+import 'package:porest_desk_app/features/card/presentation/card_fee_text.dart';
 import 'package:porest_desk_app/features/card/presentation/card_benefit_mapping_dialog.dart';
 
 class CardScreen extends ConsumerStatefulWidget {
@@ -408,8 +409,10 @@ class _CardRow extends StatelessWidget {
                       [
                         card.company?.name,
                         card.cardType == 'CREDIT' ? l.assetCardShortCredit : l.assetCardShortCheck,
-                        if (card.annualFee?.label != null)
-                          l.cardAnnualFeeValue(card.annualFee!.label!),
+                        // 예전엔 label 이 있을 때만 보여줘서, 금액만 아는 카드는 연회비가
+                        // 통째로 빠져 보였다. 이제 정보가 있으면(=fee != null) 항상 보여준다.
+                        if (card.annualFee != null)
+                          l.cardAnnualFeeValue(cardFeeValue(l, card.annualFee)),
                       ].whereType<String>().join(' · '),
                       style:
                           PTypo.caption.copyWith(color: tokens.fgTertiary),

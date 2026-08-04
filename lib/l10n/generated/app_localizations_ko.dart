@@ -2005,6 +2005,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get cardNone => '없음';
 
   @override
+  String get cardFeeUnknown => '정보 없음';
+
+  @override
+  String get cardFeeFree => '무료';
+
+  @override
   String get cardPerfNone => '실적 무관';
 
   @override

@@ -17,6 +17,7 @@ import 'package:porest_desk_app/shared/widgets/p_divider.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
 import 'package:porest_desk_app/features/card/application/card_providers.dart';
 import 'package:porest_desk_app/features/card/domain/card_catalog.dart';
+import 'package:porest_desk_app/features/card/presentation/card_fee_text.dart';
 
 class CardDetailScreen extends ConsumerWidget {
   const CardDetailScreen({super.key, required this.catalogId});
@@ -88,10 +89,7 @@ class CardDetailScreen extends ConsumerWidget {
                   Expanded(
                     child: _InfoCard(
                       label: l.assetAnnualFee,
-                      value: s.annualFee?.label ??
-                          (s.annualFee?.amount != null
-                              ? krwSigned(s.annualFee!.amount!, false, unit: true)
-                              : l.cardNone),
+                      value: cardFeeValue(l, s.annualFee),
                       tokens: t,
                     ),
                   ),

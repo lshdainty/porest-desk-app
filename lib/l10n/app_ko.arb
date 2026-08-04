@@ -1095,6 +1095,8 @@
   "cardCautionDetailsFallback": "세부 사항",
   "cardBenefits": "혜택",
   "cardNone": "없음",
+  "cardFeeUnknown": "정보 없음",
+  "cardFeeFree": "무료",
   "cardPerfNone": "실적 무관",
   "cardFeeDomesticOnly": "국내전용 {amount}",
   "@cardFeeDomesticOnly": {

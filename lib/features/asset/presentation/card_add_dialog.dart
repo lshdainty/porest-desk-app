@@ -7,7 +7,6 @@ import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/shared/brand/bank_colors.dart';
 import 'package:porest_desk_app/shared/widgets/p_divider.dart';
@@ -19,6 +18,7 @@ import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/shared/widgets/p_switch.dart';
 import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
+import 'package:porest_desk_app/features/card/presentation/card_fee_text.dart';
 import 'package:porest_desk_app/features/card/application/card_providers.dart';
 import 'package:porest_desk_app/features/card/domain/card_catalog.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
@@ -666,10 +666,12 @@ class _CatalogRow extends StatelessWidget {
     final l = AppLocalizations.of(context);
     final company = item.company?.name;
     final brand = company != null ? getBrandColor([company]) : null;
-    final fee = item.annualFee?.amount ?? 0;
-    final feePart = fee > 0
-        ? ' · ${l.assetAnnualFee} ${krwSigned(fee, false, unit: true)}'
-        : '';
+    // 연회비 정보가 아예 없으면(annualFee == null) 좁은 목록에서 생략한다.
+    // 정보가 있으면 금액이든 "무료"든 보여준다 — 예전엔 amount>0 만 보여줘서
+    // 0원 카드와 미수집 카드가 똑같이 빈칸이었다.
+    final feePart = item.annualFee == null
+        ? ''
+        : ' · ${l.assetAnnualFee} ${cardFeeValue(l, item.annualFee, preferLabel: false)}';
     final subtitle =
         '${company ?? '—'} · ${item.cardType == 'CREDIT' ? l.assetCardShortCredit : l.assetCardShortCheck}$feePart';
 
