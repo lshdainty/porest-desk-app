@@ -20,6 +20,7 @@ import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
 import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/features/card/application/card_providers.dart';
 import 'package:porest_desk_app/features/card/domain/card_catalog.dart';
+import 'package:porest_desk_app/features/card/presentation/card_fee_text.dart';
 import 'package:porest_desk_app/features/card/presentation/card_benefit_detail_sheet.dart';
 import 'package:porest_desk_app/features/card/presentation/widgets/card_brand.dart';
 
@@ -572,14 +573,10 @@ String _brandInitial(String? company) {
 }
 
 /// 연회비 라벨 — label 우선, 없으면 amount 0=없음 / N원.
-String _feeLabel(AppLocalizations l, CardAnnualFee? fee) {
-  if (fee == null) return l.cardNone;
-  // front annualFeeText 정합: amount>0 → "N원" 우선, 아니면 label, 둘 다 없으면 "없음".
-  final amount = fee.amount;
-  if (amount != null && amount > 0) return krwSigned(amount, false, unit: true);
-  if (fee.label != null && fee.label!.isNotEmpty) return fee.label!;
-  return l.cardNone;
-}
+String _feeLabel(AppLocalizations l, CardAnnualFee? fee) =>
+    // front annualFeeText 정합: amount>0 → "N원" 우선, 아니면 label.
+    // fee 가 null 이면 "정보 없음", 0원이면 "무료" — 둘을 뭉뚱그리지 않는다.
+    cardFeeValue(l, fee, preferLabel: false);
 
 /// 전월 실적 라벨 — requiredText 우선, 없으면 amount 0=실적 무관 / N원/월.
 String _performanceLabel(AppLocalizations l, CardPerformance? perf) {

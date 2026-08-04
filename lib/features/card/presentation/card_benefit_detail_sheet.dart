@@ -16,6 +16,7 @@ import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
 import 'package:porest_desk_app/features/card/application/card_providers.dart';
 import 'package:porest_desk_app/features/card/domain/card_catalog.dart';
+import 'package:porest_desk_app/features/card/presentation/card_fee_text.dart';
 import 'package:porest_desk_app/features/card/presentation/widgets/card_brand.dart';
 
 /// 카드 혜택 상세 — front `CardBenefitDialog` 미러 (모바일 바텀시트).
@@ -236,13 +237,10 @@ class _CardBenefitDetailContentState
 }
 
 /// 연회비 라벨 — front `card.fee === 0 ? '없음' : '국내전용 N원'` 정합.
-String _feeText(AppLocalizations l, CardAnnualFee? fee) {
-  if (fee == null) return l.cardNone;
-  if (fee.label != null && fee.label!.isNotEmpty) return fee.label!;
-  final amount = fee.amount;
-  if (amount == null || amount == 0) return l.cardNone;
-  return l.cardFeeDomesticOnly(krwSigned(amount, false, unit: true));
-}
+String _feeText(AppLocalizations l, CardAnnualFee? fee) =>
+    // label 우선 + 금액만 있으면 "국내전용 N원". fee 가 null 이면 "정보 없음",
+    // 0원이면 "무료" 로 갈린다.
+    cardFeeValue(l, fee, domesticPrefix: true);
 
 /// 전월 실적 라벨 — front `perf === 0 ? '실적 무관' : 'N원 이상'` 정합.
 String _performanceText(AppLocalizations l, CardPerformance? perf) {

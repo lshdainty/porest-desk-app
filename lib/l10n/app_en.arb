@@ -1092,6 +1092,8 @@
   "cardCautionDetailsFallback": "Details",
   "cardBenefits": "Benefits",
   "cardNone": "None",
+  "cardFeeUnknown": "Unknown",
+  "cardFeeFree": "Free",
   "cardPerfNone": "No spend requirement",
   "cardFeeDomesticOnly": "Domestic only {amount}",
   "@cardFeeDomesticOnly": {
