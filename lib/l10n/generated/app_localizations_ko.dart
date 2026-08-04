@@ -715,6 +715,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetCashBalance => '예수금';
 
   @override
+  String get assetCashBalanceHint => '매수 대기 자금이에요. 보유 종목을 팔면 이 금액으로 남아요.';
+
+  @override
   String get assetHoldingBalance => '평가금액';
 
   @override

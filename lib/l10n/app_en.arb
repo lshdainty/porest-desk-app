@@ -310,6 +310,7 @@
   "assetTossLinked": "Toss linked",
   "assetHoldings": "Holdings",
   "assetCashBalance": "Cash",
+  "assetCashBalanceHint": "Cash waiting to be invested. Proceeds from selling holdings land here.",
   "assetHoldingBalance": "Holdings",
   "assetHoldingsSummary": "{count} holdings · ₩{amount}",
   "@assetHoldingsSummary": {

@@ -725,6 +725,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetCashBalance => 'Cash';
 
   @override
+  String get assetCashBalanceHint =>
+      'Cash waiting to be invested. Proceeds from selling holdings land here.';
+
+  @override
   String get assetHoldingBalance => 'Holdings';
 
   @override

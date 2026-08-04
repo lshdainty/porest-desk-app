@@ -88,6 +88,7 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
   late final TextEditingController _queryCtrl;
   late final TextEditingController _stockQueryCtrl;
   late final TextEditingController _memoCtrl;
+  late final TextEditingController _cashCtrl;
 
   late String _brand;
   late bool _includeInTotal;
@@ -150,6 +151,9 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
     _queryCtrl = TextEditingController()..addListener(_onChanged);
     _stockQueryCtrl = TextEditingController()..addListener(_onStockQueryChanged);
     _memoCtrl = TextEditingController(text: e?.memo ?? '');
+    // 예수금 — 보유가 없을 때만 쓰인다(전량 매도 대금 등).
+    _cashCtrl = TextEditingController(
+        text: (e?.cashBalance ?? e?.balance ?? 0).toString());
     _includeInTotal = e == null ? true : e.isIncludedInTotal == 'Y';
     // 기존 보유 복사. 레거시 단일 연동(tossSymbol/tossQuantity)은 보유 1건으로 이관.
     _rows = e == null
@@ -202,6 +206,7 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
     _queryCtrl.dispose();
     _stockQueryCtrl.dispose();
     _memoCtrl.dispose();
+    _cashCtrl.dispose();
     super.dispose();
   }
 
@@ -384,8 +389,10 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
       for (int i = 0; i < filled.length; i++) filled[i].copyWith(sortOrder: i),
     ];
     // 평가액은 **서버가** 시세×수량을 BigDecimal 로 산정한다 — 클라이언트 계산값은 보내지 않는다.
-    // 보유가 하나도 없으면 서버가 산정할 근거가 없으므로 0 원으로 남긴다(기존 동작).
-    final int? balance = holdings.isEmpty ? 0 : null;
+    // 보유가 없으면 남는 건 예수금뿐이라 입력값을 보낸다 — 0 으로 밀면 전량 매도 대금이 사라진다.
+    final int? balance = holdings.isEmpty
+        ? (int.tryParse(_cashCtrl.text.replaceAll(',', '')) ?? 0)
+        : null;
 
     _setSubmitting(true);
     try {
@@ -584,6 +591,25 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
                 onChanged: _updateRow,
                 onRemove: _removeRow,
               ),
+
+        // 예수금 ──────────────────────────────
+        // 보유가 없을 때만 노출한다. 보유가 있으면 평가금액은 서버가 시세로 산정하고
+        // 예수금은 입금·매도로만 움직여야 해서, 여기서 총액을 적으면 이중 계상된다.
+        if (_rows.isEmpty) ...[
+          const SizedBox(height: PSpace.x20),
+          Text(l.assetCashBalance,
+              style: PTypo.caption.copyWith(
+                  color: t.fgPrimary, fontWeight: PFontWeight.medium)),
+          const SizedBox(height: PSpace.x8),
+          PTextInput(
+            controller: _cashCtrl,
+            keyboardType: const TextInputType.numberWithOptions(signed: true),
+            placeholder: '0',
+          ),
+          const SizedBox(height: 6),
+          Text(l.assetCashBalanceHint,
+              style: PTypo.micro.copyWith(color: t.fgTertiary)),
+        ],
 
         // 메모 (선택) ────────────────────────
         const SizedBox(height: PSpace.x20),
