@@ -838,6 +838,8 @@
   "expMerchant": "가맹점",
   "expPaymentMethod": "결제 수단",
   "expInstallment": "할부",
+  "expRefund": "환불",
+  "expRefundRecord": "환불 기록",
   "expLumpSum": "일시불",
   "expInstallmentMonths": "{months}개월",
   "@expInstallmentMonths": {

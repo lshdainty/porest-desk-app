@@ -328,10 +328,25 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
             ),
           ],
         ),
-        // Quick actions — 원형 아이콘 3열(PDetailQuickAction, 연결 시 active)
+        // Quick actions — 원형 아이콘(PDetailQuickAction, 연결 시 active)
         PDetailSection(
           child: Row(
             children: [
+              // 환불 — 지출에만. 수입으로 기록하되 원거래에 묶여 통계에서 지출을 상계한다
+              // (수입이 부풀지 않는다). 부분 환불이면 금액만 고치면 된다.
+              if (!isIncome)
+                Expanded(
+                  child: PDetailQuickAction(
+                    icon: LucideIcons.undo2,
+                    label: l.expRefund,
+                    onTap: _deleting
+                        ? null
+                        : () {
+                            Navigator.of(context).pop();
+                            showAddTxSheet(context, refundOf: e);
+                          },
+                  ),
+                ),
               Expanded(
                 child: PDetailQuickAction(
                   icon: LucideIcons.scissors,

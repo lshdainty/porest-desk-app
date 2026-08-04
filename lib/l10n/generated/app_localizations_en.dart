@@ -1577,6 +1577,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get expInstallment => 'Installment';
 
   @override
+  String get expRefund => 'Refund';
+
+  @override
+  String get expRefundRecord => 'Record refund';
+
+  @override
   String get expLumpSum => 'Lump sum';
 
   @override

@@ -22,6 +22,7 @@ _Expense _$ExpenseFromJson(Map<String, dynamic> json) => _Expense(
   merchant: json['merchant'] as String?,
   paymentMethod: json['paymentMethod'] as String?,
   installmentMonths: (json['installmentMonths'] as num?)?.toInt(),
+  refundOfExpenseRowId: (json['refundOfExpenseRowId'] as num?)?.toInt(),
   calendarEventRowId: (json['calendarEventRowId'] as num?)?.toInt(),
   todoRowId: (json['todoRowId'] as num?)?.toInt(),
   splitCategoryRowIds:
@@ -49,6 +50,7 @@ Map<String, dynamic> _$ExpenseToJson(_Expense instance) => <String, dynamic>{
   'merchant': instance.merchant,
   'paymentMethod': instance.paymentMethod,
   'installmentMonths': instance.installmentMonths,
+  'refundOfExpenseRowId': instance.refundOfExpenseRowId,
   'calendarEventRowId': instance.calendarEventRowId,
   'todoRowId': instance.todoRowId,
   'splitCategoryRowIds': instance.splitCategoryRowIds,

@@ -835,6 +835,8 @@
   "expMerchant": "Merchant",
   "expPaymentMethod": "Payment",
   "expInstallment": "Installment",
+  "expRefund": "Refund",
+  "expRefundRecord": "Record refund",
   "expLumpSum": "Lump sum",
   "expInstallmentMonths": "{months} months",
   "@expInstallmentMonths": {
