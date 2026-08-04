@@ -83,7 +83,9 @@ abstract class AssetHolding with _$AssetHolding {
     @Default(false) bool linked,
     String? tossSymbol,
     // 코인 0.05·금 3.75g 등 소수 허용. 미연동도 기록 가능(선택).
-    double? quantity,
+    // 서버 계약은 BigDecimal(decimal(28,8)) — double 로 담으면 십진 소수가 깎이므로
+    // 클라이언트는 문자열로 들고 다닌다. 전송도 문자열 그대로(Jackson 이 BigDecimal 로 받는다).
+    @JsonKey(fromJson: holdingQuantityFromJson) String? quantity,
     String? holdingName,
     int? holdingValue,
     int? sortOrder,
@@ -91,4 +93,34 @@ abstract class AssetHolding with _$AssetHolding {
 
   factory AssetHolding.fromJson(Map<String, dynamic> json) =>
       _$AssetHoldingFromJson(json);
+}
+
+/// 서버 수량 → 문자열 정규화. BigDecimal 은 JSON **숫자**로 내려오므로(`3.75000000`)
+/// 숫자·문자열 어느 쪽으로 와도 받고, 의미 없는 0 은 떼어 낸다(`3.75000000` → `3.75`).
+/// 숫자는 decimal(28,8) 스케일까지만 평문으로 편다 — `1e-8` 같은 지수 표기를 만들지 않는다.
+String? holdingQuantityFromJson(Object? raw) {
+  if (raw == null) return null;
+  if (raw is String) return _trimQuantity(raw.trim());
+  if (raw is int) return '$raw';
+  if (raw is num) {
+    final d = raw.toDouble();
+    if (d.isNaN || d.isInfinite) return null;
+    return _trimQuantity(d.toStringAsFixed(8));
+  }
+  return null;
+}
+
+/// 소수부 꼬리 0 제거 — `3.750000` → `3.75`, `3.00` → `3`. 정수 표기는 그대로 둔다.
+String? _trimQuantity(String s) {
+  if (s.isEmpty) return null;
+  if (!s.contains('.')) return s;
+  var out = s.replaceFirst(RegExp(r'0+$'), '');
+  if (out.endsWith('.')) out = out.substring(0, out.length - 1);
+  return out.isEmpty ? null : out;
+}
+
+/// 표시·미리보기 계산용 수치. 저장·전송에는 절대 쓰지 않는다 — 그 경로는 문자열 그대로다.
+/// (토스 `TossHolding.quantityValue` 와 같은 패턴)
+extension AssetHoldingQuantity on AssetHolding {
+  double get quantityValue => double.tryParse(quantity ?? '') ?? 0;
 }

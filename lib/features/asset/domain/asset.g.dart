@@ -84,7 +84,7 @@ _AssetHolding _$AssetHoldingFromJson(Map<String, dynamic> json) =>
           AssetHoldingType.stock,
       linked: json['linked'] as bool? ?? false,
       tossSymbol: json['tossSymbol'] as String?,
-      quantity: (json['quantity'] as num?)?.toDouble(),
+      quantity: holdingQuantityFromJson(json['quantity']),
       holdingName: json['holdingName'] as String?,
       holdingValue: (json['holdingValue'] as num?)?.toInt(),
       sortOrder: (json['sortOrder'] as num?)?.toInt(),

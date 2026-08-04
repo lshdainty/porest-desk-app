@@ -22,14 +22,16 @@ String holdingUnitLabel(AppLocalizations l, AssetHoldingType type) =>
       AssetHoldingType.crypto => l.assetHoldingUnitCount,
     };
 
-/// 수량 표기 — 소수 허용이라 의미 없는 0 을 떼어 낸다 (3 / 3.75 / 0.05).
-String formatHoldingQty(double q) {
-  var s = q.toStringAsFixed(8);
+/// 수량 표기 — 수량은 문자열로 들고 있으므로(정밀도 보존) 그대로 쓰되,
+/// 소수 허용이라 의미 없는 0 만 떼어 낸다 (3 / 3.75 / 0.05). 없으면 '0'.
+String formatHoldingQty(String? q) {
+  var s = (q ?? '').trim();
+  if (s.isEmpty) return '0';
   if (s.contains('.')) {
     s = s.replaceFirst(RegExp(r'0+$'), '');
     s = s.replaceFirst(RegExp(r'\.$'), '');
   }
-  return s;
+  return s.isEmpty ? '0' : s;
 }
 
 /// 수량 입력 정규화 — 숫자와 소수점 1개만 남긴다.
@@ -42,11 +44,15 @@ String sanitizeHoldingQty(String raw) {
       cleaned.substring(dot + 1).replaceAll('.', '');
 }
 
-/// 입력 문자열 → 수량. 비었거나 숫자가 없으면 null ('3.' 은 3 으로 본다).
-double? holdingQtyNumber(String raw) {
-  final s = sanitizeHoldingQty(raw);
+/// 입력 문자열 → 저장/전송용 수량 문자열. double 을 거치지 않는다 — 거치는 순간 정밀도가 깎인다.
+/// 비었거나 숫자가 없으면 null. 서버(BigDecimal)가 그대로 파싱할 수 있는 표기로 다듬는다
+/// ('3.' → '3', '.5' → '0.5').
+String? holdingQtyText(String raw) {
+  var s = sanitizeHoldingQty(raw);
   if (s.isEmpty || s == '.') return null;
-  return double.tryParse(s.endsWith('.') ? s.substring(0, s.length - 1) : s);
+  if (s.endsWith('.')) s = s.substring(0, s.length - 1);
+  if (s.startsWith('.')) s = '0$s';
+  return s.isEmpty ? null : s;
 }
 
 /// 수량 입력 formatter — [sanitizeHoldingQty] 를 키 입력마다 적용.

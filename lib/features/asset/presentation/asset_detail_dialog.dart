@@ -375,7 +375,7 @@ class _HoldingsSection extends ConsumerWidget {
         AssetHolding(
           linked: true,
           tossSymbol: asset.tossSymbol,
-          quantity: asset.tossQuantity?.toDouble(),
+          quantity: asset.tossQuantity?.toString(),
         ),
       ];
     }
@@ -511,14 +511,14 @@ class _HoldingRow extends ConsumerWidget {
 
     // 서브 — linked: "{qty}주 · 현재가 {price} 연동"(연동은 주식뿐) /
     // manual: 수량을 적어 뒀으면 "{qty}{단위} · 직접 입력", 없으면 "직접 입력".
-    final qty = formatHoldingQty(h.quantity ?? 0);
+    final qty = formatHoldingQty(h.quantity);
     final String sub;
     if (h.linked) {
       sub = rawPrice != null
           ? l.assetHoldingLinkedDetail(qty, _fmtRawPrice(rawPrice!))
           : '${l.assetSharesCount(qty)} · ${l.assetHoldingLinkedBadge}';
     } else {
-      sub = (h.quantity ?? 0) > 0
+      sub = h.quantityValue > 0
           ? '${l.assetHoldingQtyUnit(qty, holdingUnitLabel(l, h.holdingType))} · ${l.assetHoldingManualDetail}'
           : l.assetHoldingManualDetail;
     }
@@ -526,7 +526,7 @@ class _HoldingRow extends ConsumerWidget {
     // 평가액 — linked: 라이브(가격×수량), 폴백 서버 스냅샷(holdingValue) / manual: holdingValue.
     final int? value = h.linked
         ? (unitKrw != null
-            ? (unitKrw! * (h.quantity ?? 0)).round()
+            ? (unitKrw! * h.quantityValue).round()
             : h.holdingValue)
         : (h.holdingValue ?? 0);
 

@@ -118,7 +118,7 @@ class AssetRepository {
         data: {
           'assetName': assetName,
           'assetType': assetType,
-          'balance': ?balance,
+          'balance': ?_balanceBody(assetType, balance, holdings),
           'currency': ?currency,
           'color': ?color,
           'institution': ?institution,
@@ -161,7 +161,7 @@ class AssetRepository {
         data: {
           'assetName': assetName,
           'assetType': assetType,
-          'balance': ?balance,
+          'balance': ?_balanceBody(assetType, balance, holdings),
           'currency': ?currency,
           'color': ?color,
           'institution': ?institution,
@@ -180,15 +180,28 @@ class AssetRepository {
     }
   }
 
+  /// 투자 자산 잔액 — 보유를 함께 보내면 **서버가 평가액을 BigDecimal 로 산정**하므로 싣지 않는다.
+  /// 클라이언트가 double 로 계산한 금액을 보내면 DB 에 남는 금액이 깎일 뿐이다.
+  /// 보유가 없는 자산(그리고 투자가 아닌 자산)은 기존대로 사용자 입력 잔액을 보낸다.
+  static int? _balanceBody(
+    String assetType,
+    int? balance,
+    List<AssetHolding>? holdings,
+  ) =>
+      assetType == 'INVESTMENT' && (holdings?.isNotEmpty ?? false)
+          ? null
+          : balance;
+
   /// holdings 요청 바디 — linked ↔ manual 별 필요한 필드만 직렬화.
-  /// 수량은 소수 허용(코인 0.05·금 3.75g). 미연동도 수량을 남긴다 — 선택이라 없으면 미전송.
+  /// 수량은 소수 허용(코인 0.05·금 3.75g)이라 **문자열 그대로** 보낸다 — 서버가 BigDecimal 로 받아
+  /// 정밀도가 깎이지 않는다. 미연동도 수량을 남긴다 — 선택이라 없으면 미전송.
   static Map<String, dynamic> _holdingBody(AssetHolding h) => {
         'rowId': ?h.rowId,
         'holdingType': h.holdingType.wire,
         'linked': h.linked,
         if (h.linked) ...{
           'tossSymbol': h.tossSymbol,
-          'quantity': h.quantity ?? 0,
+          'quantity': h.quantity ?? '0',
         } else ...{
           'holdingName': h.holdingName,
           'holdingValue': h.holdingValue ?? 0,
@@ -200,30 +213,6 @@ class AssetRepository {
   Future<void> delete(int id) async {
     try {
       await _dio.delete<void>('/asset/$id');
-    } on DioException catch (e) {
-      throw ApiException.fromDio(e);
-    }
-  }
-
-  /// 투자 자산 ↔ 토스 종목 연결 (종목코드 + 보유수량). PUT /asset/{id}/toss-link.
-  /// 평가액 = 토스 현재가 × 수량. 프로(SECURITIES)+토스 연결 사용자만 가능(미충족 시 403).
-  Future<Asset> linkTossSymbol(int id, String symbol, int quantity) async {
-    try {
-      final res = await _dio.put<Map<String, dynamic>>(
-        '/asset/$id/toss-link',
-        data: {'symbol': symbol, 'quantity': quantity},
-      );
-      return _unwrap(res, Asset.fromJson);
-    } on DioException catch (e) {
-      throw ApiException.fromDio(e);
-    }
-  }
-
-  /// 토스 연결 해제. DELETE /asset/{id}/toss-link.
-  Future<Asset> unlinkTossSymbol(int id) async {
-    try {
-      final res = await _dio.delete<Map<String, dynamic>>('/asset/$id/toss-link');
-      return _unwrap(res, Asset.fromJson);
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }
