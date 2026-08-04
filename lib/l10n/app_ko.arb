@@ -298,15 +298,23 @@
   "assetHoldingsSummary": "{count}종목 · {amount}원",
   "@assetHoldingsSummary": {
     "placeholders": {
-      "count": {"type": "int"},
-      "amount": {"type": "String"}
+      "count": {
+        "type": "int"
+      },
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "assetHoldingRep": "{name} 외 {count}종목",
   "@assetHoldingRep": {
     "placeholders": {
-      "name": {"type": "String"},
-      "count": {"type": "int"}
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
     }
   },
   "assetNoHoldings": "보유 종목 없음",
@@ -314,15 +322,21 @@
   "assetHoldingLinkedSub": "현재가 {price} × 수량",
   "@assetHoldingLinkedSub": {
     "placeholders": {
-      "price": {"type": "String"}
+      "price": {
+        "type": "String"
+      }
     }
   },
   "assetHoldingManualSub": "평가액 직접 입력",
   "assetHoldingLinkedDetail": "{qty}주 · 현재가 {price} 연동",
   "@assetHoldingLinkedDetail": {
     "placeholders": {
-      "qty": {"type": "String"},
-      "price": {"type": "String"}
+      "qty": {
+        "type": "String"
+      },
+      "price": {
+        "type": "String"
+      }
     }
   },
   "assetHoldingManualDetail": "직접 입력",
@@ -332,7 +346,9 @@
   "assetHoldingAddManual": "\"{name}\" 직접 추가 — 평가액 입력",
   "@assetHoldingAddManual": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
   "assetSharesUnit": "주",
@@ -347,20 +363,28 @@
   "assetHoldingQtyUnit": "{qty}{unit}",
   "@assetHoldingQtyUnit": {
     "placeholders": {
-      "qty": {"type": "String"},
-      "unit": {"type": "String"}
+      "qty": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
     }
   },
   "assetInvestHoldingsSub": "투자 · 보유 {count}종목",
   "@assetInvestHoldingsSub": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "assetTodayChange": "오늘 {amount}원",
   "@assetTodayChange": {
     "placeholders": {
-      "amount": {"type": "String"}
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "assetSharesCount": "{n}주",
@@ -813,6 +837,27 @@
   "expDate": "날짜",
   "expMerchant": "가맹점",
   "expPaymentMethod": "결제 수단",
+  "expInstallment": "할부",
+  "expLumpSum": "일시불",
+  "expInstallmentMonths": "{months}개월",
+  "@expInstallmentMonths": {
+    "placeholders": {
+      "months": {
+        "type": "int"
+      }
+    }
+  },
+  "expInstallmentHint": "매달 약 {perMonth}원씩 {months}회 청구돼요",
+  "@expInstallmentHint": {
+    "placeholders": {
+      "perMonth": {
+        "type": "String"
+      },
+      "months": {
+        "type": "int"
+      }
+    }
+  },
   "expDescription": "메모",
   "expTypeIncome": "수입",
   "expTypeExpense": "지출",
@@ -2220,9 +2265,21 @@
   "stocksRange3m": "3개월",
   "stocksRange1y": "1년",
   "stocksUnitCount": "{count}개",
-  "@stocksUnitCount": {"placeholders": {"count": {"type": "int"}}},
+  "@stocksUnitCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "stocksSharesUnit": "{qty}주",
-  "@stocksSharesUnit": {"placeholders": {"qty": {"type": "String"}}},
+  "@stocksSharesUnit": {
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      }
+    }
+  },
   "stocksTradingSuspended": "거래정지",
   "stocksTradingNormal": "정상",
   "stocksWarningLiquidationTrading": "정리매매",
@@ -2805,26 +2862,50 @@
   "importFieldMerchant": "거래처",
   "importFieldPaymentMethod": "결제수단",
   "importBlockedTitle": "{names} 카테고리에 거래가 직접 등록돼 있어 하위 분류를 만들 수 없어요",
-  "@importBlockedTitle": {"placeholders": {"names": {"type": "String"}}},
+  "@importBlockedTitle": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
   "importBlockedDesc": "해당 대분류를 쓰는 행은 저장에 실패해요. 그 카테고리의 거래를 하위로 옮기거나 파일의 분류를 바꿔주세요",
   "categoryMoveTxAction": "옮기기",
   "categoryMoveTxTitle": "거래 옮기기",
   "categoryMoveTxEntry": "거래 옮기기",
   "categoryMoveTxEntryDesc": "거래가 달린 카테고리는 하위 분류를 만들 수 없어요. 거래를 옮기면 만들 수 있어요",
   "categoryMoveTxDesc": "{name} 에 달린 거래·반복거래·분할을 모두 옮겨요",
-  "@categoryMoveTxDesc": {"placeholders": {"name": {"type": "String"}}},
+  "@categoryMoveTxDesc": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "categoryMoveTxModeNew": "새 하위 만들기",
   "categoryMoveTxModeExisting": "기존 카테고리로",
   "categoryMoveTxChildName": "만들 하위 이름",
   "categoryMoveTxChildPlaceholder": "예: 강의",
   "categoryMoveTxNewHint": "{name} 아래에 만들고 거래를 모두 그리로 옮겨요. 그러면 다른 하위도 만들 수 있어요",
-  "@categoryMoveTxNewHint": {"placeholders": {"name": {"type": "String"}}},
+  "@categoryMoveTxNewHint": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "categoryMoveTxTarget": "옮길 카테고리",
   "categoryMoveTxTargetPlaceholder": "카테고리 선택",
   "categoryMoveTxHint": "같은 유형의 말단 카테고리만 고를 수 있어요",
   "categoryMoveTxNoTarget": "옮길 수 있는 카테고리가 없어요. 먼저 하나 만들어주세요",
   "categoryMoveTxDone": "{count}건을 옮겼어요",
-  "@categoryMoveTxDone": {"placeholders": {"count": {"type": "int"}}},
+  "@categoryMoveTxDone": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "importFieldDate": "날짜",
   "importFieldType": "수입/지출",
   "importFieldAmount": "금액",

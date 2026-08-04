@@ -3002,6 +3002,30 @@ abstract class AppLocalizations {
   /// **'결제 수단'**
   String get expPaymentMethod;
 
+  /// No description provided for @expInstallment.
+  ///
+  /// In ko, this message translates to:
+  /// **'할부'**
+  String get expInstallment;
+
+  /// No description provided for @expLumpSum.
+  ///
+  /// In ko, this message translates to:
+  /// **'일시불'**
+  String get expLumpSum;
+
+  /// No description provided for @expInstallmentMonths.
+  ///
+  /// In ko, this message translates to:
+  /// **'{months}개월'**
+  String expInstallmentMonths(int months);
+
+  /// No description provided for @expInstallmentHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'매달 약 {perMonth}원씩 {months}회 청구돼요'**
+  String expInstallmentHint(String perMonth, int months);
+
   /// No description provided for @expDescription.
   ///
   /// In ko, this message translates to:

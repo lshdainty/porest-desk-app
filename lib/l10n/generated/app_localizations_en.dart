@@ -1574,6 +1574,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get expPaymentMethod => 'Payment';
 
   @override
+  String get expInstallment => 'Installment';
+
+  @override
+  String get expLumpSum => 'Lump sum';
+
+  @override
+  String expInstallmentMonths(int months) {
+    return '$months months';
+  }
+
+  @override
+  String expInstallmentHint(String perMonth, int months) {
+    return 'About $perMonth per month for $months months';
+  }
+
+  @override
   String get expDescription => 'Note';
 
   @override

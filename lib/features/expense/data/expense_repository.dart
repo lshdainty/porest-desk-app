@@ -72,6 +72,7 @@ class ExpenseRepository {
     String? description,
     String? merchant,
     String? paymentMethod,
+    int? installmentMonths,
   }) async {
     try {
       final res = await _dio.post<Map<String, dynamic>>(
@@ -85,6 +86,7 @@ class ExpenseRepository {
           'description': ?description,
           'merchant': ?merchant,
           'paymentMethod': ?paymentMethod,
+          'installmentMonths': ?installmentMonths,
         },
       );
       return _unwrap(res, Expense.fromJson);
@@ -105,6 +107,7 @@ class ExpenseRepository {
     String? description,
     String? merchant,
     String? paymentMethod,
+    int? installmentMonths,
     List<SplitInput>? splits,
   }) async {
     try {
@@ -119,6 +122,7 @@ class ExpenseRepository {
           'description': ?description,
           'merchant': ?merchant,
           'paymentMethod': ?paymentMethod,
+          'installmentMonths': ?installmentMonths,
           if (splits != null)
             'splits': [
               for (final s in splits)

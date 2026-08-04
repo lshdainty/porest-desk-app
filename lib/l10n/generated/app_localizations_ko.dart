@@ -1557,6 +1557,22 @@ class AppLocalizationsKo extends AppLocalizations {
   String get expPaymentMethod => '결제 수단';
 
   @override
+  String get expInstallment => '할부';
+
+  @override
+  String get expLumpSum => '일시불';
+
+  @override
+  String expInstallmentMonths(int months) {
+    return '$months개월';
+  }
+
+  @override
+  String expInstallmentHint(String perMonth, int months) {
+    return '매달 약 $perMonth원씩 $months회 청구돼요';
+  }
+
+  @override
   String get expDescription => '메모';
 
   @override
