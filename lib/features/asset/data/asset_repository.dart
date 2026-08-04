@@ -237,11 +237,15 @@ class AssetRepository {
     }
   }
 
-  /// 지금 결제 — 이번 청구액을 결제 출금계좌에서 이체. POST /asset/{id}/pay.
+  /// 지금 결제 — 청구액을 결제 출금계좌에서 이체. POST /asset/{id}/pay.
+  /// [amount] 미전달이면 남은 청구액 전액, 전달하면 그만큼만(부분 선결제).
   /// 방금 기록된 청구 1건을 반환.
-  Future<BillingItem> payCard(int id) async {
+  Future<BillingItem> payCard(int id, {int? amount}) async {
     try {
-      final res = await _dio.post<Map<String, dynamic>>('/asset/$id/pay');
+      final res = await _dio.post<Map<String, dynamic>>(
+        '/asset/$id/pay',
+        queryParameters: amount != null ? {'amount': amount} : null,
+      );
       return _unwrap(res, BillingItem.fromJson);
     } on DioException catch (e) {
       throw ApiException.fromDio(e);

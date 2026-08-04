@@ -475,6 +475,11 @@
   },
   "assetPayNow": "Pay now",
   "assetPayAction": "Pay",
+  "assetPayAmount": "Payment amount",
+  "assetPayRemainder": "{amount} remaining will be paid on the payment date",
+  "@assetPayRemainder": {
+    "placeholders": { "amount": { "type": "String" } }
+  },
   "assetPaymentRecorded": "Payment recorded",
   "assetPayFailed": "Payment failed",
   "assetBillingLoadError": "Couldn't load billing info",
