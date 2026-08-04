@@ -1556,6 +1556,36 @@ abstract class AppLocalizations {
   /// **'선택 입력'**
   String get tradeMemoPlaceholder;
 
+  /// No description provided for @tradeSettlement.
+  ///
+  /// In ko, this message translates to:
+  /// **'결제 계좌'**
+  String get tradeSettlement;
+
+  /// No description provided for @tradeSettlementCash.
+  ///
+  /// In ko, this message translates to:
+  /// **'증권계좌 예수금'**
+  String get tradeSettlementCash;
+
+  /// No description provided for @tradeSettlementCashHelp.
+  ///
+  /// In ko, this message translates to:
+  /// **'증권계좌에 넣어둔 예수금에서 오가요.'**
+  String get tradeSettlementCashHelp;
+
+  /// No description provided for @tradeSettlementAccountHelp.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 계좌에서 바로 오가요. 증권계좌 예수금은 건드리지 않아요.'**
+  String get tradeSettlementAccountHelp;
+
+  /// No description provided for @tradeSettlementDelta.
+  ///
+  /// In ko, this message translates to:
+  /// **'결제 계좌 변동'**
+  String get tradeSettlementDelta;
+
   /// No description provided for @tradeCashAfter.
   ///
   /// In ko, this message translates to:

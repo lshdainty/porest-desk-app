@@ -28,6 +28,8 @@ abstract class AssetTrade with _$AssetTrade {
     int? realizedPl,
     String? tradeDate,
     String? description,
+    /// 결제 계좌 — 지정하면 증권계좌 예수금 대신 이 계좌에서 오간다.
+    int? settlementAssetRowId,
   }) = _AssetTrade;
 
   factory AssetTrade.fromJson(Map<String, dynamic> json) =>

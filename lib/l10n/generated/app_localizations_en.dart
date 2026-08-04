@@ -773,6 +773,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tradeMemoPlaceholder => 'Optional';
 
   @override
+  String get tradeSettlement => 'Settlement account';
+
+  @override
+  String get tradeSettlementCash => 'Brokerage cash';
+
+  @override
+  String get tradeSettlementCashHelp =>
+      'Moves in and out of the cash you keep in this brokerage account.';
+
+  @override
+  String get tradeSettlementAccountHelp =>
+      'Moves directly in and out of this account. Brokerage cash is untouched.';
+
+  @override
+  String get tradeSettlementDelta => 'Settlement account change';
+
+  @override
   String get tradeCashAfter => 'Cash after trade';
 
   @override

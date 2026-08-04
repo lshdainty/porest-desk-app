@@ -21,7 +21,8 @@ mixin _$AssetTrade {
  String get holdingKey; bool get linked;/// 소수 허용이라 문자열로 주고받는다(AssetHolding.quantity 와 같은 이유).
  String? get quantity;/// 거래대금 — 수수료 제외.
  int? get amount; int? get fee;/// 실현손익 (매도 전용). 이익 양수 / 손실 음수.
- int? get realizedPl; String? get tradeDate; String? get description;
+ int? get realizedPl; String? get tradeDate; String? get description;/// 결제 계좌 — 지정하면 증권계좌 예수금 대신 이 계좌에서 오간다.
+ int? get settlementAssetRowId;
 /// Create a copy of AssetTrade
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -34,16 +35,16 @@ $AssetTradeCopyWith<AssetTrade> get copyWith => _$AssetTradeCopyWithImpl<AssetTr
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AssetTrade&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.assetRowId, assetRowId) || other.assetRowId == assetRowId)&&(identical(other.tradeType, tradeType) || other.tradeType == tradeType)&&(identical(other.holdingType, holdingType) || other.holdingType == holdingType)&&(identical(other.holdingKey, holdingKey) || other.holdingKey == holdingKey)&&(identical(other.linked, linked) || other.linked == linked)&&(identical(other.quantity, quantity) || other.quantity == quantity)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.fee, fee) || other.fee == fee)&&(identical(other.realizedPl, realizedPl) || other.realizedPl == realizedPl)&&(identical(other.tradeDate, tradeDate) || other.tradeDate == tradeDate)&&(identical(other.description, description) || other.description == description));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AssetTrade&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.assetRowId, assetRowId) || other.assetRowId == assetRowId)&&(identical(other.tradeType, tradeType) || other.tradeType == tradeType)&&(identical(other.holdingType, holdingType) || other.holdingType == holdingType)&&(identical(other.holdingKey, holdingKey) || other.holdingKey == holdingKey)&&(identical(other.linked, linked) || other.linked == linked)&&(identical(other.quantity, quantity) || other.quantity == quantity)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.fee, fee) || other.fee == fee)&&(identical(other.realizedPl, realizedPl) || other.realizedPl == realizedPl)&&(identical(other.tradeDate, tradeDate) || other.tradeDate == tradeDate)&&(identical(other.description, description) || other.description == description)&&(identical(other.settlementAssetRowId, settlementAssetRowId) || other.settlementAssetRowId == settlementAssetRowId));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,rowId,assetRowId,tradeType,holdingType,holdingKey,linked,quantity,amount,fee,realizedPl,tradeDate,description);
+int get hashCode => Object.hash(runtimeType,rowId,assetRowId,tradeType,holdingType,holdingKey,linked,quantity,amount,fee,realizedPl,tradeDate,description,settlementAssetRowId);
 
 @override
 String toString() {
-  return 'AssetTrade(rowId: $rowId, assetRowId: $assetRowId, tradeType: $tradeType, holdingType: $holdingType, holdingKey: $holdingKey, linked: $linked, quantity: $quantity, amount: $amount, fee: $fee, realizedPl: $realizedPl, tradeDate: $tradeDate, description: $description)';
+  return 'AssetTrade(rowId: $rowId, assetRowId: $assetRowId, tradeType: $tradeType, holdingType: $holdingType, holdingKey: $holdingKey, linked: $linked, quantity: $quantity, amount: $amount, fee: $fee, realizedPl: $realizedPl, tradeDate: $tradeDate, description: $description, settlementAssetRowId: $settlementAssetRowId)';
 }
 
 
@@ -54,7 +55,7 @@ abstract mixin class $AssetTradeCopyWith<$Res>  {
   factory $AssetTradeCopyWith(AssetTrade value, $Res Function(AssetTrade) _then) = _$AssetTradeCopyWithImpl;
 @useResult
 $Res call({
- int rowId, int assetRowId, String tradeType, String? holdingType, String holdingKey, bool linked, String? quantity, int? amount, int? fee, int? realizedPl, String? tradeDate, String? description
+ int rowId, int assetRowId, String tradeType, String? holdingType, String holdingKey, bool linked, String? quantity, int? amount, int? fee, int? realizedPl, String? tradeDate, String? description, int? settlementAssetRowId
 });
 
 
@@ -71,7 +72,7 @@ class _$AssetTradeCopyWithImpl<$Res>
 
 /// Create a copy of AssetTrade
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? rowId = null,Object? assetRowId = null,Object? tradeType = null,Object? holdingType = freezed,Object? holdingKey = null,Object? linked = null,Object? quantity = freezed,Object? amount = freezed,Object? fee = freezed,Object? realizedPl = freezed,Object? tradeDate = freezed,Object? description = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? rowId = null,Object? assetRowId = null,Object? tradeType = null,Object? holdingType = freezed,Object? holdingKey = null,Object? linked = null,Object? quantity = freezed,Object? amount = freezed,Object? fee = freezed,Object? realizedPl = freezed,Object? tradeDate = freezed,Object? description = freezed,Object? settlementAssetRowId = freezed,}) {
   return _then(_self.copyWith(
 rowId: null == rowId ? _self.rowId : rowId // ignore: cast_nullable_to_non_nullable
 as int,assetRowId: null == assetRowId ? _self.assetRowId : assetRowId // ignore: cast_nullable_to_non_nullable
@@ -85,7 +86,8 @@ as int?,fee: freezed == fee ? _self.fee : fee // ignore: cast_nullable_to_non_nu
 as int?,realizedPl: freezed == realizedPl ? _self.realizedPl : realizedPl // ignore: cast_nullable_to_non_nullable
 as int?,tradeDate: freezed == tradeDate ? _self.tradeDate : tradeDate // ignore: cast_nullable_to_non_nullable
 as String?,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,settlementAssetRowId: freezed == settlementAssetRowId ? _self.settlementAssetRowId : settlementAssetRowId // ignore: cast_nullable_to_non_nullable
+as int?,
   ));
 }
 
@@ -170,10 +172,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int rowId,  int assetRowId,  String tradeType,  String? holdingType,  String holdingKey,  bool linked,  String? quantity,  int? amount,  int? fee,  int? realizedPl,  String? tradeDate,  String? description)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int rowId,  int assetRowId,  String tradeType,  String? holdingType,  String holdingKey,  bool linked,  String? quantity,  int? amount,  int? fee,  int? realizedPl,  String? tradeDate,  String? description,  int? settlementAssetRowId)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _AssetTrade() when $default != null:
-return $default(_that.rowId,_that.assetRowId,_that.tradeType,_that.holdingType,_that.holdingKey,_that.linked,_that.quantity,_that.amount,_that.fee,_that.realizedPl,_that.tradeDate,_that.description);case _:
+return $default(_that.rowId,_that.assetRowId,_that.tradeType,_that.holdingType,_that.holdingKey,_that.linked,_that.quantity,_that.amount,_that.fee,_that.realizedPl,_that.tradeDate,_that.description,_that.settlementAssetRowId);case _:
   return orElse();
 
 }
@@ -191,10 +193,10 @@ return $default(_that.rowId,_that.assetRowId,_that.tradeType,_that.holdingType,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int rowId,  int assetRowId,  String tradeType,  String? holdingType,  String holdingKey,  bool linked,  String? quantity,  int? amount,  int? fee,  int? realizedPl,  String? tradeDate,  String? description)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int rowId,  int assetRowId,  String tradeType,  String? holdingType,  String holdingKey,  bool linked,  String? quantity,  int? amount,  int? fee,  int? realizedPl,  String? tradeDate,  String? description,  int? settlementAssetRowId)  $default,) {final _that = this;
 switch (_that) {
 case _AssetTrade():
-return $default(_that.rowId,_that.assetRowId,_that.tradeType,_that.holdingType,_that.holdingKey,_that.linked,_that.quantity,_that.amount,_that.fee,_that.realizedPl,_that.tradeDate,_that.description);case _:
+return $default(_that.rowId,_that.assetRowId,_that.tradeType,_that.holdingType,_that.holdingKey,_that.linked,_that.quantity,_that.amount,_that.fee,_that.realizedPl,_that.tradeDate,_that.description,_that.settlementAssetRowId);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -211,10 +213,10 @@ return $default(_that.rowId,_that.assetRowId,_that.tradeType,_that.holdingType,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int rowId,  int assetRowId,  String tradeType,  String? holdingType,  String holdingKey,  bool linked,  String? quantity,  int? amount,  int? fee,  int? realizedPl,  String? tradeDate,  String? description)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int rowId,  int assetRowId,  String tradeType,  String? holdingType,  String holdingKey,  bool linked,  String? quantity,  int? amount,  int? fee,  int? realizedPl,  String? tradeDate,  String? description,  int? settlementAssetRowId)?  $default,) {final _that = this;
 switch (_that) {
 case _AssetTrade() when $default != null:
-return $default(_that.rowId,_that.assetRowId,_that.tradeType,_that.holdingType,_that.holdingKey,_that.linked,_that.quantity,_that.amount,_that.fee,_that.realizedPl,_that.tradeDate,_that.description);case _:
+return $default(_that.rowId,_that.assetRowId,_that.tradeType,_that.holdingType,_that.holdingKey,_that.linked,_that.quantity,_that.amount,_that.fee,_that.realizedPl,_that.tradeDate,_that.description,_that.settlementAssetRowId);case _:
   return null;
 
 }
@@ -226,7 +228,7 @@ return $default(_that.rowId,_that.assetRowId,_that.tradeType,_that.holdingType,_
 @JsonSerializable()
 
 class _AssetTrade implements AssetTrade {
-  const _AssetTrade({required this.rowId, required this.assetRowId, required this.tradeType, this.holdingType, required this.holdingKey, this.linked = false, this.quantity, this.amount, this.fee, this.realizedPl, this.tradeDate, this.description});
+  const _AssetTrade({required this.rowId, required this.assetRowId, required this.tradeType, this.holdingType, required this.holdingKey, this.linked = false, this.quantity, this.amount, this.fee, this.realizedPl, this.tradeDate, this.description, this.settlementAssetRowId});
   factory _AssetTrade.fromJson(Map<String, dynamic> json) => _$AssetTradeFromJson(json);
 
 @override final  int rowId;
@@ -247,6 +249,8 @@ class _AssetTrade implements AssetTrade {
 @override final  int? realizedPl;
 @override final  String? tradeDate;
 @override final  String? description;
+/// 결제 계좌 — 지정하면 증권계좌 예수금 대신 이 계좌에서 오간다.
+@override final  int? settlementAssetRowId;
 
 /// Create a copy of AssetTrade
 /// with the given fields replaced by the non-null parameter values.
@@ -261,16 +265,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AssetTrade&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.assetRowId, assetRowId) || other.assetRowId == assetRowId)&&(identical(other.tradeType, tradeType) || other.tradeType == tradeType)&&(identical(other.holdingType, holdingType) || other.holdingType == holdingType)&&(identical(other.holdingKey, holdingKey) || other.holdingKey == holdingKey)&&(identical(other.linked, linked) || other.linked == linked)&&(identical(other.quantity, quantity) || other.quantity == quantity)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.fee, fee) || other.fee == fee)&&(identical(other.realizedPl, realizedPl) || other.realizedPl == realizedPl)&&(identical(other.tradeDate, tradeDate) || other.tradeDate == tradeDate)&&(identical(other.description, description) || other.description == description));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AssetTrade&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.assetRowId, assetRowId) || other.assetRowId == assetRowId)&&(identical(other.tradeType, tradeType) || other.tradeType == tradeType)&&(identical(other.holdingType, holdingType) || other.holdingType == holdingType)&&(identical(other.holdingKey, holdingKey) || other.holdingKey == holdingKey)&&(identical(other.linked, linked) || other.linked == linked)&&(identical(other.quantity, quantity) || other.quantity == quantity)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.fee, fee) || other.fee == fee)&&(identical(other.realizedPl, realizedPl) || other.realizedPl == realizedPl)&&(identical(other.tradeDate, tradeDate) || other.tradeDate == tradeDate)&&(identical(other.description, description) || other.description == description)&&(identical(other.settlementAssetRowId, settlementAssetRowId) || other.settlementAssetRowId == settlementAssetRowId));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,rowId,assetRowId,tradeType,holdingType,holdingKey,linked,quantity,amount,fee,realizedPl,tradeDate,description);
+int get hashCode => Object.hash(runtimeType,rowId,assetRowId,tradeType,holdingType,holdingKey,linked,quantity,amount,fee,realizedPl,tradeDate,description,settlementAssetRowId);
 
 @override
 String toString() {
-  return 'AssetTrade(rowId: $rowId, assetRowId: $assetRowId, tradeType: $tradeType, holdingType: $holdingType, holdingKey: $holdingKey, linked: $linked, quantity: $quantity, amount: $amount, fee: $fee, realizedPl: $realizedPl, tradeDate: $tradeDate, description: $description)';
+  return 'AssetTrade(rowId: $rowId, assetRowId: $assetRowId, tradeType: $tradeType, holdingType: $holdingType, holdingKey: $holdingKey, linked: $linked, quantity: $quantity, amount: $amount, fee: $fee, realizedPl: $realizedPl, tradeDate: $tradeDate, description: $description, settlementAssetRowId: $settlementAssetRowId)';
 }
 
 
@@ -281,7 +285,7 @@ abstract mixin class _$AssetTradeCopyWith<$Res> implements $AssetTradeCopyWith<$
   factory _$AssetTradeCopyWith(_AssetTrade value, $Res Function(_AssetTrade) _then) = __$AssetTradeCopyWithImpl;
 @override @useResult
 $Res call({
- int rowId, int assetRowId, String tradeType, String? holdingType, String holdingKey, bool linked, String? quantity, int? amount, int? fee, int? realizedPl, String? tradeDate, String? description
+ int rowId, int assetRowId, String tradeType, String? holdingType, String holdingKey, bool linked, String? quantity, int? amount, int? fee, int? realizedPl, String? tradeDate, String? description, int? settlementAssetRowId
 });
 
 
@@ -298,7 +302,7 @@ class __$AssetTradeCopyWithImpl<$Res>
 
 /// Create a copy of AssetTrade
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? rowId = null,Object? assetRowId = null,Object? tradeType = null,Object? holdingType = freezed,Object? holdingKey = null,Object? linked = null,Object? quantity = freezed,Object? amount = freezed,Object? fee = freezed,Object? realizedPl = freezed,Object? tradeDate = freezed,Object? description = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? rowId = null,Object? assetRowId = null,Object? tradeType = null,Object? holdingType = freezed,Object? holdingKey = null,Object? linked = null,Object? quantity = freezed,Object? amount = freezed,Object? fee = freezed,Object? realizedPl = freezed,Object? tradeDate = freezed,Object? description = freezed,Object? settlementAssetRowId = freezed,}) {
   return _then(_AssetTrade(
 rowId: null == rowId ? _self.rowId : rowId // ignore: cast_nullable_to_non_nullable
 as int,assetRowId: null == assetRowId ? _self.assetRowId : assetRowId // ignore: cast_nullable_to_non_nullable
@@ -312,7 +316,8 @@ as int?,fee: freezed == fee ? _self.fee : fee // ignore: cast_nullable_to_non_nu
 as int?,realizedPl: freezed == realizedPl ? _self.realizedPl : realizedPl // ignore: cast_nullable_to_non_nullable
 as int?,tradeDate: freezed == tradeDate ? _self.tradeDate : tradeDate // ignore: cast_nullable_to_non_nullable
 as String?,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,settlementAssetRowId: freezed == settlementAssetRowId ? _self.settlementAssetRowId : settlementAssetRowId // ignore: cast_nullable_to_non_nullable
+as int?,
   ));
 }
 
