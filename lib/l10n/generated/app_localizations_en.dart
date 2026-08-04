@@ -593,11 +593,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Search brokerages, crypto & commodity exchanges';
 
   @override
-  String get assetProductName => 'Product / ticker';
+  String get assetProductName => 'Alias';
 
   @override
-  String get assetProductPlaceholder =>
-      'e.g. KODEX 200, overseas ETF portfolio';
+  String get assetProductPlaceholder => 'e.g. Pension savings, Gold holdings';
 
   @override
   String get assetValuation => 'Valuation (KRW)';
