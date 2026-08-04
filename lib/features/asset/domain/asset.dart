@@ -52,15 +52,38 @@ abstract class AssetCardCatalog with _$AssetCardCatalog {
       _$AssetCardCatalogFromJson(json);
 }
 
+/// 보유 유형 — 수량 단위가 다르다(주식 주 / 금 g / 코인 개).
+/// 토스 시세 연동(linked)은 STOCK 만 가능 — 금·코인은 시세를 못 받는다.
+enum AssetHoldingType {
+  @JsonValue('STOCK')
+  stock,
+  @JsonValue('GOLD')
+  gold,
+  @JsonValue('CRYPTO')
+  crypto;
+
+  /// 서버 계약 값 — 요청 바디 직렬화용.
+  String get wire => switch (this) {
+        AssetHoldingType.stock => 'STOCK',
+        AssetHoldingType.gold => 'GOLD',
+        AssetHoldingType.crypto => 'CRYPTO',
+      };
+}
+
 /// 투자 보유 종목 1건 — 백엔드 `holdings[]` 계약 미러.
 /// linked=true → tossSymbol+quantity(현재가 연동), false → holdingName+holdingValue(직접 입력).
 @freezed
 abstract class AssetHolding with _$AssetHolding {
   const factory AssetHolding({
     int? rowId,
+    // 구버전 응답엔 없음 — 없거나 모르는 값이면 주식으로 본다(하위호환).
+    @JsonKey(unknownEnumValue: AssetHoldingType.stock)
+    @Default(AssetHoldingType.stock)
+    AssetHoldingType holdingType,
     @Default(false) bool linked,
     String? tossSymbol,
-    int? quantity,
+    // 코인 0.05·금 3.75g 등 소수 허용. 미연동도 기록 가능(선택).
+    double? quantity,
     String? holdingName,
     int? holdingValue,
     int? sortOrder,

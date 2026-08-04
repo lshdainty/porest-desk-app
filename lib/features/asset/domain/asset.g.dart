@@ -75,9 +75,16 @@ Map<String, dynamic> _$AssetCardCatalogToJson(_AssetCardCatalog instance) =>
 _AssetHolding _$AssetHoldingFromJson(Map<String, dynamic> json) =>
     _AssetHolding(
       rowId: (json['rowId'] as num?)?.toInt(),
+      holdingType:
+          $enumDecodeNullable(
+            _$AssetHoldingTypeEnumMap,
+            json['holdingType'],
+            unknownValue: AssetHoldingType.stock,
+          ) ??
+          AssetHoldingType.stock,
       linked: json['linked'] as bool? ?? false,
       tossSymbol: json['tossSymbol'] as String?,
-      quantity: (json['quantity'] as num?)?.toInt(),
+      quantity: (json['quantity'] as num?)?.toDouble(),
       holdingName: json['holdingName'] as String?,
       holdingValue: (json['holdingValue'] as num?)?.toInt(),
       sortOrder: (json['sortOrder'] as num?)?.toInt(),
@@ -86,6 +93,7 @@ _AssetHolding _$AssetHoldingFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$AssetHoldingToJson(_AssetHolding instance) =>
     <String, dynamic>{
       'rowId': instance.rowId,
+      'holdingType': _$AssetHoldingTypeEnumMap[instance.holdingType]!,
       'linked': instance.linked,
       'tossSymbol': instance.tossSymbol,
       'quantity': instance.quantity,
@@ -93,3 +101,9 @@ Map<String, dynamic> _$AssetHoldingToJson(_AssetHolding instance) =>
       'holdingValue': instance.holdingValue,
       'sortOrder': instance.sortOrder,
     };
+
+const _$AssetHoldingTypeEnumMap = {
+  AssetHoldingType.stock: 'STOCK',
+  AssetHoldingType.gold: 'GOLD',
+  AssetHoldingType.crypto: 'CRYPTO',
+};

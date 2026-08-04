@@ -318,7 +318,7 @@
   "assetHoldingLinkedDetail": "{qty} shares · linked at {price}",
   "@assetHoldingLinkedDetail": {
     "placeholders": {
-      "qty": {"type": "int"},
+      "qty": {"type": "String"},
       "price": {"type": "String"}
     }
   },
@@ -333,6 +333,21 @@
     }
   },
   "assetSharesUnit": "sh",
+  "assetHoldingTypeStock": "Stocks",
+  "assetHoldingTypeGold": "Gold",
+  "assetHoldingTypeCrypto": "Crypto",
+  "assetHoldingAddGold": "Add gold",
+  "assetHoldingAddCrypto": "Add crypto",
+  "assetHoldingUnitGram": "g",
+  "assetHoldingUnitCount": "units",
+  "assetHoldingNamePlaceholder": "Item name",
+  "assetHoldingQtyUnit": "{qty} {unit}",
+  "@assetHoldingQtyUnit": {
+    "placeholders": {
+      "qty": {"type": "String"},
+      "unit": {"type": "String"}
+    }
+  },
   "assetInvestHoldingsSub": "Investment · {count} holdings",
   "@assetInvestHoldingsSub": {
     "placeholders": {
@@ -349,7 +364,7 @@
   "@assetSharesCount": {
     "placeholders": {
       "n": {
-        "type": "int"
+        "type": "String"
       }
     }
   },

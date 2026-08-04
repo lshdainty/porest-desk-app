@@ -1410,7 +1410,7 @@ abstract class AppLocalizations {
   ///
   /// In ko, this message translates to:
   /// **'{qty}주 · 현재가 {price} 연동'**
-  String assetHoldingLinkedDetail(int qty, String price);
+  String assetHoldingLinkedDetail(String qty, String price);
 
   /// No description provided for @assetHoldingManualDetail.
   ///
@@ -1448,6 +1448,60 @@ abstract class AppLocalizations {
   /// **'주'**
   String get assetSharesUnit;
 
+  /// No description provided for @assetHoldingTypeStock.
+  ///
+  /// In ko, this message translates to:
+  /// **'주식'**
+  String get assetHoldingTypeStock;
+
+  /// No description provided for @assetHoldingTypeGold.
+  ///
+  /// In ko, this message translates to:
+  /// **'금'**
+  String get assetHoldingTypeGold;
+
+  /// No description provided for @assetHoldingTypeCrypto.
+  ///
+  /// In ko, this message translates to:
+  /// **'코인'**
+  String get assetHoldingTypeCrypto;
+
+  /// No description provided for @assetHoldingAddGold.
+  ///
+  /// In ko, this message translates to:
+  /// **'금 추가'**
+  String get assetHoldingAddGold;
+
+  /// No description provided for @assetHoldingAddCrypto.
+  ///
+  /// In ko, this message translates to:
+  /// **'코인 추가'**
+  String get assetHoldingAddCrypto;
+
+  /// No description provided for @assetHoldingUnitGram.
+  ///
+  /// In ko, this message translates to:
+  /// **'g'**
+  String get assetHoldingUnitGram;
+
+  /// No description provided for @assetHoldingUnitCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'개'**
+  String get assetHoldingUnitCount;
+
+  /// No description provided for @assetHoldingNamePlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'항목 이름'**
+  String get assetHoldingNamePlaceholder;
+
+  /// No description provided for @assetHoldingQtyUnit.
+  ///
+  /// In ko, this message translates to:
+  /// **'{qty}{unit}'**
+  String assetHoldingQtyUnit(String qty, String unit);
+
   /// No description provided for @assetInvestHoldingsSub.
   ///
   /// In ko, this message translates to:
@@ -1464,7 +1518,7 @@ abstract class AppLocalizations {
   ///
   /// In ko, this message translates to:
   /// **'{n}주'**
-  String assetSharesCount(int n);
+  String assetSharesCount(String n);
 
   /// No description provided for @assetTossValuationFormula.
   ///

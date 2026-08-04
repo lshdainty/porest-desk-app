@@ -663,7 +663,9 @@ as String?,
 /// @nodoc
 mixin _$AssetHolding {
 
- int? get rowId; bool get linked; String? get tossSymbol; int? get quantity; String? get holdingName; int? get holdingValue; int? get sortOrder;
+ int? get rowId;// 구버전 응답엔 없음 — 없거나 모르는 값이면 주식으로 본다(하위호환).
+@JsonKey(unknownEnumValue: AssetHoldingType.stock) AssetHoldingType get holdingType; bool get linked; String? get tossSymbol;// 코인 0.05·금 3.75g 등 소수 허용. 미연동도 기록 가능(선택).
+ double? get quantity; String? get holdingName; int? get holdingValue; int? get sortOrder;
 /// Create a copy of AssetHolding
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -676,16 +678,16 @@ $AssetHoldingCopyWith<AssetHolding> get copyWith => _$AssetHoldingCopyWithImpl<A
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AssetHolding&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.linked, linked) || other.linked == linked)&&(identical(other.tossSymbol, tossSymbol) || other.tossSymbol == tossSymbol)&&(identical(other.quantity, quantity) || other.quantity == quantity)&&(identical(other.holdingName, holdingName) || other.holdingName == holdingName)&&(identical(other.holdingValue, holdingValue) || other.holdingValue == holdingValue)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AssetHolding&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.holdingType, holdingType) || other.holdingType == holdingType)&&(identical(other.linked, linked) || other.linked == linked)&&(identical(other.tossSymbol, tossSymbol) || other.tossSymbol == tossSymbol)&&(identical(other.quantity, quantity) || other.quantity == quantity)&&(identical(other.holdingName, holdingName) || other.holdingName == holdingName)&&(identical(other.holdingValue, holdingValue) || other.holdingValue == holdingValue)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,rowId,linked,tossSymbol,quantity,holdingName,holdingValue,sortOrder);
+int get hashCode => Object.hash(runtimeType,rowId,holdingType,linked,tossSymbol,quantity,holdingName,holdingValue,sortOrder);
 
 @override
 String toString() {
-  return 'AssetHolding(rowId: $rowId, linked: $linked, tossSymbol: $tossSymbol, quantity: $quantity, holdingName: $holdingName, holdingValue: $holdingValue, sortOrder: $sortOrder)';
+  return 'AssetHolding(rowId: $rowId, holdingType: $holdingType, linked: $linked, tossSymbol: $tossSymbol, quantity: $quantity, holdingName: $holdingName, holdingValue: $holdingValue, sortOrder: $sortOrder)';
 }
 
 
@@ -696,7 +698,7 @@ abstract mixin class $AssetHoldingCopyWith<$Res>  {
   factory $AssetHoldingCopyWith(AssetHolding value, $Res Function(AssetHolding) _then) = _$AssetHoldingCopyWithImpl;
 @useResult
 $Res call({
- int? rowId, bool linked, String? tossSymbol, int? quantity, String? holdingName, int? holdingValue, int? sortOrder
+ int? rowId,@JsonKey(unknownEnumValue: AssetHoldingType.stock) AssetHoldingType holdingType, bool linked, String? tossSymbol, double? quantity, String? holdingName, int? holdingValue, int? sortOrder
 });
 
 
@@ -713,13 +715,14 @@ class _$AssetHoldingCopyWithImpl<$Res>
 
 /// Create a copy of AssetHolding
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? rowId = freezed,Object? linked = null,Object? tossSymbol = freezed,Object? quantity = freezed,Object? holdingName = freezed,Object? holdingValue = freezed,Object? sortOrder = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? rowId = freezed,Object? holdingType = null,Object? linked = null,Object? tossSymbol = freezed,Object? quantity = freezed,Object? holdingName = freezed,Object? holdingValue = freezed,Object? sortOrder = freezed,}) {
   return _then(_self.copyWith(
 rowId: freezed == rowId ? _self.rowId : rowId // ignore: cast_nullable_to_non_nullable
-as int?,linked: null == linked ? _self.linked : linked // ignore: cast_nullable_to_non_nullable
+as int?,holdingType: null == holdingType ? _self.holdingType : holdingType // ignore: cast_nullable_to_non_nullable
+as AssetHoldingType,linked: null == linked ? _self.linked : linked // ignore: cast_nullable_to_non_nullable
 as bool,tossSymbol: freezed == tossSymbol ? _self.tossSymbol : tossSymbol // ignore: cast_nullable_to_non_nullable
 as String?,quantity: freezed == quantity ? _self.quantity : quantity // ignore: cast_nullable_to_non_nullable
-as int?,holdingName: freezed == holdingName ? _self.holdingName : holdingName // ignore: cast_nullable_to_non_nullable
+as double?,holdingName: freezed == holdingName ? _self.holdingName : holdingName // ignore: cast_nullable_to_non_nullable
 as String?,holdingValue: freezed == holdingValue ? _self.holdingValue : holdingValue // ignore: cast_nullable_to_non_nullable
 as int?,sortOrder: freezed == sortOrder ? _self.sortOrder : sortOrder // ignore: cast_nullable_to_non_nullable
 as int?,
@@ -807,10 +810,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? rowId,  bool linked,  String? tossSymbol,  int? quantity,  String? holdingName,  int? holdingValue,  int? sortOrder)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? rowId, @JsonKey(unknownEnumValue: AssetHoldingType.stock)  AssetHoldingType holdingType,  bool linked,  String? tossSymbol,  double? quantity,  String? holdingName,  int? holdingValue,  int? sortOrder)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _AssetHolding() when $default != null:
-return $default(_that.rowId,_that.linked,_that.tossSymbol,_that.quantity,_that.holdingName,_that.holdingValue,_that.sortOrder);case _:
+return $default(_that.rowId,_that.holdingType,_that.linked,_that.tossSymbol,_that.quantity,_that.holdingName,_that.holdingValue,_that.sortOrder);case _:
   return orElse();
 
 }
@@ -828,10 +831,10 @@ return $default(_that.rowId,_that.linked,_that.tossSymbol,_that.quantity,_that.h
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? rowId,  bool linked,  String? tossSymbol,  int? quantity,  String? holdingName,  int? holdingValue,  int? sortOrder)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? rowId, @JsonKey(unknownEnumValue: AssetHoldingType.stock)  AssetHoldingType holdingType,  bool linked,  String? tossSymbol,  double? quantity,  String? holdingName,  int? holdingValue,  int? sortOrder)  $default,) {final _that = this;
 switch (_that) {
 case _AssetHolding():
-return $default(_that.rowId,_that.linked,_that.tossSymbol,_that.quantity,_that.holdingName,_that.holdingValue,_that.sortOrder);case _:
+return $default(_that.rowId,_that.holdingType,_that.linked,_that.tossSymbol,_that.quantity,_that.holdingName,_that.holdingValue,_that.sortOrder);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -848,10 +851,10 @@ return $default(_that.rowId,_that.linked,_that.tossSymbol,_that.quantity,_that.h
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? rowId,  bool linked,  String? tossSymbol,  int? quantity,  String? holdingName,  int? holdingValue,  int? sortOrder)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? rowId, @JsonKey(unknownEnumValue: AssetHoldingType.stock)  AssetHoldingType holdingType,  bool linked,  String? tossSymbol,  double? quantity,  String? holdingName,  int? holdingValue,  int? sortOrder)?  $default,) {final _that = this;
 switch (_that) {
 case _AssetHolding() when $default != null:
-return $default(_that.rowId,_that.linked,_that.tossSymbol,_that.quantity,_that.holdingName,_that.holdingValue,_that.sortOrder);case _:
+return $default(_that.rowId,_that.holdingType,_that.linked,_that.tossSymbol,_that.quantity,_that.holdingName,_that.holdingValue,_that.sortOrder);case _:
   return null;
 
 }
@@ -863,13 +866,16 @@ return $default(_that.rowId,_that.linked,_that.tossSymbol,_that.quantity,_that.h
 @JsonSerializable()
 
 class _AssetHolding implements AssetHolding {
-  const _AssetHolding({this.rowId, this.linked = false, this.tossSymbol, this.quantity, this.holdingName, this.holdingValue, this.sortOrder});
+  const _AssetHolding({this.rowId, @JsonKey(unknownEnumValue: AssetHoldingType.stock) this.holdingType = AssetHoldingType.stock, this.linked = false, this.tossSymbol, this.quantity, this.holdingName, this.holdingValue, this.sortOrder});
   factory _AssetHolding.fromJson(Map<String, dynamic> json) => _$AssetHoldingFromJson(json);
 
 @override final  int? rowId;
+// 구버전 응답엔 없음 — 없거나 모르는 값이면 주식으로 본다(하위호환).
+@override@JsonKey(unknownEnumValue: AssetHoldingType.stock) final  AssetHoldingType holdingType;
 @override@JsonKey() final  bool linked;
 @override final  String? tossSymbol;
-@override final  int? quantity;
+// 코인 0.05·금 3.75g 등 소수 허용. 미연동도 기록 가능(선택).
+@override final  double? quantity;
 @override final  String? holdingName;
 @override final  int? holdingValue;
 @override final  int? sortOrder;
@@ -887,16 +893,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AssetHolding&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.linked, linked) || other.linked == linked)&&(identical(other.tossSymbol, tossSymbol) || other.tossSymbol == tossSymbol)&&(identical(other.quantity, quantity) || other.quantity == quantity)&&(identical(other.holdingName, holdingName) || other.holdingName == holdingName)&&(identical(other.holdingValue, holdingValue) || other.holdingValue == holdingValue)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AssetHolding&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.holdingType, holdingType) || other.holdingType == holdingType)&&(identical(other.linked, linked) || other.linked == linked)&&(identical(other.tossSymbol, tossSymbol) || other.tossSymbol == tossSymbol)&&(identical(other.quantity, quantity) || other.quantity == quantity)&&(identical(other.holdingName, holdingName) || other.holdingName == holdingName)&&(identical(other.holdingValue, holdingValue) || other.holdingValue == holdingValue)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,rowId,linked,tossSymbol,quantity,holdingName,holdingValue,sortOrder);
+int get hashCode => Object.hash(runtimeType,rowId,holdingType,linked,tossSymbol,quantity,holdingName,holdingValue,sortOrder);
 
 @override
 String toString() {
-  return 'AssetHolding(rowId: $rowId, linked: $linked, tossSymbol: $tossSymbol, quantity: $quantity, holdingName: $holdingName, holdingValue: $holdingValue, sortOrder: $sortOrder)';
+  return 'AssetHolding(rowId: $rowId, holdingType: $holdingType, linked: $linked, tossSymbol: $tossSymbol, quantity: $quantity, holdingName: $holdingName, holdingValue: $holdingValue, sortOrder: $sortOrder)';
 }
 
 
@@ -907,7 +913,7 @@ abstract mixin class _$AssetHoldingCopyWith<$Res> implements $AssetHoldingCopyWi
   factory _$AssetHoldingCopyWith(_AssetHolding value, $Res Function(_AssetHolding) _then) = __$AssetHoldingCopyWithImpl;
 @override @useResult
 $Res call({
- int? rowId, bool linked, String? tossSymbol, int? quantity, String? holdingName, int? holdingValue, int? sortOrder
+ int? rowId,@JsonKey(unknownEnumValue: AssetHoldingType.stock) AssetHoldingType holdingType, bool linked, String? tossSymbol, double? quantity, String? holdingName, int? holdingValue, int? sortOrder
 });
 
 
@@ -924,13 +930,14 @@ class __$AssetHoldingCopyWithImpl<$Res>
 
 /// Create a copy of AssetHolding
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? rowId = freezed,Object? linked = null,Object? tossSymbol = freezed,Object? quantity = freezed,Object? holdingName = freezed,Object? holdingValue = freezed,Object? sortOrder = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? rowId = freezed,Object? holdingType = null,Object? linked = null,Object? tossSymbol = freezed,Object? quantity = freezed,Object? holdingName = freezed,Object? holdingValue = freezed,Object? sortOrder = freezed,}) {
   return _then(_AssetHolding(
 rowId: freezed == rowId ? _self.rowId : rowId // ignore: cast_nullable_to_non_nullable
-as int?,linked: null == linked ? _self.linked : linked // ignore: cast_nullable_to_non_nullable
+as int?,holdingType: null == holdingType ? _self.holdingType : holdingType // ignore: cast_nullable_to_non_nullable
+as AssetHoldingType,linked: null == linked ? _self.linked : linked // ignore: cast_nullable_to_non_nullable
 as bool,tossSymbol: freezed == tossSymbol ? _self.tossSymbol : tossSymbol // ignore: cast_nullable_to_non_nullable
 as String?,quantity: freezed == quantity ? _self.quantity : quantity // ignore: cast_nullable_to_non_nullable
-as int?,holdingName: freezed == holdingName ? _self.holdingName : holdingName // ignore: cast_nullable_to_non_nullable
+as double?,holdingName: freezed == holdingName ? _self.holdingName : holdingName // ignore: cast_nullable_to_non_nullable
 as String?,holdingValue: freezed == holdingValue ? _self.holdingValue : holdingValue // ignore: cast_nullable_to_non_nullable
 as int?,sortOrder: freezed == sortOrder ? _self.sortOrder : sortOrder // ignore: cast_nullable_to_non_nullable
 as int?,

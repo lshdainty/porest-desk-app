@@ -691,7 +691,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetHoldingManualSub => '평가액 직접 입력';
 
   @override
-  String assetHoldingLinkedDetail(int qty, String price) {
+  String assetHoldingLinkedDetail(String qty, String price) {
     return '$qty주 · 현재가 $price 연동';
   }
 
@@ -717,6 +717,35 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetSharesUnit => '주';
 
   @override
+  String get assetHoldingTypeStock => '주식';
+
+  @override
+  String get assetHoldingTypeGold => '금';
+
+  @override
+  String get assetHoldingTypeCrypto => '코인';
+
+  @override
+  String get assetHoldingAddGold => '금 추가';
+
+  @override
+  String get assetHoldingAddCrypto => '코인 추가';
+
+  @override
+  String get assetHoldingUnitGram => 'g';
+
+  @override
+  String get assetHoldingUnitCount => '개';
+
+  @override
+  String get assetHoldingNamePlaceholder => '항목 이름';
+
+  @override
+  String assetHoldingQtyUnit(String qty, String unit) {
+    return '$qty$unit';
+  }
+
+  @override
   String assetInvestHoldingsSub(int count) {
     return '투자 · 보유 $count종목';
   }
@@ -727,7 +756,7 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String assetSharesCount(int n) {
+  String assetSharesCount(String n) {
     return '$n주';
   }
 
