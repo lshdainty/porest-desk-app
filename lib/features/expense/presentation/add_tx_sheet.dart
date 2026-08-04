@@ -1038,11 +1038,15 @@ bool _allowTxAsset(Asset a, String paymentMethod, String type) {
   return true;
 }
 
-/// 이체 대상 자산 — 체크카드는 뺀다. 잔액을 들지 않는 자산이라(긁는 즉시 연결 계좌에서
-/// 빠진다) 이체할 잔액이 없고, 걸면 카드에 있을 수 없는 잔액이 생긴다.
-/// 신용카드는 결제일 자동이체 대상이라 그대로 둔다.
-List<Asset> _transferAssets(List<Asset> assets) =>
-    assets.where((a) => a.assetType != 'CHECK_CARD').toList(growable: false);
+/// 이체 대상 자산 — 카드는 뺀다.
+///   체크카드: 잔액을 들지 않는다(긁는 즉시 연결 계좌에서 빠진다). 걸면 카드에
+///     있을 수 없는 잔액이 생긴다.
+///   신용카드: 대금 결제는 전용 기능(자산 상세 → 결제)이 담당한다. 그쪽은 이체와
+///     함께 card_billing 을 남기고, 자동 결제의 멱등 체크가 그 기록으로 걸린다.
+///     손으로 이체하면 기록이 없어 결제일에 자동 결제가 또 돌아 이중 차감된다.
+List<Asset> _transferAssets(List<Asset> assets) => assets
+    .where((a) => a.assetType != 'CHECK_CARD' && a.assetType != 'CREDIT_CARD')
+    .toList(growable: false);
 
 
 /// 거래 입력 상태 (지출/수입/이체).
