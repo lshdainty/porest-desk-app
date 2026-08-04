@@ -12,7 +12,6 @@ import 'package:porest_desk_app/features/asset/application/asset_providers.dart'
 import 'package:porest_desk_app/features/asset/domain/asset.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_section_label.dart';
-import 'package:porest_desk_app/shared/widgets/p_select.dart';
 import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
@@ -27,7 +26,8 @@ import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
 void showAssetTradeSheet(
   BuildContext context, {
   required Asset asset,
-  required List<AssetHolding> holdings,
+  /// 어떤 종목인지 정해진 채로 들어온다 — 여기서 다시 고르게 하면 편집과 역할이 겹친다.
+  required AssetHolding holding,
   String defaultType = 'BUY',
 }) {
   final l = AppLocalizations.of(context);
@@ -37,7 +37,7 @@ void showAssetTradeSheet(
     title: l.tradeTitle,
     contentBuilder: (ctx, scrollCtrl) => _TradeBody(
       asset: asset,
-      holdings: holdings,
+      holding: holding,
       defaultType: defaultType,
       scrollController: scrollCtrl,
       controller: controller,
@@ -52,13 +52,13 @@ void showAssetTradeSheet(
 class _TradeBody extends ConsumerStatefulWidget {
   const _TradeBody({
     required this.asset,
-    required this.holdings,
+    required this.holding,
     required this.defaultType,
     required this.scrollController,
     required this.controller,
   });
   final Asset asset;
-  final List<AssetHolding> holdings;
+  final AssetHolding holding;
   final String defaultType;
   final ScrollController scrollController;
   final PSheetController controller;
@@ -71,36 +71,29 @@ class _TradeBodyState extends ConsumerState<_TradeBody> {
   final _qtyCtrl = TextEditingController();
   final _amountCtrl = TextEditingController();
   final _feeCtrl = TextEditingController();
-  final _newNameCtrl = TextEditingController();
   final _memoCtrl = TextEditingController();
 
   late String _type;
-  String? _holdingKey;
-  String _newType = 'STOCK';
-  bool _addNew = false;
   bool _submitting = false;
 
   bool get _isSell => _type == 'SELL';
 
+  AssetHolding get _h => widget.holding;
+
   /// 종목 식별자 — 연동은 토스 종목코드, 미연동은 항목명.
   /// 보유 목록은 편집할 때마다 통째로 재생성돼서 rowId 로는 거래를 묶을 수 없다.
-  String _keyOf(AssetHolding h) =>
-      (h.linked ? h.tossSymbol : h.holdingName) ?? '';
+  String get _holdingKey =>
+      (_h.linked ? _h.tossSymbol : _h.holdingName) ?? '';
 
-  List<AssetHolding> get _options =>
-      widget.holdings.where((h) => _keyOf(h).isNotEmpty).toList(growable: false);
-
-  AssetHolding? get _picked =>
-      _options.where((h) => _keyOf(h) == _holdingKey).firstOrNull;
-
-  bool get _useNew => !_isSell && _addNew;
+  /// 티커가 아니라 이름으로 보여 준다 — 편집 화면과 같아야 헷갈리지 않는다.
+  String get _holdingName =>
+      (_h.linked ? (_h.tossSymbol ?? '') : (_h.holdingName ?? ''));
 
   double get _qty => double.tryParse(_qtyCtrl.text.trim()) ?? 0;
   int get _amount => int.tryParse(_amountCtrl.text.replaceAll(',', '')) ?? 0;
   int get _fee => int.tryParse(_feeCtrl.text.replaceAll(',', '')) ?? 0;
 
-  double get _heldQty =>
-      double.tryParse(_picked?.quantity?.toString() ?? '') ?? 0;
+  double get _heldQty => double.tryParse(_h.quantity?.toString() ?? '') ?? 0;
 
   /// 거래 후 예수금 — 매수는 수수료까지 빠지고 매도는 떼고 들어온다.
   int get _cashAfter {
@@ -110,30 +103,24 @@ class _TradeBodyState extends ConsumerState<_TradeBody> {
 
   /// 실현손익 미리보기 — 서버와 같은 비율로 판 만큼의 원가를 뺀다.
   int? get _realizedPreview {
-    final h = _picked;
-    if (!_isSell || h == null || _heldQty <= 0 || _qty <= 0) return null;
-    final soldCost = ((h.totalCost ?? 0) * _qty / _heldQty).round();
+    if (!_isSell || _heldQty <= 0 || _qty <= 0) return null;
+    final soldCost = ((_h.totalCost ?? 0) * _qty / _heldQty).round();
     return _amount - _fee - soldCost;
   }
 
-  String get _resolvedKey =>
-      _useNew ? _newNameCtrl.text.trim() : (_holdingKey ?? '');
-
   bool get _canSubmit =>
       !_submitting &&
-      _resolvedKey.isNotEmpty &&
+      _holdingKey.isNotEmpty &&
       _qty > 0 &&
       _amount > 0 &&
-      (!_isSell || (_picked != null && _qty <= _heldQty)) &&
+      (!_isSell || _qty <= _heldQty) &&
       (_isSell || _cashAfter >= 0);
 
   @override
   void initState() {
     super.initState();
     _type = widget.defaultType == 'SELL' ? 'SELL' : 'BUY';
-    _holdingKey = _options.isNotEmpty ? _keyOf(_options.first) : null;
-    _addNew = _options.isEmpty;
-    for (final c in [_qtyCtrl, _amountCtrl, _feeCtrl, _newNameCtrl]) {
+    for (final c in [_qtyCtrl, _amountCtrl, _feeCtrl]) {
       c.addListener(_sync);
     }
     widget.controller.onSubmit = _submit;
@@ -148,7 +135,7 @@ class _TradeBodyState extends ConsumerState<_TradeBody> {
 
   @override
   void dispose() {
-    for (final c in [_qtyCtrl, _amountCtrl, _feeCtrl, _newNameCtrl, _memoCtrl]) {
+    for (final c in [_qtyCtrl, _amountCtrl, _feeCtrl, _memoCtrl]) {
       c.dispose();
     }
     super.dispose();
@@ -164,10 +151,9 @@ class _TradeBodyState extends ConsumerState<_TradeBody> {
       await repo.createTrade(
         assetRowId: widget.asset.rowId,
         tradeType: _type,
-        holdingType: _useNew ? _newType : (_picked?.holdingType.wire ?? 'STOCK'),
-        holdingKey: _resolvedKey,
-        // 새로 들이는 종목은 수동 입력이다 — 토스 연동은 종목 검색을 거쳐야 해서 편집 화면에서 붙인다.
-        linked: _useNew ? false : (_picked?.linked ?? false),
+        holdingType: _h.holdingType.wire,
+        holdingKey: _holdingKey,
+        linked: _h.linked,
         quantity: _qtyCtrl.text.trim(),
         amount: _amount,
         fee: _fee,
@@ -209,7 +195,6 @@ class _TradeBodyState extends ConsumerState<_TradeBody> {
           value: _type,
           onChanged: (v) => setState(() {
             _type = v;
-            if (v == 'SELL') _addNew = false;
             _sync();
           }),
           variant: PTabsVariant.container,
@@ -218,66 +203,35 @@ class _TradeBodyState extends ConsumerState<_TradeBody> {
         ),
         const SizedBox(height: PSpace.x20),
 
-        PSectionLabel(l.tradeHolding),
-        const SizedBox(height: PSpace.x4),
-        if (_useNew) ...[
-          PTextInput(
-            controller: _newNameCtrl,
-            placeholder: l.tradeNewHoldingPlaceholder,
+        // 어떤 종목인지 — 여기서 고르는 게 아니라 이미 정해져서 들어온다.
+        // 종목 추가는 편집(토스 검색)에서 한다.
+        Container(
+          padding: const EdgeInsets.all(PSpace.x12),
+          decoration: BoxDecoration(
+            color: t.bgSunken,
+            borderRadius: PRadius.brMd,
+            border: Border.all(color: t.borderSubtle),
           ),
-          const SizedBox(height: PSpace.x8),
-          PSelect<String>(
-            value: _newType,
-            title: l.tradeHoldingType,
-            items: [
-              PSelectItem(value: 'STOCK', label: l.holdingTypeStock),
-              PSelectItem(value: 'GOLD', label: l.holdingTypeGold),
-              PSelectItem(value: 'CRYPTO', label: l.holdingTypeCrypto),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(_holdingName,
+                  style: PTypo.bodySm.copyWith(
+                      color: t.fgPrimary, fontWeight: PFontWeight.bold)),
+              const SizedBox(height: 2),
+              Text(
+                l.tradeHeldSummary(
+                  _h.quantity?.toString() ?? '0',
+                  _h.avgPrice != null
+                      ? krwSigned(
+                          double.tryParse(_h.avgPrice!)?.round() ?? 0, false)
+                      : '—',
+                ),
+                style: PTypo.micro.copyWith(color: t.fgTertiary),
+              ),
             ],
-            onChanged: (v) => setState(() => _newType = v ?? 'STOCK'),
           ),
-        ] else
-          PSelect<String>(
-            value: _holdingKey,
-            placeholder: l.tradeNoHolding,
-            title: l.tradeHolding,
-            enabled: _options.isNotEmpty,
-            items: [
-              for (final h in _options)
-                PSelectItem(value: _keyOf(h), label: _keyOf(h)),
-            ],
-            onChanged: (v) => setState(() {
-              _holdingKey = v;
-              _sync();
-            }),
-          ),
-        if (!_isSell && _options.isNotEmpty) ...[
-          const SizedBox(height: PSpace.x4),
-          GestureDetector(
-            onTap: () => setState(() {
-              _addNew = !_addNew;
-              _sync();
-            }),
-            child: Text(
-              _useNew ? l.tradePickExisting : l.tradeAddNewHolding,
-              style: PTypo.caption.copyWith(
-                  color: t.fgBrand, fontWeight: PFontWeight.semi),
-            ),
-          ),
-        ],
-        if (_isSell && _picked != null) ...[
-          const SizedBox(height: PSpace.x4),
-          Text(
-            l.tradeHeldSummary(
-              _picked!.quantity?.toString() ?? '0',
-              _picked!.avgPrice != null
-                  ? krwSigned(
-                      double.tryParse(_picked!.avgPrice!)?.round() ?? 0, false)
-                  : '—',
-            ),
-            style: PTypo.micro.copyWith(color: t.fgTertiary),
-          ),
-        ],
+        ),
         const SizedBox(height: PSpace.x20),
 
         PSectionLabel(l.tradeQuantity),
@@ -365,7 +319,7 @@ class _TradeBodyState extends ConsumerState<_TradeBody> {
                 Text(l.tradeInsufficientCash,
                     style: PTypo.micro.copyWith(color: t.statusDanger)),
               ],
-              if (_isSell && _picked != null && _qty > _heldQty) ...[
+              if (_isSell && _qty > _heldQty) ...[
                 const SizedBox(height: 6),
                 Text(l.tradeInsufficientQty,
                     style: PTypo.micro.copyWith(color: t.statusDanger)),

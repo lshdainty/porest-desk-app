@@ -446,24 +446,6 @@ class _HoldingsSection extends ConsumerWidget {
                 fontFeatures: const [FontFeature.tabularFigures()],
               ),
             ),
-            const Spacer(),
-            // 매수·매도 — 예수금이 실제로 움직이는 자리. 보유를 손으로 고치는 것과 다르다.
-            PButton(
-              label: l.tradeBuy,
-              variant: PButtonVariant.ghost,
-              size: PButtonSize.sm,
-              onPressed: () => showAssetTradeSheet(context,
-                  asset: asset, holdings: holdings, defaultType: 'BUY'),
-            ),
-            PButton(
-              label: l.tradeSell,
-              variant: PButtonVariant.ghost,
-              size: PButtonSize.sm,
-              onPressed: holdings.isEmpty
-                  ? null
-                  : () => showAssetTradeSheet(context,
-                      asset: asset, holdings: holdings, defaultType: 'SELL'),
-            ),
           ],
         ),
         if (holdings.isEmpty)
@@ -480,6 +462,10 @@ class _HoldingsSection extends ConsumerWidget {
           for (int i = 0; i < holdings.length; i++)
             _HoldingRow(
               holding: holdings[i],
+              // 매수·매도는 종목마다 연다 — 어떤 종목인지 정해진 채로 들어가야
+              // 다시 고를 일이 없다(종목 추가는 편집에서 토스 검색으로).
+              onTrade: (type) => showAssetTradeSheet(context,
+                  asset: asset, holding: holdings[i], defaultType: type),
               first: i == 0,
               unitKrw: holdings[i].linked &&
                       (holdings[i].tossSymbol?.isNotEmpty ?? false)
@@ -600,12 +586,15 @@ class _HoldingRow extends ConsumerWidget {
     required this.unitKrw,
     required this.rawPrice,
     this.onTap,
+    this.onTrade,
   });
   final AssetHolding holding;
   final bool first;
   final double? unitKrw; // 연동 1주 KRW 환산가 (미확보 시 null)
   final TossPrice? rawPrice; // 표시용 원통화 현재가
   final VoidCallback? onTap;
+  /// 이 종목에 대한 매수·매도. 종목이 정해진 자리라 시트에서 다시 고를 필요가 없다.
+  final ValueChanged<String>? onTrade;
 
   String _fmtRawPrice(TossPrice p) {
     final foreign = p.currency != null &&
@@ -720,6 +709,20 @@ class _HoldingRow extends ConsumerWidget {
             ),
             if (onTap != null) ...[
               const SizedBox(width: PSpace.x8),
+              if (onTrade != null) ...[
+                PButton(
+                  label: l.tradeBuy,
+                  variant: PButtonVariant.ghost,
+                  size: PButtonSize.sm,
+                  onPressed: () => onTrade!('BUY'),
+                ),
+                PButton(
+                  label: l.tradeSell,
+                  variant: PButtonVariant.ghost,
+                  size: PButtonSize.sm,
+                  onPressed: () => onTrade!('SELL'),
+                ),
+              ],
               Icon(LucideIcons.chevronRight, size: 15, color: t.fgTertiary),
             ],
           ],
