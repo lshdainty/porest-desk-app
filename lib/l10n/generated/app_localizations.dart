@@ -872,6 +872,30 @@ abstract class AppLocalizations {
   /// **'잔액 (원)'**
   String get assetBalanceLabel;
 
+  /// No description provided for @assetCurrency.
+  ///
+  /// In ko, this message translates to:
+  /// **'통화'**
+  String get assetCurrency;
+
+  /// No description provided for @assetExchangeRate.
+  ///
+  /// In ko, this message translates to:
+  /// **'환율'**
+  String get assetExchangeRate;
+
+  /// No description provided for @assetExchangeRateHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'{code} 1당 원화'**
+  String assetExchangeRateHint(String code);
+
+  /// No description provided for @assetExchangeRateDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'순자산은 잔액 × 환율로 환산합니다. 비워 두면 환산 없이 그대로 더해집니다.'**
+  String get assetExchangeRateDesc;
+
   /// No description provided for @assetMemoOptional.
   ///
   /// In ko, this message translates to:
@@ -3001,6 +3025,36 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'결제 수단'**
   String get expPaymentMethod;
+
+  /// No description provided for @expForeignPayment.
+  ///
+  /// In ko, this message translates to:
+  /// **'해외 결제'**
+  String get expForeignPayment;
+
+  /// No description provided for @expCurrency.
+  ///
+  /// In ko, this message translates to:
+  /// **'통화'**
+  String get expCurrency;
+
+  /// No description provided for @expOriginalAmount.
+  ///
+  /// In ko, this message translates to:
+  /// **'현지 금액'**
+  String get expOriginalAmount;
+
+  /// No description provided for @expExchangeRate.
+  ///
+  /// In ko, this message translates to:
+  /// **'환율'**
+  String get expExchangeRate;
+
+  /// No description provided for @expFxHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'{original} → {krw}'**
+  String expFxHint(String original, String krw);
 
   /// No description provided for @expInstallment.
   ///

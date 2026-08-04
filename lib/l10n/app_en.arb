@@ -178,6 +178,13 @@
   "assetAccountType": "Account type",
   "assetAccountNumber": "Account number",
   "assetBalanceLabel": "Balance (KRW)",
+  "assetCurrency": "Currency",
+  "assetExchangeRate": "Exchange rate",
+  "assetExchangeRateHint": "KRW per 1 {code}",
+  "@assetExchangeRateHint": {
+    "placeholders": { "code": { "type": "String" } }
+  },
+  "assetExchangeRateDesc": "Net worth converts balance × rate. Left empty it is added without conversion.",
   "assetMemoOptional": "Memo (optional)",
   "assetMemoPlaceholder": "Note last digits, payment day, limit, etc.",
   "assetCreditLimitLabel": "Credit limit (KRW, optional)",
@@ -834,6 +841,14 @@
   "expDate": "Date",
   "expMerchant": "Merchant",
   "expPaymentMethod": "Payment",
+  "expForeignPayment": "Foreign payment",
+  "expCurrency": "Currency",
+  "expOriginalAmount": "Local amount",
+  "expExchangeRate": "Rate",
+  "expFxHint": "{original} → {krw}",
+  "@expFxHint": {
+    "placeholders": { "original": { "type": "String" }, "krw": { "type": "String" } }
+  },
   "expInstallment": "Installment",
   "expRefund": "Refund",
   "expRefundRecord": "Record refund",

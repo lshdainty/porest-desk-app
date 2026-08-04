@@ -25,6 +25,12 @@ abstract class Expense with _$Expense {
     int? installmentMonths,
     /// 환불 원거래 행 아이디 (null = 환불 아님). 수입이면서 이 값이 있으면 지출 상계로 집계.
     int? refundOfExpenseRowId,
+    /// 원 통화 금액 (해외 결제). null 이면 원화 결제 — amount 가 곧 결제액이다.
+    double? originalAmount,
+    /// 원 통화 (ISO 4217, 예: USD).
+    String? originalCurrency,
+    /// 적용 환율 (원 통화 1단위당 원화). amount ≈ originalAmount × exchangeRate.
+    double? exchangeRate,
     int? calendarEventRowId,
     int? todoRowId,
     // 활성 분할 항목들의 카테고리 id (없으면 빈 리스트). 목록 카테고리 필터를 split-aware 하게 매칭.

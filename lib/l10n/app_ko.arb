@@ -181,6 +181,13 @@
   "assetAccountType": "계좌 종류",
   "assetAccountNumber": "계좌번호",
   "assetBalanceLabel": "잔액 (원)",
+  "assetCurrency": "통화",
+  "assetExchangeRate": "환율",
+  "assetExchangeRateHint": "{code} 1당 원화",
+  "@assetExchangeRateHint": {
+    "placeholders": { "code": { "type": "String" } }
+  },
+  "assetExchangeRateDesc": "순자산은 잔액 × 환율로 환산합니다. 비워 두면 환산 없이 그대로 더해집니다.",
   "assetMemoOptional": "메모 (선택)",
   "assetMemoPlaceholder": "계좌번호 뒷자리, 결제일, 한도 등 메모하세요",
   "assetCreditLimitLabel": "신용한도 (원, 선택)",
@@ -837,6 +844,14 @@
   "expDate": "날짜",
   "expMerchant": "가맹점",
   "expPaymentMethod": "결제 수단",
+  "expForeignPayment": "해외 결제",
+  "expCurrency": "통화",
+  "expOriginalAmount": "현지 금액",
+  "expExchangeRate": "환율",
+  "expFxHint": "{original} → {krw}",
+  "@expFxHint": {
+    "placeholders": { "original": { "type": "String" }, "krw": { "type": "String" } }
+  },
   "expInstallment": "할부",
   "expRefund": "환불",
   "expRefundRecord": "환불 기록",

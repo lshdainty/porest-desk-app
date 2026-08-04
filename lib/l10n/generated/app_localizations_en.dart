@@ -413,6 +413,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetBalanceLabel => 'Balance (KRW)';
 
   @override
+  String get assetCurrency => 'Currency';
+
+  @override
+  String get assetExchangeRate => 'Exchange rate';
+
+  @override
+  String assetExchangeRateHint(String code) {
+    return 'KRW per 1 $code';
+  }
+
+  @override
+  String get assetExchangeRateDesc =>
+      'Net worth converts balance × rate. Left empty it is added without conversion.';
+
+  @override
   String get assetMemoOptional => 'Memo (optional)';
 
   @override
@@ -1572,6 +1587,23 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get expPaymentMethod => 'Payment';
+
+  @override
+  String get expForeignPayment => 'Foreign payment';
+
+  @override
+  String get expCurrency => 'Currency';
+
+  @override
+  String get expOriginalAmount => 'Local amount';
+
+  @override
+  String get expExchangeRate => 'Rate';
+
+  @override
+  String expFxHint(String original, String krw) {
+    return '$original → $krw';
+  }
 
   @override
   String get expInstallment => 'Installment';

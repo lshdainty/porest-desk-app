@@ -410,6 +410,21 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetBalanceLabel => '잔액 (원)';
 
   @override
+  String get assetCurrency => '통화';
+
+  @override
+  String get assetExchangeRate => '환율';
+
+  @override
+  String assetExchangeRateHint(String code) {
+    return '$code 1당 원화';
+  }
+
+  @override
+  String get assetExchangeRateDesc =>
+      '순자산은 잔액 × 환율로 환산합니다. 비워 두면 환산 없이 그대로 더해집니다.';
+
+  @override
   String get assetMemoOptional => '메모 (선택)';
 
   @override
@@ -1555,6 +1570,23 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get expPaymentMethod => '결제 수단';
+
+  @override
+  String get expForeignPayment => '해외 결제';
+
+  @override
+  String get expCurrency => '통화';
+
+  @override
+  String get expOriginalAmount => '현지 금액';
+
+  @override
+  String get expExchangeRate => '환율';
+
+  @override
+  String expFxHint(String original, String krw) {
+    return '$original → $krw';
+  }
 
   @override
   String get expInstallment => '할부';

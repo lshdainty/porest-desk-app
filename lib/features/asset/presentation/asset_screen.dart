@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:porest_desk_app/core/format/currency.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -209,9 +210,13 @@ class _AssetBody extends StatelessWidget {
         .where((a) => _loanTypes.contains(a.assetType))
         .toList();
 
+    // 외화는 환산해서 더한다 — raw 로 더하면 USD 1,000 이 1,000원이 돼 서버 요약과 어긋난다.
     int sumIncluded(List<Asset> arr) => arr
         .where((a) => a.isIncludedInTotal == 'Y')
-        .fold<int>(0, (s, a) => s + (a.balance ?? 0));
+        .fold<int>(
+            0,
+            (s, a) => s +
+                balanceInKrw(a.balance ?? 0, a.currency, a.exchangeRate));
 
     final accountsTotal = sumIncluded(accounts);
     final cardsTotal = sumIncluded(cards).abs();
@@ -794,7 +799,9 @@ class _AssetCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = tokens;
     final l = AppLocalizations.of(context);
-    final balance = asset.balance ?? 0;
+    // 외화는 환산액이 주 표기 — 원 통화 잔고는 밑에 함께 보여 준다.
+    final balance =
+        balanceInKrw(asset.balance ?? 0, asset.currency, asset.exchangeRate);
     // 음수(빚)만 fg-expense 빨강 + 부호(−), 0 은 부호·강조 없이 '0원' (−0원 방지)
     // — 관리 화면(account_card_manage_screen) 과 동일 로직.
     final isNeg = (negativeAmount ? -balance.abs() : balance) < 0;
@@ -917,6 +924,22 @@ class _AssetCard extends StatelessWidget {
                       fontFeatures: const [FontFeature.tabularFigures()],
                     ),
                   ),
+                  // 외화 행 — 환산액 밑에 원 통화 잔고를 함께.
+                  if (!masked && isForeignCurrency(asset.currency)) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      formatOriginalAmount(
+                        (asset.balance ?? 0).toDouble(),
+                        asset.currency!,
+                        Localizations.localeOf(context).toString(),
+                      ),
+                      style: TextStyle(
+                        color: t.fgTertiary,
+                        fontSize: PFontSize.micro,
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                      ),
+                    ),
+                  ],
                   // 투자 행 등락 — design: +N% (+M원), 상승=빨강/하락=파랑(국내 통념).
                   if (!masked &&
                       valuation != null &&
