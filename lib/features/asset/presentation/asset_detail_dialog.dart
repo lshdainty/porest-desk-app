@@ -511,7 +511,7 @@ class _HoldingRow extends ConsumerWidget {
 
     // 서브 — linked: "{qty}주 · 현재가 {price} 연동"(연동은 주식뿐) /
     // manual: 수량을 적어 뒀으면 "{qty}{단위} · 직접 입력", 없으면 "직접 입력".
-    final qty = formatHoldingQty(h.quantity);
+    final qty = formatHoldingQty(h.quantity, h.holdingType);
     final String sub;
     if (h.linked) {
       sub = rawPrice != null
