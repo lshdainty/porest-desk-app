@@ -166,6 +166,40 @@ class _BodyState extends ConsumerState<_Body> {
   int _perPerson(int total, int n) => n <= 0 ? 0 : total ~/ n;
   int _remainderEqual(int total, int n) => n <= 0 ? 0 : total - _perPerson(total, n) * n;
 
+  /// 비율 입력의 소수 자릿수 상한. 이보다 잘게 쓰는 경우는 없고, 가중치가 커져 넘치는 것도 막는다.
+  static const int _ratioMaxDecimals = 6;
+
+  /// 비율 문자열들을 공통 배수로 올린 정수 가중치로 바꾼다 ('1.5','1' → 15,10).
+  ///
+  /// 비율을 double 로 다루면 나눗셈에 이진 오차가 섞이므로, 문자열 자릿수를 그대로 맞춰
+  /// 정수만으로 계산한다.
+  static List<int> _ratioWeights(List<_Participant> participants) {
+    var scale = 0;
+    for (final p in participants) {
+      final s = p.ratio.trim();
+      final dot = s.indexOf('.');
+      if (dot >= 0) {
+        final decimals = s.length - dot - 1;
+        if (decimals > scale) scale = decimals;
+      }
+    }
+    if (scale > _ratioMaxDecimals) scale = _ratioMaxDecimals;
+    return [for (final p in participants) _scaledRatio(p.ratio, scale)];
+  }
+
+  /// '1.5' + scale 2 → 150. 소수점을 지우고 자릿수만 맞추므로 부동소수점을 거치지 않는다.
+  static int _scaledRatio(String raw, int scale) {
+    final s = raw.trim();
+    if (s.isEmpty) return 0;
+    final dot = s.indexOf('.');
+    final intPart = dot < 0 ? s : s.substring(0, dot);
+    var frac = dot < 0 ? '' : s.substring(dot + 1);
+    if (frac.length > scale) frac = frac.substring(0, scale);
+    frac = frac.padRight(scale, '0');
+    final v = int.tryParse('$intPart$frac') ?? 0;
+    return v < 0 ? 0 : v;
+  }
+
   int _computeAmount(
     List<_Participant> participants,
     int idx,
@@ -178,11 +212,16 @@ class _BodyState extends ConsumerState<_Body> {
       return idx == 0 ? each + rest : each;
     }
     if (_split == _Split.ratio) {
-      final sum = participants.fold<double>(
-          0, (s, q) => s + (double.tryParse(q.ratio) ?? 0));
-      if (sum <= 0) return 0;
-      final r = double.tryParse(p.ratio) ?? 0;
-      return (_totalAbs * (r / sum)).round();
+      final weights = _ratioWeights(participants);
+      final totalWeight = weights.fold<int>(0, (s, w) => s + w);
+      if (totalWeight <= 0) return 0;
+      // 각자 몫은 내림으로 구하고 버려진 나머지를 첫 참여자에게 몰아준다 — 균등분할과 같은 규칙.
+      // 각자 독립적으로 반올림하면 합계가 총액과 어긋난다(1:1:1 로 10,000원 → 9,999원).
+      final base = (_totalAbs * weights[idx]) ~/ totalWeight;
+      if (idx != 0) return base;
+      final assigned =
+          weights.fold<int>(0, (s, w) => s + (_totalAbs * w) ~/ totalWeight);
+      return base + (_totalAbs - assigned);
     }
     // CUSTOM
     if (p.isMe) {
