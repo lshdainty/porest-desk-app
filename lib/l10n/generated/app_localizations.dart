@@ -1211,13 +1211,13 @@ abstract class AppLocalizations {
   /// No description provided for @assetProductName.
   ///
   /// In ko, this message translates to:
-  /// **'상품·종목명'**
+  /// **'별칭'**
   String get assetProductName;
 
   /// No description provided for @assetProductPlaceholder.
   ///
   /// In ko, this message translates to:
-  /// **'예: KODEX 200, 해외 ETF 포트폴리오'**
+  /// **'예: 연금저축, 금 보유분'**
   String get assetProductPlaceholder;
 
   /// No description provided for @assetValuation.

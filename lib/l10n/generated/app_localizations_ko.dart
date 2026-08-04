@@ -583,10 +583,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetInvestSearchHint => '증권사·가상자산거래소·상품거래소 검색';
 
   @override
-  String get assetProductName => '상품·종목명';
+  String get assetProductName => '별칭';
 
   @override
-  String get assetProductPlaceholder => '예: KODEX 200, 해외 ETF 포트폴리오';
+  String get assetProductPlaceholder => '예: 연금저축, 금 보유분';
 
   @override
   String get assetValuation => '평가액 (원)';
