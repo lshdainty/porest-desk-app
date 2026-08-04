@@ -19,6 +19,7 @@ _AssetTrade _$AssetTradeFromJson(Map<String, dynamic> json) => _AssetTrade(
   realizedPl: (json['realizedPl'] as num?)?.toInt(),
   tradeDate: json['tradeDate'] as String?,
   description: json['description'] as String?,
+  settlementAssetRowId: (json['settlementAssetRowId'] as num?)?.toInt(),
 );
 
 Map<String, dynamic> _$AssetTradeToJson(_AssetTrade instance) =>
@@ -35,4 +36,5 @@ Map<String, dynamic> _$AssetTradeToJson(_AssetTrade instance) =>
       'realizedPl': instance.realizedPl,
       'tradeDate': instance.tradeDate,
       'description': instance.description,
+      'settlementAssetRowId': instance.settlementAssetRowId,
     };

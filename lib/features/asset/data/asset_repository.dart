@@ -299,6 +299,8 @@ class AssetRepository {
     int? fee,
     required String tradeDate, // ISO-LOCAL-DATETIME
     String? description,
+    /// 결제 계좌 — null 이면 증권계좌 예수금에서.
+    int? settlementAssetRowId,
   }) async {
     try {
       final res = await _dio.post<Map<String, dynamic>>(
@@ -314,6 +316,7 @@ class AssetRepository {
           'fee': fee ?? 0,
           'tradeDate': tradeDate,
           'description': ?description,
+          'settlementAssetRowId': settlementAssetRowId,
         },
       );
       return _unwrap(res, AssetTrade.fromJson);

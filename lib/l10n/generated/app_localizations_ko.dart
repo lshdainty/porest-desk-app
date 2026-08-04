@@ -763,6 +763,21 @@ class AppLocalizationsKo extends AppLocalizations {
   String get tradeMemoPlaceholder => '선택 입력';
 
   @override
+  String get tradeSettlement => '결제 계좌';
+
+  @override
+  String get tradeSettlementCash => '증권계좌 예수금';
+
+  @override
+  String get tradeSettlementCashHelp => '증권계좌에 넣어둔 예수금에서 오가요.';
+
+  @override
+  String get tradeSettlementAccountHelp => '이 계좌에서 바로 오가요. 증권계좌 예수금은 건드리지 않아요.';
+
+  @override
+  String get tradeSettlementDelta => '결제 계좌 변동';
+
+  @override
   String get tradeCashAfter => '거래 후 예수금';
 
   @override
