@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:porest_desk_app/core/network/dio_provider.dart';
 import 'package:porest_desk_app/features/asset/data/asset_repository.dart';
 import 'package:porest_desk_app/features/asset/domain/asset.dart';
+import 'package:porest_desk_app/features/asset/domain/asset_trade.dart';
 import 'package:porest_desk_app/features/asset/domain/asset_summary.dart';
 import 'package:porest_desk_app/features/asset/domain/asset_transfer.dart';
 import 'package:porest_desk_app/features/asset/domain/card_billing.dart';
@@ -219,3 +220,10 @@ extension AssetListX on List<Asset> {
     return null;
   }
 }
+
+/// 자산의 매수·매도 내역 — 언제 사고 팔았는지, 실현손익이 얼마인지.
+final assetTradesProvider =
+    FutureProvider.family<List<AssetTrade>, int>((ref, assetRowId) async {
+  final repo = await ref.watch(assetRepositoryProvider.future);
+  return repo.getTrades(assetRowId);
+});

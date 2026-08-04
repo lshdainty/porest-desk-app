@@ -722,6 +722,100 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetHoldings => 'Holdings';
 
   @override
+  String get tradeTitle => 'Buy / Sell';
+
+  @override
+  String get tradeBuy => 'Buy';
+
+  @override
+  String get tradeSell => 'Sell';
+
+  @override
+  String get tradeBought => 'Buy recorded';
+
+  @override
+  String get tradeSold => 'Sell recorded';
+
+  @override
+  String get tradeHolding => 'Holding';
+
+  @override
+  String get tradeHoldingType => 'Holding type';
+
+  @override
+  String get tradeNoHolding => 'No holdings yet';
+
+  @override
+  String get tradeAddNewHolding => 'Buy a new holding';
+
+  @override
+  String get tradePickExisting => 'Pick from holdings';
+
+  @override
+  String get tradeNewHoldingPlaceholder => 'Enter a holding name';
+
+  @override
+  String get tradeQuantity => 'Quantity';
+
+  @override
+  String get tradeAmount => 'Trade amount (KRW)';
+
+  @override
+  String get tradeAmountHelp => 'Excluding fees. Enter fees separately below.';
+
+  @override
+  String get tradeFee => 'Fees & tax (KRW)';
+
+  @override
+  String get tradeMemo => 'Memo';
+
+  @override
+  String get tradeMemoPlaceholder => 'Optional';
+
+  @override
+  String get tradeCashAfter => 'Cash after trade';
+
+  @override
+  String get tradeRealizedPreview => 'Realized P/L';
+
+  @override
+  String get tradeInsufficientCash =>
+      'Not enough cash. Deposit first or check the amount.';
+
+  @override
+  String get tradeInsufficientQty => 'Cannot sell more than you hold.';
+
+  @override
+  String get tradeHistory => 'Trade history';
+
+  @override
+  String get tradeDeleted => 'Trade cancelled';
+
+  @override
+  String get tradeDeleteConfirm =>
+      'Cancel this trade? Cash and quantity return to their pre-trade state.';
+
+  @override
+  String get holdingTypeStock => 'Stock';
+
+  @override
+  String get holdingTypeGold => 'Gold';
+
+  @override
+  String get holdingTypeCrypto => 'Crypto';
+
+  @override
+  String get holdingAvgPrice => 'Avg price';
+
+  @override
+  String get holdingTotalCost => 'Cost basis';
+
+  @override
+  String tradeHeldSummary(String qty, String avg) {
+    return 'Holding $qty · avg $avg';
+  }
+
+  @override
   String get assetCashBalance => 'Cash';
 
   @override

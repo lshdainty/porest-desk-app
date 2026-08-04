@@ -712,6 +712,98 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetHoldings => '보유 종목';
 
   @override
+  String get tradeTitle => '매수·매도';
+
+  @override
+  String get tradeBuy => '매수';
+
+  @override
+  String get tradeSell => '매도';
+
+  @override
+  String get tradeBought => '매수를 기록했어요';
+
+  @override
+  String get tradeSold => '매도를 기록했어요';
+
+  @override
+  String get tradeHolding => '종목';
+
+  @override
+  String get tradeHoldingType => '종목 유형';
+
+  @override
+  String get tradeNoHolding => '보유 종목이 없어요';
+
+  @override
+  String get tradeAddNewHolding => '새 종목 사기';
+
+  @override
+  String get tradePickExisting => '보유 종목에서 고르기';
+
+  @override
+  String get tradeNewHoldingPlaceholder => '종목명을 적어주세요';
+
+  @override
+  String get tradeQuantity => '수량';
+
+  @override
+  String get tradeAmount => '거래대금 (원)';
+
+  @override
+  String get tradeAmountHelp => '수수료를 뺀 금액이에요. 수수료는 아래에 따로 적어주세요.';
+
+  @override
+  String get tradeFee => '수수료·세금 (원)';
+
+  @override
+  String get tradeMemo => '메모';
+
+  @override
+  String get tradeMemoPlaceholder => '선택 입력';
+
+  @override
+  String get tradeCashAfter => '거래 후 예수금';
+
+  @override
+  String get tradeRealizedPreview => '실현손익';
+
+  @override
+  String get tradeInsufficientCash => '예수금이 부족해요. 먼저 입금하거나 금액을 확인해주세요.';
+
+  @override
+  String get tradeInsufficientQty => '보유 수량보다 많이 팔 수 없어요.';
+
+  @override
+  String get tradeHistory => '거래 내역';
+
+  @override
+  String get tradeDeleted => '거래를 취소했어요';
+
+  @override
+  String get tradeDeleteConfirm => '이 거래를 취소하시겠어요? 예수금과 보유 수량이 거래 전으로 돌아가요.';
+
+  @override
+  String get holdingTypeStock => '주식';
+
+  @override
+  String get holdingTypeGold => '금';
+
+  @override
+  String get holdingTypeCrypto => '코인';
+
+  @override
+  String get holdingAvgPrice => '평단가';
+
+  @override
+  String get holdingTotalCost => '매수원가';
+
+  @override
+  String tradeHeldSummary(String qty, String avg) {
+    return '보유 $qty · 평단가 $avg';
+  }
+
+  @override
   String get assetCashBalance => '예수금';
 
   @override

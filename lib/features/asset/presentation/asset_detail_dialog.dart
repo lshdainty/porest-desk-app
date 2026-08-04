@@ -40,6 +40,7 @@ import 'package:porest_desk_app/shared/widgets/p_chart_tooltip.dart';
 import 'package:porest_desk_app/features/asset/domain/asset_type_meta.dart';
 import 'package:porest_desk_app/features/asset/presentation/holding_format.dart';
 import 'package:porest_desk_app/features/asset/presentation/widgets/asset_logo.dart';
+import 'package:porest_desk_app/features/asset/presentation/asset_trade_sheet.dart';
 import 'package:porest_desk_app/features/expense/presentation/transfer_detail_sheet.dart';
 import 'package:porest_desk_app/features/expense/presentation/widgets/transfer_row.dart';
 
@@ -445,6 +446,24 @@ class _HoldingsSection extends ConsumerWidget {
                 fontFeatures: const [FontFeature.tabularFigures()],
               ),
             ),
+            const Spacer(),
+            // 매수·매도 — 예수금이 실제로 움직이는 자리. 보유를 손으로 고치는 것과 다르다.
+            PButton(
+              label: l.tradeBuy,
+              variant: PButtonVariant.ghost,
+              size: PButtonSize.sm,
+              onPressed: () => showAssetTradeSheet(context,
+                  asset: asset, holdings: holdings, defaultType: 'BUY'),
+            ),
+            PButton(
+              label: l.tradeSell,
+              variant: PButtonVariant.ghost,
+              size: PButtonSize.sm,
+              onPressed: holdings.isEmpty
+                  ? null
+                  : () => showAssetTradeSheet(context,
+                      asset: asset, holdings: holdings, defaultType: 'SELL'),
+            ),
           ],
         ),
         if (holdings.isEmpty)
@@ -471,8 +490,105 @@ class _HoldingsSection extends ConsumerWidget {
                   : null,
               onTap: onEdit,
             ),
+
+        // 거래 내역 — 언제 사고 팔았는지, 실현손익이 얼마인지. 취소도 여기서.
+        _TradeHistory(assetRowId: asset.rowId),
       ],
     );
+  }
+}
+
+/// 매수·매도 내역 — 취소하면 예수금·보유 수량·원가가 거래 전으로 돌아간다.
+class _TradeHistory extends ConsumerWidget {
+  const _TradeHistory({required this.assetRowId});
+  final int assetRowId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = context.tokens;
+    final l = AppLocalizations.of(context);
+    final trades = ref.watch(assetTradesProvider(assetRowId)).value ?? const [];
+    if (trades.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: PSpace.x16),
+        Text(l.tradeHistory,
+            style: PTypo.bodySm
+                .copyWith(color: t.fgPrimary, fontWeight: PFontWeight.bold)),
+        for (final tr in trades)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: PSpace.x8),
+            child: Row(
+              children: [
+                Text(
+                  tr.tradeType == 'SELL' ? l.tradeSell : l.tradeBuy,
+                  style: PTypo.micro.copyWith(
+                    color: tr.tradeType == 'SELL' ? t.fgBrand : t.statusDanger,
+                    fontWeight: PFontWeight.bold,
+                  ),
+                ),
+                const SizedBox(width: PSpace.x8),
+                Expanded(
+                  child: Text(tr.holdingKey,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: PTypo.bodySm.copyWith(color: t.fgPrimary)),
+                ),
+                Text(
+                  '${tr.quantity ?? ''} · ${(tr.tradeDate ?? '').split('T').first}',
+                  style: PTypo.micro.copyWith(color: t.fgTertiary),
+                ),
+                const SizedBox(width: PSpace.x8),
+                Text(krwSigned(tr.amount ?? 0, false, unit: true),
+                    style: PTypo.bodySm.copyWith(
+                        color: t.fgPrimary, fontWeight: PFontWeight.bold)),
+                if (tr.realizedPl != null && tr.realizedPl != 0) ...[
+                  const SizedBox(width: PSpace.x8),
+                  Text(
+                    krwSigned(tr.realizedPl!.abs(), false,
+                        sign: tr.realizedPl! > 0 ? '+' : '-'),
+                    style: PTypo.micro.copyWith(
+                      color: tr.realizedPl! > 0 ? t.fgIncome : t.fgExpense,
+                      fontWeight: PFontWeight.bold,
+                    ),
+                  ),
+                ],
+                IconButton(
+                  icon: Icon(LucideIcons.trash2, size: 14, color: t.fgTertiary),
+                  visualDensity: VisualDensity.compact,
+                  tooltip: l.actionDelete,
+                  onPressed: () => _confirmDelete(context, ref, tr.rowId),
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+
+  Future<void> _confirmDelete(BuildContext context, WidgetRef ref, int rowId) async {
+    final l = AppLocalizations.of(context);
+    final ok = await showPConfirmDialog(
+      context,
+      title: l.actionDelete,
+      message: l.tradeDeleteConfirm,
+      confirmLabel: l.actionDelete,
+      destructive: true,
+    );
+    if (!ok || !context.mounted) return;
+    try {
+      final repo = await ref.read(assetRepositoryProvider.future);
+      await repo.deleteTrade(rowId);
+      ref.invalidate(assetsProvider);
+      ref.invalidate(assetTradesProvider(assetRowId));
+      if (!context.mounted) return;
+      showPSnackBar(context, l.tradeDeleted, severity: PSnackSeverity.success);
+    } on ApiException catch (e) {
+      if (!context.mounted) return;
+      showPSnackBar(context, e.message, severity: PSnackSeverity.error);
+    }
   }
 }
 

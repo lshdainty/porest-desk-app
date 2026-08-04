@@ -4,6 +4,7 @@ import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/core/network/api_response.dart';
 import 'package:porest_desk_app/features/asset/domain/asset.dart';
 import 'package:porest_desk_app/features/asset/domain/asset_summary.dart';
+import 'package:porest_desk_app/features/asset/domain/asset_trade.dart';
 import 'package:porest_desk_app/features/asset/domain/asset_transfer.dart';
 import 'package:porest_desk_app/features/asset/domain/card_billing.dart';
 import 'package:porest_desk_app/features/asset/domain/net_worth_point.dart';
@@ -278,6 +279,75 @@ class AssetRepository {
           'transferDate': transferDate,
         },
       );
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  /// 매수·매도 등록 — 예수금·보유 수량·원가·실현손익이 함께 움직인다.
+  ///
+  /// [amount] 는 수수료를 뺀 거래대금이다. 수수료는 매수면 취득원가에 들어가고
+  /// 매도면 대금에서 빠진다 — 어느 쪽이든 예수금에서 실제로 나간다.
+  Future<AssetTrade> createTrade({
+    required int assetRowId,
+    required String tradeType, // 'BUY' | 'SELL' | 'OPENING'
+    required String holdingType,
+    required String holdingKey,
+    required bool linked,
+    required String quantity,
+    required int amount,
+    int? fee,
+    required String tradeDate, // ISO-LOCAL-DATETIME
+    String? description,
+  }) async {
+    try {
+      final res = await _dio.post<Map<String, dynamic>>(
+        '/asset-trade',
+        data: {
+          'assetRowId': assetRowId,
+          'tradeType': tradeType,
+          'holdingType': holdingType,
+          'holdingKey': holdingKey,
+          'linked': linked,
+          'quantity': quantity,
+          'amount': amount,
+          'fee': fee ?? 0,
+          'tradeDate': tradeDate,
+          'description': ?description,
+        },
+      );
+      return _unwrap(res, AssetTrade.fromJson);
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  Future<List<AssetTrade>> getTrades(int assetRowId) async {
+    try {
+      final res = await _dio.get<Map<String, dynamic>>(
+        '/asset-trades',
+        queryParameters: {'assetRowId': assetRowId},
+      );
+      // 거래 목록은 data 가 바로 배열이다 — 다른 목록처럼 감싸는 키가 없다.
+      final body = ApiResponse<List<dynamic>>.fromJson(
+        res.data ?? const {},
+        (raw) => (raw as List<dynamic>?) ?? const [],
+      );
+      if (!body.success) {
+        throw ApiException(code: body.code, message: body.message);
+      }
+      return (body.data ?? const [])
+          .map((e) => AssetTrade.fromJson(e as Map<String, dynamic>))
+          .toList(growable: false);
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
+  /// 거래 취소 — 예수금·수량·원가가 그 거래 직전으로 돌아간다.
+  Future<void> deleteTrade(int id) async {
+    try {
+      await _dio.delete<void>('/asset-trade/$id');
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }
