@@ -163,7 +163,7 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
                       holding: AssetHolding(
                         linked: true,
                         tossSymbol: e.tossSymbol,
-                        quantity: e.tossQuantity?.toDouble(),
+                        quantity: e.tossQuantity?.toString(),
                       ),
                     ),
                   ]
@@ -221,7 +221,7 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
           holding: AssetHolding(
             linked: true,
             tossSymbol: s.symbol,
-            quantity: 1,
+            quantity: '1',
             holdingName: s.nameKr, // 표시용 — 직렬화 시 linked 는 심볼·수량만 전송.
             sortOrder: _rows.length,
           ),
@@ -331,12 +331,13 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
   }
 
   /// 보유 합계(KRW) — manual 합 + 시세 확보된 linked 합.
+  /// **미리보기 표시 전용** — 저장되는 평가액은 서버가 BigDecimal 로 산정한다.
   int _totalOf(Map<String, double?> unitMap, Iterable<AssetHolding> holdings) {
     var total = 0.0;
     for (final h in holdings) {
       if (h.linked) {
         final unit = unitMap[h.tossSymbol];
-        if (unit != null) total += unit * (h.quantity ?? 0);
+        if (unit != null) total += unit * h.quantityValue;
       } else {
         total += (h.holdingValue ?? 0).toDouble();
       }
@@ -357,7 +358,9 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
     final holdings = [
       for (int i = 0; i < filled.length; i++) filled[i].copyWith(sortOrder: i),
     ];
-    final balance = _totalOf(_unitKrwMap(), filled);
+    // 평가액은 **서버가** 시세×수량을 BigDecimal 로 산정한다 — 클라이언트 계산값은 보내지 않는다.
+    // 보유가 하나도 없으면 서버가 산정할 근거가 없으므로 0 원으로 남긴다(기존 동작).
+    final int? balance = holdings.isEmpty ? 0 : null;
 
     _setSubmitting(true);
     try {
@@ -778,9 +781,8 @@ class _HoldingEditRowState extends State<_HoldingEditRow> {
     super.initState();
     final h = widget.holding;
     // 입력 중 '3.' 같은 중간 상태는 controller 가 들고 있으므로 모델에서 되쓰지 않는다.
-    _qtyCtrl = TextEditingController(
-      text: h.quantity != null ? formatHoldingQty(h.quantity!) : '',
-    );
+    // 수량은 이미 문자열이라 그대로 띄운다 — 숫자를 거치면 소수 표기가 흔들린다.
+    _qtyCtrl = TextEditingController(text: h.quantity ?? '');
     _nameCtrl = TextEditingController(text: h.holdingName ?? '');
     _valueCtrl = TextEditingController(text: '${h.holdingValue ?? 0}');
   }
@@ -794,7 +796,7 @@ class _HoldingEditRowState extends State<_HoldingEditRow> {
   }
 
   void _onQtyChanged(String v) =>
-      widget.onChanged(widget.holding.copyWith(quantity: holdingQtyNumber(v)));
+      widget.onChanged(widget.holding.copyWith(quantity: holdingQtyText(v)));
 
   void _onValueChanged(String v) {
     final n = int.tryParse(v.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
@@ -813,7 +815,7 @@ class _HoldingEditRowState extends State<_HoldingEditRow> {
         ? h.holdingName!
         : (h.tossSymbol ?? '');
     final value = widget.unitKrw != null
-        ? (widget.unitKrw! * (h.quantity ?? 0)).round()
+        ? (widget.unitKrw! * h.quantityValue).round()
         : null;
 
     return Container(

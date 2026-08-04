@@ -665,7 +665,9 @@ mixin _$AssetHolding {
 
  int? get rowId;// 구버전 응답엔 없음 — 없거나 모르는 값이면 주식으로 본다(하위호환).
 @JsonKey(unknownEnumValue: AssetHoldingType.stock) AssetHoldingType get holdingType; bool get linked; String? get tossSymbol;// 코인 0.05·금 3.75g 등 소수 허용. 미연동도 기록 가능(선택).
- double? get quantity; String? get holdingName; int? get holdingValue; int? get sortOrder;
+// 서버 계약은 BigDecimal(decimal(28,8)) — double 로 담으면 십진 소수가 깎이므로
+// 클라이언트는 문자열로 들고 다닌다. 전송도 문자열 그대로(Jackson 이 BigDecimal 로 받는다).
+@JsonKey(fromJson: holdingQuantityFromJson) String? get quantity; String? get holdingName; int? get holdingValue; int? get sortOrder;
 /// Create a copy of AssetHolding
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -698,7 +700,7 @@ abstract mixin class $AssetHoldingCopyWith<$Res>  {
   factory $AssetHoldingCopyWith(AssetHolding value, $Res Function(AssetHolding) _then) = _$AssetHoldingCopyWithImpl;
 @useResult
 $Res call({
- int? rowId,@JsonKey(unknownEnumValue: AssetHoldingType.stock) AssetHoldingType holdingType, bool linked, String? tossSymbol, double? quantity, String? holdingName, int? holdingValue, int? sortOrder
+ int? rowId,@JsonKey(unknownEnumValue: AssetHoldingType.stock) AssetHoldingType holdingType, bool linked, String? tossSymbol,@JsonKey(fromJson: holdingQuantityFromJson) String? quantity, String? holdingName, int? holdingValue, int? sortOrder
 });
 
 
@@ -722,7 +724,7 @@ as int?,holdingType: null == holdingType ? _self.holdingType : holdingType // ig
 as AssetHoldingType,linked: null == linked ? _self.linked : linked // ignore: cast_nullable_to_non_nullable
 as bool,tossSymbol: freezed == tossSymbol ? _self.tossSymbol : tossSymbol // ignore: cast_nullable_to_non_nullable
 as String?,quantity: freezed == quantity ? _self.quantity : quantity // ignore: cast_nullable_to_non_nullable
-as double?,holdingName: freezed == holdingName ? _self.holdingName : holdingName // ignore: cast_nullable_to_non_nullable
+as String?,holdingName: freezed == holdingName ? _self.holdingName : holdingName // ignore: cast_nullable_to_non_nullable
 as String?,holdingValue: freezed == holdingValue ? _self.holdingValue : holdingValue // ignore: cast_nullable_to_non_nullable
 as int?,sortOrder: freezed == sortOrder ? _self.sortOrder : sortOrder // ignore: cast_nullable_to_non_nullable
 as int?,
@@ -810,7 +812,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? rowId, @JsonKey(unknownEnumValue: AssetHoldingType.stock)  AssetHoldingType holdingType,  bool linked,  String? tossSymbol,  double? quantity,  String? holdingName,  int? holdingValue,  int? sortOrder)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? rowId, @JsonKey(unknownEnumValue: AssetHoldingType.stock)  AssetHoldingType holdingType,  bool linked,  String? tossSymbol, @JsonKey(fromJson: holdingQuantityFromJson)  String? quantity,  String? holdingName,  int? holdingValue,  int? sortOrder)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _AssetHolding() when $default != null:
 return $default(_that.rowId,_that.holdingType,_that.linked,_that.tossSymbol,_that.quantity,_that.holdingName,_that.holdingValue,_that.sortOrder);case _:
@@ -831,7 +833,7 @@ return $default(_that.rowId,_that.holdingType,_that.linked,_that.tossSymbol,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? rowId, @JsonKey(unknownEnumValue: AssetHoldingType.stock)  AssetHoldingType holdingType,  bool linked,  String? tossSymbol,  double? quantity,  String? holdingName,  int? holdingValue,  int? sortOrder)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? rowId, @JsonKey(unknownEnumValue: AssetHoldingType.stock)  AssetHoldingType holdingType,  bool linked,  String? tossSymbol, @JsonKey(fromJson: holdingQuantityFromJson)  String? quantity,  String? holdingName,  int? holdingValue,  int? sortOrder)  $default,) {final _that = this;
 switch (_that) {
 case _AssetHolding():
 return $default(_that.rowId,_that.holdingType,_that.linked,_that.tossSymbol,_that.quantity,_that.holdingName,_that.holdingValue,_that.sortOrder);case _:
@@ -851,7 +853,7 @@ return $default(_that.rowId,_that.holdingType,_that.linked,_that.tossSymbol,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? rowId, @JsonKey(unknownEnumValue: AssetHoldingType.stock)  AssetHoldingType holdingType,  bool linked,  String? tossSymbol,  double? quantity,  String? holdingName,  int? holdingValue,  int? sortOrder)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? rowId, @JsonKey(unknownEnumValue: AssetHoldingType.stock)  AssetHoldingType holdingType,  bool linked,  String? tossSymbol, @JsonKey(fromJson: holdingQuantityFromJson)  String? quantity,  String? holdingName,  int? holdingValue,  int? sortOrder)?  $default,) {final _that = this;
 switch (_that) {
 case _AssetHolding() when $default != null:
 return $default(_that.rowId,_that.holdingType,_that.linked,_that.tossSymbol,_that.quantity,_that.holdingName,_that.holdingValue,_that.sortOrder);case _:
@@ -866,7 +868,7 @@ return $default(_that.rowId,_that.holdingType,_that.linked,_that.tossSymbol,_tha
 @JsonSerializable()
 
 class _AssetHolding implements AssetHolding {
-  const _AssetHolding({this.rowId, @JsonKey(unknownEnumValue: AssetHoldingType.stock) this.holdingType = AssetHoldingType.stock, this.linked = false, this.tossSymbol, this.quantity, this.holdingName, this.holdingValue, this.sortOrder});
+  const _AssetHolding({this.rowId, @JsonKey(unknownEnumValue: AssetHoldingType.stock) this.holdingType = AssetHoldingType.stock, this.linked = false, this.tossSymbol, @JsonKey(fromJson: holdingQuantityFromJson) this.quantity, this.holdingName, this.holdingValue, this.sortOrder});
   factory _AssetHolding.fromJson(Map<String, dynamic> json) => _$AssetHoldingFromJson(json);
 
 @override final  int? rowId;
@@ -875,7 +877,9 @@ class _AssetHolding implements AssetHolding {
 @override@JsonKey() final  bool linked;
 @override final  String? tossSymbol;
 // 코인 0.05·금 3.75g 등 소수 허용. 미연동도 기록 가능(선택).
-@override final  double? quantity;
+// 서버 계약은 BigDecimal(decimal(28,8)) — double 로 담으면 십진 소수가 깎이므로
+// 클라이언트는 문자열로 들고 다닌다. 전송도 문자열 그대로(Jackson 이 BigDecimal 로 받는다).
+@override@JsonKey(fromJson: holdingQuantityFromJson) final  String? quantity;
 @override final  String? holdingName;
 @override final  int? holdingValue;
 @override final  int? sortOrder;
@@ -913,7 +917,7 @@ abstract mixin class _$AssetHoldingCopyWith<$Res> implements $AssetHoldingCopyWi
   factory _$AssetHoldingCopyWith(_AssetHolding value, $Res Function(_AssetHolding) _then) = __$AssetHoldingCopyWithImpl;
 @override @useResult
 $Res call({
- int? rowId,@JsonKey(unknownEnumValue: AssetHoldingType.stock) AssetHoldingType holdingType, bool linked, String? tossSymbol, double? quantity, String? holdingName, int? holdingValue, int? sortOrder
+ int? rowId,@JsonKey(unknownEnumValue: AssetHoldingType.stock) AssetHoldingType holdingType, bool linked, String? tossSymbol,@JsonKey(fromJson: holdingQuantityFromJson) String? quantity, String? holdingName, int? holdingValue, int? sortOrder
 });
 
 
@@ -937,7 +941,7 @@ as int?,holdingType: null == holdingType ? _self.holdingType : holdingType // ig
 as AssetHoldingType,linked: null == linked ? _self.linked : linked // ignore: cast_nullable_to_non_nullable
 as bool,tossSymbol: freezed == tossSymbol ? _self.tossSymbol : tossSymbol // ignore: cast_nullable_to_non_nullable
 as String?,quantity: freezed == quantity ? _self.quantity : quantity // ignore: cast_nullable_to_non_nullable
-as double?,holdingName: freezed == holdingName ? _self.holdingName : holdingName // ignore: cast_nullable_to_non_nullable
+as String?,holdingName: freezed == holdingName ? _self.holdingName : holdingName // ignore: cast_nullable_to_non_nullable
 as String?,holdingValue: freezed == holdingValue ? _self.holdingValue : holdingValue // ignore: cast_nullable_to_non_nullable
 as int?,sortOrder: freezed == sortOrder ? _self.sortOrder : sortOrder // ignore: cast_nullable_to_non_nullable
 as int?,

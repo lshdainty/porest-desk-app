@@ -176,7 +176,8 @@ final investmentValuationMapProvider =
             priceable = false;
             break; // 연동가 미확보 — 서버 스냅샷 잔액 유지.
           }
-          final qty = h.quantity ?? 0;
+          // 라이브 표시용 오버레이 계산 — 저장되는 평가액은 서버가 BigDecimal 로 산정한다.
+          final qty = h.quantityValue;
           total += unit * qty;
           final prevUnit = unitPrevKrw(sym);
           if (prevUnit != null) {
