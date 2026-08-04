@@ -312,6 +312,8 @@
   "assetUpdateFailed": "수정 실패",
   "assetTossLinked": "토스 연동 중",
   "assetHoldings": "보유 종목",
+  "assetCashBalance": "예수금",
+  "assetHoldingBalance": "평가금액",
   "assetHoldingsSummary": "{count}종목 · {amount}원",
   "@assetHoldingsSummary": {
     "placeholders": {

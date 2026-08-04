@@ -1454,6 +1454,18 @@ abstract class AppLocalizations {
   /// **'보유 종목'**
   String get assetHoldings;
 
+  /// No description provided for @assetCashBalance.
+  ///
+  /// In ko, this message translates to:
+  /// **'예수금'**
+  String get assetCashBalance;
+
+  /// No description provided for @assetHoldingBalance.
+  ///
+  /// In ko, this message translates to:
+  /// **'평가금액'**
+  String get assetHoldingBalance;
+
   /// No description provided for @assetHoldingsSummary.
   ///
   /// In ko, this message translates to:

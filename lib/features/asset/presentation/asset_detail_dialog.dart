@@ -720,6 +720,15 @@ class _HeroCard extends StatelessWidget {
             ],
           ),
         ),
+        // 예수금·평가금액 — 실제 증권 계좌처럼 나눠 보여 준다(예수금이 있을 때만).
+        if (asset.assetType == 'INVESTMENT' && (asset.cashBalance ?? 0) != 0) ...[
+          const SizedBox(height: PSpace.x8),
+          Text(
+            '${l.assetCashBalance} ${masked ? '••••••' : krw(asset.cashBalance!)}'
+            ' · ${l.assetHoldingBalance} ${masked ? '••••••' : krw(asset.holdingBalance ?? 0)}',
+            style: PTypo.caption.copyWith(color: t.fgTertiary),
+          ),
+        ],
         ],
       ],
     );
