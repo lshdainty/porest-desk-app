@@ -3008,6 +3008,18 @@ abstract class AppLocalizations {
   /// **'할부'**
   String get expInstallment;
 
+  /// No description provided for @expRefund.
+  ///
+  /// In ko, this message translates to:
+  /// **'환불'**
+  String get expRefund;
+
+  /// No description provided for @expRefundRecord.
+  ///
+  /// In ko, this message translates to:
+  /// **'환불 기록'**
+  String get expRefundRecord;
+
   /// No description provided for @expLumpSum.
   ///
   /// In ko, this message translates to:

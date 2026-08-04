@@ -47,15 +47,21 @@ void showAddTxSheet(
   BuildContext context, {
   String? defaultDate,
   Expense? edit,
+  /// 환불 모드 — 이 지출의 환불을 기록한다.
+  /// 수입으로 들어가되 원거래에 묶여 통계에서 지출을 상계한다(수입으로 부풀지 않는다).
+  Expense? refundOf,
 }) {
   final controller = PSheetController();
   final l = AppLocalizations.of(context);
   showPSheet<void>(
     context,
-    title: edit == null ? l.expAdd : l.expEdit,
+    title: edit != null
+        ? l.expEdit
+        : (refundOf != null ? l.expRefundRecord : l.expAdd),
     contentBuilder: (ctx, scrollCtrl) => _AddTxBody(
       defaultDate: defaultDate,
       edit: edit,
+      refundOf: refundOf,
       scrollController: scrollCtrl,
       controller: controller,
     ),
@@ -70,11 +76,13 @@ class _AddTxBody extends ConsumerStatefulWidget {
   const _AddTxBody({
     this.defaultDate,
     this.edit,
+    this.refundOf,
     required this.scrollController,
     required this.controller,
   });
   final String? defaultDate;
   final Expense? edit;
+  final Expense? refundOf;
   final ScrollController scrollController;
   final PSheetController controller;
 
@@ -126,14 +134,19 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
     } else {
       date = DateTime.now();
     }
+    // 환불 모드 — 타입은 수입 고정(원거래 연결이 상계를 만든다), 나머지는 원거래 승계.
+    // 부분 환불이면 금액만 고치면 된다.
+    final r = widget.refundOf;
     _input = _TxInputController(
-      type: e?.expenseType ?? 'EXPENSE',
-      amount: e == null ? '' : e.amount.toString(),
+      type: r != null ? 'INCOME' : (e?.expenseType ?? 'EXPENSE'),
+      amount: e != null
+          ? e.amount.toString()
+          : (r != null ? r.amount.toString() : ''),
       memo: e?.description ?? '',
-      merchant: e?.merchant ?? '',
-      paymentMethod: e?.paymentMethod ?? '',
-      categoryRowId: e?.categoryRowId,
-      assetRowId: e?.assetRowId,
+      merchant: e?.merchant ?? r?.merchant ?? '',
+      paymentMethod: e?.paymentMethod ?? r?.paymentMethod ?? '',
+      categoryRowId: e?.categoryRowId ?? r?.categoryRowId,
+      assetRowId: e?.assetRowId ?? r?.assetRowId,
       date: date,
       time: time,
     );
@@ -220,6 +233,9 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
     final payment = _input.paymentMethodOrNull;
     // 할부는 신용카드 지출에만 — 그 밖의 조합에선 값을 흘리지 않는다.
     final installment = _input.installmentMonths > 1 ? _input.installmentMonths : null;
+    // 환불 모드에서만 원거래를 묶는다 — 이 연결이 통계 상계를 만든다.
+    final refundOf =
+        (widget.refundOf != null && _input.type == 'INCOME') ? widget.refundOf!.rowId : null;
     final d = _input.date;
 
     if (_input.type == 'TRANSFER') {
@@ -270,6 +286,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
           merchant: merchant,
           paymentMethod: payment,
           installmentMonths: installment,
+          refundOfExpenseRowId: refundOf,
           // 일치화한 분할이 있으면 금액과 함께 원자적으로 교체(백엔드가 합==금액 검증).
           splits: _reconciledSplits,
         );
@@ -286,6 +303,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
           merchant: merchant,
           paymentMethod: payment,
           installmentMonths: installment,
+          refundOfExpenseRowId: refundOf,
         );
       }
       // 프리셋으로 채운 뒤 일반 저장한 경우 useCount/lastUsedAt 갱신.

@@ -1560,6 +1560,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get expInstallment => '할부';
 
   @override
+  String get expRefund => '환불';
+
+  @override
+  String get expRefundRecord => '환불 기록';
+
+  @override
   String get expLumpSum => '일시불';
 
   @override
