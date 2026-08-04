@@ -2555,6 +2555,17 @@ class AppLocalizationsKo extends AppLocalizations {
   String get expFeeOptional => '수수료 (선택)';
 
   @override
+  String get expInterest => '이자';
+
+  @override
+  String get expInterestHint => '상환액 중 이자 몫 — 부채는 이자를 뺀 만큼만 줄어들어요';
+
+  @override
+  String expInterestSplit(String principal, String interest) {
+    return '원금 $principal원 · 이자 $interest원';
+  }
+
+  @override
   String get expDateTime => '날짜·시간';
 
   @override

@@ -2581,6 +2581,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get expFeeOptional => 'Fee (optional)';
 
   @override
+  String get expInterest => 'Interest';
+
+  @override
+  String get expInterestHint =>
+      'The interest portion — debt decreases only by the rest';
+
+  @override
+  String expInterestSplit(String principal, String interest) {
+    return 'Principal $principal · Interest $interest';
+  }
+
+  @override
   String get expDateTime => 'Date & time';
 
   @override

@@ -242,12 +242,17 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
       _setSubmitting(true);
       try {
         final fee = int.tryParse(_input.feeCtrl.text.replaceAll(',', ''));
+        // 이자는 대출 상환에만 — 그 밖의 이체엔 값을 흘리지 않는다.
+        final interest = _showInterest(_input, ref.read(assetsProvider).value)
+            ? int.tryParse(_input.interestCtrl.text.replaceAll(',', ''))
+            : null;
         final aRepo = await ref.read(assetRepositoryProvider.future);
         await aRepo.createTransfer(
           fromAssetRowId: _input.assetRowId!,
           toAssetRowId: _input.toAssetRowId!,
           amount: amount,
           fee: fee,
+          interestAmount: interest,
           description: desc,
           transferDate: dateStr,
         );
@@ -959,6 +964,16 @@ const Map<String, List<String>?> _txPaymentAssetTypes = {
 /// 카드사 공통 할부 개월 — 2~12, 18, 24.
 const List<int> _installmentMonths = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 18, 24];
 
+/// 이자 입력을 보일지 — 대출 상환일 때만.
+///
+/// 원금은 부채가 줄어드는 자산 이동이지만 이자는 은행으로 아예 나가는 비용이라,
+/// 입금 대상이 대출 자산일 때만 의미가 있다.
+bool _showInterest(_TxInputController c, List<Asset>? assets) {
+  if (c.type != 'TRANSFER' || c.toAssetRowId == null || assets == null) return false;
+  final to = assets.where((a) => a.rowId == c.toAssetRowId).firstOrNull;
+  return to?.assetType == 'LOAN';
+}
+
 /// 할부 입력을 보일지 — 신용카드 지출일 때만.
 bool _showInstallment(_TxInputController c, List<Asset>? assets) {
   if (c.type != 'EXPENSE' || c.assetRowId == null || assets == null) return false;
@@ -1005,12 +1020,16 @@ class _TxInputController {
        amountCtrl = TextEditingController(text: amount),
        merchantCtrl = TextEditingController(text: merchant),
        memoCtrl = TextEditingController(text: memo),
-       feeCtrl = TextEditingController();
+       feeCtrl = TextEditingController(),
+       interestCtrl = TextEditingController();
 
   final TextEditingController amountCtrl;
   final TextEditingController merchantCtrl;
   final TextEditingController memoCtrl;
   final TextEditingController feeCtrl;
+
+  /// 대출 상환의 이자 — 상환액 중 이 금액은 부채를 줄이지 않고 지출로 잡힌다.
+  final TextEditingController interestCtrl;
 
   String type; // EXPENSE / INCOME / TRANSFER
   int? categoryRowId;
@@ -1039,6 +1058,7 @@ class _TxInputController {
     merchantCtrl.dispose();
     memoCtrl.dispose();
     feeCtrl.dispose();
+    interestCtrl.dispose();
   }
 }
 
@@ -1437,6 +1457,34 @@ class _TxInputForm extends ConsumerWidget {
             placeholder: '0',
           ),
           const SizedBox(height: PSpace.x12),
+
+          // 이자 — 대출 상환에만. 상환액 중 이자는 부채를 줄이지 않고 지출로 잡힌다.
+          if (_showInterest(c, assetsAsync.value)) ...[
+            PSectionLabel(l.expInterest),
+            const SizedBox(height: PSpace.x4),
+            PTextInput(
+              controller: c.interestCtrl,
+              numbersOnly: true,
+              placeholder: '0',
+              onChanged: (_) => _set(() {}),
+            ),
+            const SizedBox(height: PSpace.x4),
+            Builder(builder: (_) {
+              final interest =
+                  int.tryParse(c.interestCtrl.text.replaceAll(',', '')) ?? 0;
+              final amount = c.amountInt;
+              return Text(
+                (interest > 0 && amount > 0)
+                    ? l.expInterestSplit(
+                        krw(amount - interest < 0 ? 0 : amount - interest),
+                        krw(interest),
+                      )
+                    : l.expInterestHint,
+                style: PTypo.caption.copyWith(color: t.fgTertiary),
+              );
+            }),
+            const SizedBox(height: PSpace.x12),
+          ],
         ],
 
         // 날짜(·시간)

@@ -1471,6 +1471,19 @@
   "expSelect": "선택",
   "expTransferSameAsset": "보낼/받을 자산은 달라야 합니다",
   "expFeeOptional": "수수료 (선택)",
+  "expInterest": "이자",
+  "expInterestHint": "상환액 중 이자 몫 — 부채는 이자를 뺀 만큼만 줄어들어요",
+  "expInterestSplit": "원금 {principal}원 · 이자 {interest}원",
+  "@expInterestSplit": {
+    "placeholders": {
+      "principal": {
+        "type": "String"
+      },
+      "interest": {
+        "type": "String"
+      }
+    }
+  },
   "expDateTime": "날짜·시간",
   "expMemoPlaceholder": "예: 점심, 회식 등",
   "expIncomeDetail": "수입 상세",

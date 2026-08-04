@@ -9,6 +9,8 @@ class AssetTransfer {
     this.toAssetName,
     required this.amount,
     this.fee,
+    this.interestAmount,
+    this.principalAmount,
     this.description,
     this.transferDate,
     this.createAt,
@@ -22,6 +24,12 @@ class AssetTransfer {
   final String? toAssetName;
   final int amount;
   final int? fee;
+
+  /// 이자 (대출 상환 시). amount 중 이 금액은 부채를 줄이지 않고 지출로 잡힌다.
+  final int? interestAmount;
+
+  /// 원금 = amount − interestAmount. 입금 자산(대출)에 실제로 반영된 금액.
+  final int? principalAmount;
   final String? description;
   final String? transferDate; // ISO-LOCAL-DATETIME (YYYY-MM-DDTHH:mm:ss)
   final String? createAt;
@@ -36,6 +44,8 @@ class AssetTransfer {
       toAssetName: json['toAssetName'] as String?,
       amount: (json['amount'] as num).toInt(),
       fee: (json['fee'] as num?)?.toInt(),
+      interestAmount: (json['interestAmount'] as num?)?.toInt(),
+      principalAmount: (json['principalAmount'] as num?)?.toInt(),
       description: json['description'] as String?,
       transferDate: json['transferDate'] as String?,
       createAt: json['createAt'] as String?,
