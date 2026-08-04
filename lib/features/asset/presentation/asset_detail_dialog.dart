@@ -37,6 +37,7 @@ import 'package:porest_desk_app/features/asset/domain/asset_transfer.dart';
 import 'package:porest_desk_app/features/asset/domain/card_billing.dart';
 import 'package:porest_desk_app/shared/widgets/p_chart_tooltip.dart';
 import 'package:porest_desk_app/features/asset/domain/asset_type_meta.dart';
+import 'package:porest_desk_app/features/asset/presentation/holding_format.dart';
 import 'package:porest_desk_app/features/asset/presentation/widgets/asset_logo.dart';
 import 'package:porest_desk_app/features/expense/presentation/transfer_detail_sheet.dart';
 import 'package:porest_desk_app/features/expense/presentation/widgets/transfer_row.dart';
@@ -374,7 +375,7 @@ class _HoldingsSection extends ConsumerWidget {
         AssetHolding(
           linked: true,
           tossSymbol: asset.tossSymbol,
-          quantity: asset.tossQuantity,
+          quantity: asset.tossQuantity?.toDouble(),
         ),
       ];
     }
@@ -508,14 +509,18 @@ class _HoldingRow extends ConsumerWidget {
         ? h.holdingName!
         : (h.tossSymbol ?? '');
 
-    // 서브 — linked: "{qty}주 · 현재가 {price} 연동" / manual: "직접 입력".
+    // 서브 — linked: "{qty}주 · 현재가 {price} 연동"(연동은 주식뿐) /
+    // manual: 수량을 적어 뒀으면 "{qty}{단위} · 직접 입력", 없으면 "직접 입력".
+    final qty = formatHoldingQty(h.quantity ?? 0);
     final String sub;
     if (h.linked) {
       sub = rawPrice != null
-          ? l.assetHoldingLinkedDetail(h.quantity ?? 0, _fmtRawPrice(rawPrice!))
-          : '${l.assetSharesCount(h.quantity ?? 0)} · ${l.assetHoldingLinkedBadge}';
+          ? l.assetHoldingLinkedDetail(qty, _fmtRawPrice(rawPrice!))
+          : '${l.assetSharesCount(qty)} · ${l.assetHoldingLinkedBadge}';
     } else {
-      sub = l.assetHoldingManualDetail;
+      sub = (h.quantity ?? 0) > 0
+          ? '${l.assetHoldingQtyUnit(qty, holdingUnitLabel(l, h.holdingType))} · ${l.assetHoldingManualDetail}'
+          : l.assetHoldingManualDetail;
     }
 
     // 평가액 — linked: 라이브(가격×수량), 폴백 서버 스냅샷(holdingValue) / manual: holdingValue.

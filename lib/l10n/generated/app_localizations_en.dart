@@ -702,7 +702,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetHoldingManualSub => 'Manual value';
 
   @override
-  String assetHoldingLinkedDetail(int qty, String price) {
+  String assetHoldingLinkedDetail(String qty, String price) {
     return '$qty shares · linked at $price';
   }
 
@@ -729,6 +729,35 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetSharesUnit => 'sh';
 
   @override
+  String get assetHoldingTypeStock => 'Stocks';
+
+  @override
+  String get assetHoldingTypeGold => 'Gold';
+
+  @override
+  String get assetHoldingTypeCrypto => 'Crypto';
+
+  @override
+  String get assetHoldingAddGold => 'Add gold';
+
+  @override
+  String get assetHoldingAddCrypto => 'Add crypto';
+
+  @override
+  String get assetHoldingUnitGram => 'g';
+
+  @override
+  String get assetHoldingUnitCount => 'units';
+
+  @override
+  String get assetHoldingNamePlaceholder => 'Item name';
+
+  @override
+  String assetHoldingQtyUnit(String qty, String unit) {
+    return '$qty $unit';
+  }
+
+  @override
   String assetInvestHoldingsSub(int count) {
     return 'Investment · $count holdings';
   }
@@ -739,7 +768,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String assetSharesCount(int n) {
+  String assetSharesCount(String n) {
     return '$n shares';
   }
 

@@ -321,7 +321,7 @@
   "assetHoldingLinkedDetail": "{qty}주 · 현재가 {price} 연동",
   "@assetHoldingLinkedDetail": {
     "placeholders": {
-      "qty": {"type": "int"},
+      "qty": {"type": "String"},
       "price": {"type": "String"}
     }
   },
@@ -336,6 +336,21 @@
     }
   },
   "assetSharesUnit": "주",
+  "assetHoldingTypeStock": "주식",
+  "assetHoldingTypeGold": "금",
+  "assetHoldingTypeCrypto": "코인",
+  "assetHoldingAddGold": "금 추가",
+  "assetHoldingAddCrypto": "코인 추가",
+  "assetHoldingUnitGram": "g",
+  "assetHoldingUnitCount": "개",
+  "assetHoldingNamePlaceholder": "항목 이름",
+  "assetHoldingQtyUnit": "{qty}{unit}",
+  "@assetHoldingQtyUnit": {
+    "placeholders": {
+      "qty": {"type": "String"},
+      "unit": {"type": "String"}
+    }
+  },
   "assetInvestHoldingsSub": "투자 · 보유 {count}종목",
   "@assetInvestHoldingsSub": {
     "placeholders": {
@@ -352,7 +367,7 @@
   "@assetSharesCount": {
     "placeholders": {
       "n": {
-        "type": "int"
+        "type": "String"
       }
     }
   },

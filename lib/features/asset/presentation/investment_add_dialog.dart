@@ -20,6 +20,7 @@ import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
 import 'package:porest_desk_app/features/asset/domain/asset.dart';
+import 'package:porest_desk_app/features/asset/presentation/holding_format.dart';
 import 'package:porest_desk_app/features/asset/presentation/include_in_total_card.dart';
 import 'package:porest_desk_app/features/stocks/application/stocks_providers.dart';
 import 'package:porest_desk_app/features/stocks/data/stock_master_dto.dart';
@@ -62,6 +63,13 @@ List<BankEntry> get _investBrands => [
       for (final cat in investCategories) ...?bankEntriesByCategory[cat],
     ];
 
+/// 편집 중 보유 1행 — 도메인 값 + 리스트가 바뀌어도 유지되는 위젯 key.
+/// 이름 인라인 수정·행 삭제에도 입력 State 가 엉키지 않게 한다 (front `EditHolding.key` 미러).
+typedef _EditRow = ({String key, AssetHolding holding});
+
+int _editRowSeq = 0;
+String _nextRowKey() => 'eh-${++_editRowSeq}';
+
 class _InvestmentAddBody extends ConsumerStatefulWidget {
   const _InvestmentAddBody({
     required this.edit,
@@ -83,7 +91,7 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
 
   late String _brand;
   late bool _includeInTotal;
-  late List<AssetHolding> _holdings;
+  late List<_EditRow> _rows;
   bool _submitting = false;
   bool _deleting = false;
   // 종목 검색 디바운스 — 키 입력마다 서버 요청이 나가지 않게 300ms 지연.
@@ -91,6 +99,8 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
   String _debouncedStockQuery = '';
 
   bool get _isEdit => widget.edit != null;
+
+  Iterable<AssetHolding> get _holdings => _rows.map((r) => r.holding);
 
   /// 검색 q 매칭된 카테고리별 entries (증권사·가상자산거래소만).
   List<MapEntry<BankCategory, List<BankEntry>>> get _filteredByCategory {
@@ -142,16 +152,19 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
     _memoCtrl = TextEditingController(text: e?.memo ?? '');
     _includeInTotal = e == null ? true : e.isIncludedInTotal == 'Y';
     // 기존 보유 복사. 레거시 단일 연동(tossSymbol/tossQuantity)은 보유 1건으로 이관.
-    _holdings = e == null
+    _rows = e == null
         ? []
         : e.holdings.isNotEmpty
-            ? List.of(e.holdings)
+            ? [for (final h in e.holdings) (key: _nextRowKey(), holding: h)]
             : (e.tossSymbol?.isNotEmpty ?? false) && e.tossQuantity != null
                 ? [
-                    AssetHolding(
-                      linked: true,
-                      tossSymbol: e.tossSymbol,
-                      quantity: e.tossQuantity,
+                    (
+                      key: _nextRowKey(),
+                      holding: AssetHolding(
+                        linked: true,
+                        tossSymbol: e.tossSymbol,
+                        quantity: e.tossQuantity?.toDouble(),
+                      ),
                     ),
                   ]
                 : [];
@@ -201,14 +214,17 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
       return;
     }
     setState(() {
-      _holdings = [
-        ..._holdings,
-        AssetHolding(
-          linked: true,
-          tossSymbol: s.symbol,
-          quantity: 1,
-          holdingName: s.nameKr, // 표시용 — 직렬화 시 linked 는 심볼·수량만 전송.
-          sortOrder: _holdings.length,
+      _rows = [
+        ..._rows,
+        (
+          key: _nextRowKey(),
+          holding: AssetHolding(
+            linked: true,
+            tossSymbol: s.symbol,
+            quantity: 1,
+            holdingName: s.nameKr, // 표시용 — 직렬화 시 linked 는 심볼·수량만 전송.
+            sortOrder: _rows.length,
+          ),
         ),
       ];
       _stockQueryCtrl.clear();
@@ -218,12 +234,15 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
 
   void _addManual(String name) {
     setState(() {
-      _holdings = [
-        ..._holdings,
-        AssetHolding(
-          holdingName: name,
-          holdingValue: 0,
-          sortOrder: _holdings.length,
+      _rows = [
+        ..._rows,
+        (
+          key: _nextRowKey(),
+          holding: AssetHolding(
+            holdingName: name,
+            holdingValue: 0,
+            sortOrder: _rows.length,
+          ),
         ),
       ];
       _stockQueryCtrl.clear();
@@ -231,20 +250,38 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
     });
   }
 
-  void _updateHolding(int index, AssetHolding next) {
+  /// 금·코인은 검색 대상이 아니다(토스·마스터 모두 미제공) — 빈 행으로만 담는다.
+  void _addTyped(AssetHoldingType type) {
     setState(() {
-      _holdings = [
-        for (int i = 0; i < _holdings.length; i++)
-          i == index ? next : _holdings[i],
+      _rows = [
+        ..._rows,
+        (
+          key: _nextRowKey(),
+          holding: AssetHolding(
+            holdingType: type,
+            holdingName: '',
+            holdingValue: 0,
+            sortOrder: _rows.length,
+          ),
+        ),
       ];
     });
   }
 
-  void _removeHolding(int index) {
+  void _updateRow(String key, AssetHolding next) {
     setState(() {
-      _holdings = [
-        for (int i = 0; i < _holdings.length; i++)
-          if (i != index) _holdings[i],
+      _rows = [
+        for (final r in _rows)
+          if (r.key == key) (key: r.key, holding: next) else r,
+      ];
+    });
+  }
+
+  void _removeRow(String key) {
+    setState(() {
+      _rows = [
+        for (final r in _rows)
+          if (r.key != key) r,
       ];
     });
   }
@@ -294,9 +331,9 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
   }
 
   /// 보유 합계(KRW) — manual 합 + 시세 확보된 linked 합.
-  int _totalOf(Map<String, double?> unitMap) {
+  int _totalOf(Map<String, double?> unitMap, Iterable<AssetHolding> holdings) {
     var total = 0.0;
-    for (final h in _holdings) {
+    for (final h in holdings) {
       if (h.linked) {
         final unit = unitMap[h.tossSymbol];
         if (unit != null) total += unit * (h.quantity ?? 0);
@@ -312,11 +349,15 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
     final l = AppLocalizations.of(context);
     final brand = _brand;
     final memo = _memoCtrl.text.trim();
-    final holdings = [
-      for (int i = 0; i < _holdings.length; i++)
-        _holdings[i].copyWith(sortOrder: i),
+    // 추가만 하고 이름을 안 채운 미연동 행은 버린다 — 이름 빈 미연동은 서버가 400 으로 막는다.
+    final filled = [
+      for (final h in _holdings)
+        if (h.linked || (h.holdingName?.trim().isNotEmpty ?? false)) h,
     ];
-    final balance = _totalOf(_unitKrwMap());
+    final holdings = [
+      for (int i = 0; i < filled.length; i++) filled[i].copyWith(sortOrder: i),
+    ];
+    final balance = _totalOf(_unitKrwMap(), filled);
 
     _setSubmitting(true);
     try {
@@ -395,7 +436,7 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
     final unitMap = _unitKrwMap();
-    final total = _totalOf(unitMap);
+    final total = _totalOf(unitMap, _holdings);
     return ListView(
       controller: widget.scrollController,
       padding: const EdgeInsets.fromLTRB(PSpace.x16, 0, PSpace.x16, PSpace.x16),
@@ -465,7 +506,28 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
             onAddManual: _addManual,
           ),
         ],
-        if (_holdings.isEmpty)
+        // 금·코인은 검색으로 담을 수 없다(시세·마스터 미제공) — 빈 행 추가 버튼으로만.
+        const SizedBox(height: PSpace.x8),
+        Row(
+          children: [
+            PButton(
+              label: l.assetHoldingAddGold,
+              icon: LucideIcons.plus,
+              variant: PButtonVariant.outline,
+              size: PButtonSize.sm,
+              onPressed: () => _addTyped(AssetHoldingType.gold),
+            ),
+            const SizedBox(width: 6),
+            PButton(
+              label: l.assetHoldingAddCrypto,
+              icon: LucideIcons.plus,
+              variant: PButtonVariant.outline,
+              size: PButtonSize.sm,
+              onPressed: () => _addTyped(AssetHoldingType.crypto),
+            ),
+          ],
+        ),
+        if (_rows.isEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(
                 vertical: PSpace.x12, horizontal: 2),
@@ -475,17 +537,21 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
             ),
           )
         else
-          for (int i = 0; i < _holdings.length; i++)
-            _HoldingEditRow(
-              key: ValueKey('holding-$i-${_holdings[i].tossSymbol ?? _holdings[i].holdingName}'),
-              holding: _holdings[i],
-              first: i == 0,
-              unitKrw: _holdings[i].linked
-                  ? unitMap[_holdings[i].tossSymbol]
-                  : null,
-              onChanged: (next) => _updateHolding(i, next),
-              onRemove: () => _removeHolding(i),
-            ),
+          // 유형별 섹션 — 해당 유형이 없으면 섹션 자체를 그리지 않는다.
+          for (final type in AssetHoldingType.values)
+            if (_rows.any((r) => r.holding.holdingType == type))
+              _HoldingTypeSection(
+                // 다른 유형 섹션이 사라져도 이 섹션의 행 State(입력 중 값)가 유지되도록.
+                key: ValueKey(type),
+                type: type,
+                rows: [
+                  for (final r in _rows)
+                    if (r.holding.holdingType == type) r,
+                ],
+                unitMap: unitMap,
+                onChanged: _updateRow,
+                onRemove: _removeRow,
+              ),
 
         // 메모 (선택) ────────────────────────
         const SizedBox(height: PSpace.x20),
@@ -630,7 +696,58 @@ class _StockSearchResults extends ConsumerWidget {
   }
 }
 
-/// 보유 종목 편집 1행 — linked: 수량 입력(주) / manual: 평가액 입력. 우측 평가액·삭제.
+/// 유형별 보유 섹션 — 라벨 + 그 유형의 행 목록.
+/// 라벨과 목록은 한 묶음이라 유형이 하나뿐이어도 어떤 단위인지 드러난다.
+class _HoldingTypeSection extends StatelessWidget {
+  const _HoldingTypeSection({
+    super.key,
+    required this.type,
+    required this.rows,
+    required this.unitMap,
+    required this.onChanged,
+    required this.onRemove,
+  });
+  final AssetHoldingType type;
+  final List<_EditRow> rows;
+  final Map<String, double?> unitMap;
+  final void Function(String key, AssetHolding next) onChanged;
+  final ValueChanged<String> onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final l = AppLocalizations.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(top: PSpace.x12, bottom: 2),
+          child: Text(
+            holdingTypeLabel(l, type),
+            style: PTypo.micro.copyWith(
+              color: t.fgTertiary,
+              fontWeight: PFontWeight.bold,
+            ),
+          ),
+        ),
+        for (int i = 0; i < rows.length; i++)
+          _HoldingEditRow(
+            key: ValueKey(rows[i].key),
+            holding: rows[i].holding,
+            first: i == 0,
+            unitKrw: rows[i].holding.linked
+                ? unitMap[rows[i].holding.tossSymbol]
+                : null,
+            onChanged: (next) => onChanged(rows[i].key, next),
+            onRemove: () => onRemove(rows[i].key),
+          ),
+      ],
+    );
+  }
+}
+
+/// 보유 종목 편집 1행 — 연동: 이름·배지 + 수량 + 평가액(시세 계산) /
+/// 미연동: 이름 입력 + 수량(선택) + 평가액 입력. 우측 삭제.
 class _HoldingEditRow extends StatefulWidget {
   const _HoldingEditRow({
     super.key,
@@ -651,30 +768,41 @@ class _HoldingEditRow extends StatefulWidget {
 }
 
 class _HoldingEditRowState extends State<_HoldingEditRow> {
-  late final TextEditingController _numCtrl;
+  late final TextEditingController _qtyCtrl;
+  // 미연동 전용 — 이름·평가액 직접 입력.
+  late final TextEditingController _nameCtrl;
+  late final TextEditingController _valueCtrl;
 
   @override
   void initState() {
     super.initState();
     final h = widget.holding;
-    _numCtrl = TextEditingController(
-      text: h.linked ? '${h.quantity ?? 0}' : '${h.holdingValue ?? 0}',
+    // 입력 중 '3.' 같은 중간 상태는 controller 가 들고 있으므로 모델에서 되쓰지 않는다.
+    _qtyCtrl = TextEditingController(
+      text: h.quantity != null ? formatHoldingQty(h.quantity!) : '',
     );
+    _nameCtrl = TextEditingController(text: h.holdingName ?? '');
+    _valueCtrl = TextEditingController(text: '${h.holdingValue ?? 0}');
   }
 
   @override
   void dispose() {
-    _numCtrl.dispose();
+    _qtyCtrl.dispose();
+    _nameCtrl.dispose();
+    _valueCtrl.dispose();
     super.dispose();
   }
 
-  void _onNumChanged(String v) {
+  void _onQtyChanged(String v) =>
+      widget.onChanged(widget.holding.copyWith(quantity: holdingQtyNumber(v)));
+
+  void _onValueChanged(String v) {
     final n = int.tryParse(v.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
-    final h = widget.holding;
-    widget.onChanged(
-      h.linked ? h.copyWith(quantity: n) : h.copyWith(holdingValue: n),
-    );
+    widget.onChanged(widget.holding.copyWith(holdingValue: n));
   }
+
+  void _onNameChanged(String v) =>
+      widget.onChanged(widget.holding.copyWith(holdingName: v));
 
   @override
   Widget build(BuildContext context) {
@@ -684,11 +812,9 @@ class _HoldingEditRowState extends State<_HoldingEditRow> {
     final name = (h.holdingName?.isNotEmpty ?? false)
         ? h.holdingName!
         : (h.tossSymbol ?? '');
-    final value = h.linked
-        ? (widget.unitKrw != null
-            ? (widget.unitKrw! * (h.quantity ?? 0)).round()
-            : null)
-        : (h.holdingValue ?? 0);
+    final value = widget.unitKrw != null
+        ? (widget.unitKrw! * (h.quantity ?? 0)).round()
+        : null;
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 10),
@@ -698,24 +824,24 @@ class _HoldingEditRowState extends State<_HoldingEditRow> {
       ),
       child: Row(
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Flexible(
-                      child: Text(
-                        name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: PTypo.bodySm.copyWith(
-                          color: t.fgPrimary,
-                          fontWeight: PFontWeight.semi,
+          if (h.linked)
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: PTypo.bodySm.copyWith(
+                            color: t.fgPrimary,
+                            fontWeight: PFontWeight.semi,
+                          ),
                         ),
                       ),
-                    ),
-                    if (h.linked) ...[
                       const SizedBox(width: 6),
                       Container(
                         padding: const EdgeInsets.symmetric(
@@ -733,57 +859,74 @@ class _HoldingEditRowState extends State<_HoldingEditRow> {
                         ),
                       ),
                     ],
-                  ],
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  h.linked
-                      ? (widget.unitKrw != null
-                          ? l.assetHoldingLinkedSub(
-                              '${krw(widget.unitKrw!.round())}원')
-                          : l.assetHoldingLinkedBadge)
-                      : l.assetHoldingManualSub,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: PTypo.micro.copyWith(
-                    color: t.fgTertiary,
-                    fontFeatures: const [FontFeature.tabularFigures()],
                   ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: PSpace.x8),
-          // 수량(연동) / 평가액(직접) 입력
-          SizedBox(
-            width: h.linked ? 64 : 104,
-            child: PTextInput(
-              controller: _numCtrl,
-              keyboardType: TextInputType.number,
-              textAlign: TextAlign.right,
-              onChanged: _onNumChanged,
-            ),
-          ),
-          if (h.linked) ...[
-            const SizedBox(width: 4),
-            Text(l.assetSharesUnit,
-                style: PTypo.caption.copyWith(color: t.fgTertiary)),
-          ],
-          const SizedBox(width: PSpace.x8),
-          SizedBox(
-            width: 84,
-            child: Text(
-              value != null ? '${krw(value)}원' : '—',
-              textAlign: TextAlign.right,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: PTypo.caption.copyWith(
-                color: t.fgPrimary,
-                fontWeight: PFontWeight.bold,
-                fontFeatures: const [FontFeature.tabularFigures()],
+                  const SizedBox(height: 2),
+                  Text(
+                    widget.unitKrw != null
+                        ? l.assetHoldingLinkedSub(
+                            '${krw(widget.unitKrw!.round())}원')
+                        : l.assetHoldingLinkedBadge,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: PTypo.micro.copyWith(
+                      color: t.fgTertiary,
+                      fontFeatures: const [FontFeature.tabularFigures()],
+                    ),
+                  ),
+                ],
+              ),
+            )
+          else
+            // 미연동은 이름도 고칠 수 있어야 한다 — 금·코인은 검색으로 이름을 받지 못한다.
+            Expanded(
+              child: PTextInput(
+                controller: _nameCtrl,
+                placeholder: l.assetHoldingNamePlaceholder,
+                onChanged: _onNameChanged,
               ),
             ),
+          const SizedBox(width: PSpace.x8),
+          // 수량 — 연동은 필수(시세×수량), 미연동은 선택. 소수 허용(0.05 BTC·3.75g).
+          SizedBox(
+            width: 64,
+            child: PTextInput(
+              controller: _qtyCtrl,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              inputFormatters: const [HoldingQtyInputFormatter()],
+              textAlign: TextAlign.right,
+              onChanged: _onQtyChanged,
+            ),
           ),
+          const SizedBox(width: 4),
+          Text(holdingUnitLabel(l, h.holdingType),
+              style: PTypo.caption.copyWith(color: t.fgTertiary)),
+          const SizedBox(width: PSpace.x8),
+          // 평가액 — 연동은 시세로 계산(읽기 전용), 미연동은 직접 입력.
+          if (h.linked)
+            SizedBox(
+              width: 84,
+              child: Text(
+                value != null ? '${krw(value)}원' : '—',
+                textAlign: TextAlign.right,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: PTypo.caption.copyWith(
+                  color: t.fgPrimary,
+                  fontWeight: PFontWeight.bold,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
+              ),
+            )
+          else
+            SizedBox(
+              width: 100,
+              child: PTextInput(
+                controller: _valueCtrl,
+                numbersOnly: true,
+                textAlign: TextAlign.right,
+                onChanged: _onValueChanged,
+              ),
+            ),
           PButton.icon(
             icon: LucideIcons.trash2,
             size: PButtonSize.sm,

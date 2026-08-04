@@ -181,8 +181,10 @@ class AssetRepository {
   }
 
   /// holdings 요청 바디 — linked ↔ manual 별 필요한 필드만 직렬화.
+  /// 수량은 소수 허용(코인 0.05·금 3.75g). 미연동도 수량을 남긴다 — 선택이라 없으면 미전송.
   static Map<String, dynamic> _holdingBody(AssetHolding h) => {
         'rowId': ?h.rowId,
+        'holdingType': h.holdingType.wire,
         'linked': h.linked,
         if (h.linked) ...{
           'tossSymbol': h.tossSymbol,
@@ -190,6 +192,7 @@ class AssetRepository {
         } else ...{
           'holdingName': h.holdingName,
           'holdingValue': h.holdingValue ?? 0,
+          'quantity': ?h.quantity,
         },
         'sortOrder': ?h.sortOrder,
       };
