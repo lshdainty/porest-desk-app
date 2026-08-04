@@ -102,12 +102,17 @@ class _AssetScreenState extends ConsumerState<AssetScreen> {
           data: (assets) {
             final summary = summaryAsync.hasValue ? summaryAsync.value : null;
             // 연결 자산 balance 를 라이브 평가액(시세×수량)으로 치환 + 순자산 보정용 delta(라이브−DB).
+            // 라이브 평가는 '보유분'만이라 예수금을 더해야 계좌 총액이 된다.
+            // 안 더하면 증권계좌에 넣어 둔 매수 대기 자금이 목록에서 통째로 빠진다.
+            int liveTotal(Asset a) => (a.cashBalance ?? 0) + valMap[a.rowId]!;
             final liveAssets = valMap.isEmpty
                 ? assets
                 : assets
                     .map(
                       (a) => valMap.containsKey(a.rowId)
-                          ? a.copyWith(balance: valMap[a.rowId])
+                          ? a.copyWith(
+                              balance: liveTotal(a),
+                              holdingBalance: valMap[a.rowId])
                           : a,
                     )
                     .toList();
@@ -117,7 +122,7 @@ class _AssetScreenState extends ConsumerState<AssetScreen> {
                     0,
                     (s, a) => (a.isIncludedInTotal == 'Y' &&
                             valMap.containsKey(a.rowId))
-                        ? s + (valMap[a.rowId]! - (a.balance ?? 0))
+                        ? s + (liveTotal(a) - (a.balance ?? 0))
                         : s,
                   );
             return _AssetBody(
