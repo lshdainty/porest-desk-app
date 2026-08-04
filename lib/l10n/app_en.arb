@@ -1468,6 +1468,19 @@
   "expSelect": "Select",
   "expTransferSameAsset": "From and to assets must differ",
   "expFeeOptional": "Fee (optional)",
+  "expInterest": "Interest",
+  "expInterestHint": "The interest portion — debt decreases only by the rest",
+  "expInterestSplit": "Principal {principal} · Interest {interest}",
+  "@expInterestSplit": {
+    "placeholders": {
+      "principal": {
+        "type": "String"
+      },
+      "interest": {
+        "type": "String"
+      }
+    }
+  },
   "expDateTime": "Date & time",
   "expMemoPlaceholder": "e.g. Lunch, dinner",
   "expIncomeDetail": "Income details",

@@ -253,6 +253,7 @@ class AssetRepository {
     required int toAssetRowId,
     required int amount,
     int? fee,
+    int? interestAmount,
     String? description,
     required String transferDate, // ISO-LOCAL-DATETIME 'YYYY-MM-DDTHH:mm:ss'
   }) async {
@@ -264,6 +265,7 @@ class AssetRepository {
           'toAssetRowId': toAssetRowId,
           'amount': amount,
           'fee': ?fee,
+          'interestAmount': ?interestAmount,
           'description': ?description,
           'transferDate': transferDate,
         },

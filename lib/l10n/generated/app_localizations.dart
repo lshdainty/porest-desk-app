@@ -4808,6 +4808,24 @@ abstract class AppLocalizations {
   /// **'수수료 (선택)'**
   String get expFeeOptional;
 
+  /// No description provided for @expInterest.
+  ///
+  /// In ko, this message translates to:
+  /// **'이자'**
+  String get expInterest;
+
+  /// No description provided for @expInterestHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'상환액 중 이자 몫 — 부채는 이자를 뺀 만큼만 줄어들어요'**
+  String get expInterestHint;
+
+  /// No description provided for @expInterestSplit.
+  ///
+  /// In ko, this message translates to:
+  /// **'원금 {principal}원 · 이자 {interest}원'**
+  String expInterestSplit(String principal, String interest);
+
   /// No description provided for @expDateTime.
   ///
   /// In ko, this message translates to:
