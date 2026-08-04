@@ -1454,6 +1454,186 @@ abstract class AppLocalizations {
   /// **'보유 종목'**
   String get assetHoldings;
 
+  /// No description provided for @tradeTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'매수·매도'**
+  String get tradeTitle;
+
+  /// No description provided for @tradeBuy.
+  ///
+  /// In ko, this message translates to:
+  /// **'매수'**
+  String get tradeBuy;
+
+  /// No description provided for @tradeSell.
+  ///
+  /// In ko, this message translates to:
+  /// **'매도'**
+  String get tradeSell;
+
+  /// No description provided for @tradeBought.
+  ///
+  /// In ko, this message translates to:
+  /// **'매수를 기록했어요'**
+  String get tradeBought;
+
+  /// No description provided for @tradeSold.
+  ///
+  /// In ko, this message translates to:
+  /// **'매도를 기록했어요'**
+  String get tradeSold;
+
+  /// No description provided for @tradeHolding.
+  ///
+  /// In ko, this message translates to:
+  /// **'종목'**
+  String get tradeHolding;
+
+  /// No description provided for @tradeHoldingType.
+  ///
+  /// In ko, this message translates to:
+  /// **'종목 유형'**
+  String get tradeHoldingType;
+
+  /// No description provided for @tradeNoHolding.
+  ///
+  /// In ko, this message translates to:
+  /// **'보유 종목이 없어요'**
+  String get tradeNoHolding;
+
+  /// No description provided for @tradeAddNewHolding.
+  ///
+  /// In ko, this message translates to:
+  /// **'새 종목 사기'**
+  String get tradeAddNewHolding;
+
+  /// No description provided for @tradePickExisting.
+  ///
+  /// In ko, this message translates to:
+  /// **'보유 종목에서 고르기'**
+  String get tradePickExisting;
+
+  /// No description provided for @tradeNewHoldingPlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'종목명을 적어주세요'**
+  String get tradeNewHoldingPlaceholder;
+
+  /// No description provided for @tradeQuantity.
+  ///
+  /// In ko, this message translates to:
+  /// **'수량'**
+  String get tradeQuantity;
+
+  /// No description provided for @tradeAmount.
+  ///
+  /// In ko, this message translates to:
+  /// **'거래대금 (원)'**
+  String get tradeAmount;
+
+  /// No description provided for @tradeAmountHelp.
+  ///
+  /// In ko, this message translates to:
+  /// **'수수료를 뺀 금액이에요. 수수료는 아래에 따로 적어주세요.'**
+  String get tradeAmountHelp;
+
+  /// No description provided for @tradeFee.
+  ///
+  /// In ko, this message translates to:
+  /// **'수수료·세금 (원)'**
+  String get tradeFee;
+
+  /// No description provided for @tradeMemo.
+  ///
+  /// In ko, this message translates to:
+  /// **'메모'**
+  String get tradeMemo;
+
+  /// No description provided for @tradeMemoPlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'선택 입력'**
+  String get tradeMemoPlaceholder;
+
+  /// No description provided for @tradeCashAfter.
+  ///
+  /// In ko, this message translates to:
+  /// **'거래 후 예수금'**
+  String get tradeCashAfter;
+
+  /// No description provided for @tradeRealizedPreview.
+  ///
+  /// In ko, this message translates to:
+  /// **'실현손익'**
+  String get tradeRealizedPreview;
+
+  /// No description provided for @tradeInsufficientCash.
+  ///
+  /// In ko, this message translates to:
+  /// **'예수금이 부족해요. 먼저 입금하거나 금액을 확인해주세요.'**
+  String get tradeInsufficientCash;
+
+  /// No description provided for @tradeInsufficientQty.
+  ///
+  /// In ko, this message translates to:
+  /// **'보유 수량보다 많이 팔 수 없어요.'**
+  String get tradeInsufficientQty;
+
+  /// No description provided for @tradeHistory.
+  ///
+  /// In ko, this message translates to:
+  /// **'거래 내역'**
+  String get tradeHistory;
+
+  /// No description provided for @tradeDeleted.
+  ///
+  /// In ko, this message translates to:
+  /// **'거래를 취소했어요'**
+  String get tradeDeleted;
+
+  /// No description provided for @tradeDeleteConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 거래를 취소하시겠어요? 예수금과 보유 수량이 거래 전으로 돌아가요.'**
+  String get tradeDeleteConfirm;
+
+  /// No description provided for @holdingTypeStock.
+  ///
+  /// In ko, this message translates to:
+  /// **'주식'**
+  String get holdingTypeStock;
+
+  /// No description provided for @holdingTypeGold.
+  ///
+  /// In ko, this message translates to:
+  /// **'금'**
+  String get holdingTypeGold;
+
+  /// No description provided for @holdingTypeCrypto.
+  ///
+  /// In ko, this message translates to:
+  /// **'코인'**
+  String get holdingTypeCrypto;
+
+  /// No description provided for @holdingAvgPrice.
+  ///
+  /// In ko, this message translates to:
+  /// **'평단가'**
+  String get holdingAvgPrice;
+
+  /// No description provided for @holdingTotalCost.
+  ///
+  /// In ko, this message translates to:
+  /// **'매수원가'**
+  String get holdingTotalCost;
+
+  /// No description provided for @tradeHeldSummary.
+  ///
+  /// In ko, this message translates to:
+  /// **'보유 {qty} · 평단가 {avg}'**
+  String tradeHeldSummary(String qty, String avg);
+
   /// No description provided for @assetCashBalance.
   ///
   /// In ko, this message translates to:

@@ -94,6 +94,10 @@ abstract class AssetHolding with _$AssetHolding {
     @JsonKey(fromJson: holdingQuantityFromJson) String? quantity,
     String? holdingName,
     int? holdingValue,
+    /// 총 매수원가 (원화, 수수료 포함). 평가액과의 차이가 평가손익이다.
+    int? totalCost,
+    /// 평단가 — 총원가 / 수량. 서버 파생값이라 읽기 전용, 정밀도 때문에 문자열.
+    String? avgPrice,
     int? sortOrder,
   }) = _AssetHolding;
 

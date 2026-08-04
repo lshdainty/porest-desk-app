@@ -93,6 +93,8 @@ _AssetHolding _$AssetHoldingFromJson(Map<String, dynamic> json) =>
       quantity: holdingQuantityFromJson(json['quantity']),
       holdingName: json['holdingName'] as String?,
       holdingValue: (json['holdingValue'] as num?)?.toInt(),
+      totalCost: (json['totalCost'] as num?)?.toInt(),
+      avgPrice: json['avgPrice'] as String?,
       sortOrder: (json['sortOrder'] as num?)?.toInt(),
     );
 
@@ -105,6 +107,8 @@ Map<String, dynamic> _$AssetHoldingToJson(_AssetHolding instance) =>
       'quantity': instance.quantity,
       'holdingName': instance.holdingName,
       'holdingValue': instance.holdingValue,
+      'totalCost': instance.totalCost,
+      'avgPrice': instance.avgPrice,
       'sortOrder': instance.sortOrder,
     };
 
