@@ -2731,7 +2731,7 @@ class _CatTrendCardState extends ConsumerState<_CatTrendCard> {
                   for (var i = 0; i < top.length; i++)
                     _LegendChip(
                       color: _donutColor(context, i, colors[i]),
-                      label: top[i].categoryName ?? '',
+                      label: top[i].categoryName ?? l.statsUnassigned,
                     ),
                 ],
               ),
@@ -2797,7 +2797,7 @@ class _CatTrendCardState extends ConsumerState<_CatTrendCard> {
                                   if (r.parts[i] > 0)
                                     PChartTooltipRowData(
                                       color: _donutColor(context, i, colors[i]),
-                                      label: top[i].categoryName ?? '',
+                                      label: top[i].categoryName ?? l.statsUnassigned,
                                       amount: krwSigned(
                                         r.parts[i],
                                         false,
