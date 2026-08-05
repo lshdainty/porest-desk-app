@@ -809,7 +809,10 @@ class _AssetCard extends StatelessWidget {
         balanceInKrw(asset.balance ?? 0, asset.currency, asset.exchangeRate);
     // 음수(빚)만 fg-expense 빨강 + 부호(−), 0 은 부호·강조 없이 '0원' (−0원 방지)
     // — 관리 화면(account_card_manage_screen) 과 동일 로직.
-    final isNeg = (negativeAmount ? -balance.abs() : balance) < 0;
+    // 저장된 부호를 그대로 믿는다 — 예전엔 카드 그룹에서 부호를 강제로 뒤집었는데,
+    // 그러면 데이터가 양수로 어긋나도 행은 멀쩡해 보이고 합계만 틀린 값이 나온다.
+    // 지금은 저장할 때 음수로 정규화하므로 표시에서 손볼 게 없다.
+    final isNeg = balance < 0;
     // design acc-card 플랫 행 — 구분선 없이 padding(12/10)+radius 10, 탭 hover 톤.
     return Material(
       color: Colors.transparent,

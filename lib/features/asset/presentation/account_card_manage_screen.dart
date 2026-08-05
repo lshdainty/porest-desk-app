@@ -326,7 +326,10 @@ class _ManageRow extends StatelessWidget {
     final balance = asset.balance ?? 0;
     // 카드 사용액은 음수 표기 컨벤션, 계좌는 실제 부호(대출 등 음수 잔액).
     // 음수만 fg-expense 강조, 0 은 부호·강조 없이 '0원' (−0원 방지) — web 정합.
-    final isNeg = (negative ? -balance.abs() : balance) < 0;
+    // 저장된 부호를 그대로 믿는다 — 예전엔 카드 그룹에서 부호를 강제로 뒤집었는데,
+    // 그러면 데이터가 양수로 어긋나도 행은 멀쩡해 보이고 합계만 틀린 값이 나온다.
+    // 지금은 저장할 때 음수로 정규화하므로 표시에서 손볼 게 없다.
+    final isNeg = balance < 0;
     final sub = [asset.institution, asset.memo]
         .where((s) => s != null && s.isNotEmpty)
         .join(' · ');
