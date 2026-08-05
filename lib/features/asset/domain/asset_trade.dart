@@ -1,5 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import 'package:porest_desk_app/core/format/decimal_string.dart';
+
 part 'asset_trade.freezed.dart';
 part 'asset_trade.g.dart';
 
@@ -20,7 +22,8 @@ abstract class AssetTrade with _$AssetTrade {
     required String holdingKey,
     @Default(false) bool linked,
     /// 소수 허용이라 문자열로 주고받는다(AssetHolding.quantity 와 같은 이유).
-    String? quantity,
+    /// 서버 계약이 BigDecimal 이라 JSON 숫자로 온다 — 컨버터 없이 캐스트하면 터진다.
+    @JsonKey(fromJson: decimalStringFromJson) String? quantity,
     /// 거래대금 — 수수료 제외.
     int? amount,
     int? fee,

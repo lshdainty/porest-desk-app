@@ -682,9 +682,10 @@ mixin _$AssetHolding {
 @JsonKey(unknownEnumValue: AssetHoldingType.stock) AssetHoldingType get holdingType; bool get linked; String? get tossSymbol;// 코인 0.05·금 3.75g 등 소수 허용. 미연동도 기록 가능(선택).
 // 서버 계약은 BigDecimal(decimal(28,8)) — double 로 담으면 십진 소수가 깎이므로
 // 클라이언트는 문자열로 들고 다닌다. 전송도 문자열 그대로(Jackson 이 BigDecimal 로 받는다).
-@JsonKey(fromJson: holdingQuantityFromJson) String? get quantity; String? get holdingName; int? get holdingValue;/// 총 매수원가 (원화, 수수료 포함). 평가액과의 차이가 평가손익이다.
+@JsonKey(fromJson: decimalStringFromJson) String? get quantity; String? get holdingName; int? get holdingValue;/// 총 매수원가 (원화, 수수료 포함). 평가액과의 차이가 평가손익이다.
  int? get totalCost;/// 평단가 — 총원가 / 수량. 서버 파생값이라 읽기 전용, 정밀도 때문에 문자열.
- String? get avgPrice; int? get sortOrder;
+/// 서버 계약이 BigDecimal 이라 JSON 숫자로 온다 — 컨버터 없이 캐스트하면 터진다.
+@JsonKey(fromJson: decimalStringFromJson) String? get avgPrice; int? get sortOrder;
 /// Create a copy of AssetHolding
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -717,7 +718,7 @@ abstract mixin class $AssetHoldingCopyWith<$Res>  {
   factory $AssetHoldingCopyWith(AssetHolding value, $Res Function(AssetHolding) _then) = _$AssetHoldingCopyWithImpl;
 @useResult
 $Res call({
- int? rowId,@JsonKey(unknownEnumValue: AssetHoldingType.stock) AssetHoldingType holdingType, bool linked, String? tossSymbol,@JsonKey(fromJson: holdingQuantityFromJson) String? quantity, String? holdingName, int? holdingValue, int? totalCost, String? avgPrice, int? sortOrder
+ int? rowId,@JsonKey(unknownEnumValue: AssetHoldingType.stock) AssetHoldingType holdingType, bool linked, String? tossSymbol,@JsonKey(fromJson: decimalStringFromJson) String? quantity, String? holdingName, int? holdingValue, int? totalCost,@JsonKey(fromJson: decimalStringFromJson) String? avgPrice, int? sortOrder
 });
 
 
@@ -831,7 +832,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? rowId, @JsonKey(unknownEnumValue: AssetHoldingType.stock)  AssetHoldingType holdingType,  bool linked,  String? tossSymbol, @JsonKey(fromJson: holdingQuantityFromJson)  String? quantity,  String? holdingName,  int? holdingValue,  int? totalCost,  String? avgPrice,  int? sortOrder)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? rowId, @JsonKey(unknownEnumValue: AssetHoldingType.stock)  AssetHoldingType holdingType,  bool linked,  String? tossSymbol, @JsonKey(fromJson: decimalStringFromJson)  String? quantity,  String? holdingName,  int? holdingValue,  int? totalCost, @JsonKey(fromJson: decimalStringFromJson)  String? avgPrice,  int? sortOrder)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _AssetHolding() when $default != null:
 return $default(_that.rowId,_that.holdingType,_that.linked,_that.tossSymbol,_that.quantity,_that.holdingName,_that.holdingValue,_that.totalCost,_that.avgPrice,_that.sortOrder);case _:
@@ -852,7 +853,7 @@ return $default(_that.rowId,_that.holdingType,_that.linked,_that.tossSymbol,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? rowId, @JsonKey(unknownEnumValue: AssetHoldingType.stock)  AssetHoldingType holdingType,  bool linked,  String? tossSymbol, @JsonKey(fromJson: holdingQuantityFromJson)  String? quantity,  String? holdingName,  int? holdingValue,  int? totalCost,  String? avgPrice,  int? sortOrder)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? rowId, @JsonKey(unknownEnumValue: AssetHoldingType.stock)  AssetHoldingType holdingType,  bool linked,  String? tossSymbol, @JsonKey(fromJson: decimalStringFromJson)  String? quantity,  String? holdingName,  int? holdingValue,  int? totalCost, @JsonKey(fromJson: decimalStringFromJson)  String? avgPrice,  int? sortOrder)  $default,) {final _that = this;
 switch (_that) {
 case _AssetHolding():
 return $default(_that.rowId,_that.holdingType,_that.linked,_that.tossSymbol,_that.quantity,_that.holdingName,_that.holdingValue,_that.totalCost,_that.avgPrice,_that.sortOrder);case _:
@@ -872,7 +873,7 @@ return $default(_that.rowId,_that.holdingType,_that.linked,_that.tossSymbol,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? rowId, @JsonKey(unknownEnumValue: AssetHoldingType.stock)  AssetHoldingType holdingType,  bool linked,  String? tossSymbol, @JsonKey(fromJson: holdingQuantityFromJson)  String? quantity,  String? holdingName,  int? holdingValue,  int? totalCost,  String? avgPrice,  int? sortOrder)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? rowId, @JsonKey(unknownEnumValue: AssetHoldingType.stock)  AssetHoldingType holdingType,  bool linked,  String? tossSymbol, @JsonKey(fromJson: decimalStringFromJson)  String? quantity,  String? holdingName,  int? holdingValue,  int? totalCost, @JsonKey(fromJson: decimalStringFromJson)  String? avgPrice,  int? sortOrder)?  $default,) {final _that = this;
 switch (_that) {
 case _AssetHolding() when $default != null:
 return $default(_that.rowId,_that.holdingType,_that.linked,_that.tossSymbol,_that.quantity,_that.holdingName,_that.holdingValue,_that.totalCost,_that.avgPrice,_that.sortOrder);case _:
@@ -887,7 +888,7 @@ return $default(_that.rowId,_that.holdingType,_that.linked,_that.tossSymbol,_tha
 @JsonSerializable()
 
 class _AssetHolding implements AssetHolding {
-  const _AssetHolding({this.rowId, @JsonKey(unknownEnumValue: AssetHoldingType.stock) this.holdingType = AssetHoldingType.stock, this.linked = false, this.tossSymbol, @JsonKey(fromJson: holdingQuantityFromJson) this.quantity, this.holdingName, this.holdingValue, this.totalCost, this.avgPrice, this.sortOrder});
+  const _AssetHolding({this.rowId, @JsonKey(unknownEnumValue: AssetHoldingType.stock) this.holdingType = AssetHoldingType.stock, this.linked = false, this.tossSymbol, @JsonKey(fromJson: decimalStringFromJson) this.quantity, this.holdingName, this.holdingValue, this.totalCost, @JsonKey(fromJson: decimalStringFromJson) this.avgPrice, this.sortOrder});
   factory _AssetHolding.fromJson(Map<String, dynamic> json) => _$AssetHoldingFromJson(json);
 
 @override final  int? rowId;
@@ -898,13 +899,14 @@ class _AssetHolding implements AssetHolding {
 // 코인 0.05·금 3.75g 등 소수 허용. 미연동도 기록 가능(선택).
 // 서버 계약은 BigDecimal(decimal(28,8)) — double 로 담으면 십진 소수가 깎이므로
 // 클라이언트는 문자열로 들고 다닌다. 전송도 문자열 그대로(Jackson 이 BigDecimal 로 받는다).
-@override@JsonKey(fromJson: holdingQuantityFromJson) final  String? quantity;
+@override@JsonKey(fromJson: decimalStringFromJson) final  String? quantity;
 @override final  String? holdingName;
 @override final  int? holdingValue;
 /// 총 매수원가 (원화, 수수료 포함). 평가액과의 차이가 평가손익이다.
 @override final  int? totalCost;
 /// 평단가 — 총원가 / 수량. 서버 파생값이라 읽기 전용, 정밀도 때문에 문자열.
-@override final  String? avgPrice;
+/// 서버 계약이 BigDecimal 이라 JSON 숫자로 온다 — 컨버터 없이 캐스트하면 터진다.
+@override@JsonKey(fromJson: decimalStringFromJson) final  String? avgPrice;
 @override final  int? sortOrder;
 
 /// Create a copy of AssetHolding
@@ -940,7 +942,7 @@ abstract mixin class _$AssetHoldingCopyWith<$Res> implements $AssetHoldingCopyWi
   factory _$AssetHoldingCopyWith(_AssetHolding value, $Res Function(_AssetHolding) _then) = __$AssetHoldingCopyWithImpl;
 @override @useResult
 $Res call({
- int? rowId,@JsonKey(unknownEnumValue: AssetHoldingType.stock) AssetHoldingType holdingType, bool linked, String? tossSymbol,@JsonKey(fromJson: holdingQuantityFromJson) String? quantity, String? holdingName, int? holdingValue, int? totalCost, String? avgPrice, int? sortOrder
+ int? rowId,@JsonKey(unknownEnumValue: AssetHoldingType.stock) AssetHoldingType holdingType, bool linked, String? tossSymbol,@JsonKey(fromJson: decimalStringFromJson) String? quantity, String? holdingName, int? holdingValue, int? totalCost,@JsonKey(fromJson: decimalStringFromJson) String? avgPrice, int? sortOrder
 });
 
 

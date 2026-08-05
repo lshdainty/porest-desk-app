@@ -90,11 +90,11 @@ _AssetHolding _$AssetHoldingFromJson(Map<String, dynamic> json) =>
           AssetHoldingType.stock,
       linked: json['linked'] as bool? ?? false,
       tossSymbol: json['tossSymbol'] as String?,
-      quantity: holdingQuantityFromJson(json['quantity']),
+      quantity: decimalStringFromJson(json['quantity']),
       holdingName: json['holdingName'] as String?,
       holdingValue: (json['holdingValue'] as num?)?.toInt(),
       totalCost: (json['totalCost'] as num?)?.toInt(),
-      avgPrice: json['avgPrice'] as String?,
+      avgPrice: decimalStringFromJson(json['avgPrice']),
       sortOrder: (json['sortOrder'] as num?)?.toInt(),
     );
 
