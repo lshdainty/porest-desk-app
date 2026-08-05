@@ -107,10 +107,16 @@ class _BodyState extends ConsumerState<_Body> {
   }
 
   // 웹 canSave: name.trim().length > 0 && categoryRowId != null
+  /// 금액은 선택이다 — 프리셋은 금액을 모르는 채로 양식만 저장하려고 만든 것이다.
+  /// 고정 금액을 켰을 때만 값이 있어야 한다(불러오는 거래가 그 값을 그대로 받는다).
   bool get _canSubmit =>
       !_submitting &&
       _nameCtrl.text.trim().isNotEmpty &&
-      _categoryRowId != null;
+      _categoryRowId != null &&
+      (!_lockAmount || _amountValue > 0);
+
+  int get _amountValue =>
+      int.tryParse(_amountCtrl.text.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
 
   /// 타입 변경 시 현재 카테고리가 새 타입과 안 맞으면 리셋 (웹 effect 정합).
   void _onTypeChanged(String next, List<ExpenseCategory> categories) {
