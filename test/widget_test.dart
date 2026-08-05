@@ -1,5 +1,9 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:porest_desk_app/core/storage/prefs_provider.dart';
 
 import 'package:porest_desk_app/app/app.dart';
 import 'package:porest_desk_app/core/auth/auth_notifier.dart';
@@ -12,6 +16,12 @@ import 'package:porest_desk_app/features/expense/domain/expense.dart';
 import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
 
 void main() {
+  // 라벨을 한글로 검증하므로 로케일을 못 박는다. 안 그러면 테스트 환경(en)을 따라가
+  // 'Home' 이 렌더되고 '홈' 을 못 찾는다 — i18n 도입 뒤 이 테스트가 깨져 있던 이유다.
+  setUp(() {
+    SharedPreferences.setMockInitialValues({PrefsKeys.locale: 'ko'});
+  });
+
   testWidgets('logged-in user lands on home shell', (tester) async {
     await tester.pumpWidget(
       ProviderScope(
@@ -29,11 +39,16 @@ void main() {
         child: const PorestDeskApp(),
       ),
     );
-    await tester.pumpAndSettle();
+    // pumpAndSettle 은 못 쓴다 — 로딩 중 스켈레톤이 `..repeat()` 무한 애니메이션이라
+    // 영원히 안 끝난다. 프레임을 몇 번 밀어 provider 를 해소시킨다.
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 1));
 
     expect(find.text('홈'), findsAtLeastNWidgets(1));
     expect(find.text('가계부'), findsAtLeastNWidgets(1));
-    expect(find.text('통계'), findsOneWidget);
+    // 하단 탭은 홈·가계부·캘린더·전체 — '통계' 는 예전 구성이라 더는 없다.
+    expect(find.text('캘린더'), findsAtLeastNWidgets(1));
     expect(find.text('전체'), findsAtLeastNWidgets(1));
     // Dashboard hero
     expect(find.text('순자산'), findsOneWidget);

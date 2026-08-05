@@ -2,7 +2,10 @@
 // 실제 PresetScreen + 프리셋 추가 시트를 semantics 활성 상태로 펌프/스크롤.
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 
 import 'package:porest_desk_app/app/theme/theme_data.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
@@ -60,6 +63,11 @@ void main() {
         ],
         child: MaterialApp(
           theme: PorestTheme.dark(),
+          // 화면이 AppLocalizations.of(context) 를 쓴다 — 위임이 없으면 null 이라
+          // 첫 build 에서 바로 터진다.
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('ko'),
           home: const PresetScreen(),
         ),
       ),
