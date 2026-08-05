@@ -46,7 +46,6 @@ class _DutchPayScreenState extends ConsumerState<DutchPayScreen> {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
     final listAsync = ref.watch(dutchPayListProvider);
-    final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
 
     return Scaffold(
       backgroundColor: t.bgSurface,
@@ -83,7 +82,7 @@ class _DutchPayScreenState extends ConsumerState<DutchPayScreen> {
                   style: PTypo.bodySm.copyWith(color: t.statusDanger)),
             ],
           ),
-          data: (items) => _buildBody(context, t, items, settings.hideAmounts),
+          data: (items) => _buildBody(context, t, items, ref.watch(hideCardProvider('dutchpay.sessions'))),
         ),
       ),
     );

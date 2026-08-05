@@ -159,8 +159,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
-    final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
-    final masked = settings.hideAmounts;
+    final masked = ref.watch(hideCardProvider('ledger.txDetail'));
     final e = widget.expense;
     final isIncome = e.expenseType == 'INCOME';
     // 분할 내역 — 퀵액션 배지 개수 + 요약 카드(내역·비율) 표시용.

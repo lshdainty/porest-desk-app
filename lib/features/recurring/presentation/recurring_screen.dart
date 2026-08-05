@@ -102,7 +102,6 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
     final l = AppLocalizations.of(context);
     final listAsync = ref.watch(recurringListProvider);
     final categoriesAsync = ref.watch(categoriesProvider);
-    final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
 
     return Scaffold(
       backgroundColor: t.bgSurface,
@@ -150,7 +149,7 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
                   paused: stats.paused,
                   monthlyExpense: stats.monthlyExpense,
                   monthlyIncome: stats.monthlyIncome,
-                  masked: settings.hideAmounts,
+                  masked: ref.watch(hideCardProvider('etc.recurring')),
                   tokens: t,
                 ),
                 if (stats.next7.isNotEmpty) ...[
@@ -158,7 +157,7 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
                   _UpcomingCard(
                     items: stats.next7,
                     categories: categories,
-                    masked: settings.hideAmounts,
+                    masked: ref.watch(hideCardProvider('etc.recurring')),
                     tokens: t,
                   ),
                 ],
@@ -244,7 +243,7 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
                                 category: categories.byRowId(
                                   filtered[i].categoryRowId,
                                 ),
-                                masked: settings.hideAmounts,
+                                masked: ref.watch(hideCardProvider('etc.recurring')),
                                 tokens: t,
                                 anyBusy:
                                     _busyToggleId != null ||

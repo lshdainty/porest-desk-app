@@ -371,7 +371,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       itemBuilder: (_, i) => _ResultRow(
         expense: _results[i],
         category: _findCategory(categories, _results[i].categoryRowId),
-        masked: settings.hideAmounts,
+        masked: ref.watch(hideCardProvider('etc.search')),
         tokens: t,
       ),
     );

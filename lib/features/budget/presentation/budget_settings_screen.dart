@@ -184,7 +184,6 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
-    final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
     final budgetsAsync = ref.watch(monthBudgetsProvider(_key));
     final summaryAsync = ref.watch(
       rangeSummaryProvider((startDate: _monthStartStr, endDate: _monthEndStr)),
@@ -288,7 +287,7 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
                       totalSpent: totalSpent,
                       categoryLimitSum: categoryLimitSum,
                       remaining: remaining,
-                      masked: settings.hideAmounts,
+                      masked: ref.watch(hideCardProvider('budget.manage')),
                       tokens: t,
                       onEdit: () => _editOverall(overallBudget),
                     ),
@@ -297,7 +296,7 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
                       budgets: categoryBudgets,
                       categories: categories,
                       spentByCategory: spentByCategory,
-                      masked: settings.hideAmounts,
+                      masked: ref.watch(hideCardProvider('budget.manage')),
                       loading: summaryAsync.isLoading,
                       // 웹 정합: 카테고리 로딩 중에도 추가 비활성(빈 칩 다이얼로그 방지).
                       addDisabled: allBudgeted || categoriesAsync.isLoading,

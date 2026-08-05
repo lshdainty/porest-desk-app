@@ -13,7 +13,6 @@ import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
-import 'package:porest_desk_app/core/settings/hide_amounts_unlock_dialog.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
 import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
 import 'package:porest_desk_app/shared/widgets/p_badge.dart';
@@ -66,7 +65,6 @@ class _AssetScreenState extends ConsumerState<AssetScreen> {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
-    final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
     final assetsAsync = ref.watch(assetsProvider);
     final summaryAsync = ref.watch(
       assetSummaryProvider((year: null, month: null)),
@@ -131,8 +129,8 @@ class _AssetScreenState extends ConsumerState<AssetScreen> {
               summaryDelta: summaryDelta,
               valuations: invMap,
               goals: ref.watch(savingGoalListProvider),
-              masked: settings.hideAmounts,
-              onToggleMask: () => toggleHideAmountsWithUnlock(context, ref),
+              masked: ref.watch(hideCardProvider('asset.netWorth')),
+              onToggleMask: () => context.push('/settings/hide-amounts?page=asset'),
               tokens: t,
             );
           },

@@ -25,20 +25,24 @@ Future<bool> showHideAmountsUnlockDialog(BuildContext context) async {
   return ok == true;
 }
 
-/// 금액 숨김 토글 — 잠금 해제(true→false) 시 비밀번호 검증을 거친다.
-/// 검증 성공 시 hideAmounts=false 로 변경, 실패·취소 시 상태 유지.
-Future<void> toggleHideAmountsWithUnlock(
-    BuildContext context, WidgetRef ref) async {
-  final settings = ref.read(settingsProvider).value;
-  final currentlyHidden = settings?.hideAmounts ?? false;
+/// 카드 묶음 토글 — 켜기는 그냥, 풀기는 비밀번호 검증을 거친다.
+///
+/// 여러 장을 한 번에 넘기면 **인증도 한 번**이다. 카드마다 비밀번호를 치게 하면
+/// 페이지·전체 잠그기를 쓸 수가 없다.
+Future<void> setHideCardsWithUnlock(
+  BuildContext context,
+  WidgetRef ref, {
+  required Iterable<String> cards,
+  required bool hide,
+}) async {
   final notifier = ref.read(settingsProvider.notifier);
-  if (!currentlyHidden) {
-    await notifier.setHideAmounts(true);
+  if (hide) {
+    await notifier.hideCards(cards);
     return;
   }
   final ok = await showHideAmountsUnlockDialog(context);
   if (ok) {
-    await notifier.setHideAmounts(false);
+    await notifier.revealCards(cards);
   }
 }
 

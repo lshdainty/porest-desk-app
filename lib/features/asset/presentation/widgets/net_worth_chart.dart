@@ -37,7 +37,7 @@ class _NetWorthChartState extends ConsumerState<NetWorthChart> {
     final height = widget.height;
     final months = widget.months;
     final trendAsync = ref.watch(netWorthTrendProvider(months));
-    final masked = ref.watch(settingsProvider).value?.hideAmounts ?? false;
+    final masked = ref.watch(hideCardProvider('asset.netWorth'));
     return SizedBox(
       height: height,
       child: trendAsync.when(

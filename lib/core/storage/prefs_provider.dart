@@ -12,6 +12,8 @@ final prefsProvider = FutureProvider<SharedPreferences>((ref) {
 abstract final class PrefsKeys {
   static const themeMode = 'vite-ui-theme';   // 'light' | 'dark' | 'system'
   static const currency = 'pd-currency';      // 'KRW' | 'USD' | 'EUR' | 'JPY'
-  static const hideAmounts = 'pd-hide';       // bool
+  /// 예전 단일 스위치(bool). 한 번 읽어 카드 전체로 펼치고 지운다.
+  static const hideAmounts = 'pd-hide';       // bool (legacy)
+  static const hideCards = 'pd-hide-cards';   // List<String>
   static const locale = 'pd-locale';          // 'ko' | 'en' | null(=system)
 }

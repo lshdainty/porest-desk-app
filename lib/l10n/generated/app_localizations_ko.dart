@@ -3262,6 +3262,156 @@ class AppLocalizationsKo extends AppLocalizations {
   String get appearancePrivacy => '개인정보 보호';
 
   @override
+  String get hideAmountsTitle => '금액 가리기';
+
+  @override
+  String get hideAmountsSectionDesc =>
+      '가리고 싶은 카드만 골라 두세요. 켜는 건 바로 되고, 푸는 건 비밀번호를 확인해요.';
+
+  @override
+  String get hideAmountsLockAll => '전체 잠그기';
+
+  @override
+  String get hideAmountsPageHome => '홈';
+
+  @override
+  String get hideAmountsPageAsset => '자산';
+
+  @override
+  String get hideAmountsPageLedger => '가계부';
+
+  @override
+  String get hideAmountsPageStats => '통계';
+
+  @override
+  String get hideAmountsPageBudget => '예산';
+
+  @override
+  String get hideAmountsPageStocks => '증권';
+
+  @override
+  String get hideAmountsPageDutchpay => '더치페이';
+
+  @override
+  String get hideAmountsPageEtc => '기타';
+
+  @override
+  String get hideCardHomeNetWorth => '순자산';
+
+  @override
+  String get hideCardHomeMonthExpense => '이번달 수입·지출';
+
+  @override
+  String get hideCardHomeCategoryDonut => '카테고리 도넛';
+
+  @override
+  String get hideCardHomeBudget => '예산 진행';
+
+  @override
+  String get hideCardHomeTodaySpend => '오늘 지출';
+
+  @override
+  String get hideCardHomeUpcoming => '예정 결제';
+
+  @override
+  String get hideCardAssetNetWorth => '총 순자산·추이';
+
+  @override
+  String get hideCardAssetComposition => '자산 구성';
+
+  @override
+  String get hideCardAssetAccounts => '계좌·예금';
+
+  @override
+  String get hideCardAssetInvestments => '투자';
+
+  @override
+  String get hideCardAssetCards => '카드';
+
+  @override
+  String get hideCardAssetLoans => '대출';
+
+  @override
+  String get hideCardAssetSavingGoals => '저축목표';
+
+  @override
+  String get hideCardAssetUpcoming => '예정 결제';
+
+  @override
+  String get hideCardAssetDetail => '자산 상세';
+
+  @override
+  String get hideCardAssetManage => '계좌·카드 관리';
+
+  @override
+  String get hideCardLedgerMonthSummary => '월 합계';
+
+  @override
+  String get hideCardLedgerCalendar => '캘린더 금액';
+
+  @override
+  String get hideCardLedgerTxList => '거래 목록';
+
+  @override
+  String get hideCardLedgerTxDetail => '거래 상세';
+
+  @override
+  String get hideCardStatsCategory => '카테고리 탭';
+
+  @override
+  String get hideCardStatsTrend => '추이 탭';
+
+  @override
+  String get hideCardStatsCompare => '비교 탭';
+
+  @override
+  String get hideCardBudgetHeader => '예산 요약';
+
+  @override
+  String get hideCardBudgetPace => '소비 속도';
+
+  @override
+  String get hideCardBudgetStatus => '상태';
+
+  @override
+  String get hideCardBudgetCategories => '카테고리별 예산';
+
+  @override
+  String get hideCardBudgetCompliance => '준수율';
+
+  @override
+  String get hideCardBudgetManage => '예산 관리';
+
+  @override
+  String get hideCardStocksSummary => '평가액 요약';
+
+  @override
+  String get hideCardStocksHoldings => '보유 종목';
+
+  @override
+  String get hideCardStocksDetail => '종목 상세';
+
+  @override
+  String get hideCardDutchpaySummary => '더치페이 요약';
+
+  @override
+  String get hideCardDutchpaySessions => '정산 목록';
+
+  @override
+  String get hideCardEtcSearch => '검색 결과';
+
+  @override
+  String get hideCardEtcRecurring => '정기 거래';
+
+  @override
+  String get hideCardEtcPreset => '프리셋';
+
+  @override
+  String hideAmountsLockAllDesc(int total, int count) {
+    return '$total개 중 $count개 카드를 가리는 중';
+  }
+
+  @override
   String get appearanceHideAmount => '금액 가리기';
 
   @override

@@ -124,7 +124,7 @@ class _StocksScreenState extends ConsumerState<StocksScreen> {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
-    final masked = ref.watch(settingsProvider).value?.hideAmounts ?? false;
+    final masked = ref.watch(hideCardProvider('stocks.summary'));
 
     // 개인키 미연결 시 전 화면 연결 유도 (mock 노출 금지). 토스 API는 시세 포함 모든
     // 조회가 개인키 토큰을 요구하므로(공용키 폐기), 키 없으면 조회 불가.
@@ -1314,7 +1314,7 @@ class _StockDetailBodyState extends ConsumerState<_StockDetailBody> {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
-    final masked = ref.watch(settingsProvider).value?.hideAmounts ?? false;
+    final masked = ref.watch(hideCardProvider('stocks.summary'));
     final symbol = widget.ticker;
     final dark = Theme.of(context).brightness == Brightness.dark;
     final starTone =

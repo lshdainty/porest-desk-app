@@ -11,7 +11,6 @@ import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
-import 'package:porest_desk_app/core/settings/hide_amounts_unlock_dialog.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
 import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
 import 'package:porest_desk_app/shared/widgets/p_flat_section.dart';
@@ -65,7 +64,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
 
     final monthKey = (year: _month.year, month: _month.month);
     final summaryAsync =
@@ -100,30 +98,30 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         children: [
           _BalanceHero(
               summaryAsync: summaryAsync,
-              masked: settings.hideAmounts,
+              masked: ref.watch(hideCardProvider('home.netWorth')),
               // 헤더 eye 버튼과 동일 — 숨김 해제 시 unlock 다이얼로그.
-              onToggleMask: () => toggleHideAmountsWithUnlock(context, ref)),
+              onToggleMask: () => context.push('/settings/hide-amounts?page=home')),
           const SizedBox(height: PSpace.x32),
           _MonthExpenseCard(
             month: _month,
             expensesAsync: expensesAsync,
             currentSummary: summaryRangeAsync.value,
             prevSummary: prevSummaryAsync.value,
-            masked: settings.hideAmounts,
+            masked: ref.watch(hideCardProvider('home.monthExpense')),
           ),
           const SizedBox(height: PSpace.x32),
           _CategoryDonutCard(
             summary: summaryRangeAsync.value,
             categoriesAsync: categoriesAsync,
             loading: summaryRangeAsync.isLoading,
-            masked: settings.hideAmounts,
+            masked: ref.watch(hideCardProvider('home.categoryDonut')),
           ),
           const SizedBox(height: PSpace.x32),
           _BudgetCard(
             budgetsAsync: budgetsAsync,
             categoriesAsync: categoriesAsync,
             summary: summaryRangeAsync.value,
-            masked: settings.hideAmounts,
+            masked: ref.watch(hideCardProvider('home.budget')),
             warnThreshold:
                 ref.watch(budgetAlertThresholdProvider).value?.toDouble() ?? 85,
           ),
@@ -134,7 +132,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           _TodaySpendCard(
             expensesAsync: expensesAsync,
             categoriesAsync: categoriesAsync,
-            masked: settings.hideAmounts,
+            masked: ref.watch(hideCardProvider('home.todaySpend')),
           ),
         ],
       ),

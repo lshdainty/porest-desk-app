@@ -7,12 +7,10 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/core/settings/hide_amounts_unlock_dialog.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_radio_list.dart';
 import 'package:porest_desk_app/shared/widgets/p_section_label.dart';
-import 'package:porest_desk_app/shared/widgets/p_switch.dart';
 import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_tile.dart';
@@ -126,9 +124,11 @@ class AppearanceSection extends ConsumerWidget {
             PSectionLabel(l.appearancePrivacy,
                 variant: PSectionLabelVariant.section),
             // label↔content gap 0(사용자 결정) — 테마·언어만 gap.
-            // 금액 가리기 — 카드 다이어트: 카드 없이 플랫 행 (아이콘 박스 + 라벨/설명 + 스위치).
-            // 켜기는 즉시, 끄기는 비밀번호 인증 (toggleHideAmountsWithUnlock).
-            Padding(
+            // 금액 가리기 — 가리는 단위가 카드라 여기서 켜고 끄지 않는다.
+            // 고르는 화면으로 보낸다.
+            InkWell(
+              onTap: () => context.push('/settings/hide-amounts'),
+              child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               child: Row(
                 children: [
@@ -141,7 +141,7 @@ class AppearanceSection extends ConsumerWidget {
                     ),
                     alignment: Alignment.center,
                     child: Icon(
-                      settings.hideAmounts
+                      settings.hasHidden
                           ? LucideIcons.eyeOff
                           : LucideIcons.eye,
                       size: 17,
@@ -168,15 +168,9 @@ class AppearanceSection extends ConsumerWidget {
                       ],
                     ),
                   ),
-                  SizedBox(
-                    height: 24,
-                    child: PSwitch(
-                      value: settings.hideAmounts,
-                      onChanged: (_) =>
-                          toggleHideAmountsWithUnlock(context, ref),
-                    ),
-                  ),
+                  Icon(LucideIcons.chevronRight, size: 16, color: t.fgTertiary),
                 ],
+              ),
               ),
             ),
           ],

@@ -6146,6 +6146,300 @@ abstract class AppLocalizations {
   /// **'개인정보 보호'**
   String get appearancePrivacy;
 
+  /// No description provided for @hideAmountsTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'금액 가리기'**
+  String get hideAmountsTitle;
+
+  /// No description provided for @hideAmountsSectionDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'가리고 싶은 카드만 골라 두세요. 켜는 건 바로 되고, 푸는 건 비밀번호를 확인해요.'**
+  String get hideAmountsSectionDesc;
+
+  /// No description provided for @hideAmountsLockAll.
+  ///
+  /// In ko, this message translates to:
+  /// **'전체 잠그기'**
+  String get hideAmountsLockAll;
+
+  /// No description provided for @hideAmountsPageHome.
+  ///
+  /// In ko, this message translates to:
+  /// **'홈'**
+  String get hideAmountsPageHome;
+
+  /// No description provided for @hideAmountsPageAsset.
+  ///
+  /// In ko, this message translates to:
+  /// **'자산'**
+  String get hideAmountsPageAsset;
+
+  /// No description provided for @hideAmountsPageLedger.
+  ///
+  /// In ko, this message translates to:
+  /// **'가계부'**
+  String get hideAmountsPageLedger;
+
+  /// No description provided for @hideAmountsPageStats.
+  ///
+  /// In ko, this message translates to:
+  /// **'통계'**
+  String get hideAmountsPageStats;
+
+  /// No description provided for @hideAmountsPageBudget.
+  ///
+  /// In ko, this message translates to:
+  /// **'예산'**
+  String get hideAmountsPageBudget;
+
+  /// No description provided for @hideAmountsPageStocks.
+  ///
+  /// In ko, this message translates to:
+  /// **'증권'**
+  String get hideAmountsPageStocks;
+
+  /// No description provided for @hideAmountsPageDutchpay.
+  ///
+  /// In ko, this message translates to:
+  /// **'더치페이'**
+  String get hideAmountsPageDutchpay;
+
+  /// No description provided for @hideAmountsPageEtc.
+  ///
+  /// In ko, this message translates to:
+  /// **'기타'**
+  String get hideAmountsPageEtc;
+
+  /// No description provided for @hideCardHomeNetWorth.
+  ///
+  /// In ko, this message translates to:
+  /// **'순자산'**
+  String get hideCardHomeNetWorth;
+
+  /// No description provided for @hideCardHomeMonthExpense.
+  ///
+  /// In ko, this message translates to:
+  /// **'이번달 수입·지출'**
+  String get hideCardHomeMonthExpense;
+
+  /// No description provided for @hideCardHomeCategoryDonut.
+  ///
+  /// In ko, this message translates to:
+  /// **'카테고리 도넛'**
+  String get hideCardHomeCategoryDonut;
+
+  /// No description provided for @hideCardHomeBudget.
+  ///
+  /// In ko, this message translates to:
+  /// **'예산 진행'**
+  String get hideCardHomeBudget;
+
+  /// No description provided for @hideCardHomeTodaySpend.
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘 지출'**
+  String get hideCardHomeTodaySpend;
+
+  /// No description provided for @hideCardHomeUpcoming.
+  ///
+  /// In ko, this message translates to:
+  /// **'예정 결제'**
+  String get hideCardHomeUpcoming;
+
+  /// No description provided for @hideCardAssetNetWorth.
+  ///
+  /// In ko, this message translates to:
+  /// **'총 순자산·추이'**
+  String get hideCardAssetNetWorth;
+
+  /// No description provided for @hideCardAssetComposition.
+  ///
+  /// In ko, this message translates to:
+  /// **'자산 구성'**
+  String get hideCardAssetComposition;
+
+  /// No description provided for @hideCardAssetAccounts.
+  ///
+  /// In ko, this message translates to:
+  /// **'계좌·예금'**
+  String get hideCardAssetAccounts;
+
+  /// No description provided for @hideCardAssetInvestments.
+  ///
+  /// In ko, this message translates to:
+  /// **'투자'**
+  String get hideCardAssetInvestments;
+
+  /// No description provided for @hideCardAssetCards.
+  ///
+  /// In ko, this message translates to:
+  /// **'카드'**
+  String get hideCardAssetCards;
+
+  /// No description provided for @hideCardAssetLoans.
+  ///
+  /// In ko, this message translates to:
+  /// **'대출'**
+  String get hideCardAssetLoans;
+
+  /// No description provided for @hideCardAssetSavingGoals.
+  ///
+  /// In ko, this message translates to:
+  /// **'저축목표'**
+  String get hideCardAssetSavingGoals;
+
+  /// No description provided for @hideCardAssetUpcoming.
+  ///
+  /// In ko, this message translates to:
+  /// **'예정 결제'**
+  String get hideCardAssetUpcoming;
+
+  /// No description provided for @hideCardAssetDetail.
+  ///
+  /// In ko, this message translates to:
+  /// **'자산 상세'**
+  String get hideCardAssetDetail;
+
+  /// No description provided for @hideCardAssetManage.
+  ///
+  /// In ko, this message translates to:
+  /// **'계좌·카드 관리'**
+  String get hideCardAssetManage;
+
+  /// No description provided for @hideCardLedgerMonthSummary.
+  ///
+  /// In ko, this message translates to:
+  /// **'월 합계'**
+  String get hideCardLedgerMonthSummary;
+
+  /// No description provided for @hideCardLedgerCalendar.
+  ///
+  /// In ko, this message translates to:
+  /// **'캘린더 금액'**
+  String get hideCardLedgerCalendar;
+
+  /// No description provided for @hideCardLedgerTxList.
+  ///
+  /// In ko, this message translates to:
+  /// **'거래 목록'**
+  String get hideCardLedgerTxList;
+
+  /// No description provided for @hideCardLedgerTxDetail.
+  ///
+  /// In ko, this message translates to:
+  /// **'거래 상세'**
+  String get hideCardLedgerTxDetail;
+
+  /// No description provided for @hideCardStatsCategory.
+  ///
+  /// In ko, this message translates to:
+  /// **'카테고리 탭'**
+  String get hideCardStatsCategory;
+
+  /// No description provided for @hideCardStatsTrend.
+  ///
+  /// In ko, this message translates to:
+  /// **'추이 탭'**
+  String get hideCardStatsTrend;
+
+  /// No description provided for @hideCardStatsCompare.
+  ///
+  /// In ko, this message translates to:
+  /// **'비교 탭'**
+  String get hideCardStatsCompare;
+
+  /// No description provided for @hideCardBudgetHeader.
+  ///
+  /// In ko, this message translates to:
+  /// **'예산 요약'**
+  String get hideCardBudgetHeader;
+
+  /// No description provided for @hideCardBudgetPace.
+  ///
+  /// In ko, this message translates to:
+  /// **'소비 속도'**
+  String get hideCardBudgetPace;
+
+  /// No description provided for @hideCardBudgetStatus.
+  ///
+  /// In ko, this message translates to:
+  /// **'상태'**
+  String get hideCardBudgetStatus;
+
+  /// No description provided for @hideCardBudgetCategories.
+  ///
+  /// In ko, this message translates to:
+  /// **'카테고리별 예산'**
+  String get hideCardBudgetCategories;
+
+  /// No description provided for @hideCardBudgetCompliance.
+  ///
+  /// In ko, this message translates to:
+  /// **'준수율'**
+  String get hideCardBudgetCompliance;
+
+  /// No description provided for @hideCardBudgetManage.
+  ///
+  /// In ko, this message translates to:
+  /// **'예산 관리'**
+  String get hideCardBudgetManage;
+
+  /// No description provided for @hideCardStocksSummary.
+  ///
+  /// In ko, this message translates to:
+  /// **'평가액 요약'**
+  String get hideCardStocksSummary;
+
+  /// No description provided for @hideCardStocksHoldings.
+  ///
+  /// In ko, this message translates to:
+  /// **'보유 종목'**
+  String get hideCardStocksHoldings;
+
+  /// No description provided for @hideCardStocksDetail.
+  ///
+  /// In ko, this message translates to:
+  /// **'종목 상세'**
+  String get hideCardStocksDetail;
+
+  /// No description provided for @hideCardDutchpaySummary.
+  ///
+  /// In ko, this message translates to:
+  /// **'더치페이 요약'**
+  String get hideCardDutchpaySummary;
+
+  /// No description provided for @hideCardDutchpaySessions.
+  ///
+  /// In ko, this message translates to:
+  /// **'정산 목록'**
+  String get hideCardDutchpaySessions;
+
+  /// No description provided for @hideCardEtcSearch.
+  ///
+  /// In ko, this message translates to:
+  /// **'검색 결과'**
+  String get hideCardEtcSearch;
+
+  /// No description provided for @hideCardEtcRecurring.
+  ///
+  /// In ko, this message translates to:
+  /// **'정기 거래'**
+  String get hideCardEtcRecurring;
+
+  /// No description provided for @hideCardEtcPreset.
+  ///
+  /// In ko, this message translates to:
+  /// **'프리셋'**
+  String get hideCardEtcPreset;
+
+  /// No description provided for @hideAmountsLockAllDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'{total}개 중 {count}개 카드를 가리는 중'**
+  String hideAmountsLockAllDesc(int total, int count);
+
   /// No description provided for @appearanceHideAmount.
   ///
   /// In ko, this message translates to:

@@ -84,7 +84,6 @@ class _PresetScreenState extends ConsumerState<PresetScreen> {
     final l = AppLocalizations.of(context);
     final listAsync = ref.watch(presetListProvider);
     final categoriesAsync = ref.watch(categoriesProvider);
-    final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
     final isLoading = listAsync.isLoading || categoriesAsync.isLoading;
 
     return Scaffold(
@@ -109,7 +108,7 @@ class _PresetScreenState extends ConsumerState<PresetScreen> {
             t: t,
             items: const [],
             categories: const [],
-            masked: settings.hideAmounts,
+            masked: ref.watch(hideCardProvider('etc.preset')),
             isLoading: true,
           ),
           error: (e, _) => ListView(
@@ -125,7 +124,7 @@ class _PresetScreenState extends ConsumerState<PresetScreen> {
             t: t,
             items: items,
             categories: categoriesAsync.value ?? const <ExpenseCategory>[],
-            masked: settings.hideAmounts,
+            masked: ref.watch(hideCardProvider('etc.preset')),
             isLoading: isLoading,
           ),
         ),

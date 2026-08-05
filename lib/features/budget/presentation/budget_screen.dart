@@ -56,7 +56,6 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
-    final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
     final budgetsAsync = ref.watch(monthBudgetsProvider(_key));
     final summaryAsync = ref.watch(
       rangeSummaryProvider((startDate: _monthStartStr, endDate: _monthEndStr)),
@@ -199,7 +198,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                       warnThreshold: warnThreshold,
                       allocable: allocable,
                       overAllocated: overAllocated,
-                      masked: settings.hideAmounts,
+                      masked: ref.watch(hideCardProvider('budget.header')),
                       tokens: t,
                     ),
                     if (hasNoData) ...[
@@ -216,7 +215,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                         dailyActual: dailyActual,
                         dailyTarget: dailyTarget,
                         onTrack: onTrack,
-                        masked: settings.hideAmounts,
+                        masked: ref.watch(hideCardProvider('budget.pace')),
                         tokens: t,
                       ),
                       const SizedBox(height: PSpace.x32),
@@ -231,7 +230,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                         categories: categories,
                         spentByCategory: spentByCategory,
                         warnThreshold: warnThreshold,
-                        masked: settings.hideAmounts,
+                        masked: ref.watch(hideCardProvider('budget.categories')),
                         loading: summaryAsync.isLoading,
                         tokens: t,
                         onGoSettings: () => context.push('/budget/settings'),
@@ -242,7 +241,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                         currentYear: _month.year,
                         currentMonth: _month.month,
                         tokens: t,
-                        masked: settings.hideAmounts,
+                        masked: ref.watch(hideCardProvider('budget.compliance')),
                       ),
                     ],
                   ],
