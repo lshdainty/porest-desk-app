@@ -784,7 +784,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get tradeRealizedPreview => '실현손익';
 
   @override
-  String get tradeInsufficientCash => '예수금이 부족해요. 먼저 입금하거나 금액을 확인해주세요.';
+  String tradeFundingNotice(String amount) {
+    return '예수금이 모자라 결제 계좌에서 $amount을 옮겨요';
+  }
+
+  @override
+  String get tradeInsufficientCash => '예수금이 마이너스가 돼요. 그대로 기록됩니다.';
 
   @override
   String get tradeInsufficientQty => '보유 수량보다 많이 팔 수 없어요.';
@@ -2701,6 +2706,19 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get expPayOther => '기타';
+
+  @override
+  String get expAutoLock => '자동 생성';
+
+  @override
+  String get expAutoSourceTradeRealized =>
+      '주식을 팔아 생긴 실현손익이에요. 금액은 매매 내역에서 계산됩니다.';
+
+  @override
+  String get expAutoSourceTransferInterest => '이체에 붙은 이자예요. 금액은 이체 내역에서 계산됩니다.';
+
+  @override
+  String get expAutoSourceDefault => '자동으로 만들어진 거래예요. 원래 거래를 지우면 함께 사라집니다.';
 
   @override
   String get expPresetLock => '프리셋 잠금';

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -10,6 +12,7 @@ import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
 import 'package:porest_desk_app/features/asset/domain/asset.dart';
+import 'package:porest_desk_app/features/asset/domain/asset_trade.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_section_label.dart';
 import 'package:porest_desk_app/shared/widgets/p_select.dart';
@@ -100,17 +103,58 @@ class _TradeBodyState extends ConsumerState<_TradeBody> {
 
   double get _heldQty => double.tryParse(_h.quantity?.toString() ?? '') ?? 0;
 
+  /// 실현손익·예수금 잔액은 서버가 계산한다 — 앱이 같은 규칙을 따로 들고 있으면 갈라진다.
+  AssetTradePreview? _preview;
+  Timer? _previewDebounce;
+
   /// 돈이 오가는 방향·크기 — 매수는 수수료까지 빠지고 매도는 떼고 들어온다.
-  int get _cashDelta => _isSell ? _amount - _fee : -(_amount + _fee);
+  int? get _cashDelta => _preview?.cashDelta;
 
   /// 거래 후 예수금 (예수금 결제일 때만 의미 있다).
-  int get _cashAfter => (widget.asset.cashBalance ?? 0) + _cashDelta;
+  int? get _cashAfter => _preview?.cashAfter;
 
-  /// 실현손익 미리보기 — 서버와 같은 비율로 판 만큼의 원가를 뺀다.
-  int? get _realizedPreview {
-    if (!_isSell || _heldQty <= 0 || _qty <= 0) return null;
-    final soldCost = ((_h.totalCost ?? 0) * _qty / _heldQty).round();
-    return _amount - _fee - soldCost;
+  /// 실현손익 미리보기 — 매도일 때만.
+  int? get _realizedPreview => _isSell ? _preview?.realizedPl : null;
+
+  /// 예수금이 모자라 결제 계좌에서 끌어올 금액 — 0 이면 이체가 생기지 않는다.
+  int get _fundingAmount => _preview?.fundingAmount ?? 0;
+
+  /// 타이핑하는 중에는 묻지 않는다 — 손을 멈추면 그때 한 번 간다.
+  void _schedulePreview() {
+    _previewDebounce?.cancel();
+    if (!(_holdingKey.isNotEmpty && _qty > 0 && _amount > 0)) {
+      if (_preview != null) setState(() => _preview = null);
+      return;
+    }
+    _previewDebounce = Timer(const Duration(milliseconds: 350), _fetchPreview);
+  }
+
+  Future<void> _fetchPreview() async {
+    final asked = (_type, _holdingKey, _qtyCtrl.text.trim(), _amount, _fee,
+        _settlementAssetRowId);
+    try {
+      final repo = await ref.read(assetRepositoryProvider.future);
+      final p = await repo.previewTrade(
+        assetRowId: widget.asset.rowId,
+        tradeType: _type,
+        holdingType: _h.holdingType.wire,
+        holdingKey: _holdingKey,
+        linked: _h.linked,
+        quantity: _qtyCtrl.text.trim(),
+        amount: _amount,
+        fee: _fee,
+        tradeDate: DateTime.now().toIso8601String().substring(0, 19),
+        settlementAssetRowId: _settlementAssetRowId,
+      );
+      // 물어본 사이에 입력이 또 바뀌었으면 낡은 답이다 — 버린다.
+      final now = (_type, _holdingKey, _qtyCtrl.text.trim(), _amount, _fee,
+          _settlementAssetRowId);
+      if (!mounted || asked != now) return;
+      setState(() => _preview = p);
+    } catch (_) {
+      // 미리보기가 실패해도 화면을 막지 않는다. 값을 안 보여 줄 뿐이다.
+      if (mounted) setState(() => _preview = null);
+    }
   }
 
   bool get _canSubmit =>
@@ -138,10 +182,12 @@ class _TradeBodyState extends ConsumerState<_TradeBody> {
     if (!mounted) return;
     setState(() {});
     widget.controller.setCanSubmit(_canSubmit);
+    _schedulePreview();
   }
 
   @override
   void dispose() {
+    _previewDebounce?.cancel();
     for (final c in [_qtyCtrl, _amountCtrl, _feeCtrl, _memoCtrl]) {
       c.dispose();
     }
@@ -332,12 +378,17 @@ class _TradeBodyState extends ConsumerState<_TradeBody> {
                   Text(_viaCash ? l.tradeCashAfter : l.tradeSettlementDelta,
                       style: PTypo.bodySm.copyWith(color: t.fgSecondary)),
                   Text(
-                    _viaCash
-                        ? krwSigned(_cashAfter, false, unit: true)
-                        : krwSigned(_cashDelta.abs(), false,
-                            sign: _cashDelta >= 0 ? '+' : '-', unit: true),
+                    // 서버가 아직 답하기 전에는 자리만 잡아 둔다 — 틀린 값을 잠깐 보여 주느니 낫다.
+                    (_cashAfter == null || _cashDelta == null)
+                        ? '—'
+                        : _viaCash
+                            ? krwSigned(_cashAfter!, false, unit: true)
+                            : krwSigned(_cashDelta!.abs(), false,
+                                sign: _cashDelta! >= 0 ? '+' : '-', unit: true),
                     style: PTypo.money.copyWith(
-                      color: _viaCash && _cashAfter < 0 ? t.statusDanger : t.fgPrimary,
+                      color: _viaCash && (_cashAfter ?? 0) < 0
+                          ? t.statusDanger
+                          : t.fgPrimary,
                       fontWeight: PFontWeight.bold,
                     ),
                   ),
@@ -361,7 +412,15 @@ class _TradeBodyState extends ConsumerState<_TradeBody> {
                   ],
                 ),
               ],
-              if (!_isSell && _viaCash && _cashAfter < 0) ...[
+              // 예수금이 모자라면 결제 계좌에서 그만큼 끌어온다 — 이체가 한 건 생긴다는 걸 미리 알린다.
+              if (_fundingAmount > 0) ...[
+                const SizedBox(height: 6),
+                Text(
+                  l.tradeFundingNotice(krwSigned(_fundingAmount, false, unit: true)),
+                  style: PTypo.micro.copyWith(color: t.fgTertiary),
+                ),
+              ],
+              if (!_isSell && _viaCash && (_cashAfter ?? 0) < 0) ...[
                 const SizedBox(height: 6),
                 Text(l.tradeInsufficientCash,
                     style: PTypo.micro.copyWith(color: t.statusDanger)),

@@ -38,3 +38,21 @@ Map<String, dynamic> _$AssetTradeToJson(_AssetTrade instance) =>
       'description': instance.description,
       'settlementAssetRowId': instance.settlementAssetRowId,
     };
+
+_AssetTradePreview _$AssetTradePreviewFromJson(Map<String, dynamic> json) =>
+    _AssetTradePreview(
+      soldCost: (json['soldCost'] as num?)?.toInt(),
+      realizedPl: (json['realizedPl'] as num?)?.toInt(),
+      cashDelta: (json['cashDelta'] as num?)?.toInt() ?? 0,
+      cashAfter: (json['cashAfter'] as num?)?.toInt() ?? 0,
+      fundingAmount: (json['fundingAmount'] as num?)?.toInt() ?? 0,
+    );
+
+Map<String, dynamic> _$AssetTradePreviewToJson(_AssetTradePreview instance) =>
+    <String, dynamic>{
+      'soldCost': instance.soldCost,
+      'realizedPl': instance.realizedPl,
+      'cashDelta': instance.cashDelta,
+      'cashAfter': instance.cashAfter,
+      'fundingAmount': instance.fundingAmount,
+    };

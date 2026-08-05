@@ -1598,10 +1598,16 @@ abstract class AppLocalizations {
   /// **'실현손익'**
   String get tradeRealizedPreview;
 
+  /// No description provided for @tradeFundingNotice.
+  ///
+  /// In ko, this message translates to:
+  /// **'예수금이 모자라 결제 계좌에서 {amount}을 옮겨요'**
+  String tradeFundingNotice(String amount);
+
   /// No description provided for @tradeInsufficientCash.
   ///
   /// In ko, this message translates to:
-  /// **'예수금이 부족해요. 먼저 입금하거나 금액을 확인해주세요.'**
+  /// **'예수금이 마이너스가 돼요. 그대로 기록됩니다.'**
   String get tradeInsufficientCash;
 
   /// No description provided for @tradeInsufficientQty.
@@ -5083,6 +5089,30 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'기타'**
   String get expPayOther;
+
+  /// No description provided for @expAutoLock.
+  ///
+  /// In ko, this message translates to:
+  /// **'자동 생성'**
+  String get expAutoLock;
+
+  /// No description provided for @expAutoSourceTradeRealized.
+  ///
+  /// In ko, this message translates to:
+  /// **'주식을 팔아 생긴 실현손익이에요. 금액은 매매 내역에서 계산됩니다.'**
+  String get expAutoSourceTradeRealized;
+
+  /// No description provided for @expAutoSourceTransferInterest.
+  ///
+  /// In ko, this message translates to:
+  /// **'이체에 붙은 이자예요. 금액은 이체 내역에서 계산됩니다.'**
+  String get expAutoSourceTransferInterest;
+
+  /// No description provided for @expAutoSourceDefault.
+  ///
+  /// In ko, this message translates to:
+  /// **'자동으로 만들어진 거래예요. 원래 거래를 지우면 함께 사라집니다.'**
+  String get expAutoSourceDefault;
 
   /// No description provided for @expPresetLock.
   ///

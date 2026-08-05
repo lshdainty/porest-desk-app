@@ -336,7 +336,11 @@
   "tradeSettlementDelta": "결제 계좌 변동",
   "tradeCashAfter": "거래 후 예수금",
   "tradeRealizedPreview": "실현손익",
-  "tradeInsufficientCash": "예수금이 부족해요. 먼저 입금하거나 금액을 확인해주세요.",
+  "tradeFundingNotice": "예수금이 모자라 결제 계좌에서 {amount}을 옮겨요",
+  "@tradeFundingNotice": {
+    "placeholders": { "amount": { "type": "String" } }
+  },
+  "tradeInsufficientCash": "예수금이 마이너스가 돼요. 그대로 기록됩니다.",
   "tradeInsufficientQty": "보유 수량보다 많이 팔 수 없어요.",
   "tradeHistory": "거래 내역",
   "tradeDeleted": "거래를 취소했어요",
@@ -1522,6 +1526,10 @@
   "expPayCard": "카드",
   "expPayTransfer": "계좌이체",
   "expPayOther": "기타",
+  "expAutoLock": "자동 생성",
+  "expAutoSourceTradeRealized": "주식을 팔아 생긴 실현손익이에요. 금액은 매매 내역에서 계산됩니다.",
+  "expAutoSourceTransferInterest": "이체에 붙은 이자예요. 금액은 이체 내역에서 계산됩니다.",
+  "expAutoSourceDefault": "자동으로 만들어진 거래예요. 원래 거래를 지우면 함께 사라집니다.",
   "expPresetLock": "프리셋 잠금",
   "expNoCategoryForType": "이 타입에 해당하는 카테고리가 없습니다",
   "expSubcategory": "세부 카테고리",
