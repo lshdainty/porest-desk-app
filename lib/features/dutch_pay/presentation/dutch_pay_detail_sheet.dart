@@ -65,7 +65,7 @@ class _Body extends ConsumerWidget {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
     final masked =
-        (ref.watch(settingsProvider).value ?? AppSettings.defaults).hideAmounts;
+        ref.watch(hideCardProvider('dutchpay.sessions'));
     final listAsync = ref.watch(dutchPayListProvider);
     final dp = listAsync.value
         ?.where((d) => d.rowId == dpId)

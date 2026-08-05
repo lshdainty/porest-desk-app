@@ -243,7 +243,6 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
-    final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
     final categoriesAsync = ref.watch(categoriesProvider);
     final expensesAsync = ref.watch(monthExpensesProvider(_key));
     // 이체는 asset_transfer 별도 테이블이라 거래 목록에 섞여 오지 않는다.
@@ -436,7 +435,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                krwSigned(monthExpense, settings.hideAmounts, unit: true),
+                                krwSigned(monthExpense, ref.watch(hideCardProvider('ledger.monthSummary')), unit: true),
                                 style: TextStyle(
                                   fontSize: 28,
                                   fontWeight: FontWeight.w800,
@@ -485,14 +484,14 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                           children: [
                             _TxmSummaryRow(
                               label: l.expSummaryIncome,
-                              value: krwSigned(monthIncome, settings.hideAmounts, sign: '+', unit: true),
+                              value: krwSigned(monthIncome, ref.watch(hideCardProvider('ledger.monthSummary')), sign: '+', unit: true),
                               valueColor: t.fgBrand,
                               tokens: t,
                             ),
                             Divider(height: 1, thickness: 1, color: t.borderSubtle),
                             _TxmSummaryRow(
                               label: l.expSummaryExpense,
-                              value: krwSigned(monthExpense, settings.hideAmounts, sign: '−', unit: true),
+                              value: krwSigned(monthExpense, ref.watch(hideCardProvider('ledger.monthSummary')), sign: '−', unit: true),
                               valueColor: t.fgExpense,
                               tokens: t,
                             ),
@@ -501,7 +500,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                               label: l.expTotal,
                               value: krwSigned(
                                 (monthIncome - monthExpense).abs(),
-                                settings.hideAmounts,
+                                ref.watch(hideCardProvider('ledger.monthSummary')),
                                 sign: monthIncome - monthExpense >= 0 ? '+' : '−',
                                 unit: true,
                               ),
@@ -524,7 +523,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                     selected: _selected,
                     expanded: _expanded,
                     byDay: byDay,
-                    masked: settings.hideAmounts,
+                    masked: ref.watch(hideCardProvider('ledger.calendar')),
                     onSelect: (ds) {
                       setState(() => _selected = ds);
                       if (byDay.containsKey(ds)) _scrollToDay(ds);
@@ -576,7 +575,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                                 items: groups[key] ?? const [],
                                 transfers: transferGroups[key] ?? const [],
                                 categoriesAsync: categoriesAsync,
-                                masked: settings.hideAmounts,
+                                masked: ref.watch(hideCardProvider('ledger.txList')),
                                 rowKeys: _rowKeys,
                                 focusTxId: widget.focusTxId,
                               ),

@@ -408,7 +408,6 @@ class _CategoryTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = context.tokens;
-    final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
     final rangeAsync = ref.watch(rangeSummaryProvider(state._range));
     final categoriesAsync = ref.watch(categoriesProvider);
     final merchantAsync = ref.watch(
@@ -450,12 +449,12 @@ class _CategoryTab extends ConsumerWidget {
             state: state,
             rangeAsync: rangeAsync,
             categoriesAsync: categoriesAsync,
-            masked: settings.hideAmounts,
+            masked: ref.watch(hideCardProvider('stats.category')),
           ),
           const SizedBox(height: PSpace.x32),
-          _TopMerchantsCard(async: merchantAsync, masked: settings.hideAmounts),
+          _TopMerchantsCard(async: merchantAsync, masked: ref.watch(hideCardProvider('stats.category'))),
           const SizedBox(height: PSpace.x32),
-          _HeatmapCard(async: heatmapAsync, masked: settings.hideAmounts),
+          _HeatmapCard(async: heatmapAsync, masked: ref.watch(hideCardProvider('stats.category'))),
           const SizedBox(height: PSpace.x32),
           _HighlightsGrid(
             state: state,
@@ -464,7 +463,7 @@ class _CategoryTab extends ConsumerWidget {
             merchantAsync: merchantAsync,
             expensesAsync: expensesAsync,
             prevRangeAsync: prevRangeAsync,
-            masked: settings.hideAmounts,
+            masked: ref.watch(hideCardProvider('stats.category')),
           ),
         ],
       ),
@@ -480,7 +479,6 @@ class _TrendTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = context.tokens;
-    final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
     final rangeAsync = ref.watch(rangeSummaryProvider(state._range));
     final monthExpAsync = ref.watch(rangeExpensesProvider(state._range));
     return RefreshIndicator(
@@ -508,7 +506,7 @@ class _TrendTab extends ConsumerWidget {
           _SavingsRateCard(
             state: state,
             rangeAsync: rangeAsync,
-            masked: settings.hideAmounts,
+            masked: ref.watch(hideCardProvider('stats.trend')),
           ),
           const SizedBox(height: PSpace.x32),
           _SavingsBarsCard(
@@ -536,7 +534,6 @@ class _CompareTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = context.tokens;
-    final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
     final rangeAsync = ref.watch(rangeSummaryProvider(state._range));
     final prevRangeAsync = ref.watch(rangeSummaryProvider(state._prevRangeKey));
     final categoriesAsync = ref.watch(categoriesProvider);
@@ -565,7 +562,7 @@ class _CompareTab extends ConsumerWidget {
             state: state,
             rangeAsync: rangeAsync,
             prevRangeAsync: prevRangeAsync,
-            masked: settings.hideAmounts,
+            masked: ref.watch(hideCardProvider('stats.compare')),
           ),
           const SizedBox(height: PSpace.x32),
           _CompareMetricsCard(
@@ -574,21 +571,21 @@ class _CompareTab extends ConsumerWidget {
             prevRangeAsync: prevRangeAsync,
             nowExpAsync: nowExpAsync,
             prevExpAsync: prevExpAsync,
-            masked: settings.hideAmounts,
+            masked: ref.watch(hideCardProvider('stats.compare')),
           ),
           const SizedBox(height: PSpace.x32),
           _CompareCategoryCard(
             rangeAsync: rangeAsync,
             prevRangeAsync: prevRangeAsync,
             categoriesAsync: categoriesAsync,
-            masked: settings.hideAmounts,
+            masked: ref.watch(hideCardProvider('stats.compare')),
           ),
           const SizedBox(height: PSpace.x32),
           _CompareWeekdayCard(
             state: state,
             nowExpAsync: nowExpAsync,
             prevExpAsync: prevExpAsync,
-            masked: settings.hideAmounts,
+            masked: ref.watch(hideCardProvider('stats.compare')),
           ),
         ],
       ),

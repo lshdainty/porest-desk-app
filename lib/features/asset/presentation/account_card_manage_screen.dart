@@ -62,7 +62,7 @@ class _AccountCardManageScreenState
   Widget build(BuildContext context) {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
-    final masked = ref.watch(settingsProvider).value?.hideAmounts ?? false;
+    final masked = ref.watch(hideCardProvider('asset.manage'));
     final assetsAsync = ref.watch(assetsProvider);
 
     return Scaffold(

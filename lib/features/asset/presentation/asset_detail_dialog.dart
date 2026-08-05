@@ -15,7 +15,6 @@ import 'package:porest_desk_app/core/format/chart_axis.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/core/format/date.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
-import 'package:porest_desk_app/core/settings/hide_amounts_unlock_dialog.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
@@ -72,8 +71,7 @@ class _DetailFooter extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
-    final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
-    final masked = settings.hideAmounts;
+    final masked = ref.watch(hideCardProvider('asset.detail'));
     return PViewFooter(
       // 좌측 = 삭제가 아니라 금액 가리기/표시 토글 → leading 슬롯.
       leading: PButton(
@@ -81,7 +79,7 @@ class _DetailFooter extends ConsumerWidget {
         icon: masked ? LucideIcons.eye : LucideIcons.eyeOff,
         variant: PButtonVariant.ghost,
         flush: PButtonFlush.left,
-        onPressed: () => toggleHideAmountsWithUnlock(context, ref),
+        onPressed: () => context.push('/settings/hide-amounts?page=asset'),
       ),
       onEdit: () {
         Navigator.of(context).pop();
@@ -141,8 +139,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
     final asset = widget.asset;
-    final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
-    final masked = settings.hideAmounts;
+    final masked = ref.watch(hideCardProvider('asset.detail'));
     final meta = AssetTypeMeta.of(asset.assetType);
     final brandFg = resolveChartColor(context, asset.color, fallback: t.fgBrand);
 

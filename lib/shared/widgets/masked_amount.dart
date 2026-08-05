@@ -18,6 +18,7 @@ class MaskedAmount extends ConsumerWidget {
     this.abs = false,
     this.style,
     this.maskedText = '••••••',
+    required this.card,
   });
 
   final int amount;
@@ -27,9 +28,12 @@ class MaskedAmount extends ConsumerWidget {
   final TextStyle? style;
   final String maskedText;
 
+  /// 이 금액이 어느 카드에 속하는지 — 카드 목록은 [kHideCards] 에 있다.
+  final String card;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final hidden = ref.watch(settingsProvider).value?.hideAmounts ?? false;
+    final hidden = ref.watch(hideCardProvider(card));
     final body =
         hidden ? maskedText : krw(amount, sign: sign, abs: abs);
     final resolvedSuffix = suffix ?? wonUnit();
@@ -46,14 +50,18 @@ class MaskedBlock extends ConsumerWidget {
     super.key,
     required this.child,
     this.placeholder,
+    required this.card,
   });
 
   final Widget child;
   final Widget? placeholder;
 
+  /// 이 블록이 어느 카드에 속하는지.
+  final String card;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final hidden = ref.watch(settingsProvider).value?.hideAmounts ?? false;
+    final hidden = ref.watch(hideCardProvider(card));
     if (!hidden) return child;
     return placeholder ??
         const Text('••••••', style: TextStyle(fontWeight: PFontWeight.bold));
@@ -64,9 +72,10 @@ class MaskedBlock extends ConsumerWidget {
 /// 그 외에 [unmasked] 호출. 차트 tooltip 등 inline 사용용.
 String formatMaybeMasked(
   WidgetRef ref, {
+  required String card,
   required String Function() unmasked,
   String masked = '••••••',
 }) {
-  final hidden = ref.read(settingsProvider).value?.hideAmounts ?? false;
+  final hidden = ref.read(hideCardProvider(card));
   return hidden ? masked : unmasked();
 }

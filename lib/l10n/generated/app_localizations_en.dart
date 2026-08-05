@@ -3299,6 +3299,156 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appearancePrivacy => 'Privacy';
 
   @override
+  String get hideAmountsTitle => 'Hide Amounts';
+
+  @override
+  String get hideAmountsSectionDesc =>
+      'Pick only the cards you want hidden. Turning it on is instant; turning it off asks for your password.';
+
+  @override
+  String get hideAmountsLockAll => 'Lock everything';
+
+  @override
+  String get hideAmountsPageHome => 'Home';
+
+  @override
+  String get hideAmountsPageAsset => 'Assets';
+
+  @override
+  String get hideAmountsPageLedger => 'Ledger';
+
+  @override
+  String get hideAmountsPageStats => 'Stats';
+
+  @override
+  String get hideAmountsPageBudget => 'Budget';
+
+  @override
+  String get hideAmountsPageStocks => 'Stocks';
+
+  @override
+  String get hideAmountsPageDutchpay => 'Dutch Pay';
+
+  @override
+  String get hideAmountsPageEtc => 'Other';
+
+  @override
+  String get hideCardHomeNetWorth => 'Net worth';
+
+  @override
+  String get hideCardHomeMonthExpense => 'This month income & spending';
+
+  @override
+  String get hideCardHomeCategoryDonut => 'Category donut';
+
+  @override
+  String get hideCardHomeBudget => 'Budget progress';
+
+  @override
+  String get hideCardHomeTodaySpend => 'Today\'s spending';
+
+  @override
+  String get hideCardHomeUpcoming => 'Upcoming payments';
+
+  @override
+  String get hideCardAssetNetWorth => 'Net worth & trend';
+
+  @override
+  String get hideCardAssetComposition => 'Asset composition';
+
+  @override
+  String get hideCardAssetAccounts => 'Accounts & deposits';
+
+  @override
+  String get hideCardAssetInvestments => 'Investments';
+
+  @override
+  String get hideCardAssetCards => 'Cards';
+
+  @override
+  String get hideCardAssetLoans => 'Loans';
+
+  @override
+  String get hideCardAssetSavingGoals => 'Saving goals';
+
+  @override
+  String get hideCardAssetUpcoming => 'Upcoming payments';
+
+  @override
+  String get hideCardAssetDetail => 'Asset detail';
+
+  @override
+  String get hideCardAssetManage => 'Manage accounts & cards';
+
+  @override
+  String get hideCardLedgerMonthSummary => 'Monthly total';
+
+  @override
+  String get hideCardLedgerCalendar => 'Calendar amounts';
+
+  @override
+  String get hideCardLedgerTxList => 'Transaction list';
+
+  @override
+  String get hideCardLedgerTxDetail => 'Transaction detail';
+
+  @override
+  String get hideCardStatsCategory => 'Category tab';
+
+  @override
+  String get hideCardStatsTrend => 'Trend tab';
+
+  @override
+  String get hideCardStatsCompare => 'Compare tab';
+
+  @override
+  String get hideCardBudgetHeader => 'Budget summary';
+
+  @override
+  String get hideCardBudgetPace => 'Spending pace';
+
+  @override
+  String get hideCardBudgetStatus => 'Status';
+
+  @override
+  String get hideCardBudgetCategories => 'Budget by category';
+
+  @override
+  String get hideCardBudgetCompliance => 'Compliance';
+
+  @override
+  String get hideCardBudgetManage => 'Manage budgets';
+
+  @override
+  String get hideCardStocksSummary => 'Valuation summary';
+
+  @override
+  String get hideCardStocksHoldings => 'Holdings';
+
+  @override
+  String get hideCardStocksDetail => 'Stock detail';
+
+  @override
+  String get hideCardDutchpaySummary => 'Dutch pay summary';
+
+  @override
+  String get hideCardDutchpaySessions => 'Settlements';
+
+  @override
+  String get hideCardEtcSearch => 'Search results';
+
+  @override
+  String get hideCardEtcRecurring => 'Recurring';
+
+  @override
+  String get hideCardEtcPreset => 'Presets';
+
+  @override
+  String hideAmountsLockAllDesc(int total, int count) {
+    return 'Hiding $count of $total cards';
+  }
+
+  @override
   String get appearanceHideAmount => 'Hide amounts';
 
   @override

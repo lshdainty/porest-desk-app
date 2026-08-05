@@ -32,7 +32,6 @@ class SavingGoalScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
-    final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
     final listAsync = ref.watch(savingGoalListProvider);
 
     return Scaffold(
@@ -88,7 +87,7 @@ class SavingGoalScreen extends ConsumerWidget {
                               Text.rich(
                                 TextSpan(
                                   text: krwMasked(
-                                      totalCurrent, settings.hideAmounts,
+                                      totalCurrent, ref.watch(hideCardProvider('asset.savingGoals')),
                                       mask: '••••'),
                                   style: PTypo.h4.copyWith(
                                       color: t.fgPrimary,
@@ -96,7 +95,7 @@ class SavingGoalScreen extends ConsumerWidget {
                                   children: [
                                     TextSpan(
                                       text:
-                                          ' / ${krwSigned(totalTarget, settings.hideAmounts, unit: true, mask: '••••')}',
+                                          ' / ${krwSigned(totalTarget, ref.watch(hideCardProvider('asset.savingGoals')), unit: true, mask: '••••')}',
                                       style: PTypo.bodySm.copyWith(
                                           color: t.fgTertiary,
                                           fontWeight: PFontWeight.semi),
@@ -155,7 +154,7 @@ class SavingGoalScreen extends ConsumerWidget {
                     if (i > 0) const PDivider(),
                     _GoalCard(
                       goal: items[i],
-                      masked: settings.hideAmounts,
+                      masked: ref.watch(hideCardProvider('asset.savingGoals')),
                       tokens: t,
                       onEdit: () =>
                           showSavingGoalEditDialog(context, edit: items[i]),
