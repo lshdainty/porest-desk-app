@@ -120,7 +120,8 @@ class _TradeBodyState extends ConsumerState<_TradeBody> {
       _amount > 0 &&
       (!_isSell || _qty <= _heldQty) &&
       // 예수금으로 살 때만 잔액을 본다 — 결제 계좌는 마이너스를 막지 않는다(서버도 같은 규칙).
-      (_isSell || !_viaCash || _cashAfter >= 0);
+      // 예수금이 모자라도 막지 않는다 — 기록용 앱이라 마이너스로 쌓이는 게 정상이다.
+      true;
 
   @override
   void initState() {
@@ -278,30 +279,34 @@ class _TradeBodyState extends ConsumerState<_TradeBody> {
         ),
         const SizedBox(height: PSpace.x20),
 
-        PSectionLabel(l.tradeSettlement),
-        const SizedBox(height: PSpace.x4),
-        PSelect<int>(
-          value: _settlementAssetRowId ?? -1,
-          title: l.tradeSettlement,
-          items: [
-            PSelectItem(value: -1, label: l.tradeSettlementCash),
-            for (final a in settlementOptions)
-              PSelectItem(
-                value: a.rowId,
-                label: a.institution != null && a.institution!.isNotEmpty
-                    ? '${a.institution} · ${a.assetName}'
-                    : a.assetName,
-              ),
-          ],
-          onChanged: (v) => setState(() {
-            _settlementAssetRowId = (v == null || v == -1) ? null : v;
-            _sync();
-          }),
-        ),
-        const SizedBox(height: 6),
-        Text(_viaCash ? l.tradeSettlementCashHelp : l.tradeSettlementAccountHelp,
-            style: PTypo.micro.copyWith(color: t.fgTertiary)),
-        const SizedBox(height: PSpace.x20),
+        // 결제 계좌는 매수에만. 매도 대금은 예수금에 남기고 사용자가 이체로 관리한다 —
+        // 팔았다고 통장으로 자동 이체되지는 않는다.
+        if (!_isSell) ...[
+          PSectionLabel(l.tradeSettlement),
+          const SizedBox(height: PSpace.x4),
+          PSelect<int>(
+            value: _settlementAssetRowId ?? -1,
+            title: l.tradeSettlement,
+            items: [
+              PSelectItem(value: -1, label: l.tradeSettlementCash),
+              for (final a in settlementOptions)
+                PSelectItem(
+                  value: a.rowId,
+                  label: a.institution != null && a.institution!.isNotEmpty
+                      ? '${a.institution} · ${a.assetName}'
+                      : a.assetName,
+                ),
+            ],
+            onChanged: (v) => setState(() {
+              _settlementAssetRowId = (v == null || v == -1) ? null : v;
+              _sync();
+            }),
+          ),
+          const SizedBox(height: 6),
+          Text(_viaCash ? l.tradeSettlementCashHelp : l.tradeSettlementAccountHelp,
+              style: PTypo.micro.copyWith(color: t.fgTertiary)),
+          const SizedBox(height: PSpace.x20),
+        ],
 
         PSectionLabel(l.tradeMemo),
         const SizedBox(height: PSpace.x4),

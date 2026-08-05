@@ -769,10 +769,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get tradeSettlementCash => '증권계좌 예수금';
 
   @override
-  String get tradeSettlementCashHelp => '증권계좌에 넣어둔 예수금에서 오가요.';
+  String get tradeSettlementCashHelp => '증권계좌 예수금에서 결제해요. 모자라면 예수금이 마이너스로 남아요.';
 
   @override
-  String get tradeSettlementAccountHelp => '이 계좌에서 바로 오가요. 증권계좌 예수금은 건드리지 않아요.';
+  String get tradeSettlementAccountHelp => '예수금이 모자라면 이 계좌에서 부족분만큼 자동으로 이체돼요.';
 
   @override
   String get tradeSettlementDelta => '결제 계좌 변동';

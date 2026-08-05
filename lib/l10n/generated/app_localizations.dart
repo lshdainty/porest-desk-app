@@ -1571,13 +1571,13 @@ abstract class AppLocalizations {
   /// No description provided for @tradeSettlementCashHelp.
   ///
   /// In ko, this message translates to:
-  /// **'증권계좌에 넣어둔 예수금에서 오가요.'**
+  /// **'증권계좌 예수금에서 결제해요. 모자라면 예수금이 마이너스로 남아요.'**
   String get tradeSettlementCashHelp;
 
   /// No description provided for @tradeSettlementAccountHelp.
   ///
   /// In ko, this message translates to:
-  /// **'이 계좌에서 바로 오가요. 증권계좌 예수금은 건드리지 않아요.'**
+  /// **'예수금이 모자라면 이 계좌에서 부족분만큼 자동으로 이체돼요.'**
   String get tradeSettlementAccountHelp;
 
   /// No description provided for @tradeSettlementDelta.

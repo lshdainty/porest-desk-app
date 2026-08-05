@@ -780,11 +780,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tradeSettlementCashHelp =>
-      'Moves in and out of the cash you keep in this brokerage account.';
+      'Paid from the brokerage cash balance. It may go negative.';
 
   @override
   String get tradeSettlementAccountHelp =>
-      'Moves directly in and out of this account. Brokerage cash is untouched.';
+      'A transfer covers any shortfall from this account.';
 
   @override
   String get tradeSettlementDelta => 'Settlement account change';
