@@ -26,6 +26,7 @@ _Expense _$ExpenseFromJson(Map<String, dynamic> json) => _Expense(
   originalAmount: (json['originalAmount'] as num?)?.toDouble(),
   originalCurrency: json['originalCurrency'] as String?,
   exchangeRate: (json['exchangeRate'] as num?)?.toDouble(),
+  autoSource: json['autoSource'] as String?,
   calendarEventRowId: (json['calendarEventRowId'] as num?)?.toInt(),
   todoRowId: (json['todoRowId'] as num?)?.toInt(),
   splitCategoryRowIds:
@@ -57,6 +58,7 @@ Map<String, dynamic> _$ExpenseToJson(_Expense instance) => <String, dynamic>{
   'originalAmount': instance.originalAmount,
   'originalCurrency': instance.originalCurrency,
   'exchangeRate': instance.exchangeRate,
+  'autoSource': instance.autoSource,
   'calendarEventRowId': instance.calendarEventRowId,
   'todoRowId': instance.todoRowId,
   'splitCategoryRowIds': instance.splitCategoryRowIds,
