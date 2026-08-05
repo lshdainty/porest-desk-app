@@ -19,7 +19,8 @@ mixin _$AssetTrade {
  String? get holdingType;// 'STOCK' | 'GOLD' | 'CRYPTO'
 /// 종목 식별자 — 연동은 토스 종목코드, 미연동은 항목명.
  String get holdingKey; bool get linked;/// 소수 허용이라 문자열로 주고받는다(AssetHolding.quantity 와 같은 이유).
- String? get quantity;/// 거래대금 — 수수료 제외.
+/// 서버 계약이 BigDecimal 이라 JSON 숫자로 온다 — 컨버터 없이 캐스트하면 터진다.
+@JsonKey(fromJson: decimalStringFromJson) String? get quantity;/// 거래대금 — 수수료 제외.
  int? get amount; int? get fee;/// 실현손익 (매도 전용). 이익 양수 / 손실 음수.
  int? get realizedPl; String? get tradeDate; String? get description;/// 결제 계좌 — 지정하면 증권계좌 예수금 대신 이 계좌에서 오간다.
  int? get settlementAssetRowId;
@@ -55,7 +56,7 @@ abstract mixin class $AssetTradeCopyWith<$Res>  {
   factory $AssetTradeCopyWith(AssetTrade value, $Res Function(AssetTrade) _then) = _$AssetTradeCopyWithImpl;
 @useResult
 $Res call({
- int rowId, int assetRowId, String tradeType, String? holdingType, String holdingKey, bool linked, String? quantity, int? amount, int? fee, int? realizedPl, String? tradeDate, String? description, int? settlementAssetRowId
+ int rowId, int assetRowId, String tradeType, String? holdingType, String holdingKey, bool linked,@JsonKey(fromJson: decimalStringFromJson) String? quantity, int? amount, int? fee, int? realizedPl, String? tradeDate, String? description, int? settlementAssetRowId
 });
 
 
@@ -172,7 +173,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int rowId,  int assetRowId,  String tradeType,  String? holdingType,  String holdingKey,  bool linked,  String? quantity,  int? amount,  int? fee,  int? realizedPl,  String? tradeDate,  String? description,  int? settlementAssetRowId)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int rowId,  int assetRowId,  String tradeType,  String? holdingType,  String holdingKey,  bool linked, @JsonKey(fromJson: decimalStringFromJson)  String? quantity,  int? amount,  int? fee,  int? realizedPl,  String? tradeDate,  String? description,  int? settlementAssetRowId)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _AssetTrade() when $default != null:
 return $default(_that.rowId,_that.assetRowId,_that.tradeType,_that.holdingType,_that.holdingKey,_that.linked,_that.quantity,_that.amount,_that.fee,_that.realizedPl,_that.tradeDate,_that.description,_that.settlementAssetRowId);case _:
@@ -193,7 +194,7 @@ return $default(_that.rowId,_that.assetRowId,_that.tradeType,_that.holdingType,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int rowId,  int assetRowId,  String tradeType,  String? holdingType,  String holdingKey,  bool linked,  String? quantity,  int? amount,  int? fee,  int? realizedPl,  String? tradeDate,  String? description,  int? settlementAssetRowId)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int rowId,  int assetRowId,  String tradeType,  String? holdingType,  String holdingKey,  bool linked, @JsonKey(fromJson: decimalStringFromJson)  String? quantity,  int? amount,  int? fee,  int? realizedPl,  String? tradeDate,  String? description,  int? settlementAssetRowId)  $default,) {final _that = this;
 switch (_that) {
 case _AssetTrade():
 return $default(_that.rowId,_that.assetRowId,_that.tradeType,_that.holdingType,_that.holdingKey,_that.linked,_that.quantity,_that.amount,_that.fee,_that.realizedPl,_that.tradeDate,_that.description,_that.settlementAssetRowId);case _:
@@ -213,7 +214,7 @@ return $default(_that.rowId,_that.assetRowId,_that.tradeType,_that.holdingType,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int rowId,  int assetRowId,  String tradeType,  String? holdingType,  String holdingKey,  bool linked,  String? quantity,  int? amount,  int? fee,  int? realizedPl,  String? tradeDate,  String? description,  int? settlementAssetRowId)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int rowId,  int assetRowId,  String tradeType,  String? holdingType,  String holdingKey,  bool linked, @JsonKey(fromJson: decimalStringFromJson)  String? quantity,  int? amount,  int? fee,  int? realizedPl,  String? tradeDate,  String? description,  int? settlementAssetRowId)?  $default,) {final _that = this;
 switch (_that) {
 case _AssetTrade() when $default != null:
 return $default(_that.rowId,_that.assetRowId,_that.tradeType,_that.holdingType,_that.holdingKey,_that.linked,_that.quantity,_that.amount,_that.fee,_that.realizedPl,_that.tradeDate,_that.description,_that.settlementAssetRowId);case _:
@@ -228,7 +229,7 @@ return $default(_that.rowId,_that.assetRowId,_that.tradeType,_that.holdingType,_
 @JsonSerializable()
 
 class _AssetTrade implements AssetTrade {
-  const _AssetTrade({required this.rowId, required this.assetRowId, required this.tradeType, this.holdingType, required this.holdingKey, this.linked = false, this.quantity, this.amount, this.fee, this.realizedPl, this.tradeDate, this.description, this.settlementAssetRowId});
+  const _AssetTrade({required this.rowId, required this.assetRowId, required this.tradeType, this.holdingType, required this.holdingKey, this.linked = false, @JsonKey(fromJson: decimalStringFromJson) this.quantity, this.amount, this.fee, this.realizedPl, this.tradeDate, this.description, this.settlementAssetRowId});
   factory _AssetTrade.fromJson(Map<String, dynamic> json) => _$AssetTradeFromJson(json);
 
 @override final  int rowId;
@@ -241,7 +242,8 @@ class _AssetTrade implements AssetTrade {
 @override final  String holdingKey;
 @override@JsonKey() final  bool linked;
 /// 소수 허용이라 문자열로 주고받는다(AssetHolding.quantity 와 같은 이유).
-@override final  String? quantity;
+/// 서버 계약이 BigDecimal 이라 JSON 숫자로 온다 — 컨버터 없이 캐스트하면 터진다.
+@override@JsonKey(fromJson: decimalStringFromJson) final  String? quantity;
 /// 거래대금 — 수수료 제외.
 @override final  int? amount;
 @override final  int? fee;
@@ -285,7 +287,7 @@ abstract mixin class _$AssetTradeCopyWith<$Res> implements $AssetTradeCopyWith<$
   factory _$AssetTradeCopyWith(_AssetTrade value, $Res Function(_AssetTrade) _then) = __$AssetTradeCopyWithImpl;
 @override @useResult
 $Res call({
- int rowId, int assetRowId, String tradeType, String? holdingType, String holdingKey, bool linked, String? quantity, int? amount, int? fee, int? realizedPl, String? tradeDate, String? description, int? settlementAssetRowId
+ int rowId, int assetRowId, String tradeType, String? holdingType, String holdingKey, bool linked,@JsonKey(fromJson: decimalStringFromJson) String? quantity, int? amount, int? fee, int? realizedPl, String? tradeDate, String? description, int? settlementAssetRowId
 });
 
 

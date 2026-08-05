@@ -13,7 +13,7 @@ _AssetTrade _$AssetTradeFromJson(Map<String, dynamic> json) => _AssetTrade(
   holdingType: json['holdingType'] as String?,
   holdingKey: json['holdingKey'] as String,
   linked: json['linked'] as bool? ?? false,
-  quantity: json['quantity'] as String?,
+  quantity: decimalStringFromJson(json['quantity']),
   amount: (json['amount'] as num?)?.toInt(),
   fee: (json['fee'] as num?)?.toInt(),
   realizedPl: (json['realizedPl'] as num?)?.toInt(),
