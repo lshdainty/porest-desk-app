@@ -324,4 +324,289 @@ as int?,
 
 }
 
+
+/// @nodoc
+mixin _$AssetTradePreview {
+
+/// 이번에 파는 만큼의 취득원가 (매도 전용).
+ int? get soldCost;/// 실현손익 — 이익 양수 / 손실 음수 (매도 전용).
+ int? get realizedPl;/// 이 거래로 예수금이 움직이는 양 — 매수 음수 / 매도 양수.
+ int get cashDelta;/// 거래 후 예수금.
+ int get cashAfter;/// 예수금이 모자라 결제 계좌에서 끌어올 금액 — 0 이면 이체가 생기지 않는다.
+ int get fundingAmount;
+/// Create a copy of AssetTradePreview
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$AssetTradePreviewCopyWith<AssetTradePreview> get copyWith => _$AssetTradePreviewCopyWithImpl<AssetTradePreview>(this as AssetTradePreview, _$identity);
+
+  /// Serializes this AssetTradePreview to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AssetTradePreview&&(identical(other.soldCost, soldCost) || other.soldCost == soldCost)&&(identical(other.realizedPl, realizedPl) || other.realizedPl == realizedPl)&&(identical(other.cashDelta, cashDelta) || other.cashDelta == cashDelta)&&(identical(other.cashAfter, cashAfter) || other.cashAfter == cashAfter)&&(identical(other.fundingAmount, fundingAmount) || other.fundingAmount == fundingAmount));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,soldCost,realizedPl,cashDelta,cashAfter,fundingAmount);
+
+@override
+String toString() {
+  return 'AssetTradePreview(soldCost: $soldCost, realizedPl: $realizedPl, cashDelta: $cashDelta, cashAfter: $cashAfter, fundingAmount: $fundingAmount)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $AssetTradePreviewCopyWith<$Res>  {
+  factory $AssetTradePreviewCopyWith(AssetTradePreview value, $Res Function(AssetTradePreview) _then) = _$AssetTradePreviewCopyWithImpl;
+@useResult
+$Res call({
+ int? soldCost, int? realizedPl, int cashDelta, int cashAfter, int fundingAmount
+});
+
+
+
+
+}
+/// @nodoc
+class _$AssetTradePreviewCopyWithImpl<$Res>
+    implements $AssetTradePreviewCopyWith<$Res> {
+  _$AssetTradePreviewCopyWithImpl(this._self, this._then);
+
+  final AssetTradePreview _self;
+  final $Res Function(AssetTradePreview) _then;
+
+/// Create a copy of AssetTradePreview
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? soldCost = freezed,Object? realizedPl = freezed,Object? cashDelta = null,Object? cashAfter = null,Object? fundingAmount = null,}) {
+  return _then(_self.copyWith(
+soldCost: freezed == soldCost ? _self.soldCost : soldCost // ignore: cast_nullable_to_non_nullable
+as int?,realizedPl: freezed == realizedPl ? _self.realizedPl : realizedPl // ignore: cast_nullable_to_non_nullable
+as int?,cashDelta: null == cashDelta ? _self.cashDelta : cashDelta // ignore: cast_nullable_to_non_nullable
+as int,cashAfter: null == cashAfter ? _self.cashAfter : cashAfter // ignore: cast_nullable_to_non_nullable
+as int,fundingAmount: null == fundingAmount ? _self.fundingAmount : fundingAmount // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [AssetTradePreview].
+extension AssetTradePreviewPatterns on AssetTradePreview {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _AssetTradePreview value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _AssetTradePreview() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _AssetTradePreview value)  $default,){
+final _that = this;
+switch (_that) {
+case _AssetTradePreview():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _AssetTradePreview value)?  $default,){
+final _that = this;
+switch (_that) {
+case _AssetTradePreview() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? soldCost,  int? realizedPl,  int cashDelta,  int cashAfter,  int fundingAmount)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _AssetTradePreview() when $default != null:
+return $default(_that.soldCost,_that.realizedPl,_that.cashDelta,_that.cashAfter,_that.fundingAmount);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? soldCost,  int? realizedPl,  int cashDelta,  int cashAfter,  int fundingAmount)  $default,) {final _that = this;
+switch (_that) {
+case _AssetTradePreview():
+return $default(_that.soldCost,_that.realizedPl,_that.cashDelta,_that.cashAfter,_that.fundingAmount);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? soldCost,  int? realizedPl,  int cashDelta,  int cashAfter,  int fundingAmount)?  $default,) {final _that = this;
+switch (_that) {
+case _AssetTradePreview() when $default != null:
+return $default(_that.soldCost,_that.realizedPl,_that.cashDelta,_that.cashAfter,_that.fundingAmount);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _AssetTradePreview implements AssetTradePreview {
+  const _AssetTradePreview({this.soldCost, this.realizedPl, this.cashDelta = 0, this.cashAfter = 0, this.fundingAmount = 0});
+  factory _AssetTradePreview.fromJson(Map<String, dynamic> json) => _$AssetTradePreviewFromJson(json);
+
+/// 이번에 파는 만큼의 취득원가 (매도 전용).
+@override final  int? soldCost;
+/// 실현손익 — 이익 양수 / 손실 음수 (매도 전용).
+@override final  int? realizedPl;
+/// 이 거래로 예수금이 움직이는 양 — 매수 음수 / 매도 양수.
+@override@JsonKey() final  int cashDelta;
+/// 거래 후 예수금.
+@override@JsonKey() final  int cashAfter;
+/// 예수금이 모자라 결제 계좌에서 끌어올 금액 — 0 이면 이체가 생기지 않는다.
+@override@JsonKey() final  int fundingAmount;
+
+/// Create a copy of AssetTradePreview
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$AssetTradePreviewCopyWith<_AssetTradePreview> get copyWith => __$AssetTradePreviewCopyWithImpl<_AssetTradePreview>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$AssetTradePreviewToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AssetTradePreview&&(identical(other.soldCost, soldCost) || other.soldCost == soldCost)&&(identical(other.realizedPl, realizedPl) || other.realizedPl == realizedPl)&&(identical(other.cashDelta, cashDelta) || other.cashDelta == cashDelta)&&(identical(other.cashAfter, cashAfter) || other.cashAfter == cashAfter)&&(identical(other.fundingAmount, fundingAmount) || other.fundingAmount == fundingAmount));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,soldCost,realizedPl,cashDelta,cashAfter,fundingAmount);
+
+@override
+String toString() {
+  return 'AssetTradePreview(soldCost: $soldCost, realizedPl: $realizedPl, cashDelta: $cashDelta, cashAfter: $cashAfter, fundingAmount: $fundingAmount)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$AssetTradePreviewCopyWith<$Res> implements $AssetTradePreviewCopyWith<$Res> {
+  factory _$AssetTradePreviewCopyWith(_AssetTradePreview value, $Res Function(_AssetTradePreview) _then) = __$AssetTradePreviewCopyWithImpl;
+@override @useResult
+$Res call({
+ int? soldCost, int? realizedPl, int cashDelta, int cashAfter, int fundingAmount
+});
+
+
+
+
+}
+/// @nodoc
+class __$AssetTradePreviewCopyWithImpl<$Res>
+    implements _$AssetTradePreviewCopyWith<$Res> {
+  __$AssetTradePreviewCopyWithImpl(this._self, this._then);
+
+  final _AssetTradePreview _self;
+  final $Res Function(_AssetTradePreview) _then;
+
+/// Create a copy of AssetTradePreview
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? soldCost = freezed,Object? realizedPl = freezed,Object? cashDelta = null,Object? cashAfter = null,Object? fundingAmount = null,}) {
+  return _then(_AssetTradePreview(
+soldCost: freezed == soldCost ? _self.soldCost : soldCost // ignore: cast_nullable_to_non_nullable
+as int?,realizedPl: freezed == realizedPl ? _self.realizedPl : realizedPl // ignore: cast_nullable_to_non_nullable
+as int?,cashDelta: null == cashDelta ? _self.cashDelta : cashDelta // ignore: cast_nullable_to_non_nullable
+as int,cashAfter: null == cashAfter ? _self.cashAfter : cashAfter // ignore: cast_nullable_to_non_nullable
+as int,fundingAmount: null == fundingAmount ? _self.fundingAmount : fundingAmount // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+
+}
+
 // dart format on

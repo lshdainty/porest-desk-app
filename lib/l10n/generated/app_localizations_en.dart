@@ -796,8 +796,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tradeRealizedPreview => 'Realized P/L';
 
   @override
+  String tradeFundingNotice(String amount) {
+    return '$amount moves from the settlement account to cover the shortfall';
+  }
+
+  @override
   String get tradeInsufficientCash =>
-      'Not enough cash. Deposit first or check the amount.';
+      'Cash will go negative. It is recorded as is.';
 
   @override
   String get tradeInsufficientQty => 'Cannot sell more than you hold.';
@@ -2731,6 +2736,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get expPayOther => 'Other';
+
+  @override
+  String get expAutoLock => 'Auto';
+
+  @override
+  String get expAutoSourceTradeRealized =>
+      'Realized P/L from a sale. The amount is calculated from the trade.';
+
+  @override
+  String get expAutoSourceTransferInterest =>
+      'Interest on a transfer. The amount is calculated from the transfer.';
+
+  @override
+  String get expAutoSourceDefault =>
+      'Created automatically. It disappears when the original is deleted.';
 
   @override
   String get expPresetLock => 'Preset lock';

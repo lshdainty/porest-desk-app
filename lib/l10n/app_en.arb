@@ -333,7 +333,11 @@
   "tradeSettlementDelta": "Settlement account change",
   "tradeCashAfter": "Cash after trade",
   "tradeRealizedPreview": "Realized P/L",
-  "tradeInsufficientCash": "Not enough cash. Deposit first or check the amount.",
+  "tradeFundingNotice": "{amount} moves from the settlement account to cover the shortfall",
+  "@tradeFundingNotice": {
+    "placeholders": { "amount": { "type": "String" } }
+  },
+  "tradeInsufficientCash": "Cash will go negative. It is recorded as is.",
   "tradeInsufficientQty": "Cannot sell more than you hold.",
   "tradeHistory": "Trade history",
   "tradeDeleted": "Trade cancelled",
@@ -1519,6 +1523,10 @@
   "expPayCard": "Card",
   "expPayTransfer": "Bank transfer",
   "expPayOther": "Other",
+  "expAutoLock": "Auto",
+  "expAutoSourceTradeRealized": "Realized P/L from a sale. The amount is calculated from the trade.",
+  "expAutoSourceTransferInterest": "Interest on a transfer. The amount is calculated from the transfer.",
+  "expAutoSourceDefault": "Created automatically. It disappears when the original is deleted.",
   "expPresetLock": "Preset lock",
   "expNoCategoryForType": "No categories for this type",
   "expSubcategory": "Subcategory",

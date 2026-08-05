@@ -35,3 +35,30 @@ abstract class AssetTrade with _$AssetTrade {
   factory AssetTrade.fromJson(Map<String, dynamic> json) =>
       _$AssetTradeFromJson(json);
 }
+
+/// 매매 미리보기 — 백엔드 `AssetTradeApiDto.TradePreviewResponse` 미러.
+///
+/// 실현손익·평균단가는 이동평균 원가 규칙을 타는데, 그 규칙을 앱에도 적어 두면
+/// 서버와 갈라진다. Dart 의 `/` 는 double 나눗셈이라 끝자리도 어긋난다.
+@freezed
+abstract class AssetTradePreview with _$AssetTradePreview {
+  const factory AssetTradePreview({
+    /// 이번에 파는 만큼의 취득원가 (매도 전용).
+    int? soldCost,
+
+    /// 실현손익 — 이익 양수 / 손실 음수 (매도 전용).
+    int? realizedPl,
+
+    /// 이 거래로 예수금이 움직이는 양 — 매수 음수 / 매도 양수.
+    @Default(0) int cashDelta,
+
+    /// 거래 후 예수금.
+    @Default(0) int cashAfter,
+
+    /// 예수금이 모자라 결제 계좌에서 끌어올 금액 — 0 이면 이체가 생기지 않는다.
+    @Default(0) int fundingAmount,
+  }) = _AssetTradePreview;
+
+  factory AssetTradePreview.fromJson(Map<String, dynamic> json) =>
+      _$AssetTradePreviewFromJson(json);
+}

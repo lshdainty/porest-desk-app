@@ -327,6 +327,45 @@ class AssetRepository {
     }
   }
 
+  /// 저장하기 전에 결과를 물어본다 — 저장에 쓰는 계산 경로를 그대로 탄다.
+  ///
+  /// 실현손익·예수금 잔액을 앱에서 계산하면 서버와 갈라진다. 이동평균 매수원가
+  /// 규칙이 웹·앱·서버 세 군데에 각각 있으면 하나만 고쳐도 값이 달라지고,
+  /// Dart 의 `/` 는 double 나눗셈이라 끝자리까지 어긋난다.
+  Future<AssetTradePreview> previewTrade({
+    required int assetRowId,
+    required String tradeType,
+    required String holdingType,
+    required String holdingKey,
+    required bool linked,
+    required String quantity,
+    required int amount,
+    int? fee,
+    required String tradeDate,
+    int? settlementAssetRowId,
+  }) async {
+    try {
+      final res = await _dio.post<Map<String, dynamic>>(
+        '/asset-trade/preview',
+        data: {
+          'assetRowId': assetRowId,
+          'tradeType': tradeType,
+          'holdingType': holdingType,
+          'holdingKey': holdingKey,
+          'linked': linked,
+          'quantity': quantity,
+          'amount': amount,
+          'fee': fee ?? 0,
+          'tradeDate': tradeDate,
+          'settlementAssetRowId': settlementAssetRowId,
+        },
+      );
+      return _unwrap(res, AssetTradePreview.fromJson);
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
   Future<List<AssetTrade>> getTrades(int assetRowId) async {
     try {
       final res = await _dio.get<Map<String, dynamic>>(
