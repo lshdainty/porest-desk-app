@@ -179,8 +179,11 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
         ? nickname
         : (_selected?.cardName ?? edit?.assetName ?? l.assetNewCard);
     // 체크카드는 잔액을 들지 않는다 — 사용액은 연결 계좌에서 이미 빠져 있다.
+    //
+    // 신용카드 잔액은 미결제 사용액이라 음수로 저장한다 — 화면은 "현재 사용액" 을 묻고
+    // 사용자는 양수를 치는 게 자연스럽다. 서버도 같은 정규화를 하지만 여기서도 맞춰 보낸다.
     final outstanding = _cardType == _CardType.credit
-        ? (int.tryParse(_balanceCtrl.text.replaceAll(',', '')) ?? 0)
+        ? -(int.tryParse(_balanceCtrl.text.replaceAll(',', '')) ?? 0).abs()
         : 0;
     final company = _selected?.company?.name ?? edit?.institution;
     final catalogRowId = _selected?.rowId ?? edit?.cardCatalog?.rowId;
