@@ -757,7 +757,14 @@ class _HeroCard extends StatelessWidget {
       assetTypeLabel(l, asset.assetType),
       asset.memo,
     ].where((s) => s != null && s.isNotEmpty).join(' · ');
-    final absBalance = (asset.balance ?? 0).abs();
+    // 카드만 절대값이다. 카드 잔액은 "미결제 사용액이 음수" 라는 규약이라 화면에는
+    // 얼마 썼나로 뒤집어 보여 준다. 그 밖의 자산은 음수가 정상 상태다 — 마이너스 통장,
+    // 잔액을 실제와 맞추지 않은 계좌. abs() 를 씌우면 −5,000 이 "5,000원" 으로 보여
+    // 목록·편집 폼과 어긋난다.
+    final heroIsCard =
+        asset.assetType == 'CREDIT_CARD' || asset.assetType == 'CHECK_CARD';
+    final rawBalance = asset.balance ?? 0;
+    final heroBalance = heroIsCard ? rawBalance.abs() : rawBalance;
     // 플랫 히어로(design 신판) — 그라데이션 카드 제거, 이름 행 아래 구분선만.
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -819,8 +826,11 @@ class _HeroCard extends StatelessWidget {
           text: TextSpan(
             children: [
               TextSpan(
-                // 카드도 부호 없이 중립색 — 결제 예정 금액 표기(사용자 결정)
-                text: masked ? '••••••' : krw(absBalance),
+                // 카드는 부호 없이 중립색 — 결제 예정 금액 표기(사용자 결정).
+                // 그 밖은 마이너스면 그대로 보여 준다.
+                text: masked
+                    ? '••••••'
+                    : (heroBalance < 0 ? '−${krw(heroBalance.abs())}' : krw(heroBalance)),
                 style: PTypo.h1.copyWith(
                   color: t.fgPrimary,
                   fontWeight: PFontWeight.bold,
