@@ -1,0 +1,172 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+
+# 배포 잡이 서버에 파일을 올리므로 최소 권한만 준다.
+permissions:
+  contents: read
+
+env:
+  FLUTTER_CHANNEL: stable
+
+jobs:
+  # ── 검증 — PR·푸시 모두. 여기서 막히면 빌드도 배포도 안 간다.
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: ${{ env.FLUTTER_CHANNEL }}
+          cache: true
+      - run: flutter pub get
+      - name: Analyze
+        run: flutter analyze lib/
+      - name: Test
+        run: flutter test
+
+  # ── 안드로이드 APK — 서명 키가 Secrets 에 있으면 릴리스 키로, 없으면 디버그 키 폴백.
+  #    (android/app/build.gradle.kts 가 key.properties 유무로 갈라 준다)
+  build-android:
+    needs: verify
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.ver.outputs.version }}
+      build_number: ${{ steps.ver.outputs.build_number }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: ${{ env.FLUTTER_CHANNEL }}
+          cache: true
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Resolve version
+        id: ver
+        run: |
+          # 태그 배포는 태그가 곧 버전, 그 밖에는 pubspec 의 버전을 쓴다.
+          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+            VERSION="${GITHUB_REF_NAME#v}"
+          else
+            VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: *//' | cut -d+ -f1)
+          fi
+          # versionCode 는 단조 증가해야 재설치 없이 업데이트된다.
+          # run_number 는 레포 전역으로 늘어나므로 dev/prod 가 섞여도 역전이 없다.
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "build_number=${GITHUB_RUN_NUMBER}" >> "$GITHUB_OUTPUT"
+
+      # 키가 없으면 이 스텝을 건너뛰고 디버그 키로 서명된다(빌드는 된다).
+      # 키를 Secrets 에 채우는 순간부터 릴리스 키 서명으로 바뀐다.
+      - name: Restore signing key
+        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > android/app/porest-desk.jks
+          cat > android/key.properties <<EOF
+          storeFile=porest-desk.jks
+          storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}
+          keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}
+          EOF
+
+      - run: flutter pub get
+      - name: Build APK
+        run: |
+          flutter build apk --release \
+            --split-per-abi --target-platform android-arm64 \
+            --build-name '${{ steps.ver.outputs.version }}' \
+            --build-number '${{ steps.ver.outputs.build_number }}' \
+            --dart-define-from-file=config/${{ startsWith(github.ref, 'refs/tags/v') && 'prod' || 'dev' }}.json
+          mv build/app/outputs/flutter-apk/app-arm64-v8a-release.apk \
+             porest-desk-${{ steps.ver.outputs.version }}.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android-apk
+          path: porest-desk-*.apk
+          retention-days: 7
+
+  # ── iOS — 서명 없이 빌드해 IPA 로 감싼다.
+  #    받는 사람이 자기 Apple ID 로 서명해 넣는 용도(AltStore/Sideloadly).
+  build-ios:
+    needs: verify
+    if: github.event_name == 'push'
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: ${{ env.FLUTTER_CHANNEL }}
+          cache: true
+      - run: flutter pub get
+      - name: Build unsigned IPA
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+            VERSION="${GITHUB_REF_NAME#v}"; CONFIG=prod
+          else
+            VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: *//' | cut -d+ -f1); CONFIG=dev
+          fi
+          flutter build ios --release --no-codesign \
+            --build-name "$VERSION" --build-number "${GITHUB_RUN_NUMBER}" \
+            --dart-define-from-file=config/${CONFIG}.json
+          # .app 을 Payload/ 로 감싸면 사이드로딩 도구가 읽는 IPA 가 된다.
+          mkdir -p Payload
+          cp -R build/ios/iphoneos/Runner.app Payload/
+          zip -qry "porest-desk-${VERSION}.ipa" Payload
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ios-ipa
+          path: porest-desk-*.ipa
+          retention-days: 7
+
+  # ── dev 배포 — main 에 머지되면 바로 올라간다.
+  deploy-dev:
+    needs: [build-android, build-ios]
+    # 서버 정보가 아직 없으면 조용히 건너뛴다 — 도입 초기에 CI 가 빨간불이 되지 않게.
+    if: github.ref == 'refs/heads/main' && vars.DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4   # 로컬 합성 액션을 쓰려면 필요
+      - uses: actions/download-artifact@v4
+        with: { path: dist }
+      - name: Publish to dev
+        uses: ./.github/actions/publish-apk
+        with:
+          channel: dev
+          version: ${{ needs.build-android.outputs.version }}
+          build_number: ${{ needs.build-android.outputs.build_number }}
+          host: ${{ secrets.DEPLOY_HOST }}
+          user: ${{ secrets.DEPLOY_USER }}
+          ssh_key: ${{ secrets.DEPLOY_SSH_KEY }}
+          base_path: ${{ secrets.DEPLOY_APK_PATH }}
+
+  # ── prod 배포 — 태그를 밀면 승인 대기에 걸린다(GitHub Environment).
+  #    승인을 눌러야 서버에 올라간다.
+  deploy-prod:
+    needs: [build-android, build-ios]
+    if: startsWith(github.ref, 'refs/tags/v') && vars.DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    # 이 environment 에 reviewer 를 걸어 두면 여기서 승인 대기에 걸린다.
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with: { path: dist }
+      - name: Publish to prod
+        uses: ./.github/actions/publish-apk
+        with:
+          channel: prod
+          version: ${{ needs.build-android.outputs.version }}
+          build_number: ${{ needs.build-android.outputs.build_number }}
+          host: ${{ secrets.DEPLOY_HOST }}
+          user: ${{ secrets.DEPLOY_USER }}
+          ssh_key: ${{ secrets.DEPLOY_SSH_KEY }}
+          base_path: ${{ secrets.DEPLOY_APK_PATH }}

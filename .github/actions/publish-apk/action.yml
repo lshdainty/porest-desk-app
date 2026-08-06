@@ -1,0 +1,59 @@
+name: Publish APK
+description: 빌드된 APK·IPA 를 배포 서버에 올리고 version.json 을 갱신한다.
+
+inputs:
+  channel:      { description: dev | prod, required: true }
+  version:      { description: 'X.Y.Z',    required: true }
+  build_number: { description: versionCode, required: true }
+  host:         { required: true }
+  user:         { required: true }
+  ssh_key:      { required: true }
+  base_path:    { description: '서버의 apk 루트 (예: /home/porest/porest/apk)', required: true }
+
+runs:
+  using: composite
+  steps:
+    - name: Stage files
+      shell: bash
+      env:
+        VERSION: ${{ inputs.version }}
+        BUILD_NUMBER: ${{ inputs.build_number }}
+        CHANNEL: ${{ inputs.channel }}
+      run: |
+        set -euo pipefail
+        mkdir -p upload
+        # 다운로드 잡이 아티팩트를 이름별 폴더로 풀어 둔다.
+        cp dist/android-apk/*.apk "upload/porest-desk-${VERSION}.apk"
+        cp dist/ios-ipa/*.ipa     "upload/porest-desk-${VERSION}.ipa"
+        # 항상 같은 이름으로도 하나 둔다 — 링크를 버전마다 바꾸지 않아도 되게.
+        cp "upload/porest-desk-${VERSION}.apk" upload/porest-desk-latest.apk
+        cp "upload/porest-desk-${VERSION}.ipa" upload/porest-desk-latest.ipa
+        # 앱이 새 버전을 알아보는 근거. 웹 다운로드 페이지도 이걸 읽는다.
+        cat > upload/version.json <<JSON
+        {
+          "channel": "${CHANNEL}",
+          "version": "${VERSION}",
+          "buildNumber": ${BUILD_NUMBER},
+          "releasedAt": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+          "android": "porest-desk-${VERSION}.apk",
+          "ios": "porest-desk-${VERSION}.ipa"
+        }
+        JSON
+
+    - name: Upload
+      shell: bash
+      env:
+        SSH_KEY: ${{ inputs.ssh_key }}
+        HOST: ${{ inputs.host }}
+        USER: ${{ inputs.user }}
+        DEST: ${{ inputs.base_path }}/${{ inputs.channel }}
+      run: |
+        set -euo pipefail
+        install -m 600 /dev/null key
+        echo "$SSH_KEY" > key
+        mkdir -p ~/.ssh && ssh-keyscan -H "$HOST" >> ~/.ssh/known_hosts 2>/dev/null
+        # version.json 을 마지막에 올린다 — 파일이 다 오르기 전에 앱이 새 버전을
+        # 보고 404 를 맞는 창을 없앤다.
+        scp -i key upload/*.apk upload/*.ipa "${USER}@${HOST}:${DEST}/"
+        scp -i key upload/version.json       "${USER}@${HOST}:${DEST}/"
+        rm -f key
