@@ -161,6 +161,8 @@ jobs:
       BUILD_NUMBER: ${{ needs.build-android.outputs.build_number }}
     steps:
       - uses: actions/checkout@v4
+        # 직전 버전 태그를 찾아 릴리스 노트 범위를 잡으려면 태그 이력이 다 있어야 한다.
+        with: { fetch-depth: 0 }
       - uses: actions/download-artifact@v4
         with: { path: dist }
 
@@ -205,10 +207,13 @@ jobs:
               --title "dev (build ${BUILD_NUMBER})" \
               --notes "main ${GITHUB_SHA:0:7} 자동 빌드. 운영 배포용이 아니다."
           else
+            # 노트는 그 사이 머지된 PR 제목으로 GitHub 이 채운다. 다만 시작점을 직접
+            # 준다 — 안 주면 직전 릴리스인 dev 프리릴리스를 기준으로 잡아 버린다.
+            PREV=$(git tag -l 'v*' --sort=-creatordate | grep -vxF "${TAG}" | head -1)
+            NOTES=(--generate-notes)
+            [ -n "${PREV}" ] && NOTES+=(--notes-start-tag "${PREV}")
             # 재실행 대비 — 릴리스가 이미 있으면 파일만 덮어쓴다.
-            gh release create "${TAG}" upload/* \
-              --title "${TAG}" \
-              --notes "버전 ${VERSION} (build ${BUILD_NUMBER})" \
+            gh release create "${TAG}" upload/* --title "${TAG}" "${NOTES[@]}" \
               || gh release upload "${TAG}" upload/* --clobber
           fi
 
