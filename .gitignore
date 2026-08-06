@@ -126,3 +126,7 @@ app.*.symbols
 .vscode/
 # macOS
 .DS_Store
+
+# CI 가 만드는 테스트 리포트 (로컬에서 돌려도 커밋되지 않게)
+test-machine.json
+test-results.xml

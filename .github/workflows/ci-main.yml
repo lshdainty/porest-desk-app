@@ -2,15 +2,18 @@ name: CI
 
 on:
   pull_request:
-    branches: [ main ]
+    branches: [ main, master ]
   push:
-    branches: [ main ]
+    branches: [ main, master ]
     tags: [ 'v*' ]
 
-# 릴리스에 APK·IPA 를 붙이려면 contents: write 가 필요하다.
+# contents: 릴리스에 APK·IPA 를 붙인다. checks/pull-requests: 테스트 결과를 체크와
+# PR 주석으로 남긴다(다른 porest 백엔드와 같은 구성).
 # 서버로는 아무것도 밀지 않는다 — Jenkins 가 릴리스에서 가져간다.
 permissions:
   contents: write
+  checks: write
+  pull-requests: write
 
 env:
   # 로컬(.fvmrc)과 같은 버전으로 못 박는다. CI 만 최신 stable 을 쓰면 SDK 가 올라갈
@@ -32,8 +35,38 @@ jobs:
       - run: flutter pub get
       - name: Analyze
         run: flutter analyze lib/
+
+      # --machine 은 결과를 JSON 으로 뱉는다. 사람이 읽을 로그는 아래 발행 단계가
+      # 대신 만들어 주고, 실패 판정은 여기 종료 코드가 그대로 한다.
       - name: Test
-        run: flutter test
+        run: flutter test --machine --coverage > test-machine.json
+
+      # 아래 셋은 테스트가 깨져도 돌아야 한다(if: always()). 깨졌을 때가 결과를
+      # 가장 보고 싶은 때다.
+      - name: Convert test results
+        if: always()
+        run: |
+          dart pub global activate junitreport
+          "$HOME/.pub-cache/bin/tojunit" --input test-machine.json --output test-results.xml
+
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          files: test-results.xml
+
+      - name: If the test fails, register a check comment in the failed code line
+        uses: mikepenz/action-junit-report@v4
+        if: always()
+        with:
+          report_paths: test-results.xml
+          token: ${{ github.token }}
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage/lcov.info
 
   # ── 버전 — 한 곳에서 정해 두 빌드가 같은 값을 쓴다.
   #
