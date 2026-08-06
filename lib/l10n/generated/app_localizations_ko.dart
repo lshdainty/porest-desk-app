@@ -1822,6 +1822,14 @@ class AppLocalizationsKo extends AppLocalizations {
   String get transferAutoDefault => '자동으로 만들어진 이체예요. 원래 거래를 지우면 함께 사라집니다.';
 
   @override
+  String updateAvailable(String version) {
+    return '$version 버전이 나왔어요';
+  }
+
+  @override
+  String get updateAvailableDesc => '눌러서 내려받아 설치하세요';
+
+  @override
   String get expScheduled => '예정';
 
   @override

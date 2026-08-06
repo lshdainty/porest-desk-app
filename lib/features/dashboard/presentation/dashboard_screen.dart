@@ -6,6 +6,8 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:porest_desk_app/core/update/app_update.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
@@ -96,6 +98,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         padding: EdgeInsets.fromLTRB(
             PSpace.x24, PSpace.x20, PSpace.x24, pTabBarBottomInset(context)),
         children: [
+          // 새 버전 알림 — 스토어를 안 쓰니 자동 업데이트가 없다. 여기서만 알 수 있다.
+          const _UpdateBanner(),
           _BalanceHero(
               summaryAsync: summaryAsync,
               masked: ref.watch(hideCardProvider('home.netWorth')),
@@ -1390,3 +1394,56 @@ class _TodaySpendCard extends StatelessWidget {
   }
 }
 
+/// 새 버전이 올라와 있으면 알린다. 없거나 못 읽으면 아무것도 그리지 않는다.
+class _UpdateBanner extends ConsumerWidget {
+  const _UpdateBanner();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final release = ref.watch(appUpdateProvider).value;
+    if (release == null) return const SizedBox.shrink();
+
+    final t = context.tokens;
+    final l = AppLocalizations.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: PSpace.x20),
+      child: InkWell(
+        borderRadius: PRadius.brLg,
+        // 앱 안에서 받으면 설치 권한 처리가 번거롭다 — 브라우저에 넘긴다.
+        onTap: () => launchUrl(
+          Uri.parse(release.downloadUrl),
+          mode: LaunchMode.externalApplication,
+        ),
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+              horizontal: PSpace.x16, vertical: PSpace.x12),
+          decoration: BoxDecoration(
+            color: t.bgBrandSubtle,
+            borderRadius: PRadius.brLg,
+          ),
+          child: Row(
+            children: [
+              Icon(LucideIcons.download, size: 18, color: t.fgBrand),
+              const SizedBox(width: PSpace.x12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(l.updateAvailable(release.version),
+                        style: PTypo.bodySm.copyWith(
+                            color: t.fgPrimary,
+                            fontWeight: PFontWeight.semi)),
+                    const SizedBox(height: 2),
+                    Text(l.updateAvailableDesc,
+                        style: PTypo.caption.copyWith(color: t.fgSecondary)),
+                  ],
+                ),
+              ),
+              Icon(LucideIcons.chevronRight, size: 16, color: t.fgTertiary),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

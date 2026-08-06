@@ -950,6 +950,11 @@
   "transferAutoTradeSettlement": "Created automatically to cover a shortfall when buying. It disappears when the purchase is cancelled.",
   "transferAutoCardPayment": "Created by a card auto-payment. It is tied to the billing cycle and cannot be edited separately.",
   "transferAutoDefault": "Created automatically. It disappears when the original is deleted.",
+  "updateAvailable": "Version {version} is available",
+  "@updateAvailable": {
+    "placeholders": { "version": { "type": "String" } }
+  },
+  "updateAvailableDesc": "Tap to download and install",
   "expScheduled": "Scheduled",
   "expDeleteRefundWarn": "{count} linked refund(s) ({amount} KRW) will also be deleted",
   "@expDeleteRefundWarn": {
