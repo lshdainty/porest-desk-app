@@ -943,6 +943,18 @@
   "transferWithdrawn": "출금 합계",
   "transferDeleted": "이체를 삭제했어요",
   "transferDeleteConfirm": "이 이체를 삭제할까요? 양쪽 자산의 잔액이 되돌아갑니다",
+  "transferAutoTradeSettlement": "주식을 살 때 예수금이 모자라 자동으로 만들어진 이체예요. 매수를 취소하면 함께 사라집니다.",
+  "transferAutoCardPayment": "카드 자동결제로 만들어진 이체예요. 청구 회차와 묶여 있어 따로 고칠 수 없습니다.",
+  "transferAutoDefault": "자동으로 만들어진 이체예요. 원래 거래를 지우면 함께 사라집니다.",
+  "expScheduled": "예정",
+  "expDeleteRefundWarn": "이 거래에 달린 환불 {count}건({amount}원)도 함께 사라져요",
+  "@expDeleteRefundWarn": {
+    "placeholders": { "count": { "type": "int" }, "amount": { "type": "String" } }
+  },
+  "expRefundLinked": "환불 {count}건 · {amount}원이 이 거래에 묶여 있어요",
+  "@expRefundLinked": {
+    "placeholders": { "count": { "type": "int" }, "amount": { "type": "String" } }
+  },
   "expTypeTransfer": "이체",
   "expTransferFrom": "보낼 자산",
   "expTransferTo": "받을 자산",

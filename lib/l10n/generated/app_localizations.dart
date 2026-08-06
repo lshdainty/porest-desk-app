@@ -3446,6 +3446,42 @@ abstract class AppLocalizations {
   /// **'이 이체를 삭제할까요? 양쪽 자산의 잔액이 되돌아갑니다'**
   String get transferDeleteConfirm;
 
+  /// No description provided for @transferAutoTradeSettlement.
+  ///
+  /// In ko, this message translates to:
+  /// **'주식을 살 때 예수금이 모자라 자동으로 만들어진 이체예요. 매수를 취소하면 함께 사라집니다.'**
+  String get transferAutoTradeSettlement;
+
+  /// No description provided for @transferAutoCardPayment.
+  ///
+  /// In ko, this message translates to:
+  /// **'카드 자동결제로 만들어진 이체예요. 청구 회차와 묶여 있어 따로 고칠 수 없습니다.'**
+  String get transferAutoCardPayment;
+
+  /// No description provided for @transferAutoDefault.
+  ///
+  /// In ko, this message translates to:
+  /// **'자동으로 만들어진 이체예요. 원래 거래를 지우면 함께 사라집니다.'**
+  String get transferAutoDefault;
+
+  /// No description provided for @expScheduled.
+  ///
+  /// In ko, this message translates to:
+  /// **'예정'**
+  String get expScheduled;
+
+  /// No description provided for @expDeleteRefundWarn.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 거래에 달린 환불 {count}건({amount}원)도 함께 사라져요'**
+  String expDeleteRefundWarn(int count, String amount);
+
+  /// No description provided for @expRefundLinked.
+  ///
+  /// In ko, this message translates to:
+  /// **'환불 {count}건 · {amount}원이 이 거래에 묶여 있어요'**
+  String expRefundLinked(int count, String amount);
+
   /// No description provided for @expTypeTransfer.
   ///
   /// In ko, this message translates to:

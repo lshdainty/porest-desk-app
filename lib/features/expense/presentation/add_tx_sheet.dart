@@ -31,6 +31,7 @@ import 'package:porest_desk_app/features/asset/domain/asset.dart';
 import 'package:porest_desk_app/features/preset/application/preset_providers.dart';
 import 'package:porest_desk_app/features/preset/domain/expense_template.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
+import 'package:porest_desk_app/features/asset/domain/asset_transfer.dart';
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
 import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
 import 'package:porest_desk_app/features/expense_split/application/expense_split_providers.dart';
@@ -51,24 +52,28 @@ void showAddTxSheet(
   /// 환불 모드 — 이 지출의 환불을 기록한다.
   /// 수입으로 들어가되 원거래에 묶여 통계에서 지출을 상계한다(수입으로 부풀지 않는다).
   Expense? refundOf,
+  /// 이체 편집 모드 — 서버가 이자 지출·잔액 이력을 되돌렸다 다시 만든다(rowId 유지).
+  AssetTransfer? editTransfer,
 }) {
   final controller = PSheetController();
   final l = AppLocalizations.of(context);
+  final isEdit = edit != null || editTransfer != null;
   showPSheet<void>(
     context,
-    title: edit != null
+    title: isEdit
         ? l.expEdit
         : (refundOf != null ? l.expRefundRecord : l.expAdd),
     contentBuilder: (ctx, scrollCtrl) => _AddTxBody(
       defaultDate: defaultDate,
       edit: edit,
       refundOf: refundOf,
+      editTransfer: editTransfer,
       scrollController: scrollCtrl,
       controller: controller,
     ),
     footerBuilder: (ctx) => PSheetFooter(
       controller: controller,
-      submitLabel: edit != null ? l.actionSave : l.expAddShort,
+      submitLabel: isEdit ? l.actionSave : l.expAddShort,
     ),
   ).whenComplete(controller.dispose);
 }
@@ -78,12 +83,14 @@ class _AddTxBody extends ConsumerStatefulWidget {
     this.defaultDate,
     this.edit,
     this.refundOf,
+    this.editTransfer,
     required this.scrollController,
     required this.controller,
   });
   final String? defaultDate;
   final Expense? edit;
   final Expense? refundOf;
+  final AssetTransfer? editTransfer;
   final ScrollController scrollController;
   final PSheetController controller;
 
@@ -111,7 +118,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
       _effectiveSplits.isNotEmpty &&
       _input.amountInt != _splitSum;
 
-  bool get _isEdit => widget.edit != null;
+  bool get _isEdit => widget.edit != null || widget.editTransfer != null;
 
   @override
   void initState() {
@@ -119,7 +126,14 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
     final e = widget.edit;
     DateTime date;
     TimeOfDay time = TimeOfDay.now();
-    if (e?.expenseDate != null) {
+    final tr = widget.editTransfer;
+    if (tr?.transferDate != null) {
+      date = parseIsoDate(tr!.transferDate!.substring(0, 10));
+      final m = RegExp(r'[T ](\d{2}):(\d{2})').firstMatch(tr.transferDate!);
+      if (m != null) {
+        time = TimeOfDay(hour: int.parse(m.group(1)!), minute: int.parse(m.group(2)!));
+      }
+    } else if (e?.expenseDate != null) {
       date = parseIsoDate(e!.expenseDate!.substring(0, 10));
       // 시간 추출 (T 또는 공백 뒤 HH:mm)
       final raw = e.expenseDate!;
@@ -139,18 +153,28 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
     // 부분 환불이면 금액만 고치면 된다.
     final r = widget.refundOf;
     _input = _TxInputController(
-      type: r != null ? 'INCOME' : (e?.expenseType ?? 'EXPENSE'),
-      amount: e != null
-          ? e.amount.toString()
-          : (r != null ? r.amount.toString() : ''),
-      memo: e?.description ?? '',
+      type: tr != null ? 'TRANSFER' : (r != null ? 'INCOME' : (e?.expenseType ?? 'EXPENSE')),
+      amount: tr != null
+          ? tr.amount.toString()
+          : e != null
+              ? e.amount.toString()
+              : (r != null ? r.amount.toString() : ''),
+      memo: tr?.description ?? e?.description ?? '',
       merchant: e?.merchant ?? r?.merchant ?? '',
       paymentMethod: e?.paymentMethod ?? r?.paymentMethod ?? '',
       categoryRowId: e?.categoryRowId ?? r?.categoryRowId,
-      assetRowId: e?.assetRowId ?? r?.assetRowId,
+      // 이체는 출금 자산이 assetRowId, 입금 자산이 toAssetRowId 다.
+      assetRowId: tr?.fromAssetRowId ?? e?.assetRowId ?? r?.assetRowId,
       date: date,
       time: time,
     );
+    if (tr != null) {
+      _input.toAssetRowId = tr.toAssetRowId;
+      if ((tr.fee ?? 0) > 0) _input.feeCtrl.text = tr.fee.toString();
+      if ((tr.interestAmount ?? 0) > 0) {
+        _input.interestCtrl.text = tr.interestAmount.toString();
+      }
+    }
     // 편집·환불은 원거래의 통화를 승계한다 — 해외 결제를 고치는데 원화로 되돌아가면
     // 원 통화 기록이 조용히 지워진다.
     final src = e ?? r;
@@ -267,15 +291,29 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
             ? int.tryParse(_input.interestCtrl.text.replaceAll(',', ''))
             : null;
         final aRepo = await ref.read(assetRepositoryProvider.future);
-        await aRepo.createTransfer(
-          fromAssetRowId: _input.assetRowId!,
-          toAssetRowId: _input.toAssetRowId!,
-          amount: amount,
-          fee: fee,
-          interestAmount: interest,
-          description: desc,
-          transferDate: dateStr,
-        );
+        final editing = widget.editTransfer;
+        if (editing != null) {
+          await aRepo.updateTransfer(
+            rowId: editing.rowId,
+            fromAssetRowId: _input.assetRowId!,
+            toAssetRowId: _input.toAssetRowId!,
+            amount: amount,
+            fee: fee,
+            interestAmount: interest,
+            description: desc,
+            transferDate: dateStr,
+          );
+        } else {
+          await aRepo.createTransfer(
+            fromAssetRowId: _input.assetRowId!,
+            toAssetRowId: _input.toAssetRowId!,
+            amount: amount,
+            fee: fee,
+            interestAmount: interest,
+            description: desc,
+            transferDate: dateStr,
+          );
+        }
         ref.invalidate(monthExpensesProvider((year: d.year, month: d.month)));
         invalidateAssetsAfterExpense(ref);
         if (!mounted) return;
@@ -381,10 +419,16 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
 
   Future<void> _confirmDelete() async {
     final l = AppLocalizations.of(context);
+    // 환불이 달려 있으면 그것도 함께 사라진다 — 모르고 지우면 지출 총액이 조용히
+    // 바뀌고 원인을 찾을 수 없다.
+    final refundCount = widget.edit?.refundCount ?? 0;
+    final message = refundCount > 0
+        ? '${l.expDeleteConfirm}\n\n${l.expDeleteRefundWarn(refundCount, krw(widget.edit!.refundedAmount))}'
+        : l.expDeleteConfirm;
     final ok = await showPConfirmDialog(
       context,
       title: l.expDelete,
-      message: l.expDeleteConfirm,
+      message: message,
       confirmLabel: l.actionDelete,
       destructive: true,
     );

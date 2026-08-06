@@ -1797,6 +1797,30 @@ class AppLocalizationsKo extends AppLocalizations {
   String get transferDeleteConfirm => '이 이체를 삭제할까요? 양쪽 자산의 잔액이 되돌아갑니다';
 
   @override
+  String get transferAutoTradeSettlement =>
+      '주식을 살 때 예수금이 모자라 자동으로 만들어진 이체예요. 매수를 취소하면 함께 사라집니다.';
+
+  @override
+  String get transferAutoCardPayment =>
+      '카드 자동결제로 만들어진 이체예요. 청구 회차와 묶여 있어 따로 고칠 수 없습니다.';
+
+  @override
+  String get transferAutoDefault => '자동으로 만들어진 이체예요. 원래 거래를 지우면 함께 사라집니다.';
+
+  @override
+  String get expScheduled => '예정';
+
+  @override
+  String expDeleteRefundWarn(int count, String amount) {
+    return '이 거래에 달린 환불 $count건($amount원)도 함께 사라져요';
+  }
+
+  @override
+  String expRefundLinked(int count, String amount) {
+    return '환불 $count건 · $amount원이 이 거래에 묶여 있어요';
+  }
+
+  @override
   String get expTypeTransfer => '이체';
 
   @override

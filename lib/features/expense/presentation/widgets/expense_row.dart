@@ -13,6 +13,15 @@ import 'package:porest_desk_app/features/expense/domain/expense.dart';
 import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
 import 'package:porest_desk_app/features/expense/presentation/tx_detail_dialog.dart';
 
+/// 아직 오지 않은 거래인가 — 서버가 합계에서 빼는 기준과 같다.
+bool _isScheduled(String? expenseDate) {
+  if (expenseDate == null) return false;
+  final normalized =
+      expenseDate.length == 10 ? '${expenseDate}T23:59:59' : expenseDate;
+  return DateTime.parse(normalized).isAfter(DateTime.now());
+}
+
+
 class ExpenseRow extends StatelessWidget {
   const ExpenseRow({
     required this.expense,
@@ -76,6 +85,24 @@ class ExpenseRow extends StatelessWidget {
                           maxLines: 1, overflow: TextOverflow.ellipsis,
                         ),
                       ),
+                      // 아직 오지 않은 거래(반복거래 선생성분) — 합계에는 안 들어간다.
+                      if (_isScheduled(expense.expenseDate)) ...[
+                        const SizedBox(width: 5),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 5, vertical: 1),
+                          decoration: BoxDecoration(
+                            color: t.bgMuted,
+                            borderRadius: PRadius.brXs,
+                          ),
+                          child: Text(
+                            AppLocalizations.of(context).expScheduled,
+                            style: PTypo.micro.copyWith(
+                                color: t.fgTertiary,
+                                fontWeight: PFontWeight.bold),
+                          ),
+                        ),
+                      ],
                       // 분할 거래 표시 — 분할 아이콘 + 개수(쉬운 식별).
                       if (expense.splitCategoryRowIds.isNotEmpty) ...[
                         const SizedBox(width: 5),

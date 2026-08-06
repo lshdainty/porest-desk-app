@@ -286,6 +286,37 @@ class AssetRepository {
     }
   }
 
+  /// 이체 수정 — 서버가 이자 지출·잔액 이력을 되돌렸다 다시 만든다. rowId 는 유지된다.
+  ///
+  /// 시스템이 만든 이체(매수 충당·카드 자동결제)는 서버가 거부한다.
+  Future<void> updateTransfer({
+    required int rowId,
+    required int fromAssetRowId,
+    required int toAssetRowId,
+    required int amount,
+    int? fee,
+    int? interestAmount,
+    String? description,
+    required String transferDate,
+  }) async {
+    try {
+      await _dio.put<dynamic>(
+        '/asset-transfer/$rowId',
+        data: {
+          'fromAssetRowId': fromAssetRowId,
+          'toAssetRowId': toAssetRowId,
+          'amount': amount,
+          'fee': ?fee,
+          'interestAmount': ?interestAmount,
+          'description': ?description,
+          'transferDate': transferDate,
+        },
+      );
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
   /// 매수·매도 등록 — 예수금·보유 수량·원가·실현손익이 함께 움직인다.
   ///
   /// [amount] 는 수수료를 뺀 거래대금이다. 수수료는 매수면 취득원가에 들어가고
