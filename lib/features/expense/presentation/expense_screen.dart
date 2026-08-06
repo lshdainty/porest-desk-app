@@ -22,6 +22,7 @@ import 'package:porest_desk_app/shared/widgets/p_chart_tooltip.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
+import 'package:porest_desk_app/features/expense/domain/expense_aggregates.dart';
 import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
 import 'package:porest_desk_app/features/expense/presentation/add_tx_sheet.dart';
 import 'package:porest_desk_app/features/expense/presentation/filter_dialog.dart';
@@ -32,36 +33,6 @@ import 'package:porest_desk_app/features/asset/application/asset_providers.dart'
 import 'package:porest_desk_app/features/asset/domain/asset_transfer.dart';
 import 'package:porest_desk_app/shared/widgets/p_tab_bar.dart';
 
-/// 환불(INCOME + 원거래 지정)은 수입이 아니라 지출 상계다 — 서버 집계와 같은 규칙.
-bool _isRefundTx(Expense e) =>
-    e.expenseType == 'INCOME' && e.refundOfExpenseRowId != null;
-
-/// 아직 오지 않은 거래인가 — 서버가 합계에서 빼는 기준과 같다.
-bool _isScheduledTx(String? expenseDate) {
-  if (expenseDate == null) return false;
-  final normalized =
-      expenseDate.length == 10 ? '${expenseDate}T23:59:59' : expenseDate;
-  return DateTime.parse(normalized).isAfter(DateTime.now());
-}
-
-/// 합계에 넣을 거래 — 아직 안 온 건 뺀다.
-Iterable<Expense> _countable(Iterable<Expense> all) =>
-    all.where((e) => !_isScheduledTx(e.expenseDate));
-
-/// 수입 합계 (환불 제외). 지출 합계는 환불을 음수로 상계한다.
-int _incomeSum(Iterable<Expense> all) => _countable(all)
-    .where((e) => e.expenseType == 'INCOME' && !_isRefundTx(e))
-    .fold<int>(0, (s, e) => s + e.amount.abs());
-
-int _expenseSum(Iterable<Expense> all) => _countable(all).fold<int>(
-      0,
-      (s, e) => s +
-          (_isRefundTx(e)
-              ? -e.amount.abs()
-              : e.expenseType == 'EXPENSE'
-                  ? e.amount.abs()
-                  : 0),
-    );
 
 
 /// 가계부 화면 — 백엔드 `/expenses` 직접 호출.
@@ -355,16 +326,16 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                     );
 
               // 환불은 지출 상계, 아직 안 온 건 제외 — 서버 월 요약과 같은 규칙.
-              final monthIncome = _incomeSum(raw);
-              final monthExpense = _expenseSum(raw);
+              final monthIncome = incomeSum(raw);
+              final monthExpense = expenseSum(raw);
 
               // 일별 합계 — 캘린더 셀 밑 금액 (필터 적용분 기준).
               final byDay = <String, ({int out, int inn})>{};
-              for (final e in _countable(filtered)) {
+              for (final e in countableTx(filtered)) {
                 final d = e.expenseDateOnly ?? '';
                 final cur = byDay[d] ?? (out: 0, inn: 0);
                 // 환불은 그날 지출에서 빠진다 — 파랑 '+' 로 그리면 월 헤더와 어긋난다.
-                byDay[d] = _isRefundTx(e)
+                byDay[d] = isRefundTx(e)
                     ? (out: cur.out - e.amount.abs(), inn: cur.inn)
                     : e.expenseType == 'EXPENSE'
                         ? (out: cur.out + e.amount.abs(), inn: cur.inn)
@@ -696,9 +667,8 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
   ) {
     final subStyle = PTypo.bodySm.copyWith(color: t.fgSecondary);
     if (raw.isEmpty) return Text(l.txmInsightNone, style: subStyle);
-    final prevOut = (prevRaw ?? const <Expense>[])
-        .where((e) => e.expenseType == 'EXPENSE')
-        .fold<int>(0, (s, e) => s + e.amount);
+    // 이번 달 지출(monthExpense)과 비교하므로 같은 규칙으로 세야 한다.
+    final prevOut = expenseSum(prevRaw ?? const <Expense>[]);
     if (prevOut > 0) {
       final diff = prevOut - monthExpense;
       final man = (diff.abs() / 10000).round();
@@ -724,8 +694,13 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
     }
     // 최다 지출 카테고리 fallback.
     final byCat = <int?, int>{};
-    for (final e in raw.where((e) => e.expenseType == 'EXPENSE')) {
-      byCat[e.categoryRowId] = (byCat[e.categoryRowId] ?? 0) + e.amount.abs();
+    // 환불은 그 카테고리 지출을 깎는다 — 안 그러면 전액 환불한 카테고리가 1위가 된다.
+    for (final e in countableTx(raw)) {
+      if (isRefundTx(e)) {
+        byCat[e.categoryRowId] = (byCat[e.categoryRowId] ?? 0) - e.amount.abs();
+      } else if (e.expenseType == 'EXPENSE') {
+        byCat[e.categoryRowId] = (byCat[e.categoryRowId] ?? 0) + e.amount.abs();
+      }
     }
     if (byCat.isEmpty) return null;
     final topId = (byCat.entries.toList()..sort((a, b) => b.value.compareTo(a.value))).first.key;
@@ -1163,8 +1138,8 @@ class _DayGroup extends ConsumerWidget {
     final rel = ds == todayStr ? l.txmToday : ds == yesterdayStr ? l.txmYesterday : null;
     final label = formatDay(date);
     // 월 헤더와 같은 규칙 — 환불 상계 + 예정 제외.
-    final dayExpense = _expenseSum(items);
-    final dayIncome = _incomeSum(items);
+    final dayExpense = expenseSum(items);
+    final dayIncome = incomeSum(items);
     final categories = ref.watch(categoriesProvider).value ?? const [];
 
     // 카드 다이어트 — design `.m-scroll .tx-list`: day-head(라벨, 아래 10) + 플랫 행.

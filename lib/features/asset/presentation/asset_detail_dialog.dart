@@ -27,6 +27,7 @@ import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/features/card/application/card_providers.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
+import 'package:porest_desk_app/features/expense/domain/expense_aggregates.dart';
 import 'package:porest_desk_app/features/expense/presentation/tx_detail_dialog.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
 import 'package:porest_desk_app/features/stocks/application/stocks_providers.dart';
@@ -1234,12 +1235,9 @@ class _DayGroupHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final d = DateTime.tryParse(dayKey);
     final label = d == null ? null : formatDay(d);
-    final dayExpense = items
-        .where((e) => e.expenseType == 'EXPENSE')
-        .fold<int>(0, (s, e) => s + e.amount.abs());
-    final dayIncome = items
-        .where((e) => e.expenseType == 'INCOME')
-        .fold<int>(0, (s, e) => s + e.amount.abs());
+    // 서버 집계와 같은 규칙 — 환불 상계 + 예정 제외.
+    final dayExpense = expenseSum(items);
+    final dayIncome = incomeSum(items);
     return Row(
       children: [
         Text(

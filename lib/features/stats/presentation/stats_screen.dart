@@ -27,6 +27,7 @@ import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
 import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
+import 'package:porest_desk_app/features/expense/domain/expense_aggregates.dart';
 import 'package:porest_desk_app/features/stats/application/stats_providers.dart';
 import 'package:porest_desk_app/features/stats/domain/stats_models.dart';
 import 'package:porest_desk_app/shared/widgets/p_tab_bar.dart';
@@ -1999,18 +2000,14 @@ List<_TrendPoint> _computeTrendData(
     }
     // 서버 집계와 같은 규칙 — 환불은 지출 상계, 아직 안 온 건 세지 않는다.
     // 안 그러면 같은 화면의 저축률 위젯(서버 값)과 선 그래프가 어긋난다.
-    final now = DateTime.now();
     for (final e in exps) {
       final raw = e.expenseDate ?? '';
       if (raw.length < 10) continue;
       final key = raw.substring(0, 10);
       final cur = byDate[key];
       if (cur == null) continue;
-      final at = DateTime.parse(raw.length == 10 ? '${raw}T23:59:59' : raw);
-      if (at.isAfter(now)) continue;
-      final isRefund =
-          e.expenseType == 'INCOME' && e.refundOfExpenseRowId != null;
-      if (isRefund) {
+      if (isScheduledTx(raw)) continue;
+      if (isRefundTx(e)) {
         byDate[key] = (
           income: cur.income,
           expense: cur.expense - e.amount.abs(),
