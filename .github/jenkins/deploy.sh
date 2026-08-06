@@ -47,10 +47,18 @@ fetch "version.json"
 cp "${WORK}/porest-desk-${VERSION}.apk" "${WORK}/porest-desk-latest.apk"
 cp "${WORK}/porest-desk-${VERSION}.ipa" "${WORK}/porest-desk-latest.ipa"
 
+# Jenkins 컨테이너가 root 로 돌아서 그냥 두면 파일이 root 소유로 남는다. 배포 디렉토리의
+# 소유자를 그대로 물려받게 한다 — 계정을 여기 박아 두지 않아도 서버 설정을 따라간다.
+# (chown 은 root 만 할 수 있으니 root 가 아닐 때는 건드리지 않는다)
+OWNER=()
+if [ "$(id -u)" = 0 ]; then
+  OWNER=(-o "$(stat -c '%u' "$DEST")" -g "$(stat -c '%g' "$DEST")")
+fi
+
 echo "배치: ${DEST}"
-install -m 644 "${WORK}"/*.apk "${WORK}"/*.ipa "$DEST/"
+install -m 644 "${OWNER[@]}" "${WORK}"/*.apk "${WORK}"/*.ipa "$DEST/"
 # version.json 을 마지막에 놓는다 — 파일이 다 놓이기 전에 앱이 새 버전을 보고 404 를 맞는 창을 없앤다.
-install -m 644 "${WORK}/version.json" "$DEST/"
+install -m 644 "${OWNER[@]}" "${WORK}/version.json" "$DEST/"
 
 echo "완료: ${CHANNEL} ← ${TAG} (${VERSION})"
 ls -lh "$DEST"
