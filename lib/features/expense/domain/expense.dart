@@ -31,6 +31,10 @@ abstract class Expense with _$Expense {
     String? originalCurrency,
     /// 적용 환율 (원 통화 1단위당 원화). amount ≈ originalAmount × exchangeRate.
     double? exchangeRate,
+    /// 이 거래에 달린 환불 건수·합계. 지우면 함께 사라지므로 화면이 미리 알린다.
+    @Default(0) int refundCount,
+    @Default(0) int refundedAmount,
+
     /// 시스템이 만든 거래의 출처 — `TRADE_REALIZED`(매도 실현손익) /
     /// `TRANSFER_INTEREST`(이체 이자). null 이면 손으로 쓴 거래다.
     ///

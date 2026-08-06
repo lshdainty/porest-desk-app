@@ -10,6 +10,7 @@ class AssetTransfer {
     required this.amount,
     this.fee,
     this.interestAmount,
+    this.autoSource,
     this.principalAmount,
     this.description,
     this.transferDate,
@@ -28,6 +29,12 @@ class AssetTransfer {
   /// 이자 (대출 상환 시). amount 중 이 금액은 부채를 줄이지 않고 지출로 잡힌다.
   final int? interestAmount;
 
+  /// 시스템이 만든 이체의 출처 — `TRADE_SETTLEMENT`(매수 예수금 충당) /
+  /// `CARD_PAYMENT`(카드 자동결제). null 이면 사용자가 직접 만든 이체다.
+  ///
+  /// 값이 있으면 금액이 원본(매수·청구)과 묶여 있어 고칠 수 없다.
+  final String? autoSource;
+
   /// 원금 = amount − interestAmount. 입금 자산(대출)에 실제로 반영된 금액.
   final int? principalAmount;
   final String? description;
@@ -45,6 +52,7 @@ class AssetTransfer {
       amount: (json['amount'] as num).toInt(),
       fee: (json['fee'] as num?)?.toInt(),
       interestAmount: (json['interestAmount'] as num?)?.toInt(),
+      autoSource: json['autoSource'] as String?,
       principalAmount: (json['principalAmount'] as num?)?.toInt(),
       description: json['description'] as String?,
       transferDate: json['transferDate'] as String?,

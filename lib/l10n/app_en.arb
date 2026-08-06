@@ -940,6 +940,18 @@
   "transferWithdrawn": "Total withdrawn",
   "transferDeleted": "Transfer deleted",
   "transferDeleteConfirm": "Delete this transfer? Both assets' balances will be restored.",
+  "transferAutoTradeSettlement": "Created automatically to cover a shortfall when buying. It disappears when the purchase is cancelled.",
+  "transferAutoCardPayment": "Created by a card auto-payment. It is tied to the billing cycle and cannot be edited separately.",
+  "transferAutoDefault": "Created automatically. It disappears when the original is deleted.",
+  "expScheduled": "Scheduled",
+  "expDeleteRefundWarn": "{count} linked refund(s) ({amount} KRW) will also be deleted",
+  "@expDeleteRefundWarn": {
+    "placeholders": { "count": { "type": "int" }, "amount": { "type": "String" } }
+  },
+  "expRefundLinked": "{count} refund(s) · {amount} KRW linked to this transaction",
+  "@expRefundLinked": {
+    "placeholders": { "count": { "type": "int" }, "amount": { "type": "String" } }
+  },
   "expTypeTransfer": "Transfer",
   "expTransferFrom": "From",
   "expTransferTo": "To",

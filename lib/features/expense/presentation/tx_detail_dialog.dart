@@ -342,6 +342,31 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
             ),
           ],
         ),
+        // 환불 연결 — 이 거래에 달린 환불이 있으면 알린다. 지우면 함께 사라지고,
+        // 지출 총액도 상계된 값으로 잡혀 있다는 걸 여기서만 알 수 있다.
+        if (e.refundCount > 0)
+          PDetailSection(
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                  horizontal: PSpace.x12, vertical: PSpace.x8),
+              decoration: BoxDecoration(
+                color: t.bgMuted,
+                borderRadius: PRadius.brMd,
+              ),
+              child: Row(
+                children: [
+                  Icon(LucideIcons.undo2, size: 15, color: t.fgTertiary),
+                  const SizedBox(width: PSpace.x8),
+                  Expanded(
+                    child: Text(
+                      l.expRefundLinked(e.refundCount, krw(e.refundedAmount)),
+                      style: PTypo.bodySm.copyWith(color: t.fgSecondary),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         // Quick actions — 원형 아이콘(PDetailQuickAction, 연결 시 active)
         PDetailSection(
           child: Row(

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/features/expense/presentation/add_tx_sheet.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
 import 'package:porest_desk_app/features/asset/domain/asset_transfer.dart';
@@ -13,10 +15,13 @@ import 'package:porest_desk_app/features/expense/application/expense_providers.d
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 
-/// 이체 상세 — 보기 + 삭제 (web `TransferDetailDialog` 미러).
+/// 이체 상세 — 보기 + 수정 + 삭제 (web `TransferDetailDialog` 미러).
 ///
-/// 이체는 수정 API 가 없다(생성/삭제만). 값을 바꾸려면 지우고 다시 넣는 방식이라
-/// 편집 버튼 대신 삭제만 둔다 — 없는 기능을 약속하지 않기 위해서.
+/// 수정·삭제는 서버가 이자 지출·잔액 이력을 되돌렸다 다시 만든다. rowId 는 유지되므로
+/// 이 이체를 가리키던 참조가 끊기지 않는다.
+///
+/// 시스템이 만든 이체(매수 예수금 충당·카드 자동결제)는 금액이 원본과 묶여 있어 고칠 수
+/// 없다 — 버튼을 감추고 왜 그런지 적어 둔다.
 void showTransferDetailSheet(BuildContext context, AssetTransfer transfer) {
   final l = AppLocalizations.of(context);
   final controller = PSheetController();
@@ -30,11 +35,23 @@ void showTransferDetailSheet(BuildContext context, AssetTransfer transfer) {
     ),
     footerBuilder: (ctx) => AnimatedBuilder(
       animation: controller,
-      builder: (c, _) => PViewFooter(
-        onDelete: controller.onDelete,
-        deleting: controller.submitting,
-        onConfirm: () => Navigator.of(c).pop(),
-      ),
+      builder: (c, _) {
+        // 시스템이 만든 이체는 고치거나 지울 수 없다.
+        final locked = transfer.autoSource != null;
+        return PViewFooter(
+          onDelete: locked ? null : controller.onDelete,
+          deleting: controller.submitting,
+          onEdit: locked
+              ? null
+              : () {
+                  // 시트 콜백은 root navigator 로 닫는다 — caller context 로 pop 하면
+                  // 페이지가 팝돼 스택이 소진된다.
+                  Navigator.of(c, rootNavigator: true).pop();
+                  showAddTxSheet(context, editTransfer: transfer);
+                },
+          onConfirm: () => Navigator.of(c).pop(),
+        );
+      },
     ),
   ).whenComplete(controller.dispose);
 }
@@ -118,6 +135,25 @@ class _TransferDetailBodyState extends ConsumerState<_TransferDetailBody> {
       controller: widget.scrollController,
       padding: const EdgeInsets.symmetric(vertical: PSpace.x8),
       children: [
+        // 왜 고칠 수 없는지 알려 준다 — 버튼만 없으면 고장으로 보인다.
+        if (tr.autoSource != null)
+          Container(
+            margin: const EdgeInsets.only(bottom: PSpace.x8),
+            padding: const EdgeInsets.symmetric(
+                horizontal: PSpace.x12, vertical: PSpace.x8),
+            decoration: BoxDecoration(
+              color: context.tokens.bgMuted,
+              borderRadius: PRadius.brMd,
+            ),
+            child: Text(
+              switch (tr.autoSource) {
+                'TRADE_SETTLEMENT' => l.transferAutoTradeSettlement,
+                'CARD_PAYMENT' => l.transferAutoCardPayment,
+                _ => l.transferAutoDefault,
+              },
+              style: PTypo.caption.copyWith(color: context.tokens.fgTertiary),
+            ),
+          ),
         for (final (label, value) in rows)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: PSpace.x8),

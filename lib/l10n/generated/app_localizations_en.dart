@@ -1819,6 +1819,31 @@ class AppLocalizationsEn extends AppLocalizations {
       'Delete this transfer? Both assets\' balances will be restored.';
 
   @override
+  String get transferAutoTradeSettlement =>
+      'Created automatically to cover a shortfall when buying. It disappears when the purchase is cancelled.';
+
+  @override
+  String get transferAutoCardPayment =>
+      'Created by a card auto-payment. It is tied to the billing cycle and cannot be edited separately.';
+
+  @override
+  String get transferAutoDefault =>
+      'Created automatically. It disappears when the original is deleted.';
+
+  @override
+  String get expScheduled => 'Scheduled';
+
+  @override
+  String expDeleteRefundWarn(int count, String amount) {
+    return '$count linked refund(s) ($amount KRW) will also be deleted';
+  }
+
+  @override
+  String expRefundLinked(int count, String amount) {
+    return '$count refund(s) · $amount KRW linked to this transaction';
+  }
+
+  @override
   String get expTypeTransfer => 'Transfer';
 
   @override
