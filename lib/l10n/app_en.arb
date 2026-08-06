@@ -1802,6 +1802,7 @@
   "appearanceThemeSystemDesc": "Auto switch",
   "appearancePrivacy": "Privacy",
   "hideAmountsTitle": "Hide Amounts",
+  "hideAmountsHeaderDesc": "Pick screens and cards to hide",
   "hideAmountsSectionDesc": "Pick only the cards you want hidden. Turning it on is instant; turning it off asks for your password.",
   "hideAmountsLockAll": "Lock everything",
   "hideAmountsPageHome": "Home",

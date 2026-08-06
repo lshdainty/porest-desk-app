@@ -3289,6 +3289,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get hideAmountsTitle => '금액 가리기';
 
   @override
+  String get hideAmountsHeaderDesc => '화면·카드별로 골라서 가려요';
+
+  @override
   String get hideAmountsSectionDesc =>
       '가리고 싶은 카드만 골라 두세요. 켜는 건 바로 되고, 푸는 건 비밀번호를 확인해요.';
 

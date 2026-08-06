@@ -130,7 +130,7 @@ class _AssetScreenState extends ConsumerState<AssetScreen> {
               valuations: invMap,
               goals: ref.watch(savingGoalListProvider),
               masked: ref.watch(hideCardProvider('asset.netWorth')),
-              onToggleMask: () => context.push('/settings/hide-amounts?page=asset'),
+              onToggleMask: () => context.push('/settings/appearance?hide=1'),
               tokens: t,
             );
           },

@@ -6188,6 +6188,12 @@ abstract class AppLocalizations {
   /// **'금액 가리기'**
   String get hideAmountsTitle;
 
+  /// No description provided for @hideAmountsHeaderDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'화면·카드별로 골라서 가려요'**
+  String get hideAmountsHeaderDesc;
+
   /// No description provided for @hideAmountsSectionDesc.
   ///
   /// In ko, this message translates to:

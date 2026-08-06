@@ -1805,6 +1805,7 @@
   "appearanceThemeSystemDesc": "자동 전환",
   "appearancePrivacy": "개인정보 보호",
   "hideAmountsTitle": "Hide Amounts",
+  "hideAmountsHeaderDesc": "화면·카드별로 골라서 가려요",
   "hideAmountsSectionDesc": "Pick only the cards you want hidden. Turning it on is instant; turning it off asks for your password.",
   "hideAmountsLockAll": "Lock everything",
   "hideAmountsPageHome": "Home",
