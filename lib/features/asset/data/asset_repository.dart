@@ -255,6 +255,16 @@ class AssetRepository {
     }
   }
 
+  /// 카드 결제 취소 — 결제로 만든 이체를 무르면 잔액·청구가 그 연쇄로 되돌아간다.
+  /// DELETE /card-billing/{billingRowId}.
+  Future<void> cancelCardPayment(int billingRowId) async {
+    try {
+      await _dio.delete<dynamic>('/card-billing/$billingRowId');
+    } on DioException catch (e) {
+      throw ApiException.fromDio(e);
+    }
+  }
+
   // ─────────────────────────────────────────────
   // Asset Transfer
   // ─────────────────────────────────────────────

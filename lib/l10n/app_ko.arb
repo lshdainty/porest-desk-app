@@ -519,6 +519,12 @@
       }
     }
   },
+  "assetCancelPayment": "결제 취소",
+  "assetCancelPaymentConfirm": "{date}에 낸 {amount}원을 되돌려요. 통장 잔액과 카드 청구가 결제 전으로 돌아갑니다.",
+  "@assetCancelPaymentConfirm": {
+    "placeholders": { "amount": { "type": "String" }, "date": { "type": "String" } }
+  },
+  "assetPaymentCancelled": "결제를 취소했어요",
   "assetPayNow": "지금 결제",
   "assetPayAction": "결제하기",
   "assetPayAmount": "결제 금액",

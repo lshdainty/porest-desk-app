@@ -1041,6 +1041,17 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
+  String get assetCancelPayment => '결제 취소';
+
+  @override
+  String assetCancelPaymentConfirm(String amount, String date) {
+    return '$date에 낸 $amount원을 되돌려요. 통장 잔액과 카드 청구가 결제 전으로 돌아갑니다.';
+  }
+
+  @override
+  String get assetPaymentCancelled => '결제를 취소했어요';
+
+  @override
   String get assetPayNow => '지금 결제';
 
   @override

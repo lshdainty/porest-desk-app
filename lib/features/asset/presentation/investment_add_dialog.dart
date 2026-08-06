@@ -244,6 +244,7 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
         (
           key: _nextRowKey(),
           holding: AssetHolding(
+            holdingType: _manualHoldingType,
             holdingName: name,
             holdingValue: 0,
             sortOrder: _rows.length,
@@ -267,6 +268,26 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
 
   bool get _allowStock =>
       _brandHoldingType == null || _brandHoldingType == 'STOCK';
+
+  /// 손으로 추가하는 보유의 유형.
+  ///
+  /// 기관이 정해져 있으면 그 카테고리를 따른다(상품거래소=금, 코인거래소=코인).
+  /// 기관을 안 골랐으면 **이미 담아 둔 보유**를 본다 — 금만 있는 자산에 항목을
+  /// 추가했는데 주식으로 저장되면 단위가 "주" 로 나오고 유형 분리가 무의미해진다.
+  /// 둘 다 단서가 없을 때만 주식이다.
+  AssetHoldingType get _manualHoldingType {
+    switch (_brandHoldingType) {
+      case 'GOLD':
+        return AssetHoldingType.gold;
+      case 'CRYPTO':
+        return AssetHoldingType.crypto;
+      case 'STOCK':
+        return AssetHoldingType.stock;
+      default:
+        final types = _rows.map((r) => r.holding.holdingType).toSet();
+        return types.length == 1 ? types.first : AssetHoldingType.stock;
+    }
+  }
 
   List<AssetHoldingType> get _manualAddTypes {
     switch (_brandHoldingType) {
