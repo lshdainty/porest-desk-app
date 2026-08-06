@@ -3,11 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
-import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
+import 'package:porest_desk_app/features/settings/presentation/hide_amounts_accordion.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_radio_list.dart';
 import 'package:porest_desk_app/shared/widgets/p_section_label.dart';
@@ -20,7 +19,10 @@ import 'package:porest_desk_app/shared/widgets/p_select.dart';
 
 /// 표시 설정 화면 — AppBar + AppearanceSection (설정 메뉴 '표시 설정' 진입).
 class AppearanceScreen extends StatelessWidget {
-  const AppearanceScreen({super.key});
+  const AppearanceScreen({super.key, this.openHideAmounts = false});
+
+  /// 눈 버튼으로 들어오면 금액 가리기를 펼친 채로 연다.
+  final bool openHideAmounts;
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +44,7 @@ class AppearanceScreen extends StatelessWidget {
           horizontal: PSpace.x20,
           vertical: PSpace.x24,
         ),
-        children: const [AppearanceSection()],
+        children: [AppearanceSection(openHideAmounts: openHideAmounts)],
       ),
     );
   }
@@ -55,7 +57,9 @@ class AppearanceScreen extends StatelessWidget {
 /// 2. 개인정보 보호 — 금액 가리기 스위치 (헤더 눈 버튼 제거 후 설정 진입점)
 /// 3. 언어 / 통화 리스트 (KRW / USD / EUR / JPY)
 class AppearanceSection extends ConsumerWidget {
-  const AppearanceSection({super.key});
+  const AppearanceSection({super.key, this.openHideAmounts = false});
+
+  final bool openHideAmounts;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -124,55 +128,8 @@ class AppearanceSection extends ConsumerWidget {
             PSectionLabel(l.appearancePrivacy,
                 variant: PSectionLabelVariant.section),
             // label↔content gap 0(사용자 결정) — 테마·언어만 gap.
-            // 금액 가리기 — 가리는 단위가 카드라 여기서 켜고 끄지 않는다.
-            // 고르는 화면으로 보낸다.
-            InkWell(
-              onTap: () => context.push('/settings/hide-amounts'),
-              child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              child: Row(
-                children: [
-                  Container(
-                    width: 36,
-                    height: 36,
-                    decoration: BoxDecoration(
-                      color: t.bgMuted,
-                      borderRadius: PRadius.brMd,
-                    ),
-                    alignment: Alignment.center,
-                    child: Icon(
-                      settings.hasHidden
-                          ? LucideIcons.eyeOff
-                          : LucideIcons.eye,
-                      size: 17,
-                      color: t.fgSecondary,
-                    ),
-                  ),
-                  const SizedBox(width: PSpace.x12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          l.appearanceHideAmount,
-                          style: PTypo.bodySm.copyWith(
-                            color: t.fgPrimary,
-                            fontWeight: PFontWeight.semi,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          l.appearanceHideAmountDesc,
-                          style: PTypo.caption.copyWith(color: t.fgTertiary),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Icon(LucideIcons.chevronRight, size: 16, color: t.fgTertiary),
-                ],
-              ),
-              ),
-            ),
+            // 금액 가리기 — 화면·카드별로 고르는 아코디언. 여기서 바로 펼친다(별도 화면 아님).
+            HideAmountsAccordion(initiallyOpen: openHideAmounts),
           ],
         ),
         const SizedBox(height: PSpace.x32),

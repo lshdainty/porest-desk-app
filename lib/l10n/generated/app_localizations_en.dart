@@ -3327,6 +3327,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get hideAmountsTitle => 'Hide Amounts';
 
   @override
+  String get hideAmountsHeaderDesc => 'Pick screens and cards to hide';
+
+  @override
   String get hideAmountsSectionDesc =>
       'Pick only the cards you want hidden. Turning it on is instant; turning it off asks for your password.';
 

@@ -34,7 +34,6 @@ import 'package:porest_desk_app/features/more/presentation/more_screen.dart';
 import 'package:porest_desk_app/features/recurring/presentation/recurring_screen.dart';
 import 'package:porest_desk_app/features/settings/presentation/account_screen.dart';
 import 'package:porest_desk_app/features/settings/presentation/appearance_section.dart';
-import 'package:porest_desk_app/features/settings/presentation/hide_amounts_screen.dart';
 import 'package:porest_desk_app/features/settings/presentation/settings_screen.dart';
 import 'package:porest_desk_app/features/stats/presentation/stats_screen.dart';
 import 'package:porest_desk_app/features/stocks/presentation/stocks_screen.dart';
@@ -72,12 +71,6 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/', builder: (_, _) => const SplashScreen()),
       GoRoute(path: '/login', builder: (_, _) => const LoginScreen()),
       GoRoute(path: '/settings', builder: (_, _) => const SettingsScreen()),
-      // 화면의 눈 버튼이 여기로 보낸다. ?page= 로 어느 묶음을 볼지 짚어 준다.
-      GoRoute(
-        path: '/settings/hide-amounts',
-        builder: (_, st) =>
-            HideAmountsScreen(focusPage: st.uri.queryParameters['page']),
-      ),
       GoRoute(path: '/account', builder: (_, _) => const AccountScreen()),
       GoRoute(path: '/account-card-manage', builder: (_, _) => const AccountCardManageScreen()),
       // /assets, /budget, /stats 는 shell branch 1 (가계부) 안 sub-routes 로
@@ -108,8 +101,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           path: '/settings/todo-tags',
           builder: (_, _) => const TodoTagManagementScreen()),
       GoRoute(
+          // 화면의 눈 버튼이 ?hide=1 로 보낸다 — 그때는 금액 가리기를 펼친 채로 연다.
           path: '/settings/appearance',
-          builder: (_, _) => const AppearanceScreen()),
+          builder: (_, st) => AppearanceScreen(
+              openHideAmounts: st.uri.queryParameters['hide'] == '1')),
       GoRoute(
           path: '/settings/export-data',
           builder: (_, _) => const ExportScreen()),
