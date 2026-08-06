@@ -58,19 +58,21 @@ SDK 를 올릴 때는 두 곳을 함께 바꾼다.
 ```bash
 keytool -genkey -v -keystore porest-desk.jks -keyalg RSA \
   -keysize 2048 -validity 10000 -alias porest-desk
-base64 -i porest-desk.jks | pbcopy   # 클립보드로
 ```
 
 **jks 파일은 안전한 곳에 백업할 것.**
 
-Secrets 에 4개 등록:
+Secrets 에 4개 등록. 값을 셸 히스토리에 남기지 않으려면 `gh secret set` 을 인자 없이
+불러 프롬프트에 입력한다.
 
-| 이름 | 값 |
-|---|---|
-| `ANDROID_KEYSTORE_BASE64` | 위 base64 출력 |
-| `ANDROID_KEYSTORE_PASSWORD` | keystore 비밀번호 |
-| `ANDROID_KEY_PASSWORD` | key 비밀번호 |
-| `ANDROID_KEY_ALIAS` | `porest-desk` |
+```bash
+R=lshdainty/porest-desk-app
+# 줄바꿈이 섞이면 base64 디코드가 깨진다 — -w0 로 한 줄로 만든다
+base64 -w0 porest-desk.jks | gh secret set ANDROID_KEYSTORE_BASE64 -R "$R"
+gh secret set ANDROID_KEYSTORE_PASSWORD -R "$R"   # keystore 비밀번호
+gh secret set ANDROID_KEY_PASSWORD      -R "$R"   # key 비밀번호
+echo -n porest-desk | gh secret set ANDROID_KEY_ALIAS -R "$R"
+```
 
 키가 없어도 빌드는 된다 — 디버그 키로 서명될 뿐이다. 채우는 순간부터 릴리스 키로 바뀐다.
 
