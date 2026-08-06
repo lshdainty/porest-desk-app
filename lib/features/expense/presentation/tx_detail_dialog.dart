@@ -64,10 +64,13 @@ class _TxDetailFooter extends StatelessWidget {
       animation: controller,
       builder: (ctx, _) {
         final busy = controller.submitting;
+        // 시스템이 만든 거래(매도 실현손익·이체 이자)는 원본을 지워야 사라진다.
+        // 버튼을 눌러야 거부 토스트가 뜨는 대신 아예 감춘다.
+        final locked = expense.autoSource != null;
         return PViewFooter(
-          onDelete: controller.onDelete,
+          onDelete: locked ? null : controller.onDelete,
           deleting: busy,
-          onEdit: busy
+          onEdit: busy || locked
               ? null
               : () {
                   Navigator.of(ctx).pop();
@@ -111,10 +114,15 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
 
   Future<void> _delete() async {
     final l = AppLocalizations.of(context);
+    // 환불이 달려 있으면 그것도 함께 사라진다 — 모르고 지우면 지출 총액이 조용히 바뀐다.
+    final refundCount = widget.expense.refundCount;
+    final message = refundCount > 0
+        ? '${l.expDeleteConfirm}\n\n${l.expDeleteRefundWarn(refundCount, krw(widget.expense.refundedAmount))}'
+        : l.expDeleteConfirm;
     final ok = await showPConfirmDialog(
       context,
       title: l.expDelete,
-      message: l.expDeleteConfirm,
+      message: message,
       confirmLabel: l.actionDelete,
       destructive: true,
     );
@@ -342,6 +350,35 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
             ),
           ],
         ),
+        // 시스템이 만든 거래 — 왜 못 고치는지 알려 준다. 버튼만 없으면 고장으로 보인다.
+        if (e.autoSource != null)
+          PDetailSection(
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                  horizontal: PSpace.x12, vertical: PSpace.x8),
+              decoration: BoxDecoration(
+                color: t.bgMuted,
+                borderRadius: PRadius.brMd,
+              ),
+              child: Row(
+                children: [
+                  Icon(LucideIcons.lock, size: 14, color: t.fgTertiary),
+                  const SizedBox(width: PSpace.x8),
+                  Expanded(
+                    child: Text(
+                      switch (e.autoSource) {
+                        'TRADE_REALIZED' => l.expAutoSourceTradeRealized,
+                        'TRANSFER_INTEREST' => l.expAutoSourceTransferInterest,
+                        _ => l.expAutoSourceDefault,
+                      },
+                      style: PTypo.caption.copyWith(color: t.fgTertiary),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
         // 환불 연결 — 이 거래에 달린 환불이 있으면 알린다. 지우면 함께 사라지고,
         // 지출 총액도 상계된 값으로 잡혀 있다는 걸 여기서만 알 수 있다.
         if (e.refundCount > 0)

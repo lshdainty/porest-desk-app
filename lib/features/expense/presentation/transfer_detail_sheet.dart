@@ -127,6 +127,12 @@ class _TransferDetailBodyState extends ConsumerState<_TransferDetailBody> {
       // 보내는 쪽에서 실제로 빠져나간 금액 — 수수료가 있으면 이체 금액과 다르다.
       if (fee > 0)
         (l.transferWithdrawn, krwSigned(tr.amount + fee, false, unit: true)),
+      // 대출 상환에만 있다. 이자는 부채를 줄이지 않고 은행으로 나가는 비용이라,
+      // 안 보여 주면 "왜 원금이 이만큼밖에 안 줄었지" 가 된다.
+      if ((tr.interestAmount ?? 0) > 0) ...[
+        (l.expInterest, krwSigned(tr.interestAmount!, false, unit: true)),
+        (l.transferPrincipal, krwSigned(tr.principalAmount ?? 0, false, unit: true)),
+      ],
       (l.expDate, (tr.transferDate ?? '-').replaceFirst('T', ' ')),
       if ((tr.description ?? '').isNotEmpty) (l.expDescription, tr.description!),
     ];

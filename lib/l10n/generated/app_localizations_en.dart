@@ -1809,6 +1809,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get transferFeePrefix => 'Fee';
 
   @override
+  String get transferPrincipal => 'Principal';
+
+  @override
   String get transferWithdrawn => 'Total withdrawn';
 
   @override
