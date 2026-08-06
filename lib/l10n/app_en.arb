@@ -516,6 +516,12 @@
       }
     }
   },
+  "assetCancelPayment": "Cancel payment",
+  "assetCancelPaymentConfirm": "Reverts the {amount} KRW paid on {date}. The account balance and card billing return to the state before payment.",
+  "@assetCancelPaymentConfirm": {
+    "placeholders": { "amount": { "type": "String" }, "date": { "type": "String" } }
+  },
+  "assetPaymentCancelled": "Payment cancelled",
   "assetPayNow": "Pay now",
   "assetPayAction": "Pay",
   "assetPayAmount": "Payment amount",

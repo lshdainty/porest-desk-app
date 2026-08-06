@@ -1058,6 +1058,17 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get assetCancelPayment => 'Cancel payment';
+
+  @override
+  String assetCancelPaymentConfirm(String amount, String date) {
+    return 'Reverts the $amount KRW paid on $date. The account balance and card billing return to the state before payment.';
+  }
+
+  @override
+  String get assetPaymentCancelled => 'Payment cancelled';
+
+  @override
   String get assetPayNow => 'Pay now';
 
   @override

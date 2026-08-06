@@ -2042,6 +2042,24 @@ abstract class AppLocalizations {
   /// **' 결제일은 {date} 입니다.'**
   String assetPayConfirmDateSuffix(String date);
 
+  /// No description provided for @assetCancelPayment.
+  ///
+  /// In ko, this message translates to:
+  /// **'결제 취소'**
+  String get assetCancelPayment;
+
+  /// No description provided for @assetCancelPaymentConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'{date}에 낸 {amount}원을 되돌려요. 통장 잔액과 카드 청구가 결제 전으로 돌아갑니다.'**
+  String assetCancelPaymentConfirm(String amount, String date);
+
+  /// No description provided for @assetPaymentCancelled.
+  ///
+  /// In ko, this message translates to:
+  /// **'결제를 취소했어요'**
+  String get assetPaymentCancelled;
+
   /// No description provided for @assetPayNow.
   ///
   /// In ko, this message translates to:

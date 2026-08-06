@@ -17,6 +17,7 @@ import 'package:porest_desk_app/core/format/date.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/core/sync/keep_alive_refresh.dart';
 import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
@@ -1684,6 +1685,54 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
     }
   }
 
+  /// 되돌릴 수 있는 가장 최근 결제.
+  ///
+  /// 결제는 실행하면 되돌릴 길이 없었다 — 그 이체는 청구와 묶여 있어 잠가 뒀고 취소
+  /// 경로도 없었다. 잘못 눌렀을 때 바로 무를 수 있게 마지막 한 건을 짚어 준다.
+  BillingItem? _lastPayment(CardBilling? b) {
+    final done = (b?.history ?? const <BillingItem>[])
+        .where((h) => h.status == 'COMPLETED')
+        .toList();
+    if (done.isEmpty) return null;
+    return done.reduce((a, x) => x.paymentDate.compareTo(a.paymentDate) > 0 ? x : a);
+  }
+
+  Future<void> _confirmAndCancelPayment(BillingItem billing) async {
+    final l = AppLocalizations.of(context);
+    final ok = await showPConfirmDialog(
+      context,
+      title: l.assetCancelPayment,
+      message: l.assetCancelPaymentConfirm(
+        krw(billing.billingAmount),
+        billing.paymentDate,
+      ),
+      confirmLabel: l.assetCancelPayment,
+      destructive: true,
+    );
+    if (!ok || !mounted) return;
+
+    setState(() => _paying = true);
+    try {
+      final repo = await ref.read(assetRepositoryProvider.future);
+      await repo.cancelCardPayment(billing.rowId);
+      // 이체·잔액·청구가 함께 되돌아간다 — 가계부도 비운다(이자 지출 등).
+      ref
+        ..invalidate(cardBillingProvider(widget.asset.rowId))
+        ..invalidate(assetsProvider)
+        ..invalidate(assetByIdProvider(widget.asset.rowId));
+      invalidateAssetsAfterExpense(ref);
+      if (!mounted) return;
+      showPSnackBar(context, l.assetPaymentCancelled,
+          severity: PSnackSeverity.success);
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      showPSnackBar(context, '${l.expActionFailed}: ${e.message}',
+          severity: PSnackSeverity.error);
+    } finally {
+      if (mounted) setState(() => _paying = false);
+    }
+  }
+
   void _goEdit() {
     Navigator.of(context).pop();
     if (widget.onEdit != null) {
@@ -2008,6 +2057,18 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
                   onTap: _goEdit,
                 ),
               ),
+              // 결제 취소 — 실수로 누른 결제를 무른다. 되돌릴 게 있을 때만 보인다.
+              if (_lastPayment(b) != null) ...[
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _CardActionTile(
+                    icon: LucideIcons.undo2,
+                    label: l.assetCancelPayment,
+                    enabled: !_paying,
+                    onTap: () => _confirmAndCancelPayment(_lastPayment(b)!),
+                  ),
+                ),
+              ],
             ],
           ),
         ),
