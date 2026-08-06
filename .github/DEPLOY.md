@@ -92,7 +92,18 @@ echo -n porest-desk | gh secret set ANDROID_KEY_ALIAS -R "$R"
 Generic Webhook Trigger 토큰: `porest-desk-app-deploy`
 
 Actions 가 JSON 본문으로 `channel`·`version`·`tag`·`buildNumber` 를 보낸다.
-**Post content parameters** 에 `CHANNEL ← $.channel`, `VERSION ← $.version` 을 걸어 둔다.
+**Post content parameters** 에 두 줄을 걸고 둘 다 **JSONPath** 를 고른다.
+
+| Variable | Expression |
+|---|---|
+| `CHANNEL` | `$.channel` |
+| `VERSION` | `$.version` |
+
+Default value 는 비워 둔다. 채워 두면 표현식이 안 맞았을 때 조용히 그 값으로 배포된다.
+비어 있으면 `deploy.sh` 가 채널을 못 알아보고 죽는다 — 잘못 배포되느니 실패하는 게 낫다.
+
+플러그인이 넣어 주는 값은 **환경변수**다. job 에 `parameters` 를 따로 선언하지 않는
+한 `params.CHANNEL` 은 비어 있으니 `env.CHANNEL` 로 읽는다.
 
 ```groovy
 pipeline {
@@ -100,13 +111,15 @@ pipeline {
   stages {
     stage('승인') {
       // 운영만 멈춘다. 누르기 전에는 서버에 아무것도 놓이지 않는다.
-      when { expression { params.CHANNEL == 'prod' } }
-      steps { input message: "운영에 ${params.VERSION} 배포할까요?", ok: '배포' }
+      when { expression { env.CHANNEL == 'prod' } }
+      steps { input message: "운영에 ${env.VERSION} 배포할까요?", ok: '배포' }
     }
     stage('배포') {
       steps {
         git url: 'https://github.com/lshdainty/porest-desk-app.git', branch: 'main'
-        sh "./.github/jenkins/deploy.sh ${params.CHANNEL} ${params.VERSION}"
+        // 홑따옴표라 Groovy 가 아니라 셸이 값을 푼다 — 웹훅으로 들어온 값을
+        // 스크립트 문자열에 그대로 박아 넣지 않는다.
+        sh './.github/jenkins/deploy.sh "$CHANNEL" "$VERSION"'
       }
     }
   }
