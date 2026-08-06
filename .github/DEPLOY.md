@@ -24,6 +24,14 @@ main 머지        → 검증 → 빌드 → dev 로 배포 (자동)
 
 실행번호는 레포 전역으로 늘어나므로 dev/prod 가 번갈아 나가도 역전이 없다.
 
+## Flutter 버전
+
+워크플로의 `FLUTTER_VERSION` 은 로컬(`.fvmrc`)과 **같은 값으로 고정**한다. CI 만
+최신 stable 을 따라가면 SDK 가 올라갈 때마다 로컬은 통과하는데 CI 만 깨진다
+(`flutter analyze` 는 deprecation info 도 실패로 친다).
+
+SDK 를 올릴 때는 두 곳을 함께 바꾼다.
+
 ## 준비 (한 번만)
 
 ### 1. 서명 키
