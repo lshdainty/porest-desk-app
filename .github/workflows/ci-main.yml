@@ -228,7 +228,7 @@ jobs:
             echo "::notice::JENKINS_URL 이 없어 배포 호출을 건너뜁니다. 릴리스 ${TAG} 는 올라갔습니다."
             exit 0
           fi
-          if [ "${CHANNEL}" = "prod" ]; then TOKEN=porest-desk-app-deploy-prod; else TOKEN=porest-desk-app-deploy; fi
-          curl -s -X POST "${JENKINS_URL}/generic-webhook-trigger/invoke?token=${TOKEN}" \
+          # job 은 하나다 — dev/prod 는 본문의 channel 로 갈린다(다른 porest 레포와 같은 방식).
+          curl -s -X POST "${JENKINS_URL}/generic-webhook-trigger/invoke?token=porest-desk-app-deploy" \
             -H 'Content-Type: application/json' \
             -d "{\"channel\":\"${CHANNEL}\",\"version\":\"${VERSION}\",\"tag\":\"${TAG}\",\"buildNumber\":${BUILD_NUMBER}}"

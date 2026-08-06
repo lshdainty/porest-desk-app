@@ -84,29 +84,24 @@ echo -n porest-desk | gh secret set ANDROID_KEY_ALIAS -R "$R"
 
 비어 있으면 릴리스까지만 하고 호출은 건너뛴다 — CI 가 빨간불이 되지는 않는다.
 
-### 3. Jenkins job 2개
+### 3. Jenkins job
 
-Generic Webhook Trigger 로 받는다. 토큰 이름은 다른 레포와 같은 규칙이다.
+**job 은 하나다.** dev/prod 를 job 으로 가르지 않고 파라미터로 가른다 — 다른 porest
+레포와 같은 방식이고, 배포 절차가 한 벌만 있어야 두 곳이 어긋나지 않는다.
 
-| job | 토큰 | 승인 |
-|---|---|---|
-| dev | `porest-desk-app-deploy` | 없음 |
-| prod | `porest-desk-app-deploy-prod` | **있음** |
+Generic Webhook Trigger 토큰: `porest-desk-app-deploy`
 
 Actions 가 JSON 본문으로 `channel`·`version`·`tag`·`buildNumber` 를 보낸다.
 **Post content parameters** 에 `CHANNEL ← $.channel`, `VERSION ← $.version` 을 걸어 둔다.
-
-Pipeline (prod):
 
 ```groovy
 pipeline {
   agent any
   stages {
     stage('승인') {
-      steps {
-        // 여기서 멈춘다. 누르기 전에는 서버에 아무것도 놓이지 않는다.
-        input message: "운영에 ${params.VERSION} 배포할까요?", ok: '배포'
-      }
+      // 운영만 멈춘다. 누르기 전에는 서버에 아무것도 놓이지 않는다.
+      when { expression { params.CHANNEL == 'prod' } }
+      steps { input message: "운영에 ${params.VERSION} 배포할까요?", ok: '배포' }
     }
     stage('배포') {
       steps {
@@ -118,7 +113,8 @@ pipeline {
 }
 ```
 
-dev job 은 `승인` 단계만 빼면 같다.
+job 설정에서 **"필요한 경우 동시 빌드 실행"** 을 켜 둔다. 안 켜면 운영 승인을 기다리는
+동안 main 머지로 들어온 dev 배포가 그 뒤에 줄을 선다.
 
 배포 스크립트는 레포 안에 있다 — [.github/jenkins/deploy.sh](jenkins/deploy.sh).
 Jenkins 설정에 복붙해 두면 고칠 때마다 두 곳을 맞춰야 해서, 레포에 두고 job 은
