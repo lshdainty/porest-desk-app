@@ -35,15 +35,59 @@ jobs:
       - name: Test
         run: flutter test
 
-  # ── 안드로이드 APK — 서명 키가 Secrets 에 있으면 릴리스 키로, 없으면 디버그 키 폴백.
-  #    (android/app/build.gradle.kts 가 key.properties 유무로 갈라 준다)
-  build-android:
+  # ── 버전 — 한 곳에서 정해 두 빌드가 같은 값을 쓴다.
+  #
+  #    개발  git describe 그대로: 태그-이후커밋수-해시 (1.9.2-3-g1a2b3c4)
+  #    운영  태그만: 1.9.3
+  #
+  #    다른 porest 레포도 Jenkins 가 git describe 를 APP_VERSION 으로 주입한다.
+  #    pubspec 의 version 은 더 쓰지 않는다 — 손으로 올려 줘야 해서 늘 뒤처졌다.
+  version:
     needs: verify
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.ver.outputs.version }}
-      build_number: ${{ steps.ver.outputs.build_number }}
+      name: ${{ steps.v.outputs.name }}
+      ios: ${{ steps.v.outputs.ios }}
+      build: ${{ steps.v.outputs.build }}
+      config: ${{ steps.v.outputs.config }}
+    steps:
+      - uses: actions/checkout@v4
+        # describe 가 직전 태그를 찾으려면 태그 이력이 다 있어야 한다.
+        with: { fetch-depth: 0 }
+      - id: v
+        run: |
+          set -euo pipefail
+          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+            NAME="${GITHUB_REF_NAME#v}"
+            IOS="${NAME}"
+            CONFIG=prod
+          else
+            NAME="$(git describe --tags --match 'v*' --always)"
+            NAME="${NAME#v}"
+            # iOS 의 CFBundleShortVersionString 은 숫자 마디만 받는다. describe 문자열을
+            # 넣으면 설치 단계에서 튕기므로 앱 안 버전은 직전 태그의 숫자만 쓴다.
+            IOS="$(git tag -l 'v*' --sort=-creatordate | head -1)"
+            IOS="${IOS#v}"
+            IOS="${IOS:-0.0.0}"
+            CONFIG=dev
+          fi
+          # versionCode 는 단조 증가해야 재설치 없이 업데이트된다.
+          # run_number 는 레포 전역으로 늘어나므로 dev/prod 가 섞여도 역전이 없다.
+          {
+            echo "name=${NAME}"
+            echo "ios=${IOS}"
+            echo "build=${GITHUB_RUN_NUMBER}"
+            echo "config=${CONFIG}"
+          } >> "$GITHUB_OUTPUT"
+          echo "::notice::${CONFIG} ${NAME} (iOS ${IOS}, build ${GITHUB_RUN_NUMBER})"
+
+  # ── 안드로이드 APK — 서명 키가 Secrets 에 있으면 릴리스 키로, 없으면 디버그 키 폴백.
+  #    (android/app/build.gradle.kts 가 key.properties 유무로 갈라 준다)
+  build-android:
+    needs: [ verify, version ]
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
@@ -55,20 +99,6 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-
-      - name: Resolve version
-        id: ver
-        run: |
-          # 태그 배포는 태그가 곧 버전, 그 밖에는 pubspec 의 버전을 쓴다.
-          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
-            VERSION="${GITHUB_REF_NAME#v}"
-          else
-            VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: *//' | cut -d+ -f1)
-          fi
-          # versionCode 는 단조 증가해야 재설치 없이 업데이트된다.
-          # run_number 는 레포 전역으로 늘어나므로 dev/prod 가 섞여도 역전이 없다.
-          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
-          echo "build_number=${GITHUB_RUN_NUMBER}" >> "$GITHUB_OUTPUT"
 
       # 키가 없으면 key.properties 를 안 만든다 — build.gradle.kts 가 디버그 키로 폴백해
       # 빌드는 그대로 된다. Secrets 를 채우는 순간부터 릴리스 키 서명으로 바뀐다.
@@ -94,14 +124,20 @@ jobs:
 
       - run: flutter pub get
       - name: Build APK
+        env:
+          NAME: ${{ needs.version.outputs.name }}
+          BUILD: ${{ needs.version.outputs.build }}
+          CONFIG: ${{ needs.version.outputs.config }}
         run: |
+          set -euo pipefail
+          # 안드로이드 versionName 은 형식 제약이 없어 describe 문자열을 그대로 쓴다.
           flutter build apk --release \
             --split-per-abi --target-platform android-arm64 \
-            --build-name '${{ steps.ver.outputs.version }}' \
-            --build-number '${{ steps.ver.outputs.build_number }}' \
-            --dart-define-from-file=config/${{ startsWith(github.ref, 'refs/tags/v') && 'prod' || 'dev' }}.json
+            --build-name "${NAME}" \
+            --build-number "${BUILD}" \
+            --dart-define-from-file="config/${CONFIG}.json"
           mv build/app/outputs/flutter-apk/app-arm64-v8a-release.apk \
-             porest-desk-${{ steps.ver.outputs.version }}.apk
+             "porest-desk-${NAME}.apk"
 
       - uses: actions/upload-artifact@v4
         with:
@@ -112,7 +148,7 @@ jobs:
   # ── iOS — 서명 없이 빌드해 IPA 로 감싼다.
   #    받는 사람이 자기 Apple ID 로 서명해 넣는 용도(AltStore/Sideloadly).
   build-ios:
-    needs: verify
+    needs: [ verify, version ]
     if: github.event_name == 'push'
     runs-on: macos-latest
     steps:
@@ -124,19 +160,22 @@ jobs:
           cache: true
       - run: flutter pub get
       - name: Build unsigned IPA
+        env:
+          NAME: ${{ needs.version.outputs.name }}
+          IOS_VERSION: ${{ needs.version.outputs.ios }}
+          BUILD: ${{ needs.version.outputs.build }}
+          CONFIG: ${{ needs.version.outputs.config }}
         run: |
-          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
-            VERSION="${GITHUB_REF_NAME#v}"; CONFIG=prod
-          else
-            VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: *//' | cut -d+ -f1); CONFIG=dev
-          fi
+          set -euo pipefail
+          # 앱 안 버전은 숫자만(CFBundleShortVersionString 제약), 파일명은 안드로이드와
+          # 같은 이름을 쓴다. 어느 빌드에서 나온 IPA 인지는 파일명으로 따라간다.
           flutter build ios --release --no-codesign \
-            --build-name "$VERSION" --build-number "${GITHUB_RUN_NUMBER}" \
-            --dart-define-from-file=config/${CONFIG}.json
+            --build-name "${IOS_VERSION}" --build-number "${BUILD}" \
+            --dart-define-from-file="config/${CONFIG}.json"
           # .app 을 Payload/ 로 감싸면 사이드로딩 도구가 읽는 IPA 가 된다.
           mkdir -p Payload
           cp -R build/ios/iphoneos/Runner.app Payload/
-          zip -qry "porest-desk-${VERSION}.ipa" Payload
+          zip -qry "porest-desk-${NAME}.ipa" Payload
       - uses: actions/upload-artifact@v4
         with:
           name: ios-ipa
@@ -152,13 +191,13 @@ jobs:
   #    Actions artifact 는 공개 레포라도 받으려면 토큰이 필요하지만 Release 는 아니다.
   #    그래서 artifact 가 아니라 Release 로 넘긴다. 7일 만료도 없어진다.
   release:
-    needs: [ build-android, build-ios ]
+    needs: [ version, build-android, build-ios ]
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ github.token }}
-      VERSION: ${{ needs.build-android.outputs.version }}
-      BUILD_NUMBER: ${{ needs.build-android.outputs.build_number }}
+      VERSION: ${{ needs.version.outputs.name }}
+      BUILD_NUMBER: ${{ needs.version.outputs.build }}
     steps:
       - uses: actions/checkout@v4
         # 직전 버전 태그를 찾아 릴리스 노트 범위를 잡으려면 태그 이력이 다 있어야 한다.
