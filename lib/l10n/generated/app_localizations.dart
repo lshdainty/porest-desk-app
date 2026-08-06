@@ -3488,6 +3488,18 @@ abstract class AppLocalizations {
   /// **'자동으로 만들어진 이체예요. 원래 거래를 지우면 함께 사라집니다.'**
   String get transferAutoDefault;
 
+  /// No description provided for @updateAvailable.
+  ///
+  /// In ko, this message translates to:
+  /// **'{version} 버전이 나왔어요'**
+  String updateAvailable(String version);
+
+  /// No description provided for @updateAvailableDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'눌러서 내려받아 설치하세요'**
+  String get updateAvailableDesc;
+
   /// No description provided for @expScheduled.
   ///
   /// In ko, this message translates to:

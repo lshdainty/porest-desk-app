@@ -953,6 +953,11 @@
   "transferAutoTradeSettlement": "주식을 살 때 예수금이 모자라 자동으로 만들어진 이체예요. 매수를 취소하면 함께 사라집니다.",
   "transferAutoCardPayment": "카드 자동결제로 만들어진 이체예요. 청구 회차와 묶여 있어 따로 고칠 수 없습니다.",
   "transferAutoDefault": "자동으로 만들어진 이체예요. 원래 거래를 지우면 함께 사라집니다.",
+  "updateAvailable": "{version} 버전이 나왔어요",
+  "@updateAvailable": {
+    "placeholders": { "version": { "type": "String" } }
+  },
+  "updateAvailableDesc": "눌러서 내려받아 설치하세요",
   "expScheduled": "예정",
   "expDeleteRefundWarn": "이 거래에 달린 환불 {count}건({amount}원)도 함께 사라져요",
   "@expDeleteRefundWarn": {

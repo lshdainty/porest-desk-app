@@ -1845,6 +1845,14 @@ class AppLocalizationsEn extends AppLocalizations {
       'Created automatically. It disappears when the original is deleted.';
 
   @override
+  String updateAvailable(String version) {
+    return 'Version $version is available';
+  }
+
+  @override
+  String get updateAvailableDesc => 'Tap to download and install';
+
+  @override
   String get expScheduled => 'Scheduled';
 
   @override
