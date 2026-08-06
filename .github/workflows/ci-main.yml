@@ -6,6 +6,11 @@ on:
   push:
     branches: [ main, master ]
     tags: [ 'v*' ]
+  # 손으로 돌릴 수 있게 열어 둔다. 머지했는데 실행이 안 잡히는 일이 실제로 있었고
+  # (2026-08-07 Actions 장애 — push 이벤트가 통째로 유실됐다) 그때 다시 굴릴 방법이
+  # 아무것도 없었다. 빌드만 다시 뽑고 싶을 때도 쓴다.
+  # ref 로 main 을 고르면 dev, 태그를 고르면 그 태그로 운영 빌드가 나간다.
+  workflow_dispatch:
 
 # contents: 릴리스에 APK·IPA 를 붙인다. checks/pull-requests: 테스트 결과를 체크와
 # PR 주석으로 남긴다(다른 porest 백엔드와 같은 구성).
@@ -75,9 +80,13 @@ jobs:
   #
   #    다른 porest 레포도 Jenkins 가 git describe 를 APP_VERSION 으로 주입한다.
   #    pubspec 의 version 은 더 쓰지 않는다 — 손으로 올려 줘야 해서 늘 뒤처졌다.
+  #
+  #    아래 네 잡은 PR 만 아니면 돈다(`!= 'pull_request'`). `== 'push'` 로 못 박으면
+  #    수동 실행 때 검증만 하고 빌드·배포를 통째로 건너뛴다 — 손으로 돌리는 이유가
+  #    바로 그 빌드라서 조건을 뒤집어 적는다.
   version:
     needs: verify
-    if: github.event_name == 'push'
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     outputs:
       name: ${{ steps.v.outputs.name }}
@@ -119,7 +128,7 @@ jobs:
   #    (android/app/build.gradle.kts 가 key.properties 유무로 갈라 준다)
   build-android:
     needs: [ verify, version ]
-    if: github.event_name == 'push'
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -182,7 +191,7 @@ jobs:
   #    받는 사람이 자기 Apple ID 로 서명해 넣는 용도(AltStore/Sideloadly).
   build-ios:
     needs: [ verify, version ]
-    if: github.event_name == 'push'
+    if: github.event_name != 'pull_request'
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
@@ -225,7 +234,7 @@ jobs:
   #    그래서 artifact 가 아니라 Release 로 넘긴다. 7일 만료도 없어진다.
   release:
     needs: [ version, build-android, build-ios ]
-    if: github.event_name == 'push'
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ github.token }}
