@@ -22,6 +22,7 @@ import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/shared/widgets/p_switch.dart';
 import 'package:porest_desk_app/features/settings/presentation/password_change_dialog.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
+import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 
 /// 계정 상세 화면 — web AccountSection 1:1 미러.
 ///
@@ -365,42 +366,26 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
 
   Future<void> _confirmLogout(BuildContext context, WidgetRef ref) async {
     final l = AppLocalizations.of(context);
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(l.navLogout),
-        content: Text(l.accountLogoutConfirm),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text(l.actionCancel),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: Text(l.navLogout),
-          ),
-        ],
-      ),
+    // Material 기본 AlertDialog 는 앱 테마·타이포를 안 따른다 — 공통 다이얼로그를 쓴다.
+    final ok = await showPConfirmDialog(
+      context,
+      title: l.navLogout,
+      message: l.accountLogoutConfirm,
+      confirmLabel: l.navLogout,
     );
-    if (ok == true) {
+    if (ok) {
       ref.read(authProvider.notifier).logout();
     }
   }
 
   Future<void> _confirmWithdraw(BuildContext context) async {
     final l = AppLocalizations.of(context);
-    await showDialog<void>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(l.accountWithdrawTitle),
-        content: Text(l.accountWithdrawConfirm),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: Text(l.actionConfirm),
-          ),
-        ],
-      ),
+    // 되돌릴 수 없는 삭제라 destructive. 실제 탈퇴 처리는 아직 없어 확인해도 닫히기만 한다.
+    await showPConfirmDialog(
+      context,
+      title: l.accountWithdrawTitle,
+      message: l.accountWithdrawConfirm,
+      destructive: true,
     );
   }
 }
