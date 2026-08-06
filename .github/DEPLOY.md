@@ -145,10 +145,13 @@ mkdir -p /home/porest/porest/apk/{dev,prod}
 
 정적 파일만 내보낸다. 업로드·실행 경로는 두지 않는다.
 
+**`desk.porest.cloud` 서버 블록 안**에 넣는다. `location` 은 `server` 안에만 올 수 있어서
+`http` 직속에 두면 `"location" directive is not allowed here` 로 기동 자체가 막힌다.
+
 ```nginx
 # APK/IPA 배포 — 파일명을 정규식으로 묶어 경로 탈출을 원천 차단한다.
 location ~ ^/download/(?<f>[A-Za-z0-9._-]+\.(apk|ipa|json))$ {
-    alias /home/porest/porest/apk/prod/$f;
+    alias /srv/apk/prod/$f;
     autoindex off;
     limit_rate 3m;
     add_header X-Content-Type-Options nosniff;
@@ -156,6 +159,40 @@ location ~ ^/download/(?<f>[A-Za-z0-9._-]+\.(apk|ipa|json))$ {
 # 위 패턴에 안 맞는 /download/ 요청은 전부 막는다(목록 노출·탐색 방지).
 location /download/ { return 404; }
 ```
+
+경로가 `/srv/apk` 인 이유는 nginx 가 컨테이너라서다. 호스트의 apk 디렉토리를 넣어 준다.
+
+```yaml
+    volumes:
+      - /home/porest/porest/apk:/srv/apk:ro   # 앱이 받아 가기만 하면 되니 읽기 전용
+```
+
+볼륨 추가는 컨테이너를 다시 만들어야 붙는다(`docker compose up -d nginx-prod`).
+설정 파일만 고쳤을 때는 무중단 reload 로 충분하다.
+
+### 반영할 때 `-c` 를 빠뜨리지 말 것
+
+컨테이너가 `nginx -c /etc/nginx/prod/nginx.conf` 로 뜬다. `-c` 없이 부르면 손도 안 댄
+기본 설정을 검사해서 **문법이 틀려도 "syntax is ok" 가 나온다.** 그 상태로 두면 다음
+재시작 때 nginx 가 안 뜬다.
+
+```bash
+docker exec nginx-prod nginx -t -c /etc/nginx/prod/nginx.conf
+docker exec nginx-prod nginx -s reload -c /etc/nginx/prod/nginx.conf
+```
+
+`docker restart` 는 커넥션이 끊긴다. `-s reload` 는 기존 요청을 다 처리한 뒤 워커만 바꾼다.
+
+### 잘 걸렸는지 확인
+
+파일이 아직 없어도 404 는 정상이다. 다만 **왜 404 인지**는 에러 로그로 갈린다.
+
+```bash
+docker logs nginx-prod --since 5m 2>&1 | grep /srv/apk
+```
+
+`open() "/srv/apk/prod/version.json" failed` 가 보이면 location 이 제대로 잡혀 경로까지
+들어간 것이다 — 설정이 안 걸렸으면 여기까지 오지도 않는다.
 
 ## iOS
 
