@@ -30,7 +30,14 @@ main 머지        → 검증 → 빌드 → dev 로 배포 (자동)
 최신 stable 을 따라가면 SDK 가 올라갈 때마다 로컬은 통과하는데 CI 만 깨진다
 (`flutter analyze` 는 deprecation info 도 실패로 친다).
 
-SDK 를 올릴 때는 두 곳을 함께 바꾼다.
+SDK 를 올릴 때는 두 곳을 함께 바꾸고, 로컬에서 새 버전을 받는다.
+
+```bash
+fvm install 3.41.9 && fvm use 3.41.9
+```
+
+`.fvmrc` 를 `stable` 로 두면 로컬만 SDK 를 따라 올라가 CI 와 어긋난다 — 버전을 못 박는 이유가
+그것이다.
 
 ## 준비 (한 번만)
 
