@@ -12,18 +12,25 @@ class DayLabel {
 
 const _dows = ['일', '월', '화', '수', '목', '금', '토'];
 
+/// 올해가 아니면 연도를 붙인다 — 반복거래는 내년치를 미리 만들어 두는데, 연도가 없으면
+/// 2027-01-01 이 그냥 "1월 1일" 로 보여 올해 것과 구분되지 않는다.
 DayLabel formatDay(DateTime d) {
+  final otherYear = d.year != DateTime.now().year;
   if (localeIsEn()) {
     // en: 로케일 스켈레톤 (Jul 15 · Mon). intl 내장 en 데이터 → init 불필요.
     return DayLabel(
-      md: DateFormat.MMMd('en').format(d),
+      md: otherYear
+          ? DateFormat.yMMMd('en').format(d)
+          : DateFormat.MMMd('en').format(d),
       dow: DateFormat.E('en').format(d),
       date: d,
     );
   }
   // ko: 기존 수동 포맷 그대로 (회귀 0).
   return DayLabel(
-    md: '${d.month}월 ${d.day}일',
+    md: otherYear
+        ? '${d.year}년 ${d.month}월 ${d.day}일'
+        : '${d.month}월 ${d.day}일',
     dow: _dows[d.weekday % 7],
     date: d,
   );

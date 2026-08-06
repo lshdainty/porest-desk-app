@@ -3428,6 +3428,12 @@ abstract class AppLocalizations {
   /// **'수수료'**
   String get transferFeePrefix;
 
+  /// No description provided for @transferPrincipal.
+  ///
+  /// In ko, this message translates to:
+  /// **'원금'**
+  String get transferPrincipal;
+
   /// No description provided for @transferWithdrawn.
   ///
   /// In ko, this message translates to:

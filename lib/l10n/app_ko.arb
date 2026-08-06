@@ -940,6 +940,7 @@
   "expTypeIncome": "수입",
   "expTypeExpense": "지출",
   "transferFeePrefix": "수수료",
+  "transferPrincipal": "원금",
   "transferWithdrawn": "출금 합계",
   "transferDeleted": "이체를 삭제했어요",
   "transferDeleteConfirm": "이 이체를 삭제할까요? 양쪽 자산의 잔액이 되돌아갑니다",

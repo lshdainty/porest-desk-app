@@ -9,6 +9,14 @@ import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/features/asset/domain/asset_transfer.dart';
 
+/// 아직 오지 않은 이체인가 — 거래와 같은 기준(서버 집계도 오늘까지만 센다).
+bool _isScheduled(String? date) {
+  if (date == null) return false;
+  final normalized = date.length == 10 ? '${date}T23:59:59' : date;
+  return DateTime.parse(normalized).isAfter(DateTime.now());
+}
+
+
 /// 이체 한 건 — `ExpenseRow` 와 같은 행 리듬을 공유한다(web `TransferRow` 미러).
 ///
 /// 지출/수입과 달리 한 건이 자산 두 개에 걸쳐서, 부호가 "보는 관점"에 따라 달라진다.
@@ -76,16 +84,40 @@ class TransferRow extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    transfer.description?.isNotEmpty == true
-                        ? transfer.description!
-                        : l.expTypeTransfer,
-                    style: PTypo.body.copyWith(
-                        color: t.fgPrimary,
-                        fontWeight: PFontWeight.semi,
-                        letterSpacing: -0.07),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          transfer.description?.isNotEmpty == true
+                              ? transfer.description!
+                              : l.expTypeTransfer,
+                          style: PTypo.body.copyWith(
+                              color: t.fgPrimary,
+                              fontWeight: PFontWeight.semi,
+                              letterSpacing: -0.07),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      // 이체도 미래 날짜로 넣을 수 있다 — 거래와 같은 표시를 준다.
+                      if (_isScheduled(transfer.transferDate)) ...[
+                        const SizedBox(width: 5),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 5, vertical: 1),
+                          decoration: BoxDecoration(
+                            color: t.bgMuted,
+                            borderRadius: PRadius.brXs,
+                          ),
+                          child: Text(
+                            l.expScheduled,
+                            style: PTypo.micro.copyWith(
+                                color: t.fgTertiary,
+                                fontWeight: PFontWeight.bold),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                   const SizedBox(height: 2),
                   Text(

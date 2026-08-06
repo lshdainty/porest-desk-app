@@ -1997,13 +1997,26 @@ List<_TrendPoint> _computeTrendData(
       final key = _ymd(d);
       byDate[key] = (income: 0, expense: 0, label: '${d.month}/${d.day}');
     }
+    // 서버 집계와 같은 규칙 — 환불은 지출 상계, 아직 안 온 건 세지 않는다.
+    // 안 그러면 같은 화면의 저축률 위젯(서버 값)과 선 그래프가 어긋난다.
+    final now = DateTime.now();
     for (final e in exps) {
       final raw = e.expenseDate ?? '';
       if (raw.length < 10) continue;
       final key = raw.substring(0, 10);
       final cur = byDate[key];
       if (cur == null) continue;
-      if (e.expenseType == 'INCOME') {
+      final at = DateTime.parse(raw.length == 10 ? '${raw}T23:59:59' : raw);
+      if (at.isAfter(now)) continue;
+      final isRefund =
+          e.expenseType == 'INCOME' && e.refundOfExpenseRowId != null;
+      if (isRefund) {
+        byDate[key] = (
+          income: cur.income,
+          expense: cur.expense - e.amount.abs(),
+          label: cur.label,
+        );
+      } else if (e.expenseType == 'INCOME') {
         byDate[key] = (
           income: cur.income + e.amount,
           expense: cur.expense,

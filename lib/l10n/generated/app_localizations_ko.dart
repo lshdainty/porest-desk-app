@@ -1788,6 +1788,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get transferFeePrefix => '수수료';
 
   @override
+  String get transferPrincipal => '원금';
+
+  @override
   String get transferWithdrawn => '출금 합계';
 
   @override
