@@ -706,24 +706,26 @@ class _HoldingRow extends ConsumerWidget {
                 ],
               ],
             ),
-            if (onTap != null) ...[
+            // 매수·매도는 상세를 어디서 열었든 가능해야 한다 — 편집 진입(onTap)
+            // 여부에 묶으면 자산 화면에서 연 상세만 매매가 막힌다(웹은 된다).
+            if (onTrade != null || onTap != null)
               const SizedBox(width: PSpace.x8),
-              if (onTrade != null) ...[
-                PButton(
-                  label: l.tradeBuy,
-                  variant: PButtonVariant.ghost,
-                  size: PButtonSize.sm,
-                  onPressed: () => onTrade!('BUY'),
-                ),
-                PButton(
-                  label: l.tradeSell,
-                  variant: PButtonVariant.ghost,
-                  size: PButtonSize.sm,
-                  onPressed: () => onTrade!('SELL'),
-                ),
-              ],
-              Icon(LucideIcons.chevronRight, size: 15, color: t.fgTertiary),
+            if (onTrade != null) ...[
+              PButton(
+                label: l.tradeBuy,
+                variant: PButtonVariant.ghost,
+                size: PButtonSize.sm,
+                onPressed: () => onTrade!('BUY'),
+              ),
+              PButton(
+                label: l.tradeSell,
+                variant: PButtonVariant.ghost,
+                size: PButtonSize.sm,
+                onPressed: () => onTrade!('SELL'),
+              ),
             ],
+            if (onTap != null)
+              Icon(LucideIcons.chevronRight, size: 15, color: t.fgTertiary),
           ],
         ),
       ),
