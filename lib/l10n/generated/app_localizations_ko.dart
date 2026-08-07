@@ -801,6 +801,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get tradeDeleted => '거래를 취소했어요';
 
   @override
+  String get tradeDeleteTitle => '거래 취소';
+
+  @override
   String get tradeDeleteConfirm => '이 거래를 취소하시겠어요? 예수금과 보유 수량이 거래 전으로 돌아가요.';
 
   @override

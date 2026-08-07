@@ -341,6 +341,7 @@
   "tradeInsufficientQty": "Cannot sell more than you hold.",
   "tradeHistory": "Trade history",
   "tradeDeleted": "Trade cancelled",
+  "tradeDeleteTitle": "Cancel trade",
   "tradeDeleteConfirm": "Cancel this trade? Cash and quantity return to their pre-trade state.",
   "holdingTypeStock": "Stock",
   "holdingTypeGold": "Gold",

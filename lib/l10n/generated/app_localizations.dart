@@ -1628,6 +1628,12 @@ abstract class AppLocalizations {
   /// **'거래를 취소했어요'**
   String get tradeDeleted;
 
+  /// No description provided for @tradeDeleteTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'거래 취소'**
+  String get tradeDeleteTitle;
+
   /// No description provided for @tradeDeleteConfirm.
   ///
   /// In ko, this message translates to:

@@ -814,6 +814,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tradeDeleted => 'Trade cancelled';
 
   @override
+  String get tradeDeleteTitle => 'Cancel trade';
+
+  @override
   String get tradeDeleteConfirm =>
       'Cancel this trade? Cash and quantity return to their pre-trade state.';
 
