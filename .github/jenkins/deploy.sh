@@ -43,6 +43,19 @@ fetch "porest-desk-${VERSION}.apk"
 fetch "porest-desk-${VERSION}.ipa"
 fetch "version.json"
 
+# AltStore 소스 — iOS 는 이 파일이 있어야 앱을 갱신할 수 있다.
+#
+# 나중에 붙은 파일이라 그 전에 만들어진 릴리스에는 없다. 없다고 배포를 멈추면 옛
+# 버전으로 되돌릴 때 배포가 통째로 실패한다 — 없으면 그냥 건너뛴다.
+if curl -fsSL --retry 3 -o "${WORK}/altstore.json" \
+     "https://github.com/${REPO}/releases/download/${TAG}/altstore.json"; then
+  echo "  ← altstore.json"
+else
+  # -f 로도 빈 파일이 남을 수 있다. 반쪽짜리를 서버에 올리지 않게 지운다.
+  rm -f "${WORK}/altstore.json"
+  echo "  · altstore.json 없음 — 건너뜁니다(이 릴리스에는 없는 파일)"
+fi
+
 # 항상 같은 이름으로도 하나 둔다 — 링크를 버전마다 바꾸지 않아도 되게.
 cp "${WORK}/porest-desk-${VERSION}.apk" "${WORK}/porest-desk-latest.apk"
 cp "${WORK}/porest-desk-${VERSION}.ipa" "${WORK}/porest-desk-latest.ipa"
@@ -57,8 +70,12 @@ fi
 
 echo "배치: ${DEST}"
 install -m 644 "${OWNER[@]}" "${WORK}"/*.apk "${WORK}"/*.ipa "$DEST/"
-# version.json 을 마지막에 놓는다 — 파일이 다 놓이기 전에 앱이 새 버전을 보고 404 를 맞는 창을 없앤다.
+# 두 소식통을 마지막에 놓는다 — 파일이 다 놓이기 전에 앱이나 AltStore 가 새 버전을
+# 보고 404 를 맞는 창을 없앤다.
 install -m 644 "${OWNER[@]}" "${WORK}/version.json" "$DEST/"
+if [ -f "${WORK}/altstore.json" ]; then
+  install -m 644 "${OWNER[@]}" "${WORK}/altstore.json" "$DEST/"
+fi
 
 echo "완료: ${CHANNEL} ← ${TAG} (${VERSION})"
 ls -lh "$DEST"
