@@ -1853,6 +1853,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get updateAvailableDesc => 'Tap to download and install';
 
   @override
+  String get updateAvailableDescIos => 'Tap to get it from AltStore';
+
+  @override
   String get expScheduled => 'Scheduled';
 
   @override

@@ -958,6 +958,7 @@
     "placeholders": { "version": { "type": "String" } }
   },
   "updateAvailableDesc": "눌러서 내려받아 설치하세요",
+  "updateAvailableDescIos": "눌러서 AltStore 에서 받으세요",
   "expScheduled": "예정",
   "expDeleteRefundWarn": "이 거래에 달린 환불 {count}건({amount}원)도 함께 사라져요",
   "@expDeleteRefundWarn": {

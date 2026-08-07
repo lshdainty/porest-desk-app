@@ -955,6 +955,7 @@
     "placeholders": { "version": { "type": "String" } }
   },
   "updateAvailableDesc": "Tap to download and install",
+  "updateAvailableDescIos": "Tap to get it from AltStore",
   "expScheduled": "Scheduled",
   "expDeleteRefundWarn": "{count} linked refund(s) ({amount} KRW) will also be deleted",
   "@expDeleteRefundWarn": {
