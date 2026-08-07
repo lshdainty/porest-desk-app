@@ -87,6 +87,7 @@ class _InvestmentAddBody extends ConsumerStatefulWidget {
 class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
   late final TextEditingController _queryCtrl;
   late final TextEditingController _stockQueryCtrl;
+  late final TextEditingController _nameCtrl;
   late final TextEditingController _memoCtrl;
   late final TextEditingController _cashCtrl;
 
@@ -150,6 +151,9 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
         : _investBrands.first.name;
     _queryCtrl = TextEditingController()..addListener(_onChanged);
     _stockQueryCtrl = TextEditingController()..addListener(_onStockQueryChanged);
+    // 별칭 — 사용자가 지은 이름을 보존한다. 저장 때 기관명으로 덮으면
+    // "금 현물" 같은 이름이 "NH투자" 로 사라진다(웹 AssetEditDialog 미러).
+    _nameCtrl = TextEditingController(text: e?.assetName ?? '');
     _memoCtrl = TextEditingController(text: e?.memo ?? '');
     // 예수금 — 보유가 없을 때만 쓰인다(전량 매도 대금 등).
     _cashCtrl = TextEditingController(
@@ -205,6 +209,7 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
     _searchDebounce?.cancel();
     _queryCtrl.dispose();
     _stockQueryCtrl.dispose();
+    _nameCtrl.dispose();
     _memoCtrl.dispose();
     _cashCtrl.dispose();
     super.dispose();
@@ -400,6 +405,9 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
     if (_submitting) return;
     final l = AppLocalizations.of(context);
     final brand = _brand;
+    // 별칭이 있으면 그것이 자산명이다 — 비웠을 때만 웹과 같은 fallback 을 쓴다.
+    final resolvedName =
+        _nameCtrl.text.trim().isNotEmpty ? _nameCtrl.text.trim() : '$brand 투자';
     final memo = _memoCtrl.text.trim();
     // 추가만 하고 이름을 안 채운 미연동 행은 버린다 — 이름 빈 미연동은 서버가 400 으로 막는다.
     final filled = [
@@ -421,8 +429,7 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
       if (_isEdit) {
         await repo.update(
           id: widget.edit!.rowId,
-          // design 정합 — 투자 자산명은 증권사·거래소명.
-          assetName: brand,
+          assetName: resolvedName,
           assetType: 'INVESTMENT',
           balance: balance,
           currency: 'KRW',
@@ -433,7 +440,7 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
         );
       } else {
         await repo.create(
-          assetName: brand,
+          assetName: resolvedName,
           assetType: 'INVESTMENT',
           balance: balance,
           currency: 'KRW',
@@ -525,6 +532,17 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
           categories: _filteredByCategory,
           selectedName: _brand,
           onPick: (name) => setState(() => _brand = name),
+        ),
+        const SizedBox(height: PSpace.x20),
+
+        // 별칭 ────────────────────────────────
+        Text(l.assetProductName,
+            style: PTypo.caption.copyWith(
+                color: t.fgPrimary, fontWeight: PFontWeight.medium)),
+        const SizedBox(height: PSpace.x8),
+        PTextInput(
+          controller: _nameCtrl,
+          placeholder: l.assetProductPlaceholder,
         ),
         const SizedBox(height: PSpace.x20),
 
