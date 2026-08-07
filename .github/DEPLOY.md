@@ -197,6 +197,29 @@ docker logs nginx-prod --since 5m 2>&1 | grep /srv/apk
 ## iOS
 
 `porest-desk-X.Y.Z.ipa` 는 **서명이 없다.** 받는 사람이 자기 Apple ID 로 서명해 넣어야
-하고(AltStore·Sideloadly), 무료 Apple ID 로 서명하면 **7일마다 다시 서명**해야 한다.
-개발자 계정은 필요 없지만 각자 PC 가 필요하다 — 일반 사용자에게 권할 경로는 아니고,
-웹으로 안내하는 편이 낫다.
+하고, 무료 Apple ID 로 서명하면 **7일마다 다시 서명**해야 한다. 개발자 계정은 필요 없지만
+각자 PC 가 필요하다 — 일반 사용자에게 권할 경로는 아니고, 웹으로 안내하는 편이 낫다.
+
+### 업데이트는 AltStore 로만 이어진다
+
+아이폰은 스토어 밖 앱이 스스로를 업데이트할 수 없다. 앱 안 배너가 IPA 주소를 열어 줘도
+서명이 없어 설치되지 않는다 — 파일만 받아지고 끝난다. 안드로이드처럼 "받아서 덮어쓰기"
+가 되는 경로가 애초에 없다.
+
+그래서 CI 가 IPA 와 함께 **AltStore 소스**(`altstore.json`)를 만든다. 쓰는 쪽은:
+
+1. Mac 에 **AltServer** 를 깔고 아이폰에 **AltStore** 를 설치한다
+2. AltStore → Sources → **＋** → `https://desk.porest.cloud/download/altstore.json`
+3. 이후 새 버전은 AltStore 안에서 받는다. 앱 배너를 누르면 이 소스로 바로 넘어간다
+   (`altstore://source?url=…`, AltStore 가 없으면 다운로드 페이지로 떨어진다)
+
+**7일 만료도 여기서 풀린다.** AltServer 가 켜져 있고 아이폰이 같은 Wi-Fi 에 있으면
+백그라운드로 다시 서명한다. USB 로 꽂을 필요도, 7일마다 손댈 일도 없어진다.
+
+소스에 올라가는 건 **운영 빌드뿐이다.** nginx 가 `/download/` 에서 prod 디렉토리만
+열어 주기 때문에, dev 빌드가 만든 `altstore.json` 은 밖으로 나가지 않는다. CI 는 채널을
+가르지 않고 그냥 만든다 — 어느 쪽이 노출될지는 nginx 가 이미 정해 놨다.
+
+`iconURL` 은 `https://desk.porest.cloud/app-icon.png` 를 가리킨다. 웹 프론트의
+`public/app-icon.png` 라서 웹만 배포되면 따라 올라간다. nginx 의 `/download/` 패턴은
+`apk|ipa|json` 만 받으므로 아이콘을 그쪽에 두면 404 가 난다 — 웹에 두는 이유다.

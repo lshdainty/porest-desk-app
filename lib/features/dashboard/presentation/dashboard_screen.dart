@@ -1,3 +1,5 @@
+import 'dart:io' show Platform;
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -1398,6 +1400,27 @@ class _TodaySpendCard extends StatelessWidget {
 class _UpdateBanner extends ConsumerWidget {
   const _UpdateBanner();
 
+  /// 받으러 보낸다.
+  ///
+  /// iOS 는 AltStore 딥링크로 가는데, 그게 안 깔려 있으면 열리지 않고 조용히 실패한다.
+  /// 그러면 안내가 있는 다운로드 페이지로 대신 보낸다 — 눌렀는데 아무 일도 안 일어나는
+  /// 게 제일 나쁘다.
+  Future<void> _open(AppRelease release) async {
+    try {
+      final ok = await launchUrl(
+        Uri.parse(release.downloadUrl),
+        mode: LaunchMode.externalApplication,
+      );
+      if (ok) return;
+    } catch (_) {
+      // 처리 가능한 앱이 없으면 예외로 떨어진다. 아래 폴백으로 이어 간다.
+    }
+    await launchUrl(
+      Uri.parse(release.fallbackUrl),
+      mode: LaunchMode.externalApplication,
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final release = ref.watch(appUpdateProvider).value;
@@ -1409,11 +1432,8 @@ class _UpdateBanner extends ConsumerWidget {
       padding: const EdgeInsets.only(bottom: PSpace.x20),
       child: InkWell(
         borderRadius: PRadius.brLg,
-        // 앱 안에서 받으면 설치 권한 처리가 번거롭다 — 브라우저에 넘긴다.
-        onTap: () => launchUrl(
-          Uri.parse(release.downloadUrl),
-          mode: LaunchMode.externalApplication,
-        ),
+        // 앱 안에서 받으면 설치 권한 처리가 번거롭다 — 밖으로 넘긴다.
+        onTap: () => _open(release),
         child: Container(
           padding: const EdgeInsets.symmetric(
               horizontal: PSpace.x16, vertical: PSpace.x12),
@@ -1434,7 +1454,10 @@ class _UpdateBanner extends ConsumerWidget {
                             color: t.fgPrimary,
                             fontWeight: PFontWeight.semi)),
                     const SizedBox(height: 2),
-                    Text(l.updateAvailableDesc,
+                    Text(
+                        Platform.isIOS
+                            ? l.updateAvailableDescIos
+                            : l.updateAvailableDesc,
                         style: PTypo.caption.copyWith(color: t.fgSecondary)),
                   ],
                 ),

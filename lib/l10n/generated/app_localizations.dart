@@ -3500,6 +3500,12 @@ abstract class AppLocalizations {
   /// **'눌러서 내려받아 설치하세요'**
   String get updateAvailableDesc;
 
+  /// No description provided for @updateAvailableDescIos.
+  ///
+  /// In ko, this message translates to:
+  /// **'눌러서 AltStore 에서 받으세요'**
+  String get updateAvailableDescIos;
+
   /// No description provided for @expScheduled.
   ///
   /// In ko, this message translates to:

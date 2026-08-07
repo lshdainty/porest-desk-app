@@ -1,3 +1,5 @@
+import 'dart:io' show Platform;
+
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -15,26 +17,45 @@ class AppRelease {
     required this.version,
     required this.buildNumber,
     required this.androidFile,
+    required this.iosFile,
   });
 
   final String version;
   final int buildNumber;
   final String androidFile;
+  final String iosFile;
 
-  /// 브라우저로 열 다운로드 주소. 앱 안에서 받으면 설치 권한 처리가 번거로워
-  /// 외부 브라우저에 넘긴다.
-  String get downloadUrl => '${Env.webBaseUrl}/download/$androidFile';
+  /// AltStore 소스 주소. CI 가 IPA 와 같이 올린다.
+  String get altstoreSourceUrl => '${Env.webBaseUrl}/download/altstore.json';
+
+  /// 받으러 갈 곳.
+  ///
+  /// 안드로이드는 APK 주소를 그대로 열면 받아서 바로 깔 수 있다.
+  ///
+  /// 아이폰은 사정이 다르다. 스토어 밖 앱은 스스로를 업데이트할 수 없고, 브라우저로
+  /// IPA 를 열어도 서명이 없어 설치가 안 된다 — 파일만 받아지고 아무 일도 안 일어난다.
+  /// 그래서 AltStore 에 소스를 넘겨 거기서 받게 한다. 무료 계정의 7일 만료도 AltStore
+  /// 쪽에서 갱신되므로, iOS 에서 유일하게 끝까지 이어지는 경로다.
+  String get downloadUrl => Platform.isIOS
+      ? 'altstore://source?url=$altstoreSourceUrl'
+      : '${Env.webBaseUrl}/download/$androidFile';
+
+  /// AltStore 가 안 깔려 있으면 딥링크가 열리지 않는다. 그때 대신 보낼 안내 페이지.
+  String get fallbackUrl => '${Env.webBaseUrl}/download';
 
   static AppRelease? tryParse(Object? json) {
     if (json is! Map) return null;
     final version = json['version'];
     final build = json['buildNumber'];
     final android = json['android'];
+    final ios = json['ios'];
     if (version is! String || build is! num || android is! String) return null;
     return AppRelease(
       version: version,
       buildNumber: build.toInt(),
       androidFile: android,
+      // ios 키는 나중에 붙었다. 옛 version.json 을 읽어도 죽지 않게 비워 둔다.
+      iosFile: ios is String ? ios : '',
     );
   }
 }

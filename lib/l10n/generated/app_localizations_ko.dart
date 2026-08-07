@@ -1830,6 +1830,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get updateAvailableDesc => '눌러서 내려받아 설치하세요';
 
   @override
+  String get updateAvailableDescIos => '눌러서 AltStore 에서 받으세요';
+
+  @override
   String get expScheduled => '예정';
 
   @override
