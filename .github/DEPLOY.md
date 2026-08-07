@@ -208,18 +208,58 @@ docker logs nginx-prod --since 5m 2>&1 | grep /srv/apk
 
 그래서 CI 가 IPA 와 함께 **AltStore 소스**(`altstore.json`)를 만든다. 쓰는 쪽은:
 
-1. Mac 에 **AltServer** 를 깔고 아이폰에 **AltStore** 를 설치한다
+1. Mac 에 **AltServer**(`cdn.altstore.io/file/altstore/altserver.zip`, macOS 11+)를 깔고
+   메뉴바 아이콘 → **Install AltStore** → 기기 선택 → Apple ID 로 아이폰에 AltStore 설치
 2. AltStore → Sources → **＋** → `https://desk.porest.cloud/download/altstore.json`
 3. 이후 새 버전은 AltStore 안에서 받는다. 앱 배너를 누르면 이 소스로 바로 넘어간다
    (`altstore://source?url=…`, AltStore 가 없으면 다운로드 페이지로 떨어진다)
 
+설치된 앱은 AltStore 의 **My Apps** 에 남은 일수와 함께 뜬다. 거기 보여야 자동 갱신
+대상이다 — 따로 깔아 둔 것(Xcode 로 올린 빌드 등)은 AltStore 가 관리하지 않는다.
+
 **7일 만료도 여기서 풀린다.** AltServer 가 켜져 있고 아이폰이 같은 Wi-Fi 에 있으면
 백그라운드로 다시 서명한다. USB 로 꽂을 필요도, 7일마다 손댈 일도 없어진다.
 
-소스에 올라가는 건 **운영 빌드뿐이다.** nginx 가 `/download/` 에서 prod 디렉토리만
-열어 주기 때문에, dev 빌드가 만든 `altstore.json` 은 밖으로 나가지 않는다. CI 는 채널을
-가르지 않고 그냥 만든다 — 어느 쪽이 노출될지는 nginx 가 이미 정해 놨다.
+dev·prod 가 각자 소스를 가진다. 서버 블록마다 `/download/` 가 자기 채널 디렉토리를
+열어 주므로(`alias /srv/apk/{dev,prod}/$f`) 주소도 채널을 따라가야 한다. CI 는 도메인을
+직접 적지 않고 `config/{dev,prod}.json` 의 `WEB_BASE_URL` 을 읽는다 — 앱이 API 주소로
+쓰는 그 값이라 한쪽만 바뀌어 어긋날 일이 없다.
 
-`iconURL` 은 `https://desk.porest.cloud/app-icon.png` 를 가리킨다. 웹 프론트의
-`public/app-icon.png` 라서 웹만 배포되면 따라 올라간다. nginx 의 `/download/` 패턴은
-`apk|ipa|json` 만 받으므로 아이콘을 그쪽에 두면 404 가 난다 — 웹에 두는 이유다.
+    dev   https://desk-dev.porest.cloud:10443/download/altstore.json
+    prod  https://desk.porest.cloud/download/altstore.json
+
+`iconURL` 은 `{WEB_BASE_URL}/app-icon.png` 다. 웹 프론트의 `public/app-icon.png` 라서
+웹만 배포되면 따라 올라간다. nginx 의 `/download/` 패턴은 `apk|ipa|json` 만 받으므로
+아이콘을 그쪽에 두면 404 가 난다 — 웹에 두는 이유다. **운영 태그 전에 웹을 먼저 배포**
+해야 AltStore 목록에서 아이콘이 빈칸으로 뜨지 않는다.
+
+### 걸리는 자리들
+
+전부 한 번씩 밟아 본 것들이다.
+
+**소스의 `version` 은 IPA 안의 값과 글자까지 같아야 한다.** 다르면 AltStore 가 16MB 를
+다 받아 놓고 되돌린다 — `The downloaded version does not match the version specified by
+the source`. iOS 의 `CFBundleShortVersionString` 은 숫자 마디만 받아서 IPA 에는 직전
+태그의 숫자(`1.9.2`)만 들어간다. `git describe` 문자열(`1.9.2-50-g6f4a880`)은 여기 쓸 수
+없고, 표시 전용 필드인 `marketingVersion` 으로 넘긴다. 업데이트 판정은 `buildVersion`
+(= `CFBundleVersion` = CI run number)이 하므로 dev 빌드끼리도 구분된다.
+
+**AltStore 는 bundle ID 뒤에 팀 ID 를 붙인다.** `com.porest.desk.porestDeskApp.78ZAZ4T43G`
+같은 식이다(무료 계정의 App ID 한도를 아끼려는 것). iOS 는 이걸 다른 앱으로 보므로
+Xcode 로 깔아 둔 게 있으면 **홈 화면에 아이콘이 두 개 생긴다.** 옛 것을 지우면 된다.
+`altstore.json` 에는 원본 ID 를 적는다 — 접미사는 AltStore 가 설치 시점에 붙인다.
+
+**개발자 모드 항목은 처음엔 설정에 없다.** 개발자 도구가 기기에 접근을 시도한 뒤에야
+나타난다(iOS 16+). Xcode 로 Run 하거나 Devices 창을 열면 아이폰에 알림이 뜨고, 그때부터
+`설정 → 개인정보 보호 및 보안 → 개발자 모드` 가 보인다. 켜고 재부팅해야 `flutter devices`
+에도 기기가 잡힌다 — 꺼져 있으면 아예 목록에 안 나와서 연결이 안 된 것처럼 보인다.
+
+**Wi-Fi 동기화를 켜야 7일 갱신이 자동으로 돈다.** Finder → 기기 → 일반 → "Wi-Fi에
+연결되어 있을 때 이 iPhone 보기". 안 켜면 AltServer 가 USB 로 꽂을 때만 갱신한다.
+
+**서버에 파일이 놓였는지는 Content-Type 으로 본다.** SPA 프록시가 `/download/` 를 받아
+가면 없는 파일에도 `200` 이 돌아온다 — 내용은 `index.html` 이다. `200 application/json`
+이어야 진짜다.
+
+    curl -sk -o /dev/null -w "%{http_code} %{content_type}\n" \
+      https://desk-dev.porest.cloud:10443/download/version.json
