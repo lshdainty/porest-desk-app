@@ -344,6 +344,7 @@
   "tradeInsufficientQty": "보유 수량보다 많이 팔 수 없어요.",
   "tradeHistory": "거래 내역",
   "tradeDeleted": "거래를 취소했어요",
+  "tradeDeleteTitle": "거래 취소",
   "tradeDeleteConfirm": "이 거래를 취소하시겠어요? 예수금과 보유 수량이 거래 전으로 돌아가요.",
   "holdingTypeStock": "주식",
   "holdingTypeGold": "금",

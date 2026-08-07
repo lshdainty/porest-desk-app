@@ -140,7 +140,15 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
-    final asset = widget.asset;
+    // 여는 쪽은 탭 시점의 asset 을 넘긴다 — 시트가 열린 채 매수·취소가 일어나면
+    // 목록 provider 는 새 값인데 스냅샷은 옛 수량·평가액이 남는다. 산 목록에서
+    // 같은 자산을 다시 찾아 쓴다(웹 AssetDetailDialog 와 같은 처리).
+    var asset = widget.asset;
+    final liveAssets = ref.watch(assetsProvider).value;
+    if (liveAssets != null) {
+      final i = liveAssets.indexWhere((a) => a.rowId == widget.asset.rowId);
+      if (i >= 0) asset = liveAssets[i];
+    }
     final masked = ref.watch(hideCardProvider('asset.detail'));
     final meta = AssetTypeMeta.of(asset.assetType);
     final brandFg = resolveChartColor(context, asset.color, fallback: t.fgBrand);
@@ -555,11 +563,12 @@ class _TradeHistory extends ConsumerWidget {
 
   Future<void> _confirmDelete(BuildContext context, WidgetRef ref, int rowId) async {
     final l = AppLocalizations.of(context);
+    // "삭제" 라벨은 자산 삭제와 헷갈린다 — 웹과 같은 "거래 취소" 로 통일한다.
     final ok = await showPConfirmDialog(
       context,
-      title: l.actionDelete,
+      title: l.tradeDeleteTitle,
       message: l.tradeDeleteConfirm,
-      confirmLabel: l.actionDelete,
+      confirmLabel: l.tradeDeleteTitle,
       destructive: true,
     );
     if (!ok || !context.mounted) return;
