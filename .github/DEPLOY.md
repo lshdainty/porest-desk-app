@@ -89,49 +89,31 @@ echo -n porest-desk | gh secret set ANDROID_KEY_ALIAS -R "$R"
 **job 은 하나다.** dev/prod 를 job 으로 가르지 않고 파라미터로 가른다 — 다른 porest
 레포와 같은 방식이고, 배포 절차가 한 벌만 있어야 두 곳이 어긋나지 않는다.
 
-Generic Webhook Trigger 토큰: `porest-desk-app-deploy`
+**파이프라인은 레포의 [Jenkinsfile](../Jenkinsfile) 이 SoT 다.** 다른 porest 레포와 같다 —
+job 설정에서 **Pipeline script from SCM** 을 고르고 이 레포를 가리키면 된다. Jenkins 화면에
+groovy 를 붙여넣으면 고칠 때마다 두 곳을 맞춰야 하고, 한쪽만 고쳐진 채로 흘러간다.
 
-Actions 가 JSON 본문으로 `channel`·`version`·`tag`·`buildNumber` 를 보낸다.
-**Post content parameters** 에 두 줄을 걸고 둘 다 **JSONPath** 를 고른다.
-
-| Variable | Expression |
+| 항목 | 값 |
 |---|---|
-| `CHANNEL` | `$.channel` |
-| `VERSION` | `$.version` |
+| Definition | Pipeline script from SCM |
+| SCM | Git — `https://github.com/lshdainty/porest-desk-app.git` |
+| Branch | `*/main` |
+| Script Path | `Jenkinsfile` |
 
-Default value 는 비워 둔다. 채워 두면 표현식이 안 맞았을 때 조용히 그 값으로 배포된다.
-비어 있으면 `deploy.sh` 가 채널을 못 알아보고 죽는다 — 잘못 배포되느니 실패하는 게 낫다.
+웹훅 트리거(`GenericTrigger`)도 Jenkinsfile 안에 선언돼 있다. 토큰은
+`porest-desk-app-deploy`, Actions 가 보내는 JSON 본문에서 `$.channel`·`$.version` 을
+읽는다. **다만 Jenkinsfile 의 `triggers` 는 한 번 실행돼야 Jenkins 에 등록된다** —
+job 을 만든 직후 수동으로 한 번 돌려 주면 그다음부터 웹훅이 걸린다.
 
-플러그인이 넣어 주는 값은 **환경변수**다. job 에 `parameters` 를 따로 선언하지 않는
-한 `params.CHANNEL` 은 비어 있으니 `env.CHANNEL` 로 읽는다.
-
-```groovy
-pipeline {
-  agent any
-  stages {
-    stage('승인') {
-      // 운영만 멈춘다. 누르기 전에는 서버에 아무것도 놓이지 않는다.
-      when { expression { env.CHANNEL == 'prod' } }
-      steps { input message: "운영에 ${env.VERSION} 배포할까요?", ok: '배포' }
-    }
-    stage('배포') {
-      steps {
-        git url: 'https://github.com/lshdainty/porest-desk-app.git', branch: 'main'
-        // 홑따옴표라 Groovy 가 아니라 셸이 값을 푼다 — 웹훅으로 들어온 값을
-        // 스크립트 문자열에 그대로 박아 넣지 않는다.
-        sh './.github/jenkins/deploy.sh "$CHANNEL" "$VERSION"'
-      }
-    }
-  }
-}
-```
+값은 플러그인이 **환경변수**로 넣는다. `parameters` 를 선언하면 같은 이름끼리 부딪히므로
+`params.CHANNEL` 이 아니라 `env.CHANNEL` 로 읽는다. 표현식이 안 맞아 값이 비어 오면
+`Validate` 단계가 멈춘다 — 잘못 배포되느니 실패하는 게 낫다.
 
 job 설정에서 **"필요한 경우 동시 빌드 실행"** 을 켜 둔다. 안 켜면 운영 승인을 기다리는
 동안 main 머지로 들어온 dev 배포가 그 뒤에 줄을 선다.
 
-배포 스크립트는 레포 안에 있다 — [.github/jenkins/deploy.sh](jenkins/deploy.sh).
-Jenkins 설정에 복붙해 두면 고칠 때마다 두 곳을 맞춰야 해서, 레포에 두고 job 은
-실행만 시킨다.
+배포 절차 자체는 [.github/jenkins/deploy.sh](jenkins/deploy.sh) 한 벌뿐이다. dev·prod 가
+같은 길을 걸어야 한쪽만 고쳐져 어긋나지 않는다.
 
 경로를 바꾸려면 job 환경변수 `APK_BASE_PATH` 를 준다 (기본 `/home/porest/porest/apk`).
 
