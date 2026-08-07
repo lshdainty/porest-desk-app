@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import 'package:porest_desk_app/app/env.dart';
 import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -100,6 +101,21 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         padding: EdgeInsets.fromLTRB(
             PSpace.x24, PSpace.x20, PSpace.x24, pTabBarBottomInset(context)),
         children: [
+          // 개발 서버를 보는 빌드에만 붙인다.
+          //
+          // dev·prod 는 bundle ID 가 같아 한 번에 하나만 깔리고 서로 덮어쓴다. 아이콘도
+          // 이름도 같아서 열기 전에는 어느 쪽인지 알 길이 없다 — 홈 첫 줄에 못을 박아 둔다.
+          // 운영 빌드에서는 아무것도 그리지 않는다.
+          if (Env.appEnv != 'prod') ...[
+            Align(
+              alignment: Alignment.centerLeft,
+              child: PBadge(
+                label: Env.appEnv.toUpperCase(),
+                variant: PBadgeVariant.softWarning,
+              ),
+            ),
+            const SizedBox(height: PSpace.x12),
+          ],
           // 새 버전 알림 — 스토어를 안 쓰니 자동 업데이트가 없다. 여기서만 알 수 있다.
           const _UpdateBanner(),
           _BalanceHero(

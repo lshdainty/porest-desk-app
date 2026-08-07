@@ -299,6 +299,27 @@ jobs:
           # size 는 필수 필드다. 틀리면 AltStore 가 내려받기 전에 실패한다.
           SIZE=$(stat -c%s "${IPA}")
           WEB_BASE=$(jq -er '.WEB_BASE_URL' "config/${CONFIG}.json")
+
+          # 두 소스를 나란히 등록해 두고 쓸 수 있게 채널마다 이름과 식별자를 다르게 준다.
+          #
+          # identifier 를 같이 두면 AltStore 가 둘을 같은 소스로 보고 나중에 넣은 쪽이
+          # 앞의 것을 밀어낸다 — 이름만 갈라서는 부족하다.
+          #
+          # bundleIdentifier 는 그대로다. 설치는 그 값으로 판정되므로 dev·prod 는 여전히
+          # 한 번에 하나만 깔리고 서로 덮어쓴다(그렇게 쓰기로 한 구조다). 여기서 가르는
+          # 것은 목록에서 어느 쪽인지 알아보는 용도뿐이다.
+          if [ "${CONFIG}" = "dev" ]; then
+            SOURCE_NAME="Porest (dev)"
+            SOURCE_ID="cloud.porest.altstore.dev"
+            APP_NAME="Porest Desk (dev)"
+            APP_SUBTITLE="개발 서버 — 시험용 빌드"
+          else
+            SOURCE_NAME="Porest"
+            SOURCE_ID="cloud.porest.altstore"
+            APP_NAME="Porest Desk"
+            APP_SUBTITLE="가계부·자산·할일을 한곳에서"
+          fi
+
           # 스킴은 faq.altstore.io/developers/make-a-source 기준.
           # appPermissions 는 비어 있어도 키 자체는 있어야 한다.
           #
@@ -309,17 +330,17 @@ jobs:
           # 그 문자열은 표시 전용인 marketingVersion 으로 넘긴다.
           cat > upload/altstore.json <<JSON
           {
-            "name": "Porest",
-            "identifier": "cloud.porest.altstore",
+            "name": "${SOURCE_NAME}",
+            "identifier": "${SOURCE_ID}",
             "subtitle": "포레스트 데스크",
             "iconURL": "${WEB_BASE}/app-icon.png",
             "tintColor": "0147AD",
             "apps": [
               {
-                "name": "Porest Desk",
+                "name": "${APP_NAME}",
                 "bundleIdentifier": "com.porest.desk.porestDeskApp",
                 "developerName": "Porest",
-                "subtitle": "가계부·자산·할일을 한곳에서",
+                "subtitle": "${APP_SUBTITLE}",
                 "localizedDescription": "가계부와 자산, 할일을 한곳에서 관리하는 개인용 앱입니다.",
                 "iconURL": "${WEB_BASE}/app-icon.png",
                 "tintColor": "0147AD",
