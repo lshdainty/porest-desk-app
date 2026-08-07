@@ -242,6 +242,8 @@ jobs:
       BUILD_NUMBER: ${{ needs.version.outputs.build }}
       # AltStore 소스에 적을 주소를 config 에서 읽으려면 어느 config 인지 알아야 한다.
       CONFIG: ${{ needs.version.outputs.config }}
+      # IPA 안에 실제로 박히는 버전. AltStore 가 이 값을 대조하므로 소스에도 그대로 적는다.
+      IOS_VERSION: ${{ needs.version.outputs.ios }}
     steps:
       - uses: actions/checkout@v4
         # 직전 버전 태그를 찾아 릴리스 노트 범위를 잡으려면 태그 이력이 다 있어야 한다.
@@ -299,6 +301,12 @@ jobs:
           WEB_BASE=$(jq -er '.WEB_BASE_URL' "config/${CONFIG}.json")
           # 스킴은 faq.altstore.io/developers/make-a-source 기준.
           # appPermissions 는 비어 있어도 키 자체는 있어야 한다.
+          #
+          # version 은 IPA 의 CFBundleShortVersionString 과 글자까지 같아야 한다. 다르면
+          # AltStore 가 다 받아 놓고 "does not match the version specified by the source"
+          # 로 되돌린다. iOS 는 이 필드에 숫자 마디만 받아서 IPA 에는 직전 태그의 숫자만
+          # 들어간다 — describe 문자열(1.9.2-50-g6f4a880)은 여기 쓸 수 없다.
+          # 그 문자열은 표시 전용인 marketingVersion 으로 넘긴다.
           cat > upload/altstore.json <<JSON
           {
             "name": "Porest",
@@ -318,8 +326,9 @@ jobs:
                 "category": "finance",
                 "versions": [
                   {
-                    "version": "${VERSION}",
+                    "version": "${IOS_VERSION}",
                     "buildVersion": "${BUILD_NUMBER}",
+                    "marketingVersion": "${VERSION}",
                     "date": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
                     "downloadURL": "${WEB_BASE}/download/porest-desk-${VERSION}.ipa",
                     "size": ${SIZE},
