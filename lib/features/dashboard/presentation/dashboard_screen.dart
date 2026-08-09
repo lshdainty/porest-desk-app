@@ -11,6 +11,7 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:porest_desk_app/core/update/app_update.dart';
+import 'package:porest_desk_app/core/update/update_sheet.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
@@ -48,6 +49,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   late final DateTime _month =
       DateTime(DateTime.now().year, DateTime.now().month, 1);
 
+  /// 이번 실행에서 업데이트 시트를 이미 띄웠는지. 화면이 다시 build 될 때마다
+  /// 시트가 겹쳐 뜨는 걸 막는다.
+  bool _updateSheetShown = false;
+
   String get _ymdStart =>
       '${_month.year.toString().padLeft(4, '0')}-${_month.month.toString().padLeft(2, '0')}-01';
   String get _ymdEnd {
@@ -69,6 +74,18 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+
+    // 새 버전이 확인되면 한 번 크게 알린다(안드로이드만). 확인은 비동기라 첫 build
+    // 시점에는 값이 없다 — 값이 도착하는 순간을 듣는다.
+    ref.listen(appUpdateProvider, (_, next) {
+      final release = next.value;
+      if (release == null || _updateSheetShown) return;
+      _updateSheetShown = true;
+      // build 중에 시트를 열 수 없다. 이 프레임이 끝난 뒤로 미룬다.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) maybeShowUpdateSheet(context, ref, release);
+      });
+    });
 
     final monthKey = (year: _month.year, month: _month.month);
     final summaryAsync =

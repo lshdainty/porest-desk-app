@@ -960,6 +960,19 @@
   },
   "updateAvailableDesc": "눌러서 내려받아 설치하세요",
   "updateAvailableDescIos": "눌러서 AltStore 에서 받으세요",
+  "updateSheetTitle": "{version} 버전이 나왔어요",
+  "@updateSheetTitle": {
+    "placeholders": { "version": { "type": "String" } }
+  },
+  "updateSheetSubtitle": "지금 받아서 설치할 수 있어요. 받는 동안 앱을 켜 두세요.",
+  "updateSheetChanges": "이번에 달라진 점",
+  "updateSheetNoNotes": "이번 버전의 변경 내용은 따로 정리되지 않았어요.",
+  "updateSheetLater": "나중에",
+  "updateSheetNow": "업데이트",
+  "updateSheetRetry": "다시 시도",
+  "updateSheetDownloading": "받는 중이에요",
+  "updateSheetOpening": "설치 화면을 여는 중이에요",
+  "updateSheetFailed": "앱에서 받지 못했어요. 브라우저로 열어 볼게요.",
   "expScheduled": "예정",
   "expDeleteRefundWarn": "이 거래에 달린 환불 {count}건({amount}원)도 함께 사라져요",
   "@expDeleteRefundWarn": {

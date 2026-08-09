@@ -18,12 +18,19 @@ class AppRelease {
     required this.buildNumber,
     required this.androidFile,
     required this.iosFile,
+    required this.notes,
   });
 
   final String version;
   final int buildNumber;
   final String androidFile;
   final String iosFile;
+
+  /// 이번 버전에서 바뀐 것. CI 가 커밋 제목을 모아 넣는다. 없으면 빈 문자열.
+  final String notes;
+
+  /// 안드로이드가 직접 받아 설치할 APK 주소.
+  String get androidUrl => '${Env.webBaseUrl}/download/$androidFile';
 
   /// AltStore 소스 주소. CI 가 IPA 와 같이 올린다.
   String get altstoreSourceUrl => '${Env.webBaseUrl}/download/altstore.json';
@@ -50,12 +57,14 @@ class AppRelease {
     final android = json['android'];
     final ios = json['ios'];
     if (version is! String || build is! num || android is! String) return null;
+    final notes = json['notes'];
     return AppRelease(
       version: version,
       buildNumber: build.toInt(),
       androidFile: android,
-      // ios 키는 나중에 붙었다. 옛 version.json 을 읽어도 죽지 않게 비워 둔다.
+      // ios·notes 는 나중에 붙었다. 옛 version.json 을 읽어도 죽지 않게 비워 둔다.
       iosFile: ios is String ? ios : '',
+      notes: notes is String ? notes : '',
     );
   }
 }

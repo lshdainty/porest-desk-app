@@ -55,6 +55,7 @@ dependencies:
   file_picker: ^8.1.4
   package_info_plus: ^9.0.1
   url_launcher: ^6.3.2
+  open_filex: ^4.7.0
 
 dev_dependencies:
   flutter_test:

@@ -270,17 +270,45 @@ jobs:
       - name: Write version.json
         run: |
           set -euo pipefail
+
+          # 변경 내용 — 안드로이드가 업데이트 화면에 그대로 띄운다.
+          #
+          # GitHub 의 자동 생성 노트는 PR 제목을 모은다. 이 레포는 토픽 브랜치를 로컬에서
+          # --no-ff 로 머지해 PR 이 거의 없어서, 그걸 쓰면 Full Changelog 링크 한 줄만
+          # 남는다. 커밋 제목을 직접 세는 게 낫다.
+          #
+          # 직전 v 태그부터 지금까지. dev 는 TAG 가 옛 커밋을 가리키므로 범위 끝을
+          # GITHUB_SHA 로 잡는다 — prod 도 태그 커밋이라 같은 식이 통한다.
+          #
+          # 시작점은 "이 커밋의 조상 중 가장 가까운 v 태그" 여야 한다. 태그 목록을
+          # 최신순으로 세어 첫 줄을 쓰면, 옛 태그를 다시 빌드할 때 자기보다 나중 태그를
+          # 기준으로 잡아 범위가 뒤집힌다(v1.10.0 을 재실행하면 PREV 가 v1.10.1 이 된다).
+          PREV=$(git describe --tags --match 'v*' --abbrev=0 "${GITHUB_SHA}^" 2>/dev/null || true)
+          RANGE="${GITHUB_SHA}"
+          [ -n "${PREV}" ] && RANGE="${PREV}..${GITHUB_SHA}"
+
+          ALL=$(git log --no-merges --pretty='- %s' ${RANGE} | head -50)
+          # 쓰는 사람 눈에 뜻이 있는 것만. ci·docs·test·chore 는 우리 사정이다.
+          NOTES=$(printf '%s\n' "${ALL}" | grep -E '^- (feat|fix)' || true)
+          # 전부 걸러졌으면 원본을 쓴다 — 빈 화면보다 낫다.
+          [ -z "${NOTES}" ] && NOTES="${ALL}"
+
           # 앱이 새 버전을 알아보는 근거. 웹 다운로드 페이지도 이걸 읽는다.
-          cat > upload/version.json <<JSON
-          {
-            "channel": "${CHANNEL}",
-            "version": "${VERSION}",
-            "buildNumber": ${BUILD_NUMBER},
-            "releasedAt": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
-            "android": "porest-desk-${VERSION}.apk",
-            "ios": "porest-desk-${VERSION}.ipa"
-          }
-          JSON
+          #
+          # jq 로 만든다 — 노트에 따옴표·개행·백슬래시가 섞여 들어와도 JSON 이 깨지지
+          # 않게. 손으로 쓰던 heredoc 은 그걸 못 견딘다.
+          jq -n \
+            --arg channel "${CHANNEL}" \
+            --arg version "${VERSION}" \
+            --argjson buildNumber "${BUILD_NUMBER}" \
+            --arg releasedAt "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --arg android "porest-desk-${VERSION}.apk" \
+            --arg ios "porest-desk-${VERSION}.ipa" \
+            --arg notes "${NOTES}" \
+            '{channel: $channel, version: $version, buildNumber: $buildNumber,
+              releasedAt: $releasedAt, android: $android, ios: $ios, notes: $notes}' \
+            > upload/version.json
+          echo "::notice::version.json (노트 ${#NOTES}자)"
 
       # AltStore 소스 — iOS 에서 앱을 갱신할 수 있는 유일한 길이다.
       #
@@ -378,7 +406,10 @@ jobs:
           else
             # 노트는 그 사이 머지된 PR 제목으로 GitHub 이 채운다. 다만 시작점을 직접
             # 준다 — 안 주면 직전 릴리스인 dev 프리릴리스를 기준으로 잡아 버린다.
-            PREV=$(git tag -l 'v*' --sort=-creatordate | grep -vxF "${TAG}" | head -1)
+            #
+            # 조상 중 가장 가까운 태그를 찾는다. 목록을 최신순으로 세면 옛 태그를 다시
+            # 빌드할 때 자기보다 나중 태그가 시작점이 돼 범위가 뒤집힌다.
+            PREV=$(git describe --tags --match 'v*' --abbrev=0 "${GITHUB_SHA}^" 2>/dev/null || true)
             NOTES=(--generate-notes)
             [ -n "${PREV}" ] && NOTES+=(--notes-start-tag "${PREV}")
             # 재실행 대비 — 릴리스가 이미 있으면 파일만 덮어쓴다.

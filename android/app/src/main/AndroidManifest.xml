@@ -1,5 +1,18 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- 스토어를 안 쓰니 앱이 새 APK 를 직접 받아 설치 화면을 띄운다.
+         이 권한이 없으면 받아 놓고도 설치로 넘어가지 못한다(Android 8+).
+         설치 자체는 시스템이 사용자에게 다시 묻는다 — 조용히 깔리는 길은 없다. -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+
+    <!-- open_filex 가 딸고 오는 미디어 권한을 뺀다.
+         APK 를 앱 전용 캐시에 받아 열 뿐이라 사진·동영상·오디오를 읽을 일이 없는데,
+         그냥 두면 앱 정보에 그 권한들이 뜬다. 설치 화면이 안 열리면 이걸 의심할 것. -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" tools:node="remove" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" tools:node="remove" />
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" tools:node="remove" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" tools:node="remove" />
     <application
         android:label="Porest Desk"
         android:name="${applicationName}"
