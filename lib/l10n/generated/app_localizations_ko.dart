@@ -1836,6 +1836,38 @@ class AppLocalizationsKo extends AppLocalizations {
   String get updateAvailableDescIos => '눌러서 AltStore 에서 받으세요';
 
   @override
+  String updateSheetTitle(String version) {
+    return '$version 버전이 나왔어요';
+  }
+
+  @override
+  String get updateSheetSubtitle => '지금 받아서 설치할 수 있어요. 받는 동안 앱을 켜 두세요.';
+
+  @override
+  String get updateSheetChanges => '이번에 달라진 점';
+
+  @override
+  String get updateSheetNoNotes => '이번 버전의 변경 내용은 따로 정리되지 않았어요.';
+
+  @override
+  String get updateSheetLater => '나중에';
+
+  @override
+  String get updateSheetNow => '업데이트';
+
+  @override
+  String get updateSheetRetry => '다시 시도';
+
+  @override
+  String get updateSheetDownloading => '받는 중이에요';
+
+  @override
+  String get updateSheetOpening => '설치 화면을 여는 중이에요';
+
+  @override
+  String get updateSheetFailed => '앱에서 받지 못했어요. 브라우저로 열어 볼게요.';
+
+  @override
   String get expScheduled => '예정';
 
   @override

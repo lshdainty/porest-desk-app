@@ -3512,6 +3512,66 @@ abstract class AppLocalizations {
   /// **'눌러서 AltStore 에서 받으세요'**
   String get updateAvailableDescIos;
 
+  /// No description provided for @updateSheetTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'{version} 버전이 나왔어요'**
+  String updateSheetTitle(String version);
+
+  /// No description provided for @updateSheetSubtitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'지금 받아서 설치할 수 있어요. 받는 동안 앱을 켜 두세요.'**
+  String get updateSheetSubtitle;
+
+  /// No description provided for @updateSheetChanges.
+  ///
+  /// In ko, this message translates to:
+  /// **'이번에 달라진 점'**
+  String get updateSheetChanges;
+
+  /// No description provided for @updateSheetNoNotes.
+  ///
+  /// In ko, this message translates to:
+  /// **'이번 버전의 변경 내용은 따로 정리되지 않았어요.'**
+  String get updateSheetNoNotes;
+
+  /// No description provided for @updateSheetLater.
+  ///
+  /// In ko, this message translates to:
+  /// **'나중에'**
+  String get updateSheetLater;
+
+  /// No description provided for @updateSheetNow.
+  ///
+  /// In ko, this message translates to:
+  /// **'업데이트'**
+  String get updateSheetNow;
+
+  /// No description provided for @updateSheetRetry.
+  ///
+  /// In ko, this message translates to:
+  /// **'다시 시도'**
+  String get updateSheetRetry;
+
+  /// No description provided for @updateSheetDownloading.
+  ///
+  /// In ko, this message translates to:
+  /// **'받는 중이에요'**
+  String get updateSheetDownloading;
+
+  /// No description provided for @updateSheetOpening.
+  ///
+  /// In ko, this message translates to:
+  /// **'설치 화면을 여는 중이에요'**
+  String get updateSheetOpening;
+
+  /// No description provided for @updateSheetFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'앱에서 받지 못했어요. 브라우저로 열어 볼게요.'**
+  String get updateSheetFailed;
+
   /// No description provided for @expScheduled.
   ///
   /// In ko, this message translates to:

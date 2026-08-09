@@ -1859,6 +1859,41 @@ class AppLocalizationsEn extends AppLocalizations {
   String get updateAvailableDescIos => 'Tap to get it from AltStore';
 
   @override
+  String updateSheetTitle(String version) {
+    return 'Version $version is available';
+  }
+
+  @override
+  String get updateSheetSubtitle =>
+      'You can download and install it now. Keep the app open while it downloads.';
+
+  @override
+  String get updateSheetChanges => 'What\'s new';
+
+  @override
+  String get updateSheetNoNotes =>
+      'No change notes were prepared for this version.';
+
+  @override
+  String get updateSheetLater => 'Later';
+
+  @override
+  String get updateSheetNow => 'Update';
+
+  @override
+  String get updateSheetRetry => 'Try again';
+
+  @override
+  String get updateSheetDownloading => 'Downloading';
+
+  @override
+  String get updateSheetOpening => 'Opening the installer';
+
+  @override
+  String get updateSheetFailed =>
+      'Could not download in the app. Opening your browser instead.';
+
+  @override
   String get expScheduled => 'Scheduled';
 
   @override

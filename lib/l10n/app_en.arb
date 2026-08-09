@@ -957,6 +957,19 @@
   },
   "updateAvailableDesc": "Tap to download and install",
   "updateAvailableDescIos": "Tap to get it from AltStore",
+  "updateSheetTitle": "Version {version} is available",
+  "@updateSheetTitle": {
+    "placeholders": { "version": { "type": "String" } }
+  },
+  "updateSheetSubtitle": "You can download and install it now. Keep the app open while it downloads.",
+  "updateSheetChanges": "What's new",
+  "updateSheetNoNotes": "No change notes were prepared for this version.",
+  "updateSheetLater": "Later",
+  "updateSheetNow": "Update",
+  "updateSheetRetry": "Try again",
+  "updateSheetDownloading": "Downloading",
+  "updateSheetOpening": "Opening the installer",
+  "updateSheetFailed": "Could not download in the app. Opening your browser instead.",
   "expScheduled": "Scheduled",
   "expDeleteRefundWarn": "{count} linked refund(s) ({amount} KRW) will also be deleted",
   "@expDeleteRefundWarn": {
