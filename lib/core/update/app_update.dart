@@ -60,6 +60,15 @@ class AppRelease {
   }
 }
 
+/// 지금 깔린 빌드의 버전 — 화면에 그대로 보여 줄 문자열.
+///
+/// 빌드번호를 괄호로 같이 단다. 이름(1.10.0)은 dev·prod 가 같을 수 있어서 그것만으로는
+/// 어느 빌드인지 못 가른다 — 새 버전 판정도 빌드번호로 한다.
+final appVersionProvider = FutureProvider<String>((ref) async {
+  final info = await PackageInfo.fromPlatform();
+  return '${info.version} (${info.buildNumber})';
+});
+
 /// 지금 깔린 빌드보다 새 버전이 있으면 그 정보, 없으면 null.
 final appUpdateProvider = FutureProvider<AppRelease?>((ref) async {
   try {

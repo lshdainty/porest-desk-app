@@ -3629,6 +3629,19 @@ class AppLocalizationsKo extends AppLocalizations {
   String get accountWithdrawDesc => '영구 삭제';
 
   @override
+  String accountAppVersion(String version) {
+    return '앱 버전 $version';
+  }
+
+  @override
+  String get accountAppVersionLatest => '최신 버전';
+
+  @override
+  String accountAppVersionUpdate(String version) {
+    return '새 버전 $version';
+  }
+
+  @override
   String get accountLogoutConfirm => '정말 로그아웃 하시겠어요?';
 
   @override

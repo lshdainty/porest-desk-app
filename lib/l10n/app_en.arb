@@ -1941,6 +1941,15 @@
   "accountLogoutDesc": "This device only",
   "accountWithdraw": "Delete account",
   "accountWithdrawDesc": "Permanent deletion",
+  "accountAppVersion": "App version {version}",
+  "@accountAppVersion": {
+    "placeholders": { "version": { "type": "String" } }
+  },
+  "accountAppVersionLatest": "Up to date",
+  "accountAppVersionUpdate": "New version {version}",
+  "@accountAppVersionUpdate": {
+    "placeholders": { "version": { "type": "String" } }
+  },
   "accountLogoutConfirm": "Are you sure you want to log out?",
   "accountWithdrawTitle": "Are you sure you want to delete your account?",
   "accountWithdrawConfirm": "Deleting your account permanently erases all data.\nThis cannot be undone.",

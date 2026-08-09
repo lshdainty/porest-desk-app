@@ -1996,6 +1996,15 @@
   "accountLogoutDesc": "이 기기에서만",
   "accountWithdraw": "회원 탈퇴",
   "accountWithdrawDesc": "영구 삭제",
+  "accountAppVersion": "앱 버전 {version}",
+  "@accountAppVersion": {
+    "placeholders": { "version": { "type": "String" } }
+  },
+  "accountAppVersionLatest": "최신 버전",
+  "accountAppVersionUpdate": "새 버전 {version}",
+  "@accountAppVersionUpdate": {
+    "placeholders": { "version": { "type": "String" } }
+  },
   "accountLogoutConfirm": "정말 로그아웃 하시겠어요?",
   "accountWithdrawTitle": "정말 탈퇴하시겠습니까?",
   "accountWithdrawConfirm": "회원 탈퇴 시 모든 데이터가 영구적으로 삭제됩니다.\n이 작업은 되돌릴 수 없습니다.",

@@ -3670,6 +3670,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accountWithdrawDesc => 'Permanent deletion';
 
   @override
+  String accountAppVersion(String version) {
+    return 'App version $version';
+  }
+
+  @override
+  String get accountAppVersionLatest => 'Up to date';
+
+  @override
+  String accountAppVersionUpdate(String version) {
+    return 'New version $version';
+  }
+
+  @override
   String get accountLogoutConfirm => 'Are you sure you want to log out?';
 
   @override

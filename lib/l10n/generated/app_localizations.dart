@@ -6842,6 +6842,24 @@ abstract class AppLocalizations {
   /// **'영구 삭제'**
   String get accountWithdrawDesc;
 
+  /// No description provided for @accountAppVersion.
+  ///
+  /// In ko, this message translates to:
+  /// **'앱 버전 {version}'**
+  String accountAppVersion(String version);
+
+  /// No description provided for @accountAppVersionLatest.
+  ///
+  /// In ko, this message translates to:
+  /// **'최신 버전'**
+  String get accountAppVersionLatest;
+
+  /// No description provided for @accountAppVersionUpdate.
+  ///
+  /// In ko, this message translates to:
+  /// **'새 버전 {version}'**
+  String accountAppVersionUpdate(String version);
+
   /// No description provided for @accountLogoutConfirm.
   ///
   /// In ko, this message translates to:
