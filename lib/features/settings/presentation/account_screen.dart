@@ -7,6 +7,7 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/core/update/app_update.dart';
 import 'package:porest_desk_app/core/auth/auth_notifier.dart';
 import 'package:porest_desk_app/core/format/date.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
@@ -359,6 +360,12 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
             ),
 
           const SizedBox(height: PSpace.x32),
+
+          // 앱 버전 — 화면 맨 아래에 조용히 둔다. 스토어를 안 거치니 지금 깔린 게
+          // 어느 빌드인지 알 데가 여기밖에 없다.
+          const _AppVersionLine(),
+
+          const SizedBox(height: PSpace.x32),
         ],
       ),
     );
@@ -492,6 +499,59 @@ class _AccountRow extends StatelessWidget {
               Icon(LucideIcons.chevronRight, size: 16, color: t.fgTertiary),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// 앱 버전과 최신 여부 한 줄.
+///
+/// 버전을 읽기 전에는 아무것도 그리지 않는다 — 빈 자리가 잠깐 보였다 채워지는 게
+/// 자리만 잡아 두는 것보다 낫다.
+///
+/// 최신 여부는 새 버전 확인과 같은 근거(`/download/version.json`)를 쓴다. 그 요청이
+/// 실패해도 provider 가 null 을 주므로 "최신"으로 보인다 — 서버를 못 읽었다고 굳이
+/// 알릴 일은 아니고, 홈 배너도 같은 조건이라 두 곳이 어긋나지 않는다.
+class _AppVersionLine extends ConsumerWidget {
+  const _AppVersionLine();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = context.tokens;
+    final l = AppLocalizations.of(context);
+
+    final version = ref.watch(appVersionProvider).value;
+    if (version == null) return const SizedBox.shrink();
+
+    final updateAsync = ref.watch(appUpdateProvider);
+    final release = updateAsync.value;
+
+    final suffix = updateAsync.isLoading
+        ? null
+        : release != null
+            ? l.accountAppVersionUpdate(release.version)
+            : l.accountAppVersionLatest;
+
+    return Text.rich(
+      TextSpan(
+        children: [
+          TextSpan(text: l.accountAppVersion(version)),
+          if (suffix != null) ...[
+            const TextSpan(text: ' · '),
+            TextSpan(
+              text: suffix,
+              // 새 버전이 있을 때만 눈에 걸리게. 최신이면 나머지와 같은 톤으로 묻는다.
+              style: release != null
+                  ? TextStyle(color: t.fgBrand, fontWeight: PFontWeight.semi)
+                  : null,
+            ),
+          ],
+        ],
+      ),
+      style: TextStyle(
+        fontFamily: PTypo.sans,
+        fontSize: PFontSize.caption,
+        color: t.fgTertiary,
       ),
     );
   }
