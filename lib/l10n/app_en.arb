@@ -961,7 +961,7 @@
   "@updateSheetTitle": {
     "placeholders": { "version": { "type": "String" } }
   },
-  "updateSheetSubtitle": "You can download and install it now. Keep the app open while it downloads.",
+  "updateSheetSubtitle": "A new version is ready. You can get it right below.",
   "updateSheetChanges": "What's new",
   "updateSheetNoNotes": "No change notes were prepared for this version.",
   "updateSheetLater": "Later",

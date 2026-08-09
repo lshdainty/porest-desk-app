@@ -1841,7 +1841,7 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get updateSheetSubtitle => '지금 받아서 설치할 수 있어요. 받는 동안 앱을 켜 두세요.';
+  String get updateSheetSubtitle => '새 버전이 준비됐어요. 아래에서 바로 받을 수 있어요.';
 
   @override
   String get updateSheetChanges => '이번에 달라진 점';

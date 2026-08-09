@@ -1865,7 +1865,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get updateSheetSubtitle =>
-      'You can download and install it now. Keep the app open while it downloads.';
+      'A new version is ready. You can get it right below.';
 
   @override
   String get updateSheetChanges => 'What\'s new';

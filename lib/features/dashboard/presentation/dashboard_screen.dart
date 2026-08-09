@@ -9,7 +9,6 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:porest_desk_app/app/env.dart';
 import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:porest_desk_app/core/update/app_update.dart';
 import 'package:porest_desk_app/core/update/update_sheet.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
@@ -75,8 +74,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   Widget build(BuildContext context) {
     final t = context.tokens;
 
-    // 새 버전이 확인되면 한 번 크게 알린다(안드로이드만). 확인은 비동기라 첫 build
-    // 시점에는 값이 없다 — 값이 도착하는 순간을 듣는다.
+    // 새 버전이 확인되면 한 번 크게 알린다. 확인은 비동기라 첫 build 시점에는 값이
+    // 없다 — 값이 도착하는 순간을 듣는다.
     ref.listen(appUpdateProvider, (_, next) {
       final release = next.value;
       if (release == null || _updateSheetShown) return;
@@ -1433,27 +1432,6 @@ class _TodaySpendCard extends StatelessWidget {
 class _UpdateBanner extends ConsumerWidget {
   const _UpdateBanner();
 
-  /// 받으러 보낸다.
-  ///
-  /// iOS 는 AltStore 딥링크로 가는데, 그게 안 깔려 있으면 열리지 않고 조용히 실패한다.
-  /// 그러면 안내가 있는 다운로드 페이지로 대신 보낸다 — 눌렀는데 아무 일도 안 일어나는
-  /// 게 제일 나쁘다.
-  Future<void> _open(AppRelease release) async {
-    try {
-      final ok = await launchUrl(
-        Uri.parse(release.downloadUrl),
-        mode: LaunchMode.externalApplication,
-      );
-      if (ok) return;
-    } catch (_) {
-      // 처리 가능한 앱이 없으면 예외로 떨어진다. 아래 폴백으로 이어 간다.
-    }
-    await launchUrl(
-      Uri.parse(release.fallbackUrl),
-      mode: LaunchMode.externalApplication,
-    );
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final release = ref.watch(appUpdateProvider).value;
@@ -1465,8 +1443,8 @@ class _UpdateBanner extends ConsumerWidget {
       padding: const EdgeInsets.only(bottom: PSpace.x20),
       child: InkWell(
         borderRadius: PRadius.brLg,
-        // 앱 안에서 받으면 설치 권한 처리가 번거롭다 — 밖으로 넘긴다.
-        onTap: () => _open(release),
+        // 밖으로 넘긴다 — 시트의 [업데이트] 와 같은 길을 쓴다.
+        onTap: () => openReleaseExternally(release),
         child: Container(
           padding: const EdgeInsets.symmetric(
               horizontal: PSpace.x16, vertical: PSpace.x12),
