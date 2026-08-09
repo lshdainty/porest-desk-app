@@ -3,6 +3,7 @@ import 'dart:io' show Platform;
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'package:porest_desk_app/app/env.dart';
 
@@ -67,6 +68,28 @@ class AppRelease {
       notes: notes is String ? notes : '',
     );
   }
+}
+
+/// 받으러 밖으로 내보낸다 — iOS 는 AltStore, 안드로이드는 APK 주소.
+///
+/// iOS 딥링크는 AltStore 가 없으면 열리지 않고 조용히 실패한다. 그때는 안내가 있는
+/// 다운로드 페이지로 대신 보낸다 — 눌렀는데 아무 일도 안 일어나는 게 제일 나쁘다.
+///
+/// 홈 배너와 업데이트 시트가 같이 쓴다. 두 곳이 따로 놀면 한쪽만 고쳐진다.
+Future<void> openReleaseExternally(AppRelease release) async {
+  try {
+    final ok = await launchUrl(
+      Uri.parse(release.downloadUrl),
+      mode: LaunchMode.externalApplication,
+    );
+    if (ok) return;
+  } catch (_) {
+    // 처리 가능한 앱이 없으면 예외로 떨어진다. 아래 폴백으로 이어 간다.
+  }
+  await launchUrl(
+    Uri.parse(release.fallbackUrl),
+    mode: LaunchMode.externalApplication,
+  );
 }
 
 /// 지금 깔린 빌드의 버전 — 화면에 그대로 보여 줄 문자열.

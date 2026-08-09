@@ -3,7 +3,6 @@ import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
@@ -19,15 +18,14 @@ import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 /// 홈 배너만 두면 스쳐 지나간다. 스토어가 없어 알림도 안 오니, 새 버전을 알 기회가
 /// 여기뿐이다. 대신 막지는 않는다 — 미루면 배너로 물러나고 그 버전은 다시 묻지 않는다.
 ///
-/// **안드로이드 전용이다.** iOS 는 앱이 스스로를 설치할 수 없어서(서명 없는 IPA 는
-/// 브라우저로 열어도 안 깔린다) 크게 띄워 봐야 할 수 있는 게 없다. 그쪽은 홈 배너에서
-/// AltStore 로 넘기는 길만 둔다.
+/// 화면은 두 플랫폼이 같다. 갈리는 건 [업데이트] 를 눌렀을 때뿐이다 — 안드로이드는
+/// 앱 안에서 받아 설치 화면까지 가고, iOS 는 AltStore 로 넘긴다(앱이 스스로를 설치할
+/// 수 없어서 그 길밖에 없다).
 Future<void> maybeShowUpdateSheet(
   BuildContext context,
   WidgetRef ref,
   AppRelease release,
 ) async {
-  if (!Platform.isAndroid) return;
   if (await loadSkippedBuild() >= release.buildNumber) return;
   if (!context.mounted) return;
 
@@ -187,8 +185,17 @@ class _UpdateFooterState extends ConsumerState<_UpdateFooter> {
     );
   }
 
+  /// [업데이트] 를 눌렀을 때. 여기서만 플랫폼이 갈린다.
   Future<void> _start(BuildContext context, WidgetRef ref) async {
     final release = widget.release;
+
+    // iOS 는 앱이 스스로를 설치할 수 없다. AltStore 에 넘기고 시트는 닫는다.
+    if (!Platform.isAndroid) {
+      await openReleaseExternally(release);
+      if (context.mounted) Navigator.of(context).pop(true);
+      return;
+    }
+
     final ok = await ref.read(apkInstallerProvider.notifier).downloadAndOpen(release);
     if (!context.mounted) return;
 
@@ -200,11 +207,8 @@ class _UpdateFooterState extends ConsumerState<_UpdateFooter> {
 
     // 앱 안에서 못 받았으면 브라우저에 넘긴다. 거기서는 받아지는 경우가 있다.
     final l = AppLocalizations.of(context);
-    final messenger = ScaffoldMessenger.of(context);
-    messenger.showSnackBar(SnackBar(content: Text(l.updateSheetFailed)));
-    await launchUrl(
-      Uri.parse(release.androidUrl),
-      mode: LaunchMode.externalApplication,
-    );
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(l.updateSheetFailed)));
+    await openReleaseExternally(release);
   }
 }
