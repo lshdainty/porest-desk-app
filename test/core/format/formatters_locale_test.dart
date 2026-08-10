@@ -38,10 +38,36 @@ void main() {
       expect(krwSigned(10000, true, unit: true), kHideMask);
     });
 
-    test('formatChartAxis: 억/만 축약', () {
-      expect(formatChartAxis(1200000000), '12.0억');
-      expect(formatChartAxis(-51750000), '−5,200만');
+    test('formatChartAxis: 조/억/만 축약', () {
+      // 만 — 만 단위로 정확히. 예전엔 100만 단위로 뭉개 5,200만이 나왔는데,
+      // 그러면 소액 축에서 눈금이 서로 겹친다.
+      expect(formatChartAxis(250000), '25만');
+      expect(formatChartAxis(-51750000), '−5,175만');
+      // 1억~10억 — 소수 한 자리가 정보를 준다.
+      expect(formatChartAxis(517500000), '5.2억');
+      // 10억~ — 소수는 읽는 데 보태는 게 없다.
+      expect(formatChartAxis(1200000000), '12억');
+      expect(formatChartAxis(-1200000000), '−12억');
+      // 조 — 억으로 두면 "10000.0억" 이 되어 축 폭을 넘는다.
+      expect(formatChartAxis(1200000000000), '1.2조');
+      // 만 미만은 그대로.
       expect(formatChartAxis(5000), '5000');
+      expect(formatChartAxis(0), '0');
+    });
+
+    test('formatChartAxis: 축 눈금이 서로 겹치지 않는다', () {
+      // 축은 0에서 5등분한다. 어느 스케일에서든 라벨이 중복되면 축을 읽을 수 없다.
+      for (final top in [50000.0, 1000000.0, 3000000.0, 50000000.0, 3.0e8, 3.0e9]) {
+        final labels = [
+          for (var i = 0; i <= 4; i++) formatChartAxis(top * i / 4),
+        ];
+        expect(labels.toSet().length, labels.length,
+            reason: '스케일 $top 에서 라벨 중복: $labels');
+        // 축 폭(reservedSize 52) 안에 들어가야 한다.
+        for (final s in labels) {
+          expect(s.length, lessThanOrEqualTo(8), reason: '라벨이 길다: $s');
+        }
+      }
     });
 
     test('formatDay · yearMonth: 수동 포맷', () {
