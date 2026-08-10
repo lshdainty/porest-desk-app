@@ -6266,6 +6266,18 @@ abstract class AppLocalizations {
   /// **'계정 관리'**
   String get settingsMenuAccountMgmt;
 
+  /// No description provided for @settingsMenuPrivacyPolicy.
+  ///
+  /// In ko, this message translates to:
+  /// **'개인정보 처리방침'**
+  String get settingsMenuPrivacyPolicy;
+
+  /// No description provided for @settingsPrivacyOpenFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'처리방침을 열 수 없습니다'**
+  String get settingsPrivacyOpenFailed;
+
   /// No description provided for @appearanceTitle.
   ///
   /// In ko, this message translates to:

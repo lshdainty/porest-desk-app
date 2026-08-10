@@ -1830,6 +1830,8 @@
   "settingsMenuStorage": "저장공간",
   "settingsGroupAccount": "계정",
   "settingsMenuAccountMgmt": "계정 관리",
+  "settingsMenuPrivacyPolicy": "개인정보 처리방침",
+  "settingsPrivacyOpenFailed": "처리방침을 열 수 없습니다",
   "appearanceTitle": "표시 설정",
   "appearanceTheme": "테마",
   "appearanceThemeLight": "라이트",
