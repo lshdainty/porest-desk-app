@@ -48,14 +48,27 @@ String wonUnit() => localeIsEn() ? '₩' : '원';
 String formatChartAxis(double v) {
   // en: 로케일 compact 축약 (120M · 52K · -5.2M). intl 내장 en 데이터.
   if (localeIsEn()) return NumberFormat.compact(locale: 'en').format(v);
-  // ko: 억/만 축약 (기존 그대로).
+  // ko: 조/억/만 축약.
+  //
+  // 구간마다 정밀도를 달리한다. 한 자리로 뭉개면 축 눈금이 겹치고(84만짜리 차트에서
+  // 25·50·75·100만이 "0만, 0만, 100만, 100만" 으로 나왔다), 반대로 늘 만 단위로 쓰면
+  // 조 단위에서 "10000.0억" 같은 라벨이 나와 축 폭(reservedSize 52)을 넘는다.
+  //
+  //   1조~     1.2조        10억~    12억, 9,999억
+  //   1억~     5.2억        1만~     25만, 9,999만
+  //   ~1만     5000
   final n = v.abs();
+  final ko = NumberFormat.decimalPattern('ko_KR');
   String body;
-  if (n >= 100000000) {
+  if (n >= 1000000000000) {
+    body = '${(n / 1000000000000).toStringAsFixed(1)}조';
+  } else if (n >= 1000000000) {
+    // 10억이 넘으면 소수 한 자리가 읽는 데 보태는 게 없다.
+    body = '${ko.format((n / 100000000).round())}억';
+  } else if (n >= 100000000) {
     body = '${(n / 100000000).toStringAsFixed(1)}억';
   } else if (n >= 10000) {
-    final mil = (n / 1000000).round() * 100;
-    body = '${NumberFormat.decimalPattern('ko_KR').format(mil)}만';
+    body = '${ko.format((n / 10000).round())}만';
   } else {
     body = n.toStringAsFixed(0);
   }
