@@ -1868,6 +1868,23 @@ class AppLocalizationsKo extends AppLocalizations {
   String get updateSheetFailed => '앱에서 받지 못했어요. 브라우저로 열어 볼게요.';
 
   @override
+  String get updateTitle => '업데이트';
+
+  @override
+  String get updateUpToDate => '최신 버전이에요';
+
+  @override
+  String updateCurrentBuild(String build) {
+    return '지금 빌드 $build';
+  }
+
+  @override
+  String get updateCheckFailed => '새 버전을 확인하지 못했어요';
+
+  @override
+  String get updateRequiredDesc => '이번 버전부터 꼭 업데이트해야 해요. 받기 전에는 앱을 쓸 수 없어요.';
+
+  @override
   String get expScheduled => '예정';
 
   @override

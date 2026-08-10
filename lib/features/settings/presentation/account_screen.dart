@@ -523,13 +523,14 @@ class _AppVersionLine extends ConsumerWidget {
     final version = ref.watch(appVersionProvider).value;
     if (version == null) return const SizedBox.shrink();
 
-    final updateAsync = ref.watch(appUpdateProvider);
-    final release = updateAsync.value;
+    final statusAsync = ref.watch(updateStatusProvider);
+    final status = statusAsync.value;
+    final hasUpdate = status?.hasUpdate ?? false;
 
-    final suffix = updateAsync.isLoading
+    final suffix = statusAsync.isLoading || status == null
         ? null
-        : release != null
-            ? l.accountAppVersionUpdate(release.version)
+        : hasUpdate
+            ? l.accountAppVersionUpdate(status.latest!.version)
             : l.accountAppVersionLatest;
 
     return Text.rich(
@@ -541,7 +542,7 @@ class _AppVersionLine extends ConsumerWidget {
             TextSpan(
               text: suffix,
               // 새 버전이 있을 때만 눈에 걸리게. 최신이면 나머지와 같은 톤으로 묻는다.
-              style: release != null
+              style: hasUpdate
                   ? TextStyle(color: t.fgBrand, fontWeight: PFontWeight.semi)
                   : null,
             ),

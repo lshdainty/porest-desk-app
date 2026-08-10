@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:porest_desk_app/core/auth/auth_notifier.dart';
+import 'package:porest_desk_app/core/update/app_update.dart';
 import 'package:porest_desk_app/features/asset/presentation/account_card_manage_screen.dart';
 import 'package:porest_desk_app/features/asset/presentation/asset_screen.dart';
 import 'package:porest_desk_app/features/budget/presentation/budget_screen.dart';
@@ -35,6 +36,7 @@ import 'package:porest_desk_app/features/recurring/presentation/recurring_screen
 import 'package:porest_desk_app/features/settings/presentation/account_screen.dart';
 import 'package:porest_desk_app/features/settings/presentation/appearance_section.dart';
 import 'package:porest_desk_app/features/settings/presentation/settings_screen.dart';
+import 'package:porest_desk_app/features/settings/presentation/update_screen.dart';
 import 'package:porest_desk_app/features/stats/presentation/stats_screen.dart';
 import 'package:porest_desk_app/features/stocks/presentation/stocks_screen.dart';
 import 'package:porest_desk_app/features/subscription/presentation/securities_gate.dart';
@@ -63,6 +65,17 @@ final routerProvider = Provider<GoRouter>((ref) {
         // 로그아웃 상태에서 splash/login 외 접근 시 → /login
         return atLogin ? null : '/login';
       }
+
+      // 더 못 쓰는 버전이면 업데이트 화면에 가둔다.
+      //
+      // 서버와 앱이 어긋나 잘못된 값을 주고받을 수 있는 상태라, 받기 전에는 어디로도
+      // 못 간다. 확인이 끝나기 전(로딩)이나 서버를 못 읽었을 때는 막지 않는다 —
+      // 네트워크가 끊겼다고 사람을 앱 밖에 세워 둘 이유가 없다.
+      final mustUpdate =
+          ref.read(updateStatusProvider).value?.mustUpdate ?? false;
+      final atUpdate = loc == '/settings/update';
+      if (mustUpdate && !atUpdate) return '/settings/update?forced=1';
+
       // 로그인 상태에서 splash/login 머무르면 → /home
       if (atSplash || atLogin) return '/home';
       return null;
@@ -108,6 +121,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
           path: '/settings/export-data',
           builder: (_, _) => const ExportScreen()),
+      // 업데이트 — 평소엔 설정에서 들어와 확인하고, 강제일 때는 redirect 가 여기로
+      // 몰아넣는다(그때는 뒤로 갈 수 없다).
+      GoRoute(
+          path: '/settings/update',
+          builder: (_, st) =>
+              UpdateScreen(forced: st.uri.queryParameters['forced'] == '1')),
       GoRoute(path: '/dutch-pay', builder: (_, _) => const DutchPayScreen()),
       GoRoute(path: '/notifications', builder: (_, _) => const NotificationScreen()),
       GoRoute(
@@ -191,16 +210,24 @@ final routerProvider = Provider<GoRouter>((ref) {
   );
 });
 
-/// authProvider 변화를 GoRouter 에 알려 redirect 재평가하게 만드는 브릿지.
+/// 로그인 상태·업데이트 상태 변화를 GoRouter 에 알려 redirect 를 재평가하게 만드는 브릿지.
+///
+/// 업데이트 확인은 비동기라 첫 redirect 때는 값이 없다. 여기서 듣지 않으면 "더 못 쓰는
+/// 버전" 이라는 답이 와도 이미 지나간 뒤라 아무도 다시 묻지 않는다.
 class _AuthRefresh extends ChangeNotifier {
   _AuthRefresh(Ref ref) {
-    _sub = ref.listen(authProvider, (_, _) => notifyListeners());
+    _subs = [
+      ref.listen(authProvider, (_, _) => notifyListeners()),
+      ref.listen(updateStatusProvider, (_, _) => notifyListeners()),
+    ];
   }
-  late final ProviderSubscription _sub;
+  late final List<ProviderSubscription> _subs;
 
   @override
   void dispose() {
-    _sub.close();
+    for (final s in _subs) {
+      s.close();
+    }
     super.dispose();
   }
 }

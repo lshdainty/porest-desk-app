@@ -973,6 +973,14 @@
   "updateSheetDownloading": "받는 중이에요",
   "updateSheetOpening": "설치 화면을 여는 중이에요",
   "updateSheetFailed": "앱에서 받지 못했어요. 브라우저로 열어 볼게요.",
+  "updateTitle": "업데이트",
+  "updateUpToDate": "최신 버전이에요",
+  "updateCurrentBuild": "지금 빌드 {build}",
+  "@updateCurrentBuild": {
+    "placeholders": { "build": { "type": "String" } }
+  },
+  "updateCheckFailed": "새 버전을 확인하지 못했어요",
+  "updateRequiredDesc": "이번 버전부터 꼭 업데이트해야 해요. 받기 전에는 앱을 쓸 수 없어요.",
   "expScheduled": "예정",
   "expDeleteRefundWarn": "이 거래에 달린 환불 {count}건({amount}원)도 함께 사라져요",
   "@expDeleteRefundWarn": {

@@ -90,6 +90,12 @@ List<_SettingsGroup> _buildGroups(BuildContext ctx) {
           label: l.navNotifications,
           onTap: (c) => c.push('/settings/notifications'),
         ),
+        // 스토어를 안 쓰니 새 버전을 알 데가 없다. 예전엔 앱을 열 때마다 알렸는데
+        // 받을 생각이 없는 사람에겐 매번 걷어내야 하는 벽이라, 확인은 이 자리로 모았다.
+        _SettingsItem(
+          label: l.updateTitle,
+          onTap: (c) => c.push('/settings/update'),
+        ),
       ],
     ),
     _SettingsGroup(

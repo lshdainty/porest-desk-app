@@ -3521,7 +3521,7 @@ abstract class AppLocalizations {
   /// No description provided for @updateSheetSubtitle.
   ///
   /// In ko, this message translates to:
-  /// **'지금 받아서 설치할 수 있어요. 받는 동안 앱을 켜 두세요.'**
+  /// **'새 버전이 준비됐어요. 아래에서 바로 받을 수 있어요.'**
   String get updateSheetSubtitle;
 
   /// No description provided for @updateSheetChanges.
@@ -3571,6 +3571,36 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'앱에서 받지 못했어요. 브라우저로 열어 볼게요.'**
   String get updateSheetFailed;
+
+  /// No description provided for @updateTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'업데이트'**
+  String get updateTitle;
+
+  /// No description provided for @updateUpToDate.
+  ///
+  /// In ko, this message translates to:
+  /// **'최신 버전이에요'**
+  String get updateUpToDate;
+
+  /// No description provided for @updateCurrentBuild.
+  ///
+  /// In ko, this message translates to:
+  /// **'지금 빌드 {build}'**
+  String updateCurrentBuild(String build);
+
+  /// No description provided for @updateCheckFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'새 버전을 확인하지 못했어요'**
+  String get updateCheckFailed;
+
+  /// No description provided for @updateRequiredDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'이번 버전부터 꼭 업데이트해야 해요. 받기 전에는 앱을 쓸 수 없어요.'**
+  String get updateRequiredDesc;
 
   /// No description provided for @expScheduled.
   ///
