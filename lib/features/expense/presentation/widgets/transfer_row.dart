@@ -64,7 +64,10 @@ class TransferRow extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(10),
-      child: Padding(
+      // 아직 오지 않은 이체는 행째로 흐리게 — 지출 행과 같은 규칙(웹 dim 정합).
+      child: Opacity(
+        opacity: _isScheduled(transfer.transferDate) ? 0.6 : 1,
+        child: Padding(
         padding: const EdgeInsets.fromLTRB(2, PSpace.x12, 0, PSpace.x12),
         child: Row(
           children: [
@@ -138,6 +141,7 @@ class TransferRow extends StatelessWidget {
                   letterSpacing: -0.14),
             ),
           ],
+        ),
         ),
       ),
     );
