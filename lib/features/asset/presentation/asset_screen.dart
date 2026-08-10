@@ -841,35 +841,28 @@ class _AssetCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        Flexible(
-                          child: Text(
-                            asset.assetName,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              color: t.fgPrimary,
-                              fontSize: PFontSize.body,
-                              fontWeight: PFontWeight.semi,
-                            ),
-                          ),
+                    // 발급사를 이름 위에 둔다. 같은 줄에 붙이면 이름 길이에 따라
+                    // 발급사가 행마다 다른 자리에 서고, 이름이 쓸 가로도 그만큼 준다.
+                    // 위로 빼면 자리가 늘 같고 이름은 한 줄을 통째로 쓴다.
+                    if (asset.institution != null &&
+                        asset.institution!.isNotEmpty)
+                      Text(
+                        asset.institution!,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: t.fgTertiary,
+                          fontSize: PFontSize.caption,
+                          fontWeight: PFontWeight.medium,
                         ),
-                        if (asset.institution != null &&
-                            asset.institution!.isNotEmpty) ...[
-                          const SizedBox(width: 6),
-                          Flexible(
-                            child: Text(
-                              asset.institution!,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                color: t.fgTertiary,
-                                fontSize: PFontSize.caption,
-                                fontWeight: PFontWeight.medium,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ],
+                      ),
+                    Text(
+                      asset.assetName,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: t.fgPrimary,
+                        fontSize: PFontSize.body,
+                        fontWeight: PFontWeight.semi,
+                      ),
                     ),
                     if (asset.assetType == 'INVESTMENT' &&
                         asset.holdings.isNotEmpty)
