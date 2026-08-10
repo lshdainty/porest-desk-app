@@ -1894,6 +1894,24 @@ class AppLocalizationsEn extends AppLocalizations {
       'Could not download in the app. Opening your browser instead.';
 
   @override
+  String get updateTitle => 'Update';
+
+  @override
+  String get updateUpToDate => 'You\'re up to date';
+
+  @override
+  String updateCurrentBuild(String build) {
+    return 'Current build $build';
+  }
+
+  @override
+  String get updateCheckFailed => 'Couldn\'t check for a new version';
+
+  @override
+  String get updateRequiredDesc =>
+      'This update is required. You can\'t use the app until you install it.';
+
+  @override
   String get expScheduled => 'Scheduled';
 
   @override

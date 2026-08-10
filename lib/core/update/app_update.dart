@@ -20,6 +20,7 @@ class AppRelease {
     required this.androidFile,
     required this.iosFile,
     required this.notes,
+    required this.minBuildNumber,
   });
 
   final String version;
@@ -29,6 +30,10 @@ class AppRelease {
 
   /// 이번 버전에서 바뀐 것. CI 가 커밋 제목을 모아 넣는다. 없으면 빈 문자열.
   final String notes;
+
+  /// 이 번호보다 낮은 빌드는 더 쓸 수 없다 — 서버와 앱이 어긋나 잘못된 값을 주고받을
+  /// 수 있는 변경에만 올린다(레포 `config/min_build.json` 에서 손으로 관리).
+  final int minBuildNumber;
 
   /// 안드로이드가 직접 받아 설치할 APK 주소.
   String get androidUrl => '${Env.webBaseUrl}/download/$androidFile';
@@ -59,13 +64,17 @@ class AppRelease {
     final ios = json['ios'];
     if (version is! String || build is! num || android is! String) return null;
     final notes = json['notes'];
+    final minBuild = json['minBuildNumber'];
     return AppRelease(
       version: version,
       buildNumber: build.toInt(),
       androidFile: android,
-      // ios·notes 는 나중에 붙었다. 옛 version.json 을 읽어도 죽지 않게 비워 둔다.
+      // ios·notes·minBuildNumber 는 나중에 붙었다. 옛 version.json 을 읽어도 죽지
+      // 않게 비워 둔다 — 특히 강제 하한은 0 으로 봐야 한다. 값을 못 읽었다고
+      // 사용자를 앱 밖으로 밀어내면 안 된다.
       iosFile: ios is String ? ios : '',
       notes: notes is String ? notes : '',
+      minBuildNumber: minBuild is num ? minBuild.toInt() : 0,
     );
   }
 }
@@ -101,12 +110,42 @@ final appVersionProvider = FutureProvider<String>((ref) async {
   return '${info.version} (${info.buildNumber})';
 });
 
-/// 지금 깔린 빌드보다 새 버전이 있으면 그 정보, 없으면 null.
-final appUpdateProvider = FutureProvider<AppRelease?>((ref) async {
-  try {
-    final info = await PackageInfo.fromPlatform();
-    final current = int.tryParse(info.buildNumber) ?? 0;
+/// 지금 앱이 어떤 상태인가 — 최신인지, 새 버전이 있는지, 더 못 쓰는지.
+///
+/// 새 버전 유무만으로는 부족하다. 강제 업데이트는 "지금 버전이 하한보다 낮은가" 를
+/// 봐야 하는데, 그건 최신이어도 서버 값을 알아야 판정할 수 있다.
+class UpdateStatus {
+  const UpdateStatus({required this.currentBuild, required this.latest});
 
+  /// 지금 깔린 빌드번호.
+  final int currentBuild;
+
+  /// 서버가 알려 준 최신 릴리스. 못 읽었으면 null.
+  final AppRelease? latest;
+
+  /// 받을 게 있나.
+  bool get hasUpdate => latest != null && latest!.buildNumber > currentBuild;
+
+  /// 이 버전으로는 더 쓸 수 없나 — 받기 전까지 앱을 막는다.
+  ///
+  /// 서버를 못 읽었으면 막지 않는다. 네트워크가 끊겼다고 앱을 못 쓰게 하면,
+  /// 정작 고쳐야 할 문제와 상관없이 사람을 밖에 세워 두는 셈이다.
+  bool get mustUpdate =>
+      latest != null && currentBuild < latest!.minBuildNumber;
+}
+
+final updateStatusProvider = FutureProvider<UpdateStatus>((ref) async {
+  final info = await PackageInfo.fromPlatform();
+  final current = int.tryParse(info.buildNumber) ?? 0;
+  return UpdateStatus(
+    currentBuild: current,
+    latest: await ref.watch(_latestReleaseProvider.future),
+  );
+});
+
+/// 서버가 알려 주는 최신 릴리스 — 지금 버전과 비교하기 전의 날것.
+final _latestReleaseProvider = FutureProvider<AppRelease?>((ref) async {
+  try {
     final res = await Dio().get<dynamic>(
       '${Env.webBaseUrl}/download/version.json',
       options: Options(
@@ -116,12 +155,9 @@ final appUpdateProvider = FutureProvider<AppRelease?>((ref) async {
         sendTimeout: const Duration(seconds: 5),
       ),
     );
-    final release = AppRelease.tryParse(res.data);
-    if (release == null) return null;
-
-    // versionCode 로 비교한다 — 이름(1.2.0)은 dev/prod 가 같을 수 있지만
-    // 빌드번호는 CI 실행번호라 항상 단조 증가한다.
-    return release.buildNumber > current ? release : null;
+    // 지금 버전과 비교하지 않고 그대로 돌려준다 — 최신이어도 강제 하한을 봐야 해서
+    // 서버 값 자체가 필요하다. 비교는 UpdateStatus 가 한다.
+    return AppRelease.tryParse(res.data);
   } catch (_) {
     // 배포 전이거나 오프라인 — 알릴 게 없을 뿐이다.
     return null;

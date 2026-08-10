@@ -970,6 +970,14 @@
   "updateSheetDownloading": "Downloading",
   "updateSheetOpening": "Opening the installer",
   "updateSheetFailed": "Could not download in the app. Opening your browser instead.",
+  "updateTitle": "Update",
+  "updateUpToDate": "You're up to date",
+  "updateCurrentBuild": "Current build {build}",
+  "@updateCurrentBuild": {
+    "placeholders": { "build": { "type": "String" } }
+  },
+  "updateCheckFailed": "Couldn't check for a new version",
+  "updateRequiredDesc": "This update is required. You can't use the app until you install it.",
   "expScheduled": "Scheduled",
   "expDeleteRefundWarn": "{count} linked refund(s) ({amount} KRW) will also be deleted",
   "@expDeleteRefundWarn": {
