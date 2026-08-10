@@ -189,7 +189,10 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
                 .value ??
             const <AssetTransfer>[])
         .where((tr) =>
-            tr.fromAssetRowId == asset.rowId || tr.toAssetRowId == asset.rowId)
+            (tr.fromAssetRowId == asset.rowId ||
+                tr.toAssetRowId == asset.rowId) &&
+            // 지출과 같은 규칙 — "최근 거래" 에는 지나간 것만 올린다.
+            !isScheduledTx(tr.transferDate))
         .toList();
     // CREDIT_CARD 는 신판 카드 상세 본문(_CardDetailBody) — 회차 히어로가 금액 담당.
     final isCredit = asset.assetType == 'CREDIT_CARD';

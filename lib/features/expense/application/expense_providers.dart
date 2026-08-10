@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:porest_desk_app/core/network/dio_provider.dart';
 import 'package:porest_desk_app/features/expense/data/expense_repository.dart';
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
+import 'package:porest_desk_app/features/expense/domain/expense_aggregates.dart';
 import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
 
 /// Repository provider — Dio 가 준비되면 ExpenseRepository 반환.
@@ -46,9 +47,13 @@ final expensesByAssetProvider =
     FutureProvider.family<List<Expense>, AssetExpensesKey>((ref, key) async {
   final repo = await ref.watch(expenseRepositoryProvider.future);
   final all = await repo.search(assetId: key.assetId);
-  all.sort((a, b) =>
+  // "최근" 은 지나간 것이다. 반복거래가 미리 만들어 둔 미래분을 그대로 두면 날짜
+  // 내림차순에서 맨 위를 차지해, 정작 최근 거래가 12건 밖으로 밀려난다.
+  // 예정분은 전체 보기(가계부)에서 "예정" 표시와 함께 본다(사용자 결정).
+  final past = all.where((e) => !isScheduledTx(e.expenseDate)).toList();
+  past.sort((a, b) =>
       (b.expenseDate ?? '').compareTo(a.expenseDate ?? ''));
-  return all.take(key.limit).toList();
+  return past.take(key.limit).toList();
 });
 
 /// 자산+기간 거래 (카드 상세 이용 내역 — 선택 회차의 청구 기간 필터, 최신순).
