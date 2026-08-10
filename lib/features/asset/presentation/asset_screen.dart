@@ -840,7 +840,7 @@ class _AssetCard extends StatelessWidget {
           // 통째로 쓴다.
           if (asset.institution != null && asset.institution!.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.only(bottom: 2),
+              padding: const EdgeInsets.only(bottom: PSpace.x4),
               child: Text(
                 asset.institution!,
                 overflow: TextOverflow.ellipsis,
@@ -1013,21 +1013,23 @@ class _AssetCard extends StatelessWidget {
           // 게이지는 행 맨 아래, 아이콘부터 오른쪽 끝까지 한 줄로. 예산 카테고리 행과
           // 같은 배치라 카드 이름이나 금액 길이와 무관하게 시작·끝이 늘 같다.
           if (showGauge) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: PSpace.x8),
             Row(
               children: [
                 Expanded(
                   child: ClipRRect(
                     borderRadius: PRadius.brFull,
                     child: LinearProgressIndicator(
-                      value: gaugeRatio.clamp(0.0, 1.0),
+                      // 바 두께는 간격이 아니라 컴포넌트 치수라 spacing 토큰을 안 쓴다.
+                      // 예산·저축목표 진행률 바와 같은 6px.
                       minHeight: 6,
+                      value: gaugeRatio.clamp(0.0, 1.0),
                       backgroundColor: t.bgTrack,
                       color: gaugeColor,
                     ),
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: PSpace.x8),
                 Text(
                   '${(gaugeRatio * 100).round()}%',
                   style: TextStyle(
