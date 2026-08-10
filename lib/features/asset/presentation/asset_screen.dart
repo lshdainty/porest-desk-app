@@ -871,7 +871,12 @@ class _AssetCard extends StatelessWidget {
                           ),
                         ),
                       )
-                    else if (asset.memo != null && asset.memo!.isNotEmpty)
+                    // 카드는 메모를 행에 안 띄운다. 아래로 결제일·게이지가 이어지는데
+                    // 메모가 한 줄 끼면 그만큼 밀려, 카드마다 게이지 높이가 달라진다.
+                    // 투자 행이 이미 쓰는 원칙과 같다 — 메모는 상세에서 본다.
+                    else if (!_cardTypes.contains(asset.assetType) &&
+                        asset.memo != null &&
+                        asset.memo!.isNotEmpty)
                       Padding(
                         padding: const EdgeInsets.only(top: 1),
                         child: Text(
@@ -884,12 +889,15 @@ class _AssetCard extends StatelessWidget {
                           ),
                         ),
                       ),
-                    if (asset.assetType == 'CREDIT_CARD' &&
-                        asset.paymentDay != null)
+                    // 신용카드는 이 줄을 늘 차지한다. 결제일이 없다고 줄을 빼면
+                    // 그 카드만 게이지가 위로 붙어 목록이 어긋난다.
+                    if (asset.assetType == 'CREDIT_CARD')
                       Padding(
                         padding: const EdgeInsets.only(top: 1),
                         child: Text(
-                          l.assetPaymentDayInfo(asset.paymentDay!),
+                          asset.paymentDay != null
+                              ? l.assetPaymentDayInfo(asset.paymentDay!)
+                              : '',
                           style: TextStyle(
                             color: t.fgTertiary,
                             fontSize: PFontSize.caption,

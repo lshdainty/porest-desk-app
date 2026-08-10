@@ -1340,10 +1340,16 @@ class _DonutLegendRow extends StatelessWidget {
                 fontWeight: PFontWeight.bold,
               ),
             ),
-            if (clickable) ...[
-              const SizedBox(width: 4),
-              Icon(LucideIcons.chevronRight, size: 13, color: t.fgTertiary),
-            ],
+            const SizedBox(width: 4),
+            // 화살표는 하위 카테고리가 있을 때만 뜬다. 자리는 늘 잡아 둔다 —
+            // 조건부로 넣으면 금액 오른쪽 끝이 행마다 달라져 목록이 들쭉날쭉해진다.
+            SizedBox(
+              width: 13,
+              child: clickable
+                  ? Icon(LucideIcons.chevronRight,
+                      size: 13, color: t.fgTertiary)
+                  : null,
+            ),
           ],
         ),
       ),
