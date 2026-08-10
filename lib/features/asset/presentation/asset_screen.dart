@@ -833,20 +833,24 @@ class _AssetCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-          // 이름이 행 맨 위, 아이콘과 같은 왼쪽 끝에서 시작한다. 아래 아이콘 옆에는
-          // 발급사가 온다 — 어느 쪽이 나은지 보려고 자리를 맞바꾼 배치다(스타일은 그대로).
-          Padding(
-            padding: const EdgeInsets.only(bottom: PSpace.x4),
-            child: Text(
-              asset.assetName,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: t.fgPrimary,
-                fontSize: PFontSize.body,
-                fontWeight: PFontWeight.semi,
+          // 발급사는 행 맨 위, 아이콘과 같은 왼쪽 끝에서 시작한다.
+          //
+          // 이름 옆에 붙여 두면 이름 길이만큼 자리가 밀려 행마다 다른 곳에 서고,
+          // 이름이 쓸 가로도 그만큼 줄었다. 위로 빼면 자리가 늘 같고 이름은 한 줄을
+          // 통째로 쓴다.
+          if (asset.institution != null && asset.institution!.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(bottom: PSpace.x4),
+              child: Text(
+                asset.institution!,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: t.fgTertiary,
+                  fontSize: PFontSize.caption,
+                  fontWeight: PFontWeight.medium,
+                ),
               ),
             ),
-          ),
           Row(
             children: [
               AssetLogo(asset: asset),
@@ -855,17 +859,15 @@ class _AssetCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (asset.institution != null &&
-                        asset.institution!.isNotEmpty)
-                      Text(
-                        asset.institution!,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: t.fgTertiary,
-                          fontSize: PFontSize.caption,
-                          fontWeight: PFontWeight.medium,
-                        ),
+                    Text(
+                      asset.assetName,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: t.fgPrimary,
+                        fontSize: PFontSize.body,
+                        fontWeight: PFontWeight.semi,
                       ),
+                    ),
                     if (asset.assetType == 'INVESTMENT' &&
                         asset.holdings.isNotEmpty)
                       // design 투자 행 서브 — 대표 종목 "외 N종목" (memo 는 상세에서).
