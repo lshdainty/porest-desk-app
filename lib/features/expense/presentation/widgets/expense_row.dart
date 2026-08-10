@@ -54,7 +54,12 @@ class ExpenseRow extends StatelessWidget {
     return InkWell(
       onTap: interactive ? () => showTxDetailDialog(context, expense) : null,
       borderRadius: BorderRadius.circular(10),
-      child: Padding(
+      // 아직 오지 않은 거래는 행째로 흐리게 — 합계에도 안 들어가는 값이라 지나간
+      // 거래와 같은 무게로 보이면 안 된다. 배지만으로는 눈에 잘 안 걸린다.
+      // 웹 LedgerRow 의 dim(opacity-60) 정합.
+      child: Opacity(
+        opacity: _isScheduled(expense.expenseDate) ? 0.6 : 1,
+        child: Padding(
         // design `.m-scroll .tx-list .tx-row`: 12px 10px + radius 10 (플랫 행 리듬).
         // web pl-1.5(6)−ml-1(4) = 순 좌측 +2 정합(사용자 결정). 우측 0.
         padding: const EdgeInsets.fromLTRB(2, PSpace.x12, 0, PSpace.x12),
@@ -136,6 +141,7 @@ class ExpenseRow extends StatelessWidget {
                   letterSpacing: -0.14),
             ),
           ],
+        ),
         ),
       ),
     );
