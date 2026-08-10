@@ -811,6 +811,17 @@ class _AssetCard extends StatelessWidget {
     // 그러면 데이터가 양수로 어긋나도 행은 멀쩡해 보이고 합계만 틀린 값이 나온다.
     // 지금은 저장할 때 음수로 정규화하므로 표시에서 손볼 게 없다.
     final isNeg = balance < 0;
+
+    // 신용카드 사용률 — 한도가 있어야 뜻이 있다.
+    final showGauge =
+        asset.assetType == 'CREDIT_CARD' && (asset.creditLimit ?? 0) > 0;
+    final gaugeRatio = showGauge ? balance.abs() / asset.creditLimit! : 0.0;
+    final gaugeColor = gaugeRatio >= 0.9
+        ? t.statusDanger
+        : gaugeRatio >= 0.7
+            ? t.statusWarning
+            : t.fgBrand;
+
     // design acc-card 플랫 행 — 구분선 없이 padding(12/10)+radius 10, 탭 hover 톤.
     return Material(
       color: Colors.transparent,
@@ -819,7 +830,10 @@ class _AssetCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
         child: Container(
           padding: const EdgeInsets.fromLTRB(8, 12, 2, 12), // web 12px 2px 12px 8px 정합
-          child: Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+          Row(
             children: [
               AssetLogo(asset: asset),
               const SizedBox(width: 14),
@@ -905,17 +919,6 @@ class _AssetCard extends StatelessWidget {
                           ),
                         ),
                       ),
-                    if (asset.assetType == 'CREDIT_CARD' &&
-                        (asset.creditLimit ?? 0) > 0)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 6),
-                        child: _CardUsageGauge(
-                          used: balance.abs(),
-                          limit: asset.creditLimit!,
-                          masked: masked,
-                          tokens: t,
-                        ),
-                      ),
                   ],
                 ),
               ),
@@ -991,10 +994,57 @@ class _AssetCard extends StatelessWidget {
                       ),
                     ),
                   ],
+                  // 카드 사용액·사용률 — 게이지 바는 아래 행 전체 폭으로 따로 그린다.
+                  // 왼쪽 텍스트 열에 두면 카드 이름 길이에 밀려 폭이 모자라 넘친다.
+                  if (showGauge) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      masked
+                          ? '••• / •••'
+                          : '${krw(balance.abs())} / ${krwSigned(asset.creditLimit!, false, unit: true)}',
+                      style: TextStyle(
+                        color: t.fgTertiary,
+                        fontSize: PFontSize.micro,
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ],
           ),
+          // 게이지는 행 맨 아래, 아이콘부터 오른쪽 끝까지 한 줄로. 예산 카테고리 행과
+          // 같은 배치라 카드 이름이나 금액 길이와 무관하게 시작·끝이 늘 같다.
+          if (showGauge) ...[
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius: PRadius.brFull,
+                    child: LinearProgressIndicator(
+                      value: gaugeRatio.clamp(0.0, 1.0),
+                      minHeight: 6,
+                      backgroundColor: t.bgTrack,
+                      color: gaugeColor,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  '${(gaugeRatio * 100).round()}%',
+                  style: TextStyle(
+                    color: gaugeColor,
+                    fontSize: PFontSize.micro,
+                    fontWeight: PFontWeight.bold,
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
         ),
       ),
     );
@@ -1009,73 +1059,6 @@ String _holdingsRep(AppLocalizations l, List<AssetHolding> holdings) {
   final first = nameOf(holdings.first);
   if (holdings.length == 1) return first;
   return l.assetHoldingRep(first, holdings.length - 1);
-}
-
-/// 신용카드 사용률 게이지 — abs(balance)/creditLimit.
-/// 70%↑ warning, 90%↑ danger 색. card_performance_bar 와 동일한
-/// LinearProgressIndicator(ClipRRect) 패턴 재활용.
-class _CardUsageGauge extends StatelessWidget {
-  const _CardUsageGauge({
-    required this.used,
-    required this.limit,
-    required this.masked,
-    required this.tokens,
-  });
-  final int used;
-  final int limit;
-  final bool masked;
-  final PorestTokens tokens;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = tokens;
-    final ratio = limit > 0 ? used / limit : 0.0;
-    final pct = (ratio * 100).round();
-    final barColor = ratio >= 0.9
-        ? t.statusDanger
-        : ratio >= 0.7
-        ? t.statusWarning
-        : t.fgBrand;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        ClipRRect(
-          borderRadius: PRadius.brXs,
-          child: LinearProgressIndicator(
-            value: ratio.clamp(0.0, 1.0),
-            minHeight: 6,
-            backgroundColor: t.bgTrack,
-            color: barColor,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Row(
-          children: [
-            Text(
-              masked
-                  ? '••• / •••'
-                  : '${krw(used)} / ${krwSigned(limit, false, unit: true)}',
-              style: TextStyle(
-                color: t.fgTertiary,
-                fontSize: PFontSize.micro,
-                fontFeatures: const [FontFeature.tabularFigures()],
-              ),
-            ),
-            const Spacer(),
-            Text(
-              '$pct%',
-              style: TextStyle(
-                color: barColor,
-                fontSize: PFontSize.micro,
-                fontWeight: PFontWeight.bold,
-                fontFeatures: const [FontFeature.tabularFigures()],
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
 }
 
 /// Asset 페이지 구조 맞춤 skeleton — Web AssetPageSkeleton 정합.
