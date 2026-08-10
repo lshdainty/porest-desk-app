@@ -833,6 +833,24 @@ class _AssetCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+          // 발급사는 행 맨 위, 아이콘과 같은 왼쪽 끝에서 시작한다.
+          //
+          // 이름 옆에 붙여 두면 이름 길이만큼 자리가 밀려 행마다 다른 곳에 서고,
+          // 이름이 쓸 가로도 그만큼 줄었다. 위로 빼면 자리가 늘 같고 이름은 한 줄을
+          // 통째로 쓴다.
+          if (asset.institution != null && asset.institution!.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 2),
+              child: Text(
+                asset.institution!,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: t.fgTertiary,
+                  fontSize: PFontSize.caption,
+                  fontWeight: PFontWeight.medium,
+                ),
+              ),
+            ),
           Row(
             children: [
               AssetLogo(asset: asset),
@@ -841,20 +859,6 @@ class _AssetCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // 발급사를 이름 위에 둔다. 같은 줄에 붙이면 이름 길이에 따라
-                    // 발급사가 행마다 다른 자리에 서고, 이름이 쓸 가로도 그만큼 준다.
-                    // 위로 빼면 자리가 늘 같고 이름은 한 줄을 통째로 쓴다.
-                    if (asset.institution != null &&
-                        asset.institution!.isNotEmpty)
-                      Text(
-                        asset.institution!,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: t.fgTertiary,
-                          fontSize: PFontSize.caption,
-                          fontWeight: PFontWeight.medium,
-                        ),
-                      ),
                     Text(
                       asset.assetName,
                       overflow: TextOverflow.ellipsis,
