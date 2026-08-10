@@ -3360,6 +3360,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsMenuAccountMgmt => 'Account Management';
 
   @override
+  String get settingsMenuPrivacyPolicy => 'Privacy Policy';
+
+  @override
+  String get settingsPrivacyOpenFailed => 'Could not open the privacy policy';
+
+  @override
   String get appearanceTitle => 'Display Settings';
 
   @override

@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:url_launcher/url_launcher.dart';
 
+import 'package:porest_desk_app/app/env.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
@@ -109,9 +111,33 @@ List<_SettingsGroup> _buildGroups(BuildContext ctx) {
           label: l.settingsMenuAccountMgmt,
           onTap: (c) => c.push('/account'),
         ),
+        _SettingsItem(
+          label: l.settingsMenuPrivacyPolicy,
+          onTap: _openPrivacyPolicy,
+        ),
       ],
     ),
   ];
+}
+
+/// 개인정보 처리방침을 브라우저로 연다.
+///
+/// 문서는 SSO 에 한 벌만 두고(계정·인증을 SSO 가 총괄) 웹·앱 모두 그곳을 가리킨다.
+/// 앱에 문구를 복사해 두면 개정 때 한쪽만 고쳐져 내용이 갈라진다.
+Future<void> _openPrivacyPolicy(BuildContext ctx) async {
+  final l = AppLocalizations.of(ctx);
+  // async gap 뒤에 context 를 다시 만지지 않도록 미리 잡아 둔다
+  final messenger = ScaffoldMessenger.of(ctx);
+  final uri = Uri.parse('${Env.ssoUrl}/privacy');
+
+  try {
+    if (await launchUrl(uri, mode: LaunchMode.externalApplication)) return;
+  } catch (_) {
+    // 처리 가능한 앱이 없으면 예외로 떨어진다 — 아래에서 함께 알린다
+  }
+
+  // 눌렀는데 아무 일도 안 일어나는 게 제일 나쁘다
+  messenger.showSnackBar(SnackBar(content: Text(l.settingsPrivacyOpenFailed)));
 }
 
 /// 설정 메뉴 — design MobileSettingsList (K뱅크 톤) 미러.

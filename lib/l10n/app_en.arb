@@ -1819,6 +1819,8 @@
   "settingsMenuStorage": "Storage",
   "settingsGroupAccount": "Account",
   "settingsMenuAccountMgmt": "Account Management",
+  "settingsMenuPrivacyPolicy": "Privacy Policy",
+  "settingsPrivacyOpenFailed": "Could not open the privacy policy",
   "appearanceTitle": "Display Settings",
   "appearanceTheme": "Theme",
   "appearanceThemeLight": "Light",

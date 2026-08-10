@@ -3319,6 +3319,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get settingsMenuAccountMgmt => '계정 관리';
 
   @override
+  String get settingsMenuPrivacyPolicy => '개인정보 처리방침';
+
+  @override
+  String get settingsPrivacyOpenFailed => '처리방침을 열 수 없습니다';
+
+  @override
   String get appearanceTitle => '표시 설정';
 
   @override

@@ -3521,7 +3521,7 @@ abstract class AppLocalizations {
   /// No description provided for @updateSheetSubtitle.
   ///
   /// In ko, this message translates to:
-  /// **'지금 받아서 설치할 수 있어요. 받는 동안 앱을 켜 두세요.'**
+  /// **'새 버전이 준비됐어요. 아래에서 바로 받을 수 있어요.'**
   String get updateSheetSubtitle;
 
   /// No description provided for @updateSheetChanges.
@@ -6235,6 +6235,18 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'계정 관리'**
   String get settingsMenuAccountMgmt;
+
+  /// No description provided for @settingsMenuPrivacyPolicy.
+  ///
+  /// In ko, this message translates to:
+  /// **'개인정보 처리방침'**
+  String get settingsMenuPrivacyPolicy;
+
+  /// No description provided for @settingsPrivacyOpenFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'처리방침을 열 수 없습니다'**
+  String get settingsPrivacyOpenFailed;
 
   /// No description provided for @appearanceTitle.
   ///
