@@ -76,12 +76,19 @@ class TodoRepository {
     }
   }
 
-  Future<void> setStatus(int id, String status) async {
+  /// 상태 토글 — 이번 토글로 실제 적립된 별빛(earnedStarlight)을 돌려준다.
+  /// 회수·평생 1회 차단이면 0. 화면 토스트가 이 값을 그대로 써야 "+N" 이 거짓이 되지 않는다.
+  Future<int> setStatus(int id, String status) async {
     try {
-      await _dio.patch<dynamic>(
+      final res = await _dio.patch<Map<String, dynamic>>(
         '/todo/$id/status',
         data: {'status': status},
       );
+      final data = res.data?['data'];
+      if (data is Map<String, dynamic>) {
+        return (data['earnedStarlight'] as num?)?.toInt() ?? 0;
+      }
+      return 0;
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }

@@ -90,13 +90,6 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
     return (v == null || v.isEmpty) ? kTodoDefaultTag : v;
   }
 
-  /// 별빛 가중치 — 중요 3 · 보통 2 · 여유 1 (design FOREST_WEIGHT).
-  static int _weight(String? prio) => switch (prio) {
-        'HIGH' => 3,
-        'LOW' => 1,
-        _ => 2,
-      };
-
   void _lockFor(int ms) {
     _lock = true;
     _lockTimer?.cancel();
@@ -178,15 +171,17 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
     final wasDone = x.done;
     try {
       final repo = await ref.read(todoRepositoryProvider.future);
-      await repo.setStatus(x.rowId, wasDone ? 'PENDING' : 'COMPLETED');
+      // 서버가 이번 토글의 실제 적립량을 돌려준다 — 낙관 예측으로 띄우면 평생 1회
+      // 정책에 걸려 적립이 0 이어도 "+N" 이 떠서 거짓말이 된다(웹 TodoPage 정합).
+      final gain =
+          await repo.setStatus(x.rowId, wasDone ? 'PENDING' : 'COMPLETED');
       ref.invalidate(todoListProvider);
       // 별빛 적립/회수 부수효과 — 별자리 상태 일괄 갱신.
       final constToday = ref.read(constellationTodayProvider).value;
       invalidateConstellation(ref);
       if (!mounted) return;
-      // 완료 전환 시 별빛 토스트 (design starToast) — 서버 재계산 전 클라 예측.
-      if (!wasDone && constToday != null && !constToday.collected) {
-        final gain = _weight(x.priority);
+      // 완료 전환 시 별빛 토스트 (design starToast).
+      if (gain > 0 && constToday != null && !constToday.collected) {
         final left = constToday.goal - (constToday.points + gain);
         showPSnackBar(
           context,
