@@ -53,6 +53,18 @@
 			</array>
 		</dict>
 	</dict>
+	<!-- OAuth 콜백 딥링크 — 시스템 브라우저 로그인이 porestdesk://oauth/callback 302 로 복귀 -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.porest.desk.oauth</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>porestdesk</string>
+			</array>
+		</dict>
+	</array>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>

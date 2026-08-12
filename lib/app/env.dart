@@ -34,13 +34,12 @@ abstract final class Env {
     defaultValue: 'https://desk-dev.porest.cloud:10443',
   );
 
-  /// OAuth2 콜백 커스텀 스킴. 인앱 WebView 가 이 스킴으로의 navigation 을
-  /// `shouldOverrideUrlLoading` 으로 가로채 인가코드를 추출한다.
-  /// OS 딥링크(Android intent-filter / iOS CFBundleURLTypes)는 등록하지 않는다
-  /// — 커스텀스킴 하이재킹 방어(콜백은 WebView 내부에서만 소비).
+  /// OAuth2 콜백 커스텀 스킴 — OS 딥링크(Android intent-filter / iOS CFBundleURLTypes)로
+  /// 등록돼 시스템 브라우저 로그인의 복귀를 받는다. 다른 앱이 같은 스킴을 하이재킹해도
+  /// state(CSRF)와 PKCE code_verifier 를 모르는 콜백은 처리기에서 버려진다(RFC 8252).
   static const String authCallbackScheme = 'porestdesk';
 
-  /// SSO 로그인 후 인앱 WebView 가 가로챌 모바일 전용 redirect_uri (private-use scheme).
+  /// SSO 로그인 후 서버 302 로 내려오는 모바일 전용 redirect_uri (private-use scheme).
   /// SSO 의 client_redirect_uris 에 동일 값으로 등록되어 있어야 한다.
   static const String oauthRedirectUri = '$authCallbackScheme://oauth/callback';
 

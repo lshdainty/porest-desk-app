@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:porest_desk_app/core/auth/auth_events.dart';
+import 'package:porest_desk_app/core/auth/oauth_link_listener.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/core/network/dio_provider.dart';
 import 'package:porest_desk_app/core/auth/auth_repository.dart';
@@ -85,6 +86,10 @@ class AuthNotifier extends AsyncNotifier<User?> {
       }
     }
     await jar.deleteAll();
+    // SSO Refresh 쿠키는 시스템 브라우저 안에 있어 앱이 지울 수 없다 — 다음 로그인에
+    // prompt=login 을 실어 무음 재인증이 로그아웃을 조용히 되살리는 것을 막는다.
+    // (해제는 다음 로그인 성공 시 콜백 처리기가 한다)
+    await ref.read(oauthFlowStoreProvider).markForceLoginPrompt();
     state = const AsyncData(null);
   }
 }
