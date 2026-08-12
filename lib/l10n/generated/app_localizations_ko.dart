@@ -674,6 +674,17 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetValueLabelCard => '이번 달 결제 예정';
 
   @override
+  String get assetValueLabelCheckCard => '이번 달 사용액';
+
+  @override
+  String get assetCheckCardMonthLabel => '이번 달 사용';
+
+  @override
+  String assetMonthTxCount(int count) {
+    return '이번 달 내역 ($count)';
+  }
+
+  @override
   String get assetValuationShort => '평가액';
 
   @override

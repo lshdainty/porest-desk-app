@@ -290,6 +290,16 @@
     }
   },
   "assetValueLabelCard": "Due this month",
+  "assetValueLabelCheckCard": "Spent this month",
+  "assetCheckCardMonthLabel": "Used this month",
+  "assetMonthTxCount": "This month ({count})",
+  "@assetMonthTxCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "assetValuationShort": "Valuation",
   "assetSeriesUsage": "Usage",
   "assetRecentTxCount": "Recent transactions ({count})",

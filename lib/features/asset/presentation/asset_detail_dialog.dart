@@ -156,7 +156,14 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
     final isCard =
         asset.assetType == 'CREDIT_CARD' || asset.assetType == 'CHECK_CARD';
     final isInv = asset.assetType == 'INVESTMENT';
-    final valueLabel = isCard
+    // 연결계좌형 체크카드 — 결제가 계좌에서 즉시 빠져 잔액이 늘 0 이다. 히어로는 잔액
+    // 대신 "이번 달 사용액", 내역은 당월 1일~말일 전체(사용자 결정). 미연결 체크카드는
+    // 잔액이 실제로 쌓이므로 일반 계좌처럼 그대로다. (web 정합)
+    final isCheckLinked =
+        asset.assetType == 'CHECK_CARD' && asset.paymentAssetRowId != null;
+    final valueLabel = isCheckLinked
+        ? l.assetValueLabelCheckCard
+        : isCard
         ? l.assetValueLabelCard
         : isInv
         ? l.assetValuationShort
@@ -178,12 +185,28 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
     final trendAsync = ref.watch(
       assetBalanceTrendProvider((assetId: asset.rowId, weeks: _period.weeks)),
     );
-    // recent tx — web 와 동일 12건.
-    final recentAsync = ref.watch(
-      expensesByAssetProvider((assetId: asset.rowId, limit: 12)),
-    );
+    // recent tx — web 와 동일 12건. 연결계좌형 체크카드는 "이번 달 뭐 썼나" 가 목적이라
+    // 당월(1일~말일) 전체를 다 가져온다 — 12건 컷을 두면 월말엔 월초 내역이 잘린다.
+    final now = DateTime.now();
+    String ymd(DateTime d) =>
+        '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+    final recentAsync = isCheckLinked
+        ? ref
+            .watch(assetPeriodExpensesProvider((
+              assetId: asset.rowId,
+              startDate: ymd(DateTime(now.year, now.month, 1)),
+              endDate: ymd(DateTime(now.year, now.month + 1, 0)),
+            )))
+            // 기간 provider 는 예정분을 안 거른다 — "이번 달 내역" 규칙(지나간 것만)을 여기서 맞춘다.
+            .whenData((list) =>
+                list.where((e) => !isScheduledTx(e.expenseDate)).toList())
+        : ref.watch(
+            expensesByAssetProvider((assetId: asset.rowId, limit: 12)),
+          );
     // 이체는 expense 가 아니라 asset_transfer — 따로 받아 이 자산에 걸린 것만 추린다.
     // 한 건이 자산 두 개에 걸치므로 보내는 쪽·받는 쪽 둘 다 확인한다(서버 필터는 기간만 지원).
+    final monthPrefix =
+        '${now.year.toString().padLeft(4, '0')}-${now.month.toString().padLeft(2, '0')}';
     final assetTransfers = (ref
                 .watch(assetTransfersProvider((startDate: null, endDate: null)))
                 .value ??
@@ -192,7 +215,10 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
             (tr.fromAssetRowId == asset.rowId ||
                 tr.toAssetRowId == asset.rowId) &&
             // 지출과 같은 규칙 — "최근 거래" 에는 지나간 것만 올린다.
-            !isScheduledTx(tr.transferDate))
+            !isScheduledTx(tr.transferDate) &&
+            // 체크카드 "이번 달 내역" 은 이체도 당월만 — 지출과 기간을 맞춘다.
+            (!isCheckLinked ||
+                (tr.transferDate ?? '').startsWith(monthPrefix)))
         .toList();
     // CREDIT_CARD 는 신판 카드 상세 본문(_CardDetailBody) — 회차 히어로가 금액 담당.
     final isCredit = asset.assetType == 'CREDIT_CARD';
@@ -228,7 +254,9 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
           const SizedBox(height: PSpace.x16),
         ],
 
-        // Trend header
+        // Trend header — 연결계좌형 체크카드는 잔액이 늘 0 이라 평평한 0 선뿐이다.
+        // 차트만 빼고 내역은 그대로 둔다. (web 정합)
+        if (!isCheckLinked) ...[
         Row(
           children: [
             Expanded(
@@ -265,6 +293,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
           ),
         ),
         const SizedBox(height: PSpace.x20),
+        ],
 
         // Recent tx
         Row(
@@ -272,7 +301,9 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
             Expanded(
               child: Text(
                 (recentAsync.value?.isNotEmpty ?? false)
-                    ? l.assetRecentTxCount(recentAsync.value!.length)
+                    ? (isCheckLinked
+                        ? l.assetMonthTxCount(recentAsync.value!.length)
+                        : l.assetRecentTxCount(recentAsync.value!.length))
                     : l.dashRecent,
                 style: PTypo.bodySm.copyWith(
                   color: t.fgPrimary,
@@ -779,7 +810,14 @@ class _HeroCard extends StatelessWidget {
     final heroIsCard =
         asset.assetType == 'CREDIT_CARD' || asset.assetType == 'CHECK_CARD';
     final rawBalance = asset.balance ?? 0;
-    final heroBalance = heroIsCard ? rawBalance.abs() : rawBalance;
+    // 연결계좌형 체크카드는 잔액이 늘 0 — 히어로는 이번 달 사용액(서버 계산)을 보여준다.
+    final checkLinked =
+        asset.assetType == 'CHECK_CARD' && asset.paymentAssetRowId != null;
+    final heroBalance = checkLinked
+        ? (asset.monthlyUsedAmount ?? 0)
+        : heroIsCard
+            ? rawBalance.abs()
+            : rawBalance;
     // 플랫 히어로(design 신판) — 그라데이션 카드 제거, 이름 행 아래 구분선만.
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

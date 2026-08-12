@@ -684,6 +684,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetValueLabelCard => 'Due this month';
 
   @override
+  String get assetValueLabelCheckCard => 'Spent this month';
+
+  @override
+  String get assetCheckCardMonthLabel => 'Used this month';
+
+  @override
+  String assetMonthTxCount(int count) {
+    return 'This month ($count)';
+  }
+
+  @override
   String get assetValuationShort => 'Valuation';
 
   @override
