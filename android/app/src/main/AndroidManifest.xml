@@ -40,6 +40,15 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <!-- OAuth 콜백 딥링크 — 시스템 브라우저 로그인이 porestdesk://oauth/callback
+                 302 로 복귀한다. autoVerify 는 https App Links 전용이라 커스텀스킴엔 없음.
+                 스킴 하이재킹은 PKCE(code_verifier)+state 검증이 막는다(RFC 8252). -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="porestdesk" android:host="oauth"/>
+            </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->

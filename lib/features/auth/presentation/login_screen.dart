@@ -6,28 +6,31 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:url_launcher/url_launcher.dart';
+
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/core/auth/auth_notifier.dart';
+import 'package:porest_desk_app/core/auth/oauth_link_listener.dart';
 import 'package:porest_desk_app/core/auth/pkce.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
-import 'package:porest_desk_app/features/auth/presentation/sso_webview_page.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_progress.dart';
 
-/// SSO 로그인 화면 (OAuth 2.0 Authorization Code + PKCE, 인앱 WebView).
+/// SSO 로그인 화면 (OAuth 2.0 Authorization Code + PKCE, 시스템 브라우저 — RFC 8252).
 ///
 /// 흐름:
-/// 1. 앱이 PKCE(code_verifier/code_challenge) + state 를 직접 생성.
-/// 2. [SsoWebViewPage] 를 push → 인앱 WebView 가 SSO `/api/v1/oauth2/authorize` 오픈
-///    (SSO 가 로그인 폼으로 redirect, 앱은 포그라운드 유지).
-/// 3. 로그인 성공 → SSO 가 `porestdesk://oauth/callback?code=&state=` 로 navigation →
-///    WebView 가 가로채 code 를 pop 으로 반환 (token 교환은 하지 않음 — BFF).
-/// 4. desk-back `/auth/exchange-code` 로 교환(code+codeVerifier) → desk_access_token 쿠키.
-/// 5. router redirect 가 /home 으로 이동.
+/// 1. 앱이 PKCE(code_verifier/code_challenge) + state 를 직접 생성,
+///    [OAuthFlowStore] 에 **먼저 보관**(브라우저에 가 있는 동안 프로세스가 죽어도 복구).
+/// 2. 시스템 브라우저로 SSO `/api/v1/oauth2/authorize` 오픈. SSO 에 Refresh 쿠키가
+///    살아 있으면 무음 재인증으로 폼 없이 즉시 복귀한다.
+/// 3. 로그인 완료 → SSO 서버가 302 로 `porestdesk://oauth/callback?code=&state=` 를
+///    내려보냄 → OS 딥링크로 앱 복귀 → [oauthLinkListenerProvider] 가 state 검증 후
+///    desk-back `/auth/exchange-code` 교환(BFF) → router 가 /home 으로.
 ///
-/// 시스템 브라우저(Custom Tab) 대신 인앱 WebView 를 쓰는 이유: 일부 Android 기기에서
-/// Custom Tab 으로 나가는 순간 앱 액티비티가 상태를 잃어 콜백을 못 받는 문제 회피. 보안
-/// 프로토콜(Authorization Code + PKCE + RS256 + BFF)은 그대로, UA 만 인앱 WebView 로 교체.
+/// 인앱 WebView 가 아니라 시스템 브라우저인 이유: Google 소셜 로그인이 임베디드
+/// WebView 를 차단한다(403 disallowed_useragent). 예전 시스템 브라우저 시절의 두 버그는
+/// 구조적으로 재발하지 않는다 — iOS 핸드오프는 서버 302 bounce 가, Android 백그라운드
+/// 상태 유실은 PKCE 디스크 보관([OAuthFlowStore])이 막는다.
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
@@ -53,10 +56,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       _error = null;
     });
     try {
-      // 1) PKCE + state 생성 (앱이 직접).
+      // 1) PKCE + state 생성(앱이 직접) → 브라우저로 나가기 전에 디스크 보관.
+      //    복귀가 콜드 스타트여도 리스너가 이걸 복원해 교환을 이어간다.
       final verifier = generateCodeVerifier();
       final challenge = codeChallengeS256(verifier);
       final state = generateState();
+      final store = ref.read(oauthFlowStoreProvider);
+      await store.savePending(verifier: verifier, state: state);
+
+      // 로그아웃 직후 첫 로그인은 폼 강제(prompt=login) — 무음 재인증이 로그아웃을
+      // 되살리지 않게. 해제는 로그인 성공 시(리스너)에 한다.
+      final forcePrompt = await store.isForceLoginPrompt();
 
       // 2) authorize URL 조립. challenge/state 는 base64url(no padding) 이라 URL-safe.
       final authorizeUrl =
@@ -66,33 +76,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           '&redirect_uri=${Uri.encodeComponent(Env.oauthRedirectUri)}'
           '&code_challenge=$challenge'
           '&code_challenge_method=S256'
-          '&state=${Uri.encodeComponent(state)}';
+          '&state=${Uri.encodeComponent(state)}'
+          '${forcePrompt ? '&prompt=login' : ''}';
 
-      // 3) 인앱 WebView 로 로그인 → code 수신(취소 시 null).
-      final code = await Navigator.of(context).push<String?>(
-        MaterialPageRoute(
-          builder: (_) => SsoWebViewPage(
-            authorizeUrl: authorizeUrl,
-            expectedState: state,
-            redirectUri: Env.oauthRedirectUri,
-          ),
-        ),
+      // 3) 시스템 브라우저로 — 복귀는 딥링크 리스너(oauthLinkListenerProvider)가 받는다.
+      final launched = await launchUrl(
+        Uri.parse(authorizeUrl),
+        mode: LaunchMode.externalApplication,
       );
-
-      if (code == null || code.isEmpty) {
-        // 사용자가 로그인 취소 — 조용히 복귀.
-        if (!mounted) return;
-        setState(() => _busy = false);
-        return;
+      if (!launched) {
+        throw StateError('브라우저를 열 수 없습니다');
       }
-
-      // 4) BFF 교환 — authorize 와 동일한 redirect_uri 로(SSO redirect_uri 일치검증).
-      await ref.read(authProvider.notifier).exchangeAndLoginWithCode(
-            code: code,
-            codeVerifier: verifier,
-            redirectUri: Env.oauthRedirectUri,
-          );
-      // 성공 → router redirect 가 자동으로 /home 으로 이동.
+      // 여기서 흐름이 앱 밖으로 나간다 — 버튼은 다시 눌러 재시도할 수 있게 되돌린다.
+      // (교환 진행 상태는 authProvider 의 AsyncLoading 이 담당)
+      if (!mounted) return;
+      setState(() => _busy = false);
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() {
@@ -112,6 +110,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
+    // 교환은 딥링크 리스너에서 돈다 — 진행(AsyncLoading)은 버튼 스피너로,
+    // 실패(AsyncError)는 이 화면의 에러 라인으로 흘려보낸다.
+    final exchanging = ref.watch(authProvider).isLoading;
+    ref.listen(authProvider, (prev, next) {
+      if (next.hasError && mounted) {
+        setState(() => _error = '${l.authLoginFailed}: ${next.error}');
+      }
+    });
     return Scaffold(
       backgroundColor: t.bgSurface,
       body: SafeArea(
@@ -146,8 +152,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     const SizedBox(height: PSpace.x32),
                     PButton(
                       label: l.authSsoLogin,
-                      onPressed: _busy ? null : _login,
-                      loading: _busy,
+                      onPressed: (_busy || exchanging) ? null : _login,
+                      loading: _busy || exchanging,
                       fullWidth: true,
                       size: PButtonSize.lg,
                     ),

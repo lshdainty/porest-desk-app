@@ -6,6 +6,7 @@ import 'package:porest_desk_app/core/settings/settings_notifier.dart';
 import 'package:porest_desk_app/core/sync/keep_alive_refresh.dart';
 import 'package:porest_desk_app/features/notification/application/notification_stream_service.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
+import 'package:porest_desk_app/core/auth/oauth_link_listener.dart';
 import 'package:porest_desk_app/app/router.dart';
 import 'package:porest_desk_app/app/theme/theme_data.dart';
 
@@ -60,6 +61,8 @@ class _PorestDeskAppState extends ConsumerState<PorestDeskApp>
 
   @override
   Widget build(BuildContext context) {
+    // OAuth 콜백 딥링크 리스너 — 앱 수명 내내 켜 둔다(콜드 스타트 복귀 포함).
+    ref.watch(oauthLinkListenerProvider);
     final router = ref.watch(routerProvider);
     final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
     return MaterialApp.router(
