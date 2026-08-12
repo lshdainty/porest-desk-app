@@ -1382,6 +1382,24 @@ abstract class AppLocalizations {
   /// **'이번 달 결제 예정'**
   String get assetValueLabelCard;
 
+  /// No description provided for @assetValueLabelCheckCard.
+  ///
+  /// In ko, this message translates to:
+  /// **'이번 달 사용액'**
+  String get assetValueLabelCheckCard;
+
+  /// No description provided for @assetCheckCardMonthLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'이번 달 사용'**
+  String get assetCheckCardMonthLabel;
+
+  /// No description provided for @assetMonthTxCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'이번 달 내역 ({count})'**
+  String assetMonthTxCount(int count);
+
   /// No description provided for @assetValuationShort.
   ///
   /// In ko, this message translates to:

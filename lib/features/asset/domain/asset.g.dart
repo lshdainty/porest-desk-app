@@ -34,6 +34,7 @@ _Asset _$AssetFromJson(Map<String, dynamic> json) => _Asset(
           ?.map((e) => AssetHolding.fromJson(e as Map<String, dynamic>))
           .toList() ??
       const <AssetHolding>[],
+  monthlyUsedAmount: (json['monthlyUsedAmount'] as num?)?.toInt(),
 );
 
 Map<String, dynamic> _$AssetToJson(_Asset instance) => <String, dynamic>{
@@ -58,6 +59,7 @@ Map<String, dynamic> _$AssetToJson(_Asset instance) => <String, dynamic>{
   'tossSymbol': instance.tossSymbol,
   'tossQuantity': instance.tossQuantity,
   'holdings': instance.holdings,
+  'monthlyUsedAmount': instance.monthlyUsedAmount,
 };
 
 _AssetCardCatalog _$AssetCardCatalogFromJson(Map<String, dynamic> json) =>

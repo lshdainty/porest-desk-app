@@ -39,6 +39,9 @@ abstract class Asset with _$Asset {
     // 보유 종목 (INVESTMENT 전용, design tossapi5) — linked(현재가×수량 연동) | manual(평가액 직접).
     // 구버전 서버 응답엔 없으므로 기본 빈 리스트로 안전 파싱.
     @Default(<AssetHolding>[]) List<AssetHolding> holdings,
+    // 이번 달(1일~말일) 사용 합계 — CHECK_CARD 전용, 서버 계산(예정 제외·환불 상계).
+    // 연결계좌 즉시 차감으로 잔액이 늘 0 이라, 행·상세는 잔액 대신 이 값을 보여준다.
+    int? monthlyUsedAmount,
   }) = _Asset;
 
   factory Asset.fromJson(Map<String, dynamic> json) => _$AssetFromJson(json);
