@@ -9,6 +9,7 @@ import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
+import 'package:porest_desk_app/core/auth/auth_events.dart';
 import 'package:porest_desk_app/core/auth/auth_notifier.dart';
 import 'package:porest_desk_app/core/auth/oauth_link_listener.dart';
 import 'package:porest_desk_app/core/auth/pkce.dart';
@@ -32,7 +33,10 @@ import 'package:porest_desk_app/shared/widgets/p_progress.dart';
 /// 구조적으로 재발하지 않는다 — iOS 핸드오프는 서버 302 bounce 가, Android 백그라운드
 /// 상태 유실은 PKCE 디스크 보관([OAuthFlowStore])이 막는다.
 class LoginScreen extends ConsumerStatefulWidget {
-  const LoginScreen({super.key});
+  const LoginScreen({super.key, this.expired = false});
+
+  /// 세션이 끝나 밀려 온 진입인가. 그렇다면 버튼을 기다리지 않고 곧장 SSO 로 나간다.
+  final bool expired;
 
   @override
   ConsumerState<LoginScreen> createState() => _LoginScreenState();
@@ -41,6 +45,21 @@ class LoginScreen extends ConsumerStatefulWidget {
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   bool _busy = false;
   String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    if (!widget.expired) return;
+    // 만료로 밀려 왔다 — 조용히 되돌아갈 수 있는지 한 번 해 본다. SSO 에 Refresh
+    // 쿠키(7일)가 살아 있으면 폼 없이 그대로 복귀하고, 없으면 로그인 폼이 뜬다.
+    //
+    // 표시를 먼저 지운다. 남겨 두면 재인증이 실패해 이 화면으로 돌아왔을 때 또
+    // 나가고, 그게 반복된다. 실패한 뒤에는 사용자가 버튼을 눌러야 다시 시도된다.
+    ref.read(expiredLogoutProvider.notifier).clear();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _login();
+    });
+  }
 
   Future<void> _login() async {
     if (_busy) return;
