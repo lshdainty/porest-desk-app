@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:porest_desk_app/core/auth/auth_events.dart';
 import 'package:porest_desk_app/core/auth/auth_notifier.dart';
 import 'package:porest_desk_app/core/update/app_update.dart';
 import 'package:porest_desk_app/features/asset/presentation/account_card_manage_screen.dart';
@@ -62,8 +63,13 @@ final routerProvider = Provider<GoRouter>((ref) {
       final atLogin = loc == '/login';
 
       if (!loggedIn) {
+        if (atLogin) return null;
         // 로그아웃 상태에서 splash/login 외 접근 시 → /login
-        return atLogin ? null : '/login';
+        //
+        // 만료로 밀려난 것이면 그 사실을 함께 넘긴다. 로그인 화면이 버튼을 기다리지
+        // 않고 곧장 SSO 로 나가, Refresh 쿠키가 살아 있으면 사용자는 아무것도 하지
+        // 않고 제자리로 돌아온다(웹 `/login?expired=1` 과 같은 흐름).
+        return ref.read(expiredLogoutProvider) ? '/login?expired=1' : '/login';
       }
 
       // 더 못 쓰는 버전이면 업데이트 화면에 가둔다.
@@ -82,7 +88,10 @@ final routerProvider = Provider<GoRouter>((ref) {
     },
     routes: [
       GoRoute(path: '/', builder: (_, _) => const SplashScreen()),
-      GoRoute(path: '/login', builder: (_, _) => const LoginScreen()),
+      GoRoute(
+          path: '/login',
+          builder: (_, st) => LoginScreen(
+              expired: st.uri.queryParameters['expired'] == '1')),
       GoRoute(path: '/settings', builder: (_, _) => const SettingsScreen()),
       GoRoute(path: '/account', builder: (_, _) => const AccountScreen()),
       GoRoute(path: '/account-card-manage', builder: (_, _) => const AccountCardManageScreen()),

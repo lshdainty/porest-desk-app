@@ -26,7 +26,10 @@ class AuthNotifier extends AsyncNotifier<User?> {
     // dio 는 auth 를 직접 참조하지 않고 신호만 올리므로 dio↔auth 순환이 끊긴다.
     ref.listen(sessionExpiredProvider, (prev, next) {
       if ((prev ?? 0) < next) {
-        logout();
+        // 만료로 밀려나는 것임을 남긴다 — 로그인 화면이 이걸 보고 조용히 다시
+        // 들어올지 정한다. 사용자가 직접 누른 로그아웃과는 다르게 대해야 한다.
+        ref.read(expiredLogoutProvider.notifier).mark();
+        logout(expired: true);
       }
     });
 
@@ -70,7 +73,10 @@ class AuthNotifier extends AsyncNotifier<User?> {
   }
 
   /// 로그아웃: 서버 호출 + 쿠키 정리 + 상태 초기화.
-  Future<void> logout() async {
+  ///
+  /// [expired] 는 "세션이 끝나 밀려난 것" 과 "사용자가 직접 누른 것" 을 가른다.
+  /// 다음 로그인에 `prompt=login` 을 실을지가 여기서 갈린다 — 자세한 건 아래 주석.
+  Future<void> logout({bool expired = false}) async {
     final repo = await ref.read(authRepositoryProvider.future);
     final jar = await ref.read(cookieJarProvider.future);
     state = const AsyncLoading();
@@ -89,7 +95,13 @@ class AuthNotifier extends AsyncNotifier<User?> {
     // SSO Refresh 쿠키는 시스템 브라우저 안에 있어 앱이 지울 수 없다 — 다음 로그인에
     // prompt=login 을 실어 무음 재인증이 로그아웃을 조용히 되살리는 것을 막는다.
     // (해제는 다음 로그인 성공 시 콜백 처리기가 한다)
-    await ref.read(oauthFlowStoreProvider).markForceLoginPrompt();
+    //
+    // 세션 만료는 다르다. 사용자가 나가겠다고 한 적이 없는데 prompt=login 을 실으면
+    // desk 토큰이 끝나는 1시간마다 로그인 폼을 다시 보게 된다 — SSO Refresh 가 7일
+    // 살아 있어도 그 이점을 스스로 버리는 셈이다. 그래서 표시하지 않는다.
+    if (!expired) {
+      await ref.read(oauthFlowStoreProvider).markForceLoginPrompt();
+    }
     state = const AsyncData(null);
   }
 }
