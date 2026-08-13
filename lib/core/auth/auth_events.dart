@@ -15,22 +15,3 @@ class SessionExpiredNotifier extends Notifier<int> {
 
 final sessionExpiredProvider =
     NotifierProvider<SessionExpiredNotifier, int>(SessionExpiredNotifier.new);
-
-/// 방금 로그아웃이 세션 만료 때문이었나.
-///
-/// 만료로 밀려난 것과 사용자가 직접 로그아웃한 것은 다르게 대해야 한다. 만료라면
-/// SSO 에 Refresh 쿠키(7일)가 살아 있을 수 있어 조용히 되돌아올 수 있지만, 직접
-/// 로그아웃한 사람을 곧바로 다시 로그인시키면 로그아웃이 안 되는 앱이 된다.
-///
-/// 로그인 화면이 이 값을 보고 자동 재인증을 걸지 정한다. 한 번 쓰면 바로 지운다 —
-/// 남겨 두면 재인증이 실패해 돌아왔을 때 또 나가고, 그게 반복된다.
-class ExpiredLogoutFlag extends Notifier<bool> {
-  @override
-  bool build() => false;
-
-  void mark() => state = true;
-  void clear() => state = false;
-}
-
-final expiredLogoutProvider =
-    NotifierProvider<ExpiredLogoutFlag, bool>(ExpiredLogoutFlag.new);
