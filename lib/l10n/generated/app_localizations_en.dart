@@ -1855,6 +1855,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Created by a card auto-payment. It is tied to the billing cycle and cannot be edited separately.';
 
   @override
+  String get transferAutoCardRefund =>
+      'Created to return a card overpayment to the payment account. Adjust the card balance directly and it reconciles automatically the next day.';
+
+  @override
   String get transferAutoDefault =>
       'Created automatically. It disappears when the original is deleted.';
 

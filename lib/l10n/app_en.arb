@@ -960,6 +960,7 @@
   "transferDeleteConfirm": "Delete this transfer? Both assets' balances will be restored.",
   "transferAutoTradeSettlement": "Created automatically to cover a shortfall when buying. It disappears when the purchase is cancelled.",
   "transferAutoCardPayment": "Created by a card auto-payment. It is tied to the billing cycle and cannot be edited separately.",
+  "transferAutoCardRefund": "Created to return a card overpayment to the payment account. Adjust the card balance directly and it reconciles automatically the next day.",
   "transferAutoDefault": "Created automatically. It disappears when the original is deleted.",
   "updateAvailable": "Version {version} is available",
   "@updateAvailable": {

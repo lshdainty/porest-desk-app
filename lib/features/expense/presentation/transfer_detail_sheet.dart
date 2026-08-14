@@ -155,6 +155,7 @@ class _TransferDetailBodyState extends ConsumerState<_TransferDetailBody> {
               switch (tr.autoSource) {
                 'TRADE_SETTLEMENT' => l.transferAutoTradeSettlement,
                 'CARD_PAYMENT' => l.transferAutoCardPayment,
+                'CARD_REFUND' => l.transferAutoCardRefund,
                 _ => l.transferAutoDefault,
               },
               style: PTypo.caption.copyWith(color: context.tokens.fgTertiary),
