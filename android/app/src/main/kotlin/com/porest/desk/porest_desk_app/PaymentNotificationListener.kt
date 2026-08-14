@@ -16,12 +16,16 @@ import androidx.core.content.ContextCompat
  * 카드사 앱이 띄운 결제 알림을 읽어 기록 대상으로 삼는다.
  *
  * <p><b>왜 필요한가</b> — 카드사들이 승인 내역을 문자 대신 자사 앱 푸시로 보내는 쪽으로
- * 옮겨 갔다. 문자만 보면 카드에 따라 아무것도 안 잡힌다.
+ * 옮겨 갔다. 문자만 보면 카드에 따라 아무것도 안 잡힌다. 체크카드는 한 술 더 떠서
+ * 발급 주체가 은행이라 결제 알림이 <b>은행 앱</b>으로 온다(토스·카카오뱅크·케이뱅크).
  *
  * <p><b>권한의 무게</b> — 알림 접근은 기기의 <b>모든 알림</b>을 볼 수 있는 특수 권한이다
  * (사용자가 설정에서 직접 켜야 하고, 런타임 팝업으로는 받을 수 없다). 그래서
- * {@link CardAppPackages} 에 적힌 카드사 앱이 보낸 것만 들여다보고 나머지는 즉시 버린다 —
+ * {@link PaymentAppPackages} 에 적힌 앱이 보낸 것만 들여다보고 나머지는 즉시 버린다 —
  * 메신저 내용이 우리 코드에 잠깐이라도 머무르지 않게 한다.
+ *
+ * <p>은행 앱은 결제 말고도 입금·이체·잔액 알림을 훨씬 많이 보낸다. 카드사 앱과 같은
+ * 잣대로 걸렀다간 계좌이체 출금이 지출로 둔갑하므로 소스를 나눠 더 엄격하게 본다.
  *
  * <p>여기서도 지출을 만들지 않는다. 문자 경로와 똑같이 수신함에 적어 두고, 사용자가
  * 확인 화면에서 저장한다.
@@ -30,10 +34,14 @@ class PaymentNotificationListener : NotificationListenerService() {
 
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         val sbnSafe = sbn ?: return
-        if (!CardAppPackages.isCardApp(sbnSafe.packageName)) return
+        val source = PaymentAppPackages.sourceOf(sbnSafe.packageName) ?: return
 
         val body = mergeText(sbnSafe) ?: return
-        if (!SmsPaymentFilter.looksLikePayment(body)) return
+        val isPayment = when (source) {
+            PaymentAppPackages.Source.CARD_APP -> SmsPaymentFilter.looksLikePayment(body)
+            PaymentAppPackages.Source.BANK_APP -> SmsPaymentFilter.looksLikeCardPaymentFromBank(body)
+        }
+        if (!isPayment) return
 
         val now = System.currentTimeMillis()
         // 같은 결제를 문자로도 받았을 수 있다 — 몇 분 안의 같은 금액이면 접는다.
@@ -63,7 +71,7 @@ class PaymentNotificationListener : NotificationListenerService() {
         if (parts.isEmpty()) return null
         val body = parts.joinToString(separator = "\n")
 
-        val issuer = CardAppPackages.issuerOf(sbn.packageName)
+        val issuer = PaymentAppPackages.issuerOf(sbn.packageName)
         return if (issuer != null && !body.contains(issuer)) "$issuer\n$body" else body
     }
 
