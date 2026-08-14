@@ -11275,6 +11275,24 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'카드 결제 문자를 붙여넣어 지출 추가'**
   String get moreDescSmsPaste;
+
+  /// No description provided for @smsClipboardBannerTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'복사한 결제 문자가 있어요'**
+  String get smsClipboardBannerTitle;
+
+  /// No description provided for @smsClipboardBannerDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'붙여넣어 지출로 기록할 수 있어요.'**
+  String get smsClipboardBannerDesc;
+
+  /// No description provided for @smsClipboardBannerAction.
+  ///
+  /// In ko, this message translates to:
+  /// **'기록하기'**
+  String get smsClipboardBannerAction;
 }
 
 class _AppLocalizationsDelegate

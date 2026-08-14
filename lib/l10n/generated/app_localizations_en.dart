@@ -6180,4 +6180,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get moreDescSmsPaste => 'Paste a card payment text to add an expense';
+
+  @override
+  String get smsClipboardBannerTitle => 'You have a copied payment text';
+
+  @override
+  String get smsClipboardBannerDesc => 'Paste it to record as an expense.';
+
+  @override
+  String get smsClipboardBannerAction => 'Record';
 }
