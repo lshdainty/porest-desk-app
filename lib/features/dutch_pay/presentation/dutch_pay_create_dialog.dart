@@ -82,6 +82,8 @@ class _BodyState extends ConsumerState<_Body> {
 
   /// 참여자 후보 — '나' 고정(0번) + 추천(기존 정산 이름 빈도) + 수동 추가.
   final List<_Pick> _picks = [];
+  /// 결제한 사람. 기본은 나.
+  _Pick? _payer;
 
   @override
   void initState() {
@@ -105,9 +107,11 @@ class _BodyState extends ConsumerState<_Body> {
     } else {
       _date = DateTime.now();
     }
-    // '나' 고정 결제자 — 선택된 상태로 시작. 표시 라벨은 _PickRow 에서 로케일화.
+    // '나' 는 항상 참가하고 기본 결제자다. 다만 고정은 아니다 — 친구가 계산하고
+    // 내가 갚는 경우가 있어 결제자는 옮길 수 있다. 표시 라벨은 _PickRow 에서 로케일화.
     final me = _Pick(name: '나', isMe: true)..selected = true;
     _picks.add(me);
+    _payer = me;
     widget.controller.onSubmit = _onPrimary;
   }
 
@@ -202,6 +206,7 @@ class _BodyState extends ConsumerState<_Body> {
             name: selected[i].isMe ? (me?.userName ?? '나') : selected[i].name,
             userRowId: selected[i].isMe ? me?.rowId : null,
             amount: i == 0 ? each + rest : each,
+            isPayer: identical(selected[i], _payer),
           ),
       ];
       await repo.create(
@@ -366,8 +371,15 @@ class _BodyState extends ConsumerState<_Body> {
         for (var i = 0; i < _picks.length; i++) ...[
           _PickRow(
             pick: _picks[i],
-            onToggle: () =>
-                setState(() => _picks[i].selected = !_picks[i].selected),
+            isPayer: identical(_payer, _picks[i]),
+            onSetPayer: () => setState(() => _payer = _picks[i]),
+            onToggle: () => setState(() {
+              _picks[i].selected = !_picks[i].selected;
+              // 빠진 사람이 결제자였으면 결제자를 잃는다 — '나'에게 되돌린다.
+              if (!_picks[i].selected && identical(_payer, _picks[i])) {
+                _payer = _picks.firstWhere((p) => p.isMe);
+              }
+            }),
           ),
           if (i < _picks.length - 1) const SizedBox(height: 6),
         ],
@@ -402,15 +414,25 @@ class _BodyState extends ConsumerState<_Body> {
 
 /// 참여자 체크 행 — checkbox + 아바타 + 이름·note. 선택 시 brand-tint 배경.
 class _PickRow extends StatelessWidget {
-  const _PickRow({required this.pick, required this.onToggle});
+  const _PickRow({
+    required this.pick,
+    required this.onToggle,
+    required this.isPayer,
+    required this.onSetPayer,
+  });
   final _Pick pick;
   final VoidCallback onToggle;
+
+  /// 이 사람이 결제했는가. 표시만 하고, 바꾸는 건 onSetPayer.
+  final bool isPayer;
+  final VoidCallback onSetPayer;
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
-    final noteText = pick.isMe
+    // 결제자 뱃지가 붙는 자리라, 결제자면 추천 횟수 대신 그걸 보여 준다.
+    final noteText = isPayer
         ? l.dutchPayer
         : (pick.recommendCount != null
             ? l.dutchSettledTogetherCount(pick.recommendCount!)
@@ -469,6 +491,14 @@ class _PickRow extends StatelessWidget {
                 ],
               ),
             ),
+            // 참가한 사람만 결제자가 될 수 있다 — 안 낀 사람에게는 버튼을 주지 않는다.
+            if (pick.selected && !isPayer)
+              PButton(
+                label: l.dutchSetPayer,
+                variant: PButtonVariant.ghost,
+                size: PButtonSize.sm,
+                onPressed: onSetPayer,
+              ),
           ],
         ),
       ),

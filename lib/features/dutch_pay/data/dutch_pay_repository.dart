@@ -24,7 +24,7 @@ class DutchPayRepository {
     String? splitMethod,
     String? dutchPayDate, // YYYY-MM-DD
     int? sourceExpenseRowId,
-    required List<({String? name, int? userRowId, int amount})> participants,
+    required List<({String? name, int? userRowId, int amount, bool isPayer})> participants,
   }) async {
     try {
       final res = await _dio.post<Map<String, dynamic>>(
@@ -41,6 +41,8 @@ class DutchPayRepository {
               {
                 'participantName': ?p.name,
                 'userRowId': ?p.userRowId,
+                // 결제자는 순서와 무관하다 — 서버가 저장하고, 화면은 추측하지 않는다.
+                'isPayer': p.isPayer,
                 'amount': p.amount,
               },
           ],

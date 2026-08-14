@@ -2563,6 +2563,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get dutchPayer => '결제자';
 
   @override
+  String get dutchSetPayer => '결제자로';
+
+  @override
   String get dutchNameLabel => '정산 이름';
 
   @override

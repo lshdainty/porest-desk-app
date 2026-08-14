@@ -319,7 +319,8 @@ as String?,
 /// @nodoc
 mixin _$DutchPayParticipant {
 
- int get rowId; int? get userRowId; String? get participantName; int get amount; bool get isPaid; String? get paidAt;
+ int get rowId; int? get userRowId; String? get participantName; int get amount;/// 이 사람이 결제했는가. 한 정산에 한 명 — 나머지는 그 사람에게 갚을 참여자다.
+ bool get isPayer; bool get isPaid; String? get paidAt;
 /// Create a copy of DutchPayParticipant
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -332,16 +333,16 @@ $DutchPayParticipantCopyWith<DutchPayParticipant> get copyWith => _$DutchPayPart
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DutchPayParticipant&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.userRowId, userRowId) || other.userRowId == userRowId)&&(identical(other.participantName, participantName) || other.participantName == participantName)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.isPaid, isPaid) || other.isPaid == isPaid)&&(identical(other.paidAt, paidAt) || other.paidAt == paidAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DutchPayParticipant&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.userRowId, userRowId) || other.userRowId == userRowId)&&(identical(other.participantName, participantName) || other.participantName == participantName)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.isPayer, isPayer) || other.isPayer == isPayer)&&(identical(other.isPaid, isPaid) || other.isPaid == isPaid)&&(identical(other.paidAt, paidAt) || other.paidAt == paidAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,rowId,userRowId,participantName,amount,isPaid,paidAt);
+int get hashCode => Object.hash(runtimeType,rowId,userRowId,participantName,amount,isPayer,isPaid,paidAt);
 
 @override
 String toString() {
-  return 'DutchPayParticipant(rowId: $rowId, userRowId: $userRowId, participantName: $participantName, amount: $amount, isPaid: $isPaid, paidAt: $paidAt)';
+  return 'DutchPayParticipant(rowId: $rowId, userRowId: $userRowId, participantName: $participantName, amount: $amount, isPayer: $isPayer, isPaid: $isPaid, paidAt: $paidAt)';
 }
 
 
@@ -352,7 +353,7 @@ abstract mixin class $DutchPayParticipantCopyWith<$Res>  {
   factory $DutchPayParticipantCopyWith(DutchPayParticipant value, $Res Function(DutchPayParticipant) _then) = _$DutchPayParticipantCopyWithImpl;
 @useResult
 $Res call({
- int rowId, int? userRowId, String? participantName, int amount, bool isPaid, String? paidAt
+ int rowId, int? userRowId, String? participantName, int amount, bool isPayer, bool isPaid, String? paidAt
 });
 
 
@@ -369,13 +370,14 @@ class _$DutchPayParticipantCopyWithImpl<$Res>
 
 /// Create a copy of DutchPayParticipant
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? rowId = null,Object? userRowId = freezed,Object? participantName = freezed,Object? amount = null,Object? isPaid = null,Object? paidAt = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? rowId = null,Object? userRowId = freezed,Object? participantName = freezed,Object? amount = null,Object? isPayer = null,Object? isPaid = null,Object? paidAt = freezed,}) {
   return _then(_self.copyWith(
 rowId: null == rowId ? _self.rowId : rowId // ignore: cast_nullable_to_non_nullable
 as int,userRowId: freezed == userRowId ? _self.userRowId : userRowId // ignore: cast_nullable_to_non_nullable
 as int?,participantName: freezed == participantName ? _self.participantName : participantName // ignore: cast_nullable_to_non_nullable
 as String?,amount: null == amount ? _self.amount : amount // ignore: cast_nullable_to_non_nullable
-as int,isPaid: null == isPaid ? _self.isPaid : isPaid // ignore: cast_nullable_to_non_nullable
+as int,isPayer: null == isPayer ? _self.isPayer : isPayer // ignore: cast_nullable_to_non_nullable
+as bool,isPaid: null == isPaid ? _self.isPaid : isPaid // ignore: cast_nullable_to_non_nullable
 as bool,paidAt: freezed == paidAt ? _self.paidAt : paidAt // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
@@ -462,10 +464,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int rowId,  int? userRowId,  String? participantName,  int amount,  bool isPaid,  String? paidAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int rowId,  int? userRowId,  String? participantName,  int amount,  bool isPayer,  bool isPaid,  String? paidAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _DutchPayParticipant() when $default != null:
-return $default(_that.rowId,_that.userRowId,_that.participantName,_that.amount,_that.isPaid,_that.paidAt);case _:
+return $default(_that.rowId,_that.userRowId,_that.participantName,_that.amount,_that.isPayer,_that.isPaid,_that.paidAt);case _:
   return orElse();
 
 }
@@ -483,10 +485,10 @@ return $default(_that.rowId,_that.userRowId,_that.participantName,_that.amount,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int rowId,  int? userRowId,  String? participantName,  int amount,  bool isPaid,  String? paidAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int rowId,  int? userRowId,  String? participantName,  int amount,  bool isPayer,  bool isPaid,  String? paidAt)  $default,) {final _that = this;
 switch (_that) {
 case _DutchPayParticipant():
-return $default(_that.rowId,_that.userRowId,_that.participantName,_that.amount,_that.isPaid,_that.paidAt);case _:
+return $default(_that.rowId,_that.userRowId,_that.participantName,_that.amount,_that.isPayer,_that.isPaid,_that.paidAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -503,10 +505,10 @@ return $default(_that.rowId,_that.userRowId,_that.participantName,_that.amount,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int rowId,  int? userRowId,  String? participantName,  int amount,  bool isPaid,  String? paidAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int rowId,  int? userRowId,  String? participantName,  int amount,  bool isPayer,  bool isPaid,  String? paidAt)?  $default,) {final _that = this;
 switch (_that) {
 case _DutchPayParticipant() when $default != null:
-return $default(_that.rowId,_that.userRowId,_that.participantName,_that.amount,_that.isPaid,_that.paidAt);case _:
+return $default(_that.rowId,_that.userRowId,_that.participantName,_that.amount,_that.isPayer,_that.isPaid,_that.paidAt);case _:
   return null;
 
 }
@@ -518,13 +520,15 @@ return $default(_that.rowId,_that.userRowId,_that.participantName,_that.amount,_
 @JsonSerializable()
 
 class _DutchPayParticipant implements DutchPayParticipant {
-  const _DutchPayParticipant({required this.rowId, this.userRowId, this.participantName, this.amount = 0, this.isPaid = false, this.paidAt});
+  const _DutchPayParticipant({required this.rowId, this.userRowId, this.participantName, this.amount = 0, this.isPayer = false, this.isPaid = false, this.paidAt});
   factory _DutchPayParticipant.fromJson(Map<String, dynamic> json) => _$DutchPayParticipantFromJson(json);
 
 @override final  int rowId;
 @override final  int? userRowId;
 @override final  String? participantName;
 @override@JsonKey() final  int amount;
+/// 이 사람이 결제했는가. 한 정산에 한 명 — 나머지는 그 사람에게 갚을 참여자다.
+@override@JsonKey() final  bool isPayer;
 @override@JsonKey() final  bool isPaid;
 @override final  String? paidAt;
 
@@ -541,16 +545,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DutchPayParticipant&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.userRowId, userRowId) || other.userRowId == userRowId)&&(identical(other.participantName, participantName) || other.participantName == participantName)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.isPaid, isPaid) || other.isPaid == isPaid)&&(identical(other.paidAt, paidAt) || other.paidAt == paidAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DutchPayParticipant&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.userRowId, userRowId) || other.userRowId == userRowId)&&(identical(other.participantName, participantName) || other.participantName == participantName)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.isPayer, isPayer) || other.isPayer == isPayer)&&(identical(other.isPaid, isPaid) || other.isPaid == isPaid)&&(identical(other.paidAt, paidAt) || other.paidAt == paidAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,rowId,userRowId,participantName,amount,isPaid,paidAt);
+int get hashCode => Object.hash(runtimeType,rowId,userRowId,participantName,amount,isPayer,isPaid,paidAt);
 
 @override
 String toString() {
-  return 'DutchPayParticipant(rowId: $rowId, userRowId: $userRowId, participantName: $participantName, amount: $amount, isPaid: $isPaid, paidAt: $paidAt)';
+  return 'DutchPayParticipant(rowId: $rowId, userRowId: $userRowId, participantName: $participantName, amount: $amount, isPayer: $isPayer, isPaid: $isPaid, paidAt: $paidAt)';
 }
 
 
@@ -561,7 +565,7 @@ abstract mixin class _$DutchPayParticipantCopyWith<$Res> implements $DutchPayPar
   factory _$DutchPayParticipantCopyWith(_DutchPayParticipant value, $Res Function(_DutchPayParticipant) _then) = __$DutchPayParticipantCopyWithImpl;
 @override @useResult
 $Res call({
- int rowId, int? userRowId, String? participantName, int amount, bool isPaid, String? paidAt
+ int rowId, int? userRowId, String? participantName, int amount, bool isPayer, bool isPaid, String? paidAt
 });
 
 
@@ -578,13 +582,14 @@ class __$DutchPayParticipantCopyWithImpl<$Res>
 
 /// Create a copy of DutchPayParticipant
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? rowId = null,Object? userRowId = freezed,Object? participantName = freezed,Object? amount = null,Object? isPaid = null,Object? paidAt = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? rowId = null,Object? userRowId = freezed,Object? participantName = freezed,Object? amount = null,Object? isPayer = null,Object? isPaid = null,Object? paidAt = freezed,}) {
   return _then(_DutchPayParticipant(
 rowId: null == rowId ? _self.rowId : rowId // ignore: cast_nullable_to_non_nullable
 as int,userRowId: freezed == userRowId ? _self.userRowId : userRowId // ignore: cast_nullable_to_non_nullable
 as int?,participantName: freezed == participantName ? _self.participantName : participantName // ignore: cast_nullable_to_non_nullable
 as String?,amount: null == amount ? _self.amount : amount // ignore: cast_nullable_to_non_nullable
-as int,isPaid: null == isPaid ? _self.isPaid : isPaid // ignore: cast_nullable_to_non_nullable
+as int,isPayer: null == isPayer ? _self.isPayer : isPayer // ignore: cast_nullable_to_non_nullable
+as bool,isPaid: null == isPaid ? _self.isPaid : isPaid // ignore: cast_nullable_to_non_nullable
 as bool,paidAt: freezed == paidAt ? _self.paidAt : paidAt // ignore: cast_nullable_to_non_nullable
 as String?,
   ));

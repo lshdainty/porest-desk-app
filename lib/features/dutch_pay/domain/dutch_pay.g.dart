@@ -46,6 +46,7 @@ _DutchPayParticipant _$DutchPayParticipantFromJson(Map<String, dynamic> json) =>
       userRowId: (json['userRowId'] as num?)?.toInt(),
       participantName: json['participantName'] as String?,
       amount: (json['amount'] as num?)?.toInt() ?? 0,
+      isPayer: json['isPayer'] as bool? ?? false,
       isPaid: json['isPaid'] as bool? ?? false,
       paidAt: json['paidAt'] as String?,
     );
@@ -57,6 +58,7 @@ Map<String, dynamic> _$DutchPayParticipantToJson(
   'userRowId': instance.userRowId,
   'participantName': instance.participantName,
   'amount': instance.amount,
+  'isPayer': instance.isPayer,
   'isPaid': instance.isPaid,
   'paidAt': instance.paidAt,
 };

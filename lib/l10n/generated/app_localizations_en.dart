@@ -2595,6 +2595,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dutchPayer => 'Payer';
 
   @override
+  String get dutchSetPayer => 'Set as payer';
+
+  @override
   String get dutchNameLabel => 'Settlement name';
 
   @override
