@@ -1419,6 +1419,7 @@
   "dutchSettled": "Settled",
   "dutchMe": "Me",
   "dutchPayer": "Payer",
+  "dutchSetPayer": "Set as payer",
   "dutchNameLabel": "Settlement name",
   "dutchNamePlaceholder": "e.g. Team dinner",
   "dutchPlaceLabel": "Place (optional)",

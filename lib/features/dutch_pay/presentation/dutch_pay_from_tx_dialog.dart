@@ -301,6 +301,9 @@ class _BodyState extends ConsumerState<_Body> {
               name: participants[i].name.trim(),
               userRowId: participants[i].userRowId,
               amount: amounts[i],
+              // 내 지출에서 만든 정산이라 결제자는 나다. 나를 뺀 경우(=내가 참여자가
+              // 아닌 경우)에는 아무도 표시되지 않고, 서버가 첫 사람을 결제자로 본다.
+              isPayer: participants[i].isMe,
             ),
         ],
       );

@@ -24,7 +24,7 @@ import 'package:porest_desk_app/features/dutch_pay/presentation/dutch_pay_screen
 /// 푸터(진행 중→일괄 요청 UI-only + 닫기 / 완료→닫기). 데이터는
 /// [dutchPayListProvider] 에서 [dpId] 로 라이브 조회 — markPaid 후 즉시 반영.
 ///
-/// 결제자(나) 개념: 만든 사람으로 간주, 첫 번째 참여자에 '결제자' 뱃지 표시만.
+/// 결제자는 서버가 저장한 isPayer 로 판정한다 — 첫 번째 참여자로 추측하지 않는다.
 void showDutchPayDetailSheet(
   BuildContext context, {
   required int dpId,
@@ -156,7 +156,8 @@ class _Body extends ConsumerWidget {
         for (var i = 0; i < dp.participants.length; i++)
           _ParticipantRow(
             p: dp.participants[i],
-            isPayer: i == 0,
+            // 순서가 아니라 저장된 값 — 참가자를 지웠다 다시 넣어도 안 바뀐다.
+            isPayer: dp.participants[i].isPayer,
             masked: masked,
             settled: dp.isSettled,
             onMarkPaid: () => onMarkPaid(dp.participants[i].rowId),

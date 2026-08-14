@@ -1422,6 +1422,7 @@
   "dutchSettled": "정산 완료",
   "dutchMe": "나",
   "dutchPayer": "결제자",
+  "dutchSetPayer": "결제자로",
   "dutchNameLabel": "정산 이름",
   "dutchNamePlaceholder": "예: 팀 저녁 회식",
   "dutchPlaceLabel": "장소 (선택)",

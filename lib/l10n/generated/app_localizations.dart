@@ -4814,6 +4814,12 @@ abstract class AppLocalizations {
   /// **'결제자'**
   String get dutchPayer;
 
+  /// No description provided for @dutchSetPayer.
+  ///
+  /// In ko, this message translates to:
+  /// **'결제자로'**
+  String get dutchSetPayer;
+
   /// No description provided for @dutchNameLabel.
   ///
   /// In ko, this message translates to:
