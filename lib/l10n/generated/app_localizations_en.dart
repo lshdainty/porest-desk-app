@@ -6135,4 +6135,49 @@ class AppLocalizationsEn extends AppLocalizations {
   String iconPickerTotalHint(int count) {
     return '$count total · scroll for more';
   }
+
+  @override
+  String get smsPasteTitle => 'Record from payment text';
+
+  @override
+  String get smsPasteDesc =>
+      'Paste a card payment text and we will read the amount, merchant and time to fill in the expense form. You can review it before saving.';
+
+  @override
+  String get smsPasteFieldLabel => 'Payment text';
+
+  @override
+  String get smsPastePlaceholder =>
+      '[Web발신]\nKB국민카드1234승인\n5,500원 일시불\n08/13 13:22\n스타벅스강남';
+
+  @override
+  String get smsPasteAction => 'Read text';
+
+  @override
+  String get smsPasteFromClipboard => 'Paste from clipboard';
+
+  @override
+  String get smsClipboardEmpty => 'No text in the clipboard';
+
+  @override
+  String get smsNotRecognized =>
+      'This doesn\'t look like a payment text. Please check that the whole message was pasted.';
+
+  @override
+  String get smsCancelNotice =>
+      'This is a cancellation text. Automatic recording is not supported — find the original expense and record it as a refund.';
+
+  @override
+  String get smsLowConfidence =>
+      'Some fields could not be read. Please review and fill them in.';
+
+  @override
+  String get smsRememberCard =>
+      'Remember this card and link it automatically next time';
+
+  @override
+  String get moreItemSmsPaste => 'Record from payment text';
+
+  @override
+  String get moreDescSmsPaste => 'Paste a card payment text to add an expense';
 }

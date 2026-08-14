@@ -37,6 +37,8 @@ import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
 import 'package:porest_desk_app/features/expense_split/application/expense_split_providers.dart';
 import 'package:porest_desk_app/features/expense_split/data/expense_split_repository.dart';
 import 'package:porest_desk_app/features/expense_split/presentation/split_tx_dialog.dart';
+import 'package:porest_desk_app/features/sms/data/sms_repository.dart';
+import 'package:porest_desk_app/features/sms/domain/sms_draft.dart';
 
 String _formatTime(TimeOfDay t) =>
     '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
@@ -54,6 +56,9 @@ void showAddTxSheet(
   Expense? refundOf,
   /// 이체 편집 모드 — 서버가 이자 지출·잔액 이력을 되돌렸다 다시 만든다(rowId 유지).
   AssetTransfer? editTransfer,
+  /// 결제 문자 초안 — 파싱 결과로 폼을 채우고, 저장은 문자 전용 경로로 보낸다
+  /// (카드 연결 기억·취소 문자 차단이 그 경로에 있다).
+  SmsDraft? smsDraft,
 }) {
   final controller = PSheetController();
   final l = AppLocalizations.of(context);
@@ -68,6 +73,7 @@ void showAddTxSheet(
       edit: edit,
       refundOf: refundOf,
       editTransfer: editTransfer,
+      smsDraft: smsDraft,
       scrollController: scrollCtrl,
       controller: controller,
     ),
@@ -84,6 +90,7 @@ class _AddTxBody extends ConsumerStatefulWidget {
     this.edit,
     this.refundOf,
     this.editTransfer,
+    this.smsDraft,
     required this.scrollController,
     required this.controller,
   });
@@ -91,6 +98,7 @@ class _AddTxBody extends ConsumerStatefulWidget {
   final Expense? edit;
   final Expense? refundOf;
   final AssetTransfer? editTransfer;
+  final SmsDraft? smsDraft;
   final ScrollController scrollController;
   final PSheetController controller;
 
@@ -144,6 +152,13 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
           minute: int.parse(m.group(2)!),
         );
       }
+    } else if (widget.smsDraft?.parsed.expenseDate != null) {
+      final raw = widget.smsDraft!.parsed.expenseDate!;
+      date = parseIsoDate(raw.substring(0, 10));
+      final m = RegExp(r'[T ](\d{2}):(\d{2})').firstMatch(raw);
+      if (m != null) {
+        time = TimeOfDay(hour: int.parse(m.group(1)!), minute: int.parse(m.group(2)!));
+      }
     } else if (widget.defaultDate != null) {
       date = parseIsoDate(widget.defaultDate!);
     } else {
@@ -152,19 +167,21 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
     // 환불 모드 — 타입은 수입 고정(원거래 연결이 상계를 만든다), 나머지는 원거래 승계.
     // 부분 환불이면 금액만 고치면 된다.
     final r = widget.refundOf;
+    // 결제 문자 초안 — 카드 결제라 유형·결제수단은 고정이고, 나머지는 파싱 값을 채운다.
+    final sms = widget.smsDraft?.parsed;
     _input = _TxInputController(
       type: tr != null ? 'TRANSFER' : (r != null ? 'INCOME' : (e?.expenseType ?? 'EXPENSE')),
       amount: tr != null
           ? tr.amount.toString()
           : e != null
               ? e.amount.toString()
-              : (r != null ? r.amount.toString() : ''),
+              : (r != null ? r.amount.toString() : (sms?.amount?.toString() ?? '')),
       memo: tr?.description ?? e?.description ?? '',
-      merchant: e?.merchant ?? r?.merchant ?? '',
-      paymentMethod: e?.paymentMethod ?? r?.paymentMethod ?? '',
-      categoryRowId: e?.categoryRowId ?? r?.categoryRowId,
+      merchant: e?.merchant ?? r?.merchant ?? sms?.merchant ?? '',
+      paymentMethod: e?.paymentMethod ?? r?.paymentMethod ?? (sms != null ? 'CARD' : ''),
+      categoryRowId: e?.categoryRowId ?? r?.categoryRowId ?? sms?.categoryRowId,
       // 이체는 출금 자산이 assetRowId, 입금 자산이 toAssetRowId 다.
-      assetRowId: tr?.fromAssetRowId ?? e?.assetRowId ?? r?.assetRowId,
+      assetRowId: tr?.fromAssetRowId ?? e?.assetRowId ?? r?.assetRowId ?? sms?.assetRowId,
       date: date,
       time: time,
     );
@@ -185,7 +202,15 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
     }
     if (e?.installmentMonths != null) {
       _input.installmentMonths = e!.installmentMonths!;
+    } else if (sms?.installmentMonths != null) {
+      _input.installmentMonths = sms!.installmentMonths!;
     }
+    if (sms?.originalCurrency != null) {
+      _input.currency = sms!.originalCurrency!;
+      _input.origAmountCtrl.text = _trimNum(sms.originalAmount?.toDouble());
+    }
+    // 카드를 알아봤는데 아직 안 외운 경우에만 "이 카드로 기억" 을 물어본다.
+    _input.smsRememberAsk = widget.smsDraft?.canRememberCard ?? false;
     _input.autoSource = e?.autoSource;
     widget.controller.onSubmit = _submit;
     // 자동 생성분은 여기서 못 지운다 — 원본 매매·이체를 지우면 함께 사라진다.
@@ -358,6 +383,25 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
         );
         // 분할이 교체됐을 수 있으니 분할 쿼리도 무효화.
         ref.invalidate(expenseSplitsProvider(widget.edit!.rowId));
+      } else if (widget.smsDraft != null) {
+        // 결제 문자는 전용 경로로 저장한다 — 서버가 원문을 다시 봐 취소 문자를 막고,
+        // 체크했다면 (카드 힌트 → 자산) 을 기억한다. 저장 자체는 같은 지출 생성이다.
+        final smsRepo = await ref.read(smsRepositoryProvider.future);
+        await smsRepo.commit(
+          text: widget.smsDraft!.text,
+          assetRowId: _input.assetRowId,
+          categoryRowId: _input.categoryRowId,
+          amount: amount,
+          merchant: merchant,
+          description: desc,
+          expenseDate: dateStr,
+          paymentMethod: payment,
+          installmentMonths: installment,
+          originalAmount: origAmount,
+          originalCurrency: origCurrency,
+          exchangeRate: fxRate,
+          rememberCard: _input.assetRowId != null && _input.smsRememberCard,
+        );
       } else {
         await repo.create(
           categoryRowId: _input.categoryRowId!,
@@ -1150,6 +1194,12 @@ class _TxInputController {
   /// 값이 있으면 금액·날짜·자산이 잠긴다 — 서버도 같은 규칙으로 거른다.
   String? autoSource;
 
+  /// 결제 문자 초안에서 "이 카드로 기억" 을 물어볼 상황인가 (카드는 알아봤는데 아직 안 외움).
+  bool smsRememberAsk = false;
+
+  /// 사용자가 그 체크를 켰는가 — 저장 시 (카드 힌트 → 자산) 을 서버가 적어 둔다.
+  bool smsRememberCard = false;
+
   /// 금액·날짜·자산을 못 고치는가 — 계산 결과라서.
   bool get isAutoGenerated => autoSource != null;
 
@@ -1499,6 +1549,41 @@ class _TxInputForm extends ConsumerWidget {
               );
             },
           ),
+          // 결제 문자로 들어온 카드를 아직 안 외운 경우에만 물어본다.
+          // 한 번 켜 두면 다음 문자부터는 자산을 고르는 단계가 사라진다.
+          if (c.smsRememberAsk) ...[
+            const SizedBox(height: PSpace.x8),
+            InkWell(
+              onTap: c.assetRowId == null
+                  ? null
+                  : () => _set(() => c.smsRememberCard = !c.smsRememberCard),
+              borderRadius: PRadius.brSm,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                child: Row(
+                  children: [
+                    PCheckbox(
+                      // 자산을 안 골랐으면 기억할 대상이 없다.
+                      value: c.assetRowId != null && c.smsRememberCard,
+                      onChanged: c.assetRowId == null
+                          ? null
+                          : (v) => _set(() => c.smsRememberCard = v ?? false),
+                    ),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        l.smsRememberCard,
+                        style: TextStyle(
+                          fontSize: PFontSize.caption,
+                          color: c.assetRowId == null ? t.fgTertiary : t.fgSecondary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
           const SizedBox(height: PSpace.x12),
 
           // 할부 — 신용카드 지출에만. 청구는 이 개월 수로 나뉘어 잡힌다.
