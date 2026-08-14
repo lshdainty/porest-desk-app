@@ -3589,5 +3589,19 @@
         "type": "int"
       }
     }
-  }
+  },
+
+  "smsPasteTitle": "결제 문자로 기록",
+  "smsPasteDesc": "카드사에서 온 결제 문자를 붙여넣으면 금액·가맹점·일시를 읽어 지출 폼을 채워 드려요. 저장 전에 확인할 수 있어요.",
+  "smsPasteFieldLabel": "결제 문자",
+  "smsPastePlaceholder": "[Web발신]\nKB국민카드1234승인\n5,500원 일시불\n08/13 13:22\n스타벅스강남",
+  "smsPasteAction": "문자 읽기",
+  "smsPasteFromClipboard": "클립보드에서 붙여넣기",
+  "smsClipboardEmpty": "클립보드에 텍스트가 없어요",
+  "smsNotRecognized": "결제 문자로 보이지 않아요. 문자 전체를 붙여넣었는지 확인해 주세요.",
+  "smsCancelNotice": "취소 문자예요. 자동 기록은 지원하지 않아요 — 원래 지출을 찾아 환불로 기록해 주세요.",
+  "smsLowConfidence": "일부 항목을 읽지 못했어요. 확인하고 채워 주세요.",
+  "smsRememberCard": "이 카드를 기억해서 다음부터 자동으로 연결하기",
+  "moreItemSmsPaste": "결제 문자로 기록",
+  "moreDescSmsPaste": "카드 결제 문자를 붙여넣어 지출 추가"
 }

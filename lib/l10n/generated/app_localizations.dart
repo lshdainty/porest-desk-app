@@ -11197,6 +11197,84 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'전체 {count}개 · 스크롤해서 더 보기'**
   String iconPickerTotalHint(int count);
+
+  /// No description provided for @smsPasteTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'결제 문자로 기록'**
+  String get smsPasteTitle;
+
+  /// No description provided for @smsPasteDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'카드사에서 온 결제 문자를 붙여넣으면 금액·가맹점·일시를 읽어 지출 폼을 채워 드려요. 저장 전에 확인할 수 있어요.'**
+  String get smsPasteDesc;
+
+  /// No description provided for @smsPasteFieldLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'결제 문자'**
+  String get smsPasteFieldLabel;
+
+  /// No description provided for @smsPastePlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'[Web발신]\nKB국민카드1234승인\n5,500원 일시불\n08/13 13:22\n스타벅스강남'**
+  String get smsPastePlaceholder;
+
+  /// No description provided for @smsPasteAction.
+  ///
+  /// In ko, this message translates to:
+  /// **'문자 읽기'**
+  String get smsPasteAction;
+
+  /// No description provided for @smsPasteFromClipboard.
+  ///
+  /// In ko, this message translates to:
+  /// **'클립보드에서 붙여넣기'**
+  String get smsPasteFromClipboard;
+
+  /// No description provided for @smsClipboardEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'클립보드에 텍스트가 없어요'**
+  String get smsClipboardEmpty;
+
+  /// No description provided for @smsNotRecognized.
+  ///
+  /// In ko, this message translates to:
+  /// **'결제 문자로 보이지 않아요. 문자 전체를 붙여넣었는지 확인해 주세요.'**
+  String get smsNotRecognized;
+
+  /// No description provided for @smsCancelNotice.
+  ///
+  /// In ko, this message translates to:
+  /// **'취소 문자예요. 자동 기록은 지원하지 않아요 — 원래 지출을 찾아 환불로 기록해 주세요.'**
+  String get smsCancelNotice;
+
+  /// No description provided for @smsLowConfidence.
+  ///
+  /// In ko, this message translates to:
+  /// **'일부 항목을 읽지 못했어요. 확인하고 채워 주세요.'**
+  String get smsLowConfidence;
+
+  /// No description provided for @smsRememberCard.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 카드를 기억해서 다음부터 자동으로 연결하기'**
+  String get smsRememberCard;
+
+  /// No description provided for @moreItemSmsPaste.
+  ///
+  /// In ko, this message translates to:
+  /// **'결제 문자로 기록'**
+  String get moreItemSmsPaste;
+
+  /// No description provided for @moreDescSmsPaste.
+  ///
+  /// In ko, this message translates to:
+  /// **'카드 결제 문자를 붙여넣어 지출 추가'**
+  String get moreDescSmsPaste;
 }
 
 class _AppLocalizationsDelegate
