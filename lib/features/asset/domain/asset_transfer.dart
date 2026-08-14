@@ -30,7 +30,8 @@ class AssetTransfer {
   final int? interestAmount;
 
   /// 시스템이 만든 이체의 출처 — `TRADE_SETTLEMENT`(매수 예수금 충당) /
-  /// `CARD_PAYMENT`(카드 자동결제). null 이면 사용자가 직접 만든 이체다.
+  /// `CARD_PAYMENT`(카드 자동결제) / `CARD_REFUND`(카드 과납금을 결제계좌로 환급).
+  /// null 이면 사용자가 직접 만든 이체다.
   ///
   /// 값이 있으면 금액이 원본(매수·청구)과 묶여 있어 고칠 수 없다.
   final String? autoSource;

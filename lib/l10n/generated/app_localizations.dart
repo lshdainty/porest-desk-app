@@ -3506,6 +3506,12 @@ abstract class AppLocalizations {
   /// **'카드 자동결제로 만들어진 이체예요. 청구 회차와 묶여 있어 따로 고칠 수 없습니다.'**
   String get transferAutoCardPayment;
 
+  /// No description provided for @transferAutoCardRefund.
+  ///
+  /// In ko, this message translates to:
+  /// **'카드에 남은 과납금을 결제계좌로 돌려준 이체예요. 카드 잔액을 직접 보정하면 다음 날 자동으로 다시 맞춰집니다.'**
+  String get transferAutoCardRefund;
+
   /// No description provided for @transferAutoDefault.
   ///
   /// In ko, this message translates to:

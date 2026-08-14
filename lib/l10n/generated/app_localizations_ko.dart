@@ -1833,6 +1833,10 @@ class AppLocalizationsKo extends AppLocalizations {
       '카드 자동결제로 만들어진 이체예요. 청구 회차와 묶여 있어 따로 고칠 수 없습니다.';
 
   @override
+  String get transferAutoCardRefund =>
+      '카드에 남은 과납금을 결제계좌로 돌려준 이체예요. 카드 잔액을 직접 보정하면 다음 날 자동으로 다시 맞춰집니다.';
+
+  @override
   String get transferAutoDefault => '자동으로 만들어진 이체예요. 원래 거래를 지우면 함께 사라집니다.';
 
   @override
