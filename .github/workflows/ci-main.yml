@@ -116,13 +116,21 @@ jobs:
           fi
           # versionCode 는 단조 증가해야 재설치 없이 업데이트된다.
           # run_number 는 레포 전역으로 늘어나므로 dev/prod 가 섞여도 역전이 없다.
+          #
+          # +2000 은 물릴 수 없는 과거다. 예전 안드로이드 빌드가 --split-per-abi 로
+          # 나가면서 flutter 가 arm64 APK 의 versionCode 에 2000(ABI 오프셋 2×1000)을
+          # 몰래 얹었다 — 이미 깔린 폰들이 전부 2000번대다. 안드로이드는 versionCode 가
+          # 내려가면 설치를 거부하므로, split 을 걷어낸 지금도 그 위에서 이어 세야 한다.
+          # (version.json 은 오프셋 없는 값을 적어 와서 폰(2057)>서버(82)로 업데이트
+          # 안내가 영원히 안 뜨던 원인이기도 하다. 이제 셋이 같은 값을 쓴다.)
+          BUILD=$((GITHUB_RUN_NUMBER + 2000))
           {
             echo "name=${NAME}"
             echo "ios=${IOS}"
-            echo "build=${GITHUB_RUN_NUMBER}"
+            echo "build=${BUILD}"
             echo "config=${CONFIG}"
           } >> "$GITHUB_OUTPUT"
-          echo "::notice::${CONFIG} ${NAME} (iOS ${IOS}, build ${GITHUB_RUN_NUMBER})"
+          echo "::notice::${CONFIG} ${NAME} (iOS ${IOS}, build ${BUILD})"
 
   # ── 안드로이드 APK — 서명 키가 Secrets 에 있으면 릴리스 키로, 없으면 디버그 키 폴백.
   #    (android/app/build.gradle.kts 가 key.properties 유무로 갈라 준다)
@@ -173,12 +181,14 @@ jobs:
         run: |
           set -euo pipefail
           # 안드로이드 versionName 은 형식 제약이 없어 describe 문자열을 그대로 쓴다.
+          # split-per-abi 는 쓰지 않는다 — 어차피 arm64 하나만 빌드하는데, split 이
+          # versionCode 에 ABI 오프셋(+2000)을 몰래 얹어 version.json 의 값과 어긋났다.
           flutter build apk --release \
-            --split-per-abi --target-platform android-arm64 \
+            --target-platform android-arm64 \
             --build-name "${NAME}" \
             --build-number "${BUILD}" \
             --dart-define-from-file="config/${CONFIG}.json"
-          mv build/app/outputs/flutter-apk/app-arm64-v8a-release.apk \
+          mv build/app/outputs/flutter-apk/app-release.apk \
              "porest-desk-${NAME}.apk"
 
       - uses: actions/upload-artifact@v4
