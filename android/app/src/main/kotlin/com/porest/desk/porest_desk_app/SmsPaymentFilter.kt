@@ -21,6 +21,17 @@ object SmsPaymentFilter {
     }
 
     /**
+     * 결제 금액만 뽑는다 — 중복 억제 키로 쓴다. 못 읽으면 null.
+     *
+     * <p>정확한 해석은 서버가 한다. 여기서는 "같은 결제가 문자와 앱 알림으로 두 번
+     * 들어왔는가" 를 가리기 위한 대략의 지문만 있으면 된다.
+     */
+    fun amountOf(text: String?): String? {
+        if (text.isNullOrBlank()) return null
+        return AMOUNT.find(text)?.groupValues?.getOrNull(0)?.replace(" ", "")
+    }
+
+    /**
      * 알림 한 줄로 보여 줄 요약 — "스타벅스강남 5,500원".
      *
      * 서버 파서를 부르지 않는다. 문자가 올 때마다 네트워크를 타면 배터리도 먹고,

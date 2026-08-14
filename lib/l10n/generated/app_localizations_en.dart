@@ -6226,4 +6226,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get moreDescSmsInbox =>
       'Record received card payment texts as expenses';
+
+  @override
+  String get smsNotiAccessOffTitle => 'Also read card app notifications?';
+
+  @override
+  String get smsNotiAccessOffDesc =>
+      'Card companies increasingly send approvals as app notifications instead of texts. Turn on notification access and those can be recorded too. Only card app notifications are read — anything else is discarded immediately.';
 }

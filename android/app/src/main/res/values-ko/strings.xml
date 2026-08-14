@@ -3,4 +3,7 @@
     <string name="sms_notification_title">결제 내역을 기록할까요?</string>
     <string name="sms_notification_channel">결제 문자</string>
     <string name="sms_notification_channel_desc">카드 결제 문자가 오면 기록할 수 있도록 알려 줍니다.</string>
+    <string name="card_noti_service_label">Porest Desk 결제 감지</string>
+    <string name="card_noti_channel">카드사 앱 결제</string>
+    <string name="card_noti_channel_desc">카드사 앱의 결제 알림을 조용히 모아 기록할 수 있게 합니다.</string>
 </resources>

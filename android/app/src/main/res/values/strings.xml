@@ -9,4 +9,7 @@
     <string name="sms_notification_title">Record this payment?</string>
     <string name="sms_notification_channel">Payment texts</string>
     <string name="sms_notification_channel_desc">Notifies you when a card payment text arrives so you can record it.</string>
+    <string name="card_noti_service_label">Porest Desk payment detection</string>
+    <string name="card_noti_channel">Card app payments</string>
+    <string name="card_noti_channel_desc">Quietly collects payment notifications from card apps so you can record them.</string>
 </resources>

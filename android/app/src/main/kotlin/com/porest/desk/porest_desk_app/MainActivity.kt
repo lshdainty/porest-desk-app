@@ -1,10 +1,13 @@
 package com.porest.desk.porest_desk_app
 
 import android.Manifest
+import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
+import android.provider.Settings
 import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -76,6 +79,11 @@ class MainActivity : FlutterActivity() {
                 SmsInboxStore.clear(this)
                 result.success(null)
             }
+            "hasNotificationAccess" -> result.success(hasNotificationAccess())
+            "openNotificationAccessSettings" -> {
+                openNotificationAccessSettings()
+                result.success(null)
+            }
             "consumePendingSms" -> {
                 val text = pendingSmsText
                 val id = pendingSmsId
@@ -114,6 +122,39 @@ class MainActivity : FlutterActivity() {
             wanted += Manifest.permission.POST_NOTIFICATIONS
         }
         ActivityCompat.requestPermissions(this, wanted.toTypedArray(), REQUEST_CODE)
+    }
+
+    /** 알림 접근이 켜져 있는가 — 이 값이 카드사 앱 알림 수신의 on/off 다. */
+    private fun hasNotificationAccess(): Boolean =
+        NotificationManagerCompat.getEnabledListenerPackages(this).contains(packageName)
+
+    /**
+     * 설정의 알림 접근 화면을 연다.
+     *
+     * <p>이 권한은 런타임 팝업으로 받을 수 없다 — 사용자가 설정에서 직접 켜야 한다.
+     * 안드로이드 11부터는 <b>우리 앱 항목의 상세 화면</b>으로 바로 보낼 수 있어서
+     * 목록에서 앱을 찾아 헤맬 필요가 없다. 그 이전 버전은 목록 화면까지만 데려다준다.
+     */
+    private fun openNotificationAccessSettings() {
+        val component = ComponentName(this, PaymentNotificationListener::class.java)
+        val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            Intent(Settings.ACTION_NOTIFICATION_LISTENER_DETAIL_SETTINGS).putExtra(
+                Settings.EXTRA_NOTIFICATION_LISTENER_COMPONENT_NAME,
+                component.flattenToString(),
+            )
+        } else {
+            Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
+        }
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        runCatching { startActivity(intent) }.onFailure {
+            // 제조사 롬에 그 화면이 없을 수 있다 — 목록 화면으로 물러선다.
+            runCatching {
+                startActivity(
+                    Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                )
+            }
+        }
     }
 
     override fun onRequestPermissionsResult(

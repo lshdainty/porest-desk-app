@@ -70,6 +70,24 @@
             </intent-filter>
         </receiver>
 
+        <!-- 카드사 앱 결제 알림 읽기.
+             카드사들이 승인 내역을 문자 대신 자사 앱 푸시로 보내는 쪽으로 옮겨 가서,
+             문자만 봐서는 카드에 따라 아무것도 안 잡힌다.
+
+             알림 접근은 기기의 모든 알림을 볼 수 있는 특수 권한이라 런타임 팝업으로
+             받을 수 없고 사용자가 설정에서 직접 켜야 한다. 서비스는 등록해 두되,
+             켜지기 전까지는 시스템이 바인딩하지 않아 아무 일도 하지 않는다.
+             읽는 대상은 CardAppPackages 에 적힌 카드사 앱으로 한정한다. -->
+        <service
+            android:name=".PaymentNotificationListener"
+            android:exported="false"
+            android:label="@string/card_noti_service_label"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService"/>
+            </intent-filter>
+        </service>
+
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data
