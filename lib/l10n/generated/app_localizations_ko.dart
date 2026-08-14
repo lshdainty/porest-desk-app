@@ -6142,9 +6142,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get moreDescSmsInbox => '받은 카드 결제 문자를 지출로 기록';
 
   @override
-  String get smsNotiAccessOffTitle => '카드사 앱 알림도 받을까요?';
+  String get smsNotiAccessOffTitle => '카드사·은행 앱 알림도 받을까요?';
 
   @override
   String get smsNotiAccessOffDesc =>
-      '요즘 카드사는 승인 내역을 문자 대신 앱 알림으로 보내는 경우가 많아요. 알림 접근을 켜면 그것도 기록할 수 있어요. 읽는 건 카드사 앱 알림뿐이고 다른 앱 알림은 곧바로 버려요.';
+      '요즘은 승인 내역이 문자 대신 앱 알림으로 오는 경우가 많아요. 체크카드는 은행 앱에서 알려 주고요. 알림 접근을 켜면 그것도 기록할 수 있어요. 읽는 건 카드사·은행 앱의 결제 알림뿐이고 나머지는 곧바로 버려요.';
 }
