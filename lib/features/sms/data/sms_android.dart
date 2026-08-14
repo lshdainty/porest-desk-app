@@ -46,6 +46,24 @@ class SmsAndroid {
     return await _invoke<bool>('requestPermissions') ?? false;
   }
 
+  /// 카드사 앱 알림을 읽을 수 있는가(알림 접근 권한).
+  ///
+  /// 문자 권한과 별개다 — 카드사가 승인 내역을 문자로 보내면 문자 권한이,
+  /// 자사 앱 푸시로 보내면 이쪽이 필요하다.
+  static Future<bool> hasNotificationAccess() async {
+    if (!isSupported) return false;
+    return await _invoke<bool>('hasNotificationAccess') ?? false;
+  }
+
+  /// 설정의 알림 접근 화면을 연다.
+  ///
+  /// 이 권한은 런타임 팝업으로 받을 수 없어 사용자가 설정에서 직접 켜야 한다.
+  /// 안드로이드 11+ 는 우리 앱 항목 상세로 바로 열려서 목록을 뒤질 필요가 없다.
+  static Future<void> openNotificationAccessSettings() async {
+    if (!isSupported) return;
+    await _invoke<void>('openNotificationAccessSettings');
+  }
+
   /// 아직 기록하지 않은 문자 목록 — 최신순.
   static Future<List<SmsInboxEntry>> inbox() async {
     if (!isSupported) return const [];

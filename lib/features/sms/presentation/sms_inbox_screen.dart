@@ -30,22 +30,39 @@ class SmsInboxScreen extends ConsumerStatefulWidget {
   ConsumerState<SmsInboxScreen> createState() => _SmsInboxScreenState();
 }
 
-class _SmsInboxScreenState extends ConsumerState<SmsInboxScreen> {
+class _SmsInboxScreenState extends ConsumerState<SmsInboxScreen>
+    with WidgetsBindingObserver {
   List<SmsInboxEntry>? _entries;
   bool _granted = true;
+  bool _notiAccess = true;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _load();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // 알림 접근은 설정 앱에 다녀와야 켜진다 — 돌아오면 상태를 다시 읽는다.
+    if (state == AppLifecycleState.resumed) _load();
   }
 
   Future<void> _load() async {
     final granted = await SmsAndroid.hasPermissions();
+    final notiAccess = await SmsAndroid.hasNotificationAccess();
     final entries = await SmsAndroid.inbox();
     if (!mounted) return;
     setState(() {
       _granted = granted;
+      _notiAccess = notiAccess;
       _entries = entries;
     });
   }
@@ -115,6 +132,22 @@ class _SmsInboxScreenState extends ConsumerState<SmsInboxScreen> {
                   size: PButtonSize.sm,
                   variant: PButtonVariant.secondary,
                   onPressed: _requestPermission,
+                ),
+              ),
+              const SizedBox(height: PSpace.x16),
+            ],
+            // 카드사가 문자 대신 앱 푸시로 보내는 경우가 늘어 이쪽도 필요하다.
+            // 문자 권한과 별개라 따로 안내한다.
+            if (!_notiAccess) ...[
+              PAlert(
+                title: l.smsNotiAccessOffTitle,
+                description: l.smsNotiAccessOffDesc,
+                variant: PAlertVariant.info,
+                action: PButton(
+                  label: l.smsPermissionEnable,
+                  size: PButtonSize.sm,
+                  variant: PButtonVariant.secondary,
+                  onPressed: SmsAndroid.openNotificationAccessSettings,
                 ),
               ),
               const SizedBox(height: PSpace.x16),

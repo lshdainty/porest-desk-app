@@ -3428,5 +3428,7 @@
   "smsPermissionOffDesc": "Turn on the permission and we will let you know when a card payment text arrives. Texts stay on your device and are only sent to the server when you save them.",
   "smsPermissionEnable": "Turn on",
   "moreItemSmsInbox": "Payment text inbox",
-  "moreDescSmsInbox": "Record received card payment texts as expenses"
+  "moreDescSmsInbox": "Record received card payment texts as expenses",
+  "smsNotiAccessOffTitle": "Also read card app notifications?",
+  "smsNotiAccessOffDesc": "Card companies increasingly send approvals as app notifications instead of texts. Turn on notification access and those can be recorded too. Only card app notifications are read — anything else is discarded immediately."
 }

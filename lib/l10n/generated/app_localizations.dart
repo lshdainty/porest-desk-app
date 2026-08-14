@@ -11359,6 +11359,18 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'받은 카드 결제 문자를 지출로 기록'**
   String get moreDescSmsInbox;
+
+  /// No description provided for @smsNotiAccessOffTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'카드사 앱 알림도 받을까요?'**
+  String get smsNotiAccessOffTitle;
+
+  /// No description provided for @smsNotiAccessOffDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'요즘 카드사는 승인 내역을 문자 대신 앱 알림으로 보내는 경우가 많아요. 알림 접근을 켜면 그것도 기록할 수 있어요. 읽는 건 카드사 앱 알림뿐이고 다른 앱 알림은 곧바로 버려요.'**
+  String get smsNotiAccessOffDesc;
 }
 
 class _AppLocalizationsDelegate
