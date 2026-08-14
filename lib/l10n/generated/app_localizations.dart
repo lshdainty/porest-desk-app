@@ -11293,6 +11293,66 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'기록하기'**
   String get smsClipboardBannerAction;
+
+  /// No description provided for @smsInboxTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'결제 문자 수신함'**
+  String get smsInboxTitle;
+
+  /// No description provided for @smsInboxClear.
+  ///
+  /// In ko, this message translates to:
+  /// **'비우기'**
+  String get smsInboxClear;
+
+  /// No description provided for @smsInboxEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'받은 결제 문자가 없어요'**
+  String get smsInboxEmpty;
+
+  /// No description provided for @smsInboxEmptyDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'카드 결제 문자가 오면 여기에 쌓여요. 눌러서 지출로 기록할 수 있어요.'**
+  String get smsInboxEmptyDesc;
+
+  /// No description provided for @smsInboxRemove.
+  ///
+  /// In ko, this message translates to:
+  /// **'삭제'**
+  String get smsInboxRemove;
+
+  /// No description provided for @smsPermissionOffTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'문자 수신이 꺼져 있어요'**
+  String get smsPermissionOffTitle;
+
+  /// No description provided for @smsPermissionOffDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'권한을 켜면 카드 결제 문자가 왔을 때 알려 드려요. 받은 문자는 기기에만 저장되고, 확인 후 저장할 때만 서버로 보내요.'**
+  String get smsPermissionOffDesc;
+
+  /// No description provided for @smsPermissionEnable.
+  ///
+  /// In ko, this message translates to:
+  /// **'켜기'**
+  String get smsPermissionEnable;
+
+  /// No description provided for @moreItemSmsInbox.
+  ///
+  /// In ko, this message translates to:
+  /// **'결제 문자 수신함'**
+  String get moreItemSmsInbox;
+
+  /// No description provided for @moreDescSmsInbox.
+  ///
+  /// In ko, this message translates to:
+  /// **'받은 카드 결제 문자를 지출로 기록'**
+  String get moreDescSmsInbox;
 }
 
 class _AppLocalizationsDelegate

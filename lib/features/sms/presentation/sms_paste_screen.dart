@@ -27,10 +27,13 @@ import 'package:porest_desk_app/features/sms/domain/sms_prefilter.dart';
 /// 수신 알림에서 들어오는 자동 경로도 결국 이 화면의 해석·확인 흐름을 탄다.
 ///
 /// [initialText] 가 있으면 열자마자 그 문자를 해석한다(배너·알림에서 들어온 경우).
+/// [inboxId] 는 안드로이드 수신 보관함에서 온 경우의 항목 id — 저장에 성공하면
+/// 그 목록에서 빠진다.
 class SmsPasteScreen extends ConsumerStatefulWidget {
-  const SmsPasteScreen({super.key, this.initialText});
+  const SmsPasteScreen({super.key, this.initialText, this.inboxId});
 
   final String? initialText;
+  final int? inboxId;
 
   @override
   ConsumerState<SmsPasteScreen> createState() => _SmsPasteScreenState();
@@ -113,7 +116,10 @@ class _SmsPasteScreenState extends ConsumerState<SmsPasteScreen> {
       if (parsed.isLowConfidence) {
         showPSnackBar(context, l.smsLowConfidence, severity: PSnackSeverity.info);
       }
-      showAddTxSheet(context, smsDraft: SmsDraft(text: text, parsed: parsed));
+      showAddTxSheet(
+        context,
+        smsDraft: SmsDraft(text: text, parsed: parsed, inboxId: widget.inboxId),
+      );
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() => _notice = e.message);

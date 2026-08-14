@@ -17,6 +17,8 @@ import 'package:porest_desk_app/features/category/presentation/category_screen.d
 import 'package:porest_desk_app/features/dutch_pay/presentation/dutch_pay_screen.dart';
 import 'package:porest_desk_app/features/calendar/presentation/calendar_share_screen.dart';
 import 'package:porest_desk_app/features/export/presentation/export_screen.dart';
+import 'package:porest_desk_app/features/sms/domain/sms_paste_args.dart';
+import 'package:porest_desk_app/features/sms/presentation/sms_inbox_screen.dart';
 import 'package:porest_desk_app/features/sms/presentation/sms_paste_screen.dart';
 import 'package:porest_desk_app/features/memo/presentation/memo_screen.dart';
 import 'package:porest_desk_app/features/notification/presentation/notification_screen.dart';
@@ -96,7 +98,13 @@ final routerProvider = Provider<GoRouter>((ref) {
       // 결제 문자로 기록 — 배너·알림에서 들어올 땐 문자를 extra 로 실어 바로 해석한다.
       GoRoute(
           path: '/sms-paste',
-          builder: (_, state) => SmsPasteScreen(initialText: state.extra as String?)),
+          builder: (_, state) {
+            final args = SmsPasteArgs.from(state.extra);
+            return SmsPasteScreen(
+                initialText: args?.text, inboxId: args?.inboxId);
+          }),
+      // 아직 기록하지 않은 수신 문자 목록(안드로이드).
+      GoRoute(path: '/sms-inbox', builder: (_, _) => const SmsInboxScreen()),
       // 예산 설정(웹 BudgetManager 정합) — 예산 개요 설정 버튼·설정 메뉴에서 push.
       GoRoute(
           path: '/budget/settings',

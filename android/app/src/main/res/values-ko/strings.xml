@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sms_notification_title">결제 내역을 기록할까요?</string>
+    <string name="sms_notification_channel">결제 문자</string>
+    <string name="sms_notification_channel_desc">카드 결제 문자가 오면 기록할 수 있도록 알려 줍니다.</string>
+</resources>

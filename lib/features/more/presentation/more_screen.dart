@@ -6,6 +6,7 @@ import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
+import 'package:porest_desk_app/features/sms/data/sms_android.dart';
 import 'package:porest_desk_app/features/subscription/application/subscription_providers.dart';
 import 'package:porest_desk_app/shared/widgets/p_search_field.dart';
 import 'package:porest_desk_app/shared/widgets/p_tab_bar.dart';
@@ -43,6 +44,9 @@ List<_NavGroup> _buildGroups(BuildContext ctx, {required bool hasSecurities}) {
       _NavItem(label: l.moreItemStats, desc: l.moreDescStats, onTap: (c) => c.go('/stats')),
       _NavItem(label: l.navRecurring, desc: l.moreDescRecurring, onTap: (c) => c.push('/recurring')),
       _NavItem(label: l.moreItemSmsPaste, desc: l.moreDescSmsPaste, onTap: (c) => c.push('/sms-paste')),
+      // 문자 수신은 안드로이드만 된다 — iOS 는 OS 가 문자 접근을 막아 클립보드로 받는다.
+      if (SmsAndroid.isSupported)
+        _NavItem(label: l.moreItemSmsInbox, desc: l.moreDescSmsInbox, onTap: (c) => c.push('/sms-inbox')),
       _NavItem(label: l.moreItemAccountCard, desc: l.moreDescAccountCard, onTap: (c) => c.push('/account-card-manage')),
     ]),
     _NavGroup(label: l.moreGroupDaily, items: [

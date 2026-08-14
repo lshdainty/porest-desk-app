@@ -6189,4 +6189,37 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get smsClipboardBannerAction => 'Record';
+
+  @override
+  String get smsInboxTitle => 'Payment text inbox';
+
+  @override
+  String get smsInboxClear => 'Clear';
+
+  @override
+  String get smsInboxEmpty => 'No payment texts yet';
+
+  @override
+  String get smsInboxEmptyDesc =>
+      'Card payment texts will collect here. Tap one to record it as an expense.';
+
+  @override
+  String get smsInboxRemove => 'Remove';
+
+  @override
+  String get smsPermissionOffTitle => 'Text detection is off';
+
+  @override
+  String get smsPermissionOffDesc =>
+      'Turn on the permission and we will let you know when a card payment text arrives. Texts stay on your device and are only sent to the server when you save them.';
+
+  @override
+  String get smsPermissionEnable => 'Turn on';
+
+  @override
+  String get moreItemSmsInbox => 'Payment text inbox';
+
+  @override
+  String get moreDescSmsInbox =>
+      'Record received card payment texts as expenses';
 }

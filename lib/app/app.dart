@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:porest_desk_app/features/sms/data/sms_android.dart';
+import 'package:porest_desk_app/features/sms/domain/sms_paste_args.dart';
 import 'package:porest_desk_app/core/auth/auth_notifier.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
 import 'package:porest_desk_app/core/sync/keep_alive_refresh.dart';
@@ -33,6 +35,9 @@ class _PorestDeskAppState extends ConsumerState<PorestDeskApp>
         final svc = ref.read(notificationStreamServiceProvider);
         if (user != null) {
           svc.start();
+          // 알림을 눌러 앱을 처음 켠 경우도 여기로 온다(콜드 스타트).
+          // 로그인 전에 열면 라우터가 로그인 화면으로 되돌리므로 이 시점에 연다.
+          _openPendingSms();
         } else {
           svc.stop();
         }
@@ -56,7 +61,25 @@ class _PorestDeskAppState extends ConsumerState<PorestDeskApp>
     if (state == AppLifecycleState.resumed &&
         ref.read(authProvider).value != null) {
       invalidateKeepAliveProviders(ref);
+      _openPendingSms();
     }
+  }
+
+  /// 결제 문자 알림을 눌러 들어왔으면 확인 화면을 연다(안드로이드).
+  ///
+  /// 네이티브가 문자를 들고 있다가 여기서 건네준다 — 가져가면 비우므로
+  /// 앱으로 돌아올 때마다 같은 문자가 다시 열리지는 않는다.
+  Future<void> _openPendingSms() async {
+    final pending = await SmsAndroid.consumePendingSms();
+    if (pending == null || !mounted) return;
+    // 첫 라우트가 그려지기 전에 밀어 넣으면 스택이 꼬인다.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref.read(routerProvider).push(
+            '/sms-paste',
+            extra: SmsPasteArgs(text: pending.text, inboxId: pending.id),
+          );
+    });
   }
 
   @override

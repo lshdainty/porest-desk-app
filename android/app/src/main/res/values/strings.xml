@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  네이티브 알림 문구.
+
+  앱 UI 문자열은 Flutter ARB 가 관리하지만, 알림은 앱이 꺼져 있을 때 안드로이드가
+  직접 그리므로 ARB 를 읽을 수 없다. 여기(기본=영어)와 values-ko 에 함께 둔다.
+-->
+<resources>
+    <string name="sms_notification_title">Record this payment?</string>
+    <string name="sms_notification_channel">Payment texts</string>
+    <string name="sms_notification_channel_desc">Notifies you when a card payment text arrives so you can record it.</string>
+</resources>
