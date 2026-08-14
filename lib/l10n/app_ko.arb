@@ -3603,5 +3603,8 @@
   "smsLowConfidence": "일부 항목을 읽지 못했어요. 확인하고 채워 주세요.",
   "smsRememberCard": "이 카드를 기억해서 다음부터 자동으로 연결하기",
   "moreItemSmsPaste": "결제 문자로 기록",
-  "moreDescSmsPaste": "카드 결제 문자를 붙여넣어 지출 추가"
+  "moreDescSmsPaste": "카드 결제 문자를 붙여넣어 지출 추가",
+  "smsClipboardBannerTitle": "복사한 결제 문자가 있어요",
+  "smsClipboardBannerDesc": "붙여넣어 지출로 기록할 수 있어요.",
+  "smsClipboardBannerAction": "기록하기"
 }

@@ -20,6 +20,7 @@ import 'package:porest_desk_app/shared/widgets/p_expense_row.dart';
 import 'package:porest_desk_app/shared/widgets/p_divider.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
 import 'package:porest_desk_app/shared/widgets/p_badge.dart';
+import 'package:porest_desk_app/features/sms/presentation/sms_clipboard_banner.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
 import 'package:porest_desk_app/features/budget/application/budget_providers.dart';
 import 'package:porest_desk_app/features/budget/domain/budget.dart';
@@ -115,6 +116,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             ),
             const SizedBox(height: PSpace.x12),
           ],
+          // 문자를 복사해 놓고 앱을 연 경우에만 뜬다(iOS). 클립보드 내용은
+          // 여기서 읽지 않는다 — 누르기 전까지는 OS 붙여넣기 배너도 뜨지 않는다.
+          const SmsClipboardBanner(),
           _BalanceHero(
               summaryAsync: summaryAsync,
               masked: ref.watch(hideCardProvider('home.netWorth')),
