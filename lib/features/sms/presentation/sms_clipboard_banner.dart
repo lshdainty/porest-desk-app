@@ -58,7 +58,7 @@ class _SmsClipboardBannerState extends ConsumerState<SmsClipboardBanner>
     final hint = await readClipboardHint();
     if (!mounted) return;
 
-    if (hint == null || !hint.hasNumber) {
+    if (hint == null || !hint.hasText) {
       if (_changeCount != null) setState(() => _changeCount = null);
       return;
     }

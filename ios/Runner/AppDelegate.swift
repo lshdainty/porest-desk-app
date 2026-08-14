@@ -26,9 +26,14 @@ import UIKit
 ///
 /// - `changeCount` — 클립보드가 바뀔 때마다 오르는 정수. 같은 복사본에 대해
 ///   배너를 다시 띄우지 않으려고 쓴다(사용자가 한 번 닫으면 그 값을 기억한다).
-/// - `hasNumber` — `detectPatterns` 로 "숫자가 들어 있는가" 만 확인한다.
-///   결제 문자에는 금액이 반드시 있으므로 약한 단서로 쓸 만하고,
-///   이 API 는 내용을 넘겨주지 않아 붙여넣기 배너가 뜨지 않는다.
+/// - `hasText` — 문자열이 들어 있는가(`hasStrings`). 내용은 넘어오지 않는다.
+///
+/// 처음에는 `detectPatterns(for: [.number])` 로 "금액이 들어 있는가" 까지 좁히려 했다.
+/// 결제 문자에는 금액이 반드시 있으니 더 정확한 신호가 될 줄 알았는데, 실제로 넣어 보니
+/// 한국어 결제 문자("5,500원 일시불 08/13 13:22")에서 <b>숫자를 감지하지 못했다</b>
+/// (iOS 26 시뮬레이터 실측). 이 패턴은 문장에 섞인 숫자가 아니라 독립된 숫자 값을 찾는 듯하다.
+/// 그래서 "텍스트가 있는가" 까지만 보고, 결제 문자인지는 사용자가 배너를 눌러
+/// 실제로 읽은 뒤 프리필터로 가린다.
 ///
 /// 실제 읽기는 사용자가 배너를 눌렀을 때 Dart 쪽에서 한 번만 한다.
 ///
@@ -52,27 +57,7 @@ enum ClipboardHintChannel {
 
   private static func respondWithHint(_ result: @escaping FlutterResult) {
     let board = UIPasteboard.general
-    let changeCount = board.changeCount
-
-    guard #available(iOS 14.0, *) else {
-      // iOS 13 에는 패턴 감지가 없다. hasStrings 는 내용을 넘기지 않으므로
-      // 배너 없이 "문자열이 있다" 까지는 알 수 있다.
-      result(["changeCount": changeCount, "hasNumber": board.hasStrings])
-      return
-    }
-
-    board.detectPatterns(for: [.number]) { outcome in
-      let hasNumber: Bool
-      switch outcome {
-      case .success(let patterns):
-        hasNumber = patterns.contains(.number)
-      case .failure:
-        // 감지에 실패해도 앱이 멈출 이유는 없다 — 배너를 띄우지 않을 뿐이다.
-        hasNumber = false
-      }
-      DispatchQueue.main.async {
-        result(["changeCount": changeCount, "hasNumber": hasNumber])
-      }
-    }
+    // 둘 다 내용을 읽지 않는다 — 붙여넣기 배너가 뜨지 않는 선까지만 본다.
+    result(["changeCount": board.changeCount, "hasText": board.hasStrings])
   }
 }

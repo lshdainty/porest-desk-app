@@ -4,13 +4,17 @@ import 'package:flutter/services.dart';
 
 /// 클립보드 힌트 — 내용을 읽지 않고 얻은 단서.
 class ClipboardHint {
-  const ClipboardHint({required this.changeCount, required this.hasNumber});
+  const ClipboardHint({required this.changeCount, required this.hasText});
 
   /// 클립보드가 바뀔 때마다 오르는 정수. 같은 복사본을 다시 권하지 않으려고 쓴다.
   final int changeCount;
 
-  /// 숫자가 들어 있는가 — 결제 문자에는 금액이 반드시 있다.
-  final bool hasNumber;
+  /// 텍스트가 들어 있는가.
+  ///
+  /// 원래는 "숫자가 들어 있는가"(`detectPatterns(.number)`)로 더 좁히려 했지만,
+  /// 한국어 결제 문자에서 그 패턴이 잡히지 않는 것을 실측으로 확인했다.
+  /// 결제 문자인지는 사용자가 배너를 눌러 실제로 읽은 뒤 프리필터로 가린다.
+  final bool hasText;
 }
 
 /// 클립보드에 결제 문자가 있을 법한지 — **내용은 읽지 않는다**.
@@ -29,7 +33,7 @@ Future<ClipboardHint?> readClipboardHint() async {
     if (raw == null) return null;
     return ClipboardHint(
       changeCount: (raw['changeCount'] as num?)?.toInt() ?? 0,
-      hasNumber: raw['hasNumber'] as bool? ?? false,
+      hasText: raw['hasText'] as bool? ?? false,
     );
   } on PlatformException {
     // 채널이 없는 빌드(구버전 앱 껍데기)에서도 앱은 그대로 돌아가야 한다.
