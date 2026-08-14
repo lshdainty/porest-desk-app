@@ -3417,5 +3417,15 @@
   "moreDescSmsPaste": "Paste a card payment text to add an expense",
   "smsClipboardBannerTitle": "You have a copied payment text",
   "smsClipboardBannerDesc": "Paste it to record as an expense.",
-  "smsClipboardBannerAction": "Record"
+  "smsClipboardBannerAction": "Record",
+  "smsInboxTitle": "Payment text inbox",
+  "smsInboxClear": "Clear",
+  "smsInboxEmpty": "No payment texts yet",
+  "smsInboxEmptyDesc": "Card payment texts will collect here. Tap one to record it as an expense.",
+  "smsInboxRemove": "Remove",
+  "smsPermissionOffTitle": "Text detection is off",
+  "smsPermissionOffDesc": "Turn on the permission and we will let you know when a card payment text arrives. Texts stay on your device and are only sent to the server when you save them.",
+  "smsPermissionEnable": "Turn on",
+  "moreItemSmsInbox": "Payment text inbox",
+  "moreDescSmsInbox": "Record received card payment texts as expenses"
 }

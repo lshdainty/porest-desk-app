@@ -6105,4 +6105,35 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get smsClipboardBannerAction => '기록하기';
+
+  @override
+  String get smsInboxTitle => '결제 문자 수신함';
+
+  @override
+  String get smsInboxClear => '비우기';
+
+  @override
+  String get smsInboxEmpty => '받은 결제 문자가 없어요';
+
+  @override
+  String get smsInboxEmptyDesc => '카드 결제 문자가 오면 여기에 쌓여요. 눌러서 지출로 기록할 수 있어요.';
+
+  @override
+  String get smsInboxRemove => '삭제';
+
+  @override
+  String get smsPermissionOffTitle => '문자 수신이 꺼져 있어요';
+
+  @override
+  String get smsPermissionOffDesc =>
+      '권한을 켜면 카드 결제 문자가 왔을 때 알려 드려요. 받은 문자는 기기에만 저장되고, 확인 후 저장할 때만 서버로 보내요.';
+
+  @override
+  String get smsPermissionEnable => '켜기';
+
+  @override
+  String get moreItemSmsInbox => '결제 문자 수신함';
+
+  @override
+  String get moreDescSmsInbox => '받은 카드 결제 문자를 지출로 기록';
 }

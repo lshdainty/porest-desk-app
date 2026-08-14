@@ -37,6 +37,7 @@ import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
 import 'package:porest_desk_app/features/expense_split/application/expense_split_providers.dart';
 import 'package:porest_desk_app/features/expense_split/data/expense_split_repository.dart';
 import 'package:porest_desk_app/features/expense_split/presentation/split_tx_dialog.dart';
+import 'package:porest_desk_app/features/sms/data/sms_android.dart';
 import 'package:porest_desk_app/features/sms/data/sms_repository.dart';
 import 'package:porest_desk_app/features/sms/domain/sms_draft.dart';
 
@@ -402,6 +403,16 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
           exchangeRate: fxRate,
           rememberCard: _input.assetRowId != null && _input.smsRememberCard,
         );
+        // 수신 보관함에서 온 문자면 기록됐으니 목록에서 뺀다.
+        // 실패해도 본 저장에는 영향이 없다 — 목록에 한 줄 남을 뿐이다.
+        final inboxId = widget.smsDraft!.inboxId;
+        if (inboxId != null) {
+          try {
+            await SmsAndroid.removeFromInbox(inboxId);
+          } catch (_) {
+            /* 보관함 정리 실패는 저장 결과를 바꾸지 않는다 */
+          }
+        }
       } else {
         await repo.create(
           categoryRowId: _input.categoryRowId!,

@@ -5,13 +5,17 @@ import 'package:porest_desk_app/features/sms/data/sms_repository.dart';
 /// 거래 시트에 그대로 넘겨 초기값으로 쓴다. 원문을 함께 들고 다니는 이유는
 /// 저장 시 서버가 다시 파싱해 취소 문자를 걸러내고 카드 매핑 키를 도출하기 때문이다.
 class SmsDraft {
-  const SmsDraft({required this.text, required this.parsed});
+  const SmsDraft({required this.text, required this.parsed, this.inboxId});
 
   /// 문자 원문.
   final String text;
 
   /// 서버 해석 결과.
   final SmsParseResult parsed;
+
+  /// 수신 보관함(안드로이드)에서 온 문자면 그 항목 id — 저장에 성공하면 목록에서 뺀다.
+  /// 직접 붙여넣은 문자에는 없다.
+  final int? inboxId;
 
   /// "이 카드로 기억" 을 물어볼 만한가 — 카드를 식별했는데 아직 안 외운 경우.
   bool get canRememberCard =>
