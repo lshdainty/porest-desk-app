@@ -74,11 +74,16 @@ class PaymentNotificationListener : NotificationListenerService() {
      */
     private fun mergeText(sbn: StatusBarNotification): String? {
         val extras = sbn.notification?.extras ?: return null
-        val parts = listOfNotNull(
-            extras.getCharSequence(NotificationCompat.EXTRA_TITLE)?.toString(),
-            extras.getCharSequence(NotificationCompat.EXTRA_TEXT)?.toString(),
-            extras.getCharSequence(NotificationCompat.EXTRA_BIG_TEXT)?.toString(),
-        ).map { it.trim() }.filter { it.isNotEmpty() }.distinct()
+        val title = extras.getCharSequence(NotificationCompat.EXTRA_TITLE)?.toString()?.trim()
+        val text = extras.getCharSequence(NotificationCompat.EXTRA_TEXT)?.toString()?.trim()
+        val bigText = extras.getCharSequence(NotificationCompat.EXTRA_BIG_TEXT)?.toString()?.trim()
+
+        // 본문은 bigText 를 우선한다 — 펼친 본문은 짧은 text 를 <b>포함</b>하는 확장판이라
+        // 둘 다 넣으면 "…승인 2,500원…" 이 통째로 두 번 찍힌다(현대카드 실측).
+        // 전체 동등성만 보는 distinct 로는 이 포함 관계를 못 걸러 낸다.
+        val bodyLine = bigText?.takeIf { it.isNotEmpty() } ?: text
+        val parts = listOfNotNull(title, bodyLine)
+            .filter { it.isNotEmpty() }.distinct()
 
         if (parts.isEmpty()) return null
         val body = parts.joinToString(separator = "\n")
