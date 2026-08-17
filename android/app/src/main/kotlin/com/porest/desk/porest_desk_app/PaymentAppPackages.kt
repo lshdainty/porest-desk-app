@@ -18,7 +18,7 @@ package com.porest.desk.porest_desk_app
 object PaymentAppPackages {
 
     /** 이 알림이 어디서 왔는가 — 필터 강도를 가른다. */
-    enum class Source { CARD_APP, BANK_APP }
+    enum class Source { CARD_APP, BANK_APP, MESSAGING_APP }
 
     /** 카드사 앱 — 오는 알림이 대체로 결제라 기본 필터로 충분하다. */
     val CARD_APPS: Map<String, String> = mapOf(
@@ -58,14 +58,40 @@ object PaymentAppPackages {
         "com.IBK.SmartPush.app" to "기업은행",         // i-ONE 알림
     )
 
+    /**
+     * 기본 메시지 앱 — 카드사가 <b>문자로</b> 보내는 승인 내역이 여기로 온다.
+     *
+     * <p>전에는 {@code RECEIVE_SMS} 로 문자를 직접 받았는데, 그 권한이 붙은 앱을
+     * 브라우저·메신저로 설치하면 Play Protect 가 자동 차단한다(금융사기 악성앱이
+     * 쓰는 조합이라서). 사이드로드로 배포하는 우리에겐 설치 자체가 막히는 문제라,
+     * 문자도 <b>알림으로</b> 읽어 권한 하나로 일원화했다.
+     *
+     * <p>대신 사용자가 메시지 앱 알림을 꺼두면 못 읽는다 — 그건 감수한다.
+     *
+     * <p>이 앱들의 알림에는 사적인 대화가 섞여 있다. 결제 문자 판정을 통과하지
+     * 못한 알림은 그 자리에서 버리고 아무 데도 남기지 않는다.
+     */
+    val MESSAGING_APPS: Map<String, String> = mapOf(
+        "com.samsung.android.messaging" to "메시지",   // 삼성 메시지
+        "com.google.android.apps.messaging" to "메시지", // Google 메시지
+        "com.android.mms" to "메시지",                  // AOSP 기본
+    )
+
     fun sourceOf(packageName: String?): Source? = when {
         packageName == null -> null
         CARD_APPS.containsKey(packageName) -> Source.CARD_APP
         BANK_APPS.containsKey(packageName) -> Source.BANK_APP
+        MESSAGING_APPS.containsKey(packageName) -> Source.MESSAGING_APP
         else -> null
     }
 
-    /** 어느 카드사·은행인가 — 알림 본문에 이름이 없을 때 붙여 준다. */
+    /**
+     * 어느 카드사·은행인가 — 알림 본문에 이름이 없을 때 붙여 준다.
+     *
+     * <p>메시지 앱은 제외한다. 보낸 앱이 곧 발신 기관인 카드사·은행과 달리,
+     * 메시지 앱은 통로일 뿐이라 "메시지" 를 카드사로 붙이면 파서가 헷갈린다.
+     * 문자 본문에는 카드사 이름이 이미 들어 있다.
+     */
     fun issuerOf(packageName: String?): String? =
         CARD_APPS[packageName] ?: BANK_APPS[packageName]
 }

@@ -1,5 +1,6 @@
 package com.porest.desk.porest_desk_app
 
+import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -19,6 +20,12 @@ import androidx.core.content.ContextCompat
  * 옮겨 갔다. 문자만 보면 카드에 따라 아무것도 안 잡힌다. 체크카드는 한 술 더 떠서
  * 발급 주체가 은행이라 결제 알림이 <b>은행 앱</b>으로 온다(토스·카카오뱅크·케이뱅크).
  *
+ * <p><b>문자도 여기서 읽는다.</b> 예전에는 {@code RECEIVE_SMS} 로 직접 받았는데, 그
+ * 권한이 붙은 앱을 브라우저·메신저로 설치하면 Play Protect 가 자동 차단한다 —
+ * 금융사기 악성앱이 쓰는 조합이라서다. 사이드로드로 배포하는 우리에겐 설치 자체가
+ * 막히는 문제라, 기본 메시지 앱의 알림을 읽는 쪽으로 옮겨 권한을 하나로 합쳤다.
+ * 파서는 출처를 가리지 않으므로 결과는 같다.
+ *
  * <p><b>권한의 무게</b> — 알림 접근은 기기의 <b>모든 알림</b>을 볼 수 있는 특수 권한이다
  * (사용자가 설정에서 직접 켜야 하고, 런타임 팝업으로는 받을 수 없다). 그래서
  * {@link PaymentAppPackages} 에 적힌 앱이 보낸 것만 들여다보고 나머지는 즉시 버린다 —
@@ -36,9 +43,14 @@ class PaymentNotificationListener : NotificationListenerService() {
         val sbnSafe = sbn ?: return
         val source = PaymentAppPackages.sourceOf(sbnSafe.packageName) ?: return
 
+        // "메시지 3개" 같은 묶음 알림에는 본문이 없다 — 개별 알림만 본다.
+        if (sbnSafe.notification?.flags?.and(Notification.FLAG_GROUP_SUMMARY) != 0) return
+
         val body = mergeText(sbnSafe) ?: return
         val isPayment = when (source) {
-            PaymentAppPackages.Source.CARD_APP -> SmsPaymentFilter.looksLikePayment(body)
+            // 문자는 카드사가 보낸 승인 내역 그대로라 카드사 앱과 같은 잣대로 본다.
+            PaymentAppPackages.Source.CARD_APP,
+            PaymentAppPackages.Source.MESSAGING_APP -> SmsPaymentFilter.looksLikePayment(body)
             PaymentAppPackages.Source.BANK_APP -> SmsPaymentFilter.looksLikeCardPaymentFromBank(body)
         }
         if (!isPayment) return

@@ -6198,43 +6198,42 @@ class AppLocalizationsEn extends AppLocalizations {
   String get smsClipboardBannerAction => 'Record';
 
   @override
-  String get smsInboxTitle => 'Payment text inbox';
+  String get smsInboxTitle => 'Payment inbox';
 
   @override
   String get smsInboxClear => 'Clear';
 
   @override
-  String get smsInboxEmpty => 'No payment texts yet';
+  String get smsInboxEmpty => 'No payment notifications yet';
 
   @override
   String get smsInboxEmptyDesc =>
-      'Card payment texts will collect here. Tap one to record it as an expense.';
+      'Detected card payments collect here. Tap one to record it as an expense.';
 
   @override
   String get smsInboxRemove => 'Remove';
 
   @override
-  String get smsPermissionOffTitle => 'Text detection is off';
+  String get smsPermissionOffTitle =>
+      'We can\'t notify you about detected payments';
 
   @override
   String get smsPermissionOffDesc =>
-      'Turn on the permission and we will let you know when a card payment text arrives. Texts stay on your device and are only sent to the server when you save them.';
+      'Turn on the notification permission and we will tell you as soon as a payment is detected. Detection keeps working either way and results collect in the inbox.';
 
   @override
   String get smsPermissionEnable => 'Turn on';
 
   @override
-  String get moreItemSmsInbox => 'Payment text inbox';
+  String get moreItemSmsInbox => 'Payment inbox';
 
   @override
-  String get moreDescSmsInbox =>
-      'Record received card payment texts as expenses';
+  String get moreDescSmsInbox => 'Record detected card payments as expenses';
 
   @override
-  String get smsNotiAccessOffTitle =>
-      'Also read card and bank app notifications?';
+  String get smsNotiAccessOffTitle => 'Payment detection is off';
 
   @override
   String get smsNotiAccessOffDesc =>
-      'Approvals increasingly arrive as app notifications instead of texts, and debit card payments come from the bank app. Turn on notification access and those can be recorded too. Only payment notifications from card and bank apps are read — everything else is discarded immediately.';
+      'Turn on notification access to read payment notifications from card and bank apps as well as payment texts. Only payment notifications are read — everything else is discarded immediately.';
 }

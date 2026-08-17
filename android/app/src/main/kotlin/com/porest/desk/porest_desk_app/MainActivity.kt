@@ -97,9 +97,13 @@ class MainActivity : FlutterActivity() {
         }
     }
 
+    /**
+     * 알림을 띄울 수 있는가 (Android 13+ 의 POST_NOTIFICATIONS).
+     *
+     * <p>결제 감지 자체와는 별개다 — 이게 없어도 알림 접근만 켜져 있으면 보관함에는
+     * 쌓인다. 알림으로 바로 기록하러 가는 동선만 빠질 뿐이다.
+     */
     private fun hasPermissions(): Boolean {
-        val sms = ContextCompat.checkSelfPermission(this, Manifest.permission.RECEIVE_SMS)
-        if (sms != PackageManager.PERMISSION_GRANTED) return false
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return true
         return ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) ==
             PackageManager.PERMISSION_GRANTED
@@ -116,15 +120,18 @@ class MainActivity : FlutterActivity() {
             return
         }
         permissionResult = result
-
-        val wanted = mutableListOf(Manifest.permission.RECEIVE_SMS)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            wanted += Manifest.permission.POST_NOTIFICATIONS
-        }
-        ActivityCompat.requestPermissions(this, wanted.toTypedArray(), REQUEST_CODE)
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+            REQUEST_CODE,
+        )
     }
 
-    /** 알림 접근이 켜져 있는가 — 이 값이 카드사 앱 알림 수신의 on/off 다. */
+    /**
+     * 알림 접근이 켜져 있는가 — <b>이 값 하나가 결제 감지의 on/off 다.</b>
+     *
+     * <p>카드사·은행 앱 푸시는 물론 문자까지 전부 이 경로로 읽는다.
+     */
     private fun hasNotificationAccess(): Boolean =
         NotificationManagerCompat.getEnabledListenerPackages(this).contains(packageName)
 
@@ -166,11 +173,9 @@ class MainActivity : FlutterActivity() {
         if (requestCode != REQUEST_CODE) return
         val pending = permissionResult ?: return
         permissionResult = null
-        // 알림 권한은 거절돼도 수신 자체는 된다 — 보관함에는 쌓인다.
-        // 그래서 "문자 수신이 되는가" 만 결과로 본다.
-        val smsIndex = permissions.indexOf(Manifest.permission.RECEIVE_SMS)
-        val granted = smsIndex >= 0 &&
-            grantResults.getOrNull(smsIndex) == PackageManager.PERMISSION_GRANTED
+        val index = permissions.indexOf(Manifest.permission.POST_NOTIFICATIONS)
+        val granted = index >= 0 &&
+            grantResults.getOrNull(index) == PackageManager.PERMISSION_GRANTED
         pending.success(granted)
     }
 
