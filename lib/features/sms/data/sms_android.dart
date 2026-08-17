@@ -18,13 +18,16 @@ class PendingSms {
   final int? id;
 }
 
-/// 안드로이드 결제 문자 수신 창구.
+/// 안드로이드 결제 감지 창구.
 ///
-/// 수신·알림은 네이티브 `SmsReceiver` 가 앱과 무관하게 처리한다(앱이 꺼져 있어도 온다).
+/// 감지·알림은 네이티브 `PaymentNotificationListener` 가 앱과 무관하게 처리한다
+/// (앱이 꺼져 있어도 온다). 카드사·은행 앱 푸시와 결제 문자를 **알림 하나로** 읽는다 —
+/// 예전에는 문자만 `RECEIVE_SMS` 로 따로 받았는데, 그 권한이 붙은 앱은 브라우저·
+/// 메신저 경유 설치가 Play Protect 에 차단돼 경로를 합쳤다.
+///
 /// 여기서는 Flutter 가 필요한 것만 가져온다 — 권한 상태·보관함·알림으로 들어온 문자.
 ///
-/// iOS 에서는 전부 빈 값을 돌려준다. 문자 접근이 OS 차원에서 막혀 있어
-/// 클립보드 경로를 쓴다.
+/// iOS 에서는 전부 빈 값을 돌려준다. 알림 접근 API 가 없어 클립보드 경로를 쓴다.
 class SmsAndroid {
   const SmsAndroid._();
 
@@ -32,24 +35,25 @@ class SmsAndroid {
 
   static bool get isSupported => Platform.isAndroid;
 
-  /// 문자 수신 권한이 있는가 — 이 값이 곧 기능의 on/off 다(따로 저장하지 않는다).
+  /// 알림을 띄울 수 있는가 (Android 13+ 의 알림 권한).
+  ///
+  /// 결제 감지 자체와는 별개다 — 이게 없어도 알림 접근만 켜져 있으면 수신함에는
+  /// 쌓인다. 알림에서 바로 기록하러 가는 동선만 빠질 뿐이다.
   static Future<bool> hasPermissions() async {
     if (!isSupported) return false;
     return await _invoke<bool>('hasPermissions') ?? false;
   }
 
-  /// 권한 요청 — 사용자가 설정에서 켤 때만 부른다.
-  ///
-  /// 알림 권한을 거절해도 수신 자체는 되므로(보관함에 쌓인다) 문자 권한만 결과로 본다.
+  /// 알림 권한 요청 — 거절해도 감지는 계속된다(수신함에 쌓인다).
   static Future<bool> requestPermissions() async {
     if (!isSupported) return false;
     return await _invoke<bool>('requestPermissions') ?? false;
   }
 
-  /// 카드사 앱 알림을 읽을 수 있는가(알림 접근 권한).
+  /// 결제 알림을 읽을 수 있는가(알림 접근 권한).
   ///
-  /// 문자 권한과 별개다 — 카드사가 승인 내역을 문자로 보내면 문자 권한이,
-  /// 자사 앱 푸시로 보내면 이쪽이 필요하다.
+  /// **이 값 하나가 결제 감지의 on/off 다.** 카드사·은행 앱 푸시는 물론
+  /// 결제 문자까지 전부 이 경로로 읽는다.
   static Future<bool> hasNotificationAccess() async {
     if (!isSupported) return false;
     return await _invoke<bool>('hasNotificationAccess') ?? false;
@@ -64,7 +68,7 @@ class SmsAndroid {
     await _invoke<void>('openNotificationAccessSettings');
   }
 
-  /// 아직 기록하지 않은 문자 목록 — 최신순.
+  /// 아직 기록하지 않은 결제 알림 목록 — 최신순.
   static Future<List<SmsInboxEntry>> inbox() async {
     if (!isSupported) return const [];
     final raw = await _invoke<List<dynamic>>('inbox');

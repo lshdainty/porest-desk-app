@@ -16,10 +16,10 @@ import 'package:porest_desk_app/shared/widgets/p_empty_state.dart';
 import 'package:porest_desk_app/features/sms/data/sms_android.dart';
 import 'package:porest_desk_app/features/sms/domain/sms_paste_args.dart';
 
-/// 아직 기록하지 않은 수신 결제 문자 목록 (안드로이드).
+/// 아직 기록하지 않은 결제 알림 목록 (안드로이드).
 ///
-/// 알림만 있으면 사용자가 알림을 쓸어 지우는 순간 문자가 사라진다 — 나중에
-/// "그거 뭐였지" 하고 찾을 방법이 없다. 받은 문자를 여기 쌓아 두고 나중에라도
+/// 알림만 있으면 사용자가 알림을 쓸어 지우는 순간 내용이 사라진다 — 나중에
+/// "그거 뭐였지" 하고 찾을 방법이 없다. 받은 것을 여기 쌓아 두고 나중에라도
 /// 기록할 수 있게 한다.
 ///
 /// 목록은 기기 안에만 있다. 서버로는 사용자가 확인 화면에서 저장할 때만 올라간다.
@@ -122,32 +122,34 @@ class _SmsInboxScreenState extends ConsumerState<SmsInboxScreen>
         child: ListView(
           padding: const EdgeInsets.all(PSpace.x16),
           children: [
-            if (!_granted) ...[
+            // 알림 접근이 이 기능의 유일한 스위치다 — 카드사·은행 앱 푸시도,
+            // 결제 문자도 전부 이 경로로 읽는다. 꺼져 있으면 아무것도 안 들어온다.
+            if (!_notiAccess) ...[
               PAlert(
-                title: l.smsPermissionOffTitle,
-                description: l.smsPermissionOffDesc,
+                title: l.smsNotiAccessOffTitle,
+                description: l.smsNotiAccessOffDesc,
                 variant: PAlertVariant.warning,
                 action: PButton(
                   label: l.smsPermissionEnable,
                   size: PButtonSize.sm,
                   variant: PButtonVariant.secondary,
-                  onPressed: _requestPermission,
+                  onPressed: SmsAndroid.openNotificationAccessSettings,
                 ),
               ),
               const SizedBox(height: PSpace.x16),
             ],
-            // 카드사가 문자 대신 앱 푸시로 보내는 경우가 늘어 이쪽도 필요하다.
-            // 문자 권한과 별개라 따로 안내한다.
-            if (!_notiAccess) ...[
+            // 알림 권한은 없어도 감지는 된다(수신함에 쌓인다) — 알림으로 바로
+            // 기록하러 가는 동선만 빠지므로 경고가 아니라 안내로 둔다.
+            if (_notiAccess && !_granted) ...[
               PAlert(
-                title: l.smsNotiAccessOffTitle,
-                description: l.smsNotiAccessOffDesc,
+                title: l.smsPermissionOffTitle,
+                description: l.smsPermissionOffDesc,
                 variant: PAlertVariant.info,
                 action: PButton(
                   label: l.smsPermissionEnable,
                   size: PButtonSize.sm,
                   variant: PButtonVariant.secondary,
-                  onPressed: SmsAndroid.openNotificationAccessSettings,
+                  onPressed: _requestPermission,
                 ),
               ),
               const SizedBox(height: PSpace.x16),

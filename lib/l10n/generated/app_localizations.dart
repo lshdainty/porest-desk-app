@@ -11309,7 +11309,7 @@ abstract class AppLocalizations {
   /// No description provided for @smsInboxTitle.
   ///
   /// In ko, this message translates to:
-  /// **'결제 문자 수신함'**
+  /// **'결제 알림 수신함'**
   String get smsInboxTitle;
 
   /// No description provided for @smsInboxClear.
@@ -11321,13 +11321,13 @@ abstract class AppLocalizations {
   /// No description provided for @smsInboxEmpty.
   ///
   /// In ko, this message translates to:
-  /// **'받은 결제 문자가 없어요'**
+  /// **'아직 받은 결제 알림이 없어요'**
   String get smsInboxEmpty;
 
   /// No description provided for @smsInboxEmptyDesc.
   ///
   /// In ko, this message translates to:
-  /// **'카드 결제 문자가 오면 여기에 쌓여요. 눌러서 지출로 기록할 수 있어요.'**
+  /// **'카드 결제가 감지되면 여기에 쌓여요. 눌러서 지출로 기록할 수 있어요.'**
   String get smsInboxEmptyDesc;
 
   /// No description provided for @smsInboxRemove.
@@ -11339,13 +11339,13 @@ abstract class AppLocalizations {
   /// No description provided for @smsPermissionOffTitle.
   ///
   /// In ko, this message translates to:
-  /// **'문자 수신이 꺼져 있어요'**
+  /// **'결제를 감지해도 알려 드릴 수 없어요'**
   String get smsPermissionOffTitle;
 
   /// No description provided for @smsPermissionOffDesc.
   ///
   /// In ko, this message translates to:
-  /// **'권한을 켜면 카드 결제 문자가 왔을 때 알려 드려요. 받은 문자는 기기에만 저장되고, 확인 후 저장할 때만 서버로 보내요.'**
+  /// **'알림 권한을 켜면 결제가 잡힐 때 바로 알려 드려요. 꺼두셔도 감지는 계속되고 수신함에 쌓여요.'**
   String get smsPermissionOffDesc;
 
   /// No description provided for @smsPermissionEnable.
@@ -11357,25 +11357,25 @@ abstract class AppLocalizations {
   /// No description provided for @moreItemSmsInbox.
   ///
   /// In ko, this message translates to:
-  /// **'결제 문자 수신함'**
+  /// **'결제 알림 수신함'**
   String get moreItemSmsInbox;
 
   /// No description provided for @moreDescSmsInbox.
   ///
   /// In ko, this message translates to:
-  /// **'받은 카드 결제 문자를 지출로 기록'**
+  /// **'감지된 카드 결제를 지출로 기록'**
   String get moreDescSmsInbox;
 
   /// No description provided for @smsNotiAccessOffTitle.
   ///
   /// In ko, this message translates to:
-  /// **'카드사·은행 앱 알림도 받을까요?'**
+  /// **'결제 감지가 꺼져 있어요'**
   String get smsNotiAccessOffTitle;
 
   /// No description provided for @smsNotiAccessOffDesc.
   ///
   /// In ko, this message translates to:
-  /// **'요즘은 승인 내역이 문자 대신 앱 알림으로 오는 경우가 많아요. 체크카드는 은행 앱에서 알려 주고요. 알림 접근을 켜면 그것도 기록할 수 있어요. 읽는 건 카드사·은행 앱의 결제 알림뿐이고 나머지는 곧바로 버려요.'**
+  /// **'알림 접근을 켜면 카드사·은행 앱 알림과 결제 문자를 읽어 기록할 수 있어요. 읽는 건 결제 알림뿐이고 나머지는 곧바로 버려요.'**
   String get smsNotiAccessOffDesc;
 }
 

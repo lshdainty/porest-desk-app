@@ -6,12 +6,12 @@
          설치 자체는 시스템이 사용자에게 다시 묻는다 — 조용히 깔리는 길은 없다. -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
-    <!-- 카드 결제 문자를 읽어 가계부에 옮겨 적기 위한 권한.
-         설정에서 사용자가 켤 때만 요청한다 — 기본은 꺼져 있고, 거절해도 앱의 나머지
-         기능은 그대로 쓴다. 수신한 문자는 결제 문자 판정을 통과한 것만 기기 안
-         보관함에 남고, 서버로는 사용자가 확인 화면에서 저장할 때만 올라간다. -->
-    <uses-permission android:name="android.permission.RECEIVE_SMS" />
-    <!-- Android 13+ 는 알림도 권한이다. 없으면 알림만 안 뜨고 보관함에는 쌓인다. -->
+    <!-- Android 13+ 는 알림도 권한이다. 없으면 알림만 안 뜨고 보관함에는 쌓인다.
+
+         결제 문자는 RECEIVE_SMS 로 직접 받지 않는다 — 그 권한이 붙은 앱을 브라우저·
+         메신저로 설치하면 Play Protect 가 자동 차단해(금융사기 악성앱이 쓰는 조합)
+         사이드로드 배포 자체가 막힌다. 문자도 기본 메시지 앱의 알림으로 읽어
+         아래 알림 접근 하나로 합쳤다. -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <!-- open_filex 가 딸고 오는 미디어 권한을 뺀다.
@@ -58,18 +58,6 @@
                 <data android:scheme="porestdesk" android:host="oauth"/>
             </intent-filter>
         </activity>
-        <!-- 결제 문자 수신 — 앱이 꺼져 있어도 받는다.
-             exported 는 필수다(시스템이 보내는 브로드캐스트를 받아야 한다).
-             권한이 없으면 브로드캐스트 자체가 오지 않으므로 리시버는 조용히 논다. -->
-        <receiver
-            android:name=".SmsReceiver"
-            android:exported="true"
-            android:permission="android.permission.BROADCAST_SMS">
-            <intent-filter android:priority="999">
-                <action android:name="android.provider.Telephony.SMS_RECEIVED"/>
-            </intent-filter>
-        </receiver>
-
         <!-- 카드사 앱 결제 알림 읽기.
              카드사들이 승인 내역을 문자 대신 자사 앱 푸시로 보내는 쪽으로 옮겨 가서,
              문자만 봐서는 카드에 따라 아무것도 안 잡힌다.
