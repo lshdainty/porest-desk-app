@@ -341,7 +341,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
           );
         }
         ref.invalidate(monthExpensesProvider((year: d.year, month: d.month)));
-        invalidateAssetsAfterExpense(ref);
+        invalidateAfterExpenseChange(ref);
         if (!mounted) return;
         final l = AppLocalizations.of(context);
         Navigator.of(context).pop();
@@ -450,7 +450,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
         }
       }
       ref.invalidate(monthExpensesProvider((year: d.year, month: d.month)));
-      invalidateAssetsAfterExpense(ref);
+      invalidateAfterExpenseChange(ref);
       if (!mounted) return;
       final l = AppLocalizations.of(context);
       Navigator.of(context).pop();
@@ -498,7 +498,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
           monthExpensesProvider((year: orig.year, month: orig.month)),
         );
       }
-      invalidateAssetsAfterExpense(ref);
+      invalidateAfterExpenseChange(ref);
       if (!mounted) return;
       Navigator.of(context).pop();
       showPSnackBar(context, l.expDeleted, severity: PSnackSeverity.success);

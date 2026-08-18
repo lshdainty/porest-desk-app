@@ -39,30 +39,6 @@ class ExpenseRepository {
     }
   }
 
-  /// 캘린더 이벤트에 연결된 거래 목록. GET /calendar/event/{id}/expenses.
-  Future<List<Expense>> listByCalendarEvent(int eventId) async {
-    try {
-      final res = await _dio.get<Map<String, dynamic>>(
-        '/calendar/event/$eventId/expenses',
-      );
-      return _unwrapList(res, 'expenses', Expense.fromJson);
-    } on DioException catch (e) {
-      throw ApiException.fromDio(e);
-    }
-  }
-
-  /// 할 일에 연결된 거래 목록. GET /todo/{id}/expenses.
-  Future<List<Expense>> listByTodo(int todoId) async {
-    try {
-      final res = await _dio.get<Map<String, dynamic>>(
-        '/todo/$todoId/expenses',
-      );
-      return _unwrapList(res, 'expenses', Expense.fromJson);
-    } on DioException catch (e) {
-      throw ApiException.fromDio(e);
-    }
-  }
-
   Future<Expense> create({
     required int categoryRowId,
     int? assetRowId, // 자산 미연결 거래 허용 — 서버도 nullable

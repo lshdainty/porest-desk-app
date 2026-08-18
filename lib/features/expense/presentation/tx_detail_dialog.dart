@@ -139,7 +139,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
         final m = int.parse(parts[1]);
         ref.invalidate(monthExpensesProvider((year: y, month: m)));
       }
-      invalidateAssetsAfterExpense(ref);
+      invalidateAfterExpenseChange(ref);
       if (!mounted) return;
       Navigator.of(context).pop();
       showPSnackBar(context, l.expDeleted, severity: PSnackSeverity.success);
