@@ -170,4 +170,44 @@ void main() {
 
     expect(find.byType(Slidable), findsNothing);
   });
+
+  testWidgets('한 번에 한 행만 열린다 — 다른 행을 밀면 먼저 열린 행이 닫힌다', (tester) async {
+    // 이 보장은 SlidableAutoCloseBehavior 조상에 기댄다. 앱은 루트에 한 번 두는데,
+    // 없으면 행이 여러 개 열린 채로 남는다(실제로 가계부에서 그렇게 나갔다).
+    await tester.pumpWidget(MaterialApp(
+      theme: PorestTheme.light(),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: const Locale('ko'),
+      home: Scaffold(
+        body: SlidableAutoCloseBehavior(
+          child: ListView(
+            children: [
+              for (final name in ['첫째', '둘째'])
+                PSwipeActions(
+                  key: ValueKey(name),
+                  groupTag: 'same-list',
+                  actions: [
+                    PSwipeAction(
+                      label: '삭제$name',
+                      kind: PSwipeKind.destructive,
+                      onSelect: () {},
+                    ),
+                  ],
+                  child: SizedBox(height: 64, child: Center(child: Text(name))),
+                ),
+            ],
+          ),
+        ),
+      ),
+    ));
+
+    await _swipeOpen(tester, '첫째');
+    expect(find.text('삭제첫째'), findsOneWidget);
+
+    await _swipeOpen(tester, '둘째');
+    expect(find.text('삭제둘째'), findsOneWidget);
+    // 먼저 연 행은 닫혀 있어야 한다
+    expect(find.text('삭제첫째'), findsNothing);
+  });
 }

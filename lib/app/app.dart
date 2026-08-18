@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:porest_desk_app/features/sms/data/sms_android.dart';
@@ -109,8 +110,14 @@ class _PorestDeskAppState extends ConsumerState<PorestDeskApp>
       supportedLocales: AppLocalizations.supportedLocales,
       // 앱 잠금(생체인증) — 라우터 전체를 덮는 오버레이. 로그인 세션과 별개로,
       // 켜져 있으면 실행·복귀 시 본인 확인 후에만 화면을 보여준다.
-      builder: (context, child) =>
-          AppLockGate(child: child ?? const SizedBox.shrink()),
+      //
+      // 스와이프 액션(PSwipeActions)은 "한 번에 한 행만 열림" 을 이 조상에 기댄다.
+      // 화면마다 두게 하면 새 리스트를 붙일 때 잊어버리고, 그러면 행이 여러 개
+      // 열린 채로 남는다 — 실제로 가계부에서 그렇게 됐다. 여기 한 번만 둔다.
+      // 리스트끼리는 groupTag 로 갈라지므로 하나로 충분하다.
+      builder: (context, child) => SlidableAutoCloseBehavior(
+        child: AppLockGate(child: child ?? const SizedBox.shrink()),
+      ),
       routerConfig: router,
     );
   }
