@@ -72,6 +72,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get unlockBody => '금액을 다시 보려면 비밀번호로 본인 확인이 필요해요.';
 
   @override
+  String get unlockBiometricReason => '금액을 다시 보려면 본인 확인이 필요해요.';
+
+  @override
   String get unlockPasswordLabel => '비밀번호';
 
   @override

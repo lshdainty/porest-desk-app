@@ -9,6 +9,7 @@ import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_progress.dart';
 import 'package:porest_desk_app/core/auth/auth_notifier.dart';
+import 'package:porest_desk_app/core/lock/app_lock.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
 
@@ -25,9 +26,35 @@ Future<bool> showHideAmountsUnlockDialog(BuildContext context) async {
   return ok == true;
 }
 
-/// 카드 묶음 토글 — 켜기는 그냥, 풀기는 비밀번호 검증을 거친다.
+/// 금액을 다시 보기 위한 본인 확인 — 생체인증을 먼저, 안 되면 비밀번호.
 ///
-/// 여러 장을 한 번에 넘기면 **인증도 한 번**이다. 카드마다 비밀번호를 치게 하면
+/// 앱 잠금을 켠 사람은 이미 이 앱에서 생체인증을 쓰기로 한 것이다. 그 사람에게까지
+/// 카드를 풀 때마다 비밀번호를 치게 하면 화면·카드별로 골라 보는 기능 자체를 안 쓰게 된다.
+/// 앱 잠금이 꺼져 있으면 프롬프트를 띄우지 않는다 — 켠 적 없는 사람에게 갑자기 Face ID 가
+/// 뜨는 건 놀랄 일이다.
+///
+/// 생체를 취소하거나 실패하면 비밀번호로 물러선다. 풀려던 의도는 분명하니 길을 막지 않되,
+/// 거기서도 취소할 수 있다.
+Future<bool> confirmHideAmountsUnlock(
+  BuildContext context,
+  WidgetRef ref,
+) async {
+  if (ref.read(appLockEnabledProvider)) {
+    final l = AppLocalizations.of(context);
+    final result = await ref.read(appLockAuthProvider).authenticate(
+          reason: l.unlockBiometricReason,
+          signInTitle: l.unlockTitle,
+          cancelLabel: l.actionCancel,
+        );
+    if (result == AppLockAuthResult.success) return true;
+    if (!context.mounted) return false;
+  }
+  return showHideAmountsUnlockDialog(context);
+}
+
+/// 카드 묶음 토글 — 켜기는 그냥, 풀기는 본인 확인을 거친다.
+///
+/// 여러 장을 한 번에 넘기면 **인증도 한 번**이다. 카드마다 확인을 받으면
 /// 페이지·전체 잠그기를 쓸 수가 없다.
 Future<void> setHideCardsWithUnlock(
   BuildContext context,
@@ -40,7 +67,7 @@ Future<void> setHideCardsWithUnlock(
     await notifier.hideCards(cards);
     return;
   }
-  final ok = await showHideAmountsUnlockDialog(context);
+  final ok = await confirmHideAmountsUnlock(context, ref);
   if (ok) {
     await notifier.revealCards(cards);
   }

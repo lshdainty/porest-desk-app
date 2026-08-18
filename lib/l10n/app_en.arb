@@ -21,6 +21,7 @@
   "searchResultsEmpty": "No results",
   "unlockTitle": "Verify to view amounts",
   "unlockBody": "Enter your password to view amounts again.",
+  "unlockBiometricReason": "Verify it's you to view amounts again.",
   "unlockPasswordLabel": "Password",
   "unlockPasswordHint": "Enter password",
   "unlockMismatch": "Password doesn't match.",
