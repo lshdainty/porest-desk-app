@@ -527,7 +527,9 @@ class _AppVersionLine extends ConsumerWidget {
     final status = statusAsync.value;
     final hasUpdate = status?.hasUpdate ?? false;
 
-    final suffix = statusAsync.isLoading || status == null
+    // 서버를 못 읽었으면 아무 말도 안 한다 — "최신이에요" 는 실제로 비교해 봤을 때만.
+    // 못 읽은 걸 최신으로 적으면 서버가 죽어 있는 동안 새 버전을 영영 모른다.
+    final suffix = statusAsync.isLoading || status == null || status.checkFailed
         ? null
         : hasUpdate
             ? l.accountAppVersionUpdate(status.latest!.version)

@@ -16,16 +16,11 @@ import 'package:porest_desk_app/shared/widgets/p_button.dart';
 
 /// 업데이트 — 설정에서 들어와 지금 상태를 확인하고, 있으면 여기서 받는다.
 ///
-/// 예전엔 앱을 열 때마다 전체 화면으로 알리고 홈에도 배너를 뒀는데, 받을 생각이
-/// 없는 사람에게는 매번 걷어내야 하는 벽이었다. 이제 알림은 걷고 확인은 이 화면으로
-/// 모은다 — 스토어의 "업데이트" 탭과 같은 자리다.
-///
-/// 다만 [forced] 면 이야기가 다르다. 서버와 앱이 어긋나 잘못된 값을 주고받을 수 있는
-/// 상태라, 받기 전에는 앱으로 돌아갈 수 없다. 뒤로 가기도 막는다.
+/// 알림은 UpdateGateScreen 이 맡는다(새 버전이 나오면 빌드번호당 한 번 전체 화면으로
+/// 가로막는다). 이 화면은 그걸 넘긴 사람이 나중에 스스로 찾아오는 자리다 — 스토어의
+/// "업데이트" 탭과 같다. 그래서 뒤로 가기를 막지 않는다.
 class UpdateScreen extends ConsumerWidget {
-  const UpdateScreen({super.key, this.forced = false});
-
-  final bool forced;
+  const UpdateScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -33,37 +28,32 @@ class UpdateScreen extends ConsumerWidget {
     final l = AppLocalizations.of(context);
     final statusAsync = ref.watch(updateStatusProvider);
 
-    return PopScope(
-      // 강제일 때는 뒤로 가기로 빠져나갈 수 없다.
-      canPop: !forced,
-      child: Scaffold(
+    return Scaffold(
+      backgroundColor: t.bgCanvas,
+      appBar: AppBar(
         backgroundColor: t.bgCanvas,
-        appBar: AppBar(
-          backgroundColor: t.bgCanvas,
-          elevation: 0,
-          leading: forced ? const SizedBox.shrink() : const PBackButton(),
-          title: Text(
-            l.updateTitle,
-            style: PTypo.bodyLg
-                .copyWith(color: t.fgPrimary, fontWeight: PFontWeight.bold),
-          ),
+        elevation: 0,
+        leading: const PBackButton(),
+        title: Text(
+          l.updateTitle,
+          style: PTypo.bodyLg
+              .copyWith(color: t.fgPrimary, fontWeight: PFontWeight.bold),
         ),
-        body: statusAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          // 서버를 못 읽어도 화면은 뜬다 — 지금 버전만이라도 보여 준다.
-          error: (_, _) => _Body(status: null, forced: forced),
-          data: (s) => _Body(status: s, forced: forced),
-        ),
+      ),
+      body: statusAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        // 서버를 못 읽어도 화면은 뜬다 — 지금 버전만이라도 보여 준다.
+        error: (_, _) => const _Body(status: null),
+        data: (s) => _Body(status: s),
       ),
     );
   }
 }
 
 class _Body extends ConsumerWidget {
-  const _Body({required this.status, required this.forced});
+  const _Body({required this.status});
 
   final UpdateStatus? status;
-  final bool forced;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -72,6 +62,9 @@ class _Body extends ConsumerWidget {
     final s = status;
     final latest = s?.latest;
     final hasUpdate = s?.hasUpdate ?? false;
+    // 서버를 못 읽은 것과 "받을 게 없다" 는 다르다. 예전엔 둘을 같이 취급해서 서버가
+    // 죽어 있어도 "최신 버전이에요" 라고 안심시켰다 — 업데이트 안내가 조용히 멈췄다.
+    final checkFailed = s == null || s.checkFailed;
 
     return ListView(
       padding: const EdgeInsets.all(PSpace.x24),
@@ -88,9 +81,17 @@ class _Body extends ConsumerWidget {
               ),
               alignment: Alignment.center,
               child: Icon(
-                hasUpdate ? LucideIcons.download : LucideIcons.check,
+                hasUpdate
+                    ? LucideIcons.download
+                    : checkFailed
+                        ? LucideIcons.triangleAlert
+                        : LucideIcons.check,
                 size: 20,
-                color: hasUpdate ? t.fgBrand : t.fgSecondary,
+                color: hasUpdate
+                    ? t.fgBrand
+                    : checkFailed
+                        ? t.statusWarningFg
+                        : t.fgSecondary,
               ),
             ),
             const SizedBox(width: PSpace.x16),
@@ -101,13 +102,16 @@ class _Body extends ConsumerWidget {
                   Text(
                     hasUpdate
                         ? l.updateAvailable(latest!.version)
-                        : l.updateUpToDate,
+                        : checkFailed
+                            ? l.updateCheckFailedTitle
+                            : l.updateUpToDate,
                     style: PTypo.body.copyWith(
                         color: t.fgPrimary, fontWeight: PFontWeight.semi),
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    s == null
+                    // 지금 버전은 서버와 무관하게 알고 있다 — 확인에 실패해도 보여 준다.
+                    checkFailed
                         ? l.updateCheckFailed
                         : l.updateCurrentBuild(s.currentBuild.toString()),
                     style: PTypo.caption.copyWith(color: t.fgTertiary),
@@ -117,33 +121,6 @@ class _Body extends ConsumerWidget {
             ),
           ],
         ),
-
-        // ── 강제 — 왜 막혔는지 먼저 말한다.
-        if (forced) ...[
-          const SizedBox(height: PSpace.x24),
-          Container(
-            padding: const EdgeInsets.all(PSpace.x16),
-            decoration: BoxDecoration(
-              color: t.statusWarningSubtle,
-              borderRadius: PRadius.brLg,
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(LucideIcons.triangleAlert,
-                    size: 18, color: t.statusWarningFg),
-                const SizedBox(width: PSpace.x12),
-                Expanded(
-                  child: Text(
-                    l.updateRequiredDesc,
-                    style: PTypo.bodySm
-                        .copyWith(color: t.statusWarningFg, height: 1.6),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
 
         // ── 바뀐 것
         if (hasUpdate && latest!.notes.trim().isNotEmpty) ...[

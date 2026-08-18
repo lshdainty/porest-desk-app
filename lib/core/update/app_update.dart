@@ -6,6 +6,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:porest_desk_app/app/env.dart';
+import 'package:porest_desk_app/core/storage/prefs_provider.dart';
 
 /// 새 버전 확인 — 스토어를 쓰지 않아 자동 업데이트가 없다.
 ///
@@ -132,6 +133,24 @@ class UpdateStatus {
   /// 정작 고쳐야 할 문제와 상관없이 사람을 밖에 세워 두는 셈이다.
   bool get mustUpdate =>
       latest != null && currentBuild < latest!.minBuildNumber;
+
+  /// 확인 자체를 못 했나.
+  ///
+  /// 서버는 항상 json 을 준다 — 성공했는데 latest 가 비는 경우는 없다. 그래서 null 은
+  /// "받을 게 없다" 가 아니라 "못 물어봤다" 는 뜻이다. 이걸 구분하지 않으면 서버가
+  /// 죽어 있을 때 화면이 "최신 버전이에요" 라고 안심시킨다 — 업데이트 안내가 조용히
+  /// 멈추는 게 제일 나쁘다.
+  bool get checkFailed => latest == null;
+
+  /// 전체 화면으로 가로막고 알릴 것인가.
+  ///
+  /// 새 버전이 있어도 한 번 넘긴 빌드는 다시 안 띄운다. 예전에 열 때마다 전체 화면으로
+  /// 알리다가 "받을 생각 없는 사람에게는 매번 걷어내야 하는 벽" 이 돼 걷어냈다 —
+  /// 그 실패를 되풀이하지 않으려면 넘긴 선택을 존중해야 한다.
+  ///
+  /// 강제는 예외다. 서버와 어긋난 앱을 계속 쓰게 둘 수는 없어 건너뛰기를 무시한다.
+  bool shouldGate(int? skippedBuild) =>
+      mustUpdate || (hasUpdate && latest!.buildNumber != skippedBuild);
 }
 
 final updateStatusProvider = FutureProvider<UpdateStatus>((ref) async {
@@ -142,6 +161,38 @@ final updateStatusProvider = FutureProvider<UpdateStatus>((ref) async {
     latest: await ref.watch(_latestReleaseProvider.future),
   );
 });
+
+/// 전체 화면 안내를 건너뛴 빌드번호.
+///
+/// 라우터가 redirect 안에서 읽는데 go_router 의 redirect 는 동기라 await 할 수 없다.
+/// 그래서 저장소를 그때 읽지 않고 상태로 들고 있는다.
+class SkippedBuildNotifier extends Notifier<int?> {
+  @override
+  int? build() {
+    _load();
+    // 읽어 오기 전에는 "건너뛴 적 없음" 으로 둔다. 잠깐 게이트가 뜰 수 있지만,
+    // 반대로 두면 넘긴 적 없는 새 버전을 놓친다 — 알리는 쪽이 덜 나쁘다.
+    return null;
+  }
+
+  Future<void> _load() async {
+    final prefs = await ref.read(prefsProvider.future);
+    state = prefs.getInt(PrefsKeys.updateSkippedBuild);
+  }
+
+  /// 이 빌드는 다시 띄우지 않는다.
+  ///
+  /// 상태를 먼저 바꾼다 — 저장만 하고 상태를 안 바꾸면 라우터가 다시 평가할 게 없어
+  /// 앱을 껐다 켤 때까지 게이트에 갇힌다.
+  Future<void> skip(int buildNumber) async {
+    state = buildNumber;
+    final prefs = await ref.read(prefsProvider.future);
+    await prefs.setInt(PrefsKeys.updateSkippedBuild, buildNumber);
+  }
+}
+
+final skippedBuildProvider =
+    NotifierProvider<SkippedBuildNotifier, int?>(SkippedBuildNotifier.new);
 
 /// 서버가 알려 주는 최신 릴리스 — 지금 버전과 비교하기 전의 날것.
 final _latestReleaseProvider = FutureProvider<AppRelease?>((ref) async {
