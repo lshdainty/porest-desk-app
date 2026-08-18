@@ -36,6 +36,11 @@ class PSheetFooter extends StatelessWidget {
     return AnimatedBuilder(
       animation: controller,
       builder: (ctx, _) {
+        // 취소·저장은 화면 폭을 반씩 나눠 갖는다 — 한 손으로 누를 폭을 확보한다
+        // (spec drawer.md:35). 우측 정렬로 두면 화면 구석의 작은 알약이 된다.
+        //
+        // 삭제·leftSlot 은 균등 분배에서 뺀다. 셋이 똑같이 나뉘면 파괴적 액션이
+        // 저장과 같은 무게로 보인다(spec drawer.md — 삭제는 최좌측 flush-left 로 분리).
         return Row(
           children: [
             if (leftSlot != null)
@@ -45,26 +50,34 @@ class PSheetFooter extends StatelessWidget {
                 label: deleteLabel ?? l.actionDelete,
                 icon: LucideIcons.trash2,
                 variant: PButtonVariant.ghost,
+                size: PButtonSize.lg,
                 dangerous: true,
                 flush: PButtonFlush.left,
                 onPressed: controller.submitting ? null : controller.onDelete,
               ),
-            const Spacer(),
-            PButton(
-              label: cancelLabel ?? l.actionCancel,
-              variant: PButtonVariant.ghost,
-              onPressed: controller.submitting
-                  ? null
-                  : () => Navigator.of(ctx).pop(),
+            Expanded(
+              child: PButton(
+                label: cancelLabel ?? l.actionCancel,
+                variant: PButtonVariant.ghost,
+                size: PButtonSize.lg,
+                fullWidth: true,
+                onPressed: controller.submitting
+                    ? null
+                    : () => Navigator.of(ctx).pop(),
+              ),
             ),
-            const SizedBox(width: PSpace.x4),
-            PButton(
-              label: submitLabel,
-              icon: submitIcon,
-              loading: controller.submitting,
-              onPressed: controller.canSubmit && !controller.submitting
-                  ? controller.onSubmit
-                  : null,
+            const SizedBox(width: PSpace.x8),
+            Expanded(
+              child: PButton(
+                label: submitLabel,
+                icon: submitIcon,
+                size: PButtonSize.lg,
+                fullWidth: true,
+                loading: controller.submitting,
+                onPressed: controller.canSubmit && !controller.submitting
+                    ? controller.onSubmit
+                    : null,
+              ),
             ),
           ],
         );
@@ -110,6 +123,8 @@ class PViewFooter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
+    // 편집·확인이 남은 폭을 나눠 갖는다(spec drawer.md:35 — 한 손 조작 폭).
+    // 삭제·leading 은 좌측 고정 — 파괴적 액션이 확인과 같은 무게로 보이면 안 된다.
     return Row(
       children: [
         if (onDelete != null)
@@ -117,6 +132,7 @@ class PViewFooter extends StatelessWidget {
             label: deleteLabel ?? l.actionDelete,
             icon: LucideIcons.trash2,
             variant: PButtonVariant.ghost,
+            size: PButtonSize.lg,
             dangerous: true,
             flush: PButtonFlush.left,
             loading: deleting,
@@ -124,20 +140,27 @@ class PViewFooter extends StatelessWidget {
           )
         else
           ?leading,
-        const Spacer(),
         if (onEdit != null) ...[
-          PButton(
-            label: editLabel ?? l.actionEditLabel,
-            icon: LucideIcons.pencil,
-            variant: PButtonVariant.ghost,
-            onPressed: onEdit,
+          Expanded(
+            child: PButton(
+              label: editLabel ?? l.actionEditLabel,
+              icon: LucideIcons.pencil,
+              variant: PButtonVariant.ghost,
+              size: PButtonSize.lg,
+              fullWidth: true,
+              onPressed: onEdit,
+            ),
           ),
-          const SizedBox(width: PSpace.x4),
+          const SizedBox(width: PSpace.x8),
         ],
-        PButton(
-          label: confirmLabel ?? l.actionConfirm,
-          variant: confirmVariant,
-          onPressed: onConfirm ?? () => Navigator.of(context).pop(),
+        Expanded(
+          child: PButton(
+            label: confirmLabel ?? l.actionConfirm,
+            variant: confirmVariant,
+            size: PButtonSize.lg,
+            fullWidth: true,
+            onPressed: onConfirm ?? () => Navigator.of(context).pop(),
+          ),
         ),
       ],
     );
@@ -457,21 +480,37 @@ class _PConfirmDialogState extends State<_PConfirmDialog> {
       backgroundColor: t.bgSurface,
       title: Text(widget.title),
       content: Text(widget.message),
+      // AlertDialog 기본 actions 는 OverflowBar 라 버튼이 내용 폭으로 우측에 몰린다.
+      // Row + Expanded 로 직접 깔아 화면 폭을 반씩 나눈다(spec dialog.md 모바일 규칙).
       actions: [
-        // 취소는 작업 중에도 원래 상태 유지 — 비동기 작업은 확인(저장) 버튼 스피너로만 표시.
-        PButton(
-          label: widget.cancelLabel,
-          // spec alert-dialog.md / preview .modal-actions: Cancel = outline(border).
-          variant: PButtonVariant.outline,
-          onPressed: () => Navigator.pop(context, false),
-        ),
-        PButton(
-          label: widget.confirmLabel,
-          variant: widget.destructive
-              ? PButtonVariant.danger
-              : PButtonVariant.primary,
-          loading: _busy,
-          onPressed: _busy ? null : _confirm,
+        Row(
+          children: [
+            // 취소는 작업 중에도 원래 상태 유지 — 비동기 작업은 확인 버튼 스피너로만 표시.
+            Expanded(
+              child: PButton(
+                label: widget.cancelLabel,
+                // 전체 폭 버튼 둘이 테두리·채움으로 서면 위계가 흐려진다
+                // (spec button.md Migration notes 2026-08 — 모달 취소는 ghost).
+                variant: PButtonVariant.ghost,
+                size: PButtonSize.lg,
+                fullWidth: true,
+                onPressed: () => Navigator.pop(context, false),
+              ),
+            ),
+            const SizedBox(width: PSpace.x8),
+            Expanded(
+              child: PButton(
+                label: widget.confirmLabel,
+                variant: widget.destructive
+                    ? PButtonVariant.danger
+                    : PButtonVariant.primary,
+                size: PButtonSize.lg,
+                fullWidth: true,
+                loading: _busy,
+                onPressed: _busy ? null : _confirm,
+              ),
+            ),
+          ],
         ),
       ],
     );
