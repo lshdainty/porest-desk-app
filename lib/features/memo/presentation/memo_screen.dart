@@ -18,6 +18,8 @@ import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
 import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/features/memo/application/memo_providers.dart';
 import 'package:porest_desk_app/features/memo/domain/memo.dart';
+import 'package:porest_desk_app/features/memo/presentation/memo_actions.dart';
+import 'package:porest_desk_app/shared/widgets/p_swipe_actions.dart';
 import 'package:porest_desk_app/features/memo/domain/memo_colors.dart';
 import 'package:porest_desk_app/features/memo/presentation/memo_edit_dialog.dart';
 import 'package:porest_desk_app/features/memo/presentation/memo_detail_dialog.dart';
@@ -222,7 +224,7 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
                     t: t,
                   ),
                   const SizedBox(height: PSpace.x12),
-                  _CardGrid(memos: pinned, onPin: _togglePin),
+                  _MemoList(memos: pinned, onPin: _togglePin),
                 ],
                 if (others.isNotEmpty) ...[
                   if (pinned.isNotEmpty) ...[
@@ -234,7 +236,7 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
                     ),
                     const SizedBox(height: PSpace.x12),
                   ],
-                  _CardGrid(memos: others, onPin: _togglePin),
+                  _MemoList(memos: others, onPin: _togglePin),
                 ],
               ],
             ),
@@ -316,154 +318,159 @@ class _SectionHeader extends StatelessWidget {
 }
 
 /// 2열 색틴트 카드 그리드.
-class _CardGrid extends StatelessWidget {
-  const _CardGrid({required this.memos, required this.onPin});
+/// 메모 목록 — 세로 리스트.
+///
+/// 예전엔 2열 카드 그리드였다. 보기엔 좋았지만 밀 수 있는 형태가 아니라(폭이 절반이고
+/// 옆에 카드가 또 있다) 편집·삭제에 닿으려면 매번 상세를 열어야 했다. 세로 리스트로
+/// 바꿔 가계부·할일과 같은 리듬을 쓰고, 밀면 액션이 나오게 한다.
+class _MemoList extends ConsumerWidget {
+  const _MemoList({required this.memos, required this.onPin});
   final List<Memo> memos;
   final Future<void> Function(Memo) onPin;
 
   @override
-  Widget build(BuildContext context) {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      // safe-area 흡수 방지.
-      padding: EdgeInsets.zero,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: PSpace.x12,
-        mainAxisSpacing: PSpace.x12,
-        mainAxisExtent: 168,
-      ),
-      itemCount: memos.length,
-      itemBuilder: (_, i) => _MemoCard(
-        memo: memos[i],
-        onTap: () => showMemoDetailDialog(context, memos[i]),
-        onPin: () => onPin(memos[i]),
-      ),
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context);
+    final t = context.tokens;
+
+    return Column(
+      children: [
+        for (var i = 0; i < memos.length; i++) ...[
+          if (i > 0) Divider(height: 1, thickness: 1, color: t.borderSubtle),
+          PSwipeActions(
+            key: ValueKey('memo-${memos[i].rowId}'),
+            groupTag: 'memo-list',
+            actions: [
+              PSwipeAction(
+                label: memos[i].pinned ? l.memoUnpin : l.memoPin,
+                icon: LucideIcons.pin,
+                onSelect: () => onPin(memos[i]),
+              ),
+              PSwipeAction(
+                label: l.actionEdit,
+                icon: LucideIcons.pencil,
+                kind: PSwipeKind.primary,
+                onSelect: () => memoActions.edit(context, ref, memos[i]),
+              ),
+              PSwipeAction(
+                label: l.actionDelete,
+                icon: LucideIcons.trash2,
+                kind: PSwipeKind.destructive,
+                confirmMessage:
+                    memoActions.deleteConfirmMessage(context, memos[i]),
+                onSelect: () => memoActions.delete(context, ref, memos[i]),
+              ),
+            ],
+            child: _MemoRow(
+              memo: memos[i],
+              onTap: () => showMemoDetailDialog(context, memos[i]),
+            ),
+          ),
+        ],
+      ],
     );
   }
 }
 
-class _MemoCard extends StatelessWidget {
-  const _MemoCard({
-    required this.memo,
-    required this.onTap,
-    required this.onPin,
-  });
+/// 메모 행 — 세로 리스트용.
+///
+/// 카드(2열 그리드)는 밀 수 있는 형태가 아니다. 폭이 절반이고 옆에 카드가 또 있어서
+/// 왼쪽으로 밀어 액션을 여는 동작이 물리적으로 성립하지 않는다. 그래서 세로 리스트로
+/// 바꾼다 — 가계부·할일과 같은 리듬이 되고, 스와이프도 붙는다.
+///
+/// 카드가 보여 주던 것(색 점 · 태그 · 제목 · 본문 · 수정시각 · 고정)은 그대로 옮긴다.
+/// 다만 본문은 4줄에서 1줄로 줄인다 — 행 높이가 들쭉날쭉하면 미는 손이 목표를 잃는다.
+class _MemoRow extends StatelessWidget {
+  const _MemoRow({required this.memo, required this.onTap});
+
   final Memo memo;
   final VoidCallback onTap;
-  final VoidCallback onPin;
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
-    final bg = memoCardBg(context, memo.color);
-    final tagFg = memoTagFg(context, memo.color);
     final swatch = memoSwatch(context, memo.color);
     final hasTitle = (memo.title ?? '').isNotEmpty;
     final tag = (memo.tag ?? '').isNotEmpty ? memo.tag! : '개인';
+    final content = (memo.content ?? '').trim();
 
-    // 주의: BoxDecoration 의 boxShadow 는 박스 본체를 그림자색으로 채워 블러하는
-    // 방식이라 decoration 에 color 가 없으면 그림자 내부(라이트 5%/다크 30% 검정)가
-    // 카드 전체에 베일로 남는다 — bg 가 web 보다 어둡고 칙칙해 보이던 버그 fix.
-    // color 를 같은 decoration 에 두면 그림자 본체를 덮어 외곽선만 남는다.
-    return Container(
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: PRadius.brLg,
-        boxShadow: t.shadowSm,
-      ),
-      child: Material(
-        color: Colors.transparent,
-        borderRadius: PRadius.brLg,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: PRadius.brLg,
-          child: Padding(
-            padding: const EdgeInsets.all(18),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 상단 행: dot + 태그 + 핀.
-                Row(
+    return Material(
+      color: t.bgSurface,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+              horizontal: PSpace.x16, vertical: PSpace.x12),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 색 점 — 카드의 색 면을 대신한다. 리스트에서 면을 칠하면 행마다
+              // 배경이 달라져 목록이 산만해진다.
+              Padding(
+                padding: const EdgeInsets.only(top: 5),
+                child: Container(
+                  width: 8,
+                  height: 8,
+                  decoration:
+                      BoxDecoration(color: swatch, shape: BoxShape.circle),
+                ),
+              ),
+              const SizedBox(width: PSpace.x12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      width: 8,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        color: swatch,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        tag,
-                        style: PTypo.micro.copyWith(
-                          color: tagFg,
-                          fontWeight: PFontWeight.semi,
-                          letterSpacing: 0.2,
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            hasTitle ? memo.title! : l.memoUntitled,
+                            style: PTypo.body.copyWith(
+                              color: hasTitle ? t.fgPrimary : t.fgTertiary,
+                              fontWeight: PFontWeight.semi,
+                              letterSpacing: -0.2,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
+                        if (memo.pinned) ...[
+                          const SizedBox(width: 6),
+                          Icon(LucideIcons.pin, size: 13, color: swatch),
+                        ],
+                      ],
+                    ),
+                    if (content.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        content,
+                        style: PTypo.bodySm.copyWith(color: t.fgSecondary),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
+                    ],
+                    const SizedBox(height: 4),
+                    Text(
+                      '$tag · ${_fmtUpdated(memo.modifyAt)}',
+                      style: PTypo.micro.copyWith(color: t.fgTertiary),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    // 핀 마크는 고정 메모에만 — 비고정 카드 노이즈 제거 (고정 설정은 편집 다이얼로그).
-                    if (memo.pinned)
-                      GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: onPin,
-                        child: Padding(
-                          padding: const EdgeInsets.all(4),
-                          child: Icon(LucideIcons.pin, size: 13, color: swatch),
-                        ),
-                      ),
                   ],
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  hasTitle ? memo.title! : l.memoUntitled,
-                  style: PTypo.body.copyWith(
-                    fontSize: PFontSize.bodyMd, // 15px title (web 15/700)
-                    color: hasTitle ? t.fgPrimary : t.fgTertiary,
-                    fontWeight: PFontWeight.bold,
-                    height: 1.3,
-                    letterSpacing: -0.2,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 8),
-                Expanded(
-                  child: Text(
-                    memo.content ?? '',
-                    style: PTypo.bodySm.copyWith(
-                      color: t.fgSecondary,
-                      height: 1.45,
-                    ),
-                    maxLines: 4,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  _fmtUpdated(memo.modifyAt),
-                  style: PTypo.micro.copyWith(color: t.fgTertiary),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
     );
   }
 
-  /// 'YYYY-MM-DD(T| )HH:MM(:SS)' → 'MM/DD · HH:MM' (web 정합).
-  /// 서버 modifyAt 은 ISO('T' 구분)라 'T'도 처리 — 'T' 잔존 버그 fix.
+  /// 'YYYY-MM-DD(T| )HH:MM(:SS)' → 'MM/DD · HH:MM' (웹 정합).
+  /// 서버 modifyAt 은 ISO('T' 구분)라 'T'도 처리한다.
   static String _fmtUpdated(String? raw) {
     if (raw == null || raw.length < 16) return '';
-    // 5..16 → 'MM-DD(T| )HH:MM'
     final seg = raw.substring(5, 16);
     return seg.replaceFirst('-', '/').replaceFirst(RegExp(r'[T ]'), ' · ');
   }
@@ -495,70 +502,61 @@ class _ChipRowSkeleton extends StatelessWidget {
   }
 }
 
-/// 메모 그리드 skeleton — 2열 카드 placeholder.
-/// 실제 [_MemoCard] 구조 1:1: shadow 카드(border 없음, color-tinted 대신 surface),
-/// padding 18, 상단 dot+태그 행 / 제목 줄 / 본문 4줄 / 날짜 줄.
+/// 메모 목록 skeleton — [_MemoRow] 구조 1:1.
+///
+/// 스켈레톤이 실제와 다른 모양이면 데이터가 도착하는 순간 화면이 튄다. 그리드
+/// 시절엔 2열 카드였는데 목록이 세로 리스트가 됐으니 여기도 같이 바꾼다.
 class _MemoGridSkeleton extends StatelessWidget {
   const _MemoGridSkeleton();
 
   @override
   Widget build(BuildContext context) {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      padding: EdgeInsets.zero,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: PSpace.x12,
-        mainAxisSpacing: PSpace.x12,
-        mainAxisExtent: 168,
-      ),
-      itemCount: 6,
-      itemBuilder: (_, _) => const _MemoCardSkeleton(),
+    final t = context.tokens;
+    return Column(
+      children: [
+        for (var i = 0; i < 6; i++) ...[
+          if (i > 0) Divider(height: 1, thickness: 1, color: t.borderSubtle),
+          const _MemoCardSkeleton(),
+        ],
+      ],
     );
   }
 }
 
-/// 단일 메모 카드 skeleton — 실제 [_MemoCard] 내부 구조 미러.
+/// 단일 메모 행 skeleton — [_MemoRow] 내부 구조 미러.
 class _MemoCardSkeleton extends StatelessWidget {
   const _MemoCardSkeleton();
 
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
-    // 실제 카드는 shadow(boxShadow: shadowSm) + radius-lg, border 없음.
-    return Container(
-      decoration: BoxDecoration(
-        color: t.bgSurface,
-        borderRadius: PRadius.brLg,
-        boxShadow: t.shadowSm,
-      ),
-      child: const Padding(
-        padding: EdgeInsets.all(18),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 상단 행: 8×8 dot + 태그 라인.
-            Row(
+    return const Padding(
+      padding: EdgeInsets.symmetric(
+          horizontal: PSpace.x16, vertical: PSpace.x12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 색 점
+          Padding(
+            padding: EdgeInsets.only(top: 5),
+            child: PSkeleton(width: 8, height: 8, borderRadius: PRadius.brFull),
+          ),
+          SizedBox(width: PSpace.x12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                PSkeleton(width: 8, height: 8, borderRadius: PRadius.brFull),
-                SizedBox(width: 6),
-                PSkeleton.line(width: 56, height: 10),
+                // 제목
+                PSkeleton.line(width: 140, height: 15),
+                SizedBox(height: 2),
+                // 본문 한 줄
+                PSkeleton.line(width: 200, height: 13),
+                SizedBox(height: 4),
+                // 태그 · 수정시각
+                PSkeleton.line(width: 96, height: 10),
               ],
             ),
-            SizedBox(height: 8),
-            // 제목(15/700 → 19px line) — 1줄.
-            PSkeleton.line(width: 96, height: 15),
-            SizedBox(height: 8),
-            // 본문 4줄.
-            Expanded(
-              child: PSkeletonLines(lines: 3, lineHeight: 11),
-            ),
-            SizedBox(height: 8),
-            // 날짜(micro) 줄.
-            PSkeleton.line(width: 64, height: 10),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

@@ -17,6 +17,8 @@ import 'package:porest_desk_app/features/constellation/presentation/constellatio
 import 'package:porest_desk_app/features/constellation/presentation/night_sky_hero.dart';
 import 'package:porest_desk_app/features/todo/application/todo_providers.dart';
 import 'package:porest_desk_app/features/todo/domain/todo.dart';
+import 'package:porest_desk_app/features/todo/presentation/todo_actions.dart';
+import 'package:porest_desk_app/shared/widgets/p_swipe_actions.dart';
 import 'package:porest_desk_app/features/todo/domain/todo_meta.dart';
 import 'package:porest_desk_app/features/todo/presentation/todo_detail_dialog.dart';
 import 'package:porest_desk_app/features/todo/presentation/todo_edit_dialog.dart';
@@ -928,7 +930,7 @@ class _LedgerCalendar extends StatelessWidget {
 }
 
 /// 일별 그룹 — 날짜 헤더("yy. m. d(dow) · 오늘" + N/N 완료) + tdm 행.
-class _DayGroup extends StatelessWidget {
+class _DayGroup extends ConsumerWidget {
   const _DayGroup({
     required this.ymd,
     required this.items,
@@ -945,7 +947,7 @@ class _DayGroup extends StatelessWidget {
   final ValueChanged<Todo> onTap;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
     final doneN = items.where((x) => x.done).length;
@@ -1004,12 +1006,34 @@ class _DayGroup extends StatelessWidget {
             ],
           ),
           for (var i = 0; i < items.length; i++)
-            _TodoRow(
-              todo: items[i],
-              today: today,
-              last: i == items.length - 1,
-              onToggle: () => onToggle(items[i]),
-              onTap: () => onTap(items[i]),
+            // 밀면 편집·삭제가 바로 나온다. 탭은 그대로 상세로.
+            // 삭제는 todoActions 가 한다(상세 시트와 같은 것).
+            PSwipeActions(
+              key: ValueKey('todo-${items[i].rowId}'),
+              groupTag: 'todo-list',
+              actions: [
+                PSwipeAction(
+                  label: l.actionEdit,
+                  icon: LucideIcons.pencil,
+                  kind: PSwipeKind.primary,
+                  onSelect: () => todoActions.edit(context, ref, items[i]),
+                ),
+                PSwipeAction(
+                  label: l.actionDelete,
+                  icon: LucideIcons.trash2,
+                  kind: PSwipeKind.destructive,
+                  confirmMessage:
+                      todoActions.deleteConfirmMessage(context, items[i]),
+                  onSelect: () => todoActions.delete(context, ref, items[i]),
+                ),
+              ],
+              child: _TodoRow(
+                todo: items[i],
+                today: today,
+                last: i == items.length - 1,
+                onToggle: () => onToggle(items[i]),
+                onTap: () => onTap(items[i]),
+              ),
             ),
         ],
       ),

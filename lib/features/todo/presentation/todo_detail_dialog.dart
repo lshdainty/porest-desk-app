@@ -6,15 +6,13 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/core/network/api_exception.dart';
-import 'package:porest_desk_app/features/todo/application/todo_providers.dart';
 import 'package:porest_desk_app/features/todo/domain/todo.dart';
 import 'package:porest_desk_app/features/todo/domain/todo_meta.dart';
+import 'package:porest_desk_app/features/todo/presentation/todo_actions.dart';
 import 'package:porest_desk_app/features/todo/presentation/todo_edit_dialog.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/markdown_preview.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
-import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 
 /// 할 일 상세 시트 — 행 탭 → 읽기 전용 상세 → 수정 버튼 → 편집 폼.
 /// tx_detail_dialog(웹 TxDetailDialog) 패턴 미러: hero + field rows + 뷰 footer.
@@ -86,25 +84,16 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
     final ok = await showPConfirmDialog(
       context,
       title: l.todoDeleteTitle,
-      message: l.todoDeleteConfirm(widget.todo.title),
+      message: todoActions.deleteConfirmMessage(context, widget.todo),
       confirmLabel: l.actionDelete,
       destructive: true,
     );
     if (!ok || !mounted) return;
     widget.controller.setSubmitting(true);
     try {
-      final repo = await ref.read(todoRepositoryProvider.future);
-      await repo.delete(widget.todo.rowId);
-      ref.invalidate(todoListProvider);
-      if (!mounted) return;
-      Navigator.of(context).pop();
-    } on ApiException catch (e) {
-      if (!mounted) return;
-      showPSnackBar(
-        context,
-        '${l.todoDeleteFailed}: ${e.message}',
-        severity: PSnackSeverity.error,
-      );
+      // 삭제는 todoActions 가 한다 — 목록 행(스와이프)도 같은 것을 부른다.
+      final deleted = await todoActions.delete(context, ref, widget.todo);
+      if (deleted && mounted) Navigator.of(context).pop();
     } finally {
       if (mounted) widget.controller.setSubmitting(false);
     }

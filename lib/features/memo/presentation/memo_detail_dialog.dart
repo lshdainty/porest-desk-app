@@ -6,15 +6,12 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
-import 'package:porest_desk_app/core/network/api_exception.dart';
-import 'package:porest_desk_app/features/constellation/application/constellation_providers.dart';
-import 'package:porest_desk_app/features/memo/application/memo_providers.dart';
 import 'package:porest_desk_app/features/memo/domain/memo.dart';
 import 'package:porest_desk_app/features/memo/domain/memo_colors.dart';
+import 'package:porest_desk_app/features/memo/presentation/memo_actions.dart';
 import 'package:porest_desk_app/features/memo/presentation/memo_edit_dialog.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
-import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 
 /// 메모 상세 시트 — 카드 탭 → 읽기 전용 상세 → 수정 버튼 → 편집 폼.
 /// tx_detail_dialog(웹 MemoDetailDialog) 패턴 미러: 톤 hero + 본문 전문 + 뷰 footer.
@@ -86,23 +83,16 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
     final ok = await showPConfirmDialog(
       context,
       title: l.memoDeleteTitle,
-      message: l.memoDeleteConfirm,
+      message: memoActions.deleteConfirmMessage(context, widget.memo),
       confirmLabel: l.actionDelete,
       destructive: true,
     );
     if (!ok || !mounted) return;
     widget.controller.setSubmitting(true);
     try {
-      final repo = await ref.read(memoRepositoryProvider.future);
-      await repo.delete(widget.memo.rowId);
-      ref.invalidate(memoListProvider);
-      invalidateConstellation(ref);
-      if (!mounted) return;
-      Navigator.of(context).pop();
-    } on ApiException catch (e) {
-      if (!mounted) return;
-      showPSnackBar(context, l.memoDeleteFailed(e.message),
-          severity: PSnackSeverity.error);
+      // 삭제는 memoActions 가 한다 — 목록 행(스와이프)도 같은 것을 부른다.
+      final deleted = await memoActions.delete(context, ref, widget.memo);
+      if (deleted && mounted) Navigator.of(context).pop();
     } finally {
       if (mounted) widget.controller.setSubmitting(false);
     }
