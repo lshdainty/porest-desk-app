@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:porest_desk_app/app/theme/motion.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
@@ -39,7 +40,28 @@ class _HideAmountsScreenState extends ConsumerState<HideAmountsScreen> {
   _Tab _tab;
   bool _saving = false;
 
+  /// 좌우로 넘기면 탭이 따라 움직인다. 탭을 눌러도 같은 컨트롤러로 페이지를 옮긴다.
+  final _pages = PageController();
+
   _HideAmountsScreenState() : _tab = null;
+
+  /// 탭 순서 — 0 은 '전체', 그 뒤로 화면별.
+  static const _tabs = <_Tab>[null, ...HidePage.values];
+
+  @override
+  void dispose() {
+    _pages.dispose();
+    super.dispose();
+  }
+
+  void _goTab(_Tab tab) {
+    setState(() => _tab = tab);
+    _pages.animateToPage(
+      _tabs.indexOf(tab),
+      duration: PMotion.base,
+      curve: PMotion.standard,
+    );
+  }
 
   /// 저장된 값으로 초기화(최초 1회). 설정 로드가 끝난 뒤에 잡아야 빈 집합으로 시작하지 않는다.
   Set<String> _draftOf(Set<String> saved) => _draft ??= {...saved};
@@ -154,41 +176,31 @@ class _HideAmountsScreenState extends ConsumerState<HideAmountsScreen> {
                     for (final page in HidePage.values)
                       _tabItem(l, page, draft),
                   ],
-                  onChanged: (v) => setState(() => _tab = v),
+                  onChanged: _goTab,
                 ),
               ),
             ),
+            // 탭 전환은 어느 쪽으로든 — 탭을 눌러도, 좌우로 넘겨도 같은 자리로 간다.
+            // 안내 문구는 탭마다 같으므로 페이지 밖에 고정한다.
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                  PSpace.x20, PSpace.x4, PSpace.x20, PSpace.x16),
+              child: Text(l.hideAmountsSectionDesc,
+                  style:
+                      PTypo.caption.copyWith(color: t.fgTertiary, height: 1.55)),
+            ),
             Expanded(
-              child: ListView(
-                padding: const EdgeInsets.fromLTRB(
-                    PSpace.x20, PSpace.x16, PSpace.x20, PSpace.x24),
-                children: [
-                  Text(l.hideAmountsSectionDesc,
-                      style: PTypo.caption
-                          .copyWith(color: t.fgTertiary, height: 1.55)),
-                  const SizedBox(height: PSpace.x16),
-                  // 2열 그리드 — 라벨이 길어 3열은 말줄임이 잦다.
-                  GridView.count(
-                    crossAxisCount: 2,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    mainAxisSpacing: PSpace.x8,
-                    crossAxisSpacing: PSpace.x8,
-                    childAspectRatio: 3.2,
-                    children: [
-                      for (final card in tabCards)
-                        PChip(
-                          label: _cardLabel(l, card),
-                          selected: draft.contains(card),
-                          shape: PChipShape.rounded,
-                          fullWidth: true,
-                          onTap: () => setState(() {
-                            if (!draft.remove(card)) draft.add(card);
-                          }),
-                        ),
-                    ],
-                  ),
-                ],
+              child: PageView.builder(
+                controller: _pages,
+                itemCount: _tabs.length,
+                onPageChanged: (i) => setState(() => _tab = _tabs[i]),
+                itemBuilder: (_, i) => _CardGrid(
+                  cards: _cardsOf(_tabs[i]),
+                  draft: draft,
+                  onToggle: (card) => setState(() {
+                    if (!draft.remove(card)) draft.add(card);
+                  }),
+                ),
               ),
             ),
             // 저장 — 화면 아래 고정. 고르는 동안에는 아무것도 반영되지 않으므로
@@ -219,6 +231,43 @@ class _HideAmountsScreenState extends ConsumerState<HideAmountsScreen> {
     // 라벨에 개수를 붙인다 — tabs spec 에 badge 가 없어 별도 스타일을 만들지 않는다.
     final name = tab == null ? l.hideAmountsTabAll : _pageLabel(l, tab);
     return PTabItem(value: tab, label: on == 0 ? name : '$name $on');
+  }
+}
+
+/// 한 탭의 카드 2열 그리드. 페이지마다 따로 스크롤한다.
+class _CardGrid extends StatelessWidget {
+  const _CardGrid({
+    required this.cards,
+    required this.draft,
+    required this.onToggle,
+  });
+
+  final List<String> cards;
+  final Set<String> draft;
+  final ValueChanged<String> onToggle;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    // 2열 — 라벨이 길어 3열은 말줄임이 잦다.
+    return GridView.count(
+      crossAxisCount: 2,
+      padding: const EdgeInsets.fromLTRB(
+          PSpace.x20, 0, PSpace.x20, PSpace.x24),
+      mainAxisSpacing: PSpace.x8,
+      crossAxisSpacing: PSpace.x8,
+      childAspectRatio: 3.2,
+      children: [
+        for (final card in cards)
+          PChip(
+            label: _cardLabel(l, card),
+            selected: draft.contains(card),
+            shape: PChipShape.rounded,
+            fullWidth: true,
+            onTap: () => onToggle(card),
+          ),
+      ],
+    );
   }
 }
 
