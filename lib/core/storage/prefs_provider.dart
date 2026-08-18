@@ -16,4 +16,6 @@ abstract final class PrefsKeys {
   static const hideAmounts = 'pd-hide';       // bool (legacy)
   static const hideCards = 'pd-hide-cards';   // List<String>
   static const locale = 'pd-locale';          // 'ko' | 'en' | null(=system)
+  /// 전체 화면 업데이트 안내를 건너뛴 빌드번호. 이 빌드는 다시 안 띄운다(강제는 무시).
+  static const updateSkippedBuild = 'pd-update-skipped-build'; // int
 }
