@@ -24,6 +24,7 @@
   "searchResultsEmpty": "검색 결과가 없어요",
   "unlockTitle": "금액 보기 인증",
   "unlockBody": "금액을 다시 보려면 비밀번호로 본인 확인이 필요해요.",
+  "unlockBiometricReason": "금액을 다시 보려면 본인 확인이 필요해요.",
   "unlockPasswordLabel": "비밀번호",
   "unlockPasswordHint": "비밀번호 입력",
   "unlockMismatch": "비밀번호가 일치하지 않습니다.",

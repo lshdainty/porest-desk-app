@@ -72,6 +72,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get unlockBody => 'Enter your password to view amounts again.';
 
   @override
+  String get unlockBiometricReason => 'Verify it\'s you to view amounts again.';
+
+  @override
   String get unlockPasswordLabel => 'Password';
 
   @override

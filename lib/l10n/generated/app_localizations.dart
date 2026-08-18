@@ -224,6 +224,12 @@ abstract class AppLocalizations {
   /// **'금액을 다시 보려면 비밀번호로 본인 확인이 필요해요.'**
   String get unlockBody;
 
+  /// No description provided for @unlockBiometricReason.
+  ///
+  /// In ko, this message translates to:
+  /// **'금액을 다시 보려면 본인 확인이 필요해요.'**
+  String get unlockBiometricReason;
+
   /// No description provided for @unlockPasswordLabel.
   ///
   /// In ko, this message translates to:
