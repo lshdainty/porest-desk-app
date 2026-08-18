@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import 'package:porest_desk_app/app/theme/radius.dart';
+import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 
 /// Snackbar severity — color/icon 분기 (success/info/warning/error/neutral).
 enum PSnackSeverity { neutral, success, info, warning, error }
 
-/// 표준 SnackBar — 자동 contrast 배경/전경 + 선택적 아이콘.
+/// 표준 SnackBar — specs/components/sonner.md 미러.
 ///
 /// 사용:
 /// ```dart
@@ -16,7 +19,13 @@ enum PSnackSeverity { neutral, success, info, warning, error }
 /// ```
 ///
 /// Material `ScaffoldMessenger.showSnackBar` 직접 호출 산재(~110건)를
-/// 정리하기 위한 단일 진입점. severity 분기로 brand-tone 일관성 + 시맨틱 명확.
+/// 정리하기 위한 단일 진입점.
+///
+/// 예전엔 severity 색으로 <b>배경 전체</b>를 칠했다. 그래서 저장 한 번에 화면 하단이
+/// 통째로 초록 막대가 됐고, 같은 성공 알림인데도 웹보다 훨씬 크게 보였다. 스펙은
+/// 그렇게 정의한 적이 없다 — 표면은 중립으로 두고 <b>왼쪽 아이콘만</b> semantic 색을
+/// 쓴다(`surface-default` + `border-default` 1px + `radius-md` + `shadow-lg`).
+/// 웹 sonner 와 같은 톤이라 두 클라이언트가 같은 무게로 말한다.
 void showPSnackBar(
   BuildContext context,
   String message, {
@@ -25,23 +34,57 @@ void showPSnackBar(
   SnackBarAction? action,
 }) {
   final t = context.tokens;
-  final (bg, fg) = switch (severity) {
+  // 아이콘 색만 severity 를 탄다. neutral 은 아이콘 자체가 없다(스펙: default kind).
+  final (Color? iconColor, IconData? icon) = switch (severity) {
     PSnackSeverity.neutral => (null, null),
-    PSnackSeverity.success => (t.statusSuccess, t.fgOnSuccess),
-    PSnackSeverity.info => (t.statusInfo, t.fgOnSuccess),
-    PSnackSeverity.warning => (t.statusWarning, t.fgOnSuccess),
-    PSnackSeverity.error => (t.statusDanger, t.fgOnDanger),
+    PSnackSeverity.success => (t.statusSuccess, LucideIcons.circleCheck),
+    PSnackSeverity.info => (t.statusInfo, LucideIcons.info),
+    PSnackSeverity.warning => (t.statusWarning, LucideIcons.triangleAlert),
+    PSnackSeverity.error => (t.statusDanger, LucideIcons.circleAlert),
   };
+
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
-      content: Text(
-        message,
-        style: fg != null
-            ? PTypo.bodySm.copyWith(color: fg, fontWeight: PFontWeight.medium)
-            : null,
-      ),
-      backgroundColor: bg,
+      // 색을 직접 그리므로 Material 기본 배경·여백을 걷어낸다.
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      padding: EdgeInsets.zero,
+      behavior: SnackBarBehavior.floating,
       duration: duration,
+      content: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: PSpace.x16,
+          vertical: PSpace.x12,
+        ),
+        decoration: BoxDecoration(
+          color: t.bgSurface,
+          border: Border.all(color: t.borderDefault),
+          borderRadius: PRadius.brMd,
+          boxShadow: t.shadowLg,
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (icon != null) ...[
+              // 제목 baseline 에 맞춘다 — 스펙의 margin-top 2px.
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: Icon(icon, size: 20, color: iconColor),
+              ),
+              const SizedBox(width: PSpace.x12),
+            ],
+            Expanded(
+              child: Text(
+                message,
+                style: PTypo.bodySm.copyWith(
+                  color: t.fgPrimary,
+                  fontWeight: PFontWeight.medium,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
       action: action,
     ),
   );

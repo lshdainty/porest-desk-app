@@ -157,7 +157,9 @@ class PChip extends StatelessWidget {
       if (variant == PChipVariant.neutral) {
         return (Colors.transparent, t.fgSecondary, null, 1);
       }
-      return (t.bgSurface, t.fgSecondary, t.borderSubtle, 1);
+      // off 는 옅은 채움으로 구분한다(사용자 결정) — 테두리를 두르면 칩이 여럿 모였을 때
+      // 선이 격자처럼 겹쳐 보인다.
+      return (t.bgMuted, t.fgSecondary, null, 1);
     }
     final custom = color;
     if (custom != null) {
@@ -178,7 +180,9 @@ class PChip extends StatelessWidget {
     }
     switch (variant) {
       case PChipVariant.solid:
-        return (t.bgBrand, t.fgOnBrand, null, 1);
+        // 채움은 다크에서도 primary 고정(bgBrandSolid) — bgBrand 는 다크에서
+        // primary-light 로 밝아져 흰 글씨 채움에 부적합하다(탭 pill·버튼과 같은 규칙).
+        return (t.bgBrandSolid, t.fgOnBrand, null, 1);
       case PChipVariant.subtle:
         return (t.bgBrandSubtle, t.fgPrimary, t.borderBrand, 1.5);
       case PChipVariant.neutral:

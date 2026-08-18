@@ -81,6 +81,8 @@ class ExpenseActions implements ItemActions<Expense> {
         ref.invalidate(monthExpensesProvider((year: y, month: m)));
       }
     }
-    invalidateAssetsAfterExpense(ref);
+    // origin/main 에서 invalidateAssetsAfterExpense → invalidateAfterExpenseChange 로
+    // 바뀌었다(캐시 무효화 범위 확장). 자산뿐 아니라 통계까지 같이 다시 읽는다.
+    invalidateAfterExpenseChange(ref);
   }
 }

@@ -1772,7 +1772,7 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
         ..invalidate(cardBillingProvider(widget.asset.rowId))
         ..invalidate(assetsProvider)
         ..invalidate(assetByIdProvider(widget.asset.rowId));
-      invalidateAssetsAfterExpense(ref);
+      invalidateAfterExpenseChange(ref);
       if (!mounted) return;
       showPSnackBar(context, l.assetPaymentCancelled,
           severity: PSnackSeverity.success);

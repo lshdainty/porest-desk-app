@@ -36,6 +36,13 @@ class _PorestDeskAppState extends ConsumerState<PorestDeskApp>
         final svc = ref.read(notificationStreamServiceProvider);
         if (user != null) {
           svc.start();
+          // 앱을 새로 켠 직후에도 세션 캐시를 한 번 비운다.
+          //
+          // resumed 는 이미 떠 있던 앱이 돌아올 때만 온다. 완전히 종료했다 켜면
+          // 그 신호가 없어서, 로그인 검증 직후 화면들이 keepAlive provider 를
+          // 채우고 나면 앱을 끌 때까지 그 값이 굳었다 — 그사이 웹에서 고친 카테고리·
+          // 자산이 앱에서는 끝내 안 보였다.
+          invalidateKeepAliveProviders(ref);
           // 알림을 눌러 앱을 처음 켠 경우도 여기로 온다(콜드 스타트).
           // 로그인 전에 열면 라우터가 로그인 화면으로 되돌리므로 이 시점에 연다.
           _openPendingSms();

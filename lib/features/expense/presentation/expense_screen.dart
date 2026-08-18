@@ -481,7 +481,11 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                   ),
                   if (_sumOpen)
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(PSpace.x24, 14, PSpace.x24, 0),
+                      // 하단 28 은 그림자 자리다 — 이 Padding 은 위쪽 ClipRect 안이라
+                      // 0 이면 raised 의 shadow-lg 가 카드 바닥선에서 칼같이 잘린다.
+                      // 28 = dy 8 + blur 24 + spread −4 (그림자가 아래로 퍼지는 거리).
+                      padding: const EdgeInsets.fromLTRB(
+                          PSpace.x24, 14, PSpace.x24, PSpace.x28),
                       child: PCard(
                         variant: PCardVariant.raised,
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),

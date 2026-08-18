@@ -303,7 +303,7 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
         monthExpensesProvider((year: int.parse(p[0]), month: int.parse(p[1]))),
       );
     }
-    invalidateAssetsAfterExpense(ref);
+    invalidateAfterExpenseChange(ref);
   }
 
   Future<void> _save() async {
