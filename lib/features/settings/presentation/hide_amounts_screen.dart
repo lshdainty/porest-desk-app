@@ -137,14 +137,18 @@ class _HideAmountsScreenState extends ConsumerState<HideAmountsScreen> {
         body: Column(
           children: [
             // 탭 — 전체 + 화면별. 개수는 지금 고른 상태를 그대로 비춘다.
-            SizedBox(
-              height: 44,
+            //
+            // pill 채움으로 둔다. underline 은 활성 탭 밑줄과 탭바 아래 경계선이
+            // 나란히 겹쳐 선이 두 줄로 보였다(통계 화면도 같은 이유로 pill 이다).
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: PSpace.x12),
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: PSpace.x20),
                 child: PTabs<_Tab>(
                   value: _tab,
-                  variant: PTabsVariant.underline,
+                  variant: PTabsVariant.pills,
+                  size: PTabsSize.sm,
                   items: [
                     _tabItem(l, null, draft),
                     for (final page in HidePage.values)
@@ -154,7 +158,6 @@ class _HideAmountsScreenState extends ConsumerState<HideAmountsScreen> {
                 ),
               ),
             ),
-            Divider(height: 1, color: t.borderSubtle),
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(
