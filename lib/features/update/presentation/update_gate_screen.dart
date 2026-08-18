@@ -320,8 +320,11 @@ class _Actions extends ConsumerWidget {
         Expanded(
           child: PButton(
             label: l.actionCancel,
-            variant: PButtonVariant.outline,
+            // 모달 취소는 ghost — 전체 폭 버튼 둘이 테두리·채움으로 서면 위계가
+            // 흐려진다(spec button.md Migration notes 2026-08).
+            variant: PButtonVariant.ghost,
             size: PButtonSize.lg,
+            fullWidth: true,
             onPressed: onCancel,
           ),
         ),
