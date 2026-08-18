@@ -3444,5 +3444,11 @@
   "moreItemSmsInbox": "Payment inbox",
   "moreDescSmsInbox": "Record detected card payments as expenses",
   "smsNotiAccessOffTitle": "Payment detection is off",
-  "smsNotiAccessOffDesc": "Turn on notification access to read payment notifications from card and bank apps as well as payment texts. Only payment notifications are read — everything else is discarded immediately."
+  "smsNotiAccessOffDesc": "Turn on notification access to read payment notifications from card and bank apps as well as payment texts. Only payment notifications are read — everything else is discarded immediately.",
+  "updateAutoBlockerTitle": "Turn off Samsung Auto Blocker to install",
+  "updateAutoBlockerDesc": "Galaxy devices block installing apps from outside the store by default. It is not that this app is unsafe — the feature blocks the install path itself, so the download will not install while it is on.",
+  "updateAutoBlockerPath": "Turn it off in Settings > Security and privacy > Auto Blocker. You can turn it back on after installing.",
+  "updateAutoBlockerAfterDirect": "Turn off Auto Blocker, come back, and tap download. You can turn it back on after installing.",
+  "updateAutoBlockerAfterSecurity": "Find Auto Blocker in the list and turn it off. You can turn it back on after installing.",
+  "updateAutoBlockerOpen": "Open settings"
 }

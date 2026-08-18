@@ -11437,6 +11437,42 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'알림 접근을 켜면 카드사·은행 앱 알림과 결제 문자를 읽어 기록할 수 있어요. 읽는 건 결제 알림뿐이고 나머지는 곧바로 버려요.'**
   String get smsNotiAccessOffDesc;
+
+  /// No description provided for @updateAutoBlockerTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'삼성 자동 차단을 꺼야 설치돼요'**
+  String get updateAutoBlockerTitle;
+
+  /// No description provided for @updateAutoBlockerDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'갤럭시는 스토어 밖에서 받은 앱의 설치를 기본으로 막아요. 이 앱이 위험해서가 아니라 설치 경로를 통째로 막는 기능이라, 꺼두지 않으면 받아도 설치가 되지 않아요.'**
+  String get updateAutoBlockerDesc;
+
+  /// No description provided for @updateAutoBlockerPath.
+  ///
+  /// In ko, this message translates to:
+  /// **'설정 > 보안 및 개인정보 보호 > 자동 차단 에서 꺼주세요. 설치가 끝나면 다시 켜도 괜찮아요.'**
+  String get updateAutoBlockerPath;
+
+  /// No description provided for @updateAutoBlockerAfterDirect.
+  ///
+  /// In ko, this message translates to:
+  /// **'자동 차단을 끄고 돌아와서 받기를 눌러 주세요. 설치가 끝나면 다시 켜도 괜찮아요.'**
+  String get updateAutoBlockerAfterDirect;
+
+  /// No description provided for @updateAutoBlockerAfterSecurity.
+  ///
+  /// In ko, this message translates to:
+  /// **'목록에서 자동 차단을 찾아 꺼주세요. 설치가 끝나면 다시 켜도 괜찮아요.'**
+  String get updateAutoBlockerAfterSecurity;
+
+  /// No description provided for @updateAutoBlockerOpen.
+  ///
+  /// In ko, this message translates to:
+  /// **'설정 열기'**
+  String get updateAutoBlockerOpen;
 }
 
 class _AppLocalizationsDelegate

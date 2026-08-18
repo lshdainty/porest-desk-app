@@ -35,6 +35,9 @@ class MainActivity : FlutterFragmentActivity() {
         super.configureFlutterEngine(flutterEngine)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL)
             .setMethodCallHandler { call, result -> handle(call, result) }
+        // 설치 차단 안내는 결제 감지와 무관해 채널을 따로 둔다.
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, DEVICE_CHANNEL)
+            .setMethodCallHandler { call, result -> handleDevice(call, result) }
     }
 
     override fun onCreate(savedInstanceState: android.os.Bundle?) {
@@ -96,6 +99,15 @@ class MainActivity : FlutterFragmentActivity() {
                     if (text == null) null else mapOf("text" to text, "id" to id)
                 )
             }
+            else -> result.notImplemented()
+        }
+    }
+
+    /** 기기 특성 안내 — 지금은 삼성 자동 차단뿐이다. */
+    private fun handleDevice(call: MethodCall, result: MethodChannel.Result) {
+        when (call.method) {
+            "isAutoBlockerDevice" -> result.success(AutoBlockerGuide.isSupported())
+            "openAutoBlockerSettings" -> result.success(AutoBlockerGuide.open(this))
             else -> result.notImplemented()
         }
     }
@@ -184,6 +196,7 @@ class MainActivity : FlutterFragmentActivity() {
 
     companion object {
         private const val CHANNEL = "porest/sms_android"
+        private const val DEVICE_CHANNEL = "porest/device_guide"
         private const val REQUEST_CODE = 6301
 
         const val EXTRA_SMS_TEXT = "porest.sms.text"

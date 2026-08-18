@@ -6271,4 +6271,27 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get smsNotiAccessOffDesc =>
       'Turn on notification access to read payment notifications from card and bank apps as well as payment texts. Only payment notifications are read — everything else is discarded immediately.';
+
+  @override
+  String get updateAutoBlockerTitle =>
+      'Turn off Samsung Auto Blocker to install';
+
+  @override
+  String get updateAutoBlockerDesc =>
+      'Galaxy devices block installing apps from outside the store by default. It is not that this app is unsafe — the feature blocks the install path itself, so the download will not install while it is on.';
+
+  @override
+  String get updateAutoBlockerPath =>
+      'Turn it off in Settings > Security and privacy > Auto Blocker. You can turn it back on after installing.';
+
+  @override
+  String get updateAutoBlockerAfterDirect =>
+      'Turn off Auto Blocker, come back, and tap download. You can turn it back on after installing.';
+
+  @override
+  String get updateAutoBlockerAfterSecurity =>
+      'Find Auto Blocker in the list and turn it off. You can turn it back on after installing.';
+
+  @override
+  String get updateAutoBlockerOpen => 'Open settings';
 }
