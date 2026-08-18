@@ -3416,13 +3416,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get appearanceThemeSystemDesc => '자동 전환';
 
   @override
-  String get appearancePrivacy => '개인정보 보호';
-
-  @override
   String get hideAmountsTitle => '금액 가리기';
-
-  @override
-  String get hideAmountsHeaderDesc => '화면·카드별로 골라서 가려요';
 
   @override
   String get hideAmountsSectionDesc =>
@@ -3668,12 +3662,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get accountOff => '사용 안 함';
-
-  @override
-  String get accountBiometric => '생체 인증';
-
-  @override
-  String get accountComingSoon => '준비중';
 
   @override
   String get accountDevices => '로그인된 기기';

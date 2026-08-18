@@ -81,7 +81,7 @@ class _DetailFooter extends ConsumerWidget {
         icon: masked ? LucideIcons.eye : LucideIcons.eyeOff,
         variant: PButtonVariant.ghost,
         flush: PButtonFlush.left,
-        onPressed: () => context.push('/settings/appearance?hide=1'),
+        onPressed: () => context.push('/settings/hide-amounts'),
       ),
       onEdit: () {
         Navigator.of(context).pop();

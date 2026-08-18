@@ -39,6 +39,7 @@ import 'package:porest_desk_app/features/more/presentation/more_screen.dart';
 import 'package:porest_desk_app/features/recurring/presentation/recurring_screen.dart';
 import 'package:porest_desk_app/features/settings/presentation/account_screen.dart';
 import 'package:porest_desk_app/features/settings/presentation/appearance_section.dart';
+import 'package:porest_desk_app/features/settings/presentation/hide_amounts_screen.dart';
 import 'package:porest_desk_app/features/settings/presentation/settings_screen.dart';
 import 'package:porest_desk_app/features/settings/presentation/update_screen.dart';
 import 'package:porest_desk_app/features/stats/presentation/stats_screen.dart';
@@ -139,10 +140,12 @@ final routerProvider = Provider<GoRouter>((ref) {
           path: '/settings/todo-tags',
           builder: (_, _) => const TodoTagManagementScreen()),
       GoRoute(
-          // 화면의 눈 버튼이 ?hide=1 로 보낸다 — 그때는 금액 가리기를 펼친 채로 연다.
           path: '/settings/appearance',
-          builder: (_, st) => AppearanceScreen(
-              openHideAmounts: st.uri.queryParameters['hide'] == '1')),
+          builder: (_, _) => const AppearanceScreen()),
+      // 금액 가리기 — 계정 > 보안에서, 그리고 화면의 눈 버튼에서 바로 들어온다.
+      GoRoute(
+          path: '/settings/hide-amounts',
+          builder: (_, _) => const HideAmountsScreen()),
       GoRoute(
           path: '/settings/export-data',
           builder: (_, _) => const ExportScreen()),

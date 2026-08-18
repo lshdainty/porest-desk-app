@@ -3461,13 +3461,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appearanceThemeSystemDesc => 'Auto switch';
 
   @override
-  String get appearancePrivacy => 'Privacy';
-
-  @override
   String get hideAmountsTitle => 'Hide Amounts';
-
-  @override
-  String get hideAmountsHeaderDesc => 'Pick screens and cards to hide';
 
   @override
   String get hideAmountsSectionDesc =>
@@ -3716,12 +3710,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get accountOff => 'Off';
-
-  @override
-  String get accountBiometric => 'Biometric authentication';
-
-  @override
-  String get accountComingSoon => 'Coming soon';
 
   @override
   String get accountDevices => 'Logged-in devices';
