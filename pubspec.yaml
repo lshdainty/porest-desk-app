@@ -60,6 +60,7 @@ dependencies:
   local_auth: ^3.0.2
   local_auth_android: ^2.0.8
   local_auth_darwin: ^2.0.3
+  flutter_slidable: ^4.0.3
 
 dev_dependencies:
   flutter_test:
