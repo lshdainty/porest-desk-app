@@ -204,6 +204,30 @@ void main() {
       );
     });
 
+    testWidgets('좌우로 넘기면 다음 탭으로 간다', (tester) async {
+      final auth = _FakeAuth(AppLockAuthResult.success);
+      await pumpScreen(tester, auth: auth);
+
+      // '전체' 에서 왼쪽으로 밀면 '홈' — 홈에 없는 카드는 화면에서 사라진다.
+      expect(find.text('자산 구성'), findsOneWidget);
+      await tester.fling(find.byType(PageView), const Offset(-400, 0), 1200);
+      await tester.pumpAndSettle();
+
+      expect(find.text('순자산'), findsOneWidget); // 홈 카드
+      expect(find.text('자산 구성'), findsNothing); // 자산 탭 카드
+    });
+
+    testWidgets('탭을 누르면 그 페이지로 넘어간다', (tester) async {
+      final auth = _FakeAuth(AppLockAuthResult.success);
+      await pumpScreen(tester, auth: auth);
+
+      await tester.tap(find.text('가계부'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('월 합계'), findsOneWidget); // 가계부 카드
+      expect(find.text('순자산'), findsNothing);
+    });
+
     testWidgets('탭 라벨에 고른 개수가 붙는다', (tester) async {
       final auth = _FakeAuth(AppLockAuthResult.success);
       await pumpScreen(tester, auth: auth, hidden: {'home.netWorth'});
