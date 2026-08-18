@@ -72,20 +72,6 @@ final assetPeriodExpensesProvider =
   return all;
 });
 
-/// 캘린더 이벤트별 연결 거래 (#252).
-final expensesByCalendarEventProvider =
-    FutureProvider.family<List<Expense>, int>((ref, eventId) async {
-  final repo = await ref.watch(expenseRepositoryProvider.future);
-  return repo.listByCalendarEvent(eventId);
-});
-
-/// 할 일별 연결 거래 (#252).
-final expensesByTodoProvider =
-    FutureProvider.family<List<Expense>, int>((ref, todoId) async {
-  final repo = await ref.watch(expenseRepositoryProvider.future);
-  return repo.listByTodo(todoId);
-});
-
 /// 자산 ID 로만 필터링한 거래 목록 (#254 — ExpenseScreen 자산 필터 배지용).
 /// front `?assetId=N` 쿼리 미러: 빈 list 일 수 있음.
 final expensesByAssetIdProvider =
