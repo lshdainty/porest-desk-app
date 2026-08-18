@@ -9,8 +9,10 @@ import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/update/apk_installer.dart';
+import 'package:porest_desk_app/core/update/auto_blocker_guide.dart';
 import 'package:porest_desk_app/core/update/app_update.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
+import 'package:porest_desk_app/shared/widgets/p_alert.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 
@@ -159,9 +161,83 @@ class _Body extends ConsumerWidget {
         // ── 받기
         if (hasUpdate) ...[
           const SizedBox(height: PSpace.x32),
+          // 삼성 기기는 자동 차단을 끄기 전엔 설치가 막힌다 — 받기 전에 알려 준다.
+          // 받고 나서 알면 다운로드가 헛수고가 된다.
+          const _AutoBlockerNotice(),
           _DownloadButton(release: latest!),
         ],
       ],
+    );
+  }
+}
+
+/// 삼성 "자동 차단" 안내 — 그 기기에서만 나온다.
+///
+/// One UI 6.0(Android 14)부터 기본으로 켜져 있고 **스토어 밖에서 온 앱의 설치를
+/// 통째로 막는다**. 우리 앱이 위험해서가 아니라 사이드로드라는 경로 자체를 막는
+/// 것이라, 끄기 전에는 받아도 설치 화면에서 튕긴다.
+///
+/// 앱이 스스로 풀 방법은 없다 — 설정으로 데려다주는 것까지가 전부다.
+class _AutoBlockerNotice extends StatefulWidget {
+  const _AutoBlockerNotice();
+
+  @override
+  State<_AutoBlockerNotice> createState() => _AutoBlockerNoticeState();
+}
+
+class _AutoBlockerNoticeState extends State<_AutoBlockerNotice> {
+  bool _show = false;
+
+  /// 설정에 다녀온 뒤 안내 문구 — 어디까지 열렸느냐에 따라 남은 걸음이 다르다.
+  AutoBlockerTarget? _opened;
+
+  @override
+  void initState() {
+    super.initState();
+    _check();
+  }
+
+  Future<void> _check() async {
+    final blocking = await AutoBlockerGuide.isBlockingDevice();
+    if (!mounted) return;
+    setState(() => _show = blocking);
+  }
+
+  Future<void> _open() async {
+    final target = await AutoBlockerGuide.open();
+    if (!mounted) return;
+    setState(() => _opened = target);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_show) return const SizedBox.shrink();
+    final l = AppLocalizations.of(context);
+
+    // 자동 차단 화면이 바로 열렸으면 토글만 끄면 되고, 보안 설정까지만 갔으면
+    // 목록에서 찾아야 한다. 아무것도 못 열었을 때만 전체 경로를 적어 준다.
+    final description = switch (_opened) {
+      AutoBlockerTarget.autoBlocker => l.updateAutoBlockerAfterDirect,
+      AutoBlockerTarget.security => l.updateAutoBlockerAfterSecurity,
+      AutoBlockerTarget.settings ||
+      AutoBlockerTarget.none =>
+        l.updateAutoBlockerPath,
+      null => l.updateAutoBlockerDesc,
+    };
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: PSpace.x16),
+      child: PAlert(
+        title: l.updateAutoBlockerTitle,
+        description: description,
+        variant: PAlertVariant.warning,
+        action: PButton(
+          label: l.updateAutoBlockerOpen,
+          size: PButtonSize.sm,
+          variant: PButtonVariant.secondary,
+          onPressed: _open,
+        ),
+      ),
     );
   }
 }
