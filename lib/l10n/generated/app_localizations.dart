@@ -242,6 +242,42 @@ abstract class AppLocalizations {
   /// **'비밀번호가 일치하지 않습니다.'**
   String get unlockMismatch;
 
+  /// No description provided for @appLockTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'앱 잠금'**
+  String get appLockTitle;
+
+  /// No description provided for @appLockRowDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'앱을 열 때 Face ID·지문으로 본인 확인을 해요.'**
+  String get appLockRowDesc;
+
+  /// No description provided for @appLockLockedDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'잠금을 해제하려면 본인 확인이 필요해요.'**
+  String get appLockLockedDesc;
+
+  /// No description provided for @appLockUnlockAction.
+  ///
+  /// In ko, this message translates to:
+  /// **'잠금 해제'**
+  String get appLockUnlockAction;
+
+  /// No description provided for @appLockPromptReason.
+  ///
+  /// In ko, this message translates to:
+  /// **'앱을 열려면 본인 확인이 필요해요.'**
+  String get appLockPromptReason;
+
+  /// No description provided for @appLockUnavailable.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 기기에서는 생체인증이나 화면 잠금을 사용할 수 없어요.'**
+  String get appLockUnavailable;
+
   /// No description provided for @stateNoData.
   ///
   /// In ko, this message translates to:

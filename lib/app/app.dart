@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:porest_desk_app/features/sms/data/sms_android.dart';
 import 'package:porest_desk_app/features/sms/domain/sms_paste_args.dart';
 import 'package:porest_desk_app/core/auth/auth_notifier.dart';
+import 'package:porest_desk_app/core/lock/app_lock_gate.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
 import 'package:porest_desk_app/core/sync/keep_alive_refresh.dart';
 import 'package:porest_desk_app/features/notification/application/notification_stream_service.dart';
@@ -99,6 +100,10 @@ class _PorestDeskAppState extends ConsumerState<PorestDeskApp>
       locale: settings.locale,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
+      // 앱 잠금(생체인증) — 라우터 전체를 덮는 오버레이. 로그인 세션과 별개로,
+      // 켜져 있으면 실행·복귀 시 본인 확인 후에만 화면을 보여준다.
+      builder: (context, child) =>
+          AppLockGate(child: child ?? const SizedBox.shrink()),
       routerConfig: router,
     );
   }

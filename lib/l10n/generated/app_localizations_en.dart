@@ -81,6 +81,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String get unlockMismatch => 'Password doesn\'t match.';
 
   @override
+  String get appLockTitle => 'App Lock';
+
+  @override
+  String get appLockRowDesc =>
+      'Verify with Face ID or fingerprint when opening the app.';
+
+  @override
+  String get appLockLockedDesc => 'Verify it\'s you to unlock.';
+
+  @override
+  String get appLockUnlockAction => 'Unlock';
+
+  @override
+  String get appLockPromptReason => 'Verify it\'s you to open the app.';
+
+  @override
+  String get appLockUnavailable =>
+      'Biometrics or screen lock isn\'t available on this device.';
+
+  @override
   String get stateNoData => 'No data';
 
   @override
