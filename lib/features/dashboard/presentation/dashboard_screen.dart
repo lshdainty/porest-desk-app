@@ -123,7 +123,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               summaryAsync: summaryAsync,
               masked: ref.watch(hideCardProvider('home.netWorth')),
               // 헤더 eye 버튼과 동일 — 숨김 해제 시 unlock 다이얼로그.
-              onToggleMask: () => context.push('/settings/appearance?hide=1')),
+              onToggleMask: () => context.push('/settings/hide-amounts')),
           const SizedBox(height: PSpace.x32),
           _MonthExpenseCard(
             month: _month,

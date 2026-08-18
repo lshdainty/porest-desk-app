@@ -6,8 +6,6 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
-import 'package:porest_desk_app/features/settings/presentation/app_lock_row.dart';
-import 'package:porest_desk_app/features/settings/presentation/hide_amounts_accordion.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_radio_list.dart';
 import 'package:porest_desk_app/shared/widgets/p_section_label.dart';
@@ -20,10 +18,7 @@ import 'package:porest_desk_app/shared/widgets/p_select.dart';
 
 /// 표시 설정 화면 — AppBar + AppearanceSection (설정 메뉴 '표시 설정' 진입).
 class AppearanceScreen extends StatelessWidget {
-  const AppearanceScreen({super.key, this.openHideAmounts = false});
-
-  /// 눈 버튼으로 들어오면 금액 가리기를 펼친 채로 연다.
-  final bool openHideAmounts;
+  const AppearanceScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +40,7 @@ class AppearanceScreen extends StatelessWidget {
           horizontal: PSpace.x20,
           vertical: PSpace.x24,
         ),
-        children: [AppearanceSection(openHideAmounts: openHideAmounts)],
+        children: const [AppearanceSection()],
       ),
     );
   }
@@ -55,12 +50,11 @@ class AppearanceScreen extends StatelessWidget {
 ///
 /// 섹션 구성 (클로드 디자인 표시 설정 정합):
 /// 1. 테마 카드 3종 (Light / Dark / System) — Sun / Moon / Monitor 아이콘
-/// 2. 개인정보 보호 — 금액 가리기 스위치 (헤더 눈 버튼 제거 후 설정 진입점)
-/// 3. 언어 / 통화 리스트 (KRW / USD / EUR / JPY)
+/// 2. 언어 / 표시 기준 지역 / 통화 리스트 (KRW / USD / EUR / JPY)
+///
+/// 개인정보 보호(앱 잠금·금액 가리기)는 계정 > 보안에 있다 — 인증·잠금은 한자리에.
 class AppearanceSection extends ConsumerWidget {
-  const AppearanceSection({super.key, this.openHideAmounts = false});
-
-  final bool openHideAmounts;
+  const AppearanceSection({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -122,21 +116,9 @@ class AppearanceSection extends ConsumerWidget {
           ],
         ),
         const SizedBox(height: PSpace.x32),
-        // 세트 2 — 개인정보 label + 금액 가리기(한 묶음).
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            PSectionLabel(l.appearancePrivacy,
-                variant: PSectionLabelVariant.section),
-            // label↔content gap 0(사용자 결정) — 테마·언어만 gap.
-            // 앱 잠금 — 로그인과 별개로 실행·복귀 시 생체인증(Face ID·지문) 확인.
-            const AppLockRow(),
-            // 금액 가리기 — 화면·카드별로 고르는 아코디언. 여기서 바로 펼친다(별도 화면 아님).
-            HideAmountsAccordion(initiallyOpen: openHideAmounts),
-          ],
-        ),
-        const SizedBox(height: PSpace.x32),
-        // 세트 3 — 언어 label + 선택(한 묶음).
+        // 개인정보 보호(앱 잠금·금액 가리기)는 계정 > 보안으로 옮겼다 — 보안 설정이
+        // 두 화면에 나뉘어 있으면 어디서 껐는지 찾게 된다.
+        // 세트 2 — 언어 label + 선택(한 묶음).
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

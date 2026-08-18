@@ -6416,23 +6416,11 @@ abstract class AppLocalizations {
   /// **'자동 전환'**
   String get appearanceThemeSystemDesc;
 
-  /// No description provided for @appearancePrivacy.
-  ///
-  /// In ko, this message translates to:
-  /// **'개인정보 보호'**
-  String get appearancePrivacy;
-
   /// No description provided for @hideAmountsTitle.
   ///
   /// In ko, this message translates to:
   /// **'금액 가리기'**
   String get hideAmountsTitle;
-
-  /// No description provided for @hideAmountsHeaderDesc.
-  ///
-  /// In ko, this message translates to:
-  /// **'화면·카드별로 골라서 가려요'**
-  String get hideAmountsHeaderDesc;
 
   /// No description provided for @hideAmountsSectionDesc.
   ///
@@ -6913,18 +6901,6 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'사용 안 함'**
   String get accountOff;
-
-  /// No description provided for @accountBiometric.
-  ///
-  /// In ko, this message translates to:
-  /// **'생체 인증'**
-  String get accountBiometric;
-
-  /// No description provided for @accountComingSoon.
-  ///
-  /// In ko, this message translates to:
-  /// **'준비중'**
-  String get accountComingSoon;
 
   /// No description provided for @accountDevices.
   ///

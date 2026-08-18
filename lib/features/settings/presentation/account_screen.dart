@@ -10,6 +10,10 @@ import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/update/app_update.dart';
 import 'package:porest_desk_app/core/auth/auth_notifier.dart';
 import 'package:porest_desk_app/core/format/date.dart';
+import 'package:porest_desk_app/core/lock/app_lock.dart';
+import 'package:porest_desk_app/core/lock/app_lock_toggle.dart';
+import 'package:porest_desk_app/core/settings/hide_amounts_cards.dart';
+import 'package:porest_desk_app/core/settings/settings_notifier.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/features/subscription/application/subscription_providers.dart';
 import 'package:porest_desk_app/features/subscription/presentation/subscription_sheet.dart';
@@ -47,6 +51,10 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
     final user = ref.watch(authProvider).value;
     final subscription = ref.watch(mySubscriptionProvider).asData?.value;
     final hasSecurities = ref.watch(hasSecuritiesProvider);
+    final appLockOn = ref.watch(appLockEnabledProvider);
+    final hiddenCount =
+        ref.watch(settingsProvider).value?.hideCards.length ?? 0;
+    final hiddenTotal = kAllHideCards.length;
     final isSubscribed = subscription?.isActive ?? false;
     final nameInitial = user != null && user.userName.isNotEmpty
         ? user.userName[0].toUpperCase()
@@ -195,12 +203,30 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                   ),
                 ),
                 const PDivider(),
+                // 앱 잠금 — 로그인 세션과 별개로 앱 자체를 생체인증으로 잠근다.
+                // 켤 때만 인증을 거친다(setAppLockWithAuth).
                 _AccountRow(
                   icon: LucideIcons.fingerprint,
-                  label: l.accountBiometric,
-                  desc: l.accountComingSoon,
-                  dimmed: true,
+                  label: l.appLockTitle,
+                  desc: appLockOn ? l.accountOn : l.accountOff,
                   tokens: t,
+                  trailing: SizedBox(
+                    height: 24,
+                    child: PSwitch(
+                      value: appLockOn,
+                      onChanged: (v) => setAppLockWithAuth(context, ref, v),
+                    ),
+                  ),
+                ),
+                const PDivider(),
+                // 금액 가리기 — 화면·카드 37장을 훑는 목록이라 자기 화면으로 보낸다.
+                _AccountRow(
+                  icon: hiddenCount == 0 ? LucideIcons.eye : LucideIcons.eyeOff,
+                  label: l.hideAmountsTitle,
+                  desc: '$hiddenCount / $hiddenTotal',
+                  chevron: true,
+                  tokens: t,
+                  onTap: () => context.push('/settings/hide-amounts'),
                 ),
                 const PDivider(),
                 _AccountRow(
@@ -420,7 +446,6 @@ class _AccountRow extends StatelessWidget {
     this.desc,
     this.trailing,
     this.chevron = false,
-    this.dimmed = false,
     this.iconColor,
     this.labelColor,
     this.onTap,
@@ -432,7 +457,6 @@ class _AccountRow extends StatelessWidget {
   final String? desc;
   final Widget? trailing;
   final bool chevron;
-  final bool dimmed;
   final Color? iconColor;
   final Color? labelColor;
   final PorestTokens tokens;
@@ -441,8 +465,8 @@ class _AccountRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = tokens;
-    final fgIcon = dimmed ? t.fgDisabled : (iconColor ?? t.fgSecondary);
-    final fgLabel = dimmed ? t.fgDisabled : (labelColor ?? t.fgPrimary);
+    final fgIcon = iconColor ?? t.fgSecondary;
+    final fgLabel = labelColor ?? t.fgPrimary;
     return InkWell(
       onTap: onTap,
       child: Padding(
