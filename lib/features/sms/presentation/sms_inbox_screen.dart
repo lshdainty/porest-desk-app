@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -127,9 +126,7 @@ class _SmsInboxScreenState extends ConsumerState<SmsInboxScreen>
       body: RefreshIndicator(
         color: t.bgBrand,
         onRefresh: _load,
-        // 한 번에 한 행만 열린다 — 없으면 여러 행이 열린 채로 남는다.
-        child: SlidableAutoCloseBehavior(
-          child: ListView(
+        child: ListView(
           padding: EdgeInsets.fromLTRB(
               PSpace.x20, PSpace.x16, PSpace.x20, PSpace.x24),
           children: [
@@ -179,7 +176,6 @@ class _SmsInboxScreenState extends ConsumerState<SmsInboxScreen>
             else
               ..._buildGrouped(context, entries),
           ],
-        ),
         ),
       ),
     );
