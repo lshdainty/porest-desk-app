@@ -142,6 +142,12 @@ class SettingsNotifier extends AsyncNotifier<AppSettings> {
     await _writeHideCards({..._current.hideCards}..removeAll(cards));
   }
 
+  /// 고른 결과를 통째로 반영한다 — 화면에서 여러 장을 조정한 뒤 한 번에 저장하는 경로.
+  ///
+  /// 푸는 카드가 섞여 있으면 호출 전에 인증을 거칠 것(화면 책임). 한 장씩 켜고 끄는
+  /// [hideCards]/[revealCards] 와 달리 이전 상태를 남기지 않고 그대로 덮는다.
+  Future<void> setHideCards(Set<String> next) => _writeHideCards({...next});
+
   Future<void> hideAllCards() => hideCards(kAllHideCards);
 
   Future<void> revealAllCards() => _writeHideCards(<String>{});

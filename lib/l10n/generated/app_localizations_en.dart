@@ -3464,14 +3464,45 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appearanceThemeSystemDesc => 'Auto switch';
 
   @override
+  String hideAmountsLockAllDesc(int total, int count) {
+    return 'Hiding $count of $total cards';
+  }
+
+  @override
   String get hideAmountsTitle => 'Hide Amounts';
 
   @override
   String get hideAmountsSectionDesc =>
-      'Pick only the cards you want hidden. Turning it on is instant; turning it off asks for your password.';
+      'Pick the cards to hide. You\'ll verify once when you save.';
 
   @override
   String get hideAmountsLockAll => 'Lock everything';
+
+  @override
+  String get hideAmountsTabAll => 'All';
+
+  @override
+  String get hideAmountsSelectAll => 'Select all';
+
+  @override
+  String get hideAmountsClearAll => 'Clear all';
+
+  @override
+  String hideAmountsSelectedCount(int count) {
+    return '$count selected';
+  }
+
+  @override
+  String get hideAmountsDiscardTitle => 'Leave without saving?';
+
+  @override
+  String get hideAmountsDiscardBody => 'Your selection will be discarded.';
+
+  @override
+  String get hideAmountsDiscardConfirm => 'Leave';
+
+  @override
+  String get hideAmountsSaved => 'Saved';
 
   @override
   String get hideAmountsPageHome => 'Home';
@@ -3607,11 +3638,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get hideCardEtcPreset => 'Presets';
-
-  @override
-  String hideAmountsLockAllDesc(int total, int count) {
-    return 'Hiding $count of $total cards';
-  }
 
   @override
   String get appearanceHideAmount => 'Hide amounts';

@@ -6422,6 +6422,12 @@ abstract class AppLocalizations {
   /// **'자동 전환'**
   String get appearanceThemeSystemDesc;
 
+  /// No description provided for @hideAmountsLockAllDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'{total}개 중 {count}개 카드를 가리는 중'**
+  String hideAmountsLockAllDesc(int total, int count);
+
   /// No description provided for @hideAmountsTitle.
   ///
   /// In ko, this message translates to:
@@ -6431,7 +6437,7 @@ abstract class AppLocalizations {
   /// No description provided for @hideAmountsSectionDesc.
   ///
   /// In ko, this message translates to:
-  /// **'가리고 싶은 카드만 골라 두세요. 켜는 건 바로 되고, 푸는 건 비밀번호를 확인해요.'**
+  /// **'가릴 카드를 골라 두세요. 저장할 때 한 번만 본인 확인을 해요.'**
   String get hideAmountsSectionDesc;
 
   /// No description provided for @hideAmountsLockAll.
@@ -6439,6 +6445,54 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'전체 잠그기'**
   String get hideAmountsLockAll;
+
+  /// No description provided for @hideAmountsTabAll.
+  ///
+  /// In ko, this message translates to:
+  /// **'전체'**
+  String get hideAmountsTabAll;
+
+  /// No description provided for @hideAmountsSelectAll.
+  ///
+  /// In ko, this message translates to:
+  /// **'모두 선택'**
+  String get hideAmountsSelectAll;
+
+  /// No description provided for @hideAmountsClearAll.
+  ///
+  /// In ko, this message translates to:
+  /// **'모두 해제'**
+  String get hideAmountsClearAll;
+
+  /// No description provided for @hideAmountsSelectedCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}개 선택'**
+  String hideAmountsSelectedCount(int count);
+
+  /// No description provided for @hideAmountsDiscardTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'저장하지 않고 나갈까요?'**
+  String get hideAmountsDiscardTitle;
+
+  /// No description provided for @hideAmountsDiscardBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'고른 내용이 사라져요.'**
+  String get hideAmountsDiscardBody;
+
+  /// No description provided for @hideAmountsDiscardConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'나가기'**
+  String get hideAmountsDiscardConfirm;
+
+  /// No description provided for @hideAmountsSaved.
+  ///
+  /// In ko, this message translates to:
+  /// **'저장했어요'**
+  String get hideAmountsSaved;
 
   /// No description provided for @hideAmountsPageHome.
   ///
@@ -6709,12 +6763,6 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'프리셋'**
   String get hideCardEtcPreset;
-
-  /// No description provided for @hideAmountsLockAllDesc.
-  ///
-  /// In ko, this message translates to:
-  /// **'{total}개 중 {count}개 카드를 가리는 중'**
-  String hideAmountsLockAllDesc(int total, int count);
 
   /// No description provided for @appearanceHideAmount.
   ///

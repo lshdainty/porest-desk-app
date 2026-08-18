@@ -134,9 +134,10 @@ void main() {
       await tester.tap(find.text('금액 가리기'));
       await tester.pumpAndSettle();
 
-      // 전용 화면 — 아코디언을 펼치지 않아도 전체 목록이 바로 보인다.
-      expect(find.text('전체 잠그기'), findsOneWidget);
+      // 전용 화면 — '전체' 탭에서 카드 목록이 바로 보이고, 저장 버튼이 아래 붙는다.
+      expect(find.text('전체'), findsOneWidget);
       expect(find.text('순자산'), findsOneWidget);
+      expect(find.text('저장'), findsOneWidget);
     });
   });
 
