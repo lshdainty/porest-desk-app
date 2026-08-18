@@ -6266,6 +6266,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get smsInboxRemove => 'Remove';
 
   @override
+  String get smsInboxRemoveConfirm =>
+      'Remove this message from the list? It will not be recorded.';
+
+  @override
   String get smsPermissionOffTitle =>
       'We can\'t notify you about detected payments';
 

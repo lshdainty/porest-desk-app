@@ -6177,6 +6177,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get smsInboxRemove => '삭제';
 
   @override
+  String get smsInboxRemoveConfirm => '이 문자를 목록에서 지울까요? 기록으로 남기지 않고 치웁니다.';
+
+  @override
   String get smsPermissionOffTitle => '결제를 감지해도 알려 드릴 수 없어요';
 
   @override

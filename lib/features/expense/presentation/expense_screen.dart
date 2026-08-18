@@ -26,7 +26,9 @@ import 'package:porest_desk_app/features/expense/domain/expense_aggregates.dart'
 import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
 import 'package:porest_desk_app/features/expense/presentation/add_tx_sheet.dart';
 import 'package:porest_desk_app/features/expense/presentation/filter_dialog.dart';
+import 'package:porest_desk_app/features/expense/presentation/expense_actions.dart';
 import 'package:porest_desk_app/features/expense/presentation/widgets/expense_row.dart';
+import 'package:porest_desk_app/shared/widgets/p_swipe_actions.dart';
 import 'package:porest_desk_app/features/expense/presentation/widgets/transfer_row.dart';
 import 'package:porest_desk_app/features/expense/presentation/transfer_detail_sheet.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
@@ -1206,6 +1208,7 @@ class _DayGroup extends ConsumerWidget {
                             () => GlobalKey(),
                           ))
                         : null;
+                    final e = items[i];
                     return Container(
                       key: k,
                       decoration: isFocus
@@ -1214,12 +1217,38 @@ class _DayGroup extends ConsumerWidget {
                               borderRadius: PRadius.brSm,
                             )
                           : null,
-                      child: ExpenseRow(
-                        expense: items[i],
-                        category: items[i].categoryRowId == null
-                            ? null
-                            : categories.byRowId(items[i].categoryRowId!),
-                        masked: masked,
+                      // 밀면 편집·삭제가 바로 나온다. 탭은 그대로 상세로 —
+                      // 스와이프는 지름길이지 유일한 경로가 아니다.
+                      // 삭제는 expenseActions 가 한다(상세 시트와 같은 것).
+                      child: PSwipeActions(
+                        groupTag: 'expense-list',
+                        actions: [
+                          if (expenseActions.canEdit(e))
+                            PSwipeAction(
+                              label: l.actionEdit,
+                              icon: LucideIcons.pencil,
+                              kind: PSwipeKind.primary,
+                              onSelect: () =>
+                                  expenseActions.edit(context, ref, e),
+                            ),
+                          if (expenseActions.canDelete(e))
+                            PSwipeAction(
+                              label: l.actionDelete,
+                              icon: LucideIcons.trash2,
+                              kind: PSwipeKind.destructive,
+                              confirmMessage: expenseActions
+                                  .deleteConfirmMessage(context, e),
+                              onSelect: () =>
+                                  expenseActions.delete(context, ref, e),
+                            ),
+                        ],
+                        child: ExpenseRow(
+                          expense: e,
+                          category: e.categoryRowId == null
+                              ? null
+                              : categories.byRowId(e.categoryRowId!),
+                          masked: masked,
+                        ),
                       ),
                     );
                   },

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -13,6 +14,7 @@ import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_alert.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
+import 'package:porest_desk_app/shared/widgets/p_swipe_actions.dart';
 import 'package:porest_desk_app/shared/widgets/p_empty_state.dart';
 import 'package:porest_desk_app/features/sms/data/sms_android.dart';
 import 'package:porest_desk_app/features/sms/domain/sms_paste_args.dart';
@@ -125,7 +127,9 @@ class _SmsInboxScreenState extends ConsumerState<SmsInboxScreen>
       body: RefreshIndicator(
         color: t.bgBrand,
         onRefresh: _load,
-        child: ListView(
+        // 한 번에 한 행만 열린다 — 없으면 여러 행이 열린 채로 남는다.
+        child: SlidableAutoCloseBehavior(
+          child: ListView(
           padding: EdgeInsets.fromLTRB(
               PSpace.x20, PSpace.x16, PSpace.x20, PSpace.x24),
           children: [
@@ -176,12 +180,14 @@ class _SmsInboxScreenState extends ConsumerState<SmsInboxScreen>
               ..._buildGrouped(context, entries),
           ],
         ),
+        ),
       ),
     );
   }
 
   /// 날짜별로 묶어 헤더 아래 행을 늘어놓는다(가계부 목록과 같은 리듬).
   List<Widget> _buildGrouped(BuildContext context, List<SmsInboxEntry> entries) {
+    final l = AppLocalizations.of(context);
     final widgets = <Widget>[];
     String? lastKey;
     for (var i = 0; i < entries.length; i++) {
@@ -193,7 +199,20 @@ class _SmsInboxScreenState extends ConsumerState<SmsInboxScreen>
         widgets.add(const SizedBox(height: PSpace.x4));
         lastKey = key;
       }
-      widgets.add(_InboxRow(entry: entry, onOpen: _open, onRemove: _remove));
+      widgets.add(PSwipeActions(
+        key: ValueKey(entry.id),
+        groupTag: 'sms-inbox',
+        actions: [
+          PSwipeAction(
+            label: l.actionDelete,
+            icon: LucideIcons.trash2,
+            kind: PSwipeKind.destructive,
+            confirmMessage: l.smsInboxRemoveConfirm,
+            onSelect: () => _remove(entry),
+          ),
+        ],
+        child: _InboxRow(entry: entry, onOpen: _open, onRemove: _remove),
+      ));
     }
     return widgets;
   }

@@ -10,9 +10,7 @@ import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/core/format/date.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
-import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
-import 'package:porest_desk_app/core/sync/keep_alive_refresh.dart';
 import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
 import 'package:porest_desk_app/shared/widgets/p_detail.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
@@ -23,11 +21,11 @@ import 'package:porest_desk_app/features/expense_split/presentation/split_tx_dia
 import 'package:porest_desk_app/features/recurring/presentation/recurring_settings_drawer.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
+import 'package:porest_desk_app/features/expense/presentation/expense_actions.dart';
 import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
 import 'package:porest_desk_app/features/expense_split/domain/expense_split.dart';
 import 'package:porest_desk_app/features/expense/presentation/add_tx_sheet.dart';
 import 'package:porest_desk_app/features/expense/presentation/widgets/expense_row.dart';
-import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 
 /// 거래 상세 다이얼로그 — front `TxDetailDialog` 미러.
@@ -112,17 +110,17 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
     widget.controller.setSubmitting(v);
   }
 
+  /// 삭제는 [expenseActions] 가 한다 — 목록 행(스와이프)도 같은 것을 부른다.
+  /// 여기서 다시 짜면 무효화 하나만 어긋나도 경로에 따라 화면이 달라진다.
+  ///
+  /// 확인은 이 화면 몫이다. 지운 뒤 시트를 닫는 것도 여기서만 필요하다 —
+  /// 목록에서 지울 땐 닫을 시트가 없다.
   Future<void> _delete() async {
     final l = AppLocalizations.of(context);
-    // 환불이 달려 있으면 그것도 함께 사라진다 — 모르고 지우면 지출 총액이 조용히 바뀐다.
-    final refundCount = widget.expense.refundCount;
-    final message = refundCount > 0
-        ? '${l.expDeleteConfirm}\n\n${l.expDeleteRefundWarn(refundCount, krw(widget.expense.refundedAmount))}'
-        : l.expDeleteConfirm;
     final ok = await showPConfirmDialog(
       context,
       title: l.expDelete,
-      message: message,
+      message: expenseActions.deleteConfirmMessage(context, widget.expense),
       confirmLabel: l.actionDelete,
       destructive: true,
     );
@@ -130,26 +128,8 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
 
     _setDeleting(true);
     try {
-      final repo = await ref.read(expenseRepositoryProvider.future);
-      await repo.delete(widget.expense.rowId);
-      if (widget.expense.expenseDate != null) {
-        final iso = widget.expense.expenseDate!.substring(0, 10);
-        final parts = iso.split('-');
-        final y = int.parse(parts[0]);
-        final m = int.parse(parts[1]);
-        ref.invalidate(monthExpensesProvider((year: y, month: m)));
-      }
-      invalidateAfterExpenseChange(ref);
-      if (!mounted) return;
-      Navigator.of(context).pop();
-      showPSnackBar(context, l.expDeleted, severity: PSnackSeverity.success);
-    } on ApiException catch (e) {
-      if (!mounted) return;
-      showPSnackBar(
-        context,
-        '${l.expDeleteFailed}: ${e.message}',
-        severity: PSnackSeverity.error,
-      );
+      final deleted = await expenseActions.delete(context, ref, widget.expense);
+      if (deleted && mounted) Navigator.of(context).pop();
     } finally {
       if (mounted) _setDeleting(false);
     }
