@@ -3638,6 +3638,30 @@ abstract class AppLocalizations {
   /// **'업데이트'**
   String get updateTitle;
 
+  /// No description provided for @updateGateTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'새 버전 {version} 이 나왔어요'**
+  String updateGateTitle(String version);
+
+  /// No description provided for @updateGateInstall.
+  ///
+  /// In ko, this message translates to:
+  /// **'설치'**
+  String get updateGateInstall;
+
+  /// No description provided for @updateGateForcedCancelBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'업데이트가 꼭 필요한 내역이 포함되어 있습니다'**
+  String get updateGateForcedCancelBody;
+
+  /// No description provided for @updateCheckFailedTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'업데이트를 확인하지 못했어요'**
+  String get updateCheckFailedTitle;
+
   /// No description provided for @updateUpToDate.
   ///
   /// In ko, this message translates to:

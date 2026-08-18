@@ -991,6 +991,13 @@
   "updateSheetOpening": "설치 화면을 여는 중이에요",
   "updateSheetFailed": "앱에서 받지 못했어요. 브라우저로 열어 볼게요.",
   "updateTitle": "업데이트",
+  "updateGateTitle": "새 버전 {version} 이 나왔어요",
+  "@updateGateTitle": {
+    "placeholders": { "version": { "type": "String" } }
+  },
+  "updateGateInstall": "설치",
+  "updateGateForcedCancelBody": "업데이트가 꼭 필요한 내역이 포함되어 있습니다",
+  "updateCheckFailedTitle": "업데이트를 확인하지 못했어요",
   "updateUpToDate": "최신 버전이에요",
   "updateCurrentBuild": "지금 빌드 {build}",
   "@updateCurrentBuild": {

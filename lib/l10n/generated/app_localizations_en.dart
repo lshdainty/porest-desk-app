@@ -1932,6 +1932,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get updateTitle => 'Update';
 
   @override
+  String updateGateTitle(String version) {
+    return 'Version $version is here';
+  }
+
+  @override
+  String get updateGateInstall => 'Install';
+
+  @override
+  String get updateGateForcedCancelBody =>
+      'This update includes changes you must install.';
+
+  @override
+  String get updateCheckFailedTitle => 'Couldn\'t check for updates';
+
+  @override
   String get updateUpToDate => 'You\'re up to date';
 
   @override

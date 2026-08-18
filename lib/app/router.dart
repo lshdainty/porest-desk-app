@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:porest_desk_app/core/auth/auth_notifier.dart';
 import 'package:porest_desk_app/core/update/app_update.dart';
+import 'package:porest_desk_app/features/update/presentation/update_gate_screen.dart';
 import 'package:porest_desk_app/features/asset/presentation/account_card_manage_screen.dart';
 import 'package:porest_desk_app/features/asset/presentation/asset_screen.dart';
 import 'package:porest_desk_app/features/budget/presentation/budget_screen.dart';
@@ -64,20 +65,29 @@ final routerProvider = Provider<GoRouter>((ref) {
       final atSplash = loc == '/';
       final atLogin = loc == '/login';
 
+      // 새 버전이 있으면 전체 화면으로 가로막고 알린다.
+      //
+      // 로그인보다 앞에 둔다. 강제 업데이트는 서버와 앱이 어긋나 잘못된 값을 주고받는
+      // 걸 막으려는 건데, 로그인 뒤에 두면 구버전이 로그인 화면과 로그인 API 는 그대로
+      // 탄다 — 정작 막아야 할 첫 요청이 빠져나간다.
+      //
+      // 확인이 끝나기 전(로딩)이나 서버를 못 읽었을 때는 막지 않는다. 네트워크가
+      // 끊겼다고 사람을 앱 밖에 세워 둘 이유가 없다.
+      //
+      // 게이트 화면은 인증이 필요 없다 — version.json 도 APK 도 정적 파일이다.
+      final status = ref.read(updateStatusProvider).value;
+      final skipped = ref.read(skippedBuildProvider);
+      final atGate = loc == '/update-gate';
+      if (status?.shouldGate(skipped) ?? false) {
+        return atGate ? null : '/update-gate';
+      }
+      // 알릴 게 없어졌는데 게이트에 남아 있으면(취소 직후 등) 내보낸다.
+      if (atGate) return loggedIn ? '/home' : '/login';
+
       if (!loggedIn) {
         // 로그아웃 상태에서 splash/login 외 접근 시 → /login
         return atLogin ? null : '/login';
       }
-
-      // 더 못 쓰는 버전이면 업데이트 화면에 가둔다.
-      //
-      // 서버와 앱이 어긋나 잘못된 값을 주고받을 수 있는 상태라, 받기 전에는 어디로도
-      // 못 간다. 확인이 끝나기 전(로딩)이나 서버를 못 읽었을 때는 막지 않는다 —
-      // 네트워크가 끊겼다고 사람을 앱 밖에 세워 둘 이유가 없다.
-      final mustUpdate =
-          ref.read(updateStatusProvider).value?.mustUpdate ?? false;
-      final atUpdate = loc == '/settings/update';
-      if (mustUpdate && !atUpdate) return '/settings/update?forced=1';
 
       // 로그인 상태에서 splash/login 머무르면 → /home
       if (atSplash || atLogin) return '/home';
@@ -86,6 +96,8 @@ final routerProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(path: '/', builder: (_, _) => const SplashScreen()),
       GoRoute(path: '/login', builder: (_, _) => const LoginScreen()),
+      // 새 버전 안내 — 리다이렉트로만 들어온다(강제/일반은 화면이 스스로 가른다).
+      GoRoute(path: '/update-gate', builder: (_, _) => const UpdateGateScreen()),
       GoRoute(path: '/settings', builder: (_, _) => const SettingsScreen()),
       GoRoute(path: '/account', builder: (_, _) => const AccountScreen()),
       GoRoute(path: '/account-card-manage', builder: (_, _) => const AccountCardManageScreen()),
@@ -138,8 +150,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       // 몰아넣는다(그때는 뒤로 갈 수 없다).
       GoRoute(
           path: '/settings/update',
-          builder: (_, st) =>
-              UpdateScreen(forced: st.uri.queryParameters['forced'] == '1')),
+          builder: (_, _) => const UpdateScreen()),
       GoRoute(path: '/dutch-pay', builder: (_, _) => const DutchPayScreen()),
       GoRoute(path: '/notifications', builder: (_, _) => const NotificationScreen()),
       GoRoute(
@@ -232,6 +243,8 @@ class _AuthRefresh extends ChangeNotifier {
     _subs = [
       ref.listen(authProvider, (_, _) => notifyListeners()),
       ref.listen(updateStatusProvider, (_, _) => notifyListeners()),
+      // 건너뛰기가 기록되면 게이트가 풀려야 한다 — 안 들으면 재시작까지 갇힌다.
+      ref.listen(skippedBuildProvider, (_, _) => notifyListeners()),
     ];
   }
   late final List<ProviderSubscription> _subs;

@@ -8,6 +8,7 @@ import 'package:porest_desk_app/features/expense/application/expense_providers.d
 import 'package:porest_desk_app/features/memo/application/memo_providers.dart';
 import 'package:porest_desk_app/features/saving_goal/application/saving_goal_providers.dart';
 import 'package:porest_desk_app/features/todo/application/todo_providers.dart';
+import 'package:porest_desk_app/core/update/app_update.dart';
 
 /// 거래(expense) 변경 후 자산 관련 provider 무효화.
 ///
@@ -38,6 +39,10 @@ void invalidateKeepAliveProviders(WidgetRef ref) {
   ref.invalidate(todoTagListProvider);
   ref.invalidate(memoFolderListProvider);
   ref.invalidate(budgetComplianceProvider);
+  // 새 버전 확인도 여기 태운다 — 예전엔 앱을 켤 때 한 번뿐이라, 오래 띄워 둔 앱은
+  // 새 버전이 나와도 끌 때까지 몰랐다. version.json 은 1KB 정적 파일에 5초 타임아웃이라
+  // resume 마다 한 번 더 물어봐도 부담이 없다.
+  ref.invalidate(updateStatusProvider);
 }
 
 /// 셸(IndexedStack) 화면 진입 갱신.
