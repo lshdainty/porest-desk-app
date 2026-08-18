@@ -40,6 +40,7 @@ class PChip extends StatelessWidget {
     this.iconColor,
     this.dotColor,
     this.trailing,
+    this.fullWidth = false,
   });
 
   final String label;
@@ -55,6 +56,10 @@ class PChip extends StatelessWidget {
   /// 좌측 8×8 colored dot — 카테고리·이벤트 색상 표시용. icon보다 우선.
   final Color? dotColor;
   final Widget? trailing;
+
+  /// `true` 면 주어진 폭을 꽉 채우고 라벨을 좌측 정렬한다(그리드 셀용).
+  /// 기본값은 내용 폭에 맞추는 pill 배치.
+  final bool fullWidth;
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +84,7 @@ class PChip extends StatelessWidget {
             borderRadius: radius,
           ),
           child: Row(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisSize: fullWidth ? MainAxisSize.max : MainAxisSize.min,
             children: [
               if (dotColor != null) ...[
                 Container(
@@ -93,14 +98,30 @@ class PChip extends StatelessWidget {
                 Icon(icon, size: 14, color: iconColor ?? fg),
                 const SizedBox(width: 6),
               ],
-              Text(
-                label,
-                style: _textStyle().copyWith(
-                  color: fg,
-                  fontWeight:
-                      selected ? PFontWeight.semi : PFontWeight.medium,
+              // 폭을 채울 땐 라벨이 남는 자리를 먹고 길면 줄바꿈 대신 말줄임.
+              // pill 배치에서는 내용 폭 그대로여야 하므로 Expanded 를 씌우지 않는다.
+              if (fullWidth)
+                Expanded(
+                  child: Text(
+                    label,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: _textStyle().copyWith(
+                      color: fg,
+                      fontWeight:
+                          selected ? PFontWeight.semi : PFontWeight.medium,
+                    ),
+                  ),
+                )
+              else
+                Text(
+                  label,
+                  style: _textStyle().copyWith(
+                    color: fg,
+                    fontWeight:
+                        selected ? PFontWeight.semi : PFontWeight.medium,
+                  ),
                 ),
-              ),
               if (trailing != null) ...[
                 const SizedBox(width: 4),
                 trailing!,

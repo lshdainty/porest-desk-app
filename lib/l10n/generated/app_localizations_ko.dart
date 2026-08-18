@@ -3419,14 +3419,44 @@ class AppLocalizationsKo extends AppLocalizations {
   String get appearanceThemeSystemDesc => '자동 전환';
 
   @override
+  String hideAmountsLockAllDesc(int total, int count) {
+    return '$total개 중 $count개 카드를 가리는 중';
+  }
+
+  @override
   String get hideAmountsTitle => '금액 가리기';
 
   @override
-  String get hideAmountsSectionDesc =>
-      '가리고 싶은 카드만 골라 두세요. 켜는 건 바로 되고, 푸는 건 비밀번호를 확인해요.';
+  String get hideAmountsSectionDesc => '가릴 카드를 골라 두세요. 저장할 때 한 번만 본인 확인을 해요.';
 
   @override
   String get hideAmountsLockAll => '전체 잠그기';
+
+  @override
+  String get hideAmountsTabAll => '전체';
+
+  @override
+  String get hideAmountsSelectAll => '모두 선택';
+
+  @override
+  String get hideAmountsClearAll => '모두 해제';
+
+  @override
+  String hideAmountsSelectedCount(int count) {
+    return '$count개 선택';
+  }
+
+  @override
+  String get hideAmountsDiscardTitle => '저장하지 않고 나갈까요?';
+
+  @override
+  String get hideAmountsDiscardBody => '고른 내용이 사라져요.';
+
+  @override
+  String get hideAmountsDiscardConfirm => '나가기';
+
+  @override
+  String get hideAmountsSaved => '저장했어요';
 
   @override
   String get hideAmountsPageHome => '홈';
@@ -3562,11 +3592,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get hideCardEtcPreset => '프리셋';
-
-  @override
-  String hideAmountsLockAllDesc(int total, int count) {
-    return '$total개 중 $count개 카드를 가리는 중';
-  }
 
   @override
   String get appearanceHideAmount => '금액 가리기';
