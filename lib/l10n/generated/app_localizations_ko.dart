@@ -81,6 +81,24 @@ class AppLocalizationsKo extends AppLocalizations {
   String get unlockMismatch => '비밀번호가 일치하지 않습니다.';
 
   @override
+  String get appLockTitle => '앱 잠금';
+
+  @override
+  String get appLockRowDesc => '앱을 열 때 Face ID·지문으로 본인 확인을 해요.';
+
+  @override
+  String get appLockLockedDesc => '잠금을 해제하려면 본인 확인이 필요해요.';
+
+  @override
+  String get appLockUnlockAction => '잠금 해제';
+
+  @override
+  String get appLockPromptReason => '앱을 열려면 본인 확인이 필요해요.';
+
+  @override
+  String get appLockUnavailable => '이 기기에서는 생체인증이나 화면 잠금을 사용할 수 없어요.';
+
+  @override
   String get stateNoData => '데이터가 없습니다';
 
   @override

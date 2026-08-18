@@ -32,6 +32,9 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<!-- 앱 잠금(생체인증) — 이 키가 없으면 Face ID 호출이 조용히 실패한다. -->
+	<key>NSFaceIDUsageDescription</key>
+	<string>앱 잠금을 해제하려면 Face ID로 본인 확인이 필요해요.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

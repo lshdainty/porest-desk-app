@@ -9,7 +9,7 @@ import android.provider.Settings
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
-import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -19,8 +19,11 @@ import io.flutter.plugin.common.MethodChannel
  *
  * 문자 수신·알림은 [SmsReceiver] 가 앱과 무관하게 처리하고(앱이 꺼져 있어도 온다),
  * 여기서는 Flutter 가 필요로 하는 것만 넘긴다 — 권한 상태·보관함·알림으로 들어온 문자.
+ *
+ * FlutterFragmentActivity 인 이유: 앱 잠금의 생체인증(local_auth)이 androidx
+ * BiometricPrompt 를 쓰는데, 이 API 가 FragmentActivity 를 요구한다.
  */
-class MainActivity : FlutterActivity() {
+class MainActivity : FlutterFragmentActivity() {
 
     /** 알림을 눌러 들어왔을 때의 문자. Flutter 가 가져가면 비운다. */
     private var pendingSmsText: String? = null

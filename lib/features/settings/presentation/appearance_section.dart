@@ -6,6 +6,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
+import 'package:porest_desk_app/features/settings/presentation/app_lock_row.dart';
 import 'package:porest_desk_app/features/settings/presentation/hide_amounts_accordion.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_radio_list.dart';
@@ -128,6 +129,8 @@ class AppearanceSection extends ConsumerWidget {
             PSectionLabel(l.appearancePrivacy,
                 variant: PSectionLabelVariant.section),
             // label↔content gap 0(사용자 결정) — 테마·언어만 gap.
+            // 앱 잠금 — 로그인과 별개로 실행·복귀 시 생체인증(Face ID·지문) 확인.
+            const AppLockRow(),
             // 금액 가리기 — 화면·카드별로 고르는 아코디언. 여기서 바로 펼친다(별도 화면 아님).
             HideAmountsAccordion(initiallyOpen: openHideAmounts),
           ],

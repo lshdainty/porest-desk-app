@@ -57,6 +57,9 @@ dependencies:
   # OAuth 콜백 딥링크 수신 (시스템 브라우저 로그인 복귀)
   app_links: ^6.4.1
   open_filex: ^4.7.0
+  local_auth: ^3.0.2
+  local_auth_android: ^2.0.8
+  local_auth_darwin: ^2.0.3
 
 dev_dependencies:
   flutter_test:

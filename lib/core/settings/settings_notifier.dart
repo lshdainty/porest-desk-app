@@ -14,10 +14,15 @@ class AppSettings {
     required this.currency,
     required this.hideCards,
     required this.locale,
+    required this.appLock,
   });
 
   final ThemeMode themeMode;
   final String currency; // 'KRW' | 'USD' | 'EUR' | 'JPY'
+
+  /// 앱을 열 때 생체인증(Face ID·지문)으로 잠글지. 기기 로컬 설정이다 —
+  /// 잠금은 이 기기의 생체 등록에 묶이므로 서버·다른 클라이언트와 공유하지 않는다.
+  final bool appLock;
 
   /// 지금 가려 둔 카드들. 비어 있으면 아무것도 안 가린 상태다.
   /// 카드 목록은 [kHideCards] 에 있다.
@@ -36,6 +41,7 @@ class AppSettings {
     currency: 'KRW',
     hideCards: <String>{},
     locale: null,
+    appLock: false,
   );
 
   AppSettings copyWith({
@@ -43,12 +49,14 @@ class AppSettings {
     String? currency,
     Set<String>? hideCards,
     Object? locale = _sentinel,
+    bool? appLock,
   }) {
     return AppSettings(
       themeMode: themeMode ?? this.themeMode,
       currency: currency ?? this.currency,
       hideCards: hideCards ?? this.hideCards,
       locale: identical(locale, _sentinel) ? this.locale : locale as Locale?,
+      appLock: appLock ?? this.appLock,
     );
   }
 }
@@ -100,7 +108,16 @@ class SettingsNotifier extends AsyncNotifier<AppSettings> {
       currency: prefs.getString(PrefsKeys.currency) ?? AppSettings.defaults.currency,
       hideCards: _loadHideCards(prefs),
       locale: loc,
+      appLock: prefs.getBool(PrefsKeys.appLock) ?? AppSettings.defaults.appLock,
     );
+  }
+
+  /// 켜는 쪽은 호출 전에 생체인증을 한 번 통과시킬 것(화면 책임) — 인증 수단이
+  /// 없는 기기에서 켜지면 다음 실행부터 앱을 못 연다.
+  Future<void> setAppLock(bool on) async {
+    final prefs = await ref.read(prefsProvider.future);
+    await prefs.setBool(PrefsKeys.appLock, on);
+    state = AsyncData(_current.copyWith(appLock: on));
   }
 
   Future<void> setThemeMode(ThemeMode mode) async {

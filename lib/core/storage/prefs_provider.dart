@@ -16,4 +16,6 @@ abstract final class PrefsKeys {
   static const hideAmounts = 'pd-hide';       // bool (legacy)
   static const hideCards = 'pd-hide-cards';   // List<String>
   static const locale = 'pd-locale';          // 'ko' | 'en' | null(=system)
+  /// 앱 전용(웹에 대응 개념 없음) — 생체인증 앱 잠금 on/off.
+  static const appLock = 'pd-app-lock';       // bool
 }
