@@ -59,13 +59,14 @@ class PSheetFooter extends StatelessWidget {
             if (leftSlot != null)
               leftSlot!
             else if (controller.onDelete != null) ...[
-              // 삭제는 옅은 빨강 채움(dangerSoft) + 균등 분배 — 좌측이 배경 없이 글씨만
-              // 이면 두 버튼 중 한쪽이 빈자리처럼 보인다(spec button.md 2026-08).
+              // 삭제는 error 솔리드 채움(danger) + 균등 분배 — 삭제 확인 다이얼로그의
+              // 삭제 버튼과 같은 색이라, 같은 동작이 같은 색으로 이어진다.
+              // 옅은 채움(dangerSoft)은 다크에서 어두운 자주로 가라앉아 버렸다.
               Expanded(
                 child: PButton(
                   label: deleteLabel ?? l.actionDelete,
                   icon: LucideIcons.trash2,
-                  variant: PButtonVariant.dangerSoft,
+                  variant: PButtonVariant.danger,
                   size: PButtonSize.lg,
                   fullWidth: true,
                   onPressed: controller.submitting ? null : controller.onDelete,
@@ -161,7 +162,8 @@ class PViewFooter extends StatelessWidget {
             child: PButton(
               label: deleteLabel ?? l.actionDelete,
               icon: LucideIcons.trash2,
-              variant: PButtonVariant.dangerSoft,
+              // 폼 시트 footer 와 같은 규칙 — error 솔리드 채움.
+              variant: PButtonVariant.danger,
               size: PButtonSize.lg,
               fullWidth: true,
               loading: deleting,
