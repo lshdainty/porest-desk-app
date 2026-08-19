@@ -20,6 +20,7 @@ import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_card.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_search_field.dart';
+import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
 import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
@@ -1890,7 +1891,6 @@ class _OrderBook extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final l = AppLocalizations.of(context);
     // asks=낮은가격순 → 상단 표시(높은가격 위) 위해 5개 잘라 역순, bids=높은가격순 그대로.
     final asks = [
       for (final e in book.asks.take(5))
@@ -1993,61 +1993,138 @@ class _OrderBook extends StatelessWidget {
 
     return Column(
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                l.stocksBidVolume,
-                textAlign: TextAlign.right,
-                style: TextStyle(
-                  fontFamily: PTypo.sans,
-                  fontSize: 10.5,
-                  fontWeight: PFontWeight.semi,
-                  color: t.fgTertiary,
-                ),
-              ),
-            ),
-            const SizedBox(width: 92),
-            Expanded(
-              child: Text(
-                l.stocksAskVolume,
-                style: TextStyle(
-                  fontFamily: PTypo.sans,
-                  fontSize: 10.5,
-                  fontWeight: PFontWeight.semi,
-                  color: t.fgTertiary,
-                ),
-              ),
-            ),
-          ],
-        ),
+        const _OrderBookHead(),
         const SizedBox(height: PSpace.x4),
         for (final a in asks) row(p: a.p, q: a.q, isAsk: true),
-        Container(
-          margin: const EdgeInsets.symmetric(vertical: 3),
-          padding: const EdgeInsets.symmetric(vertical: 5),
-          decoration: BoxDecoration(
-            border: Border.symmetric(
-              horizontal: BorderSide(color: t.borderSubtle),
+        _OrderBookLast(
+            currency: currency, lastPrice: lastPrice, changePct: changePct),
+        for (final b in bids) row(p: b.p, q: b.q, isAsk: false),
+      ],
+    );
+  }
+}
+
+/// 호가 테이블 헤더 — 정적 틀이라 로딩 중에도 실제로 그린다. 실렌더/스켈레톤 공유.
+class _OrderBookHead extends StatelessWidget {
+  const _OrderBookHead();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final l = AppLocalizations.of(context);
+    final style = TextStyle(
+      fontFamily: PTypo.sans,
+      fontSize: 10.5,
+      fontWeight: PFontWeight.semi,
+      color: t.fgTertiary,
+    );
+    return Row(
+      children: [
+        Expanded(
+          child:
+              Text(l.stocksBidVolume, textAlign: TextAlign.right, style: style),
+        ),
+        const SizedBox(width: 92),
+        Expanded(child: Text(l.stocksAskVolume, style: style)),
+      ],
+    );
+  }
+}
+
+/// 현재가 스트립 — 값이 호가 응답이 아니라 상위에서 이미 받아둔 시세라
+/// 호가 로딩 중에도 실제로 그린다. 실렌더/스켈레톤 공유.
+class _OrderBookLast extends StatelessWidget {
+  const _OrderBookLast({
+    required this.currency,
+    required this.lastPrice,
+    required this.changePct,
+  });
+  final String currency;
+  final double? lastPrice;
+  final double changePct;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 3),
+      padding: const EdgeInsets.symmetric(vertical: 5),
+      decoration: BoxDecoration(
+        border: Border.symmetric(
+          horizontal: BorderSide(color: t.borderSubtle),
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            lastPrice != null ? _fmtByCurrency(lastPrice!, currency) : '—',
+            style: PTypo.bodySm.copyWith(
+              color: _trendColor(t, changePct),
+              fontWeight: PFontWeight.bold,
+              fontFeatures: _tnum,
             ),
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                lastPrice != null ? _fmtByCurrency(lastPrice!, currency) : '—',
-                style: PTypo.bodySm.copyWith(
-                  color: _trendColor(t, changePct),
-                  fontWeight: PFontWeight.bold,
-                  fontFeatures: _tnum,
-                ),
-              ),
-              const SizedBox(width: 6),
-              _PctBadge(pct: changePct, size: 11),
-            ],
-          ),
+          const SizedBox(width: 6),
+          _PctBadge(pct: changePct, size: 11),
+        ],
+      ),
+    );
+  }
+}
+
+/// 호가 로딩 스켈레톤 — [_OrderBook] 실렌더 구조를 그대로 따른다.
+/// 헤더 행과 현재가 스트립은 실 위젯을 그대로 쓰고, 서버에서 오는 매도/매수
+/// 5호가 자리만 placeholder — 행 26 / 잔량 바 22 / 가격 컬럼 92 고정.
+class _OrderBookSkeleton extends StatelessWidget {
+  const _OrderBookSkeleton({
+    required this.currency,
+    required this.lastPrice,
+    required this.changePct,
+  });
+  final String currency;
+  final double? lastPrice;
+  final double changePct;
+
+  /// 잔량 바 길이는 실렌더에서 maxQ 대비 비율이라 값을 알 수 없다 — 프레임마다
+  /// 흔들리지 않도록 고정 시퀀스로 대체(랜덤 금지). asks 는 위가 고가라 역순 모양.
+  static const _askBars = [0.34, 0.52, 0.41, 0.66, 0.47];
+  static const _bidBars = [0.58, 0.44, 0.70, 0.38, 0.50];
+
+  @override
+  Widget build(BuildContext context) {
+    // 실렌더 row(): SizedBox(height: 26) + 가운데 가격 컬럼 92 고정.
+    // 잔량 바는 중심축(가격)에 붙어 바깥으로 자라므로 정렬도 매도=왼쪽/매수=오른쪽.
+    Widget row(double factor, {required bool isAsk}) {
+      // 실렌더 qtyBar 의 높이 22 · radius 4(=PRadius.brSm, PSkeleton 기본값).
+      final bar = FractionallySizedBox(
+        alignment: isAsk ? Alignment.centerLeft : Alignment.centerRight,
+        widthFactor: factor,
+        child: const PSkeleton(height: 22),
+      );
+      return SizedBox(
+        height: 26,
+        child: Row(
+          children: [
+            Expanded(child: isAsk ? const SizedBox.shrink() : bar),
+            const SizedBox(
+              width: 92,
+              child: Center(child: PSkeleton.line(width: 56, height: 12)),
+            ),
+            Expanded(child: isAsk ? bar : const SizedBox.shrink()),
+          ],
         ),
-        for (final b in bids) row(p: b.p, q: b.q, isAsk: false),
+      );
+    }
+
+    return Column(
+      children: [
+        const _OrderBookHead(),
+        const SizedBox(height: PSpace.x4),
+        for (final f in _askBars) row(f, isAsk: true),
+        _OrderBookLast(
+            currency: currency, lastPrice: lastPrice, changePct: changePct),
+        for (final f in _bidBars) row(f, isAsk: false),
       ],
     );
   }
@@ -2100,6 +2177,77 @@ class _RankRow extends ConsumerWidget {
             onTap: () => onPick(item.symbol),
           ),
         ),
+      ],
+    );
+  }
+}
+
+/// 발견 랭킹 로딩 스켈레톤 — `_RankRow` + `_StockRow` 실렌더 구조 미러.
+/// 행 수 10 = 랭킹 API count 기본값(`StocksRepository.getRankings(count: 10)`),
+/// 순위 컬럼 22 + gap 14, 행 상하 여백 PSpace.x12, 배지 40 / PRadius.tile(40),
+/// 가격 컬럼 minWidth 78 은 전부 실렌더에서 그대로 읽어온 값. 텍스트 폭만 대략치.
+class _RankRowsSkeleton extends StatelessWidget {
+  const _RankRowsSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        for (var i = 0; i < 10; i++)
+          Row(
+            // 순위 컬럼과의 간격은 _RankRow 와 같이 gap 이 맡는다.
+            spacing: 14,
+            children: [
+              const SizedBox(
+                width: 22,
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: PSkeleton.line(width: 14, height: 14),
+                ),
+              ),
+              Expanded(
+                child: Padding(
+                  // 행 리듬은 _StockRow 의 상하 여백이 만든다(좌우는 페이지가 쥔다).
+                  padding: const EdgeInsets.symmetric(vertical: PSpace.x12),
+                  child: Row(
+                    children: [
+                      PSkeleton(
+                        width: 40,
+                        height: 40,
+                        borderRadius: PRadius.tile(40),
+                      ),
+                      const SizedBox(width: PSpace.x12),
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // 종목명(bodySm) / 심볼(micro) 2줄 · 사이 1.
+                            PSkeleton.line(width: 108, height: 14),
+                            SizedBox(height: 1),
+                            PSkeleton.line(width: 64, height: 11),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: PSpace.x12),
+                      ConstrainedBox(
+                        // ConstrainedBox 는 const 생성자가 아니라 안쪽만 const.
+                        constraints: const BoxConstraints(minWidth: 78),
+                        child: const Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            // 가격 + 등락 배지 2줄 · 사이 1.
+                            PSkeleton.line(width: 66, height: 14),
+                            SizedBox(height: 1),
+                            PSkeleton.line(width: 50, height: 12),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
       ],
     );
   }
@@ -2164,7 +2312,9 @@ class _DiscoverPanelState extends ConsumerState<_DiscoverPanel> {
         const SizedBox(height: 10),
         // 카드 다이어트 — 발견 랭킹 리스트도 카드 없이 행 리듬만.
         if (rankingsAsync.isLoading)
-          _QuotesEmpty(l.stocksRankingLoading)
+          // 문구 로딩을 스켈레톤으로 바꾸면 스크린리더에 남는 안내가 없어진다 —
+          // 기존 로딩 문구를 Semantics 라벨로 살려 둔다.
+          Semantics(label: l.stocksRankingLoading, child: const _RankRowsSkeleton())
         else if (rankings.isEmpty)
           _QuotesEmpty(l.stocksRankingEmpty)
         else
@@ -2251,7 +2401,13 @@ class _QuotesCardState extends ConsumerState<_QuotesCard> {
     Widget content;
     if (_tab == 'book') {
       if (orderbookAsync.isLoading) {
-        content = _QuotesEmpty(l.stocksOrderbookLoading);
+        content = Semantics(
+          label: l.stocksOrderbookLoading,
+          child: _OrderBookSkeleton(
+              currency: widget.currency,
+              lastPrice: widget.lastPrice,
+              changePct: widget.changePct),
+        );
       } else if (hasBook) {
         content = _OrderBook(
             currency: widget.currency,
@@ -2263,7 +2419,8 @@ class _QuotesCardState extends ConsumerState<_QuotesCard> {
       }
     } else {
       if (tradesAsync.isLoading) {
-        content = _QuotesEmpty(l.stocksTradesLoading);
+        content = Semantics(
+            label: l.stocksTradesLoading, child: const _TradeTapeSkeleton());
       } else if (fills.isEmpty) {
         content = _QuotesEmpty(l.stocksTradesEmpty);
       } else {
@@ -2305,28 +2462,12 @@ class _TradeTape extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final l = AppLocalizations.of(context);
     String fmt(double p) =>
         currency == 'USD' ? '\$${p.toStringAsFixed(2)}' : krw(p.round());
 
-    TextStyle head() => TextStyle(
-          fontFamily: PTypo.sans,
-          fontSize: 10.5,
-          fontWeight: PFontWeight.semi,
-          color: t.fgTertiary,
-        );
-
     return Column(
       children: [
-        Row(
-          children: [
-            Expanded(child: Text(l.stocksTradeTime, style: head())),
-            Expanded(
-                child: Text(l.stocksTradePrice, textAlign: TextAlign.right, style: head())),
-            Expanded(
-                child: Text(l.stocksTradeVolume, textAlign: TextAlign.right, style: head())),
-          ],
-        ),
+        const _TradeTapeHead(),
         const SizedBox(height: PSpace.x4),
         for (final f in fills)
           SizedBox(
@@ -2367,6 +2508,77 @@ class _TradeTape extends StatelessWidget {
                       fontSize: 12,
                       color: t.fgSecondary,
                     ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+/// 체결 테이블 헤더 — 정적 틀이라 로딩 중에도 실제로 그린다. 실렌더/스켈레톤 공유.
+class _TradeTapeHead extends StatelessWidget {
+  const _TradeTapeHead();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final l = AppLocalizations.of(context);
+    final head = TextStyle(
+      fontFamily: PTypo.sans,
+      fontSize: 10.5,
+      fontWeight: PFontWeight.semi,
+      color: t.fgTertiary,
+    );
+    return Row(
+      children: [
+        Expanded(child: Text(l.stocksTradeTime, style: head)),
+        Expanded(
+            child: Text(l.stocksTradePrice,
+                textAlign: TextAlign.right, style: head)),
+        Expanded(
+            child: Text(l.stocksTradeVolume,
+                textAlign: TextAlign.right, style: head)),
+      ],
+    );
+  }
+}
+
+/// 체결 로딩 스켈레톤 — [_TradeTape] 실렌더 구조를 그대로 따른다.
+/// 헤더는 실 위젯을 그대로 쓰고 체결 행만 placeholder — `_liveTradeFills` 상한인
+/// 12행 · 행 높이 25 · 3등분 컬럼(시간 좌 / 가격 우 / 수량 우) 그대로.
+class _TradeTapeSkeleton extends StatelessWidget {
+  const _TradeTapeSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const _TradeTapeHead(),
+        const SizedBox(height: PSpace.x4),
+        for (var i = 0; i < 12; i++)
+          const SizedBox(
+            height: 25,
+            child: Row(
+              children: [
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: PSkeleton.line(width: 52, height: 12),
+                  ),
+                ),
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: PSkeleton.line(width: 48, height: 12),
+                  ),
+                ),
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: PSkeleton.line(width: 36, height: 12),
                   ),
                 ),
               ],
@@ -2448,6 +2660,36 @@ class _DailyQuoteTable extends ConsumerWidget {
           ),
         );
 
+    // 로딩 셀 — 실렌더 `cell` 과 같은 flex/정렬, 높이는 fontSize 12.5 라인 기준.
+    // 실렌더 행 높이는 글자 크기가 아니라 라인박스가 정한다 — cell() 은 height 를 안 줘서
+    // 테마 bodyMedium(height 1.5)을 상속, 12.5 x 1.5 = 18.75(렌더 19)가 된다.
+    // 바 두께(13)를 그대로 쓰면 행마다 6px 씩 짧아 8행이면 48px 이 밀린다.
+    // 그래서 자리는 19 로 잡고 그 안에 13 두께 바를 세운다.
+    Widget skelCell(double width, int flex, Alignment align) => Expanded(
+          flex: flex,
+          child: SizedBox(
+            height: 19,
+            child: Align(
+              alignment: align,
+              child: PSkeleton.line(width: width, height: 13),
+            ),
+          ),
+        );
+
+    // 표 헤더는 정적 틀 — 로딩·실데이터 두 분기가 같은 것을 쓰도록 한 곳에 둔다.
+    // (분기마다 따로 두면 컬럼 라벨·flex 가 바뀔 때 한쪽만 고쳐진다)
+    final dailyHead = Padding(
+      padding: const EdgeInsets.only(bottom: PSpace.x8),
+      child: Row(
+        children: [
+          headCell(l.stocksDate, 10, TextAlign.left),
+          headCell(l.stocksClosePrice, 12, TextAlign.right),
+          headCell(l.stocksChangeRate, 10, TextAlign.right),
+          headCell(l.stocksVolume, 13, TextAlign.right),
+        ],
+      ),
+    );
+
     return PCard(
       padding: const EdgeInsets.all(PSpace.x16),
       child: Column(
@@ -2455,22 +2697,31 @@ class _DailyQuoteTable extends ConsumerWidget {
         children: [
           _SectionLabel(l.stocksDailyPrices, tokens: t),
           const SizedBox(height: 10),
-          if (candlesAsync.isLoading)
-            _QuotesEmpty(l.stocksDailyPricesLoading)
-          else if (rows.isEmpty)
+          if (candlesAsync.isLoading) ...[
+            // 헤더 행은 정적 틀 — 로딩에도 실제로 렌더하고 데이터 행만 스켈레톤.
+            // 문구 로딩을 걷어낸 대신 Semantics 로 스크린리더 안내를 남긴다.
+            Semantics(label: l.stocksDailyPricesLoading, child: dailyHead),
+            // 실렌더는 최근 9영업일 → 8행(`rows.length >= 8` break). 행 padding 8 +
+            // 상단 borderSubtle 구분선까지 데이터 행과 동일하게 유지.
+            for (var i = 0; i < 8; i++)
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                decoration: BoxDecoration(
+                  border: Border(top: BorderSide(color: t.borderSubtle)),
+                ),
+                child: Row(
+                  children: [
+                    skelCell(38, 10, Alignment.centerLeft),
+                    skelCell(48, 12, Alignment.centerRight),
+                    skelCell(44, 10, Alignment.centerRight),
+                    skelCell(64, 13, Alignment.centerRight),
+                  ],
+                ),
+              ),
+          ] else if (rows.isEmpty)
             _QuotesEmpty(l.stocksDailyPricesEmpty)
           else ...[
-            Padding(
-              padding: const EdgeInsets.only(bottom: PSpace.x8),
-              child: Row(
-                children: [
-                  headCell(l.stocksDate, 10, TextAlign.left),
-                  headCell(l.stocksClosePrice, 12, TextAlign.right),
-                  headCell(l.stocksChangeRate, 10, TextAlign.right),
-                  headCell(l.stocksVolume, 13, TextAlign.right),
-                ],
-              ),
-            ),
+            dailyHead,
             for (final r in rows)
               Container(
                 padding: const EdgeInsets.symmetric(vertical: 8),
