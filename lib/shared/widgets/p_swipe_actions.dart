@@ -108,10 +108,12 @@ class PSwipeActions extends StatelessWidget {
               for (final a in actions.reversed)
                 CustomSlidableAction(
                   onPressed: (ctx) => _run(ctx, a),
-                  // 트레이는 페이지 배경 그대로 — 색은 아이콘 원형만 갖는다.
-                  backgroundColor: context.tokens.bgCanvas,
+                  // 트레이에 배경을 두지 않는다 — 색을 깔면 행 옆에 박스가 하나 더
+                  // 생긴 것처럼 보인다. 색은 아이콘 원형만 갖는다.
+                  backgroundColor: Colors.transparent,
                   foregroundColor: _fg(context, a.kind),
-                  padding: const EdgeInsets.all(PSpace.xs),
+                  // 상하 여백 없음 — 행 높이를 그대로 쓰고 좌우만 띄운다.
+                  padding: const EdgeInsets.symmetric(horizontal: PSpace.xs),
                   child: ConstrainedBox(
                     constraints:
                         const BoxConstraints(minHeight: actionMinHeight),
