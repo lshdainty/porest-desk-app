@@ -469,12 +469,13 @@ void _showManageSheet(BuildContext context, WidgetRef ref, UserCalendar calendar
     shrinkWrap: true,
     contentBuilder: (ctx, _) => _ManageBody(calendar: calendar, controller: controller),
     footerBuilder: (ctx) => calendar.isOwner
+        // 관리 시트는 상세 화면이 따로 없어 폼이 곧 상세다 — 삭제를 남기고 닫기는
+        // 우상단 X 에 맡긴다(spec drawer.md 액션 구성 · 상세 화면이 없는 흐름).
         ? PSheetFooter(
             controller: controller,
             submitLabel: l.actionSave,
-            cancelLabel: l.actionClose,
             deleteLabel: l.calDeleteCalendar,
-          )
+                )
         : Row(
             children: [
               const Spacer(),

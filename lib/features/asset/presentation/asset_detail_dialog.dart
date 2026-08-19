@@ -91,7 +91,6 @@ class _DetailFooter extends ConsumerWidget {
           context.push('/account-card-manage');
         }
       },
-      onConfirm: () => Navigator.of(context).pop(),
     );
   }
 }

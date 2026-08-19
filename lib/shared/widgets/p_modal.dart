@@ -8,7 +8,11 @@ import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 
-/// 표준 footer — 좌측 삭제(편집 모드만) / 우측 취소 + 저장. controller listen.
+/// 표준 footer — 좌측 보조(삭제 또는 [leftSlot]) / 우측 취소 + 저장. controller listen.
+///
+/// **액션은 2개까지**(spec drawer.md 액션 구성) — 편집 폼은 `취소`·`저장` 이고 삭제를
+/// 두지 않는다(삭제는 상세에서). 좌측 보조 액션이 이미 있는 화면은 [showCancel] 을 꺼
+/// `취소` 를 우상단 X 에 맡긴다.
 ///
 /// [leftSlot] 지정 시 좌측 삭제 버튼 대신 임의 위젯(초기화 버튼·요약 텍스트 등)을 둔다
 /// (삭제가 아닌 좌측 보조 액션용 — 삭제 슬롯과 동시 사용 시 leftSlot 우선).
@@ -22,6 +26,7 @@ class PSheetFooter extends StatelessWidget {
     this.deleteLabel,
     this.leftSlot,
     this.submitIcon,
+    this.showCancel,
   });
   final PSheetController controller;
   final String submitLabel;
@@ -30,6 +35,11 @@ class PSheetFooter extends StatelessWidget {
   final Widget? leftSlot;
   final IconData? submitIcon;
 
+  /// 취소 버튼 표시 — 지정하지 않으면 **좌측 액션(삭제·[leftSlot])이 있을 때 자동으로
+  /// 숨긴다**. 액션 2개 규칙을 위젯이 지키게 해 호출부가 잊어도 3개가 되지 않는다.
+  /// 우상단 X 와 드래그 내리기가 취소를 대신한다(spec drawer.md 액션 구성).
+  final bool? showCancel;
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
@@ -37,10 +47,13 @@ class PSheetFooter extends StatelessWidget {
       animation: controller,
       builder: (ctx, _) {
         // 취소·저장은 화면 폭을 반씩 나눠 갖는다 — 한 손으로 누를 폭을 확보한다
-        // (spec drawer.md:35). 우측 정렬로 두면 화면 구석의 작은 알약이 된다.
+        // (spec drawer.md). 우측 정렬로 두면 화면 구석의 작은 알약이 된다.
         //
         // 삭제·leftSlot 은 균등 분배에서 뺀다. 셋이 똑같이 나뉘면 파괴적 액션이
         // 저장과 같은 무게로 보인다(spec drawer.md — 삭제는 최좌측 flush-left 로 분리).
+        final hasLeft = leftSlot != null || controller.onDelete != null;
+        // 좌측 액션이 있으면 취소를 뺀다 — 그러지 않으면 액션이 3개가 된다.
+        final cancel = showCancel ?? !hasLeft;
         return Row(
           children: [
             if (leftSlot != null)
@@ -55,18 +68,20 @@ class PSheetFooter extends StatelessWidget {
                 flush: PButtonFlush.left,
                 onPressed: controller.submitting ? null : controller.onDelete,
               ),
-            Expanded(
-              child: PButton(
-                label: cancelLabel ?? l.actionCancel,
-                variant: PButtonVariant.ghost,
-                size: PButtonSize.lg,
-                fullWidth: true,
-                onPressed: controller.submitting
-                    ? null
-                    : () => Navigator.of(ctx).pop(),
+            if (cancel) ...[
+              Expanded(
+                child: PButton(
+                  label: cancelLabel ?? l.actionCancel,
+                  variant: PButtonVariant.ghost,
+                  size: PButtonSize.lg,
+                  fullWidth: true,
+                  onPressed: controller.submitting
+                      ? null
+                      : () => Navigator.of(ctx).pop(),
+                ),
               ),
-            ),
-            const SizedBox(width: PSpace.x8),
+              const SizedBox(width: PSpace.x8),
+            ],
             Expanded(
               child: PButton(
                 label: submitLabel,
@@ -87,8 +102,12 @@ class PSheetFooter extends StatelessWidget {
 }
 
 /// 뷰(읽기전용) 다이얼로그 footer — 좌측 보조(삭제 danger 또는 [leading] 위젯) /
-/// 우측 편집(opt) + 확인/닫기. 폼 제출이 없는 상세 시트용(거래·자산·카드 상세 등).
+/// 우측 편집. 폼 제출이 없는 상세 시트용(거래·자산·카드 상세 등).
 /// PSheetController 불필요 — 직접 콜백.
+///
+/// **액션은 2개까지**(spec drawer.md 액션 구성). 상세는 `삭제`·`편집` 이고 확인은 두지
+/// 않는다 — 우상단 X 와 드래그 내리기가 이미 닫기라 같은 동작에 입구가 둘이 된다.
+/// 확인 버튼은 [confirmLabel] 이나 [onConfirm] 을 준 경우에만 그린다(닫기 단독 footer 용).
 class PViewFooter extends StatelessWidget {
   const PViewFooter({
     super.key,
@@ -115,16 +134,19 @@ class PViewFooter extends StatelessWidget {
   final VoidCallback? onEdit;
   final String? editLabel;
 
-  /// 우측 끝 확인/닫기 — onConfirm 미지정 시 Navigator.pop.
+  /// 우측 끝 확인/닫기 — **둘 다 없으면 버튼을 그리지 않는다**(상세의 기본).
+  /// 읽기전용 단독 닫기 footer 처럼 X 말고 버튼이 따로 필요한 화면만 지정한다.
   final String? confirmLabel;
   final PButtonVariant confirmVariant;
   final VoidCallback? onConfirm;
 
+  bool get _hasConfirm => confirmLabel != null || onConfirm != null;
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    // 편집·확인이 남은 폭을 나눠 갖는다(spec drawer.md:35 — 한 손 조작 폭).
-    // 삭제·leading 은 좌측 고정 — 파괴적 액션이 확인과 같은 무게로 보이면 안 된다.
+    // 남은 폭은 우측 액션들이 나눠 갖는다(spec drawer.md — 한 손 조작 폭).
+    // 삭제·leading 은 좌측 고정 — 파괴적 액션이 주 액션과 같은 무게로 보이면 안 된다.
     return Row(
       children: [
         if (onDelete != null)
@@ -140,7 +162,7 @@ class PViewFooter extends StatelessWidget {
           )
         else
           ?leading,
-        if (onEdit != null) ...[
+        if (onEdit != null)
           Expanded(
             child: PButton(
               label: editLabel ?? l.actionEditLabel,
@@ -151,17 +173,17 @@ class PViewFooter extends StatelessWidget {
               onPressed: onEdit,
             ),
           ),
-          const SizedBox(width: PSpace.x8),
-        ],
-        Expanded(
-          child: PButton(
-            label: confirmLabel ?? l.actionConfirm,
-            variant: confirmVariant,
-            size: PButtonSize.lg,
-            fullWidth: true,
-            onPressed: onConfirm ?? () => Navigator.of(context).pop(),
+        if (onEdit != null && _hasConfirm) const SizedBox(width: PSpace.x8),
+        if (_hasConfirm)
+          Expanded(
+            child: PButton(
+              label: confirmLabel ?? l.actionConfirm,
+              variant: confirmVariant,
+              size: PButtonSize.lg,
+              fullWidth: true,
+              onPressed: onConfirm ?? () => Navigator.of(context).pop(),
+            ),
           ),
-        ),
       ],
     );
   }

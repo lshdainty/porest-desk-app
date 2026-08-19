@@ -73,7 +73,6 @@ class _BodyState extends ConsumerState<_Body> {
     _color = memoColorOrDefault(e?.color);
     _pinned = e?.pinned ?? false;
     widget.controller.onSubmit = _submit;
-    if (_isEdit) widget.controller.onDelete = _delete;
   }
 
   @override
@@ -132,33 +131,6 @@ class _BodyState extends ConsumerState<_Body> {
     } on ApiException catch (e) {
       if (!mounted) return;
       showPSnackBar(context, l.memoActionFailed(e.message),
-          severity: PSnackSeverity.error);
-    } finally {
-      if (mounted) _setSubmitting(false);
-    }
-  }
-
-  Future<void> _delete() async {
-    final l = AppLocalizations.of(context);
-    final ok = await showPConfirmDialog(
-      context,
-      title: l.memoDeleteTitle,
-      message: l.memoDeleteConfirm,
-      confirmLabel: l.actionDelete,
-      destructive: true,
-    );
-    if (!ok || !mounted) return;
-    _setSubmitting(true);
-    try {
-      final repo = await ref.read(memoRepositoryProvider.future);
-      await repo.delete(widget.edit!.rowId);
-      ref.invalidate(memoListProvider);
-      invalidateConstellation(ref);
-      if (!mounted) return;
-      Navigator.of(context).pop();
-    } on ApiException catch (e) {
-      if (!mounted) return;
-      showPSnackBar(context, l.memoDeleteFailed(e.message),
           severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setSubmitting(false);

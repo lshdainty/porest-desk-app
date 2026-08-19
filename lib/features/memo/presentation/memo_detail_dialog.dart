@@ -50,7 +50,6 @@ class _DetailFooter extends StatelessWidget {
                   Navigator.of(ctx).pop();
                   showMemoEditDialog(ctx, edit: memo);
                 },
-          onConfirm: () => Navigator.of(ctx).pop(),
         );
       },
     );
