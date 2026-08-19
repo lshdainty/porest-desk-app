@@ -74,6 +74,10 @@ class PSwipeActions extends StatelessWidget {
   /// 이 비율 이상 밀면 열린 채로 스냅한다.
   static const double _openThreshold = 0.4;
 
+  /// 아이콘 원형 지름 — 행 높이(패딩 제외 ~48) 안에 원형 + 라벨이 다 들어가는 값.
+  /// 40 으로 두면 라벨과 합쳐 61이 되어 넘친다(실측).
+  static const double _badgeSize = 28;
+
   @override
   Widget build(BuildContext context) {
     if (!enabled || actions.isEmpty) return child;
@@ -97,12 +101,17 @@ class PSwipeActions extends StatelessWidget {
             // 걸면 두 범위가 맞물려 아예 열리지 않는다(실측).
             openThreshold: _openThreshold,
             children: [
-              for (final a in actions)
+              // **역순으로 그린다** — 왼쪽으로 조금 밀면 오른쪽 끝 액션부터 드러나므로,
+              // 순서대로 두면 파괴적 액션이 제일 먼저 손에 닿는다. 뒤집어 두면 삭제가
+              // 가장 안쪽(멀리)에 놓여 끝까지 밀어야 닿는다. 호출부는 '고정·수정·삭제'
+              // 라는 자연스러운 의미 순서를 그대로 쓰면 된다.
+              for (final a in actions.reversed)
                 CustomSlidableAction(
                   onPressed: (ctx) => _run(ctx, a),
-                  backgroundColor: _bg(context, a.kind),
+                  // 트레이는 페이지 배경 그대로 — 색은 아이콘 원형만 갖는다.
+                  backgroundColor: context.tokens.bgCanvas,
                   foregroundColor: _fg(context, a.kind),
-                  padding: const EdgeInsets.all(PSpace.x8),
+                  padding: const EdgeInsets.all(PSpace.xs),
                   child: ConstrainedBox(
                     constraints:
                         const BoxConstraints(minHeight: actionMinHeight),
@@ -111,14 +120,27 @@ class PSwipeActions extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         if (a.icon != null) ...[
-                          Icon(a.icon, size: 20),
+                          // 사각 채움이 아니라 원형 — 행을 밀었을 때 색 덩어리가
+                          // 화면을 반 가르지 않고 아이콘만 또렷하게 선다.
+                          Container(
+                            width: _badgeSize,
+                            height: _badgeSize,
+                            decoration: BoxDecoration(
+                              color: _bg(context, a.kind),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(a.icon,
+                                size: 16, color: _fg(context, a.kind)),
+                          ),
                           const SizedBox(height: 2),
                         ],
                         Text(
                           a.label,
                           textAlign: TextAlign.center,
-                          style: PTypo.caption
-                              .copyWith(fontWeight: PFontWeight.semi),
+                          style: PTypo.caption.copyWith(
+                            fontWeight: PFontWeight.semi,
+                            color: _labelFg(context, a.kind),
+                          ),
                         ),
                       ],
                     ),
@@ -163,21 +185,34 @@ class PSwipeActions extends StatelessWidget {
     if (ok) action.onSelect();
   }
 
+  /// 아이콘 원형의 채움색. primary 는 brand 가 아니라 info — 버튼 채움과 같은
+  /// 기조다(spec button.md Migration notes 2026-08).
   Color _bg(BuildContext context, PSwipeKind kind) {
     final t = context.tokens;
     return switch (kind) {
-      PSwipeKind.neutral => t.bgCanvas,
-      PSwipeKind.primary => t.bgBrandSolid,
+      PSwipeKind.neutral => t.bgMuted,
+      PSwipeKind.primary => t.statusInfo,
       PSwipeKind.destructive => t.statusDanger,
     };
   }
 
+  /// 원형 안 아이콘 색.
   Color _fg(BuildContext context, PSwipeKind kind) {
     final t = context.tokens;
     return switch (kind) {
       PSwipeKind.neutral => t.fgPrimary,
       PSwipeKind.primary => t.fgOnBrand,
       PSwipeKind.destructive => t.fgOnDanger,
+    };
+  }
+
+  /// 원형 밖 라벨 색 — 채움색과 같은 계열로 두어 무엇을 누르는지 색으로도 읽힌다.
+  Color _labelFg(BuildContext context, PSwipeKind kind) {
+    final t = context.tokens;
+    return switch (kind) {
+      PSwipeKind.neutral => t.fgSecondary,
+      PSwipeKind.primary => t.statusInfoFg,
+      PSwipeKind.destructive => t.statusDangerFg,
     };
   }
 }
