@@ -393,6 +393,13 @@ Widget _buildSheetColumn(
 /// title + content slot + actions slot 골격만 통일. 각 도메인 content
 /// (입력 필드, validation 등) 는 사용처 직접 구성.
 ///
+/// 액션이 2개 이상이면 화면 폭을 균등하게 나눠 깐다 — AlertDialog 기본 actions 는
+/// OverflowBar 라 버튼이 내용 폭으로 우측에 몰린다(spec dialog.md 모바일 규칙 위반).
+/// 각 버튼에 `fullWidth: true` 를 주어야 Expanded 를 채운다.
+///
+/// 취소는 `secondary`(테두리 없는 회색 채움) — ghost 는 배경이 없어 전체 폭 배치에서
+/// 버튼으로 안 보인다(spec button.md Migration notes 2026-08).
+///
 /// 사용 예:
 /// ```dart
 /// showDialog<bool>(
@@ -400,7 +407,12 @@ Widget _buildSheetColumn(
 ///   builder: (_) => PFormAlertDialog(
 ///     title: '그룹 수정',
 ///     content: Column(...),
-///     actions: [TextButton(...), FilledButton(...)],
+///     actions: [
+///       PButton(label: '취소', variant: PButtonVariant.secondary,
+///               size: PButtonSize.lg, fullWidth: true, onPressed: ...),
+///       PButton(label: '저장', size: PButtonSize.lg, fullWidth: true,
+///               onPressed: ...),
+///     ],
 ///   ),
 /// );
 /// ```
@@ -436,7 +448,22 @@ class PFormAlertDialog extends StatelessWidget {
             )
           : Text(title),
       content: content,
-      actions: actions,
+      // AlertDialog 기본 actions 는 OverflowBar 라 버튼이 내용 폭으로 우측에 몰린다.
+      // 2개 이상이면 Row + Expanded 로 직접 깔아 화면 폭을 반씩 나눈다
+      // (spec dialog.md 모바일 규칙 — _PConfirmDialog 과 같은 처리).
+      // 1개면 OverflowBar 그대로 둔다 — 나눌 상대가 없다.
+      actions: actions.length < 2
+          ? actions
+          : [
+              Row(
+                children: [
+                  for (var i = 0; i < actions.length; i++) ...[
+                    if (i > 0) const SizedBox(width: PSpace.x8),
+                    Expanded(child: actions[i]),
+                  ],
+                ],
+              ),
+            ],
     );
   }
 }

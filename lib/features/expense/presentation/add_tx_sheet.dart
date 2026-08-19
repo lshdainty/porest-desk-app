@@ -1005,11 +1005,17 @@ class _SavePresetDialogState extends ConsumerState<_SavePresetDialog> {
       actions: [
         PButton(
           label: l.actionCancel,
-          variant: PButtonVariant.ghost,
+          // ghost 는 배경이 없어 전체 폭 배치에서 버튼으로 안 보인다
+          // (spec button.md Migration notes 2026-08).
+          variant: PButtonVariant.secondary,
+          size: PButtonSize.lg,
+          fullWidth: true,
           onPressed: _submitting ? null : Navigator.of(context).pop,
         ),
         PButton(
           label: l.actionSave,
+          size: PButtonSize.lg,
+          fullWidth: true,
           loading: _submitting,
           onPressed: (_submitting || _nameCtrl.text.trim().isEmpty)
               ? null
