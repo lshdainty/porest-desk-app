@@ -6,8 +6,8 @@ import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
+import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
-import 'package:porest_desk_app/shared/widgets/p_progress.dart';
 import 'package:porest_desk_app/core/auth/auth_notifier.dart';
 import 'package:porest_desk_app/core/lock/app_lock.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
@@ -160,17 +160,24 @@ class _HideAmountsUnlockDialogState
         ],
       ),
       actions: [
-        TextButton(
+        // raw TextButton/FilledButton 은 CLAUDE.md 금지 — PButton 으로 통일.
+        // 취소는 secondary(테두리 없는 회색 채움), ghost 는 전체 폭 배치에서
+        // 버튼으로 안 보인다(spec button.md Migration notes 2026-08).
+        PButton(
+          label: l.actionCancel,
+          variant: PButtonVariant.secondary,
+          size: PButtonSize.lg,
+          fullWidth: true,
           onPressed: _submitting
               ? null
               : () => Navigator.of(context).pop(false),
-          child: Text(l.actionCancel),
         ),
-        FilledButton(
+        PButton(
+          label: l.actionConfirm,
+          size: PButtonSize.lg,
+          fullWidth: true,
+          loading: _submitting,
           onPressed: (_ctrl.text.trim().isEmpty || _submitting) ? null : _submit,
-          child: _submitting
-              ? const PCircularProgressIndicator(size: 16, strokeWidth: 2)
-              : Text(l.actionConfirm),
         ),
       ],
     );
