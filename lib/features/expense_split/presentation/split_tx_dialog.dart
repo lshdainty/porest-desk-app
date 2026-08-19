@@ -52,8 +52,9 @@ void showSplitTxDialog(
       initialSplits: initialSplits,
       onReconciled: onReconciled,
     ),
-    // 표준 footer 사용 — 분할 해제(삭제)/취소/분할 저장. controller(canSubmit·onDelete·
+    // 표준 footer 사용 — [분할 해제][저장] 2개. controller(canSubmit·onDelete·
     // onSubmit·submitting)에 _syncFooter 가 신호를 다 싣고 있어 커스텀 footer 불필요.
+    // 취소는 우상단 X 가 대신한다(spec drawer.md 액션 구성).
     footerBuilder: (ctx) => PSheetFooter(
       controller: controller,
       submitLabel: l.expSplitSave,

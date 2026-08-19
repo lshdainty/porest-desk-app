@@ -75,32 +75,6 @@ String _reminderLabel(AppLocalizations l, int min) {
   return l.calReminderMinutesBefore(min);
 }
 
-Future<void> _confirmDelete(BuildContext ctx, CalendarEvent edit) async {
-  final l = AppLocalizations.of(ctx);
-  final container = ProviderScope.containerOf(ctx, listen: false);
-  final ok = await showPConfirmDialog(
-    ctx,
-    title: l.calEventDelete,
-    message: l.calEventDeleteConfirm(edit.title),
-    confirmLabel: l.actionDelete,
-    destructive: true,
-  );
-  if (!ok) return;
-  try {
-    final repo = await container.read(calendarRepositoryProvider.future);
-    await repo.deleteEvent(edit.rowId);
-    container.invalidate(monthEventsProvider(
-        (year: edit.start.year, month: edit.start.month)));
-  } on ApiException catch (e) {
-    if (!ctx.mounted) return;
-    showPSnackBar(ctx, '${l.calDeleteFailed}: ${e.message}',
-        severity: PSnackSeverity.error);
-    return;
-  }
-  if (!ctx.mounted) return;
-  Navigator.of(ctx).pop();
-}
-
 class _Body extends ConsumerStatefulWidget {
   const _Body({
     this.edit,
@@ -162,9 +136,6 @@ class _BodyState extends ConsumerState<_Body> {
       });
     }
     widget.controller.onSubmit = _submit;
-    if (widget.edit != null) {
-      widget.controller.onDelete = () => _confirmDelete(context, widget.edit!);
-    }
     WidgetsBinding.instance
         .addPostFrameCallback((_) => _syncController());
   }

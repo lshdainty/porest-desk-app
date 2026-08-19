@@ -55,7 +55,6 @@ class _DetailFooter extends StatelessWidget {
                   Navigator.of(ctx).pop();
                   showCalendarEventDialog(ctx, edit: event);
                 },
-          onConfirm: () => Navigator.of(ctx).pop(),
         );
       },
     );

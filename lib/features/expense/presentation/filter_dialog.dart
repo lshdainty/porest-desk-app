@@ -91,6 +91,7 @@ Future<ExpenseFilter?> showFilterDialog(
       controller: controller,
     ),
     // 표준 PSheetFooter — 좌측이 삭제가 아니라 '초기화'(비파괴)라 leftSlot 으로 주입.
+    // 취소는 빼고 우상단 X 에 맡긴다 — [초기화][적용] 2개(spec drawer.md 액션 구성).
     footerBuilder: (ctx) => PSheetFooter(
       controller: controller,
       submitLabel: l.expFilterApply,

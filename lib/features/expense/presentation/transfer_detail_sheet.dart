@@ -49,7 +49,6 @@ void showTransferDetailSheet(BuildContext context, AssetTransfer transfer) {
                   Navigator.of(c, rootNavigator: true).pop();
                   showAddTxSheet(context, editTransfer: transfer);
                 },
-          onConfirm: () => Navigator.of(c).pop(),
         );
       },
     ),

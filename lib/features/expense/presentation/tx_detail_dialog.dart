@@ -74,7 +74,6 @@ class _TxDetailFooter extends StatelessWidget {
                   Navigator.of(ctx).pop();
                   showAddTxSheet(ctx, edit: expense);
                 },
-          onConfirm: () => Navigator.of(ctx).pop(),
         );
       },
     );
