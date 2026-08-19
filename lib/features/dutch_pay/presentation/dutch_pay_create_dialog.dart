@@ -581,41 +581,60 @@ class _WizardFooter extends StatelessWidget {
         final step = state?._step ?? 1;
         final canNext = controller.canSubmit;
         if (step == 1) {
+          // footer 액션은 화면 폭을 반씩 나눠 갖는다 (spec drawer.md "flex:1 평등 분배").
+          // Spacer 로 우측에 몰면 한 손으로 누를 폭이 안 나온다.
           return Row(
             children: [
-              const Spacer(),
-              PButton(
-                label: l.actionCancel,
-                variant: PButtonVariant.ghost,
-                onPressed: controller.submitting
-                    ? null
-                    : () => Navigator.of(ctx).pop(),
+              Expanded(
+                child: PButton(
+                  label: l.actionCancel,
+                  variant: PButtonVariant.secondary,
+                  size: PButtonSize.lg,
+                  fullWidth: true,
+                  onPressed: controller.submitting
+                      ? null
+                      : () => Navigator.of(ctx).pop(),
+                ),
               ),
-              const SizedBox(width: PSpace.x4),
-              PButton(
-                label: l.dutchNext,
-                icon: LucideIcons.arrowRight,
-                onPressed:
-                    canNext && !controller.submitting ? controller.onSubmit : null,
+              const SizedBox(width: PSpace.x8),
+              Expanded(
+                child: PButton(
+                  label: l.dutchNext,
+                  icon: LucideIcons.arrowRight,
+                  size: PButtonSize.lg,
+                  fullWidth: true,
+                  onPressed: canNext && !controller.submitting
+                      ? controller.onSubmit
+                      : null,
+                ),
               ),
             ],
           );
         }
+        // step1 과 같은 규칙 — 이전·만들기가 화면 폭을 반씩 나눠 갖는다.
         return Row(
           children: [
-            PButton(
-              label: l.dutchPrev,
-              variant: PButtonVariant.ghost,
-              flush: PButtonFlush.left,
-              onPressed: controller.submitting ? null : state?._back,
+            Expanded(
+              child: PButton(
+                label: l.dutchPrev,
+                variant: PButtonVariant.secondary,
+                size: PButtonSize.lg,
+                fullWidth: true,
+                onPressed: controller.submitting ? null : state?._back,
+              ),
             ),
-            const Spacer(),
-            PButton(
-              label: l.dutchCreate,
-              icon: LucideIcons.check,
-              loading: controller.submitting,
-              onPressed:
-                  canNext && !controller.submitting ? controller.onSubmit : null,
+            const SizedBox(width: PSpace.x8),
+            Expanded(
+              child: PButton(
+                label: l.dutchCreate,
+                icon: LucideIcons.check,
+                size: PButtonSize.lg,
+                fullWidth: true,
+                loading: controller.submitting,
+                onPressed: canNext && !controller.submitting
+                    ? controller.onSubmit
+                    : null,
+              ),
             ),
           ],
         );

@@ -1300,12 +1300,16 @@ class _FilterSheetBodyState extends State<_FilterSheetBody> {
             t: t,
           ),
           const SizedBox(height: 20),
+          // footer 액션은 화면 폭을 반씩 나눠 갖는다 — 한 손으로 누를 폭을 확보한다
+          // (spec drawer.md "flex:1 평등 분배", dialog.md 모바일 footer).
+          // 가계부 필터 시트(search_screen)와 같은 배치다.
           Row(
             children: [
               Expanded(
                 child: PButton(
                   label: l.actionReset,
                   variant: PButtonVariant.outline,
+                  fullWidth: true,
                   onPressed: !_active
                       ? null
                       : () => setState(() {
@@ -1318,9 +1322,9 @@ class _FilterSheetBodyState extends State<_FilterSheetBody> {
               ),
               const SizedBox(width: 8),
               Expanded(
-                flex: 2,
                 child: PButton(
                   label: l.actionDone,
+                  fullWidth: true,
                   onPressed: () => Navigator.of(context).pop(),
                 ),
               ),

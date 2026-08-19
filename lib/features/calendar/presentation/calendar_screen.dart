@@ -1199,31 +1199,27 @@ class _MonthYearPickerSheetState extends State<_MonthYearPickerSheet> {
           const SizedBox(height: PSpace.x16),
           PDivider(),
           const SizedBox(height: PSpace.x12),
-          // 푸터: 오늘로 + 닫기
+          // 푸터: 오늘로 + 닫기 — 화면 폭을 반씩 나눠 갖는다
+          // (spec drawer.md "flex:1 평등 분배"). 가계부 월 선택(budget_screen)과 같은 배치.
           Row(
             children: [
-              GestureDetector(
-                onTap: widget.onToday,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(LucideIcons.navigation, size: 14, color: t.fgBrand),
-                    const SizedBox(width: PSpace.x4),
-                    Text(
-                      l.calGoToToday,
-                      style: PTypo.bodySm.copyWith(
-                        color: t.fgBrand,
-                        fontWeight: PFontWeight.semi,
-                      ),
-                    ),
-                  ],
+              Expanded(
+                child: PButton(
+                  label: l.calGoToToday,
+                  icon: LucideIcons.navigation,
+                  variant: PButtonVariant.ghost,
+                  fullWidth: true,
+                  onPressed: widget.onToday,
                 ),
               ),
-              const Spacer(),
-              PButton(
-                label: l.actionClose,
-                variant: PButtonVariant.ghost,
-                onPressed: () => Navigator.of(context).pop(),
+              const SizedBox(width: PSpace.x8),
+              Expanded(
+                child: PButton(
+                  label: l.actionClose,
+                  variant: PButtonVariant.ghost,
+                  fullWidth: true,
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
               ),
             ],
           ),
