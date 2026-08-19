@@ -143,9 +143,11 @@ class StocksRepository {
     int? count,
   }) async {
     try {
-      // count 미지정 또는 ≤200 → 단일 요청
+      // count 미지정 또는 ≤200 → 단일 요청.
+      // await 를 빼면 Future 가 try 밖에서 완료돼 아래 on DioException 이 놓친다
+      // — 이 경로만 ApiException 이 아니라 DioException 이 그대로 나간다.
       if (count == null || count <= _tossCandleMax) {
-        return _getCandlePage(symbol, interval, size: count);
+        return await _getCandlePage(symbol, interval, size: count);
       }
       // 토스 count 상한(200) 초과 → nextCursor 커서로 누적 (요청당 ≤200)
       final merged = <TossCandle>[];
