@@ -44,59 +44,57 @@ class MySkyCard extends StatelessWidget {
 
     // 카드 다이어트 — design forest.jsx MyForest/ForestCollection(.p-card)는
     // 모바일에서 플랫: 카드 없이 sec-head + 콘텐츠만 (inset 10).
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+    // 좌우는 페이지가 쥔다(24). 섹션이 여기서 더 얹으면 제목과 내용이 어긋난다.
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              l.constMySkyTitle,
+              style: PTypo.h4.copyWith(
+                color: t.fgPrimary,
+                fontWeight: PFontWeight.bold,
+              ),
+            ),
+            const Spacer(),
+            Text(
+              l.constMySkyTotal(today.totalCollected),
+              style: PTypo.caption.copyWith(color: t.fgTertiary),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Text(
+          l.constMySkySubtitle,
+          style: PTypo.caption.copyWith(color: t.fgTertiary, fontSize: 11.5),
+        ),
+        const SizedBox(height: 12),
+        for (final week in rows) ...[
           Row(
             children: [
-              Text(
-                l.constMySkyTitle,
-                style: PTypo.h4.copyWith(
-                  color: t.fgPrimary,
-                  fontWeight: PFontWeight.bold,
+              for (var i = 0; i < 7; i++) ...[
+                if (i > 0) const SizedBox(width: 6),
+                Expanded(
+                  child: i < week.length
+                      ? _DayCell(
+                          day: week[i],
+                          isToday: week[i].date == todayDate,
+                          todayPoints: today.points,
+                          entry: week[i].constellationKey != null
+                              ? byKey[week[i].constellationKey]
+                              : null,
+                          stageIcon: _stageIcon(today.points),
+                          t: t,
+                        )
+                      : const SizedBox.shrink(),
                 ),
-              ),
-              const Spacer(),
-              Text(
-                l.constMySkyTotal(today.totalCollected),
-                style: PTypo.caption.copyWith(color: t.fgTertiary),
-              ),
+              ],
             ],
           ),
-          const SizedBox(height: 4),
-          Text(
-            l.constMySkySubtitle,
-            style: PTypo.caption.copyWith(color: t.fgTertiary, fontSize: 11.5),
-          ),
-          const SizedBox(height: 12),
-          for (final week in rows) ...[
-            Row(
-              children: [
-                for (var i = 0; i < 7; i++) ...[
-                  if (i > 0) const SizedBox(width: 6),
-                  Expanded(
-                    child: i < week.length
-                        ? _DayCell(
-                            day: week[i],
-                            isToday: week[i].date == todayDate,
-                            todayPoints: today.points,
-                            entry: week[i].constellationKey != null
-                                ? byKey[week[i].constellationKey]
-                                : null,
-                            stageIcon: _stageIcon(today.points),
-                            t: t,
-                          )
-                        : const SizedBox.shrink(),
-                  ),
-                ],
-              ],
-            ),
-            const SizedBox(height: 6),
-          ],
+          const SizedBox(height: 6),
         ],
-      ),
+      ],
     );
   }
 }

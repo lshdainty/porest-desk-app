@@ -140,7 +140,7 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
 
             return ListView(
               padding: const EdgeInsets.symmetric(
-                horizontal: PSpace.x20,
+                horizontal: PSpace.x24,
                 vertical: PSpace.x24,
               ),
               children: [
@@ -785,7 +785,7 @@ class _RecurringSkeleton extends StatelessWidget {
     final l = AppLocalizations.of(context);
     return ListView(
       padding: const EdgeInsets.symmetric(
-        horizontal: PSpace.x20,
+        horizontal: PSpace.x24,
         vertical: PSpace.x24,
       ),
       children: [

@@ -222,7 +222,7 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
         },
         child: ListView(
           padding: const EdgeInsets.symmetric(
-            horizontal: PSpace.x20,
+            horizontal: PSpace.x24,
             vertical: PSpace.x24,
           ),
           children: [
@@ -690,59 +690,56 @@ class _CategoryListCard extends StatelessWidget {
         ),
         const SizedBox(height: PSpace.x8),
         // 카드 다이어트 — 플랫 (콘텐츠 inset 10).
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (loading && budgets.isEmpty)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: PSpace.x8),
-                  child: Column(
-                    children: [
-                      for (var i = 0; i < 3; i++) ...[
-                        if (i > 0) const SizedBox(height: PSpace.x16),
-                        Row(
-                          children: const [
-                            PSkeleton.line(width: 96, height: 13),
-                            Spacer(),
-                            PSkeleton.line(width: 80, height: 13),
-                          ],
-                        ),
-                        const SizedBox(height: PSpace.x8),
-                        PSkeleton(height: 6, borderRadius: PRadius.brFull),
-                      ],
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (loading && budgets.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: PSpace.x8),
+                child: Column(
+                  children: [
+                    for (var i = 0; i < 3; i++) ...[
+                      if (i > 0) const SizedBox(height: PSpace.x16),
+                      Row(
+                        children: const [
+                          PSkeleton.line(width: 96, height: 13),
+                          Spacer(),
+                          PSkeleton.line(width: 80, height: 13),
+                        ],
+                      ),
+                      const SizedBox(height: PSpace.x8),
+                      PSkeleton(height: 6, borderRadius: PRadius.brFull),
                     ],
-                  ),
-                )
-              else if (budgets.isEmpty)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: PSpace.x16),
-                  child: Center(
-                    child: Text(
-                      l.budgetNoCategorySet,
-                      style: PTypo.bodySm.copyWith(color: tokens.fgTertiary),
-                    ),
-                  ),
-                )
-              else
-                for (int i = 0; i < budgets.length; i++) ...[
-                  if (i > 0) ...[
-                    const SizedBox(height: PSpace.x12),
-                    Divider(height: 1, thickness: 1, color: tokens.borderSubtle),
-                    const SizedBox(height: PSpace.x12),
                   ],
-                  _CategoryRow(
-                    budget: budgets[i],
-                    category: categories.byRowId(budgets[i].categoryRowId!),
-                    spent: spentByCategory[budgets[i].categoryRowId] ?? 0,
-                    masked: masked,
-                    tokens: tokens,
-                    onTap: () => onTap(budgets[i]),
+                ),
+              )
+            else if (budgets.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: PSpace.x16),
+                child: Center(
+                  child: Text(
+                    l.budgetNoCategorySet,
+                    style: PTypo.bodySm.copyWith(color: tokens.fgTertiary),
                   ),
+                ),
+              )
+            else
+              for (int i = 0; i < budgets.length; i++) ...[
+                if (i > 0) ...[
+                  const SizedBox(height: PSpace.x12),
+                  Divider(height: 1, thickness: 1, color: tokens.borderSubtle),
+                  const SizedBox(height: PSpace.x12),
                 ],
-            ],
-          ),
+                _CategoryRow(
+                  budget: budgets[i],
+                  category: categories.byRowId(budgets[i].categoryRowId!),
+                  spent: spentByCategory[budgets[i].categoryRowId] ?? 0,
+                  masked: masked,
+                  tokens: tokens,
+                  onTap: () => onTap(budgets[i]),
+                ),
+              ],
+          ],
         ),
       ],
     );
@@ -893,24 +890,21 @@ class _LoadingSkeleton extends StatelessWidget {
         const PSkeleton.line(width: 140, height: 16),
         const SizedBox(height: PSpace.x8),
         // 카드 다이어트 — 리스트 스켈레톤 플랫.
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: Column(
-            children: [
-              for (var i = 0; i < 3; i++) ...[
-                if (i > 0) const SizedBox(height: PSpace.x16),
-                Row(
-                  children: const [
-                    PSkeleton.line(width: 96, height: 13),
-                    Spacer(),
-                    PSkeleton.line(width: 80, height: 13),
-                  ],
-                ),
-                const SizedBox(height: PSpace.x8),
-                const PSkeleton(height: 6, borderRadius: PRadius.brFull),
-              ],
+        Column(
+          children: [
+            for (var i = 0; i < 3; i++) ...[
+              if (i > 0) const SizedBox(height: PSpace.x16),
+              Row(
+                children: const [
+                  PSkeleton.line(width: 96, height: 13),
+                  Spacer(),
+                  PSkeleton.line(width: 80, height: 13),
+                ],
+              ),
+              const SizedBox(height: PSpace.x8),
+              const PSkeleton(height: 6, borderRadius: PRadius.brFull),
             ],
-          ),
+          ],
         ),
       ],
     );

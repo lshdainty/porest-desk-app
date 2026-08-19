@@ -65,7 +65,7 @@ class NightSkyScreen extends ConsumerWidget {
           await ref.read(constellationTodayProvider.future);
         },
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(PSpace.x16, 4, PSpace.x16, 36),
+          padding: const EdgeInsets.fromLTRB(PSpace.x24, 4, PSpace.x24, 36),
           children: [
             if (today == null)
               const _NightSkySkeleton()

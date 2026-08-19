@@ -470,7 +470,8 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
     final listChildren = <Widget>[
       if (dayKeysSorted.isEmpty && noDue.isEmpty)
         Padding(
-          padding: const EdgeInsets.fromLTRB(PSpace.x24, 56, PSpace.x24, 20),
+          // 좌우는 바깥 ListView 가 쥔다(24) — 여기서 또 얹으면 48 이 된다.
+          padding: const EdgeInsets.fromLTRB(0, 56, 0, 20),
           child: Center(
             child: Column(
               children: [
@@ -878,7 +879,8 @@ class _LedgerCalendar extends StatelessWidget {
 
     final dows = weekdayLabels();
     return Padding(
-      padding: const EdgeInsets.fromLTRB(PSpace.x16, 12, PSpace.x16, 0),
+      // 위 헤더·월 네비와 같은 24 에서 시작한다 — 혼자 16 이면 캘린더만 왼쪽으로 밀린다.
+      padding: const EdgeInsets.fromLTRB(PSpace.x24, 12, PSpace.x24, 0),
       child: Column(
         children: [
           Row(
@@ -1425,7 +1427,8 @@ class _LedgerSkeleton extends StatelessWidget {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.fromLTRB(PSpace.x16, 12, PSpace.x16, 0),
+          // 실렌더 _LedgerCalendar 와 같은 여백.
+          padding: const EdgeInsets.fromLTRB(PSpace.x24, 12, PSpace.x24, 0),
           child: Row(
             children: [
               for (var i = 0; i < 7; i++)
@@ -1451,7 +1454,7 @@ class _LedgerSkeleton extends StatelessWidget {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.fromLTRB(PSpace.x16, 0, PSpace.x16, 10),
+          padding: const EdgeInsets.fromLTRB(PSpace.x24, 0, PSpace.x24, 10),
           child: Row(
             children: [
               for (var i = 0; i < 7; i++)

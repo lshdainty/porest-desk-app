@@ -167,7 +167,7 @@ class _ForestReportScreenState extends ConsumerState<ForestReportScreen> {
         '${_ymd(days.first).replaceAll('-', '.')} ~ ${_ymd(days.last).replaceAll('-', '.')}';
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(PSpace.x20, 0, PSpace.x20, 36),
+      padding: const EdgeInsets.fromLTRB(PSpace.x24, 0, PSpace.x24, 36),
       children: [
         // ── 주간 네비 + 스트립 ──
         Padding(
@@ -181,17 +181,14 @@ class _ForestReportScreenState extends ConsumerState<ForestReportScreen> {
                 onTap: () => setState(() => _week = 0),
                 t: t,
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Text(
-                  rangeLabel,
-                  style: TextStyle(
-                    fontFamily: PTypo.sans,
-                    fontSize: 13.5,
-                    fontWeight: PFontWeight.bold,
-                    color: t.fgPrimary,
-                    fontFeatures: const [FontFeature.tabularFigures()],
-                  ),
+              Text(
+                rangeLabel,
+                style: TextStyle(
+                  fontFamily: PTypo.sans,
+                  fontSize: 13.5,
+                  fontWeight: PFontWeight.bold,
+                  color: t.fgPrimary,
+                  fontFeatures: const [FontFeature.tabularFigures()],
                 ),
               ),
               _WeekNavBtn(

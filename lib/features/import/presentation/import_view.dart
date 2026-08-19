@@ -151,7 +151,7 @@ class _ImportViewState extends ConsumerState<ImportView> {
     final t = context.tokens;
     return ListView(
       // 세그↔스텝바 32(web gap-2xl 정합, 사용자 결정) — 하단은 24 유지.
-      padding: const EdgeInsets.fromLTRB(PSpace.x20, PSpace.x32, PSpace.x20, PSpace.x24),
+      padding: const EdgeInsets.fromLTRB(PSpace.x24, PSpace.x32, PSpace.x24, PSpace.x24),
       children: [
         _stepper(t),
         const SizedBox(height: PSpace.x32),

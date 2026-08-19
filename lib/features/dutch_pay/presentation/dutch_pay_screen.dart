@@ -528,12 +528,14 @@ class _SessionCard extends StatelessWidget {
     final date = dutchKDate(dp.dutchPayDate);
     final sub = place.isEmpty ? date : '$place · $date';
 
-    // 카드 다이어트 — design SessionCard(.p-card)는 모바일 플랫: 행 리듬(12/10)로.
+    // 카드 다이어트 — design SessionCard(.p-card)는 모바일 플랫: 행 리듬(상하 12)로.
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(10),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+        // 좌우 여백 없음 — 행이 더 얹으면 그만큼 섹션 라벨과 어긋난다.
+        // 상하만 준다(행 리듬).
+        padding: const EdgeInsets.symmetric(vertical: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -726,7 +728,9 @@ class _PastRow extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+        // 좌우 여백 없음 — 행이 더 얹으면 그만큼 섹션 라벨과 어긋난다.
+        // 상하만 준다(행 리듬).
+        padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: showDivider
             ? BoxDecoration(
                 border: Border(top: BorderSide(color: t.borderSubtle)),
@@ -802,7 +806,9 @@ class _FriendRow extends StatelessWidget {
     final l = AppLocalizations.of(context);
     final settled = agg.net == 0;
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+      // 좌우 여백 없음 — 행이 더 얹으면 그만큼 섹션 라벨과 어긋난다.
+      // 상하만 준다(행 리듬).
+      padding: const EdgeInsets.symmetric(vertical: 12),
       decoration: showDivider
           ? BoxDecoration(
               border: Border(top: BorderSide(color: t.borderSubtle)),
@@ -1008,7 +1014,8 @@ class _SessionCardSkeleton extends StatelessWidget {
   Widget build(BuildContext context) {
     // 카드 다이어트 — 실제 _SessionCard 와 동일 플랫 리듬.
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: PSpace.x12, horizontal: 10),
+      // 실렌더와 같은 여백 — 다르면 데이터가 오는 순간 행이 좌우로 튄다.
+      padding: const EdgeInsets.symmetric(vertical: PSpace.x12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

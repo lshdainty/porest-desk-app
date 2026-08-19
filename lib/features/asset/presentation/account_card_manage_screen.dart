@@ -128,7 +128,7 @@ class _AccountCardManageScreenState
               Expanded(
                 child: ListView(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: PSpace.x20,
+                    horizontal: PSpace.x24,
                     vertical: PSpace.x20,
                   ),
                   children: [
@@ -230,7 +230,7 @@ class _AccountCardManageSkeleton extends StatelessWidget {
         Expanded(
           child: ListView(
             padding: const EdgeInsets.symmetric(
-              horizontal: PSpace.x20,
+              horizontal: PSpace.x24,
               vertical: PSpace.x20,
             ),
             children: [

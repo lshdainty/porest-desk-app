@@ -51,7 +51,7 @@ class CardDetailScreen extends ConsumerWidget {
           final s = d.summary;
           return ListView(
             padding: const EdgeInsets.symmetric(
-            horizontal: PSpace.x20, vertical: PSpace.x24),
+            horizontal: PSpace.x24, vertical: PSpace.x24),
             children: [
               // 카드 이미지
               if (s.imgUrl != null)
@@ -212,7 +212,7 @@ class _CardDetailSkeleton extends StatelessWidget {
     final t = tokens;
     return ListView(
       padding: const EdgeInsets.symmetric(
-        horizontal: PSpace.x20,
+        horizontal: PSpace.x24,
         vertical: PSpace.x24,
       ),
       children: [

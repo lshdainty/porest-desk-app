@@ -202,7 +202,8 @@ class _BodyState extends ConsumerState<_Body> {
 
     return ListView(
       controller: widget.scrollController,
-      padding: const EdgeInsets.fromLTRB(PSpace.lg, 0, PSpace.lg, PSpace.lg),
+      // 시트 좌우 여백은 xl(24) — porest-design drawer.md 정합.
+      padding: const EdgeInsets.fromLTRB(PSpace.xl, 0, PSpace.xl, PSpace.lg),
       children: [
         // ① 지출/수입 세그먼트
         PTabs<String>(

@@ -1130,7 +1130,7 @@ class _CategoryListCard extends StatelessWidget {
         l.budgetCountSet(budgets.length),
         style: PTypo.caption.copyWith(color: tokens.fgTertiary),
       ),
-      // 관리 행 좌우 inset 웹 px-2(8) 정합(사용자 결정).
+      // 좌우 inset 없음 — 라벨도 행도 페이지 여백(24)에서 시작한다.
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1623,6 +1623,9 @@ class _BudgetLoadingSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    // 좌우는 페이지가 쥔다(ListView padding 24). 섹션 스켈레톤이 여기서 더 얹으면
+    // 실렌더(PFlatSection — inset 없음)와 어긋나 데이터가 오는 순간 행이 좌우로 튄다.
+    // 섹션 사이는 gap(SizedBox x32)이 맡는다.
     return Column(
       children: [
         // _HeaderCard — raised(실제와 동일, 가계부 취합 카드 정합).
@@ -1689,160 +1692,148 @@ class _BudgetLoadingSkeleton extends StatelessWidget {
         ),
         const SizedBox(height: PSpace.x32),
         // _PaceCard — 플랫 섹션 스켈레톤 (header + 게이지 + 2-column PaceStat).
-        Padding(
-          padding: EdgeInsets.zero,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  const PSkeleton.line(width: 72, height: 14),
-                  const Spacer(),
-                  PSkeleton.line(width: 64, height: 22),
-                ],
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const PSkeleton.line(width: 72, height: 14),
+                const Spacer(),
+                PSkeleton.line(width: 64, height: 22),
+              ],
+            ),
+            const SizedBox(height: PSpace.x12),
+            // 페이스 게이지 (minHeight 12)
+            PSkeleton(height: 12, borderRadius: PRadius.brFull),
+            const SizedBox(height: PSpace.x8),
+            Row(
+              children: const [
+                PSkeleton.line(width: 56, height: 12),
+                Spacer(),
+                PSkeleton.line(width: 112, height: 12),
+              ],
+            ),
+            const SizedBox(height: PSpace.x12),
+            Container(
+              padding: const EdgeInsets.only(top: PSpace.x12),
+              decoration: BoxDecoration(
+                border: Border(top: BorderSide(color: t.borderSubtle)),
               ),
-              const SizedBox(height: PSpace.x12),
-              // 페이스 게이지 (minHeight 12)
-              PSkeleton(height: 12, borderRadius: PRadius.brFull),
-              const SizedBox(height: PSpace.x8),
-              Row(
-                children: const [
-                  PSkeleton.line(width: 56, height: 12),
-                  Spacer(),
-                  PSkeleton.line(width: 112, height: 12),
-                ],
-              ),
-              const SizedBox(height: PSpace.x12),
-              Container(
-                padding: const EdgeInsets.only(top: PSpace.x12),
-                decoration: BoxDecoration(
-                  border: Border(top: BorderSide(color: t.borderSubtle)),
-                ),
-                child: Row(
-                  children: [
-                    for (int i = 0; i < 2; i++) ...[
-                      if (i > 0) const SizedBox(width: PSpace.x8),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
-                            PSkeleton.line(width: 72, height: 10),
-                            SizedBox(height: 4),
-                            PSkeleton.line(width: 88, height: 20),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: PSpace.x32),
-        // _StatusTiles — 플랫 섹션 스켈레톤 ('예산 현황' + 2칸 box).
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const PSkeleton.line(width: 72, height: 14),
-              const SizedBox(height: PSpace.x12),
-              Row(
+              child: Row(
                 children: [
                   for (int i = 0; i < 2; i++) ...[
                     if (i > 0) const SizedBox(width: PSpace.x8),
                     Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.all(PSpace.x12),
-                        decoration: BoxDecoration(
-                          color: t.bgSurface,
-                          borderRadius: PRadius.brLg,
-                          border: Border.all(color: t.borderSubtle),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
-                            PSkeleton.line(width: 48, height: 12),
-                            SizedBox(height: PSpace.x4),
-                            PSkeleton.line(width: 64, height: 24),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: PSpace.x32),
-        // _CategoryListCard — 플랫 섹션 스켈레톤 (헤더 + 구분선 없는 행 리스트).
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: const [
-                  PSkeleton.line(width: 128, height: 16),
-                  Spacer(),
-                  PSkeleton.line(width: 56, height: 12),
-                ],
-              ),
-              const SizedBox(height: PSpace.x16),
-              for (int i = 0; i < 4; i++) ...[
-                if (i > 0) const SizedBox(height: PSpace.x16),
-                // _CategoryRow — 아이콘(36) + 이름/남은예산 + 금액/한도, progress.
-                Row(
-                  children: [
-                    const PSkeleton(width: 36, height: 36),
-                    const SizedBox(width: PSpace.x12),
-                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: const [
-                          PSkeleton.line(width: 96, height: 14),
-                          SizedBox(height: 2),
-                          PSkeleton.line(width: 72, height: 12),
+                          PSkeleton.line(width: 72, height: 10),
+                          SizedBox(height: 4),
+                          PSkeleton.line(width: 88, height: 20),
                         ],
                       ),
                     ),
-                    const SizedBox(width: PSpace.x8),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
+                  ],
+                ],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: PSpace.x32),
+        // _StatusTiles — 플랫 섹션 스켈레톤 ('예산 현황' + 2칸 box).
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const PSkeleton.line(width: 72, height: 14),
+            const SizedBox(height: PSpace.x12),
+            Row(
+              children: [
+                for (int i = 0; i < 2; i++) ...[
+                  if (i > 0) const SizedBox(width: PSpace.x8),
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.all(PSpace.x12),
+                      decoration: BoxDecoration(
+                        color: t.bgSurface,
+                        borderRadius: PRadius.brLg,
+                        border: Border.all(color: t.borderSubtle),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: const [
+                          PSkeleton.line(width: 48, height: 12),
+                          SizedBox(height: PSpace.x4),
+                          PSkeleton.line(width: 64, height: 24),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ],
+        ),
+        const SizedBox(height: PSpace.x32),
+        // _CategoryListCard — 플랫 섹션 스켈레톤 (헤더 + 구분선 없는 행 리스트).
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: const [
+                PSkeleton.line(width: 128, height: 16),
+                Spacer(),
+                PSkeleton.line(width: 56, height: 12),
+              ],
+            ),
+            const SizedBox(height: PSpace.x16),
+            for (int i = 0; i < 4; i++) ...[
+              if (i > 0) const SizedBox(height: PSpace.x16),
+              // _CategoryRow — 아이콘(36) + 이름/남은예산 + 금액/한도, progress.
+              Row(
+                children: [
+                  const PSkeleton(width: 36, height: 36),
+                  const SizedBox(width: PSpace.x12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: const [
-                        PSkeleton.line(width: 56, height: 14),
+                        PSkeleton.line(width: 96, height: 14),
                         SizedBox(height: 2),
-                        PSkeleton.line(width: 40, height: 10),
+                        PSkeleton.line(width: 72, height: 12),
                       ],
                     ),
-                  ],
-                ),
-                const SizedBox(height: PSpace.x8),
-                PSkeleton(height: 7, borderRadius: PRadius.brFull),
-              ],
+                  ),
+                  const SizedBox(width: PSpace.x8),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: const [
+                      PSkeleton.line(width: 56, height: 14),
+                      SizedBox(height: 2),
+                      PSkeleton.line(width: 40, height: 10),
+                    ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: PSpace.x8),
+              PSkeleton(height: 7, borderRadius: PRadius.brFull),
             ],
-          ),
+          ],
         ),
         const SizedBox(height: PSpace.x32),
         // _ComplianceCard — 플랫 섹션 스켈레톤 (header + 차트 영역 height 200).
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  const PSkeleton.line(width: 144, height: 14),
-                  const Spacer(),
-                  PSkeleton.line(width: 80, height: 12),
-                ],
-              ),
-              const SizedBox(height: PSpace.x16),
-              const PSkeleton(width: double.infinity, height: 200),
-            ],
-          ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const PSkeleton.line(width: 144, height: 14),
+                const Spacer(),
+                PSkeleton.line(width: 80, height: 12),
+              ],
+            ),
+            const SizedBox(height: PSpace.x16),
+            const PSkeleton(width: double.infinity, height: 200),
+          ],
         ),
       ],
     );

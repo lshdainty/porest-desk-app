@@ -79,7 +79,7 @@ class _CalendarShareScreenState extends ConsumerState<CalendarShareScreen> {
         },
         child: ListView(
           padding: const EdgeInsets.symmetric(
-              horizontal: PSpace.x20, vertical: PSpace.x24),
+              horizontal: PSpace.x24, vertical: PSpace.x24),
           children: [
             _IntroCard(tokens: t),
             const SizedBox(height: PSpace.x32),
@@ -317,7 +317,8 @@ class _JoinCard extends StatelessWidget {
     final l = AppLocalizations.of(context);
     // 카드 다이어트 — 플랫 행.
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: PSpace.x8),
+      // 좌우는 페이지가 쥔다(24). 플랫 행은 상하만 갖는다.
+      padding: const EdgeInsets.symmetric(vertical: PSpace.x8),
       child: Row(
         children: [
           Container(

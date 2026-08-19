@@ -364,7 +364,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     }
     return ListView.separated(
       padding: const EdgeInsets.symmetric(
-          horizontal: PSpace.x20, vertical: PSpace.x24),
+          horizontal: PSpace.x24, vertical: PSpace.x24),
       itemCount: _results.length,
       separatorBuilder: (_, _) =>
           PDivider(indent: 60),
@@ -400,7 +400,7 @@ class _SearchLoadingSkeleton extends StatelessWidget {
       separatorBuilder: (_, _) => PDivider(),
       itemBuilder: (_, i) => Padding(
         padding: const EdgeInsets.symmetric(
-          horizontal: PSpace.x20,
+          horizontal: PSpace.x24,
           vertical: PSpace.x12,
         ),
         child: Row(
