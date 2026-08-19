@@ -262,7 +262,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(PSpace.x20, PSpace.x16, PSpace.x20, 0),
+            padding: const EdgeInsets.fromLTRB(PSpace.x24, PSpace.x16, PSpace.x24, 0),
             // 언어 설정과 동일한 container 세그먼트(풀폭 균등, 웹 정합·사용자 결정) —
             // 트랙(bgMuted) + active = surface pill + shadow.
             child: PTabs<String>(
@@ -281,7 +281,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
             child: _mode == 'import'
                 ? const ImportView()
                 : ListView(
-                    padding: const EdgeInsets.symmetric(horizontal: PSpace.x20, vertical: PSpace.x24),
+                    padding: const EdgeInsets.symmetric(horizontal: PSpace.x24, vertical: PSpace.x24),
                     children: [
                       _periodCard(t),
                       const SizedBox(height: PSpace.x32),

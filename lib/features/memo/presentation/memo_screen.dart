@@ -400,8 +400,9 @@ class _MemoRow extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.symmetric(
-              horizontal: PSpace.x16, vertical: PSpace.x12),
+          // 좌우 여백 없음 — 행이 더 얹으면 그만큼 페이지 여백(24)과 어긋난다.
+          // 상하만 준다(행 리듬).
+          padding: const EdgeInsets.symmetric(vertical: PSpace.x12),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -530,8 +531,8 @@ class _MemoCardSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Padding(
-      padding: EdgeInsets.symmetric(
-          horizontal: PSpace.x16, vertical: PSpace.x12),
+      // 실렌더와 같은 여백 — 다르면 데이터가 오는 순간 행이 좌우로 튄다.
+      padding: EdgeInsets.symmetric(vertical: PSpace.x12),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

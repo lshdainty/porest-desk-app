@@ -67,7 +67,7 @@ class SavingGoalScreen extends ConsumerWidget {
                 totalTarget > 0 ? (totalCurrent / totalTarget * 100) : 0.0;
             return ListView(
               padding: const EdgeInsets.symmetric(
-                  horizontal: PSpace.x20, vertical: PSpace.x24),
+                  horizontal: PSpace.x24, vertical: PSpace.x24),
               children: [
                 // 전체 진행률 — design GoalManager p-card--keep.
                 if (items.isNotEmpty) ...[
@@ -177,7 +177,7 @@ class _SavingGoalSkeleton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView(
       padding: const EdgeInsets.symmetric(
-        horizontal: PSpace.x20,
+        horizontal: PSpace.x24,
         vertical: PSpace.x24,
       ),
       physics: const NeverScrollableScrollPhysics(),

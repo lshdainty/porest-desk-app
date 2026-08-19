@@ -107,7 +107,7 @@ class _CardScreenState extends ConsumerState<CardScreen> {
           preferredSize: const Size.fromHeight(140),
           child: Padding(
             padding: const EdgeInsets.symmetric(
-            horizontal: PSpace.x20, vertical: PSpace.x24),
+            horizontal: PSpace.x24, vertical: PSpace.x24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -187,7 +187,7 @@ class _CardScreenState extends ConsumerState<CardScreen> {
         child: pageAsync.when(
           loading: () => ListView(
             padding: const EdgeInsets.fromLTRB(
-                PSpace.x16, PSpace.x12, PSpace.x16, PSpace.x40),
+                PSpace.x24, PSpace.x12, PSpace.x24, PSpace.x40),
             children: [
               // '총 N건' 카운트 자리
               Padding(
@@ -217,7 +217,7 @@ class _CardScreenState extends ConsumerState<CardScreen> {
             }
             return ListView(
               padding: const EdgeInsets.fromLTRB(
-                  PSpace.x16, PSpace.x12, PSpace.x16, PSpace.x40),
+                  PSpace.x24, PSpace.x12, PSpace.x24, PSpace.x40),
               children: [
                 Padding(
                   padding: const EdgeInsets.only(bottom: PSpace.x8),

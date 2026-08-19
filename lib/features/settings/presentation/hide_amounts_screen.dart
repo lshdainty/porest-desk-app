@@ -166,7 +166,7 @@ class _HideAmountsScreenState extends ConsumerState<HideAmountsScreen> {
               padding: const EdgeInsets.symmetric(vertical: PSpace.x12),
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: PSpace.x20),
+                padding: const EdgeInsets.symmetric(horizontal: PSpace.x24),
                 child: PTabs<_Tab>(
                   value: _tab,
                   variant: PTabsVariant.pills,

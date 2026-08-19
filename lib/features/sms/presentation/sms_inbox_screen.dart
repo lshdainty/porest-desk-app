@@ -128,7 +128,7 @@ class _SmsInboxScreenState extends ConsumerState<SmsInboxScreen>
         onRefresh: _load,
         child: ListView(
           padding: EdgeInsets.fromLTRB(
-              PSpace.x20, PSpace.x16, PSpace.x20, PSpace.x24),
+              PSpace.x24, PSpace.x16, PSpace.x24, PSpace.x24),
           children: [
             // 알림 접근이 이 기능의 유일한 스위치다 — 카드사·은행 앱 푸시도,
             // 결제 문자도 전부 이 경로로 읽는다. 꺼져 있으면 아무것도 안 들어온다.
@@ -227,7 +227,8 @@ class _DateHeader extends StatelessWidget {
         ? DateFormat('EEE, MMM d', 'en').format(date)
         : DateFormat('M월 d일 (E)', 'ko').format(date);
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: PSpace.x4),
+      // 날짜 헤더도 행과 같은 지점(페이지 여백 24)에서 시작한다.
+      padding: const EdgeInsets.symmetric(vertical: PSpace.x4),
       child: Text(
         label,
         style: PTypo.caption.copyWith(
@@ -272,8 +273,8 @@ class _InboxRow extends StatelessWidget {
       onTap: () => onOpen(entry),
       borderRadius: BorderRadius.circular(10),
       child: Padding(
-        padding: const EdgeInsets.symmetric(
-            vertical: PSpace.x12, horizontal: 10),
+        // 좌우는 페이지가 쥔다(24). 행은 상하만 갖는다.
+        padding: const EdgeInsets.symmetric(vertical: PSpace.x12),
         child: Row(
           children: [
             Container(

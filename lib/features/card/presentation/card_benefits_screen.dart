@@ -212,7 +212,7 @@ class _CardBenefitsScreenState extends ConsumerState<CardBenefitsScreen> {
         child: ListView(
           controller: _scroll,
           padding: const EdgeInsets.fromLTRB(
-              PSpace.x16, PSpace.x16, PSpace.x16, PSpace.x40),
+              PSpace.x24, PSpace.x16, PSpace.x24, PSpace.x40),
           children: [
             // 검색
             PSearchField(
@@ -348,7 +348,8 @@ class _CardTileSkeleton extends StatelessWidget {
   Widget build(BuildContext context) {
     // 카드 다이어트 — 실제 _CardTile 과 동일 플랫 리듬.
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: PSpace.x12, horizontal: 10),
+      // 실렌더 _CardTile 과 같은 여백 — 좌우는 페이지가 쥔다(24).
+      padding: const EdgeInsets.symmetric(vertical: PSpace.x12),
       child: Row(
         children: const [
           PSkeleton(width: 56, height: 36, borderRadius: PRadius.brSm),
@@ -408,7 +409,8 @@ class _CardTile extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(10),
         child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: PSpace.x12, horizontal: 10),
+        // 좌우는 페이지가 쥔다(24). 행은 상하만 갖는다.
+        padding: const EdgeInsets.symmetric(vertical: PSpace.x12),
         child: Row(
           children: [
             _CardVisual(

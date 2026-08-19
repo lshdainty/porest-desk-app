@@ -37,7 +37,7 @@ class AppearanceScreen extends StatelessWidget {
       ),
       body: ListView(
         padding: const EdgeInsets.symmetric(
-          horizontal: PSpace.x20,
+          horizontal: PSpace.x24,
           vertical: PSpace.x24,
         ),
         children: const [AppearanceSection()],

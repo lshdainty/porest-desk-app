@@ -72,7 +72,7 @@ class _CalendarLabelsScreenState extends ConsumerState<CalendarLabelsScreen> {
         },
         child: ListView(
           padding: const EdgeInsets.symmetric(
-              horizontal: PSpace.x20, vertical: PSpace.x24),
+              horizontal: PSpace.x24, vertical: PSpace.x24),
           children: [
             // 안내 카드
             _IntroCard(tokens: t),
@@ -110,13 +110,10 @@ class _CalendarLabelsScreenState extends ConsumerState<CalendarLabelsScreen> {
                     ),
                     if (labels.isEmpty)
                       // 카드 다이어트 — 빈 상태 플랫.
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: PEmptyState(
-                          icon: LucideIcons.tag,
-                          message: l.calLabelsEmpty,
-                          subMessage: l.calLabelsEmptyHint,
-                        ),
+                      PEmptyState(
+                        icon: LucideIcons.tag,
+                        message: l.calLabelsEmpty,
+                        subMessage: l.calLabelsEmptyHint,
                       )
                     else
                       // 카드 다이어트 — 리스트 플랫.

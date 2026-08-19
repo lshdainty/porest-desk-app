@@ -83,7 +83,7 @@ class _Content extends ConsumerWidget {
     final pushOn = prefs.pushEnabled;
     return ListView(
       padding: const EdgeInsets.symmetric(
-        horizontal: PSpace.x20,
+        horizontal: PSpace.x24,
         vertical: PSpace.x24,
       ),
       children: [
@@ -981,7 +981,7 @@ class _PrefsSkeleton extends StatelessWidget {
     // 스켈레톤도 동일 플랫 셸에 PSkeleton 프리미티브로 구조를 미러.
     return ListView(
       padding: const EdgeInsets.symmetric(
-        horizontal: PSpace.x20,
+        horizontal: PSpace.x24,
         vertical: PSpace.x24,
       ),
       physics: const NeverScrollableScrollPhysics(),

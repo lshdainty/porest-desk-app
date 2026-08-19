@@ -916,8 +916,9 @@ class _StockRow extends StatelessWidget {
       onTap: onTap,
       borderRadius: PRadius.brMd,
       child: Padding(
-        padding:
-            const EdgeInsets.symmetric(horizontal: 14, vertical: PSpace.x12),
+        // 좌우는 페이지가 쥔다(ListView padding 24). 행이 여기서 14 를 더 얹으면
+        // 위 탭 스트립·섹션 제목과 어긋난다. 상하만 준다(행 리듬).
+        padding: const EdgeInsets.symmetric(vertical: PSpace.x12),
         child: Row(
           children: [
             _StockBadge(symbol: symbol, name: name, countryCode: countryCode),
@@ -2070,12 +2071,15 @@ class _RankRow extends ConsumerWidget {
         ref.watch(tossStockInfoProvider(item.symbol)).asData?.value?.name;
     final last = item.price.lastPriceValue;
     return Row(
+      // 행이 자체 좌우 여백을 갖지 않으므로 순위 컬럼과의 간격은 gap 이 맡는다.
+      spacing: 14,
       children: [
         SizedBox(
           width: 22,
           child: Text(
             '${item.rank}',
-            textAlign: TextAlign.center,
+            // 순위 숫자도 페이지 여백에서 시작한다(통계 가맹점 순위와 같은 결정).
+            textAlign: TextAlign.left,
             style: TextStyle(
               fontFamily: PTypo.sans,
               fontFeatures: _tnum,
