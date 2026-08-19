@@ -1,0 +1,59 @@
+name: SDK drift
+
+# 고정 버전(ci-main.yml 의 FLUTTER_VERSION · .fvmrc)이 아니라 **그 시점 최신 stable** 로
+# analyze·test 를 돌려, 다음 SDK 로 올릴 때 무엇이 깨지는지 미리 본다.
+#
+# 왜 CI 에서 분리했나 —
+#   원래 ci-main.yml 안의 잡이었는데, 최신 stable 에서 깨지는 건 상수라 PR 마다 빨간
+#   체크가 하나씩 상시로 붙었다. 버전을 올리지도 않는데 계속 빨갛다 보니 진짜 실패와
+#   구분이 안 됐다. 그래서 트리거를 떼어 필요할 때만 돌린다.
+#
+# 언제 도나 —
+#   · 매달 1일 (한국시간 09:00) — 뒤처진 걸 아무도 모르는 채 시간이 가는 걸 막는다
+#   · Actions 탭에서 손으로 (SDK 를 올릴지 판단할 때)
+#
+# 여기가 빨개져도 배포는 아무 영향 없다. 이 워크플로는 다른 무엇도 막지 않는다.
+# 빨간 로그가 곧 다음 업그레이드의 작업 목록이다.
+
+on:
+  schedule:
+    # 매달 1일 00:00 UTC = 09:00 KST. Flutter 는 3~4주마다 stable 핫픽스,
+    # 분기마다 minor 를 내므로 한 달이면 새 SDK 를 놓치지 않는다.
+    - cron: '0 0 1 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable        # flutter-version 을 주지 않으면 그 시점 최신 stable
+          cache: true
+
+      # 고정 버전과 최신이 얼마나 벌어졌는지 로그 맨 앞에 남긴다.
+      - name: 고정 버전 vs 최신 stable
+        run: |
+          PINNED=$(grep -oP '"flutter"\s*:\s*"\K[^"]+' .fvmrc)
+          echo "고정(.fvmrc)  : $PINNED"
+          echo "최신 stable   : $(flutter --version | head -1)"
+          echo "---"
+          if flutter --version | head -1 | grep -q "$PINNED"; then
+            echo "→ 최신과 같다. 올릴 것 없음."
+          else
+            echo "→ 벌어져 있다. 아래 analyze·test 결과가 올릴 때 고칠 목록이다."
+          fi
+
+      - run: flutter pub get
+
+      # ci-main.yml 의 verify 와 같은 명령. 여기서만 깨지면 그게 곧 SDK 차이다.
+      - name: Analyze (최신 stable)
+        run: flutter analyze lib/
+
+      - name: Test (최신 stable)
+        run: flutter test
