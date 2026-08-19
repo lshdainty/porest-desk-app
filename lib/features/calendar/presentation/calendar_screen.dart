@@ -617,16 +617,12 @@ class _CalendarGridSkeleton extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
-                                // 날짜 숫자 자리 — 24×24 박스, 좌측 x4 정렬(_DayCell dayNumber).
-                                const Padding(
-                                  padding: EdgeInsets.only(left: PSpace.x4),
-                                  child: Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: PSkeleton(
-                                      width: PSpace.x24,
-                                      height: PSpace.x24,
-                                      borderRadius: PRadius.brSm,
-                                    ),
+                                // 날짜 숫자 자리 — 24×24 박스, 셀 중앙(_DayCell dayNumber).
+                                const Center(
+                                  child: PSkeleton(
+                                    width: PSpace.x24,
+                                    height: PSpace.x24,
+                                    borderRadius: PRadius.brSm,
                                   ),
                                 ),
                                 const SizedBox(height: PSpace.x4),
@@ -744,10 +740,10 @@ class _DayCell extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Padding(
-                padding: const EdgeInsets.only(left: PSpace.x4),
-                child: Align(alignment: Alignment.centerLeft, child: dayNumber),
-              ),
+              // 날짜 숫자는 요일 헤더(dowBuilder Center)와 같이 셀 정중앙에 선다.
+              // 가계부 _TxmCalendar · 할일 _LedgerCalendar 도 셀 중앙이라, 이걸로
+              // 세 캘린더가 같은 규칙을 쓴다.
+              Center(child: dayNumber),
               const SizedBox(height: PSpace.x4),
               if (isHoliday)
                 Padding(
