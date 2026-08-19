@@ -95,6 +95,7 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
   late bool _includeInTotal;
   late List<_EditRow> _rows;
   bool _submitting = false;
+  bool _deleting = false;
   // 종목 검색 디바운스 — 키 입력마다 서버 요청이 나가지 않게 300ms 지연.
   Timer? _searchDebounce;
   String _debouncedStockQuery = '';
@@ -176,13 +177,14 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
                   ]
                 : [];
     widget.controller.onSubmit = _submit;
+    if (widget.edit != null) widget.controller.onDelete = _delete;
     WidgetsBinding.instance
         .addPostFrameCallback((_) => widget.controller.setCanSubmit(true));
   }
 
   void _setSubmitting(bool v) {
     setState(() => _submitting = v);
-    widget.controller.setSubmitting(v);
+    widget.controller.setSubmitting(v || _deleting);
   }
 
   void _onChanged() => setState(() {});
@@ -392,6 +394,41 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
       }
     }
     return total.round();
+  }
+
+  void _setDeleting(bool v) {
+    setState(() => _deleting = v);
+    widget.controller.setSubmitting(v || _submitting);
+  }
+
+  Future<void> _delete() async {
+    if (_deleting || widget.edit == null) return;
+    final l = AppLocalizations.of(context);
+    final ok = await showPConfirmDialog(
+      context,
+      title: l.assetInvestDelete,
+      message: l.assetInvestDeleteConfirm,
+      confirmLabel: l.actionDelete,
+      destructive: true,
+    );
+    if (!ok || !mounted) return;
+    _setDeleting(true);
+    try {
+      final repo = await ref.read(assetRepositoryProvider.future);
+      await repo.delete(widget.edit!.rowId);
+      ref.invalidate(assetsProvider);
+      ref.invalidate(investmentValuationMapProvider);
+      if (!mounted) return;
+      Navigator.of(context).pop();
+      showPSnackBar(context, l.assetInvestDeleted,
+          severity: PSnackSeverity.success);
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      showPSnackBar(context, '${l.assetDeleteFailed}: ${e.message}',
+          severity: PSnackSeverity.error);
+    } finally {
+      if (mounted) _setDeleting(false);
+    }
   }
 
   Future<void> _submit() async {
