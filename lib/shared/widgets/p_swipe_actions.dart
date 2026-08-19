@@ -65,8 +65,9 @@ class PSwipeActions extends StatelessWidget {
   /// false 면 감싸지 않고 행을 그대로 통과시킨다.
   final bool enabled;
 
-  /// 액션 하나의 폭 — 한글 두 글자 + 20px 아이콘이 겹치지 않는 최소치.
-  static const double actionWidth = 72;
+  /// 액션 하나의 폭 — 원형 배지에 좌우 숨 쉴 틈만 더한 값. 라벨(한글 두 글자)도
+  /// 이 안에 들어간다. 넓게 잡으면 배지 옆에 빈 공간이 남아 트레이가 헐거워 보인다.
+  static const double actionWidth = 52;
 
   /// 액션 최소 높이 — WCAG 2.5.5(AAA, 44×44)를 밑돌지 않게.
   static const double actionMinHeight = 56;
@@ -74,9 +75,9 @@ class PSwipeActions extends StatelessWidget {
   /// 이 비율 이상 밀면 열린 채로 스냅한다.
   static const double _openThreshold = 0.4;
 
-  /// 아이콘 원형 지름 — 행 높이(패딩 제외 ~48) 안에 원형 + 라벨이 다 들어가는 값.
-  /// 40 으로 두면 라벨과 합쳐 61이 되어 넘친다(실측).
-  static const double _badgeSize = 28;
+  /// 아이콘 원형 지름 — 행 높이 안에 원형 + 라벨이 다 들어가는 최대치.
+  /// 40 은 라벨과 합쳐 넘친다(실측).
+  static const double _badgeSize = 36;
 
   @override
   Widget build(BuildContext context) {
@@ -132,7 +133,7 @@ class PSwipeActions extends StatelessWidget {
                               shape: BoxShape.circle,
                             ),
                             child: Icon(a.icon,
-                                size: 16, color: _fg(context, a.kind)),
+                                size: 18, color: _fg(context, a.kind)),
                           ),
                           const SizedBox(height: 2),
                         ],
