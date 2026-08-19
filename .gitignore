@@ -52,6 +52,8 @@ unlinked_spec.ds
 **/android/gradlew
 **/android/gradlew.bat
 **/android/local.properties
+# Kotlin 2.x 가 만드는 세션 디렉토리 — 빌드 산출물이라 추적하지 않는다.
+**/android/.kotlin/
 **/android/**/GeneratedPluginRegistrant.java
 **/android/key.properties
 *.jks
