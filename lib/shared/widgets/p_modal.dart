@@ -49,16 +49,21 @@ class PSheetFooter extends StatelessWidget {
         // 취소·저장은 화면 폭을 반씩 나눠 갖는다 — 한 손으로 누를 폭을 확보한다
         // (spec drawer.md). 우측 정렬로 두면 화면 구석의 작은 알약이 된다.
         //
-        // 삭제·leftSlot 은 균등 분배에서 뺀다. 셋이 똑같이 나뉘면 파괴적 액션이
-        // 저장과 같은 무게로 보인다(spec drawer.md — 삭제는 최좌측 flush-left 로 분리).
+        // 좌측 액션(삭제·leftSlot)도 균등 분배에 든다. 액션이 2개까지로 묶여 있어
+        // 셋이 나뉠 일이 없고, 좌측만 내용 폭이면 그쪽이 버튼으로 안 보인다.
         final hasLeft = leftSlot != null || controller.onDelete != null;
         // 좌측 액션이 있으면 취소를 뺀다 — 그러지 않으면 액션이 3개가 된다.
         final cancel = showCancel ?? !hasLeft;
         return Row(
           children: [
-            if (leftSlot != null)
-              leftSlot!
-            else if (controller.onDelete != null) ...[
+            if (leftSlot != null) ...[
+              // leftSlot 도 화면 폭을 나눠 갖는다 — 필터 '초기화' 처럼 비파괴 보조
+              // 액션이 좌측에 작은 글씨로 붙으면 버튼인지 알아보기 어렵다
+              // (spec drawer.md "flex:1 평등 분배"). 넘겨받는 위젯이 fullWidth 를
+              // 켜야 실제로 채워진다.
+              Expanded(child: leftSlot!),
+              const SizedBox(width: PSpace.x8),
+            ] else if (controller.onDelete != null) ...[
               // 삭제는 error 솔리드 채움(danger) + 균등 분배 — 삭제 확인 다이얼로그의
               // 삭제 버튼과 같은 색이라, 같은 동작이 같은 색으로 이어진다.
               // 옅은 채움(dangerSoft)은 다크에서 어두운 자주로 가라앉아 버렸다.

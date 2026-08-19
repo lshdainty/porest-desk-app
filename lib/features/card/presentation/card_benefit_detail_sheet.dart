@@ -36,10 +36,12 @@ void showCardBenefitDetailSheet(BuildContext context, int rowId) {
     maxChildSize: 0.95,
     contentBuilder: (ctx, scrollCtrl) =>
         _CardBenefitDetailContent(rowId: rowId, scrollController: scrollCtrl),
-    // 읽기전용 뷰 — 단일 닫기. PViewFooter(confirm='닫기' ghost).
+    // 읽기전용 뷰 — 단일 닫기.
+    // ghost 는 배경이 없어 전체 폭 배치에서 버튼으로 안 보인다 — 테두리 없는
+    // 회색 채움(spec button.md Migration notes 2026-08).
     footerBuilder: (ctx) => PViewFooter(
       confirmLabel: l.actionClose,
-      confirmVariant: PButtonVariant.ghost,
+      confirmVariant: PButtonVariant.secondary,
     ),
   );
 }

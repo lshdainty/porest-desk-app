@@ -97,8 +97,11 @@ Future<ExpenseFilter?> showFilterDialog(
       submitLabel: l.expFilterApply,
       leftSlot: PButton(
         label: l.actionReset,
-        variant: PButtonVariant.ghost,
-        flush: PButtonFlush.left,
+        // ghost 는 배경이 없어 전체 폭 배치에서 버튼으로 안 보인다 — 테두리 없는
+        // 회색 채움(spec button.md Migration notes 2026-08).
+        variant: PButtonVariant.secondary,
+        size: PButtonSize.lg,
+        fullWidth: true,
         onPressed: () => formKey.currentState?._reset(),
       ),
     ),
