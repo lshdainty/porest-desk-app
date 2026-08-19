@@ -221,7 +221,7 @@ class _LabelRow extends StatelessWidget {
       child: Padding(
         // web 정합 — 행 padding 14px 8px(사용자 결정).
         padding: const EdgeInsets.symmetric(
-            horizontal: PSpace.x8, vertical: 14),
+            horizontal: 0, vertical: 14),
         child: Row(
           children: [
             Container(

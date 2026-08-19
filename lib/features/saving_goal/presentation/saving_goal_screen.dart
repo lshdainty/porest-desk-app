@@ -231,9 +231,9 @@ class _GoalCard extends StatelessWidget {
       child: InkWell(
         onTap: onEdit,
         child: Padding(
-          // 행 좌우 inset 4(사용자 결정) — 라벨·추가 버튼은 inset 0.
+          // 좌우 0 — 라벨·추가 버튼과 같은 지점에서 시작한다(설정 리스트 공통 규칙).
           padding: const EdgeInsets.symmetric(
-            horizontal: PSpace.x4,
+            horizontal: 0,
             vertical: PSpace.x12,
           ),
           child: Column(

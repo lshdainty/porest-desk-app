@@ -475,9 +475,9 @@ class _CatRowSkel extends StatelessWidget {
             ? null
             : Border(bottom: BorderSide(color: t.borderSubtle)),
       ),
-      // 관리 행 좌우 inset 웹 px-2(8) 정합(사용자 결정).
+      // 좌우 0 — 페이지가 24 를 쥔다. 행이 더 얹으면 위 라벨과 어긋난다(설정 리스트 공통 규칙).
       padding: const EdgeInsets.symmetric(
-        horizontal: PSpace.x8,
+        horizontal: 0,
         vertical: PSpace.x12,
       ),
       child: Row(
@@ -562,9 +562,9 @@ class _CategoryRow extends StatelessWidget {
               ? null
               : () => showCategoryEditDialog(context, edit: category),
           child: Padding(
-            // 관리 행 좌우 inset 웹 px-2(8) 정합(사용자 결정).
+            // 좌우 0 — 페이지가 24 를 쥔다. 행이 더 얹으면 위 라벨과 어긋난다(설정 리스트 공통 규칙).
             padding: const EdgeInsets.symmetric(
-              horizontal: PSpace.x8,
+              horizontal: 0,
               vertical: PSpace.x12,
             ),
             child: Row(
