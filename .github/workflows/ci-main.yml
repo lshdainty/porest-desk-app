@@ -24,7 +24,10 @@ env:
   # 로컬(.fvmrc)과 같은 버전으로 못 박는다. CI 만 최신 stable 을 쓰면 SDK 가 올라갈
   # 때마다 로컬은 통과하는데 CI 만 깨진다(deprecation info 도 analyze 를 실패시킨다).
   # SDK 를 올릴 때는 이 값과 .fvmrc 를 함께 바꾼다.
-  FLUTTER_VERSION: 3.41.9
+  #
+  # 고정만 하면 뒤처진 걸 아무도 모른 채 시간이 간다 — 아래 sdk-drift 잡이
+  # 최신 stable 로도 analyze 를 돌려 다음 SDK 에서 깨질 것을 미리 보여준다(비차단).
+  FLUTTER_VERSION: 3.44.9
 
 jobs:
   # ── 검증 — PR·푸시 모두. 여기서 막히면 빌드도 배포도 안 간다.
@@ -72,6 +75,33 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage/lcov.info
+
+  # ── SDK 드리프트 조기 경보 — 고정 버전이 아니라 그 시점의 최신 stable 로 analyze.
+  #
+  #    핀 덕분에 배포는 안 흔들리지만, 대신 뒤처진 걸 아무도 모르는 채로 시간이 간다.
+  #    실제로 그래서 3.41.9 에 넉 달 머물렀다. 이 잡은 다음 SDK 에서 무엇이 깨질지를
+  #    미리 보여주기만 한다 — continue-on-error 라 실패해도 배포를 막지 않는다.
+  #
+  #    여기가 빨개지면 FLUTTER_VERSION + .fvmrc 를 올릴 때 고칠 목록이 이미 나와 있는 셈.
+  sdk-drift:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable        # flutter-version 을 주지 않으면 그 시점 최신 stable
+          cache: true
+      - name: 사용된 SDK 기록
+        run: |
+          echo "고정 버전 : ${{ env.FLUTTER_VERSION }}"
+          echo "최신 stable: $(flutter --version | head -1)"
+      - run: flutter pub get
+      # verify 와 같은 명령. 여기서만 깨지면 그게 곧 다음 업그레이드의 작업 목록이다.
+      - name: Analyze (최신 stable)
+        run: flutter analyze lib/
+      - name: Test (최신 stable)
+        run: flutter test
 
   # ── 버전 — 한 곳에서 정해 두 빌드가 같은 값을 쓴다.
   #

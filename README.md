@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Flutter-3.41-02569B?logo=flutter&logoColor=white" alt="Flutter" />
+  <img src="https://img.shields.io/badge/Flutter-3.44-02569B?logo=flutter&logoColor=white" alt="Flutter" />
   <img src="https://img.shields.io/badge/Dart-3.11-0175C2?logo=dart&logoColor=white" alt="Dart" />
   <img src="https://img.shields.io/badge/Riverpod-3-45A2F5" alt="Riverpod" />
   <img src="https://img.shields.io/badge/Platform-iOS%20%7C%20Android-555555" alt="Platform" />
@@ -23,7 +23,7 @@
 
 가계부(지출/수입), 할 일, 캘린더, 메모, 자산, 통계 등 생산성 기능을 Flutter 기반 iOS/Android 앱으로 제공합니다.
 
-Flutter SDK 버전은 [FVM](https://fvm.app)으로 고정합니다(`.fvmrc` = stable 채널, 현재 3.41.x). 모든 커맨드는 `fvm flutter ...` 로 실행합니다.
+Flutter SDK 버전은 [FVM](https://fvm.app)으로 고정합니다(`.fvmrc` = 3.44.9, CI 와 동일한 값). 모든 커맨드는 `fvm flutter ...` 로 실행합니다.
 
 ---
 
@@ -32,7 +32,7 @@ Flutter SDK 버전은 [FVM](https://fvm.app)으로 고정합니다(`.fvmrc` = st
 | Category | Technology |
 |----------|------------|
 | **Language** | ![Dart](https://img.shields.io/badge/Dart_3.11-0175C2?style=flat-square&logo=dart&logoColor=white) |
-| **Framework** | ![Flutter](https://img.shields.io/badge/Flutter_3.41_(FVM_stable)-02569B?style=flat-square&logo=flutter&logoColor=white) |
+| **Framework** | ![Flutter](https://img.shields.io/badge/Flutter_3.44.9_(FVM)-02569B?style=flat-square&logo=flutter&logoColor=white) |
 | **State Management** | ![Riverpod](https://img.shields.io/badge/flutter__riverpod_3-45A2F5?style=flat-square) ![riverpod_generator](https://img.shields.io/badge/riverpod__annotation%2Fgenerator-45A2F5?style=flat-square) |
 | **Routing** | ![go_router](https://img.shields.io/badge/go__router_17-02569B?style=flat-square) |
 | **HTTP / Auth** | ![dio](https://img.shields.io/badge/dio_5-1B7FBD?style=flat-square) ![cookie](https://img.shields.io/badge/cookie__jar%2Fdio__cookie__manager-1B7FBD?style=flat-square) ![inappwebview](https://img.shields.io/badge/flutter__inappwebview_(SSO_OAuth2%2BPKCE)-34353F?style=flat-square) ![secure_storage](https://img.shields.io/badge/flutter__secure__storage-34353F?style=flat-square) |

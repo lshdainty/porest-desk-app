@@ -88,8 +88,10 @@ class _PCollapsibleState extends State<PCollapsible>
       children: [
         widget.trigger(context, _isOpen, _toggle),
         SizeTransition(
+          // 세로축 기준 위쪽 고정 — 기존 axisAlignment: -1 과 같은 값
+          // (Axis.vertical 일 때 AlignmentDirectional(-1.0, axisAlignment)).
           sizeFactor: _heightFactor,
-          axisAlignment: -1,
+          alignment: AlignmentDirectional.topStart,
           child: widget.content,
         ),
       ],
