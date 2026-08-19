@@ -2068,6 +2068,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get budgetMonthlyLimit => 'Monthly budget limit';
 
   @override
+  String get budgetLimitPreview => 'Monthly limit';
+
+  @override
+  String get budgetMonthlyLimitField => 'Monthly limit (KRW)';
+
+  @override
   String get budgetLoadError => 'Couldn\'t load budget';
 
   @override

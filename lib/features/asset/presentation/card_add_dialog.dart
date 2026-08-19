@@ -104,13 +104,12 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
   int? _paymentDay; // 결제일 1~31
   int? _paymentAssetRowId; // 결제 출금계좌 자산 rowId
   bool _submitting = false;
-  bool _deleting = false;
 
   bool get _isEdit => widget.edit != null;
 
   /// 편집은 상품을 다시 고르지 않아도 별칭·금액만 바꿔 저장할 수 있어야 한다.
   bool get _canSubmit =>
-      !_submitting && !_deleting && (_isEdit || _selected != null);
+      !_submitting && (_isEdit || _selected != null);
 
   @override
   void initState() {
@@ -142,17 +141,11 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
       );
     }
     widget.controller.onSubmit = _submit;
-    if (e != null) widget.controller.onDelete = _delete;
   }
 
   void _setSubmitting(bool v) {
     setState(() => _submitting = v);
-    widget.controller.setSubmitting(v || _deleting);
-  }
-
-  void _setDeleting(bool v) {
-    setState(() => _deleting = v);
-    widget.controller.setSubmitting(v || _submitting);
+    widget.controller.setSubmitting(v);
   }
 
   void _onChanged() {
@@ -239,35 +232,6 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
           severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setSubmitting(false);
-    }
-  }
-
-  Future<void> _delete() async {
-    if (_deleting || widget.edit == null) return;
-    final l = AppLocalizations.of(context);
-    final ok = await showPConfirmDialog(
-      context,
-      title: l.assetCardDelete,
-      message: l.assetCardDeleteConfirm,
-      confirmLabel: l.actionDelete,
-      destructive: true,
-    );
-    if (!ok || !mounted) return;
-    _setDeleting(true);
-    try {
-      final repo = await ref.read(assetRepositoryProvider.future);
-      await repo.delete(widget.edit!.rowId);
-      ref.invalidate(assetsProvider);
-      if (!mounted) return;
-      Navigator.of(context).pop();
-      showPSnackBar(context, l.assetCardDeleted,
-          severity: PSnackSeverity.success);
-    } on ApiException catch (e) {
-      if (!mounted) return;
-      showPSnackBar(context, '${l.assetDeleteFailed}: ${e.message}',
-          severity: PSnackSeverity.error);
-    } finally {
-      if (mounted) _setDeleting(false);
     }
   }
 

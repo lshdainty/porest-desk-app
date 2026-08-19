@@ -3890,6 +3890,18 @@ abstract class AppLocalizations {
   /// **'월 예산 한도'**
   String get budgetMonthlyLimit;
 
+  /// No description provided for @budgetLimitPreview.
+  ///
+  /// In ko, this message translates to:
+  /// **'월 한도'**
+  String get budgetLimitPreview;
+
+  /// No description provided for @budgetMonthlyLimitField.
+  ///
+  /// In ko, this message translates to:
+  /// **'월 한도 (원)'**
+  String get budgetMonthlyLimitField;
+
   /// No description provided for @budgetLoadError.
   ///
   /// In ko, this message translates to:

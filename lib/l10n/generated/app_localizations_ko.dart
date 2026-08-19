@@ -2038,6 +2038,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get budgetMonthlyLimit => '월 예산 한도';
 
   @override
+  String get budgetLimitPreview => '월 한도';
+
+  @override
+  String get budgetMonthlyLimitField => '월 한도 (원)';
+
+  @override
   String get budgetLoadError => '예산을 불러오지 못했습니다';
 
   @override
