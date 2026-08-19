@@ -1092,6 +1092,7 @@ class _AssetPageSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return ListView(
       padding: EdgeInsets.fromLTRB(
         PSpace.x24,
@@ -1099,12 +1100,16 @@ class _AssetPageSkeleton extends StatelessWidget {
         PSpace.x24,
         pTabBarBottomInset(context),
       ),
-      children: const [
-        _AssetSummaryCardSkeleton(),
-        SizedBox(height: PSpace.x32),
-        _AssetTypeGroupSkeleton(rows: 3),
-        SizedBox(height: PSpace.x32),
-        _AssetTypeGroupSkeleton(rows: 2),
+      children: [
+        const _AssetSummaryCardSkeleton(),
+        const SizedBox(height: PSpace.x32),
+        // 섹션 제목은 정적 텍스트라 로딩에도 진짜를 쓴다 — 금액만 데이터 자리.
+        // 조건부 그룹(투자·대출)은 데이터를 봐야 알 수 있어 늘 뜨는 둘만 세운다.
+        _AssetTypeGroupSkeleton(title: l.assetGroupAccount, rows: 3),
+        const SizedBox(height: PSpace.x32),
+        _AssetTypeGroupSkeleton(title: l.assetGroupCard, rows: 2),
+        const SizedBox(height: PSpace.x32),
+        _AssetSavingGoalsSkeleton(title: l.navSavingGoals),
       ],
     );
   }
@@ -1190,56 +1195,95 @@ class _AssetSummaryColPlaceholder extends StatelessWidget {
 }
 
 class _AssetTypeGroupSkeleton extends StatelessWidget {
-  const _AssetTypeGroupSkeleton({required this.rows});
+  const _AssetTypeGroupSkeleton({required this.title, required this.rows});
+  final String title;
   final int rows;
 
   @override
   Widget build(BuildContext context) {
-    // 카드 다이어트 — 플랫 그룹 스켈레톤 (라벨+총액 헤드 + acc-card 행 리듬).
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-          // header: title(15/bold) + Spacer + total(bodySm) — 실제 _TypeGroup 정합.
-          Padding(
-            padding: const EdgeInsets.only(bottom: PSpace.x8),
-            child: Row(
-              children: const [
-                PSkeleton.line(width: 80, height: 16),
-                Spacer(),
-                PSkeleton.line(width: 96, height: 14),
-              ],
-            ),
-          ),
-          // rows — 실제 _AssetCard 정합: logo(40, brLg) + 14 gap + 2 line +
-          // amount(bodyLg). 플랫 행 리듬 padding (10 / v12), 구분선 없음.
+    // 껍데기는 실렌더와 같은 PFlatSection SoT — 헤드를 자체 Row 로 모방하면
+    // headGap 같은 값이 바뀔 때 로딩만 옛 간격에 남는다.
+    return PFlatSection(
+      title: title,
+      trailing: const PSkeleton.line(width: 96, height: 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // rows — 실제 _AssetCard 정합: 발급사 줄(caption, 아래 x4) + logo(40, brLg)
+          // + 14 gap + 이름/서브 + amount(bodyLg). 좌우 여백 없음, 상하 12 만.
           for (int i = 0; i < rows; i++)
             Padding(
               // 실렌더와 같은 여백 — 다르면 데이터가 오는 순간 행이 좌우로 튄다.
               padding: const EdgeInsets.symmetric(vertical: PSpace.x12),
-              child: Row(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const PSkeleton(
-                    width: 40,
-                    height: 40,
-                    borderRadius: PRadius.brLg,
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        PSkeleton.line(width: 120, height: 14),
-                        SizedBox(height: PSpace.x4),
-                        PSkeleton.line(width: 72, height: 11),
-                      ],
+                  // 발급사 — 행 맨 위, 아이콘과 같은 왼쪽 끝.
+                  const Padding(
+                    padding: EdgeInsets.only(bottom: PSpace.x4),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: PSkeleton.line(width: 72, height: 11),
                     ),
                   ),
-                  const SizedBox(width: PSpace.x8),
-                  const PSkeleton.line(width: 96, height: 16),
+                  Row(
+                    children: [
+                      const PSkeleton(
+                        width: 40,
+                        height: 40,
+                        borderRadius: PRadius.brLg,
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: const [
+                            PSkeleton.line(width: 120, height: 14),
+                            // 서브라인 — 실렌더는 top 1.
+                            SizedBox(height: 1),
+                            PSkeleton.line(width: 72, height: 11),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: PSpace.x8),
+                      const PSkeleton.line(width: 96, height: 16),
+                    ],
+                  ),
                 ],
               ),
             ),
-      ],
+        ],
+      ),
+    );
+  }
+}
+
+/// 저축 목표 섹션 스켈레톤 — 실제 _SavingGoalsSection 의 로딩 본문과 같은 2행.
+/// 제목·'관리' 링크는 정적이라 실렌더가 늘 진짜를 쓰지만, 페이지 게이트에서는
+/// 아직 provider 를 못 읽으므로 같은 틀만 세워 둔다.
+class _AssetSavingGoalsSkeleton extends StatelessWidget {
+  const _AssetSavingGoalsSkeleton({required this.title});
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return PFlatSection(
+      title: title,
+      child: Column(
+        children: [
+          for (int i = 0; i < 2; i++) ...[
+            if (i > 0) const SizedBox(height: PSpace.x16),
+            Row(
+              children: [
+                PSkeleton(width: 32, height: 32, borderRadius: PRadius.tile(32)),
+                const SizedBox(width: PSpace.x8),
+                const Expanded(child: PSkeleton.line(width: 120)),
+                const PSkeleton.line(width: 48, height: 12),
+              ],
+            ),
+          ],
+        ],
+      ),
     );
   }
 }
