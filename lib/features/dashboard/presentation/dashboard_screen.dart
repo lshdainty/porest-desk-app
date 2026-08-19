@@ -260,7 +260,9 @@ class _WidgetSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 10, right: 10, bottom: PSpace.x32),
+      // 좌우는 페이지가 쥔다(ListView padding 24). 섹션이 여기서 더 얹으면
+      // 제목만 24 에 있고 내용은 34 로 밀려 두 줄이 어긋나 보인다.
+      padding: const EdgeInsets.only(bottom: PSpace.x32),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -311,7 +313,9 @@ class _HomeUpcomingWidget extends StatelessWidget {
     if (events.isEmpty) return const SizedBox.shrink();
 
     return Padding(
-      padding: const EdgeInsets.only(left: 10, right: 10, bottom: PSpace.x32),
+      // 좌우는 페이지가 쥔다(ListView padding 24). 섹션이 여기서 더 얹으면
+      // 제목만 24 에 있고 내용은 34 로 밀려 두 줄이 어긋나 보인다.
+      padding: const EdgeInsets.only(bottom: PSpace.x32),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -373,7 +377,9 @@ class _HomeTodosWidget extends StatelessWidget {
     final overdue = s.todoSummary.overDueCount;
 
     return Padding(
-      padding: const EdgeInsets.only(left: 10, right: 10, bottom: PSpace.x32),
+      // 좌우는 페이지가 쥔다(ListView padding 24). 섹션이 여기서 더 얹으면
+      // 제목만 24 에 있고 내용은 34 로 밀려 두 줄이 어긋나 보인다.
+      padding: const EdgeInsets.only(bottom: PSpace.x32),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -754,7 +760,6 @@ class _MonthExpenseCard extends StatelessWidget {
     // 카드 다이어트 — design HomeMobile 월 가계부: 헤드(15/bold) + 콘텐츠 inset 10.
     return PFlatSection(
       title: l.dashMonthLedger(month.month),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -919,7 +924,6 @@ class _CategoryDonutCard extends StatelessWidget {
         label: l.dashSeeMore,
         onTap: () => context.go('/stats'),
       ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -998,7 +1002,10 @@ class _CategoryDonutCard extends StatelessWidget {
                                   fontSize: PFontSize.micro)),
                           const SizedBox(height: 2),
                           Text(
-                            krwMasked(total, masked, mask: '••••'),
+                            // 도넛 안이라 폭이 좁다. 전체 자릿수를 쓰면 원 밖으로
+                            // 삐져나가 잘린다 — 1억만 넘어도 열두 자리다.
+                            // 차트 축과 같은 축약을 쓴다(1.02억).
+                            masked ? '••••' : formatChartAxis(total.toDouble()),
                             style: TextStyle(
                                 color: t.fgPrimary,
                                 fontSize: PFontSize.caption,
@@ -1116,7 +1123,6 @@ class _BudgetCard extends StatelessWidget {
         // 셸 브랜치 라우트 — push 가 아닌 go 로 브랜치 전환 (가계부 nav 활성).
         onTap: () => context.go('/budget'),
       ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
