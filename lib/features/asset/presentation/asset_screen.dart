@@ -342,7 +342,6 @@ class _SavingGoalsSection extends StatelessWidget {
         label: l.savingGoalManageLink,
         onTap: () => context.push('/saving-goals'),
       ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 10),
       child: loading
           ? Column(
               children: [
@@ -837,7 +836,9 @@ class _AssetCard extends StatelessWidget {
         onTap: () => showAssetDetailDialog(context, asset),
         borderRadius: BorderRadius.circular(10),
         child: Container(
-          padding: const EdgeInsets.fromLTRB(8, 12, 2, 12), // web 12px 2px 12px 8px 정합
+          // 좌우 여백 없음 — 행이 더 얹으면 그만큼 섹션 라벨과 어긋난다.
+          // 상하만 준다(행 리듬).
+          padding: const EdgeInsets.symmetric(vertical: 12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -1213,9 +1214,8 @@ class _AssetTypeGroupSkeleton extends StatelessWidget {
           // amount(bodyLg). 플랫 행 리듬 padding (10 / v12), 구분선 없음.
           for (int i = 0; i < rows; i++)
             Padding(
-              padding: const EdgeInsets.fromLTRB(
-                8, PSpace.x12, 2, PSpace.x12, // web 12px 2px 12px 8px 정합
-              ),
+              // 실렌더와 같은 여백 — 다르면 데이터가 오는 순간 행이 좌우로 튄다.
+              padding: const EdgeInsets.symmetric(vertical: PSpace.x12),
               child: Row(
                 children: [
                   const PSkeleton(
