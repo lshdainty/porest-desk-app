@@ -484,12 +484,10 @@ class _CatRowSkel extends StatelessWidget {
         children: [
           // 자식 들여쓰기 — web paddingLeft:28 미러
           if (!isParent) const SizedBox(width: 28),
-          // grip 은 평시엔 없음(편집 모드 전용) — 스켈레톤은 평시 렌더 미러
-          // 부모: chevron 자리(24) + gap(4)
-          if (isParent) ...[
-            const SizedBox(width: 24),
-            const SizedBox(width: PSpace.x4),
-          ],
+          // grip 은 평시엔 없음(편집 모드 전용) — 스켈레톤은 평시 렌더 미러.
+          // chevron 자리(24) + gap(4) 는 부모·자식 모두 예약한다(실렌더 정합).
+          const SizedBox(width: 24),
+          const SizedBox(width: PSpace.x4),
           const PSkeleton(width: 36, height: 36),
           const SizedBox(width: PSpace.x12),
           Expanded(
@@ -584,27 +582,33 @@ class _CategoryRow extends StatelessWidget {
                       ),
                     ),
                   ),
-                // 부모 expand chevron (또는 chevron 자리) — 편집 모드엔 자리만(하위 강제 표시)
-                if (isParent) ...[
-                  if (!editMode && hasChildren && onToggle != null)
-                    InkWell(
-                      onTap: onToggle,
-                      borderRadius: BorderRadius.circular(PRadius.sm),
-                      child: Padding(
-                        padding: const EdgeInsets.all(PSpace.x4),
-                        child: Icon(
-                          isCollapsed
-                              ? LucideIcons.chevronRight
-                              : LucideIcons.chevronDown,
-                          size: 16,
-                          color: t.fgSecondary,
-                        ),
+                // expand chevron 자리 — 부모·자식 모두 폭을 예약한다.
+                //
+                // 화살표를 가진 부모만 이 폭을 먹으면, 그 24 가 자식 들여쓰기 28 을
+                // 거의 그대로 상쇄해 부모와 자식이 같은 x 에 선다. 그러면 하위가 있는
+                // 부모·없는 부모·자식이 전부 다른 지점에서 시작해 계층이 안 읽힌다.
+                // 편집 모드에서 계층이 또렷한 건 grip 이 모든 행에 같은 폭을 만들어서다.
+                //
+                // 자리를 항상 잡아 두면 부모끼리 먼저 정렬되고, 그 위에 자식 28 이
+                // 온전히 들여쓰기로 남는다(사용자 결정).
+                if (!editMode && isParent && hasChildren && onToggle != null)
+                  InkWell(
+                    onTap: onToggle,
+                    borderRadius: BorderRadius.circular(PRadius.sm),
+                    child: Padding(
+                      padding: const EdgeInsets.all(PSpace.x4),
+                      child: Icon(
+                        isCollapsed
+                            ? LucideIcons.chevronRight
+                            : LucideIcons.chevronDown,
+                        size: 16,
+                        color: t.fgSecondary,
                       ),
-                    )
-                  else
-                    const SizedBox(width: 24),
-                  const SizedBox(width: PSpace.x4),
-                ],
+                    ),
+                  )
+                else
+                  const SizedBox(width: 24),
+                const SizedBox(width: PSpace.x4),
                 Container(
                   width: 36,
                   height: 36,
