@@ -1002,7 +1002,10 @@ class _CategoryDonutCard extends StatelessWidget {
                                   fontSize: PFontSize.micro)),
                           const SizedBox(height: 2),
                           Text(
-                            krwMasked(total, masked, mask: '••••'),
+                            // 도넛 안이라 폭이 좁다. 전체 자릿수를 쓰면 원 밖으로
+                            // 삐져나가 잘린다 — 1억만 넘어도 열두 자리다.
+                            // 차트 축과 같은 축약을 쓴다(1.02억).
+                            masked ? '••••' : formatChartAxis(total.toDouble()),
                             style: TextStyle(
                                 color: t.fgPrimary,
                                 fontSize: PFontSize.caption,
