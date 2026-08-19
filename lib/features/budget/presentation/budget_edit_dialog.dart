@@ -7,7 +7,7 @@ import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart';
-import 'package:porest_desk_app/core/format/date.dart';
+import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
 import 'package:porest_desk_app/shared/widgets/p_chip.dart';
@@ -20,6 +20,15 @@ import 'package:porest_desk_app/features/expense/application/expense_providers.d
 import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
 import 'package:porest_desk_app/features/budget/application/budget_providers.dart';
 import 'package:porest_desk_app/features/budget/domain/budget.dart';
+
+const _presets = [100000, 200000, 300000, 500000, 800000, 1000000];
+
+/// 한국어는 '10만원', 영어는 통화 포맷 — 웹 `isEn() ? money(p) : `${p/10000}만원`` 미러.
+String _presetLabel(BuildContext context, int v) {
+  final locale = Localizations.localeOf(context).languageCode;
+  if (locale == 'en') return krw(v);
+  return '${(v / 10000).round()}만원';
+}
 
 void showBudgetEditDialog(
   BuildContext context, {
@@ -38,6 +47,9 @@ void showBudgetEditDialog(
   showPSheet<void>(
     context,
     title: title,
+    // 내용이 짧은 폼이라 화면 비율로 강제 점유하지 않고 content 높이로 wrap 한다
+    // (웹 dialog 정합 — 빈 여백이 절반을 먹던 문제).
+    shrinkWrap: true,
     contentBuilder: (ctx, scrollCtrl) => _BudgetEditBody(
       year: year,
       month: month,
@@ -49,7 +61,7 @@ void showBudgetEditDialog(
     ),
     footerBuilder: (ctx) => PSheetFooter(
       controller: controller,
-      submitLabel: edit == null ? l.calAdd : l.actionEdit,
+      submitLabel: edit == null ? l.calAdd : l.actionSave,
     ),
   );
 }
@@ -179,104 +191,149 @@ class _BudgetEditBodyState extends ConsumerState<_BudgetEditBody> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) widget.controller.setCanSubmit(_canSubmit);
     });
-    return ListView(
-      controller: widget.scrollController,
+
+    // 헤더에 띄울 카테고리 — 편집/전체상한은 고정, 신규는 선택값을 따라간다(웹 정합).
+    final selectedCat = _isOverall
+        ? ExpenseCategory(rowId: 0, categoryName: l.budgetOverallCap)
+        : (_isEdit
+            ? categoriesAsync.value?.firstWhere(
+                (c) => c.rowId == widget.edit!.categoryRowId,
+                orElse: () => ExpenseCategory(
+                    rowId: widget.edit!.categoryRowId!,
+                    categoryName: widget.edit!.categoryName ?? '-'))
+            : categoriesAsync.value
+                ?.where((c) => c.rowId == _categoryRowId)
+                .firstOrNull);
+    final amount = int.tryParse(_amountCtrl.text.replaceAll(',', '')) ?? 0;
+
+    // shrinkWrap sheet 라 바깥이 이미 스크롤 — 여기선 Column 을 쓴다(중첩 스크롤 금지).
+    return Padding(
       padding: const EdgeInsets.fromLTRB(
           PSpace.x16, 0, PSpace.x16, PSpace.x16),
-      children: [
-        Text(yearMonth(DateTime(widget.year, widget.month)),
-            style: PTypo.caption.copyWith(color: t.fgTertiary)),
-        const SizedBox(height: PSpace.x12),
-
-        PSectionLabel(l.expCategory),
-        const SizedBox(height: PSpace.x8),
-        if (widget.overallNew)
-          _LockedCategory(
-              category: ExpenseCategory(rowId: 0, categoryName: l.budgetOverallCap),
-              tokens: t)
-        else if (_isEdit)
-          _LockedCategory(
-              category: widget.edit!.categoryRowId == null
-                  ? ExpenseCategory(rowId: 0, categoryName: l.budgetOverallCap)
-                  : categoriesAsync.value?.firstWhere(
-                      (c) => c.rowId == widget.edit!.categoryRowId,
-                      orElse: () => ExpenseCategory(
-                          rowId: widget.edit!.categoryRowId!,
-                          categoryName: widget.edit!.categoryName ?? '-')),
-              tokens: t)
-        else
-          categoriesAsync.when(
-            loading: () =>
-                const Center(child: PCircularProgressIndicator()),
-            error: (e, _) => Text(l.budgetCategoryLoadError,
-                style: PTypo.caption.copyWith(color: t.statusDanger)),
-            data: (categories) => Wrap(
-              spacing: PSpace.x8,
-              runSpacing: PSpace.x8,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // 헤더 카드 — 아이콘 + 이름 + 월 한도 미리보기(웹 BudgetEditDialog 미러).
+          Container(
+            padding: const EdgeInsets.all(PSpace.x12),
+            decoration: BoxDecoration(
+              color: t.bgMuted,
+              borderRadius: PRadius.tile(56),
+            ),
+            child: Row(
               children: [
-                // 웹 기준 통일: 예산 가능 카테고리 = EXPENSE 최상위(부모)만.
-                // 자식 지출은 부모로 roll-up 집계되므로 leaf 는 제외.
-                for (final c in categories.where(
-                    (c) => c.expenseType == 'EXPENSE' && c.parentRowId == null))
-                  Opacity(
-                    opacity: widget.usedCategoryIds.contains(c.rowId)
-                        ? 0.4
-                        : 1.0,
-                    child: PChip(
-                      label: c.categoryName,
-                      icon: lucideByName(c.icon),
-                      iconColor: resolveChartColor(context, c.color, fallback: t.fgBrand),
-                      variant: PChipVariant.subtle,
-                      selected: _categoryRowId == c.rowId,
-                      onTap: widget.usedCategoryIds.contains(c.rowId)
-                          ? () {}
-                          : () => setState(() => _categoryRowId = c.rowId),
-                    ),
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: softBg(
+                        context,
+                        resolveChartColor(context, selectedCat?.color,
+                            fallback: t.fgBrand)),
+                    borderRadius: PRadius.tile(44),
                   ),
+                  child: Icon(
+                    lucideByName(selectedCat?.icon),
+                    size: 18,
+                    color: resolveChartColor(context, selectedCat?.color,
+                        fallback: t.fgBrand),
+                  ),
+                ),
+                const SizedBox(width: PSpace.x12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        selectedCat?.categoryName ?? l.expCategory,
+                        style: PTypo.bodyLg.copyWith(
+                            fontWeight: FontWeight.w700, color: t.fgPrimary),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        '${l.budgetLimitPreview} ${krw(amount)}',
+                        style: PTypo.caption.copyWith(color: t.fgTertiary),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
-        const SizedBox(height: PSpace.x16),
+          const SizedBox(height: PSpace.x20),
 
-        PSectionLabel(l.budgetMonthlyLimit),
-        const SizedBox(height: PSpace.x4),
-        PTextInput(
-          controller: _amountCtrl,
-          numbersOnly: true,
-          style: PTypo.h3,
-          placeholder: '0',
-          onChanged: (_) => setState(() {}),
-        ),
-      ],
-    );
-  }
-}
+          // 카테고리 선택 — 신규일 때만(편집은 헤더가 대신한다).
+          if (!_isEdit && !widget.overallNew) ...[
+            PSectionLabel(l.expCategory),
+            const SizedBox(height: PSpace.x8),
+            categoriesAsync.when(
+              loading: () => const Center(child: PCircularProgressIndicator()),
+              error: (e, _) => Text(l.budgetCategoryLoadError,
+                  style: PTypo.caption.copyWith(color: t.statusDanger)),
+              data: (categories) => Wrap(
+                spacing: PSpace.x8,
+                runSpacing: PSpace.x8,
+                children: [
+                  // 웹 기준 통일: 예산 가능 카테고리 = EXPENSE 최상위(부모)만.
+                  // 자식 지출은 부모로 roll-up 집계되므로 leaf 는 제외.
+                  for (final c in categories.where((c) =>
+                      c.expenseType == 'EXPENSE' && c.parentRowId == null))
+                    Opacity(
+                      opacity:
+                          widget.usedCategoryIds.contains(c.rowId) ? 0.4 : 1.0,
+                      child: PChip(
+                        label: c.categoryName,
+                        icon: lucideByName(c.icon),
+                        iconColor: resolveChartColor(context, c.color,
+                            fallback: t.fgBrand),
+                        variant: PChipVariant.subtle,
+                        selected: _categoryRowId == c.rowId,
+                        onTap: widget.usedCategoryIds.contains(c.rowId)
+                            ? () {}
+                            : () => setState(() => _categoryRowId = c.rowId),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(height: PSpace.x16),
+          ],
 
-class _LockedCategory extends StatelessWidget {
-  const _LockedCategory({required this.category, required this.tokens});
-  final ExpenseCategory? category;
-  final PorestTokens tokens;
-  @override
-  Widget build(BuildContext context) {
-    if (category == null) return const SizedBox.shrink();
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: tokens.bgMuted,
-        borderRadius: PRadius.brMd,
-      ),
-      child: Row(
-        children: [
-          Icon(lucideByName(category!.icon),
-              size: 16,
-              color: resolveChartColor(context, category!.color, fallback: tokens.fgBrand)),
-          const SizedBox(width: 6),
-          Text(category!.categoryName,
-              style: PTypo.bodySm.copyWith(
-                  color: tokens.fgPrimary, fontWeight: PFontWeight.medium)),
+          PSectionLabel(l.budgetMonthlyLimitField),
+          const SizedBox(height: PSpace.x4),
+          PTextInput(
+            controller: _amountCtrl,
+            numbersOnly: true,
+            style: PTypo.h3,
+            placeholder: '0',
+            onChanged: (_) => setState(() {}),
+          ),
+          const SizedBox(height: PSpace.x8),
+
+          // 빠른 금액 — 웹 ToggleGroup preset 미러.
+          Wrap(
+            spacing: PSpace.x8,
+            runSpacing: PSpace.x8,
+            children: [
+              for (final v in _presets)
+                PChip(
+                  label: _presetLabel(context, v),
+                  variant: PChipVariant.subtle,
+                  selected: amount == v,
+                  onTap: () => setState(() {
+                    _amountCtrl.text = v.toString();
+                  }),
+                ),
+            ],
+          ),
         ],
       ),
     );
   }
+
 }
 

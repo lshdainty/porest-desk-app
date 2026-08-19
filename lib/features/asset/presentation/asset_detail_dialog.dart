@@ -51,7 +51,7 @@ import 'package:porest_desk_app/features/expense/presentation/widgets/transfer_r
 /// - Hero 카드 (브랜드 그라디언트 + 아이콘 + 이름 + 잔액)
 /// - 12/24/52주 잔액 추이 + 3개월/6개월/1년 segmented
 /// - 최근 거래 12건 + "전체 보기 →"
-/// - 푸터: 금액 가리기 / 편집 / 확인 (본문 끝에 함께 스크롤)
+/// - 푸터: 편집 1개 (본문 끝에 함께 스크롤)
 void showAssetDetailRich(
   BuildContext context,
   Asset asset, {
@@ -66,23 +66,16 @@ void showAssetDetailRich(
   );
 }
 
-class _DetailFooter extends ConsumerWidget {
+/// 상세 footer — [편집] 1개. 금액 가리기는 카드 우상단 눈 버튼과 계정 > 보안에도
+/// 있어 여기서 뺐다(spec drawer.md 액션 구성).
+class _DetailFooter extends StatelessWidget {
   const _DetailFooter({required this.asset, this.onEdit});
   final Asset asset;
   final VoidCallback? onEdit;
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l = AppLocalizations.of(context);
-    final masked = ref.watch(hideCardProvider('asset.detail'));
+  Widget build(BuildContext context) {
     return PViewFooter(
-      // 좌측 = 삭제가 아니라 금액 가리기/표시 토글 → leading 슬롯.
-      leading: PButton(
-        label: masked ? l.assetShowAmount : l.assetHideAmount,
-        icon: masked ? LucideIcons.eye : LucideIcons.eyeOff,
-        variant: PButtonVariant.ghost,
-        flush: PButtonFlush.left,
-        onPressed: () => context.push('/settings/hide-amounts'),
-      ),
       onEdit: () {
         Navigator.of(context).pop();
         if (onEdit != null) {

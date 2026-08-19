@@ -1045,6 +1045,8 @@
   "budgetOverallCap": "월 전체 상한",
   "budgetCategoryLoadError": "카테고리 로드 실패",
   "budgetMonthlyLimit": "월 예산 한도",
+  "budgetLimitPreview": "월 한도",
+  "budgetMonthlyLimitField": "월 한도 (원)",
   "budgetLoadError": "예산을 불러오지 못했습니다",
   "budgetSelectMonth": "월 선택",
   "budgetMonthOverallCap": "{month}월 전체 상한",

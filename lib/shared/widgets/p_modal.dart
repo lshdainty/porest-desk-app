@@ -58,21 +58,28 @@ class PSheetFooter extends StatelessWidget {
           children: [
             if (leftSlot != null)
               leftSlot!
-            else if (controller.onDelete != null)
-              PButton(
-                label: deleteLabel ?? l.actionDelete,
-                icon: LucideIcons.trash2,
-                variant: PButtonVariant.ghost,
-                size: PButtonSize.lg,
-                dangerous: true,
-                flush: PButtonFlush.left,
-                onPressed: controller.submitting ? null : controller.onDelete,
+            else if (controller.onDelete != null) ...[
+              // 삭제는 옅은 빨강 채움(dangerSoft) + 균등 분배 — 좌측이 배경 없이 글씨만
+              // 이면 두 버튼 중 한쪽이 빈자리처럼 보인다(spec button.md 2026-08).
+              Expanded(
+                child: PButton(
+                  label: deleteLabel ?? l.actionDelete,
+                  icon: LucideIcons.trash2,
+                  variant: PButtonVariant.dangerSoft,
+                  size: PButtonSize.lg,
+                  fullWidth: true,
+                  onPressed: controller.submitting ? null : controller.onDelete,
+                ),
               ),
+              const SizedBox(width: PSpace.x8),
+            ],
             if (cancel) ...[
               Expanded(
                 child: PButton(
                   label: cancelLabel ?? l.actionCancel,
-                  variant: PButtonVariant.ghost,
+                  // ghost 는 배경이 없어 전체 폭 배치에서 버튼으로 안 보인다 — 테두리
+                  // 없는 회색 채움(spec button.md Migration notes 2026-08).
+                  variant: PButtonVariant.secondary,
                   size: PButtonSize.lg,
                   fullWidth: true,
                   onPressed: controller.submitting
@@ -149,25 +156,30 @@ class PViewFooter extends StatelessWidget {
     // 삭제·leading 은 좌측 고정 — 파괴적 액션이 주 액션과 같은 무게로 보이면 안 된다.
     return Row(
       children: [
-        if (onDelete != null)
-          PButton(
-            label: deleteLabel ?? l.actionDelete,
-            icon: LucideIcons.trash2,
-            variant: PButtonVariant.ghost,
-            size: PButtonSize.lg,
-            dangerous: true,
-            flush: PButtonFlush.left,
-            loading: deleting,
-            onPressed: deleting ? null : onDelete,
-          )
-        else
+        if (onDelete != null) ...[
+          Expanded(
+            child: PButton(
+              label: deleteLabel ?? l.actionDelete,
+              icon: LucideIcons.trash2,
+              variant: PButtonVariant.dangerSoft,
+              size: PButtonSize.lg,
+              fullWidth: true,
+              loading: deleting,
+              onPressed: deleting ? null : onDelete,
+            ),
+          ),
+          const SizedBox(width: PSpace.x8),
+        ] else
           ?leading,
         if (onEdit != null)
           Expanded(
             child: PButton(
               label: editLabel ?? l.actionEditLabel,
               icon: LucideIcons.pencil,
-              variant: PButtonVariant.ghost,
+              // 상세의 주 액션은 편집 — 확인이 없으면 이게 유일한 채움 버튼이다.
+              variant: _hasConfirm
+                  ? PButtonVariant.ghost
+                  : PButtonVariant.primary,
               size: PButtonSize.lg,
               fullWidth: true,
               onPressed: onEdit,
@@ -511,9 +523,9 @@ class _PConfirmDialogState extends State<_PConfirmDialog> {
             Expanded(
               child: PButton(
                 label: widget.cancelLabel,
-                // 전체 폭 버튼 둘이 테두리·채움으로 서면 위계가 흐려진다
-                // (spec button.md Migration notes 2026-08 — 모달 취소는 ghost).
-                variant: PButtonVariant.ghost,
+                // ghost 는 배경이 없어 전체 폭 배치에서 버튼으로 안 보인다 — 테두리
+                // 없는 회색 채움(spec alert-dialog.md · button.md 2026-08).
+                variant: PButtonVariant.secondary,
                 size: PButtonSize.lg,
                 fullWidth: true,
                 onPressed: () => Navigator.pop(context, false),

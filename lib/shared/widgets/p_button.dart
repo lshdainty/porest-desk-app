@@ -11,7 +11,7 @@ import 'package:porest_desk_app/shared/widgets/p_tooltip.dart';
 ///
 /// variants: primary / secondary / outline / ghost(중립) / accent(brand 강조) / danger
 /// size: sm / md / lg / iconLg(모바일 크롬 헤더 icon-only 전용 — 36×36 원형, glyph 20px)
-enum PButtonVariant { primary, secondary, outline, ghost, accent, danger }
+enum PButtonVariant { primary, secondary, dangerSoft, outline, ghost, accent, danger }
 
 enum PButtonSize { sm, md, lg, iconLg }
 
@@ -157,16 +157,26 @@ class PButton extends StatelessWidget {
     BorderSide border;
     switch (variant) {
       case PButtonVariant.primary:
-        // 채운 primary 버튼은 solid 고정 (다크에서도 primary). bgBrand 는 다크에서
-        // primary-light 로 밝아져 흰 글씨 채움 버튼엔 부적합 — 웹 --bg-brand 정합.
-        bg = t.bgBrandSolid;
+        // 채움색은 brand primary(#0147AD, 남색) 가 아니라 info(#1D6FCB) — 버튼 채움에
+        // 한정한다(탭 선택·토글 등 brand 채움 자리는 bgBrandSolid 그대로).
+        // 다크에서도 같은 값 고정 — 웹 --status-info 정합.
+        // spec button.md Migration notes 2026-08.
+        bg = t.statusInfo;
         fg = t.fgOnBrand;
         border = BorderSide.none;
         break;
       case PButtonVariant.secondary:
+        // spec Color tokens 표에 border 가 없다 — 구현에만 있던 1px 을 뺐다(2026-08).
         bg = t.bgMuted;
         fg = t.fgPrimary;
-        border = BorderSide(color: t.borderSubtle);
+        border = BorderSide.none;
+        break;
+      case PButtonVariant.dangerSoft:
+        // 모달 footer 의 삭제 — 옅은 빨강 채움. 전체 폭 두 버튼이 나란히 설 때 ghost 는
+        // 배경이 없어 버튼으로 안 보인다. 삭제 *확정* 은 danger(솔리드).
+        bg = t.statusDangerSubtle;
+        fg = t.statusDangerFg;
+        border = BorderSide.none;
         break;
       case PButtonVariant.outline:
         bg = Colors.transparent;

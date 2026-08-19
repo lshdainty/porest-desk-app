@@ -150,11 +150,6 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
     widget.controller.setSubmitting(v || _deleting);
   }
 
-  void _setDeleting(bool v) {
-    setState(() => _deleting = v);
-    widget.controller.setSubmitting(v || _submitting);
-  }
-
   void _onChanged() {
     setState(() {});
     widget.controller.setCanSubmit(_canSubmit);
@@ -167,6 +162,40 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
     _balanceCtrl.dispose();
     _creditLimitCtrl.dispose();
     super.dispose();
+  }
+
+  void _setDeleting(bool v) {
+    setState(() => _deleting = v);
+    widget.controller.setSubmitting(v || _submitting);
+  }
+
+  Future<void> _delete() async {
+    if (_deleting || widget.edit == null) return;
+    final l = AppLocalizations.of(context);
+    final ok = await showPConfirmDialog(
+      context,
+      title: l.assetCardDelete,
+      message: l.assetCardDeleteConfirm,
+      confirmLabel: l.actionDelete,
+      destructive: true,
+    );
+    if (!ok || !mounted) return;
+    _setDeleting(true);
+    try {
+      final repo = await ref.read(assetRepositoryProvider.future);
+      await repo.delete(widget.edit!.rowId);
+      ref.invalidate(assetsProvider);
+      if (!mounted) return;
+      Navigator.of(context).pop();
+      showPSnackBar(context, l.assetCardDeleted,
+          severity: PSnackSeverity.success);
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      showPSnackBar(context, '${l.assetDeleteFailed}: ${e.message}',
+          severity: PSnackSeverity.error);
+    } finally {
+      if (mounted) _setDeleting(false);
+    }
   }
 
   Future<void> _submit() async {
@@ -239,35 +268,6 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
           severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setSubmitting(false);
-    }
-  }
-
-  Future<void> _delete() async {
-    if (_deleting || widget.edit == null) return;
-    final l = AppLocalizations.of(context);
-    final ok = await showPConfirmDialog(
-      context,
-      title: l.assetCardDelete,
-      message: l.assetCardDeleteConfirm,
-      confirmLabel: l.actionDelete,
-      destructive: true,
-    );
-    if (!ok || !mounted) return;
-    _setDeleting(true);
-    try {
-      final repo = await ref.read(assetRepositoryProvider.future);
-      await repo.delete(widget.edit!.rowId);
-      ref.invalidate(assetsProvider);
-      if (!mounted) return;
-      Navigator.of(context).pop();
-      showPSnackBar(context, l.assetCardDeleted,
-          severity: PSnackSeverity.success);
-    } on ApiException catch (e) {
-      if (!mounted) return;
-      showPSnackBar(context, '${l.assetDeleteFailed}: ${e.message}',
-          severity: PSnackSeverity.error);
-    } finally {
-      if (mounted) _setDeleting(false);
     }
   }
 

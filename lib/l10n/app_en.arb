@@ -1042,6 +1042,8 @@
   "budgetOverallCap": "Overall monthly cap",
   "budgetCategoryLoadError": "Failed to load categories",
   "budgetMonthlyLimit": "Monthly budget limit",
+  "budgetLimitPreview": "Monthly limit",
+  "budgetMonthlyLimitField": "Monthly limit (KRW)",
   "budgetLoadError": "Couldn't load budget",
   "budgetSelectMonth": "Select month",
   "budgetMonthOverallCap": "Overall cap · {month}",
