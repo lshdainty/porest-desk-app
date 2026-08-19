@@ -64,9 +64,18 @@ class PSwipeActions extends StatelessWidget {
   /// false 면 감싸지 않고 행을 그대로 통과시킨다.
   final bool enabled;
 
-  /// 액션 하나의 폭 — 배지 지름 + 좌우 4. 라벨(한글 두 글자)도 이 안에 들어간다.
-  /// 넓게 잡으면 배지 옆에 빈 공간이 남아 트레이가 헐거워 보인다.
-  static const double actionWidth = _badgeSize + 8;
+  /// 행 내용과 첫 액션 사이. 바짝 붙으면 배지가 행에 얹힌 것처럼 보인다.
+  static const double _gapLead = 20;
+
+  /// 액션끼리 사이. 배지 둘이 붙어 있으면 하나의 알약처럼 뭉쳐 보인다.
+  static const double _gapBetween = 12;
+
+  /// 액션 하나가 차지하는 폭 — 배지 + <b>그 앞</b> 간격.
+  ///
+  /// 간격을 배지 앞에만 둔다. 뒤에도 두면 마지막 액션과 화면 끝 사이가 벌어져
+  /// 덜 열린 것처럼 보인다 — 오른쪽 끝에는 딱 붙어야 한다.
+  static double slotWidth(int index) =>
+      _badgeSize + (index == 0 ? _gapLead : _gapBetween);
 
   /// 액션 최소 높이 — WCAG 2.5.5(AAA, 44×44)를 밑돌지 않게.
   static const double actionMinHeight = 56;
@@ -87,7 +96,8 @@ class PSwipeActions extends StatelessWidget {
         // slidable 은 비율로 받는데 스펙은 액션당 72px 고정이다. 행 폭을 알아야
         // 비율로 바꿀 수 있어 LayoutBuilder 로 감싼다.
         final width = constraints.maxWidth;
-        final trayWidth = actions.length * actionWidth;
+        final trayWidth = List.generate(actions.length, slotWidth)
+            .fold<double>(0, (a, b) => a + b);
         final ratio = width > 0 ? (trayWidth / width).clamp(0.1, 0.9) : 0.5;
 
         return Slidable(
@@ -105,15 +115,20 @@ class PSwipeActions extends StatelessWidget {
               // 순서대로 두면 파괴적 액션이 제일 먼저 손에 닿는다. 뒤집어 두면 삭제가
               // 가장 안쪽(멀리)에 놓여 끝까지 밀어야 닿는다. 호출부는 '고정·수정·삭제'
               // 라는 자연스러운 의미 순서를 그대로 쓰면 된다.
-              for (final a in actions.reversed)
+              for (final (i, a) in actions.reversed.indexed)
                 CustomSlidableAction(
+                  // 폭을 각자 다르게 준다 — 첫 액션만 행에서 더 떨어뜨린다.
+                  // flex 는 비율이라 정수로 넘겨도 폭 비가 유지된다.
+                  flex: slotWidth(i).round(),
                   onPressed: (ctx) => _run(ctx, a),
                   // 트레이에 배경을 두지 않는다 — 색을 깔면 행 옆에 박스가 하나 더
                   // 생긴 것처럼 보인다. 색은 아이콘 원형만 갖는다.
                   backgroundColor: Colors.transparent,
                   foregroundColor: _fg(context, a.kind),
-                  // 상하 여백 없음 — 행 높이를 그대로 쓰고 좌우만 띄운다.
-                  padding: EdgeInsets.zero,
+                  // 간격을 왼쪽 padding 으로 만든다 — 배지가 슬롯 오른쪽에 붙어
+                  // 마지막 액션이 화면 끝과 딱 맞는다. 상하 여백은 없다(행 높이 그대로).
+                  padding: EdgeInsets.only(
+                      left: i == 0 ? _gapLead : _gapBetween),
                   child: ConstrainedBox(
                     constraints:
                         const BoxConstraints(minHeight: actionMinHeight),
