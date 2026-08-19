@@ -363,7 +363,12 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
           Container(
             width: double.infinity,
             color: t.bgSurface,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            // 아래 탭 본문이 페이지 여백 24 로 시작한다. 탭 스트립도 같은 지점에서
+            // 시작해야 첫 칩과 첫 카드 제목이 한 줄로 맞는다.
+            padding: const EdgeInsets.symmetric(
+              horizontal: PSpace.x24,
+              vertical: PSpace.x12,
+            ),
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
@@ -597,11 +602,11 @@ class _CompareTab extends ConsumerWidget {
 // ─── 공용 위젯 ─────────────────────────────────────────────
 
 /// 섹션 컨테이너 — 카드 다이어트(design app.css `.m-scroll .p-card` 플랫):
-/// 카드 배경/그림자/radius 없이 콘텐츠 inset(가로 10)만. 섹션 내부 헤더는
-/// 각 섹션이 자체 렌더 — 섹션 사이 여백(36)이 구분을 담당한다.
+/// 카드 배경/그림자/radius 없이 통과만 한다. 섹션 내부 헤더는 각 섹션이 자체
+/// 렌더 — 섹션 사이 여백(32)이 구분을 담당한다.
 class _Card extends StatelessWidget {
-  // 웹 Section 정합 — 라벨·콘텐츠 모두 페이지 inset에서 시작(추가 inset 0).
-  // 웹 contentInset(+8)을 쓰는 도넛 범례·비교 증감은 행 자체 padding이 흡수.
+  // 좌우 여백은 탭 ListView 가 한 번만 쥔다(24). 제목도 행도 여기서 시작하므로
+  // 섹션이 따로 inset 을 얹지 않는다 — 얹으면 제목만 밖으로 튀어나온다.
   const _Card({required this.child});
   final Widget child;
   @override
@@ -736,7 +741,7 @@ class _DonutCardSkeleton extends StatelessWidget {
         const SizedBox(height: 14),
         for (var i = 0; i < 5; i++)
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            padding: const EdgeInsets.symmetric(vertical: 8),
             child: Row(
               children: [
                 PSkeleton.circle(size: 10),
@@ -767,7 +772,10 @@ class _MerchantListSkeleton extends StatelessWidget {
             children: [
               const SizedBox(
                 width: 24,
-                child: Center(child: PSkeleton.line(width: 12, height: 12)),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: PSkeleton.line(width: 12, height: 12),
+                ),
               ),
               const SizedBox(width: 8),
               Expanded(
@@ -806,7 +814,7 @@ class _CompareListSkeleton extends StatelessWidget {
       children: [
         for (var i = 0; i < 5; i++)
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+            padding: const EdgeInsets.symmetric(vertical: 12),
             decoration: i < 4
                 ? BoxDecoration(
                     border: Border(bottom: BorderSide(color: t.borderSubtle)),
@@ -854,6 +862,7 @@ class _HeatmapSkeleton extends StatelessWidget {
     // 실제 히트맵: 헤더(56 spacer + 7 요일) + 6행(56 라벨열 + 7 셀 AspectRatio1
     // padding all2 radius brSm, 행간 4) + 범례행.
     Widget cellRow() => Row(
+          spacing: 6,
           children: [
             // 라벨열(56) — 실제는 label+sub 2줄
             const SizedBox(
@@ -870,10 +879,7 @@ class _HeatmapSkeleton extends StatelessWidget {
             ),
             for (var c = 0; c < _heatCols.length; c++)
               const Expanded(
-                child: Padding(
-                  padding: EdgeInsets.all(3),
-                  child: AspectRatio(aspectRatio: 1, child: PSkeleton()),
-                ),
+                child: AspectRatio(aspectRatio: 1, child: PSkeleton()),
               ),
           ],
         );
@@ -881,6 +887,7 @@ class _HeatmapSkeleton extends StatelessWidget {
       children: [
         // 헤더 행 — 56 코너 + 7 요일 라벨
         Row(
+          spacing: 6,
           children: [
             const SizedBox(width: 56),
             for (var c = 0; c < _heatCols.length; c++)
@@ -893,7 +900,10 @@ class _HeatmapSkeleton extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 6),
-        for (var r = 0; r < _heatRows.length; r++) cellRow(),
+        for (var r = 0; r < _heatRows.length; r++) ...[
+          if (r > 0) const SizedBox(height: 6),
+          cellRow(),
+        ],
         const SizedBox(height: 14),
         // 범례 행
         Row(
@@ -1305,7 +1315,9 @@ class _DonutLegendRow extends StatelessWidget {
       onTap: onTap,
       borderRadius: PRadius.brSm,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        // 좌우 0 — 카드 제목과 같은 지점에서 시작한다. 잉크 면은 그대로다
+        // (Row 안 Expanded 가 폭을 채워 InkWell 이 이미 행 전체를 덮는다).
+        padding: const EdgeInsets.symmetric(vertical: 8),
         child: Row(
           children: [
             Container(
@@ -1388,10 +1400,13 @@ class _TopMerchantsCard extends StatelessWidget {
               Row(
                 children: [
                   SizedBox(
+                    // 순위는 왼쪽 정렬 — 가운데로 두면 한 자리 숫자가 24 컬럼 한복판에
+                    // 놓여 카드 제목보다 10pt 안쪽에서 시작한다. 컬럼 폭은 두 자리까지
+                    // 자리를 잡아 두는 용도라 그대로 둔다.
                     width: 24,
                     child: Text(
                       '${i + 1}',
-                      textAlign: TextAlign.center,
+                      textAlign: TextAlign.start,
                       style: PTypo.caption.copyWith(
                         color: i < 3 ? t.fgIncome : t.fgTertiary,
                         fontWeight: PFontWeight.bold,
@@ -1581,6 +1596,10 @@ class _HeatmapCard extends StatelessWidget {
           else ...[
             // Header row: 빈 코너 + 요일
             Row(
+              // 웹 `grid gap: 6` 정합. 예전엔 셀마다 padding 3 으로 간격을 흉내냈는데,
+              // 그러면 바깥쪽에도 3 이 남아 히트맵 오른쪽 끝이 카드 제목보다 3px
+              // 안쪽에서 끝난다. 간격은 셀 사이에만 있어야 한다.
+              spacing: 6,
               children: [
                 const SizedBox(width: 56),
                 for (final col in _heatCols)
@@ -1601,7 +1620,9 @@ class _HeatmapCard extends StatelessWidget {
             ),
             const SizedBox(height: 6),
             for (var r = 0; r < _heatRows.length; r++) ...[
+              if (r > 0) const SizedBox(height: 6),
               Row(
+                spacing: 6,
                 children: [
                   SizedBox(
                     width: 56,
@@ -1626,33 +1647,29 @@ class _HeatmapCard extends StatelessWidget {
                   ),
                   for (var c = 0; c < _heatCols.length; c++)
                     Expanded(
-                      child: Padding(
-                        // 웹 grid gap 6 정합 — 인접 셀 사이 3+3
-                        padding: const EdgeInsets.all(3),
-                        child: AspectRatio(
-                          aspectRatio: 1,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: bgFor(_heatBucket(matrix[r][c], maxV)),
-                              // web 히트맵 셀 radius-sm 정합 (md 는 과하게 둥글었음)
-                              borderRadius: PRadius.brSm,
-                            ),
-                            alignment: Alignment.center,
-                            padding: const EdgeInsets.all(3),
-                            // 셀 폭 초과 시 폰트 자동 축소(한 줄 유지) — 가계부 캘린더형 FittedBox 정합
-                            child: FittedBox(
-                              fit: BoxFit.scaleDown,
-                              child: Text(
-                                // 금액 숨김 — web MaskAmount(value>0?••:—) 정합
-                                masked
-                                    ? (matrix[r][c] > 0 ? '••' : '—')
-                                    : _shortAmount(matrix[r][c]),
-                                maxLines: 1,
-                                style: PTypo.micro.copyWith(
-                                  color: fgFor(_heatBucket(matrix[r][c], maxV)),
-                                  fontWeight: PFontWeight.bold,
-                                  fontSize: PFontSize.micro,
-                                ),
+                      child: AspectRatio(
+                        aspectRatio: 1,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: bgFor(_heatBucket(matrix[r][c], maxV)),
+                            // web 히트맵 셀 radius-sm 정합 (md 는 과하게 둥글었음)
+                            borderRadius: PRadius.brSm,
+                          ),
+                          alignment: Alignment.center,
+                          padding: const EdgeInsets.all(3),
+                          // 셀 폭 초과 시 폰트 자동 축소(한 줄 유지) — 가계부 캘린더형 FittedBox 정합
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              // 금액 숨김 — web MaskAmount(value>0?••:—) 정합
+                              masked
+                                  ? (matrix[r][c] > 0 ? '••' : '—')
+                                  : _shortAmount(matrix[r][c]),
+                              maxLines: 1,
+                              style: PTypo.micro.copyWith(
+                                color: fgFor(_heatBucket(matrix[r][c], maxV)),
+                                fontWeight: PFontWeight.bold,
+                                fontSize: PFontSize.micro,
                               ),
                             ),
                           ),
@@ -1703,12 +1720,16 @@ class _HeatmapCard extends StatelessWidget {
   }
 }
 
+/// 히트맵 셀 라벨 — 좁은 칸에 들어갈 만큼 짧게.
+///
+/// 1만 위로는 차트 축과 같은 [formatChartAxis](만·억·조)에 맡긴다. 예전엔 여기서
+/// 만 단위만 직접 계산해서 1억을 넘으면 `"10001.3만"` 이 나왔다 — 칸 안에서 읽을 수
+/// 있는 숫자가 아니다. 1만 아래만 '천' 으로 더 줄인다(축 라벨엔 없는 단위지만 칸이
+/// 좁다).
 String _shortAmount(int v) {
   if (v <= 0) return '—';
-  // en: 로케일 compact(52M·120K). ko: 천/만 축약(기존 유지).
-  if (localeIsEn()) return formatChartAxis(v.toDouble());
-  if (v < 10000) return '${(v / 1000).round()}천';
-  return '${(v / 10000).toStringAsFixed(1)}만';
+  if (!localeIsEn() && v < 10000) return '${(v / 1000).round()}천';
+  return formatChartAxis(v.toDouble());
 }
 
 // ─── HIGHLIGHTS GRID ───────────────────────────────────────
@@ -3836,8 +3857,8 @@ class _CompareDeltaRow extends StatelessWidget {
     final sign = diff > 0 ? '+' : (diff < 0 ? '−' : '');
 
     return Container(
-      // 웹 contentInset(+8) 흡수 — 라벨은 0, 행만 살짝 inset.
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+      // 좌우 0 — 카드 제목과 같은 지점에서 시작한다. 구분선도 제목 폭에 맞는다.
+      padding: const EdgeInsets.symmetric(vertical: 12),
       decoration: showDivider
           ? BoxDecoration(
               border: Border(bottom: BorderSide(color: t.borderSubtle)),
