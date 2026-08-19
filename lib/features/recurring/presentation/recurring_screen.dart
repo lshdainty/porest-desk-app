@@ -655,9 +655,9 @@ class _RecurringRow extends StatelessWidget {
     return Opacity(
       opacity: isActive ? 1.0 : 0.55,
       child: Padding(
-        // 행 좌우 inset 4(사용자 결정) — 라벨·토글은 inset 0.
+        // 좌우 0 — 라벨·토글과 같은 지점에서 시작한다(설정 리스트 공통 규칙).
         padding: const EdgeInsets.symmetric(
-          horizontal: PSpace.x4,
+          horizontal: 0,
           vertical: PSpace.x12,
         ),
         child: Row(
@@ -863,7 +863,7 @@ class _RecurringSkeleton extends StatelessWidget {
               for (int i = 0; i < 4; i++) ...[
                 Padding(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: PSpace.x4, // 실제 행 x4 정합
+                    horizontal: 0, // 실제 행과 같은 값
                     vertical: PSpace.x12,
                   ),
                   child: Row(

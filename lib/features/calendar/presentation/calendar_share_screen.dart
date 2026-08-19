@@ -257,7 +257,7 @@ class _CalendarRow extends ConsumerWidget {
     return InkWell(
       onTap: () => _showManageSheet(context, ref, calendar),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: PSpace.x8, vertical: 14),
+        padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 14),
         child: Row(
           children: [
             Container(

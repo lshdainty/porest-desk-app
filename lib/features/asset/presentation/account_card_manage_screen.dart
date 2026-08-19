@@ -275,7 +275,7 @@ class _ManageRowSkel extends StatelessWidget {
             : Border(bottom: BorderSide(color: t.borderSubtle)),
       ),
       padding: const EdgeInsets.symmetric(
-        horizontal: PSpace.x8, // 실제 행 x8 정합
+        horizontal: 0, // 실제 행과 같은 값
         vertical: PSpace.x16,
       ),
       child: Row(
@@ -344,8 +344,8 @@ class _ManageRow extends StatelessWidget {
                 : null,
           ),
           // web MANAGE_ROW(계좌·카테고리 공용) 정합 — py 12 / 아이콘 36 / 금액 bodySm
-          // 관리 행 좌우 inset 웹 px-2(8) 정합(사용자 결정).
-          padding: const EdgeInsets.symmetric(horizontal: PSpace.x8, vertical: PSpace.x12),
+          // 좌우 0 — 페이지가 24 를 쥔다. 행이 더 얹으면 위 라벨과 어긋난다(설정 리스트 공통 규칙).
+          padding: const EdgeInsets.symmetric(horizontal: 0, vertical: PSpace.x12),
           child: Row(
             children: [
               AssetLogo(asset: asset, size: 36),
