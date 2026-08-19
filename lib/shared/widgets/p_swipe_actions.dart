@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
-import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
@@ -65,9 +64,9 @@ class PSwipeActions extends StatelessWidget {
   /// false 면 감싸지 않고 행을 그대로 통과시킨다.
   final bool enabled;
 
-  /// 액션 하나의 폭 — 원형 배지에 좌우 숨 쉴 틈만 더한 값. 라벨(한글 두 글자)도
-  /// 이 안에 들어간다. 넓게 잡으면 배지 옆에 빈 공간이 남아 트레이가 헐거워 보인다.
-  static const double actionWidth = 52;
+  /// 액션 하나의 폭 — 배지 지름 + 좌우 4. 라벨(한글 두 글자)도 이 안에 들어간다.
+  /// 넓게 잡으면 배지 옆에 빈 공간이 남아 트레이가 헐거워 보인다.
+  static const double actionWidth = _badgeSize + 8;
 
   /// 액션 최소 높이 — WCAG 2.5.5(AAA, 44×44)를 밑돌지 않게.
   static const double actionMinHeight = 56;
@@ -114,7 +113,7 @@ class PSwipeActions extends StatelessWidget {
                   backgroundColor: Colors.transparent,
                   foregroundColor: _fg(context, a.kind),
                   // 상하 여백 없음 — 행 높이를 그대로 쓰고 좌우만 띄운다.
-                  padding: const EdgeInsets.symmetric(horizontal: PSpace.xs),
+                  padding: EdgeInsets.zero,
                   child: ConstrainedBox(
                     constraints:
                         const BoxConstraints(minHeight: actionMinHeight),
