@@ -1262,7 +1262,13 @@ class _DonutCardState extends ConsumerState<_DonutCard> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        krwSigned(total, widget.masked, unit: true),
+                        // 도넛 안이라 폭이 좁다(중앙 지름 120). 전체 자릿수를 쓰면
+                        // 원 밖으로 삐져나간다 — 1억만 넘어도 "102,176,580원" 이다.
+                        // 차트 축과 같은 축약을 쓴다(1.0억). 정확한 금액은 바로 아래
+                        // 범례 행들이 갖고 있다. 홈 도넛과 같은 처리.
+                        widget.masked
+                            ? '••••'
+                            : formatChartAxis(total.toDouble()),
                         style: PTypo.h4.copyWith(
                           color: t.fgPrimary,
                           fontWeight: PFontWeight.bold,
