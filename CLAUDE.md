@@ -66,7 +66,7 @@
 
 ```bash
 git fetch -q origin
-git worktree add -b <브랜치> /Users/lshdainty/study/.worktrees/<이름> origin/main
+git worktree add -b <브랜치> /home/lshdainty/study/.worktrees/<이름> origin/main
 ```
 
 - 워크트리는 **레포 밖**에 만든다 — `.claude/` 가 `.gitignore` 에 없는 레포가 있어,

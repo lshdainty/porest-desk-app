@@ -132,3 +132,8 @@ app.*.symbols
 # CI 가 만드는 테스트 리포트 (로컬에서 돌려도 커밋되지 않게)
 test-machine.json
 test-results.xml
+
+# Claude Code — 머신 로컬 설정만 제외한다.
+# .claude/commands · launch.json · workflow.md 같은 프로젝트 자산은 커밋해서
+# 여러 컴퓨터에서 같은 규칙으로 작업할 수 있게 둔다.
+.claude/settings.local.json
