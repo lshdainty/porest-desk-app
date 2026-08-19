@@ -415,25 +415,32 @@ Future<DateTime?> showMonthPickerSheet(BuildContext context, DateTime initial) {
                   ],
                 ),
                 const SizedBox(height: PSpace.x12),
-                // footer: 오늘로 + 닫기
+                // footer: 오늘로 + 닫기 — 화면 폭을 반씩 나눠 갖는다
+                // (spec drawer.md "flex:1 평등 분배"). Spacer 로 양끝에 붙이면
+                // 구석의 작은 알약이 돼 한 손으로 누를 폭이 안 나온다.
                 Row(
                   children: [
-                    PButton(
-                      label: l.calGoToToday,
-                      icon: LucideIcons.locateFixed,
-                      variant: PButtonVariant.ghost,
-                      size: PButtonSize.sm,
-                      flush: PButtonFlush.left,
-                      onPressed: () => Navigator.of(
-                        ctx,
-                      ).pop(DateTime(now.year, now.month, 1)),
+                    Expanded(
+                      child: PButton(
+                        label: l.calGoToToday,
+                        icon: LucideIcons.locateFixed,
+                        variant: PButtonVariant.ghost,
+                        size: PButtonSize.sm,
+                        fullWidth: true,
+                        onPressed: () => Navigator.of(
+                          ctx,
+                        ).pop(DateTime(now.year, now.month, 1)),
+                      ),
                     ),
-                    const Spacer(),
-                    PButton(
-                      label: l.actionClose,
-                      variant: PButtonVariant.ghost,
-                      size: PButtonSize.sm,
-                      onPressed: () => Navigator.of(ctx).pop(),
+                    const SizedBox(width: PSpace.x8),
+                    Expanded(
+                      child: PButton(
+                        label: l.actionClose,
+                        variant: PButtonVariant.ghost,
+                        size: PButtonSize.sm,
+                        fullWidth: true,
+                        onPressed: () => Navigator.of(ctx).pop(),
+                      ),
                     ),
                   ],
                 ),

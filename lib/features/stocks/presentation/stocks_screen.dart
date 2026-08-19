@@ -561,6 +561,8 @@ class _GroupEditorSheetBodyState extends ConsumerState<_GroupEditorSheetBody> {
             onSubmitted: (_) => _save(),
           ),
           const SizedBox(height: PSpace.x12),
+          // 삭제·저장은 화면 폭을 반씩 나눠 갖는다 (spec drawer.md "flex:1 평등 분배").
+          // 삭제만 내용 폭이면 파괴적 액션이 구석의 작은 알약이 돼 오탭이 는다.
           Row(
             children: [
               Expanded(
@@ -574,11 +576,14 @@ class _GroupEditorSheetBodyState extends ConsumerState<_GroupEditorSheetBody> {
               ),
               if (widget.group != null) ...[
                 const SizedBox(width: PSpace.x8),
-                PButton(
-                  label: l.stocksWatchGroupDelete,
-                  variant: PButtonVariant.danger,
-                  size: PButtonSize.sm,
-                  onPressed: _busy ? null : _delete,
+                Expanded(
+                  child: PButton(
+                    label: l.stocksWatchGroupDelete,
+                    variant: PButtonVariant.danger,
+                    size: PButtonSize.sm,
+                    fullWidth: true,
+                    onPressed: _busy ? null : _delete,
+                  ),
                 ),
               ],
             ],
