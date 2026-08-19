@@ -150,7 +150,7 @@ class _BodyState extends ConsumerState<_Body> {
 
     return ListView(
       controller: widget.scrollController,
-      padding: const EdgeInsets.fromLTRB(PSpace.x20, 0, PSpace.x20, PSpace.x20),
+      padding: const EdgeInsets.fromLTRB(PSpace.xl, 0, PSpace.xl, PSpace.x20),
       children: [
         // 안내 카드 — 캘린더 라벨 _IntroCard 정합(제목+설명).
         _TagIntroCard(tokens: t),
@@ -427,7 +427,7 @@ class _TagEditBodyState extends State<_TagEditBody> {
     final preview = widget.nameController.text.trim();
     return Padding(
       padding:
-          const EdgeInsets.fromLTRB(PSpace.x16, 0, PSpace.x16, PSpace.x16),
+          const EdgeInsets.fromLTRB(PSpace.xl, 0, PSpace.xl, PSpace.x16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

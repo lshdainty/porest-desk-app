@@ -190,7 +190,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
 
     return ListView(
       controller: widget.scrollController,
-      padding: const EdgeInsets.fromLTRB(PSpace.x20, 0, PSpace.x20, PSpace.x16),
+      padding: const EdgeInsets.fromLTRB(PSpace.xl, 0, PSpace.xl, PSpace.x16),
       children: [
         // Hero — 좌측 컬러 바 + [캘린더 pill · 그룹 · D-day] + 큰 제목
         IntrinsicHeight(

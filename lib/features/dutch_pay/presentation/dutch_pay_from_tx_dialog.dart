@@ -361,7 +361,7 @@ class _BodyState extends ConsumerState<_Body> {
     return ListView(
       controller: widget.scrollController,
       padding: const EdgeInsets.fromLTRB(
-          PSpace.x16, 0, PSpace.x16, PSpace.x16),
+          PSpace.xl, 0, PSpace.xl, PSpace.x16),
       children: [
                 // 기준 거래 — 플랫 행 (설명은 sub 통합)
                 PDetailSourceTx(

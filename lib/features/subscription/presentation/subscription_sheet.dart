@@ -92,9 +92,9 @@ class _SubscriptionSheetBodyState
     return ListView(
       controller: widget.scrollController,
       padding: const EdgeInsets.fromLTRB(
-        PSpace.x16,
+        PSpace.xl,
         PSpace.x4,
-        PSpace.x16,
+        PSpace.xl,
         PSpace.x16,
       ),
       children: [

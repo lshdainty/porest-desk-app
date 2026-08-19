@@ -90,7 +90,7 @@ class _Body extends ConsumerWidget {
     return ListView(
       controller: scrollController,
       padding: const EdgeInsets.fromLTRB(
-          PSpace.x16, 0, PSpace.x16, PSpace.x16),
+          PSpace.xl, 0, PSpace.xl, PSpace.x16),
       children: [
         // ── Hero ──
         Container(

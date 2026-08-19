@@ -330,7 +330,7 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
     return ListView(
       controller: widget.scrollController,
       padding: const EdgeInsets.fromLTRB(
-          PSpace.x16, 0, PSpace.x16, PSpace.x16),
+          PSpace.xl, 0, PSpace.xl, PSpace.x16),
       children: [
                 _PreviewTile(
                     entry: _selectedEntry,

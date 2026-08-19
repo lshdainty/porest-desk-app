@@ -253,7 +253,7 @@ class _BodyState extends ConsumerState<_Body> {
     return ListView(
       controller: widget.scrollController,
       padding: const EdgeInsets.fromLTRB(
-          PSpace.x16, 0, PSpace.x16, PSpace.x16),
+          PSpace.xl, 0, PSpace.xl, PSpace.x16),
       children: [
         _StepHeader(label: l.dutchCreate, step: 1, t: t),
         const SizedBox(height: PSpace.md),
@@ -332,7 +332,7 @@ class _BodyState extends ConsumerState<_Body> {
     return ListView(
       controller: widget.scrollController,
       padding: const EdgeInsets.fromLTRB(
-          PSpace.x16, 0, PSpace.x16, PSpace.x16),
+          PSpace.xl, 0, PSpace.xl, PSpace.x16),
       children: [
         _StepHeader(label: l.dutchSelectParticipants, step: 2, t: t),
         const SizedBox(height: PSpace.md),

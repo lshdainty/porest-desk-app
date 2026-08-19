@@ -192,7 +192,7 @@ class _BodyState extends ConsumerState<_Body> {
     return ListView(
       controller: widget.scrollController,
       padding: const EdgeInsets.fromLTRB(
-          PSpace.x16, 0, PSpace.x16, PSpace.x16),
+          PSpace.xl, 0, PSpace.xl, PSpace.x16),
       children: [
           // 입력값 실시간 미리보기 — 웹 SavingGoalAddDialog Preview 정합.
           // 이름·금액 PTextInput 의 onChanged setState 가 있어 별도 리스너 없이 갱신된다.
