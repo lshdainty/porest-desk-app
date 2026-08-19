@@ -68,7 +68,9 @@ class TransferRow extends StatelessWidget {
       child: Opacity(
         opacity: _isScheduled(transfer.transferDate) ? 0.6 : 1,
         child: Padding(
-        padding: const EdgeInsets.fromLTRB(2, PSpace.x12, 0, PSpace.x12),
+        // 좌우는 페이지가 쥔다. 행이 여기서 좌측 2 를 더 얹으면 그만큼 날짜 헤더와
+        // 어긋난다 — 미세하지만 목록 전체가 헤더보다 오른쪽으로 밀려 보인다.
+        padding: const EdgeInsets.fromLTRB(0, PSpace.x12, 0, PSpace.x12),
         child: Row(
           children: [
             Container(
