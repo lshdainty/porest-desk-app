@@ -269,7 +269,7 @@ class _BodyState extends ConsumerState<_Body> {
     return ListView(
       controller: widget.scrollController,
       padding: const EdgeInsets.fromLTRB(
-          PSpace.x20, PSpace.x8, PSpace.x20, PSpace.x16),
+          PSpace.xl, PSpace.x8, PSpace.xl, PSpace.x16),
       children: [
           PSectionLabel(l.calFieldTitle, variant: PSectionLabelVariant.header),
           const SizedBox(height: PSpace.x8),

@@ -249,7 +249,7 @@ class _TradeBodyState extends ConsumerState<_TradeBody> {
       controller: widget.scrollController,
       // 좌우 여백이 빠져 있어 입력칸이 시트 가장자리에 붙어 있었다.
       // 같은 입력 폼 시트(add_tx_sheet)와 같은 값.
-      padding: const EdgeInsets.fromLTRB(PSpace.x20, 0, PSpace.x20, PSpace.x16),
+      padding: const EdgeInsets.fromLTRB(PSpace.xl, 0, PSpace.xl, PSpace.x16),
       children: [
         PTabs<String>(
           items: [

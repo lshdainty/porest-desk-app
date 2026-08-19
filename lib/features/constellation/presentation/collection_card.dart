@@ -301,7 +301,7 @@ Future<void> showConstellationDetailSheet(
       final collected = entry.collected;
       final color = constellationColor(ctx, entry.constellation.colorKey);
       return Padding(
-        padding: const EdgeInsets.fromLTRB(PSpace.x20, 0, PSpace.x20, PSpace.x24),
+        padding: const EdgeInsets.fromLTRB(PSpace.xl, 0, PSpace.xl, PSpace.x24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,

@@ -209,7 +209,7 @@ class _BudgetEditBodyState extends ConsumerState<_BudgetEditBody> {
     // shrinkWrap sheet 라 바깥이 이미 스크롤 — 여기선 Column 을 쓴다(중첩 스크롤 금지).
     return Padding(
       padding: const EdgeInsets.fromLTRB(
-          PSpace.x20, 0, PSpace.x20, PSpace.x16),
+          PSpace.xl, 0, PSpace.xl, PSpace.x16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,

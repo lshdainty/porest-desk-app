@@ -410,7 +410,7 @@ class _CalendarFilterSheetBody extends ConsumerWidget {
     // 컨텐츠 높이에 맞춰 wrap (showPSheet shrinkWrap 모드) → Column 사용.
     return Padding(
       padding: const EdgeInsets.fromLTRB(
-          PSpace.x20, PSpace.x4, PSpace.x20, PSpace.x24),
+          PSpace.xl, PSpace.x4, PSpace.xl, PSpace.x24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
@@ -925,7 +925,7 @@ class _DayEventsSheetBody extends StatelessWidget {
       controller: scrollController,
       // 하단 — 플로팅 탭바 보상.
       padding: EdgeInsets.fromLTRB(
-          PSpace.x20, PSpace.x24, PSpace.x20, pTabBarBottomInset(context)),
+          PSpace.xl, PSpace.x24, PSpace.xl, pTabBarBottomInset(context)),
       children: [
         Row(
           children: [
@@ -1142,7 +1142,7 @@ class _MonthYearPickerSheetState extends State<_MonthYearPickerSheet> {
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(
-          PSpace.x20, 0, PSpace.x20, PSpace.x24),
+          PSpace.xl, 0, PSpace.xl, PSpace.x24),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

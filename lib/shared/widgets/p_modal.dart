@@ -349,11 +349,11 @@ Widget _buildSheetColumn(
           borderRadius: PRadius.brFull,
         ),
       ),
-      // Header (제목 + 액션 + close) — 좌우 20 으로 content·footer 와 맞춘다.
-      // 우측은 8 — 닫기 아이콘 버튼이 자체 padding 을 가져 광학적으로 20 에 선다.
+      // Header (제목 + 액션 + close) — 좌우 xl(24) 로 content·footer 와 맞춘다.
+      // 우측은 sm(8) — 닫기 아이콘 버튼이 자체 padding 을 가져 광학적으로 24 에 선다.
       Padding(
         padding: const EdgeInsets.fromLTRB(
-            PSpace.x20, PSpace.md, PSpace.sm, PSpace.xs),
+            PSpace.xl, PSpace.md, PSpace.sm, PSpace.xs),
         child: Row(
           children: [
             Expanded(
@@ -378,7 +378,7 @@ Widget _buildSheetColumn(
       if (footerBuilder != null)
         Container(
           padding: const EdgeInsets.fromLTRB(
-              PSpace.x20, PSpace.x12, PSpace.x20, PSpace.x16),
+              PSpace.xl, PSpace.md, PSpace.xl, PSpace.lg),
           color: t.bgSurface,
           child: footerBuilder(ctx),
         ),

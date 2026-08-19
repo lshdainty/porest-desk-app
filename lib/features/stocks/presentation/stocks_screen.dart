@@ -422,7 +422,7 @@ class _SearchSheetBodyState extends ConsumerState<_SearchSheetBody> {
     return ListView(
       controller: widget.scrollController,
       padding:
-          const EdgeInsets.fromLTRB(PSpace.x20, 0, PSpace.x20, PSpace.x24),
+          const EdgeInsets.fromLTRB(PSpace.xl, 0, PSpace.xl, PSpace.x24),
       children: [
         PSearchField(
           hint: l.stocksSearchPlaceholder,
@@ -547,7 +547,7 @@ class _GroupEditorSheetBodyState extends ConsumerState<_GroupEditorSheetBody> {
     final canSave = _nameCtrl.text.trim().isNotEmpty && !_busy;
     return Padding(
       padding:
-          const EdgeInsets.fromLTRB(PSpace.x20, 0, PSpace.x20, PSpace.x24),
+          const EdgeInsets.fromLTRB(PSpace.xl, 0, PSpace.xl, PSpace.x24),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1370,7 +1370,7 @@ class _StockDetailBodyState extends ConsumerState<_StockDetailBody> {
     return ListView(
       controller: widget.scrollController,
       padding:
-          const EdgeInsets.fromLTRB(PSpace.x20, 0, PSpace.x20, PSpace.x24),
+          const EdgeInsets.fromLTRB(PSpace.xl, 0, PSpace.xl, PSpace.x24),
       children: [
         // 헤더: 종목명 · 관심 토글
         Row(

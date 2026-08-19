@@ -327,7 +327,7 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
     return ListView(
       controller: widget.scrollController,
       padding: const EdgeInsets.fromLTRB(
-          PSpace.x20, 0, PSpace.x20, PSpace.x16),
+          PSpace.xl, 0, PSpace.xl, PSpace.x16),
       children: [
         // 미리보기 카드 — 웹: bg-muted + 아이콘 타일(44) + 이름 + 캡션, 실시간 반영.
         Container(

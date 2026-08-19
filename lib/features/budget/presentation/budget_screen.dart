@@ -362,9 +362,9 @@ Future<DateTime?> showMonthPickerSheet(BuildContext context, DateTime initial) {
         builder: (ctx, setSheet) {
           return Padding(
             padding: const EdgeInsets.fromLTRB(
-              PSpace.x20,
+              PSpace.xl,
               PSpace.x4,
-              PSpace.x20,
+              PSpace.xl,
               PSpace.x20,
             ),
             child: Column(

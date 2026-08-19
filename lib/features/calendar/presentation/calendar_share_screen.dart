@@ -384,7 +384,7 @@ void _showCreateDialog(BuildContext context, WidgetRef ref) {
       return StatefulBuilder(
         builder: (ctx, setSheet) => ListView(
           controller: scrollCtrl,
-          padding: const EdgeInsets.fromLTRB(PSpace.x20, 0, PSpace.x20, PSpace.x16),
+          padding: const EdgeInsets.fromLTRB(PSpace.xl, 0, PSpace.xl, PSpace.x16),
           children: [
             Text(l.calFieldName, style: PTypo.caption.copyWith(color: t.fgSecondary)),
             const SizedBox(height: PSpace.x4),
@@ -440,7 +440,7 @@ void _showJoinDialog(BuildContext context, WidgetRef ref) {
       final t = ctx.tokens;
       return ListView(
         controller: scrollCtrl,
-        padding: const EdgeInsets.fromLTRB(PSpace.x20, 0, PSpace.x20, PSpace.x16),
+        padding: const EdgeInsets.fromLTRB(PSpace.xl, 0, PSpace.xl, PSpace.x16),
         children: [
           Text(l.calInviteCode, style: PTypo.caption.copyWith(color: t.fgSecondary)),
           const SizedBox(height: PSpace.x4),
@@ -627,7 +627,7 @@ class _ManageBodyState extends ConsumerState<_ManageBody> {
     final myId = ref.watch(authProvider).value?.rowId;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(PSpace.x20, 0, PSpace.x20, PSpace.x16),
+      padding: const EdgeInsets.fromLTRB(PSpace.xl, 0, PSpace.xl, PSpace.x16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,

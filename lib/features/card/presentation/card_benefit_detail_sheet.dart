@@ -76,7 +76,7 @@ class _CardBenefitDetailContentState
       error: (e, _) => ListView(
         controller: widget.scrollController,
         padding: const EdgeInsets.fromLTRB(
-            PSpace.x20, PSpace.x4, PSpace.x20, PSpace.x24),
+            PSpace.xl, PSpace.x4, PSpace.xl, PSpace.x24),
         children: [
           Text('${l.cardDetailLoadError}\n$e',
               style: PTypo.bodySm.copyWith(color: t.statusDanger)),
@@ -102,7 +102,7 @@ class _CardBenefitDetailContentState
         return ListView(
           controller: widget.scrollController,
           padding: const EdgeInsets.fromLTRB(
-              PSpace.x20, PSpace.x4, PSpace.x20, PSpace.x24),
+              PSpace.xl, PSpace.x4, PSpace.xl, PSpace.x24),
           children: [
             // 카드 hero
             _CardHero(summary: s, tokens: t),
@@ -527,7 +527,7 @@ class _BenefitAccordion extends StatelessWidget {
                       top: BorderSide(color: t.borderSubtle)),
                 ),
                 padding: const EdgeInsets.fromLTRB(
-                    PSpace.x20, 14, PSpace.x20, PSpace.x16),
+                    PSpace.xl, 14, PSpace.xl, PSpace.x16),
                 child: Text(benefit.detail!,
                     style: PTypo.bodySm.copyWith(
                         color: t.fgSecondary,
@@ -549,7 +549,7 @@ class _DetailSkeleton extends StatelessWidget {
     return ListView(
       controller: scrollController,
       padding: const EdgeInsets.fromLTRB(
-          PSpace.x20, PSpace.x4, PSpace.x20, PSpace.x24),
+          PSpace.xl, PSpace.x4, PSpace.xl, PSpace.x24),
       children: [
         AspectRatio(
           aspectRatio: 1.586,
