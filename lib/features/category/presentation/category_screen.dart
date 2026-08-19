@@ -337,9 +337,9 @@ class _CategoryList extends StatelessWidget {
             physics: const NeverScrollableScrollPhysics(),
             buildDefaultDragHandles: false,
             itemCount: tree.length,
-            onReorder: (oldIndex, newIndex) {
-              if (newIndex > oldIndex) newIndex -= 1;
-              if (oldIndex == newIndex) return;
+            // onReorderItem 은 newIndex 를 프레임워크가 보정해 넘기고,
+            // oldIndex == newIndex 면 아예 호출하지 않는다.
+            onReorderItem: (oldIndex, newIndex) {
               final reordered = [for (final e in tree) e.parent];
               final moved = reordered.removeAt(oldIndex);
               reordered.insert(newIndex, moved);
@@ -385,9 +385,7 @@ class _CategoryList extends StatelessWidget {
                       physics: const NeverScrollableScrollPhysics(),
                       buildDefaultDragHandles: false,
                       itemCount: entry.children.length,
-                      onReorder: (oldIndex, newIndex) {
-                        if (newIndex > oldIndex) newIndex -= 1;
-                        if (oldIndex == newIndex) return;
+                      onReorderItem: (oldIndex, newIndex) {
                         final reordered = [...entry.children];
                         final moved = reordered.removeAt(oldIndex);
                         reordered.insert(newIndex, moved);
