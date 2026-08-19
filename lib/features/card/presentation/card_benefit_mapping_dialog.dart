@@ -90,7 +90,7 @@ class _BodyState extends ConsumerState<_Body> {
     return ListView(
       controller: widget.scrollController,
       padding: const EdgeInsets.fromLTRB(
-          PSpace.x16, 0, PSpace.x16, PSpace.x16),
+          PSpace.x20, 0, PSpace.x20, PSpace.x16),
       children: [
           Text(l.cardMappingNew,
               style: PTypo.bodySm.copyWith(

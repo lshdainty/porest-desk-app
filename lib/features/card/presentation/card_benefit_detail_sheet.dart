@@ -527,7 +527,7 @@ class _BenefitAccordion extends StatelessWidget {
                       top: BorderSide(color: t.borderSubtle)),
                 ),
                 padding: const EdgeInsets.fromLTRB(
-                    PSpace.x16, 14, PSpace.x16, PSpace.x16),
+                    PSpace.x20, 14, PSpace.x20, PSpace.x16),
                 child: Text(benefit.detail!,
                     style: PTypo.bodySm.copyWith(
                         color: t.fgSecondary,

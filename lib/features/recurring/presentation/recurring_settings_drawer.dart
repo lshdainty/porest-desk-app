@@ -388,7 +388,7 @@ class _RecurringSettingsBodyState
 
     return ListView(
       controller: widget.scrollController,
-      padding: const EdgeInsets.fromLTRB(PSpace.x16, 0, PSpace.x16, PSpace.x16),
+      padding: const EdgeInsets.fromLTRB(PSpace.x20, 0, PSpace.x20, PSpace.x16),
       children: [
         // add: intro ¶ + 입력 필드 / from-tx·edit: 기준 거래 플랫 행(설명은 sub 통합)
         if (_isAdd) ...[

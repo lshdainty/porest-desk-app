@@ -1142,7 +1142,7 @@ class _MonthYearPickerSheetState extends State<_MonthYearPickerSheet> {
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(
-          PSpace.x16, 0, PSpace.x16, PSpace.x24),
+          PSpace.x20, 0, PSpace.x20, PSpace.x24),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

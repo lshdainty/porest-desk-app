@@ -349,10 +349,11 @@ Widget _buildSheetColumn(
           borderRadius: PRadius.brFull,
         ),
       ),
-      // Header (제목 + 액션 + close) — spec: padding lg(16)
+      // Header (제목 + 액션 + close) — 좌우 20 으로 content·footer 와 맞춘다.
+      // 우측은 8 — 닫기 아이콘 버튼이 자체 padding 을 가져 광학적으로 20 에 선다.
       Padding(
         padding: const EdgeInsets.fromLTRB(
-            PSpace.lg, PSpace.md, PSpace.sm, PSpace.xs),
+            PSpace.x20, PSpace.md, PSpace.sm, PSpace.xs),
         child: Row(
           children: [
             Expanded(

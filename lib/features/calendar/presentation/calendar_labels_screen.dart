@@ -366,7 +366,7 @@ class _LabelEditorBodyState extends State<_LabelEditorBody> {
     final preview = widget.nameController.text.trim();
     return Padding(
       padding:
-          const EdgeInsets.fromLTRB(PSpace.x16, 0, PSpace.x16, PSpace.x16),
+          const EdgeInsets.fromLTRB(PSpace.x20, 0, PSpace.x20, PSpace.x16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

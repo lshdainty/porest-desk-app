@@ -84,7 +84,7 @@ class _CardPickerSheetState extends ConsumerState<_CardPickerSheet> {
     return ListView(
       controller: widget.scrollController,
       padding: const EdgeInsets.fromLTRB(
-          PSpace.x16, 0, PSpace.x16, PSpace.x16),
+          PSpace.x20, 0, PSpace.x20, PSpace.x16),
       children: [
             PSearchField(
               hint: l.cardSearchHintNameCompany,

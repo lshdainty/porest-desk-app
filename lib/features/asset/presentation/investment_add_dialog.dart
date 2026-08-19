@@ -502,7 +502,7 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
     final total = _totalOf(unitMap, _holdings);
     return ListView(
       controller: widget.scrollController,
-      padding: const EdgeInsets.fromLTRB(PSpace.x16, 0, PSpace.x16, PSpace.x16),
+      padding: const EdgeInsets.fromLTRB(PSpace.x20, 0, PSpace.x20, PSpace.x16),
       children: [
         _PreviewTile(
           entry: _selectedEntry,
