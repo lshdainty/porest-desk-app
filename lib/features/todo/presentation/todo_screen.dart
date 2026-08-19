@@ -879,8 +879,9 @@ class _LedgerCalendar extends StatelessWidget {
 
     final dows = weekdayLabels();
     return Padding(
-      // 위 헤더·월 네비와 같은 24 에서 시작한다 — 혼자 16 이면 캘린더만 왼쪽으로 밀린다.
-      padding: const EdgeInsets.fromLTRB(PSpace.x24, 12, PSpace.x24, 0),
+      // 가계부 _TxmCalendar 와 같은 값으로 둔다 — 캘린더는 페이지 여백 규칙에서 빼고
+      // 두 화면이 같은 격자를 쓴다(사용자 결정).
+      padding: const EdgeInsets.fromLTRB(PSpace.x16, 12, PSpace.x16, 0),
       child: Column(
         children: [
           Row(
@@ -1428,7 +1429,7 @@ class _LedgerSkeleton extends StatelessWidget {
         ),
         Padding(
           // 실렌더 _LedgerCalendar 와 같은 여백.
-          padding: const EdgeInsets.fromLTRB(PSpace.x24, 12, PSpace.x24, 0),
+          padding: const EdgeInsets.fromLTRB(PSpace.x16, 12, PSpace.x16, 0),
           child: Row(
             children: [
               for (var i = 0; i < 7; i++)
@@ -1454,7 +1455,7 @@ class _LedgerSkeleton extends StatelessWidget {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.fromLTRB(PSpace.x24, 0, PSpace.x24, 10),
+          padding: const EdgeInsets.fromLTRB(PSpace.x16, 0, PSpace.x16, 10),
           child: Row(
             children: [
               for (var i = 0; i < 7; i++)
