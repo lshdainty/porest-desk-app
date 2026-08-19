@@ -67,8 +67,24 @@
 3. spec과 현재 코드 diff (PRadius / PorestTokens / 위젯 prop)
 4. spec 부재 / 모호 → 사용자에게 결정 요구 (현재 + spec 인용 + 선택지)
 5. 결정 → spec 업데이트 (필요 시) → 코드 동기
-6. flutter analyze (0 issues) + 시뮬레이터 시각 검증 (라이트/다크 모드)
+6. `fvm flutter analyze lib/` (0 issues) + 시뮬레이터 시각 검증 (라이트/다크 모드)
 7. 반복
+```
+
+## 검증 명령
+
+`fvm` 을 빼면 안 된다. 맨몸 `flutter` 는 fvm global(3.41.9)을 잡는데 이 레포 핀은
+`.fvmrc` 3.44.9 다 — 로컬만 통과하고 CI 에서 깨진다. CI 도 같은 3.44.9 로 못 박혀 있다
+(`.github/workflows/ci-main.yml` 의 `FLUTTER_VERSION`).
+
+범위도 `lib/` 다. CI 가 `flutter analyze lib/` 로 돌리므로 범위를 넓히면 CI 가 보지 않는
+곳까지 붙잡히고, 좁히면 CI 에서 터진다. deprecation info 도 analyze 를 실패시킨다.
+
+```bash
+. ~/.config/flutter-env.sh     # 비대화형 셸은 .zshrc 를 로드하지 않는다
+fvm flutter pub get
+fvm flutter analyze lib/
+fvm flutter test
 ```
 
 ## 참고
