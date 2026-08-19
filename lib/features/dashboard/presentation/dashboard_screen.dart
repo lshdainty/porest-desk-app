@@ -254,8 +254,16 @@ class _WidgetRow extends StatelessWidget {
 
 /// 위젯 로딩 스켈레톤 — 헤더 + 2행 (아래 gap 36 자체 관리).
 class _WidgetSkeleton extends StatelessWidget {
-  const _WidgetSkeleton({required this.tokens});
+  const _WidgetSkeleton({
+    required this.tokens,
+    required this.icon,
+    required this.title,
+    required this.onAll,
+  });
   final PorestTokens tokens;
+  final IconData icon;
+  final String title;
+  final VoidCallback onAll;
 
   @override
   Widget build(BuildContext context) {
@@ -266,18 +274,9 @@ class _WidgetSkeleton extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: Row(
-              children: const [
-                PSkeleton(width: 16, height: 16),
-                SizedBox(width: 7),
-                PSkeleton.line(width: 80),
-                Spacer(),
-                PSkeleton(width: 16, height: 16),
-              ],
-            ),
-          ),
+          // 헤드(아이콘·제목·전체보기)는 정적 틀이라 로딩에도 진짜를 쓴다 —
+          // 회색 박스로 덮으면 바로 보여줄 수 있는 걸 가리고, 교체 순간 튄다.
+          _WidgetHead(icon: icon, title: title, onAll: onAll),
           for (int i = 0; i < 2; i++)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 10),
@@ -306,7 +305,14 @@ class _HomeUpcomingWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
-    if (async.isLoading && !async.hasValue) return _WidgetSkeleton(tokens: t);
+    if (async.isLoading && !async.hasValue) {
+      return _WidgetSkeleton(
+        tokens: t,
+        icon: LucideIcons.calendarClock,
+        title: l.dashUpcoming,
+        onAll: () => context.go('/calendar'),
+      );
+    }
     final s = async.value;
     if (s == null) return const SizedBox.shrink();
     final events = s.upcomingEvents.take(3).toList();

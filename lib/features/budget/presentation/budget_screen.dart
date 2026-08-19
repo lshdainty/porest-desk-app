@@ -1626,6 +1626,7 @@ class _BudgetLoadingSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = AppLocalizations.of(context);
     // 좌우는 페이지가 쥔다(ListView padding 24). 섹션 스켈레톤이 여기서 더 얹으면
     // 실렌더(PFlatSection — inset 없음)와 어긋나 데이터가 오는 순간 행이 좌우로 튄다.
     // 섹션 사이는 gap(SizedBox x32)이 맡는다.
@@ -1694,18 +1695,13 @@ class _BudgetLoadingSkeleton extends StatelessWidget {
           ),
         ),
         const SizedBox(height: PSpace.x32),
-        // _PaceCard — 플랫 섹션 스켈레톤 (header + 게이지 + 2-column PaceStat).
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                const PSkeleton.line(width: 72, height: 14),
-                const Spacer(),
-                PSkeleton.line(width: 64, height: 22),
-              ],
-            ),
-            const SizedBox(height: PSpace.x12),
+        // _PaceCard — 실렌더와 같은 PFlatSection SoT. 제목은 정적이라 진짜를 쓴다.
+        PFlatSection(
+          title: l.budgetSpendingPace,
+          trailing: const PSkeleton.line(width: 64, height: 22),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
             // 페이스 게이지 (minHeight 12)
             PSkeleton(height: 12, borderRadius: PRadius.brFull),
             const SizedBox(height: PSpace.x8),
@@ -1742,14 +1738,12 @@ class _BudgetLoadingSkeleton extends StatelessWidget {
             ),
           ],
         ),
+        ),
         const SizedBox(height: PSpace.x32),
-        // _StatusTiles — 플랫 섹션 스켈레톤 ('예산 현황' + 2칸 box).
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const PSkeleton.line(width: 72, height: 14),
-            const SizedBox(height: PSpace.x12),
-            Row(
+        // _StatusTiles — 실렌더와 같은 PFlatSection SoT.
+        PFlatSection(
+          title: l.budgetStatusTitle,
+          child: Row(
               children: [
                 for (int i = 0; i < 2; i++) ...[
                   if (i > 0) const SizedBox(width: PSpace.x8),
@@ -1774,21 +1768,17 @@ class _BudgetLoadingSkeleton extends StatelessWidget {
                 ],
               ],
             ),
-          ],
         ),
         const SizedBox(height: PSpace.x32),
-        // _CategoryListCard — 플랫 섹션 스켈레톤 (헤더 + 구분선 없는 행 리스트).
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: const [
-                PSkeleton.line(width: 128, height: 16),
-                Spacer(),
-                PSkeleton.line(width: 56, height: 12),
-              ],
-            ),
-            const SizedBox(height: PSpace.x16),
+        // _CategoryListCard — 실렌더와 같은 PFlatSection SoT.
+        // headGap 은 실렌더(28)를 그대로 — 16 으로 두면 데이터가 오는 순간 목록이 내려앉는다.
+        PFlatSection(
+          title: l.budgetByCategory,
+          headGap: 28,
+          trailing: const PSkeleton.line(width: 56, height: 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
             for (int i = 0; i < 4; i++) ...[
               if (i > 0) const SizedBox(height: PSpace.x16),
               // _CategoryRow — 아이콘(36) + 이름/남은예산 + 금액/한도, progress.
@@ -1822,21 +1812,14 @@ class _BudgetLoadingSkeleton extends StatelessWidget {
             ],
           ],
         ),
+        ),
         const SizedBox(height: PSpace.x32),
-        // _ComplianceCard — 플랫 섹션 스켈레톤 (header + 차트 영역 height 200).
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                const PSkeleton.line(width: 144, height: 14),
-                const Spacer(),
-                PSkeleton.line(width: 80, height: 12),
-              ],
-            ),
-            const SizedBox(height: PSpace.x16),
-            const PSkeleton(width: double.infinity, height: 200),
-          ],
+        // _ComplianceCard — 실렌더와 같은 PFlatSection SoT(headGap 16).
+        PFlatSection(
+          title: l.budgetComplianceTitle,
+          headGap: 16,
+          trailing: const PSkeleton.line(width: 80, height: 12),
+          child: const PSkeleton(width: double.infinity, height: 200),
         ),
       ],
     );

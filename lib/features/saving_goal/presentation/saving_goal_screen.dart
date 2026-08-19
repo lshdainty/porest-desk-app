@@ -169,12 +169,17 @@ class SavingGoalScreen extends ConsumerWidget {
   }
 }
 
-/// 저축 목표 skeleton — keep 카드 + 목록 카드 × 3.
+/// 저축 목표 skeleton — keep 카드 + 카드 다이어트 목록(행 + PDivider).
+///
+/// 예전엔 목록도 카드 3장(118, brLg)이었는데 b4b29e4 로 실렌더가 카드를 벗고
+/// divider 로만 나뉘는 플랫 행이 됐다. 카드를 그대로 두면 데이터가 오는 순간
+/// 목록 전체가 다른 모양으로 바뀐다.
 class _SavingGoalSkeleton extends StatelessWidget {
   const _SavingGoalSkeleton();
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return ListView(
       padding: const EdgeInsets.symmetric(
         horizontal: PSpace.x24,
@@ -185,12 +190,61 @@ class _SavingGoalSkeleton extends StatelessWidget {
         PSkeleton(
             width: double.infinity, height: 74, borderRadius: PRadius.brLg),
         const SizedBox(height: PSpace.x16),
-        const PSkeleton.line(width: 120),
+        // 라벨행 — '추가' 버튼은 정적 UI라 로딩에도 진짜를 쓴다.
+        Row(
+          children: [
+            const PSkeleton.line(width: 120),
+            const Spacer(),
+            PButton(
+              label: l.savingGoalAddAction,
+              icon: LucideIcons.plus,
+              variant: PButtonVariant.accent,
+              size: PButtonSize.sm,
+              onPressed: () => showSavingGoalEditDialog(context),
+            ),
+          ],
+        ),
         const SizedBox(height: PSpace.x8),
         for (int i = 0; i < 3; i++) ...[
-          if (i > 0) const SizedBox(height: PSpace.x8),
-          PSkeleton(
-              width: double.infinity, height: 118, borderRadius: PRadius.brLg),
+          if (i > 0) const PDivider(),
+          const Padding(
+            // 실제 _GoalCard 와 같은 여백 — 좌우 4 / 상하 12.
+            padding: EdgeInsets.symmetric(
+                horizontal: PSpace.x4, vertical: PSpace.x12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    PSkeleton(
+                        width: 40, height: 40, borderRadius: PRadius.brLg),
+                    SizedBox(width: PSpace.x12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          PSkeleton.line(width: 120, height: 14),
+                          SizedBox(height: 1),
+                          PSkeleton.line(width: 72, height: 11),
+                        ],
+                      ),
+                    ),
+                    PSkeleton(width: 18, height: 18),
+                  ],
+                ),
+                SizedBox(height: PSpace.x12),
+                Row(
+                  children: [
+                    PSkeleton.line(width: 140, height: 11),
+                    Spacer(),
+                    PSkeleton.line(width: 32, height: 13),
+                  ],
+                ),
+                SizedBox(height: 6),
+                PSkeleton(height: 6, borderRadius: PRadius.brXs),
+              ],
+            ),
+          ),
         ],
       ],
     );

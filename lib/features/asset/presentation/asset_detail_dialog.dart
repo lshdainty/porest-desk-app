@@ -1192,32 +1192,49 @@ class _RecentExpenses extends StatelessWidget {
   Widget build(BuildContext context) {
     final list = async.value ?? const <Expense>[];
     if (async.isLoading && list.isEmpty) {
-      // 서버 거래내역 로딩 중 — 실제 _ExpenseRow(아이콘 36 + 2줄 + 금액) 그대로 스켈레톤.
+      // 실렌더와 같은 날짜 그룹 구조 — 그룹 사이 16, 헤더(날짜+요일+일 합계) + 행.
+      // 평평한 행만 깔면 데이터가 오는 순간 헤더 높이만큼 목록이 밀린다.
       return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          for (int i = 0; i < 4; i++)
+          for (int g = 0; g < 2; g++) ...[
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              child: Row(
+              padding: EdgeInsets.only(top: g == 0 ? 0 : PSpace.x16),
+              child: const Row(
                 children: [
-                  PSkeleton(width: 36, height: 36, borderRadius: PRadius.tile(36)),
-                  const SizedBox(width: 12),
-                  const Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        PSkeleton.line(width: 120, height: 14),
-                        SizedBox(height: 4),
-                        PSkeleton.line(width: 80, height: 11),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  const PSkeleton.line(width: 56, height: 14),
+                  PSkeleton.line(width: 56, height: 14),
+                  SizedBox(width: PSpace.x8),
+                  PSkeleton.line(width: 20, height: 14),
+                  Spacer(),
+                  PSkeleton.line(width: 72, height: 14),
                 ],
               ),
             ),
+            for (int i = 0; i < 2; i++)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: Row(
+                  children: [
+                    PSkeleton(
+                        width: 36, height: 36, borderRadius: PRadius.tile(36)),
+                    const SizedBox(width: 12),
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          PSkeleton.line(width: 120, height: 14),
+                          SizedBox(height: 4),
+                          PSkeleton.line(width: 80, height: 11),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    const PSkeleton.line(width: 56, height: 14),
+                  ],
+                ),
+              ),
+          ],
         ],
       );
     }
@@ -1923,18 +1940,75 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
             expensesByAssetProvider((assetId: asset.rowId, limit: 12)));
 
     if (billingAsync.isLoading && b == null) {
-      return const Padding(
-        padding: EdgeInsets.fromLTRB(2, 2, 2, 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            PSkeleton.line(width: 130, height: 20),
-            SizedBox(height: 12),
-            PSkeleton.line(width: 180, height: 32),
-            SizedBox(height: 16),
-            PSkeleton.line(width: double.infinity, height: 48),
-          ],
-        ),
+      // 실렌더(아래 히어로) 미러 — 회차 라벨+chevron / 금액 / 결제일 행 / 액션 타일.
+      // 액션 타일까지 자리를 잡아야 데이터가 오는 순간 아래가 통째로 밀리지 않는다.
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Padding(
+            padding: EdgeInsets.fromLTRB(2, 2, 2, 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    PSkeleton.line(width: 130, height: 20),
+                    SizedBox(width: 7),
+                    PSkeleton(
+                        width: 24, height: 24, borderRadius: PRadius.brFull),
+                  ],
+                ),
+                SizedBox(height: 10),
+                PSkeleton.line(width: 180, height: 32),
+              ],
+            ),
+          ),
+          Container(
+            decoration: BoxDecoration(
+              border: Border(top: BorderSide(color: t.borderSubtle)),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 14),
+            child: const Row(
+              children: [
+                SizedBox(width: 68, child: PSkeleton.line(width: 56, height: 14)),
+                PSkeleton.line(width: 110, height: 14),
+                Spacer(),
+                PSkeleton.line(width: 90, height: 11),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 14, bottom: 4),
+            child: Row(
+              children: [
+                for (int i = 0; i < 2; i++) ...[
+                  if (i > 0) const SizedBox(width: 8),
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 4, vertical: 14),
+                      decoration: BoxDecoration(
+                        color: t.bgSunken,
+                        borderRadius: PRadius.brLg,
+                      ),
+                      child: const Column(
+                        children: [
+                          PSkeleton(
+                              width: 30,
+                              height: 30,
+                              borderRadius: PRadius.brMd),
+                          SizedBox(height: 8),
+                          PSkeleton.line(width: 48, height: 11),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
       );
     }
 

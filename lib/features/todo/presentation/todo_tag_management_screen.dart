@@ -156,9 +156,59 @@ class _BodyState extends ConsumerState<_Body> {
         _TagIntroCard(tokens: t),
         const SizedBox(height: PSpace.x32),
         tagsAsync.when(
-          loading: () => const Padding(
-            padding: EdgeInsets.symmetric(vertical: PSpace.x8),
-            child: PListSkeleton(rows: 4),
+          // 추가 버튼은 정적 UI라 로딩에도 진짜를 쓴다 — 개수 텍스트와 행만
+          // 데이터 자리. 범용 PListSkeleton(아이콘 없는 2줄)은 실제 태그 행
+          // (타일 34 + 이름/사용 수 + 휴지통 + chevron)과 달라 걷어냈다.
+          loading: () => Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const PSkeleton.line(width: 96, height: 14),
+                  PButton(
+                    label: l.todoNewTag,
+                    icon: LucideIcons.plus,
+                    variant: PButtonVariant.accent,
+                    size: PButtonSize.sm,
+                    onPressed: _busy ? null : () => _openEdit(null),
+                  ),
+                ],
+              ),
+              for (int i = 0; i < 4; i++)
+                Container(
+                  padding: const EdgeInsets.symmetric(vertical: 13),
+                  decoration: BoxDecoration(
+                    border: i == 0
+                        ? null
+                        : Border(top: BorderSide(color: t.borderSubtle)),
+                  ),
+                  child: const Row(
+                    children: [
+                      PSkeleton(
+                        width: 34,
+                        height: 34,
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      ),
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            PSkeleton.line(width: 120, height: 15),
+                            SizedBox(height: 2),
+                            PSkeleton.line(width: 72, height: 12),
+                          ],
+                        ),
+                      ),
+                      PSkeleton(
+                          width: 32, height: 32, borderRadius: PRadius.brMd),
+                      SizedBox(width: PSpace.x4),
+                      PSkeleton(width: 15, height: 15),
+                    ],
+                  ),
+                ),
+            ],
           ),
           error: (e, _) => Text(
             '${l.todoTagLoadError}: $e',
