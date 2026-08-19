@@ -1587,9 +1587,9 @@ class _ExpenseDayGroupSkeleton extends StatelessWidget {
             children: [
               for (int i = 0; i < rows; i++) ...[
                 const Padding(
-                  padding: EdgeInsets.fromLTRB(
-                    2, PSpace.x12, 0, PSpace.x12, // 실제 ExpenseRow(좌2/우0) 정합
-                  ),
+                  // 실제 ExpenseRow 와 같은 여백 — 스켈레톤이 다르면 데이터가 오는
+                  // 순간 행이 좌우로 튄다.
+                  padding: EdgeInsets.fromLTRB(0, PSpace.x12, 0, PSpace.x12),
                   child: Row(
                     children: [
                       // ExpenseRow icon tile 정합 — 40px → tile(40)=12=brLg.
