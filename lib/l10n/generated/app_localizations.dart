@@ -431,7 +431,7 @@ abstract class AppLocalizations {
   /// No description provided for @navRecurring.
   ///
   /// In ko, this message translates to:
-  /// **'반복 거래'**
+  /// **'반복 거래 관리'**
   String get navRecurring;
 
   /// No description provided for @navCategories.
@@ -2747,7 +2747,7 @@ abstract class AppLocalizations {
   /// No description provided for @calLabelsEmptyHint.
   ///
   /// In ko, this message translates to:
-  /// **'위 \"새 라벨\" 버튼으로 만들어보세요'**
+  /// **'위 \"라벨 추가\" 버튼으로 만들어보세요'**
   String get calLabelsEmptyHint;
 
   /// No description provided for @calLabelsIntro.
@@ -2759,13 +2759,13 @@ abstract class AppLocalizations {
   /// No description provided for @calNewLabel.
   ///
   /// In ko, this message translates to:
-  /// **'새 라벨'**
+  /// **'라벨 추가'**
   String get calNewLabel;
 
   /// No description provided for @calEditLabel.
   ///
   /// In ko, this message translates to:
-  /// **'라벨 편집'**
+  /// **'라벨 수정'**
   String get calEditLabel;
 
   /// No description provided for @calPreview.
@@ -2885,7 +2885,7 @@ abstract class AppLocalizations {
   /// No description provided for @calNewCalendar.
   ///
   /// In ko, this message translates to:
-  /// **'새 캘린더'**
+  /// **'캘린더 추가'**
   String get calNewCalendar;
 
   /// No description provided for @calMyCalendarsCount.
@@ -9593,7 +9593,7 @@ abstract class AppLocalizations {
   /// No description provided for @todoNewTag.
   ///
   /// In ko, this message translates to:
-  /// **'새 태그'**
+  /// **'태그 추가'**
   String get todoNewTag;
 
   /// No description provided for @todoTagNamePlaceholder.
@@ -10001,7 +10001,7 @@ abstract class AppLocalizations {
   /// No description provided for @memoNew.
   ///
   /// In ko, this message translates to:
-  /// **'새 메모'**
+  /// **'메모 추가'**
   String get memoNew;
 
   /// No description provided for @memoEditTitle.

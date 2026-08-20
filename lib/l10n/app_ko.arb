@@ -58,7 +58,7 @@
   "navSearch": "검색",
   "navNotifications": "알림",
   "navBudget": "예산",
-  "navRecurring": "반복 거래",
+  "navRecurring": "반복 거래 관리",
   "navCategories": "카테고리",
   "navPresets": "프리셋",
   "navCards": "카드 관리",
@@ -725,10 +725,10 @@
     }
   },
   "calLabelsEmpty": "라벨이 없어요",
-  "calLabelsEmptyHint": "위 \"새 라벨\" 버튼으로 만들어보세요",
+  "calLabelsEmptyHint": "위 \"라벨 추가\" 버튼으로 만들어보세요",
   "calLabelsIntro": "모든 캘린더에서 공용으로 쓰는 라벨이에요. 일정 등록 시 선택할 수 있어요.",
-  "calNewLabel": "새 라벨",
-  "calEditLabel": "라벨 편집",
+  "calNewLabel": "라벨 추가",
+  "calEditLabel": "라벨 수정",
   "calPreview": "미리보기",
   "calDeleteLabelTitle": "라벨 삭제",
   "calDeleteLabelConfirm": "\"{name}\" 라벨을 삭제하시겠어요? 이 라벨이 지정된 일정은 라벨 없음 상태가 됩니다.",
@@ -769,7 +769,7 @@
   "calRoleViewer": "읽기 전용",
   "calShareIntroTitle": "가족·친구와 일정 공유",
   "calShareIntroBody": "캘린더를 만들고 멤버를 초대해 함께 일정을 관리할 수 있어요.",
-  "calNewCalendar": "새 캘린더",
+  "calNewCalendar": "캘린더 추가",
   "calMyCalendarsCount": "내 캘린더 · {count}",
   "@calMyCalendarsCount": {
     "placeholders": {
@@ -2702,7 +2702,7 @@
       }
     }
   },
-  "todoNewTag": "새 태그",
+  "todoNewTag": "태그 추가",
   "todoTagNamePlaceholder": "태그 이름",
   "todoRegisteredTags": "등록된 태그",
   "todoNoTags": "등록된 태그가 없습니다",
@@ -2818,7 +2818,7 @@
   "subTossDisconnected": "토스증권 연결을 해제했어요",
   "subDisconnectFailed": "해제에 실패했어요",
   "subTossKeyNotice": "키는 서버에 암호화되어 저장되며 본인만 사용합니다. 발급은 토스증권 개발자센터에서.",
-  "memoNew": "새 메모",
+  "memoNew": "메모 추가",
   "memoEditTitle": "메모 수정",
   "memoAdd": "추가",
   "memoLoadError": "메모 로드 실패",
