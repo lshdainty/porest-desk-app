@@ -89,6 +89,31 @@ scripts/release_notes.sh v1.15.0..HEAD          # 범위로
 printf 'fix(a): 가\n' | scripts/release_notes.sh -   # stdin 으로
 ```
 
+## 강제 업데이트 하한
+
+판단 기준(언제 올리고 언제 안 올리는지)은 워크스페이스 `CLAUDE.md` 에 있다.
+여기서는 **이 레포의 배선**만 적는다.
+
+```
+config/min_build.json          minBuildNumber ← 내가 고치는 곳
+  → ci-main.yml "Write version.json"          MIN_BUILD 로 읽어
+  → version.json                              minBuildNumber 로 실어 보내고
+  → UpdateStatus.mustUpdate                   currentBuild < minBuildNumber
+  → 라우터 shouldGate                          강제면 건너뛰기를 무시한다
+```
+
+- `mustUpdate` 면 `UpdateGateScreen` 이 앞을 막고, 취소해도 안 넘어간다. 안드로이드는
+  확인 시 앱을 닫는다(`_confirmForcedExit`).
+- **`buildNumber` = `run_number + 2000`** (`ci-main.yml` 의 `BUILD=$((GITHUB_RUN_NUMBER + 2000))`).
+  옛 split-per-abi 빌드가 남긴 오프셋이라 물릴 수 없다.
+- 값이 **아직 나오지 않은 번호**면 최신 앱도 `currentBuild < minBuildNumber` 가 되어
+  전원이 막힌다. 반드시 이미 나간 릴리스의 번호를 적는다.
+- 서버를 못 읽으면(`latest == null`) 막지 않는다 — 오프라인이 사람을 앱 밖에 세우면 안 된다.
+
+동작은 `test/core/update/update_status_test.dart` 와
+`test/features/update/update_gate_forced_test.dart` 가 고정한다. 하한을 만질 땐 이 둘을
+먼저 읽는다.
+
 ## 검증 명령
 
 `fvm` 을 빼면 안 된다. 맨몸 `flutter` 는 fvm global(3.41.9)을 잡는데 이 레포 핀은
