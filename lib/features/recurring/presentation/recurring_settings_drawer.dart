@@ -109,6 +109,9 @@ class _RecurringSettingsBodyState
   bool _notifyDayBefore = true;
   bool _submitting = false;
 
+  /// 실행 시각 'HH:mm' — 이 시각으로 실행분이 만들어진다. 서버 기본값은 09:00.
+  String _executionTime = '09:00';
+
   /// 편집 모드 금액 — 여기서 바꾼 값은 **앞으로 생성될 실행분**에 적용된다.
   /// 이미 만들어진 거래는 별도 레코드라 소급되지 않는다.
   TextEditingController? _editAmountCtrl;
@@ -128,6 +131,9 @@ class _RecurringSettingsBodyState
       if (_isEdit) {
         _editAmountCtrl =
             TextEditingController(text: r!.amount.abs().toString());
+        // 서버는 'HH:mm:ss' 로 준다. 앞 5글자만 쓴다.
+        final et = (r.executionTime ?? '').trim();
+        if (et.length >= 5) _executionTime = et.substring(0, 5);
       }
       // base date: edit → recurring.startDate, from-tx → expense.expenseDate
       final raw = (_isEdit ? (r!.startDate ?? '') : (e!.expenseDate ?? ''))
@@ -227,6 +233,7 @@ class _RecurringSettingsBodyState
           intervalValue: r.intervalValue ?? 1,
           dayOfWeek: dow,
           dayOfMonth: dom,
+          executionTime: '$_executionTime:00',
           startDate: _startDay,
           endDate: endDateStr,
           maxOccurrences: maxOcc,
@@ -252,6 +259,7 @@ class _RecurringSettingsBodyState
           intervalValue: 1,
           dayOfWeek: dow,
           dayOfMonth: dom,
+          executionTime: '$_executionTime:00',
           startDate: _startDay,
           endDate: endDateStr,
           maxOccurrences: maxOcc,
@@ -273,6 +281,7 @@ class _RecurringSettingsBodyState
           intervalValue: 1,
           dayOfWeek: dow,
           dayOfMonth: dom,
+          executionTime: '$_executionTime:00',
           startDate: _startDay,
           endDate: endDateStr,
           maxOccurrences: maxOcc,
@@ -507,6 +516,16 @@ class _RecurringSettingsBodyState
               ],
             ),
           ),
+
+        // 실행 시각 — 이 시각으로 실행분이 만들어진다. 예전에는 09:00 고정이었고
+        // 서버 컬럼 기본값도 09:00 이라 안 고르면 지금과 같다.
+        _Section(
+          title: l.recurringExecutionTime,
+          child: _TimeField(
+            value: _executionTime,
+            onChanged: (v) => setState(() => _executionTime = v),
+          ),
+        ),
 
         _Section(
           title: l.recurringEndLabel,
@@ -1305,6 +1324,72 @@ class _SelectField<T> extends StatelessWidget {
         for (final opt in items)
           PSelectItem<T>(value: opt.value, label: opt.label),
       ],
+    );
+  }
+}
+
+
+/// 'HH:mm' 시간 필드 — readonly PTextInput(suffix Clock) 탭 시 showTimePicker.
+/// notification_settings_screen 의 같은 이름 위젯과 같은 패턴이다.
+class _TimeField extends StatefulWidget {
+  const _TimeField({required this.value, required this.onChanged});
+  final String value;
+  final ValueChanged<String> onChanged;
+
+  @override
+  State<_TimeField> createState() => _TimeFieldState();
+}
+
+class _TimeFieldState extends State<_TimeField> {
+  late final TextEditingController _ctrl =
+      TextEditingController(text: widget.value);
+
+  @override
+  void didUpdateWidget(_TimeField old) {
+    super.didUpdateWidget(old);
+    if (widget.value != _ctrl.text) _ctrl.text = widget.value;
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  TimeOfDay _parse(String hhmm) {
+    final parts = hhmm.split(':');
+    final h = int.tryParse(parts.isNotEmpty ? parts[0] : '') ?? 0;
+    final m = int.tryParse(parts.length > 1 ? parts[1] : '') ?? 0;
+    return TimeOfDay(hour: h.clamp(0, 23), minute: m.clamp(0, 59));
+  }
+
+  String _fmt(TimeOfDay tod) =>
+      '${tod.hour.toString().padLeft(2, '0')}:${tod.minute.toString().padLeft(2, '0')}';
+
+  Future<void> _pick(BuildContext context) async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: _parse(widget.value),
+      builder: (ctx, child) => MediaQuery(
+        data: MediaQuery.of(ctx).copyWith(alwaysUse24HourFormat: true),
+        child: child!,
+      ),
+    );
+    if (picked != null) widget.onChanged(_fmt(picked));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    // PTextInput 자체는 onTap 미지원이라 GestureDetector(IgnorePointer)로 래핑.
+    return GestureDetector(
+      onTap: () => _pick(context),
+      child: IgnorePointer(
+        child: PTextInput(
+          controller: _ctrl,
+          suffix: Icon(LucideIcons.clock, size: 16, color: t.fgTertiary),
+        ),
+      ),
     );
   }
 }

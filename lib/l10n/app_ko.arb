@@ -2361,6 +2361,7 @@
   "recurringDayOfMonthLabel": "반복 일자",
   "recurringDayNote": "해당 일이 없는 달은 말일에 처리됩니다",
   "recurringEndLabel": "종료",
+  "recurringExecutionTime": "실행 시각",
   "recurringIndefiniteDesc": "중지할 때까지 계속 반복",
   "recurringByCount": "횟수 지정",
   "recurringTotal": "총",

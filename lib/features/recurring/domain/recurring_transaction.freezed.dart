@@ -15,7 +15,8 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$RecurringTransaction {
 
- int get rowId; int? get userRowId; int get categoryRowId; String? get categoryName; int get assetRowId; String? get assetName; int? get sourceExpenseRowId; String get expenseType; int get amount; String? get description; String? get merchant; String? get paymentMethod; String get frequency; int? get intervalValue; int? get dayOfWeek; int? get dayOfMonth; String? get startDate;// 'YYYY-MM-DD'
+ int get rowId; int? get userRowId; int get categoryRowId; String? get categoryName; int get assetRowId; String? get assetName; int? get sourceExpenseRowId; String get expenseType; int get amount; String? get description; String? get merchant; String? get paymentMethod; String get frequency; int? get intervalValue; int? get dayOfWeek; int? get dayOfMonth; String? get executionTime;// 'HH:mm:ss' — 실행분을 만들 시각 [userClock]
+ String? get startDate;// 'YYYY-MM-DD'
  String? get endDate; int? get maxOccurrences; int get executedCount; String? get nextExecutionDate; String? get lastExecutedAt; String? get isActive;// 'Y' | 'N'
  bool get autoLog; bool get notifyDayBefore;
 /// Create a copy of RecurringTransaction
@@ -30,16 +31,16 @@ $RecurringTransactionCopyWith<RecurringTransaction> get copyWith => _$RecurringT
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is RecurringTransaction&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.userRowId, userRowId) || other.userRowId == userRowId)&&(identical(other.categoryRowId, categoryRowId) || other.categoryRowId == categoryRowId)&&(identical(other.categoryName, categoryName) || other.categoryName == categoryName)&&(identical(other.assetRowId, assetRowId) || other.assetRowId == assetRowId)&&(identical(other.assetName, assetName) || other.assetName == assetName)&&(identical(other.sourceExpenseRowId, sourceExpenseRowId) || other.sourceExpenseRowId == sourceExpenseRowId)&&(identical(other.expenseType, expenseType) || other.expenseType == expenseType)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.description, description) || other.description == description)&&(identical(other.merchant, merchant) || other.merchant == merchant)&&(identical(other.paymentMethod, paymentMethod) || other.paymentMethod == paymentMethod)&&(identical(other.frequency, frequency) || other.frequency == frequency)&&(identical(other.intervalValue, intervalValue) || other.intervalValue == intervalValue)&&(identical(other.dayOfWeek, dayOfWeek) || other.dayOfWeek == dayOfWeek)&&(identical(other.dayOfMonth, dayOfMonth) || other.dayOfMonth == dayOfMonth)&&(identical(other.startDate, startDate) || other.startDate == startDate)&&(identical(other.endDate, endDate) || other.endDate == endDate)&&(identical(other.maxOccurrences, maxOccurrences) || other.maxOccurrences == maxOccurrences)&&(identical(other.executedCount, executedCount) || other.executedCount == executedCount)&&(identical(other.nextExecutionDate, nextExecutionDate) || other.nextExecutionDate == nextExecutionDate)&&(identical(other.lastExecutedAt, lastExecutedAt) || other.lastExecutedAt == lastExecutedAt)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.autoLog, autoLog) || other.autoLog == autoLog)&&(identical(other.notifyDayBefore, notifyDayBefore) || other.notifyDayBefore == notifyDayBefore));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RecurringTransaction&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.userRowId, userRowId) || other.userRowId == userRowId)&&(identical(other.categoryRowId, categoryRowId) || other.categoryRowId == categoryRowId)&&(identical(other.categoryName, categoryName) || other.categoryName == categoryName)&&(identical(other.assetRowId, assetRowId) || other.assetRowId == assetRowId)&&(identical(other.assetName, assetName) || other.assetName == assetName)&&(identical(other.sourceExpenseRowId, sourceExpenseRowId) || other.sourceExpenseRowId == sourceExpenseRowId)&&(identical(other.expenseType, expenseType) || other.expenseType == expenseType)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.description, description) || other.description == description)&&(identical(other.merchant, merchant) || other.merchant == merchant)&&(identical(other.paymentMethod, paymentMethod) || other.paymentMethod == paymentMethod)&&(identical(other.frequency, frequency) || other.frequency == frequency)&&(identical(other.intervalValue, intervalValue) || other.intervalValue == intervalValue)&&(identical(other.dayOfWeek, dayOfWeek) || other.dayOfWeek == dayOfWeek)&&(identical(other.dayOfMonth, dayOfMonth) || other.dayOfMonth == dayOfMonth)&&(identical(other.executionTime, executionTime) || other.executionTime == executionTime)&&(identical(other.startDate, startDate) || other.startDate == startDate)&&(identical(other.endDate, endDate) || other.endDate == endDate)&&(identical(other.maxOccurrences, maxOccurrences) || other.maxOccurrences == maxOccurrences)&&(identical(other.executedCount, executedCount) || other.executedCount == executedCount)&&(identical(other.nextExecutionDate, nextExecutionDate) || other.nextExecutionDate == nextExecutionDate)&&(identical(other.lastExecutedAt, lastExecutedAt) || other.lastExecutedAt == lastExecutedAt)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.autoLog, autoLog) || other.autoLog == autoLog)&&(identical(other.notifyDayBefore, notifyDayBefore) || other.notifyDayBefore == notifyDayBefore));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,rowId,userRowId,categoryRowId,categoryName,assetRowId,assetName,sourceExpenseRowId,expenseType,amount,description,merchant,paymentMethod,frequency,intervalValue,dayOfWeek,dayOfMonth,startDate,endDate,maxOccurrences,executedCount,nextExecutionDate,lastExecutedAt,isActive,autoLog,notifyDayBefore]);
+int get hashCode => Object.hashAll([runtimeType,rowId,userRowId,categoryRowId,categoryName,assetRowId,assetName,sourceExpenseRowId,expenseType,amount,description,merchant,paymentMethod,frequency,intervalValue,dayOfWeek,dayOfMonth,executionTime,startDate,endDate,maxOccurrences,executedCount,nextExecutionDate,lastExecutedAt,isActive,autoLog,notifyDayBefore]);
 
 @override
 String toString() {
-  return 'RecurringTransaction(rowId: $rowId, userRowId: $userRowId, categoryRowId: $categoryRowId, categoryName: $categoryName, assetRowId: $assetRowId, assetName: $assetName, sourceExpenseRowId: $sourceExpenseRowId, expenseType: $expenseType, amount: $amount, description: $description, merchant: $merchant, paymentMethod: $paymentMethod, frequency: $frequency, intervalValue: $intervalValue, dayOfWeek: $dayOfWeek, dayOfMonth: $dayOfMonth, startDate: $startDate, endDate: $endDate, maxOccurrences: $maxOccurrences, executedCount: $executedCount, nextExecutionDate: $nextExecutionDate, lastExecutedAt: $lastExecutedAt, isActive: $isActive, autoLog: $autoLog, notifyDayBefore: $notifyDayBefore)';
+  return 'RecurringTransaction(rowId: $rowId, userRowId: $userRowId, categoryRowId: $categoryRowId, categoryName: $categoryName, assetRowId: $assetRowId, assetName: $assetName, sourceExpenseRowId: $sourceExpenseRowId, expenseType: $expenseType, amount: $amount, description: $description, merchant: $merchant, paymentMethod: $paymentMethod, frequency: $frequency, intervalValue: $intervalValue, dayOfWeek: $dayOfWeek, dayOfMonth: $dayOfMonth, executionTime: $executionTime, startDate: $startDate, endDate: $endDate, maxOccurrences: $maxOccurrences, executedCount: $executedCount, nextExecutionDate: $nextExecutionDate, lastExecutedAt: $lastExecutedAt, isActive: $isActive, autoLog: $autoLog, notifyDayBefore: $notifyDayBefore)';
 }
 
 
@@ -50,7 +51,7 @@ abstract mixin class $RecurringTransactionCopyWith<$Res>  {
   factory $RecurringTransactionCopyWith(RecurringTransaction value, $Res Function(RecurringTransaction) _then) = _$RecurringTransactionCopyWithImpl;
 @useResult
 $Res call({
- int rowId, int? userRowId, int categoryRowId, String? categoryName, int assetRowId, String? assetName, int? sourceExpenseRowId, String expenseType, int amount, String? description, String? merchant, String? paymentMethod, String frequency, int? intervalValue, int? dayOfWeek, int? dayOfMonth, String? startDate, String? endDate, int? maxOccurrences, int executedCount, String? nextExecutionDate, String? lastExecutedAt, String? isActive, bool autoLog, bool notifyDayBefore
+ int rowId, int? userRowId, int categoryRowId, String? categoryName, int assetRowId, String? assetName, int? sourceExpenseRowId, String expenseType, int amount, String? description, String? merchant, String? paymentMethod, String frequency, int? intervalValue, int? dayOfWeek, int? dayOfMonth, String? executionTime, String? startDate, String? endDate, int? maxOccurrences, int executedCount, String? nextExecutionDate, String? lastExecutedAt, String? isActive, bool autoLog, bool notifyDayBefore
 });
 
 
@@ -67,7 +68,7 @@ class _$RecurringTransactionCopyWithImpl<$Res>
 
 /// Create a copy of RecurringTransaction
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? rowId = null,Object? userRowId = freezed,Object? categoryRowId = null,Object? categoryName = freezed,Object? assetRowId = null,Object? assetName = freezed,Object? sourceExpenseRowId = freezed,Object? expenseType = null,Object? amount = null,Object? description = freezed,Object? merchant = freezed,Object? paymentMethod = freezed,Object? frequency = null,Object? intervalValue = freezed,Object? dayOfWeek = freezed,Object? dayOfMonth = freezed,Object? startDate = freezed,Object? endDate = freezed,Object? maxOccurrences = freezed,Object? executedCount = null,Object? nextExecutionDate = freezed,Object? lastExecutedAt = freezed,Object? isActive = freezed,Object? autoLog = null,Object? notifyDayBefore = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? rowId = null,Object? userRowId = freezed,Object? categoryRowId = null,Object? categoryName = freezed,Object? assetRowId = null,Object? assetName = freezed,Object? sourceExpenseRowId = freezed,Object? expenseType = null,Object? amount = null,Object? description = freezed,Object? merchant = freezed,Object? paymentMethod = freezed,Object? frequency = null,Object? intervalValue = freezed,Object? dayOfWeek = freezed,Object? dayOfMonth = freezed,Object? executionTime = freezed,Object? startDate = freezed,Object? endDate = freezed,Object? maxOccurrences = freezed,Object? executedCount = null,Object? nextExecutionDate = freezed,Object? lastExecutedAt = freezed,Object? isActive = freezed,Object? autoLog = null,Object? notifyDayBefore = null,}) {
   return _then(_self.copyWith(
 rowId: null == rowId ? _self.rowId : rowId // ignore: cast_nullable_to_non_nullable
 as int,userRowId: freezed == userRowId ? _self.userRowId : userRowId // ignore: cast_nullable_to_non_nullable
@@ -85,7 +86,8 @@ as String?,frequency: null == frequency ? _self.frequency : frequency // ignore:
 as String,intervalValue: freezed == intervalValue ? _self.intervalValue : intervalValue // ignore: cast_nullable_to_non_nullable
 as int?,dayOfWeek: freezed == dayOfWeek ? _self.dayOfWeek : dayOfWeek // ignore: cast_nullable_to_non_nullable
 as int?,dayOfMonth: freezed == dayOfMonth ? _self.dayOfMonth : dayOfMonth // ignore: cast_nullable_to_non_nullable
-as int?,startDate: freezed == startDate ? _self.startDate : startDate // ignore: cast_nullable_to_non_nullable
+as int?,executionTime: freezed == executionTime ? _self.executionTime : executionTime // ignore: cast_nullable_to_non_nullable
+as String?,startDate: freezed == startDate ? _self.startDate : startDate // ignore: cast_nullable_to_non_nullable
 as String?,endDate: freezed == endDate ? _self.endDate : endDate // ignore: cast_nullable_to_non_nullable
 as String?,maxOccurrences: freezed == maxOccurrences ? _self.maxOccurrences : maxOccurrences // ignore: cast_nullable_to_non_nullable
 as int?,executedCount: null == executedCount ? _self.executedCount : executedCount // ignore: cast_nullable_to_non_nullable
@@ -179,10 +181,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int rowId,  int? userRowId,  int categoryRowId,  String? categoryName,  int assetRowId,  String? assetName,  int? sourceExpenseRowId,  String expenseType,  int amount,  String? description,  String? merchant,  String? paymentMethod,  String frequency,  int? intervalValue,  int? dayOfWeek,  int? dayOfMonth,  String? startDate,  String? endDate,  int? maxOccurrences,  int executedCount,  String? nextExecutionDate,  String? lastExecutedAt,  String? isActive,  bool autoLog,  bool notifyDayBefore)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int rowId,  int? userRowId,  int categoryRowId,  String? categoryName,  int assetRowId,  String? assetName,  int? sourceExpenseRowId,  String expenseType,  int amount,  String? description,  String? merchant,  String? paymentMethod,  String frequency,  int? intervalValue,  int? dayOfWeek,  int? dayOfMonth,  String? executionTime,  String? startDate,  String? endDate,  int? maxOccurrences,  int executedCount,  String? nextExecutionDate,  String? lastExecutedAt,  String? isActive,  bool autoLog,  bool notifyDayBefore)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _RecurringTransaction() when $default != null:
-return $default(_that.rowId,_that.userRowId,_that.categoryRowId,_that.categoryName,_that.assetRowId,_that.assetName,_that.sourceExpenseRowId,_that.expenseType,_that.amount,_that.description,_that.merchant,_that.paymentMethod,_that.frequency,_that.intervalValue,_that.dayOfWeek,_that.dayOfMonth,_that.startDate,_that.endDate,_that.maxOccurrences,_that.executedCount,_that.nextExecutionDate,_that.lastExecutedAt,_that.isActive,_that.autoLog,_that.notifyDayBefore);case _:
+return $default(_that.rowId,_that.userRowId,_that.categoryRowId,_that.categoryName,_that.assetRowId,_that.assetName,_that.sourceExpenseRowId,_that.expenseType,_that.amount,_that.description,_that.merchant,_that.paymentMethod,_that.frequency,_that.intervalValue,_that.dayOfWeek,_that.dayOfMonth,_that.executionTime,_that.startDate,_that.endDate,_that.maxOccurrences,_that.executedCount,_that.nextExecutionDate,_that.lastExecutedAt,_that.isActive,_that.autoLog,_that.notifyDayBefore);case _:
   return orElse();
 
 }
@@ -200,10 +202,10 @@ return $default(_that.rowId,_that.userRowId,_that.categoryRowId,_that.categoryNa
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int rowId,  int? userRowId,  int categoryRowId,  String? categoryName,  int assetRowId,  String? assetName,  int? sourceExpenseRowId,  String expenseType,  int amount,  String? description,  String? merchant,  String? paymentMethod,  String frequency,  int? intervalValue,  int? dayOfWeek,  int? dayOfMonth,  String? startDate,  String? endDate,  int? maxOccurrences,  int executedCount,  String? nextExecutionDate,  String? lastExecutedAt,  String? isActive,  bool autoLog,  bool notifyDayBefore)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int rowId,  int? userRowId,  int categoryRowId,  String? categoryName,  int assetRowId,  String? assetName,  int? sourceExpenseRowId,  String expenseType,  int amount,  String? description,  String? merchant,  String? paymentMethod,  String frequency,  int? intervalValue,  int? dayOfWeek,  int? dayOfMonth,  String? executionTime,  String? startDate,  String? endDate,  int? maxOccurrences,  int executedCount,  String? nextExecutionDate,  String? lastExecutedAt,  String? isActive,  bool autoLog,  bool notifyDayBefore)  $default,) {final _that = this;
 switch (_that) {
 case _RecurringTransaction():
-return $default(_that.rowId,_that.userRowId,_that.categoryRowId,_that.categoryName,_that.assetRowId,_that.assetName,_that.sourceExpenseRowId,_that.expenseType,_that.amount,_that.description,_that.merchant,_that.paymentMethod,_that.frequency,_that.intervalValue,_that.dayOfWeek,_that.dayOfMonth,_that.startDate,_that.endDate,_that.maxOccurrences,_that.executedCount,_that.nextExecutionDate,_that.lastExecutedAt,_that.isActive,_that.autoLog,_that.notifyDayBefore);case _:
+return $default(_that.rowId,_that.userRowId,_that.categoryRowId,_that.categoryName,_that.assetRowId,_that.assetName,_that.sourceExpenseRowId,_that.expenseType,_that.amount,_that.description,_that.merchant,_that.paymentMethod,_that.frequency,_that.intervalValue,_that.dayOfWeek,_that.dayOfMonth,_that.executionTime,_that.startDate,_that.endDate,_that.maxOccurrences,_that.executedCount,_that.nextExecutionDate,_that.lastExecutedAt,_that.isActive,_that.autoLog,_that.notifyDayBefore);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -220,10 +222,10 @@ return $default(_that.rowId,_that.userRowId,_that.categoryRowId,_that.categoryNa
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int rowId,  int? userRowId,  int categoryRowId,  String? categoryName,  int assetRowId,  String? assetName,  int? sourceExpenseRowId,  String expenseType,  int amount,  String? description,  String? merchant,  String? paymentMethod,  String frequency,  int? intervalValue,  int? dayOfWeek,  int? dayOfMonth,  String? startDate,  String? endDate,  int? maxOccurrences,  int executedCount,  String? nextExecutionDate,  String? lastExecutedAt,  String? isActive,  bool autoLog,  bool notifyDayBefore)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int rowId,  int? userRowId,  int categoryRowId,  String? categoryName,  int assetRowId,  String? assetName,  int? sourceExpenseRowId,  String expenseType,  int amount,  String? description,  String? merchant,  String? paymentMethod,  String frequency,  int? intervalValue,  int? dayOfWeek,  int? dayOfMonth,  String? executionTime,  String? startDate,  String? endDate,  int? maxOccurrences,  int executedCount,  String? nextExecutionDate,  String? lastExecutedAt,  String? isActive,  bool autoLog,  bool notifyDayBefore)?  $default,) {final _that = this;
 switch (_that) {
 case _RecurringTransaction() when $default != null:
-return $default(_that.rowId,_that.userRowId,_that.categoryRowId,_that.categoryName,_that.assetRowId,_that.assetName,_that.sourceExpenseRowId,_that.expenseType,_that.amount,_that.description,_that.merchant,_that.paymentMethod,_that.frequency,_that.intervalValue,_that.dayOfWeek,_that.dayOfMonth,_that.startDate,_that.endDate,_that.maxOccurrences,_that.executedCount,_that.nextExecutionDate,_that.lastExecutedAt,_that.isActive,_that.autoLog,_that.notifyDayBefore);case _:
+return $default(_that.rowId,_that.userRowId,_that.categoryRowId,_that.categoryName,_that.assetRowId,_that.assetName,_that.sourceExpenseRowId,_that.expenseType,_that.amount,_that.description,_that.merchant,_that.paymentMethod,_that.frequency,_that.intervalValue,_that.dayOfWeek,_that.dayOfMonth,_that.executionTime,_that.startDate,_that.endDate,_that.maxOccurrences,_that.executedCount,_that.nextExecutionDate,_that.lastExecutedAt,_that.isActive,_that.autoLog,_that.notifyDayBefore);case _:
   return null;
 
 }
@@ -235,7 +237,7 @@ return $default(_that.rowId,_that.userRowId,_that.categoryRowId,_that.categoryNa
 @JsonSerializable()
 
 class _RecurringTransaction implements RecurringTransaction {
-  const _RecurringTransaction({required this.rowId, this.userRowId, this.categoryRowId = 0, this.categoryName, this.assetRowId = 0, this.assetName, this.sourceExpenseRowId, required this.expenseType, this.amount = 0, this.description, this.merchant, this.paymentMethod, required this.frequency, this.intervalValue, this.dayOfWeek, this.dayOfMonth, this.startDate, this.endDate, this.maxOccurrences, this.executedCount = 0, this.nextExecutionDate, this.lastExecutedAt, this.isActive, this.autoLog = false, this.notifyDayBefore = false});
+  const _RecurringTransaction({required this.rowId, this.userRowId, this.categoryRowId = 0, this.categoryName, this.assetRowId = 0, this.assetName, this.sourceExpenseRowId, required this.expenseType, this.amount = 0, this.description, this.merchant, this.paymentMethod, required this.frequency, this.intervalValue, this.dayOfWeek, this.dayOfMonth, this.executionTime, this.startDate, this.endDate, this.maxOccurrences, this.executedCount = 0, this.nextExecutionDate, this.lastExecutedAt, this.isActive, this.autoLog = false, this.notifyDayBefore = false});
   factory _RecurringTransaction.fromJson(Map<String, dynamic> json) => _$RecurringTransactionFromJson(json);
 
 @override final  int rowId;
@@ -254,6 +256,8 @@ class _RecurringTransaction implements RecurringTransaction {
 @override final  int? intervalValue;
 @override final  int? dayOfWeek;
 @override final  int? dayOfMonth;
+@override final  String? executionTime;
+// 'HH:mm:ss' — 실행분을 만들 시각 [userClock]
 @override final  String? startDate;
 // 'YYYY-MM-DD'
 @override final  String? endDate;
@@ -279,16 +283,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RecurringTransaction&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.userRowId, userRowId) || other.userRowId == userRowId)&&(identical(other.categoryRowId, categoryRowId) || other.categoryRowId == categoryRowId)&&(identical(other.categoryName, categoryName) || other.categoryName == categoryName)&&(identical(other.assetRowId, assetRowId) || other.assetRowId == assetRowId)&&(identical(other.assetName, assetName) || other.assetName == assetName)&&(identical(other.sourceExpenseRowId, sourceExpenseRowId) || other.sourceExpenseRowId == sourceExpenseRowId)&&(identical(other.expenseType, expenseType) || other.expenseType == expenseType)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.description, description) || other.description == description)&&(identical(other.merchant, merchant) || other.merchant == merchant)&&(identical(other.paymentMethod, paymentMethod) || other.paymentMethod == paymentMethod)&&(identical(other.frequency, frequency) || other.frequency == frequency)&&(identical(other.intervalValue, intervalValue) || other.intervalValue == intervalValue)&&(identical(other.dayOfWeek, dayOfWeek) || other.dayOfWeek == dayOfWeek)&&(identical(other.dayOfMonth, dayOfMonth) || other.dayOfMonth == dayOfMonth)&&(identical(other.startDate, startDate) || other.startDate == startDate)&&(identical(other.endDate, endDate) || other.endDate == endDate)&&(identical(other.maxOccurrences, maxOccurrences) || other.maxOccurrences == maxOccurrences)&&(identical(other.executedCount, executedCount) || other.executedCount == executedCount)&&(identical(other.nextExecutionDate, nextExecutionDate) || other.nextExecutionDate == nextExecutionDate)&&(identical(other.lastExecutedAt, lastExecutedAt) || other.lastExecutedAt == lastExecutedAt)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.autoLog, autoLog) || other.autoLog == autoLog)&&(identical(other.notifyDayBefore, notifyDayBefore) || other.notifyDayBefore == notifyDayBefore));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RecurringTransaction&&(identical(other.rowId, rowId) || other.rowId == rowId)&&(identical(other.userRowId, userRowId) || other.userRowId == userRowId)&&(identical(other.categoryRowId, categoryRowId) || other.categoryRowId == categoryRowId)&&(identical(other.categoryName, categoryName) || other.categoryName == categoryName)&&(identical(other.assetRowId, assetRowId) || other.assetRowId == assetRowId)&&(identical(other.assetName, assetName) || other.assetName == assetName)&&(identical(other.sourceExpenseRowId, sourceExpenseRowId) || other.sourceExpenseRowId == sourceExpenseRowId)&&(identical(other.expenseType, expenseType) || other.expenseType == expenseType)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.description, description) || other.description == description)&&(identical(other.merchant, merchant) || other.merchant == merchant)&&(identical(other.paymentMethod, paymentMethod) || other.paymentMethod == paymentMethod)&&(identical(other.frequency, frequency) || other.frequency == frequency)&&(identical(other.intervalValue, intervalValue) || other.intervalValue == intervalValue)&&(identical(other.dayOfWeek, dayOfWeek) || other.dayOfWeek == dayOfWeek)&&(identical(other.dayOfMonth, dayOfMonth) || other.dayOfMonth == dayOfMonth)&&(identical(other.executionTime, executionTime) || other.executionTime == executionTime)&&(identical(other.startDate, startDate) || other.startDate == startDate)&&(identical(other.endDate, endDate) || other.endDate == endDate)&&(identical(other.maxOccurrences, maxOccurrences) || other.maxOccurrences == maxOccurrences)&&(identical(other.executedCount, executedCount) || other.executedCount == executedCount)&&(identical(other.nextExecutionDate, nextExecutionDate) || other.nextExecutionDate == nextExecutionDate)&&(identical(other.lastExecutedAt, lastExecutedAt) || other.lastExecutedAt == lastExecutedAt)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.autoLog, autoLog) || other.autoLog == autoLog)&&(identical(other.notifyDayBefore, notifyDayBefore) || other.notifyDayBefore == notifyDayBefore));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,rowId,userRowId,categoryRowId,categoryName,assetRowId,assetName,sourceExpenseRowId,expenseType,amount,description,merchant,paymentMethod,frequency,intervalValue,dayOfWeek,dayOfMonth,startDate,endDate,maxOccurrences,executedCount,nextExecutionDate,lastExecutedAt,isActive,autoLog,notifyDayBefore]);
+int get hashCode => Object.hashAll([runtimeType,rowId,userRowId,categoryRowId,categoryName,assetRowId,assetName,sourceExpenseRowId,expenseType,amount,description,merchant,paymentMethod,frequency,intervalValue,dayOfWeek,dayOfMonth,executionTime,startDate,endDate,maxOccurrences,executedCount,nextExecutionDate,lastExecutedAt,isActive,autoLog,notifyDayBefore]);
 
 @override
 String toString() {
-  return 'RecurringTransaction(rowId: $rowId, userRowId: $userRowId, categoryRowId: $categoryRowId, categoryName: $categoryName, assetRowId: $assetRowId, assetName: $assetName, sourceExpenseRowId: $sourceExpenseRowId, expenseType: $expenseType, amount: $amount, description: $description, merchant: $merchant, paymentMethod: $paymentMethod, frequency: $frequency, intervalValue: $intervalValue, dayOfWeek: $dayOfWeek, dayOfMonth: $dayOfMonth, startDate: $startDate, endDate: $endDate, maxOccurrences: $maxOccurrences, executedCount: $executedCount, nextExecutionDate: $nextExecutionDate, lastExecutedAt: $lastExecutedAt, isActive: $isActive, autoLog: $autoLog, notifyDayBefore: $notifyDayBefore)';
+  return 'RecurringTransaction(rowId: $rowId, userRowId: $userRowId, categoryRowId: $categoryRowId, categoryName: $categoryName, assetRowId: $assetRowId, assetName: $assetName, sourceExpenseRowId: $sourceExpenseRowId, expenseType: $expenseType, amount: $amount, description: $description, merchant: $merchant, paymentMethod: $paymentMethod, frequency: $frequency, intervalValue: $intervalValue, dayOfWeek: $dayOfWeek, dayOfMonth: $dayOfMonth, executionTime: $executionTime, startDate: $startDate, endDate: $endDate, maxOccurrences: $maxOccurrences, executedCount: $executedCount, nextExecutionDate: $nextExecutionDate, lastExecutedAt: $lastExecutedAt, isActive: $isActive, autoLog: $autoLog, notifyDayBefore: $notifyDayBefore)';
 }
 
 
@@ -299,7 +303,7 @@ abstract mixin class _$RecurringTransactionCopyWith<$Res> implements $RecurringT
   factory _$RecurringTransactionCopyWith(_RecurringTransaction value, $Res Function(_RecurringTransaction) _then) = __$RecurringTransactionCopyWithImpl;
 @override @useResult
 $Res call({
- int rowId, int? userRowId, int categoryRowId, String? categoryName, int assetRowId, String? assetName, int? sourceExpenseRowId, String expenseType, int amount, String? description, String? merchant, String? paymentMethod, String frequency, int? intervalValue, int? dayOfWeek, int? dayOfMonth, String? startDate, String? endDate, int? maxOccurrences, int executedCount, String? nextExecutionDate, String? lastExecutedAt, String? isActive, bool autoLog, bool notifyDayBefore
+ int rowId, int? userRowId, int categoryRowId, String? categoryName, int assetRowId, String? assetName, int? sourceExpenseRowId, String expenseType, int amount, String? description, String? merchant, String? paymentMethod, String frequency, int? intervalValue, int? dayOfWeek, int? dayOfMonth, String? executionTime, String? startDate, String? endDate, int? maxOccurrences, int executedCount, String? nextExecutionDate, String? lastExecutedAt, String? isActive, bool autoLog, bool notifyDayBefore
 });
 
 
@@ -316,7 +320,7 @@ class __$RecurringTransactionCopyWithImpl<$Res>
 
 /// Create a copy of RecurringTransaction
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? rowId = null,Object? userRowId = freezed,Object? categoryRowId = null,Object? categoryName = freezed,Object? assetRowId = null,Object? assetName = freezed,Object? sourceExpenseRowId = freezed,Object? expenseType = null,Object? amount = null,Object? description = freezed,Object? merchant = freezed,Object? paymentMethod = freezed,Object? frequency = null,Object? intervalValue = freezed,Object? dayOfWeek = freezed,Object? dayOfMonth = freezed,Object? startDate = freezed,Object? endDate = freezed,Object? maxOccurrences = freezed,Object? executedCount = null,Object? nextExecutionDate = freezed,Object? lastExecutedAt = freezed,Object? isActive = freezed,Object? autoLog = null,Object? notifyDayBefore = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? rowId = null,Object? userRowId = freezed,Object? categoryRowId = null,Object? categoryName = freezed,Object? assetRowId = null,Object? assetName = freezed,Object? sourceExpenseRowId = freezed,Object? expenseType = null,Object? amount = null,Object? description = freezed,Object? merchant = freezed,Object? paymentMethod = freezed,Object? frequency = null,Object? intervalValue = freezed,Object? dayOfWeek = freezed,Object? dayOfMonth = freezed,Object? executionTime = freezed,Object? startDate = freezed,Object? endDate = freezed,Object? maxOccurrences = freezed,Object? executedCount = null,Object? nextExecutionDate = freezed,Object? lastExecutedAt = freezed,Object? isActive = freezed,Object? autoLog = null,Object? notifyDayBefore = null,}) {
   return _then(_RecurringTransaction(
 rowId: null == rowId ? _self.rowId : rowId // ignore: cast_nullable_to_non_nullable
 as int,userRowId: freezed == userRowId ? _self.userRowId : userRowId // ignore: cast_nullable_to_non_nullable
@@ -334,7 +338,8 @@ as String?,frequency: null == frequency ? _self.frequency : frequency // ignore:
 as String,intervalValue: freezed == intervalValue ? _self.intervalValue : intervalValue // ignore: cast_nullable_to_non_nullable
 as int?,dayOfWeek: freezed == dayOfWeek ? _self.dayOfWeek : dayOfWeek // ignore: cast_nullable_to_non_nullable
 as int?,dayOfMonth: freezed == dayOfMonth ? _self.dayOfMonth : dayOfMonth // ignore: cast_nullable_to_non_nullable
-as int?,startDate: freezed == startDate ? _self.startDate : startDate // ignore: cast_nullable_to_non_nullable
+as int?,executionTime: freezed == executionTime ? _self.executionTime : executionTime // ignore: cast_nullable_to_non_nullable
+as String?,startDate: freezed == startDate ? _self.startDate : startDate // ignore: cast_nullable_to_non_nullable
 as String?,endDate: freezed == endDate ? _self.endDate : endDate // ignore: cast_nullable_to_non_nullable
 as String?,maxOccurrences: freezed == maxOccurrences ? _self.maxOccurrences : maxOccurrences // ignore: cast_nullable_to_non_nullable
 as int?,executedCount: null == executedCount ? _self.executedCount : executedCount // ignore: cast_nullable_to_non_nullable

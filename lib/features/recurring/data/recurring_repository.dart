@@ -41,6 +41,7 @@ class RecurringRepository {
     int? intervalValue,
     int? dayOfWeek, // ISO 1=월 ~ 7=일
     int? dayOfMonth,
+    String? executionTime, // 'HH:mm:ss'
     required String startDate, // 'YYYY-MM-DD'
     String? endDate,
     int? maxOccurrences,
@@ -63,6 +64,7 @@ class RecurringRepository {
           'intervalValue': ?intervalValue,
           'dayOfWeek': ?dayOfWeek,
           'dayOfMonth': ?dayOfMonth,
+          'executionTime': ?executionTime,
           'startDate': startDate,
           'endDate': ?endDate,
           'maxOccurrences': ?maxOccurrences,
@@ -88,6 +90,7 @@ class RecurringRepository {
     int? intervalValue,
     int? dayOfWeek,
     int? dayOfMonth,
+    String? executionTime, // 'HH:mm:ss'
     required String startDate,
     String? endDate,
     int? maxOccurrences,
@@ -109,6 +112,7 @@ class RecurringRepository {
           'intervalValue': ?intervalValue,
           'dayOfWeek': ?dayOfWeek,
           'dayOfMonth': ?dayOfMonth,
+          'executionTime': ?executionTime,
           'startDate': startDate,
           'endDate': ?endDate,
           'maxOccurrences': ?maxOccurrences,

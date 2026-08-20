@@ -2345,6 +2345,7 @@
   "recurringDayOfMonthLabel": "Day of month",
   "recurringDayNote": "Months without this day are handled on the last day",
   "recurringEndLabel": "End",
+  "recurringExecutionTime": "Execution time",
   "recurringIndefiniteDesc": "Repeat until stopped",
   "recurringByCount": "By count",
   "recurringTotal": "Total",

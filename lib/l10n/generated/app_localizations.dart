@@ -7892,6 +7892,12 @@ abstract class AppLocalizations {
   /// **'종료'**
   String get recurringEndLabel;
 
+  /// No description provided for @recurringExecutionTime.
+  ///
+  /// In ko, this message translates to:
+  /// **'실행 시각'**
+  String get recurringExecutionTime;
+
   /// No description provided for @recurringIndefiniteDesc.
   ///
   /// In ko, this message translates to:
