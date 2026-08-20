@@ -28,6 +28,7 @@ import 'package:porest_desk_app/features/recurring/application/recurring_provide
 import 'package:porest_desk_app/features/recurring/domain/recurring_transaction.dart';
 import 'package:porest_desk_app/features/recurring/presentation/recurring_settings_drawer.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
+import 'package:porest_desk_app/shared/widgets/p_swipe_actions.dart';
 import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 
 enum _Filter { all, expense, income, paused }
@@ -238,22 +239,62 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
                         Column(
                           children: [
                             for (int i = 0; i < filtered.length; i++) ...[
-                              _RecurringRow(
-                                item: filtered[i],
-                                category: categories.byRowId(
-                                  filtered[i].categoryRowId,
+                              // 밀면 일시정지·수정·삭제가 바로 나온다. ⋮ 메뉴는
+                              // 그대로 둔다 — 스와이프는 지름길이지 유일한 경로가
+                              // 아니다(spec swipe-actions.md · WCAG 2.1.1).
+                              PSwipeActions(
+                                key: ValueKey('recurring-${filtered[i].rowId}'),
+                                groupTag: 'recurring-list',
+                                enabled: _busyToggleId == null &&
+                                    _busyDeleteId == null,
+                                actions: [
+                                  PSwipeAction(
+                                    label: filtered[i].isActive == 'Y'
+                                        ? l.recurringPaused
+                                        : l.recurringStart,
+                                    icon: filtered[i].isActive == 'Y'
+                                        ? LucideIcons.pause
+                                        : LucideIcons.play,
+                                    kind: PSwipeKind.neutral,
+                                    onSelect: () => _toggle(filtered[i]),
+                                  ),
+                                  PSwipeAction(
+                                    label: l.actionEdit,
+                                    icon: LucideIcons.pencil,
+                                    kind: PSwipeKind.primary,
+                                    onSelect: () =>
+                                        showRecurringSettingsDialog(
+                                      context,
+                                      recurring: filtered[i],
+                                    ),
+                                  ),
+                                  PSwipeAction(
+                                    label: l.actionDelete,
+                                    icon: LucideIcons.trash2,
+                                    kind: PSwipeKind.destructive,
+                                    // _delete 가 자체 확인 다이얼로그를 띄우므로
+                                    // 여기서 confirmMessage 를 또 주지 않는다 —
+                                    // 같은 삭제에 확인이 두 번 뜨면 안 된다.
+                                    onSelect: () => _delete(filtered[i]),
+                                  ),
+                                ],
+                                child: _RecurringRow(
+                                  item: filtered[i],
+                                  category: categories.byRowId(
+                                    filtered[i].categoryRowId,
+                                  ),
+                                  masked: ref
+                                      .watch(hideCardProvider('etc.recurring')),
+                                  tokens: t,
+                                  anyBusy: _busyToggleId != null ||
+                                      _busyDeleteId != null,
+                                  onToggle: () => _toggle(filtered[i]),
+                                  onEdit: () => showRecurringSettingsDialog(
+                                    context,
+                                    recurring: filtered[i],
+                                  ),
+                                  onDelete: () => _delete(filtered[i]),
                                 ),
-                                masked: ref.watch(hideCardProvider('etc.recurring')),
-                                tokens: t,
-                                anyBusy:
-                                    _busyToggleId != null ||
-                                    _busyDeleteId != null,
-                                onToggle: () => _toggle(filtered[i]),
-                                onEdit: () => showRecurringSettingsDialog(
-                                  context,
-                                  recurring: filtered[i],
-                                ),
-                                onDelete: () => _delete(filtered[i]),
                               ),
                               if (i < filtered.length - 1) const PDivider(),
                             ],
