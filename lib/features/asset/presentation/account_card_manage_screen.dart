@@ -179,12 +179,13 @@ class _AccountCardManageScreenState
                                     masked: masked,
                                     negative: isCard,
                                     tokens: t,
-                                    showTopBorder: i > 0,
                                     onTap: () => showAssetDetailRich(
                                       context,
                                       filtered[i],
                                       onEdit: () => showAssetEditForm(
                                           context, filtered[i]),
+                                      // 관리 화면이라 상세에서 지울 수 있다.
+                                      allowDelete: true,
                                     ),
                                   ),
                               ],
@@ -248,7 +249,7 @@ class _AccountCardManageSkeleton extends StatelessWidget {
                 child: Column(
                   children: [
                     for (int i = 0; i < 5; i++)
-                      _ManageRowSkel(isLast: i == 4, tokens: t),
+                      const _ManageRowSkel(),
                   ],
                 ),
               ),
@@ -261,41 +262,33 @@ class _AccountCardManageSkeleton extends StatelessWidget {
 }
 
 class _ManageRowSkel extends StatelessWidget {
-  const _ManageRowSkel({required this.isLast, required this.tokens});
-  final bool isLast;
-  final PorestTokens tokens;
+  const _ManageRowSkel();
 
   @override
   Widget build(BuildContext context) {
-    final t = tokens;
-    return Container(
-      decoration: BoxDecoration(
-        border: isLast
-            ? null
-            : Border(bottom: BorderSide(color: t.borderSubtle)),
-      ),
-      padding: const EdgeInsets.symmetric(
+    return const Padding(
+      padding: EdgeInsets.symmetric(
         horizontal: 0, // 실제 행과 같은 값
         vertical: PSpace.x16,
       ),
       child: Row(
         children: [
-          const PSkeleton(width: 36, height: 36),
-          const SizedBox(width: PSpace.x12),
+          PSkeleton(width: 36, height: 36),
+          SizedBox(width: PSpace.x12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const PSkeleton.line(width: 80),
-                const SizedBox(height: 4),
+                PSkeleton.line(width: 80),
+                SizedBox(height: 4),
                 PSkeleton.line(width: 56, height: 12),
               ],
             ),
           ),
-          const SizedBox(width: PSpace.x8),
-          const PSkeleton.line(width: 72),
-          const SizedBox(width: PSpace.x8),
-          const PSkeleton(width: 18, height: 18),
+          SizedBox(width: PSpace.x8),
+          PSkeleton.line(width: 72),
+          SizedBox(width: PSpace.x8),
+          PSkeleton(width: 18, height: 18),
         ],
       ),
     );
@@ -308,7 +301,6 @@ class _ManageRow extends StatelessWidget {
     required this.masked,
     required this.negative,
     required this.tokens,
-    required this.showTopBorder,
     required this.onTap,
   });
 
@@ -316,7 +308,6 @@ class _ManageRow extends StatelessWidget {
   final bool masked;
   final bool negative;
   final PorestTokens tokens;
-  final bool showTopBorder;
   final VoidCallback onTap;
 
   @override
@@ -338,11 +329,6 @@ class _ManageRow extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         child: Container(
-          decoration: BoxDecoration(
-            border: showTopBorder
-                ? Border(top: BorderSide(color: t.borderSubtle))
-                : null,
-          ),
           // web MANAGE_ROW(계좌·카테고리 공용) 정합 — py 12 / 아이콘 36 / 금액 bodySm
           // 좌우 0 — 페이지가 24 를 쥔다. 행이 더 얹으면 위 라벨과 어긋난다(설정 리스트 공통 규칙).
           padding: const EdgeInsets.symmetric(horizontal: 0, vertical: PSpace.x12),

@@ -39,6 +39,7 @@ import 'package:porest_desk_app/features/asset/domain/asset_transfer.dart';
 import 'package:porest_desk_app/features/asset/domain/card_billing.dart';
 import 'package:porest_desk_app/shared/widgets/p_chart_tooltip.dart';
 import 'package:porest_desk_app/features/asset/domain/asset_type_meta.dart';
+import 'package:porest_desk_app/features/asset/presentation/asset_actions.dart';
 import 'package:porest_desk_app/features/asset/presentation/holding_format.dart';
 import 'package:porest_desk_app/features/asset/presentation/widgets/asset_logo.dart';
 import 'package:porest_desk_app/features/asset/presentation/asset_trade_sheet.dart';
@@ -51,35 +52,75 @@ import 'package:porest_desk_app/features/expense/presentation/widgets/transfer_r
 /// - Hero 카드 (브랜드 그라디언트 + 아이콘 + 이름 + 잔액)
 /// - 12/24/52주 잔액 추이 + 3개월/6개월/1년 segmented
 /// - 최근 거래 12건 + "전체 보기 →"
-/// - 푸터: 편집 1개 (본문 끝에 함께 스크롤)
+/// - 푸터: 편집 (+ [allowDelete] 면 삭제) — 본문 끝에 함께 스크롤
+///
+/// [allowDelete] 는 자산을 지울 수 있는 화면만 켠다(계좌·카드 관리). 자산 페이지처럼
+/// 훑어보는 상세에서 켜면 목록으로 돌아갈 수도 없는 자리에서 자산이 사라진다.
 void showAssetDetailRich(
   BuildContext context,
   Asset asset, {
   VoidCallback? onEdit,
+  bool allowDelete = false,
 }) {
   showPSheet<void>(
     context,
     title: _titleFor(AppLocalizations.of(context), asset),
     contentBuilder: (ctx, scrollCtrl) =>
         _DetailBody(asset: asset, scrollController: scrollCtrl, onEdit: onEdit),
-    footerBuilder: (ctx) => _DetailFooter(asset: asset, onEdit: onEdit),
+    footerBuilder: (ctx) =>
+        _DetailFooter(asset: asset, onEdit: onEdit, allowDelete: allowDelete),
   );
 }
 
-/// 상세 footer — [편집] 1개. 금액 가리기는 카드 우상단 눈 버튼과 계정 > 보안에도
-/// 있어 여기서 뺐다(spec drawer.md 액션 구성).
-class _DetailFooter extends StatelessWidget {
-  const _DetailFooter({required this.asset, this.onEdit});
+/// 상세 footer — [삭제][편집](spec drawer.md: 상세 = 삭제·편집, 편집 폼 = 취소·저장).
+/// 금액 가리기는 카드 우상단 눈 버튼과 계정 > 보안에도 있어 여기서 뺐다.
+class _DetailFooter extends ConsumerStatefulWidget {
+  const _DetailFooter({
+    required this.asset,
+    this.onEdit,
+    this.allowDelete = false,
+  });
   final Asset asset;
   final VoidCallback? onEdit;
+  final bool allowDelete;
+
+  @override
+  ConsumerState<_DetailFooter> createState() => _DetailFooterState();
+}
+
+class _DetailFooterState extends ConsumerState<_DetailFooter> {
+  bool _deleting = false;
+
+  Future<void> _delete() async {
+    if (_deleting) return;
+    final asset = widget.asset;
+    final ok = await showPConfirmDialog(
+      context,
+      title: assetActions.deleteConfirmTitle(context, asset),
+      message: assetActions.deleteConfirmMessage(context, asset),
+      confirmLabel: AppLocalizations.of(context).actionDelete,
+      destructive: true,
+    );
+    if (!ok || !mounted) return;
+    setState(() => _deleting = true);
+    try {
+      final deleted = await assetActions.delete(context, ref, asset);
+      // 지워진 자산의 상세를 열어 둘 수 없다. 실패했으면 스낵바만 뜨고 시트는 남는다.
+      if (deleted && mounted) Navigator.of(context).pop();
+    } finally {
+      if (mounted) setState(() => _deleting = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return PViewFooter(
+      onDelete: widget.allowDelete ? _delete : null,
+      deleting: _deleting,
       onEdit: () {
         Navigator.of(context).pop();
-        if (onEdit != null) {
-          onEdit!();
+        if (widget.onEdit != null) {
+          widget.onEdit!();
         } else {
           context.push('/account-card-manage');
         }
