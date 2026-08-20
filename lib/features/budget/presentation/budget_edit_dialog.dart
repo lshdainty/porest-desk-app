@@ -103,7 +103,6 @@ class _BudgetEditBodyState extends ConsumerState<_BudgetEditBody> {
     );
     _categoryRowId = widget.edit?.categoryRowId;
     widget.controller.onSubmit = _submit;
-    if (_isEdit) widget.controller.onDelete = _delete;
   }
 
   @override
@@ -157,31 +156,6 @@ class _BudgetEditBodyState extends ConsumerState<_BudgetEditBody> {
     }
   }
 
-  Future<void> _delete() async {
-    final l = AppLocalizations.of(context);
-    final ok = await showPConfirmDialog(
-      context,
-      title: l.budgetDeleteTitle,
-      message: l.budgetDeleteConfirm,
-      confirmLabel: l.actionDelete,
-      destructive: true,
-    );
-    if (!ok || !mounted) return;
-    _setSubmitting(true);
-    try {
-      final repo = await ref.read(budgetRepositoryProvider.future);
-      await repo.delete(widget.edit!.rowId);
-      ref.invalidate(monthBudgetsProvider(
-          (year: widget.year, month: widget.month)));
-      if (!mounted) return;
-      Navigator.of(context).pop();
-    } on ApiException catch (e) {
-      if (!mounted) return;
-      showPSnackBar(context, '${l.budgetDeleteFailed}: ${e.message}', severity: PSnackSeverity.error);
-    } finally {
-      if (mounted) _setSubmitting(false);
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
