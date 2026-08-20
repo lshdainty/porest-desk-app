@@ -319,7 +319,6 @@ class _Actions extends ConsumerWidget {
             label: progress.stage == ApkStage.failed
                 ? l.updateSheetRetry
                 : l.updateGateInstall,
-            icon: LucideIcons.download,
             size: PButtonSize.lg,
             onPressed: () => _install(context, ref),
           ),
