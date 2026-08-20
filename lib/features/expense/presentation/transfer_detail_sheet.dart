@@ -6,6 +6,7 @@ import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
+import 'package:porest_desk_app/core/settings/settings_notifier.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/features/expense/presentation/add_tx_sheet.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
@@ -117,20 +118,23 @@ class _TransferDetailBodyState extends ConsumerState<_TransferDetailBody> {
     final l = AppLocalizations.of(context);
     final tr = widget.transfer;
     final fee = tr.fee ?? 0;
+    // 이체 상세는 지금까지 어떤 카드로도 가려지지 않았다 — 거래 상세와 같은 카드로 묶는다.
+    // 금액만 가리고 수수료를 남기면 `이체금액 = 출금총액 − 수수료` 로 좁혀지므로 한 덩어리다.
+    final masked = ref.watch(hideCardProvider('ledger.txDetail'));
 
     final rows = <(String, String)>[
       (l.expTransferFrom, tr.fromAssetName ?? '-'),
       (l.expTransferTo, tr.toAssetName ?? '-'),
-      (l.expAmount, krwSigned(tr.amount, false, unit: true)),
-      if (fee > 0) (l.transferFeePrefix, krwSigned(fee, false, unit: true)),
+      (l.expAmount, krwSigned(tr.amount, masked, unit: true)),
+      if (fee > 0) (l.transferFeePrefix, krwSigned(fee, masked, unit: true)),
       // 보내는 쪽에서 실제로 빠져나간 금액 — 수수료가 있으면 이체 금액과 다르다.
       if (fee > 0)
-        (l.transferWithdrawn, krwSigned(tr.amount + fee, false, unit: true)),
+        (l.transferWithdrawn, krwSigned(tr.amount + fee, masked, unit: true)),
       // 대출 상환에만 있다. 이자는 부채를 줄이지 않고 은행으로 나가는 비용이라,
       // 안 보여 주면 "왜 원금이 이만큼밖에 안 줄었지" 가 된다.
       if ((tr.interestAmount ?? 0) > 0) ...[
-        (l.expInterest, krwSigned(tr.interestAmount!, false, unit: true)),
-        (l.transferPrincipal, krwSigned(tr.principalAmount ?? 0, false, unit: true)),
+        (l.expInterest, krwSigned(tr.interestAmount!, masked, unit: true)),
+        (l.transferPrincipal, krwSigned(tr.principalAmount ?? 0, masked, unit: true)),
       ],
       (l.expDate, (tr.transferDate ?? '-').replaceFirst('T', ' ')),
       if ((tr.description ?? '').isNotEmpty) (l.expDescription, tr.description!),

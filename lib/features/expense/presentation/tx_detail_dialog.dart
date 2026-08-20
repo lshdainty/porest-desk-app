@@ -452,6 +452,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
             categories: categories,
             expanded: _splitExpanded,
             onToggle: () => setState(() => _splitExpanded = !_splitExpanded),
+            masked: masked,
             tokens: t,
           ),
         // Merchant history — 같은 가맹점·같은 달 이전 거래
@@ -596,6 +597,7 @@ class _SplitSummaryCard extends StatelessWidget {
     required this.categories,
     required this.expanded,
     required this.onToggle,
+    required this.masked,
     required this.tokens,
   });
   final List<ExpenseSplit> splits;
@@ -604,6 +606,9 @@ class _SplitSummaryCard extends StatelessWidget {
   final List<ExpenseCategory> categories;
   final bool expanded;
   final VoidCallback onToggle;
+
+  /// 히어로 금액과 **같은 값**이라 같이 가려야 한다 — 안 그러면 위를 가려도 여기서 보인다.
+  final bool masked;
   final PorestTokens tokens;
 
   Color _colorFor(BuildContext context, int categoryRowId) => resolveChartColor(
@@ -622,7 +627,7 @@ class _SplitSummaryCard extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('${l.expTotal} ${krwSigned(total, false, unit: true)}',
+            Text('${l.expTotal} ${krwSigned(total, masked, unit: true)}',
                 style: PTypo.caption.copyWith(color: t.fgTertiary)),
             const SizedBox(width: 6),
             Icon(
@@ -694,7 +699,7 @@ class _SplitSummaryCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      krwSigned(splits[i].amount, false,
+                      krwSigned(splits[i].amount, masked,
                           sign: isIncome ? '+' : '−', unit: true),
                       // 행 금액 중립색 — 가계부 리스트 정합(사용자 결정)
                       style: PTypo.bodySm.copyWith(
