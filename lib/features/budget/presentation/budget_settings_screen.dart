@@ -658,6 +658,17 @@ class _MiniStat extends StatelessWidget {
 }
 
 /// 카테고리별 예산 리스트 — 헤더(개수 + 예산 추가) + 행 리스트(탭하여 수정/삭제).
+/// 예산이 걸린 카테고리 이름 — 행 표시(`_CategoryRow`)와 삭제 확인창이 같은 규칙을 쓴다.
+/// 확인창이 대상을 이름으로 불러야 한다(spec alert-dialog).
+String _budgetName(
+  AppLocalizations l,
+  List<ExpenseCategory> categories,
+  Budget b,
+) =>
+    categories.byRowId(b.categoryRowId!)?.categoryName ??
+    b.categoryName ??
+    l.budgetCategoryFallback(b.categoryRowId!);
+
 class _CategoryListCard extends StatelessWidget {
   const _CategoryListCard({
     required this.budgets,
@@ -765,7 +776,10 @@ class _CategoryListCard extends StatelessWidget {
                       label: l.actionDelete,
                       icon: LucideIcons.trash2,
                       kind: PSwipeKind.destructive,
-                      confirmMessage: l.budgetDeleteConfirm,
+                      confirmTitle: l.budgetDeleteTitle,
+                      confirmMessage: l.budgetDeleteConfirm(
+                        _budgetName(l, categories, budgets[i]),
+                      ),
                       onSelect: () => onDelete(budgets[i]),
                     ),
                   ],

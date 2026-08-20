@@ -29,8 +29,7 @@ class AssetActions implements ItemActions<Asset> {
   @override
   bool canEdit(Asset a) => true;
 
-  /// 지우기 전 물을 제목. [ItemActions] 에는 없다 — 확인 다이얼로그를 띄우는 쪽이
-  /// 종류별 제목까지 알아야 해서 여기 같이 둔다.
+  @override
   String deleteConfirmTitle(BuildContext context, Asset a) {
     final l = AppLocalizations.of(context);
     return switch (_kindOf(a)) {
@@ -44,9 +43,9 @@ class AssetActions implements ItemActions<Asset> {
   String deleteConfirmMessage(BuildContext context, Asset a) {
     final l = AppLocalizations.of(context);
     return switch (_kindOf(a)) {
-      _AssetKind.account => l.assetAccountDeleteConfirm,
-      _AssetKind.card => l.assetCardDeleteConfirm,
-      _AssetKind.invest => l.assetInvestDeleteConfirm,
+      _AssetKind.account => l.assetAccountDeleteConfirm(a.assetName),
+      _AssetKind.card => l.assetCardDeleteConfirm(a.assetName),
+      _AssetKind.invest => l.assetInvestDeleteConfirm(a.assetName),
     };
   }
 

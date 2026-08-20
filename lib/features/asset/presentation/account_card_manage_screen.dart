@@ -201,6 +201,8 @@ class _AccountCardManageScreenState
                                           label: l.actionDelete,
                                           icon: LucideIcons.trash2,
                                           kind: PSwipeKind.destructive,
+                                          confirmTitle: assetActions
+                                              .deleteConfirmTitle(context, a),
                                           confirmMessage: assetActions
                                               .deleteConfirmMessage(context, a),
                                           onSelect: () => assetActions.delete(

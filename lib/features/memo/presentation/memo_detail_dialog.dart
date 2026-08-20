@@ -81,7 +81,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
     final l = AppLocalizations.of(context);
     final ok = await showPConfirmDialog(
       context,
-      title: l.memoDeleteTitle,
+      title: memoActions.deleteConfirmTitle(context, widget.memo),
       message: memoActions.deleteConfirmMessage(context, widget.memo),
       confirmLabel: l.actionDelete,
       destructive: true,

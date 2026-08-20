@@ -393,7 +393,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetAccountDelete => '계좌 삭제';
 
   @override
-  String get assetAccountDeleteConfirm => '이 계좌를 삭제하시겠습니까? 연결된 거래는 유지됩니다.';
+  String assetAccountDeleteConfirm(String name) {
+    return '\"$name\"을(를) 목록에서 제거합니다. 연결된 거래 내역은 유지됩니다.';
+  }
 
   @override
   String get assetActionFailed => '실패';
@@ -518,7 +520,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetCardDelete => '카드 삭제';
 
   @override
-  String get assetCardDeleteConfirm => '이 카드를 삭제하시겠습니까? 연결된 거래는 유지됩니다.';
+  String assetCardDeleteConfirm(String name) {
+    return '\"$name\"을(를) 목록에서 제거합니다. 연결된 거래 내역은 유지됩니다.';
+  }
 
   @override
   String get assetCardDeleted => '카드가 삭제되었습니다';
@@ -592,7 +596,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get assetInvestDelete => '투자 삭제';
 
   @override
-  String get assetInvestDeleteConfirm => '이 투자 자산을 삭제하시겠습니까? 연결된 거래는 유지됩니다.';
+  String assetInvestDeleteConfirm(String name) {
+    return '\"$name\"을(를) 목록에서 제거합니다. 연결된 거래 내역은 유지됩니다.';
+  }
 
   @override
   String get assetBrokerExchange => '증권사·거래소';
@@ -1437,7 +1443,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String calDeleteLabelConfirm(String name) {
-    return '\"$name\" 라벨을 삭제하시겠어요? 이 라벨이 지정된 일정은 라벨 없음 상태가 됩니다.';
+    return '\"$name\" 라벨을 삭제할까요? 이 라벨이 지정된 일정은 라벨 없음 상태가 됩니다.';
   }
 
   @override
@@ -1569,7 +1575,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String calDeleteCalendarConfirm(String name) {
-    return '\"$name\" 캘린더를 삭제하시겠어요? 일정은 기본 캘린더로 이동하고 모든 멤버의 접근 권한이 사라집니다.';
+    return '\"$name\" 캘린더를 삭제할까요? 일정은 기본 캘린더로 이동하고 모든 멤버의 접근 권한이 사라집니다.';
   }
 
   @override
@@ -2020,7 +2026,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get budgetDeleteTitle => '예산 삭제';
 
   @override
-  String get budgetDeleteConfirm => '이 예산을 삭제하시겠습니까?';
+  String budgetDeleteConfirm(String name) {
+    return '\"$name\" 카테고리 예산을 삭제할까요?';
+  }
 
   @override
   String get budgetDeleteFailed => '삭제 실패';
@@ -2453,12 +2461,12 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String categoryDeleteWithBudget(String name) {
-    return '예산이 설정되어 있는 카테고리입니다. 삭제 시 예산도 함께 삭제됩니다. \"$name\" 카테고리를 삭제하시겠습니까?';
+    return '예산이 설정되어 있는 카테고리입니다. 삭제하면 예산도 함께 삭제됩니다. \"$name\" 카테고리를 삭제할까요?';
   }
 
   @override
   String categoryDeleteConfirm(String name) {
-    return '\"$name\" 카테고리를 삭제하시겠어요?';
+    return '\"$name\" 카테고리를 삭제할까요?';
   }
 
   @override
@@ -2663,7 +2671,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String dutchDeleteConfirm(String title) {
-    return '\"$title\"을(를) 삭제할까요?';
+    return '\"$title\" 더치페이를 삭제할까요? 이 작업은 되돌릴 수 없습니다.';
   }
 
   @override
@@ -2805,7 +2813,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get expAdded => '거래가 추가되었습니다';
 
   @override
-  String get expDeleteConfirm => '이 거래를 삭제하시겠습니까? 연결된 자산 잔액이 함께 조정됩니다.';
+  String expDeleteConfirm(String name) {
+    return '\"$name\" 거래를 삭제할까요? 연결된 자산 잔액이 함께 조정됩니다.';
+  }
 
   @override
   String get expDeleted => '거래가 삭제되었습니다';
@@ -4066,7 +4076,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String recurringDeleteConfirm(String name) {
-    return '\"$name\" 반복 설정을 삭제할까요?\n이미 기록된 거래는 그대로 남습니다.';
+    return '\"$name\" 반복 설정을 삭제할까요? 이미 기록된 거래는 그대로 남아요.';
   }
 
   @override
@@ -4302,7 +4312,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String savingGoalDeleteConfirm(String title) {
-    return '\"$title\"을(를) 삭제할까요?';
+    return '\"$title\" 목표를 삭제할까요? 이 작업은 되돌릴 수 없어요.';
   }
 
   @override
@@ -4978,7 +4988,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get stocksWatchGroupNamePlaceholder => '그룹 이름';
 
   @override
-  String get stocksWatchGroupDeleteConfirm => '그룹과 담긴 종목이 함께 삭제됩니다. 계속할까요?';
+  String stocksWatchGroupDeleteConfirm(String name) {
+    return '\"$name\" 그룹과 담긴 종목이 함께 삭제됩니다. 계속할까요?';
+  }
 
   @override
   String get stocksWatchGroupSaveFail => '관심목록 그룹 저장에 실패했어요';
@@ -5003,7 +5015,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String todoDeleteConfirm(String title) {
-    return '\"$title\" 을(를) 삭제할까요?';
+    return '\"$title\" 할 일을 삭제할까요? 이 작업은 되돌릴 수 없습니다.';
   }
 
   @override
@@ -5120,8 +5132,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get todoDeleteTagTitle => '태그 삭제';
 
   @override
-  String todoDeleteTagConfirm(String name) {
-    return '\"$name\" 태그를 삭제하시겠어요?';
+  String todoDeleteTagConfirm(String name, int count) {
+    return '\"$name\" 태그를 삭제하면 이 태그를 쓰는 할 일 $count건은 태그 없음으로 남아요.';
   }
 
   @override
@@ -5367,7 +5379,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get memoDeleteTitle => '메모 삭제';
 
   @override
-  String get memoDeleteConfirm => '이 메모를 삭제할까요?';
+  String memoDeleteConfirm(String name) {
+    return '\"$name\" 메모를 삭제할까요? 이 작업은 되돌릴 수 없습니다.';
+  }
 
   @override
   String memoDeleteFailed(String message) {
@@ -6202,6 +6216,9 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get smsInboxEmptyDesc => '카드 결제가 감지되면 여기에 쌓여요. 눌러서 지출로 기록할 수 있어요.';
+
+  @override
+  String get smsInboxRemoveTitle => '문자 삭제';
 
   @override
   String get smsInboxRemove => '삭제';

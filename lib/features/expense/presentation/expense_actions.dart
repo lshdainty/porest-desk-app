@@ -28,12 +28,25 @@ class ExpenseActions implements ItemActions<Expense> {
   bool canEdit(Expense e) => e.autoSource == null;
 
   @override
+  String deleteConfirmTitle(BuildContext context, Expense e) =>
+      AppLocalizations.of(context).expDelete;
+
+  /// 확인창이 부를 이름. 상세 화면 제목과 같은 규칙이다 — 상호명이 없으면 적요,
+  /// 그것도 없으면 카테고리. 거래는 이름을 안 가질 수 있어 마지막에 기본값을 둔다.
+  String displayNameOf(BuildContext context, Expense e) =>
+      e.merchant ??
+      e.description ??
+      e.categoryName ??
+      AppLocalizations.of(context).expTxFallback;
+
+  @override
   String deleteConfirmMessage(BuildContext context, Expense e) {
     final l = AppLocalizations.of(context);
+    final confirm = l.expDeleteConfirm(displayNameOf(context, e));
     // 환불이 달려 있으면 그것도 함께 사라진다 — 모르고 지우면 지출 총액이 조용히 바뀐다.
     final refundCount = e.refundCount;
-    if (refundCount <= 0) return l.expDeleteConfirm;
-    return '${l.expDeleteConfirm}\n\n'
+    if (refundCount <= 0) return confirm;
+    return '$confirm\n\n'
         '${l.expDeleteRefundWarn(refundCount, krw(e.refundedAmount))}';
   }
 

@@ -169,7 +169,8 @@
   "assetAccountUpdated": "계좌가 수정되었습니다",
   "assetAccountDeleted": "계좌가 삭제되었습니다",
   "assetAccountDelete": "계좌 삭제",
-  "assetAccountDeleteConfirm": "이 계좌를 삭제하시겠습니까? 연결된 거래는 유지됩니다.",
+  "assetAccountDeleteConfirm": "\"{name}\"을(를) 목록에서 제거합니다. 연결된 거래 내역은 유지됩니다.",
+  "@assetAccountDeleteConfirm": { "placeholders": { "name": { "type": "String" } } },
   "assetActionFailed": "실패",
   "assetDeleteFailed": "삭제 실패",
   "assetInstitutionBrand": "기관·브랜드",
@@ -219,7 +220,8 @@
   "assetCardEdit": "카드 편집",
   "assetCardUpdated": "카드가 수정되었습니다",
   "assetCardDelete": "카드 삭제",
-  "assetCardDeleteConfirm": "이 카드를 삭제하시겠습니까? 연결된 거래는 유지됩니다.",
+  "assetCardDeleteConfirm": "\"{name}\"을(를) 목록에서 제거합니다. 연결된 거래 내역은 유지됩니다.",
+  "@assetCardDeleteConfirm": { "placeholders": { "name": { "type": "String" } } },
   "assetCardDeleted": "카드가 삭제되었습니다",
   "assetCardType": "카드 종류",
   "assetCardProduct": "카드 상품",
@@ -250,7 +252,8 @@
   "assetInvestUpdated": "투자가 수정되었습니다",
   "assetInvestDeleted": "투자가 삭제되었습니다",
   "assetInvestDelete": "투자 삭제",
-  "assetInvestDeleteConfirm": "이 투자 자산을 삭제하시겠습니까? 연결된 거래는 유지됩니다.",
+  "assetInvestDeleteConfirm": "\"{name}\"을(를) 목록에서 제거합니다. 연결된 거래 내역은 유지됩니다.",
+  "@assetInvestDeleteConfirm": { "placeholders": { "name": { "type": "String" } } },
   "assetBrokerExchange": "증권사·거래소",
   "assetInvestSearchHint": "증권사·가상자산거래소·상품거래소 검색",
   "assetProductName": "별칭",
@@ -731,7 +734,7 @@
   "calEditLabel": "라벨 수정",
   "calPreview": "미리보기",
   "calDeleteLabelTitle": "라벨 삭제",
-  "calDeleteLabelConfirm": "\"{name}\" 라벨을 삭제하시겠어요? 이 라벨이 지정된 일정은 라벨 없음 상태가 됩니다.",
+  "calDeleteLabelConfirm": "\"{name}\" 라벨을 삭제할까요? 이 라벨이 지정된 일정은 라벨 없음 상태가 됩니다.",
   "@calDeleteLabelConfirm": {
     "placeholders": {
       "name": {
@@ -832,7 +835,7 @@
     }
   },
   "calRemove": "내보내기",
-  "calDeleteCalendarConfirm": "\"{name}\" 캘린더를 삭제하시겠어요? 일정은 기본 캘린더로 이동하고 모든 멤버의 접근 권한이 사라집니다.",
+  "calDeleteCalendarConfirm": "\"{name}\" 캘린더를 삭제할까요? 일정은 기본 캘린더로 이동하고 모든 멤버의 접근 권한이 사라집니다.",
   "@calDeleteCalendarConfirm": {
     "placeholders": {
       "name": {
@@ -1039,7 +1042,8 @@
   "budgetAdded": "예산이 추가되었습니다",
   "budgetActionFailed": "실패",
   "budgetDeleteTitle": "예산 삭제",
-  "budgetDeleteConfirm": "이 예산을 삭제하시겠습니까?",
+  "budgetDeleteConfirm": "\"{name}\" 카테고리 예산을 삭제할까요?",
+  "@budgetDeleteConfirm": { "placeholders": { "name": { "type": "String" } } },
   "budgetDeleteFailed": "삭제 실패",
   "budgetOverallCap": "월 전체 상한",
   "budgetCategoryLoadError": "카테고리 로드 실패",
@@ -1337,7 +1341,7 @@
       }
     }
   },
-  "categoryDeleteWithBudget": "예산이 설정되어 있는 카테고리입니다. 삭제 시 예산도 함께 삭제됩니다. \"{name}\" 카테고리를 삭제하시겠습니까?",
+  "categoryDeleteWithBudget": "예산이 설정되어 있는 카테고리입니다. 삭제하면 예산도 함께 삭제됩니다. \"{name}\" 카테고리를 삭제할까요?",
   "@categoryDeleteWithBudget": {
     "placeholders": {
       "name": {
@@ -1345,7 +1349,7 @@
       }
     }
   },
-  "categoryDeleteConfirm": "\"{name}\" 카테고리를 삭제하시겠어요?",
+  "categoryDeleteConfirm": "\"{name}\" 카테고리를 삭제할까요?",
   "@categoryDeleteConfirm": {
     "placeholders": {
       "name": {
@@ -1466,7 +1470,7 @@
   "dutchParticipant": "참여자",
   "dutchSettleAction": "정산 완료 처리",
   "dutchDeleteTitle": "더치페이 삭제",
-  "dutchDeleteConfirm": "\"{title}\"을(를) 삭제할까요?",
+  "dutchDeleteConfirm": "\"{title}\" 더치페이를 삭제할까요? 이 작업은 되돌릴 수 없습니다.",
   "@dutchDeleteConfirm": {
     "placeholders": {
       "title": {
@@ -1564,7 +1568,8 @@
   "expActionFailed": "실패",
   "expUpdated": "거래가 수정되었습니다",
   "expAdded": "거래가 추가되었습니다",
-  "expDeleteConfirm": "이 거래를 삭제하시겠습니까? 연결된 자산 잔액이 함께 조정됩니다.",
+  "expDeleteConfirm": "\"{name}\" 거래를 삭제할까요? 연결된 자산 잔액이 함께 조정됩니다.",
+  "@expDeleteConfirm": { "placeholders": { "name": { "type": "String" } } },
   "expDeleted": "거래가 삭제되었습니다",
   "expDeleteFailed": "삭제 실패",
   "expSplitMismatch": "분할 내역과 금액이 달라요",
@@ -2130,7 +2135,7 @@
   "presetCreated": "프리셋이 추가되었습니다",
   "recurringToggleFailed": "변경 실패",
   "recurringDeleteTitle": "반복 거래 삭제",
-  "recurringDeleteConfirm": "\"{name}\" 반복 설정을 삭제할까요?\n이미 기록된 거래는 그대로 남습니다.",
+  "recurringDeleteConfirm": "\"{name}\" 반복 설정을 삭제할까요? 이미 기록된 거래는 그대로 남아요.",
   "@recurringDeleteConfirm": {
     "placeholders": {
       "name": {
@@ -2281,7 +2286,7 @@
   "savingGoalEdit": "저축 목표 수정",
   "savingGoalSubmitAdd": "추가",
   "savingGoalDeleteTitle": "저축 목표 삭제",
-  "savingGoalDeleteConfirm": "\"{title}\"을(를) 삭제할까요?",
+  "savingGoalDeleteConfirm": "\"{title}\" 목표를 삭제할까요? 이 작업은 되돌릴 수 없어요.",
   "@savingGoalDeleteConfirm": {
     "placeholders": {
       "title": {
@@ -2651,7 +2656,8 @@
   "stocksWatchGroupRename": "그룹 이름 변경",
   "stocksWatchGroupDelete": "그룹 삭제",
   "stocksWatchGroupNamePlaceholder": "그룹 이름",
-  "stocksWatchGroupDeleteConfirm": "그룹과 담긴 종목이 함께 삭제됩니다. 계속할까요?",
+  "stocksWatchGroupDeleteConfirm": "\"{name}\" 그룹과 담긴 종목이 함께 삭제됩니다. 계속할까요?",
+  "@stocksWatchGroupDeleteConfirm": { "placeholders": { "name": { "type": "String" } } },
   "stocksWatchGroupSaveFail": "관심목록 그룹 저장에 실패했어요",
   "stocksWatchAddFail": "관심 등록에 실패했어요",
   "stocksMarketToggleKr": "국내",
@@ -2659,7 +2665,7 @@
   "todoAdd": "할 일 추가",
   "todoEditTitle": "할 일 수정",
   "todoDeleteTitle": "할 일 삭제",
-  "todoDeleteConfirm": "\"{title}\" 을(를) 삭제할까요?",
+  "todoDeleteConfirm": "\"{title}\" 할 일을 삭제할까요? 이 작업은 되돌릴 수 없습니다.",
   "@todoDeleteConfirm": {
     "placeholders": {
       "title": {
@@ -2711,14 +2717,8 @@
   "todoRegisteredTags": "등록된 태그",
   "todoNoTags": "등록된 태그가 없습니다",
   "todoDeleteTagTitle": "태그 삭제",
-  "todoDeleteTagConfirm": "\"{name}\" 태그를 삭제하시겠어요?",
-  "@todoDeleteTagConfirm": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
+  "todoDeleteTagConfirm": "\"{name}\" 태그를 삭제하면 이 태그를 쓰는 할 일 {count}건은 태그 없음으로 남아요.",
+  "@todoDeleteTagConfirm": { "placeholders": { "name": { "type": "String" }, "count": { "type": "int" } } },
   "todoActionFailed": "실패",
   "todoAddFailed": "추가 실패",
   "todoDeleteFailed": "삭제 실패",
@@ -2862,7 +2862,8 @@
   "memoSearchEmptyDesc": "다른 검색어를 입력해보세요.",
   "memoUntitled": "(제목 없음)",
   "memoDeleteTitle": "메모 삭제",
-  "memoDeleteConfirm": "이 메모를 삭제할까요?",
+  "memoDeleteConfirm": "\"{name}\" 메모를 삭제할까요? 이 작업은 되돌릴 수 없습니다.",
+  "@memoDeleteConfirm": { "placeholders": { "name": { "type": "String" } } },
   "memoDeleteFailed": "삭제 실패: {message}",
   "@memoDeleteFailed": {
     "placeholders": {
@@ -3594,6 +3595,7 @@
   "smsInboxClear": "비우기",
   "smsInboxEmpty": "아직 받은 결제 알림이 없어요",
   "smsInboxEmptyDesc": "카드 결제가 감지되면 여기에 쌓여요. 눌러서 지출로 기록할 수 있어요.",
+  "smsInboxRemoveTitle": "문자 삭제",
   "smsInboxRemove": "삭제",
   "smsInboxRemoveConfirm": "이 문자를 목록에서 지울까요? 기록으로 남기지 않고 치웁니다.",
   "smsPermissionOffTitle": "결제를 감지해도 알려 드릴 수 없어요",

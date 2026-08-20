@@ -1025,6 +1025,8 @@ class _DayGroup extends ConsumerWidget {
                   label: l.actionDelete,
                   icon: LucideIcons.trash2,
                   kind: PSwipeKind.destructive,
+                  confirmTitle:
+                      todoActions.deleteConfirmTitle(context, items[i]),
                   confirmMessage:
                       todoActions.deleteConfirmMessage(context, items[i]),
                   onSelect: () => todoActions.delete(context, ref, items[i]),

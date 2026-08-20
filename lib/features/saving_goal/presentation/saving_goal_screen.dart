@@ -191,6 +191,7 @@ class SavingGoalScreen extends ConsumerWidget {
                           kind: PSwipeKind.destructive,
                           // 수정 시트의 삭제와 같은 문구 — 같은 삭제인데 경로에
                           // 따라 다른 말이 나오면 안 된다.
+                          confirmTitle: l.savingGoalDeleteTitle,
                           confirmMessage:
                               l.savingGoalDeleteConfirm(items[i].title),
                           onSelect: () => _deleteGoal(context, ref, items[i]),

@@ -118,7 +118,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
     final l = AppLocalizations.of(context);
     final ok = await showPConfirmDialog(
       context,
-      title: l.expDelete,
+      title: expenseActions.deleteConfirmTitle(context, widget.expense),
       message: expenseActions.deleteConfirmMessage(context, widget.expense),
       confirmLabel: l.actionDelete,
       destructive: true,
@@ -179,8 +179,8 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
     final timeLabel = (timeStr != null && timeStr != '00:00') ? timeStr : null;
 
     final paymentLabel = _paymentMethodLabel(l, e.paymentMethod);
-    final displayMerchant =
-        e.merchant ?? e.description ?? e.categoryName ?? l.expTxFallback;
+    // 삭제 확인창이 부르는 이름과 같은 규칙 — 한 군데서만 정한다.
+    final displayMerchant = expenseActions.displayNameOf(context, e);
     // 웹 TxDetailDialog 매칭: 수입=fg-brand (초록), 지출=fg-primary (검정)
     final amountColor = t.fgPrimary;
     final amountText = masked

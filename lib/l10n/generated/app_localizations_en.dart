@@ -397,8 +397,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetAccountDelete => 'Delete account';
 
   @override
-  String get assetAccountDeleteConfirm =>
-      'Delete this account? Linked transactions are kept.';
+  String assetAccountDeleteConfirm(String name) {
+    return '\"$name\" will be removed from the list. Linked transactions are kept.';
+  }
 
   @override
   String get assetActionFailed => 'Failed';
@@ -526,8 +527,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetCardDelete => 'Delete card';
 
   @override
-  String get assetCardDeleteConfirm =>
-      'Delete this card? Linked transactions are kept.';
+  String assetCardDeleteConfirm(String name) {
+    return '\"$name\" will be removed from the list. Linked transactions are kept.';
+  }
 
   @override
   String get assetCardDeleted => 'Card deleted';
@@ -602,8 +604,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetInvestDelete => 'Delete investment';
 
   @override
-  String get assetInvestDeleteConfirm =>
-      'Delete this investment? Linked transactions are kept.';
+  String assetInvestDeleteConfirm(String name) {
+    return '\"$name\" will be removed from the list. Linked transactions are kept.';
+  }
 
   @override
   String get assetBrokerExchange => 'Brokerage / exchange';
@@ -1416,7 +1419,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String calEventDeleteConfirm(String title) {
-    return 'Delete \"$title\"? This can\'t be undone.';
+    return 'Delete the \"$title\" event? This action cannot be undone.';
   }
 
   @override
@@ -1458,7 +1461,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String calDeleteLabelConfirm(String name) {
-    return 'Delete the \"$name\" label? Events using it will become unlabeled.';
+    return 'Delete the \"$name\" label? Events with this label will become unlabeled.';
   }
 
   @override
@@ -1592,7 +1595,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String calDeleteCalendarConfirm(String name) {
-    return 'Delete the \"$name\" calendar? Its events move to your default calendar and all members lose access.';
+    return 'Delete the \"$name\" calendar? Events move to the default calendar and all members lose access.';
   }
 
   @override
@@ -2050,7 +2053,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get budgetDeleteTitle => 'Delete budget';
 
   @override
-  String get budgetDeleteConfirm => 'Delete this budget?';
+  String budgetDeleteConfirm(String name) {
+    return 'Delete the budget for the \"$name\" category?';
+  }
 
   @override
   String get budgetDeleteFailed => 'Delete failed';
@@ -2480,12 +2485,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String categoryDeleteHasChildren(String name) {
-    return 'The \"$name\" category has subcategories and can\'t be deleted. Please clear its subcategories first.';
+    return 'The \"$name\" category has subcategories and cannot be deleted. Clear them first.';
   }
 
   @override
   String categoryDeleteWithBudget(String name) {
-    return 'This category has a budget. Deleting it will also delete the budget. Delete the \"$name\" category?';
+    return 'This category has a budget set. Deleting it will also delete the budget. Delete the \"$name\" category?';
   }
 
   @override
@@ -2698,7 +2703,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String dutchDeleteConfirm(String title) {
-    return 'Delete \"$title\"?';
+    return 'Delete the \"$title\" Dutch Pay? This action cannot be undone.';
   }
 
   @override
@@ -2841,8 +2846,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get expAdded => 'Transaction added';
 
   @override
-  String get expDeleteConfirm =>
-      'Delete this transaction? Linked asset balances will be adjusted.';
+  String expDeleteConfirm(String name) {
+    return 'Delete the \"$name\" transaction? The linked asset balance will be adjusted too.';
+  }
 
   @override
   String get expDeleted => 'Transaction deleted';
@@ -4018,7 +4024,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String presetDeleteConfirm(String name) {
-    return 'Delete preset \"$name\"? Already saved transactions are unaffected.';
+    return 'Delete the \"$name\" preset? Already-saved transactions are unaffected.';
   }
 
   @override
@@ -4121,7 +4127,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String recurringDeleteConfirm(String name) {
-    return 'Delete the recurring setting for \"$name\"?\nAlready recorded transactions remain.';
+    return 'Delete the \"$name\" recurring setting? Already-recorded transactions remain.';
   }
 
   @override
@@ -4361,7 +4367,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String savingGoalDeleteConfirm(String title) {
-    return 'Delete \"$title\"?';
+    return 'Delete the \"$title\" goal? This can\'t be undone.';
   }
 
   @override
@@ -5046,8 +5052,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get stocksWatchGroupNamePlaceholder => 'Group name';
 
   @override
-  String get stocksWatchGroupDeleteConfirm =>
-      'The group and its stocks will be removed. Continue?';
+  String stocksWatchGroupDeleteConfirm(String name) {
+    return 'The \"$name\" group and its stocks will be removed. Continue?';
+  }
 
   @override
   String get stocksWatchGroupSaveFail => 'Failed to save watchlist group';
@@ -5072,7 +5079,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String todoDeleteConfirm(String title) {
-    return 'Delete \"$title\"?';
+    return 'Delete the \"$title\" todo? This action cannot be undone.';
   }
 
   @override
@@ -5190,8 +5197,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get todoDeleteTagTitle => 'Delete tag';
 
   @override
-  String todoDeleteTagConfirm(String name) {
-    return 'Delete tag \"$name\"?';
+  String todoDeleteTagConfirm(String name, int count) {
+    return 'Deleting \"$name\" will leave $count todos using it untagged.';
   }
 
   @override
@@ -5442,7 +5449,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get memoDeleteTitle => 'Delete memo';
 
   @override
-  String get memoDeleteConfirm => 'Delete this memo?';
+  String memoDeleteConfirm(String name) {
+    return 'Delete the \"$name\" memo? This action cannot be undone.';
+  }
 
   @override
   String memoDeleteFailed(String message) {
@@ -6290,6 +6299,9 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get smsInboxEmptyDesc =>
       'Detected card payments collect here. Tap one to record it as an expense.';
+
+  @override
+  String get smsInboxRemoveTitle => 'Delete message';
 
   @override
   String get smsInboxRemove => 'Remove';

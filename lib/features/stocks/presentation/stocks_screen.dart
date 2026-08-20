@@ -532,7 +532,7 @@ class _GroupEditorSheetBodyState extends ConsumerState<_GroupEditorSheetBody> {
     final ok = await showPConfirmDialog(
       context,
       title: l.stocksWatchGroupDelete,
-      message: l.stocksWatchGroupDeleteConfirm,
+      message: l.stocksWatchGroupDeleteConfirm(g.groupName),
       destructive: true,
     );
     if (!ok) return;
