@@ -374,7 +374,7 @@ class _RecurringSettingsBodyState
       );
     }
 
-    final nextDates = _previewNextDates(
+    final nextDates = previewNextDates(
       _baseDate,
       _frequency,
       _dayOfWeekUi,
@@ -843,7 +843,9 @@ class _ToggleRow extends StatelessWidget {
 // ─── helpers ────────────────────────────────────────────────────────────────
 
 /// front `previewNextDates` 미러 (UI dow 0=일 ~ 6=토 사용).
-List<DateTime> _previewNextDates(
+/// 다음 예정일 미리보기 — 추가 시트와 상세 시트가 같은 계산을 쓴다.
+/// 둘이 갈라지면 "추가할 때 본 날짜"와 "상세에서 보는 날짜"가 달라진다.
+List<DateTime> previewNextDates(
   DateTime start,
   String frequency,
   int dayOfWeekUi, // 0=일 ~ 6=토
