@@ -1881,7 +1881,7 @@
   "@hideAmountsSelectedCount": {
     "placeholders": { "count": { "type": "int" } }
   },
-  "hideAmountsDiscardTitle": "저장하지 않고 나갈까요?",
+  "hideAmountsDiscardTitle": "저장하지 않고 나가기",
   "hideAmountsDiscardBody": "고른 내용이 사라져요.",
   "hideAmountsDiscardConfirm": "나가기",
   "hideAmountsSaved": "저장했어요",
@@ -2016,7 +2016,7 @@
     "placeholders": { "version": { "type": "String" } }
   },
   "accountLogoutConfirm": "정말 로그아웃 하시겠어요?",
-  "accountWithdrawTitle": "정말 탈퇴하시겠습니까?",
+  "accountWithdrawTitle": "회원 탈퇴",
   "accountWithdrawConfirm": "회원 탈퇴 시 모든 데이터가 영구적으로 삭제됩니다.\n이 작업은 되돌릴 수 없습니다.",
   "notiUnreadPrefix": "읽지 않은 알림 ",
   "notiUnreadSuffix": "개",
@@ -2778,7 +2778,7 @@
   "subFeatCardRec": "카드 혜택 추천",
   "subStarted": "Porest Pro 구독이 시작되었어요",
   "subFailed": "구독에 실패했어요",
-  "subCancelConfirmTitle": "구독을 해지할까요?",
+  "subCancelConfirmTitle": "구독 해지",
   "subCancelConfirmMsg": "해지하면 {date}부터 Free 플랜으로 전환되고 증권 탭이 잠겨요. 그 전까지는 Pro 기능을 계속 쓸 수 있어요.",
   "@subCancelConfirmMsg": {
     "placeholders": {

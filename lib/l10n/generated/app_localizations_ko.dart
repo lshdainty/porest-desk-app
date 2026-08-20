@@ -3450,7 +3450,7 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get hideAmountsDiscardTitle => '저장하지 않고 나갈까요?';
+  String get hideAmountsDiscardTitle => '저장하지 않고 나가기';
 
   @override
   String get hideAmountsDiscardBody => '고른 내용이 사라져요.';
@@ -3785,7 +3785,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get accountLogoutConfirm => '정말 로그아웃 하시겠어요?';
 
   @override
-  String get accountWithdrawTitle => '정말 탈퇴하시겠습니까?';
+  String get accountWithdrawTitle => '회원 탈퇴';
 
   @override
   String get accountWithdrawConfirm =>
@@ -5235,7 +5235,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get subFailed => '구독에 실패했어요';
 
   @override
-  String get subCancelConfirmTitle => '구독을 해지할까요?';
+  String get subCancelConfirmTitle => '구독 해지';
 
   @override
   String subCancelConfirmMsg(String date) {
