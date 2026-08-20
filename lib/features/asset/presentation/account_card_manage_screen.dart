@@ -12,9 +12,11 @@ import 'package:porest_desk_app/core/settings/settings_notifier.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
+import 'package:porest_desk_app/shared/widgets/p_swipe_actions.dart';
 import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
 import 'package:porest_desk_app/features/asset/domain/asset.dart';
+import 'package:porest_desk_app/features/asset/presentation/asset_actions.dart';
 import 'package:porest_desk_app/features/asset/presentation/asset_detail_dialog.dart';
 import 'package:porest_desk_app/features/asset/presentation/asset_edit_dialog.dart';
 import 'package:porest_desk_app/features/asset/presentation/widgets/asset_logo.dart';
@@ -173,19 +175,51 @@ class _AccountCardManageScreenState
                           // 카드 다이어트 — 카드 없이 플랫 행 리스트.
                           : Column(
                               children: [
-                                for (var i = 0; i < filtered.length; i++)
-                                  _ManageRow(
-                                    asset: filtered[i],
-                                    masked: masked,
-                                    negative: isCard,
-                                    tokens: t,
-                                    onTap: () => showAssetDetailRich(
-                                      context,
-                                      filtered[i],
-                                      onEdit: () => showAssetEditForm(
-                                          context, filtered[i]),
-                                      // 관리 화면이라 상세에서 지울 수 있다.
-                                      allowDelete: true,
+                                for (final a in filtered)
+                                  // 밀면 수정·삭제가 바로 나온다. 탭은 그대로 상세로 —
+                                  // 스와이프는 지름길이지 유일한 경로가 아니다
+                                  // (spec swipe-actions.md · WCAG 2.1.1).
+                                  // 삭제는 assetActions 가 한다(상세 시트와 같은 것).
+                                  PSwipeActions(
+                                    key: ValueKey('asset-${a.rowId}'),
+                                    // 탭마다 갈라 둔다 — 탭을 바꿔도 이전 탭에서 열어
+                                    // 둔 행이 남아 있으면 엉뚱한 자산이 열린 것처럼 보인다.
+                                    groupTag: 'asset-${_tab.name}-list',
+                                    actions: [
+                                      if (assetActions.canEdit(a))
+                                        PSwipeAction(
+                                          // 슬롯이 72px 이라 '편집'(actionEditLabel) 대신
+                                          // 두 글자 '수정' 을 쓴다.
+                                          label: l.actionEdit,
+                                          icon: LucideIcons.pencil,
+                                          kind: PSwipeKind.primary,
+                                          onSelect: () =>
+                                              assetActions.edit(context, ref, a),
+                                        ),
+                                      if (assetActions.canDelete(a))
+                                        PSwipeAction(
+                                          label: l.actionDelete,
+                                          icon: LucideIcons.trash2,
+                                          kind: PSwipeKind.destructive,
+                                          confirmMessage: assetActions
+                                              .deleteConfirmMessage(context, a),
+                                          onSelect: () => assetActions.delete(
+                                              context, ref, a),
+                                        ),
+                                    ],
+                                    child: _ManageRow(
+                                      asset: a,
+                                      masked: masked,
+                                      negative: isCard,
+                                      tokens: t,
+                                      onTap: () => showAssetDetailRich(
+                                        context,
+                                        a,
+                                        onEdit: () =>
+                                            showAssetEditForm(context, a),
+                                        // 관리 화면이라 상세에서 지울 수 있다.
+                                        allowDelete: true,
+                                      ),
                                     ),
                                   ),
                               ],
@@ -287,8 +321,6 @@ class _ManageRowSkel extends StatelessWidget {
           ),
           SizedBox(width: PSpace.x8),
           PSkeleton.line(width: 72),
-          SizedBox(width: PSpace.x8),
-          PSkeleton(width: 18, height: 18),
         ],
       ),
     );
@@ -392,8 +424,6 @@ class _ManageRow extends StatelessWidget {
                   ],
                 ],
               ),
-              const SizedBox(width: PSpace.x8),
-              Icon(LucideIcons.chevronRight, size: 18, color: t.fgTertiary),
             ],
           ),
         ),
