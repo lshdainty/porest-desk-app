@@ -17,7 +17,6 @@ import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_badge.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
-import 'package:porest_desk_app/shared/widgets/p_dropdown_menu.dart';
 import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/shared/widgets/p_card.dart';
 import 'package:porest_desk_app/shared/widgets/p_divider.dart';
@@ -26,6 +25,7 @@ import 'package:porest_desk_app/features/expense/application/expense_providers.d
 import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
 import 'package:porest_desk_app/features/recurring/application/recurring_providers.dart';
 import 'package:porest_desk_app/features/recurring/domain/recurring_transaction.dart';
+import 'package:porest_desk_app/features/recurring/presentation/recurring_detail_sheet.dart';
 import 'package:porest_desk_app/features/recurring/presentation/recurring_settings_drawer.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
 import 'package:porest_desk_app/shared/widgets/p_swipe_actions.dart';
@@ -75,7 +75,7 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
     final ok = await showPConfirmDialog(
       context,
       title: l.recurringDeleteTitle,
-      message: l.recurringDeleteConfirm(_displayTitle(l, it)),
+      message: l.recurringDeleteConfirm(recurringDisplayTitle(l, it)),
       confirmLabel: l.actionDelete,
       destructive: true,
     );
@@ -294,6 +294,17 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
                                     recurring: filtered[i],
                                   ),
                                   onDelete: () => _delete(filtered[i]),
+                                  onOpenDetail: () =>
+                                      showRecurringDetailSheet(
+                                    context,
+                                    item: filtered[i],
+                                    onEdit: () => showRecurringSettingsDialog(
+                                      context,
+                                      recurring: filtered[i],
+                                    ),
+                                    onToggle: () => _toggle(filtered[i]),
+                                    onDelete: () => _delete(filtered[i]),
+                                  ),
                                 ),
                               ),
                               if (i < filtered.length - 1) const PDivider(),
@@ -631,7 +642,7 @@ class _UpcomingRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _displayTitle(l, item),
+                  recurringDisplayTitle(l, item),
                   style: PTypo.bodySm.copyWith(
                     color: tokens.fgPrimary,
                     fontWeight: PFontWeight.semi,
@@ -640,7 +651,7 @@ class _UpcomingRow extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
-                  '${item.assetName ?? l.recurringNoAccount} · ${_summary(l, item)}',
+                  '${item.assetName ?? l.recurringNoAccount} · ${recurringSummaryText(l, item)}',
                   style: PTypo.caption.copyWith(color: tokens.fgTertiary),
                 ),
               ],
@@ -671,6 +682,7 @@ class _RecurringRow extends StatelessWidget {
     required this.onToggle,
     required this.onEdit,
     required this.onDelete,
+    required this.onOpenDetail,
   });
   final RecurringTransaction item;
   final ExpenseCategory? category;
@@ -680,6 +692,10 @@ class _RecurringRow extends StatelessWidget {
   final VoidCallback onToggle;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
+
+  /// 행 탭 → 상세 시트. `⋮` 메뉴를 대신하는 비제스처 경로다 —
+  /// 스와이프만 남기면 제스처 없이는 아무것도 못 한다(WCAG 2.1.1).
+  final VoidCallback onOpenDetail;
 
   @override
   Widget build(BuildContext context) {
@@ -695,7 +711,11 @@ class _RecurringRow extends StatelessWidget {
 
     return Opacity(
       opacity: isActive ? 1.0 : 0.55,
-      child: Padding(
+      child: InkWell(
+        // 탭하면 상세 시트 — 무엇이 언제 잡혀 있는지 보고 거기서 액션을 고른다.
+        // `⋮` 메뉴를 대신한다(사용자 결정).
+        onTap: anyBusy ? null : onOpenDetail,
+        child: Padding(
         // 좌우 0 — 라벨·토글과 같은 지점에서 시작한다(설정 리스트 공통 규칙).
         padding: const EdgeInsets.symmetric(
           horizontal: 0,
@@ -719,7 +739,7 @@ class _RecurringRow extends StatelessWidget {
                     children: [
                       Flexible(
                         child: Text(
-                          _displayTitle(l, item),
+                          recurringDisplayTitle(l, item),
                           style: PTypo.body.copyWith(
                             color: tokens.fgPrimary,
                             fontWeight: PFontWeight.semi,
@@ -765,7 +785,7 @@ class _RecurringRow extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    '${_summary(l, item)} · ${item.assetName ?? l.recurringNoAccount}'
+                    '${recurringSummaryText(l, item)} · ${item.assetName ?? l.recurringNoAccount}'
                     '${item.nextExecutionDate != null ? ' · ${l.recurringNext} ${item.nextExecutionDate!.substring(5).replaceAll('-', '/')}' : ''}',
                     style: PTypo.caption.copyWith(color: tokens.fgTertiary),
                   ),
@@ -781,30 +801,9 @@ class _RecurringRow extends StatelessWidget {
                 fontWeight: PFontWeight.bold,
               ),
             ),
-            PDropdownMenu(
-              enabled: !anyBusy,
-              entries: [
-                PDropdownItem(
-                  icon: isActive ? LucideIcons.pause : LucideIcons.play,
-                  label: isActive ? l.recurringPaused : l.recurringStart,
-                  onTap: onToggle,
-                ),
-                PDropdownItem(
-                  icon: LucideIcons.pencil,
-                  label: l.actionEdit,
-                  onTap: onEdit,
-                ),
-                const PDropdownDivider(),
-                PDropdownItem(
-                  icon: LucideIcons.trash2,
-                  label: l.actionDelete,
-                  onTap: onDelete,
-                  destructive: true,
-                ),
-              ],
-            ),
           ],
         ),
+      ),
       ),
     );
   }
@@ -1020,10 +1019,11 @@ class _ErrorBox extends StatelessWidget {
   }
 }
 
-String _displayTitle(AppLocalizations l, RecurringTransaction it) =>
+String recurringDisplayTitle(AppLocalizations l, RecurringTransaction it) =>
     it.merchant ?? it.description ?? it.categoryName ?? l.navRecurring;
 
-String _summary(AppLocalizations l, RecurringTransaction it) {
+/// 반복 규칙 한 줄 요약 — 목록 행과 상세 시트가 같은 문장을 쓴다.
+String recurringSummaryText(AppLocalizations l, RecurringTransaction it) {
   String core = switch (it.frequency) {
     'DAILY' => l.calRepeatDaily,
     'WEEKLY' => l.calRepeatWeekly,
