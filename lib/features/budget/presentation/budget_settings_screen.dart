@@ -28,6 +28,7 @@ import 'package:porest_desk_app/features/stats/domain/stats_models.dart';
 import 'package:porest_desk_app/features/budget/application/budget_providers.dart';
 import 'package:porest_desk_app/features/budget/domain/budget.dart';
 import 'package:porest_desk_app/features/budget/presentation/budget_edit_dialog.dart';
+import 'package:porest_desk_app/shared/widgets/p_swipe_actions.dart';
 import 'package:porest_desk_app/features/budget/presentation/budget_screen.dart'
     show showMonthPickerSheet;
 
@@ -169,6 +170,21 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
     );
   }
 
+  /// 스와이프 삭제 — 확인은 PSwipeActions 가 이미 받았으므로 여기서 다시 묻지 않는다.
+  /// 수정 시트가 쓰던 저장소·무효화 경로를 그대로 쓴다(문구도 같은 키).
+  Future<void> _deleteCategory(Budget budget) async {
+    final l = AppLocalizations.of(context);
+    try {
+      final repo = await ref.read(budgetRepositoryProvider.future);
+      await repo.delete(budget.rowId);
+      ref.invalidate(monthBudgetsProvider(_key));
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      showPSnackBar(context, '${l.budgetDeleteFailed}: ${e.message}',
+          severity: PSnackSeverity.error);
+    }
+  }
+
   void _editCategory(Budget budget, List<Budget> budgets) {
     showBudgetEditDialog(
       context,
@@ -303,6 +319,7 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
                       tokens: t,
                       onAdd: () => _addCategory(budgets),
                       onTap: (b) => _editCategory(b, budgets),
+                      onDelete: _deleteCategory,
                     ),
                   ],
                 );
@@ -652,6 +669,7 @@ class _CategoryListCard extends StatelessWidget {
     required this.tokens,
     required this.onAdd,
     required this.onTap,
+    required this.onDelete,
   });
   final List<Budget> budgets;
   final List<ExpenseCategory> categories;
@@ -662,6 +680,7 @@ class _CategoryListCard extends StatelessWidget {
   final PorestTokens tokens;
   final VoidCallback onAdd;
   final void Function(Budget) onTap;
+  final Future<void> Function(Budget) onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -730,13 +749,34 @@ class _CategoryListCard extends StatelessWidget {
                   Divider(height: 1, thickness: 1, color: tokens.borderSubtle),
                   const SizedBox(height: PSpace.x12),
                 ],
-                _CategoryRow(
-                  budget: budgets[i],
-                  category: categories.byRowId(budgets[i].categoryRowId!),
-                  spent: spentByCategory[budgets[i].categoryRowId] ?? 0,
-                  masked: masked,
-                  tokens: tokens,
-                  onTap: () => onTap(budgets[i]),
+                // 밀면 수정·삭제가 바로 나온다. 탭은 그대로 수정으로 — 스와이프는
+                // 지름길이지 유일한 경로가 아니다(spec swipe-actions.md · WCAG 2.1.1).
+                PSwipeActions(
+                  key: ValueKey('budget-${budgets[i].rowId}'),
+                  groupTag: 'budget-settings-list',
+                  actions: [
+                    PSwipeAction(
+                      label: l.actionEdit,
+                      icon: LucideIcons.pencil,
+                      kind: PSwipeKind.primary,
+                      onSelect: () => onTap(budgets[i]),
+                    ),
+                    PSwipeAction(
+                      label: l.actionDelete,
+                      icon: LucideIcons.trash2,
+                      kind: PSwipeKind.destructive,
+                      confirmMessage: l.budgetDeleteConfirm,
+                      onSelect: () => onDelete(budgets[i]),
+                    ),
+                  ],
+                  child: _CategoryRow(
+                    budget: budgets[i],
+                    category: categories.byRowId(budgets[i].categoryRowId!),
+                    spent: spentByCategory[budgets[i].categoryRowId] ?? 0,
+                    masked: masked,
+                    tokens: tokens,
+                    onTap: () => onTap(budgets[i]),
+                  ),
                 ),
               ],
           ],

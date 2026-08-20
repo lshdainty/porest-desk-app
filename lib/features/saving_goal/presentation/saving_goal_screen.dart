@@ -18,6 +18,9 @@ import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_card.dart';
 import 'package:porest_desk_app/shared/widgets/p_divider.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
+import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
+import 'package:porest_desk_app/shared/widgets/p_swipe_actions.dart';
 import 'package:porest_desk_app/features/saving_goal/application/saving_goal_providers.dart';
 import 'package:porest_desk_app/features/saving_goal/domain/saving_goal.dart';
 import 'package:porest_desk_app/features/saving_goal/presentation/saving_goal_edit_dialog.dart';
@@ -27,6 +30,22 @@ import 'package:porest_desk_app/features/saving_goal/presentation/saving_goal_ed
 /// 전체 진행률 요약(keep 카드) + 목표 목록(카드 탭 = 편집). 자산 화면은 조회 전용.
 class SavingGoalScreen extends ConsumerWidget {
   const SavingGoalScreen({super.key});
+
+  /// 스와이프 삭제 — 확인은 PSwipeActions 가 이미 받았으므로 여기서 다시 묻지 않는다.
+  /// 수정 시트의 삭제와 같은 저장소·무효화 경로를 쓴다(문구도 같은 키).
+  Future<void> _deleteGoal(
+      BuildContext context, WidgetRef ref, SavingGoal goal) async {
+    final l = AppLocalizations.of(context);
+    try {
+      final repo = await ref.read(savingGoalRepositoryProvider.future);
+      await repo.delete(goal.rowId);
+      ref.invalidate(savingGoalListProvider);
+    } on ApiException catch (e) {
+      if (!context.mounted) return;
+      showPSnackBar(context, '${l.savingGoalDeleteFailed}: ${e.message}',
+          severity: PSnackSeverity.error);
+    }
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -152,12 +171,38 @@ class SavingGoalScreen extends ConsumerWidget {
                 else
                   for (int i = 0; i < items.length; i++) ...[
                     if (i > 0) const PDivider(),
-                    _GoalCard(
-                      goal: items[i],
-                      masked: ref.watch(hideCardProvider('asset.savingGoals')),
-                      tokens: t,
-                      onEdit: () =>
-                          showSavingGoalEditDialog(context, edit: items[i]),
+                    // 밀면 수정·삭제가 바로 나온다. 탭은 그대로 수정으로 —
+                    // 스와이프는 지름길이지 유일한 경로가 아니다
+                    // (spec swipe-actions.md · WCAG 2.1.1).
+                    PSwipeActions(
+                      key: ValueKey('saving-goal-${items[i].rowId}'),
+                      groupTag: 'saving-goal-list',
+                      actions: [
+                        PSwipeAction(
+                          label: l.actionEdit,
+                          icon: LucideIcons.pencil,
+                          kind: PSwipeKind.primary,
+                          onSelect: () => showSavingGoalEditDialog(context,
+                              edit: items[i]),
+                        ),
+                        PSwipeAction(
+                          label: l.actionDelete,
+                          icon: LucideIcons.trash2,
+                          kind: PSwipeKind.destructive,
+                          // 수정 시트의 삭제와 같은 문구 — 같은 삭제인데 경로에
+                          // 따라 다른 말이 나오면 안 된다.
+                          confirmMessage:
+                              l.savingGoalDeleteConfirm(items[i].title),
+                          onSelect: () => _deleteGoal(context, ref, items[i]),
+                        ),
+                      ],
+                      child: _GoalCard(
+                        goal: items[i],
+                        masked: ref.watch(hideCardProvider('asset.savingGoals')),
+                        tokens: t,
+                        onEdit: () =>
+                            showSavingGoalEditDialog(context, edit: items[i]),
+                      ),
                     ),
                   ],
               ],
@@ -333,8 +378,9 @@ class _GoalCard extends StatelessWidget {
                       ],
                     ),
                   ),
-                  Icon(LucideIcons.chevronRight,
-                      size: 18, color: tokens.fgTertiary),
+                  // chevron 을 두지 않는다 — 밀면 수정·삭제가 나오고 탭하면 수정으로
+                  // 가는데, 화살표가 있으면 '들어가서 보는 상세'가 따로 있는 것처럼
+                  // 읽힌다(사용자 결정).
                 ],
               ),
               const SizedBox(height: PSpace.x12),

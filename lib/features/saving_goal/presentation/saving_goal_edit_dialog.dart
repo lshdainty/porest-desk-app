@@ -81,7 +81,6 @@ class _BodyState extends ConsumerState<_Body> {
         ? editColor
         : kChartBaseHexes.first;
     widget.controller.onSubmit = _submit;
-    if (_isEdit) widget.controller.onDelete = _delete;
   }
 
   void _setSubmitting(bool v) {
@@ -157,30 +156,6 @@ class _BodyState extends ConsumerState<_Body> {
     }
   }
 
-  Future<void> _delete() async {
-    final l = AppLocalizations.of(context);
-    final ok = await showPConfirmDialog(
-      context,
-      title: l.savingGoalDeleteTitle,
-      message: l.savingGoalDeleteConfirm(widget.edit!.title),
-      confirmLabel: l.actionDelete,
-      destructive: true,
-    );
-    if (!ok || !mounted) return;
-    _setSubmitting(true);
-    try {
-      final repo = await ref.read(savingGoalRepositoryProvider.future);
-      await repo.delete(widget.edit!.rowId);
-      ref.invalidate(savingGoalListProvider);
-      if (!mounted) return;
-      Navigator.of(context).pop();
-    } on ApiException catch (e) {
-      if (!mounted) return;
-      showPSnackBar(context, '${l.savingGoalDeleteFailed}: ${e.message}', severity: PSnackSeverity.error);
-    } finally {
-      if (mounted) _setSubmitting(false);
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
