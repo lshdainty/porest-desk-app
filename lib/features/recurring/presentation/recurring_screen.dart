@@ -247,17 +247,10 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
                                 groupTag: 'recurring-list',
                                 enabled: _busyToggleId == null &&
                                     _busyDeleteId == null,
+                                // 액션 2개다. 셋을 넣으면 배지+라벨이 행 높이를
+                                // 넘겨 트레이가 잘린다(BOTTOM OVERFLOWED, 실측).
+                                // 일시정지는 상세 시트 footer 에 있다.
                                 actions: [
-                                  PSwipeAction(
-                                    label: filtered[i].isActive == 'Y'
-                                        ? l.recurringPaused
-                                        : l.recurringStart,
-                                    icon: filtered[i].isActive == 'Y'
-                                        ? LucideIcons.pause
-                                        : LucideIcons.play,
-                                    kind: PSwipeKind.neutral,
-                                    onSelect: () => _toggle(filtered[i]),
-                                  ),
                                   PSwipeAction(
                                     label: l.actionEdit,
                                     icon: LucideIcons.pencil,
