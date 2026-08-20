@@ -239,18 +239,29 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
                         Column(
                           children: [
                             for (int i = 0; i < filtered.length; i++) ...[
-                              // 밀면 일시정지·수정·삭제가 바로 나온다. ⋮ 메뉴는
-                              // 그대로 둔다 — 스와이프는 지름길이지 유일한 경로가
+                              // 밀면 정지·수정·삭제가 바로 나온다. 행 탭은 상세
+                              // 시트로 — 스와이프는 지름길이지 유일한 경로가
                               // 아니다(spec swipe-actions.md · WCAG 2.1.1).
                               PSwipeActions(
                                 key: ValueKey('recurring-${filtered[i].rowId}'),
                                 groupTag: 'recurring-list',
                                 enabled: _busyToggleId == null &&
                                     _busyDeleteId == null,
-                                // 액션 2개다. 셋을 넣으면 배지+라벨이 행 높이를
-                                // 넘겨 트레이가 잘린다(BOTTOM OVERFLOWED, 실측).
-                                // 일시정지는 상세 시트 footer 에 있다.
                                 actions: [
+                                  PSwipeAction(
+                                    // 라벨은 두 글자여야 한다 — '일시정지' 는 슬롯
+                                    // 안에서 줄바꿈돼 트레이가 세로로 넘쳤다
+                                    // (BOTTOM OVERFLOWED, 실측). 상세 시트 footer
+                                    // 는 폭이 넉넉해 거기선 '일시정지' 그대로 쓴다.
+                                    label: filtered[i].isActive == 'Y'
+                                        ? l.recurringPauseAction
+                                        : l.recurringStart,
+                                    icon: filtered[i].isActive == 'Y'
+                                        ? LucideIcons.pause
+                                        : LucideIcons.play,
+                                    kind: PSwipeKind.neutral,
+                                    onSelect: () => _toggle(filtered[i]),
+                                  ),
                                   PSwipeAction(
                                     label: l.actionEdit,
                                     icon: LucideIcons.pencil,
@@ -295,7 +306,6 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
                                       context,
                                       recurring: filtered[i],
                                     ),
-                                    onToggle: () => _toggle(filtered[i]),
                                     onDelete: () => _delete(filtered[i]),
                                   ),
                                 ),

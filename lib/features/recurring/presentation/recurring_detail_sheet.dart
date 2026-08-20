@@ -19,7 +19,7 @@ import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
 import 'package:porest_desk_app/shared/widgets/p_detail.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 
-/// 반복 거래 상세 시트 — 행 탭 → 읽기 전용 상세 → footer 에서 삭제·수정·일시정지.
+/// 반복 거래 상세 시트 — 행 탭 → 읽기 전용 상세 → footer 에서 삭제·수정.
 ///
 /// 목록 행의 `⋮` 메뉴를 대신한다. 메뉴는 액션만 주고 무엇이 예정돼 있는지는 못 보여줬다.
 /// 여기서는 **다음 예정일**을 추가 시트와 같은 계산(`previewNextDates`)으로 미리 보여준다 —
@@ -28,7 +28,6 @@ void showRecurringDetailSheet(
   BuildContext context, {
   required RecurringTransaction item,
   required VoidCallback onEdit,
-  required VoidCallback onToggle,
   required VoidCallback onDelete,
 }) {
   final l = AppLocalizations.of(context);
@@ -39,14 +38,9 @@ void showRecurringDetailSheet(
     shrinkWrap: true,
     contentBuilder: (ctx, _) => _Body(item: item),
     footerBuilder: (ctx) => _Footer(
-      item: item,
       onEdit: () {
         Navigator.of(ctx).pop();
         onEdit();
-      },
-      onToggle: () {
-        Navigator.of(ctx).pop();
-        onToggle();
       },
       onDelete: () {
         Navigator.of(ctx).pop();
@@ -181,30 +175,23 @@ class _Body extends ConsumerWidget {
 
 class _Footer extends StatelessWidget {
   const _Footer({
-    required this.item,
     required this.onEdit,
-    required this.onToggle,
     required this.onDelete,
   });
-  final RecurringTransaction item;
   final VoidCallback onEdit;
-  final VoidCallback onToggle;
   final VoidCallback onDelete;
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    final isActive = item.isActive == 'Y';
-    // [삭제] … [수정][일시정지/시작] — PViewFooter 의 3슬롯(사용자 결정).
-    // 상세 footer 는 보통 액션 2개까지지만, 여기서는 `⋮` 메뉴를 대신하므로
-    // 메뉴가 갖고 있던 세 가지를 그대로 옮긴다.
+    // [삭제][수정] — spec drawer.md "footer 액션은 최대 2개".
+    // 정지/시작은 행을 밀면 나온다. 예전엔 `⋮` 메뉴를 대신하느라 여기에 셋을
+    // 뒀는데, 스와이프가 그 자리를 맡으면서 footer 는 2개로 돌아왔다.
     return PViewFooter(
       onDelete: onDelete,
       deleteLabel: l.actionDelete,
       onEdit: onEdit,
       editLabel: l.actionEdit,
-      onConfirm: onToggle,
-      confirmLabel: isActive ? l.recurringPaused : l.recurringStart,
     );
   }
 }

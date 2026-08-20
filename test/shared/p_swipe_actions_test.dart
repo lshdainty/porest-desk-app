@@ -36,7 +36,57 @@ Future<void> _swipeOpen(WidgetTester tester, String label) async {
   await tester.pumpAndSettle();
 }
 
+/// 실제 반복 거래 행 높이(패딩 12×2 + 내용 ~38).
+Widget _hostTight(List<PSwipeAction> actions) => MaterialApp(
+      theme: PorestTheme.light(),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: const Locale('ko'),
+      home: Scaffold(
+        body: SlidableAutoCloseBehavior(
+          child: ListView(
+            children: [
+              PSwipeActions(
+                actions: actions,
+                child: const SizedBox(
+                  height: 62,
+                  child: Center(child: Text('행')),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
 void main() {
+  testWidgets('액션 3개 — 라벨이 줄바꿈되지 않는다', (tester) async {
+    // 반복 거래에 '일시정지'(4글자)를 넣었더니 48px 슬롯 안에서 줄바꿈돼 트레이가
+    // 세로로 넘쳤다(BOTTOM OVERFLOWED, 실측). 액션을 빼는 대신 라벨을 두 글자로
+    // 줄였다 — 위젯 문서가 "한글 두 글자 권장" 이라고 이미 적어 둔 그대로다.
+    await tester.pumpWidget(_hostTight([
+      PSwipeAction(label: '정지', kind: PSwipeKind.neutral, onSelect: () {}),
+      PSwipeAction(label: '수정', kind: PSwipeKind.primary, onSelect: () {}),
+      PSwipeAction(
+        label: '삭제',
+        kind: PSwipeKind.destructive,
+        confirmMessage: '지울까요?',
+        onSelect: () {},
+      ),
+    ]));
+
+    await _swipeOpen(tester, '행');
+
+    expect(find.text('정지'), findsOneWidget);
+    expect(find.text('수정'), findsOneWidget);
+    expect(find.text('삭제'), findsOneWidget);
+
+    // 셋 다 한 줄이어야 한다. 하나라도 접히면 그 슬롯만 키가 커진다.
+    final h = tester.getSize(find.text('삭제')).height;
+    expect(tester.getSize(find.text('정지')).height, h);
+    expect(tester.getSize(find.text('수정')).height, h);
+  });
+
   testWidgets('밀면 액션이 드러난다', (tester) async {
     await tester.pumpWidget(_host([
       PSwipeAction(label: '편집', kind: PSwipeKind.primary, onSelect: () {}),

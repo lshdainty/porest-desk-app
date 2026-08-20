@@ -7748,6 +7748,12 @@ abstract class AppLocalizations {
   /// **'일시정지'**
   String get recurringPaused;
 
+  /// No description provided for @recurringPauseAction.
+  ///
+  /// In ko, this message translates to:
+  /// **'정지'**
+  String get recurringPauseAction;
+
   /// No description provided for @recurringMonthlyExpense.
   ///
   /// In ko, this message translates to:

@@ -2320,6 +2320,7 @@
     }
   },
   "recurringPaused": "일시정지",
+  "recurringPauseAction": "정지",
   "recurringMonthlyExpense": "매월 고정 지출",
   "recurringMonthlyIncome": "매월 고정 수입",
   "recurringUpcoming": "다가오는 7일",
