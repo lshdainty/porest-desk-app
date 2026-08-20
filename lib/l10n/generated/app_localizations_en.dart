@@ -2476,6 +2476,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categoryDeleteTitle => 'Delete category';
 
   @override
+  String get categoryDeleteBlockedTitle => 'Cannot delete';
+
+  @override
   String categoryDeleteHasChildren(String name) {
     return 'The \"$name\" category has subcategories and can\'t be deleted. Please clear its subcategories first.';
   }
@@ -3835,6 +3838,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get accountWithdrawTitle => 'Delete account';
+
+  @override
+  String get accountWithdrawAction => 'Delete Account';
 
   @override
   String get accountWithdrawConfirm =>

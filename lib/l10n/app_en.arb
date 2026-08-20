@@ -1324,6 +1324,7 @@
   "categoryUpdated": "Category updated",
   "categoryAdded": "Category added",
   "categoryActionFailed": "Failed",
+  "categoryDeleteBlockedTitle": "Cannot delete",
   "categoryDeleteTitle": "Delete category",
   "categoryDeleteHasChildren": "The \"{name}\" category has subcategories and can't be deleted. Please clear its subcategories first.",
   "@categoryDeleteHasChildren": {
@@ -2014,6 +2015,7 @@
   },
   "accountLogoutConfirm": "Are you sure you want to log out?",
   "accountWithdrawTitle": "Delete account",
+  "accountWithdrawAction": "Delete Account",
   "accountWithdrawConfirm": "Deleting your account permanently erases all data.\nThis cannot be undone.",
   "notiUnreadPrefix": "",
   "notiUnreadSuffix": " unread",

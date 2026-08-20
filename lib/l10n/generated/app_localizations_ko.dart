@@ -2444,6 +2444,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get categoryDeleteTitle => '카테고리 삭제';
 
   @override
+  String get categoryDeleteBlockedTitle => '삭제 불가';
+
+  @override
   String categoryDeleteHasChildren(String name) {
     return '\"$name\" 카테고리에 하위 카테고리가 있어 삭제할 수 없어요. 먼저 하위 카테고리를 정리해 주세요.';
   }
@@ -3786,6 +3789,9 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get accountWithdrawTitle => '회원 탈퇴';
+
+  @override
+  String get accountWithdrawAction => '탈퇴하기';
 
   @override
   String get accountWithdrawConfirm =>

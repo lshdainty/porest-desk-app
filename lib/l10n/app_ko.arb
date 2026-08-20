@@ -1328,6 +1328,7 @@
   "categoryAdded": "카테고리가 추가되었습니다",
   "categoryActionFailed": "실패",
   "categoryDeleteTitle": "카테고리 삭제",
+  "categoryDeleteBlockedTitle": "삭제 불가",
   "categoryDeleteHasChildren": "\"{name}\" 카테고리에 하위 카테고리가 있어 삭제할 수 없어요. 먼저 하위 카테고리를 정리해 주세요.",
   "@categoryDeleteHasChildren": {
     "placeholders": {
@@ -2017,6 +2018,7 @@
   },
   "accountLogoutConfirm": "정말 로그아웃 하시겠어요?",
   "accountWithdrawTitle": "회원 탈퇴",
+  "accountWithdrawAction": "탈퇴하기",
   "accountWithdrawConfirm": "회원 탈퇴 시 모든 데이터가 영구적으로 삭제됩니다.\n이 작업은 되돌릴 수 없습니다.",
   "notiUnreadPrefix": "읽지 않은 알림 ",
   "notiUnreadSuffix": "개",

@@ -480,6 +480,11 @@ class PFormAlertDialog extends StatelessWidget {
 /// 연 채 **확인(저장) 버튼에만** 스피너를 표시하며 [onConfirm] 을 실행하고, 성공하면
 /// 닫고 true. 예외가 발생하면 다이얼로그를 유지(스피너만 해제) — 에러 메시지는
 /// [onConfirm] 내부에서 처리. 취소 버튼·바깥 탭은 실행 중에도 원래대로 동작한다.
+///
+/// [acknowledge]=true 면 **확인 하나만** 그린다(spec alert-dialog.md Variants).
+/// 전제 조건이 안 맞아 액션이 아예 차단된 통지 — 고를 것이 없는데 취소를 나란히
+/// 두면 두 버튼이 같은 일(닫기)을 한다. 제목은 결과 명사구(`삭제 불가`)로 쓴다.
+/// 반환값은 의미가 없다(항상 true) — 호출부는 그냥 await 하고 흘려보낸다.
 Future<bool> showPConfirmDialog(
   BuildContext context, {
   required String title,
@@ -487,6 +492,7 @@ Future<bool> showPConfirmDialog(
   String? confirmLabel,
   String? cancelLabel,
   bool destructive = false,
+  bool acknowledge = false,
   Future<void> Function()? onConfirm,
 }) async {
   final ok = await showDialog<bool>(
@@ -497,6 +503,7 @@ Future<bool> showPConfirmDialog(
       confirmLabel: confirmLabel ?? AppLocalizations.of(context).actionConfirm,
       cancelLabel: cancelLabel ?? AppLocalizations.of(context).actionCancel,
       destructive: destructive,
+      acknowledge: acknowledge,
       onConfirm: onConfirm,
     ),
   );
@@ -510,6 +517,7 @@ class _PConfirmDialog extends StatefulWidget {
     required this.confirmLabel,
     required this.cancelLabel,
     required this.destructive,
+    required this.acknowledge,
     this.onConfirm,
   });
   final String title;
@@ -517,6 +525,7 @@ class _PConfirmDialog extends StatefulWidget {
   final String confirmLabel;
   final String cancelLabel;
   final bool destructive;
+  final bool acknowledge;
   final Future<void> Function()? onConfirm;
 
   @override
@@ -554,19 +563,23 @@ class _PConfirmDialogState extends State<_PConfirmDialog> {
       actions: [
         Row(
           children: [
-            // 취소는 작업 중에도 원래 상태 유지 — 비동기 작업은 확인 버튼 스피너로만 표시.
-            Expanded(
-              child: PButton(
-                label: widget.cancelLabel,
-                // ghost 는 배경이 없어 전체 폭 배치에서 버튼으로 안 보인다 — 테두리
-                // 없는 회색 채움(spec alert-dialog.md · button.md 2026-08).
-                variant: PButtonVariant.secondary,
-                size: PButtonSize.lg,
-                fullWidth: true,
-                onPressed: () => Navigator.pop(context, false),
+            // acknowledge 는 고를 것이 없는 통지라 취소를 두지 않는다 — 나란히 두면
+            // 두 버튼이 같은 일(닫기)을 한다(spec alert-dialog.md Variants).
+            if (!widget.acknowledge) ...[
+              // 취소는 작업 중에도 원래 상태 유지 — 비동기 작업은 확인 버튼 스피너로만 표시.
+              Expanded(
+                child: PButton(
+                  label: widget.cancelLabel,
+                  // ghost 는 배경이 없어 전체 폭 배치에서 버튼으로 안 보인다 — 테두리
+                  // 없는 회색 채움(spec alert-dialog.md · button.md 2026-08).
+                  variant: PButtonVariant.secondary,
+                  size: PButtonSize.lg,
+                  fullWidth: true,
+                  onPressed: () => Navigator.pop(context, false),
+                ),
               ),
-            ),
-            const SizedBox(width: PSpace.x8),
+              const SizedBox(width: PSpace.x8),
+            ],
             Expanded(
               child: PButton(
                 label: widget.confirmLabel,
