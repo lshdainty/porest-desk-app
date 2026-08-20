@@ -284,11 +284,11 @@ jobs:
         run: |
           set -euo pipefail
 
-          # 변경 내용 — 안드로이드가 업데이트 화면에 그대로 띄운다.
+          # 변경 내용 — 앱 업데이트 화면과 GitHub 릴리스 본문이 같은 글을 쓴다.
           #
-          # GitHub 의 자동 생성 노트는 PR 제목을 모은다. 이 레포는 토픽 브랜치를 로컬에서
-          # --no-ff 로 머지해 PR 이 거의 없어서, 그걸 쓰면 Full Changelog 링크 한 줄만
-          # 남는다. 커밋 제목을 직접 세는 게 낫다.
+          # 정리는 scripts/release_notes.sh 가 한다(타입별 묶기 + `fix(scope):` 접두사
+          # 제거). 예전엔 `git log` 결과를 그대로 넣어 사용자 화면에 커밋 제목이 날것으로
+          # 떴다 — 타입·스코프는 우리끼리 쓰는 표시라 읽을 거리를 가릴 뿐이다.
           #
           # 직전 v 태그부터 지금까지. dev 는 TAG 가 옛 커밋을 가리키므로 범위 끝을
           # GITHUB_SHA 로 잡는다 — prod 도 태그 커밋이라 같은 식이 통한다.
@@ -300,11 +300,10 @@ jobs:
           RANGE="${GITHUB_SHA}"
           [ -n "${PREV}" ] && RANGE="${PREV}..${GITHUB_SHA}"
 
-          ALL=$(git log --no-merges --pretty='- %s' ${RANGE} | head -50)
-          # 쓰는 사람 눈에 뜻이 있는 것만. ci·docs·test·chore 는 우리 사정이다.
-          NOTES=$(printf '%s\n' "${ALL}" | grep -E '^- (feat|fix)' || true)
-          # 전부 걸러졌으면 원본을 쓴다 — 빈 화면보다 낫다.
-          [ -z "${NOTES}" ] && NOTES="${ALL}"
+          NOTES=$(scripts/release_notes.sh "${RANGE}")
+          # 릴리스 본문도 같은 글을 쓴다 — 앱에서 본 내용과 릴리스 페이지가 갈리지 않게.
+          # upload/ 밖에 둔다 — 그 폴더는 통째로 릴리스 에셋으로 올라간다.
+          printf '%s\n' "${NOTES}" > release_notes.md
 
           # 강제 업데이트 하한. 레포에서 손으로 관리한다 — 올리는 순간 그보다 낮은
           # 빌드는 앱을 못 쓰게 되므로, CI 가 알아서 정할 값이 아니다.
@@ -423,16 +422,12 @@ jobs:
               --title "dev (build ${BUILD_NUMBER})" \
               --notes "main ${GITHUB_SHA:0:7} 자동 빌드. 운영 배포용이 아니다."
           else
-            # 노트는 그 사이 머지된 PR 제목으로 GitHub 이 채운다. 다만 시작점을 직접
-            # 준다 — 안 주면 직전 릴리스인 dev 프리릴리스를 기준으로 잡아 버린다.
-            #
-            # 조상 중 가장 가까운 태그를 찾는다. 목록을 최신순으로 세면 옛 태그를 다시
-            # 빌드할 때 자기보다 나중 태그가 시작점이 돼 범위가 뒤집힌다.
-            PREV=$(git describe --tags --match 'v*' --abbrev=0 "${GITHUB_SHA}^" 2>/dev/null || true)
-            NOTES=(--generate-notes)
-            [ -n "${PREV}" ] && NOTES+=(--notes-start-tag "${PREV}")
+            # 본문은 version.json 과 같은 글을 쓴다(Write version.json 이 만들어 둔다).
+            # GitHub 자동 생성 노트를 쓰지 않는 이유 — 그건 PR 제목을 그대로 모아서
+            # 앱 화면에 뜨는 정리본과 갈린다. 같은 릴리스를 두 군데서 다르게 읽게 된다.
             # 재실행 대비 — 릴리스가 이미 있으면 파일만 덮어쓴다.
-            gh release create "${TAG}" upload/* --title "${TAG}" "${NOTES[@]}" \
+            gh release create "${TAG}" upload/* --title "${TAG}" \
+              --notes-file release_notes.md \
               || gh release upload "${TAG}" upload/* --clobber
           fi
 

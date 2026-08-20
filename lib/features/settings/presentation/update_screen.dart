@@ -11,6 +11,7 @@ import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/update/apk_installer.dart';
 import 'package:porest_desk_app/core/update/auto_blocker_guide.dart';
 import 'package:porest_desk_app/core/update/app_update.dart';
+import 'package:porest_desk_app/features/update/presentation/release_notes_view.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_alert.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
@@ -137,24 +138,7 @@ class _Body extends ConsumerWidget {
             padding: const EdgeInsets.all(PSpace.x16),
             decoration:
                 BoxDecoration(color: t.bgMuted, borderRadius: PRadius.brLg),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                for (final line in latest.notes
-                    .split('\n')
-                    .map((e) => e.trim())
-                    .where((e) => e.isNotEmpty))
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: PSpace.x8),
-                    child: Text(
-                      // CI 가 '- ' 를 붙여 보낸다.
-                      line.startsWith('- ') ? line.substring(2) : line,
-                      style: PTypo.bodySm
-                          .copyWith(color: t.fgSecondary, height: 1.6),
-                    ),
-                  ),
-              ],
-            ),
+            child: PReleaseNotes(notes: latest.notes),
           ),
         ],
 
