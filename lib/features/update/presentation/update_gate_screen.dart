@@ -12,6 +12,7 @@ import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/update/apk_installer.dart';
 import 'package:porest_desk_app/core/update/app_update.dart';
+import 'package:porest_desk_app/features/update/presentation/release_notes_view.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
@@ -227,12 +228,7 @@ class _Changes extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
-    final lines = notes
-        .split('\n')
-        .map((e) => e.trim())
-        .where((e) => e.isNotEmpty)
-        .toList();
-    if (lines.isEmpty) return const SizedBox.shrink();
+    if (!PReleaseNotes.hasContent(notes)) return const SizedBox.shrink();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -251,18 +247,7 @@ class _Changes extends StatelessWidget {
                 BoxDecoration(color: t.bgMuted, borderRadius: PRadius.brLg),
             child: ListView(
               padding: EdgeInsets.zero,
-              children: [
-                for (final line in lines)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: PSpace.x8),
-                    child: Text(
-                      // CI 가 '- ' 를 붙여 보낸다.
-                      line.startsWith('- ') ? line.substring(2) : line,
-                      style:
-                          PTypo.bodySm.copyWith(color: t.fgSecondary, height: 1.6),
-                    ),
-                  ),
-              ],
+              children: [PReleaseNotes(notes: notes)],
             ),
           ),
         ),

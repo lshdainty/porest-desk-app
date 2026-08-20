@@ -71,6 +71,24 @@
 7. 반복
 ```
 
+## 커밋에 `Release-Note:` 를 단다
+
+규칙과 말투는 워크스페이스 `CLAUDE.md` 에 있다 — 모든 porest 레포가 같이 쓴다.
+여기서는 **이 레포에서만 다른 것**만 적는다.
+
+이 레포는 그 트레일러를 실제로 읽는 유일한 곳이다. `scripts/release_notes.sh` 가
+`feat`·`fix` 를 타입별로 묶어 두 군데에 같은 글을 넣는다.
+
+- 앱 업데이트 화면(`PReleaseNotes`)
+- GitHub 릴리스 본문
+
+그래서 여기 커밋의 트레일러는 **사용자가 곧바로 읽는다.** 손으로 확인해 볼 수 있다.
+
+```bash
+scripts/release_notes.sh v1.15.0..HEAD          # 범위로
+printf 'fix(a): 가\n' | scripts/release_notes.sh -   # stdin 으로
+```
+
 ## 검증 명령
 
 `fvm` 을 빼면 안 된다. 맨몸 `flutter` 는 fvm global(3.41.9)을 잡는데 이 레포 핀은
