@@ -167,6 +167,9 @@ final updateStatusProvider = FutureProvider<UpdateStatus>((ref) async {
 /// 라우터가 redirect 안에서 읽는데 go_router 의 redirect 는 동기라 await 할 수 없다.
 /// 그래서 저장소를 그때 읽지 않고 상태로 들고 있는다.
 class SkippedBuildNotifier extends Notifier<int?> {
+  /// 저장된 값을 이미 반영했나 — 첫 로드가 늦게 끝나며 뒷값을 덮는 걸 막는다.
+  bool _settled = false;
+
   @override
   int? build() {
     _load();
@@ -177,6 +180,14 @@ class SkippedBuildNotifier extends Notifier<int?> {
 
   Future<void> _load() async {
     final prefs = await ref.read(prefsProvider.future);
+    // 그 사이 skip() 이 값을 넣었으면 덮지 않는다.
+    //
+    // build() 가 _load() 를 기다리지 않으므로 둘이 겹칠 수 있다. 겹치면 순서가
+    // 이렇게 된다 — skip 이 state 를 넣고 prefs 를 기다리는 동안, 먼저 걸려 있던
+    // _load 의 continuation 이 돌아 **저장 전의 옛 값**(대개 null)으로 되돌린다.
+    // 그러면 방금 건너뛴 선택이 사라져 게이트가 다시 뜬다.
+    if (_settled) return;
+    _settled = true;
     state = prefs.getInt(PrefsKeys.updateSkippedBuild);
   }
 
@@ -185,6 +196,8 @@ class SkippedBuildNotifier extends Notifier<int?> {
   /// 상태를 먼저 바꾼다 — 저장만 하고 상태를 안 바꾸면 라우터가 다시 평가할 게 없어
   /// 앱을 껐다 켤 때까지 게이트에 갇힌다.
   Future<void> skip(int buildNumber) async {
+    // 뒤늦게 끝나는 _load 가 이 값을 덮지 못하게 먼저 잠근다.
+    _settled = true;
     state = buildNumber;
     final prefs = await ref.read(prefsProvider.future);
     await prefs.setInt(PrefsKeys.updateSkippedBuild, buildNumber);
