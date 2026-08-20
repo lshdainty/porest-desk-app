@@ -17,7 +17,6 @@ import 'package:porest_desk_app/shared/widgets/p_button.dart';
 ///
 /// [leftSlot] 지정 시 좌측 삭제 버튼 대신 임의 위젯(초기화 버튼·요약 텍스트 등)을 둔다
 /// (삭제가 아닌 좌측 보조 액션용 — 삭제 슬롯과 동시 사용 시 leftSlot 우선).
-/// [submitIcon] 은 저장 버튼 좌측 아이콘(정산 만들기 send 등).
 class PSheetFooter extends StatelessWidget {
   const PSheetFooter({
     super.key,
@@ -26,7 +25,6 @@ class PSheetFooter extends StatelessWidget {
     this.cancelLabel,
     this.deleteLabel,
     this.leftSlot,
-    this.submitIcon,
     this.showCancel,
   });
   final PSheetController controller;
@@ -34,7 +32,6 @@ class PSheetFooter extends StatelessWidget {
   final String? cancelLabel;
   final String? deleteLabel;
   final Widget? leftSlot;
-  final IconData? submitIcon;
 
   /// 취소 버튼 표시 — 지정하지 않으면 **좌측 액션(삭제·[leftSlot])이 있을 때 자동으로
   /// 숨긴다**. 액션 2개 규칙을 위젯이 지키게 해 호출부가 잊어도 3개가 되지 않는다.
@@ -71,7 +68,6 @@ class PSheetFooter extends StatelessWidget {
               Expanded(
                 child: PButton(
                   label: deleteLabel ?? l.actionDelete,
-                  icon: LucideIcons.trash2,
                   variant: PButtonVariant.danger,
                   size: PButtonSize.lg,
                   fullWidth: true,
@@ -99,7 +95,6 @@ class PSheetFooter extends StatelessWidget {
             Expanded(
               child: PButton(
                 label: submitLabel,
-                icon: submitIcon,
                 size: PButtonSize.lg,
                 fullWidth: true,
                 loading: controller.submitting,
@@ -167,7 +162,6 @@ class PViewFooter extends StatelessWidget {
           Expanded(
             child: PButton(
               label: deleteLabel ?? l.actionDelete,
-              icon: LucideIcons.trash2,
               // 폼 시트 footer 와 같은 규칙 — error 솔리드 채움.
               variant: PButtonVariant.danger,
               size: PButtonSize.lg,
@@ -183,7 +177,6 @@ class PViewFooter extends StatelessWidget {
           Expanded(
             child: PButton(
               label: editLabel ?? l.actionEdit,
-              icon: LucideIcons.pencil,
               // 상세의 주 액션은 편집 — 확인이 없으면 이게 유일한 채움 버튼이다.
               variant: _hasConfirm
                   ? PButtonVariant.ghost
