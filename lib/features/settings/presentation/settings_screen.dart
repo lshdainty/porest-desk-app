@@ -88,8 +88,11 @@ List<_SettingsGroup> _buildGroups(BuildContext ctx) {
           label: l.settingsMenuAppearance,
           onTap: (c) => c.push('/settings/appearance'),
         ),
+        // 알림 '목록' 이 아니라 알림 '설정' 으로 간다 — 내비 라벨(navNotifications,
+        // 종 아이콘이 여는 목록)을 여기 쓰면 같은 말이 두 화면을 가리킨다.
+        // 화면 제목과 같은 키를 쓴다(위 표시 설정·아래 업데이트와 같은 방식).
         _SettingsItem(
-          label: l.navNotifications,
+          label: l.notiSettings,
           onTap: (c) => c.push('/settings/notifications'),
         ),
         // 스토어를 안 쓰니 새 버전을 알 데가 없다. 예전엔 앱을 열 때마다 알렸는데
