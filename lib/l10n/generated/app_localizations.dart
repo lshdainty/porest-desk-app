@@ -845,8 +845,8 @@ abstract class AppLocalizations {
   /// No description provided for @assetAccountDeleteConfirm.
   ///
   /// In ko, this message translates to:
-  /// **'이 계좌를 삭제하시겠습니까? 연결된 거래는 유지됩니다.'**
-  String get assetAccountDeleteConfirm;
+  /// **'\"{name}\"을(를) 목록에서 제거합니다. 연결된 거래 내역은 유지됩니다.'**
+  String assetAccountDeleteConfirm(String name);
 
   /// No description provided for @assetActionFailed.
   ///
@@ -1085,8 +1085,8 @@ abstract class AppLocalizations {
   /// No description provided for @assetCardDeleteConfirm.
   ///
   /// In ko, this message translates to:
-  /// **'이 카드를 삭제하시겠습니까? 연결된 거래는 유지됩니다.'**
-  String get assetCardDeleteConfirm;
+  /// **'\"{name}\"을(를) 목록에서 제거합니다. 연결된 거래 내역은 유지됩니다.'**
+  String assetCardDeleteConfirm(String name);
 
   /// No description provided for @assetCardDeleted.
   ///
@@ -1229,8 +1229,8 @@ abstract class AppLocalizations {
   /// No description provided for @assetInvestDeleteConfirm.
   ///
   /// In ko, this message translates to:
-  /// **'이 투자 자산을 삭제하시겠습니까? 연결된 거래는 유지됩니다.'**
-  String get assetInvestDeleteConfirm;
+  /// **'\"{name}\"을(를) 목록에서 제거합니다. 연결된 거래 내역은 유지됩니다.'**
+  String assetInvestDeleteConfirm(String name);
 
   /// No description provided for @assetBrokerExchange.
   ///
@@ -2783,7 +2783,7 @@ abstract class AppLocalizations {
   /// No description provided for @calDeleteLabelConfirm.
   ///
   /// In ko, this message translates to:
-  /// **'\"{name}\" 라벨을 삭제하시겠어요? 이 라벨이 지정된 일정은 라벨 없음 상태가 됩니다.'**
+  /// **'\"{name}\" 라벨을 삭제할까요? 이 라벨이 지정된 일정은 라벨 없음 상태가 됩니다.'**
   String calDeleteLabelConfirm(String name);
 
   /// No description provided for @calDatePicker.
@@ -3011,7 +3011,7 @@ abstract class AppLocalizations {
   /// No description provided for @calDeleteCalendarConfirm.
   ///
   /// In ko, this message translates to:
-  /// **'\"{name}\" 캘린더를 삭제하시겠어요? 일정은 기본 캘린더로 이동하고 모든 멤버의 접근 권한이 사라집니다.'**
+  /// **'\"{name}\" 캘린더를 삭제할까요? 일정은 기본 캘린더로 이동하고 모든 멤버의 접근 권한이 사라집니다.'**
   String calDeleteCalendarConfirm(String name);
 
   /// No description provided for @calCopy.
@@ -3857,8 +3857,8 @@ abstract class AppLocalizations {
   /// No description provided for @budgetDeleteConfirm.
   ///
   /// In ko, this message translates to:
-  /// **'이 예산을 삭제하시겠습니까?'**
-  String get budgetDeleteConfirm;
+  /// **'\"{name}\" 카테고리 예산을 삭제할까요?'**
+  String budgetDeleteConfirm(String name);
 
   /// No description provided for @budgetDeleteFailed.
   ///
@@ -4625,13 +4625,13 @@ abstract class AppLocalizations {
   /// No description provided for @categoryDeleteWithBudget.
   ///
   /// In ko, this message translates to:
-  /// **'예산이 설정되어 있는 카테고리입니다. 삭제 시 예산도 함께 삭제됩니다. \"{name}\" 카테고리를 삭제하시겠습니까?'**
+  /// **'예산이 설정되어 있는 카테고리입니다. 삭제하면 예산도 함께 삭제됩니다. \"{name}\" 카테고리를 삭제할까요?'**
   String categoryDeleteWithBudget(String name);
 
   /// No description provided for @categoryDeleteConfirm.
   ///
   /// In ko, this message translates to:
-  /// **'\"{name}\" 카테고리를 삭제하시겠어요?'**
+  /// **'\"{name}\" 카테고리를 삭제할까요?'**
   String categoryDeleteConfirm(String name);
 
   /// No description provided for @categoryDeleteFailed.
@@ -5003,7 +5003,7 @@ abstract class AppLocalizations {
   /// No description provided for @dutchDeleteConfirm.
   ///
   /// In ko, this message translates to:
-  /// **'\"{title}\"을(를) 삭제할까요?'**
+  /// **'\"{title}\" 더치페이를 삭제할까요? 이 작업은 되돌릴 수 없습니다.'**
   String dutchDeleteConfirm(String title);
 
   /// No description provided for @dutchRequestAll.
@@ -5255,8 +5255,8 @@ abstract class AppLocalizations {
   /// No description provided for @expDeleteConfirm.
   ///
   /// In ko, this message translates to:
-  /// **'이 거래를 삭제하시겠습니까? 연결된 자산 잔액이 함께 조정됩니다.'**
-  String get expDeleteConfirm;
+  /// **'\"{name}\" 거래를 삭제할까요? 연결된 자산 잔액이 함께 조정됩니다.'**
+  String expDeleteConfirm(String name);
 
   /// No description provided for @expDeleted.
   ///
@@ -7667,7 +7667,7 @@ abstract class AppLocalizations {
   /// No description provided for @recurringDeleteConfirm.
   ///
   /// In ko, this message translates to:
-  /// **'\"{name}\" 반복 설정을 삭제할까요?\n이미 기록된 거래는 그대로 남습니다.'**
+  /// **'\"{name}\" 반복 설정을 삭제할까요? 이미 기록된 거래는 그대로 남아요.'**
   String recurringDeleteConfirm(String name);
 
   /// No description provided for @recurringDeleteFailed.
@@ -8093,7 +8093,7 @@ abstract class AppLocalizations {
   /// No description provided for @savingGoalDeleteConfirm.
   ///
   /// In ko, this message translates to:
-  /// **'\"{title}\"을(를) 삭제할까요?'**
+  /// **'\"{title}\" 목표를 삭제할까요? 이 작업은 되돌릴 수 없어요.'**
   String savingGoalDeleteConfirm(String title);
 
   /// No description provided for @savingGoalDeleteFailed.
@@ -9353,8 +9353,8 @@ abstract class AppLocalizations {
   /// No description provided for @stocksWatchGroupDeleteConfirm.
   ///
   /// In ko, this message translates to:
-  /// **'그룹과 담긴 종목이 함께 삭제됩니다. 계속할까요?'**
-  String get stocksWatchGroupDeleteConfirm;
+  /// **'\"{name}\" 그룹과 담긴 종목이 함께 삭제됩니다. 계속할까요?'**
+  String stocksWatchGroupDeleteConfirm(String name);
 
   /// No description provided for @stocksWatchGroupSaveFail.
   ///
@@ -9401,7 +9401,7 @@ abstract class AppLocalizations {
   /// No description provided for @todoDeleteConfirm.
   ///
   /// In ko, this message translates to:
-  /// **'\"{title}\" 을(를) 삭제할까요?'**
+  /// **'\"{title}\" 할 일을 삭제할까요? 이 작업은 되돌릴 수 없습니다.'**
   String todoDeleteConfirm(String title);
 
   /// No description provided for @todoDetail.
@@ -9629,8 +9629,8 @@ abstract class AppLocalizations {
   /// No description provided for @todoDeleteTagConfirm.
   ///
   /// In ko, this message translates to:
-  /// **'\"{name}\" 태그를 삭제하시겠어요?'**
-  String todoDeleteTagConfirm(String name);
+  /// **'\"{name}\" 태그를 삭제하면 이 태그를 쓰는 할 일 {count}건은 태그 없음으로 남아요.'**
+  String todoDeleteTagConfirm(String name, int count);
 
   /// No description provided for @todoActionFailed.
   ///
@@ -10079,8 +10079,8 @@ abstract class AppLocalizations {
   /// No description provided for @memoDeleteConfirm.
   ///
   /// In ko, this message translates to:
-  /// **'이 메모를 삭제할까요?'**
-  String get memoDeleteConfirm;
+  /// **'\"{name}\" 메모를 삭제할까요? 이 작업은 되돌릴 수 없습니다.'**
+  String memoDeleteConfirm(String name);
 
   /// No description provided for @memoDeleteFailed.
   ///
@@ -11473,6 +11473,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'카드 결제가 감지되면 여기에 쌓여요. 눌러서 지출로 기록할 수 있어요.'**
   String get smsInboxEmptyDesc;
+
+  /// No description provided for @smsInboxRemoveTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'문자 삭제'**
+  String get smsInboxRemoveTitle;
 
   /// No description provided for @smsInboxRemove.
   ///

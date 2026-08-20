@@ -19,6 +19,7 @@ class PSwipeAction {
     required this.onSelect,
     this.icon,
     this.kind = PSwipeKind.neutral,
+    this.confirmTitle,
     this.confirmMessage,
   });
 
@@ -27,6 +28,13 @@ class PSwipeAction {
   final IconData? icon;
   final PSwipeKind kind;
   final VoidCallback onSelect;
+
+  /// 확인창 제목. **같은 항목을 상세에서 지울 때와 같은 문자열을 넘긴다** —
+  /// spec `alert-dialog` 의 "같은 동작이면 어디서 불렀든 제목·설명이 같다".
+  ///
+  /// 이 위젯은 자기가 감싼 행이 무엇인지 모른다. 그래서 그 행을 아는 호출부가 정한다.
+  /// 비우면 액션 라벨로 떨어지지만, destructive 는 채우는 쪽이 규칙이다.
+  final String? confirmTitle;
 
   /// 실행 전 확인받을 문구. [PSwipeKind.destructive] 면 채워야 한다.
   ///
@@ -193,7 +201,9 @@ class PSwipeActions extends StatelessWidget {
 
     final ok = await showPConfirmDialog(
       host,
-      title: action.label,
+      // 제목은 호출부가 넘긴다 — 상세 경로와 같은 문구여야 한다(spec alert-dialog).
+      // 확인 라벨만 액션 라벨 그대로 — 방금 누른 버튼의 연장이라 경로와 무관하다.
+      title: action.confirmTitle ?? action.label,
       message: message,
       confirmLabel: action.label,
       destructive: action.kind == PSwipeKind.destructive,

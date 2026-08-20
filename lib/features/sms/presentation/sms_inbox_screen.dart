@@ -203,6 +203,7 @@ class _SmsInboxScreenState extends ConsumerState<SmsInboxScreen>
             label: l.actionDelete,
             icon: LucideIcons.trash2,
             kind: PSwipeKind.destructive,
+            confirmTitle: l.smsInboxRemoveTitle,
             confirmMessage: l.smsInboxRemoveConfirm,
             onSelect: () => _remove(entry),
           ),

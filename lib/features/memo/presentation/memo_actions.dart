@@ -23,8 +23,14 @@ class MemoActions implements ItemActions<Memo> {
   bool canEdit(Memo m) => true;
 
   @override
-  String deleteConfirmMessage(BuildContext context, Memo m) =>
-      AppLocalizations.of(context).memoDeleteConfirm;
+  String deleteConfirmTitle(BuildContext context, Memo m) =>
+      AppLocalizations.of(context).memoDeleteTitle;
+
+  @override
+  String deleteConfirmMessage(BuildContext context, Memo m) {
+    final l = AppLocalizations.of(context);
+    return l.memoDeleteConfirm(m.title ?? l.memoUntitled);
+  }
 
   @override
   Future<bool> delete(BuildContext context, WidgetRef ref, Memo m) async {

@@ -80,8 +80,27 @@ void main() {
 
     // 확인 다이얼로그가 떴을 뿐 아직 아무것도 지워지지 않았다.
     // (repository 를 주지 않았으므로 실제로 호출됐다면 여기서 터진다)
-    expect(find.text('이 계좌를 삭제하시겠습니까? 연결된 거래는 유지됩니다.'),
-        findsOneWidget);
+    expect(
+      find.text('"주거래 통장"을(를) 목록에서 제거합니다. 연결된 거래 내역은 유지됩니다.'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('확인창 문구가 상세 경로와 같다 — 제목은 액션 라벨이 아니다', (tester) async {
+    await _pump(tester);
+    await _swipeOpen(tester);
+
+    await tester.tap(find.text('삭제'));
+    await tester.pumpAndSettle();
+
+    // spec alert-dialog: 같은 동작이면 어디서 불렀든 제목·설명이 같다.
+    // 상세에서 지울 때와 같은 '계좌 삭제' 여야 한다 — 예전엔 트레이 라벨을 그대로
+    // 써서 스와이프만 '삭제' 로 떴다.
+    expect(find.text('계좌 삭제'), findsOneWidget);
+
+    // 그리고 설명은 대상을 이름으로 짚는다 — 리스트에서 잘못된 행을 눌렀다면
+    // 여기 말고는 알아챌 곳이 없다.
+    expect(find.textContaining('"주거래 통장"'), findsWidgets);
   });
 
   testWidgets('끝까지 밀어도 실행되지 않는다 — 트레이만 열린다', (tester) async {

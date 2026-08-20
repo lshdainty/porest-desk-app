@@ -24,6 +24,14 @@ abstract interface class ItemActions<T> {
   /// 고칠 수 있는 항목인가.
   bool canEdit(T item);
 
+  /// 지우기 전에 물을 제목.
+  ///
+  /// 스와이프와 상세가 <b>같은 것</b>을 부르므로 제목이 갈리지 않는다 — spec
+  /// `alert-dialog` 의 "같은 동작이면 어디서 불렀든 제목·설명이 같다". 예전엔
+  /// 스와이프가 액션 라벨(`삭제`)을 제목으로 쓰고 상세는 `메모 삭제` 를 써서,
+  /// 같은 삭제가 경로에 따라 다른 말로 떴다.
+  String deleteConfirmTitle(BuildContext context, T item);
+
   /// 지우기 전에 물을 말. 항목마다 달라진다(딸린 게 같이 사라지는 경우 등).
   String deleteConfirmMessage(BuildContext context, T item);
 

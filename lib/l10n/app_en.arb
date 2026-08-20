@@ -166,7 +166,8 @@
   "assetAccountUpdated": "Account updated",
   "assetAccountDeleted": "Account deleted",
   "assetAccountDelete": "Delete account",
-  "assetAccountDeleteConfirm": "Delete this account? Linked transactions are kept.",
+  "assetAccountDeleteConfirm": "\"{name}\" will be removed from the list. Linked transactions are kept.",
+  "@assetAccountDeleteConfirm": { "placeholders": { "name": { "type": "String" } } },
   "assetActionFailed": "Failed",
   "assetDeleteFailed": "Delete failed",
   "assetInstitutionBrand": "Institution / brand",
@@ -216,7 +217,8 @@
   "assetCardEdit": "Edit card",
   "assetCardUpdated": "Card updated",
   "assetCardDelete": "Delete card",
-  "assetCardDeleteConfirm": "Delete this card? Linked transactions are kept.",
+  "assetCardDeleteConfirm": "\"{name}\" will be removed from the list. Linked transactions are kept.",
+  "@assetCardDeleteConfirm": { "placeholders": { "name": { "type": "String" } } },
   "assetCardDeleted": "Card deleted",
   "assetCardType": "Card type",
   "assetCardProduct": "Card product",
@@ -247,7 +249,8 @@
   "assetInvestUpdated": "Investment updated",
   "assetInvestDeleted": "Investment deleted",
   "assetInvestDelete": "Delete investment",
-  "assetInvestDeleteConfirm": "Delete this investment? Linked transactions are kept.",
+  "assetInvestDeleteConfirm": "\"{name}\" will be removed from the list. Linked transactions are kept.",
+  "@assetInvestDeleteConfirm": { "placeholders": { "name": { "type": "String" } } },
   "assetBrokerExchange": "Brokerage / exchange",
   "assetInvestSearchHint": "Search brokerages, crypto & commodity exchanges",
   "assetProductName": "Alias",
@@ -702,7 +705,7 @@
   },
   "calReminderHourBefore": "1 hour before",
   "calReminderDayBefore": "1 day before",
-  "calEventDeleteConfirm": "Delete \"{title}\"? This can't be undone.",
+  "calEventDeleteConfirm": "Delete the \"{title}\" event? This action cannot be undone.",
   "@calEventDeleteConfirm": {
     "placeholders": {
       "title": {
@@ -728,7 +731,7 @@
   "calEditLabel": "Edit label",
   "calPreview": "Preview",
   "calDeleteLabelTitle": "Delete label",
-  "calDeleteLabelConfirm": "Delete the \"{name}\" label? Events using it will become unlabeled.",
+  "calDeleteLabelConfirm": "Delete the \"{name}\" label? Events with this label will become unlabeled.",
   "@calDeleteLabelConfirm": {
     "placeholders": {
       "name": {
@@ -829,7 +832,7 @@
     }
   },
   "calRemove": "Remove",
-  "calDeleteCalendarConfirm": "Delete the \"{name}\" calendar? Its events move to your default calendar and all members lose access.",
+  "calDeleteCalendarConfirm": "Delete the \"{name}\" calendar? Events move to the default calendar and all members lose access.",
   "@calDeleteCalendarConfirm": {
     "placeholders": {
       "name": {
@@ -1036,7 +1039,8 @@
   "budgetAdded": "Budget added",
   "budgetActionFailed": "Failed",
   "budgetDeleteTitle": "Delete budget",
-  "budgetDeleteConfirm": "Delete this budget?",
+  "budgetDeleteConfirm": "Delete the budget for the \"{name}\" category?",
+  "@budgetDeleteConfirm": { "placeholders": { "name": { "type": "String" } } },
   "budgetDeleteFailed": "Delete failed",
   "budgetOverallCap": "Overall monthly cap",
   "budgetCategoryLoadError": "Failed to load categories",
@@ -1326,7 +1330,7 @@
   "categoryActionFailed": "Failed",
   "categoryDeleteBlockedTitle": "Cannot delete",
   "categoryDeleteTitle": "Delete category",
-  "categoryDeleteHasChildren": "The \"{name}\" category has subcategories and can't be deleted. Please clear its subcategories first.",
+  "categoryDeleteHasChildren": "The \"{name}\" category has subcategories and cannot be deleted. Clear them first.",
   "@categoryDeleteHasChildren": {
     "placeholders": {
       "name": {
@@ -1334,7 +1338,7 @@
       }
     }
   },
-  "categoryDeleteWithBudget": "This category has a budget. Deleting it will also delete the budget. Delete the \"{name}\" category?",
+  "categoryDeleteWithBudget": "This category has a budget set. Deleting it will also delete the budget. Delete the \"{name}\" category?",
   "@categoryDeleteWithBudget": {
     "placeholders": {
       "name": {
@@ -1460,7 +1464,7 @@
   "dutchParticipant": "Participant",
   "dutchSettleAction": "Mark as settled",
   "dutchDeleteTitle": "Delete Dutch Pay",
-  "dutchDeleteConfirm": "Delete \"{title}\"?",
+  "dutchDeleteConfirm": "Delete the \"{title}\" Dutch Pay? This action cannot be undone.",
   "@dutchDeleteConfirm": {
     "placeholders": {
       "title": {
@@ -1558,7 +1562,8 @@
   "expActionFailed": "Failed",
   "expUpdated": "Transaction updated",
   "expAdded": "Transaction added",
-  "expDeleteConfirm": "Delete this transaction? Linked asset balances will be adjusted.",
+  "expDeleteConfirm": "Delete the \"{name}\" transaction? The linked asset balance will be adjusted too.",
+  "@expDeleteConfirm": { "placeholders": { "name": { "type": "String" } } },
   "expDeleted": "Transaction deleted",
   "expDeleteFailed": "Delete failed",
   "expSplitMismatch": "Split doesn't match the amount",
@@ -2078,7 +2083,7 @@
   "presetManageTitle": "Manage presets",
   "presetLoadError": "Failed to load presets",
   "presetDeleteTitle": "Delete preset",
-  "presetDeleteConfirm": "Delete preset \"{name}\"? Already saved transactions are unaffected.",
+  "presetDeleteConfirm": "Delete the \"{name}\" preset? Already-saved transactions are unaffected.",
   "@presetDeleteConfirm": {
     "placeholders": {
       "name": {
@@ -2124,7 +2129,7 @@
   "presetCreated": "Preset added",
   "recurringToggleFailed": "Change failed",
   "recurringDeleteTitle": "Delete recurring transaction",
-  "recurringDeleteConfirm": "Delete the recurring setting for \"{name}\"?\nAlready recorded transactions remain.",
+  "recurringDeleteConfirm": "Delete the \"{name}\" recurring setting? Already-recorded transactions remain.",
   "@recurringDeleteConfirm": {
     "placeholders": {
       "name": {
@@ -2275,7 +2280,7 @@
   "savingGoalEdit": "Edit saving goal",
   "savingGoalSubmitAdd": "Add",
   "savingGoalDeleteTitle": "Delete saving goal",
-  "savingGoalDeleteConfirm": "Delete \"{title}\"?",
+  "savingGoalDeleteConfirm": "Delete the \"{title}\" goal? This can't be undone.",
   "@savingGoalDeleteConfirm": {
     "placeholders": {
       "title": {
@@ -2597,7 +2602,8 @@
   "stocksWatchGroupRename": "Rename group",
   "stocksWatchGroupDelete": "Delete group",
   "stocksWatchGroupNamePlaceholder": "Group name",
-  "stocksWatchGroupDeleteConfirm": "The group and its stocks will be removed. Continue?",
+  "stocksWatchGroupDeleteConfirm": "The \"{name}\" group and its stocks will be removed. Continue?",
+  "@stocksWatchGroupDeleteConfirm": { "placeholders": { "name": { "type": "String" } } },
   "stocksWatchGroupSaveFail": "Failed to save watchlist group",
   "stocksWatchAddFail": "Failed to add to watchlist",
   "stocksMarketToggleKr": "KR",
@@ -2605,7 +2611,7 @@
   "todoAdd": "Add todo",
   "todoEditTitle": "Edit todo",
   "todoDeleteTitle": "Delete todo",
-  "todoDeleteConfirm": "Delete \"{title}\"?",
+  "todoDeleteConfirm": "Delete the \"{title}\" todo? This action cannot be undone.",
   "@todoDeleteConfirm": {
     "placeholders": {
       "title": {
@@ -2657,14 +2663,8 @@
   "todoRegisteredTags": "Tags",
   "todoNoTags": "No tags",
   "todoDeleteTagTitle": "Delete tag",
-  "todoDeleteTagConfirm": "Delete tag \"{name}\"?",
-  "@todoDeleteTagConfirm": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
+  "todoDeleteTagConfirm": "Deleting \"{name}\" will leave {count} todos using it untagged.",
+  "@todoDeleteTagConfirm": { "placeholders": { "name": { "type": "String" }, "count": { "type": "int" } } },
   "todoActionFailed": "Failed",
   "todoAddFailed": "Add failed",
   "todoDeleteFailed": "Delete failed",
@@ -2808,7 +2808,8 @@
   "memoSearchEmptyDesc": "Try a different search term.",
   "memoUntitled": "(Untitled)",
   "memoDeleteTitle": "Delete memo",
-  "memoDeleteConfirm": "Delete this memo?",
+  "memoDeleteConfirm": "Delete the \"{name}\" memo? This action cannot be undone.",
+  "@memoDeleteConfirm": { "placeholders": { "name": { "type": "String" } } },
   "memoDeleteFailed": "Delete failed: {message}",
   "@memoDeleteFailed": {
     "placeholders": {
@@ -3454,6 +3455,7 @@
   "smsInboxClear": "Clear",
   "smsInboxEmpty": "No payment notifications yet",
   "smsInboxEmptyDesc": "Detected card payments collect here. Tap one to record it as an expense.",
+  "smsInboxRemoveTitle": "Delete message",
   "smsInboxRemove": "Remove",
   "smsInboxRemoveConfirm": "Remove this message from the list? It will not be recorded.",
   "smsPermissionOffTitle": "We can't notify you about detected payments",

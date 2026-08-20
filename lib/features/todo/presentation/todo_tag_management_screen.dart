@@ -112,8 +112,7 @@ class _BodyState extends ConsumerState<_Body> {
     final ok = await showPConfirmDialog(
       context,
       title: l.todoDeleteTagTitle,
-      message:
-          '${l.todoDeleteTagConfirm(tag.tagName)}\n${l.ttagDeleteDesc(usage)}',
+      message: l.todoDeleteTagConfirm(tag.tagName, usage),
       confirmLabel: l.actionDelete,
       destructive: true,
     );

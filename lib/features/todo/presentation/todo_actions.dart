@@ -23,6 +23,10 @@ class TodoActions implements ItemActions<Todo> {
   bool canEdit(Todo t) => true;
 
   @override
+  String deleteConfirmTitle(BuildContext context, Todo t) =>
+      AppLocalizations.of(context).todoDeleteTitle;
+
+  @override
   String deleteConfirmMessage(BuildContext context, Todo t) =>
       AppLocalizations.of(context).todoDeleteConfirm(t.title);
 
