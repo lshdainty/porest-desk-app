@@ -263,11 +263,12 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
     final l = AppLocalizations.of(context);
     // 웹 정합 — 하위 카테고리가 있으면 삭제 차단 안내.
     if (_selfHasChildren) {
+      // 고를 것이 없는 차단 통지 — 확인 하나(spec alert-dialog.md · acknowledge).
       await showPConfirmDialog(
         context,
-        title: l.categoryDeleteTitle,
+        title: l.categoryDeleteBlockedTitle,
         message: l.categoryDeleteHasChildren(widget.edit!.categoryName),
-        confirmLabel: l.actionConfirm,
+        acknowledge: true,
       );
       return;
     }

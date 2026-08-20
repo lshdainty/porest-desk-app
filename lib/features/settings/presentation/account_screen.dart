@@ -418,6 +418,8 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
       context,
       title: l.accountWithdrawTitle,
       message: l.accountWithdrawConfirm,
+      // 기본값 "확인" 은 결정 행위를 안 밝힌다(spec alert-dialog.md Don't).
+      confirmLabel: l.accountWithdrawAction,
       destructive: true,
     );
   }

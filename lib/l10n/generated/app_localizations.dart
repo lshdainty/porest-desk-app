@@ -4610,6 +4610,12 @@ abstract class AppLocalizations {
   /// **'카테고리 삭제'**
   String get categoryDeleteTitle;
 
+  /// No description provided for @categoryDeleteBlockedTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'삭제 불가'**
+  String get categoryDeleteBlockedTitle;
+
   /// No description provided for @categoryDeleteHasChildren.
   ///
   /// In ko, this message translates to:
@@ -7129,6 +7135,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'회원 탈퇴'**
   String get accountWithdrawTitle;
+
+  /// No description provided for @accountWithdrawAction.
+  ///
+  /// In ko, this message translates to:
+  /// **'탈퇴하기'**
+  String get accountWithdrawAction;
 
   /// No description provided for @accountWithdrawConfirm.
   ///
