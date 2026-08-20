@@ -1567,7 +1567,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String calRemoveMemberConfirm(String name) {
-    return '$name 님을 캘린더에서 내보내시겠어요?';
+    return '\"$name\" 님을 캘린더에서 내보내시겠어요?';
   }
 
   @override
@@ -3253,7 +3253,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String fileDeleteConfirm(String name) {
-    return '$name 삭제할까요?';
+    return '\"$name\" 파일을 삭제할까요?';
   }
 
   @override

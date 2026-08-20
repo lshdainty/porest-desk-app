@@ -874,7 +874,7 @@
   "calInviteCodeRegenerated": "Generated a new invite code",
   "calInviteCodeCopied": "Invite code copied",
   "calRemoveMember": "Remove member",
-  "calRemoveMemberConfirm": "Remove {name} from this calendar?",
+  "calRemoveMemberConfirm": "Remove \"{name}\" from this calendar?",
   "@calRemoveMemberConfirm": {
     "placeholders": {
       "name": {
@@ -1902,7 +1902,7 @@
   },
   "fileUploadFailed": "Upload failed",
   "fileDeleteTitle": "Delete file",
-  "fileDeleteConfirm": "Delete {name}?",
+  "fileDeleteConfirm": "Delete \"{name}\"?",
   "@fileDeleteConfirm": {
     "placeholders": {
       "name": {

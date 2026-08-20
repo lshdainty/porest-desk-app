@@ -1587,7 +1587,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String calRemoveMemberConfirm(String name) {
-    return 'Remove $name from this calendar?';
+    return 'Remove \"$name\" from this calendar?';
   }
 
   @override
@@ -3294,7 +3294,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String fileDeleteConfirm(String name) {
-    return 'Delete $name?';
+    return 'Delete \"$name\"?';
   }
 
   @override
