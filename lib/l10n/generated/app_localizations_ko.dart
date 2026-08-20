@@ -5373,7 +5373,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get memoSearchEmptyDesc => '다른 검색어를 입력해보세요.';
 
   @override
-  String get memoUntitled => '(제목 없음)';
+  String get memoUntitled => '제목 없음';
 
   @override
   String get memoDeleteTitle => '메모 삭제';

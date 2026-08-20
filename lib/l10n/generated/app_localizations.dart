@@ -10067,7 +10067,7 @@ abstract class AppLocalizations {
   /// No description provided for @memoUntitled.
   ///
   /// In ko, this message translates to:
-  /// **'(제목 없음)'**
+  /// **'제목 없음'**
   String get memoUntitled;
 
   /// No description provided for @memoDeleteTitle.

@@ -2860,7 +2860,7 @@
   },
   "memoEmptyDesc": "생각이 떠오를 때, 새 메모를 만들어보세요.",
   "memoSearchEmptyDesc": "다른 검색어를 입력해보세요.",
-  "memoUntitled": "(제목 없음)",
+  "memoUntitled": "제목 없음",
   "memoDeleteTitle": "메모 삭제",
   "memoDeleteConfirm": "\"{name}\" 메모를 삭제할까요? 이 작업은 되돌릴 수 없습니다.",
   "@memoDeleteConfirm": { "placeholders": { "name": { "type": "String" } } },

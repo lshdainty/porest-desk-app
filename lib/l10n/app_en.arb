@@ -2806,7 +2806,7 @@
   },
   "memoEmptyDesc": "When something comes to mind, create a new memo.",
   "memoSearchEmptyDesc": "Try a different search term.",
-  "memoUntitled": "(Untitled)",
+  "memoUntitled": "Untitled",
   "memoDeleteTitle": "Delete memo",
   "memoDeleteConfirm": "Delete the \"{name}\" memo? This action cannot be undone.",
   "@memoDeleteConfirm": { "placeholders": { "name": { "type": "String" } } },
