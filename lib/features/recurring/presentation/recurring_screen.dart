@@ -306,7 +306,6 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
                                       context,
                                       recurring: filtered[i],
                                     ),
-                                    onToggle: () => _toggle(filtered[i]),
                                     onDelete: () => _delete(filtered[i]),
                                   ),
                                 ),
