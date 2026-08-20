@@ -4129,6 +4129,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get recurringPaused => '일시정지';
 
   @override
+  String get recurringPauseAction => '정지';
+
+  @override
   String get recurringMonthlyExpense => '매월 고정 지출';
 
   @override

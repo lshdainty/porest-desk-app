@@ -4180,6 +4180,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get recurringPaused => 'Paused';
 
   @override
+  String get recurringPauseAction => 'Pause';
+
+  @override
   String get recurringMonthlyExpense => 'Monthly fixed expense';
 
   @override
