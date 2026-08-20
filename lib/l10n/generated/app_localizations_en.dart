@@ -5443,7 +5443,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get memoSearchEmptyDesc => 'Try a different search term.';
 
   @override
-  String get memoUntitled => '(Untitled)';
+  String get memoUntitled => 'Untitled';
 
   @override
   String get memoDeleteTitle => 'Delete memo';
