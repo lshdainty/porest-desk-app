@@ -167,7 +167,13 @@
   "assetAccountDeleted": "Account deleted",
   "assetAccountDelete": "Delete account",
   "assetAccountDeleteConfirm": "\"{name}\" will be removed from the list. Linked transactions are kept.",
-  "@assetAccountDeleteConfirm": { "placeholders": { "name": { "type": "String" } } },
+  "@assetAccountDeleteConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "assetActionFailed": "Failed",
   "assetDeleteFailed": "Delete failed",
   "assetInstitutionBrand": "Institution / brand",
@@ -189,7 +195,11 @@
   "assetExchangeRate": "Exchange rate",
   "assetExchangeRateHint": "KRW per 1 {code}",
   "@assetExchangeRateHint": {
-    "placeholders": { "code": { "type": "String" } }
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
   },
   "assetExchangeRateDesc": "Net worth converts balance × rate. Left empty it is added without conversion.",
   "assetMemoOptional": "Memo (optional)",
@@ -218,7 +228,13 @@
   "assetCardUpdated": "Card updated",
   "assetCardDelete": "Delete card",
   "assetCardDeleteConfirm": "\"{name}\" will be removed from the list. Linked transactions are kept.",
-  "@assetCardDeleteConfirm": { "placeholders": { "name": { "type": "String" } } },
+  "@assetCardDeleteConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "assetCardDeleted": "Card deleted",
   "assetCardType": "Card type",
   "assetCardProduct": "Card product",
@@ -250,7 +266,13 @@
   "assetInvestDeleted": "Investment deleted",
   "assetInvestDelete": "Delete investment",
   "assetInvestDeleteConfirm": "\"{name}\" will be removed from the list. Linked transactions are kept.",
-  "@assetInvestDeleteConfirm": { "placeholders": { "name": { "type": "String" } } },
+  "@assetInvestDeleteConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "assetBrokerExchange": "Brokerage / exchange",
   "assetInvestSearchHint": "Search brokerages, crypto & commodity exchanges",
   "assetProductName": "Alias",
@@ -354,7 +376,11 @@
   "tradeRealizedPreview": "Realized P/L",
   "tradeFundingNotice": "{amount} moves from the settlement account to cover the shortfall",
   "@tradeFundingNotice": {
-    "placeholders": { "amount": { "type": "String" } }
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
   },
   "tradeInsufficientCash": "Cash will go negative. It is recorded as is.",
   "tradeInsufficientQty": "Cannot sell more than you hold.",
@@ -367,10 +393,25 @@
   "holdingTypeCrypto": "Crypto",
   "holdingAvgPrice": "Avg price",
   "holdingAvgPriceInline": "avg {avg}",
-  "@holdingAvgPriceInline": { "placeholders": { "avg": {"type":"String"} } },
+  "@holdingAvgPriceInline": {
+    "placeholders": {
+      "avg": {
+        "type": "String"
+      }
+    }
+  },
   "holdingTotalCost": "Cost basis",
   "tradeHeldSummary": "Holding {qty} · avg {avg}",
-  "@tradeHeldSummary": { "placeholders": { "qty": {"type":"String"}, "avg": {"type":"String"} } },
+  "@tradeHeldSummary": {
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      },
+      "avg": {
+        "type": "String"
+      }
+    }
+  },
   "assetCashBalance": "Cash",
   "assetCashBalanceHint": "Cash waiting to be invested. Proceeds from selling holdings land here.",
   "assetHoldingBalance": "Holdings",
@@ -519,7 +560,6 @@
   "assetChartNoData": "No data to show",
   "assetNoLinkedTx": "No linked transactions.",
   "assetTxFallback": "Transaction",
-  "assetCategoryOther": "Other",
   "assetPayConfirmMessage": "Pay the upcoming amount of {amount} KRW now?",
   "@assetPayConfirmMessage": {
     "placeholders": {
@@ -539,7 +579,14 @@
   "assetCancelPayment": "Cancel payment",
   "assetCancelPaymentConfirm": "Reverts the {amount} KRW paid on {date}. The account balance and card billing return to the state before payment.",
   "@assetCancelPaymentConfirm": {
-    "placeholders": { "amount": { "type": "String" }, "date": { "type": "String" } }
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
   },
   "assetPaymentCancelled": "Payment cancelled",
   "assetPayNow": "Pay now",
@@ -547,7 +594,11 @@
   "assetPayAmount": "Payment amount",
   "assetPayRemainder": "{amount} remaining will be paid on the payment date",
   "@assetPayRemainder": {
-    "placeholders": { "amount": { "type": "String" } }
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
   },
   "assetPaymentRecorded": "Payment recorded",
   "assetPayFailed": "Payment failed",
@@ -934,7 +985,14 @@
   "expExchangeRate": "Rate",
   "expFxHint": "{original} → {krw}",
   "@expFxHint": {
-    "placeholders": { "original": { "type": "String" }, "krw": { "type": "String" } }
+    "placeholders": {
+      "original": {
+        "type": "String"
+      },
+      "krw": {
+        "type": "String"
+      }
+    }
   },
   "expInstallment": "Installment",
   "expRefund": "Refund",
@@ -973,13 +1031,21 @@
   "transferAutoDefault": "Created automatically. It disappears when the original is deleted.",
   "updateAvailable": "Version {version} is available",
   "@updateAvailable": {
-    "placeholders": { "version": { "type": "String" } }
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
   },
   "updateAvailableDesc": "Tap to download and install",
   "updateAvailableDescIos": "Tap to get it from AltStore",
   "updateSheetTitle": "Version {version} is available",
   "@updateSheetTitle": {
-    "placeholders": { "version": { "type": "String" } }
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
   },
   "updateSheetSubtitle": "A new version is ready. You can get it right below.",
   "updateSheetChanges": "What's new",
@@ -993,7 +1059,11 @@
   "updateTitle": "Update",
   "updateGateTitle": "Version {version} is here",
   "@updateGateTitle": {
-    "placeholders": { "version": { "type": "String" } }
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
   },
   "updateGateInstall": "Install",
   "updateGateForcedCancelBody": "This update includes changes you must install.",
@@ -1001,18 +1071,36 @@
   "updateUpToDate": "You're up to date",
   "updateCurrentBuild": "Current build {build}",
   "@updateCurrentBuild": {
-    "placeholders": { "build": { "type": "String" } }
+    "placeholders": {
+      "build": {
+        "type": "String"
+      }
+    }
   },
   "updateCheckFailed": "Couldn't check for a new version",
   "updateRequiredDesc": "This update is required. You can't use the app until you install it.",
   "expScheduled": "Scheduled",
   "expDeleteRefundWarn": "{count} linked refund(s) ({amount} KRW) will also be deleted",
   "@expDeleteRefundWarn": {
-    "placeholders": { "count": { "type": "int" }, "amount": { "type": "String" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
   },
   "expRefundLinked": "{count} refund(s) · {amount} KRW linked to this transaction",
   "@expRefundLinked": {
-    "placeholders": { "count": { "type": "int" }, "amount": { "type": "String" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
   },
   "expTypeTransfer": "Transfer",
   "expTransferFrom": "From",
@@ -1040,7 +1128,13 @@
   "budgetActionFailed": "Failed",
   "budgetDeleteTitle": "Delete budget",
   "budgetDeleteConfirm": "Delete the budget for the \"{name}\" category?",
-  "@budgetDeleteConfirm": { "placeholders": { "name": { "type": "String" } } },
+  "@budgetDeleteConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "budgetDeleteFailed": "Delete failed",
   "budgetOverallCap": "Overall monthly cap",
   "budgetCategoryLoadError": "Failed to load categories",
@@ -1563,7 +1657,13 @@
   "expUpdated": "Transaction updated",
   "expAdded": "Transaction added",
   "expDeleteConfirm": "Delete the \"{name}\" transaction? The linked asset balance will be adjusted too.",
-  "@expDeleteConfirm": { "placeholders": { "name": { "type": "String" } } },
+  "@expDeleteConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "expDeleted": "Transaction deleted",
   "expDeleteFailed": "Delete failed",
   "expSplitMismatch": "Split doesn't match the amount",
@@ -1879,7 +1979,11 @@
   "hideAmountsClearAll": "Clear all",
   "hideAmountsSelectedCount": "{count} selected",
   "@hideAmountsSelectedCount": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "hideAmountsDiscardTitle": "Leave without saving",
   "hideAmountsDiscardBody": "Your selection will be discarded.",
@@ -1937,7 +2041,14 @@
   "hideCardEtcPreset": "Presets",
   "hideAmountsLockAllDesc": "Hiding {count} of {total} cards",
   "@hideAmountsLockAllDesc": {
-    "placeholders": { "total": { "type": "int" }, "count": { "type": "int" } }
+    "placeholders": {
+      "total": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "appearanceHideAmount": "Hide amounts",
   "appearanceHideAmountDesc": "Display all amounts as ••••",
@@ -2012,12 +2123,20 @@
   "accountWithdrawDesc": "Permanent deletion",
   "accountAppVersion": "App version {version}",
   "@accountAppVersion": {
-    "placeholders": { "version": { "type": "String" } }
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
   },
   "accountAppVersionLatest": "Up to date",
   "accountAppVersionUpdate": "New version {version}",
   "@accountAppVersionUpdate": {
-    "placeholders": { "version": { "type": "String" } }
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
   },
   "accountLogoutConfirm": "Are you sure you want to log out?",
   "accountWithdrawTitle": "Delete account",
@@ -2083,6 +2202,8 @@
   "presetManageTitle": "Manage presets",
   "presetLoadError": "Failed to load presets",
   "presetDeleteTitle": "Delete preset",
+  "presetDetailTitle": "Preset detail",
+  "presetTypeLabel": "Type",
   "presetDeleteConfirm": "Delete the \"{name}\" preset? Already-saved transactions are unaffected.",
   "@presetDeleteConfirm": {
     "placeholders": {
@@ -2603,7 +2724,13 @@
   "stocksWatchGroupDelete": "Delete group",
   "stocksWatchGroupNamePlaceholder": "Group name",
   "stocksWatchGroupDeleteConfirm": "The \"{name}\" group and its stocks will be removed. Continue?",
-  "@stocksWatchGroupDeleteConfirm": { "placeholders": { "name": { "type": "String" } } },
+  "@stocksWatchGroupDeleteConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "stocksWatchGroupSaveFail": "Failed to save watchlist group",
   "stocksWatchAddFail": "Failed to add to watchlist",
   "stocksMarketToggleKr": "KR",
@@ -2664,7 +2791,16 @@
   "todoNoTags": "No tags",
   "todoDeleteTagTitle": "Delete tag",
   "todoDeleteTagConfirm": "Deleting \"{name}\" will leave {count} todos using it untagged.",
-  "@todoDeleteTagConfirm": { "placeholders": { "name": { "type": "String" }, "count": { "type": "int" } } },
+  "@todoDeleteTagConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "todoActionFailed": "Failed",
   "todoAddFailed": "Add failed",
   "todoDeleteFailed": "Delete failed",
@@ -2809,7 +2945,13 @@
   "memoUntitled": "Untitled",
   "memoDeleteTitle": "Delete memo",
   "memoDeleteConfirm": "Delete the \"{name}\" memo? This action cannot be undone.",
-  "@memoDeleteConfirm": { "placeholders": { "name": { "type": "String" } } },
+  "@memoDeleteConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "memoDeleteFailed": "Delete failed: {message}",
   "@memoDeleteFailed": {
     "placeholders": {
@@ -3434,7 +3576,6 @@
       }
     }
   },
-
   "smsPasteTitle": "Record from payment text",
   "smsPasteDesc": "Paste a card payment text and we will read the amount, merchant and time to fill in the expense form. You can review it before saving.",
   "smsPasteFieldLabel": "Payment text",

@@ -18,12 +18,14 @@ import 'package:porest_desk_app/shared/widgets/p_badge.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
+import 'package:porest_desk_app/shared/widgets/p_swipe_actions.dart';
 import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
 import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
 import 'package:porest_desk_app/features/preset/application/preset_providers.dart';
 import 'package:porest_desk_app/features/preset/domain/expense_template.dart';
+import 'package:porest_desk_app/features/preset/presentation/preset_detail_sheet.dart';
 import 'package:porest_desk_app/features/preset/presentation/preset_edit_dialog.dart';
 
 enum _SortKey { used, recent, name }
@@ -179,22 +181,51 @@ class _PresetScreenState extends ConsumerState<PresetScreen> {
                   : Column(
                       children: [
                         for (int i = 0; i < sorted.length; i++)
-                          _PresetRow(
-                            template: sorted[i],
-                            category: sorted[i].categoryRowId == null
-                                ? null
-                                : categories.byRowId(
-                                    sorted[i].categoryRowId!,
-                                  ),
-                            masked: masked,
-                            tokens: t,
-                            // web 정합 — 행 사이 구분선(첫 행 제외 top border).
-                            divider: i > 0,
-                            onEdit: () => showPresetEditDialog(
-                              context,
-                              edit: sorted[i],
+                          // 밀면 수정·삭제. 행의 ✎·🗑 를 걷어냈으므로 탭(상세)이
+                          // 비제스처 경로다(spec swipe-actions.md · WCAG 2.1.1).
+                          PSwipeActions(
+                            key: ValueKey('preset-${sorted[i].rowId}'),
+                            groupTag: 'preset-list',
+                            actions: [
+                              PSwipeAction(
+                                label: AppLocalizations.of(context).actionEdit,
+                                icon: LucideIcons.pencil,
+                                kind: PSwipeKind.primary,
+                                onSelect: () => showPresetEditDialog(
+                                  context,
+                                  edit: sorted[i],
+                                ),
+                              ),
+                              PSwipeAction(
+                                label: AppLocalizations.of(context).actionDelete,
+                                icon: LucideIcons.trash2,
+                                kind: PSwipeKind.destructive,
+                                // _confirmDelete 가 자체 확인을 띄운다 — 여기서
+                                // 또 주면 확인이 두 번 뜬다.
+                                onSelect: () => _confirmDelete(sorted[i]),
+                              ),
+                            ],
+                            child: _PresetRow(
+                              template: sorted[i],
+                              category: sorted[i].categoryRowId == null
+                                  ? null
+                                  : categories.byRowId(
+                                      sorted[i].categoryRowId!,
+                                    ),
+                              masked: masked,
+                              tokens: t,
+                              // web 정합 — 행 사이 구분선(첫 행 제외 top border).
+                              divider: i > 0,
+                              onOpenDetail: () => showPresetDetailSheet(
+                                context,
+                                template: sorted[i],
+                                onEdit: () => showPresetEditDialog(
+                                  context,
+                                  edit: sorted[i],
+                                ),
+                                onDelete: () => _confirmDelete(sorted[i]),
+                              ),
                             ),
-                            onDelete: () => _confirmDelete(sorted[i]),
                           ),
                       ],
                     )),
@@ -434,16 +465,16 @@ class _PresetRow extends StatelessWidget {
     required this.masked,
     required this.tokens,
     required this.divider,
-    required this.onEdit,
-    required this.onDelete,
+    required this.onOpenDetail,
   });
   final ExpenseTemplate template;
   final ExpenseCategory? category;
   final bool masked;
   final PorestTokens tokens;
   final bool divider;
-  final VoidCallback onEdit;
-  final VoidCallback onDelete;
+
+  /// 행 탭 → 상세 시트. ✎·🗑 를 걷어낸 자리를 대신하는 비제스처 경로다.
+  final VoidCallback onOpenDetail;
 
   @override
   Widget build(BuildContext context) {
@@ -575,28 +606,7 @@ class _PresetRow extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(width: PSpace.x8),
-
-          // (d) 액션 버튼
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              PButton.icon(
-                icon: LucideIcons.pencil,
-                size: PButtonSize.sm,
-                tooltip: l.actionEdit,
-                onPressed: onEdit,
-              ),
-              const SizedBox(width: 4),
-              PButton.icon(
-                icon: LucideIcons.trash2,
-                size: PButtonSize.sm,
-                iconColor: t.fgExpense,
-                tooltip: l.actionDelete,
-                onPressed: onDelete,
-              ),
-            ],
-          ),
+          // ✎·🗑 를 두지 않는다 — 밀면 수정·삭제, 탭하면 상세(사용자 결정).
         ],
       ),
     );

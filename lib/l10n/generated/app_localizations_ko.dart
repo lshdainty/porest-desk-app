@@ -3974,6 +3974,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get presetDeleteTitle => '프리셋 삭제';
 
   @override
+  String get presetDetailTitle => '프리셋 상세';
+
+  @override
+  String get presetTypeLabel => '유형';
+
+  @override
   String presetDeleteConfirm(String name) {
     return '\"$name\" 프리셋을 삭제할까요? 이미 저장된 거래 내역에는 영향이 없습니다.';
   }

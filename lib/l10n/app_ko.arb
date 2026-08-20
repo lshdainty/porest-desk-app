@@ -170,7 +170,13 @@
   "assetAccountDeleted": "계좌가 삭제되었습니다",
   "assetAccountDelete": "계좌 삭제",
   "assetAccountDeleteConfirm": "\"{name}\"을(를) 목록에서 제거합니다. 연결된 거래 내역은 유지됩니다.",
-  "@assetAccountDeleteConfirm": { "placeholders": { "name": { "type": "String" } } },
+  "@assetAccountDeleteConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "assetActionFailed": "실패",
   "assetDeleteFailed": "삭제 실패",
   "assetInstitutionBrand": "기관·브랜드",
@@ -192,7 +198,11 @@
   "assetExchangeRate": "환율",
   "assetExchangeRateHint": "{code} 1당 원화",
   "@assetExchangeRateHint": {
-    "placeholders": { "code": { "type": "String" } }
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
   },
   "assetExchangeRateDesc": "순자산은 잔액 × 환율로 환산합니다. 비워 두면 환산 없이 그대로 더해집니다.",
   "assetMemoOptional": "메모 (선택)",
@@ -221,7 +231,13 @@
   "assetCardUpdated": "카드가 수정되었습니다",
   "assetCardDelete": "카드 삭제",
   "assetCardDeleteConfirm": "\"{name}\"을(를) 목록에서 제거합니다. 연결된 거래 내역은 유지됩니다.",
-  "@assetCardDeleteConfirm": { "placeholders": { "name": { "type": "String" } } },
+  "@assetCardDeleteConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "assetCardDeleted": "카드가 삭제되었습니다",
   "assetCardType": "카드 종류",
   "assetCardProduct": "카드 상품",
@@ -253,7 +269,13 @@
   "assetInvestDeleted": "투자가 삭제되었습니다",
   "assetInvestDelete": "투자 삭제",
   "assetInvestDeleteConfirm": "\"{name}\"을(를) 목록에서 제거합니다. 연결된 거래 내역은 유지됩니다.",
-  "@assetInvestDeleteConfirm": { "placeholders": { "name": { "type": "String" } } },
+  "@assetInvestDeleteConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "assetBrokerExchange": "증권사·거래소",
   "assetInvestSearchHint": "증권사·가상자산거래소·상품거래소 검색",
   "assetProductName": "별칭",
@@ -357,7 +379,11 @@
   "tradeRealizedPreview": "실현손익",
   "tradeFundingNotice": "예수금이 모자라 결제 계좌에서 {amount}을 옮겨요",
   "@tradeFundingNotice": {
-    "placeholders": { "amount": { "type": "String" } }
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
   },
   "tradeInsufficientCash": "예수금이 마이너스가 돼요. 그대로 기록됩니다.",
   "tradeInsufficientQty": "보유 수량보다 많이 팔 수 없어요.",
@@ -370,10 +396,25 @@
   "holdingTypeCrypto": "코인",
   "holdingAvgPrice": "평단가",
   "holdingAvgPriceInline": "평단가 {avg}",
-  "@holdingAvgPriceInline": { "placeholders": { "avg": {"type":"String"} } },
+  "@holdingAvgPriceInline": {
+    "placeholders": {
+      "avg": {
+        "type": "String"
+      }
+    }
+  },
   "holdingTotalCost": "매수원가",
   "tradeHeldSummary": "보유 {qty} · 평단가 {avg}",
-  "@tradeHeldSummary": { "placeholders": { "qty": {"type":"String"}, "avg": {"type":"String"} } },
+  "@tradeHeldSummary": {
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      },
+      "avg": {
+        "type": "String"
+      }
+    }
+  },
   "assetCashBalance": "예수금",
   "assetCashBalanceHint": "매수 대기 자금이에요. 보유 종목을 팔면 이 금액으로 남아요.",
   "assetHoldingBalance": "평가금액",
@@ -522,7 +563,6 @@
   "assetChartNoData": "표시할 데이터가 없어요",
   "assetNoLinkedTx": "연결된 거래 내역이 없어요.",
   "assetTxFallback": "거래",
-  "assetCategoryOther": "기타",
   "assetPayConfirmMessage": "결제 예정액 {amount}원을 지금 결제 처리할까요?",
   "@assetPayConfirmMessage": {
     "placeholders": {
@@ -542,7 +582,14 @@
   "assetCancelPayment": "결제 취소",
   "assetCancelPaymentConfirm": "{date}에 낸 {amount}원을 되돌려요. 통장 잔액과 카드 청구가 결제 전으로 돌아갑니다.",
   "@assetCancelPaymentConfirm": {
-    "placeholders": { "amount": { "type": "String" }, "date": { "type": "String" } }
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
   },
   "assetPaymentCancelled": "결제를 취소했어요",
   "assetPayNow": "지금 결제",
@@ -550,7 +597,11 @@
   "assetPayAmount": "결제 금액",
   "assetPayRemainder": "남은 {amount}은 결제일에 빠져요",
   "@assetPayRemainder": {
-    "placeholders": { "amount": { "type": "String" } }
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
   },
   "assetPaymentRecorded": "결제가 기록되었습니다",
   "assetPayFailed": "결제 실패",
@@ -937,7 +988,14 @@
   "expExchangeRate": "환율",
   "expFxHint": "{original} → {krw}",
   "@expFxHint": {
-    "placeholders": { "original": { "type": "String" }, "krw": { "type": "String" } }
+    "placeholders": {
+      "original": {
+        "type": "String"
+      },
+      "krw": {
+        "type": "String"
+      }
+    }
   },
   "expInstallment": "할부",
   "expRefund": "환불",
@@ -976,13 +1034,21 @@
   "transferAutoDefault": "자동으로 만들어진 이체예요. 원래 거래를 지우면 함께 사라집니다.",
   "updateAvailable": "{version} 버전이 나왔어요",
   "@updateAvailable": {
-    "placeholders": { "version": { "type": "String" } }
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
   },
   "updateAvailableDesc": "눌러서 내려받아 설치하세요",
   "updateAvailableDescIos": "눌러서 AltStore 에서 받으세요",
   "updateSheetTitle": "{version} 버전이 나왔어요",
   "@updateSheetTitle": {
-    "placeholders": { "version": { "type": "String" } }
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
   },
   "updateSheetSubtitle": "새 버전이 준비됐어요. 아래에서 바로 받을 수 있어요.",
   "updateSheetChanges": "이번에 달라진 점",
@@ -996,7 +1062,11 @@
   "updateTitle": "업데이트",
   "updateGateTitle": "새 버전 {version} 이 나왔어요",
   "@updateGateTitle": {
-    "placeholders": { "version": { "type": "String" } }
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
   },
   "updateGateInstall": "설치",
   "updateGateForcedCancelBody": "업데이트가 꼭 필요한 내역이 포함되어 있습니다",
@@ -1004,18 +1074,36 @@
   "updateUpToDate": "최신 버전이에요",
   "updateCurrentBuild": "지금 빌드 {build}",
   "@updateCurrentBuild": {
-    "placeholders": { "build": { "type": "String" } }
+    "placeholders": {
+      "build": {
+        "type": "String"
+      }
+    }
   },
   "updateCheckFailed": "새 버전을 확인하지 못했어요",
   "updateRequiredDesc": "이번 버전부터 꼭 업데이트해야 해요. 받기 전에는 앱을 쓸 수 없어요.",
   "expScheduled": "예정",
   "expDeleteRefundWarn": "이 거래에 달린 환불 {count}건({amount}원)도 함께 사라져요",
   "@expDeleteRefundWarn": {
-    "placeholders": { "count": { "type": "int" }, "amount": { "type": "String" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
   },
   "expRefundLinked": "환불 {count}건 · {amount}원이 이 거래에 묶여 있어요",
   "@expRefundLinked": {
-    "placeholders": { "count": { "type": "int" }, "amount": { "type": "String" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
   },
   "expTypeTransfer": "이체",
   "expTransferFrom": "보낼 자산",
@@ -1043,7 +1131,13 @@
   "budgetActionFailed": "실패",
   "budgetDeleteTitle": "예산 삭제",
   "budgetDeleteConfirm": "\"{name}\" 카테고리 예산을 삭제할까요?",
-  "@budgetDeleteConfirm": { "placeholders": { "name": { "type": "String" } } },
+  "@budgetDeleteConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "budgetDeleteFailed": "삭제 실패",
   "budgetOverallCap": "월 전체 상한",
   "budgetCategoryLoadError": "카테고리 로드 실패",
@@ -1393,7 +1487,17 @@
   "dutchCreate": "정산 만들기",
   "dutchStepTitle": "{title} ({step}/{total})",
   "@dutchStepTitle": {
-    "placeholders": { "title": {"type": "String"}, "step": {"type": "int"}, "total": {"type": "int"} }
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "step": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
   },
   "dutchLoadFailed": "더치페이 로드 실패",
   "dutchTabActive": "진행 중",
@@ -1569,7 +1673,13 @@
   "expUpdated": "거래가 수정되었습니다",
   "expAdded": "거래가 추가되었습니다",
   "expDeleteConfirm": "\"{name}\" 거래를 삭제할까요? 연결된 자산 잔액이 함께 조정됩니다.",
-  "@expDeleteConfirm": { "placeholders": { "name": { "type": "String" } } },
+  "@expDeleteConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "expDeleted": "거래가 삭제되었습니다",
   "expDeleteFailed": "삭제 실패",
   "expSplitMismatch": "분할 내역과 금액이 달라요",
@@ -1879,7 +1989,14 @@
   "appearanceThemeSystemDesc": "자동 전환",
   "hideAmountsLockAllDesc": "{total}개 중 {count}개 카드를 가리는 중",
   "@hideAmountsLockAllDesc": {
-    "placeholders": { "total": { "type": "int" }, "count": { "type": "int" } }
+    "placeholders": {
+      "total": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "hideAmountsTitle": "금액 가리기",
   "hideAmountsSectionDesc": "가릴 카드를 골라 두세요. 저장할 때 한 번만 본인 확인을 해요.",
@@ -1889,7 +2006,11 @@
   "hideAmountsClearAll": "모두 해제",
   "hideAmountsSelectedCount": "{count}개 선택",
   "@hideAmountsSelectedCount": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "hideAmountsDiscardTitle": "저장하지 않고 나가기",
   "hideAmountsDiscardBody": "고른 내용이 사라져요.",
@@ -2018,12 +2139,20 @@
   "accountWithdrawDesc": "영구 삭제",
   "accountAppVersion": "앱 버전 {version}",
   "@accountAppVersion": {
-    "placeholders": { "version": { "type": "String" } }
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
   },
   "accountAppVersionLatest": "최신 버전",
   "accountAppVersionUpdate": "새 버전 {version}",
   "@accountAppVersionUpdate": {
-    "placeholders": { "version": { "type": "String" } }
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
   },
   "accountLogoutConfirm": "정말 로그아웃 하시겠어요?",
   "accountWithdrawTitle": "회원 탈퇴",
@@ -2089,6 +2218,8 @@
   "presetManageTitle": "프리셋 관리",
   "presetLoadError": "프리셋 로드 실패",
   "presetDeleteTitle": "프리셋 삭제",
+  "presetDetailTitle": "프리셋 상세",
+  "presetTypeLabel": "유형",
   "presetDeleteConfirm": "\"{name}\" 프리셋을 삭제할까요? 이미 저장된 거래 내역에는 영향이 없습니다.",
   "@presetDeleteConfirm": {
     "placeholders": {
@@ -2657,7 +2788,13 @@
   "stocksWatchGroupDelete": "그룹 삭제",
   "stocksWatchGroupNamePlaceholder": "그룹 이름",
   "stocksWatchGroupDeleteConfirm": "\"{name}\" 그룹과 담긴 종목이 함께 삭제됩니다. 계속할까요?",
-  "@stocksWatchGroupDeleteConfirm": { "placeholders": { "name": { "type": "String" } } },
+  "@stocksWatchGroupDeleteConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "stocksWatchGroupSaveFail": "관심목록 그룹 저장에 실패했어요",
   "stocksWatchAddFail": "관심 등록에 실패했어요",
   "stocksMarketToggleKr": "국내",
@@ -2718,7 +2855,16 @@
   "todoNoTags": "등록된 태그가 없습니다",
   "todoDeleteTagTitle": "태그 삭제",
   "todoDeleteTagConfirm": "\"{name}\" 태그를 삭제하면 이 태그를 쓰는 할 일 {count}건은 태그 없음으로 남아요.",
-  "@todoDeleteTagConfirm": { "placeholders": { "name": { "type": "String" }, "count": { "type": "int" } } },
+  "@todoDeleteTagConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "todoActionFailed": "실패",
   "todoAddFailed": "추가 실패",
   "todoDeleteFailed": "삭제 실패",
@@ -2863,7 +3009,13 @@
   "memoUntitled": "제목 없음",
   "memoDeleteTitle": "메모 삭제",
   "memoDeleteConfirm": "\"{name}\" 메모를 삭제할까요? 이 작업은 되돌릴 수 없습니다.",
-  "@memoDeleteConfirm": { "placeholders": { "name": { "type": "String" } } },
+  "@memoDeleteConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "memoDeleteFailed": "삭제 실패: {message}",
   "@memoDeleteFailed": {
     "placeholders": {
@@ -3574,7 +3726,6 @@
       }
     }
   },
-
   "smsPasteTitle": "결제 문자로 기록",
   "smsPasteDesc": "카드사에서 온 결제 문자를 붙여넣으면 금액·가맹점·일시를 읽어 지출 폼을 채워 드려요. 저장 전에 확인할 수 있어요.",
   "smsPasteFieldLabel": "결제 문자",
