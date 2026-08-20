@@ -18,6 +18,7 @@ import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_color_picker.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
+import 'package:porest_desk_app/shared/widgets/p_swipe_actions.dart';
 import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
 
@@ -254,15 +255,36 @@ class _BodyState extends ConsumerState<_Body> {
                 )
               else
                 for (var i = 0; i < tags.length; i++)
-                  _TagRow(
-                    tag: tags[i],
-                    // 서버 GROUP BY 집계 — 클라 전체 할일 로드 제거.
-                    usage: tags[i].usageCount,
-                    first: i == 0,
-                    busy: _busy,
-                    onTap: () => _openEdit(tags[i]),
-                    onDelete: () => _delete(tags[i], tags[i].usageCount),
-                    t: t,
+                  // 밀면 수정·삭제. 행의 🗑·> 를 걷었으므로 탭(편집)이 비제스처 경로다
+                  // (spec swipe-actions.md · WCAG 2.1.1).
+                  PSwipeActions(
+                    key: ValueKey('todo-tag-${tags[i].rowId}'),
+                    groupTag: 'todo-tag-list',
+                    enabled: !_busy,
+                    actions: [
+                      PSwipeAction(
+                        label: AppLocalizations.of(context).actionEdit,
+                        icon: LucideIcons.pencil,
+                        kind: PSwipeKind.primary,
+                        onSelect: () => _openEdit(tags[i]),
+                      ),
+                      PSwipeAction(
+                        label: AppLocalizations.of(context).actionDelete,
+                        icon: LucideIcons.trash2,
+                        kind: PSwipeKind.destructive,
+                        // _delete 가 자체 확인을 띄운다 — 여기서 또 주면 두 번 뜬다.
+                        onSelect: () => _delete(tags[i], tags[i].usageCount),
+                      ),
+                    ],
+                    child: _TagRow(
+                      tag: tags[i],
+                      // 서버 GROUP BY 집계 — 클라 전체 할일 로드 제거.
+                      usage: tags[i].usageCount,
+                      first: i == 0,
+                      busy: _busy,
+                      onTap: () => _openEdit(tags[i]),
+                      t: t,
+                    ),
                   ),
             ],
           ),
@@ -327,7 +349,6 @@ class _TagRow extends StatelessWidget {
     required this.first,
     required this.busy,
     required this.onTap,
-    required this.onDelete,
     required this.t,
   });
   final TodoTag tag;
@@ -335,7 +356,6 @@ class _TagRow extends StatelessWidget {
   final bool first;
   final bool busy;
   final VoidCallback onTap;
-  final VoidCallback onDelete;
   final PorestTokens t;
 
   @override
@@ -388,14 +408,7 @@ class _TagRow extends StatelessWidget {
                 ],
               ),
             ),
-            PButton.icon(
-              icon: LucideIcons.trash2,
-              size: PButtonSize.sm,
-              // 캘린더 라벨 행 정합 — 삭제는 빨강(fgExpense, 다크 스왑).
-              iconColor: t.fgExpense,
-              onPressed: busy ? null : onDelete,
-            ),
-            Icon(LucideIcons.chevronRight, size: 15, color: t.fgTertiary),
+            // 🗑·> 를 두지 않는다 — 밀면 수정·삭제, 탭하면 편집(사용자 결정).
           ],
         ),
       ),
