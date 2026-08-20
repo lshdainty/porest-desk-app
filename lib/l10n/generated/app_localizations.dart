@@ -4754,6 +4754,12 @@ abstract class AppLocalizations {
   /// **'정산 만들기'**
   String get dutchCreate;
 
+  /// No description provided for @dutchStepTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'{title} ({step}/{total})'**
+  String dutchStepTitle(String title, int step, int total);
+
   /// No description provided for @dutchLoadFailed.
   ///
   /// In ko, this message translates to:

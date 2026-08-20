@@ -2561,6 +2561,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dutchCreate => 'Create settlement';
 
   @override
+  String dutchStepTitle(String title, int step, int total) {
+    return '$title ($step/$total)';
+  }
+
+  @override
   String get dutchLoadFailed => 'Failed to load Dutch Pay';
 
   @override

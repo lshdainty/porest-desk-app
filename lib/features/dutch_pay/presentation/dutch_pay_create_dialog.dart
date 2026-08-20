@@ -32,17 +32,29 @@ import 'package:porest_desk_app/features/dutch_pay/presentation/dutch_pay_screen
 void showDutchPayCreateDialog(BuildContext context, {Expense? fromExpense}) {
   final controller = PSheetController();
   final bodyKey = GlobalKey<_BodyState>();
+  final l = AppLocalizations.of(context);
+  // 2단계 마법사인데 제목이 고정이라 참여자 선택 화면에서 어디에 있는지 알 수 없었다.
+  // 단계 표기는 로케일이 어순을 바꿀 수 있게 문자열 안에 둔다(웹 dutchPay.stepTitle 정합).
+  final title = ValueNotifier<String>(
+    l.dutchStepTitle(l.dutchCreate, 1, 2),
+  );
   showPSheet<void>(
     context,
-    title: AppLocalizations.of(context).dutchCreate,
+    title: title.value,
+    titleListenable: title,
     contentBuilder: (ctx, scrollCtrl) => _Body(
       key: bodyKey,
       fromExpense: fromExpense,
       scrollController: scrollCtrl,
       controller: controller,
+      onStepChanged: (step) => title.value = l.dutchStepTitle(
+        step == 1 ? l.dutchCreate : l.dutchSelectParticipants,
+        step,
+        2,
+      ),
     ),
     footerBuilder: (ctx) => _WizardFooter(controller: controller, bodyKey: bodyKey),
-  );
+  ).whenComplete(title.dispose);
 }
 
 /// 참여자 후보 — 이름 + 선택 여부 + '나'/추천 메타.
@@ -62,10 +74,14 @@ class _Body extends ConsumerStatefulWidget {
     this.fromExpense,
     required this.scrollController,
     required this.controller,
+    required this.onStepChanged,
   });
   final Expense? fromExpense;
   final ScrollController scrollController;
   final PSheetController controller;
+
+  /// 단계가 바뀔 때 시트 제목을 갱신한다 — 제목은 시트 껍데기가 그리므로 밖으로 알린다.
+  final ValueChanged<int> onStepChanged;
   @override
   ConsumerState<_Body> createState() => _BodyState();
 }
@@ -177,6 +193,7 @@ class _BodyState extends ConsumerState<_Body> {
       if (!_step1Valid) return;
       _seedRecommendations();
       setState(() => _step = 2);
+      widget.onStepChanged(2);
       widget.controller.setCanSubmit(_step2Valid);
       widget.controller.bump();
       return;
@@ -186,6 +203,7 @@ class _BodyState extends ConsumerState<_Body> {
 
   void _back() {
     setState(() => _step = 1);
+    widget.onStepChanged(1);
     widget.controller.setCanSubmit(_step1Valid);
     widget.controller.bump();
   }
