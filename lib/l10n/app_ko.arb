@@ -877,7 +877,7 @@
   "calInviteCodeRegenerated": "초대 코드를 새로 만들었어요",
   "calInviteCodeCopied": "초대 코드를 복사했어요",
   "calRemoveMember": "멤버 내보내기",
-  "calRemoveMemberConfirm": "{name} 님을 캘린더에서 내보내시겠어요?",
+  "calRemoveMemberConfirm": "\"{name}\" 님을 캘린더에서 내보내시겠어요?",
   "@calRemoveMemberConfirm": {
     "placeholders": {
       "name": {
@@ -1918,7 +1918,7 @@
   },
   "fileUploadFailed": "업로드 실패",
   "fileDeleteTitle": "파일 삭제",
-  "fileDeleteConfirm": "{name} 삭제할까요?",
+  "fileDeleteConfirm": "\"{name}\" 파일을 삭제할까요?",
   "@fileDeleteConfirm": {
     "placeholders": {
       "name": {

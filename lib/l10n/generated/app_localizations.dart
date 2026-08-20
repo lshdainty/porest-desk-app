@@ -2999,7 +2999,7 @@ abstract class AppLocalizations {
   /// No description provided for @calRemoveMemberConfirm.
   ///
   /// In ko, this message translates to:
-  /// **'{name} 님을 캘린더에서 내보내시겠어요?'**
+  /// **'\"{name}\" 님을 캘린더에서 내보내시겠어요?'**
   String calRemoveMemberConfirm(String name);
 
   /// No description provided for @calRemove.
@@ -6071,7 +6071,7 @@ abstract class AppLocalizations {
   /// No description provided for @fileDeleteConfirm.
   ///
   /// In ko, this message translates to:
-  /// **'{name} 삭제할까요?'**
+  /// **'\"{name}\" 파일을 삭제할까요?'**
   String fileDeleteConfirm(String name);
 
   /// No description provided for @fileDeleteFailed.
