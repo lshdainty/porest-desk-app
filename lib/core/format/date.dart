@@ -36,6 +36,15 @@ DayLabel formatDay(DateTime d) {
   );
 }
 
+/// porest-desk-front `formatMonthDayDow` 포팅 — ko "8월 3일 (월)" / en "Aug 3 (Mon)".
+///
+/// 올해가 아니면 [formatDay] 가 md 에 연도를 넣어 준다 → "2027년 1월 1일 (금)".
+/// `'${x.md} (${x.dow})'` 인라인이 여러 화면에 흩어져 있어 한자리로 모은다.
+String monthDayDow(DateTime d) {
+  final x = formatDay(d);
+  return '${x.md} (${x.dow})';
+}
+
 /// 'YYYY-MM-DD' 파싱 헬퍼.
 DateTime parseIsoDate(String s) => DateTime.parse(s);
 

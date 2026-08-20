@@ -54,9 +54,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get actionBack => '뒤로';
 
   @override
-  String get actionEditLabel => '편집';
-
-  @override
   String get pickDate => '날짜 선택';
 
   @override
@@ -913,7 +910,7 @@ class AppLocalizationsKo extends AppLocalizations {
       '위 버튼으로 보유분을 추가하세요. 시세 연동이 없어 평가액은 직접 입력합니다.';
 
   @override
-  String get assetHoldingsEmptyDetail => '보유 종목이 없어요. 편집에서 종목을 추가해보세요.';
+  String get assetHoldingsEmptyDetail => '보유 종목이 없어요. 수정에서 종목을 추가해보세요.';
 
   @override
   String get assetHoldingSearchHint => '종목명·티커 검색 후 추가 (예: 삼성전자, NVDA)';
@@ -3696,7 +3693,7 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get accountEditComingSoon => '프로필 편집은 준비중입니다';
+  String get accountEditComingSoon => '프로필 수정은 준비중입니다';
 
   @override
   String get accountSecurity => '보안';
