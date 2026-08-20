@@ -43,6 +43,13 @@ void main() {
     Set<String> hidden = const {},
     bool appLock = true,
   }) async {
+    // 기본 800×600 은 실제 폰보다 짧다. 화면 위에 '거래 종류' 영역이 생기면서 카드
+    // 그리드가 밀려 아래쪽 카드가 뷰포트 밖으로 나간다 — 세로만 늘린다.
+    // 가로(800)는 그대로 둬야 한다: 페이지 폭이 좁아지면 좌우 fling 이 한 페이지를
+    // 넘어가 '다음 탭' 검증이 두 탭을 건너뛴다.
+    tester.view.physicalSize = const Size(2400, 3600); // dpr 3.0 → 논리 800×1200
+    addTearDown(tester.view.reset);
+
     SharedPreferences.setMockInitialValues({
       PrefsKeys.appLock: appLock,
       PrefsKeys.hideCards: hidden.toList(),

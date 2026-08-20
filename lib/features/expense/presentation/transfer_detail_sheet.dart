@@ -6,7 +6,8 @@ import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
-import 'package:porest_desk_app/core/settings/settings_notifier.dart';
+import 'package:porest_desk_app/core/settings/hide_amounts_cards.dart';
+import 'package:porest_desk_app/core/settings/mask_flags.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/features/expense/presentation/add_tx_sheet.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
@@ -120,7 +121,8 @@ class _TransferDetailBodyState extends ConsumerState<_TransferDetailBody> {
     final fee = tr.fee ?? 0;
     // 이체 상세는 지금까지 어떤 카드로도 가려지지 않았다 — 거래 상세와 같은 카드로 묶는다.
     // 금액만 가리고 수수료를 남기면 `이체금액 = 출금총액 − 수수료` 로 좁혀지므로 한 덩어리다.
-    final masked = ref.watch(hideCardProvider('ledger.txDetail'));
+    final masked =
+        ref.watch(maskFlagsProvider('ledger.txDetail')).of(MaskKind.transfer);
 
     final rows = <(String, String)>[
       (l.expTransferFrom, tr.fromAssetName ?? '-'),

@@ -13,6 +13,8 @@ import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
+import 'package:porest_desk_app/core/settings/hide_amounts_cards.dart';
+import 'package:porest_desk_app/core/settings/mask_flags.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
 import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
 import 'package:porest_desk_app/shared/widgets/p_flat_section.dart';
@@ -130,7 +132,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             expensesAsync: expensesAsync,
             currentSummary: summaryRangeAsync.value,
             prevSummary: prevSummaryAsync.value,
-            masked: ref.watch(hideCardProvider('home.monthExpense')),
+            flags: ref.watch(maskFlagsProvider('home.monthExpense')),
           ),
           const SizedBox(height: PSpace.x32),
           _CategoryDonutCard(
@@ -728,13 +730,14 @@ class _MonthExpenseCard extends StatelessWidget {
     required this.expensesAsync,
     required this.currentSummary,
     required this.prevSummary,
-    required this.masked,
+    required this.flags,
   });
   final DateTime month;
   final AsyncValue<List<Expense>> expensesAsync;
   final RangeSummary? currentSummary;
   final RangeSummary? prevSummary;
-  final bool masked;
+  /// 수입·지출이 각자 종류를 갖는다. 하루평균은 `지출/일수` 라 지출 파생이다.
+  final MaskFlags flags;
 
   @override
   Widget build(BuildContext context) {
@@ -780,14 +783,14 @@ class _MonthExpenseCard extends StatelessWidget {
                 Expanded(
                   child: _IncomeExpenseCol(
                     label: l.expTypeIncome,
-                    value: krwSigned(income, masked, sign: '+'),
+                    value: krwSigned(income, flags.of(MaskKind.income), sign: '+'),
                     color: t.fgIncome,
                   ),
                 ),
                 Expanded(
                   child: _IncomeExpenseCol(
                     label: l.expTypeExpense,
-                    value: krwSigned(expense, masked, sign: '-'),
+                    value: krwSigned(expense, flags.of(MaskKind.expense), sign: '-'),
                     color: t.fgExpense,
                   ),
                 ),
@@ -803,14 +806,17 @@ class _MonthExpenseCard extends StatelessWidget {
                     children: [
                       TextSpan(text: l.dashDailyAvgPrefix),
                       TextSpan(
-                        text: krwMasked(dailyAvg, masked),
+                        text: krwMasked(dailyAvg, flags.of(MaskKind.expense)),
                         style: TextStyle(
                           color: t.fgPrimary,
                           fontWeight: PFontWeight.bold,
                           fontFeatures: const [FontFeature.tabularFigures()],
                         ),
                       ),
-                      TextSpan(text: masked ? l.dashSpentMasked : l.dashSpentUnit),
+                      TextSpan(
+                          text: flags.of(MaskKind.expense)
+                              ? l.dashSpentMasked
+                              : l.dashSpentUnit),
                       if (prevExpense > 0) ...[
                         TextSpan(text: l.dashVsPrevPrefix),
                         TextSpan(

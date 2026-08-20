@@ -13,7 +13,8 @@ import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/format/date.dart';
 import 'package:porest_desk_app/core/format/format_locale.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
-import 'package:porest_desk_app/core/settings/settings_notifier.dart';
+import 'package:porest_desk_app/core/settings/hide_amounts_cards.dart';
+import 'package:porest_desk_app/core/settings/mask_flags.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_badge.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
@@ -440,7 +441,9 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                krwSigned(monthExpense, ref.watch(hideCardProvider('ledger.monthSummary')), unit: true),
+                                krwSigned(monthExpense,
+                                    ref.watch(maskFlagsProvider('ledger.monthSummary')).of(MaskKind.expense),
+                                    unit: true),
                                 style: TextStyle(
                                   fontSize: 28,
                                   fontWeight: FontWeight.w800,
@@ -493,14 +496,18 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                           children: [
                             _TxmSummaryRow(
                               label: l.expSummaryIncome,
-                              value: krwSigned(monthIncome, ref.watch(hideCardProvider('ledger.monthSummary')), sign: '+', unit: true),
+                              value: krwSigned(monthIncome,
+                                  ref.watch(maskFlagsProvider('ledger.monthSummary')).of(MaskKind.income),
+                                  sign: '+', unit: true),
                               valueColor: t.fgBrand,
                               tokens: t,
                             ),
                             Divider(height: 1, thickness: 1, color: t.borderSubtle),
                             _TxmSummaryRow(
                               label: l.expSummaryExpense,
-                              value: krwSigned(monthExpense, ref.watch(hideCardProvider('ledger.monthSummary')), sign: '−', unit: true),
+                              value: krwSigned(monthExpense,
+                                  ref.watch(maskFlagsProvider('ledger.monthSummary')).of(MaskKind.expense),
+                                  sign: '−', unit: true),
                               valueColor: t.fgExpense,
                               tokens: t,
                             ),
@@ -509,7 +516,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                               label: l.expTotal,
                               value: krwSigned(
                                 (monthIncome - monthExpense).abs(),
-                                ref.watch(hideCardProvider('ledger.monthSummary')),
+                                ref.watch(maskFlagsProvider('ledger.monthSummary')).of(MaskKind.net),
                                 sign: monthIncome - monthExpense >= 0 ? '+' : '−',
                                 unit: true,
                               ),
@@ -532,7 +539,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                     selected: _selected,
                     expanded: _expanded,
                     byDay: byDay,
-                    masked: ref.watch(hideCardProvider('ledger.calendar')),
+                    flags: ref.watch(maskFlagsProvider('ledger.calendar')),
                     onSelect: (ds) {
                       setState(() => _selected = ds);
                       if (byDay.containsKey(ds)) _scrollToDay(ds);
@@ -584,7 +591,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                                 items: groups[key] ?? const [],
                                 transfers: transferGroups[key] ?? const [],
                                 categoriesAsync: categoriesAsync,
-                                masked: ref.watch(hideCardProvider('ledger.txList')),
+                                flags: ref.watch(maskFlagsProvider('ledger.txList')),
                                 rowKeys: _rowKeys,
                                 focusTxId: widget.focusTxId,
                               ),
@@ -909,7 +916,7 @@ class _TxmCalendar extends StatelessWidget {
     required this.selected,
     required this.expanded,
     required this.byDay,
-    required this.masked,
+    required this.flags,
     required this.onSelect,
     required this.onToggleExpand,
     required this.tokens,
@@ -918,7 +925,8 @@ class _TxmCalendar extends StatelessWidget {
   final String? selected;
   final bool expanded;
   final Map<String, ({int out, int inn})> byDay;
-  final bool masked;
+  /// 화면 카드 + 종류 카드 — 금액마다 자기 종류로 판정한다.
+  final MaskFlags flags;
   final ValueChanged<String> onSelect;
   final VoidCallback onToggleExpand;
   final PorestTokens tokens;
@@ -1006,13 +1014,13 @@ class _TxmCalendar extends StatelessWidget {
                           PChartTooltipRowData(
                             color: t.fgExpense,
                             label: AppLocalizations.of(context).expSummaryExpense,
-                            amount: krwSigned(data.out, masked, sign: '−', unit: true),
+                            amount: krwSigned(data.out, flags.of(MaskKind.expense), sign: '−', unit: true),
                             amountColor: t.fgExpense,
                           ),
                           PChartTooltipRowData(
                             color: t.fgBrand,
                             label: AppLocalizations.of(context).expSummaryIncome,
-                            amount: krwSigned(data.inn, masked, sign: '+', unit: true),
+                            amount: krwSigned(data.inn, flags.of(MaskKind.income), sign: '+', unit: true),
                             amountColor: t.fgBrand,
                           ),
                         ],
@@ -1024,7 +1032,7 @@ class _TxmCalendar extends StatelessWidget {
                       children: [
                         if (data.out > 0)
                           Text(
-                            '-${masked ? '••••' : krw(data.out)}',
+                            '-${flags.of(MaskKind.expense) ? '••••' : krw(data.out)}',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
@@ -1037,7 +1045,7 @@ class _TxmCalendar extends StatelessWidget {
                           ),
                         if (data.inn > 0)
                           Text(
-                            '+${masked ? '••••' : krw(data.inn)}',
+                            '+${flags.of(MaskKind.income) ? '••••' : krw(data.inn)}',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
@@ -1117,7 +1125,7 @@ class _DayGroup extends ConsumerWidget {
     required this.date,
     required this.items,
     required this.categoriesAsync,
-    required this.masked,
+    required this.flags,
     this.transfers = const [],
     this.rowKeys,
     this.focusTxId,
@@ -1128,7 +1136,8 @@ class _DayGroup extends ConsumerWidget {
   /// (이체는 자산 간 이동이라 순자산 증감이 0 — 합계에 넣으면 월 통계가 부풀어 오른다).
   final List<AssetTransfer> transfers;
   final AsyncValue<dynamic> categoriesAsync;
-  final bool masked;
+  /// 화면 카드 + 종류 카드 — 금액마다 자기 종류로 판정한다.
+  final MaskFlags flags;
   final Map<int, GlobalKey>? rowKeys;
   final int? focusTxId;
 
@@ -1176,7 +1185,7 @@ class _DayGroup extends ConsumerWidget {
                 const Spacer(),
                 if (dayExpense > 0)
                   Text(
-                    krwSigned(dayExpense, masked, sign: '−', unit: true),
+                    krwSigned(dayExpense, flags.of(MaskKind.expense), sign: '−', unit: true),
                     style: PTypo.caption.copyWith(
                       color: t.fgExpense,
                       fontWeight: PFontWeight.semi,
@@ -1185,7 +1194,7 @@ class _DayGroup extends ConsumerWidget {
                 if (dayIncome > 0) ...[
                   if (dayExpense > 0) const SizedBox(width: PSpace.x8),
                   Text(
-                    krwSigned(dayIncome, masked, sign: '+', unit: true),
+                    krwSigned(dayIncome, flags.of(MaskKind.income), sign: '+', unit: true),
                     style: PTypo.caption.copyWith(
                       color: t.fgIncome,
                       fontWeight: PFontWeight.semi,
@@ -1247,7 +1256,7 @@ class _DayGroup extends ConsumerWidget {
                           category: e.categoryRowId == null
                               ? null
                               : categories.byRowId(e.categoryRowId!),
-                          masked: masked,
+                          flags: flags,
                         ),
                       ),
                     );
@@ -1258,7 +1267,7 @@ class _DayGroup extends ConsumerWidget {
                 TransferRow(
                   key: ValueKey('t${tr.rowId}'),
                   transfer: tr,
-                  masked: masked,
+                  flags: flags,
                   onTap: () => showTransferDetailSheet(context, tr),
                 ),
             ],

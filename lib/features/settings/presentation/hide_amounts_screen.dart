@@ -46,7 +46,11 @@ class _HideAmountsScreenState extends ConsumerState<HideAmountsScreen> {
   _HideAmountsScreenState() : _tab = null;
 
   /// 탭 순서 — 0 은 '전체', 그 뒤로 화면별.
-  static const _tabs = <_Tab>[null, ...HidePage.values];
+  /// 거래 종류(HidePage.kind)는 화면이 아니라 축이 달라 탭에 넣지 않는다 — 맨 위 별도 영역이다.
+  static final _tabs = <_Tab>[
+    null,
+    ...HidePage.values.where((p) => p != HidePage.kind),
+  ];
 
   @override
   void dispose() {
@@ -74,8 +78,9 @@ class _HideAmountsScreenState extends ConsumerState<HideAmountsScreen> {
   static bool _setEquals(Set<String> a, Set<String> b) =>
       a.length == b.length && a.containsAll(b);
 
+  /// 화면 탭이 다루는 카드 — 종류 3장은 위 별도 영역이 맡는다.
   List<String> _cardsOf(_Tab tab) =>
-      tab == null ? kAllHideCards : cardsOfPage(tab);
+      tab == null ? kScreenHideCards : cardsOfPage(tab);
 
   Future<void> _save(Set<String> saved) async {
     final draft = _draft;
@@ -158,6 +163,48 @@ class _HideAmountsScreenState extends ConsumerState<HideAmountsScreen> {
         ),
         body: Column(
           children: [
+            // 거래 종류 — 화면 축과 다르므로 탭 줄에 끼우지 않고 맨 위 별도 영역에 둔다.
+            // 탭에 넣으면 '화면' 목록에 화면이 아닌 게 섞이고, 어느 화면에서 왔든 늘
+            // 보여야 할 스위치가 탭 하나를 골라야 보이는 자리로 숨는다.
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                  PSpace.x20, PSpace.x12, PSpace.x20, 0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(l.hideAmountsKindLabel,
+                      style: PTypo.labelMd.copyWith(
+                          color: t.fgSecondary,
+                          fontWeight: PFontWeight.semi)),
+                  const SizedBox(height: PSpace.x8),
+                  Row(
+                    children: [
+                      for (final card in cardsOfPage(HidePage.kind)) ...[
+                        if (card != cardsOfPage(HidePage.kind).first)
+                          const SizedBox(width: PSpace.x8),
+                        Expanded(
+                          child: PChip(
+                            label: _cardLabel(l, card),
+                            selected: draft.contains(card),
+                            shape: PChipShape.rounded,
+                            fullWidth: true,
+                            onTap: () => setState(() {
+                              if (!draft.remove(card)) draft.add(card);
+                            }),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: PSpace.x8),
+                  Text(l.hideAmountsKindNote,
+                      style: PTypo.caption
+                          .copyWith(color: t.fgTertiary, height: 1.55)),
+                  const SizedBox(height: PSpace.x12),
+                  Divider(height: 1, thickness: 1, color: t.borderSubtle),
+                ],
+              ),
+            ),
             // 탭 — 전체 + 화면별. 개수는 지금 고른 상태를 그대로 비춘다.
             //
             // pill 채움으로 둔다. underline 은 활성 탭 밑줄과 탭바 아래 경계선이
@@ -173,8 +220,8 @@ class _HideAmountsScreenState extends ConsumerState<HideAmountsScreen> {
                   size: PTabsSize.sm,
                   items: [
                     _tabItem(l, null, draft),
-                    for (final page in HidePage.values)
-                      _tabItem(l, page, draft),
+                    for (final page in _tabs.skip(1))
+                      _tabItem(l, page!, draft),
                   ],
                   onChanged: _goTab,
                 ),
@@ -272,6 +319,7 @@ class _CardGrid extends StatelessWidget {
 }
 
 String _pageLabel(AppLocalizations l, HidePage page) => switch (page) {
+      HidePage.kind => l.hideAmountsKindLabel,
       HidePage.home => l.hideAmountsPageHome,
       HidePage.asset => l.hideAmountsPageAsset,
       HidePage.ledger => l.hideAmountsPageLedger,
@@ -283,6 +331,9 @@ String _pageLabel(AppLocalizations l, HidePage page) => switch (page) {
     };
 
 String _cardLabel(AppLocalizations l, String card) => switch (card) {
+      'kind.expense' => l.hideCardKindExpense,
+      'kind.income' => l.hideCardKindIncome,
+      'kind.transfer' => l.hideCardKindTransfer,
       'home.netWorth' => l.hideCardHomeNetWorth,
       'home.monthExpense' => l.hideCardHomeMonthExpense,
       'home.categoryDonut' => l.hideCardHomeCategoryDonut,

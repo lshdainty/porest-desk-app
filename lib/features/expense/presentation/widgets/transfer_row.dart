@@ -6,6 +6,8 @@ import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
+import 'package:porest_desk_app/core/settings/hide_amounts_cards.dart';
+import 'package:porest_desk_app/core/settings/mask_flags.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/features/asset/domain/asset_transfer.dart';
 
@@ -27,14 +29,15 @@ bool _isScheduled(String? date) {
 class TransferRow extends StatelessWidget {
   const TransferRow({
     required this.transfer,
-    required this.masked,
+    required this.flags,
     this.perspectiveAssetRowId,
     this.onTap,
     super.key,
   });
 
   final AssetTransfer transfer;
-  final bool masked;
+  /// 화면 카드 + 종류 카드. 이체 행은 언제나 이체 종류다.
+  final MaskFlags flags;
   final int? perspectiveAssetRowId;
   final VoidCallback? onTap;
 
@@ -58,7 +61,7 @@ class TransferRow extends StatelessWidget {
     final hhmm = raw.length >= 16 ? raw.substring(11, 16) : '';
     final timeLabel = (hhmm.isNotEmpty && hhmm != '00:00') ? ' · $hhmm' : '';
     final sub = fee > 0
-        ? '$route · ${l.transferFeePrefix} ${krwSigned(fee, masked)}$timeLabel'
+        ? '$route · ${l.transferFeePrefix} ${krwSigned(fee, flags.of(MaskKind.transfer))}$timeLabel'
         : '$route$timeLabel';
 
     return InkWell(
@@ -136,7 +139,7 @@ class TransferRow extends StatelessWidget {
             ),
             const SizedBox(width: PSpace.x8),
             Text(
-              krwSigned(shown, masked, sign: sign, unit: true),
+              krwSigned(shown, flags.of(MaskKind.transfer), sign: sign, unit: true),
               style: PTypo.money.copyWith(
                   color: t.fgPrimary,
                   fontWeight: PFontWeight.bold,
