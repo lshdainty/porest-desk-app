@@ -1874,7 +1874,7 @@
   "@hideAmountsSelectedCount": {
     "placeholders": { "count": { "type": "int" } }
   },
-  "hideAmountsDiscardTitle": "Leave without saving?",
+  "hideAmountsDiscardTitle": "Leave without saving",
   "hideAmountsDiscardBody": "Your selection will be discarded.",
   "hideAmountsDiscardConfirm": "Leave",
   "hideAmountsSaved": "Saved",
@@ -2013,7 +2013,7 @@
     "placeholders": { "version": { "type": "String" } }
   },
   "accountLogoutConfirm": "Are you sure you want to log out?",
-  "accountWithdrawTitle": "Are you sure you want to delete your account?",
+  "accountWithdrawTitle": "Delete account",
   "accountWithdrawConfirm": "Deleting your account permanently erases all data.\nThis cannot be undone.",
   "notiUnreadPrefix": "",
   "notiUnreadSuffix": " unread",
@@ -2727,7 +2727,7 @@
   "subFeatCardRec": "Card benefit recommendations",
   "subStarted": "Your Porest Pro subscription is active",
   "subFailed": "Couldn't start the subscription",
-  "subCancelConfirmTitle": "Cancel your subscription?",
+  "subCancelConfirmTitle": "Cancel subscription",
   "subCancelConfirmMsg": "If you cancel, you will switch to the Free plan from {date} and the Securities tab will lock. You can keep using Pro features until then.",
   "@subCancelConfirmMsg": {
     "placeholders": {

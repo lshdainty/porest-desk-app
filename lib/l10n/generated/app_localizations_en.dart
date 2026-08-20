@@ -3496,7 +3496,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get hideAmountsDiscardTitle => 'Leave without saving?';
+  String get hideAmountsDiscardTitle => 'Leave without saving';
 
   @override
   String get hideAmountsDiscardBody => 'Your selection will be discarded.';
@@ -3834,8 +3834,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accountLogoutConfirm => 'Are you sure you want to log out?';
 
   @override
-  String get accountWithdrawTitle =>
-      'Are you sure you want to delete your account?';
+  String get accountWithdrawTitle => 'Delete account';
 
   @override
   String get accountWithdrawConfirm =>
@@ -5308,7 +5307,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get subFailed => 'Couldn\'t start the subscription';
 
   @override
-  String get subCancelConfirmTitle => 'Cancel your subscription?';
+  String get subCancelConfirmTitle => 'Cancel subscription';
 
   @override
   String subCancelConfirmMsg(String date) {

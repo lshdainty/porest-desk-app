@@ -6479,7 +6479,7 @@ abstract class AppLocalizations {
   /// No description provided for @hideAmountsDiscardTitle.
   ///
   /// In ko, this message translates to:
-  /// **'저장하지 않고 나갈까요?'**
+  /// **'저장하지 않고 나가기'**
   String get hideAmountsDiscardTitle;
 
   /// No description provided for @hideAmountsDiscardBody.
@@ -7127,7 +7127,7 @@ abstract class AppLocalizations {
   /// No description provided for @accountWithdrawTitle.
   ///
   /// In ko, this message translates to:
-  /// **'정말 탈퇴하시겠습니까?'**
+  /// **'회원 탈퇴'**
   String get accountWithdrawTitle;
 
   /// No description provided for @accountWithdrawConfirm.
@@ -9845,7 +9845,7 @@ abstract class AppLocalizations {
   /// No description provided for @subCancelConfirmTitle.
   ///
   /// In ko, this message translates to:
-  /// **'구독을 해지할까요?'**
+  /// **'구독 해지'**
   String get subCancelConfirmTitle;
 
   /// No description provided for @subCancelConfirmMsg.
