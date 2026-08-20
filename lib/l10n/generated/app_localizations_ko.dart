@@ -2527,6 +2527,11 @@ class AppLocalizationsKo extends AppLocalizations {
   String get dutchCreate => '정산 만들기';
 
   @override
+  String dutchStepTitle(String title, int step, int total) {
+    return '$title ($step/$total)';
+  }
+
+  @override
   String get dutchLoadFailed => '더치페이 로드 실패';
 
   @override

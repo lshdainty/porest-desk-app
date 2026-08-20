@@ -1384,6 +1384,7 @@
   "authPageLoadError": "Couldn't load the login page.",
   "dutchTitle": "Dutch Pay",
   "dutchCreate": "Create settlement",
+  "dutchStepTitle": "{title} ({step}/{total})",
   "dutchLoadFailed": "Failed to load Dutch Pay",
   "dutchTabActive": "Active",
   "dutchTabPast": "Done",

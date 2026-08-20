@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -262,6 +263,8 @@ Future<T?> showPSheet<T>(
   double minChildSize = 0.5,
   double maxChildSize = 0.95,
   bool shrinkWrap = false,
+  /// 제목이 시트 안 상태에 따라 바뀌는 경우(단계형 시트). 주면 [title] 대신 이걸 그린다.
+  ValueListenable<String>? titleListenable,
 }) {
   return showModalBottomSheet<T>(
     context: context,
@@ -292,6 +295,7 @@ Future<T?> showPSheet<T>(
               child: _buildSheetColumn(
                 sheetCtx,
                 title: title,
+                titleListenable: titleListenable,
                 headerActions: headerActions,
                 content: contentBuilder(sheetCtx, dummyCtrl),
                 footerBuilder: footerBuilder,
@@ -317,6 +321,7 @@ Future<T?> showPSheet<T>(
             child: _buildSheetColumn(
               innerCtx,
               title: title,
+              titleListenable: titleListenable,
               headerActions: headerActions,
               content: contentBuilder(innerCtx, scrollCtrl),
               footerBuilder: footerBuilder,
@@ -337,6 +342,7 @@ Future<T?> showPSheet<T>(
 Widget _buildSheetColumn(
   BuildContext ctx, {
   required String title,
+  required ValueListenable<String>? titleListenable,
   required List<Widget> headerActions,
   required Widget content,
   required Widget Function(BuildContext)? footerBuilder,
@@ -364,11 +370,16 @@ Widget _buildSheetColumn(
         child: Row(
           children: [
             Expanded(
-              child: Text(
-                title,
-                // sheet spec(title-md 18/600) 정합 — 웹 SheetTitle/DrawerTitle 와 동일.
-                style: PTypo.h4.copyWith(color: t.fgPrimary),
-              ),
+              // sheet spec(title-md 18/600) 정합 — 웹 SheetTitle/DrawerTitle 와 동일.
+              child: titleListenable == null
+                  ? Text(title, style: PTypo.h4.copyWith(color: t.fgPrimary))
+                  : ValueListenableBuilder<String>(
+                      valueListenable: titleListenable,
+                      builder: (_, v, _) => Text(
+                        v,
+                        style: PTypo.h4.copyWith(color: t.fgPrimary),
+                      ),
+                    ),
             ),
             ...headerActions,
             IconButton(

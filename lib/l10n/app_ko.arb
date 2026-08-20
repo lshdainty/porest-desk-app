@@ -1387,6 +1387,10 @@
   "authPageLoadError": "로그인 페이지를 불러오지 못했어요.",
   "dutchTitle": "더치페이",
   "dutchCreate": "정산 만들기",
+  "dutchStepTitle": "{title} ({step}/{total})",
+  "@dutchStepTitle": {
+    "placeholders": { "title": {"type": "String"}, "step": {"type": "int"}, "total": {"type": "int"} }
+  },
   "dutchLoadFailed": "더치페이 로드 실패",
   "dutchTabActive": "진행 중",
   "dutchTabPast": "완료",
