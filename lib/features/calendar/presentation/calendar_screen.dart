@@ -208,7 +208,8 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   void _showFilterSheet() {
     showPSheet<void>(
       context,
-      title: AppLocalizations.of(context).calTitle,
+      // 필터 시트 제목은 화면 이름이 아니라 '필터' — 가계부·할일 필터와 같은 꼴.
+      title: AppLocalizations.of(context).expFilter,
       shrinkWrap: true, // 컨텐츠 높이에 맞춤(아래 빈 공간 제거)
       contentBuilder: (ctx, _) => _CalendarFilterSheetBody(
         onManage: () {

@@ -174,7 +174,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get navBudget => '예산';
 
   @override
-  String get navRecurring => '반복 거래';
+  String get navRecurring => '반복 거래 관리';
 
   @override
   String get navCategories => '카테고리';
@@ -1418,16 +1418,16 @@ class AppLocalizationsKo extends AppLocalizations {
   String get calLabelsEmpty => '라벨이 없어요';
 
   @override
-  String get calLabelsEmptyHint => '위 \"새 라벨\" 버튼으로 만들어보세요';
+  String get calLabelsEmptyHint => '위 \"라벨 추가\" 버튼으로 만들어보세요';
 
   @override
   String get calLabelsIntro => '모든 캘린더에서 공용으로 쓰는 라벨이에요. 일정 등록 시 선택할 수 있어요.';
 
   @override
-  String get calNewLabel => '새 라벨';
+  String get calNewLabel => '라벨 추가';
 
   @override
-  String get calEditLabel => '라벨 편집';
+  String get calEditLabel => '라벨 수정';
 
   @override
   String get calPreview => '미리보기';
@@ -1493,7 +1493,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get calShareIntroBody => '캘린더를 만들고 멤버를 초대해 함께 일정을 관리할 수 있어요.';
 
   @override
-  String get calNewCalendar => '새 캘린더';
+  String get calNewCalendar => '캘린더 추가';
 
   @override
   String calMyCalendarsCount(int count) {
@@ -5100,7 +5100,7 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get todoNewTag => '새 태그';
+  String get todoNewTag => '태그 추가';
 
   @override
   String get todoTagNamePlaceholder => '태그 이름';
@@ -5318,7 +5318,7 @@ class AppLocalizationsKo extends AppLocalizations {
       '키는 서버에 암호화되어 저장되며 본인만 사용합니다. 발급은 토스증권 개발자센터에서.';
 
   @override
-  String get memoNew => '새 메모';
+  String get memoNew => '메모 추가';
 
   @override
   String get memoEditTitle => '메모 수정';

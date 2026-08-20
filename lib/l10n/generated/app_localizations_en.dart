@@ -176,7 +176,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navBudget => 'Budget';
 
   @override
-  String get navRecurring => 'Recurring';
+  String get navRecurring => 'Manage recurring';
 
   @override
   String get navCategories => 'Categories';
@@ -188,7 +188,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navCards => 'Cards';
 
   @override
-  String get navSavingGoals => 'Saving Goals';
+  String get navSavingGoals => 'Saving goals';
 
   @override
   String get navExport => 'Export';
@@ -197,7 +197,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navLogout => 'Log out';
 
   @override
-  String get navChangePassword => 'Change Password';
+  String get navChangePassword => 'Change password';
 
   @override
   String get notiTitle => 'Notifications';
@@ -1445,7 +1445,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'These labels are shared across all your calendars. You can pick one when creating an event.';
 
   @override
-  String get calNewLabel => 'New label';
+  String get calNewLabel => 'Add label';
 
   @override
   String get calEditLabel => 'Edit label';
@@ -1515,7 +1515,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Create a calendar and invite members to manage events together.';
 
   @override
-  String get calNewCalendar => 'New calendar';
+  String get calNewCalendar => 'Add calendar';
 
   @override
   String calMyCalendarsCount(int count) {
@@ -1999,7 +1999,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get expFilterPeriod => 'Period';
 
   @override
-  String get expSplit => 'Split';
+  String get expSplit => 'Split transaction';
 
   @override
   String get expConvertDutch => 'To Dutch Pay';
@@ -2191,7 +2191,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get budgetEmptyHint => 'Set an overall cap or category budgets';
 
   @override
-  String get budgetSetup => 'Set budget';
+  String get budgetSetup => 'Budget settings';
 
   @override
   String get budgetCopyLastMonth => 'Copy last month\'s budget';
@@ -3308,7 +3308,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get moreGroupSystem => 'Account & System';
 
   @override
-  String get moreItemStocks => 'Securities';
+  String get moreItemStocks => 'Stocks';
 
   @override
   String get moreItemStats => 'Stats & Analysis';
@@ -3425,7 +3425,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsGroupApp => 'App Environment';
 
   @override
-  String get settingsMenuAppearance => 'Display Settings';
+  String get settingsMenuAppearance => 'Display settings';
 
   @override
   String get settingsGroupData => 'Data';
@@ -3446,7 +3446,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsPrivacyOpenFailed => 'Could not open the privacy policy';
 
   @override
-  String get appearanceTitle => 'Display Settings';
+  String get appearanceTitle => 'Display settings';
 
   @override
   String get appearanceTheme => 'Theme';
@@ -3475,7 +3475,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get hideAmountsTitle => 'Hide Amounts';
+  String get hideAmountsTitle => 'Hide amounts';
 
   @override
   String get hideAmountsSectionDesc =>
@@ -5170,7 +5170,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get todoNewTag => 'New tag';
+  String get todoNewTag => 'Add tag';
 
   @override
   String get todoTagNamePlaceholder => 'Tag name';
@@ -5392,7 +5392,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your key is stored encrypted on the server and used only by you. Issue one at the Toss Securities Developer Center.';
 
   @override
-  String get memoNew => 'New memo';
+  String get memoNew => 'Add memo';
 
   @override
   String get memoEditTitle => 'Edit memo';
@@ -5578,7 +5578,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get constMySkySubtitle => 'Last 2 weeks · cloudy nights count too';
 
   @override
-  String get constCollectionTitle => 'Constellation Collection';
+  String get constCollectionTitle => 'Constellation collection';
 
   @override
   String constCollectionProgress(int collected, int total) {
@@ -5606,7 +5606,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get constCollectionNotCollected => 'Not yet';
 
   @override
-  String get constDetailTitle => 'Constellation Collection';
+  String get constDetailTitle => 'Constellation collection';
 
   @override
   String get constDetailNotMet => 'A constellation you haven\'t met yet';
@@ -5622,7 +5622,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get todoDetailTitle => 'To-do details';
+  String get todoDetailTitle => 'Todo details';
 
   @override
   String get todoDetailStatus => 'Status';
