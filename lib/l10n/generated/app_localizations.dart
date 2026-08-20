@@ -7472,6 +7472,18 @@ abstract class AppLocalizations {
   /// **'프리셋 삭제'**
   String get presetDeleteTitle;
 
+  /// No description provided for @presetDetailTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'프리셋 상세'**
+  String get presetDetailTitle;
+
+  /// No description provided for @presetTypeLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'유형'**
+  String get presetTypeLabel;
+
   /// No description provided for @presetDeleteConfirm.
   ///
   /// In ko, this message translates to:

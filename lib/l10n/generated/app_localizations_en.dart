@@ -4023,6 +4023,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get presetDeleteTitle => 'Delete preset';
 
   @override
+  String get presetDetailTitle => 'Preset detail';
+
+  @override
+  String get presetTypeLabel => 'Type';
+
+  @override
   String presetDeleteConfirm(String name) {
     return 'Delete the \"$name\" preset? Already-saved transactions are unaffected.';
   }
