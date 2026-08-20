@@ -88,7 +88,14 @@ class PSwipeActions extends StatelessWidget {
   /// 액션 최소 높이 — WCAG 2.5.5(AAA, 44×44)를 밑돌지 않게.
   static const double actionMinHeight = 56;
 
-  /// 이 비율 이상 밀면 열린 채로 스냅한다.
+  /// **트레이 폭 대비** 이만큼 밀면 열린 채로 스냅한다(spec swipe-actions.md).
+  ///
+  /// slidable 에 그대로 넘기면 안 된다 — 그쪽 `openThreshold` 는 **행 전체 폭** 기준이다
+  /// (`action_pane.dart` 기본값이 `extentRatio / 2` 인 것에서 드러난다). 트레이는 행의
+  /// 일부(액션 2개면 extentRatio ≈ 0.27)라, 0.4 를 그대로 주면
+  /// `openThreshold > extentRatio` 가 되어 `action_pane.dart:190` 의
+  /// `openThreshold <= extentRatio` 가드에 걸린다. 그러면 드래그로는 절대 스냅하지 못하고
+  /// 끝까지 끌어 튕겨야만 열린다 — 실제로 그렇게 동작하고 있었다.
   static const double _openThreshold = 0.4;
 
   /// 아이콘 원형 지름 — 행 높이 안에 원형 + 라벨이 다 들어가는 최대치.
@@ -114,10 +121,10 @@ class PSwipeActions extends StatelessWidget {
           endActionPane: ActionPane(
             motion: const DrawerMotion(),
             extentRatio: ratio.toDouble(),
-            // 이만큼 밀어야 열린 채로 스냅한다. closeThreshold 는 건드리지 않는다 —
-            // "열린 상태에서 되돌려 닫는 지점" 이라 다른 개념이고, 같은 값으로 같이
-            // 걸면 두 범위가 맞물려 아예 열리지 않는다(실측).
-            openThreshold: _openThreshold,
+            // 트레이 비율(ratio)을 곱해 행 전체 폭 기준으로 환산한다. 위 상수 주석 참고.
+            // closeThreshold 는 건드리지 않는다 — "열린 상태에서 되돌려 닫는 지점" 이라
+            // 다른 개념이고, 같은 값으로 같이 걸면 두 범위가 맞물려 아예 열리지 않는다(실측).
+            openThreshold: (ratio * _openThreshold).toDouble(),
             children: [
               // **역순으로 그린다** — 왼쪽으로 조금 밀면 오른쪽 끝 액션부터 드러나므로,
               // 순서대로 두면 파괴적 액션이 제일 먼저 손에 닿는다. 뒤집어 두면 삭제가
