@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import 'package:porest_desk_app/app/theme/motion.dart';
 import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
@@ -65,9 +66,27 @@ String _ymd(DateTime d) =>
 
 class _StatsScreenState extends ConsumerState<StatsScreen> {
   int _tabIndex = 0;
+  /// 좌우로 넘기면 탭이 따라 움직인다. 칩을 눌러도 같은 컨트롤러로 페이지를 옮긴다.
+  /// (설정 '금액 가리기' 화면과 같은 패턴)
+  final _pages = PageController();
   late DateTime _from;
   late DateTime _to;
   _SegMode _segMode = _SegMode.month;
+
+  void _goTab(int i) {
+    setState(() => _tabIndex = i);
+    _pages.animateToPage(
+      i,
+      duration: PMotion.base,
+      curve: PMotion.standard,
+    );
+  }
+
+  @override
+  void dispose() {
+    _pages.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -381,7 +400,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
                     _StatsChipTab(
                       label: e.$2,
                       active: _tabIndex == e.$1,
-                      onTap: () => setState(() => _tabIndex = e.$1),
+                      onTap: () => _goTab(e.$1),
                     ),
                     if (e.$1 < 2) const SizedBox(width: 4),
                   ],
@@ -390,8 +409,13 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
             ),
           ),
           Expanded(
-            child: IndexedStack(
-              index: _tabIndex,
+            // 칩으로만 넘길 수 있으면 한 손으로 쓰기 불편하다 — 본문을 좌우로 밀어서도
+            // 넘어가게 PageView 로 둔다. 스와이프로 넘어가면 onPageChanged 가 칩을 맞춘다.
+            child: PageView(
+              controller: _pages,
+              onPageChanged: (i) {
+                if (i != _tabIndex) setState(() => _tabIndex = i);
+              },
               children: [
                 _CategoryTab(state: this),
                 _TrendTab(state: this),
@@ -442,6 +466,9 @@ class _CategoryTab extends ConsumerWidget {
         ref.invalidate(rangeExpensesProvider(state._range));
       },
       child: ListView(
+        // 탭을 넘겼다 돌아와도 보던 위치를 지킨다 — PageView 는 IndexedStack 과 달리
+        // 안 보이는 페이지를 버려서, 키가 없으면 매번 맨 위로 돌아간다.
+        key: const PageStorageKey('stats-category'),
         // 카드 다이어트 — design StatsScreen: padding 24/16/24/24 (LTRB) + 섹션 gap 32.
         padding: EdgeInsets.fromLTRB(
           PSpace.x24,
@@ -494,6 +521,9 @@ class _TrendTab extends ConsumerWidget {
         ref.invalidate(rangeExpensesProvider(state._range));
       },
       child: ListView(
+        // 탭을 넘겼다 돌아와도 보던 위치를 지킨다 — PageView 는 IndexedStack 과 달리
+        // 안 보이는 페이지를 버려서, 키가 없으면 매번 맨 위로 돌아간다.
+        key: const PageStorageKey('stats-trend'),
         // 카드 다이어트 — design StatsScreen: padding 24/16/24/24 (LTRB) + 섹션 gap 32.
         padding: EdgeInsets.fromLTRB(
           PSpace.x24,
@@ -555,6 +585,9 @@ class _CompareTab extends ConsumerWidget {
         ref.invalidate(rangeExpensesProvider(state._prevRangeKey));
       },
       child: ListView(
+        // 탭을 넘겼다 돌아와도 보던 위치를 지킨다 — PageView 는 IndexedStack 과 달리
+        // 안 보이는 페이지를 버려서, 키가 없으면 매번 맨 위로 돌아간다.
+        key: const PageStorageKey('stats-compare'),
         // 카드 다이어트 — design StatsScreen: padding 24/16/24/24 (LTRB) + 섹션 gap 32.
         padding: EdgeInsets.fromLTRB(
           PSpace.x24,
