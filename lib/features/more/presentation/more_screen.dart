@@ -63,7 +63,7 @@ List<_NavGroup> _buildGroups(BuildContext ctx, {required bool hasSecurities}) {
     ]),
     _NavGroup(label: l.moreGroupSystem, items: [
       _NavItem(label: l.navSettings, desc: l.moreDescSettings, onTap: (c) => c.push('/settings')),
-      _NavItem(label: l.navNotifications, desc: l.moreDescNotifications, onTap: (c) => c.push('/settings/notifications')),
+      _NavItem(label: l.notiSettings, desc: l.moreDescNotifications, onTap: (c) => c.push('/settings/notifications')),
       _NavItem(label: l.exportTitle, desc: l.moreDescExport, onTap: (c) => c.push('/settings/export-data')),
       _NavItem(label: l.moreItemAccount, desc: l.moreDescAccount, onTap: (c) => c.push('/account')),
     ]),
