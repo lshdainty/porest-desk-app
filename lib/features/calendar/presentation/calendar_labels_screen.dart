@@ -19,6 +19,7 @@ import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
 import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
+import 'package:porest_desk_app/shared/widgets/p_swipe_actions.dart';
 import 'package:porest_desk_app/features/calendar/application/calendar_providers.dart';
 import 'package:porest_desk_app/features/calendar/domain/event_label.dart';
 
@@ -172,15 +173,37 @@ class _CalendarLabelsScreenState extends ConsumerState<CalendarLabelsScreen> {
                       Column(
                           children: [
                             for (int i = 0; i < labels.length; i++)
-                              _LabelRow(
-                                label: labels[i],
-                                tokens: t,
-                                // web 정합 — divider 는 행 풀폭 borderTop(첫 행 제외, indent 없음).
-                                showDivider: i > 0,
-                                onTap: () =>
-                                    _showLabelEditor(context, ref, labels[i]),
-                                onDelete: () =>
-                                    _confirmDelete(context, ref, labels[i]),
+                              // 밀면 수정·삭제. 행의 🗑·> 를 걷었으므로 탭(편집)이
+                              // 비제스처 경로다(spec swipe-actions.md · WCAG 2.1.1).
+                              PSwipeActions(
+                                key: ValueKey('cal-label-${labels[i].rowId}'),
+                                groupTag: 'cal-label-list',
+                                actions: [
+                                  PSwipeAction(
+                                    label: l.actionEdit,
+                                    icon: LucideIcons.pencil,
+                                    kind: PSwipeKind.primary,
+                                    onSelect: () => _showLabelEditor(
+                                        context, ref, labels[i]),
+                                  ),
+                                  PSwipeAction(
+                                    label: l.actionDelete,
+                                    icon: LucideIcons.trash2,
+                                    kind: PSwipeKind.destructive,
+                                    // _confirmDelete 가 자체 확인을 띄운다 —
+                                    // 여기서 또 주면 확인이 두 번 뜬다.
+                                    onSelect: () => _confirmDelete(
+                                        context, ref, labels[i]),
+                                  ),
+                                ],
+                                child: _LabelRow(
+                                  label: labels[i],
+                                  tokens: t,
+                                  // web 정합 — divider 는 행 풀폭 borderTop(첫 행 제외).
+                                  showDivider: i > 0,
+                                  onTap: () => _showLabelEditor(
+                                      context, ref, labels[i]),
+                                ),
                               ),
                           ],
                         ),
@@ -248,13 +271,11 @@ class _LabelRow extends StatelessWidget {
     required this.tokens,
     required this.showDivider,
     required this.onTap,
-    required this.onDelete,
   });
   final EventLabel label;
   final PorestTokens tokens;
   final bool showDivider;
   final VoidCallback onTap;
-  final VoidCallback onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -308,16 +329,7 @@ class _LabelRow extends StatelessWidget {
                 ],
               ),
             ),
-            PButton.icon(
-              icon: LucideIcons.trash2,
-              size: PButtonSize.sm,
-              // web !text-[--fg-expense] 정합 — statusDanger(원색)는 다크에서 탁함.
-              iconColor: t.fgExpense,
-              tooltip: l.actionDelete,
-              onPressed: onDelete,
-            ),
-            // 행 탭=편집 진입 표시 — 할일 태그 행 정합.
-            Icon(LucideIcons.chevronRight, size: 15, color: t.fgTertiary),
+            // 🗑·> 를 두지 않는다 — 밀면 수정·삭제, 탭하면 편집(사용자 결정).
           ],
         ),
       ),

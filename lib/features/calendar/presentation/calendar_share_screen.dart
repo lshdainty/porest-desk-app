@@ -298,7 +298,12 @@ class _CalendarRow extends ConsumerWidget {
                 padding: const EdgeInsets.only(right: 4),
                 child: PBadge(label: roleLabel, variant: roleVariant),
               ),
-            Icon(LucideIcons.chevronRight, size: 16, color: t.fgTertiary),
+            // chevron 을 두지 않는다 — 행 전체 탭으로 관리 화면에 들어간다
+            // (사용자 결정, 다른 설정 목록과 같은 규칙).
+            //
+            // 이 행에는 스와이프도 붙이지 않는다. 시스템 기본 캘린더라 삭제가 없고,
+            // 탭이 편집이 아니라 관리 화면(멤버·공유) 진입이라 '수정·삭제' 두 액션이
+            // 성립하지 않는다.
           ],
         ),
       ),
