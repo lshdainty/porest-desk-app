@@ -109,6 +109,13 @@ class _RecurringSettingsBodyState
   bool _notifyDayBefore = true;
   bool _submitting = false;
 
+  /// 편집 모드 금액 — 여기서 바꾼 값은 **앞으로 생성될 실행분**에 적용된다.
+  /// 이미 만들어진 거래는 별도 레코드라 소급되지 않는다.
+  TextEditingController? _editAmountCtrl;
+
+  int get _editAmountInt =>
+      int.tryParse((_editAmountCtrl?.text ?? '').replaceAll(',', '')) ?? 0;
+
   @override
   void initState() {
     super.initState();
@@ -118,6 +125,10 @@ class _RecurringSettingsBodyState
     if (_isAdd) {
       _txInput = _TxInputController(date: DateTime.now());
     } else {
+      if (_isEdit) {
+        _editAmountCtrl =
+            TextEditingController(text: r!.amount.abs().toString());
+      }
       // base date: edit → recurring.startDate, from-tx → expense.expenseDate
       final raw = (_isEdit ? (r!.startDate ?? '') : (e!.expenseDate ?? ''))
           .trim();
@@ -166,6 +177,7 @@ class _RecurringSettingsBodyState
 
   @override
   void dispose() {
+    _editAmountCtrl?.dispose();
     _endCountCtrl.dispose();
     _txInput?.dispose();
     super.dispose();
@@ -179,7 +191,7 @@ class _RecurringSettingsBodyState
       final n = int.tryParse(_endCountCtrl.text.trim());
       if (n == null || n <= 0) return false;
     }
-    if (_isEdit) return true;
+    if (_isEdit) return _editAmountInt > 0;
     if (_isAdd) {
       final i = _txInput!;
       // 자산은 선택사항 — 거래 폼과 같은 규칙(웹 정합).
@@ -210,7 +222,7 @@ class _RecurringSettingsBodyState
           categoryRowId: r.categoryRowId,
           assetRowId: r.assetRowId,
           expenseType: r.expenseType,
-          amount: r.amount.abs(),
+          amount: _editAmountInt,
           frequency: _frequency,
           intervalValue: r.intervalValue ?? 1,
           dayOfWeek: dow,
@@ -402,8 +414,30 @@ class _RecurringSettingsBodyState
           const SizedBox(height: 14),
           topWidget,
           const SizedBox(height: 18),
-        ] else
+        ] else ...[
           topWidget,
+          // 편집 모드는 금액을 고칠 수 있다. 여기서 바꾼 값은 **앞으로 생성될
+          // 실행분**부터 적용되고 이미 만들어진 거래는 그대로다(사용자 결정).
+          // from-tx 는 기준 거래 금액을 그대로 쓰므로 열지 않는다.
+          if (_isEdit) ...[
+            const SizedBox(height: 18),
+            PSectionLabel(l.expAmount),
+            const SizedBox(height: PSpace.x4),
+            PTextInput(
+              controller: _editAmountCtrl,
+              numbersOnly: true,
+              placeholder: '0',
+              suffixText: wonUnit(),
+              style: PTypo.h4.copyWith(
+                color: widget.recurring!.expenseType == 'INCOME'
+                    ? t.fgIncome
+                    : t.fgExpense,
+                fontWeight: PFontWeight.bold,
+              ),
+              onChanged: (_) => setState(() {}),
+            ),
+          ],
+        ],
 
         _Section(
           title: l.recurringFrequencyLabel,
