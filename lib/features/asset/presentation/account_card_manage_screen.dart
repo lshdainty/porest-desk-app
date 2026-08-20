@@ -188,7 +188,7 @@ class _AccountCardManageScreenState
                                     actions: [
                                       if (assetActions.canEdit(a))
                                         PSwipeAction(
-                                          // 슬롯이 72px 이라 '편집'(actionEditLabel) 대신
+                                          // 슬롯이 72px 이라 '수정'(actionEdit) 대신
                                           // 두 글자 '수정' 을 쓴다.
                                           label: l.actionEdit,
                                           icon: LucideIcons.pencil,

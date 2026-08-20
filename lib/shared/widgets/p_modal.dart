@@ -181,7 +181,7 @@ class PViewFooter extends StatelessWidget {
         if (onEdit != null)
           Expanded(
             child: PButton(
-              label: editLabel ?? l.actionEditLabel,
+              label: editLabel ?? l.actionEdit,
               icon: LucideIcons.pencil,
               // 상세의 주 액션은 편집 — 확인이 없으면 이게 유일한 채움 버튼이다.
               variant: _hasConfirm

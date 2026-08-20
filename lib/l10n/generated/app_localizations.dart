@@ -188,12 +188,6 @@ abstract class AppLocalizations {
   /// **'뒤로'**
   String get actionBack;
 
-  /// No description provided for @actionEditLabel.
-  ///
-  /// In ko, this message translates to:
-  /// **'편집'**
-  String get actionEditLabel;
-
   /// No description provided for @pickDate.
   ///
   /// In ko, this message translates to:
@@ -1823,7 +1817,7 @@ abstract class AppLocalizations {
   /// No description provided for @assetHoldingsEmptyDetail.
   ///
   /// In ko, this message translates to:
-  /// **'보유 종목이 없어요. 편집에서 종목을 추가해보세요.'**
+  /// **'보유 종목이 없어요. 수정에서 종목을 추가해보세요.'**
   String get assetHoldingsEmptyDetail;
 
   /// No description provided for @assetHoldingSearchHint.
@@ -6965,7 +6959,7 @@ abstract class AppLocalizations {
   /// No description provided for @accountEditComingSoon.
   ///
   /// In ko, this message translates to:
-  /// **'프로필 편집은 준비중입니다'**
+  /// **'프로필 수정은 준비중입니다'**
   String get accountEditComingSoon;
 
   /// No description provided for @accountSecurity.

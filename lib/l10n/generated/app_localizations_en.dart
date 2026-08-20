@@ -54,9 +54,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get actionBack => 'Back';
 
   @override
-  String get actionEditLabel => 'Edit';
-
-  @override
   String get pickDate => 'Select date';
 
   @override

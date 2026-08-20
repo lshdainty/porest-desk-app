@@ -5,6 +5,7 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/core/format/date.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/core/settings/hide_amounts_cards.dart';
 import 'package:porest_desk_app/core/settings/mask_flags.dart';
@@ -57,6 +58,19 @@ void showTransferDetailSheet(BuildContext context, AssetTransfer transfer) {
       },
     ),
   ).whenComplete(controller.dispose);
+}
+
+/// 웹 `TransferDetailDialog` 정합 — "8월 3일 (월) 00:00".
+///
+/// 서버가 주는 `YYYY-MM-DDTHH:mm:ss` 를 그대로 찍으면 초까지 나오고 요일도 없다.
+/// 시각은 00:00 이어도 감추지 않는다 — 목록 행은 감추지만(시각 없는 거래가 흔하다)
+/// 상세는 웹과 같이 항상 보여 준다.
+String _dateLabel(String? iso) {
+  if (iso == null || iso.length < 10) return '-';
+  final d = DateTime.tryParse(iso.substring(0, 10));
+  if (d == null) return iso;
+  final hhmm = iso.length >= 16 ? iso.substring(11, 16) : '';
+  return hhmm.isEmpty ? monthDayDow(d) : '${monthDayDow(d)} $hhmm';
 }
 
 class _TransferDetailBody extends ConsumerStatefulWidget {
@@ -138,7 +152,7 @@ class _TransferDetailBodyState extends ConsumerState<_TransferDetailBody> {
         (l.expInterest, krwSigned(tr.interestAmount!, masked, unit: true)),
         (l.transferPrincipal, krwSigned(tr.principalAmount ?? 0, masked, unit: true)),
       ],
-      (l.expDate, (tr.transferDate ?? '-').replaceFirst('T', ' ')),
+      (l.expDate, _dateLabel(tr.transferDate)),
       if ((tr.description ?? '').isNotEmpty) (l.expDescription, tr.description!),
     ];
 
