@@ -35,8 +35,9 @@ void showRecurringDetailSheet(
   showPSheet<void>(
     context,
     title: l.navRecurring,
-    contentBuilder: (ctx, scrollCtrl) =>
-        _Body(item: item, scrollController: scrollCtrl),
+    // 내용이 짧다 — 0.85 기본을 쓰면 아래가 텅 빈 채로 뜬다. content 높이로 접는다.
+    shrinkWrap: true,
+    contentBuilder: (ctx, _) => _Body(item: item),
     footerBuilder: (ctx) => _Footer(
       item: item,
       onEdit: () {
@@ -56,9 +57,8 @@ void showRecurringDetailSheet(
 }
 
 class _Body extends ConsumerWidget {
-  const _Body({required this.item, required this.scrollController});
+  const _Body({required this.item});
   final RecurringTransaction item;
-  final ScrollController scrollController;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -89,10 +89,13 @@ class _Body extends ConsumerWidget {
             3,
           );
 
-    return ListView(
-      controller: scrollController,
+    // shrinkWrap 시트라 ListView 가 아니라 Column 이다(showPSheet 문서).
+    return Padding(
       padding: const EdgeInsets.fromLTRB(PSpace.xl, 0, PSpace.xl, PSpace.x16),
-      children: [
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
         PDetailHero(
           icon: Container(
             width: 32,
@@ -170,7 +173,8 @@ class _Body extends ConsumerWidget {
               ],
             ),
           ),
-      ],
+        ],
+      ),
     );
   }
 }
