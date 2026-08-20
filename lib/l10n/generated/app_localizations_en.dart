@@ -4258,6 +4258,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get recurringEndLabel => 'End';
 
   @override
+  String get recurringExecutionTime => 'Execution time';
+
+  @override
   String get recurringIndefiniteDesc => 'Repeat until stopped';
 
   @override

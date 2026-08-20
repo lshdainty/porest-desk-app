@@ -4206,6 +4206,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get recurringEndLabel => '종료';
 
   @override
+  String get recurringExecutionTime => '실행 시각';
+
+  @override
   String get recurringIndefiniteDesc => '중지할 때까지 계속 반복';
 
   @override

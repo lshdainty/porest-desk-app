@@ -29,6 +29,7 @@ abstract class RecurringTransaction with _$RecurringTransaction {
     int? intervalValue,
     int? dayOfWeek,
     int? dayOfMonth,
+    String? executionTime, // 'HH:mm:ss' — 실행분을 만들 시각 [userClock]
     String? startDate, // 'YYYY-MM-DD'
     String? endDate,
     int? maxOccurrences,
