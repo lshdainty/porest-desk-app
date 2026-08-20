@@ -3465,6 +3465,22 @@ class AppLocalizationsKo extends AppLocalizations {
   String get hideAmountsSaved => '저장했어요';
 
   @override
+  String get hideAmountsKindLabel => '거래 종류';
+
+  @override
+  String get hideAmountsKindNote =>
+      '화면과 상관없이 그 종류의 거래 금액을 가려요. 수입이나 지출을 가리면 합계도 함께 가려집니다.';
+
+  @override
+  String get hideCardKindExpense => '지출 거래';
+
+  @override
+  String get hideCardKindIncome => '수입 거래';
+
+  @override
+  String get hideCardKindTransfer => '이체 거래';
+
+  @override
   String get hideAmountsPageHome => '홈';
 
   @override

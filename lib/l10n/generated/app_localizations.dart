@@ -6506,6 +6506,36 @@ abstract class AppLocalizations {
   /// **'저장했어요'**
   String get hideAmountsSaved;
 
+  /// No description provided for @hideAmountsKindLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'거래 종류'**
+  String get hideAmountsKindLabel;
+
+  /// No description provided for @hideAmountsKindNote.
+  ///
+  /// In ko, this message translates to:
+  /// **'화면과 상관없이 그 종류의 거래 금액을 가려요. 수입이나 지출을 가리면 합계도 함께 가려집니다.'**
+  String get hideAmountsKindNote;
+
+  /// No description provided for @hideCardKindExpense.
+  ///
+  /// In ko, this message translates to:
+  /// **'지출 거래'**
+  String get hideCardKindExpense;
+
+  /// No description provided for @hideCardKindIncome.
+  ///
+  /// In ko, this message translates to:
+  /// **'수입 거래'**
+  String get hideCardKindIncome;
+
+  /// No description provided for @hideCardKindTransfer.
+  ///
+  /// In ko, this message translates to:
+  /// **'이체 거래'**
+  String get hideCardKindTransfer;
+
   /// No description provided for @hideAmountsPageHome.
   ///
   /// In ko, this message translates to:

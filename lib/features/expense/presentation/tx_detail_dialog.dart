@@ -10,7 +10,7 @@ import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/core/format/date.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
-import 'package:porest_desk_app/core/settings/settings_notifier.dart';
+import 'package:porest_desk_app/core/settings/mask_flags.dart';
 import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
 import 'package:porest_desk_app/shared/widgets/p_detail.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
@@ -146,7 +146,11 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
-    final masked = ref.watch(hideCardProvider('ledger.txDetail'));
+    // 이 거래의 종류로 판정한다 — 화면 카드('거래 상세')가 켜졌거나 그 종류 카드가
+    // 켜졌으면 가린다. 부호가 아니라 타입으로 가른다(환불이 음수 지출이라 부호로는 샌다).
+    final masked = ref
+        .watch(maskFlagsProvider('ledger.txDetail'))
+        .ofType(widget.expense.expenseType);
     final e = widget.expense;
     final isIncome = e.expenseType == 'INCOME';
     // 분할 내역 — 퀵액션 배지 개수 + 요약 카드(내역·비율) 표시용.
@@ -577,7 +581,7 @@ class _MerchantHistorySection extends ConsumerWidget {
                 category: h.categoryRowId == null
                     ? null
                     : categories.byRowId(h.categoryRowId!),
-                masked: masked,
+                flags: ref.watch(maskFlagsProvider('ledger.txDetail')),
                 interactive: false,
               ),
           ],

@@ -7,6 +7,7 @@ import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
+import 'package:porest_desk_app/core/settings/mask_flags.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/icons/lucide_icon_map.dart';
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
@@ -26,14 +27,15 @@ class ExpenseRow extends StatelessWidget {
   const ExpenseRow({
     required this.expense,
     required this.category,
-    required this.masked,
+    required this.flags,
     this.interactive = true,
     super.key,
   });
 
   final Expense expense;
   final ExpenseCategory? category;
-  final bool masked;
+  /// 화면 카드 + 종류 카드. 행이 자기 종류(수입/지출)로 판정한다.
+  final MaskFlags flags;
   /// false 면 InkWell tap 비활성 — 단순 표시 용도 (예: 가맹점 history).
   final bool interactive;
 
@@ -134,7 +136,7 @@ class ExpenseRow extends StatelessWidget {
             ),
             const SizedBox(width: PSpace.x8),
             Text(
-              krwSigned(expense.signedAmount, masked,
+              krwSigned(expense.signedAmount, flags.ofType(expense.expenseType),
                   sign: expense.signedAmount > 0 ? '+' : '', unit: true),
               // 행 금액은 지출/수입 무관 일반 텍스트색 — 색 구분은 날짜 헤더 일 합계만(사용자 결정).
               style: PTypo.money.copyWith(

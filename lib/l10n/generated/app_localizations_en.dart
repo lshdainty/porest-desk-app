@@ -3511,6 +3511,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get hideAmountsSaved => 'Saved';
 
   @override
+  String get hideAmountsKindLabel => 'Transaction type';
+
+  @override
+  String get hideAmountsKindNote =>
+      'Hides amounts of that transaction type on every screen. Hiding income or expense also hides totals.';
+
+  @override
+  String get hideCardKindExpense => 'Expense';
+
+  @override
+  String get hideCardKindIncome => 'Income';
+
+  @override
+  String get hideCardKindTransfer => 'Transfers';
+
+  @override
   String get hideAmountsPageHome => 'Home';
 
   @override

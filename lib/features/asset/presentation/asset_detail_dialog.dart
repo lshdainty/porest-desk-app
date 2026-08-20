@@ -15,6 +15,8 @@ import 'package:porest_desk_app/core/format/chart_axis.dart';
 import 'package:porest_desk_app/core/format/chart_palette.dart';
 import 'package:porest_desk_app/core/format/date.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
+import 'package:porest_desk_app/core/settings/hide_amounts_cards.dart';
+import 'package:porest_desk_app/core/settings/mask_flags.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/core/sync/keep_alive_refresh.dart';
@@ -379,7 +381,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
             async: recentAsync,
             transfers: assetTransfers,
             perspectiveAssetRowId: asset.rowId,
-            masked: masked,
+            flags: ref.watch(maskFlagsProvider('asset.detail')),
             tokens: t),
         ],
       ],
@@ -1217,13 +1219,14 @@ class _ChartPlaceholder extends StatelessWidget {
 class _RecentExpenses extends StatelessWidget {
   const _RecentExpenses({
     required this.async,
-    required this.masked,
+    required this.flags,
     required this.tokens,
     this.transfers = const [],
     this.perspectiveAssetRowId,
   });
   final AsyncValue<List<Expense>> async;
-  final bool masked;
+  /// 화면 카드 + 종류 카드 — 행·일합계마다 자기 종류로 판정한다.
+  final MaskFlags flags;
   final PorestTokens tokens;
   /// 이 자산에 걸린 이체. 지출/수입 일 합계에는 넣지 않고 그날 행 뒤에만 붙인다.
   final List<AssetTransfer> transfers;
@@ -1308,12 +1311,15 @@ class _RecentExpenses extends StatelessWidget {
             child: _DayGroupHeader(
               dayKey: entries[gi].key,
               items: entries[gi].value,
-              masked: masked,
+              flags: flags,
               tokens: tokens,
             ),
           ),
           for (final e in entries[gi].value)
-            _ExpenseRow(expense: e, masked: masked, tokens: tokens),
+            _ExpenseRow(
+                expense: e,
+                masked: flags.ofType(e.expenseType),
+                tokens: tokens),
           // 이체는 시각이 없어(LocalDate) 그날의 맨 뒤 — web 정렬과 같은 자리.
           for (final tr in transfers.where((x) =>
               (x.transferDate ?? '').length >= 10 &&
@@ -1321,7 +1327,7 @@ class _RecentExpenses extends StatelessWidget {
             TransferRow(
               key: ValueKey('t${tr.rowId}'),
               transfer: tr,
-              masked: masked,
+              flags: flags,
               perspectiveAssetRowId: perspectiveAssetRowId,
               onTap: () => showTransferDetailSheet(context, tr),
             ),
@@ -1336,12 +1342,13 @@ class _DayGroupHeader extends StatelessWidget {
   const _DayGroupHeader({
     required this.dayKey,
     required this.items,
-    required this.masked,
+    required this.flags,
     required this.tokens,
   });
   final String dayKey;
   final List<Expense> items;
-  final bool masked;
+  /// 지출합·수입합이 각자 종류를 갖는다.
+  final MaskFlags flags;
   final PorestTokens tokens;
 
   @override
@@ -1370,7 +1377,7 @@ class _DayGroupHeader extends StatelessWidget {
         const Spacer(),
         if (dayExpense > 0)
           Text(
-            krwSigned(dayExpense, masked, sign: '−', unit: true),
+            krwSigned(dayExpense, flags.of(MaskKind.expense), sign: '−', unit: true),
             style: PTypo.caption.copyWith(
               color: tokens.fgExpense,
               fontWeight: PFontWeight.semi,
@@ -1379,7 +1386,7 @@ class _DayGroupHeader extends StatelessWidget {
         if (dayIncome > 0) ...[
           if (dayExpense > 0) const SizedBox(width: PSpace.x8),
           Text(
-            krwSigned(dayIncome, masked, sign: '+', unit: true),
+            krwSigned(dayIncome, flags.of(MaskKind.income), sign: '+', unit: true),
             style: PTypo.caption.copyWith(
               color: tokens.fgIncome,
               fontWeight: PFontWeight.semi,
@@ -2433,7 +2440,9 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
                 Padding(
                   padding: const EdgeInsets.only(top: PSpace.x16),
                   child: _RecentExpenses(
-                      async: usageAsync, masked: masked, tokens: t),
+                      async: usageAsync,
+                      flags: ref.watch(maskFlagsProvider('asset.detail')),
+                      tokens: t),
                 )
               else
                 Builder(builder: (context) {
