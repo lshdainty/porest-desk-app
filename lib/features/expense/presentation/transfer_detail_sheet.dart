@@ -30,9 +30,11 @@ void showTransferDetailSheet(BuildContext context, AssetTransfer transfer) {
   showPSheet<void>(
     context,
     title: l.expTypeTransfer,
-    contentBuilder: (ctx, scrollCtrl) => _TransferDetailBody(
+    // 네댓 줄짜리 목록이라 화면 비율(기본 0.85)로 점유하면 아래가 통째로 빈다.
+    // 다른 시트들과 같이 content 높이로 wrap 한다(웹 dialog 정합).
+    shrinkWrap: true,
+    contentBuilder: (ctx, _) => _TransferDetailBody(
       transfer: transfer,
-      scrollController: scrollCtrl,
       controller: controller,
     ),
     footerBuilder: (ctx) => AnimatedBuilder(
@@ -60,11 +62,9 @@ void showTransferDetailSheet(BuildContext context, AssetTransfer transfer) {
 class _TransferDetailBody extends ConsumerStatefulWidget {
   const _TransferDetailBody({
     required this.transfer,
-    required this.scrollController,
     required this.controller,
   });
   final AssetTransfer transfer;
-  final ScrollController scrollController;
   final PSheetController controller;
 
   @override
@@ -142,51 +142,56 @@ class _TransferDetailBodyState extends ConsumerState<_TransferDetailBody> {
       if ((tr.description ?? '').isNotEmpty) (l.expDescription, tr.description!),
     ];
 
-    return ListView(
-      controller: widget.scrollController,
-      padding: const EdgeInsets.symmetric(vertical: PSpace.x8),
-      children: [
-        // 왜 고칠 수 없는지 알려 준다 — 버튼만 없으면 고장으로 보인다.
-        if (tr.autoSource != null)
-          Container(
-            margin: const EdgeInsets.only(bottom: PSpace.x8),
-            padding: const EdgeInsets.symmetric(
-                horizontal: PSpace.x12, vertical: PSpace.x8),
-            decoration: BoxDecoration(
-              color: context.tokens.bgMuted,
-              borderRadius: PRadius.brMd,
+    // shrinkWrap sheet 라 바깥이 이미 스크롤 — 여기선 Column 을 쓴다(중첩 스크롤 금지).
+    // 좌우 24 는 시트 헤더·footer 와 같은 자리에 서기 위한 값이다.
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(PSpace.xl, 0, PSpace.xl, PSpace.x16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // 왜 고칠 수 없는지 알려 준다 — 버튼만 없으면 고장으로 보인다.
+          if (tr.autoSource != null)
+            Container(
+              margin: const EdgeInsets.only(bottom: PSpace.x8),
+              padding: const EdgeInsets.symmetric(
+                  horizontal: PSpace.x12, vertical: PSpace.x8),
+              decoration: BoxDecoration(
+                color: context.tokens.bgMuted,
+                borderRadius: PRadius.brMd,
+              ),
+              child: Text(
+                switch (tr.autoSource) {
+                  'TRADE_SETTLEMENT' => l.transferAutoTradeSettlement,
+                  'CARD_PAYMENT' => l.transferAutoCardPayment,
+                  'CARD_REFUND' => l.transferAutoCardRefund,
+                  _ => l.transferAutoDefault,
+                },
+                style: PTypo.caption.copyWith(color: context.tokens.fgTertiary),
+              ),
             ),
-            child: Text(
-              switch (tr.autoSource) {
-                'TRADE_SETTLEMENT' => l.transferAutoTradeSettlement,
-                'CARD_PAYMENT' => l.transferAutoCardPayment,
-                'CARD_REFUND' => l.transferAutoCardRefund,
-                _ => l.transferAutoDefault,
-              },
-              style: PTypo.caption.copyWith(color: context.tokens.fgTertiary),
+          for (final (label, value) in rows)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: PSpace.x8),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: 96,
+                    child: Text(label,
+                        style: PTypo.caption.copyWith(color: t.fgTertiary)),
+                  ),
+                  const SizedBox(width: PSpace.x12),
+                  Expanded(
+                    child: Text(value,
+                        style: PTypo.body.copyWith(
+                            color: t.fgPrimary, fontWeight: PFontWeight.semi)),
+                  ),
+                ],
+              ),
             ),
-          ),
-        for (final (label, value) in rows)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: PSpace.x8),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  width: 96,
-                  child: Text(label,
-                      style: PTypo.caption.copyWith(color: t.fgTertiary)),
-                ),
-                const SizedBox(width: PSpace.x12),
-                Expanded(
-                  child: Text(value,
-                      style: PTypo.body.copyWith(
-                          color: t.fgPrimary, fontWeight: PFontWeight.semi)),
-                ),
-              ],
-            ),
-          ),
-      ],
+        ],
+      ),
     );
   }
 }
