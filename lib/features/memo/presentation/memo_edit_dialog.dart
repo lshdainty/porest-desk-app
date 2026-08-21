@@ -10,7 +10,6 @@ import 'package:porest_desk_app/shared/widgets/p_color_picker.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_section_label.dart';
 import 'package:porest_desk_app/shared/widgets/p_select.dart';
-import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/shared/widgets/p_switch.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
 import 'package:porest_desk_app/features/memo/application/memo_providers.dart';
@@ -92,7 +91,6 @@ class _BodyState extends ConsumerState<_Body> {
 
   Future<void> _submit() async {
     if (_submitting) return;
-    final l = AppLocalizations.of(context);
     final title = _titleCtrl.text.trim();
     if (title.isEmpty) {
       setState(() => _titleError = true);
@@ -128,10 +126,8 @@ class _BodyState extends ConsumerState<_Body> {
       invalidateConstellation(ref);
       if (!mounted) return;
       Navigator.of(context).pop();
-    } on ApiException catch (e) {
+    } on ApiException {
       if (!mounted) return;
-      showPSnackBar(context, l.memoActionFailed(e.message),
-          severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setSubmitting(false);
     }

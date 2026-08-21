@@ -19,7 +19,6 @@ import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
 import 'package:porest_desk_app/shared/widgets/p_swipe_actions.dart';
-import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
 import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
@@ -69,13 +68,8 @@ class _PresetScreenState extends ConsumerState<PresetScreen> {
       await repo.delete(p.rowId);
       ref.invalidate(presetListProvider);
       if (!mounted) return;
-    } on ApiException catch (e) {
+    } on ApiException {
       if (!mounted) return;
-      showPSnackBar(
-        context,
-        '${l.presetDeleteFailed}: ${e.message}',
-        severity: PSnackSeverity.error,
-      );
     }
   }
 

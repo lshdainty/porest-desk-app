@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
@@ -23,15 +21,10 @@ import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 /// 특정 요청만 빼려면 `Options(extra: {kSilentErrorToast: true})`.
 const String kSilentErrorToast = 'silentErrorToast';
 
-/// 화면이 자기 에러 토스트를 띄울 시간. 사용자가 알아채기 전 길이면서,
-/// catch 블록이 도는 데는 충분하다(같은 이벤트 루프 턴 안에서 끝난다).
-const Duration _graceWindow = Duration(milliseconds: 400);
-
 /// 같은 메시지 연타 방지 — 병렬 요청이 같은 에러로 떨어질 때.
 const Duration _throttle = Duration(seconds: 3);
 
 GlobalKey<ScaffoldMessengerState>? _messengerKey;
-Timer? _pending;
 final Map<String, DateTime> _recent = {};
 
 /// 앱 시작 시 한 번 등록. 인터셉터에는 BuildContext 가 없어 이 키로 토스트를 띄운다.
@@ -39,19 +32,9 @@ void registerErrorToastMessenger(GlobalKey<ScaffoldMessengerState> key) {
   _messengerKey = key;
 }
 
-/// 화면이 자기 에러 토스트를 띄웠다 — 대기 중인 전역 토스트를 취소한다.
-/// [showPSnackBar] 가 error severity 로 호출될 때 자동으로 불린다.
-void cancelPendingGlobalErrorToast() {
-  _pending?.cancel();
-  _pending = null;
-}
-
-/// 테스트용 — 지연 타이머와 throttle 기록을 비운다.
+/// 테스트용 — throttle 기록을 비운다.
 @visibleForTesting
-void resetGlobalErrorToastState() {
-  cancelPendingGlobalErrorToast();
-  _recent.clear();
-}
+void resetGlobalErrorToastState() => _recent.clear();
 
 class ErrorToastInterceptor extends Interceptor {
   @override
@@ -72,17 +55,13 @@ class ErrorToastInterceptor extends Interceptor {
     final last = _recent[message];
     if (last != null && DateTime.now().difference(last) < _throttle) return;
 
-    _pending?.cancel();
-    _pending = Timer(_graceWindow, () {
-      _pending = null;
-      final key = _messengerKey;
-      final ctx = key?.currentContext;
-      final state = key?.currentState;
-      if (ctx == null || state == null || !ctx.mounted) return;
-      _recent[message] = DateTime.now();
-      // ctx 는 테마·로케일 조회용(둘 다 messenger 위에 있다), state 는 표시용.
-      showPSnackBar(ctx, message,
-          severity: PSnackSeverity.error, messenger: state);
-    });
+    final key = _messengerKey;
+    final ctx = key?.currentContext;
+    final state = key?.currentState;
+    if (ctx == null || state == null || !ctx.mounted) return;
+    _recent[message] = DateTime.now();
+    // ctx 는 테마·로케일 조회용(둘 다 messenger 위에 있다), state 는 표시용.
+    showPSnackBar(ctx, message,
+        severity: PSnackSeverity.error, messenger: state);
   }
 }

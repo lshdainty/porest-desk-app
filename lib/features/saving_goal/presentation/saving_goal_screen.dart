@@ -19,7 +19,6 @@ import 'package:porest_desk_app/shared/widgets/p_card.dart';
 import 'package:porest_desk_app/shared/widgets/p_divider.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
-import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/shared/widgets/p_swipe_actions.dart';
 import 'package:porest_desk_app/features/saving_goal/application/saving_goal_providers.dart';
 import 'package:porest_desk_app/features/saving_goal/domain/saving_goal.dart';
@@ -35,15 +34,12 @@ class SavingGoalScreen extends ConsumerWidget {
   /// 수정 시트의 삭제와 같은 저장소·무효화 경로를 쓴다(문구도 같은 키).
   Future<void> _deleteGoal(
       BuildContext context, WidgetRef ref, SavingGoal goal) async {
-    final l = AppLocalizations.of(context);
     try {
       final repo = await ref.read(savingGoalRepositoryProvider.future);
       await repo.delete(goal.rowId);
       ref.invalidate(savingGoalListProvider);
-    } on ApiException catch (e) {
+    } on ApiException {
       if (!context.mounted) return;
-      showPSnackBar(context, '${l.savingGoalDeleteFailed}: ${e.message}',
-          severity: PSnackSeverity.error);
     }
   }
 

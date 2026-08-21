@@ -14,7 +14,6 @@ import 'package:porest_desk_app/shared/widgets/p_chip.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_search_field.dart';
 import 'package:porest_desk_app/shared/widgets/p_select.dart';
-import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
@@ -277,10 +276,8 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
       ref.invalidate(assetsProvider);
       if (!mounted) return;
       Navigator.of(context).pop();
-    } on ApiException catch (e) {
+    } on ApiException {
       if (!mounted) return;
-      showPSnackBar(context, '${l.assetActionFailed}: ${e.message}',
-          severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setSubmitting(false);
     }

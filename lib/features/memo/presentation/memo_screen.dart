@@ -15,7 +15,6 @@ import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/shared/widgets/p_empty_state.dart';
 import 'package:porest_desk_app/shared/widgets/p_search_field.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
-import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/features/memo/application/memo_providers.dart';
 import 'package:porest_desk_app/features/memo/domain/memo.dart';
 import 'package:porest_desk_app/features/memo/presentation/memo_actions.dart';
@@ -244,18 +243,12 @@ class _MemoScreenState extends ConsumerState<MemoScreen> {
   }
 
   Future<void> _togglePin(Memo memo) async {
-    final l = AppLocalizations.of(context);
     try {
       final repo = await ref.read(memoRepositoryProvider.future);
       await repo.pin(memo.rowId);
       ref.invalidate(memoListProvider);
-    } on ApiException catch (e) {
+    } on ApiException {
       if (!mounted) return;
-      showPSnackBar(
-        context,
-        l.memoActionFailed(e.message),
-        severity: PSnackSeverity.error,
-      );
     }
   }
 }

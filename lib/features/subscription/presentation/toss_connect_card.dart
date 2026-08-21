@@ -53,9 +53,6 @@ class _TossConnectCardState extends ConsumerState<TossConnectCard> {
         showPSnackBar(context, okMsg, severity: PSnackSeverity.success);
       }
     } catch (_) {
-      if (mounted) {
-        showPSnackBar(context, errMsg, severity: PSnackSeverity.error);
-      }
     } finally {
       if (mounted) setState(() => _busy = false);
     }

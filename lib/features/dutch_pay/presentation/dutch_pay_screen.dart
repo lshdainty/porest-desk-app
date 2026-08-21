@@ -17,7 +17,6 @@ import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_card.dart';
 import 'package:porest_desk_app/shared/widgets/p_floating_action_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
-import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/features/dutch_pay/application/dutch_pay_providers.dart';
 import 'package:porest_desk_app/features/dutch_pay/domain/dutch_pay.dart';
@@ -279,11 +278,8 @@ class _DutchPayScreenState extends ConsumerState<DutchPayScreen> {
       final repo = await ref.read(dutchPayRepositoryProvider.future);
       await repo.markPaid(dpId, pid);
       ref.invalidate(dutchPayListProvider);
-    } on ApiException catch (e) {
+    } on ApiException {
       if (!mounted) return;
-      final l = AppLocalizations.of(context);
-      showPSnackBar(context, '${l.dutchActionFailed}: ${e.message}',
-          severity: PSnackSeverity.error);
     }
   }
 
@@ -292,11 +288,8 @@ class _DutchPayScreenState extends ConsumerState<DutchPayScreen> {
       final repo = await ref.read(dutchPayRepositoryProvider.future);
       await repo.settle(id);
       ref.invalidate(dutchPayListProvider);
-    } on ApiException catch (e) {
+    } on ApiException {
       if (!mounted) return;
-      final l = AppLocalizations.of(context);
-      showPSnackBar(context, '${l.dutchSettleFailed}: ${e.message}',
-          severity: PSnackSeverity.error);
     }
   }
 
@@ -305,11 +298,8 @@ class _DutchPayScreenState extends ConsumerState<DutchPayScreen> {
       final repo = await ref.read(dutchPayRepositoryProvider.future);
       await repo.delete(dp.rowId);
       ref.invalidate(dutchPayListProvider);
-    } on ApiException catch (e) {
+    } on ApiException {
       if (!mounted) return;
-      final l = AppLocalizations.of(context);
-      showPSnackBar(context, '${l.dutchDeleteFailed}: ${e.message}',
-          severity: PSnackSeverity.error);
     }
   }
 }

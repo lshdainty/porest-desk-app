@@ -372,9 +372,8 @@ void _showCreateDialog(BuildContext context, WidgetRef ref) {
       if (!context.mounted) return;
       // 시트는 root navigator 소속(p_modal useRootNavigator) — root 명시.
       Navigator.of(context, rootNavigator: true).pop();
-    } on ApiException catch (e) {
+    } on ApiException {
       if (!context.mounted) return;
-      showPSnackBar(context, '${l.calActionFailed}: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       controller.setSubmitting(false);
     }
@@ -429,9 +428,8 @@ void _showJoinDialog(BuildContext context, WidgetRef ref) {
       // 시트는 root navigator 소속(p_modal useRootNavigator) — root 명시.
       Navigator.of(context, rootNavigator: true).pop();
       showPSnackBar(context, l.calJoinedCalendar(joined.calendarName), severity: PSnackSeverity.success);
-    } on ApiException catch (e) {
+    } on ApiException {
       if (!context.mounted) return;
-      showPSnackBar(context, '${l.calJoinFailed}: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       controller.setSubmitting(false);
     }
@@ -538,7 +536,6 @@ class _ManageBodyState extends ConsumerState<_ManageBody> {
 
   Future<void> _saveMeta() async {
     if (_nameCtrl.text.trim().isEmpty) return;
-    final l = AppLocalizations.of(context);
     widget.controller.setSubmitting(true);
     try {
       final repo = await ref.read(userCalendarRepositoryProvider.future);
@@ -547,8 +544,8 @@ class _ManageBodyState extends ConsumerState<_ManageBody> {
       _baseName = _nameCtrl.text.trim();
       _baseColor = _color;
       widget.controller.setCanSubmit(false);
-    } on ApiException catch (e) {
-      if (mounted) showPSnackBar(context, '${l.calActionFailed}: ${e.message}', severity: PSnackSeverity.error);
+    } on ApiException {
+      // 토스트는 ErrorToastInterceptor 가 띄운다 — 여기선 흐름만 멈춘다.
     } finally {
       widget.controller.setSubmitting(false);
     }
@@ -561,8 +558,8 @@ class _ManageBodyState extends ConsumerState<_ManageBody> {
       await repo.regenerateInviteCode(cal.rowId);
       ref.invalidate(userCalendarListProvider);
       if (mounted) showPSnackBar(context, l.calInviteCodeRegenerated, severity: PSnackSeverity.success);
-    } on ApiException catch (e) {
-      if (mounted) showPSnackBar(context, '${l.calActionFailed}: ${e.message}', severity: PSnackSeverity.error);
+    } on ApiException {
+      // 토스트는 ErrorToastInterceptor 가 띄운다 — 여기선 흐름만 멈춘다.
     }
   }
 
@@ -573,14 +570,13 @@ class _ManageBodyState extends ConsumerState<_ManageBody> {
   }
 
   Future<void> _changeRole(CalendarMember member, String permission) async {
-    final l = AppLocalizations.of(context);
     try {
       final repo = await ref.read(userCalendarRepositoryProvider.future);
       await repo.changeMemberRole(cal.rowId, member.rowId, permission);
       ref.invalidate(calendarMembersProvider(cal.rowId));
       ref.invalidate(userCalendarListProvider);
-    } on ApiException catch (e) {
-      if (mounted) showPSnackBar(context, '${l.calActionFailed}: ${e.message}', severity: PSnackSeverity.error);
+    } on ApiException {
+      // 토스트는 ErrorToastInterceptor 가 띄운다 — 여기선 흐름만 멈춘다.
     }
   }
 
@@ -599,8 +595,8 @@ class _ManageBodyState extends ConsumerState<_ManageBody> {
       await repo.removeMember(cal.rowId, member.rowId);
       ref.invalidate(calendarMembersProvider(cal.rowId));
       ref.invalidate(userCalendarListProvider);
-    } on ApiException catch (e) {
-      if (mounted) showPSnackBar(context, '${l.calActionFailed}: ${e.message}', severity: PSnackSeverity.error);
+    } on ApiException {
+      // 토스트는 ErrorToastInterceptor 가 띄운다 — 여기선 흐름만 멈춘다.
     }
   }
 
@@ -619,8 +615,8 @@ class _ManageBodyState extends ConsumerState<_ManageBody> {
       await repo.delete(cal.rowId);
       ref.invalidate(userCalendarListProvider);
       if (mounted) Navigator.of(context).pop();
-    } on ApiException catch (e) {
-      if (mounted) showPSnackBar(context, '${l.calDeleteFailed}: ${e.message}', severity: PSnackSeverity.error);
+    } on ApiException {
+      // 토스트는 ErrorToastInterceptor 가 띄운다 — 여기선 흐름만 멈춘다.
     }
   }
 

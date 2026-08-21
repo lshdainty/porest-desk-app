@@ -20,7 +20,6 @@ import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_empty_state.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
 import 'package:porest_desk_app/shared/widgets/p_swipe_actions.dart';
-import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
 
 /// 할일 태그 관리 — design settings-todo-tags.jsx TodoTagManager 미러.
@@ -88,7 +87,6 @@ class _BodyState extends ConsumerState<_Body> {
   Future<void> _save(TodoTag? origin, String name, String color) async {
     if (_busy) return;
     setState(() => _busy = true);
-    final l = AppLocalizations.of(context);
     try {
       final repo = await ref.read(todoTagRepositoryProvider.future);
       if (origin == null) {
@@ -98,14 +96,9 @@ class _BodyState extends ConsumerState<_Body> {
       }
       ref.invalidate(todoTagListProvider);
       if (mounted) setState(() => _busy = false);
-    } on ApiException catch (e) {
+    } on ApiException {
       if (!mounted) return;
       setState(() => _busy = false);
-      showPSnackBar(
-        context,
-        '${origin == null ? l.todoAddFailed : l.todoUpdateFailed}: ${e.message}',
-        severity: PSnackSeverity.error,
-      );
     }
   }
 
@@ -125,14 +118,9 @@ class _BodyState extends ConsumerState<_Body> {
       await repo.delete(tag.rowId);
       ref.invalidate(todoTagListProvider);
       if (mounted) setState(() => _busy = false);
-    } on ApiException catch (e) {
+    } on ApiException {
       if (!mounted) return;
       setState(() => _busy = false);
-      showPSnackBar(
-        context,
-        '${AppLocalizations.of(context).todoDeleteFailed}: ${e.message}',
-        severity: PSnackSeverity.error,
-      );
     }
   }
 

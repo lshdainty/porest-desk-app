@@ -14,7 +14,6 @@ import 'package:porest_desk_app/shared/widgets/p_date_input.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_progress.dart';
 import 'package:porest_desk_app/shared/widgets/p_select.dart';
-import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
 import 'package:porest_desk_app/features/todo/application/todo_providers.dart';
 import 'package:porest_desk_app/features/todo/domain/todo.dart';
@@ -135,9 +134,8 @@ class _BodyState extends ConsumerState<_Body> {
       ref.invalidate(todoListProvider);
       if (!mounted) return;
       Navigator.of(context).pop();
-    } on ApiException catch (e) {
+    } on ApiException {
       if (!mounted) return;
-      showPSnackBar(context, '${AppLocalizations.of(context).todoActionFailed}: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setSubmitting(false);
     }
@@ -367,10 +365,9 @@ class _SubtaskSectionState extends ConsumerState<_SubtaskSection> {
       ref.invalidate(todoSubtasksProvider(widget.parentId));
       _ctrl.clear();
       setState(() => _adding = false);
-    } on ApiException catch (e) {
+    } on ApiException {
       if (!mounted) return;
       setState(() => _adding = false);
-      showPSnackBar(context, '${AppLocalizations.of(context).todoAddFailed}: ${e.message}', severity: PSnackSeverity.error);
     }
   }
 
@@ -381,9 +378,8 @@ class _SubtaskSectionState extends ConsumerState<_SubtaskSection> {
       final repo = await ref.read(todoRepositoryProvider.future);
       await repo.setStatus(sub.rowId, next);
       ref.invalidate(todoSubtasksProvider(widget.parentId));
-    } on ApiException catch (e) {
+    } on ApiException {
       if (!mounted) return;
-      showPSnackBar(context, '${AppLocalizations.of(context).todoStatusChangeFailed}: ${e.message}', severity: PSnackSeverity.error);
     }
   }
 
@@ -392,9 +388,8 @@ class _SubtaskSectionState extends ConsumerState<_SubtaskSection> {
       final repo = await ref.read(todoRepositoryProvider.future);
       await repo.delete(id);
       ref.invalidate(todoSubtasksProvider(widget.parentId));
-    } on ApiException catch (e) {
+    } on ApiException {
       if (!mounted) return;
-      showPSnackBar(context, '${AppLocalizations.of(context).todoDeleteFailed}: ${e.message}', severity: PSnackSeverity.error);
     }
   }
 

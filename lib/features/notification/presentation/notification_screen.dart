@@ -15,7 +15,6 @@ import 'package:porest_desk_app/shared/widgets/p_empty_state.dart';
 import 'package:porest_desk_app/features/notification/application/notification_providers.dart';
 import 'package:porest_desk_app/features/notification/domain/notification.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
-import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 
 class NotificationScreen extends ConsumerWidget {
   const NotificationScreen({super.key});
@@ -49,10 +48,8 @@ class NotificationScreen extends ConsumerWidget {
                 await repo.markAllRead();
                 ref.invalidate(notificationListProvider);
                 ref.invalidate(unreadCountProvider);
-              } on ApiException catch (e) {
+              } on ApiException {
                 if (!context.mounted) return;
-                showPSnackBar(context, '${l.stateError}: ${e.message}',
-                    severity: PSnackSeverity.error);
               }
             },
           ),
@@ -116,13 +113,8 @@ class NotificationScreen extends ConsumerWidget {
                         await repo.delete(n.rowId);
                         ref.invalidate(notificationListProvider);
                         ref.invalidate(unreadCountProvider);
-                      } on ApiException catch (e) {
+                      } on ApiException {
                         if (!context.mounted) return;
-                        showPSnackBar(
-                          context,
-                          '${l.expActionFailed}: ${e.message}',
-                          severity: PSnackSeverity.error,
-                        );
                       }
                     },
                   ),

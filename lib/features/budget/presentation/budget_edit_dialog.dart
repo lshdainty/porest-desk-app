@@ -14,7 +14,6 @@ import 'package:porest_desk_app/shared/widgets/p_chip.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_progress.dart';
 import 'package:porest_desk_app/shared/widgets/p_section_label.dart';
-import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
 import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
@@ -128,7 +127,6 @@ class _BudgetEditBodyState extends ConsumerState<_BudgetEditBody> {
   }
 
   Future<void> _submit() async {
-    final l = AppLocalizations.of(context);
     final amount = int.parse(_amountCtrl.text.replaceAll(',', ''));
     _setSubmitting(true);
     try {
@@ -147,9 +145,8 @@ class _BudgetEditBodyState extends ConsumerState<_BudgetEditBody> {
           (year: widget.year, month: widget.month)));
       if (!mounted) return;
       Navigator.of(context).pop();
-    } on ApiException catch (e) {
+    } on ApiException {
       if (!mounted) return;
-      showPSnackBar(context, '${l.budgetActionFailed}: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setSubmitting(false);
     }

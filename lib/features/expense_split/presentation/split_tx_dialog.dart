@@ -22,7 +22,6 @@ import 'package:porest_desk_app/features/expense/domain/expense_category.dart';
 import 'package:porest_desk_app/features/expense_split/application/expense_split_providers.dart';
 import 'package:porest_desk_app/features/expense_split/data/expense_split_repository.dart';
 import 'package:porest_desk_app/features/expense_split/domain/expense_split.dart';
-import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 
 /// 거래 분할 다이얼로그.
 ///
@@ -332,10 +331,8 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
       _invalidateExpenseAndAssets();
       if (!mounted) return;
       Navigator.of(context).pop();
-    } on ApiException catch (e) {
+    } on ApiException {
       if (!mounted) return;
-      final l = AppLocalizations.of(context);
-      showPSnackBar(context, '${l.expSaveFailed}: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setSubmitting(false);
     }
@@ -360,9 +357,8 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
       _invalidateExpenseAndAssets();
       if (!mounted) return;
       Navigator.of(context).pop();
-    } on ApiException catch (e) {
+    } on ApiException {
       if (!mounted) return;
-      showPSnackBar(context, '${l.expClearFailed}: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setSubmitting(false);
     }

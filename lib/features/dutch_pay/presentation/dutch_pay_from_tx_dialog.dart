@@ -21,7 +21,6 @@ import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
 import 'package:porest_desk_app/features/expense/domain/expense.dart';
 import 'package:porest_desk_app/features/dutch_pay/application/dutch_pay_providers.dart';
-import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
 
 /// 거래 → 더치페이 시작 다이얼로그 (front `DutchPayFromTxDialog` 미러).
@@ -310,10 +309,8 @@ class _BodyState extends ConsumerState<_Body> {
       ref.invalidate(dutchPayListProvider);
       if (!mounted) return;
       Navigator.of(context).pop();
-    } on ApiException catch (e) {
+    } on ApiException {
       if (!mounted) return;
-      final l = AppLocalizations.of(context);
-      showPSnackBar(context, '${l.dutchActionFailed}: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setSubmitting(false);
     }

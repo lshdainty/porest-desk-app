@@ -114,10 +114,6 @@ class _StocksScreenState extends ConsumerState<StocksScreen> {
       }
       ref.invalidate(watchGroupsProvider);
     } catch (_) {
-      if (mounted) {
-        showPSnackBar(context, l.stocksWatchAddFail,
-            severity: PSnackSeverity.error);
-      }
     }
   }
 
@@ -505,8 +501,6 @@ class _GroupEditorSheetBodyState extends ConsumerState<_GroupEditorSheetBody> {
     } catch (_) {
       if (mounted) {
         setState(() => _busy = false);
-        showPSnackBar(context, AppLocalizations.of(context).stocksWatchGroupSaveFail,
-            severity: PSnackSeverity.error);
       }
     }
   }

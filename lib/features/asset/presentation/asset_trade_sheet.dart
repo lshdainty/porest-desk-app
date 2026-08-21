@@ -16,7 +16,6 @@ import 'package:porest_desk_app/features/asset/domain/asset_trade.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_section_label.dart';
 import 'package:porest_desk_app/shared/widgets/p_select.dart';
-import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
 
@@ -218,9 +217,8 @@ class _TradeBodyState extends ConsumerState<_TradeBody> {
       ref.invalidate(assetTradesProvider(widget.asset.rowId));
       if (!mounted) return;
       Navigator.of(context).pop();
-    } on ApiException catch (e) {
+    } on ApiException {
       if (!mounted) return;
-      showPSnackBar(context, e.message, severity: PSnackSeverity.error);
     } finally {
       if (mounted) {
         setState(() => _submitting = false);

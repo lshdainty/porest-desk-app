@@ -17,7 +17,6 @@ import 'package:porest_desk_app/shared/widgets/p_color_picker.dart';
 import 'package:porest_desk_app/shared/widgets/p_empty_state.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
-import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
 import 'package:porest_desk_app/shared/widgets/p_swipe_actions.dart';
 import 'package:porest_desk_app/features/calendar/application/calendar_providers.dart';
@@ -367,10 +366,8 @@ void _showLabelEditor(
       if (!context.mounted) return;
       // 시트는 root navigator 소속(p_modal useRootNavigator) — root 명시.
       Navigator.of(context, rootNavigator: true).pop();
-    } on ApiException catch (e) {
+    } on ApiException {
       if (!context.mounted) return;
-      showPSnackBar(context, '${l.calSaveFailed}: ${e.message}',
-          severity: PSnackSeverity.error);
     } finally {
       controller.setSubmitting(false);
     }
@@ -528,9 +525,7 @@ Future<void> _confirmDelete(
     final repo = await ref.read(calendarRepositoryProvider.future);
     await repo.deleteLabel(label.rowId);
     ref.invalidate(eventLabelsProvider);
-  } on ApiException catch (e) {
+  } on ApiException {
     if (!context.mounted) return;
-    showPSnackBar(context, '${l.calDeleteFailed}: ${e.message}',
-        severity: PSnackSeverity.error);
   }
 }

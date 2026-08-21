@@ -14,7 +14,6 @@ import 'package:porest_desk_app/shared/widgets/p_date_input.dart';
 import 'package:porest_desk_app/shared/widgets/p_icon_picker.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_color_picker.dart';
-import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
 import 'package:porest_desk_app/features/saving_goal/application/saving_goal_providers.dart';
 import 'package:porest_desk_app/features/saving_goal/domain/saving_goal.dart';
@@ -112,7 +111,6 @@ class _BodyState extends ConsumerState<_Body> {
   }
 
   Future<void> _submit() async {
-    final l = AppLocalizations.of(context);
     _setSubmitting(true);
     try {
       final repo = await ref.read(savingGoalRepositoryProvider.future);
@@ -148,9 +146,8 @@ class _BodyState extends ConsumerState<_Body> {
       ref.invalidate(savingGoalListProvider);
       if (!mounted) return;
       Navigator.of(context).pop();
-    } on ApiException catch (e) {
+    } on ApiException {
       if (!mounted) return;
-      showPSnackBar(context, '${l.savingGoalActionFailed}: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setSubmitting(false);
     }
