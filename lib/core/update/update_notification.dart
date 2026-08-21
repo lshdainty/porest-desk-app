@@ -8,8 +8,15 @@
 /// 벽이 되고, 그러면 알림 자체를 꺼 버린다 — 정말 알려야 할 때 닿을 길이 사라진다.
 /// 전체 화면 안내가 `PrefsKeys.updateSkippedBuild` 로 같은 규칙을 지키는 것과 짝이다.
 ///
-/// iOS 는 백그라운드 실행을 보장하지 않아 사실상 안드로이드용이다. 등록은 양쪽 다
-/// 하되 안 돌아도 앱은 멀쩡하다 — 켰을 때의 안내가 그대로 남아 있다.
+/// **안드로이드에서만 돈다.** iOS 는 백그라운드 실행 시점을 OS 가 정해 6시간 주기 같은
+/// 약속이 성립하지 않고(저전력 모드면 아예 안 돈다), 알림을 띄워 봐야 앱이 직접 설치할
+/// 수 없어 AltStore 를 거쳐야 한다 — 두드릴 실익이 적다. 대신 켰을 때의 전체 화면
+/// 안내([UpdateGateScreen])가 iOS 몫을 그대로 맡는다.
+///
+/// 등록만 양쪽에 걸어 두는 것도 안 된다. workmanager 의 iOS 구현이 최소 14.0 을 요구해
+/// 링크 단계에서 빌드가 깨진다 — Dart 쪽에서 안 부르는 것과 별개로 의존성은 붙는다.
+/// 그래서 앱 최소 버전을 14.0 으로 올려 두었다(기기 지원 범위는 그대로다. iOS 13 이
+/// 도는 기기는 전부 14 도 된다).
 library;
 
 import 'dart:io' show Platform;
@@ -59,20 +66,13 @@ void updateCheckDispatcher() {
 ///
 /// 실패해도 던지지 않는다. 알림을 못 걸었다고 앱을 못 쓰게 할 이유가 없다.
 Future<void> initUpdateNotifications() async {
-  if (!(Platform.isAndroid || Platform.isIOS)) return;
+  if (!Platform.isAndroid) return;
   try {
     await _plugin.initialize(
       settings: const InitializationSettings(
         // 앱 아이콘을 그대로 쓴다. 전용 흑백 아이콘을 두면 리소스가 하나 더 늘고,
         // 지금 알림은 이것 하나뿐이라 구분할 대상이 없다.
         android: AndroidInitializationSettings('@mipmap/ic_launcher'),
-        iOS: DarwinInitializationSettings(
-          // 권한은 initialize 가 아니라 아래에서 따로 묻는다 — 안드로이드와 순서를
-          // 맞춰 두 플랫폼이 같은 시점에 뜨게 한다.
-          requestAlertPermission: false,
-          requestBadgePermission: false,
-          requestSoundPermission: false,
-        ),
       ),
       onDidReceiveNotificationResponse: _onTap,
     );
@@ -91,14 +91,7 @@ Future<void> initUpdateNotifications() async {
     // 권한을 여기서 묻는다. 뒤로 미루면 물을 자리가 마땅치 않다 — 알림은 앱 밖에서
     // 두드리는 게 목적이라, 사용자가 설정 화면에 들어와야만 물을 수 있게 만들면
     // 대부분에게 영영 안 닿는다. 거절해도 아무 일도 안 일어난다(알림만 안 뜬다).
-    if (Platform.isAndroid) {
-      await android?.requestNotificationsPermission();
-    } else {
-      await _plugin
-          .resolvePlatformSpecificImplementation<
-              IOSFlutterLocalNotificationsPlugin>()
-          ?.requestPermissions(alert: true, badge: true, sound: true);
-    }
+    await android?.requestNotificationsPermission();
 
     await Workmanager().initialize(updateCheckDispatcher);
     await Workmanager().registerPeriodicTask(
