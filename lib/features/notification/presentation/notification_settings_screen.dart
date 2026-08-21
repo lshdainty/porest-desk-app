@@ -732,6 +732,8 @@ class _TimeFieldState extends State<_TimeField> {
         const SizedBox(height: PSpace.x4),
         // PTextInput 자체는 onTap 미지원이라 GestureDetector(IgnorePointer)로 래핑.
         GestureDetector(
+          // IgnorePointer 자식이면 기본 deferToChild 로는 히트테스트가 전부 실패해 탭이 죽는다.
+          behavior: HitTestBehavior.opaque,
           onTap: () => _pick(context),
           child: IgnorePointer(
             child: PTextInput(
