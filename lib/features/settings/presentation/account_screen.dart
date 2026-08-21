@@ -132,7 +132,8 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                       label: '✎ ${l.actionEdit}',
                       variant: PButtonVariant.ghost,
                       size: PButtonSize.sm,
-                      onPressed: () => showPSnackBar(context, l.accountEditComingSoon),
+                      onPressed: () => showPSnackBar(context, l.accountEditComingSoon,
+                          severity: PSnackSeverity.info),
                     ),
                     const SizedBox(width: PSpace.x8),
                     Container(
@@ -265,7 +266,8 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                       variant: PButtonVariant.outline,
                       size: PButtonSize.sm,
                       onPressed: () =>
-                          showPSnackBar(context, l.accountSocialComingSoon(social.name)),
+                          showPSnackBar(context, l.accountSocialComingSoon(social.name),
+                    severity: PSnackSeverity.info),
                     ),
                   ),
                 ],

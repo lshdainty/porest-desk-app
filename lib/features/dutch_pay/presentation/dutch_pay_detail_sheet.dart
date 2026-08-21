@@ -235,6 +235,7 @@ class _Body extends ConsumerWidget {
     showPSnackBar(
       context,
       l.dutchRequestSent(name.isEmpty ? l.dutchParticipant : name),
+      severity: PSnackSeverity.success,
     );
   }
 
@@ -246,6 +247,7 @@ class _Body extends ConsumerWidget {
       pending > 0
           ? l.dutchRequestSentBulk(pending)
           : l.dutchAllSettled,
+      severity: PSnackSeverity.success,
     );
   }
 }

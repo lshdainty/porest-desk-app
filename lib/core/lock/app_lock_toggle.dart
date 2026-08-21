@@ -34,7 +34,10 @@ Future<void> setAppLockWithAuth(
     case AppLockAuthResult.success:
       await notifier.setAppLock(true);
     case AppLockAuthResult.unavailable:
-      if (context.mounted) showPSnackBar(context, l.appLockUnavailable);
+      if (context.mounted) {
+        showPSnackBar(context, l.appLockUnavailable,
+            severity: PSnackSeverity.warning);
+      }
     case AppLockAuthResult.failure:
       // 취소·불일치 — 켜지 않고 그대로 둔다.
       break;

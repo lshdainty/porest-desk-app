@@ -96,7 +96,8 @@ class _HideAmountsScreenState extends ConsumerState<HideAmountsScreen> {
       }
       await ref.read(settingsProvider.notifier).setHideCards(draft);
       if (!mounted) return;
-      showPSnackBar(context, l.hideAmountsSaved);
+      showPSnackBar(context, l.hideAmountsSaved,
+          severity: PSnackSeverity.success);
       context.pop();
     } finally {
       if (mounted) setState(() => _saving = false);

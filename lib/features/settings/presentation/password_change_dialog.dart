@@ -106,7 +106,8 @@ class _PasswordChangeDialogState extends ConsumerState<_PasswordChangeDialog> {
       );
       if (!mounted) return;
       Navigator.of(context).pop();
-      showPSnackBar(context, l.passwordChanged);
+      showPSnackBar(context, l.passwordChanged,
+          severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() {
