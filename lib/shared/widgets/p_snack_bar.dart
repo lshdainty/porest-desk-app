@@ -57,7 +57,11 @@ void showPSnackBar(
           vertical: PSpace.x12,
         ),
         decoration: BoxDecoration(
-          color: t.bgSurface,
+          // 다크에서 surface(#242938)는 bg-page(#1A1F2E)와 차이가 작고, 분리를
+          // 맡던 그림자는 검은색이라 검은 배경 위에서 효과가 없다. 면을 한 단계
+          // 올려야 실제로 뜬다(sonner.md 2026-08-21). 라이트에선 raised 가
+          // surface 와 같은 값이라 변화 없다.
+          color: t.bgSurfaceRaised,
           border: Border.all(color: t.borderDefault),
           borderRadius: PRadius.brMd,
           boxShadow: t.shadowLg,
