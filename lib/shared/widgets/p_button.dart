@@ -115,7 +115,8 @@ class PButton extends StatelessWidget {
             ),
         PButtonSize.md => TextStyle(
               fontFamily: PTypo.sans,
-              fontSize: PFontSize.bodyMd,
+              // 웹 Button md(text-sm 14)와 같은 값. 사용자 결정.
+              fontSize: PFontSize.body,
               fontWeight: PFontWeight.medium,
               height: 1.0,
             ),
@@ -128,7 +129,7 @@ class PButton extends StatelessWidget {
         // icon-only 전용 (label 금지 assert) — 도달 불가, md와 동일값.
         PButtonSize.iconLg => TextStyle(
               fontFamily: PTypo.sans,
-              fontSize: PFontSize.bodyMd,
+              fontSize: PFontSize.body,
               fontWeight: PFontWeight.medium,
               height: 1.0,
             ),
@@ -141,9 +142,10 @@ class PButton extends StatelessWidget {
         PButtonSize.iconLg => 20,
       };
 
+  // button.md Sizes: sm=radius sm(4), md·lg=radius md(8).
   BorderRadius _radius() => switch (size) {
         PButtonSize.sm => PRadius.brSm,
-        PButtonSize.md => PRadius.brSm,
+        PButtonSize.md => PRadius.brMd,
         PButtonSize.lg => PRadius.brMd,
         PButtonSize.iconLg => PRadius.brFull,
       };
