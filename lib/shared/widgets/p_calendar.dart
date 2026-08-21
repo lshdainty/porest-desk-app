@@ -7,6 +7,7 @@ import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/format/date.dart';
+import 'package:porest_desk_app/shared/widgets/p_select.dart';
 
 /// specs/components/calendar.md 미러 (Flutter inline picker 적응).
 ///
@@ -77,6 +78,38 @@ class _PCalendarState extends State<PCalendar> {
   void _prev() => setState(() => _month = DateTime(_month.year, _month.month - 1));
   void _next() => setState(() => _month = DateTime(_month.year, _month.month + 1));
 
+  /// select 로 고를 년도. 범위를 안 주면 보고 있는 월 기준 ±10년 — 화살표로는
+  /// 못 갈 거리를 덮되 목록이 수백 줄로 늘어지지 않는 폭이다.
+  List<int> get _years {
+    final first = widget.firstDay?.year ?? _month.year - 10;
+    final last = widget.lastDay?.year ?? _month.year + 10;
+    // 보고 있는 월이 범위 밖이어도 select 값이 목록에 있어야 한다.
+    final lo = first < _month.year ? first : _month.year;
+    final hi = last > _month.year ? last : _month.year;
+    return [for (int y = lo; y <= hi; y++) y];
+  }
+
+  /// 그 해에 실제로 갈 수 있는 월. 경계 년도면 앞뒤가 잘린다.
+  List<int> get _months {
+    var lo = 1, hi = 12;
+    final f = widget.firstDay, l = widget.lastDay;
+    if (f != null && _month.year == f.year) lo = f.month;
+    if (l != null && _month.year == l.year) hi = l.month;
+    if (_month.month < lo) lo = _month.month;
+    if (_month.month > hi) hi = _month.month;
+    return [for (int m = lo; m <= hi; m++) m];
+  }
+
+  void _jump({int? year, int? month}) {
+    final y = year ?? _month.year;
+    var m = month ?? _month.month;
+    // 년도를 옮기면 그 해엔 없는 달일 수 있다(경계 년도) — 가장 가까운 달로 접는다.
+    final f = widget.firstDay, l = widget.lastDay;
+    if (f != null && y == f.year && m < f.month) m = f.month;
+    if (l != null && y == l.year && m > l.month) m = l.month;
+    setState(() => _month = DateTime(y, m));
+  }
+
   bool _sameDay(DateTime a, DateTime b) =>
       a.year == b.year && a.month == b.month && a.day == b.day;
 
@@ -126,7 +159,6 @@ class _PCalendarState extends State<PCalendar> {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final now = DateTime.now();
-    final caption = yearMonth(_month);
     final weekdays = weekdayLabels();
 
     // grid 시작: 해당 월 1일이 속한 주의 일요일.
@@ -139,21 +171,46 @@ class _PCalendarState extends State<PCalendar> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // 헤더: prev · caption · next
+          // 헤더: prev · [월][년] · next
+          //
+          // 화살표만 두면 몇 년 전으로 가는 데 수십 번을 눌러야 한다. select 로
+          // 바로 집게 하고, 화살표는 인접 월 이동용으로 남긴다.
           Row(
             children: [
               _NavBtn(icon: LucideIcons.chevronLeft, onTap: _prev),
               Expanded(
                 child: Center(
-                  child: Text(
-                    caption,
-                    style: TextStyle(
-                      fontFamily: PTypo.sans,
-                      // 시트의 주인공이라 titleSm(16)으로는 눌린다.
-                      fontSize: PFontSize.h3,
-                      fontWeight: PFontWeight.semi,
-                      color: t.fgPrimary,
-                    ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SizedBox(
+                        width: 96,
+                        child: PSelect<int>(
+                          value: _month.month,
+                          items: [
+                            for (final m in _months)
+                              PSelectItem(
+                                value: m,
+                                label: monthOnly(DateTime(_month.year, m)),
+                              ),
+                          ],
+                          onChanged: (m) => _jump(month: m),
+                        ),
+                      ),
+                      const SizedBox(width: PSpace.x8),
+                      SizedBox(
+                        width: 110,
+                        child: PSelect<int>(
+                          value: _month.year,
+                          items: [
+                            for (final y in _years)
+                              PSelectItem(
+                                  value: y, label: yearOnly(DateTime(y))),
+                          ],
+                          onChanged: (y) => _jump(year: y),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
