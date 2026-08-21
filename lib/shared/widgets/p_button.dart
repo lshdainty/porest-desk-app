@@ -143,10 +143,13 @@ class PButton extends StatelessWidget {
         PButtonSize.iconLg => 20,
       };
 
-  // button.md Sizes: sm=radius sm(4), md·lg=radius md(8).
+  // specs/components/button.md Sizes: sm·md = radius sm(4), lg = radius md(8),
+  // icon 계열은 예외. "container 는 radius-sm(4px) 고정 / Toss 톤 절제" 가 근거다.
+  // DESIGN.desk.md 표에는 md 가 radius md(8) 로 적혀 있는데 그쪽이 오래된 사본이다
+  // (spec 2026-08-19 / DESIGN.desk.md 2026-05-12).
   BorderRadius _radius() => switch (size) {
         PButtonSize.sm => PRadius.brSm,
-        PButtonSize.md => PRadius.brMd,
+        PButtonSize.md => PRadius.brSm,
         PButtonSize.lg => PRadius.brMd,
         PButtonSize.iconLg => PRadius.brFull,
       };
