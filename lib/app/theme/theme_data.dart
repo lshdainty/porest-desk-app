@@ -89,8 +89,10 @@ abstract final class PorestTheme {
       dialogTheme: DialogThemeData(
         backgroundColor: tokens.bgSurface,
         surfaceTintColor: Colors.transparent,
-        // specs/components/dialog.md md(default): radius-xl(20)
-        shape: RoundedRectangleBorder(borderRadius: PRadius.brXl2),
+        // specs/components/dialog.md: popup 은 세 사이즈 모두 radius-lg(12).
+        // 시트/드로어(20)와 갈라 둔다 — popup 은 가운데 좁게 떠서 20 이 과하고,
+        // 안에 놓이는 버튼이 radius-md(8)라 12 가 맞물린다.
+        shape: RoundedRectangleBorder(borderRadius: PRadius.brLg),
         // dialog.md/alert-dialog.md SoT: title-md(18/600). 기본 titleLarge(h3 20) 대신 명시.
         titleTextStyle: PTypo.h4.copyWith(color: tokens.fgPrimary),
       ),
