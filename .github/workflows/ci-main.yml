@@ -76,6 +76,65 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage/lcov.info
 
+  # ── iOS 를 깨뜨릴 수 있는 PR 인가.
+  #
+  #    이 워크스테이션(WSL)에는 macOS 가 없어 iOS 빌드를 로컬에서 못 돌린다. 그런데
+  #    build-ios 는 PR 에서 안 돌아서, iOS 가 깨져도 머지된 뒤 main 에서야 드러났다.
+  #    실제로 workmanager(iOS 최소 14.0)를 13.0 앱에 넣고 main 을 세 번 연속 빨간불로
+  #    만들었다(#243·#244·#245, 2026-08-21).
+  #
+  #    그렇다고 모든 PR 에서 macOS 러너를 돌리면 문서 한 줄 고칠 때도 10분씩 든다.
+  #    iOS 를 건드릴 수 있는 변경일 때만 켠다.
+  ios-affected:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    outputs:
+      hit: ${{ steps.f.outputs.hit }}
+    steps:
+      - uses: actions/checkout@v4
+        # base 와 비교하려면 두 갈래가 다 있어야 한다.
+        with: { fetch-depth: 0 }
+      - id: f
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          set -euo pipefail
+          git fetch -q origin "${BASE_REF}"
+          # pubspec — 플러그인이 요구하는 최소 iOS 버전이 앱보다 높으면 링크에서 멈춘다.
+          #           Dart 에서 안 불러도 pubspec 에 있는 한 pod 은 붙는다.
+          # ios/    — 말할 것도 없다.
+          if git diff --name-only "origin/${BASE_REF}...HEAD" \
+               | grep -qE '^(pubspec\.(yaml|lock)|ios/)'; then
+            echo "hit=true" >> "$GITHUB_OUTPUT"
+            echo "::notice::iOS 에 영향 가능 — 스모크 빌드를 돈다"
+          else
+            echo "hit=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  # ── PR 에서 iOS 가 성립하는지만 본다.
+  #
+  #    서명도 업로드도 하지 않는다. 릴리스용 IPA 는 아래 build-ios 가 main 에서 만든다.
+  #    여기서 보는 건 "컴파일·링크가 되는가" 하나다 — 그게 PR 에서 놓치던 전부였다.
+  ios-smoke:
+    needs: [ verify, ios-affected ]
+    if: github.event_name == 'pull_request' && needs.ios-affected.outputs.hit == 'true'
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      # 버전은 아무 값이나 된다 — 나가지 않는 빌드다. version 잡에 매달지 않으려고
+      # 기본값을 그대로 쓴다(그 잡은 PR 에서 안 돈다).
+      - name: Build iOS (unsigned, smoke)
+        run: |
+          set -euo pipefail
+          flutter build ios --release --no-codesign \
+            --dart-define-from-file=config/dev.json
+
   # ── 버전 — 한 곳에서 정해 두 빌드가 같은 값을 쓴다.
   #
   #    개발  git describe 그대로: 태그-이후커밋수-해시 (1.9.2-3-g1a2b3c4)
