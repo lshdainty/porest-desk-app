@@ -8,11 +8,14 @@ import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 
-/// iOS 스타일 휠 피커 — Material 의 showDatePicker/showTimePicker 를 대신한다.
+/// iOS 스타일 시각 휠 — Material 의 showTimePicker 를 대신한다.
 ///
-/// Material 기본 피커는 시계 다이얼(시 → 분 2단)과 달력 그리드라 손가락으로
-/// 맞추기 어렵고, 웹(shadcn 계열 스크롤 컬럼)과 조작감이 갈렸다. 휠은 웹의
-/// 시/분 컬럼과 같은 상호작용이라 앱·웹이 같은 느낌으로 붙는다.
+/// Material 기본 시각 피커는 시계 다이얼에서 시 → 분을 2단으로 찍어야 해
+/// 손가락으로 맞추기 번거롭다. 휠은 웹(shadcn 계열 시/분 스크롤 컬럼)과 같은
+/// 상호작용이라 앱·웹이 같은 느낌으로 붙는다.
+///
+/// **날짜는 여기 없다.** 달력 그리드가 월 전체를 한눈에 보여 줘 날짜 고르기엔
+/// 휠보다 낫다 — PDateInput 은 Material showDatePicker 를 그대로 쓴다.
 ///
 /// 시트는 `showPSheet(shrinkWrap: true)` — 휠 높이만 차지하고 footer 는
 /// [취소][확인] 두 개. 휠은 스크롤 중에도 값을 계속 흘려보내므로, 확인을
@@ -60,48 +63,6 @@ Widget _footer(
         ),
       ),
     ],
-  );
-}
-
-/// 날짜 휠. 취소하면 null.
-Future<DateTime?> showPDatePicker(
-  BuildContext context, {
-  required DateTime initial,
-  DateTime? firstDate,
-  DateTime? lastDate,
-}) {
-  final first = firstDate ?? DateTime(2020);
-  final last = lastDate ?? DateTime(2030, 12, 31);
-  // 범위 밖 initial 은 CupertinoDatePicker 가 assert 로 죽는다 — 넣기 전에 접는다.
-  final start = initial.isBefore(first)
-      ? first
-      : (initial.isAfter(last) ? last : initial);
-  // 시각 성분이 남아 있으면 maximumDate 비교에서 마지막 날이 잘린다.
-  var picked = DateTime(start.year, start.month, start.day);
-
-  return showPSheet<DateTime>(
-    context,
-    title: AppLocalizations.of(context).pickDate,
-    shrinkWrap: true,
-    contentBuilder: (ctx, _) => _themed(
-      ctx,
-      CupertinoDatePicker(
-        mode: CupertinoDatePickerMode.date,
-        initialDateTime: picked,
-        minimumDate: DateTime(first.year, first.month, first.day),
-        maximumDate: DateTime(last.year, last.month, last.day),
-        minimumYear: first.year,
-        maximumYear: last.year,
-        onDateTimeChanged: (v) => picked = v,
-      ),
-    ),
-    footerBuilder: (ctx) => _footer(
-      ctx,
-      onConfirm: () => Navigator.pop(
-        ctx,
-        DateTime(picked.year, picked.month, picked.day),
-      ),
-    ),
   );
 }
 
