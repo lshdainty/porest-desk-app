@@ -32,6 +32,7 @@ import 'package:porest_desk_app/features/stocks/data/stock_master_dto.dart';
 import 'package:porest_desk_app/features/stocks/data/toss_dto.dart';
 import 'package:porest_desk_app/features/stocks/data/watch_dto.dart';
 import 'package:porest_desk_app/features/subscription/application/subscription_providers.dart';
+import 'package:porest_desk_app/core/network/api_exception.dart';
 
 /// 증권 — 시세 · 보유 · 관심 · 호가 (토스증권 Open API 실연동).
 /// 웹 `pages/stocks/ui/StocksPage.tsx` 미러 (디자인 리뉴얼 반영).
@@ -113,7 +114,14 @@ class _StocksScreenState extends ConsumerState<StocksScreen> {
         await repo.addWatchItem(groupId, symbol, marketCode: marketCode);
       }
       ref.invalidate(watchGroupsProvider);
+    } on ApiException {
+      // 서버 에러는 ErrorToastInterceptor 가 띄운다.
     } catch (_) {
+      // API 가 아닌 예외는 인터셉터가 못 잡는다 — 여기서 알린다.
+      if (mounted) {
+        showPSnackBar(context, l.stocksWatchAddFail,
+            severity: PSnackSeverity.error);
+      }
     }
   }
 
@@ -498,9 +506,16 @@ class _GroupEditorSheetBodyState extends ConsumerState<_GroupEditorSheetBody> {
       await action();
       ref.invalidate(watchGroupsProvider);
       if (mounted) Navigator.of(context).pop();
+    } on ApiException {
+      // 서버 에러는 ErrorToastInterceptor 가 띄운다.
+      if (mounted) setState(() => _busy = false);
     } catch (_) {
+      // API 가 아닌 예외는 인터셉터가 못 잡는다 — 여기서 알린다.
       if (mounted) {
         setState(() => _busy = false);
+        showPSnackBar(context,
+            AppLocalizations.of(context).stocksWatchGroupSaveFail,
+            severity: PSnackSeverity.error);
       }
     }
   }

@@ -17,6 +17,9 @@ import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 ///   - 화면이 처리한 에러 → 화면의 문맥 있는 메시지 하나 (`삭제 실패: …`)
 ///   - 아무도 처리 안 한 에러 → 서버 메시지가 그물에 걸려 뜬다
 ///
+/// 조회(GET)는 건너뛴다 — 화면이 자기 에러 상태를 그리고, 폴링이 토스트를 쏟는다.
+/// 값을 바꾸는 요청만 띄운다.
+///
 /// 401 은 건너뛴다 — AuthInterceptor 가 세션 만료 신호를 올리고 로그인으로 보낸다.
 /// 특정 요청만 빼려면 `Options(extra: {kSilentErrorToast: true})`.
 const String kSilentErrorToast = 'silentErrorToast';
@@ -50,6 +53,10 @@ class ErrorToastInterceptor extends Interceptor {
   void schedule(DioException err) {
     if (err.requestOptions.extra[kSilentErrorToast] == true) return;
     if (err.response?.statusCode == 401) return;
+    // 조회 실패는 화면이 자기 자리에서 그린다(빈 목록·에러 상태·재시도). 여기서
+    // 또 띄우면 겹치고, 시세·알림 폴링처럼 주기적으로 도는 조회는 토스트가 쏟아진다.
+    // 조용히 사라져서 문제인 건 값을 바꾸는 요청 쪽이다.
+    if (err.requestOptions.method.toUpperCase() == 'GET') return;
 
     final message = ApiException.fromDio(err).message;
     final last = _recent[message];

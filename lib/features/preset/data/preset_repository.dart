@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/core/network/api_response.dart';
 import 'package:porest_desk_app/features/preset/domain/expense_template.dart';
+import 'package:porest_desk_app/core/network/interceptors/error_toast_interceptor.dart';
 
 class PresetRepository {
   PresetRepository(this._dio);
@@ -108,7 +109,9 @@ class PresetRepository {
   /// useCount/lastUsedAt 만 갱신.
   Future<void> touch(int id) async {
     try {
-      await _dio.post<dynamic>('/expense-template/$id/touch');
+      // 사용 기록 갱신은 best-effort — 실패해도 사용자에게 알릴 일이 아니다.
+      await _dio.post<dynamic>('/expense-template/$id/touch',
+          options: Options(extra: {kSilentErrorToast: true}));
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }

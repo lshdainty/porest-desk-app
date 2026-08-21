@@ -14,6 +14,7 @@ import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_card.dart';
 import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
+import 'package:porest_desk_app/core/network/api_exception.dart';
 
 /// 증권 데이터 연동 — 토스증권 API 키 연결 카드. (porest-design `TossApiConnect` 미러)
 ///
@@ -52,7 +53,13 @@ class _TossConnectCardState extends ConsumerState<TossConnectCard> {
       if (mounted) {
         showPSnackBar(context, okMsg, severity: PSnackSeverity.success);
       }
+    } on ApiException {
+      // 서버 에러는 ErrorToastInterceptor 가 띄운다.
     } catch (_) {
+      // API 가 아닌 예외는 인터셉터가 못 잡는다 — 여기서 알린다.
+      if (mounted) {
+        showPSnackBar(context, errMsg, severity: PSnackSeverity.error);
+      }
     } finally {
       if (mounted) setState(() => _busy = false);
     }

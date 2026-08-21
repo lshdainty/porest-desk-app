@@ -15,6 +15,7 @@ import 'package:porest_desk_app/shared/widgets/p_card.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_segmented.dart';
 import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
+import 'package:porest_desk_app/core/network/api_exception.dart';
 
 /// 구독 관리 바텀시트 — porest-design `SubscriptionDialog` 미러.
 ///
@@ -521,7 +522,13 @@ class _SubscriptionFooterState extends ConsumerState<_SubscriptionFooter> {
         );
         Navigator.of(context).pop();
       }
+    } on ApiException {
+      // 서버 에러는 ErrorToastInterceptor 가 띄운다.
     } catch (_) {
+      // API 가 아닌 예외는 인터셉터가 못 잡는다 — 여기서 알린다.
+      if (mounted) {
+        showPSnackBar(context, l.subFailed, severity: PSnackSeverity.error);
+      }
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -548,7 +555,13 @@ class _SubscriptionFooterState extends ConsumerState<_SubscriptionFooter> {
         showPSnackBar(context, l.subCanceled, severity: PSnackSeverity.success);
         Navigator.of(context).pop();
       }
+    } on ApiException {
+      // 서버 에러는 ErrorToastInterceptor 가 띄운다.
     } catch (_) {
+      // API 가 아닌 예외는 인터셉터가 못 잡는다 — 여기서 알린다.
+      if (mounted) {
+        showPSnackBar(context, l.subCancelFailed, severity: PSnackSeverity.error);
+      }
     } finally {
       if (mounted) setState(() => _busy = false);
     }
