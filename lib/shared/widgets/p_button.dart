@@ -115,8 +115,9 @@ class PButton extends StatelessWidget {
             ),
         PButtonSize.md => TextStyle(
               fontFamily: PTypo.sans,
-              // 웹 Button md(text-sm 14)와 같은 값. 사용자 결정.
-              fontSize: PFontSize.body,
+              // button.md Sizes 표의 md = 15px. 표는 라벨을 body-lg 라 적었지만
+              // 토큰 표(DESIGN.md)에서 15px 은 body-md 다 — px 를 따른다.
+              fontSize: PFontSize.bodyMd,
               fontWeight: PFontWeight.medium,
               height: 1.0,
             ),
@@ -129,7 +130,7 @@ class PButton extends StatelessWidget {
         // icon-only 전용 (label 금지 assert) — 도달 불가, md와 동일값.
         PButtonSize.iconLg => TextStyle(
               fontFamily: PTypo.sans,
-              fontSize: PFontSize.body,
+              fontSize: PFontSize.bodyMd,
               fontWeight: PFontWeight.medium,
               height: 1.0,
             ),
