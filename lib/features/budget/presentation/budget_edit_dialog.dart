@@ -147,7 +147,6 @@ class _BudgetEditBodyState extends ConsumerState<_BudgetEditBody> {
           (year: widget.year, month: widget.month)));
       if (!mounted) return;
       Navigator.of(context).pop();
-      showPSnackBar(context, _isEdit ? l.budgetUpdated : l.budgetAdded, severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!mounted) return;
       showPSnackBar(context, '${l.budgetActionFailed}: ${e.message}', severity: PSnackSeverity.error);

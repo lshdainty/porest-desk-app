@@ -331,9 +331,7 @@ class _SplitBodyState extends ConsumerState<_SplitBody> {
       ref.invalidate(expenseSplitsProvider(widget.expense.rowId));
       _invalidateExpenseAndAssets();
       if (!mounted) return;
-      final l = AppLocalizations.of(context);
       Navigator.of(context).pop();
-      showPSnackBar(context, l.expSplitSaved, severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!mounted) return;
       final l = AppLocalizations.of(context);

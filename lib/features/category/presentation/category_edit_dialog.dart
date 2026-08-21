@@ -250,7 +250,6 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
       _invalidateAggregates();
       if (!mounted) return;
       Navigator.of(context).pop();
-      showPSnackBar(context, _isEdit ? l.categoryUpdated : l.categoryAdded, severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!mounted) return;
       showPSnackBar(context, '${l.categoryActionFailed}: ${e.message}', severity: PSnackSeverity.error);

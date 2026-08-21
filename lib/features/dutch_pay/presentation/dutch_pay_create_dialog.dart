@@ -240,10 +240,7 @@ class _BodyState extends ConsumerState<_Body> {
       );
       ref.invalidate(dutchPayListProvider);
       if (!mounted) return;
-      final l = AppLocalizations.of(context);
       Navigator.of(context).pop();
-      showPSnackBar(context, l.dutchCreated,
-            severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!mounted) return;
       final l = AppLocalizations.of(context);

@@ -446,8 +446,6 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
       ref.invalidate(investmentValuationMapProvider);
       if (!mounted) return;
       Navigator.of(context).pop();
-      showPSnackBar(context, _isEdit ? l.assetInvestUpdated : l.assetInvestAdded,
-          severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!mounted) return;
       showPSnackBar(context, '${l.assetActionFailed}: ${e.message}',

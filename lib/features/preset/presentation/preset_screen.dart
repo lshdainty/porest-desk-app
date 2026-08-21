@@ -69,7 +69,6 @@ class _PresetScreenState extends ConsumerState<PresetScreen> {
       await repo.delete(p.rowId);
       ref.invalidate(presetListProvider);
       if (!mounted) return;
-      showPSnackBar(context, l.presetDeleted, severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!mounted) return;
       showPSnackBar(

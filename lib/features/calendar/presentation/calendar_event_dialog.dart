@@ -208,8 +208,6 @@ class _BodyState extends ConsumerState<_Body> {
       }
       if (!mounted) return;
       Navigator.of(context).pop();
-      showPSnackBar(context, _isEdit ? l.calEventUpdated : l.calEventAdded,
-          severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!mounted) return;
       showPSnackBar(context, '${l.calActionFailed}: ${e.message}',

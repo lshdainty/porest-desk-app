@@ -299,11 +299,6 @@ class _RecurringSettingsBodyState
       ref.invalidate(recurringListProvider);
       if (!mounted) return;
       Navigator.of(context).pop();
-      showPSnackBar(
-        context,
-        _isEdit ? l.recurringUpdated : l.recurringSaved,
-        severity: PSnackSeverity.success,
-      );
     } on ApiException catch (err) {
       if (!mounted) return;
       showPSnackBar(

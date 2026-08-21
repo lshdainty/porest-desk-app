@@ -224,8 +224,6 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
       ref.invalidate(assetsProvider);
       if (!mounted) return;
       Navigator.of(context).pop();
-      showPSnackBar(context, edit != null ? l.assetCardUpdated : l.assetCardAdded,
-          severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!mounted) return;
       showPSnackBar(context, '${l.assetActionFailed}: ${e.message}',

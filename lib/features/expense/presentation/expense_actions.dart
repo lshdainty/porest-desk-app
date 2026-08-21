@@ -57,9 +57,6 @@ class ExpenseActions implements ItemActions<Expense> {
       final repo = await ref.read(expenseRepositoryProvider.future);
       await repo.delete(e.rowId);
       _invalidateAfterDelete(ref, e);
-      if (context.mounted) {
-        showPSnackBar(context, l.expDeleted, severity: PSnackSeverity.success);
-      }
       return true;
     } on ApiException catch (err) {
       if (context.mounted) {

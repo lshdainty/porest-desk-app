@@ -117,8 +117,6 @@ class _TransferDetailBodyState extends ConsumerState<_TransferDetailBody> {
       }
       if (!mounted) return;
       Navigator.of(context).pop();
-      showPSnackBar(context, l.transferDeleted,
-          severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!mounted) return;
       showPSnackBar(context, e.message, severity: PSnackSeverity.error);

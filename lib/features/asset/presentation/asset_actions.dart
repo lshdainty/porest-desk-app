@@ -62,17 +62,6 @@ class AssetActions implements ItemActions<Asset> {
       if (kind == _AssetKind.invest) {
         ref.invalidate(investmentValuationMapProvider);
       }
-      if (context.mounted) {
-        showPSnackBar(
-          context,
-          switch (kind) {
-            _AssetKind.account => l.assetAccountDeleted,
-            _AssetKind.card => l.assetCardDeleted,
-            _AssetKind.invest => l.assetInvestDeleted,
-          },
-          severity: PSnackSeverity.success,
-        );
-      }
       return true;
     } on ApiException catch (err) {
       if (context.mounted) {
