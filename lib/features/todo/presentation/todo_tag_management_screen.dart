@@ -17,6 +17,7 @@ import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_color_picker.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
+import 'package:porest_desk_app/shared/widgets/p_empty_state.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
 import 'package:porest_desk_app/shared/widgets/p_swipe_actions.dart';
 import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
@@ -237,22 +238,9 @@ class _BodyState extends ConsumerState<_Body> {
                 ],
               ),
               if (tags.isEmpty)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 32),
-                  child: Column(
-                    children: [
-                      Icon(LucideIcons.tags, size: 26, color: t.fgTertiary),
-                      const SizedBox(height: 8),
-                      Text(
-                        l.ttagEmpty,
-                        style: PTypo.bodySm.copyWith(
-                          color: t.fgPrimary,
-                          fontWeight: PFontWeight.semi,
-                        ),
-                      ),
-                    ],
-                  ),
-                )
+                // 캘린더 라벨 화면과 같은 PEmptyState — 자체로 그리면 부모가 start 정렬이라
+                // 아이콘·문구가 왼쪽에 붙는다(사용자 제보).
+                PEmptyState(icon: LucideIcons.tags, message: l.ttagEmpty)
               else
                 for (var i = 0; i < tags.length; i++)
                   // 밀면 수정·삭제. 행의 🗑·> 를 걷었으므로 탭(편집)이 비제스처 경로다
