@@ -72,27 +72,35 @@ void showPSnackBar(
           // md 는 띠가 안 생기고, 분리는 위의 surfaceRaised 면 차이가 해 준다.
           boxShadow: t.shadowMd,
         ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        // 최소 높이 52(sonner.md). 패딩 12+12 와 아이콘 22 만으로는 46 이라
+        // 모바일에서 눈에 안 들어왔다. 내용이 길면 자연히 늘어난다.
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 52 - PSpace.x12 * 2),
+          child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             if (icon != null) ...[
-              // 제목 baseline 에 맞춘다 — 스펙의 margin-top 2px.
-              Padding(
-                padding: const EdgeInsets.only(top: 2),
-                child: Icon(icon, size: 20, color: iconColor),
-              ),
+              Icon(icon, size: 20, color: iconColor),
               const SizedBox(width: PSpace.x12),
             ],
             Expanded(
               child: Text(
                 message,
-                style: PTypo.bodySm.copyWith(
+                // 이 메시지는 스펙의 title 자리다 — title-sm(16/600).
+                // 웹도 sonner title 에 text-title-sm + font-semibold 를 준다.
+                // 예전 bodySm(13/500)은 앱 토큰 이름이 스케일과 어긋나 한 단계
+                // 작은 값(spec 의 label-sm)을 쓰고 있던 것이다.
+                style: TextStyle(
+                  fontFamily: PTypo.sans,
+                  fontSize: PFontSize.titleSm,
+                  fontWeight: PFontWeight.semi,
+                  height: 1.4,
                   color: t.fgPrimary,
-                  fontWeight: PFontWeight.medium,
                 ),
               ),
             ),
           ],
+          ),
         ),
       ),
       action: action,
