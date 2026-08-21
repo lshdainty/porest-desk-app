@@ -51,7 +51,8 @@ class NotificationScreen extends ConsumerWidget {
                 ref.invalidate(unreadCountProvider);
               } on ApiException catch (e) {
                 if (!context.mounted) return;
-                showPSnackBar(context, '${l.stateError}: ${e.message}');
+                showPSnackBar(context, '${l.stateError}: ${e.message}',
+                    severity: PSnackSeverity.error);
               }
             },
           ),

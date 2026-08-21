@@ -1578,7 +1578,8 @@ class _StockDetailBodyState extends ConsumerState<_StockDetailBody> {
                 size: PButtonSize.lg,
                 fullWidth: true,
                 onPressed: () => showPSnackBar(
-                    context, l.stocksSellOrderStub(name)),
+                    context, l.stocksSellOrderStub(name),
+                    severity: PSnackSeverity.info),
               ),
             ),
             const SizedBox(width: 10),
@@ -1589,7 +1590,8 @@ class _StockDetailBodyState extends ConsumerState<_StockDetailBody> {
                 size: PButtonSize.lg,
                 fullWidth: true,
                 onPressed: () => showPSnackBar(
-                    context, l.stocksBuyOrderStub(name)),
+                    context, l.stocksBuyOrderStub(name),
+                    severity: PSnackSeverity.info),
               ),
             ),
           ],
