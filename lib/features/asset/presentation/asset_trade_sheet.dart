@@ -196,7 +196,6 @@ class _TradeBodyState extends ConsumerState<_TradeBody> {
 
   Future<void> _submit() async {
     if (!_canSubmit) return;
-    final l = AppLocalizations.of(context);
     setState(() => _submitting = true);
     widget.controller.setSubmitting(true);
     try {
@@ -219,8 +218,6 @@ class _TradeBodyState extends ConsumerState<_TradeBody> {
       ref.invalidate(assetTradesProvider(widget.asset.rowId));
       if (!mounted) return;
       Navigator.of(context).pop();
-      showPSnackBar(context, _isSell ? l.tradeSold : l.tradeBought,
-          severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!mounted) return;
       showPSnackBar(context, e.message, severity: PSnackSeverity.error);

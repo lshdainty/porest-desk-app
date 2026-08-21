@@ -547,7 +547,6 @@ class _ManageBodyState extends ConsumerState<_ManageBody> {
       _baseName = _nameCtrl.text.trim();
       _baseColor = _color;
       widget.controller.setCanSubmit(false);
-      if (mounted) showPSnackBar(context, l.calCalendarUpdated, severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (mounted) showPSnackBar(context, '${l.calActionFailed}: ${e.message}', severity: PSnackSeverity.error);
     } finally {

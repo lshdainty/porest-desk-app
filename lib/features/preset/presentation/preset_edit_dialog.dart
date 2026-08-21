@@ -172,11 +172,6 @@ class _BodyState extends ConsumerState<_Body> {
       ref.invalidate(presetListProvider);
       if (!mounted) return;
       Navigator.of(context).pop();
-      showPSnackBar(
-        context,
-        _isEdit ? l.presetUpdated : l.presetCreated,
-        severity: PSnackSeverity.success,
-      );
     } on ApiException catch (e) {
       if (!mounted) return;
       showPSnackBar(

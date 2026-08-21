@@ -339,9 +339,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
         ref.invalidate(monthExpensesProvider((year: d.year, month: d.month)));
         invalidateAfterExpenseChange(ref);
         if (!mounted) return;
-        final l = AppLocalizations.of(context);
         Navigator.of(context).pop();
-        showPSnackBar(context, l.expTransferDone, severity: PSnackSeverity.success);
       } on ApiException catch (e) {
         if (!mounted) return;
         final l = AppLocalizations.of(context);
@@ -448,13 +446,7 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
       ref.invalidate(monthExpensesProvider((year: d.year, month: d.month)));
       invalidateAfterExpenseChange(ref);
       if (!mounted) return;
-      final l = AppLocalizations.of(context);
       Navigator.of(context).pop();
-      showPSnackBar(
-        context,
-        _isEdit ? l.expUpdated : l.expAdded,
-        severity: PSnackSeverity.success,
-      );
     } on ApiException catch (e) {
       if (!mounted) return;
       final l = AppLocalizations.of(context);

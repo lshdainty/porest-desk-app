@@ -14,7 +14,6 @@ import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_chip.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
-import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 
 /// 금액 가리기 화면 — 계정 > 보안 > 금액 가리기.
@@ -85,7 +84,6 @@ class _HideAmountsScreenState extends ConsumerState<HideAmountsScreen> {
   Future<void> _save(Set<String> saved) async {
     final draft = _draft;
     if (draft == null || _saving) return;
-    final l = AppLocalizations.of(context);
     // 푸는 게 하나라도 있으면 본인 확인 — 가리기만 늘리는 저장은 그냥 통과한다.
     final revealing = saved.difference(draft).isNotEmpty;
     setState(() => _saving = true);
@@ -96,8 +94,6 @@ class _HideAmountsScreenState extends ConsumerState<HideAmountsScreen> {
       }
       await ref.read(settingsProvider.notifier).setHideCards(draft);
       if (!mounted) return;
-      showPSnackBar(context, l.hideAmountsSaved,
-          severity: PSnackSeverity.success);
       context.pop();
     } finally {
       if (mounted) setState(() => _saving = false);

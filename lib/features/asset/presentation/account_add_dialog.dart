@@ -277,8 +277,6 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
       ref.invalidate(assetsProvider);
       if (!mounted) return;
       Navigator.of(context).pop();
-      showPSnackBar(context, _isEdit ? l.assetAccountUpdated : l.assetAccountAdded,
-          severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!mounted) return;
       showPSnackBar(context, '${l.assetActionFailed}: ${e.message}',

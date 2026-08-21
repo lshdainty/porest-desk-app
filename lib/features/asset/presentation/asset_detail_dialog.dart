@@ -647,7 +647,6 @@ class _TradeHistory extends ConsumerWidget {
       ref.invalidate(assetsProvider);
       ref.invalidate(assetTradesProvider(assetRowId));
       if (!context.mounted) return;
-      showPSnackBar(context, l.tradeDeleted, severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!context.mounted) return;
       showPSnackBar(context, e.message, severity: PSnackSeverity.error);
@@ -1783,8 +1782,6 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
         ..invalidate(assetsProvider)
         ..invalidate(assetByIdProvider(widget.asset.rowId));
       if (!mounted) return;
-      showPSnackBar(context, l.assetPaymentRecorded,
-          severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!mounted) return;
       showPSnackBar(context, '${l.assetPayFailed}: ${e.message}',
@@ -1831,8 +1828,6 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
         ..invalidate(assetByIdProvider(widget.asset.rowId));
       invalidateAfterExpenseChange(ref);
       if (!mounted) return;
-      showPSnackBar(context, l.assetPaymentCancelled,
-          severity: PSnackSeverity.success);
     } on ApiException catch (e) {
       if (!mounted) return;
       showPSnackBar(context, '${l.expActionFailed}: ${e.message}',
