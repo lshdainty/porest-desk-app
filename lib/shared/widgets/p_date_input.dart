@@ -6,6 +6,7 @@ import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
+import 'package:porest_desk_app/shared/widgets/p_wheel_picker.dart';
 
 /// front `<InputDatePicker>` 등가 — 탭하면 DatePicker, 빈 값 처리.
 class PDateInput extends StatelessWidget {
@@ -41,11 +42,11 @@ class PDateInput extends StatelessWidget {
       onTap: !enabled
           ? null
           : () async {
-              final p = await showDatePicker(
-                context: context,
-                initialDate: value ?? DateTime.now(),
-                firstDate: firstDate ?? DateTime(2020),
-                lastDate: lastDate ?? DateTime(2030, 12, 31),
+              final p = await showPDatePicker(
+                context,
+                initial: value ?? DateTime.now(),
+                firstDate: firstDate,
+                lastDate: lastDate,
               );
               if (p != null) onChanged(p);
             },
@@ -111,9 +112,9 @@ class PTimeInput extends StatelessWidget {
       onTap: !enabled
           ? null
           : () async {
-              final p = await showTimePicker(
-                context: context,
-                initialTime: value ?? TimeOfDay.now(),
+              final p = await showPTimePicker(
+                context,
+                initial: value ?? TimeOfDay.now(),
               );
               if (p != null) onChanged(p);
             },

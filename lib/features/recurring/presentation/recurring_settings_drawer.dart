@@ -24,6 +24,7 @@ import 'package:porest_desk_app/shared/widgets/p_select.dart';
 import 'package:porest_desk_app/shared/widgets/p_switch.dart';
 import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
+import 'package:porest_desk_app/shared/widgets/p_wheel_picker.dart';
 import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
 import 'package:porest_desk_app/features/asset/domain/asset.dart';
@@ -1329,7 +1330,7 @@ class _SelectField<T> extends StatelessWidget {
 }
 
 
-/// 'HH:mm' 시간 필드 — readonly PTextInput(suffix Clock) 탭 시 showTimePicker.
+/// 'HH:mm' 시간 필드 — readonly PTextInput(suffix Clock) 탭 시 iOS 스타일 휠 피커.
 /// notification_settings_screen 의 같은 이름 위젯과 같은 패턴이다.
 class _TimeField extends StatefulWidget {
   const _TimeField({required this.value, required this.onChanged});
@@ -1367,13 +1368,9 @@ class _TimeFieldState extends State<_TimeField> {
       '${tod.hour.toString().padLeft(2, '0')}:${tod.minute.toString().padLeft(2, '0')}';
 
   Future<void> _pick(BuildContext context) async {
-    final picked = await showTimePicker(
-      context: context,
-      initialTime: _parse(widget.value),
-      builder: (ctx, child) => MediaQuery(
-        data: MediaQuery.of(ctx).copyWith(alwaysUse24HourFormat: true),
-        child: child!,
-      ),
+    final picked = await showPTimePicker(
+      context,
+      initial: _parse(widget.value),
     );
     if (picked != null) widget.onChanged(_fmt(picked));
   }
