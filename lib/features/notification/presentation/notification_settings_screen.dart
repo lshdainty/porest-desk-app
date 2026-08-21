@@ -19,6 +19,7 @@ import 'package:porest_desk_app/shared/widgets/p_slider.dart';
 import 'package:porest_desk_app/shared/widgets/p_switch.dart';
 import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
+import 'package:porest_desk_app/shared/widgets/p_wheel_picker.dart';
 import 'package:porest_desk_app/features/notification/application/user_preferences_providers.dart';
 import 'package:porest_desk_app/features/notification/data/user_preferences_repository.dart';
 
@@ -667,7 +668,7 @@ class _QuietHoursCard extends StatelessWidget {
   }
 }
 
-/// "HH:mm" 시간 필드 — readonly PTextInput(suffix Clock) 탭 시 showTimePicker.
+/// "HH:mm" 시간 필드 — readonly PTextInput(suffix Clock) 탭 시 iOS 스타일 휠 피커.
 class _TimeField extends StatefulWidget {
   const _TimeField({
     required this.label,
@@ -710,13 +711,9 @@ class _TimeFieldState extends State<_TimeField> {
       '${tod.hour.toString().padLeft(2, '0')}:${tod.minute.toString().padLeft(2, '0')}';
 
   Future<void> _pick(BuildContext context) async {
-    final picked = await showTimePicker(
-      context: context,
-      initialTime: _parse(widget.value),
-      builder: (ctx, child) => MediaQuery(
-        data: MediaQuery.of(ctx).copyWith(alwaysUse24HourFormat: true),
-        child: child!,
-      ),
+    final picked = await showPTimePicker(
+      context,
+      initial: _parse(widget.value),
     );
     if (picked != null) widget.onChanged(_fmt(picked));
   }
