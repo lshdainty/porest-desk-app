@@ -114,6 +114,59 @@ config/min_build.json          minBuildNumber ← 내가 고치는 곳
 `test/features/update/update_gate_forced_test.dart` 가 고정한다. 하한을 만질 땐 이 둘을
 먼저 읽는다.
 
+## WSL 에서는 iOS 를 CI 로만 본다
+
+이 워크스테이션에 macOS 가 없다. `flutter build ios` 도 `pod install` 도 못 돌린다.
+그러니 **iOS 가 성립하는지 확인할 방법은 CI 하나뿐이다.**
+
+### PR 초록은 iOS 를 아무것도 보장하지 않는다
+
+`ci-main.yml` 의 `build-ios` 는 PR 에서 안 돈다.
+
+```yaml
+build-ios:
+  if: github.event_name != 'pull_request'
+```
+
+`build-android` · `release` 도 같다. PR 체크에 `build-ios  skipping` 이 뜨는 건
+**설계대로**지 이상 신호가 아니다. iOS 는 **머지된 뒤 main push 에서 처음** 빌드된다.
+
+### 그래서 머지가 끝이 아니다
+
+머지한 뒤 그 머지 커밋의 main 실행을 **반드시 확인하고 결과를 보고한다.**
+
+```bash
+gh run list --repo lshdainty/porest-desk-app --branch main --limit 3 \
+  --json conclusion,displayTitle --jq '.[] | "\(.conclusion // "진행중")  \(.displayTitle)"'
+
+# 실패했으면 어디서 깨졌는지
+gh run view <runId> --repo lshdainty/porest-desk-app --log-failed | tail -60
+```
+
+실패하면 **그 자리에서 고친다.** 다음 작업으로 넘어가지 않는다 — 빨간 main 위에
+쌓으면 누구 변경이 깨뜨렸는지 가려진다.
+
+### iOS 를 깨뜨리기 쉬운 변경
+
+아래를 건드렸으면 머지 후 확인을 **거르지 않는다.**
+
+| | 왜 |
+|---|---|
+| `pubspec.yaml` 의존성 추가·변경 | 플러그인이 요구하는 **최소 iOS 버전**이 앱보다 높으면 링크 단계에서 멈춘다 |
+| `ios/**` | 말할 것도 없다 |
+| 네이티브 채널·권한 | 안드로이드에만 구현하고 iOS 를 비워 두기 쉽다 |
+
+의존성을 추가할 땐 넣기 전에 그 패키지의 iOS 최소 버전을 보고
+`ios/Runner.xcodeproj` 의 `IPHONEOS_DEPLOYMENT_TARGET` 과 맞는지 확인한다.
+**Dart 에서 안 불러도 `pubspec` 에 있는 한 pod 은 붙는다** — 코드로 가른다고 피해지지 않는다.
+
+### 실제로 이렇게 깨졌다
+
+2026-08-21. `workmanager` 를 넣으면서 iOS 최소 14.0 요구를 확인하지 않았다(앱은 13.0).
+PR 은 전부 초록이었고 **머지 후 main 이 세 번 연속 빨간불**(#243·#244·#245)이었는데,
+PR 초록만 보고 다음 작업으로 넘어가느라 세 번 다 못 봤다. Mac 에서 발견해 #246 으로
+복구했다 — 등록을 안드로이드로 가르고, 죽은 iOS 코드를 걷고, 배포 타깃을 14.0 으로 올렸다.
+
 ## 검증 명령
 
 `fvm` 을 빼면 안 된다. 맨몸 `flutter` 는 fvm global(3.41.9)을 잡는데 이 레포 핀은
