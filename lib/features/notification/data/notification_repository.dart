@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/core/network/api_response.dart';
 import 'package:porest_desk_app/features/notification/domain/notification.dart';
+import 'package:porest_desk_app/core/network/interceptors/error_toast_interceptor.dart';
 
 class NotificationRepository {
   NotificationRepository(this._dio);
@@ -40,7 +41,9 @@ class NotificationRepository {
 
   Future<void> markRead(int id) async {
     try {
-      await _dio.patch<dynamic>('/notification/$id/read');
+      // 읽음 표시는 배경 동작 — 실패해도 토스트로 방해하지 않는다.
+      await _dio.patch<dynamic>('/notification/$id/read',
+          options: Options(extra: {kSilentErrorToast: true}));
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }

@@ -23,6 +23,8 @@ import 'package:porest_desk_app/features/calendar/domain/user_calendar.dart';
 import 'package:porest_desk_app/features/calendar/presentation/calendar_event_dialog.dart';
 import 'package:porest_desk_app/features/calendar/presentation/calendar_event_detail_dialog.dart';
 import 'package:porest_desk_app/shared/widgets/p_tab_bar.dart';
+import 'package:porest_desk_app/core/network/api_exception.dart';
+import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 
 class CalendarScreen extends ConsumerStatefulWidget {
   const CalendarScreen({super.key});
@@ -437,7 +439,14 @@ class _CalendarFilterSheetBody extends ConsumerWidget {
                         await ref.read(userCalendarRepositoryProvider.future);
                     await repo.toggleVisibility(cal.rowId);
                     ref.invalidate(userCalendarListProvider);
+                  } on ApiException {
+                    // 서버 에러는 ErrorToastInterceptor 가 띄운다.
                   } catch (_) {
+                    // API 가 아닌 예외는 인터셉터가 못 잡는다 — 여기서 알린다.
+                    if (context.mounted) {
+                      showPSnackBar(context, l.calUpdateFailed,
+                          severity: PSnackSeverity.error);
+                    }
                   }
                 },
                 tokens: t,

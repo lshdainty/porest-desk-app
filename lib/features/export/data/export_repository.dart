@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/core/network/api_response.dart';
 import 'package:porest_desk_app/core/network/dio_provider.dart';
+import 'package:porest_desk_app/core/network/interceptors/error_toast_interceptor.dart';
 
 /// 종별 건수 (체크박스 배지).
 class ExportTypeCount {
@@ -55,7 +56,9 @@ class ExportRepository {
 
   Future<List<ExportTypeCount>> counts(Map<String, dynamic> body) async {
     try {
-      final res = await _dio.post<Map<String, dynamic>>('/export/counts', data: body);
+      // 화면 진입 시 건수 미리보기 — best-effort 라 실패해도 조용히 넘긴다.
+      final res = await _dio.post<Map<String, dynamic>>('/export/counts',
+          data: body, options: Options(extra: {kSilentErrorToast: true}));
       final api = ApiResponse<Map<String, dynamic>>.fromJson(
         res.data!,
         (o) => (o as Map).cast<String, dynamic>(),

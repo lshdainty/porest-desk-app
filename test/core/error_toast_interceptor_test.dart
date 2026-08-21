@@ -6,10 +6,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:porest_desk_app/app/theme/theme_data.dart';
 import 'package:porest_desk_app/core/network/interceptors/error_toast_interceptor.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 
-DioException _err(int status, String message) => DioException(
-      requestOptions: RequestOptions(path: '/x'),
+DioException _err(int status, String message, {String method = 'POST'}) =>
+    DioException(
+      requestOptions: RequestOptions(path: '/x', method: method),
       response: Response(
         requestOptions: RequestOptions(path: '/x'),
         statusCode: status,
@@ -19,7 +19,6 @@ DioException _err(int status, String message) => DioException(
 
 void main() {
   late GlobalKey<ScaffoldMessengerState> key;
-  late BuildContext screenCtx; // 화면(Scaffold 아래) 컨텍스트 — 호출부 시늉용
 
   Future<void> pumpHost(WidgetTester tester) async {
     key = GlobalKey<ScaffoldMessengerState>();
@@ -31,10 +30,7 @@ void main() {
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       locale: const Locale('ko'),
-      home: Scaffold(body: Builder(builder: (c) {
-        screenCtx = c;
-        return const SizedBox.expand();
-      })),
+      home: const Scaffold(body: SizedBox.expand()),
     ));
   }
 
@@ -64,6 +60,13 @@ void main() {
     // 서버 메시지 하나만 뜬다.
     expect(find.text('권한이 없습니다'), findsOneWidget);
     expect(find.textContaining('삭제 실패'), findsNothing);
+  });
+
+  testWidgets('조회(GET) 실패는 안 띄운다 — 화면이 자기 에러 상태를 그린다', (tester) async {
+    await pumpHost(tester);
+    fire(_err(500, '목록을 못 불러왔어요', method: 'GET'));
+    await settle(tester);
+    expect(find.text('목록을 못 불러왔어요'), findsNothing);
   });
 
   testWidgets('401 은 그물에 안 걸린다 — 세션 만료는 로그인으로 보낸다', (tester) async {

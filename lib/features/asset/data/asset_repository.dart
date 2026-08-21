@@ -8,6 +8,7 @@ import 'package:porest_desk_app/features/asset/domain/asset_trade.dart';
 import 'package:porest_desk_app/features/asset/domain/asset_transfer.dart';
 import 'package:porest_desk_app/features/asset/domain/card_billing.dart';
 import 'package:porest_desk_app/features/asset/domain/net_worth_point.dart';
+import 'package:porest_desk_app/core/network/interceptors/error_toast_interceptor.dart';
 
 class AssetRepository {
   AssetRepository(this._dio);
@@ -388,6 +389,8 @@ class AssetRepository {
     try {
       final res = await _dio.post<Map<String, dynamic>>(
         '/asset-trade/preview',
+        // 입력 중 미리보기 — 실패해도 값을 안 보여줄 뿐이라 토스트로 방해하지 않는다.
+        options: Options(extra: {kSilentErrorToast: true}),
         data: {
           'assetRowId': assetRowId,
           'tradeType': tradeType,
