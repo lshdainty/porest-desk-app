@@ -18,8 +18,7 @@ import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
 import 'package:porest_desk_app/shared/widgets/p_slider.dart';
 import 'package:porest_desk_app/shared/widgets/p_switch.dart';
 import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
-import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
-import 'package:porest_desk_app/shared/widgets/p_picker_sheet.dart';
+import 'package:porest_desk_app/shared/widgets/p_date_input.dart';
 import 'package:porest_desk_app/features/notification/application/user_preferences_providers.dart';
 import 'package:porest_desk_app/features/notification/data/user_preferences_repository.dart';
 
@@ -668,8 +667,8 @@ class _QuietHoursCard extends StatelessWidget {
   }
 }
 
-/// "HH:mm" 시간 필드 — readonly PTextInput(suffix Clock) 탭 시 iOS 스타일 휠 피커.
-class _TimeField extends StatefulWidget {
+/// "HH:mm" 시간 필드(라벨 포함) — 타이핑으로도, 시계 아이콘으로도 고친다.
+class _TimeField extends StatelessWidget {
   const _TimeField({
     required this.label,
     required this.value,
@@ -678,27 +677,6 @@ class _TimeField extends StatefulWidget {
   final String label;
   final String value;
   final ValueChanged<String> onChanged;
-
-  @override
-  State<_TimeField> createState() => _TimeFieldState();
-}
-
-class _TimeFieldState extends State<_TimeField> {
-  late final TextEditingController _ctrl = TextEditingController(
-    text: widget.value,
-  );
-
-  @override
-  void didUpdateWidget(_TimeField old) {
-    super.didUpdateWidget(old);
-    if (widget.value != _ctrl.text) _ctrl.text = widget.value;
-  }
-
-  @override
-  void dispose() {
-    _ctrl.dispose();
-    super.dispose();
-  }
 
   TimeOfDay _parse(String hhmm) {
     final parts = hhmm.split(':');
@@ -710,35 +688,19 @@ class _TimeFieldState extends State<_TimeField> {
   String _fmt(TimeOfDay tod) =>
       '${tod.hour.toString().padLeft(2, '0')}:${tod.minute.toString().padLeft(2, '0')}';
 
-  Future<void> _pick(BuildContext context) async {
-    final picked = await showPTimePicker(
-      context,
-      initial: _parse(widget.value),
-    );
-    if (picked != null) widget.onChanged(_fmt(picked));
-  }
-
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        PSectionLabel(widget.label),
+        PSectionLabel(label),
         const SizedBox(height: PSpace.x4),
-        // PTextInput 자체는 onTap 미지원이라 GestureDetector(IgnorePointer)로 래핑.
-        GestureDetector(
-          // IgnorePointer 자식이면 기본 deferToChild 로는 히트테스트가 전부 실패해 탭이 죽는다.
-          behavior: HitTestBehavior.opaque,
-          onTap: () => _pick(context),
-          child: IgnorePointer(
-            child: PTextInput(
-              controller: _ctrl,
-              enabled: true,
-              suffix: Icon(LucideIcons.clock, size: 16, color: t.fgTertiary),
-            ),
-          ),
+        PTimeInput(
+          value: _parse(value),
+          onChanged: (t) {
+            if (t != null) onChanged(_fmt(t));
+          },
         ),
       ],
     );

@@ -2,6 +2,7 @@
 // 날짜는 달력 그리드 그대로 두고 등장만 시트로 — 월 전체가 보이는 쪽이 낫다.
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:porest_desk_app/app/theme/theme_data.dart';
@@ -23,7 +24,7 @@ void main() {
       PDateInput(value: DateTime(2026, 3, 5), onChanged: (_) {}),
     ));
 
-    await tester.tap(find.byType(InkWell));
+    await tester.tap(find.byIcon(LucideIcons.calendar));
     await tester.pumpAndSettle();
 
     // 달력 그리드는 유지하되(월 전체가 보이는 쪽이 낫다) 등장 방식만 시트로.
@@ -46,7 +47,7 @@ void main() {
       ),
     ));
 
-    await tester.tap(find.byType(InkWell));
+    await tester.tap(find.byIcon(LucideIcons.calendar));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('2026년'));
@@ -65,7 +66,7 @@ void main() {
       PDateInput(value: DateTime(2026, 3, 5), onChanged: (v) => changed = v),
     ));
 
-    await tester.tap(find.byType(InkWell));
+    await tester.tap(find.byIcon(LucideIcons.calendar));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('17'));
@@ -84,7 +85,7 @@ void main() {
       ),
     ));
 
-    await tester.tap(find.byType(InkWell));
+    await tester.tap(find.byIcon(LucideIcons.clock));
     await tester.pumpAndSettle();
     expect(find.byType(CupertinoDatePicker), findsOneWidget);
 
@@ -104,7 +105,7 @@ void main() {
       ),
     ));
 
-    await tester.tap(find.byType(InkWell));
+    await tester.tap(find.byIcon(LucideIcons.clock));
     await tester.pumpAndSettle();
 
     // 시 컬럼을 굴린다. 피커 전체를 잡으면 가운데(분 컬럼)를 미는 셈이라
