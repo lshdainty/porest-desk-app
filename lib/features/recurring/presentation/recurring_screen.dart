@@ -29,7 +29,6 @@ import 'package:porest_desk_app/features/recurring/presentation/recurring_detail
 import 'package:porest_desk_app/features/recurring/presentation/recurring_settings_drawer.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
 import 'package:porest_desk_app/shared/widgets/p_swipe_actions.dart';
-import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 
 enum _Filter { all, expense, income, paused }
 
@@ -52,19 +51,13 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
 
   Future<void> _toggle(RecurringTransaction it) async {
     if (_busyToggleId != null) return;
-    final l = AppLocalizations.of(context);
     setState(() => _busyToggleId = it.rowId);
     try {
       final repo = await ref.read(recurringRepositoryProvider.future);
       await repo.toggle(it.rowId);
       ref.invalidate(recurringListProvider);
-    } on ApiException catch (e) {
+    } on ApiException {
       if (!mounted) return;
-      showPSnackBar(
-        context,
-        '${l.recurringToggleFailed}: ${e.message}',
-        severity: PSnackSeverity.error,
-      );
     } finally {
       if (mounted) setState(() => _busyToggleId = null);
     }
@@ -85,13 +78,8 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
       final repo = await ref.read(recurringRepositoryProvider.future);
       await repo.delete(it.rowId);
       ref.invalidate(recurringListProvider);
-    } on ApiException catch (e) {
+    } on ApiException {
       if (!mounted) return;
-      showPSnackBar(
-        context,
-        '${l.recurringDeleteFailed}: ${e.message}',
-        severity: PSnackSeverity.error,
-      );
     } finally {
       if (mounted) setState(() => _busyDeleteId = null);
     }

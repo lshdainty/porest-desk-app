@@ -15,7 +15,6 @@ import 'package:porest_desk_app/features/calendar/domain/user_calendar.dart';
 import 'package:porest_desk_app/features/calendar/presentation/calendar_event_dialog.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
-import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 
 /// 일정 상세 시트 — 일별 시트 행 탭 → 읽기 전용 상세 → 수정 버튼 → 편집 폼.
 /// design calendar.jsx `EventDetailDialog` 미러: 좌측 컬러바 hero(캘린더 pill·D-day) +
@@ -102,13 +101,8 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
       );
       if (!mounted) return;
       Navigator.of(context).pop();
-    } on ApiException catch (ex) {
+    } on ApiException {
       if (!mounted) return;
-      showPSnackBar(
-        context,
-        '${l.calDeleteFailed}: ${ex.message}',
-        severity: PSnackSeverity.error,
-      );
     } finally {
       if (mounted) widget.controller.setSubmitting(false);
     }

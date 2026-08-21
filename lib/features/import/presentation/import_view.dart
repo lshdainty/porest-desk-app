@@ -13,7 +13,6 @@ import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_select.dart';
-import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/shared/widgets/p_switch.dart';
 import 'package:porest_desk_app/features/import/data/import_repository.dart';
 
@@ -101,10 +100,8 @@ class _ImportViewState extends ConsumerState<ImportView> {
         _mapping = Map<String, int>.from(res.suggestedMapping);
         _step = _Step.mapping;
       });
-    } on ApiException catch (e) {
+    } on ApiException {
       if (mounted) {
-        final l = AppLocalizations.of(context);
-        showPSnackBar(context, '${l.expActionFailed}: ${e.message}', severity: PSnackSeverity.error);
       }
     } finally {
       if (mounted) setState(() => _analyzing = false);
@@ -113,7 +110,6 @@ class _ImportViewState extends ConsumerState<ImportView> {
 
   Future<void> _runImport() async {
     if (_file == null || !_canExecute) return;
-    final l = AppLocalizations.of(context);
     setState(() => _executing = true);
     try {
       final repo = await ref.read(importRepositoryProvider.future);
@@ -129,8 +125,8 @@ class _ImportViewState extends ConsumerState<ImportView> {
         _result = res;
         _step = _Step.done;
       });
-    } on ApiException catch (e) {
-      if (mounted) showPSnackBar(context, '${l.expActionFailed}: ${e.message}', severity: PSnackSeverity.error);
+    } on ApiException {
+      // 토스트는 ErrorToastInterceptor 가 띄운다 — 여기선 흐름만 멈춘다.
     } finally {
       if (mounted) setState(() => _executing = false);
     }

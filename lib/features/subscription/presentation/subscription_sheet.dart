@@ -522,9 +522,6 @@ class _SubscriptionFooterState extends ConsumerState<_SubscriptionFooter> {
         Navigator.of(context).pop();
       }
     } catch (_) {
-      if (mounted) {
-        showPSnackBar(context, l.subFailed, severity: PSnackSeverity.error);
-      }
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -552,9 +549,6 @@ class _SubscriptionFooterState extends ConsumerState<_SubscriptionFooter> {
         Navigator.of(context).pop();
       }
     } catch (_) {
-      if (mounted) {
-        showPSnackBar(context, l.subCancelFailed, severity: PSnackSeverity.error);
-      }
     } finally {
       if (mounted) setState(() => _busy = false);
     }

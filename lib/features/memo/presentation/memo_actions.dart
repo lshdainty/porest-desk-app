@@ -8,7 +8,6 @@ import 'package:porest_desk_app/features/memo/domain/memo.dart';
 import 'package:porest_desk_app/features/memo/presentation/memo_edit_dialog.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/actions/item_actions.dart';
-import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 
 /// 메모 하나에 할 수 있는 일 — 목록 행(스와이프)과 상세 다이얼로그가 같은 것을 부른다.
 const memoActions = MemoActions();
@@ -34,7 +33,6 @@ class MemoActions implements ItemActions<Memo> {
 
   @override
   Future<bool> delete(BuildContext context, WidgetRef ref, Memo m) async {
-    final l = AppLocalizations.of(context);
     try {
       final repo = await ref.read(memoRepositoryProvider.future);
       await repo.delete(m.rowId);
@@ -42,11 +40,7 @@ class MemoActions implements ItemActions<Memo> {
       // 메모는 별자리(할일 게이미피케이션)에도 점수로 들어간다 — 지우면 같이 다시 센다.
       invalidateConstellation(ref);
       return true;
-    } on ApiException catch (e) {
-      if (context.mounted) {
-        showPSnackBar(context, l.memoDeleteFailed(e.message),
-            severity: PSnackSeverity.error);
-      }
+    } on ApiException {
       return false;
     }
   }
@@ -61,16 +55,12 @@ class MemoActions implements ItemActions<Memo> {
   ///
   /// 인터페이스에 넣으면 고정이 없는 다른 항목까지 빈 구현을 갖게 된다.
   Future<void> togglePin(BuildContext context, WidgetRef ref, Memo m) async {
-    final l = AppLocalizations.of(context);
     try {
       final repo = await ref.read(memoRepositoryProvider.future);
       await repo.pin(m.rowId);
       ref.invalidate(memoListProvider);
-    } on ApiException catch (e) {
-      if (context.mounted) {
-        showPSnackBar(context, l.memoActionFailed(e.message),
-            severity: PSnackSeverity.error);
-      }
+    } on ApiException {
+      // 토스트는 ErrorToastInterceptor 가 띄운다 — 여기선 흐름만 멈춘다.
     }
   }
 }

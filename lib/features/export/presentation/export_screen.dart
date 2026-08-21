@@ -202,10 +202,8 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
         _preview = tables;
         _previewTab = tables.isNotEmpty ? tables.first.type : null;
       });
-    } on ApiException catch (e) {
+    } on ApiException {
       if (mounted) {
-        final l = AppLocalizations.of(context);
-        showPSnackBar(context, '${l.expActionFailed}: ${e.message}', severity: PSnackSeverity.error);
       }
     } finally {
       if (mounted) setState(() => _previewing = false);
@@ -233,8 +231,8 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
         if (await file.exists()) await file.delete();
       }
       if (mounted) showPSnackBar(context, l.exportSuccess, severity: PSnackSeverity.success);
-    } on ApiException catch (e) {
-      if (mounted) showPSnackBar(context, '${l.expActionFailed}: ${e.message}', severity: PSnackSeverity.error);
+    } on ApiException {
+      // 토스트는 ErrorToastInterceptor 가 띄운다 — 여기선 흐름만 멈춘다.
     } finally {
       if (mounted) setState(() => _downloading = false);
     }

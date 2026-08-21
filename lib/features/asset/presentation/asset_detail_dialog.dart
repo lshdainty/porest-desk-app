@@ -25,7 +25,6 @@ import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
-import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/features/card/application/card_providers.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
@@ -647,9 +646,8 @@ class _TradeHistory extends ConsumerWidget {
       ref.invalidate(assetsProvider);
       ref.invalidate(assetTradesProvider(assetRowId));
       if (!context.mounted) return;
-    } on ApiException catch (e) {
+    } on ApiException {
       if (!context.mounted) return;
-      showPSnackBar(context, e.message, severity: PSnackSeverity.error);
     }
   }
 }
@@ -1772,7 +1770,6 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
 
   Future<void> _pay(int amount) async {
     if (_paying) return;
-    final l = AppLocalizations.of(context);
     setState(() => _paying = true);
     try {
       final repo = await ref.read(assetRepositoryProvider.future);
@@ -1782,10 +1779,8 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
         ..invalidate(assetsProvider)
         ..invalidate(assetByIdProvider(widget.asset.rowId));
       if (!mounted) return;
-    } on ApiException catch (e) {
+    } on ApiException {
       if (!mounted) return;
-      showPSnackBar(context, '${l.assetPayFailed}: ${e.message}',
-          severity: PSnackSeverity.error);
     } finally {
       if (mounted) setState(() => _paying = false);
     }
@@ -1828,10 +1823,8 @@ class _CardDetailBodyState extends ConsumerState<_CardDetailBody> {
         ..invalidate(assetByIdProvider(widget.asset.rowId));
       invalidateAfterExpenseChange(ref);
       if (!mounted) return;
-    } on ApiException catch (e) {
+    } on ApiException {
       if (!mounted) return;
-      showPSnackBar(context, '${l.expActionFailed}: ${e.message}',
-          severity: PSnackSeverity.error);
     } finally {
       if (mounted) setState(() => _paying = false);
     }

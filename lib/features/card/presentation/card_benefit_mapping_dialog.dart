@@ -14,7 +14,6 @@ import 'package:porest_desk_app/shared/widgets/p_divider.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_progress.dart';
 import 'package:porest_desk_app/shared/widgets/p_select.dart';
-import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
 import 'package:porest_desk_app/features/card/application/card_providers.dart';
@@ -58,7 +57,6 @@ class _BodyState extends ConsumerState<_Body> {
   }
 
   Future<void> _add() async {
-    final l = AppLocalizations.of(context);
     final benefit = _benefitCtrl.text.trim();
     if (benefit.isEmpty || _selectedCategoryId == null || _adding) return;
     setState(() => _adding = true);
@@ -74,10 +72,9 @@ class _BodyState extends ConsumerState<_Body> {
         _selectedCategoryId = null;
         _adding = false;
       });
-    } on ApiException catch (e) {
+    } on ApiException {
       if (!mounted) return;
       setState(() => _adding = false);
-      showPSnackBar(context, '${l.cardAddFailed}: ${e.message}', severity: PSnackSeverity.error);
     }
   }
 
@@ -196,7 +193,6 @@ class _RowState extends ConsumerState<_Row> {
   bool _busy = false;
 
   Future<void> _delete() async {
-    final l = AppLocalizations.of(context);
     if (!widget.mapping.isCustom) return; // 시스템 매핑은 삭제 불가
     setState(() => _busy = true);
     try {
@@ -204,10 +200,9 @@ class _RowState extends ConsumerState<_Row> {
           await ref.read(cardBenefitMappingRepositoryProvider.future);
       await repo.delete(widget.mapping.rowId);
       ref.invalidate(cardBenefitMappingsProvider);
-    } on ApiException catch (e) {
+    } on ApiException {
       if (!mounted) return;
       setState(() => _busy = false);
-      showPSnackBar(context, '${l.cardDeleteFailed}: ${e.message}', severity: PSnackSeverity.error);
     }
   }
 

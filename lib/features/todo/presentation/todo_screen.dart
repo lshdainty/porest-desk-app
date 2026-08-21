@@ -193,13 +193,8 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
           severity: PSnackSeverity.success,
         );
       }
-    } on ApiException catch (e) {
+    } on ApiException {
       if (!mounted) return;
-      showPSnackBar(
-        context,
-        '${l.todoActionFailed}: ${e.message}',
-        severity: PSnackSeverity.error,
-      );
     }
   }
 

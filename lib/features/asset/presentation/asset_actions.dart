@@ -7,7 +7,6 @@ import 'package:porest_desk_app/features/asset/domain/asset.dart';
 import 'package:porest_desk_app/features/asset/presentation/asset_edit_dialog.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/actions/item_actions.dart';
-import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 
 /// 자산 하나에 할 수 있는 일 — 상세 시트와 목록 행이 같은 것을 부른다.
 ///
@@ -51,7 +50,6 @@ class AssetActions implements ItemActions<Asset> {
 
   @override
   Future<bool> delete(BuildContext context, WidgetRef ref, Asset a) async {
-    final l = AppLocalizations.of(context);
     final kind = _kindOf(a);
     try {
       final repo = await ref.read(assetRepositoryProvider.future);
@@ -63,14 +61,7 @@ class AssetActions implements ItemActions<Asset> {
         ref.invalidate(investmentValuationMapProvider);
       }
       return true;
-    } on ApiException catch (err) {
-      if (context.mounted) {
-        showPSnackBar(
-          context,
-          '${l.assetDeleteFailed}: ${err.message}',
-          severity: PSnackSeverity.error,
-        );
-      }
+    } on ApiException {
       return false;
     }
   }

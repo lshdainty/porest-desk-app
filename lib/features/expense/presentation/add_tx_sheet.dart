@@ -23,7 +23,6 @@ import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_progress.dart';
 import 'package:porest_desk_app/shared/widgets/p_section_label.dart';
 import 'package:porest_desk_app/shared/widgets/p_select.dart';
-import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
@@ -340,14 +339,8 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
         invalidateAfterExpenseChange(ref);
         if (!mounted) return;
         Navigator.of(context).pop();
-      } on ApiException catch (e) {
+      } on ApiException {
         if (!mounted) return;
-        final l = AppLocalizations.of(context);
-        showPSnackBar(
-          context,
-          '${l.expActionFailed}: ${e.message}',
-          severity: PSnackSeverity.error,
-        );
       } finally {
         if (mounted) _setSubmitting(false);
       }
@@ -447,14 +440,8 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
       invalidateAfterExpenseChange(ref);
       if (!mounted) return;
       Navigator.of(context).pop();
-    } on ApiException catch (e) {
+    } on ApiException {
       if (!mounted) return;
-      final l = AppLocalizations.of(context);
-      showPSnackBar(
-        context,
-        '${l.expActionFailed}: ${e.message}',
-        severity: PSnackSeverity.error,
-      );
     } finally {
       if (mounted) _setSubmitting(false);
     }
@@ -939,13 +926,8 @@ class _SavePresetDialogState extends ConsumerState<_SavePresetDialog> {
       ref.invalidate(presetListProvider);
       if (!mounted) return;
       Navigator.of(context).pop();
-    } on ApiException catch (e) {
+    } on ApiException {
       if (!mounted) return;
-      showPSnackBar(
-        context,
-        '${AppLocalizations.of(context).expSaveFailed}: ${e.message}',
-        severity: PSnackSeverity.error,
-      );
     } finally {
       if (mounted) setState(() => _submitting = false);
     }

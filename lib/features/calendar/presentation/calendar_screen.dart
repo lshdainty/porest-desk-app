@@ -16,7 +16,6 @@ import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_divider.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
-import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/features/calendar/application/calendar_providers.dart';
 import 'package:porest_desk_app/features/calendar/domain/calendar_event.dart';
 import 'package:porest_desk_app/features/calendar/domain/holiday.dart';
@@ -439,10 +438,6 @@ class _CalendarFilterSheetBody extends ConsumerWidget {
                     await repo.toggleVisibility(cal.rowId);
                     ref.invalidate(userCalendarListProvider);
                   } catch (_) {
-                    if (context.mounted) {
-                      showPSnackBar(context, l.calUpdateFailed,
-                          severity: PSnackSeverity.error);
-                    }
                   }
                 },
                 tokens: t,

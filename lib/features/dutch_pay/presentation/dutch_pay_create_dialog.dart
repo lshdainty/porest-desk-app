@@ -14,7 +14,6 @@ import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_date_input.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
-import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
 import 'package:porest_desk_app/features/expense/domain/expense.dart' show Expense;
 import 'package:porest_desk_app/features/dutch_pay/application/dutch_pay_providers.dart';
@@ -241,11 +240,8 @@ class _BodyState extends ConsumerState<_Body> {
       ref.invalidate(dutchPayListProvider);
       if (!mounted) return;
       Navigator.of(context).pop();
-    } on ApiException catch (e) {
+    } on ApiException {
       if (!mounted) return;
-      final l = AppLocalizations.of(context);
-      showPSnackBar(context, '${l.dutchActionFailed}: ${e.message}',
-          severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setSubmitting(false);
     }

@@ -16,7 +16,6 @@ import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_chip.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_search_field.dart';
-import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
 import 'package:porest_desk_app/features/asset/domain/asset.dart';
@@ -396,7 +395,6 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
 
   Future<void> _submit() async {
     if (_submitting) return;
-    final l = AppLocalizations.of(context);
     final brand = _brand;
     // 별칭이 있으면 그것이 자산명이다 — 비웠을 때만 웹과 같은 fallback 을 쓴다.
     final resolvedName =
@@ -446,10 +444,8 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
       ref.invalidate(investmentValuationMapProvider);
       if (!mounted) return;
       Navigator.of(context).pop();
-    } on ApiException catch (e) {
+    } on ApiException {
       if (!mounted) return;
-      showPSnackBar(context, '${l.assetActionFailed}: ${e.message}',
-          severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setSubmitting(false);
     }

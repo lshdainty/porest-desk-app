@@ -139,9 +139,8 @@ class _MoveTxBodyState extends ConsumerState<_MoveTxBody> {
       Navigator.of(context).pop();
       showPSnackBar(context, l.categoryMoveTxDone(moved),
           severity: PSnackSeverity.success);
-    } on ApiException catch (e) {
+    } on ApiException {
       if (!mounted) return;
-      showPSnackBar(context, e.message, severity: PSnackSeverity.error);
     } finally {
       if (mounted) widget.controller.setSubmitting(false);
     }

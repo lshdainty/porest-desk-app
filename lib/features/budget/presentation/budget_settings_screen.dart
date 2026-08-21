@@ -121,14 +121,7 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
           );
         }
       }
-    } on ApiException catch (e) {
-      if (mounted) {
-        showPSnackBar(
-          context,
-          '${l.budgetCopyFailed}: ${e.message}',
-          severity: PSnackSeverity.error,
-        );
-      }
+    } on ApiException {
       rethrow; // 다이얼로그 유지 (showPConfirmDialog 가 catch).
     }
     ref.invalidate(monthBudgetsProvider(_key));
@@ -173,15 +166,12 @@ class _BudgetSettingsScreenState extends ConsumerState<BudgetSettingsScreen> {
   /// 스와이프 삭제 — 확인은 PSwipeActions 가 이미 받았으므로 여기서 다시 묻지 않는다.
   /// 수정 시트가 쓰던 저장소·무효화 경로를 그대로 쓴다(문구도 같은 키).
   Future<void> _deleteCategory(Budget budget) async {
-    final l = AppLocalizations.of(context);
     try {
       final repo = await ref.read(budgetRepositoryProvider.future);
       await repo.delete(budget.rowId);
       ref.invalidate(monthBudgetsProvider(_key));
-    } on ApiException catch (e) {
+    } on ApiException {
       if (!mounted) return;
-      showPSnackBar(context, '${l.budgetDeleteFailed}: ${e.message}',
-          severity: PSnackSeverity.error);
     }
   }
 

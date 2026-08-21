@@ -16,7 +16,6 @@ import 'package:porest_desk_app/shared/widgets/p_checkbox.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_select.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
-import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
@@ -134,7 +133,6 @@ class _BodyState extends ConsumerState<_Body> {
 
   Future<void> _submit() async {
     if (!_canSubmit) return;
-    final l = AppLocalizations.of(context);
     _setSubmitting(true);
     try {
       final repo = await ref.read(presetRepositoryProvider.future);
@@ -172,13 +170,8 @@ class _BodyState extends ConsumerState<_Body> {
       ref.invalidate(presetListProvider);
       if (!mounted) return;
       Navigator.of(context).pop();
-    } on ApiException catch (e) {
+    } on ApiException {
       if (!mounted) return;
-      showPSnackBar(
-        context,
-        '${l.expActionFailed}: ${e.message}',
-        severity: PSnackSeverity.error,
-      );
     } finally {
       if (mounted) _setSubmitting(false);
     }

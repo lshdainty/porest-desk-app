@@ -24,7 +24,6 @@ import 'package:porest_desk_app/shared/widgets/p_select.dart';
 import 'package:porest_desk_app/shared/widgets/p_switch.dart';
 import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
-import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
 import 'package:porest_desk_app/features/asset/domain/asset.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
@@ -208,7 +207,6 @@ class _RecurringSettingsBodyState
 
   Future<void> _save() async {
     if (!_ready || _submitting) return;
-    final l = AppLocalizations.of(context);
     _setSubmitting(true);
     final isWeekly = _frequency == 'WEEKLY';
     final isMonthlyish = _frequency == 'MONTHLY' || _frequency == 'YEARLY';
@@ -299,13 +297,8 @@ class _RecurringSettingsBodyState
       ref.invalidate(recurringListProvider);
       if (!mounted) return;
       Navigator.of(context).pop();
-    } on ApiException catch (err) {
+    } on ApiException {
       if (!mounted) return;
-      showPSnackBar(
-        context,
-        '${l.recurringSaveFailed}: ${err.message}',
-        severity: PSnackSeverity.error,
-      );
     } finally {
       if (mounted) _setSubmitting(false);
     }

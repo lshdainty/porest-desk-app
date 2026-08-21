@@ -83,9 +83,8 @@ class _FileAttachmentSectionState
       ref.invalidate(filesByReferenceProvider(_key));
       if (!mounted) return;
       showPSnackBar(context, l.fileUploadComplete(name), severity: PSnackSeverity.success);
-    } on ApiException catch (e) {
+    } on ApiException {
       if (!mounted) return;
-      showPSnackBar(context, '${l.fileUploadFailed}: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -106,9 +105,8 @@ class _FileAttachmentSectionState
       final repo = await ref.read(fileRepositoryProvider.future);
       await repo.delete(f.rowId);
       ref.invalidate(filesByReferenceProvider(_key));
-    } on ApiException catch (e) {
+    } on ApiException {
       if (!mounted) return;
-      showPSnackBar(context, '${l.fileDeleteFailed}: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) setState(() => _busy = false);
     }

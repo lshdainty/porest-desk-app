@@ -15,7 +15,6 @@ import 'package:porest_desk_app/shared/widgets/p_color_picker.dart';
 import 'package:porest_desk_app/shared/widgets/p_icon_picker.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_select.dart';
-import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
 import 'package:porest_desk_app/features/budget/application/budget_providers.dart';
@@ -208,7 +207,6 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
   }
 
   Future<void> _submit() async {
-    final l = AppLocalizations.of(context);
     setState(() => _touched = true);
     if (_submitting || !_valid) return;
     final name = _nameTrim;
@@ -250,9 +248,8 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
       _invalidateAggregates();
       if (!mounted) return;
       Navigator.of(context).pop();
-    } on ApiException catch (e) {
+    } on ApiException {
       if (!mounted) return;
-      showPSnackBar(context, '${l.categoryActionFailed}: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setSubmitting(false);
     }
@@ -295,9 +292,8 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
       _invalidateAggregates();
       if (!mounted) return;
       Navigator.of(context).pop();
-    } on ApiException catch (e) {
+    } on ApiException {
       if (!mounted) return;
-      showPSnackBar(context, '${l.categoryDeleteFailed}: ${e.message}', severity: PSnackSeverity.error);
     } finally {
       if (mounted) _setSubmitting(false);
     }

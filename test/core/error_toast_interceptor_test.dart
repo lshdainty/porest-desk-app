@@ -1,4 +1,4 @@
-// 전역 에러 그물 — 아무도 처리 안 한 에러만 뜨고, 화면이 처리하면 안 뜬다.
+// API 에러 토스트는 여기 한 곳에서만 뜬다 — 웹 shared/api/base.ts 와 같은 구조.
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -42,30 +42,28 @@ void main() {
   // InterceptorState 를 던진다. 예약 로직만 직접 부른다.
   void fire(DioException e) => ErrorToastInterceptor().schedule(e);
 
-  // 타이머 발화 + 스낵바 프레임. 한 번만 펌프하면 아직 안 그려져 있다.
+  // 스낵바가 그려질 때까지. 한 번만 펌프하면 아직 안 올라와 있다.
   Future<void> settle(WidgetTester tester) async {
-    await tester.pump(const Duration(milliseconds: 500));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
   }
 
-  testWidgets('아무도 처리 안 하면 서버 메시지가 뜬다', (tester) async {
+  testWidgets('서버 메시지를 그대로 띄운다', (tester) async {
     await pumpHost(tester);
     fire(_err(500, '서버가 응답하지 않았어요'));
     await settle(tester);
     expect(find.text('서버가 응답하지 않았어요'), findsOneWidget);
   });
 
-  testWidgets('화면이 자기 토스트를 띄우면 전역은 취소된다', (tester) async {
+  testWidgets('화면은 자기 에러 메시지를 띄우지 않는다 — 문구가 갈리지 않게', (tester) async {
     await pumpHost(tester);
-    fire(_err(500, '서버 원문'));
-    // 화면의 catch 가 도는 시점 — grace window 안.
-    showPSnackBar(screenCtx, '삭제 실패: 서버 원문',
-        severity: PSnackSeverity.error);
+    fire(_err(500, '권한이 없습니다'));
     await settle(tester);
 
-    expect(find.text('삭제 실패: 서버 원문'), findsOneWidget);
-    expect(find.text('서버 원문'), findsNothing, reason: '두 개가 뜨면 안 된다');
+    // 앱이 "삭제 실패: …" 처럼 접두를 붙이면 웹과 문구가 갈려 추적이 어렵다.
+    // 서버 메시지 하나만 뜬다.
+    expect(find.text('권한이 없습니다'), findsOneWidget);
+    expect(find.textContaining('삭제 실패'), findsNothing);
   });
 
   testWidgets('401 은 그물에 안 걸린다 — 세션 만료는 로그인으로 보낸다', (tester) async {

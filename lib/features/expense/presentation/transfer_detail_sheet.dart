@@ -16,7 +16,6 @@ import 'package:porest_desk_app/features/asset/application/asset_providers.dart'
 import 'package:porest_desk_app/features/asset/domain/asset_transfer.dart';
 import 'package:porest_desk_app/features/expense/application/expense_providers.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
-import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 
 /// 이체 상세 — 보기 + 수정 + 삭제 (web `TransferDetailDialog` 미러).
 ///
@@ -117,9 +116,8 @@ class _TransferDetailBodyState extends ConsumerState<_TransferDetailBody> {
       }
       if (!mounted) return;
       Navigator.of(context).pop();
-    } on ApiException catch (e) {
+    } on ApiException {
       if (!mounted) return;
-      showPSnackBar(context, e.message, severity: PSnackSeverity.error);
     } finally {
       if (mounted) widget.controller.setSubmitting(false);
     }

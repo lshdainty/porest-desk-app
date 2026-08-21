@@ -14,7 +14,6 @@ import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_progress.dart';
 import 'package:porest_desk_app/shared/widgets/p_select.dart';
 import 'package:porest_desk_app/shared/widgets/p_section_label.dart';
-import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
 import 'package:porest_desk_app/shared/widgets/p_switch.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
 import 'package:porest_desk_app/shared/widgets/p_toggle.dart';
@@ -160,7 +159,6 @@ class _BodyState extends ConsumerState<_Body> {
       '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}T${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}:00';
 
   Future<void> _submit() async {
-    final l = AppLocalizations.of(context);
     setState(() => _submitting = true);
     _syncController();
     try {
@@ -208,10 +206,8 @@ class _BodyState extends ConsumerState<_Body> {
       }
       if (!mounted) return;
       Navigator.of(context).pop();
-    } on ApiException catch (e) {
+    } on ApiException {
       if (!mounted) return;
-      showPSnackBar(context, '${l.calActionFailed}: ${e.message}',
-          severity: PSnackSeverity.error);
     } finally {
       if (mounted) {
         setState(() => _submitting = false);
