@@ -4,7 +4,16 @@
 #
 # 앱 업데이트 화면과 GitHub 릴리스 본문이 같은 글을 쓴다.
 #
-# 글은 두 군데서 온다.
+# 글은 세 군데서 온다.
+#
+#   0. `release_notes/<태그>.md` — 있으면 그 파일이 전부다. 커밋은 안 본다.
+#
+#      트레일러는 커밋을 만들 때만 달 수 있다. 규칙이 생기기 전에 머지된 커밋이나,
+#      여러 커밋이 서로 상쇄돼(값을 바꿨다 되돌렸다) 목록으로는 뜻이 안 통하는
+#      릴리스는 소급할 방법이 없다 — main 히스토리를 다시 쓰지 않는 한.
+#      그때 사람이 직접 쓴다. PR 로 리뷰되고 CI 가 그대로 재현한다.
+#
+#      상시 수단이 아니다. 트레일러를 성실히 달면 이 파일은 안 생긴다.
 #
 #   1. `Release-Note:` 트레일러 — 있으면 이것을 그대로 쓴다.
 #
@@ -23,15 +32,27 @@
 #
 # 그리고 feat·fix 만 남겨 타입별로 묶는다(ci·docs·test·chore·refactor 는 우리 사정).
 #
-# 사용: scripts/release_notes.sh <git-range>
+# 사용: scripts/release_notes.sh <git-range> [태그]
 #   예: scripts/release_notes.sh v1.12.0..HEAD
+#       scripts/release_notes.sh v1.12.0..HEAD v1.13.0   # 손으로 쓴 노트가 있으면 그것
+#
+# 태그를 안 주면 손으로 쓴 노트는 찾지 않는다 — CI 는 GITHUB_REF_NAME 을 넘긴다.
+# 브랜치 빌드(dev)면 그 값이 `main` 이라 파일이 없고, 자연히 커밋에서 뽑는다.
 #
 # 범위 대신 `-` 를 주면 커밋 제목을 stdin 으로 받는다 — 손으로 확인해 볼 때 쓴다.
 # 이 모드에는 트레일러가 없으므로 제목 폴백만 확인된다.
 #   예: printf 'fix(a): 가\nchore: 나\n' | scripts/release_notes.sh -
 set -euo pipefail
 
-RANGE="${1:?usage: release_notes.sh <git-range>}"
+RANGE="${1:?usage: release_notes.sh <git-range> [tag]}"
+TAG="${2:-}"
+
+# 손으로 쓴 노트가 이긴다. 있으면 커밋은 아예 안 읽는다 — 섞으면 어느 줄이 어디서
+# 왔는지 알 수 없고, 사람이 뺀 줄이 폴백으로 되살아난다.
+if [ -n "${TAG}" ] && [ -f "release_notes/${TAG}.md" ]; then
+  cat "release_notes/${TAG}.md"
+  exit 0
+fi
 
 # 한 릴리스에 담을 최대 줄 수. 넘치면 화면이 스크롤만 길어지고 아무도 안 읽는다.
 MAX_LINES="${RELEASE_NOTES_MAX:-40}"

@@ -359,7 +359,9 @@ jobs:
           RANGE="${GITHUB_SHA}"
           [ -n "${PREV}" ] && RANGE="${PREV}..${GITHUB_SHA}"
 
-          NOTES=$(scripts/release_notes.sh "${RANGE}")
+          # 태그를 같이 넘긴다 — release_notes/<태그>.md 가 있으면 그 글이 이긴다.
+          # 트레일러를 소급할 수 없는 릴리스에서 쓰는 수동 경로다(스크립트 헤더 0번).
+          NOTES=$(scripts/release_notes.sh "${RANGE}" "${GITHUB_REF_NAME}")
           # 릴리스 본문도 같은 글을 쓴다 — 앱에서 본 내용과 릴리스 페이지가 갈리지 않게.
           # upload/ 밖에 둔다 — 그 폴더는 통째로 릴리스 에셋으로 올라간다.
           printf '%s\n' "${NOTES}" > release_notes.md
