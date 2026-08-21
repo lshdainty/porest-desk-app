@@ -149,8 +149,9 @@ class _PCalendarState extends State<PCalendar> {
                     caption,
                     style: TextStyle(
                       fontFamily: PTypo.sans,
-                      fontSize: PFontSize.titleSm,
-                      fontWeight: PFontWeight.medium,
+                      // 시트의 주인공이라 titleSm(16)으로는 눌린다.
+                      fontSize: PFontSize.h3,
+                      fontWeight: PFontWeight.semi,
                       color: t.fgPrimary,
                     ),
                   ),

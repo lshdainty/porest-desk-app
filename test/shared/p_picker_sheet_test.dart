@@ -1,11 +1,12 @@
 // iOS 스타일 시각 휠 — 탭하면 휠이 뜨고, 확인/취소가 값에 반영되는지.
-// 날짜(PDateInput)는 Material 달력 그대로다 — 월 전체가 보이는 쪽이 낫다.
+// 날짜는 달력 그리드 그대로 두고 등장만 시트로 — 월 전체가 보이는 쪽이 낫다.
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:porest_desk_app/app/theme/theme_data.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
+import 'package:porest_desk_app/shared/widgets/p_calendar.dart';
 import 'package:porest_desk_app/shared/widgets/p_date_input.dart';
 
 Widget _app(Widget child) => MaterialApp(
@@ -17,7 +18,7 @@ Widget _app(Widget child) => MaterialApp(
     );
 
 void main() {
-  testWidgets('날짜 입력은 Material 달력 그대로다', (tester) async {
+  testWidgets('날짜 입력을 탭하면 달력이 시트로 올라온다', (tester) async {
     await tester.pumpWidget(_app(
       PDateInput(value: DateTime(2026, 3, 5), onChanged: (_) {}),
     ));
@@ -25,8 +26,28 @@ void main() {
     await tester.tap(find.byType(InkWell));
     await tester.pumpAndSettle();
 
-    expect(find.byType(CalendarDatePicker), findsOneWidget);
+    // 달력 그리드는 유지하되(월 전체가 보이는 쪽이 낫다) 등장 방식만 시트로.
+    expect(find.byType(PCalendar), findsOneWidget);
+    expect(find.text('2026년 3월'), findsOneWidget);
+    // Material 다이얼로그 피커로 돌아가지 않았는지.
+    expect(find.byType(CalendarDatePicker), findsNothing);
     expect(find.byType(CupertinoDatePicker), findsNothing);
+  });
+
+  testWidgets('날짜를 누르면 시트가 닫히고 그 값이 올라온다', (tester) async {
+    DateTime? changed;
+    await tester.pumpWidget(_app(
+      PDateInput(value: DateTime(2026, 3, 5), onChanged: (v) => changed = v),
+    ));
+
+    await tester.tap(find.byType(InkWell));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('17'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(PCalendar), findsNothing, reason: '고르면 바로 닫힌다');
+    expect(changed, DateTime(2026, 3, 17));
   });
 
   testWidgets('시각 입력을 탭하면 휠이 뜨고, 취소하면 값이 그대로다', (tester) async {

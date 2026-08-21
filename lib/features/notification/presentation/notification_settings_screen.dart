@@ -19,7 +19,7 @@ import 'package:porest_desk_app/shared/widgets/p_slider.dart';
 import 'package:porest_desk_app/shared/widgets/p_switch.dart';
 import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
-import 'package:porest_desk_app/shared/widgets/p_wheel_picker.dart';
+import 'package:porest_desk_app/shared/widgets/p_picker_sheet.dart';
 import 'package:porest_desk_app/features/notification/application/user_preferences_providers.dart';
 import 'package:porest_desk_app/features/notification/data/user_preferences_repository.dart';
 
