@@ -28,10 +28,35 @@ void main() {
 
     // 달력 그리드는 유지하되(월 전체가 보이는 쪽이 낫다) 등장 방식만 시트로.
     expect(find.byType(PCalendar), findsOneWidget);
-    expect(find.text('2026년 3월'), findsOneWidget);
+    // 헤더는 월·년 select 두 개로 갈라져 있다.
+    expect(find.text('3월'), findsOneWidget);
+    expect(find.text('2026년'), findsOneWidget);
     // Material 다이얼로그 피커로 돌아가지 않았는지.
     expect(find.byType(CalendarDatePicker), findsNothing);
     expect(find.byType(CupertinoDatePicker), findsNothing);
+  });
+
+  testWidgets('년도 select 로 먼 해까지 한 번에 간다', (tester) async {
+    await tester.pumpWidget(_app(
+      PDateInput(
+        value: DateTime(2026, 3, 5),
+        firstDate: DateTime(2020),
+        lastDate: DateTime(2030, 12, 31),
+        onChanged: (_) {},
+      ),
+    ));
+
+    await tester.tap(find.byType(InkWell));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('2026년'));
+    await tester.pumpAndSettle();
+    // 목록이 열리면 같은 라벨이 트리거·항목 둘 다에 있다 — 마지막(항목)을 누른다.
+    await tester.tap(find.text('2022년').last);
+    await tester.pumpAndSettle();
+
+    expect(find.text('2022년'), findsOneWidget);
+    expect(find.text('3월'), findsOneWidget, reason: '월은 그대로 둔다');
   });
 
   testWidgets('날짜를 누르면 시트가 닫히고 그 값이 올라온다', (tester) async {
