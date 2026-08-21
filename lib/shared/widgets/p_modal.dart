@@ -446,7 +446,9 @@ class PFormAlertDialog extends StatelessWidget {
     final t = context.tokens;
     return AlertDialog(
       backgroundColor: t.bgSurface,
-      shape: const RoundedRectangleBorder(borderRadius: PRadius.brLg),
+      // shape 은 dialogTheme(radius-lg 12) 을 따른다 — 여기서 또 지정하면
+      // 테마가 바뀌어도 이 다이얼로그만 옛 값에 남는다. 실제로 확인 다이얼로그와
+      // 모서리가 갈렸던 원인이다.
       title: titleLeading != null
           ? Row(
               children: [
