@@ -3,6 +3,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
+import 'package:porest_desk_app/core/network/interceptors/error_toast_interceptor.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 
@@ -32,7 +33,14 @@ void showPSnackBar(
   PSnackSeverity severity = PSnackSeverity.neutral,
   Duration duration = const Duration(seconds: 4),
   SnackBarAction? action,
+  /// 직접 넘기는 messenger — 전역 키로 띄울 때 쓴다. ScaffoldMessenger.of 는
+  /// 자기 자신의 context 에서는 못 찾으므로(위로만 탐색) 그 경우 필수다.
+  ScaffoldMessengerState? messenger,
 }) {
+  // 화면이 자기 에러 메시지를 띄우면 전역 그물(ErrorToastInterceptor)이 대기시켜 둔
+  // 서버 메시지는 취소한다 — 같은 실패로 토스트가 두 개 뜨지 않게.
+  if (severity == PSnackSeverity.error) cancelPendingGlobalErrorToast();
+
   final t = context.tokens;
   // 아이콘 색만 severity 를 탄다. neutral 은 아이콘 자체가 없다(스펙: default kind).
   final (Color? iconColor, IconData? icon) = switch (severity) {
@@ -43,7 +51,7 @@ void showPSnackBar(
     PSnackSeverity.error => (t.statusDanger, LucideIcons.circleAlert),
   };
 
-  ScaffoldMessenger.of(context).showSnackBar(
+  (messenger ?? ScaffoldMessenger.of(context)).showSnackBar(
     SnackBar(
       // 색을 직접 그리므로 Material 기본 배경·여백을 걷어낸다.
       backgroundColor: Colors.transparent,

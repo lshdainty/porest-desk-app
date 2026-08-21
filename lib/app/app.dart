@@ -14,6 +14,10 @@ import 'package:porest_desk_app/core/auth/oauth_link_listener.dart';
 import 'package:porest_desk_app/app/router.dart';
 import 'package:porest_desk_app/app/theme/theme_data.dart';
 
+/// 화면 밖(네트워크 인터셉터 등)에서 토스트를 띄우기 위한 전역 키.
+final GlobalKey<ScaffoldMessengerState> appMessengerKey =
+    GlobalKey<ScaffoldMessengerState>();
+
 class PorestDeskApp extends ConsumerStatefulWidget {
   const PorestDeskApp({super.key});
 
@@ -99,6 +103,9 @@ class _PorestDeskAppState extends ConsumerState<PorestDeskApp>
     final settings = ref.watch(settingsProvider).value ?? AppSettings.defaults;
     return MaterialApp.router(
       title: 'Porest Desk',
+      // 인터셉터에는 BuildContext 가 없다 — 이 키로 토스트를 띄운다
+      // (ErrorToastInterceptor: 아무도 처리하지 않은 API 에러의 마지막 그물).
+      scaffoldMessengerKey: appMessengerKey,
       debugShowCheckedModeBanner: false,
       theme: PorestTheme.light(),
       darkTheme: PorestTheme.dark(),
