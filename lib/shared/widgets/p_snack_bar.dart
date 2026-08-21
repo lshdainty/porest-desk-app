@@ -62,9 +62,12 @@ void showPSnackBar(
           // 올려야 실제로 뜬다(sonner.md 2026-08-21). 라이트에선 raised 가
           // surface 와 같은 값이라 변화 없다.
           color: t.bgSurfaceRaised,
-          border: Border.all(color: t.borderDefault),
+          // 테두리 없음 — 면과 그림자만으로 분리한다(sonner.md 2026-08-21).
           borderRadius: PRadius.brMd,
-          boxShadow: t.shadowLg,
+          // 다크에서 lg·xl 은 부드러운 번짐이 아니라 한 겹 더 어두운 띠로 읽힌다
+          // (그림자 색이 50~60% 검정인데 배경이 이미 거의 검정이라 경계가 안 뭉개진다).
+          // md 는 띠가 안 생기고, 분리는 위의 surfaceRaised 면 차이가 해 준다.
+          boxShadow: t.shadowMd,
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
