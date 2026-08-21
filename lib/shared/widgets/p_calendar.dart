@@ -171,7 +171,7 @@ class _PCalendarState extends State<PCalendar> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // 헤더: prev · [월][년] · next
+          // 헤더: prev · [년][월] · next — 큰 단위가 앞이다.
           //
           // 화살표만 두면 몇 년 전으로 가는 데 수십 번을 눌러야 한다. select 로
           // 바로 집게 하고, 화살표는 인접 월 이동용으로 남긴다.
@@ -184,6 +184,19 @@ class _PCalendarState extends State<PCalendar> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       SizedBox(
+                        width: 110,
+                        child: PSelect<int>(
+                          value: _month.year,
+                          items: [
+                            for (final y in _years)
+                              PSelectItem(
+                                  value: y, label: yearOnly(DateTime(y))),
+                          ],
+                          onChanged: (y) => _jump(year: y),
+                        ),
+                      ),
+                      const SizedBox(width: PSpace.x8),
+                      SizedBox(
                         width: 96,
                         child: PSelect<int>(
                           value: _month.month,
@@ -195,19 +208,6 @@ class _PCalendarState extends State<PCalendar> {
                               ),
                           ],
                           onChanged: (m) => _jump(month: m),
-                        ),
-                      ),
-                      const SizedBox(width: PSpace.x8),
-                      SizedBox(
-                        width: 110,
-                        child: PSelect<int>(
-                          value: _month.year,
-                          items: [
-                            for (final y in _years)
-                              PSelectItem(
-                                  value: y, label: yearOnly(DateTime(y))),
-                          ],
-                          onChanged: (y) => _jump(year: y),
                         ),
                       ),
                     ],
