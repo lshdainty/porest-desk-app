@@ -73,7 +73,7 @@ class _SmsPasteScreenState extends ConsumerState<SmsPasteScreen> {
     if (!mounted) return;
     final l = AppLocalizations.of(context);
     if (text == null || text.trim().isEmpty) {
-      showPSnackBar(context, l.smsClipboardEmpty, severity: PSnackSeverity.info);
+      showPSnackBar(context, l.smsClipboardEmpty, severity: PSnackSeverity.warning);
       return;
     }
     setState(() {
@@ -114,7 +114,7 @@ class _SmsPasteScreenState extends ConsumerState<SmsPasteScreen> {
       }
 
       if (parsed.isLowConfidence) {
-        showPSnackBar(context, l.smsLowConfidence, severity: PSnackSeverity.info);
+        showPSnackBar(context, l.smsLowConfidence, severity: PSnackSeverity.warning);
       }
       showAddTxSheet(
         context,
