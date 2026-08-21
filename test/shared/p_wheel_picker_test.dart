@@ -1,4 +1,5 @@
-// iOS 스타일 휠 피커 — 탭하면 휠이 뜨고, 확인/취소가 값에 반영되는지.
+// iOS 스타일 시각 휠 — 탭하면 휠이 뜨고, 확인/취소가 값에 반영되는지.
+// 날짜(PDateInput)는 Material 달력 그대로다 — 월 전체가 보이는 쪽이 낫다.
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -16,7 +17,7 @@ Widget _app(Widget child) => MaterialApp(
     );
 
 void main() {
-  testWidgets('날짜 입력을 탭하면 Material 달력이 아니라 휠이 뜬다', (tester) async {
+  testWidgets('날짜 입력은 Material 달력 그대로다', (tester) async {
     await tester.pumpWidget(_app(
       PDateInput(value: DateTime(2026, 3, 5), onChanged: (_) {}),
     ));
@@ -24,8 +25,8 @@ void main() {
     await tester.tap(find.byType(InkWell));
     await tester.pumpAndSettle();
 
-    expect(find.byType(CupertinoDatePicker), findsOneWidget);
-    expect(find.byType(CalendarDatePicker), findsNothing);
+    expect(find.byType(CalendarDatePicker), findsOneWidget);
+    expect(find.byType(CupertinoDatePicker), findsNothing);
   });
 
   testWidgets('시각 입력을 탭하면 휠이 뜨고, 취소하면 값이 그대로다', (tester) async {

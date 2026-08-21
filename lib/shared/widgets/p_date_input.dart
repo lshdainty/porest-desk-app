@@ -42,11 +42,11 @@ class PDateInput extends StatelessWidget {
       onTap: !enabled
           ? null
           : () async {
-              final p = await showPDatePicker(
-                context,
-                initial: value ?? DateTime.now(),
-                firstDate: firstDate,
-                lastDate: lastDate,
+              final p = await showDatePicker(
+                context: context,
+                initialDate: value ?? DateTime.now(),
+                firstDate: firstDate ?? DateTime(2020),
+                lastDate: lastDate ?? DateTime(2030, 12, 31),
               );
               if (p != null) onChanged(p);
             },
