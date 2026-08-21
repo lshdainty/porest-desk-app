@@ -9,7 +9,6 @@ import 'package:porest_desk_app/core/auth/auth_notifier.dart';
 import 'package:porest_desk_app/core/auth/password_rules.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
-import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_modal.dart';
 import 'package:porest_desk_app/shared/widgets/p_section_label.dart';
 import 'package:porest_desk_app/shared/widgets/p_snack_bar.dart';
@@ -18,16 +17,32 @@ import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
 /// 비밀번호 변경 다이얼로그 — front `PasswordChangeDialog` 미러.
 ///
 /// PATCH /users/me/password (currentPassword, newPassword, confirmPassword)
+/// 다이얼로그가 아니라 바텀시트로 띄운다.
+///
+/// 규칙 체크리스트(8자 이상·특수문자)와 불일치 문구가 입력 중에 붙었다 떨어졌다
+/// 하며 세로가 계속 변한다. 가운데 뜨는 다이얼로그는 그때마다 위아래로 튀지만,
+/// 시트는 아래에 붙어 있어 늘어나도 흔들리지 않는다. 웹 모바일도 같은 이유로
+/// drawer 다(front PasswordChangeDialog).
 Future<void> showPasswordChangeDialog(BuildContext context) async {
-  await showDialog<void>(
-    context: context,
-    barrierDismissible: false,
-    builder: (_) => const _PasswordChangeDialog(),
+  final l = AppLocalizations.of(context);
+  final controller = PSheetController();
+  await showPSheet<void>(
+    context,
+    title: l.navChangePassword,
+    // 입력 3개짜리라 화면을 85% 점유할 이유가 없다 — 내용 높이만 쓴다.
+    shrinkWrap: true,
+    contentBuilder: (ctx, _) => _PasswordChangeDialog(controller: controller),
+    footerBuilder: (ctx) => PSheetFooter(
+      controller: controller,
+      submitLabel: l.passwordChangeAction,
+    ),
   );
+  controller.dispose();
 }
 
 class _PasswordChangeDialog extends ConsumerStatefulWidget {
-  const _PasswordChangeDialog();
+  const _PasswordChangeDialog({required this.controller});
+  final PSheetController controller;
 
   @override
   ConsumerState<_PasswordChangeDialog> createState() =>
@@ -40,6 +55,19 @@ class _PasswordChangeDialogState extends ConsumerState<_PasswordChangeDialog> {
   final _confirmCtrl = TextEditingController();
   String? _error;
   bool _submitting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.controller.onSubmit = _submit;
+  }
+
+  /// 입력이 바뀔 때마다 footer 버튼 활성/로딩을 맞춘다.
+  void _syncFooter() {
+    widget.controller
+      ..setCanSubmit(_canSubmit)
+      ..setSubmitting(_submitting);
+  }
 
   @override
   void dispose() {
@@ -67,6 +95,7 @@ class _PasswordChangeDialogState extends ConsumerState<_PasswordChangeDialog> {
     setState(() {
       _submitting = true;
       _error = null;
+      _syncFooter();
     });
     try {
       final repo = await ref.read(authRepositoryProvider.future);
@@ -83,6 +112,7 @@ class _PasswordChangeDialogState extends ConsumerState<_PasswordChangeDialog> {
       setState(() {
         _error = e.message.isEmpty ? l.passwordChangeFailed : e.message;
         _submitting = false;
+        _syncFooter();
       });
     }
   }
@@ -91,13 +121,11 @@ class _PasswordChangeDialogState extends ConsumerState<_PasswordChangeDialog> {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
-    return PFormAlertDialog(
-      title: l.navChangePassword,
-      titleLeading: Icon(LucideIcons.key, size: 18, color: t.fgBrand),
-      content: SizedBox(
-        width: 400,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+    // 시트 header(제목·X)와 footer(취소·변경)는 showPSheet 이 그린다 — 여기선 폼만.
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(PSpace.xl, 0, PSpace.xl, PSpace.lg),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             PSectionLabel(l.passwordCurrent),
@@ -107,7 +135,7 @@ class _PasswordChangeDialogState extends ConsumerState<_PasswordChangeDialog> {
               obscureText: true,
               enabled: !_submitting,
               placeholder: l.passwordCurrent,
-              onChanged: (_) => setState(() {}),
+              onChanged: (_) => setState(_syncFooter),
             ),
             const SizedBox(height: PSpace.x12),
             PSectionLabel(l.passwordNew),
@@ -117,7 +145,7 @@ class _PasswordChangeDialogState extends ConsumerState<_PasswordChangeDialog> {
               obscureText: true,
               enabled: !_submitting,
               placeholder: l.passwordNewPlaceholder,
-              onChanged: (_) => setState(() {}),
+              onChanged: (_) => setState(_syncFooter),
             ),
             // 입력 중 실시간 규칙 표시 — 변경 버튼을 누르기 전에 미달 조건을 알 수 있게
             if (_newCtrl.text.isNotEmpty) ...[
@@ -139,7 +167,7 @@ class _PasswordChangeDialogState extends ConsumerState<_PasswordChangeDialog> {
               obscureText: true,
               enabled: !_submitting,
               placeholder: l.passwordConfirmPlaceholder,
-              onChanged: (_) => setState(() {}),
+              onChanged: (_) => setState(_syncFooter),
             ),
             // 입력 중 실시간 일치 표시 — 위 규칙 체크리스트와 같은 문법(체크/X).
             // 확인 입력이 비면 표시하지 않는다(입력 시작 전부터 불일치로 겁주지 않게).
@@ -159,28 +187,8 @@ class _PasswordChangeDialogState extends ConsumerState<_PasswordChangeDialog> {
                     style:
                         PTypo.caption.copyWith(color: t.statusDanger)),
               ),
-          ],
-        ),
+        ],
       ),
-      actions: [
-        PButton(
-          label: l.actionCancel,
-          // ghost 는 배경이 없어 전체 폭 배치에서 버튼으로 안 보인다
-          // (spec button.md Migration notes 2026-08).
-          variant: PButtonVariant.secondary,
-          size: PButtonSize.lg,
-          fullWidth: true,
-          onPressed:
-              _submitting ? null : () => Navigator.of(context).pop(),
-        ),
-        PButton(
-          label: l.passwordChangeAction,
-          size: PButtonSize.lg,
-          fullWidth: true,
-          loading: _submitting,
-          onPressed: _canSubmit ? _submit : null,
-        ),
-      ],
     );
   }
 }
