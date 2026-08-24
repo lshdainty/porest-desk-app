@@ -8,11 +8,13 @@ import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/features/stocks/application/namu_providers.dart';
 import 'package:porest_desk_app/features/stocks/application/stocks_providers.dart';
+import 'package:porest_desk_app/features/stocks/data/namu_repository.dart';
 import 'package:porest_desk_app/features/stocks/data/stock_master_dto.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_card.dart';
 import 'package:porest_desk_app/shared/widgets/p_empty_state.dart';
 import 'package:porest_desk_app/shared/widgets/p_search_field.dart';
+import 'package:porest_desk_app/shared/widgets/p_tabs.dart';
 import 'package:porest_desk_app/shared/widgets/p_skeleton.dart';
 
 /// 나무증권 본문.
@@ -33,6 +35,8 @@ class _NamuStocksViewState extends ConsumerState<NamuStocksView> {
   final _searchCtrl = TextEditingController();
   String _keyword = '';
   StockMasterItem? _selected;
+  // 국내·해외는 나무 쪽 엔드포인트가 달라 한 번에 못 받는다 — 사용자가 고른다.
+  String _currency = 'KRW';
 
   @override
   void dispose() {
@@ -48,6 +52,20 @@ class _NamuStocksViewState extends ConsumerState<NamuStocksView> {
     return ListView(
       padding: const EdgeInsets.fromLTRB(PSpace.x24, PSpace.x16, PSpace.x24, PSpace.x24),
       children: [
+        PTabs<String>(
+          value: _currency,
+          onChanged: (v) => setState(() => _currency = v),
+          variant: PTabsVariant.container,
+          size: PTabsSize.sm,
+          expand: true,
+          items: [
+            PTabItem(value: 'KRW', label: l.namuTabDomestic),
+            PTabItem(value: 'USD', label: l.namuTabOverseas),
+          ],
+        ),
+        const SizedBox(height: PSpace.x16),
+        _HoldingsPanel(currency: _currency),
+        const SizedBox(height: PSpace.x16),
         PSearchField(
           controller: _searchCtrl,
           hint: l.stocksSearch,
@@ -81,6 +99,116 @@ class _NamuStocksViewState extends ConsumerState<NamuStocksView> {
     );
   }
 }
+
+/// 보유 종목 — 요약 + 목록.
+class _HoldingsPanel extends ConsumerWidget {
+  const _HoldingsPanel({required this.currency});
+
+  final String currency;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = context.tokens;
+    final l = AppLocalizations.of(context);
+    final holdingsAsync = ref.watch(namuHoldingsProvider(currency));
+
+    return holdingsAsync.when(
+      loading: () => const PSkeleton(height: 140),
+      // 계좌가 없거나 조회가 막히면 화면을 비우지 않고 이유를 보여준다.
+      error: (_, _) => PCard(
+        variant: PCardVariant.bordered,
+        child: Row(
+          children: [
+            Icon(LucideIcons.unplug, size: 16, color: t.fgTertiary),
+            const SizedBox(width: PSpace.x8),
+            Expanded(
+              child: Text(l.namuHoldingsError,
+                  style: PTypo.bodySm.copyWith(color: t.fgTertiary)),
+            ),
+          ],
+        ),
+      ),
+      data: (h) => PCard(
+        variant: PCardVariant.bordered,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(l.namuHoldingsTitle, style: PTypo.caption.copyWith(color: t.fgTertiary)),
+            const SizedBox(height: PSpace.x4),
+            Text(
+              '${_fmt(h.totalEvalValue)} ${h.currency}',
+              style: PTypo.h3.copyWith(color: t.fgPrimary, fontWeight: PFontWeight.bold),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              '${h.totalProfitLossValue >= 0 ? '+' : ''}${_fmt(h.totalProfitLossValue)} '
+              '(${h.profitRateValue.toStringAsFixed(2)}%)',
+              style: PTypo.bodySm.copyWith(
+                color: h.totalProfitLossValue >= 0 ? t.statusSuccessFg : t.statusDanger,
+                fontWeight: PFontWeight.semi,
+              ),
+            ),
+            if (h.items.isEmpty) ...[
+              const SizedBox(height: PSpace.x12),
+              Text(l.namuHoldingsEmpty, style: PTypo.bodySm.copyWith(color: t.fgTertiary)),
+            ] else
+              for (final item in h.items) _HoldingRow(item: item, currency: h.currency),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _HoldingRow extends StatelessWidget {
+  const _HoldingRow({required this.item, required this.currency});
+
+  final NamuHoldingItem item;
+  final String currency;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final l = AppLocalizations.of(context);
+    final up = item.profitLossValue >= 0;
+
+    return Padding(
+      padding: const EdgeInsets.only(top: PSpace.x12),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(item.name.isEmpty ? item.symbol : item.name,
+                    style: PTypo.bodySm.copyWith(color: t.fgPrimary)),
+                const SizedBox(height: 2),
+                Text(l.namuHoldingQty(item.quantity),
+                    style: PTypo.micro.copyWith(color: t.fgTertiary)),
+              ],
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text('${_fmt(item.evalAmountValue)} $currency',
+                  style: PTypo.bodySm.copyWith(
+                      color: t.fgPrimary, fontWeight: PFontWeight.semi)),
+              const SizedBox(height: 2),
+              Text('${up ? '+' : ''}${_fmt(item.profitLossValue)}',
+                  style: PTypo.micro.copyWith(
+                      color: up ? t.statusSuccessFg : t.statusDanger)),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 소수점이 의미 없는 원화와 있는 외화를 같은 함수로 다룬다.
+String _fmt(double v) =>
+    v == v.roundToDouble() ? v.toStringAsFixed(0) : v.toStringAsFixed(2);
 
 class _SearchResults extends ConsumerWidget {
   const _SearchResults({required this.keyword, required this.onPick});

@@ -2115,7 +2115,11 @@
   "devicesUnknown": "알 수 없는 기기",
   "devicesLastUsed": "마지막 사용 {when}",
   "@devicesLastUsed": {
-    "placeholders": { "when": { "type": "String" } }
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
   },
   "devicesEmpty": "로그인된 기기가 없어요",
   "devicesLoadError": "기기 목록을 불러오지 못했어요",
@@ -2123,7 +2127,11 @@
   "devicesLogoutTitle": "이 기기에서 로그아웃",
   "devicesLogoutConfirm": "{device} 에서 로그아웃할까요? 그 기기는 다시 로그인해야 해요.",
   "@devicesLogoutConfirm": {
-    "placeholders": { "device": { "type": "String" } }
+    "placeholders": {
+      "device": {
+        "type": "String"
+      }
+    }
   },
   "devicesLogoutAll": "모든 기기에서 로그아웃",
   "devicesLogoutAllTitle": "모든 기기에서 로그아웃",
@@ -3832,5 +3840,18 @@
   "namuPriceError": "현재가를 불러오지 못했어요",
   "namuPriceEmpty": "현재가가 없는 종목이에요",
   "stocksSearchError": "검색에 실패했어요",
-  "stocksSearchEmpty": "검색 결과가 없어요"
+  "stocksSearchEmpty": "검색 결과가 없어요",
+  "namuTabDomestic": "국내",
+  "namuTabOverseas": "해외",
+  "namuHoldingsTitle": "보유 평가금액",
+  "namuHoldingsEmpty": "보유 중인 종목이 없어요",
+  "namuHoldingsError": "보유 정보를 불러오지 못했어요. 계좌가 없거나 조회 권한이 없을 수 있어요.",
+  "namuHoldingQty": "{qty}주 보유",
+  "@namuHoldingQty": {
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      }
+    }
+  }
 }
