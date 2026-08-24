@@ -9938,53 +9938,23 @@ abstract class AppLocalizations {
   /// **'Pro 시작하기'**
   String get subStartPro;
 
-  /// No description provided for @subTossSectionTitle.
-  ///
-  /// In ko, this message translates to:
-  /// **'증권 데이터 연동'**
-  String get subTossSectionTitle;
-
-  /// No description provided for @subTossConnectTitle.
-  ///
-  /// In ko, this message translates to:
-  /// **'토스증권 연결'**
-  String get subTossConnectTitle;
-
-  /// No description provided for @subTossConnectDesc.
-  ///
-  /// In ko, this message translates to:
-  /// **'본인 API 키를 등록하면 보유 주식·시세를 자동으로 가져와요'**
-  String get subTossConnectDesc;
-
   /// No description provided for @subConnected.
   ///
   /// In ko, this message translates to:
   /// **'연결됨'**
   String get subConnected;
 
-  /// No description provided for @subTossLastVerified.
+  /// No description provided for @subBrokerLastVerified.
   ///
   /// In ko, this message translates to:
   /// **'마지막 검증 · {date}'**
-  String subTossLastVerified(String date);
+  String subBrokerLastVerified(String date);
 
-  /// No description provided for @subTossCollecting.
+  /// No description provided for @subBrokerCollecting.
   ///
   /// In ko, this message translates to:
   /// **'보유 주식·시세 자동 수집 중'**
-  String get subTossCollecting;
-
-  /// No description provided for @subTossKeyConnected.
-  ///
-  /// In ko, this message translates to:
-  /// **'토스증권 API 키 연결됨'**
-  String get subTossKeyConnected;
-
-  /// No description provided for @subTossIdPlaceholder.
-  ///
-  /// In ko, this message translates to:
-  /// **'토스증권 개발자센터 발급 Client ID'**
-  String get subTossIdPlaceholder;
+  String get subBrokerCollecting;
 
   /// No description provided for @subConnecting.
   ///
@@ -9998,35 +9968,17 @@ abstract class AppLocalizations {
   /// **'연결하기'**
   String get subConnect;
 
-  /// No description provided for @subTossConnected.
-  ///
-  /// In ko, this message translates to:
-  /// **'토스증권 계정을 연결했어요'**
-  String get subTossConnected;
-
-  /// No description provided for @subTossInvalidCred.
+  /// No description provided for @subBrokerInvalidCred.
   ///
   /// In ko, this message translates to:
   /// **'인증정보가 올바르지 않아요'**
-  String get subTossInvalidCred;
-
-  /// No description provided for @subTossDisconnected.
-  ///
-  /// In ko, this message translates to:
-  /// **'토스증권 연결을 해제했어요'**
-  String get subTossDisconnected;
+  String get subBrokerInvalidCred;
 
   /// No description provided for @subDisconnectFailed.
   ///
   /// In ko, this message translates to:
   /// **'해제에 실패했어요'**
   String get subDisconnectFailed;
-
-  /// No description provided for @subTossKeyNotice.
-  ///
-  /// In ko, this message translates to:
-  /// **'키는 서버에 암호화되어 저장되며 본인만 사용합니다. 발급은 토스증권 개발자센터에서.'**
-  String get subTossKeyNotice;
 
   /// No description provided for @memoNew.
   ///
@@ -11593,6 +11545,90 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'설정 열기'**
   String get updateAutoBlockerOpen;
+
+  /// No description provided for @settingsSecuritiesLink.
+  ///
+  /// In ko, this message translates to:
+  /// **'증권사 연동'**
+  String get settingsSecuritiesLink;
+
+  /// No description provided for @settingsSecuritiesLinkDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'본인 API 키를 등록하면 보유 주식·시세를 자동으로 가져와요. 키는 서버에 암호화되어 저장되고 본인만 사용해요.'**
+  String get settingsSecuritiesLinkDesc;
+
+  /// No description provided for @securitiesLoadError.
+  ///
+  /// In ko, this message translates to:
+  /// **'증권사 목록을 불러오지 못했어요'**
+  String get securitiesLoadError;
+
+  /// No description provided for @subBrokerSectionTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'증권 데이터 연동'**
+  String get subBrokerSectionTitle;
+
+  /// No description provided for @subBrokerConnectDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'본인 API 키를 등록하면 보유 주식·시세를 가져와요'**
+  String get subBrokerConnectDesc;
+
+  /// No description provided for @subBrokerPrimary.
+  ///
+  /// In ko, this message translates to:
+  /// **'기본'**
+  String get subBrokerPrimary;
+
+  /// No description provided for @subBrokerUseAsPrimary.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 증권사 시세로 자산 평가하기'**
+  String get subBrokerUseAsPrimary;
+
+  /// No description provided for @subBrokerPrimaryNotice.
+  ///
+  /// In ko, this message translates to:
+  /// **'가계부 자산은 여기서 고른 증권사 시세로 계산해요.'**
+  String get subBrokerPrimaryNotice;
+
+  /// No description provided for @subBrokerPrimaryFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'기본 증권사를 바꾸지 못했어요'**
+  String get subBrokerPrimaryFailed;
+
+  /// No description provided for @subBrokerKeyConnected.
+  ///
+  /// In ko, this message translates to:
+  /// **'{broker} API 키 연결됨'**
+  String subBrokerKeyConnected(String broker);
+
+  /// No description provided for @subBrokerConnected.
+  ///
+  /// In ko, this message translates to:
+  /// **'{broker} 계정을 연결했어요'**
+  String subBrokerConnected(String broker);
+
+  /// No description provided for @subBrokerDisconnected.
+  ///
+  /// In ko, this message translates to:
+  /// **'{broker} 연결을 해제했어요'**
+  String subBrokerDisconnected(String broker);
+
+  /// No description provided for @subBrokerPrimaryChanged.
+  ///
+  /// In ko, this message translates to:
+  /// **'이제 {broker} 시세로 자산을 평가해요'**
+  String subBrokerPrimaryChanged(String broker);
+
+  /// No description provided for @subBrokerKeyNotice.
+  ///
+  /// In ko, this message translates to:
+  /// **'키는 서버에 암호화되어 저장되며 본인만 사용합니다. 발급은 {broker} 개발자센터에서.'**
+  String subBrokerKeyNotice(String broker);
 }
 
 class _AppLocalizationsDelegate

@@ -93,7 +93,7 @@ final investmentValuationMapProvider =
     FutureProvider<Map<int, InvestmentValuation>>((ref) async {
   final features = ref.watch(myFeaturesProvider).asData?.value;
   final enabled =
-      (features?.hasSecurities ?? false) && (features?.tossConnected ?? false);
+      (features?.hasSecurities ?? false) && (features?.hasBrokerConnection ?? false);
   final assets = await ref.watch(assetsProvider.future);
 
   final targets = assets.where((a) => a.assetType == 'INVESTMENT').toList();

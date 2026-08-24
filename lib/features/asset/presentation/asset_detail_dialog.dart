@@ -468,7 +468,7 @@ class _HoldingsSection extends ConsumerWidget {
     // 연동 심볼 시세 — 게이트(프로+토스연결) ON 일 때만 조회.
     final features = ref.watch(myFeaturesProvider).asData?.value;
     final gate =
-        (features?.hasSecurities ?? false) && (features?.tossConnected ?? false);
+        (features?.hasSecurities ?? false) && (features?.hasBrokerConnection ?? false);
     final symbols = [
       for (final h in holdings)
         if (h.linked && (h.tossSymbol?.isNotEmpty ?? false)) h.tossSymbol!,

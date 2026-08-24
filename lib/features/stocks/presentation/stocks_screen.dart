@@ -131,11 +131,11 @@ class _StocksScreenState extends ConsumerState<StocksScreen> {
     final l = AppLocalizations.of(context);
     final masked = ref.watch(hideCardProvider('stocks.summary'));
 
-    // 개인키 미연결 시 전 화면 연결 유도 (mock 노출 금지). 토스 API는 시세 포함 모든
-    // 조회가 개인키 토큰을 요구하므로(공용키 폐기), 키 없으면 조회 불가.
-    final credAsync = ref.watch(tossCredentialStatusProvider);
-    final connected = credAsync.asData?.value.connected ?? false;
-    if (!credAsync.isLoading && !connected) {
+    // 개인키 미연결 시 전 화면 연결 유도 (mock 노출 금지). 증권사 API 는 시세 포함 모든
+    // 조회가 개인키 토큰을 요구하므로, 어느 증권사든 하나는 연결돼 있어야 조회가 된다.
+    final featuresAsync = ref.watch(myFeaturesProvider);
+    final connected = featuresAsync.asData?.value.hasBrokerConnection ?? false;
+    if (!featuresAsync.isLoading && !connected) {
       return _ConnectGate();
     }
 

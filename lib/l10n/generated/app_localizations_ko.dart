@@ -5299,30 +5299,15 @@ class AppLocalizationsKo extends AppLocalizations {
   String get subStartPro => 'Pro 시작하기';
 
   @override
-  String get subTossSectionTitle => '증권 데이터 연동';
-
-  @override
-  String get subTossConnectTitle => '토스증권 연결';
-
-  @override
-  String get subTossConnectDesc => '본인 API 키를 등록하면 보유 주식·시세를 자동으로 가져와요';
-
-  @override
   String get subConnected => '연결됨';
 
   @override
-  String subTossLastVerified(String date) {
+  String subBrokerLastVerified(String date) {
     return '마지막 검증 · $date';
   }
 
   @override
-  String get subTossCollecting => '보유 주식·시세 자동 수집 중';
-
-  @override
-  String get subTossKeyConnected => '토스증권 API 키 연결됨';
-
-  @override
-  String get subTossIdPlaceholder => '토스증권 개발자센터 발급 Client ID';
+  String get subBrokerCollecting => '보유 주식·시세 자동 수집 중';
 
   @override
   String get subConnecting => '연결 중…';
@@ -5331,20 +5316,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get subConnect => '연결하기';
 
   @override
-  String get subTossConnected => '토스증권 계정을 연결했어요';
-
-  @override
-  String get subTossInvalidCred => '인증정보가 올바르지 않아요';
-
-  @override
-  String get subTossDisconnected => '토스증권 연결을 해제했어요';
+  String get subBrokerInvalidCred => '인증정보가 올바르지 않아요';
 
   @override
   String get subDisconnectFailed => '해제에 실패했어요';
-
-  @override
-  String get subTossKeyNotice =>
-      '키는 서버에 암호화되어 저장되며 본인만 사용합니다. 발급은 토스증권 개발자센터에서.';
 
   @override
   String get memoNew => '메모 추가';
@@ -6282,4 +6257,57 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get updateAutoBlockerOpen => '설정 열기';
+
+  @override
+  String get settingsSecuritiesLink => '증권사 연동';
+
+  @override
+  String get settingsSecuritiesLinkDesc =>
+      '본인 API 키를 등록하면 보유 주식·시세를 자동으로 가져와요. 키는 서버에 암호화되어 저장되고 본인만 사용해요.';
+
+  @override
+  String get securitiesLoadError => '증권사 목록을 불러오지 못했어요';
+
+  @override
+  String get subBrokerSectionTitle => '증권 데이터 연동';
+
+  @override
+  String get subBrokerConnectDesc => '본인 API 키를 등록하면 보유 주식·시세를 가져와요';
+
+  @override
+  String get subBrokerPrimary => '기본';
+
+  @override
+  String get subBrokerUseAsPrimary => '이 증권사 시세로 자산 평가하기';
+
+  @override
+  String get subBrokerPrimaryNotice => '가계부 자산은 여기서 고른 증권사 시세로 계산해요.';
+
+  @override
+  String get subBrokerPrimaryFailed => '기본 증권사를 바꾸지 못했어요';
+
+  @override
+  String subBrokerKeyConnected(String broker) {
+    return '$broker API 키 연결됨';
+  }
+
+  @override
+  String subBrokerConnected(String broker) {
+    return '$broker 계정을 연결했어요';
+  }
+
+  @override
+  String subBrokerDisconnected(String broker) {
+    return '$broker 연결을 해제했어요';
+  }
+
+  @override
+  String subBrokerPrimaryChanged(String broker) {
+    return '이제 $broker 시세로 자산을 평가해요';
+  }
+
+  @override
+  String subBrokerKeyNotice(String broker) {
+    return '키는 서버에 암호화되어 저장되며 본인만 사용합니다. 발급은 $broker 개발자센터에서.';
+  }
 }
