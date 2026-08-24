@@ -11761,6 +11761,42 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'검색 결과가 없어요'**
   String get stocksSearchEmpty;
+
+  /// No description provided for @namuTabDomestic.
+  ///
+  /// In ko, this message translates to:
+  /// **'국내'**
+  String get namuTabDomestic;
+
+  /// No description provided for @namuTabOverseas.
+  ///
+  /// In ko, this message translates to:
+  /// **'해외'**
+  String get namuTabOverseas;
+
+  /// No description provided for @namuHoldingsTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'보유 평가금액'**
+  String get namuHoldingsTitle;
+
+  /// No description provided for @namuHoldingsEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'보유 중인 종목이 없어요'**
+  String get namuHoldingsEmpty;
+
+  /// No description provided for @namuHoldingsError.
+  ///
+  /// In ko, this message translates to:
+  /// **'보유 정보를 불러오지 못했어요. 계좌가 없거나 조회 권한이 없을 수 있어요.'**
+  String get namuHoldingsError;
+
+  /// No description provided for @namuHoldingQty.
+  ///
+  /// In ko, this message translates to:
+  /// **'{qty}주 보유'**
+  String namuHoldingQty(String qty);
 }
 
 class _AppLocalizationsDelegate

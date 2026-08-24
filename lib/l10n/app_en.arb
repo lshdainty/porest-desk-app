@@ -2099,7 +2099,11 @@
   "devicesUnknown": "Unknown device",
   "devicesLastUsed": "Last used {when}",
   "@devicesLastUsed": {
-    "placeholders": { "when": { "type": "String" } }
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
   },
   "devicesEmpty": "No devices are signed in",
   "devicesLoadError": "Couldn't load your devices",
@@ -2107,7 +2111,11 @@
   "devicesLogoutTitle": "Log out this device",
   "devicesLogoutConfirm": "Log out of {device}? It will need to sign in again.",
   "@devicesLogoutConfirm": {
-    "placeholders": { "device": { "type": "String" } }
+    "placeholders": {
+      "device": {
+        "type": "String"
+      }
+    }
   },
   "devicesLogoutAll": "Log out all devices",
   "devicesLogoutAllTitle": "Log out all devices",
@@ -3682,5 +3690,18 @@
   "namuPriceError": "Couldn't load the current price",
   "namuPriceEmpty": "No current price for this instrument",
   "stocksSearchError": "Search failed",
-  "stocksSearchEmpty": "No results"
+  "stocksSearchEmpty": "No results",
+  "namuTabDomestic": "Domestic",
+  "namuTabOverseas": "Overseas",
+  "namuHoldingsTitle": "Holdings value",
+  "namuHoldingsEmpty": "No holdings yet",
+  "namuHoldingsError": "Couldn't load holdings. There may be no account or no query permission.",
+  "namuHoldingQty": "{qty} shares",
+  "@namuHoldingQty": {
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      }
+    }
+  }
 }

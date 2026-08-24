@@ -6382,4 +6382,24 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get stocksSearchEmpty => '검색 결과가 없어요';
+
+  @override
+  String get namuTabDomestic => '국내';
+
+  @override
+  String get namuTabOverseas => '해외';
+
+  @override
+  String get namuHoldingsTitle => '보유 평가금액';
+
+  @override
+  String get namuHoldingsEmpty => '보유 중인 종목이 없어요';
+
+  @override
+  String get namuHoldingsError => '보유 정보를 불러오지 못했어요. 계좌가 없거나 조회 권한이 없을 수 있어요.';
+
+  @override
+  String namuHoldingQty(String qty) {
+    return '$qty주 보유';
+  }
 }

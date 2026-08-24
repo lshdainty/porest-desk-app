@@ -6471,4 +6471,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get stocksSearchEmpty => 'No results';
+
+  @override
+  String get namuTabDomestic => 'Domestic';
+
+  @override
+  String get namuTabOverseas => 'Overseas';
+
+  @override
+  String get namuHoldingsTitle => 'Holdings value';
+
+  @override
+  String get namuHoldingsEmpty => 'No holdings yet';
+
+  @override
+  String get namuHoldingsError =>
+      'Couldn\'t load holdings. There may be no account or no query permission.';
+
+  @override
+  String namuHoldingQty(String qty) {
+    return '$qty shares';
+  }
 }

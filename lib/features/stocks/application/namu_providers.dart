@@ -12,6 +12,13 @@ final namuRepositoryProvider = FutureProvider<NamuRepository>((ref) async {
   return NamuRepository(dio);
 });
 
+/// 나무 보유 종목. 통화가 KRW 면 국내, 그 밖이면 해외 — 서버가 엔드포인트를 가른다.
+final namuHoldingsProvider =
+    FutureProvider.family<NamuHoldings, String>((ref, currency) async {
+  final repo = await ref.watch(namuRepositoryProvider.future);
+  return repo.getHoldings(currency: currency);
+});
+
 /// 선택 종목의 나무 현재가. 국내·해외 분기는 stock_master 의 국가코드가 정한다.
 final namuPriceProvider =
     FutureProvider.family<BrokerPrice?, StockMasterItem>((ref, item) async {
