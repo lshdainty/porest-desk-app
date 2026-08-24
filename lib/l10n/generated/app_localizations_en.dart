@@ -5366,32 +5366,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get subStartPro => 'Start Pro';
 
   @override
-  String get subTossSectionTitle => 'Securities data link';
-
-  @override
-  String get subTossConnectTitle => 'Connect Toss Securities';
-
-  @override
-  String get subTossConnectDesc =>
-      'Register your API key to auto-import your holdings and prices';
-
-  @override
   String get subConnected => 'Connected';
 
   @override
-  String subTossLastVerified(String date) {
+  String subBrokerLastVerified(String date) {
     return 'Last verified · $date';
   }
 
   @override
-  String get subTossCollecting => 'Auto-collecting holdings and prices';
-
-  @override
-  String get subTossKeyConnected => 'Toss Securities API key connected';
-
-  @override
-  String get subTossIdPlaceholder =>
-      'Client ID issued by Toss Securities Developer Center';
+  String get subBrokerCollecting => 'Auto-collecting holdings and prices';
 
   @override
   String get subConnecting => 'Connecting…';
@@ -5400,20 +5383,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get subConnect => 'Connect';
 
   @override
-  String get subTossConnected => 'Connected your Toss Securities account';
-
-  @override
-  String get subTossInvalidCred => 'Those credentials aren\'t valid';
-
-  @override
-  String get subTossDisconnected => 'Disconnected from Toss Securities';
+  String get subBrokerInvalidCred => 'Those credentials aren\'t valid';
 
   @override
   String get subDisconnectFailed => 'Couldn\'t disconnect';
-
-  @override
-  String get subTossKeyNotice =>
-      'Your key is stored encrypted on the server and used only by you. Issue one at the Toss Securities Developer Center.';
 
   @override
   String get memoNew => 'Add memo';
@@ -6368,4 +6341,59 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get updateAutoBlockerOpen => 'Open settings';
+
+  @override
+  String get settingsSecuritiesLink => 'Securities links';
+
+  @override
+  String get settingsSecuritiesLinkDesc =>
+      'Register your own API key to auto-import holdings and prices. Keys are stored encrypted on the server and used only by you.';
+
+  @override
+  String get securitiesLoadError => 'Couldn\'t load the securities list';
+
+  @override
+  String get subBrokerSectionTitle => 'Securities data link';
+
+  @override
+  String get subBrokerConnectDesc =>
+      'Register your API key to import holdings and prices';
+
+  @override
+  String get subBrokerPrimary => 'Primary';
+
+  @override
+  String get subBrokerUseAsPrimary => 'Value assets with this provider';
+
+  @override
+  String get subBrokerPrimaryNotice =>
+      'Your assets are valued using the provider selected here.';
+
+  @override
+  String get subBrokerPrimaryFailed => 'Couldn\'t change the primary provider';
+
+  @override
+  String subBrokerKeyConnected(String broker) {
+    return '$broker API key connected';
+  }
+
+  @override
+  String subBrokerConnected(String broker) {
+    return 'Connected your $broker account';
+  }
+
+  @override
+  String subBrokerDisconnected(String broker) {
+    return 'Disconnected from $broker';
+  }
+
+  @override
+  String subBrokerPrimaryChanged(String broker) {
+    return 'Assets are now valued with $broker';
+  }
+
+  @override
+  String subBrokerKeyNotice(String broker) {
+    return 'Your key is stored encrypted on the server and used only by you. Issue one at the $broker developer center.';
+  }
 }

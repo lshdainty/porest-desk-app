@@ -11,7 +11,7 @@ final subscriptionRepositoryProvider = FutureProvider<SubscriptionRepository>((r
   return SubscriptionRepository(dio);
 });
 
-/// 내 기능권한 + 토스 연결상태. 메뉴 게이트 단일 소스. 실패 시 empty(권한 없음).
+/// 내 기능권한 + 증권사 연결상태. 메뉴 게이트 단일 소스. 실패 시 empty(권한 없음).
 final myFeaturesProvider = FutureProvider<MyFeatures>((ref) async {
   try {
     final repo = await ref.watch(subscriptionRepositoryProvider.future);
@@ -36,7 +36,13 @@ final mySubscriptionProvider = FutureProvider<SubscriptionInfo?>((ref) async {
   return repo.getMySubscription();
 });
 
-final tossCredentialStatusProvider = FutureProvider<TossCredentialStatus>((ref) async {
+/// 전 증권사 연결 상태(미연결 포함). 설정 화면이 목록을 그리는 소스.
+final brokerConnectionsProvider = FutureProvider<List<BrokerConnection>>((ref) async {
   final repo = await ref.watch(subscriptionRepositoryProvider.future);
-  return repo.getTossCredentialStatus();
+  return repo.getBrokerConnections();
+});
+
+/// 증권사를 하나라도 연결했는지(동기 — 로딩/에러 시 false).
+final hasBrokerConnectionProvider = Provider<bool>((ref) {
+  return ref.watch(myFeaturesProvider).asData?.value.hasBrokerConnection ?? false;
 });

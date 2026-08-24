@@ -45,6 +45,7 @@ import 'package:porest_desk_app/features/settings/presentation/update_screen.dar
 import 'package:porest_desk_app/features/stats/presentation/stats_screen.dart';
 import 'package:porest_desk_app/features/stocks/presentation/stocks_screen.dart';
 import 'package:porest_desk_app/features/subscription/presentation/securities_gate.dart';
+import 'package:porest_desk_app/features/subscription/presentation/securities_link_screen.dart';
 import 'package:porest_desk_app/shared/widgets/mobile_scaffold.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -139,6 +140,9 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
           path: '/settings/todo-tags',
           builder: (_, _) => const TodoTagManagementScreen()),
+      GoRoute(
+          path: '/settings/securities',
+          builder: (_, _) => const SecuritiesLinkScreen()),
       GoRoute(
           path: '/settings/appearance',
           builder: (_, _) => const AppearanceScreen()),

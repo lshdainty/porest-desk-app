@@ -17,7 +17,6 @@ import 'package:porest_desk_app/core/settings/settings_notifier.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/features/subscription/application/subscription_providers.dart';
 import 'package:porest_desk_app/features/subscription/presentation/subscription_sheet.dart';
-import 'package:porest_desk_app/features/subscription/presentation/toss_connect_card.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_button.dart';
 import 'package:porest_desk_app/shared/widgets/p_badge.dart';
@@ -354,10 +353,19 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
               ),
             ),
 
-          // ── 증권 데이터 연동 — 구독(Pro) 시에만 노출(별도 화면 아님, 인라인)
+          // ── 증권 데이터 연동 — 구독(Pro) 시에만. 증권사가 둘 이상이라 화면으로 분리했다.
           if (hasSecurities) ...[
             const SizedBox(height: PSpace.x32),
-            const TossConnectCard(),
+            _SectionLabel(label: l.subBrokerSectionTitle, tokens: t),
+            const SizedBox(height: PSpace.x8),
+            _AccountRow(
+              icon: LucideIcons.link,
+              label: l.settingsSecuritiesLink,
+              desc: l.subBrokerConnectDesc,
+              chevron: true,
+              tokens: t,
+              onTap: () => context.push('/settings/securities'),
+            ),
           ],
           const SizedBox(height: PSpace.x32),
 

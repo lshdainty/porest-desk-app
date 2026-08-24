@@ -2884,28 +2884,20 @@
   "subNextBillingDate": "Next billing date",
   "subProcessing": "Processing…",
   "subStartPro": "Start Pro",
-  "subTossSectionTitle": "Securities data link",
-  "subTossConnectTitle": "Connect Toss Securities",
-  "subTossConnectDesc": "Register your API key to auto-import your holdings and prices",
   "subConnected": "Connected",
-  "subTossLastVerified": "Last verified · {date}",
-  "@subTossLastVerified": {
+  "subBrokerLastVerified": "Last verified · {date}",
+  "@subBrokerLastVerified": {
     "placeholders": {
       "date": {
         "type": "String"
       }
     }
   },
-  "subTossCollecting": "Auto-collecting holdings and prices",
-  "subTossKeyConnected": "Toss Securities API key connected",
-  "subTossIdPlaceholder": "Client ID issued by Toss Securities Developer Center",
+  "subBrokerCollecting": "Auto-collecting holdings and prices",
   "subConnecting": "Connecting…",
   "subConnect": "Connect",
-  "subTossConnected": "Connected your Toss Securities account",
-  "subTossInvalidCred": "Those credentials aren't valid",
-  "subTossDisconnected": "Disconnected from Toss Securities",
+  "subBrokerInvalidCred": "Those credentials aren't valid",
   "subDisconnectFailed": "Couldn't disconnect",
-  "subTossKeyNotice": "Your key is stored encrypted on the server and used only by you. Issue one at the Toss Securities Developer Center.",
   "memoNew": "Add memo",
   "memoEditTitle": "Edit memo",
   "memoAdd": "Add",
@@ -3613,5 +3605,54 @@
   "updateAutoBlockerPath": "Turn it off in Settings > Security and privacy > Auto Blocker. You can turn it back on after installing.",
   "updateAutoBlockerAfterDirect": "Turn off Auto Blocker, come back, and tap download. You can turn it back on after installing.",
   "updateAutoBlockerAfterSecurity": "Find Auto Blocker in the list and turn it off. You can turn it back on after installing.",
-  "updateAutoBlockerOpen": "Open settings"
+  "updateAutoBlockerOpen": "Open settings",
+  "settingsSecuritiesLink": "Securities links",
+  "settingsSecuritiesLinkDesc": "Register your own API key to auto-import holdings and prices. Keys are stored encrypted on the server and used only by you.",
+  "securitiesLoadError": "Couldn't load the securities list",
+  "subBrokerSectionTitle": "Securities data link",
+  "subBrokerConnectDesc": "Register your API key to import holdings and prices",
+  "subBrokerPrimary": "Primary",
+  "subBrokerUseAsPrimary": "Value assets with this provider",
+  "subBrokerPrimaryNotice": "Your assets are valued using the provider selected here.",
+  "subBrokerPrimaryFailed": "Couldn't change the primary provider",
+  "subBrokerKeyConnected": "{broker} API key connected",
+  "@subBrokerKeyConnected": {
+    "placeholders": {
+      "broker": {
+        "type": "String"
+      }
+    }
+  },
+  "subBrokerConnected": "Connected your {broker} account",
+  "@subBrokerConnected": {
+    "placeholders": {
+      "broker": {
+        "type": "String"
+      }
+    }
+  },
+  "subBrokerDisconnected": "Disconnected from {broker}",
+  "@subBrokerDisconnected": {
+    "placeholders": {
+      "broker": {
+        "type": "String"
+      }
+    }
+  },
+  "subBrokerPrimaryChanged": "Assets are now valued with {broker}",
+  "@subBrokerPrimaryChanged": {
+    "placeholders": {
+      "broker": {
+        "type": "String"
+      }
+    }
+  },
+  "subBrokerKeyNotice": "Your key is stored encrypted on the server and used only by you. Issue one at the {broker} developer center.",
+  "@subBrokerKeyNotice": {
+    "placeholders": {
+      "broker": {
+        "type": "String"
+      }
+    }
+  }
 }

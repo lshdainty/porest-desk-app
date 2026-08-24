@@ -337,14 +337,14 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
   /// 시세 연동 가능 여부 — 증권 구독 + 토스 연결 둘 다여야 실시간 평가가 가능하다.
   bool get _liveEnabled {
     final features = ref.read(myFeaturesProvider).asData?.value;
-    return (features?.hasSecurities ?? false) && (features?.tossConnected ?? false);
+    return (features?.hasSecurities ?? false) && (features?.hasBrokerConnection ?? false);
   }
 
   /// 연동 심볼 1주 KRW 환산가 맵 — 게이트 OFF·시세 미확보 심볼은 null.
   Map<String, double?> _unitKrwMap() {
     final features = ref.watch(myFeaturesProvider).asData?.value;
     final gate = (features?.hasSecurities ?? false) &&
-        (features?.tossConnected ?? false);
+        (features?.hasBrokerConnection ?? false);
     final symbols = {
       for (final h in _holdings)
         if (h.linked && (h.tossSymbol?.isNotEmpty ?? false)) h.tossSymbol!,
