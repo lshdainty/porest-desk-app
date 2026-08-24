@@ -7,6 +7,8 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/core/format/date.dart';
+import 'package:porest_desk_app/core/format/now_tick.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
@@ -24,6 +26,9 @@ class NotificationScreen extends ConsumerWidget {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
     final listAsync = ref.watch(notificationListProvider);
+    // 상대시각의 기준점 — 화면을 열어 둔 채로도 흐르게 한다(웹 `useNow` 정합).
+    // 여기서 한 번 watch 해 행마다 내리는 건 모든 행이 **같은 '지금'** 을 쓰게 하려는 것이다.
+    final now = ref.watch(nowTickProvider);
 
     return Scaffold(
       backgroundColor: t.bgSurface,
@@ -93,6 +98,7 @@ class NotificationScreen extends ConsumerWidget {
                   _NotiRow(
                     noti: n,
                     tokens: t,
+                    now: now,
                     onTap: () async {
                       if (!n.isRead) {
                         try {
@@ -250,11 +256,19 @@ class _NotiRow extends StatelessWidget {
   const _NotiRow({
     required this.noti,
     required this.tokens,
+    required this.now,
     required this.onTap,
     required this.onDelete,
   });
   final AppNotification noti;
   final PorestTokens tokens;
+
+  /// 상대시각의 기준점 — 호출부에서 `nowTickProvider` 로 받아 내린다.
+  ///
+  /// 기본값을 두지 않는다. 기본값이 있으면 안 넘긴 호출부가 조용히 [DateTime.now] 로
+  /// 돌아가 그 자리만 다시 얼어붙는데, 화면은 멀쩡해 보여 눈으로는 못 잡는다.
+  /// 필수로 두면 새 호출부가 생겨도 컴파일이 먼저 붙잡는다.
+  final DateTime now;
   final VoidCallback onTap;
   final VoidCallback onDelete;
 
@@ -375,7 +389,7 @@ class _NotiRow extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(top: 2),
                 child: Text(
-                  _relativeTime(l, noti.createAt!),
+                  _relativeTime(l, noti.createAt!, now),
                   style: PTypo.micro.copyWith(
                     color: tokens.fgTertiary,
                     letterSpacing: 0,
@@ -398,10 +412,18 @@ class _NotiRow extends StatelessWidget {
   }
 
   /// SoT relativeTime 정합: 방금 / N분 전 / N시간 전 / 어제 / N일 전 / yyyy-MM-dd(≥7일).
-  String _relativeTime(AppLocalizations l, String iso) {
-    final dt = DateTime.tryParse(iso);
+  ///
+  /// [iso] 는 `createAt` — 백엔드가 시간대 없이 직렬화한 UTC 다. [DateTime.tryParse] 로
+  /// 읽으면 로컬로 오해해 KST(+9)에서 방금 온 알림이 "9시간 전" 으로 보였다.
+  /// [parseServerUtc] 를 태우면 ≥7일 분기의 yyyy-MM-dd 도 함께 로컬 날짜가 된다.
+  ///
+  /// [now] 는 기준 시각이며 **인자로 받는다**. 여기서 [DateTime.now] 를 부르면 그 값은
+  /// 화면을 다시 그릴 때만 바뀌는데, 이 화면을 다시 그리게 하는 건 새 알림뿐이라
+  /// 열어 둔 채로는 "방금" 에 멈춘다. 넘길 값은 `nowTickProvider` 가 주는 흐르는 '지금'.
+  String _relativeTime(AppLocalizations l, String iso, DateTime now) {
+    final dt = parseServerUtc(iso);
     if (dt == null) return '';
-    final diff = DateTime.now().difference(dt);
+    final diff = now.difference(dt);
     final m = diff.inMinutes;
     if (m < 1) return l.dateJustNow;
     if (m < 60) return l.dateMinutesAgo(m);

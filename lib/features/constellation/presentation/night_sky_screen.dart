@@ -41,8 +41,11 @@ class NightSkyScreen extends ConsumerWidget {
     final now = DateTime.now();
     final todayIso =
         '${now.year.toString().padLeft(4, '0')}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+    // completedAt 은 서버가 준 `[UTC]` 라 문자열을 자르면 UTC 날짜가 나온다 —
+    // todayIso 는 로컬 달력으로 만든 '오늘' 이라, KST(+9) 새벽 0~9시에 켠 별이 전날로
+    // 밀려 0건으로 보였다. 웹(TodoPage)과 같은 규칙으로 로컬 날짜끼리 맞춘다.
     final doneToday = (todos ?? const [])
-        .where((x) => x.done && (x.completedAt ?? '').startsWith(todayIso))
+        .where((x) => x.done && localDateKey(x.completedAt) == todayIso)
         .length;
 
     return Scaffold(

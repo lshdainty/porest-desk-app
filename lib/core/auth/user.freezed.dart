@@ -16,7 +16,16 @@ T _$identity<T>(T value) => value;
 mixin _$User {
 
  int get rowId; String get userId; String get userName; String get userEmail; String? get timezone;// 가입일시 — 백엔드 /auth/check 의 joinedAt(User.createAt). 미조회 시 null.
- DateTime? get joinedAt;
+//
+// 생성기 기본값인 DateTime.parse 는 시간대 표시가 없는 값을 로컬로 읽어 UTC 를
+// 9시간(KST) 당겨 버린다 — 월초·월말 가입이면 "가입 2026년 8월" 이 7월로 보인다.
+// user.g.dart 는 build_runner 가 덮어쓰므로 보정은 여기 fromJson 으로만 걸 수 있다.
+//
+// toJson 도 같이 지정해 왕복을 닫는다. parseServerUtc 는 isUtc=false 인 로컬
+// DateTime 을 주는데 생성기 기본값 toIso8601String() 은 로컬이면 오프셋을 안 붙인다
+// — 그 문자열을 다시 fromJson 으로 읽으면 UTC 로 오해해 왕복마다 +9 씩 밀린다.
+// 지금은 User.toJson() 호출부가 없지만, 캐시·로그로 한 번 쓰는 순간 조용히 틀린다.
+@JsonKey(fromJson: parseServerUtc, toJson: toServerUtc) DateTime? get joinedAt;
 /// Create a copy of User
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -49,7 +58,7 @@ abstract mixin class $UserCopyWith<$Res>  {
   factory $UserCopyWith(User value, $Res Function(User) _then) = _$UserCopyWithImpl;
 @useResult
 $Res call({
- int rowId, String userId, String userName, String userEmail, String? timezone, DateTime? joinedAt
+ int rowId, String userId, String userName, String userEmail, String? timezone,@JsonKey(fromJson: parseServerUtc, toJson: toServerUtc) DateTime? joinedAt
 });
 
 
@@ -159,7 +168,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int rowId,  String userId,  String userName,  String userEmail,  String? timezone,  DateTime? joinedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int rowId,  String userId,  String userName,  String userEmail,  String? timezone, @JsonKey(fromJson: parseServerUtc, toJson: toServerUtc)  DateTime? joinedAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _User() when $default != null:
 return $default(_that.rowId,_that.userId,_that.userName,_that.userEmail,_that.timezone,_that.joinedAt);case _:
@@ -180,7 +189,7 @@ return $default(_that.rowId,_that.userId,_that.userName,_that.userEmail,_that.ti
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int rowId,  String userId,  String userName,  String userEmail,  String? timezone,  DateTime? joinedAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int rowId,  String userId,  String userName,  String userEmail,  String? timezone, @JsonKey(fromJson: parseServerUtc, toJson: toServerUtc)  DateTime? joinedAt)  $default,) {final _that = this;
 switch (_that) {
 case _User():
 return $default(_that.rowId,_that.userId,_that.userName,_that.userEmail,_that.timezone,_that.joinedAt);case _:
@@ -200,7 +209,7 @@ return $default(_that.rowId,_that.userId,_that.userName,_that.userEmail,_that.ti
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int rowId,  String userId,  String userName,  String userEmail,  String? timezone,  DateTime? joinedAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int rowId,  String userId,  String userName,  String userEmail,  String? timezone, @JsonKey(fromJson: parseServerUtc, toJson: toServerUtc)  DateTime? joinedAt)?  $default,) {final _that = this;
 switch (_that) {
 case _User() when $default != null:
 return $default(_that.rowId,_that.userId,_that.userName,_that.userEmail,_that.timezone,_that.joinedAt);case _:
@@ -215,7 +224,7 @@ return $default(_that.rowId,_that.userId,_that.userName,_that.userEmail,_that.ti
 @JsonSerializable()
 
 class _User implements User {
-  const _User({required this.rowId, required this.userId, required this.userName, required this.userEmail, this.timezone, this.joinedAt});
+  const _User({required this.rowId, required this.userId, required this.userName, required this.userEmail, this.timezone, @JsonKey(fromJson: parseServerUtc, toJson: toServerUtc) this.joinedAt});
   factory _User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
 
 @override final  int rowId;
@@ -224,7 +233,16 @@ class _User implements User {
 @override final  String userEmail;
 @override final  String? timezone;
 // 가입일시 — 백엔드 /auth/check 의 joinedAt(User.createAt). 미조회 시 null.
-@override final  DateTime? joinedAt;
+//
+// 생성기 기본값인 DateTime.parse 는 시간대 표시가 없는 값을 로컬로 읽어 UTC 를
+// 9시간(KST) 당겨 버린다 — 월초·월말 가입이면 "가입 2026년 8월" 이 7월로 보인다.
+// user.g.dart 는 build_runner 가 덮어쓰므로 보정은 여기 fromJson 으로만 걸 수 있다.
+//
+// toJson 도 같이 지정해 왕복을 닫는다. parseServerUtc 는 isUtc=false 인 로컬
+// DateTime 을 주는데 생성기 기본값 toIso8601String() 은 로컬이면 오프셋을 안 붙인다
+// — 그 문자열을 다시 fromJson 으로 읽으면 UTC 로 오해해 왕복마다 +9 씩 밀린다.
+// 지금은 User.toJson() 호출부가 없지만, 캐시·로그로 한 번 쓰는 순간 조용히 틀린다.
+@override@JsonKey(fromJson: parseServerUtc, toJson: toServerUtc) final  DateTime? joinedAt;
 
 /// Create a copy of User
 /// with the given fields replaced by the non-null parameter values.
@@ -259,7 +277,7 @@ abstract mixin class _$UserCopyWith<$Res> implements $UserCopyWith<$Res> {
   factory _$UserCopyWith(_User value, $Res Function(_User) _then) = __$UserCopyWithImpl;
 @override @useResult
 $Res call({
- int rowId, String userId, String userName, String userEmail, String? timezone, DateTime? joinedAt
+ int rowId, String userId, String userName, String userEmail, String? timezone,@JsonKey(fromJson: parseServerUtc, toJson: toServerUtc) DateTime? joinedAt
 });
 
 

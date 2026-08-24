@@ -7,6 +7,7 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/core/format/date.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 import 'package:porest_desk_app/shared/widgets/p_back_button.dart';
@@ -448,7 +449,7 @@ class _MemoRow extends StatelessWidget {
                     ],
                     const SizedBox(height: 4),
                     Text(
-                      '$tag · ${_fmtUpdated(memo.modifyAt)}',
+                      '$tag · ${monthDayTime(memo.modifyAt)}',
                       style: PTypo.micro.copyWith(color: t.fgTertiary),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -461,14 +462,6 @@ class _MemoRow extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  /// 'YYYY-MM-DD(T| )HH:MM(:SS)' → 'MM/DD · HH:MM' (웹 정합).
-  /// 서버 modifyAt 은 ISO('T' 구분)라 'T'도 처리한다.
-  static String _fmtUpdated(String? raw) {
-    if (raw == null || raw.length < 16) return '';
-    final seg = raw.substring(5, 16);
-    return seg.replaceFirst('-', '/').replaceFirst(RegExp(r'[T ]'), ' · ');
   }
 }
 

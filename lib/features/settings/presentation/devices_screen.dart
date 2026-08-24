@@ -8,6 +8,7 @@ import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
 import 'package:porest_desk_app/core/auth/auth_notifier.dart';
 import 'package:porest_desk_app/core/format/date.dart';
+import 'package:porest_desk_app/core/format/now_tick.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/features/settings/application/session_providers.dart';
 import 'package:porest_desk_app/features/settings/domain/device_session.dart';
@@ -96,6 +97,9 @@ class _DevicesScreenState extends ConsumerState<DevicesScreen> {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
     final listAsync = ref.watch(deviceSessionListProvider);
+    // 상대시각의 기준점 — 화면을 열어 둔 채로도 흐르게 한다(웹 `useNow` 정합).
+    // 한 번 watch 해 행마다 내리면 모든 행이 같은 '지금' 을 쓴다.
+    final now = ref.watch(nowTickProvider);
 
     return Scaffold(
       backgroundColor: t.bgSurface,
@@ -140,6 +144,7 @@ class _DevicesScreenState extends ConsumerState<DevicesScreen> {
                           _DeviceRow(
                             device: devices[i],
                             tokens: t,
+                            now: now,
                             busy: _revoking == devices[i].sessionId,
                             onRevoke: () => _revoke(devices[i]),
                           ),
@@ -170,12 +175,17 @@ class _DeviceRow extends StatelessWidget {
   const _DeviceRow({
     required this.device,
     required this.tokens,
+    required this.now,
     required this.busy,
     required this.onRevoke,
   });
 
   final DeviceSession device;
   final PorestTokens tokens;
+
+  /// 상대시각의 기준점 — 호출부에서 `nowTickProvider` 로 받아 내린다.
+  /// 기본값을 두지 않는 이유는 [_relativeTime] 주석 참고.
+  final DateTime now;
   final bool busy;
   final VoidCallback onRevoke;
 
@@ -191,7 +201,7 @@ class _DeviceRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = tokens;
     final l = AppLocalizations.of(context);
-    final when = _relativeTime(l, device.activeAt);
+    final when = _relativeTime(l, device.activeAt, now);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 14),
@@ -257,10 +267,15 @@ class _DeviceRow extends StatelessWidget {
 ///
 /// [parseServerUtc] 를 거쳐야 한다 — 시간대 없는 문자열을 그대로 파싱하면 UTC 가
 /// 로컬로 둔갑해 KST 에서 9시간이 어긋난다.
-String? _relativeTime(AppLocalizations l, String? iso) {
+///
+/// [now] 는 기준 시각이며 **인자로 받는다**. 여기서 [DateTime.now] 를 부르면 그 값은
+/// 화면을 다시 그릴 때만 바뀌어, 기기 목록을 열어 둔 채로는 "방금" 에 멈춘다.
+/// 넘길 값은 `nowTickProvider` 가 주는 흐르는 '지금' 이다. 기본값을 두면 안 넘긴
+/// 호출부가 조용히 멈춘 시계로 돌아가므로 필수로 둔다.
+String? _relativeTime(AppLocalizations l, String? iso, DateTime now) {
   final dt = parseServerUtc(iso);
   if (dt == null) return null;
-  final diff = DateTime.now().difference(dt);
+  final diff = now.difference(dt);
   final m = diff.inMinutes;
   if (m < 1) return l.dateJustNow;
   if (m < 60) return l.dateMinutesAgo(m);

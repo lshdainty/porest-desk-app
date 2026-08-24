@@ -6,6 +6,7 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/core/format/date.dart';
 import 'package:porest_desk_app/features/todo/domain/todo.dart';
 import 'package:porest_desk_app/features/todo/domain/todo_meta.dart';
 import 'package:porest_desk_app/features/todo/presentation/todo_actions.dart';
@@ -111,9 +112,10 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
     final overdue = !todo.done && isTodoOverdue(todo.due, today);
     final overdueColor = todoOverdueColor(context);
     final content = (todo.content ?? '').trim();
-    final completedAt = (todo.completedAt ?? '').length >= 16
-        ? todo.completedAt!.substring(0, 16).replaceFirst('T', ' ')
-        : todo.completedAt;
+    // completedAt 은 서버 `[UTC]` — 잘라 쓰면 UTC 벽시계가 그대로 나와 KST(+9)에서
+    // 9시간 전으로, 자정 근처면 날짜까지 하루 어긋나 보였다. 웹 TodoPage 상세와 같은
+    // 모양(yyyy-MM-dd HH:mm)으로 파싱해 찍고, 못 읽는 값만 원문을 그대로 둔다.
+    final completedAt = localDateTime(todo.completedAt) ?? todo.completedAt;
 
     return ListView(
       controller: widget.scrollController,
