@@ -3786,6 +3786,51 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accountLast30Days => 'Last 30 days';
 
   @override
+  String get devicesTitle => 'Logged-in devices';
+
+  @override
+  String get devicesIntro =>
+      'These devices are signed in to your account. Log out any you don\'t recognize.';
+
+  @override
+  String get devicesCurrent => 'Current device';
+
+  @override
+  String get devicesUnknown => 'Unknown device';
+
+  @override
+  String devicesLastUsed(String when) {
+    return 'Last used $when';
+  }
+
+  @override
+  String get devicesEmpty => 'No devices are signed in';
+
+  @override
+  String get devicesLoadError => 'Couldn\'t load your devices';
+
+  @override
+  String get devicesLogout => 'Log out';
+
+  @override
+  String get devicesLogoutTitle => 'Log out this device';
+
+  @override
+  String devicesLogoutConfirm(String device) {
+    return 'Log out of $device? It will need to sign in again.';
+  }
+
+  @override
+  String get devicesLogoutAll => 'Log out all devices';
+
+  @override
+  String get devicesLogoutAllTitle => 'Log out all devices';
+
+  @override
+  String get devicesLogoutAllConfirm =>
+      'Log out everywhere, including this device? You\'ll need to sign in again.';
+
+  @override
   String get accountConnected => 'Connected accounts';
 
   @override

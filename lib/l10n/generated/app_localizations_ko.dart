@@ -3741,6 +3741,50 @@ class AppLocalizationsKo extends AppLocalizations {
   String get accountLast30Days => '최근 30일';
 
   @override
+  String get devicesTitle => '로그인된 기기';
+
+  @override
+  String get devicesIntro => '이 계정으로 로그인된 기기예요. 낯선 기기가 있으면 로그아웃해 주세요.';
+
+  @override
+  String get devicesCurrent => '현재 기기';
+
+  @override
+  String get devicesUnknown => '알 수 없는 기기';
+
+  @override
+  String devicesLastUsed(String when) {
+    return '마지막 사용 $when';
+  }
+
+  @override
+  String get devicesEmpty => '로그인된 기기가 없어요';
+
+  @override
+  String get devicesLoadError => '기기 목록을 불러오지 못했어요';
+
+  @override
+  String get devicesLogout => '로그아웃';
+
+  @override
+  String get devicesLogoutTitle => '이 기기에서 로그아웃';
+
+  @override
+  String devicesLogoutConfirm(String device) {
+    return '$device 에서 로그아웃할까요? 그 기기는 다시 로그인해야 해요.';
+  }
+
+  @override
+  String get devicesLogoutAll => '모든 기기에서 로그아웃';
+
+  @override
+  String get devicesLogoutAllTitle => '모든 기기에서 로그아웃';
+
+  @override
+  String get devicesLogoutAllConfirm =>
+      '지금 쓰는 기기를 포함해 모두 로그아웃할까요? 다시 로그인해야 해요.';
+
+  @override
   String get accountConnected => '연결된 계정';
 
   @override

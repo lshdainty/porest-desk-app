@@ -2093,6 +2093,25 @@
   "accountCurrentDevice": "Current device",
   "accountLoginHistory": "Login history",
   "accountLast30Days": "Last 30 days",
+  "devicesTitle": "Logged-in devices",
+  "devicesIntro": "These devices are signed in to your account. Log out any you don't recognize.",
+  "devicesCurrent": "Current device",
+  "devicesUnknown": "Unknown device",
+  "devicesLastUsed": "Last used {when}",
+  "@devicesLastUsed": {
+    "placeholders": { "when": { "type": "String" } }
+  },
+  "devicesEmpty": "No devices are signed in",
+  "devicesLoadError": "Couldn't load your devices",
+  "devicesLogout": "Log out",
+  "devicesLogoutTitle": "Log out this device",
+  "devicesLogoutConfirm": "Log out of {device}? It will need to sign in again.",
+  "@devicesLogoutConfirm": {
+    "placeholders": { "device": { "type": "String" } }
+  },
+  "devicesLogoutAll": "Log out all devices",
+  "devicesLogoutAllTitle": "Log out all devices",
+  "devicesLogoutAllConfirm": "Log out everywhere, including this device? You'll need to sign in again.",
   "accountConnected": "Connected accounts",
   "accountNotConnected": "Not connected",
   "accountConnect": "Connect",
