@@ -11629,6 +11629,60 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'키는 서버에 암호화되어 저장되며 본인만 사용합니다. 발급은 {broker} 개발자센터에서.'**
   String subBrokerKeyNotice(String broker);
+
+  /// No description provided for @brokerToss.
+  ///
+  /// In ko, this message translates to:
+  /// **'토스증권'**
+  String get brokerToss;
+
+  /// No description provided for @brokerNamu.
+  ///
+  /// In ko, this message translates to:
+  /// **'나무증권'**
+  String get brokerNamu;
+
+  /// No description provided for @stocksBrokerUnsupported.
+  ///
+  /// In ko, this message translates to:
+  /// **'앱이 아직 모르는 증권사예요. 앱을 업데이트하면 볼 수 있어요.'**
+  String get stocksBrokerUnsupported;
+
+  /// No description provided for @namuSearchPrompt.
+  ///
+  /// In ko, this message translates to:
+  /// **'종목명이나 코드를 두 글자 이상 입력해 보세요'**
+  String get namuSearchPrompt;
+
+  /// No description provided for @namuScopeNotice.
+  ///
+  /// In ko, this message translates to:
+  /// **'지금은 종목 검색과 현재가까지 볼 수 있어요. 나무증권 전용 정보는 순서대로 추가할게요.'**
+  String get namuScopeNotice;
+
+  /// No description provided for @namuPriceError.
+  ///
+  /// In ko, this message translates to:
+  /// **'현재가를 불러오지 못했어요'**
+  String get namuPriceError;
+
+  /// No description provided for @namuPriceEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'현재가가 없는 종목이에요'**
+  String get namuPriceEmpty;
+
+  /// No description provided for @stocksSearchError.
+  ///
+  /// In ko, this message translates to:
+  /// **'검색에 실패했어요'**
+  String get stocksSearchError;
+
+  /// No description provided for @stocksSearchEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'검색 결과가 없어요'**
+  String get stocksSearchEmpty;
 }
 
 class _AppLocalizationsDelegate

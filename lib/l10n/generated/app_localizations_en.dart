@@ -6396,4 +6396,34 @@ class AppLocalizationsEn extends AppLocalizations {
   String subBrokerKeyNotice(String broker) {
     return 'Your key is stored encrypted on the server and used only by you. Issue one at the $broker developer center.';
   }
+
+  @override
+  String get brokerToss => 'Toss Securities';
+
+  @override
+  String get brokerNamu => 'NAMUH Securities';
+
+  @override
+  String get stocksBrokerUnsupported =>
+      'This app doesn\'t know that provider yet. Update the app to see it.';
+
+  @override
+  String get namuSearchPrompt =>
+      'Type at least two characters of a name or code';
+
+  @override
+  String get namuScopeNotice =>
+      'For now you can search instruments and see current prices. Provider-specific data is coming next.';
+
+  @override
+  String get namuPriceError => 'Couldn\'t load the current price';
+
+  @override
+  String get namuPriceEmpty => 'No current price for this instrument';
+
+  @override
+  String get stocksSearchError => 'Search failed';
+
+  @override
+  String get stocksSearchEmpty => 'No results';
 }

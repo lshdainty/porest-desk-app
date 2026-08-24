@@ -6310,4 +6310,32 @@ class AppLocalizationsKo extends AppLocalizations {
   String subBrokerKeyNotice(String broker) {
     return '키는 서버에 암호화되어 저장되며 본인만 사용합니다. 발급은 $broker 개발자센터에서.';
   }
+
+  @override
+  String get brokerToss => '토스증권';
+
+  @override
+  String get brokerNamu => '나무증권';
+
+  @override
+  String get stocksBrokerUnsupported => '앱이 아직 모르는 증권사예요. 앱을 업데이트하면 볼 수 있어요.';
+
+  @override
+  String get namuSearchPrompt => '종목명이나 코드를 두 글자 이상 입력해 보세요';
+
+  @override
+  String get namuScopeNotice =>
+      '지금은 종목 검색과 현재가까지 볼 수 있어요. 나무증권 전용 정보는 순서대로 추가할게요.';
+
+  @override
+  String get namuPriceError => '현재가를 불러오지 못했어요';
+
+  @override
+  String get namuPriceEmpty => '현재가가 없는 종목이에요';
+
+  @override
+  String get stocksSearchError => '검색에 실패했어요';
+
+  @override
+  String get stocksSearchEmpty => '검색 결과가 없어요';
 }
