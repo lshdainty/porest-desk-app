@@ -9,7 +9,8 @@ import 'package:porest_desk_app/features/asset/domain/asset_transfer.dart';
 import 'package:porest_desk_app/features/asset/domain/card_billing.dart';
 import 'package:porest_desk_app/features/asset/domain/net_worth_point.dart';
 import 'package:porest_desk_app/features/stocks/application/stocks_providers.dart';
-import 'package:porest_desk_app/features/stocks/data/toss_dto.dart';
+import 'package:porest_desk_app/features/stocks/application/securities_providers.dart';
+import 'package:porest_desk_app/features/stocks/data/securities_repository.dart';
 import 'package:porest_desk_app/features/subscription/application/subscription_providers.dart';
 
 final assetRepositoryProvider = FutureProvider<AssetRepository>((ref) async {
@@ -82,12 +83,15 @@ typedef InvestmentValuation = ({int value, int? changeAmt});
 /// 투자 자산 라이브 평가 맵 (assetRowId → 평가액·등락액).
 ///
 /// - holdings 가 있는 자산(신규 모델): 평가액 = Σ 직접입력(holdingValue)
-///   + Σ 연동(토스 현재가 × 수량, 해외 종목은 토스 환율로 KRW 환산).
+///   + Σ 연동(현재가 × 수량, 해외 종목은 환율로 KRW 환산).
+///   시세·환율은 **증권사 무관 경로**(/securities/**)로 받는다 — 서버가 사용자가 고른 기본
+///   소스로 대신 조회하므로 앱이 증권사를 알 필요가 없다. 예전에는 토스 경로를 직접 불러
+///   나무만 연결한 사용자의 평가액이 0/누락으로 보였다.
 ///   연동 보유의 가격을 하나라도 못 구하면 그 자산은 맵에서 제외(서버 스냅샷 잔액 유지).
 ///   등락액 = Σ 연동 (현재가 − 전일종가) × 수량 — 전일종가가 조회된 종목만 합산,
 ///   하나도 없으면 null(등락 미표시).
 /// - holdings 가 없는 자산: 기존 tossSymbol/tossQuantity 단일 연동 경로(deprecated) 유지.
-/// - 직접입력만 있는 자산은 시세가 불필요하므로 게이트(프로+토스연결)와 무관하게 평가.
+/// - 직접입력만 있는 자산은 시세가 불필요하므로 게이트(프로+증권사연결)와 무관하게 평가.
 /// - 화면에서 invalidate 하면 시세를 재조회해 실시간 갱신된다.
 final investmentValuationMapProvider =
     FutureProvider<Map<int, InvestmentValuation>>((ref) async {
@@ -113,27 +117,39 @@ final investmentValuationMapProvider =
     }
   }
 
-  var priceBySymbol = const <String, TossPrice>{};
+  var priceBySymbol = const <String, BrokerQuote>{};
   var fxRate = 0.0;
   final prevBySymbol = <String, double>{};
   if (enabled && symbols.isNotEmpty) {
     try {
-      final repo = await ref.watch(stocksRepositoryProvider.future);
+      final repo = await ref.watch(securitiesRepositoryProvider.future);
       final prices = await repo.getPrices(symbols.toList());
       priceBySymbol = {for (final p in prices) p.symbol: p};
+
+      // 응답에 전일 종가가 실려 오면 그걸 쓴다(나무는 시세 응답에 전일대비가 딸려 온다).
+      for (final p in prices) {
+        final prev = p.previousClose;
+        if (prev != null && prev > 0) prevBySymbol[p.symbol] = prev;
+      }
+
       if (prices.any((p) => _isForeignCurrency(p.currency))) {
         try {
-          fxRate = (await repo.getExchangeRate()).rateValue;
+          fxRate = await repo.getExchangeRate() ?? 0;
         } catch (_) {
           fxRate = 0; // 환율 실패 — 해외 종목은 환산 불가로 제외.
         }
       }
-      // 전일종가 — 심볼별 일봉 도출(캐시 family). 실패 심볼은 등락 계산에서 제외.
-      for (final s in symbols) {
-        try {
-          final prev = await ref.watch(prevCloseProvider(s).future);
-          if (prev != null && prev > 0) prevBySymbol[s] = prev;
-        } catch (_) {}
+
+      // 전일종가를 안 주는 증권사(토스)만 캔들로 채운다. 나무 사용자가 캔들을 부르면
+      // 토스 크리덴셜이 없어 403 이라, 기본 소스가 토스일 때만 간다.
+      if (features?.primaryBroker == 'TOSS') {
+        for (final s in symbols) {
+          if (prevBySymbol.containsKey(s)) continue;
+          try {
+            final prev = await ref.watch(prevCloseProvider(s).future);
+            if (prev != null && prev > 0) prevBySymbol[s] = prev;
+          } catch (_) {}
+        }
       }
     } catch (_) {
       priceBySymbol = const {};
@@ -146,9 +162,9 @@ final investmentValuationMapProvider =
     if (p == null) return null;
     if (_isForeignCurrency(p.currency)) {
       if (fxRate <= 0) return null;
-      return p.priceValue * fxRate;
+      return p.price * fxRate;
     }
-    return p.priceValue;
+    return p.price;
   }
 
   double? unitPrevKrw(String symbol) {
