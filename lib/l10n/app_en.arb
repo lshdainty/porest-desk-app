@@ -3654,5 +3654,14 @@
         "type": "String"
       }
     }
-  }
+  },
+  "brokerToss": "Toss Securities",
+  "brokerNamu": "NAMUH Securities",
+  "stocksBrokerUnsupported": "This app doesn't know that provider yet. Update the app to see it.",
+  "namuSearchPrompt": "Type at least two characters of a name or code",
+  "namuScopeNotice": "For now you can search instruments and see current prices. Provider-specific data is coming next.",
+  "namuPriceError": "Couldn't load the current price",
+  "namuPriceEmpty": "No current price for this instrument",
+  "stocksSearchError": "Search failed",
+  "stocksSearchEmpty": "No results"
 }

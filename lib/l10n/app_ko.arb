@@ -3804,5 +3804,14 @@
         "type": "String"
       }
     }
-  }
+  },
+  "brokerToss": "토스증권",
+  "brokerNamu": "나무증권",
+  "stocksBrokerUnsupported": "앱이 아직 모르는 증권사예요. 앱을 업데이트하면 볼 수 있어요.",
+  "namuSearchPrompt": "종목명이나 코드를 두 글자 이상 입력해 보세요",
+  "namuScopeNotice": "지금은 종목 검색과 현재가까지 볼 수 있어요. 나무증권 전용 정보는 순서대로 추가할게요.",
+  "namuPriceError": "현재가를 불러오지 못했어요",
+  "namuPriceEmpty": "현재가가 없는 종목이에요",
+  "stocksSearchError": "검색에 실패했어요",
+  "stocksSearchEmpty": "검색 결과가 없어요"
 }
