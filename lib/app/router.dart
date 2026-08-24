@@ -39,6 +39,7 @@ import 'package:porest_desk_app/features/more/presentation/more_screen.dart';
 import 'package:porest_desk_app/features/recurring/presentation/recurring_screen.dart';
 import 'package:porest_desk_app/features/settings/presentation/account_screen.dart';
 import 'package:porest_desk_app/features/settings/presentation/appearance_section.dart';
+import 'package:porest_desk_app/features/settings/presentation/devices_screen.dart';
 import 'package:porest_desk_app/features/settings/presentation/hide_amounts_screen.dart';
 import 'package:porest_desk_app/features/settings/presentation/settings_screen.dart';
 import 'package:porest_desk_app/features/settings/presentation/update_screen.dart';
@@ -150,6 +151,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
           path: '/settings/hide-amounts',
           builder: (_, _) => const HideAmountsScreen()),
+      // 로그인된 기기 — 계정 > 보안에서 push 진입.
+      GoRoute(
+          path: '/settings/devices',
+          builder: (_, _) => const DevicesScreen()),
       GoRoute(
           path: '/settings/export-data',
           builder: (_, _) => const ExportScreen()),

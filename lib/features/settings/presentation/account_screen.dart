@@ -235,6 +235,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                   desc: l.accountCurrentDevice,
                   chevron: true,
                   tokens: t,
+                  onTap: () => context.push('/settings/devices'),
                 ),
                 const PDivider(),
                 _AccountRow(

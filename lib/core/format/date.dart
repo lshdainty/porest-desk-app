@@ -83,3 +83,20 @@ DateTime monthStart(DateTime d) => DateTime(d.year, d.month, 1);
 String toIsoLocal(DateTime d) {
   return DateFormat("yyyy-MM-dd'T'HH:mm:ss").format(d);
 }
+
+/// 서버가 준 `[UTC]` 시각을 기기 시간대의 [DateTime] 으로 바꾼다.
+///
+/// 백엔드는 `LocalDateTime` 을 시간대 없이 직렬화한다 — `2026-08-24T10:30:00`.
+/// [DateTime.parse] 는 시간대 표시가 없으면 **로컬**로 읽으므로, 그대로 쓰면 UTC 값이
+/// 로컬 시각으로 둔갑해 KST(+9)에서는 방금 일어난 일이 "9시간 전" 으로 보인다.
+/// 그래서 UTC 로 못 박은 뒤 로컬로 옮긴다.
+///
+/// 이미 `Z` 나 오프셋이 붙어 오면 그대로 존중한다 — 서버가 나중에 형식을 바꿔도
+/// 이 함수가 두 번 보정하지 않는다.
+DateTime? parseServerUtc(String? iso) {
+  if (iso == null || iso.isEmpty) return null;
+  final hasZone = iso.endsWith('Z') ||
+      RegExp(r'[+-]\d{2}:?\d{2}$').hasMatch(iso);
+  final dt = DateTime.tryParse(hasZone ? iso : '${iso}Z');
+  return dt?.toLocal();
+}

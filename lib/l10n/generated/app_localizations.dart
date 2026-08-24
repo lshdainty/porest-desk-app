@@ -7028,6 +7028,84 @@ abstract class AppLocalizations {
   /// **'최근 30일'**
   String get accountLast30Days;
 
+  /// No description provided for @devicesTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'로그인된 기기'**
+  String get devicesTitle;
+
+  /// No description provided for @devicesIntro.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 계정으로 로그인된 기기예요. 낯선 기기가 있으면 로그아웃해 주세요.'**
+  String get devicesIntro;
+
+  /// No description provided for @devicesCurrent.
+  ///
+  /// In ko, this message translates to:
+  /// **'현재 기기'**
+  String get devicesCurrent;
+
+  /// No description provided for @devicesUnknown.
+  ///
+  /// In ko, this message translates to:
+  /// **'알 수 없는 기기'**
+  String get devicesUnknown;
+
+  /// No description provided for @devicesLastUsed.
+  ///
+  /// In ko, this message translates to:
+  /// **'마지막 사용 {when}'**
+  String devicesLastUsed(String when);
+
+  /// No description provided for @devicesEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'로그인된 기기가 없어요'**
+  String get devicesEmpty;
+
+  /// No description provided for @devicesLoadError.
+  ///
+  /// In ko, this message translates to:
+  /// **'기기 목록을 불러오지 못했어요'**
+  String get devicesLoadError;
+
+  /// No description provided for @devicesLogout.
+  ///
+  /// In ko, this message translates to:
+  /// **'로그아웃'**
+  String get devicesLogout;
+
+  /// No description provided for @devicesLogoutTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 기기에서 로그아웃'**
+  String get devicesLogoutTitle;
+
+  /// No description provided for @devicesLogoutConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'{device} 에서 로그아웃할까요? 그 기기는 다시 로그인해야 해요.'**
+  String devicesLogoutConfirm(String device);
+
+  /// No description provided for @devicesLogoutAll.
+  ///
+  /// In ko, this message translates to:
+  /// **'모든 기기에서 로그아웃'**
+  String get devicesLogoutAll;
+
+  /// No description provided for @devicesLogoutAllTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'모든 기기에서 로그아웃'**
+  String get devicesLogoutAllTitle;
+
+  /// No description provided for @devicesLogoutAllConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'지금 쓰는 기기를 포함해 모두 로그아웃할까요? 다시 로그인해야 해요.'**
+  String get devicesLogoutAllConfirm;
+
   /// No description provided for @accountConnected.
   ///
   /// In ko, this message translates to:

@@ -2109,6 +2109,25 @@
   "accountCurrentDevice": "현재 기기",
   "accountLoginHistory": "로그인 기록",
   "accountLast30Days": "최근 30일",
+  "devicesTitle": "로그인된 기기",
+  "devicesIntro": "이 계정으로 로그인된 기기예요. 낯선 기기가 있으면 로그아웃해 주세요.",
+  "devicesCurrent": "현재 기기",
+  "devicesUnknown": "알 수 없는 기기",
+  "devicesLastUsed": "마지막 사용 {when}",
+  "@devicesLastUsed": {
+    "placeholders": { "when": { "type": "String" } }
+  },
+  "devicesEmpty": "로그인된 기기가 없어요",
+  "devicesLoadError": "기기 목록을 불러오지 못했어요",
+  "devicesLogout": "로그아웃",
+  "devicesLogoutTitle": "이 기기에서 로그아웃",
+  "devicesLogoutConfirm": "{device} 에서 로그아웃할까요? 그 기기는 다시 로그인해야 해요.",
+  "@devicesLogoutConfirm": {
+    "placeholders": { "device": { "type": "String" } }
+  },
+  "devicesLogoutAll": "모든 기기에서 로그아웃",
+  "devicesLogoutAllTitle": "모든 기기에서 로그아웃",
+  "devicesLogoutAllConfirm": "지금 쓰는 기기를 포함해 모두 로그아웃할까요? 다시 로그인해야 해요.",
   "accountConnected": "연결된 계정",
   "accountNotConnected": "연결 안 됨",
   "accountConnect": "연결",
