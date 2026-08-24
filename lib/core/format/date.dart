@@ -93,10 +93,92 @@ String toIsoLocal(DateTime d) {
 ///
 /// 이미 `Z` 나 오프셋이 붙어 오면 그대로 존중한다 — 서버가 나중에 형식을 바꿔도
 /// 이 함수가 두 번 보정하지 않는다.
+///
+/// **입력은 시각이 있는 값(`LocalDateTime`) 전용이다.** 날짜만 있는 값
+/// (`LocalDate` — `expenseDate`·`transferDate`·캘린더 `startDate` 처럼 사용자가 입력한
+/// **벽시계 날짜**)은 받지 않고 null 을 돌려준다. 그런 값에는 시간대가 없다 —
+/// 자정 UTC 로 읽어 로컬로 옮기면 UTC 뒤쪽 시간대(예: -05:00)에서 `2026-08-24` 가
+/// `2026-08-23` 으로 하루 밀린다. KST(+9)에서는 09:00 이 되어 날짜가 그대로라
+/// **개발 기기에서만 멀쩡해 보이고** 다른 시간대 사용자에게만 조용히 틀린다.
+/// 날짜만 있는 값은 [parseIsoDate]/[DateTime.parse] 로 그대로 읽어야 한다.
 DateTime? parseServerUtc(String? iso) {
   if (iso == null || iso.isEmpty) return null;
+  // 'YYYY-MM-DD' · 'YYYYMMDD' — Java LocalDate 직렬화 형태. 여기서 잘라 낸다.
+  // 지금은 [DateTime.tryParse] 도 '2026-08-24Z' 를 거부해 결과가 같지만, 그건 Dart
+  // 파서의 우연이다(V8 은 받아들여 웹이 자정 UTC 로 읽었다). 계약을 그 우연에
+  // 맡겨 두면 이 함수를 "웹과 맞춘다" 며 관대하게 고치는 순간 조용히 열린다.
+  if (_dateOnly.hasMatch(iso)) return null;
   final hasZone = iso.endsWith('Z') ||
       RegExp(r'[+-]\d{2}:?\d{2}$').hasMatch(iso);
   final dt = DateTime.tryParse(hasZone ? iso : '${iso}Z');
   return dt?.toLocal();
+}
+
+/// 시각 없이 날짜만 있는 값(`LocalDate`). 확장·기본 ISO 형태를 모두 잡는다.
+final _dateOnly = RegExp(r'^[+-]?\d{4,6}-?\d{2}-?\d{2}$');
+
+/// 로컬 [DateTime] → 서버가 읽는 `[UTC]` ISO 문자열. [parseServerUtc] 의 역변환.
+///
+/// [parseServerUtc] 가 돌려주는 값은 `isUtc=false` 인 **로컬** DateTime 이다.
+/// Dart 의 `toIso8601String()` 은 로컬이면 오프셋을 안 붙이므로, 그대로 직렬화하면
+/// "오프셋 없는 로컬 벽시계" 가 나가고 그걸 다시 [parseServerUtc] 로 읽으면 UTC 로
+/// 오해해 왕복마다 +9(KST) 씩 밀린다. 그래서 UTC 로 되돌린 뒤(`Z` 가 붙는다) 찍는다.
+String? toServerUtc(DateTime? d) => d?.toUtc().toIso8601String();
+
+/// 서버가 준 `[UTC]` 시각 → **로컬** 기준 `yyyy-MM-dd`. 못 읽으면 null.
+///
+/// 문자열을 `substring(0, 10)`·`startsWith` 로 자르면 UTC 날짜가 그대로 나온다 —
+/// KST(+9) 새벽 0~9시에 일어난 일이 전날로 찍혀, [DateTime.now] 로 만든 로컬 '오늘' 이나
+/// 로컬 달력으로 그린 요일 칸과 하루씩 어긋난다. 그래서 파싱해 로컬 달력으로 다시 조립한다.
+///
+/// 웹(porest-desk-front)의 `toLocalDateKey` 와 같은 규칙이다 — 규칙이 갈리면 같은 데이터를
+/// 두고 "오늘 완료" 가 웹 1건 · 앱 0건으로 보인다.
+///
+/// **날짜만 있는 값(`LocalDate`)은 이 함수 대상이 아니다** — [parseServerUtc] 가
+/// null 을 주므로 여기서도 null 이 나간다. 벽시계 날짜를 UTC 로 읽으면 시간대에 따라
+/// 하루가 밀리는데, 그건 화면에 그럴듯한 날짜로 찍혀 아무도 못 잡는다.
+/// 그런 값은 변환 없이 그대로 쓰면 된다(이미 로컬 벽시계다).
+String? localDateKey(String? iso) {
+  final dt = parseServerUtc(iso);
+  if (dt == null) return null;
+  final yyyy = dt.year.toString().padLeft(4, '0');
+  final mm = dt.month.toString().padLeft(2, '0');
+  final dd = dt.day.toString().padLeft(2, '0');
+  return '$yyyy-$mm-$dd';
+}
+
+/// 서버 `[UTC]` 시각 → 로컬 `yyyy-MM-dd HH:mm`. 못 읽으면 null.
+///
+/// [localDateKey] 와 같은 이유 — 자르면 UTC 벽시계가 그대로 화면에 나온다.
+/// 웹 `toLocalDateTime` 과 같은 모양을 유지한다(로케일 포맷을 태우지 않는다).
+///
+/// [localDateKey] 와 마찬가지로 **날짜만 있는 값(`LocalDate`)은 대상이 아니다** — null.
+String? localDateTime(String? iso) {
+  final dt = parseServerUtc(iso);
+  if (dt == null) return null;
+  final yyyy = dt.year.toString().padLeft(4, '0');
+  final mm = dt.month.toString().padLeft(2, '0');
+  final dd = dt.day.toString().padLeft(2, '0');
+  final hh = dt.hour.toString().padLeft(2, '0');
+  final mi = dt.minute.toString().padLeft(2, '0');
+  return '$yyyy-$mm-$dd $hh:$mi';
+}
+
+/// 서버 `[UTC]` 시각을 로컬 `MM/DD · HH:MM` 으로 찍는다 (메모 수정시각 라벨).
+///
+/// 원래는 문자열을 `raw.substring(5, 16)` 으로 잘라 썼다 — 파싱을 안 하니 서버가 준
+/// UTC 벽시계가 그대로 화면에 나왔고, KST(+9)에서는 방금 고친 메모가 9시간 전으로,
+/// 자정 근처면 날짜까지 하루 어긋나 보였다. 그래서 실제로 파싱해 로컬로 옮긴 뒤 찍는다.
+///
+/// 모양은 웹(porest-desk-front)과 같게 유지한다 — 로케일별 포맷을 태우지 않는다.
+/// 못 읽는 값은 빈 문자열 — 라벨이 `'$tag · '` 처럼 다른 문자열에 이어 붙는 자리라
+/// null 을 돌려주면 호출부가 전부 분기해야 한다.
+String monthDayTime(String? iso) {
+  final dt = parseServerUtc(iso);
+  if (dt == null) return '';
+  final mm = dt.month.toString().padLeft(2, '0');
+  final dd = dt.day.toString().padLeft(2, '0');
+  final hh = dt.hour.toString().padLeft(2, '0');
+  final mi = dt.minute.toString().padLeft(2, '0');
+  return '$mm/$dd · $hh:$mi';
 }

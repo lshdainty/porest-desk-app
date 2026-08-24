@@ -399,11 +399,13 @@ class _TodoScreenState extends ConsumerState<TodoScreen> {
                             children: [
                               NightSkyHero(
                                 today: constToday,
+                                // completedAt 은 서버 `[UTC]` — 자르면 UTC 날짜가
+                                // 나와 로컬 '오늘'(todayYmd)과 어긋난다. KST 새벽
+                                // 0~9시 완료가 전날로 밀려 히어로가 0건을 띄웠다.
                                 doneToday: all
                                     .where((x) =>
                                         x.done &&
-                                        (x.completedAt ?? '')
-                                            .startsWith(todayYmd))
+                                        localDateKey(x.completedAt) == todayYmd)
                                     .length,
                               ),
                               const SizedBox(height: 8),

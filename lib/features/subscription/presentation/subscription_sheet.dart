@@ -6,6 +6,7 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/core/format/date.dart';
 import 'package:porest_desk_app/core/format/krw.dart';
 import 'package:porest_desk_app/features/subscription/application/subscription_providers.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
@@ -81,9 +82,13 @@ class _SubscriptionSheetBodyState
     final l = AppLocalizations.of(context);
     final sub = ref.watch(mySubscriptionProvider).asData?.value;
     final isPro = sub?.isActive ?? false;
+    // currentPeriodEnd 는 서버가 `LocalDateTime.now()`(UTC)에 개월을 더해 만든 UTC
+    // 시각이다 — 자르면 UTC 날짜가 나와, KST(+9) 밤 늦게 결제한 사용자에게 갱신일이
+    // 하루 앞으로 보인다. 못 읽는 값만 예전처럼 잘라 쓴다.
     final nextBill =
         (sub?.currentPeriodEnd != null && sub!.currentPeriodEnd!.length >= 10)
-        ? sub.currentPeriodEnd!.substring(0, 10)
+        ? (localDateKey(sub.currentPeriodEnd) ??
+            sub.currentPeriodEnd!.substring(0, 10))
         : l.subNextBillingDate;
     final proPrice = _cycle == _Cycle.monthly ? _proMonthly : _proYearly;
     final proPerMonth = _cycle == _Cycle.monthly
@@ -572,9 +577,13 @@ class _SubscriptionFooterState extends ConsumerState<_SubscriptionFooter> {
     final l = AppLocalizations.of(context);
     final sub = ref.watch(mySubscriptionProvider).asData?.value;
     final isPro = sub?.isActive ?? false;
+    // currentPeriodEnd 는 서버가 `LocalDateTime.now()`(UTC)에 개월을 더해 만든 UTC
+    // 시각이다 — 자르면 UTC 날짜가 나와, KST(+9) 밤 늦게 결제한 사용자에게 갱신일이
+    // 하루 앞으로 보인다. 못 읽는 값만 예전처럼 잘라 쓴다.
     final nextBill =
         (sub?.currentPeriodEnd != null && sub!.currentPeriodEnd!.length >= 10)
-        ? sub.currentPeriodEnd!.substring(0, 10)
+        ? (localDateKey(sub.currentPeriodEnd) ??
+            sub.currentPeriodEnd!.substring(0, 10))
         : l.subNextBillingDate;
     return Row(
       children: [

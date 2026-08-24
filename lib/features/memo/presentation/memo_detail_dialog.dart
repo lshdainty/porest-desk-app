@@ -6,6 +6,7 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/core/format/date.dart';
 import 'package:porest_desk_app/features/memo/domain/memo.dart';
 import 'package:porest_desk_app/features/memo/domain/memo_colors.dart';
 import 'package:porest_desk_app/features/memo/presentation/memo_actions.dart';
@@ -97,13 +98,6 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
     }
   }
 
-  /// 'YYYY-MM-DD(T| )HH:MM(:SS)' → 'MM/DD · HH:MM' (_MemoCard._fmtUpdated 정합).
-  static String _fmtUpdated(String? raw) {
-    if (raw == null || raw.length < 16) return '';
-    final seg = raw.substring(5, 16);
-    return seg.replaceFirst('-', '/').replaceFirst(RegExp(r'[T ]'), ' · ');
-  }
-
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
@@ -178,7 +172,7 @@ class _DetailBodyState extends ConsumerState<_DetailBody> {
               ),
               const SizedBox(height: 8),
               Text(
-                _fmtUpdated(memo.modifyAt),
+                monthDayTime(memo.modifyAt),
                 style: PTypo.micro.copyWith(color: t.fgTertiary),
               ),
             ],

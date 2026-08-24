@@ -61,8 +61,12 @@ class _ForestReportScreenState extends ConsumerState<ForestReportScreen> {
       };
 
   /// 그날 완료한 할일 (completedAt 기준).
+  ///
+  /// [ymd] 는 로컬 달력으로 만든 주간 스트립 칸이다. completedAt 은 서버 `[UTC]` 라
+  /// 문자열을 자르면 UTC 날짜가 나와 KST(+9) 새벽 0~9시 완료가 전날 칸에 붙었다.
+  /// 웹 `ForestReport.doneKey` 와 같은 규칙 — 로컬 날짜로 바꿔서 비교한다.
   List<Todo> _doneOn(List<Todo> todos, String ymd) => todos
-      .where((x) => x.done && (x.completedAt ?? '').startsWith(ymd))
+      .where((x) => x.done && localDateKey(x.completedAt) == ymd)
       .toList();
 
   /// 그날 못다 켠 별 — due=그날 && 미완료.

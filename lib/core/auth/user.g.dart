@@ -12,9 +12,7 @@ _User _$UserFromJson(Map<String, dynamic> json) => _User(
   userName: json['userName'] as String,
   userEmail: json['userEmail'] as String,
   timezone: json['timezone'] as String?,
-  joinedAt: json['joinedAt'] == null
-      ? null
-      : DateTime.parse(json['joinedAt'] as String),
+  joinedAt: parseServerUtc(json['joinedAt'] as String?),
 );
 
 Map<String, dynamic> _$UserToJson(_User instance) => <String, dynamic>{
@@ -23,5 +21,5 @@ Map<String, dynamic> _$UserToJson(_User instance) => <String, dynamic>{
   'userName': instance.userName,
   'userEmail': instance.userEmail,
   'timezone': instance.timezone,
-  'joinedAt': instance.joinedAt?.toIso8601String(),
+  'joinedAt': toServerUtc(instance.joinedAt),
 };

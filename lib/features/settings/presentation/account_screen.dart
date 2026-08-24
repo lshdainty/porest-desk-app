@@ -315,7 +315,9 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                           const SizedBox(height: 2),
                           Text(
                             isSubscribed
-                                ? '${subscription?.currentPeriodEnd != null && subscription!.currentPeriodEnd!.length >= 10 ? l.accountNextBilling(subscription.currentPeriodEnd!.substring(0, 10)) : ''}${l.accountProActive}'
+                                // currentPeriodEnd 는 서버 UTC 시각 — 자르면 KST 밤 결제분의
+                                // 갱신일이 하루 앞으로 보인다(subscription_sheet 와 같은 규칙).
+                                ? '${subscription?.currentPeriodEnd != null && subscription!.currentPeriodEnd!.length >= 10 ? l.accountNextBilling(localDateKey(subscription.currentPeriodEnd) ?? subscription.currentPeriodEnd!.substring(0, 10)) : ''}${l.accountProActive}'
                                 : l.accountProPromo,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,

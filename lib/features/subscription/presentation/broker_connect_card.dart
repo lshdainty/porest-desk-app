@@ -6,6 +6,7 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/spacing.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/app/theme/typography.dart';
+import 'package:porest_desk_app/core/format/date.dart';
 import 'package:porest_desk_app/core/network/api_exception.dart';
 import 'package:porest_desk_app/features/subscription/application/subscription_providers.dart';
 import 'package:porest_desk_app/features/subscription/data/subscription_repository.dart';
@@ -148,8 +149,12 @@ class _BrokerConnectCardState extends ConsumerState<BrokerConnectCard> {
   Widget _connectedBody(PorestTokens t, BrokerConnection c) {
     final l = AppLocalizations.of(context);
     final verifiedAt = c.verifiedAt;
+    // verifiedAt 은 서버 `[UTC]`(UserSecuritiesCredential.verified_at) — 자르면 UTC
+    // 날짜가 그대로 나와 KST(+9) 새벽 0~9시 연동이 전날로 보인다. 못 읽는 값만
+    // 예전처럼 잘라 쓴다 — 형식이 달라졌다고 라벨을 통째로 잃는 것보단 낫다.
     final sub = verifiedAt != null && verifiedAt.length >= 10
-        ? l.subBrokerLastVerified(verifiedAt.substring(0, 10))
+        ? l.subBrokerLastVerified(
+            localDateKey(verifiedAt) ?? verifiedAt.substring(0, 10))
         : l.subBrokerCollecting;
 
     return Column(
