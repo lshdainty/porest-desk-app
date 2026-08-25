@@ -9,22 +9,17 @@
 //
 // 실행은 Actions 가 웹훅으로 건다. 값은 플러그인이 환경변수로 넣어 주므로
 // params 가 아니라 env 로 읽는다 — parameters 를 선언하면 같은 이름끼리 부딪힌다.
+//
+// 트리거 설정 자체(Generic Webhook Trigger 의 토큰 · genericVariables 매핑)는 이 파일이
+// 아니라 Jenkins 잡 설정에 있다. 다른 porest 레포와 같다 — 여기에 triggers 블록을 되살리지
+// 마라. Declarative 의 triggers 디렉티브는 빌드가 돌 때마다 잡 설정에 다시 적용돼서,
+// UI 에서 토큰을 바꿔도 다음 빌드에 파일에 적힌 값으로 되돌아간다. 그리고 그 토큰은 인증
+// 없이 배포를 거는 열쇠라 레포에 평문으로 둘 수 없다(Jenkins 는 인터넷에서 열려 있다).
+//
+// 잡 설정에 있어야 하는 것 — 토큰, 그리고 genericVariables 두 줄:
+// CHANNEL = $.channel · VERSION = $.version. 하나라도 빠지면 아래 Validate 가 막는다.
 pipeline {
     agent any
-
-    triggers {
-        GenericTrigger(
-            genericVariables: [
-                [key: 'CHANNEL', value: '$.channel'],
-                [key: 'VERSION', value: '$.version']
-            ],
-            token: 'porest-desk-app-deploy',
-            causeString: 'GitHub Actions 릴리스 — $CHANNEL $VERSION',
-            // 웹훅 본문과 변수를 로그에 남기지 않는다. 배포 대상 말고는 적을 게 없다.
-            printContributedVariables: false,
-            printPostContent: false
-        )
-    }
 
     environment {
         // 다른 레포와 같은 전역변수를 쓴다. Jenkins 전역 설정에서 한 번만 정한다.
