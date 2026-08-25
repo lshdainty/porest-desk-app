@@ -8,9 +8,7 @@ import 'package:porest_desk_app/features/asset/domain/asset_summary.dart';
 import 'package:porest_desk_app/features/asset/domain/asset_transfer.dart';
 import 'package:porest_desk_app/features/asset/domain/card_billing.dart';
 import 'package:porest_desk_app/features/asset/domain/net_worth_point.dart';
-import 'package:porest_desk_app/features/stocks/application/stocks_providers.dart';
-import 'package:porest_desk_app/features/stocks/application/securities_providers.dart';
-import 'package:porest_desk_app/features/stocks/data/securities_repository.dart';
+import 'package:porest_desk_app/features/stocks/application/live_prices.dart';
 import 'package:porest_desk_app/features/subscription/application/subscription_providers.dart';
 
 final assetRepositoryProvider = FutureProvider<AssetRepository>((ref) async {
@@ -74,9 +72,6 @@ final cardBillingProvider =
 });
 
 /// 통화가 KRW 가 아니면(해외 종목) 환율 환산 대상.
-bool _isForeignCurrency(String? currency) =>
-    currency != null && currency.isNotEmpty && currency.toUpperCase() != 'KRW';
-
 /// 투자 자산 라이브 평가 1건 — 평가액(KRW) + 전일 대비 등락액(계산 가능할 때만).
 typedef InvestmentValuation = ({int value, int? changeAmt});
 
@@ -117,66 +112,19 @@ final investmentValuationMapProvider =
     }
   }
 
-  var priceBySymbol = const <String, BrokerQuote>{};
-  var fxRate = 0.0;
-  final prevBySymbol = <String, double>{};
+  // 시세·통화별 환율·전일종가 조달은 livePricesProvider 한 곳에 있다 —
+  // 자산 상세·추가/편집도 같은 걸 써야 한 화면에서 금액이 어긋나지 않는다.
+  LivePrices live = const LivePrices.empty();
   if (enabled && symbols.isNotEmpty) {
     try {
-      final repo = await ref.watch(securitiesRepositoryProvider.future);
-      final prices = await repo.getPrices(symbols.toList());
-      priceBySymbol = {for (final p in prices) p.symbol: p};
-
-      // 응답에 전일 종가가 실려 오면 그걸 쓴다(나무는 시세 응답에 전일대비가 딸려 온다).
-      for (final p in prices) {
-        final prev = p.previousClose;
-        if (prev != null && prev > 0) prevBySymbol[p.symbol] = prev;
-      }
-
-      if (prices.any((p) => _isForeignCurrency(p.currency))) {
-        try {
-          fxRate = await repo.getExchangeRate() ?? 0;
-        } catch (_) {
-          fxRate = 0; // 환율 실패 — 해외 종목은 환산 불가로 제외.
-        }
-      }
-
-      // 전일종가를 안 주는 증권사(토스)만 캔들로 채운다. 나무 사용자가 캔들을 부르면
-      // 토스 크리덴셜이 없어 403 이라, 기본 소스가 토스일 때만 간다.
-      if (features?.primaryBroker == 'TOSS') {
-        for (final s in symbols) {
-          if (prevBySymbol.containsKey(s)) continue;
-          try {
-            final prev = await ref.watch(prevCloseProvider(s).future);
-            if (prev != null && prev > 0) prevBySymbol[s] = prev;
-          } catch (_) {}
-        }
-      }
+      live = await ref.watch(livePricesProvider(livePricesKey(symbols)).future);
     } catch (_) {
-      priceBySymbol = const {};
+      live = const LivePrices.empty();
     }
   }
 
-  // 심볼 1주의 KRW 평가가 — 가격 없거나 환산 불가면 null.
-  double? unitKrw(String symbol) {
-    final p = priceBySymbol[symbol];
-    if (p == null) return null;
-    if (_isForeignCurrency(p.currency)) {
-      if (fxRate <= 0) return null;
-      return p.price * fxRate;
-    }
-    return p.price;
-  }
-
-  double? unitPrevKrw(String symbol) {
-    final p = priceBySymbol[symbol];
-    final prev = prevBySymbol[symbol];
-    if (p == null || prev == null) return null;
-    if (_isForeignCurrency(p.currency)) {
-      if (fxRate <= 0) return null;
-      return prev * fxRate;
-    }
-    return prev;
-  }
+  double? unitKrw(String symbol) => live.unitKrw(symbol);
+  double? unitPrevKrw(String symbol) => live.prevUnitKrw(symbol);
 
   final map = <int, InvestmentValuation>{};
   for (final a in targets) {
