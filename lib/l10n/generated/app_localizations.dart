@@ -6827,7 +6827,7 @@ abstract class AppLocalizations {
   /// No description provided for @appearanceRegion.
   ///
   /// In ko, this message translates to:
-  /// **'표시 기준 지역'**
+  /// **'기준 지역'**
   String get appearanceRegion;
 
   /// No description provided for @appearanceRegionPlaceholder.
@@ -6839,7 +6839,7 @@ abstract class AppLocalizations {
   /// No description provided for @appearanceRegionDesc.
   ///
   /// In ko, this message translates to:
-  /// **'선택한 지역 기준으로 날짜와 시간이 표시돼요'**
+  /// **'\'오늘\'과 통계의 하루를 이 지역 기준으로 계산해요. 화면의 시간은 기기 시간대로 보여요'**
   String get appearanceRegionDesc;
 
   /// No description provided for @appearanceCurrency.
