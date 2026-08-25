@@ -206,6 +206,8 @@ class AssetRepository {
         'holdingType': h.holdingType.wire,
         'linked': h.linked,
         if (h.linked) ...{
+          // 시장코드는 선택이다 — 확정 못 했으면 아예 안 보내고 서버가 심볼로 해석한다.
+          'marketCode': ?h.marketCode,
           'tossSymbol': h.tossSymbol,
           'quantity': h.quantity ?? '0',
         } else ...{

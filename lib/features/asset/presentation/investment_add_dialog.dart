@@ -168,6 +168,7 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
                       key: _nextRowKey(),
                       holding: AssetHolding(
                         linked: true,
+                        marketCode: e.marketCode,
                         tossSymbol: e.tossSymbol,
                         quantity: e.tossQuantity?.toString(),
                       ),
@@ -222,6 +223,9 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
           key: _nextRowKey(),
           holding: AssetHolding(
             linked: true,
+            // 검색 결과가 시장을 알고 있다 — 여기서 안 담으면 서버는 심볼로 되짚어야 하고,
+            // 여러 시장에 걸리는 티커(SPY·IVV 등)는 확정하지 못한다.
+            marketCode: s.marketCode,
             tossSymbol: s.symbol,
             quantity: '1',
             holdingName: s.nameKr, // 표시용 — 직렬화 시 linked 는 심볼·수량만 전송.

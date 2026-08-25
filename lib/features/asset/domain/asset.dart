@@ -34,6 +34,7 @@ abstract class Asset with _$Asset {
     AssetCardCatalog? cardCatalog,
     // 토스 연동 (INVESTMENT 전용, nullable). 토스 현재가 × 보유수량으로 평가액 실시간 계산.
     // deprecated — holdings(다건)로 대체. 서버 필드 잔존으로 파싱만 유지.
+    String? marketCode, // 종목 마스터 기준 시장코드 — 서버가 확정 못 했으면 없다
     String? tossSymbol, // 토스 연동 종목코드
     int? tossQuantity, // 토스 연동 보유수량
     // 보유 종목 (INVESTMENT 전용, design tossapi5) — linked(현재가×수량 연동) | manual(평가액 직접).
@@ -92,6 +93,12 @@ abstract class AssetHolding with _$AssetHolding {
     @Default(AssetHoldingType.stock)
     AssetHoldingType holdingType,
     @Default(false) bool linked,
+    /// 종목 마스터 기준 시장코드(NAS·KOSPI …) — 선택.
+    ///
+    /// 같은 티커가 여러 시장에 걸린다(SPY·IVV·JEPI·SOXL). 종목 검색 응답이 이미 들고
+    /// 있으니 저장할 때 그대로 돌려보내면 서버가 종목을 확정한다. 안 보내면 서버가
+    /// 심볼로 해석하고, 여러 시장에 걸리면 비워 둔다.
+    String? marketCode,
     String? tossSymbol,
     // 코인 0.05·금 3.75g 등 소수 허용. 미연동도 기록 가능(선택).
     // 서버 계약은 BigDecimal(decimal(28,8)) — double 로 담으면 십진 소수가 깎이므로
