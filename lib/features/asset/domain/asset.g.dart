@@ -27,6 +27,7 @@ _Asset _$AssetFromJson(Map<String, dynamic> json) => _Asset(
   cardCatalog: json['cardCatalog'] == null
       ? null
       : AssetCardCatalog.fromJson(json['cardCatalog'] as Map<String, dynamic>),
+  marketCode: json['marketCode'] as String?,
   tossSymbol: json['tossSymbol'] as String?,
   tossQuantity: (json['tossQuantity'] as num?)?.toInt(),
   holdings:
@@ -56,6 +57,7 @@ Map<String, dynamic> _$AssetToJson(_Asset instance) => <String, dynamic>{
   'paymentDay': instance.paymentDay,
   'paymentAssetRowId': instance.paymentAssetRowId,
   'cardCatalog': instance.cardCatalog,
+  'marketCode': instance.marketCode,
   'tossSymbol': instance.tossSymbol,
   'tossQuantity': instance.tossQuantity,
   'holdings': instance.holdings,
@@ -91,6 +93,7 @@ _AssetHolding _$AssetHoldingFromJson(Map<String, dynamic> json) =>
           ) ??
           AssetHoldingType.stock,
       linked: json['linked'] as bool? ?? false,
+      marketCode: json['marketCode'] as String?,
       tossSymbol: json['tossSymbol'] as String?,
       quantity: decimalStringFromJson(json['quantity']),
       holdingName: json['holdingName'] as String?,
@@ -105,6 +108,7 @@ Map<String, dynamic> _$AssetHoldingToJson(_AssetHolding instance) =>
       'rowId': instance.rowId,
       'holdingType': _$AssetHoldingTypeEnumMap[instance.holdingType]!,
       'linked': instance.linked,
+      'marketCode': instance.marketCode,
       'tossSymbol': instance.tossSymbol,
       'quantity': instance.quantity,
       'holdingName': instance.holdingName,

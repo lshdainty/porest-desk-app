@@ -451,6 +451,7 @@ class _HoldingsSection extends ConsumerWidget {
       return [
         AssetHolding(
           linked: true,
+          marketCode: asset.marketCode,
           tossSymbol: asset.tossSymbol,
           quantity: asset.tossQuantity?.toString(),
         ),
