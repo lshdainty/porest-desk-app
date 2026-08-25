@@ -32,8 +32,6 @@ import 'package:porest_desk_app/features/expense/domain/expense.dart';
 import 'package:porest_desk_app/features/expense/domain/expense_aggregates.dart';
 import 'package:porest_desk_app/features/expense/presentation/tx_detail_dialog.dart';
 import 'package:porest_desk_app/features/asset/application/asset_providers.dart';
-import 'package:porest_desk_app/features/stocks/application/stocks_providers.dart';
-import 'package:porest_desk_app/features/stocks/data/toss_dto.dart';
 import 'package:porest_desk_app/features/subscription/application/subscription_providers.dart';
 import 'package:porest_desk_app/features/asset/domain/asset.dart';
 import 'package:porest_desk_app/features/asset/domain/asset_transfer.dart';
@@ -46,6 +44,8 @@ import 'package:porest_desk_app/features/asset/presentation/widgets/asset_logo.d
 import 'package:porest_desk_app/features/asset/presentation/asset_trade_sheet.dart';
 import 'package:porest_desk_app/features/expense/presentation/transfer_detail_sheet.dart';
 import 'package:porest_desk_app/features/expense/presentation/widgets/transfer_row.dart';
+import 'package:porest_desk_app/features/stocks/application/live_prices.dart';
+import 'package:porest_desk_app/features/stocks/data/securities_repository.dart';
 
 /// 자산 상세 — front `AssetDetailDialog` 모바일 미러.
 ///
@@ -473,32 +473,13 @@ class _HoldingsSection extends ConsumerWidget {
       for (final h in holdings)
         if (h.linked && (h.tossSymbol?.isNotEmpty ?? false)) h.tossSymbol!,
     ];
-    final prices = gate && symbols.isNotEmpty
-        ? (ref
-                .watch(tossPricesProvider((symbols.toSet().toList()..sort())
-                    .join(',')))
-                .asData
-                ?.value ??
-            const [])
-        : const <TossPrice>[];
-    final priceBySymbol = {for (final p in prices) p.symbol: p};
-    final hasForeign = prices.any((p) {
-      final cur = p.currency;
-      return cur != null && cur.isNotEmpty && cur.toUpperCase() != 'KRW';
-    });
-    final fx = hasForeign
-        ? ref.watch(tossExchangeRateProvider).asData?.value?.rateValue ?? 0.0
-        : 0.0;
+    // 환산 규칙은 livePricesProvider 한 곳에 있다 — 목록·추가/편집과 같은 걸 써야
+    // 한 화면에서 총액과 종목별 금액이 어긋나지 않는다.
+    final live = gate && symbols.isNotEmpty
+        ? ref.watch(livePricesProvider(livePricesKey(symbols))).asData?.value
+        : null;
 
-    double? unitKrw(String symbol) {
-      final p = priceBySymbol[symbol];
-      if (p == null) return null;
-      final foreign = p.currency != null &&
-          p.currency!.isNotEmpty &&
-          p.currency!.toUpperCase() != 'KRW';
-      if (foreign) return fx > 0 ? p.priceValue * fx : null;
-      return p.priceValue;
-    }
+    double? unitKrw(String symbol) => live?.unitKrw(symbol);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -546,8 +527,13 @@ class _HoldingsSection extends ConsumerWidget {
                       (holdings[i].tossSymbol?.isNotEmpty ?? false)
                   ? unitKrw(holdings[i].tossSymbol!)
                   : null,
-              rawPrice: holdings[i].linked
-                  ? priceBySymbol[holdings[i].tossSymbol]
+              rawPrice: holdings[i].linked &&
+                      (holdings[i].tossSymbol?.isNotEmpty ?? false)
+                  ? live?.quoteOf(holdings[i].tossSymbol!)
+                  : null,
+              prevUnitKrw: holdings[i].linked &&
+                      (holdings[i].tossSymbol?.isNotEmpty ?? false)
+                  ? live?.prevUnitKrw(holdings[i].tossSymbol!)
                   : null,
               onTap: onEdit,
             ),
@@ -659,25 +645,27 @@ class _HoldingRow extends ConsumerWidget {
     required this.first,
     required this.unitKrw,
     required this.rawPrice,
+    required this.prevUnitKrw,
     this.onTap,
     this.onTrade,
   });
   final AssetHolding holding;
   final bool first;
   final double? unitKrw; // 연동 1주 KRW 환산가 (미확보 시 null)
-  final TossPrice? rawPrice; // 표시용 원통화 현재가
+  final BrokerQuote? rawPrice; // 표시용 원통화 현재가
+  /// 전일 종가의 KRW 환산가 — 등락 표시 전용. 부모가 livePricesProvider 에서 받아 넘긴다.
+  /// 행에서 직접 캔들을 부르면 나무 사용자에게 종목 수만큼 403 이 나간다.
+  final double? prevUnitKrw;
   final VoidCallback? onTap;
   /// 이 종목에 대한 매수·매도. 종목이 정해진 자리라 시트에서 다시 고를 필요가 없다.
   final ValueChanged<String>? onTrade;
 
-  String _fmtRawPrice(TossPrice p) {
-    final foreign = p.currency != null &&
-        p.currency!.isNotEmpty &&
-        p.currency!.toUpperCase() != 'KRW';
-    if (foreign) {
-      return '\$${p.priceValue.toStringAsFixed(2)}';
-    }
-    return '${krw(p.priceValue.round())}원';
+  /// 통화를 하나로 가정하지 않는다 — 나무를 붙이며 JPY·HKD·CNY 가 들어왔다.
+  String _fmtRawPrice(BrokerQuote p) {
+    final cur = p.currency.toUpperCase();
+    if (cur == 'KRW') return '${krw(p.price.round())}원';
+    if (cur == 'USD') return '\$${p.price.toStringAsFixed(2)}';
+    return '${p.price.toStringAsFixed(2)} $cur';
   }
 
   @override
@@ -710,13 +698,10 @@ class _HoldingRow extends ConsumerWidget {
             : h.holdingValue)
         : (h.holdingValue ?? 0);
 
-    // 등락% — 연동 + 전일종가 확보 시.
-    final prev = h.linked && (h.tossSymbol?.isNotEmpty ?? false)
-        ? ref.watch(prevCloseProvider(h.tossSymbol!)).asData?.value
-        : null;
+    // 등락% — 연동 + 전일종가 확보 시. 원화 환산가끼리 비교해도 비율은 같다.
     double? pct;
-    if (h.linked && rawPrice != null && prev != null && prev > 0) {
-      pct = (rawPrice!.priceValue - prev) / prev * 100;
+    if (h.linked && unitKrw != null && prevUnitKrw != null && prevUnitKrw! > 0) {
+      pct = (unitKrw! - prevUnitKrw!) / prevUnitKrw! * 100;
     }
 
     return InkWell(

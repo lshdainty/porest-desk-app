@@ -23,8 +23,8 @@ import 'package:porest_desk_app/features/asset/presentation/holding_format.dart'
 import 'package:porest_desk_app/features/asset/presentation/include_in_total_card.dart';
 import 'package:porest_desk_app/features/stocks/application/stocks_providers.dart';
 import 'package:porest_desk_app/features/stocks/data/stock_master_dto.dart';
-import 'package:porest_desk_app/features/stocks/data/toss_dto.dart';
 import 'package:porest_desk_app/features/subscription/application/subscription_providers.dart';
+import 'package:porest_desk_app/features/stocks/application/live_prices.dart';
 
 /// 투자 추가/편집 다이얼로그 — design `AssetEditDialog`(group='invest', tossapi5) 미러.
 ///
@@ -341,6 +341,9 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
   }
 
   /// 연동 심볼 1주 KRW 환산가 맵 — 게이트 OFF·시세 미확보 심볼은 null.
+  ///
+  /// 환산 규칙은 [livePricesProvider] 한 곳에 있다 — 자산 목록·상세와 같은 걸 써야
+  /// 한 화면에서 총액과 종목별 금액이 어긋나지 않는다(실제로 어긋난 적이 있다).
   Map<String, double?> _unitKrwMap() {
     final features = ref.watch(myFeaturesProvider).asData?.value;
     final gate = (features?.hasSecurities ?? false) &&
@@ -351,31 +354,9 @@ class _InvestmentAddBodyState extends ConsumerState<_InvestmentAddBody> {
     }.toList()
       ..sort();
     if (!gate || symbols.isEmpty) return const {};
-    final prices = ref
-            .watch(tossPricesProvider(symbols.join(',')))
-            .asData
-            ?.value ??
-        const <TossPrice>[];
-    final bySymbol = {for (final p in prices) p.symbol: p};
-    final hasForeign = prices.any((p) {
-      final cur = p.currency;
-      return cur != null && cur.isNotEmpty && cur.toUpperCase() != 'KRW';
-    });
-    final fx = hasForeign
-        ? ref.watch(tossExchangeRateProvider).asData?.value?.rateValue ?? 0.0
-        : 0.0;
-    return {
-      for (final s in symbols)
-        s: () {
-          final p = bySymbol[s];
-          if (p == null) return null;
-          final cur = p.currency;
-          final foreign =
-              cur != null && cur.isNotEmpty && cur.toUpperCase() != 'KRW';
-          if (foreign) return fx > 0 ? p.priceValue * fx : null;
-          return p.priceValue;
-        }(),
-    };
+    final live = ref.watch(livePricesProvider(livePricesKey(symbols))).asData?.value;
+    if (live == null) return const {};
+    return {for (final s in symbols) s: live.unitKrw(s)};
   }
 
   /// 보유 합계(KRW) — manual 합 + 시세 확보된 linked 합.
