@@ -3679,14 +3679,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appearanceHideAmountDesc => 'Display all amounts as ••••';
 
   @override
-  String get appearanceRegion => 'Display region';
+  String get appearanceRegion => 'Region';
 
   @override
   String get appearanceRegionPlaceholder => 'Select a region';
 
   @override
   String get appearanceRegionDesc =>
-      'Dates and times are shown in the selected region';
+      'Days for \'today\' and statistics are calculated in this region. On-screen times follow your device\'s time zone';
 
   @override
   String get appearanceCurrency => 'Default currency';
