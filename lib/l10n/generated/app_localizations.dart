@@ -11708,6 +11708,12 @@ abstract class AppLocalizations {
   /// **'키는 서버에 암호화되어 저장되며 본인만 사용합니다. 발급은 {broker} 개발자센터에서.'**
   String subBrokerKeyNotice(String broker);
 
+  /// No description provided for @subBrokerToggleReveal.
+  ///
+  /// In ko, this message translates to:
+  /// **'{field} 표시 전환'**
+  String subBrokerToggleReveal(String field);
+
   /// No description provided for @brokerToss.
   ///
   /// In ko, this message translates to:

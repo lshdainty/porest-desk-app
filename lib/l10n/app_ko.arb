@@ -3832,6 +3832,14 @@
       }
     }
   },
+  "subBrokerToggleReveal": "{field} 표시 전환",
+  "@subBrokerToggleReveal": {
+    "placeholders": {
+      "field": {
+        "type": "String"
+      }
+    }
+  },
   "brokerToss": "토스증권",
   "brokerNamu": "나무증권",
   "stocksBrokerUnsupported": "앱이 아직 모르는 증권사예요. 앱을 업데이트하면 볼 수 있어요.",

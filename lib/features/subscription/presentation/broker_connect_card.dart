@@ -42,6 +42,10 @@ class _BrokerConnectCardState extends ConsumerState<BrokerConnectCard> {
   final _keyCtrl = TextEditingController();
   final _secretCtrl = TextEditingController();
   bool _busy = false;
+  // 붙여넣은 키가 맞는지 눈으로 확인할 방법이 없으면 연동이 실패해도 원인을 못 찾는다.
+  // 기본은 가린 상태고, 사용자가 잠깐 벗겨 보는 건 본인 의지다.
+  bool _revealKey = false;
+  bool _revealSecret = false;
 
   @override
   void dispose() {
@@ -234,11 +238,32 @@ class _BrokerConnectCardState extends ConsumerState<BrokerConnectCard> {
         // 라벨은 서버가 준다 — 회사마다 같은 자리를 다르게 부른다.
         Text(c.keyLabel, style: _fieldLabel(t)),
         const SizedBox(height: PSpace.x4),
-        PTextInput(controller: _keyCtrl, placeholder: c.keyLabel),
+        // 키도 시크릿과 같은 자격증명의 반쪽이다 — 어깨너머로 읽히면 안 된다.
+        PTextInput(
+          controller: _keyCtrl,
+          placeholder: c.keyLabel,
+          obscureText: !_revealKey,
+          secret: true,
+          suffix: _RevealSuffix(
+            revealed: _revealKey,
+            semanticLabel: l.subBrokerToggleReveal(c.keyLabel),
+            onTap: () => setState(() => _revealKey = !_revealKey),
+          ),
+        ),
         const SizedBox(height: PSpace.x12),
         Text(c.secretLabel, style: _fieldLabel(t)),
         const SizedBox(height: PSpace.x4),
-        PTextInput(controller: _secretCtrl, placeholder: c.secretLabel, obscureText: true),
+        PTextInput(
+          controller: _secretCtrl,
+          placeholder: c.secretLabel,
+          obscureText: !_revealSecret,
+          secret: true,
+          suffix: _RevealSuffix(
+            revealed: _revealSecret,
+            semanticLabel: l.subBrokerToggleReveal(c.secretLabel),
+            onTap: () => setState(() => _revealSecret = !_revealSecret),
+          ),
+        ),
         const SizedBox(height: PSpace.x12),
         PButton(
           label: _busy ? l.subConnecting : l.subConnect,
@@ -271,4 +296,42 @@ class _BrokerConnectCardState extends ConsumerState<BrokerConnectCard> {
         fontWeight: PFontWeight.semi,
         color: t.fgSecondary,
       );
+}
+
+/// 입력칸 오른쪽 눈 아이콘 — 가린 값을 잠깐 보여 준다.
+///
+/// `p_date_input.dart` 의 `_PickerSuffix` 와 같은 패턴(GestureDetector + Icon)이다.
+/// raw Material `IconButton` 을 쓰지 않는 이유도 같다 — P 위젯 밖에서 Material 위젯을
+/// 직접 쓰면 디자인시스템 밖 시각이 섞인다.
+class _RevealSuffix extends StatelessWidget {
+  const _RevealSuffix({
+    required this.revealed,
+    required this.onTap,
+    required this.semanticLabel,
+  });
+
+  final bool revealed;
+  final VoidCallback onTap;
+  final String semanticLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return Semantics(
+      button: true,
+      label: semanticLabel,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.only(left: PSpace.x4, right: PSpace.x12),
+          child: Icon(
+            revealed ? LucideIcons.eyeOff : LucideIcons.eye,
+            size: 16,
+            color: t.fgSecondary,
+          ),
+        ),
+      ),
+    );
+  }
 }
