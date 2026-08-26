@@ -1,11 +1,14 @@
 /// 증권 상세 캔들 차트를 desk-front 의 임베드 페이지(/embed/stocks/:symbol)로 띄우는 WebView 위젯.
 ///
 /// 인증: 진입 시 백엔드 POST /api/v1/auth/embed-token 으로 60초 단명 토큰 발급 →
-/// 임베드 URL 의 querystring(token=...) 으로 전달 → desk-front 가 Authorization: Bearer 로 candle API 호출.
-/// 글로벌 desk_access_token 쿠키 시드 불필요(WebViewCookieManager 의 iOS HttpOnly 제약 회피).
+/// 페이지가 ready 를 알리면 `__tokenBridge` 로 밀어넣는다 → desk-front 가 Authorization: Bearer 로
+/// candle API 호출. 글로벌 desk_access_token 쿠키 시드 불필요(WebViewCookieManager 의 iOS HttpOnly 제약 회피).
+///
+/// **토큰은 URL 에 싣지 않는다.** 회전 토큰이 이미 __tokenBridge 로 다니고 있었으므로 첫 토큰도
+/// 같은 길로 보낸다 — 전달 규칙과 그 이유는 [chart_bridge.dart] 참고.
 ///
 /// 양방향 통신:
-///   - Dart → JS: controller.runJavaScript('window.__themeBridge|__rangeBridge(...)')
+///   - Dart → JS: controller.runJavaScript('window.__tokenBridge|__themeBridge|__rangeBridge(...)')
 ///   - JS → Dart: JavaScriptChannel 'PorestChart' 메시지({type: 'ready'|'error', ...})
 library;
 
@@ -24,6 +27,7 @@ import 'package:porest_desk_app/app/theme/radius.dart';
 import 'package:porest_desk_app/app/theme/tokens.dart';
 import 'package:porest_desk_app/core/network/dio_provider.dart';
 import 'package:porest_desk_app/core/settings/settings_notifier.dart';
+import 'package:porest_desk_app/features/stocks/presentation/chart_bridge.dart';
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 
 /// 차트 임베드 페이지를 띄우는 WebView 위젯.
@@ -49,16 +53,14 @@ class ChartWebView extends ConsumerStatefulWidget {
 class _ChartWebViewState extends ConsumerState<ChartWebView> {
   WebViewController? _controller;
   bool _loading = true;
-  bool _ready = false; // JS 측 ready 핸드셰이크 수신
   String? _error;
   Timer? _tokenTimer; // embed_token 만료 전 in-place 갱신 주기 타이머
 
   /// embed_token 갱신 주기 — 토큰(60s)이 만료되기 전에 새 토큰을 push.
   static const Duration _tokenRefreshInterval = Duration(seconds: 45);
 
-  // 마지막 푸시 상태(ready 전 변경 시 idempotent replay 위해 보관)
-  String? _pendingRange;
-  String? _pendingTheme;
+  /// 토큰·기간·테마를 JS 로 밀어넣는 큐. ready 전 push 는 보관했다가 ready 에 replay.
+  late final ChartBridge _bridge = ChartBridge((js) => _controller?.runJavaScript(js));
 
   @override
   void initState() {
@@ -92,6 +94,10 @@ class _ChartWebViewState extends ConsumerState<ChartWebView> {
       }
       final allowedHost = webOrigin?.host;
 
+      // 3) 토큰을 브릿지에 보관 — 아직 ready 전이라 나가지 않고, 페이지가 ready 를 알리는 순간
+      //    첫 push 로 나간다. **loadRequest 보다 먼저** 넣어야 ready 를 놓치지 않는다.
+      _bridge.pushToken(token);
+
       final controller = WebViewController()
         ..setJavaScriptMode(JavaScriptMode.unrestricted)
         ..setBackgroundColor(const Color(0x00000000)) // 투명 — 부모 PCard 배경이 비치도록
@@ -122,7 +128,7 @@ class _ChartWebViewState extends ConsumerState<ChartWebView> {
             return NavigationDecision.navigate;
           },
         ))
-        ..loadRequest(Uri.parse(_buildEmbedUrl(token)));
+        ..loadRequest(Uri.parse(_buildEmbedUrl()));
 
       if (!mounted) return;
       setState(() { _controller = controller; _error = null; });
@@ -139,17 +145,13 @@ class _ChartWebViewState extends ConsumerState<ChartWebView> {
     }
   }
 
-  String _buildEmbedUrl(String token) {
-    final t = Theme.of(context).brightness == Brightness.dark ? 'dark' : 'light';
-    final qp = <String, String>{
-      'token': token,
-      'range': widget.range,
-      'theme': t,
-      'isUs': widget.isUs ? '1' : '0',
-    };
-    final base = Uri.parse('${Env.webBaseUrl}/embed/stocks/${Uri.encodeComponent(widget.symbol)}');
-    return base.replace(queryParameters: {...base.queryParameters, ...qp}).toString();
-  }
+  String _buildEmbedUrl() => buildEmbedUrl(
+        webBaseUrl: Env.webBaseUrl,
+        symbol: widget.symbol,
+        range: widget.range,
+        theme: Theme.of(context).brightness == Brightness.dark ? 'dark' : 'light',
+        isUs: widget.isUs,
+      );
 
   void _onChannelMessage(JavaScriptMessage msg) {
     try {
@@ -158,10 +160,8 @@ class _ChartWebViewState extends ConsumerState<ChartWebView> {
       final type = payload['type'];
       if (type == 'ready') {
         if (!mounted) return;
-        setState(() => _ready = true);
-        // ready 전에 푸시 시도된 변경분 replay
-        if (_pendingRange != null) _pushRange(_pendingRange!);
-        if (_pendingTheme != null) _pushTheme(_pendingTheme!);
+        // 첫 토큰이 여기서 나간다(URL 대신). 기간·테마도 ready 전 변경분이 있으면 이어서 replay.
+        _bridge.onReady();
       } else if (type == 'error') {
         final code = payload['code'];
         // 401: embed_token 만료/위조 → 토큰 재발급 후 reload
@@ -183,9 +183,9 @@ class _ChartWebViewState extends ConsumerState<ChartWebView> {
       try {
         final token = await _fetchEmbedToken();
         if (token == null || token.isEmpty || !mounted) return;
-        await _controller?.runJavaScript(
-          'window.__tokenBridge && window.__tokenBridge(${jsonEncode(token)})',
-        );
+        // ready 전(로드 중·재초기화 중)이면 브릿지가 보관했다가 ready 에 내보낸다.
+        // 예전엔 여기서 바로 쐈고, 페이지가 아직 없으면 그 토큰은 그냥 사라졌다.
+        _bridge.pushToken(token);
       } catch (_) {/* 다음 주기 재시도; 만료 시 embed 페이지 401 → fallback reload */}
     });
   }
@@ -193,29 +193,16 @@ class _ChartWebViewState extends ConsumerState<ChartWebView> {
   Future<void> _reinitialize() async {
     if (!mounted) return;
     _tokenTimer?.cancel();
-    setState(() { _ready = false; _loading = true; _error = null; });
+    _bridge.reset(); // 새 페이지가 ready 를 알릴 때까지 다시 보관 모드
+    setState(() { _loading = true; _error = null; });
     // 기존 컨트롤러는 _controller 교체로 dispose 처리 — _initialize 가 새 컨트롤러 세팅
     await _initialize();
-  }
-
-  void _pushRange(String range) {
-    final c = _controller;
-    if (c == null) return;
-    if (!_ready) { _pendingRange = range; return; }
-    c.runJavaScript("window.__rangeBridge && window.__rangeBridge(${jsonEncode(range)})");
-  }
-
-  void _pushTheme(String theme) {
-    final c = _controller;
-    if (c == null) return;
-    if (!_ready) { _pendingTheme = theme; return; }
-    c.runJavaScript("window.__themeBridge && window.__themeBridge(${jsonEncode(theme)})");
   }
 
   @override
   void didUpdateWidget(covariant ChartWebView old) {
     super.didUpdateWidget(old);
-    if (widget.range != old.range) _pushRange(widget.range);
+    if (widget.range != old.range) _bridge.pushRange(widget.range);
     // symbol 이 바뀌면 임베드 URL 자체가 달라지므로 재초기화(토큰도 갱신)
     if (widget.symbol != old.symbol) {
       unawaited(_reinitialize());
@@ -231,7 +218,7 @@ class _ChartWebViewState extends ConsumerState<ChartWebView> {
     ref.listen<AsyncValue<AppSettings>>(settingsProvider, (_, next) {
       final mode = next.value?.themeMode ?? ThemeMode.system;
       final resolved = _resolveThemeMode(context, mode);
-      _pushTheme(resolved);
+      _bridge.pushTheme(resolved);
     });
 
     Widget body;
