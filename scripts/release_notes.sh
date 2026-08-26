@@ -81,6 +81,7 @@ FORMATTED=$(printf '%s' "${RAW}" | awk -v RS="${RS}" -v FS="${US}" -v max="${MAX
     # feat·fix 만. 타입은 제목에서 읽는다 — 트레일러는 문장일 뿐 분류를 모른다.
     if (!match(subject, /^(feat|fix)(\([^)]*\))?!?:[[:space:]]*/)) next
     type = substr(subject, 1, 3) == "fix" ? "fix" : "feat"
+    typed++          # skip 여부와 무관하게 "노트 대상이었던" 커밋 수
 
     if (tolower(note) == "skip" || tolower(note) == "none") next
     body = note != "" ? note : substr(subject, RSTART + RLENGTH)
@@ -94,6 +95,15 @@ FORMATTED=$(printf '%s' "${RAW}" | awk -v RS="${RS}" -v FS="${US}" -v max="${MAX
     else                fixes[++xc] = body
   }
   END {
+    # 남은 게 없는 두 경우는 뜻이 정반대다.
+    #   typed > 0  — feat·fix 는 있었는데 사람이 전부 skip 했다. "노트에서 빼라" 는
+    #                명시적 결정이므로 제목 폴백으로 되살리면 안 된다.
+    #   typed == 0 — 애초에 노트에 실릴 커밋이 없었다. 그때만 아래 폴백을 태운다.
+    if (!fc && !xc) {
+      if (typed) print "이번 업데이트는 내부 개선만 담았어요"
+      exit
+    }
+
     out = 0
     if (fc) {
       print "새 기능"
@@ -111,8 +121,17 @@ FORMATTED=$(printf '%s' "${RAW}" | awk -v RS="${RS}" -v FS="${US}" -v max="${MAX
 if [ -n "${FORMATTED}" ]; then
   printf '%s\n' "${FORMATTED}"
 else
-  # feat·fix 가 하나도 없거나 전부 skip — 원본 제목이라도 보여 준다. 빈 화면보다 낫다.
+  # feat·fix 가 하나도 없다 — 원본 제목이라도 보여 준다. 빈 화면보다 낫다.
+  # (전부 skip 인 경우는 위 awk 가 자기 문장을 내보내므로 여기까지 안 온다.)
+  #
+  # 앞 공백을 떼는 건 본 파서와 같은 이유다. `git log --pretty=format:` 은 레코드
+  # 사이에 줄바꿈을 넣는데, 그게 다음 레코드의 첫 필드 앞에 붙어 온다. 안 떼면
+  # 둘째 줄부터 "- " 뒤가 비고 제목이 다음 줄로 떨어진다.
   printf '%s' "${RAW}" \
-    | awk -v RS="${RS}" -v FS="${US}" '{ if ($1 != "") print "- " $1 }' \
+    | awk -v RS="${RS}" -v FS="${US}" '{
+        s = $1
+        gsub(/^[[:space:]]+|[[:space:]]+$/, "", s)
+        if (s != "") print "- " s
+      }' \
     | head -n "${MAX_LINES}"
 fi
