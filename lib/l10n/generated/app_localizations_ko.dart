@@ -6357,6 +6357,11 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
+  String subBrokerToggleReveal(String field) {
+    return '$field 표시 전환';
+  }
+
+  @override
   String get brokerToss => '토스증권';
 
   @override

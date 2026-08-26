@@ -6443,6 +6443,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String subBrokerToggleReveal(String field) {
+    return 'Toggle $field visibility';
+  }
+
+  @override
   String get brokerToss => 'Toss Securities';
 
   @override

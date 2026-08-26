@@ -3682,6 +3682,14 @@
       }
     }
   },
+  "subBrokerToggleReveal": "Toggle {field} visibility",
+  "@subBrokerToggleReveal": {
+    "placeholders": {
+      "field": {
+        "type": "String"
+      }
+    }
+  },
   "brokerToss": "Toss Securities",
   "brokerNamu": "NAMUH Securities",
   "stocksBrokerUnsupported": "This app doesn't know that provider yet. Update the app to see it.",
