@@ -557,7 +557,9 @@ class _ManageBodyState extends ConsumerState<_ManageBody> {
       final repo = await ref.read(userCalendarRepositoryProvider.future);
       await repo.regenerateInviteCode(cal.rowId);
       ref.invalidate(userCalendarListProvider);
-      if (mounted) showPSnackBar(context, l.calInviteCodeRegenerated, severity: PSnackSeverity.success);
+      if (mounted) {
+        showPSnackBar(context, l.calInviteCodeRegenerated, severity: PSnackSeverity.success);
+      }
     } on ApiException {
       // 토스트는 ErrorToastInterceptor 가 띄운다 — 여기선 흐름만 멈춘다.
     }
@@ -566,7 +568,9 @@ class _ManageBodyState extends ConsumerState<_ManageBody> {
   Future<void> _copyCode() async {
     final l = AppLocalizations.of(context);
     await Clipboard.setData(ClipboardData(text: cal.inviteCode ?? ''));
-    if (mounted) showPSnackBar(context, l.calInviteCodeCopied, severity: PSnackSeverity.success);
+    if (mounted) {
+      showPSnackBar(context, l.calInviteCodeCopied, severity: PSnackSeverity.success);
+    }
   }
 
   Future<void> _changeRole(CalendarMember member, String permission) async {

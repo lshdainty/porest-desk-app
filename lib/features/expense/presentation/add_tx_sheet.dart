@@ -1048,14 +1048,18 @@ VoidCallback _syncKrwFromForeign(_TxInputController c) => () {
 /// 원금은 부채가 줄어드는 자산 이동이지만 이자는 은행으로 아예 나가는 비용이라,
 /// 입금 대상이 대출 자산일 때만 의미가 있다.
 bool _showInterest(_TxInputController c, List<Asset>? assets) {
-  if (c.type != 'TRANSFER' || c.toAssetRowId == null || assets == null) return false;
+  if (c.type != 'TRANSFER' || c.toAssetRowId == null || assets == null) {
+    return false;
+  }
   final to = assets.where((a) => a.rowId == c.toAssetRowId).firstOrNull;
   return to?.assetType == 'LOAN';
 }
 
 /// 할부 입력을 보일지 — 신용카드 지출일 때만.
 bool _showInstallment(_TxInputController c, List<Asset>? assets) {
-  if (c.type != 'EXPENSE' || c.assetRowId == null || assets == null) return false;
+  if (c.type != 'EXPENSE' || c.assetRowId == null || assets == null) {
+    return false;
+  }
   final picked = assets.where((a) => a.rowId == c.assetRowId).firstOrNull;
   return picked?.assetType == 'CREDIT_CARD';
 }

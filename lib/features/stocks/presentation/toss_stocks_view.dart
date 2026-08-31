@@ -691,12 +691,16 @@ String _nowInTz(_Tz tz) {
     TossMarketSession? session, _Tz tz, AppLocalizations l) {
   final start = _hhmm(session?.startTime);
   final end = _hhmm(session?.endTime);
-  if (start == null || end == null) return (open: false, detail: l.stocksMarketHoliday);
+  if (start == null || end == null) {
+    return (open: false, detail: l.stocksMarketHoliday);
+  }
   final now = _nowInTz(tz);
   if (now.compareTo(start) >= 0 && now.compareTo(end) <= 0) {
     return (open: true, detail: l.stocksMarketTrading(now));
   }
-  if (now.compareTo(start) < 0) return (open: false, detail: l.stocksMarketOpensAt(start));
+  if (now.compareTo(start) < 0) {
+    return (open: false, detail: l.stocksMarketOpensAt(start));
+  }
   return (open: false, detail: l.stocksMarketClosed);
 }
 

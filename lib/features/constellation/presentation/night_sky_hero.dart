@@ -247,7 +247,9 @@ class _HeroFigurePainter extends CustomPainter {
       if (e.length < 2) continue;
       final a = e[0];
       final b = e[1];
-      if (a >= lit || b >= lit || a >= map.pts.length || b >= map.pts.length) continue;
+      if (a >= lit || b >= lit || a >= map.pts.length || b >= map.pts.length) {
+        continue;
+      }
       if (done) {
         canvas.drawLine(at(map.pts[a]), at(map.pts[b]), linePaint);
       } else {

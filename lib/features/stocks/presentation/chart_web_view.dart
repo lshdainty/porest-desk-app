@@ -82,14 +82,18 @@ class _ChartWebViewState extends ConsumerState<ChartWebView> {
       // 1) embed_token 발급
       final token = await _fetchEmbedToken();
       if (token == null || token.isEmpty) {
-        if (mounted) setState(() { _loading = false; _error = AppLocalizations.of(context).stocksChartTokenFailed; });
+        if (mounted) {
+          setState(() { _loading = false; _error = AppLocalizations.of(context).stocksChartTokenFailed; });
+        }
         return;
       }
 
       // 2) WebView 컨트롤러 구성 — SSO 로그인 화면 패턴 재사용(allowedHost · onNavigationRequest 제한)
       final webOrigin = Uri.tryParse(Env.webBaseUrl);
       if (Env.appEnv != 'local' && webOrigin?.scheme != 'https') {
-        if (mounted) setState(() { _loading = false; _error = AppLocalizations.of(context).stocksChartHttpsError; });
+        if (mounted) {
+          setState(() { _loading = false; _error = AppLocalizations.of(context).stocksChartHttpsError; });
+        }
         return;
       }
       final allowedHost = webOrigin?.host;

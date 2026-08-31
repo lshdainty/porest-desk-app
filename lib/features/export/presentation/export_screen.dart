@@ -151,7 +151,9 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
   String _buildFilename(String format, List<String> types, ({String start, String end}) r) {
     final ext = format == 'EXCEL' ? 'xlsx' : format == 'JSON' ? 'json' : 'csv';
     final rangePart = '${r.start}_${r.end}';
-    if (format != 'EXCEL' && types.length > 1) return 'porest-export-$rangePart.zip';
+    if (format != 'EXCEL' && types.length > 1) {
+      return 'porest-export-$rangePart.zip';
+    }
     final namePart = types.length == 1 ? _slugOf(types.first) : 'export';
     return 'porest-$namePart-$rangePart.$ext';
   }
@@ -230,7 +232,9 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
         // 금융 데이터 평문 임시파일 — 공유 완료 후 즉시 삭제(복구 방지).
         if (await file.exists()) await file.delete();
       }
-      if (mounted) showPSnackBar(context, l.exportSuccess, severity: PSnackSeverity.success);
+      if (mounted) {
+        showPSnackBar(context, l.exportSuccess, severity: PSnackSeverity.success);
+      }
     } on ApiException {
       // 토스트는 ErrorToastInterceptor 가 띄운다 — 여기선 흐름만 멈춘다.
     } finally {

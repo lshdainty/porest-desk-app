@@ -458,7 +458,9 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                                   l, t, raw, monthExpense,
                                   prevAsync.value, categoriesAsync.value,
                                 );
-                                if (ins == null) return const SizedBox.shrink();
+                                if (ins == null) {
+                                  return const SizedBox.shrink();
+                                }
                                 return Padding(
                                   padding: const EdgeInsets.only(top: 7),
                                   child: ins,
