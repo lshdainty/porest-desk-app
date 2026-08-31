@@ -20,8 +20,11 @@ class OAuthCallbackHandler {
   final OAuthFlowStore store;
 
   /// BFF 교환 — (code, codeVerifier) 를 받아 로그인 완료까지 책임진다. 실패는 throw.
-  final Future<void> Function({required String code, required String codeVerifier})
-      exchange;
+  final Future<void> Function({
+    required String code,
+    required String codeVerifier,
+  })
+  exchange;
 
   /// 처리 결과 — 호출측(리스너)이 로그로 남길 수 있게 이유를 돌려준다.
   /// 사용자에게 보여줄 에러는 exchange 실패(throw)뿐이다 — 나머지는 위조·중복·잡음이라
@@ -57,4 +60,10 @@ class OAuthCallbackHandler {
   }
 }
 
-enum OAuthCallbackResult { notCallback, noPendingFlow, stateMismatch, noCode, exchanged }
+enum OAuthCallbackResult {
+  notCallback,
+  noPendingFlow,
+  stateMismatch,
+  noCode,
+  exchanged,
+}

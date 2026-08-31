@@ -118,12 +118,12 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
   /// 이름 중복 — 서버 규칙과 동일 범위: 같은 상위(부모) · 같은 타입 안에서만 금지.
   /// (지출 '이자'와 수입 '이자', '생활>관리비'와 '주거>관리비' 처럼 위치·타입이 다르면 허용)
   bool get _duplicate => _categories.any(
-        (c) =>
-            c.categoryName == _nameTrim &&
-            c.rowId != widget.edit?.rowId &&
-            c.expenseType == _expenseType &&
-            c.parentRowId == _parentRowId,
-      );
+    (c) =>
+        c.categoryName == _nameTrim &&
+        c.rowId != widget.edit?.rowId &&
+        c.expenseType == _expenseType &&
+        c.parentRowId == _parentRowId,
+  );
 
   bool get _valid =>
       _nameTrim.isNotEmpty && _nameTrim.length <= 12 && !_duplicate;
@@ -140,8 +140,7 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
 
   /// 본인이 이미 자식을 가진 부모면 상위 변경 불가 (깊이 2+ 방지 — 웹 정합).
   bool get _selfHasChildren =>
-      _isEdit &&
-      _categories.any((c) => c.parentRowId == widget.edit!.rowId);
+      _isEdit && _categories.any((c) => c.parentRowId == widget.edit!.rowId);
 
   /// 웹 정합 — 저장 버튼은 touched 전엔 활성(눌러서 에러를 노출하는 플로우),
   /// touched 후엔 valid 일 때만 활성.
@@ -176,13 +175,16 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
         .firstOrNull;
     if (parentBudget == null) return true; // 새 부모에 예산 없음 → 경고 불필요
 
-    final summary = await ref
-        .read(rangeSummaryProvider((startDate: start, endDate: end)).future);
+    final summary = await ref.read(
+      rangeSummaryProvider((startDate: start, endDate: end)).future,
+    );
     final breakdown = summary.categoryBreakdown;
     final parentRollup = breakdown
-        .where((c) =>
-            c.categoryRowId == newParentRowId ||
-            c.parentCategoryRowId == newParentRowId)
+        .where(
+          (c) =>
+              c.categoryRowId == newParentRowId ||
+              c.parentCategoryRowId == newParentRowId,
+        )
         .fold<int>(0, (s, c) => s + c.totalAmount);
     final movingSpent = breakdown
         .where((c) => c.categoryRowId == widget.edit!.rowId)
@@ -192,16 +194,19 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
 
     if (!mounted) return false;
     final l = AppLocalizations.of(context);
-    final parentName = _categories
-        .where((c) => c.rowId == newParentRowId)
-        .map((c) => c.categoryName)
-        .firstOrNull ??
+    final parentName =
+        _categories
+            .where((c) => c.rowId == newParentRowId)
+            .map((c) => c.categoryName)
+            .firstOrNull ??
         l.categoryParent;
     return showPConfirmDialog(
       context,
       title: l.categoryBudgetExceedTitle,
       message: l.categoryBudgetExceedMessage(
-          parentName, krwSigned(projected - parentBudget, false, unit: true)),
+        parentName,
+        krwSigned(projected - parentBudget, false, unit: true),
+      ),
       confirmLabel: l.categoryMove,
     );
   }
@@ -233,8 +238,7 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
           expenseType: _expenseType,
           // 웹 정합 — parentRowId 는 항상 포함(null = 최상위). 자식 보유 시 기존 유지.
           includeParentRowId: true,
-          parentRowId:
-              parentDisabled ? widget.edit!.parentRowId : _parentRowId,
+          parentRowId: parentDisabled ? widget.edit!.parentRowId : _parentRowId,
         );
       } else {
         await repo.createCategory(
@@ -270,11 +274,11 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
     }
     // 예산이 걸린 카테고리면 함께 삭제됨을 안내 (백엔드 cascade).
     final now = DateTime.now();
-    final budgets = await ref
-        .read(monthBudgetsProvider((year: now.year, month: now.month)).future);
+    final budgets = await ref.read(
+      monthBudgetsProvider((year: now.year, month: now.month)).future,
+    );
     if (!mounted) return;
-    final hasBudget =
-        budgets.any((b) => b.categoryRowId == widget.edit!.rowId);
+    final hasBudget = budgets.any((b) => b.categoryRowId == widget.edit!.rowId);
     final ok = await showPConfirmDialog(
       context,
       title: l.categoryDeleteTitle,
@@ -310,10 +314,12 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
 
     // 상위 카테고리 후보 — 같은 구분의 최상위만, 자기 자신 제외 (웹 정합).
     final parentOptions = categories
-        .where((c) =>
-            c.expenseType == _expenseType &&
-            c.parentRowId == null &&
-            c.rowId != widget.edit?.rowId)
+        .where(
+          (c) =>
+              c.expenseType == _expenseType &&
+              c.parentRowId == null &&
+              c.rowId != widget.edit?.rowId,
+        )
         .toList();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -322,8 +328,7 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
 
     return ListView(
       controller: widget.scrollController,
-      padding: const EdgeInsets.fromLTRB(
-          PSpace.xl, 0, PSpace.xl, PSpace.x16),
+      padding: const EdgeInsets.fromLTRB(PSpace.xl, 0, PSpace.xl, PSpace.x16),
       children: [
         // 미리보기 카드 — 웹: bg-muted + 아이콘 타일(44) + 이름 + 캡션, 실시간 반영.
         Container(
@@ -360,7 +365,11 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      l.categoryPreview(_expenseType == 'EXPENSE' ? l.expTypeExpense : l.expTypeIncome),
+                      l.categoryPreview(
+                        _expenseType == 'EXPENSE'
+                            ? l.expTypeExpense
+                            : l.expTypeIncome,
+                      ),
                       style: PTypo.caption.copyWith(color: t.fgTertiary),
                     ),
                   ],
@@ -372,7 +381,10 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
         const SizedBox(height: PSpace.x20),
 
         // 구분 — 웹 정합: 편집 모드에서도 변경 가능.
-        Text(l.categoryTypeLabel, style: PTypo.caption.copyWith(color: t.fgSecondary)),
+        Text(
+          l.categoryTypeLabel,
+          style: PTypo.caption.copyWith(color: t.fgSecondary),
+        ),
         const SizedBox(height: PSpace.x8),
         PTabs<String>(
           value: _expenseType,
@@ -410,24 +422,25 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
             value: _parentRowId ?? _kRootParent,
             title: l.categoryParent,
             enabled: parentOptions.isNotEmpty,
-            helperText: _isEdit
-                ? l.categoryParentMoveHint
-                : null,
+            helperText: _isEdit ? l.categoryParentMoveHint : null,
             items: [
               if (!_isEdit)
-                PSelectItem(
-                    value: _kRootParent, label: l.categoryMakeRoot),
+                PSelectItem(value: _kRootParent, label: l.categoryMakeRoot),
               for (final p in parentOptions)
                 PSelectItem(value: p.rowId, label: p.categoryName),
             ],
             onChanged: (v) => setState(
-                () => _parentRowId = (v == null || v == _kRootParent) ? null : v),
+              () => _parentRowId = (v == null || v == _kRootParent) ? null : v,
+            ),
           ),
           const SizedBox(height: PSpace.x16),
         ],
 
         // 이름 — 카운터 N/12 또는 에러 (웹 정합).
-        Text(l.calFieldName, style: PTypo.caption.copyWith(color: t.fgSecondary)),
+        Text(
+          l.calFieldName,
+          style: PTypo.caption.copyWith(color: t.fgSecondary),
+        ),
         const SizedBox(height: PSpace.x4),
         PTextInput(
           controller: _nameCtrl,
@@ -448,7 +461,10 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
         const SizedBox(height: PSpace.x12),
 
         // 색상
-        Text(l.calFieldColor, style: PTypo.caption.copyWith(color: t.fgSecondary)),
+        Text(
+          l.calFieldColor,
+          style: PTypo.caption.copyWith(color: t.fgSecondary),
+        ),
         const SizedBox(height: PSpace.x8),
         PColorPicker(
           selected: _color,
@@ -457,12 +473,12 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
         const SizedBox(height: PSpace.x16),
 
         // 아이콘 — 전체 검색·선택, 웹 CategoryEditDialog 와 동일한 공통 픽커.
-        Text(l.categoryIconLabel, style: PTypo.caption.copyWith(color: t.fgSecondary)),
-        const SizedBox(height: PSpace.x8),
-        PIconPicker(
-          value: _icon,
-          onChanged: (v) => setState(() => _icon = v),
+        Text(
+          l.categoryIconLabel,
+          style: PTypo.caption.copyWith(color: t.fgSecondary),
         ),
+        const SizedBox(height: PSpace.x8),
+        PIconPicker(value: _icon, onChanged: (v) => setState(() => _icon = v)),
 
         // 거래 옮기기 — 거래가 직접 달린 카테고리는 하위 분류를 만들 수 없다.
         // 그걸 푸는 유일한 방법이라 편집 화면에서 바로 갈 수 있게 둔다(web 정합).
@@ -474,22 +490,32 @@ class _CategoryEditBodyState extends ConsumerState<_CategoryEditBody> {
             onTap: () {
               final all = ref.read(categoriesProvider).value ?? const [];
               Navigator.of(context).pop();
-              showCategoryMoveTxSheet(context, source: widget.edit!, categories: all);
+              showCategoryMoveTxSheet(
+                context,
+                source: widget.edit!,
+                categories: all,
+              );
             },
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(LucideIcons.arrowRightLeft, size: 14, color: t.fgBrand),
                 const SizedBox(width: PSpace.x4),
-                Text(l.categoryMoveTxEntry,
-                    style: PTypo.caption.copyWith(
-                        color: t.fgBrand, fontWeight: PFontWeight.semi)),
+                Text(
+                  l.categoryMoveTxEntry,
+                  style: PTypo.caption.copyWith(
+                    color: t.fgBrand,
+                    fontWeight: PFontWeight.semi,
+                  ),
+                ),
               ],
             ),
           ),
           const SizedBox(height: PSpace.x4),
-          Text(l.categoryMoveTxEntryDesc,
-              style: PTypo.micro.copyWith(color: t.fgTertiary)),
+          Text(
+            l.categoryMoveTxEntryDesc,
+            style: PTypo.micro.copyWith(color: t.fgTertiary),
+          ),
         ],
       ],
     );

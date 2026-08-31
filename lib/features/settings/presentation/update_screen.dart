@@ -39,8 +39,10 @@ class UpdateScreen extends ConsumerWidget {
         leading: const PBackButton(),
         title: Text(
           l.updateTitle,
-          style: PTypo.bodyLg
-              .copyWith(color: t.fgPrimary, fontWeight: PFontWeight.bold),
+          style: PTypo.bodyLg.copyWith(
+            color: t.fgPrimary,
+            fontWeight: PFontWeight.bold,
+          ),
         ),
       ),
       body: statusAsync.when(
@@ -87,14 +89,14 @@ class _Body extends ConsumerWidget {
                 hasUpdate
                     ? LucideIcons.download
                     : checkFailed
-                        ? LucideIcons.triangleAlert
-                        : LucideIcons.check,
+                    ? LucideIcons.triangleAlert
+                    : LucideIcons.check,
                 size: 20,
                 color: hasUpdate
                     ? t.fgBrand
                     : checkFailed
-                        ? t.statusWarningFg
-                        : t.fgSecondary,
+                    ? t.statusWarningFg
+                    : t.fgSecondary,
               ),
             ),
             const SizedBox(width: PSpace.x16),
@@ -106,10 +108,12 @@ class _Body extends ConsumerWidget {
                     hasUpdate
                         ? l.updateAvailable(latest!.version)
                         : checkFailed
-                            ? l.updateCheckFailedTitle
-                            : l.updateUpToDate,
+                        ? l.updateCheckFailedTitle
+                        : l.updateUpToDate,
                     style: PTypo.body.copyWith(
-                        color: t.fgPrimary, fontWeight: PFontWeight.semi),
+                      color: t.fgPrimary,
+                      fontWeight: PFontWeight.semi,
+                    ),
                   ),
                   const SizedBox(height: 2),
                   Text(
@@ -130,14 +134,18 @@ class _Body extends ConsumerWidget {
           const SizedBox(height: PSpace.x32),
           Text(
             l.updateSheetChanges,
-            style: PTypo.bodySm
-                .copyWith(color: t.fgPrimary, fontWeight: PFontWeight.bold),
+            style: PTypo.bodySm.copyWith(
+              color: t.fgPrimary,
+              fontWeight: PFontWeight.bold,
+            ),
           ),
           const SizedBox(height: PSpace.x12),
           Container(
             padding: const EdgeInsets.all(PSpace.x16),
-            decoration:
-                BoxDecoration(color: t.bgMuted, borderRadius: PRadius.brLg),
+            decoration: BoxDecoration(
+              color: t.bgMuted,
+              borderRadius: PRadius.brLg,
+            ),
             child: PReleaseNotes(notes: latest.notes),
           ),
         ],
@@ -204,8 +212,7 @@ class _AutoBlockerNoticeState extends State<_AutoBlockerNotice> {
       AutoBlockerTarget.autoBlocker => l.updateAutoBlockerAfterDirect,
       AutoBlockerTarget.security => l.updateAutoBlockerAfterSecurity,
       AutoBlockerTarget.settings ||
-      AutoBlockerTarget.none =>
-        l.updateAutoBlockerPath,
+      AutoBlockerTarget.none => l.updateAutoBlockerPath,
       null => l.updateAutoBlockerDesc,
     };
 
@@ -283,14 +290,16 @@ class _DownloadButton extends ConsumerWidget {
       return;
     }
 
-    final ok =
-        await ref.read(apkInstallerProvider.notifier).downloadAndOpen(release);
+    final ok = await ref
+        .read(apkInstallerProvider.notifier)
+        .downloadAndOpen(release);
     if (ok || !context.mounted) return;
 
     // 앱 안에서 못 받았으면 브라우저에 넘긴다. 거기서는 받아지는 경우가 있다.
     final l = AppLocalizations.of(context);
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(l.updateSheetFailed)));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(l.updateSheetFailed)));
     await openReleaseExternally(release);
   }
 }

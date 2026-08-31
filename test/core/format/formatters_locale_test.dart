@@ -57,12 +57,22 @@ void main() {
 
     test('formatChartAxis: 축 눈금이 서로 겹치지 않는다', () {
       // 축은 0에서 5등분한다. 어느 스케일에서든 라벨이 중복되면 축을 읽을 수 없다.
-      for (final top in [50000.0, 1000000.0, 3000000.0, 50000000.0, 3.0e8, 3.0e9]) {
+      for (final top in [
+        50000.0,
+        1000000.0,
+        3000000.0,
+        50000000.0,
+        3.0e8,
+        3.0e9,
+      ]) {
         final labels = [
           for (var i = 0; i <= 4; i++) formatChartAxis(top * i / 4),
         ];
-        expect(labels.toSet().length, labels.length,
-            reason: '스케일 $top 에서 라벨 중복: $labels');
+        expect(
+          labels.toSet().length,
+          labels.length,
+          reason: '스케일 $top 에서 라벨 중복: $labels',
+        );
         // 축 폭(reservedSize 52) 안에 들어가야 한다.
         for (final s in labels) {
           expect(s.length, lessThanOrEqualTo(8), reason: '라벨이 길다: $s');
@@ -80,8 +90,15 @@ void main() {
     test('weekdayLabels · yearOnly · monthOnly: 수동 포맷', () {
       // 기존 인라인 배열과 정확히 동일 (일~토 / 월~일).
       expect(weekdayLabels(), const ['일', '월', '화', '수', '목', '금', '토']);
-      expect(weekdayLabels(mondayFirst: true),
-          const ['월', '화', '수', '목', '금', '토', '일']);
+      expect(weekdayLabels(mondayFirst: true), const [
+        '월',
+        '화',
+        '수',
+        '목',
+        '금',
+        '토',
+        '일',
+      ]);
       expect(yearOnly(DateTime(2026, 7, 1)), '2026년');
       expect(monthOnly(DateTime(2026, 7, 1)), '7월');
     });
@@ -121,10 +138,24 @@ void main() {
     });
 
     test('weekdayLabels · yearOnly · monthOnly: DateFormat(en)', () {
-      expect(weekdayLabels(),
-          const ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']);
-      expect(weekdayLabels(mondayFirst: true),
-          const ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']);
+      expect(weekdayLabels(), const [
+        'Sun',
+        'Mon',
+        'Tue',
+        'Wed',
+        'Thu',
+        'Fri',
+        'Sat',
+      ]);
+      expect(weekdayLabels(mondayFirst: true), const [
+        'Mon',
+        'Tue',
+        'Wed',
+        'Thu',
+        'Fri',
+        'Sat',
+        'Sun',
+      ]);
       expect(yearOnly(DateTime(2026, 7, 1)), '2026');
       expect(monthOnly(DateTime(2026, 7, 1)), 'Jul');
     });

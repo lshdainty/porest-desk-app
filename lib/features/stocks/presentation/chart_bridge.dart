@@ -27,13 +27,19 @@ String buildEmbedUrl({
   required String theme,
   required bool isUs,
 }) {
-  final base = Uri.parse('$webBaseUrl/embed/stocks/${Uri.encodeComponent(symbol)}');
-  return base.replace(queryParameters: <String, String>{
-    ...base.queryParameters,
-    'range': range,
-    'theme': theme,
-    'isUs': isUs ? '1' : '0',
-  }).toString();
+  final base = Uri.parse(
+    '$webBaseUrl/embed/stocks/${Uri.encodeComponent(symbol)}',
+  );
+  return base
+      .replace(
+        queryParameters: <String, String>{
+          ...base.queryParameters,
+          'range': range,
+          'theme': theme,
+          'isUs': isUs ? '1' : '0',
+        },
+      )
+      .toString();
 }
 
 /// Dart → JS 푸시 큐. ready 전 push 는 **최신값만** 보관했다가 ready 시 replay 한다.
@@ -99,5 +105,6 @@ class ChartBridge {
 
   /// 인자는 반드시 [jsonEncode] 로 감싼다 — 토큰은 외부에서 온 문자열이라
   /// 따옴표를 직접 붙이면 JS 문맥이 깨지거나 주입된다.
-  void _send(String fn, String arg) => _run('window.$fn && window.$fn(${jsonEncode(arg)})');
+  void _send(String fn, String arg) =>
+      _run('window.$fn && window.$fn(${jsonEncode(arg)})');
 }

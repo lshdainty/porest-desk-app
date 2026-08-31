@@ -24,7 +24,11 @@ const kRegionOptions = <RegionOption>[
   RegionOption('America/New_York', '미국 동부 (뉴욕)', 'US Eastern (New York)'),
   RegionOption('America/Chicago', '미국 중부 (시카고)', 'US Central (Chicago)'),
   RegionOption('America/Denver', '미국 산악 (덴버)', 'US Mountain (Denver)'),
-  RegionOption('America/Los_Angeles', '미국 서부 (로스앤젤레스)', 'US Pacific (Los Angeles)'),
+  RegionOption(
+    'America/Los_Angeles',
+    '미국 서부 (로스앤젤레스)',
+    'US Pacific (Los Angeles)',
+  ),
   RegionOption('America/Sao_Paulo', '브라질 (상파울루)', 'Brazil (Sao Paulo)'),
   RegionOption('UTC', 'UTC (협정 세계시)', 'UTC (Coordinated Universal Time)'),
 ];

@@ -30,7 +30,9 @@ class IncludeInTotalCard extends StatelessWidget {
     return PCard(
       variant: PCardVariant.bordered,
       padding: const EdgeInsets.symmetric(
-          horizontal: PSpace.x12, vertical: PSpace.x12),
+        horizontal: PSpace.x12,
+        vertical: PSpace.x12,
+      ),
       child: Row(
         children: [
           // 좌측 둥근 아이콘박스 — bgMuted.

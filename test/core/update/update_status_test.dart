@@ -4,13 +4,13 @@ import 'package:porest_desk_app/core/update/app_update.dart';
 /// 강제 업데이트는 잘못 걸리면 앱을 통째로 못 쓰게 만든다. 판정 조건을 못 박아 둔다.
 void main() {
   AppRelease release({int build = 10, int minBuild = 0}) => AppRelease(
-        version: '1.0.0',
-        buildNumber: build,
-        androidFile: 'a.apk',
-        iosFile: 'a.ipa',
-        notes: '',
-        minBuildNumber: minBuild,
-      );
+    version: '1.0.0',
+    buildNumber: build,
+    androidFile: 'a.apk',
+    iosFile: 'a.ipa',
+    notes: '',
+    minBuildNumber: minBuild,
+  );
 
   group('hasUpdate — 받을 게 있나', () {
     test('서버 빌드가 더 높으면 있다', () {
@@ -57,7 +57,9 @@ void main() {
 
     test('새 버전이 있어도 하한을 넘겼으면 안 막는다 — 미루는 건 사용자 몫', () {
       final s = UpdateStatus(
-          currentBuild: 10, latest: release(build: 20, minBuild: 10));
+        currentBuild: 10,
+        latest: release(build: 20, minBuild: 10),
+      );
       expect(s.hasUpdate, isTrue);
       expect(s.mustUpdate, isFalse);
     });

@@ -51,10 +51,12 @@ class _PickerSuffix extends StatelessWidget {
           behavior: HitTestBehavior.opaque,
           onTap: enabled ? onTap : null,
           child: Padding(
-            padding: const EdgeInsets.only(
-                left: PSpace.x4, right: PSpace.x12),
-            child: Icon(icon,
-                size: 16, color: enabled ? t.fgSecondary : t.fgTertiary),
+            padding: const EdgeInsets.only(left: PSpace.x4, right: PSpace.x12),
+            child: Icon(
+              icon,
+              size: 16,
+              color: enabled ? t.fgSecondary : t.fgTertiary,
+            ),
           ),
         ),
       ],
@@ -90,14 +92,15 @@ class PDateInput extends StatefulWidget {
 }
 
 class _PDateInputState extends State<PDateInput> {
-  late final TextEditingController _ctrl =
-      TextEditingController(text: _fmt(widget.value));
+  late final TextEditingController _ctrl = TextEditingController(
+    text: _fmt(widget.value),
+  );
 
   static String _fmt(DateTime? d) => d == null
       ? ''
       : '${d.year.toString().padLeft(4, '0')}-'
-          '${d.month.toString().padLeft(2, '0')}-'
-          '${d.day.toString().padLeft(2, '0')}';
+            '${d.month.toString().padLeft(2, '0')}-'
+            '${d.day.toString().padLeft(2, '0')}';
 
   DateTime get _first => widget.firstDate ?? DateTime(2020);
   DateTime get _last => widget.lastDate ?? DateTime(2030, 12, 31);
@@ -207,13 +210,14 @@ class PTimeInput extends StatefulWidget {
 }
 
 class _PTimeInputState extends State<PTimeInput> {
-  late final TextEditingController _ctrl =
-      TextEditingController(text: _fmt(widget.value));
+  late final TextEditingController _ctrl = TextEditingController(
+    text: _fmt(widget.value),
+  );
 
   static String _fmt(TimeOfDay? t) => t == null
       ? ''
       : '${t.hour.toString().padLeft(2, '0')}:'
-          '${t.minute.toString().padLeft(2, '0')}';
+            '${t.minute.toString().padLeft(2, '0')}';
 
   @override
   void didUpdateWidget(PTimeInput old) {

@@ -18,7 +18,6 @@ bool _isScheduled(String? date) {
   return DateTime.parse(normalized).isAfter(DateTime.now());
 }
 
-
 /// 이체 한 건 — `ExpenseRow` 와 같은 행 리듬을 공유한다(web `TransferRow` 미러).
 ///
 /// 지출/수입과 달리 한 건이 자산 두 개에 걸쳐서, 부호가 "보는 관점"에 따라 달라진다.
@@ -36,6 +35,7 @@ class TransferRow extends StatelessWidget {
   });
 
   final AssetTransfer transfer;
+
   /// 화면 카드 + 종류 카드. 이체 행은 언제나 이체 종류다.
   final MaskFlags flags;
   final int? perspectiveAssetRowId;
@@ -47,9 +47,11 @@ class TransferRow extends StatelessWidget {
     final l = AppLocalizations.of(context);
     final fee = transfer.fee ?? 0;
 
-    final isOut = perspectiveAssetRowId != null &&
+    final isOut =
+        perspectiveAssetRowId != null &&
         transfer.fromAssetRowId == perspectiveAssetRowId;
-    final isIn = perspectiveAssetRowId != null &&
+    final isIn =
+        perspectiveAssetRowId != null &&
         transfer.toAssetRowId == perspectiveAssetRowId;
     final int shown = isOut ? transfer.amount + fee : transfer.amount;
     final String sign = isOut ? '-' : (isIn ? '+' : '');
@@ -71,82 +73,95 @@ class TransferRow extends StatelessWidget {
       child: Opacity(
         opacity: _isScheduled(transfer.transferDate) ? 0.6 : 1,
         child: Padding(
-        // 좌우는 페이지가 쥔다. 행이 여기서 좌측 2 를 더 얹으면 그만큼 날짜 헤더와
-        // 어긋난다 — 미세하지만 목록 전체가 헤더보다 오른쪽으로 밀려 보인다.
-        padding: const EdgeInsets.fromLTRB(0, PSpace.x12, 0, PSpace.x12),
-        child: Row(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: t.bgMuted,
-                borderRadius: PRadius.tile(40),
+          // 좌우는 페이지가 쥔다. 행이 여기서 좌측 2 를 더 얹으면 그만큼 날짜 헤더와
+          // 어긋난다 — 미세하지만 목록 전체가 헤더보다 오른쪽으로 밀려 보인다.
+          padding: const EdgeInsets.fromLTRB(0, PSpace.x12, 0, PSpace.x12),
+          child: Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: t.bgMuted,
+                  borderRadius: PRadius.tile(40),
+                ),
+                alignment: Alignment.center,
+                child: Icon(
+                  LucideIcons.arrowLeftRight,
+                  size: 18,
+                  color: t.fgTertiary,
+                ),
               ),
-              alignment: Alignment.center,
-              child: Icon(LucideIcons.arrowLeftRight,
-                  size: 18, color: t.fgTertiary),
-            ),
-            const SizedBox(width: PSpace.x12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Flexible(
-                        child: Text(
-                          transfer.description?.isNotEmpty == true
-                              ? transfer.description!
-                              : l.expTypeTransfer,
-                          style: PTypo.body.copyWith(
+              const SizedBox(width: PSpace.x12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            transfer.description?.isNotEmpty == true
+                                ? transfer.description!
+                                : l.expTypeTransfer,
+                            style: PTypo.body.copyWith(
                               color: t.fgPrimary,
                               fontWeight: PFontWeight.semi,
-                              letterSpacing: -0.07),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      // 이체도 미래 날짜로 넣을 수 있다 — 거래와 같은 표시를 준다.
-                      if (_isScheduled(transfer.transferDate)) ...[
-                        const SizedBox(width: 5),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 5, vertical: 1),
-                          decoration: BoxDecoration(
-                            color: t.bgMuted,
-                            borderRadius: PRadius.brXs,
+                              letterSpacing: -0.07,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          child: Text(
-                            l.expScheduled,
-                            style: PTypo.micro.copyWith(
+                        ),
+                        // 이체도 미래 날짜로 넣을 수 있다 — 거래와 같은 표시를 준다.
+                        if (_isScheduled(transfer.transferDate)) ...[
+                          const SizedBox(width: 5),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 5,
+                              vertical: 1,
+                            ),
+                            decoration: BoxDecoration(
+                              color: t.bgMuted,
+                              borderRadius: PRadius.brXs,
+                            ),
+                            child: Text(
+                              l.expScheduled,
+                              style: PTypo.micro.copyWith(
                                 color: t.fgTertiary,
-                                fontWeight: PFontWeight.bold),
+                                fontWeight: PFontWeight.bold,
+                              ),
+                            ),
                           ),
-                        ),
+                        ],
                       ],
-                    ],
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    sub,
-                    style: PTypo.caption.copyWith(color: t.fgTertiary),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      sub,
+                      style: PTypo.caption.copyWith(color: t.fgTertiary),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(width: PSpace.x8),
-            Text(
-              krwSigned(shown, flags.of(MaskKind.transfer), sign: sign, unit: true),
-              style: PTypo.money.copyWith(
+              const SizedBox(width: PSpace.x8),
+              Text(
+                krwSigned(
+                  shown,
+                  flags.of(MaskKind.transfer),
+                  sign: sign,
+                  unit: true,
+                ),
+                style: PTypo.money.copyWith(
                   color: t.fgPrimary,
                   fontWeight: PFontWeight.bold,
-                  letterSpacing: -0.14),
-            ),
-          ],
-        ),
+                  letterSpacing: -0.14,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

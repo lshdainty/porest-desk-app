@@ -37,14 +37,14 @@ class StatsRepository {
     }
   }
 
-  Future<List<MerchantSummary>> byMerchant({String? startDate, String? endDate}) async {
+  Future<List<MerchantSummary>> byMerchant({
+    String? startDate,
+    String? endDate,
+  }) async {
     try {
       final res = await _dio.get<Map<String, dynamic>>(
         '/expenses/summary/by-merchant',
-        queryParameters: {
-          'startDate': ?startDate,
-          'endDate': ?endDate,
-        },
+        queryParameters: {'startDate': ?startDate, 'endDate': ?endDate},
       );
       return _unwrapList(res, 'merchants', MerchantSummary.fromJson);
     } on DioException catch (e) {
@@ -52,14 +52,14 @@ class StatsRepository {
     }
   }
 
-  Future<List<AssetExpenseSummary>> byAsset({String? startDate, String? endDate}) async {
+  Future<List<AssetExpenseSummary>> byAsset({
+    String? startDate,
+    String? endDate,
+  }) async {
     try {
       final res = await _dio.get<Map<String, dynamic>>(
         '/expenses/summary/by-asset',
-        queryParameters: {
-          'startDate': ?startDate,
-          'endDate': ?endDate,
-        },
+        queryParameters: {'startDate': ?startDate, 'endDate': ?endDate},
       );
       return _unwrapList(res, 'assets', AssetExpenseSummary.fromJson);
     } on DioException catch (e) {

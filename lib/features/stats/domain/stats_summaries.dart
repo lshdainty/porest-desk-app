@@ -11,8 +11,8 @@ class DailySummary {
   final int totalIncome;
   final int totalExpense;
   factory DailySummary.fromJson(Map<String, dynamic> j) => DailySummary(
-        date: (j['date'] as String?) ?? '',
-        totalIncome: (j['totalIncome'] as num?)?.toInt() ?? 0,
-        totalExpense: (j['totalExpense'] as num?)?.toInt() ?? 0,
-      );
+    date: (j['date'] as String?) ?? '',
+    totalIncome: (j['totalIncome'] as num?)?.toInt() ?? 0,
+    totalExpense: (j['totalExpense'] as num?)?.toInt() ?? 0,
+  );
 }

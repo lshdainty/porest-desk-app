@@ -68,8 +68,10 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
     // 낙관적 업데이트: 드롭 즉시 로컬 순서를 반영(스냅백 방지).
     setState(() {
       for (final it in items) {
-        _optimistic[it.categoryRowId] =
-            (sortOrder: it.sortOrder, parentRowId: it.parentRowId);
+        _optimistic[it.categoryRowId] = (
+          sortOrder: it.sortOrder,
+          parentRowId: it.parentRowId,
+        );
       }
     });
     try {
@@ -218,23 +220,24 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                 // 낙관적 오버레이 적용 — 진행 중인 재정렬을 즉시 반영.
                 final effective = _optimistic.isEmpty
                     ? categories
-                    : categories.map((c) {
-                        final o = _optimistic[c.rowId];
-                        return o == null
-                            ? c
-                            : c.copyWith(
-                                sortOrder: o.sortOrder,
-                                parentRowId: o.parentRowId,
-                              );
-                      }).toList(growable: false);
+                    : categories
+                          .map((c) {
+                            final o = _optimistic[c.rowId];
+                            return o == null
+                                ? c
+                                : c.copyWith(
+                                    sortOrder: o.sortOrder,
+                                    parentRowId: o.parentRowId,
+                                  );
+                          })
+                          .toList(growable: false);
                 return IndexedStack(
                   index: _tabIndex,
                   children: [
                     for (final k in _kindValues)
                       _CategoryList(
                         categories: effective
-                            .where((c) =>
-                                (c.expenseType ?? 'EXPENSE') == k)
+                            .where((c) => (c.expenseType ?? 'EXPENSE') == k)
                             .toList(growable: false),
                         query: _query,
                         editMode: _editMode,
@@ -271,7 +274,8 @@ class _CategoryList extends StatelessWidget {
   final void Function(int parentRowId) onToggleCollapse;
   final void Function(
     List<({int categoryRowId, int sortOrder, int? parentRowId})> items,
-  ) onReorderSiblings;
+  )
+  onReorderSiblings;
   final PorestTokens tokens;
 
   @override
@@ -302,8 +306,8 @@ class _CategoryList extends StatelessWidget {
       final filteredChildren = parentMatch
           ? children
           : children
-              .where((c) => c.categoryName.contains(q))
-              .toList(growable: false);
+                .where((c) => c.categoryName.contains(q))
+                .toList(growable: false);
       if (!parentMatch && filteredChildren.isEmpty) continue;
       tree.add(_TreeEntry(p, filteredChildren));
     }
@@ -313,8 +317,7 @@ class _CategoryList extends StatelessWidget {
         child: PEmptyState(
           icon: LucideIcons.tag,
           message: q.isNotEmpty ? l.categoryNoResults : l.categoryEmpty,
-          subMessage:
-              q.isNotEmpty ? null : l.categoryEmptyHint,
+          subMessage: q.isNotEmpty ? null : l.categoryEmptyHint,
         ),
       );
     }
@@ -359,7 +362,8 @@ class _CategoryList extends StatelessWidget {
               final parent = entry.parent;
               final hasChildren = entry.children.isNotEmpty;
               // 편집 모드는 하위 강제 표시(디자인 editMode || expanded) — 접힘 무시.
-              final showChildren = hasChildren &&
+              final showChildren =
+                  hasChildren &&
                   (editMode || !collapsed.contains(parent.rowId));
               final isLastParent = pi == tree.length - 1;
               return Column(
@@ -389,11 +393,14 @@ class _CategoryList extends StatelessWidget {
                         final reordered = [...entry.children];
                         final moved = reordered.removeAt(oldIndex);
                         reordered.insert(newIndex, moved);
-                        final items = <({
-                          int categoryRowId,
-                          int sortOrder,
-                          int? parentRowId
-                        })>[];
+                        final items =
+                            <
+                              ({
+                                int categoryRowId,
+                                int sortOrder,
+                                int? parentRowId,
+                              })
+                            >[];
                         for (var idx = 0; idx < reordered.length; idx++) {
                           items.add((
                             categoryRowId: reordered[idx].rowId,
@@ -405,8 +412,8 @@ class _CategoryList extends StatelessWidget {
                       },
                       itemBuilder: (ctx, ci) {
                         final child = entry.children[ci];
-                        final isLastChild = isLastParent &&
-                            ci == entry.children.length - 1;
+                        final isLastChild =
+                            isLastParent && ci == entry.children.length - 1;
                         return _CategoryRow(
                           key: ValueKey('c-${child.rowId}'),
                           index: ci,
@@ -442,13 +449,48 @@ class _CategorySkeleton extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _CatRowSkel(isParent: true,  showMeta: true,  isLast: false, tokens: tokens),
-        _CatRowSkel(isParent: false, showMeta: false, isLast: false, tokens: tokens),
-        _CatRowSkel(isParent: false, showMeta: false, isLast: false, tokens: tokens),
-        _CatRowSkel(isParent: true,  showMeta: false, isLast: false, tokens: tokens),
-        _CatRowSkel(isParent: false, showMeta: false, isLast: false, tokens: tokens),
-        _CatRowSkel(isParent: true,  showMeta: true,  isLast: false, tokens: tokens),
-        _CatRowSkel(isParent: false, showMeta: false, isLast: true,  tokens: tokens),
+        _CatRowSkel(
+          isParent: true,
+          showMeta: true,
+          isLast: false,
+          tokens: tokens,
+        ),
+        _CatRowSkel(
+          isParent: false,
+          showMeta: false,
+          isLast: false,
+          tokens: tokens,
+        ),
+        _CatRowSkel(
+          isParent: false,
+          showMeta: false,
+          isLast: false,
+          tokens: tokens,
+        ),
+        _CatRowSkel(
+          isParent: true,
+          showMeta: false,
+          isLast: false,
+          tokens: tokens,
+        ),
+        _CatRowSkel(
+          isParent: false,
+          showMeta: false,
+          isLast: false,
+          tokens: tokens,
+        ),
+        _CatRowSkel(
+          isParent: true,
+          showMeta: true,
+          isLast: false,
+          tokens: tokens,
+        ),
+        _CatRowSkel(
+          isParent: false,
+          showMeta: false,
+          isLast: true,
+          tokens: tokens,
+        ),
       ],
     );
   }
@@ -476,10 +518,7 @@ class _CatRowSkel extends StatelessWidget {
             : Border(bottom: BorderSide(color: t.borderSubtle)),
       ),
       // 좌우 0 — 페이지가 24 를 쥔다. 행이 더 얹으면 위 라벨과 어긋난다(설정 리스트 공통 규칙).
-      padding: const EdgeInsets.symmetric(
-        horizontal: 0,
-        vertical: PSpace.x12,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 0, vertical: PSpace.x12),
       child: Row(
         children: [
           // 자식 들여쓰기 — web paddingLeft:28 미러
@@ -612,8 +651,10 @@ class _CategoryRow extends StatelessWidget {
                 Container(
                   width: 36,
                   height: 36,
-                  decoration:
-                      BoxDecoration(color: bg, borderRadius: PRadius.tile(36)),
+                  decoration: BoxDecoration(
+                    color: bg,
+                    borderRadius: PRadius.tile(36),
+                  ),
                   alignment: Alignment.center,
                   child: Icon(lucideByName(category.icon), size: 18, color: fg),
                 ),
@@ -631,15 +672,18 @@ class _CategoryRow extends StatelessWidget {
                       ),
                       if (isParent && hasChildren)
                         Text(
-                          l.categoryHasSubcategories(category.expenseType == 'EXPENSE' ? l.expTypeExpense : l.expTypeIncome),
+                          l.categoryHasSubcategories(
+                            category.expenseType == 'EXPENSE'
+                                ? l.expTypeExpense
+                                : l.expTypeIncome,
+                          ),
                           style: PTypo.caption.copyWith(color: t.fgTertiary),
                         ),
                     ],
                   ),
                 ),
                 if (!editMode)
-                  Icon(LucideIcons.chevronRight,
-                      size: 16, color: t.fgTertiary),
+                  Icon(LucideIcons.chevronRight, size: 16, color: t.fgTertiary),
               ],
             ),
           ),

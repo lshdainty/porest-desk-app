@@ -13,6 +13,7 @@ import 'package:porest_desk_app/app/theme/typography.dart';
 ///
 /// 2 variants(default/outline) × 3 sizes(sm/default/lg).
 enum PToggleVariant { defaultVariant, outline }
+
 enum PToggleSize { sm, defaultSize, lg }
 
 class PToggle extends StatelessWidget {
@@ -36,10 +37,10 @@ class PToggle extends StatelessWidget {
   final String? semanticLabel;
 
   (double padX, double padY, double minH) get _metrics => switch (size) {
-        PToggleSize.sm => (8, 4, 28),
-        PToggleSize.defaultSize => (12, 4, 32),
-        PToggleSize.lg => (16, 8, 40),
-      };
+    PToggleSize.sm => (8, 4, 28),
+    PToggleSize.defaultSize => (12, 4, 32),
+    PToggleSize.lg => (16, 8, 40),
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -266,19 +267,17 @@ class _GroupItem<T> extends StatelessWidget {
   final PToggleGroupVisual visual;
 
   (double padX, double padY, double minH) get _metrics => switch (size) {
-        PToggleSize.sm => (8, 4, 28),
-        PToggleSize.defaultSize => (12, 4, 32),
-        PToggleSize.lg => (16, 8, 40),
-      };
+    PToggleSize.sm => (8, 4, 28),
+    PToggleSize.defaultSize => (12, 4, 32),
+    PToggleSize.lg => (16, 8, 40),
+  };
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
     final disabled = item.disabled;
     final isSolid = visual == PToggleGroupVisual.solid;
-    final fg = selected
-        ? (isSolid ? t.fgOnBrand : t.fgPrimary)
-        : t.fgSecondary;
+    final fg = selected ? (isSolid ? t.fgOnBrand : t.fgPrimary) : t.fgSecondary;
     final bg = selected
         // solid active = primary 고정(cobalt500) — web --bg-brand(=--color-primary
         // 양모드 고정) 정합. bgBrand 는 다크에서 cobalt400(light)이라 더 밝아 어긋났음.
@@ -326,9 +325,10 @@ class _GroupItem<T> extends StatelessWidget {
               borderRadius: PRadius.brSm,
               boxShadow: const [
                 BoxShadow(
-                    color: Color(0x26000000),
-                    offset: Offset(0, 1),
-                    blurRadius: 3),
+                  color: Color(0x26000000),
+                  offset: Offset(0, 1),
+                  blurRadius: 3,
+                ),
               ],
             ),
             child: tile,

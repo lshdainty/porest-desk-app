@@ -67,9 +67,28 @@
 3. spec과 현재 코드 diff (PRadius / PorestTokens / 위젯 prop)
 4. spec 부재 / 모호 → 사용자에게 결정 요구 (현재 + spec 인용 + 선택지)
 5. 결정 → spec 업데이트 (필요 시) → 코드 동기
-6. `fvm flutter analyze lib/` (0 issues) + 시뮬레이터 시각 검증 (라이트/다크 모드)
+6. `fvm dart format lib test` → `fvm flutter analyze lib/` (0 issues)
+   + 시뮬레이터 시각 검증 (라이트/다크 모드)
 7. 반복
 ```
+
+## 서식은 `dart format` 이 정한다
+
+`dart format` 기본값(page width **80** · Dart 3.12 tall 스타일)이 유일한 기준이다.
+`analysis_options.yaml` 에 `formatter` 설정을 두지 않는다 — gofmt 처럼 정답을 하나로 두고
+서식으로 다투지 않기 위해서다. CI(`verify`)가 `dart format --set-exit-if-changed lib test`
+로 막는다.
+
+**커밋 전에 돌려라.** 예전엔 손포맷이라 371개 중 240개가 포매터 결과와 달랐고, 그래서
+파일을 만질 때마다 "포맷을 돌리면 diff 가 폭발한다" 는 문제가 있었다(22줄 수정에 982줄
+diff). 2026-09-01 에 전면 적용해 그 상태를 끝냈다 — 다시 흩어지지 않게 CI 로 잠갔다.
+
+- 서식만 바꾼 대규모 커밋은 `.git-blame-ignore-revs` 에 적는다.
+  로컬 blame 에도 먹이려면 한 번만: `git config blame.ignoreRevsFile .git-blame-ignore-revs`
+- 80칸을 넘는 `if (cond) stmt;` 는 포매터가 두 줄로 쪼개면서
+  `curly_braces_in_flow_control_structures` 린트가 켜진다 — 중괄호를 씌워라.
+- **레포 전체를 건드리는 서식 커밋은 최신 main 에서 파고 바로 머지한다.** 오래 들고
+  있으면 그 사이 머지된 PR 과 통째로 충돌한다(실제로 한 번 겪었다).
 
 ## 커밋에 `Release-Note:` 를 단다
 

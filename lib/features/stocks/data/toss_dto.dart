@@ -3,16 +3,20 @@
 library;
 
 class TossPrice {
-  const TossPrice({required this.symbol, required this.lastPrice, this.currency});
+  const TossPrice({
+    required this.symbol,
+    required this.lastPrice,
+    this.currency,
+  });
   final String symbol;
   final String lastPrice;
   final String? currency;
 
   factory TossPrice.fromJson(Map<String, dynamic> j) => TossPrice(
-        symbol: j['symbol'] as String,
-        lastPrice: j['lastPrice'] as String,
-        currency: j['currency'] as String?,
-      );
+    symbol: j['symbol'] as String,
+    lastPrice: j['lastPrice'] as String,
+    currency: j['currency'] as String?,
+  );
 
   double get priceValue => double.tryParse(lastPrice) ?? 0;
 }
@@ -22,7 +26,8 @@ class TossOrderbookEntry {
   final String price;
   final String volume;
 
-  factory TossOrderbookEntry.fromJson(Map<String, dynamic> j) => TossOrderbookEntry(
+  factory TossOrderbookEntry.fromJson(Map<String, dynamic> j) =>
+      TossOrderbookEntry(
         price: j['price'] as String,
         volume: j['volume'] as String,
       );
@@ -38,43 +43,51 @@ class TossOrderbook {
   final String? currency;
 
   factory TossOrderbook.fromJson(Map<String, dynamic> j) => TossOrderbook(
-        asks: ((j['asks'] as List?) ?? [])
-            .map((e) => TossOrderbookEntry.fromJson(e as Map<String, dynamic>))
-            .toList(),
-        bids: ((j['bids'] as List?) ?? [])
-            .map((e) => TossOrderbookEntry.fromJson(e as Map<String, dynamic>))
-            .toList(),
-        currency: j['currency'] as String?,
-      );
+    asks: ((j['asks'] as List?) ?? [])
+        .map((e) => TossOrderbookEntry.fromJson(e as Map<String, dynamic>))
+        .toList(),
+    bids: ((j['bids'] as List?) ?? [])
+        .map((e) => TossOrderbookEntry.fromJson(e as Map<String, dynamic>))
+        .toList(),
+    currency: j['currency'] as String?,
+  );
 }
 
 class TossTrade {
-  const TossTrade({required this.price, required this.volume, required this.timestamp});
+  const TossTrade({
+    required this.price,
+    required this.volume,
+    required this.timestamp,
+  });
   final String price;
   final String volume;
   final String timestamp;
 
   factory TossTrade.fromJson(Map<String, dynamic> j) => TossTrade(
-        price: j['price'] as String,
-        volume: j['volume'] as String,
-        timestamp: (j['timestamp'] as String?) ?? '',
-      );
+    price: j['price'] as String,
+    volume: j['volume'] as String,
+    timestamp: (j['timestamp'] as String?) ?? '',
+  );
 
   double get priceValue => double.tryParse(price) ?? 0;
   double get volumeValue => double.tryParse(volume) ?? 0;
 }
 
 class TossExchangeRate {
-  const TossExchangeRate({required this.rate, this.baseCurrency, this.quoteCurrency});
+  const TossExchangeRate({
+    required this.rate,
+    this.baseCurrency,
+    this.quoteCurrency,
+  });
   final String rate;
   final String? baseCurrency;
   final String? quoteCurrency;
 
   factory TossExchangeRate.fromJson(Map<String, dynamic> j) => TossExchangeRate(
-        rate: j['rate'] as String,
-        baseCurrency: j['baseCurrency'] as String?,
-        quoteCurrency: j['quoteCurrency'] as String?,
-      );
+    rate: j['rate'] as String,
+    baseCurrency: j['baseCurrency'] as String?,
+    quoteCurrency: j['quoteCurrency'] as String?,
+  );
 
   double get rateValue => double.tryParse(rate) ?? 0;
 }
@@ -93,10 +106,10 @@ class TossAccount {
   final String accountType;
 
   factory TossAccount.fromJson(Map<String, dynamic> j) => TossAccount(
-        accountNo: (j['accountNo'] as String?) ?? '',
-        accountSeq: (j['accountSeq'] as num).toInt(),
-        accountType: (j['accountType'] as String?) ?? '',
-      );
+    accountNo: (j['accountNo'] as String?) ?? '',
+    accountSeq: (j['accountSeq'] as num).toInt(),
+    accountType: (j['accountType'] as String?) ?? '',
+  );
 }
 
 /// 통화별 금액 (원화 필수, 외화 nullable). 금액은 정밀도 보존 위해 String.
@@ -105,10 +118,8 @@ class TossAmount {
   final String krw;
   final String? usd;
 
-  factory TossAmount.fromJson(Map<String, dynamic>? j) => TossAmount(
-        krw: (j?['krw'] as String?) ?? '0',
-        usd: j?['usd'] as String?,
-      );
+  factory TossAmount.fromJson(Map<String, dynamic>? j) =>
+      TossAmount(krw: (j?['krw'] as String?) ?? '0', usd: j?['usd'] as String?);
 
   double get krwValue => double.tryParse(krw) ?? 0;
 }
@@ -199,8 +210,8 @@ class TossHoldingsItem {
   double get purchaseAmountValue => double.tryParse(purchaseAmount) ?? 0;
   double get feesValue =>
       (double.tryParse(commission) ?? 0) + (double.tryParse(tax) ?? 0);
-  bool get isUs => marketCountry.toUpperCase() == 'US' ||
-      currency.toUpperCase() == 'USD';
+  bool get isUs =>
+      marketCountry.toUpperCase() == 'US' || currency.toUpperCase() == 'USD';
 }
 
 /// 보유 자산 현황 (전체 요약 + 종목별 목록). 요약 금액은 통화별 Price{krw,usd}.
@@ -277,13 +288,13 @@ class TossCandle {
   final String volume;
 
   factory TossCandle.fromJson(Map<String, dynamic> j) => TossCandle(
-        timestamp: (j['timestamp'] as String?) ?? '',
-        openPrice: (j['openPrice'] as String?) ?? '0',
-        highPrice: (j['highPrice'] as String?) ?? '0',
-        lowPrice: (j['lowPrice'] as String?) ?? '0',
-        closePrice: (j['closePrice'] as String?) ?? '0',
-        volume: (j['volume'] as String?) ?? '0',
-      );
+    timestamp: (j['timestamp'] as String?) ?? '',
+    openPrice: (j['openPrice'] as String?) ?? '0',
+    highPrice: (j['highPrice'] as String?) ?? '0',
+    lowPrice: (j['lowPrice'] as String?) ?? '0',
+    closePrice: (j['closePrice'] as String?) ?? '0',
+    volume: (j['volume'] as String?) ?? '0',
+  );
 
   double get closeValue => double.tryParse(closePrice) ?? 0;
   double get volumeValue => double.tryParse(volume) ?? 0;
@@ -368,8 +379,9 @@ class TossStockInfo {
       currency: (j['currency'] as String?) ?? '',
       listDate: j['listDate'] as String?,
       sharesOutstanding: (j['sharesOutstanding'] as String?) ?? '0',
-      koreanMarketDetail:
-          kr is Map<String, dynamic> ? TossKrMarketDetail.fromJson(kr) : null,
+      koreanMarketDetail: kr is Map<String, dynamic>
+          ? TossKrMarketDetail.fromJson(kr)
+          : null,
     );
   }
 
@@ -393,26 +405,30 @@ class TossStockWarning {
   final String? endDate;
 
   factory TossStockWarning.fromJson(Map<String, dynamic> j) => TossStockWarning(
-        warningType: (j['warningType'] as String?) ?? '',
-        exchange: j['exchange'] as String?,
-        startDate: j['startDate'] as String?,
-        endDate: j['endDate'] as String?,
-      );
+    warningType: (j['warningType'] as String?) ?? '',
+    exchange: j['exchange'] as String?,
+    startDate: j['startDate'] as String?,
+    endDate: j['endDate'] as String?,
+  );
 }
 
 // ── 상/하한가 (백엔드 TossMarketDto.PriceLimitResponse 미러) ───────────────
 
 class TossPriceLimit {
-  const TossPriceLimit({this.upperLimitPrice, this.lowerLimitPrice, this.currency});
+  const TossPriceLimit({
+    this.upperLimitPrice,
+    this.lowerLimitPrice,
+    this.currency,
+  });
   final String? upperLimitPrice;
   final String? lowerLimitPrice;
   final String? currency;
 
   factory TossPriceLimit.fromJson(Map<String, dynamic> j) => TossPriceLimit(
-        upperLimitPrice: j['upperLimitPrice'] as String?,
-        lowerLimitPrice: j['lowerLimitPrice'] as String?,
-        currency: j['currency'] as String?,
-      );
+    upperLimitPrice: j['upperLimitPrice'] as String?,
+    lowerLimitPrice: j['lowerLimitPrice'] as String?,
+    currency: j['currency'] as String?,
+  );
 
   double? get upperValue =>
       upperLimitPrice == null ? null : double.tryParse(upperLimitPrice!);
@@ -446,8 +462,9 @@ class TossKrMarketDay {
     final reg = integrated?['regularMarket'];
     return TossKrMarketDay(
       date: (j['date'] as String?) ?? '',
-      regularMarket:
-          reg is Map<String, dynamic> ? TossMarketSession.fromJson(reg) : null,
+      regularMarket: reg is Map<String, dynamic>
+          ? TossMarketSession.fromJson(reg)
+          : null,
     );
   }
 }
@@ -461,7 +478,8 @@ class TossKrMarketCalendar {
     final next = j['nextBusinessDay'];
     return TossKrMarketCalendar(
       today: TossKrMarketDay.fromJson(
-          (j['today'] as Map<String, dynamic>?) ?? const {}),
+        (j['today'] as Map<String, dynamic>?) ?? const {},
+      ),
       nextBusinessDay: next is Map<String, dynamic>
           ? TossKrMarketDay.fromJson(next)
           : null,
@@ -478,8 +496,9 @@ class TossUsMarketDay {
     final reg = j['regularMarket'];
     return TossUsMarketDay(
       date: (j['date'] as String?) ?? '',
-      regularMarket:
-          reg is Map<String, dynamic> ? TossMarketSession.fromJson(reg) : null,
+      regularMarket: reg is Map<String, dynamic>
+          ? TossMarketSession.fromJson(reg)
+          : null,
     );
   }
 }
@@ -493,7 +512,8 @@ class TossUsMarketCalendar {
     final next = j['nextBusinessDay'];
     return TossUsMarketCalendar(
       today: TossUsMarketDay.fromJson(
-          (j['today'] as Map<String, dynamic>?) ?? const {}),
+        (j['today'] as Map<String, dynamic>?) ?? const {},
+      ),
       nextBusinessDay: next is Map<String, dynamic>
           ? TossUsMarketDay.fromJson(next)
           : null,
@@ -505,16 +525,20 @@ class TossUsMarketCalendar {
 
 /// 랭킹 종목 가격. changeRate 는 소수 비율(0.0125 = 1.25%).
 class TossRankingPrice {
-  const TossRankingPrice({required this.lastPrice, required this.basePrice, this.changeRate});
+  const TossRankingPrice({
+    required this.lastPrice,
+    required this.basePrice,
+    this.changeRate,
+  });
   final String lastPrice;
   final String basePrice;
   final String? changeRate;
 
   factory TossRankingPrice.fromJson(Map<String, dynamic> j) => TossRankingPrice(
-        lastPrice: (j['lastPrice'] as String?) ?? '0',
-        basePrice: (j['basePrice'] as String?) ?? '0',
-        changeRate: j['changeRate'] as String?,
-      );
+    lastPrice: (j['lastPrice'] as String?) ?? '0',
+    basePrice: (j['basePrice'] as String?) ?? '0',
+    changeRate: j['changeRate'] as String?,
+  );
 
   double get lastPriceValue => double.tryParse(lastPrice) ?? 0;
   double? get changePct {
@@ -541,13 +565,15 @@ class TossRankingItem {
   final String tradingAmount;
 
   factory TossRankingItem.fromJson(Map<String, dynamic> j) => TossRankingItem(
-        rank: (j['rank'] as num?)?.toInt() ?? 0,
-        symbol: (j['symbol'] as String?) ?? '',
-        currency: (j['currency'] as String?) ?? 'KRW',
-        price: TossRankingPrice.fromJson((j['price'] as Map<String, dynamic>?) ?? {}),
-        tradingVolume: (j['tradingVolume'] as String?) ?? '0',
-        tradingAmount: (j['tradingAmount'] as String?) ?? '0',
-      );
+    rank: (j['rank'] as num?)?.toInt() ?? 0,
+    symbol: (j['symbol'] as String?) ?? '',
+    currency: (j['currency'] as String?) ?? 'KRW',
+    price: TossRankingPrice.fromJson(
+      (j['price'] as Map<String, dynamic>?) ?? {},
+    ),
+    tradingVolume: (j['tradingVolume'] as String?) ?? '0',
+    tradingAmount: (j['tradingAmount'] as String?) ?? '0',
+  );
 }
 
 class TossRankingResponse {
@@ -555,7 +581,8 @@ class TossRankingResponse {
   final String? rankedAt;
   final List<TossRankingItem> rankings;
 
-  factory TossRankingResponse.fromJson(Map<String, dynamic> j) => TossRankingResponse(
+  factory TossRankingResponse.fromJson(Map<String, dynamic> j) =>
+      TossRankingResponse(
         rankedAt: j['rankedAt'] as String?,
         rankings: ((j['rankings'] as List?) ?? [])
             .map((e) => TossRankingItem.fromJson(e as Map<String, dynamic>))
@@ -565,12 +592,17 @@ class TossRankingResponse {
 
 /// 시장 지표 현재가 (지수: 포인트, 국채: 수익률 %). 토스 카탈로그 8종만 지원.
 class TossIndicatorPrice {
-  const TossIndicatorPrice({required this.symbol, required this.lastPrice, this.timestamp});
+  const TossIndicatorPrice({
+    required this.symbol,
+    required this.lastPrice,
+    this.timestamp,
+  });
   final String symbol;
   final String lastPrice;
   final String? timestamp;
 
-  factory TossIndicatorPrice.fromJson(Map<String, dynamic> j) => TossIndicatorPrice(
+  factory TossIndicatorPrice.fromJson(Map<String, dynamic> j) =>
+      TossIndicatorPrice(
         symbol: (j['symbol'] as String?) ?? '',
         lastPrice: (j['lastPrice'] as String?) ?? '0',
         timestamp: j['timestamp'] as String?,

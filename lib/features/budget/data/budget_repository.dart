@@ -13,10 +13,7 @@ class BudgetRepository {
     try {
       final res = await _dio.get<Map<String, dynamic>>(
         '/expense/budgets',
-        queryParameters: {
-          'year': ?year,
-          'month': ?month,
-        },
+        queryParameters: {'year': ?year, 'month': ?month},
       );
       final body = ApiResponse<Map<String, dynamic>>.fromJson(
         res.data ?? const {},
@@ -91,8 +88,7 @@ class BudgetRepository {
       }
       final list = (body.data!['months'] as List<dynamic>?) ?? const [];
       return list
-          .map((e) =>
-              BudgetComplianceMonth.fromJson(e as Map<String, dynamic>))
+          .map((e) => BudgetComplianceMonth.fromJson(e as Map<String, dynamic>))
           .toList(growable: false);
     } on DioException catch (e) {
       throw ApiException.fromDio(e);

@@ -31,16 +31,76 @@ class ChartPair {
 }
 
 const kChartPairs = <ChartPair>[
-  ChartPair(key: 'red',    baseHex: '#c73838', lightHex: '#eca0a0', base: Color(0xFFC73838), light: Color(0xFFECA0A0)),
-  ChartPair(key: 'orange', baseHex: '#b36418', lightHex: '#e8b266', base: Color(0xFFB36418), light: Color(0xFFE8B266)),
-  ChartPair(key: 'yellow', baseHex: '#8c7400', lightHex: '#d4b83a', base: Color(0xFF8C7400), light: Color(0xFFD4B83A)),
-  ChartPair(key: 'green',  baseHex: '#2d8060', lightHex: '#6bcb86', base: Color(0xFF2D8060), light: Color(0xFF6BCB86)),
-  ChartPair(key: 'blue',   baseHex: '#2c70bf', lightHex: '#7bbbed', base: Color(0xFF2C70BF), light: Color(0xFF7BBBED)),
-  ChartPair(key: 'indigo', baseHex: '#5e60c8', lightHex: '#abb0f0', base: Color(0xFF5E60C8), light: Color(0xFFABB0F0)),
-  ChartPair(key: 'violet', baseHex: '#8b4dba', lightHex: '#d2a8ec', base: Color(0xFF8B4DBA), light: Color(0xFFD2A8EC)),
-  ChartPair(key: 'pink',   baseHex: '#b83b7a', lightHex: '#eca0bc', base: Color(0xFFB83B7A), light: Color(0xFFECA0BC)),
-  ChartPair(key: 'brown',  baseHex: '#9a6536', lightHex: '#dcb088', base: Color(0xFF9A6536), light: Color(0xFFDCB088)),
-  ChartPair(key: 'gray',   baseHex: '#6b7484', lightHex: '#b5bbc5', base: Color(0xFF6B7484), light: Color(0xFFB5BBC5)),
+  ChartPair(
+    key: 'red',
+    baseHex: '#c73838',
+    lightHex: '#eca0a0',
+    base: Color(0xFFC73838),
+    light: Color(0xFFECA0A0),
+  ),
+  ChartPair(
+    key: 'orange',
+    baseHex: '#b36418',
+    lightHex: '#e8b266',
+    base: Color(0xFFB36418),
+    light: Color(0xFFE8B266),
+  ),
+  ChartPair(
+    key: 'yellow',
+    baseHex: '#8c7400',
+    lightHex: '#d4b83a',
+    base: Color(0xFF8C7400),
+    light: Color(0xFFD4B83A),
+  ),
+  ChartPair(
+    key: 'green',
+    baseHex: '#2d8060',
+    lightHex: '#6bcb86',
+    base: Color(0xFF2D8060),
+    light: Color(0xFF6BCB86),
+  ),
+  ChartPair(
+    key: 'blue',
+    baseHex: '#2c70bf',
+    lightHex: '#7bbbed',
+    base: Color(0xFF2C70BF),
+    light: Color(0xFF7BBBED),
+  ),
+  ChartPair(
+    key: 'indigo',
+    baseHex: '#5e60c8',
+    lightHex: '#abb0f0',
+    base: Color(0xFF5E60C8),
+    light: Color(0xFFABB0F0),
+  ),
+  ChartPair(
+    key: 'violet',
+    baseHex: '#8b4dba',
+    lightHex: '#d2a8ec',
+    base: Color(0xFF8B4DBA),
+    light: Color(0xFFD2A8EC),
+  ),
+  ChartPair(
+    key: 'pink',
+    baseHex: '#b83b7a',
+    lightHex: '#eca0bc',
+    base: Color(0xFFB83B7A),
+    light: Color(0xFFECA0BC),
+  ),
+  ChartPair(
+    key: 'brown',
+    baseHex: '#9a6536',
+    lightHex: '#dcb088',
+    base: Color(0xFF9A6536),
+    light: Color(0xFFDCB088),
+  ),
+  ChartPair(
+    key: 'gray',
+    baseHex: '#6b7484',
+    lightHex: '#b5bbc5',
+    base: Color(0xFF6B7484),
+    light: Color(0xFFB5BBC5),
+  ),
 ];
 
 /// 색상 picker 가 노출해야 하는 **차트 10색 base hex** 목록.
@@ -67,10 +127,7 @@ final Map<String, ChartPair> _kBaseHexToPair = {
 
 /// base/light hex 둘 다 → ChartPair (Color 역조회용).
 final Map<int, ChartPair> _kArgbToPair = {
-  for (final p in kChartPairs) ...{
-    p.base.toARGB32(): p,
-    p.light.toARGB32(): p,
-  },
+  for (final p in kChartPairs) ...{p.base.toARGB32(): p, p.light.toARGB32(): p},
 };
 
 /// 카테고리 아이콘 타일 배경 색 — 라이트/다크 자동 분기.
@@ -103,8 +160,8 @@ Color softBg(BuildContext context, Color base) {
 /// 웹 `--color-cat-red`(라이트 chart-red / 다크 chart-red-light) 미러.
 Color chartRedOf(BuildContext context) =>
     Theme.of(context).brightness == Brightness.dark
-        ? const Color(0xFFECA0A0) // chart-red-light
-        : const Color(0xFFC73838); // chart-red
+    ? const Color(0xFFECA0A0) // chart-red-light
+    : const Color(0xFFC73838); // chart-red
 
 Color resolveChartColor(
   BuildContext context,
@@ -130,7 +187,11 @@ Color resolveChartColor(
 ///
 /// [resolveChartColor] 가 팔레트 색(light variant)·커스텀 색(white 38% lift) 모두
 /// 웹 `--swatch-lift` 정합으로 처리하므로 그대로 위임한다 (과거 HSL 명도 근사 폐기).
-Color solidSwatchColor(BuildContext context, String? rawHex, {Color? fallback}) {
+Color solidSwatchColor(
+  BuildContext context,
+  String? rawHex, {
+  Color? fallback,
+}) {
   return resolveChartColor(context, rawHex, fallback: fallback);
 }
 

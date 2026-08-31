@@ -67,48 +67,55 @@ class _PSearchFieldState extends State<PSearchField> {
     return SizedBox(
       height: 36,
       child: TextField(
-      controller: widget.controller,
-      focusNode: _node,
-      autofocus: widget.autofocus,
-      onChanged: widget.onChanged,
-      textAlignVertical: TextAlignVertical.center,
-      style: TextStyle(
-        fontFamily: PTypo.sans,
-        fontSize: PFontSize.bodySm,
-        color: t.fgPrimary,
-      ),
-      decoration: InputDecoration(
-        isDense: true,
-        hintText: widget.hint,
-        hintStyle: TextStyle(
+        controller: widget.controller,
+        focusNode: _node,
+        autofocus: widget.autofocus,
+        onChanged: widget.onChanged,
+        textAlignVertical: TextAlignVertical.center,
+        style: TextStyle(
           fontFamily: PTypo.sans,
           fontSize: PFontSize.bodySm,
-          color: t.fgTertiary,
+          color: t.fgPrimary,
         ),
-        prefixIcon: Icon(LucideIcons.search, size: 16, color: t.fgTertiary),
-        prefixIconConstraints:
-            const BoxConstraints(minWidth: 36, minHeight: 36),
-        suffixIcon: widget.trailing,
-        suffixIconConstraints:
-            const BoxConstraints(minWidth: 36, minHeight: 36),
-        filled: true,
-        // resting = bg-muted, focus = bg-surface (web 정합)
-        fillColor: focused ? t.bgSurface : t.bgMuted,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        // resting = 테두리 없음, focus = 코발트(border-focus) — web .top__search 정합
-        border: OutlineInputBorder(
-          borderRadius: PRadius.brMd,
-          borderSide: BorderSide.none,
+        decoration: InputDecoration(
+          isDense: true,
+          hintText: widget.hint,
+          hintStyle: TextStyle(
+            fontFamily: PTypo.sans,
+            fontSize: PFontSize.bodySm,
+            color: t.fgTertiary,
+          ),
+          prefixIcon: Icon(LucideIcons.search, size: 16, color: t.fgTertiary),
+          prefixIconConstraints: const BoxConstraints(
+            minWidth: 36,
+            minHeight: 36,
+          ),
+          suffixIcon: widget.trailing,
+          suffixIconConstraints: const BoxConstraints(
+            minWidth: 36,
+            minHeight: 36,
+          ),
+          filled: true,
+          // resting = bg-muted, focus = bg-surface (web 정합)
+          fillColor: focused ? t.bgSurface : t.bgMuted,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 12,
+            vertical: 8,
+          ),
+          // resting = 테두리 없음, focus = 코발트(border-focus) — web .top__search 정합
+          border: OutlineInputBorder(
+            borderRadius: PRadius.brMd,
+            borderSide: BorderSide.none,
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: PRadius.brMd,
+            borderSide: BorderSide.none,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: PRadius.brMd,
+            borderSide: BorderSide(color: t.borderFocus, width: 1.5),
+          ),
         ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: PRadius.brMd,
-          borderSide: BorderSide.none,
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: PRadius.brMd,
-          borderSide: BorderSide(color: t.borderFocus, width: 1.5),
-        ),
-      ),
       ),
     );
   }

@@ -25,18 +25,11 @@ class MonthPicker extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        PButton.icon(
-          icon: LucideIcons.chevronLeft,
-          onPressed: onPrev,
-        ),
+        PButton.icon(icon: LucideIcons.chevronLeft, onPressed: onPrev),
         const SizedBox(width: PSpace.x4),
-        Text(yearMonth(month),
-            style: PTypo.h4.copyWith(color: t.fgPrimary)),
+        Text(yearMonth(month), style: PTypo.h4.copyWith(color: t.fgPrimary)),
         const SizedBox(width: PSpace.x4),
-        PButton.icon(
-          icon: LucideIcons.chevronRight,
-          onPressed: onNext,
-        ),
+        PButton.icon(icon: LucideIcons.chevronRight, onPressed: onNext),
       ],
     );
   }

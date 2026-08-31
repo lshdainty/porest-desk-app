@@ -17,9 +17,9 @@ class ImportColumn {
   final String name;
 
   factory ImportColumn.fromJson(Map<String, dynamic> j) => ImportColumn(
-        index: (j['index'] as num?)?.toInt() ?? 0,
-        name: j['name'] as String? ?? '',
-      );
+    index: (j['index'] as num?)?.toInt() ?? 0,
+    name: j['name'] as String? ?? '',
+  );
 }
 
 /// 미리보기 한 행(매핑·정규화 결과).
@@ -46,16 +46,16 @@ class ImportPreviewRow {
   final String? error;
 
   factory ImportPreviewRow.fromJson(Map<String, dynamic> j) => ImportPreviewRow(
-        lineNo: (j['lineNo'] as num?)?.toInt() ?? 0,
-        date: j['date'] as String?,
-        type: j['type'] as String?,
-        amount: (j['amount'] as num?)?.toInt(),
-        category: j['category'] as String?,
-        asset: j['asset'] as String?,
-        memo: j['memo'] as String?,
-        duplicate: j['duplicate'] as bool? ?? false,
-        error: j['error'] as String?,
-      );
+    lineNo: (j['lineNo'] as num?)?.toInt() ?? 0,
+    date: j['date'] as String?,
+    type: j['type'] as String?,
+    amount: (j['amount'] as num?)?.toInt(),
+    category: j['category'] as String?,
+    asset: j['asset'] as String?,
+    memo: j['memo'] as String?,
+    duplicate: j['duplicate'] as bool? ?? false,
+    error: j['error'] as String?,
+  );
 }
 
 /// 파일 분석 결과.
@@ -82,18 +82,25 @@ class ImportAnalyzeResult {
   /// 비어 있지 않으면 그 대분류를 쓰는 행이 전부 실패하므로 실행 전에 알려야 한다.
   final List<String> blockedParents;
 
-  factory ImportAnalyzeResult.fromJson(Map<String, dynamic> j) => ImportAnalyzeResult(
+  factory ImportAnalyzeResult.fromJson(Map<String, dynamic> j) =>
+      ImportAnalyzeResult(
         fileName: j['fileName'] as String? ?? '',
         totalRows: (j['totalRows'] as num?)?.toInt() ?? 0,
         validRows: (j['validRows'] as num?)?.toInt() ?? 0,
         duplicateCount: (j['duplicateCount'] as num?)?.toInt() ?? 0,
         columns: ((j['columns'] as List?) ?? [])
-            .map((e) => ImportColumn.fromJson((e as Map).cast<String, dynamic>()))
+            .map(
+              (e) => ImportColumn.fromJson((e as Map).cast<String, dynamic>()),
+            )
             .toList(),
-        suggestedMapping: ((j['suggestedMapping'] as Map?) ?? {})
-            .map((k, v) => MapEntry(k.toString(), (v as num).toInt())),
+        suggestedMapping: ((j['suggestedMapping'] as Map?) ?? {}).map(
+          (k, v) => MapEntry(k.toString(), (v as num).toInt()),
+        ),
         preview: ((j['preview'] as List?) ?? [])
-            .map((e) => ImportPreviewRow.fromJson((e as Map).cast<String, dynamic>()))
+            .map(
+              (e) =>
+                  ImportPreviewRow.fromJson((e as Map).cast<String, dynamic>()),
+            )
             .toList(),
         blockedParents: ((j['blockedParents'] as List?) ?? [])
             .map((e) => e.toString())
@@ -112,7 +119,8 @@ class ImportExecuteResult {
   final int skipped;
   final int failed;
 
-  factory ImportExecuteResult.fromJson(Map<String, dynamic> j) => ImportExecuteResult(
+  factory ImportExecuteResult.fromJson(Map<String, dynamic> j) =>
+      ImportExecuteResult(
         imported: (j['imported'] as num?)?.toInt() ?? 0,
         skipped: (j['skipped'] as num?)?.toInt() ?? 0,
         failed: (j['failed'] as num?)?.toInt() ?? 0,
@@ -129,10 +137,16 @@ class ImportRepository {
   Future<ImportAnalyzeResult> analyze(File file, String source) async {
     try {
       final form = FormData.fromMap({
-        'file': await MultipartFile.fromFile(file.path, filename: _nameOf(file)),
+        'file': await MultipartFile.fromFile(
+          file.path,
+          filename: _nameOf(file),
+        ),
         'source': source,
       });
-      final res = await _dio.post<Map<String, dynamic>>('/import/analyze', data: form);
+      final res = await _dio.post<Map<String, dynamic>>(
+        '/import/analyze',
+        data: form,
+      );
       final api = ApiResponse<Map<String, dynamic>>.fromJson(
         res.data!,
         (o) => (o as Map).cast<String, dynamic>(),
@@ -158,13 +172,19 @@ class ImportRepository {
         'autoCat': autoCat,
       });
       final form = FormData.fromMap({
-        'file': await MultipartFile.fromFile(file.path, filename: _nameOf(file)),
+        'file': await MultipartFile.fromFile(
+          file.path,
+          filename: _nameOf(file),
+        ),
         'request': MultipartFile.fromString(
           request,
           contentType: DioMediaType.parse('application/json'),
         ),
       });
-      final res = await _dio.post<Map<String, dynamic>>('/import/execute', data: form);
+      final res = await _dio.post<Map<String, dynamic>>(
+        '/import/execute',
+        data: form,
+      );
       final api = ApiResponse<Map<String, dynamic>>.fromJson(
         res.data!,
         (o) => (o as Map).cast<String, dynamic>(),

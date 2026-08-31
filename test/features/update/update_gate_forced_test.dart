@@ -15,13 +15,13 @@ import 'package:porest_desk_app/features/update/presentation/update_gate_screen.
 import 'package:porest_desk_app/l10n/generated/app_localizations.dart';
 
 AppRelease _release({required int build, int minBuild = 0}) => AppRelease(
-      version: '9.9.9',
-      buildNumber: build,
-      androidFile: 'a.apk',
-      iosFile: 'a.ipa',
-      notes: '새 기능\n- 무엇',
-      minBuildNumber: minBuild,
-    );
+  version: '9.9.9',
+  buildNumber: build,
+  androidFile: 'a.apk',
+  iosFile: 'a.ipa',
+  notes: '새 기능\n- 무엇',
+  minBuildNumber: minBuild,
+);
 
 Future<ProviderContainer> _pumpGate(
   WidgetTester tester, {
@@ -31,9 +31,9 @@ Future<ProviderContainer> _pumpGate(
     currentBuild: 100,
     latest: _release(build: 101, minBuild: forced ? 101 : 0),
   );
-  final container = ProviderContainer(overrides: [
-    updateStatusProvider.overrideWith((ref) async => status),
-  ]);
+  final container = ProviderContainer(
+    overrides: [updateStatusProvider.overrideWith((ref) async => status)],
+  );
   addTearDown(container.dispose);
 
   // 취소(일반)는 context.go('/home') 로 빠져나간다 — 라우터가 없으면 거기서 터진다.
@@ -49,16 +49,18 @@ Future<ProviderContainer> _pumpGate(
   );
   addTearDown(router.dispose);
 
-  await tester.pumpWidget(UncontrolledProviderScope(
-    container: container,
-    child: MaterialApp.router(
-      theme: PorestTheme.light(),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      locale: const Locale('ko'),
-      routerConfig: router,
+  await tester.pumpWidget(
+    UncontrolledProviderScope(
+      container: container,
+      child: MaterialApp.router(
+        theme: PorestTheme.light(),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('ko'),
+        routerConfig: router,
+      ),
     ),
-  ));
+  );
   await tester.pumpAndSettle();
   return container;
 }

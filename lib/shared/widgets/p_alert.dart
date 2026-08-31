@@ -44,18 +44,31 @@ class PAlert extends StatelessWidget {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
     final (Color accent, Color bg, IconData defaultIcon) = switch (variant) {
-      PAlertVariant.defaultPlain =>
-        (t.borderDefault, t.bgSurface, LucideIcons.info),
-      PAlertVariant.info => (t.statusInfo, t.statusInfoSubtle, LucideIcons.info),
-      PAlertVariant.success =>
-        (t.statusSuccess, t.statusSuccessSubtle, LucideIcons.checkCircle2),
+      PAlertVariant.defaultPlain => (
+        t.borderDefault,
+        t.bgSurface,
+        LucideIcons.info,
+      ),
+      PAlertVariant.info => (
+        t.statusInfo,
+        t.statusInfoSubtle,
+        LucideIcons.info,
+      ),
+      PAlertVariant.success => (
+        t.statusSuccess,
+        t.statusSuccessSubtle,
+        LucideIcons.checkCircle2,
+      ),
       PAlertVariant.warning => (
-          t.statusWarning,
-          t.statusWarningSubtle,
-          LucideIcons.alertTriangle
-        ),
-      PAlertVariant.error =>
-        (t.statusDanger, t.statusDangerSubtle, LucideIcons.alertOctagon),
+        t.statusWarning,
+        t.statusWarningSubtle,
+        LucideIcons.alertTriangle,
+      ),
+      PAlertVariant.error => (
+        t.statusDanger,
+        t.statusDangerSubtle,
+        LucideIcons.alertOctagon,
+      ),
     };
     final hasAccent = variant != PAlertVariant.defaultPlain;
     final iconData = icon ?? defaultIcon;
@@ -110,10 +123,7 @@ class PAlert extends StatelessWidget {
               ],
             ),
           ),
-          if (action != null) ...[
-            const SizedBox(width: 8),
-            action!,
-          ],
+          if (action != null) ...[const SizedBox(width: 8), action!],
           if (onDismiss != null) ...[
             const SizedBox(width: 4),
             SizedBox(

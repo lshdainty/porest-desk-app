@@ -78,10 +78,12 @@ class _MoveTxBodyState extends ConsumerState<_MoveTxBody> {
         .map((c) => c.parentRowId!)
         .toSet();
     return widget.categories
-        .where((c) =>
-            c.rowId != widget.source.rowId &&
-            c.expenseType == widget.source.expenseType &&
-            !parentIds.contains(c.rowId))
+        .where(
+          (c) =>
+              c.rowId != widget.source.rowId &&
+              c.expenseType == widget.source.expenseType &&
+              !parentIds.contains(c.rowId),
+        )
         .toList();
   }
 
@@ -96,7 +98,9 @@ class _MoveTxBodyState extends ConsumerState<_MoveTxBody> {
 
   /// 모드에 따라 제출 가능 조건이 다르다 — 새 하위는 이름, 기존 이동은 대상 선택.
   void _syncCanSubmit() {
-    final ok = _newMode ? _nameCtrl.text.trim().isNotEmpty : _targetRowId != null;
+    final ok = _newMode
+        ? _nameCtrl.text.trim().isNotEmpty
+        : _targetRowId != null;
     widget.controller.setCanSubmit(ok);
     if (mounted) setState(() {});
   }
@@ -132,13 +136,19 @@ class _MoveTxBodyState extends ConsumerState<_MoveTxBody> {
               icon: widget.source.icon ?? 'tag',
               color: widget.source.color ?? '#9E9E9E',
             )
-          : await repo.moveCategoryTransactions(widget.source.rowId, _targetRowId!);
+          : await repo.moveCategoryTransactions(
+              widget.source.rowId,
+              _targetRowId!,
+            );
       // 거래의 카테고리가 바뀌므로 목록·통계까지 새로 받는다.
       ref.invalidate(categoriesProvider);
       if (!mounted) return;
       Navigator.of(context).pop();
-      showPSnackBar(context, l.categoryMoveTxDone(moved),
-          severity: PSnackSeverity.success);
+      showPSnackBar(
+        context,
+        l.categoryMoveTxDone(moved),
+        severity: PSnackSeverity.success,
+      );
     } on ApiException {
       if (!mounted) return;
     } finally {
@@ -154,8 +164,10 @@ class _MoveTxBodyState extends ConsumerState<_MoveTxBody> {
     return ListView(
       controller: widget.scrollController,
       children: [
-        Text(l.categoryMoveTxDesc(widget.source.categoryName),
-            style: PTypo.bodySm.copyWith(color: t.fgSecondary)),
+        Text(
+          l.categoryMoveTxDesc(widget.source.categoryName),
+          style: PTypo.bodySm.copyWith(color: t.fgSecondary),
+        ),
         const SizedBox(height: PSpace.x16),
         if (_canSplit) ...[
           PSegmented<bool>(
@@ -180,8 +192,10 @@ class _MoveTxBodyState extends ConsumerState<_MoveTxBody> {
             onChanged: (_) => _syncCanSubmit(),
           ),
           const SizedBox(height: PSpace.x4),
-          Text(l.categoryMoveTxNewHint(widget.source.categoryName),
-              style: PTypo.caption.copyWith(color: t.fgTertiary)),
+          Text(
+            l.categoryMoveTxNewHint(widget.source.categoryName),
+            style: PTypo.caption.copyWith(color: t.fgTertiary),
+          ),
         ] else ...[
           PSectionLabel(l.categoryMoveTxTarget),
           const SizedBox(height: PSpace.x4),

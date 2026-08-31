@@ -18,7 +18,10 @@ class SplashScreen extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('Porest Desk', style: PTypo.displayMd.copyWith(color: t.fgPrimary)),
+            Text(
+              'Porest Desk',
+              style: PTypo.displayMd.copyWith(color: t.fgPrimary),
+            ),
             const SizedBox(height: PSpace.x24),
             PCircularProgressIndicator(color: t.bgBrand),
           ],

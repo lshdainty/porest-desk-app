@@ -128,30 +128,30 @@ class _MobileScaffoldState extends ConsumerState<MobileScaffold> {
                   icon: LucideIcons.home,
                   label: l.navHome,
                   selected: idx == 0,
-                  onTap: () => navigationShell.goBranch(0,
-                      initialLocation: idx == 0),
+                  onTap: () =>
+                      navigationShell.goBranch(0, initialLocation: idx == 0),
                 ),
                 PTabBarItem(
                   icon: LucideIcons.receiptText,
                   label: l.navExpense,
                   selected: idx == 1,
-                  onTap: () => navigationShell.goBranch(1,
-                      initialLocation: idx == 1),
+                  onTap: () =>
+                      navigationShell.goBranch(1, initialLocation: idx == 1),
                 ),
                 PTabBarFab(onTap: onAddTx),
                 PTabBarItem(
                   icon: LucideIcons.calendar1,
                   label: l.navCalendar,
                   selected: idx == 2,
-                  onTap: () => navigationShell.goBranch(2,
-                      initialLocation: idx == 2),
+                  onTap: () =>
+                      navigationShell.goBranch(2, initialLocation: idx == 2),
                 ),
                 PTabBarItem(
                   icon: LucideIcons.menu,
                   label: l.navMore,
                   selected: idx == 3,
-                  onTap: () => navigationShell.goBranch(3,
-                      initialLocation: idx == 3),
+                  onTap: () =>
+                      navigationShell.goBranch(3, initialLocation: idx == 3),
                 ),
               ],
       ),

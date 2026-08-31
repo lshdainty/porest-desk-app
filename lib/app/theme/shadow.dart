@@ -26,22 +26,52 @@ abstract final class PShadow {
   /// shadow-md: `0 2px 8px -1px rgba(15,18,28,0.08), 0 1px 3px -1px rgba(15,18,28,0.04)`
   /// — dropdown/popover 등 중간 elevation.
   static const List<BoxShadow> md = [
-    BoxShadow(color: Color(0x140F121C), offset: Offset(0, 2), blurRadius: 8, spreadRadius: -1),
-    BoxShadow(color: Color(0x0A0F121C), offset: Offset(0, 1), blurRadius: 3, spreadRadius: -1),
+    BoxShadow(
+      color: Color(0x140F121C),
+      offset: Offset(0, 2),
+      blurRadius: 8,
+      spreadRadius: -1,
+    ),
+    BoxShadow(
+      color: Color(0x0A0F121C),
+      offset: Offset(0, 1),
+      blurRadius: 3,
+      spreadRadius: -1,
+    ),
   ];
 
   /// shadow-lg: `0 8px 24px -4px rgba(15,18,28,0.10), 0 2px 6px -2px rgba(15,18,28,0.05)`
   /// — sheet/dialog elevation.
   static const List<BoxShadow> lg = [
-    BoxShadow(color: Color(0x1A0F121C), offset: Offset(0, 8), blurRadius: 24, spreadRadius: -4),
-    BoxShadow(color: Color(0x0D0F121C), offset: Offset(0, 2), blurRadius: 6, spreadRadius: -2),
+    BoxShadow(
+      color: Color(0x1A0F121C),
+      offset: Offset(0, 8),
+      blurRadius: 24,
+      spreadRadius: -4,
+    ),
+    BoxShadow(
+      color: Color(0x0D0F121C),
+      offset: Offset(0, 2),
+      blurRadius: 6,
+      spreadRadius: -2,
+    ),
   ];
 
   /// shadow-xl: `0 24px 48px -8px rgba(15,18,28,0.16), 0 8px 16px -4px rgba(15,18,28,0.08)`
   /// — modal/hero elevation.
   static const List<BoxShadow> xl = [
-    BoxShadow(color: Color(0x290F121C), offset: Offset(0, 24), blurRadius: 48, spreadRadius: -8),
-    BoxShadow(color: Color(0x140F121C), offset: Offset(0, 8), blurRadius: 16, spreadRadius: -4),
+    BoxShadow(
+      color: Color(0x290F121C),
+      offset: Offset(0, 24),
+      blurRadius: 48,
+      spreadRadius: -8,
+    ),
+    BoxShadow(
+      color: Color(0x140F121C),
+      offset: Offset(0, 8),
+      blurRadius: 16,
+      spreadRadius: -4,
+    ),
   ];
 
   // ==========================================================================
@@ -51,31 +81,76 @@ abstract final class PShadow {
   /// shadow-sm-dark: `0 1px 2px 0 rgba(0,0,0,0.30), inset 0 1px 0 0 rgba(255,255,255,0.05)`
   static const List<BoxShadow> smDark = [
     BoxShadow(color: Color(0x4D000000), offset: Offset(0, 1), blurRadius: 2),
-    BoxShadow(color: Color(0x0DFFFFFF), offset: Offset(0, 1), blurStyle: BlurStyle.inner),
+    BoxShadow(
+      color: Color(0x0DFFFFFF),
+      offset: Offset(0, 1),
+      blurStyle: BlurStyle.inner,
+    ),
   ];
 
   /// shadow-md-dark: `0 2px 8px -1px rgba(0,0,0,0.40), 0 1px 3px -1px rgba(0,0,0,0.20),`
   /// `inset 0 1px 0 0 rgba(255,255,255,0.06)`
   static const List<BoxShadow> mdDark = [
-    BoxShadow(color: Color(0x66000000), offset: Offset(0, 2), blurRadius: 8, spreadRadius: -1),
-    BoxShadow(color: Color(0x33000000), offset: Offset(0, 1), blurRadius: 3, spreadRadius: -1),
-    BoxShadow(color: Color(0x0FFFFFFF), offset: Offset(0, 1), blurStyle: BlurStyle.inner),
+    BoxShadow(
+      color: Color(0x66000000),
+      offset: Offset(0, 2),
+      blurRadius: 8,
+      spreadRadius: -1,
+    ),
+    BoxShadow(
+      color: Color(0x33000000),
+      offset: Offset(0, 1),
+      blurRadius: 3,
+      spreadRadius: -1,
+    ),
+    BoxShadow(
+      color: Color(0x0FFFFFFF),
+      offset: Offset(0, 1),
+      blurStyle: BlurStyle.inner,
+    ),
   ];
 
   /// shadow-lg-dark: `0 8px 24px -4px rgba(0,0,0,0.50), 0 2px 6px -2px rgba(0,0,0,0.25),`
   /// `inset 0 1px 0 0 rgba(255,255,255,0.08)`
   static const List<BoxShadow> lgDark = [
-    BoxShadow(color: Color(0x80000000), offset: Offset(0, 8), blurRadius: 24, spreadRadius: -4),
-    BoxShadow(color: Color(0x40000000), offset: Offset(0, 2), blurRadius: 6, spreadRadius: -2),
-    BoxShadow(color: Color(0x14FFFFFF), offset: Offset(0, 1), blurStyle: BlurStyle.inner),
+    BoxShadow(
+      color: Color(0x80000000),
+      offset: Offset(0, 8),
+      blurRadius: 24,
+      spreadRadius: -4,
+    ),
+    BoxShadow(
+      color: Color(0x40000000),
+      offset: Offset(0, 2),
+      blurRadius: 6,
+      spreadRadius: -2,
+    ),
+    BoxShadow(
+      color: Color(0x14FFFFFF),
+      offset: Offset(0, 1),
+      blurStyle: BlurStyle.inner,
+    ),
   ];
 
   /// shadow-xl-dark: `0 24px 48px -8px rgba(0,0,0,0.60), 0 8px 16px -4px rgba(0,0,0,0.30),`
   /// `inset 0 1px 0 0 rgba(255,255,255,0.10)`
   static const List<BoxShadow> xlDark = [
-    BoxShadow(color: Color(0x99000000), offset: Offset(0, 24), blurRadius: 48, spreadRadius: -8),
-    BoxShadow(color: Color(0x4D000000), offset: Offset(0, 8), blurRadius: 16, spreadRadius: -4),
-    BoxShadow(color: Color(0x1AFFFFFF), offset: Offset(0, 1), blurStyle: BlurStyle.inner),
+    BoxShadow(
+      color: Color(0x99000000),
+      offset: Offset(0, 24),
+      blurRadius: 48,
+      spreadRadius: -8,
+    ),
+    BoxShadow(
+      color: Color(0x4D000000),
+      offset: Offset(0, 8),
+      blurRadius: 16,
+      spreadRadius: -4,
+    ),
+    BoxShadow(
+      color: Color(0x1AFFFFFF),
+      offset: Offset(0, 1),
+      blurStyle: BlurStyle.inner,
+    ),
   ];
-
 }

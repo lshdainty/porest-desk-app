@@ -28,11 +28,11 @@ import 'package:porest_desk_app/features/preset/domain/expense_template.dart';
 const _kPaymentMethodValues = <String>['CASH', 'CARD', 'TRANSFER', 'OTHER'];
 
 String _payLabel(AppLocalizations l, String v) => switch (v) {
-      'CASH' => l.expPayCash,
-      'CARD' => l.expPayCard,
-      'TRANSFER' => l.expPayTransfer,
-      _ => l.expPayOther,
-    };
+  'CASH' => l.expPayCash,
+  'CARD' => l.expPayCard,
+  'TRANSFER' => l.expPayTransfer,
+  _ => l.expPayOther,
+};
 
 void showPresetEditDialog(BuildContext context, {ExpenseTemplate? edit}) {
   final l = AppLocalizations.of(context);
@@ -244,7 +244,10 @@ class _BodyState extends ConsumerState<_Body> {
         // ④ 기본 내역
         _FieldLabel(l.presetMerchant),
         const SizedBox(height: PSpace.x4),
-        PTextInput(controller: _merchantCtrl, placeholder: l.presetMerchantPlaceholder),
+        PTextInput(
+          controller: _merchantCtrl,
+          placeholder: l.presetMerchantPlaceholder,
+        ),
         const SizedBox(height: 14),
 
         // ⑤ 결제 수단
@@ -304,8 +307,12 @@ class _BodyState extends ConsumerState<_Body> {
 
   /// 세부 카테고리 선택 — 반복거래(recurring_settings_drawer)와 동일 패턴.
   /// 선택된 상위에 자식이 있으면 [상위 (상위), ...자식들] PSelect 로 변경 가능하게.
-  Widget _buildSubcategorySelect(AppLocalizations l, List<ExpenseCategory> cats) {
-    bool isTop(ExpenseCategory c) => c.parentRowId == null || c.parentRowId == 0;
+  Widget _buildSubcategorySelect(
+    AppLocalizations l,
+    List<ExpenseCategory> cats,
+  ) {
+    bool isTop(ExpenseCategory c) =>
+        c.parentRowId == null || c.parentRowId == 0;
 
     final childrenByParent = <int, List<ExpenseCategory>>{};
     for (final c in cats) {
@@ -316,8 +323,9 @@ class _BodyState extends ConsumerState<_Body> {
       list.sort((a, b) => (a.sortOrder ?? 0).compareTo(b.sortOrder ?? 0));
     }
 
-    final selectedCat =
-        _categoryRowId == null ? null : cats.byRowId(_categoryRowId!);
+    final selectedCat = _categoryRowId == null
+        ? null
+        : cats.byRowId(_categoryRowId!);
     final selectedParentId = selectedCat == null
         ? null
         : (isTop(selectedCat) ? selectedCat.rowId : selectedCat.parentRowId);

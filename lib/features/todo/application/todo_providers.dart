@@ -14,22 +14,25 @@ final todoRepositoryProvider = FutureProvider<TodoRepository>((ref) async {
 
 typedef TodoFilter = ({String? status, String? priority});
 
-final todoListProvider =
-    FutureProvider.family<List<Todo>, TodoFilter>((ref, filter) async {
+final todoListProvider = FutureProvider.family<List<Todo>, TodoFilter>((
+  ref,
+  filter,
+) async {
   final repo = await ref.watch(todoRepositoryProvider.future);
   return repo.list(status: filter.status, priority: filter.priority);
 });
 
 /// 단건 todo (서브태스크/딥링크 진입용).
-final todoByIdProvider =
-    FutureProvider.family<Todo, int>((ref, id) async {
+final todoByIdProvider = FutureProvider.family<Todo, int>((ref, id) async {
   final repo = await ref.watch(todoRepositoryProvider.future);
   return repo.getById(id);
 });
 
 /// 부모 todo 의 서브태스크 목록.
-final todoSubtasksProvider =
-    FutureProvider.family<List<Todo>, int>((ref, parentId) async {
+final todoSubtasksProvider = FutureProvider.family<List<Todo>, int>((
+  ref,
+  parentId,
+) async {
   final repo = await ref.watch(todoRepositoryProvider.future);
   return repo.getSubtasks(parentId);
 });
@@ -42,8 +45,9 @@ final todoStatsProvider = FutureProvider<TodoStats>((ref) async {
 
 // ─── TodoTag ────────────────────────────────────────────────
 
-final todoTagRepositoryProvider =
-    FutureProvider<TodoTagRepository>((ref) async {
+final todoTagRepositoryProvider = FutureProvider<TodoTagRepository>((
+  ref,
+) async {
   final dio = await ref.watch(dioProvider.future);
   return TodoTagRepository(dio);
 });

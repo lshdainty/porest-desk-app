@@ -10,7 +10,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 /// code_verifier 는 인가코드와 교환 가능한 비밀이라 secure storage 에 둔다.
 class OAuthFlowStore {
   OAuthFlowStore([FlutterSecureStorage? storage])
-      : _storage = storage ?? const FlutterSecureStorage();
+    : _storage = storage ?? const FlutterSecureStorage();
 
   final FlutterSecureStorage _storage;
 
@@ -19,7 +19,10 @@ class OAuthFlowStore {
   static const _kForcePrompt = 'oauth_force_login_prompt';
 
   /// 브라우저로 나가기 직전 호출 — 재시도 시 이전 흐름은 덮어쓴다.
-  Future<void> savePending({required String verifier, required String state}) async {
+  Future<void> savePending({
+    required String verifier,
+    required String state,
+  }) async {
     await _storage.write(key: _kVerifier, value: verifier);
     await _storage.write(key: _kState, value: state);
   }
@@ -28,7 +31,10 @@ class OAuthFlowStore {
   Future<({String verifier, String state})?> restorePending() async {
     final verifier = await _storage.read(key: _kVerifier);
     final state = await _storage.read(key: _kState);
-    if (verifier == null || verifier.isEmpty || state == null || state.isEmpty) {
+    if (verifier == null ||
+        verifier.isEmpty ||
+        state == null ||
+        state.isEmpty) {
       return null;
     }
     return (verifier: verifier, state: state);

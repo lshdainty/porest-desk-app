@@ -20,11 +20,11 @@ enum AutoBlockerTarget {
   none;
 
   static AutoBlockerTarget parse(String? raw) => switch (raw) {
-        'auto_blocker' => AutoBlockerTarget.autoBlocker,
-        'security' => AutoBlockerTarget.security,
-        'settings' => AutoBlockerTarget.settings,
-        _ => AutoBlockerTarget.none,
-      };
+    'auto_blocker' => AutoBlockerTarget.autoBlocker,
+    'security' => AutoBlockerTarget.security,
+    'settings' => AutoBlockerTarget.settings,
+    _ => AutoBlockerTarget.none,
+  };
 }
 
 /// 삼성 "자동 차단"(Auto Blocker) 안내.
@@ -58,7 +58,9 @@ class AutoBlockerGuide {
   static Future<AutoBlockerTarget> open() async {
     if (!Platform.isAndroid) return AutoBlockerTarget.none;
     try {
-      final raw = await _channel.invokeMethod<String>('openAutoBlockerSettings');
+      final raw = await _channel.invokeMethod<String>(
+        'openAutoBlockerSettings',
+      );
       return AutoBlockerTarget.parse(raw);
     } on MissingPluginException {
       return AutoBlockerTarget.none;

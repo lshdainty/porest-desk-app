@@ -61,8 +61,7 @@ class PToast {
         behavior: SnackBarBehavior.floating,
         margin: const EdgeInsets.fromLTRB(12, 0, 12, 12),
         content: Container(
-          padding:
-              const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           decoration: BoxDecoration(
             color: bg,
             borderRadius: PRadius.brMd,
@@ -73,9 +72,13 @@ class PToast {
               Icon(icon, size: 16, color: fg),
               const SizedBox(width: 10),
               Expanded(
-                child: Text(message,
-                    style: PTypo.bodySm.copyWith(
-                        color: fg, fontWeight: PFontWeight.semi)),
+                child: Text(
+                  message,
+                  style: PTypo.bodySm.copyWith(
+                    color: fg,
+                    fontWeight: PFontWeight.semi,
+                  ),
+                ),
               ),
               if (actionLabel != null && onAction != null) ...[
                 const SizedBox(width: 8),
@@ -84,9 +87,13 @@ class PToast {
                     messenger.hideCurrentSnackBar();
                     onAction();
                   },
-                  child: Text(actionLabel,
-                      style: PTypo.bodySm.copyWith(
-                          color: fg, fontWeight: PFontWeight.bold)),
+                  child: Text(
+                    actionLabel,
+                    style: PTypo.bodySm.copyWith(
+                      color: fg,
+                      fontWeight: PFontWeight.bold,
+                    ),
+                  ),
                 ),
               ],
             ],

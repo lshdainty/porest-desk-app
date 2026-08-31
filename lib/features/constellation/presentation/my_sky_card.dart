@@ -33,7 +33,9 @@ class MySkyCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
-    final byKey = {for (final e in entries) e.constellation.constellationKey: e};
+    final byKey = {
+      for (final e in entries) e.constellation.constellationKey: e,
+    };
     final todayDate = sky.isNotEmpty ? sky.last.date : '';
 
     // 7열 그리드 — 주 단위 행으로 분할
@@ -118,7 +120,9 @@ class _DayCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dayNum = day.date.length >= 10 ? int.tryParse(day.date.substring(8, 10)) ?? 0 : 0;
+    final dayNum = day.date.length >= 10
+        ? int.tryParse(day.date.substring(8, 10)) ?? 0
+        : 0;
     final grownColor = day.colorKey != null
         ? constellationColor(context, day.colorKey!)
         : t.fgTertiary;
@@ -152,17 +156,22 @@ class _DayCell extends StatelessWidget {
                 child: isToday
                     ? Icon(stageIcon, size: 16, color: fg)
                     : day.isGrown && entry != null
-                        ? ConstellationIcon(info: entry!.constellation, color: fg, size: 22, linesOnly: true)
-                        : day.isWithered
-                            ? Icon(LucideIcons.cloudy, size: 15, color: fg)
-                            : Container(
-                                width: 4,
-                                height: 4,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: fg,
-                                ),
-                              ),
+                    ? ConstellationIcon(
+                        info: entry!.constellation,
+                        color: fg,
+                        size: 22,
+                        linesOnly: true,
+                      )
+                    : day.isWithered
+                    ? Icon(LucideIcons.cloudy, size: 15, color: fg)
+                    : Container(
+                        width: 4,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: fg,
+                        ),
+                      ),
               ),
             ),
           ),

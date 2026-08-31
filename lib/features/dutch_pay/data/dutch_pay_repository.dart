@@ -24,7 +24,8 @@ class DutchPayRepository {
     String? splitMethod,
     String? dutchPayDate, // YYYY-MM-DD
     int? sourceExpenseRowId,
-    required List<({String? name, int? userRowId, int amount, bool isPayer})> participants,
+    required List<({String? name, int? userRowId, int amount, bool isPayer})>
+    participants,
   }) async {
     try {
       final res = await _dio.post<Map<String, dynamic>>(

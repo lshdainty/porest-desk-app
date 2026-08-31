@@ -32,7 +32,6 @@ import 'package:porest_desk_app/app/env.dart';
 import 'package:porest_desk_app/core/storage/prefs_provider.dart';
 import 'package:porest_desk_app/core/update/app_update.dart';
 
-
 const _channelId = 'porest_update';
 const _taskName = 'porest-update-check';
 const _uniqueName = 'porest-update-check-periodic';
@@ -77,8 +76,10 @@ Future<void> initUpdateNotifications() async {
       onDidReceiveNotificationResponse: _onTap,
     );
 
-    final android = _plugin.resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>();
+    final android = _plugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
     await android?.createNotificationChannel(
       const AndroidNotificationChannel(
         _channelId,
@@ -149,22 +150,22 @@ void _onTap(NotificationResponse response) {
 }
 
 Future<void> _show(AppRelease release) => _plugin.show(
-      id: _notificationId,
-      title: '새 버전 ${release.version}',
-      // 무엇이 바뀌었는지는 앱에서 본다 — 알림은 있다는 사실만 알린다.
-      body: '업데이트가 있어요. 눌러서 확인하세요.',
-      notificationDetails: const NotificationDetails(
-        android: AndroidNotificationDetails(
-          _channelId,
-          '앱 업데이트',
-          channelDescription: '새 버전이 나오면 알려요.',
-          importance: Importance.defaultImportance,
-          priority: Priority.defaultPriority,
-        ),
-        iOS: DarwinNotificationDetails(),
-      ),
-      payload: '${release.buildNumber}',
-    );
+  id: _notificationId,
+  title: '새 버전 ${release.version}',
+  // 무엇이 바뀌었는지는 앱에서 본다 — 알림은 있다는 사실만 알린다.
+  body: '업데이트가 있어요. 눌러서 확인하세요.',
+  notificationDetails: const NotificationDetails(
+    android: AndroidNotificationDetails(
+      _channelId,
+      '앱 업데이트',
+      channelDescription: '새 버전이 나오면 알려요.',
+      importance: Importance.defaultImportance,
+      priority: Priority.defaultPriority,
+    ),
+    iOS: DarwinNotificationDetails(),
+  ),
+  payload: '${release.buildNumber}',
+);
 
 Future<AppRelease?> _fetchLatest() async {
   final res = await Dio().get<dynamic>(

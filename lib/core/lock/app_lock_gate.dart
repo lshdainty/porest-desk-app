@@ -43,8 +43,9 @@ class _AppLockGateState extends ConsumerState<AppLockGate>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     // 콜드 스타트에 이미 잠겨 있으면(게이트 생성 전에 설정이 로드된 경우) 바로 프롬프트.
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) => _maybeAuthenticate(auto: true));
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => _maybeAuthenticate(auto: true),
+    );
   }
 
   @override
@@ -82,7 +83,9 @@ class _AppLockGateState extends ConsumerState<AppLockGate>
     _authenticating = true;
     try {
       final l = AppLocalizations.of(context);
-      final result = await ref.read(appLockAuthProvider).authenticate(
+      final result = await ref
+          .read(appLockAuthProvider)
+          .authenticate(
             reason: l.appLockPromptReason,
             signInTitle: l.appLockTitle,
             cancelLabel: l.actionCancel,
@@ -112,18 +115,21 @@ class _AppLockGateState extends ConsumerState<AppLockGate>
       // 경우는 여기서 띄우면 안 되고(화면 밖 프롬프트), resumed 핸들러가 띄운다.
       // null 은 아직 lifecycle 이벤트가 안 온 콜드 스타트 극초반 — 포그라운드로 본다.
       final ls = WidgetsBinding.instance.lifecycleState;
-      if (next && prev != true &&
+      if (next &&
+          prev != true &&
           (ls == null || ls == AppLifecycleState.resumed)) {
         _promptedSinceLock = false;
-        WidgetsBinding.instance
-            .addPostFrameCallback((_) => _maybeAuthenticate(auto: true));
+        WidgetsBinding.instance.addPostFrameCallback(
+          (_) => _maybeAuthenticate(auto: true),
+        );
       }
     });
     return Stack(
       fit: StackFit.expand,
       children: [
         widget.child,
-        if (locked) _LockScreen(onUnlock: () => _maybeAuthenticate(auto: false)),
+        if (locked)
+          _LockScreen(onUnlock: () => _maybeAuthenticate(auto: false)),
       ],
     );
   }

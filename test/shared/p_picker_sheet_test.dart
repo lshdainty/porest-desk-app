@@ -11,18 +11,18 @@ import 'package:porest_desk_app/shared/widgets/p_calendar.dart';
 import 'package:porest_desk_app/shared/widgets/p_date_input.dart';
 
 Widget _app(Widget child) => MaterialApp(
-      theme: PorestTheme.dark(),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      locale: const Locale('ko'),
-      home: Scaffold(body: Center(child: child)),
-    );
+  theme: PorestTheme.dark(),
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
+  supportedLocales: AppLocalizations.supportedLocales,
+  locale: const Locale('ko'),
+  home: Scaffold(body: Center(child: child)),
+);
 
 void main() {
   testWidgets('날짜 입력을 탭하면 달력이 시트로 올라온다', (tester) async {
-    await tester.pumpWidget(_app(
-      PDateInput(value: DateTime(2026, 3, 5), onChanged: (_) {}),
-    ));
+    await tester.pumpWidget(
+      _app(PDateInput(value: DateTime(2026, 3, 5), onChanged: (_) {})),
+    );
 
     await tester.tap(find.byIcon(LucideIcons.calendar));
     await tester.pumpAndSettle();
@@ -38,14 +38,16 @@ void main() {
   });
 
   testWidgets('년도 select 로 먼 해까지 한 번에 간다', (tester) async {
-    await tester.pumpWidget(_app(
-      PDateInput(
-        value: DateTime(2026, 3, 5),
-        firstDate: DateTime(2020),
-        lastDate: DateTime(2030, 12, 31),
-        onChanged: (_) {},
+    await tester.pumpWidget(
+      _app(
+        PDateInput(
+          value: DateTime(2026, 3, 5),
+          firstDate: DateTime(2020),
+          lastDate: DateTime(2030, 12, 31),
+          onChanged: (_) {},
+        ),
       ),
-    ));
+    );
 
     await tester.tap(find.byIcon(LucideIcons.calendar));
     await tester.pumpAndSettle();
@@ -62,9 +64,11 @@ void main() {
 
   testWidgets('날짜를 누르면 시트가 닫히고 그 값이 올라온다', (tester) async {
     DateTime? changed;
-    await tester.pumpWidget(_app(
-      PDateInput(value: DateTime(2026, 3, 5), onChanged: (v) => changed = v),
-    ));
+    await tester.pumpWidget(
+      _app(
+        PDateInput(value: DateTime(2026, 3, 5), onChanged: (v) => changed = v),
+      ),
+    );
 
     await tester.tap(find.byIcon(LucideIcons.calendar));
     await tester.pumpAndSettle();
@@ -78,12 +82,14 @@ void main() {
 
   testWidgets('시각 입력을 탭하면 휠이 뜨고, 취소하면 값이 그대로다', (tester) async {
     TimeOfDay? changed;
-    await tester.pumpWidget(_app(
-      PTimeInput(
-        value: const TimeOfDay(hour: 9, minute: 0),
-        onChanged: (v) => changed = v,
+    await tester.pumpWidget(
+      _app(
+        PTimeInput(
+          value: const TimeOfDay(hour: 9, minute: 0),
+          onChanged: (v) => changed = v,
+        ),
       ),
-    ));
+    );
 
     await tester.tap(find.byIcon(LucideIcons.clock));
     await tester.pumpAndSettle();
@@ -98,12 +104,14 @@ void main() {
 
   testWidgets('휠을 굴리고 확인을 누르면 바뀐 값이 올라온다', (tester) async {
     TimeOfDay? changed;
-    await tester.pumpWidget(_app(
-      PTimeInput(
-        value: const TimeOfDay(hour: 9, minute: 0),
-        onChanged: (v) => changed = v,
+    await tester.pumpWidget(
+      _app(
+        PTimeInput(
+          value: const TimeOfDay(hour: 9, minute: 0),
+          onChanged: (v) => changed = v,
+        ),
       ),
-    ));
+    );
 
     await tester.tap(find.byIcon(LucideIcons.clock));
     await tester.pumpAndSettle();

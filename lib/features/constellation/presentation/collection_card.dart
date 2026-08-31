@@ -63,7 +63,9 @@ class CollectionCard extends StatelessWidget {
               const SizedBox(width: 4),
               Text(
                 l.constCollectionProgress(
-                    collection.collectedKinds, collection.entries.length),
+                  collection.collectedKinds,
+                  collection.entries.length,
+                ),
                 style: PTypo.caption.copyWith(color: t.fgTertiary),
               ),
             ],
@@ -72,14 +74,15 @@ class CollectionCard extends StatelessWidget {
         for (var i = 0; i < collection.entries.length; i++)
           _FcolRow(
             entry: collection.entries[i],
-            isToday: collection.entries[i].constellation.constellationKey ==
+            isToday:
+                collection.entries[i].constellation.constellationKey ==
                 todayKey,
-            isNew: collection.entries[i].constellation.constellationKey ==
-                newest,
+            isNew:
+                collection.entries[i].constellation.constellationKey == newest,
             first: i == 0,
             t: t,
-            onOpen: () => showConstellationDetailSheet(
-                context, collection.entries[i]),
+            onOpen: () =>
+                showConstellationDetailSheet(context, collection.entries[i]),
           ),
       ],
     );
@@ -112,9 +115,7 @@ class _FcolRow extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: PSpace.x16),
       decoration: BoxDecoration(
-        border: first
-            ? null
-            : Border(top: BorderSide(color: t.borderSubtle)),
+        border: first ? null : Border(top: BorderSide(color: t.borderSubtle)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -209,7 +210,9 @@ class _FcolRow extends StatelessWidget {
                     borderRadius: PRadius.brFull,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 7),
+                        horizontal: 12,
+                        vertical: 7,
+                      ),
                       decoration: BoxDecoration(
                         border: Border.all(color: t.borderDefault),
                         borderRadius: PRadius.brFull,
@@ -227,8 +230,11 @@ class _FcolRow extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(width: 3),
-                          Icon(LucideIcons.chevronRight,
-                              size: 12, color: t.fgPrimary),
+                          Icon(
+                            LucideIcons.chevronRight,
+                            size: 12,
+                            color: t.fgPrimary,
+                          ),
                         ],
                       ),
                     ),
@@ -315,7 +321,11 @@ Future<void> showConstellationDetailSheet(
                 gradient: const LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [Color(0xFF0D1430), Color(0xFF17224A), Color(0xFF1F2C5E)],
+                  colors: [
+                    Color(0xFF0D1430),
+                    Color(0xFF17224A),
+                    Color(0xFF1F2C5E),
+                  ],
                   stops: [0, 0.6, 1],
                 ),
               ),
@@ -324,7 +334,9 @@ Future<void> showConstellationDetailSheet(
                   Center(
                     child: ConstellationIcon(
                       info: entry.constellation,
-                      color: collected ? const Color(0xFFDFE7FF) : const Color(0x66BECDFF),
+                      color: collected
+                          ? const Color(0xFFDFE7FF)
+                          : const Color(0x66BECDFF),
                       size: 180,
                       lit: collected ? null : 0,
                       glow: collected,
@@ -393,7 +405,10 @@ Future<void> showConstellationDetailSheet(
                     collected
                         ? l.constDetailCollectedTimes(entry.collectCount)
                         : l.constDetailHint(entry.constellation.starCount),
-                    style: PTypo.caption.copyWith(color: t.fgTertiary, fontSize: 12.5),
+                    style: PTypo.caption.copyWith(
+                      color: t.fgTertiary,
+                      fontSize: 12.5,
+                    ),
                   ),
                 ),
               ],

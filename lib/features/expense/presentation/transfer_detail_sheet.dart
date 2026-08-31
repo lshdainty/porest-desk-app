@@ -33,10 +33,8 @@ void showTransferDetailSheet(BuildContext context, AssetTransfer transfer) {
     // 네댓 줄짜리 목록이라 화면 비율(기본 0.85)로 점유하면 아래가 통째로 빈다.
     // 다른 시트들과 같이 content 높이로 wrap 한다(웹 dialog 정합).
     shrinkWrap: true,
-    contentBuilder: (ctx, _) => _TransferDetailBody(
-      transfer: transfer,
-      controller: controller,
-    ),
+    contentBuilder: (ctx, _) =>
+        _TransferDetailBody(transfer: transfer, controller: controller),
     footerBuilder: (ctx) => AnimatedBuilder(
       animation: controller,
       builder: (c, _) {
@@ -73,15 +71,13 @@ String _dateLabel(String? iso) {
 }
 
 class _TransferDetailBody extends ConsumerStatefulWidget {
-  const _TransferDetailBody({
-    required this.transfer,
-    required this.controller,
-  });
+  const _TransferDetailBody({required this.transfer, required this.controller});
   final AssetTransfer transfer;
   final PSheetController controller;
 
   @override
-  ConsumerState<_TransferDetailBody> createState() => _TransferDetailBodyState();
+  ConsumerState<_TransferDetailBody> createState() =>
+      _TransferDetailBodyState();
 }
 
 class _TransferDetailBodyState extends ConsumerState<_TransferDetailBody> {
@@ -111,8 +107,12 @@ class _TransferDetailBodyState extends ConsumerState<_TransferDetailBody> {
       final d = widget.transfer.transferDate;
       if (d != null && d.length >= 7) {
         final parts = d.split('-');
-        ref.invalidate(monthExpensesProvider(
-            (year: int.parse(parts[0]), month: int.parse(parts[1]))));
+        ref.invalidate(
+          monthExpensesProvider((
+            year: int.parse(parts[0]),
+            month: int.parse(parts[1]),
+          )),
+        );
       }
       if (!mounted) return;
       Navigator.of(context).pop();
@@ -131,8 +131,9 @@ class _TransferDetailBodyState extends ConsumerState<_TransferDetailBody> {
     final fee = tr.fee ?? 0;
     // 이체 상세는 지금까지 어떤 카드로도 가려지지 않았다 — 거래 상세와 같은 카드로 묶는다.
     // 금액만 가리고 수수료를 남기면 `이체금액 = 출금총액 − 수수료` 로 좁혀지므로 한 덩어리다.
-    final masked =
-        ref.watch(maskFlagsProvider('ledger.txDetail')).of(MaskKind.transfer);
+    final masked = ref
+        .watch(maskFlagsProvider('ledger.txDetail'))
+        .of(MaskKind.transfer);
 
     final rows = <(String, String)>[
       (l.expTransferFrom, tr.fromAssetName ?? '-'),
@@ -146,10 +147,14 @@ class _TransferDetailBodyState extends ConsumerState<_TransferDetailBody> {
       // 안 보여 주면 "왜 원금이 이만큼밖에 안 줄었지" 가 된다.
       if ((tr.interestAmount ?? 0) > 0) ...[
         (l.expInterest, krwSigned(tr.interestAmount!, masked, unit: true)),
-        (l.transferPrincipal, krwSigned(tr.principalAmount ?? 0, masked, unit: true)),
+        (
+          l.transferPrincipal,
+          krwSigned(tr.principalAmount ?? 0, masked, unit: true),
+        ),
       ],
       (l.expDate, _dateLabel(tr.transferDate)),
-      if ((tr.description ?? '').isNotEmpty) (l.expDescription, tr.description!),
+      if ((tr.description ?? '').isNotEmpty)
+        (l.expDescription, tr.description!),
     ];
 
     // shrinkWrap sheet 라 바깥이 이미 스크롤 — 여기선 Column 을 쓴다(중첩 스크롤 금지).
@@ -165,7 +170,9 @@ class _TransferDetailBodyState extends ConsumerState<_TransferDetailBody> {
             Container(
               margin: const EdgeInsets.only(bottom: PSpace.x8),
               padding: const EdgeInsets.symmetric(
-                  horizontal: PSpace.x12, vertical: PSpace.x8),
+                horizontal: PSpace.x12,
+                vertical: PSpace.x8,
+              ),
               decoration: BoxDecoration(
                 color: context.tokens.bgMuted,
                 borderRadius: PRadius.brMd,
@@ -188,14 +195,20 @@ class _TransferDetailBodyState extends ConsumerState<_TransferDetailBody> {
                 children: [
                   SizedBox(
                     width: 96,
-                    child: Text(label,
-                        style: PTypo.caption.copyWith(color: t.fgTertiary)),
+                    child: Text(
+                      label,
+                      style: PTypo.caption.copyWith(color: t.fgTertiary),
+                    ),
                   ),
                   const SizedBox(width: PSpace.x12),
                   Expanded(
-                    child: Text(value,
-                        style: PTypo.body.copyWith(
-                            color: t.fgPrimary, fontWeight: PFontWeight.semi)),
+                    child: Text(
+                      value,
+                      style: PTypo.body.copyWith(
+                        color: t.fgPrimary,
+                        fontWeight: PFontWeight.semi,
+                      ),
+                    ),
                   ),
                 ],
               ),

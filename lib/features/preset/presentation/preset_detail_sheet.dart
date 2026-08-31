@@ -62,9 +62,9 @@ class _Body extends ConsumerWidget {
     final cat = template.categoryRowId == null
         ? null
         : categories
-            .where((c) => c.rowId == template.categoryRowId)
-            .cast<dynamic>()
-            .firstOrNull;
+              .where((c) => c.rowId == template.categoryRowId)
+              .cast<dynamic>()
+              .firstOrNull;
     final fg = resolveChartColor(context, cat?.color, fallback: t.fgBrand);
     final bg = softBg(context, fg);
     // 금액 고정이 아니면 쓸 때마다 입력한다 — 값이 없는 게 정상이다.
@@ -82,16 +82,25 @@ class _Body extends ConsumerWidget {
               width: 32,
               height: 32,
               alignment: Alignment.center,
-              decoration:
-                  BoxDecoration(color: bg, borderRadius: PRadius.tile(32)),
-              child: Icon(lucideByName(cat?.icon ?? 'bookmark'),
-                  size: 16, color: fg),
+              decoration: BoxDecoration(
+                color: bg,
+                borderRadius: PRadius.tile(32),
+              ),
+              child: Icon(
+                lucideByName(cat?.icon ?? 'bookmark'),
+                size: 16,
+                color: fg,
+              ),
             ),
             title: template.templateName,
             amount: Text(
               locked && template.amount != null
-                  ? krwSigned(template.amount!.abs(), false,
-                      sign: isExpense ? '-' : '+', unit: true)
+                  ? krwSigned(
+                      template.amount!.abs(),
+                      false,
+                      sign: isExpense ? '-' : '+',
+                      unit: true,
+                    )
                   : l.presetAmountEmpty,
               style: PTypo.displayMd.copyWith(
                 color: locked
@@ -100,19 +109,21 @@ class _Body extends ConsumerWidget {
                 fontWeight: PFontWeight.bold,
               ),
             ),
-            meta: '${l.presetStatUses} ${l.presetUsesCount(template.useCount ?? 0)}',
+            meta:
+                '${l.presetStatUses} ${l.presetUsesCount(template.useCount ?? 0)}',
           ),
           PDetailFieldGroup(
             children: [
               PDetailField(
                 label: l.presetTypeLabel,
-                child: Text(isExpense ? l.expTypeExpense : l.expTypeIncome,
-                    style: PTypo.bodySm),
+                child: Text(
+                  isExpense ? l.expTypeExpense : l.expTypeIncome,
+                  style: PTypo.bodySm,
+                ),
               ),
               PDetailField(
                 label: l.expCategory,
-                child:
-                    Text(template.categoryName ?? '-', style: PTypo.bodySm),
+                child: Text(template.categoryName ?? '-', style: PTypo.bodySm),
               ),
               PDetailField(
                 label: l.presetAssetCard,

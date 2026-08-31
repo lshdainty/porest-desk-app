@@ -88,7 +88,7 @@ class _SubscriptionSheetBodyState
     final nextBill =
         (sub?.currentPeriodEnd != null && sub!.currentPeriodEnd!.length >= 10)
         ? (localDateKey(sub.currentPeriodEnd) ??
-            sub.currentPeriodEnd!.substring(0, 10))
+              sub.currentPeriodEnd!.substring(0, 10))
         : l.subNextBillingDate;
     final proPrice = _cycle == _Cycle.monthly ? _proMonthly : _proYearly;
     final proPerMonth = _cycle == _Cycle.monthly
@@ -141,7 +141,9 @@ class _SubscriptionSheetBodyState
                     Text(
                       isPro
                           ? l.subNextBilling(
-                              nextBill, krwSigned(_proMonthly, false, unit: true))
+                              nextBill,
+                              krwSigned(_proMonthly, false, unit: true),
+                            )
                           : l.subFreeLockedDesc,
                       style: PTypo.caption.copyWith(color: t.fgSecondary),
                     ),
@@ -238,7 +240,9 @@ class _SubscriptionSheetBodyState
                       : l.subUnitYear,
                   note: _cycle == _Cycle.yearly
                       ? l.subYearlyPerMonth(
-                          krwSigned(proPerMonth, false, unit: true), _savePct)
+                          krwSigned(proPerMonth, false, unit: true),
+                          _savePct,
+                        )
                       : l.subMonthlyBilling,
                 ),
               ),
@@ -520,11 +524,7 @@ class _SubscriptionFooterState extends ConsumerState<_SubscriptionFooter> {
       ref.invalidate(myFeaturesProvider);
       ref.invalidate(mySubscriptionProvider);
       if (mounted) {
-        showPSnackBar(
-          context,
-          l.subStarted,
-          severity: PSnackSeverity.success,
-        );
+        showPSnackBar(context, l.subStarted, severity: PSnackSeverity.success);
         Navigator.of(context).pop();
       }
     } on ApiException {
@@ -565,7 +565,11 @@ class _SubscriptionFooterState extends ConsumerState<_SubscriptionFooter> {
     } catch (_) {
       // API 가 아닌 예외는 인터셉터가 못 잡는다 — 여기서 알린다.
       if (mounted) {
-        showPSnackBar(context, l.subCancelFailed, severity: PSnackSeverity.error);
+        showPSnackBar(
+          context,
+          l.subCancelFailed,
+          severity: PSnackSeverity.error,
+        );
       }
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -583,7 +587,7 @@ class _SubscriptionFooterState extends ConsumerState<_SubscriptionFooter> {
     final nextBill =
         (sub?.currentPeriodEnd != null && sub!.currentPeriodEnd!.length >= 10)
         ? (localDateKey(sub.currentPeriodEnd) ??
-            sub.currentPeriodEnd!.substring(0, 10))
+              sub.currentPeriodEnd!.substring(0, 10))
         : l.subNextBillingDate;
     return Row(
       children: [

@@ -40,27 +40,30 @@ class PColorPicker extends StatelessWidget {
       crossAxisSpacing: PSpace.x8,
       children: [
         for (final c in palette)
-          Builder(builder: (context) {
-            final fg = resolveChartColor(context, c, fallback: t.fgBrand);
-            final isSelected = c == selected;
-            return GestureDetector(
-              onTap: () => onChanged(c),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: softBg(context, fg),
-                  borderRadius: PRadius.brLg,
-                  border: Border.all(
-                    color: isSelected ? fg : Colors.transparent,
-                    width: 2,
+          Builder(
+            builder: (context) {
+              final fg = resolveChartColor(context, c, fallback: t.fgBrand);
+              final isSelected = c == selected;
+              return GestureDetector(
+                onTap: () => onChanged(c),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: softBg(context, fg),
+                    borderRadius: PRadius.brLg,
+                    border: Border.all(
+                      color: isSelected ? fg : Colors.transparent,
+                      width: 2,
+                    ),
                   ),
+                  child: isSelected
+                      ? Center(
+                          child: Icon(LucideIcons.check, size: 14, color: fg),
+                        )
+                      : null,
                 ),
-                child: isSelected
-                    ? Center(
-                        child: Icon(LucideIcons.check, size: 14, color: fg))
-                    : null,
-              ),
-            );
-          }),
+              );
+            },
+          ),
       ],
     );
   }

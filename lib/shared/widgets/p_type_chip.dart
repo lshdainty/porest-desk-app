@@ -34,8 +34,7 @@ class PTypeChip extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
           color: active ? t.bgBrandSubtle : t.bgMuted,
-          border: Border.all(
-              color: active ? t.borderBrand : t.borderSubtle),
+          border: Border.all(color: active ? t.borderBrand : t.borderSubtle),
           borderRadius: PRadius.brSm,
         ),
         child: Row(
@@ -43,11 +42,13 @@ class PTypeChip extends StatelessWidget {
           children: [
             if (active) Icon(LucideIcons.check, size: 12, color: ac),
             if (active) const SizedBox(width: 4),
-            Text(label,
-                style: PTypo.bodySm.copyWith(
-                  fontWeight: PFontWeight.bold,
-                  color: active ? ac : t.fgTertiary,
-                )),
+            Text(
+              label,
+              style: PTypo.bodySm.copyWith(
+                fontWeight: PFontWeight.bold,
+                color: active ? ac : t.fgTertiary,
+              ),
+            ),
           ],
         ),
       ),

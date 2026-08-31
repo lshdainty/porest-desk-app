@@ -33,11 +33,12 @@ int incomeSum(Iterable<Expense> all) => countableTx(all)
 
 /// 지출 합계 — 환불이 음수로 상계된다.
 int expenseSum(Iterable<Expense> all) => countableTx(all).fold<int>(
-      0,
-      (s, e) => s +
-          (isRefundTx(e)
-              ? -e.amount.abs()
-              : e.expenseType == 'EXPENSE'
-                  ? e.amount.abs()
-                  : 0),
-    );
+  0,
+  (s, e) =>
+      s +
+      (isRefundTx(e)
+          ? -e.amount.abs()
+          : e.expenseType == 'EXPENSE'
+          ? e.amount.abs()
+          : 0),
+);

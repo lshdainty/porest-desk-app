@@ -66,10 +66,7 @@ class PFlatSection extends StatelessWidget {
                 const SizedBox(width: 8),
                 titleSuffix!,
               ],
-              if (trailing != null) ...[
-                const Spacer(),
-                trailing!,
-              ],
+              if (trailing != null) ...[const Spacer(), trailing!],
             ],
           ),
         ),

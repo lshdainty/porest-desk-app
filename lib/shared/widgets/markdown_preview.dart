@@ -29,100 +29,124 @@ class MarkdownPreview extends StatelessWidget {
       }
       // Headings
       if (line.startsWith('# ')) {
-        children.add(Padding(
-          padding: const EdgeInsets.only(top: 6, bottom: 4),
-          child: Text(line.substring(2),
-              style: PTypo.h3.copyWith(color: t.fgPrimary)),
-        ));
+        children.add(
+          Padding(
+            padding: const EdgeInsets.only(top: 6, bottom: 4),
+            child: Text(
+              line.substring(2),
+              style: PTypo.h3.copyWith(color: t.fgPrimary),
+            ),
+          ),
+        );
         continue;
       }
       if (line.startsWith('## ')) {
-        children.add(Padding(
-          padding: const EdgeInsets.only(top: 4, bottom: 2),
-          child: Text(line.substring(3),
-              style: PTypo.h4.copyWith(color: t.fgPrimary)),
-        ));
+        children.add(
+          Padding(
+            padding: const EdgeInsets.only(top: 4, bottom: 2),
+            child: Text(
+              line.substring(3),
+              style: PTypo.h4.copyWith(color: t.fgPrimary),
+            ),
+          ),
+        );
         continue;
       }
       if (line.startsWith('### ')) {
-        children.add(Padding(
-          padding: const EdgeInsets.only(top: 4, bottom: 2),
-          child: Text(line.substring(4),
-              style: PTypo.body
-                  .copyWith(color: t.fgPrimary, fontWeight: PFontWeight.bold)),
-        ));
+        children.add(
+          Padding(
+            padding: const EdgeInsets.only(top: 4, bottom: 2),
+            child: Text(
+              line.substring(4),
+              style: PTypo.body.copyWith(
+                color: t.fgPrimary,
+                fontWeight: PFontWeight.bold,
+              ),
+            ),
+          ),
+        );
         continue;
       }
       // Quote
       if (line.startsWith('> ')) {
-        children.add(Container(
-          margin: const EdgeInsets.symmetric(vertical: 2),
-          padding: const EdgeInsets.fromLTRB(10, 6, 10, 6),
-          decoration: BoxDecoration(
-            border: Border(
-                left: BorderSide(color: t.borderBrand, width: 3)),
-            color: t.bgMuted,
+        children.add(
+          Container(
+            margin: const EdgeInsets.symmetric(vertical: 2),
+            padding: const EdgeInsets.fromLTRB(10, 6, 10, 6),
+            decoration: BoxDecoration(
+              border: Border(left: BorderSide(color: t.borderBrand, width: 3)),
+              color: t.bgMuted,
+            ),
+            child: _inline(line.substring(2), tokens: t, italic: true),
           ),
-          child: _inline(line.substring(2), tokens: t, italic: true),
-        ));
+        );
         continue;
       }
       // Checklist
       final checked = RegExp(r'^[-*]\s\[(x|X|\s)\]\s(.+)$').firstMatch(line);
       if (checked != null) {
         final isDone = checked.group(1)!.toLowerCase() == 'x';
-        children.add(Padding(
-          padding: const EdgeInsets.symmetric(vertical: 2),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(top: 2),
-                child: Icon(
-                  isDone ? Icons.check_box : Icons.check_box_outline_blank,
-                  size: 14,
-                  color: isDone ? t.statusSuccess : t.fgTertiary,
+        children.add(
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 2),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 2),
+                  child: Icon(
+                    isDone ? Icons.check_box : Icons.check_box_outline_blank,
+                    size: 14,
+                    color: isDone ? t.statusSuccess : t.fgTertiary,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 6),
-              Expanded(
-                child: _inline(checked.group(2)!,
+                const SizedBox(width: 6),
+                Expanded(
+                  child: _inline(
+                    checked.group(2)!,
                     tokens: t,
-                    decoration:
-                        isDone ? TextDecoration.lineThrough : null),
-              ),
-            ],
+                    decoration: isDone ? TextDecoration.lineThrough : null,
+                  ),
+                ),
+              ],
+            ),
           ),
-        ));
+        );
         continue;
       }
       // Bullet list
       if (line.startsWith('- ') || line.startsWith('* ')) {
-        children.add(Padding(
-          padding: const EdgeInsets.symmetric(vertical: 2),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(top: 6, right: 6),
-                child: Container(
-                  width: 4,
-                  height: 4,
-                  decoration: BoxDecoration(
-                      color: t.fgTertiary, shape: BoxShape.circle),
+        children.add(
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 2),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 6, right: 6),
+                  child: Container(
+                    width: 4,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: t.fgTertiary,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
                 ),
-              ),
-              Expanded(child: _inline(line.substring(2), tokens: t)),
-            ],
+                Expanded(child: _inline(line.substring(2), tokens: t)),
+              ],
+            ),
           ),
-        ));
+        );
         continue;
       }
       // Plain paragraph
-      children.add(Padding(
-        padding: const EdgeInsets.symmetric(vertical: 2),
-        child: _inline(line, tokens: t),
-      ));
+      children.add(
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 2),
+          child: _inline(line, tokens: t),
+        ),
+      );
     }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -149,9 +173,12 @@ class MarkdownPreview extends StatelessWidget {
       if (s.startsWith('**', i)) {
         final end = s.indexOf('**', i + 2);
         if (end != -1) {
-          spans.add(TextSpan(
+          spans.add(
+            TextSpan(
               text: s.substring(i + 2, end),
-              style: base.copyWith(fontWeight: PFontWeight.bold)));
+              style: base.copyWith(fontWeight: PFontWeight.bold),
+            ),
+          );
           i = end + 2;
           continue;
         }
@@ -160,13 +187,16 @@ class MarkdownPreview extends StatelessWidget {
       if (s[i] == '`') {
         final end = s.indexOf('`', i + 1);
         if (end != -1) {
-          spans.add(TextSpan(
+          spans.add(
+            TextSpan(
               text: s.substring(i + 1, end),
               style: base.copyWith(
                 fontFamily: 'JetBrainsMono',
                 fontSize: PFontSize.caption,
                 background: Paint()..color = tokens.bgMuted,
-              )));
+              ),
+            ),
+          );
           i = end + 1;
           continue;
         }
@@ -175,9 +205,12 @@ class MarkdownPreview extends StatelessWidget {
       if (s[i] == '*' && (i + 1 < s.length && s[i + 1] != '*')) {
         final end = s.indexOf('*', i + 1);
         if (end != -1) {
-          spans.add(TextSpan(
+          spans.add(
+            TextSpan(
               text: s.substring(i + 1, end),
-              style: base.copyWith(fontStyle: FontStyle.italic)));
+              style: base.copyWith(fontStyle: FontStyle.italic),
+            ),
+          );
           i = end + 1;
           continue;
         }

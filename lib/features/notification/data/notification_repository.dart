@@ -42,8 +42,10 @@ class NotificationRepository {
   Future<void> markRead(int id) async {
     try {
       // 읽음 표시는 배경 동작 — 실패해도 토스트로 방해하지 않는다.
-      await _dio.patch<dynamic>('/notification/$id/read',
-          options: Options(extra: {kSilentErrorToast: true}));
+      await _dio.patch<dynamic>(
+        '/notification/$id/read',
+        options: Options(extra: {kSilentErrorToast: true}),
+      );
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }

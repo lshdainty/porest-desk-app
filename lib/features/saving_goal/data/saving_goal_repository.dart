@@ -74,14 +74,15 @@ class SavingGoalRepository {
     }
   }
 
-  Future<SavingGoal> contribute(int id, {required int amount, String? note}) async {
+  Future<SavingGoal> contribute(
+    int id, {
+    required int amount,
+    String? note,
+  }) async {
     try {
       final res = await _dio.patch<Map<String, dynamic>>(
         '/saving-goal/$id/contribute',
-        data: {
-          'amount': amount,
-          'note': ?note,
-        },
+        data: {'amount': amount, 'note': ?note},
       );
       return _unwrap(res, SavingGoal.fromJson);
     } on DioException catch (e) {
@@ -114,8 +115,7 @@ class SavingGoalRepository {
         '/saving-goals/reorder',
         data: {
           'items': [
-            for (final i in items)
-              {'id': i.id, 'sortOrder': i.sortOrder},
+            for (final i in items) {'id': i.id, 'sortOrder': i.sortOrder},
           ],
         },
       );

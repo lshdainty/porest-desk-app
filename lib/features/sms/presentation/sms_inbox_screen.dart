@@ -86,8 +86,10 @@ class _SmsInboxScreenState extends ConsumerState<SmsInboxScreen>
   Future<void> _open(SmsInboxEntry entry) async {
     // 기록에 성공하면 저장 쪽에서 이 항목을 빼 준다. 여기서 미리 지우면
     // 사용자가 시트를 닫고 나왔을 때 문자가 사라져 있다.
-    await context.push('/sms-paste',
-        extra: SmsPasteArgs(text: entry.text, inboxId: entry.id));
+    await context.push(
+      '/sms-paste',
+      extra: SmsPasteArgs(text: entry.text, inboxId: entry.id),
+    );
     if (mounted) await _load();
   }
 
@@ -128,7 +130,11 @@ class _SmsInboxScreenState extends ConsumerState<SmsInboxScreen>
         onRefresh: _load,
         child: ListView(
           padding: EdgeInsets.fromLTRB(
-              PSpace.x24, PSpace.x16, PSpace.x24, PSpace.x24),
+            PSpace.x24,
+            PSpace.x16,
+            PSpace.x24,
+            PSpace.x24,
+          ),
           children: [
             // 알림 접근이 이 기능의 유일한 스위치다 — 카드사·은행 앱 푸시도,
             // 결제 문자도 전부 이 경로로 읽는다. 꺼져 있으면 아무것도 안 들어온다.
@@ -182,7 +188,10 @@ class _SmsInboxScreenState extends ConsumerState<SmsInboxScreen>
   }
 
   /// 날짜별로 묶어 헤더 아래 행을 늘어놓는다(가계부 목록과 같은 리듬).
-  List<Widget> _buildGrouped(BuildContext context, List<SmsInboxEntry> entries) {
+  List<Widget> _buildGrouped(
+    BuildContext context,
+    List<SmsInboxEntry> entries,
+  ) {
     final l = AppLocalizations.of(context);
     final widgets = <Widget>[];
     String? lastKey;
@@ -195,21 +204,23 @@ class _SmsInboxScreenState extends ConsumerState<SmsInboxScreen>
         widgets.add(const SizedBox(height: PSpace.x4));
         lastKey = key;
       }
-      widgets.add(PSwipeActions(
-        key: ValueKey(entry.id),
-        groupTag: 'sms-inbox',
-        actions: [
-          PSwipeAction(
-            label: l.actionDelete,
-            icon: LucideIcons.trash2,
-            kind: PSwipeKind.destructive,
-            confirmTitle: l.smsInboxRemoveTitle,
-            confirmMessage: l.smsInboxRemoveConfirm,
-            onSelect: () => _remove(entry),
-          ),
-        ],
-        child: _InboxRow(entry: entry, onOpen: _open, onRemove: _remove),
-      ));
+      widgets.add(
+        PSwipeActions(
+          key: ValueKey(entry.id),
+          groupTag: 'sms-inbox',
+          actions: [
+            PSwipeAction(
+              label: l.actionDelete,
+              icon: LucideIcons.trash2,
+              kind: PSwipeKind.destructive,
+              confirmTitle: l.smsInboxRemoveTitle,
+              confirmMessage: l.smsInboxRemoveConfirm,
+              onSelect: () => _remove(entry),
+            ),
+          ],
+          child: _InboxRow(entry: entry, onOpen: _open, onRemove: _remove),
+        ),
+      );
     }
     return widgets;
   }
@@ -265,10 +276,10 @@ class _InboxRow extends StatelessWidget {
 
     // 제목 = 가맹점. 못 읽으면 원문 첫 줄로 대신한다(빈 자리보다 낫다).
     final title = preview.merchant ?? _firstLine(entry.text);
-    final sub = [preview.issuer, DateFormat('HH:mm').format(entry.receivedAt)]
-        .whereType<String>()
-        .where((s) => s.isNotEmpty)
-        .join(' · ');
+    final sub = [
+      preview.issuer,
+      DateFormat('HH:mm').format(entry.receivedAt),
+    ].whereType<String>().where((s) => s.isNotEmpty).join(' · ');
 
     return InkWell(
       onTap: () => onOpen(entry),
@@ -282,7 +293,9 @@ class _InboxRow extends StatelessWidget {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                  color: t.bgBrandSubtle, borderRadius: PRadius.tile(40)),
+                color: t.bgBrandSubtle,
+                borderRadius: PRadius.tile(40),
+              ),
               alignment: Alignment.center,
               child: Icon(LucideIcons.creditCard, size: 18, color: t.fgBrand),
             ),

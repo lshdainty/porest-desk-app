@@ -32,10 +32,10 @@ const Map<_Group, List<String>> _groupTypes = {
 };
 
 String _groupLabel(AppLocalizations l, _Group g) => switch (g) {
-      _Group.account => l.assetCatAccount,
-      _Group.card => l.assetGroupCard,
-      _Group.invest => l.assetGroupInvestment,
-    };
+  _Group.account => l.assetCatAccount,
+  _Group.card => l.assetGroupCard,
+  _Group.invest => l.assetGroupInvestment,
+};
 
 class AccountCardManageScreen extends ConsumerStatefulWidget {
   const AccountCardManageScreen({super.key});
@@ -193,8 +193,11 @@ class _AccountCardManageScreenState
                                           label: l.actionEdit,
                                           icon: LucideIcons.pencil,
                                           kind: PSwipeKind.primary,
-                                          onSelect: () =>
-                                              assetActions.edit(context, ref, a),
+                                          onSelect: () => assetActions.edit(
+                                            context,
+                                            ref,
+                                            a,
+                                          ),
                                         ),
                                       if (assetActions.canDelete(a))
                                         PSwipeAction(
@@ -206,7 +209,10 @@ class _AccountCardManageScreenState
                                           confirmMessage: assetActions
                                               .deleteConfirmMessage(context, a),
                                           onSelect: () => assetActions.delete(
-                                              context, ref, a),
+                                            context,
+                                            ref,
+                                            a,
+                                          ),
                                         ),
                                     ],
                                     child: _ManageRow(
@@ -284,8 +290,7 @@ class _AccountCardManageSkeleton extends StatelessWidget {
                 offset: const Offset(0, -8),
                 child: Column(
                   children: [
-                    for (int i = 0; i < 5; i++)
-                      const _ManageRowSkel(),
+                    for (int i = 0; i < 5; i++) const _ManageRowSkel(),
                   ],
                 ),
               ),
@@ -355,9 +360,10 @@ class _ManageRow extends StatelessWidget {
     // 그러면 데이터가 양수로 어긋나도 행은 멀쩡해 보이고 합계만 틀린 값이 나온다.
     // 지금은 저장할 때 음수로 정규화하므로 표시에서 손볼 게 없다.
     final isNeg = balance < 0;
-    final sub = [asset.institution, asset.memo]
-        .where((s) => s != null && s.isNotEmpty)
-        .join(' · ');
+    final sub = [
+      asset.institution,
+      asset.memo,
+    ].where((s) => s != null && s.isNotEmpty).join(' · ');
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -365,7 +371,10 @@ class _ManageRow extends StatelessWidget {
         child: Container(
           // web MANAGE_ROW(계좌·카테고리 공용) 정합 — py 12 / 아이콘 36 / 금액 bodySm
           // 좌우 0 — 페이지가 24 를 쥔다. 행이 더 얹으면 위 라벨과 어긋난다(설정 리스트 공통 규칙).
-          padding: const EdgeInsets.symmetric(horizontal: 0, vertical: PSpace.x12),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 0,
+            vertical: PSpace.x12,
+          ),
           child: Row(
             children: [
               AssetLogo(asset: asset, size: 36),
@@ -404,8 +413,8 @@ class _ManageRow extends StatelessWidget {
                     masked
                         ? '••••'
                         : isNeg
-                            ? krwSigned(balance.abs(), false, sign: '−', unit: true)
-                            : krwSigned(balance.abs(), false, unit: true),
+                        ? krwSigned(balance.abs(), false, sign: '−', unit: true)
+                        : krwSigned(balance.abs(), false, unit: true),
                     style: TextStyle(
                       color: t.fgPrimary,
                       fontSize: PFontSize.bodySm,

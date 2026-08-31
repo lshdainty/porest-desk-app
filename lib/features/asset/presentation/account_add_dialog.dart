@@ -69,31 +69,31 @@ void _open(
 }
 
 _SubType _subTypeFromAssetType(String t) => switch (t) {
-      'SAVINGS' => _SubType.savingsRecurring,
-      'CASH' => _SubType.cash,
-      'LOAN' => _SubType.loan,
-      _ => _SubType.checking,
-    };
+  'SAVINGS' => _SubType.savingsRecurring,
+  'CASH' => _SubType.cash,
+  'LOAN' => _SubType.loan,
+  _ => _SubType.checking,
+};
 
 enum _SubType { checking, savingsRecurring, savingsTime, cash, loan }
 
 extension _SubTypeX on _SubType {
   String label(AppLocalizations l) => switch (this) {
-        _SubType.checking => l.assetTypeBankAccount,
-        _SubType.savingsRecurring => l.assetSubtypeInstallment,
-        _SubType.savingsTime => l.assetSubtypeDeposit,
-        _SubType.cash => l.assetTypeCash,
-        _SubType.loan => l.assetTypeLoan,
-      };
+    _SubType.checking => l.assetTypeBankAccount,
+    _SubType.savingsRecurring => l.assetSubtypeInstallment,
+    _SubType.savingsTime => l.assetSubtypeDeposit,
+    _SubType.cash => l.assetTypeCash,
+    _SubType.loan => l.assetTypeLoan,
+  };
 
   /// 백엔드 assetType 매핑 — front 와 동일.
   String get assetType => switch (this) {
-        _SubType.checking => 'BANK_ACCOUNT',
-        _SubType.savingsRecurring => 'SAVINGS',
-        _SubType.savingsTime => 'SAVINGS',
-        _SubType.cash => 'CASH',
-        _SubType.loan => 'LOAN',
-      };
+    _SubType.checking => 'BANK_ACCOUNT',
+    _SubType.savingsRecurring => 'SAVINGS',
+    _SubType.savingsTime => 'SAVINGS',
+    _SubType.cash => 'CASH',
+    _SubType.loan => 'LOAN',
+  };
 }
 
 class _AccountAddBody extends ConsumerStatefulWidget {
@@ -163,13 +163,13 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
     return e.aliases.any((a) => _norm(a).contains(needle));
   }
 
-  int get _accountEntriesCount => bankEntries
-      .where((e) => !investCategories.contains(e.category))
-      .length;
+  int get _accountEntriesCount =>
+      bankEntries.where((e) => !investCategories.contains(e.category)).length;
 
   BankEntry get _selectedEntry => bankEntries.firstWhere(
-      (e) => e.name == _brand,
-      orElse: () => bankEntries.first);
+    (e) => e.name == _brand,
+    orElse: () => bankEntries.first,
+  );
 
   @override
   void initState() {
@@ -178,27 +178,30 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
     _subType = widget.initialSubType;
     // 편집 모드: institution 으로 brand 추론, 없으면 첫 항목.
     _brand = e?.institution != null && e!.institution!.isNotEmpty
-        ? bankEntries.firstWhere(
-            (b) =>
-                b.name == e.institution ||
-                b.aliases.contains(e.institution),
-            orElse: () => bankEntries.first,
-          ).name
+        ? bankEntries
+              .firstWhere(
+                (b) =>
+                    b.name == e.institution ||
+                    b.aliases.contains(e.institution),
+                orElse: () => bankEntries.first,
+              )
+              .name
         : bankEntries.first.name;
     _queryCtrl = TextEditingController()..addListener(_onQueryChanged);
     _nicknameCtrl = TextEditingController(text: e?.assetName ?? '')
       ..addListener(_onPreviewChanged);
     _accountNumberCtrl = TextEditingController();
-    _balanceCtrl =
-        TextEditingController(text: (e?.balance ?? 0).toString());
+    _balanceCtrl = TextEditingController(text: (e?.balance ?? 0).toString());
     _memoCtrl = TextEditingController(text: e?.memo ?? '');
     _currency = e?.currency ?? kDefaultCurrency;
     _fxRateCtrl = TextEditingController(
-        text: e?.exchangeRate != null ? _trimRate(e!.exchangeRate!) : '');
+      text: e?.exchangeRate != null ? _trimRate(e!.exchangeRate!) : '',
+    );
     _includeInTotal = e == null ? true : e.isIncludedInTotal == 'Y';
     widget.controller.onSubmit = _submit;
     WidgetsBinding.instance.addPostFrameCallback(
-        (_) => widget.controller.setCanSubmit(true));
+      (_) => widget.controller.setCanSubmit(true),
+    );
   }
 
   void _setSubmitting(bool v) {
@@ -289,191 +292,219 @@ class _AccountAddBodyState extends ConsumerState<_AccountAddBody> {
     final l = AppLocalizations.of(context);
     return ListView(
       controller: widget.scrollController,
-      padding: const EdgeInsets.fromLTRB(
-          PSpace.xl, 0, PSpace.xl, PSpace.x16),
+      padding: const EdgeInsets.fromLTRB(PSpace.xl, 0, PSpace.xl, PSpace.x16),
       children: [
-                _PreviewTile(
-                    entry: _selectedEntry,
-                    nickname: _nicknameCtrl.text.trim()),
-                const SizedBox(height: PSpace.x20),
+        _PreviewTile(
+          entry: _selectedEntry,
+          nickname: _nicknameCtrl.text.trim(),
+        ),
+        const SizedBox(height: PSpace.x20),
 
-                // 기관·브랜드 ────────────────────────
-                Row(
-                  children: [
-                    Text(l.assetInstitutionBrand,
-                        style: PTypo.caption.copyWith(
-                            color: t.fgPrimary,
-                            fontWeight: PFontWeight.medium)),
-                    const Spacer(),
-                    Text(l.assetTotalEntries(_accountEntriesCount),
-                        style: PTypo.micro.copyWith(color: t.fgTertiary)),
-                  ],
-                ),
-                const SizedBox(height: PSpace.x8),
-                PSearchField(
-                  hint: l.assetBankSearchHint,
-                  controller: _queryCtrl,
-                ),
-                const SizedBox(height: PSpace.x8),
-                _BrandPicker(
-                  categories: _filteredByCategory,
-                  selectedName: _brand,
-                  onPick: (name) => setState(() => _brand = name),
-                ),
-                const SizedBox(height: PSpace.x20),
+        // 기관·브랜드 ────────────────────────
+        Row(
+          children: [
+            Text(
+              l.assetInstitutionBrand,
+              style: PTypo.caption.copyWith(
+                color: t.fgPrimary,
+                fontWeight: PFontWeight.medium,
+              ),
+            ),
+            const Spacer(),
+            Text(
+              l.assetTotalEntries(_accountEntriesCount),
+              style: PTypo.micro.copyWith(color: t.fgTertiary),
+            ),
+          ],
+        ),
+        const SizedBox(height: PSpace.x8),
+        PSearchField(hint: l.assetBankSearchHint, controller: _queryCtrl),
+        const SizedBox(height: PSpace.x8),
+        _BrandPicker(
+          categories: _filteredByCategory,
+          selectedName: _brand,
+          onPick: (name) => setState(() => _brand = name),
+        ),
+        const SizedBox(height: PSpace.x20),
 
-                // 별칭 ────────────────────────────────
-                Text(l.assetNickname,
+        // 별칭 ────────────────────────────────
+        Text(
+          l.assetNickname,
+          style: PTypo.caption.copyWith(
+            color: t.fgPrimary,
+            fontWeight: PFontWeight.medium,
+          ),
+        ),
+        const SizedBox(height: PSpace.x8),
+        PTextInput(
+          controller: _nicknameCtrl,
+          placeholder: l.assetNicknamePlaceholder,
+        ),
+        const SizedBox(height: PSpace.x20),
+
+        // 계좌 종류 ──────────────────────────
+        Text(
+          l.assetAccountType,
+          style: PTypo.caption.copyWith(
+            color: t.fgPrimary,
+            fontWeight: PFontWeight.medium,
+          ),
+        ),
+        const SizedBox(height: PSpace.x8),
+        PTabs<_SubType>(
+          items: [
+            for (final s in _SubType.values)
+              PTabItem(value: s, label: s.label(l)),
+          ],
+          value: _subType,
+          onChanged: (v) => setState(() => _subType = v),
+          variant: PTabsVariant.container,
+          size: PTabsSize.sm,
+          expand: true,
+        ),
+        const SizedBox(height: PSpace.x20),
+
+        // 계좌번호 / 잔액 ─────────────────────
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l.assetAccountNumber,
                     style: PTypo.caption.copyWith(
-                        color: t.fgPrimary, fontWeight: PFontWeight.medium)),
-                const SizedBox(height: PSpace.x8),
-                PTextInput(
-                  controller: _nicknameCtrl,
-                  placeholder: l.assetNicknamePlaceholder,
-                ),
-                const SizedBox(height: PSpace.x20),
-
-                // 계좌 종류 ──────────────────────────
-                Text(l.assetAccountType,
-                    style: PTypo.caption.copyWith(
-                        color: t.fgPrimary, fontWeight: PFontWeight.medium)),
-                const SizedBox(height: PSpace.x8),
-                PTabs<_SubType>(
-                  items: [
-                    for (final s in _SubType.values)
-                      PTabItem(value: s, label: s.label(l)),
-                  ],
-                  value: _subType,
-                  onChanged: (v) => setState(() => _subType = v),
-                  variant: PTabsVariant.container,
-                  size: PTabsSize.sm,
-                  expand: true,
-                ),
-                const SizedBox(height: PSpace.x20),
-
-                // 계좌번호 / 잔액 ─────────────────────
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(l.assetAccountNumber,
-                              style: PTypo.caption.copyWith(
-                                  color: t.fgPrimary,
-                                  fontWeight: PFontWeight.medium)),
-                          const SizedBox(height: PSpace.x8),
-                          PTextInput(
-                            controller: _accountNumberCtrl,
-                            placeholder: '110-***-123456',
-                          ),
-                        ],
-                      ),
+                      color: t.fgPrimary,
+                      fontWeight: PFontWeight.medium,
                     ),
-                    const SizedBox(width: PSpace.x12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(l.assetBalanceLabel,
-                              style: PTypo.caption.copyWith(
-                                  color: t.fgPrimary,
-                                  fontWeight: PFontWeight.medium)),
-                          const SizedBox(height: PSpace.x8),
-                          PTextInput(
-                            controller: _balanceCtrl,
-                            keyboardType:
-                                const TextInputType.numberWithOptions(
-                                    signed: true),
-                            placeholder: '0',
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-
-                // 통화·환율 — 외화통장. 통화는 자산 유형과 무관하게 연다(해외 카드·외화 대출).
-                const SizedBox(height: PSpace.x20),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(l.assetCurrency,
-                              style: PTypo.caption.copyWith(
-                                  color: t.fgPrimary,
-                                  fontWeight: PFontWeight.medium)),
-                          const SizedBox(height: PSpace.x8),
-                          PSelect<String>(
-                            value: _currency,
-                            items: [
-                              for (final c in kCurrencies)
-                                PSelectItem(
-                                    value: c.code,
-                                    label: '${c.symbol} ${c.code}'),
-                            ],
-                            onChanged: (v) =>
-                                setState(() => _currency = v ?? kDefaultCurrency),
-                          ),
-                        ],
-                      ),
-                    ),
-                    if (isForeignCurrency(_currency)) ...[
-                      const SizedBox(width: PSpace.x12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(l.assetExchangeRate,
-                                style: PTypo.caption.copyWith(
-                                    color: t.fgPrimary,
-                                    fontWeight: PFontWeight.medium)),
-                            const SizedBox(height: PSpace.x8),
-                            PTextInput(
-                              controller: _fxRateCtrl,
-                              keyboardType:
-                                  const TextInputType.numberWithOptions(
-                                      decimal: true),
-                              placeholder: l.assetExchangeRateHint(_currency),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-                if (isForeignCurrency(_currency)) ...[
-                  const SizedBox(height: PSpace.x8),
-                  Text(l.assetExchangeRateDesc,
-                      style: PTypo.micro.copyWith(color: t.fgTertiary)),
-                ],
-
-                // 메모 — 편집 모드에서만 노출 (web 동일).
-                if (_isEdit) ...[
-                  const SizedBox(height: PSpace.x20),
-                  Text(l.assetMemoOptional,
-                      style: PTypo.caption.copyWith(
-                          color: t.fgPrimary,
-                          fontWeight: PFontWeight.medium)),
+                  ),
                   const SizedBox(height: PSpace.x8),
                   PTextInput(
-                    controller: _memoCtrl,
-                    placeholder: l.assetMemoPlaceholder,
+                    controller: _accountNumberCtrl,
+                    placeholder: '110-***-123456',
                   ),
                 ],
+              ),
+            ),
+            const SizedBox(width: PSpace.x12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l.assetBalanceLabel,
+                    style: PTypo.caption.copyWith(
+                      color: t.fgPrimary,
+                      fontWeight: PFontWeight.medium,
+                    ),
+                  ),
+                  const SizedBox(height: PSpace.x8),
+                  PTextInput(
+                    controller: _balanceCtrl,
+                    keyboardType: const TextInputType.numberWithOptions(
+                      signed: true,
+                    ),
+                    placeholder: '0',
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
 
-                // 전체 자산 합계 포함 토글 ──────────────
-                const SizedBox(height: PSpace.x20),
-                IncludeInTotalCard(
-                  value: _includeInTotal,
-                  onChanged: (v) => setState(() => _includeInTotal = v),
+        // 통화·환율 — 외화통장. 통화는 자산 유형과 무관하게 연다(해외 카드·외화 대출).
+        const SizedBox(height: PSpace.x20),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l.assetCurrency,
+                    style: PTypo.caption.copyWith(
+                      color: t.fgPrimary,
+                      fontWeight: PFontWeight.medium,
+                    ),
+                  ),
+                  const SizedBox(height: PSpace.x8),
+                  PSelect<String>(
+                    value: _currency,
+                    items: [
+                      for (final c in kCurrencies)
+                        PSelectItem(
+                          value: c.code,
+                          label: '${c.symbol} ${c.code}',
+                        ),
+                    ],
+                    onChanged: (v) =>
+                        setState(() => _currency = v ?? kDefaultCurrency),
+                  ),
+                ],
+              ),
+            ),
+            if (isForeignCurrency(_currency)) ...[
+              const SizedBox(width: PSpace.x12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l.assetExchangeRate,
+                      style: PTypo.caption.copyWith(
+                        color: t.fgPrimary,
+                        fontWeight: PFontWeight.medium,
+                      ),
+                    ),
+                    const SizedBox(height: PSpace.x8),
+                    PTextInput(
+                      controller: _fxRateCtrl,
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      placeholder: l.assetExchangeRateHint(_currency),
+                    ),
+                  ],
                 ),
-              ],
-            );
+              ),
+            ],
+          ],
+        ),
+        if (isForeignCurrency(_currency)) ...[
+          const SizedBox(height: PSpace.x8),
+          Text(
+            l.assetExchangeRateDesc,
+            style: PTypo.micro.copyWith(color: t.fgTertiary),
+          ),
+        ],
+
+        // 메모 — 편집 모드에서만 노출 (web 동일).
+        if (_isEdit) ...[
+          const SizedBox(height: PSpace.x20),
+          Text(
+            l.assetMemoOptional,
+            style: PTypo.caption.copyWith(
+              color: t.fgPrimary,
+              fontWeight: PFontWeight.medium,
+            ),
+          ),
+          const SizedBox(height: PSpace.x8),
+          PTextInput(
+            controller: _memoCtrl,
+            placeholder: l.assetMemoPlaceholder,
+          ),
+        ],
+
+        // 전체 자산 합계 포함 토글 ──────────────
+        const SizedBox(height: PSpace.x20),
+        IncludeInTotalCard(
+          value: _includeInTotal,
+          onChanged: (v) => setState(() => _includeInTotal = v),
+        ),
+      ],
+    );
   }
 }
 
@@ -524,8 +555,10 @@ class _PreviewTile extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 2),
-              Text('${entry.name} · ${l.assetPreview}',
-                  style: PTypo.caption.copyWith(color: t.fgTertiary)),
+              Text(
+                '${entry.name} · ${l.assetPreview}',
+                style: PTypo.caption.copyWith(color: t.fgTertiary),
+              ),
             ],
           ),
         ),

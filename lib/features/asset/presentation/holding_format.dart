@@ -31,8 +31,10 @@ int _qtyMaxDecimals(AssetHoldingType type) =>
 /// 수량은 정밀도 때문에 문자열로 들고 있으므로 문자열을 그대로 다듬는다 —
 /// double 로 바꾸면 자릿수가 흔들려 8자리를 보여주는 의미가 없어진다.
 /// front `formatQty` 미러.
-String formatHoldingQty(String? q,
-    [AssetHoldingType type = AssetHoldingType.stock]) {
+String formatHoldingQty(
+  String? q, [
+  AssetHoldingType type = AssetHoldingType.stock,
+]) {
   final s = (q ?? '').trim();
   if (s.isEmpty) return '0';
   final neg = s.startsWith('-');
@@ -48,7 +50,9 @@ String formatHoldingQty(String? q,
   frac = frac.replaceFirst(RegExp(r'0+$'), '');
 
   final grouped = intPart.replaceAllMapped(
-      RegExp(r'\B(?=(\d{3})+(?!\d))'), (_) => ',');
+    RegExp(r'\B(?=(\d{3})+(?!\d))'),
+    (_) => ',',
+  );
   return '${neg ? '-' : ''}$grouped${frac.isEmpty ? '' : '.$frac'}';
 }
 
@@ -79,12 +83,16 @@ class HoldingQtyInputFormatter extends TextInputFormatter {
 
   @override
   TextEditingValue formatEditUpdate(
-      TextEditingValue oldValue, TextEditingValue newValue) {
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
     final cleaned = sanitizeHoldingQty(newValue.text);
     if (cleaned == newValue.text) return newValue;
     final removed = newValue.text.length - cleaned.length;
-    final offset =
-        (newValue.selection.baseOffset - removed).clamp(0, cleaned.length);
+    final offset = (newValue.selection.baseOffset - removed).clamp(
+      0,
+      cleaned.length,
+    );
     return TextEditingValue(
       text: cleaned,
       selection: TextSelection.collapsed(offset: offset),

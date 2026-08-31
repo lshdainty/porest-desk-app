@@ -50,7 +50,12 @@ class _NamuStocksViewState extends ConsumerState<NamuStocksView> {
     final l = AppLocalizations.of(context);
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(PSpace.x24, PSpace.x16, PSpace.x24, PSpace.x24),
+      padding: const EdgeInsets.fromLTRB(
+        PSpace.x24,
+        PSpace.x16,
+        PSpace.x24,
+        PSpace.x24,
+      ),
       children: [
         PTabs<String>(
           value: _currency,
@@ -122,8 +127,10 @@ class _HoldingsPanel extends ConsumerWidget {
             Icon(LucideIcons.unplug, size: 16, color: t.fgTertiary),
             const SizedBox(width: PSpace.x8),
             Expanded(
-              child: Text(l.namuHoldingsError,
-                  style: PTypo.bodySm.copyWith(color: t.fgTertiary)),
+              child: Text(
+                l.namuHoldingsError,
+                style: PTypo.bodySm.copyWith(color: t.fgTertiary),
+              ),
             ),
           ],
         ),
@@ -133,26 +140,38 @@ class _HoldingsPanel extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(l.namuHoldingsTitle, style: PTypo.caption.copyWith(color: t.fgTertiary)),
+            Text(
+              l.namuHoldingsTitle,
+              style: PTypo.caption.copyWith(color: t.fgTertiary),
+            ),
             const SizedBox(height: PSpace.x4),
             Text(
               '${_fmt(h.totalEvalValue)} ${h.currency}',
-              style: PTypo.h3.copyWith(color: t.fgPrimary, fontWeight: PFontWeight.bold),
+              style: PTypo.h3.copyWith(
+                color: t.fgPrimary,
+                fontWeight: PFontWeight.bold,
+              ),
             ),
             const SizedBox(height: 2),
             Text(
               '${h.totalProfitLossValue >= 0 ? '+' : ''}${_fmt(h.totalProfitLossValue)} '
               '(${h.profitRateValue.toStringAsFixed(2)}%)',
               style: PTypo.bodySm.copyWith(
-                color: h.totalProfitLossValue >= 0 ? t.statusSuccessFg : t.statusDanger,
+                color: h.totalProfitLossValue >= 0
+                    ? t.statusSuccessFg
+                    : t.statusDanger,
                 fontWeight: PFontWeight.semi,
               ),
             ),
             if (h.items.isEmpty) ...[
               const SizedBox(height: PSpace.x12),
-              Text(l.namuHoldingsEmpty, style: PTypo.bodySm.copyWith(color: t.fgTertiary)),
+              Text(
+                l.namuHoldingsEmpty,
+                style: PTypo.bodySm.copyWith(color: t.fgTertiary),
+              ),
             ] else
-              for (final item in h.items) _HoldingRow(item: item, currency: h.currency),
+              for (final item in h.items)
+                _HoldingRow(item: item, currency: h.currency),
           ],
         ),
       ),
@@ -180,24 +199,35 @@ class _HoldingRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(item.name.isEmpty ? item.symbol : item.name,
-                    style: PTypo.bodySm.copyWith(color: t.fgPrimary)),
+                Text(
+                  item.name.isEmpty ? item.symbol : item.name,
+                  style: PTypo.bodySm.copyWith(color: t.fgPrimary),
+                ),
                 const SizedBox(height: 2),
-                Text(l.namuHoldingQty(item.quantity),
-                    style: PTypo.micro.copyWith(color: t.fgTertiary)),
+                Text(
+                  l.namuHoldingQty(item.quantity),
+                  style: PTypo.micro.copyWith(color: t.fgTertiary),
+                ),
               ],
             ),
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text('${_fmt(item.evalAmountValue)} $currency',
-                  style: PTypo.bodySm.copyWith(
-                      color: t.fgPrimary, fontWeight: PFontWeight.semi)),
+              Text(
+                '${_fmt(item.evalAmountValue)} $currency',
+                style: PTypo.bodySm.copyWith(
+                  color: t.fgPrimary,
+                  fontWeight: PFontWeight.semi,
+                ),
+              ),
               const SizedBox(height: 2),
-              Text('${up ? '+' : ''}${_fmt(item.profitLossValue)}',
-                  style: PTypo.micro.copyWith(
-                      color: up ? t.statusSuccessFg : t.statusDanger)),
+              Text(
+                '${up ? '+' : ''}${_fmt(item.profitLossValue)}',
+                style: PTypo.micro.copyWith(
+                  color: up ? t.statusSuccessFg : t.statusDanger,
+                ),
+              ),
             ],
           ),
         ],
@@ -224,7 +254,8 @@ class _SearchResults extends ConsumerWidget {
 
     return results.when(
       loading: () => const PSkeleton(height: 120),
-      error: (_, _) => PEmptyState(icon: LucideIcons.unplug, message: l.stocksSearchError),
+      error: (_, _) =>
+          PEmptyState(icon: LucideIcons.unplug, message: l.stocksSearchError),
       data: (items) => items.isEmpty
           ? PEmptyState(icon: LucideIcons.search, message: l.stocksSearchEmpty)
           : Column(
@@ -235,22 +266,36 @@ class _SearchResults extends ConsumerWidget {
                     borderRadius: PRadius.brMd,
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: PSpace.x4, vertical: PSpace.x12),
+                        horizontal: PSpace.x4,
+                        vertical: PSpace.x12,
+                      ),
                       child: Row(
                         children: [
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(item.nameKr,
-                                    style: PTypo.bodySm.copyWith(color: t.fgPrimary)),
+                                Text(
+                                  item.nameKr,
+                                  style: PTypo.bodySm.copyWith(
+                                    color: t.fgPrimary,
+                                  ),
+                                ),
                                 const SizedBox(height: 2),
-                                Text('${item.marketCode} · ${item.symbol}',
-                                    style: PTypo.micro.copyWith(color: t.fgTertiary)),
+                                Text(
+                                  '${item.marketCode} · ${item.symbol}',
+                                  style: PTypo.micro.copyWith(
+                                    color: t.fgTertiary,
+                                  ),
+                                ),
                               ],
                             ),
                           ),
-                          Icon(LucideIcons.chevronRight, size: 16, color: t.fgTertiary),
+                          Icon(
+                            LucideIcons.chevronRight,
+                            size: 16,
+                            color: t.fgTertiary,
+                          ),
                         ],
                       ),
                     ),
@@ -278,24 +323,36 @@ class _PriceCard extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(item.nameKr,
-              style: PTypo.body.copyWith(
-                  color: t.fgPrimary, fontWeight: PFontWeight.bold)),
+          Text(
+            item.nameKr,
+            style: PTypo.body.copyWith(
+              color: t.fgPrimary,
+              fontWeight: PFontWeight.bold,
+            ),
+          ),
           const SizedBox(height: 2),
-          Text('${item.marketCode} · ${item.symbol}',
-              style: PTypo.micro.copyWith(color: t.fgTertiary)),
+          Text(
+            '${item.marketCode} · ${item.symbol}',
+            style: PTypo.micro.copyWith(color: t.fgTertiary),
+          ),
           const SizedBox(height: PSpace.x12),
           priceAsync.when(
             loading: () => const PSkeleton(height: 28, width: 140),
-            error: (_, _) => Text(l.namuPriceError,
-                style: PTypo.bodySm.copyWith(color: t.fgTertiary)),
+            error: (_, _) => Text(
+              l.namuPriceError,
+              style: PTypo.bodySm.copyWith(color: t.fgTertiary),
+            ),
             data: (price) => price == null
-                ? Text(l.namuPriceEmpty,
-                    style: PTypo.bodySm.copyWith(color: t.fgTertiary))
+                ? Text(
+                    l.namuPriceEmpty,
+                    style: PTypo.bodySm.copyWith(color: t.fgTertiary),
+                  )
                 : Text(
                     '${price.price} ${price.currency}',
                     style: PTypo.h3.copyWith(
-                        color: t.fgPrimary, fontWeight: PFontWeight.bold),
+                      color: t.fgPrimary,
+                      fontWeight: PFontWeight.bold,
+                    ),
                   ),
           ),
         ],

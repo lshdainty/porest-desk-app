@@ -44,8 +44,11 @@ class _ForestReportScreenState extends ConsumerState<ForestReportScreen> {
 
   DateTime get _thisMonday {
     final now = DateTime.now();
-    return DateTime(now.year, now.month, now.day)
-        .subtract(Duration(days: now.weekday - 1));
+    return DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).subtract(Duration(days: now.weekday - 1));
   }
 
   List<DateTime> _weekDays(int week) {
@@ -55,24 +58,22 @@ class _ForestReportScreenState extends ConsumerState<ForestReportScreen> {
 
   /// 우선순위 가중치 — 중요 3 · 보통 2 · 여유 1 (design FOREST_WEIGHT).
   static int _weight(String? prio) => switch (prio) {
-        'HIGH' => 3,
-        'LOW' => 1,
-        _ => 2,
-      };
+    'HIGH' => 3,
+    'LOW' => 1,
+    _ => 2,
+  };
 
   /// 그날 완료한 할일 (completedAt 기준).
   ///
   /// [ymd] 는 로컬 달력으로 만든 주간 스트립 칸이다. completedAt 은 서버 `[UTC]` 라
   /// 문자열을 자르면 UTC 날짜가 나와 KST(+9) 새벽 0~9시 완료가 전날 칸에 붙었다.
   /// 웹 `ForestReport.doneKey` 와 같은 규칙 — 로컬 날짜로 바꿔서 비교한다.
-  List<Todo> _doneOn(List<Todo> todos, String ymd) => todos
-      .where((x) => x.done && localDateKey(x.completedAt) == ymd)
-      .toList();
+  List<Todo> _doneOn(List<Todo> todos, String ymd) =>
+      todos.where((x) => x.done && localDateKey(x.completedAt) == ymd).toList();
 
   /// 그날 못다 켠 별 — due=그날 && 미완료.
   List<Todo> _missedOn(List<Todo> todos, String ymd) => todos
-      .where((x) =>
-          !x.done && x.due != null && _ymd(x.due!) == ymd)
+      .where((x) => !x.done && x.due != null && _ymd(x.due!) == ymd)
       .toList();
 
   @override
@@ -99,13 +100,29 @@ class _ForestReportScreenState extends ConsumerState<ForestReportScreen> {
           ? ListView(
               padding: const EdgeInsets.all(PSpace.x20),
               children: const [
-                PSkeleton(width: double.infinity, height: 90, borderRadius: PRadius.brLg),
+                PSkeleton(
+                  width: double.infinity,
+                  height: 90,
+                  borderRadius: PRadius.brLg,
+                ),
                 SizedBox(height: 12),
-                PSkeleton(width: double.infinity, height: 64, borderRadius: PRadius.brLg),
+                PSkeleton(
+                  width: double.infinity,
+                  height: 64,
+                  borderRadius: PRadius.brLg,
+                ),
                 SizedBox(height: 12),
-                PSkeleton(width: double.infinity, height: 150, borderRadius: PRadius.brLg),
+                PSkeleton(
+                  width: double.infinity,
+                  height: 150,
+                  borderRadius: PRadius.brLg,
+                ),
                 SizedBox(height: 12),
-                PSkeleton(width: double.infinity, height: 220, borderRadius: PRadius.brLg),
+                PSkeleton(
+                  width: double.infinity,
+                  height: 220,
+                  borderRadius: PRadius.brLg,
+                ),
               ],
             )
           : _body(context, t, l, today, sky, collection, todos),
@@ -137,18 +154,18 @@ class _ForestReportScreenState extends ConsumerState<ForestReportScreen> {
 
     // 선택일 별빛/완료 — 오늘=서버 points(메모 포함), 과거=sky.points(없으면 클라 가중 합).
     final doneList = _doneOn(todos, _sel);
-    final clientPts =
-        doneList.fold<int>(0, (s, x) => s + _weight(x.priority));
+    final clientPts = doneList.fold<int>(0, (s, x) => s + _weight(x.priority));
     final pts = isToday
         ? today.points
         : (selSky != null ? selSky.points : clientPts);
     final goal = isToday
         ? today.goal
         : (selSky?.constellationKey != null
-            ? (entryByKey[selSky!.constellationKey!]
-                    ?.constellation.starCount ??
-                today.goal)
-            : today.goal);
+              ? (entryByKey[selSky!.constellationKey!]
+                        ?.constellation
+                        .starCount ??
+                    today.goal)
+              : today.goal);
     final pct = goal <= 0 ? 0 : ((pts / goal) * 100).clamp(0, 100).round();
     final missed = _missedOn(todos, _sel);
     final selEntry = selSky?.constellationKey != null
@@ -162,8 +179,10 @@ class _ForestReportScreenState extends ConsumerState<ForestReportScreen> {
       final v = ds == todayYmd
           ? today.points
           : (skyByDate[ds]?.points ??
-              _doneOn(todos, ds)
-                  .fold<int>(0, (s, x) => s + _weight(x.priority)));
+                _doneOn(
+                  todos,
+                  ds,
+                ).fold<int>(0, (s, x) => s + _weight(x.priority)));
       if (v > weekMax) weekMax = v;
     }
 
@@ -248,7 +267,9 @@ class _ForestReportScreenState extends ConsumerState<ForestReportScreen> {
                 Text(
                   l.frpAsOf(formatDateTimeMinute(DateTime.now())),
                   style: PTypo.caption.copyWith(
-                      color: t.fgTertiary, fontSize: 11),
+                    color: t.fgTertiary,
+                    fontSize: 11,
+                  ),
                 ),
             ],
           ),
@@ -283,8 +304,10 @@ class _ForestReportScreenState extends ConsumerState<ForestReportScreen> {
                   children: [
                     _CardIco(icon: LucideIcons.telescope, t: t),
                     const SizedBox(width: 8),
-                    Text(l.frpObsResult,
-                        style: PTypo.bodySm.copyWith(color: t.fgSecondary)),
+                    Text(
+                      l.frpObsResult,
+                      style: PTypo.bodySm.copyWith(color: t.fgSecondary),
+                    ),
                     const SizedBox(width: 6),
                     Expanded(
                       child: isToday
@@ -299,33 +322,39 @@ class _ForestReportScreenState extends ConsumerState<ForestReportScreen> {
                               style: _obsStyle(t.fgPrimary),
                             )
                           : selEntry != null
-                              ? Row(
-                                  children: [
-                                    ConstellationIcon(
-                                      info: selEntry.constellation,
-                                      color: constellationColor(context,
-                                          selEntry.constellation.colorKey),
-                                      size: 20,
+                          ? Row(
+                              children: [
+                                ConstellationIcon(
+                                  info: selEntry.constellation,
+                                  color: constellationColor(
+                                    context,
+                                    selEntry.constellation.colorKey,
+                                  ),
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 6),
+                                Flexible(
+                                  child: Text(
+                                    l.frpObsCollected(
+                                      constellationName(selEntry.constellation),
                                     ),
-                                    const SizedBox(width: 6),
-                                    Flexible(
-                                      child: Text(
-                                        l.frpObsCollected(constellationName(
-                                            selEntry.constellation)),
-                                        style: _obsStyle(constellationColor(
-                                            context,
-                                            selEntry.constellation.colorKey)),
-                                        overflow: TextOverflow.ellipsis,
+                                    style: _obsStyle(
+                                      constellationColor(
+                                        context,
+                                        selEntry.constellation.colorKey,
                                       ),
                                     ),
-                                  ],
-                                )
-                              : Text(
-                                  selSky?.isWithered == true
-                                      ? l.frpObsWithered
-                                      : l.frpObsRest,
-                                  style: _obsStyle(t.fgTertiary),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
                                 ),
+                              ],
+                            )
+                          : Text(
+                              selSky?.isWithered == true
+                                  ? l.frpObsWithered
+                                  : l.frpObsRest,
+                              style: _obsStyle(t.fgTertiary),
+                            ),
                     ),
                     if (isToday) const SizedBox(width: 56),
                   ],
@@ -346,8 +375,9 @@ class _ForestReportScreenState extends ConsumerState<ForestReportScreen> {
                             color: todoOverdueColor(context),
                             width: 1.5,
                           ),
-                          color: todoOverdueColor(context)
-                              .withValues(alpha: 0.04),
+                          color: todoOverdueColor(
+                            context,
+                          ).withValues(alpha: 0.04),
                         ),
                         alignment: Alignment.center,
                         child: Column(
@@ -404,7 +434,9 @@ class _ForestReportScreenState extends ConsumerState<ForestReportScreen> {
                     const Spacer(),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 9, vertical: 3),
+                        horizontal: 9,
+                        vertical: 3,
+                      ),
                       decoration: BoxDecoration(
                         border: Border.all(color: t.borderBrand, width: 1.2),
                         borderRadius: BorderRadius.circular(999),
@@ -439,8 +471,10 @@ class _ForestReportScreenState extends ConsumerState<ForestReportScreen> {
                     Expanded(
                       child: _StatTile(
                         icoBg: Color.alphaBlend(
-                          constellationColor(context, 'green')
-                              .withValues(alpha: 0.14),
+                          constellationColor(
+                            context,
+                            'green',
+                          ).withValues(alpha: 0.14),
                           t.bgSurface,
                         ),
                         icoFg: constellationColor(context, 'green'),
@@ -496,18 +530,23 @@ class _ForestReportScreenState extends ConsumerState<ForestReportScreen> {
                           l.frpLegendItem(
                             todoPrioLabel(l, p.code),
                             doneList
-                                .where((x) =>
-                                    (x.priority ?? 'MEDIUM') == p.code)
+                                .where(
+                                  (x) => (x.priority ?? 'MEDIUM') == p.code,
+                                )
                                 .length,
                           ),
                           style: PTypo.caption.copyWith(
-                              color: t.fgSecondary, fontSize: 12),
+                            color: t.fgSecondary,
+                            fontSize: 12,
+                          ),
                         ),
                         const SizedBox(width: 6),
                         Text(
                           '+${_weight(p.code)}',
                           style: PTypo.caption.copyWith(
-                              color: t.fgTertiary, fontSize: 10.5),
+                            color: t.fgTertiary,
+                            fontSize: 10.5,
+                          ),
                         ),
                       ],
                     ),
@@ -546,8 +585,7 @@ class _ForestReportScreenState extends ConsumerState<ForestReportScreen> {
           if (missed.isNotEmpty || isToday)
             PCard(
               variant: PCardVariant.raised,
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -584,9 +622,7 @@ class _ForestReportScreenState extends ConsumerState<ForestReportScreen> {
                             fontWeight: FontWeight.w800,
                             letterSpacing: -0.48,
                             color: t.fgPrimary,
-                            fontFeatures: const [
-                              FontFeature.tabularFigures()
-                            ],
+                            fontFeatures: const [FontFeature.tabularFigures()],
                           ),
                         ),
                       ),
@@ -605,13 +641,13 @@ class _ForestReportScreenState extends ConsumerState<ForestReportScreen> {
   }
 
   TextStyle _obsStyle(Color color) => TextStyle(
-        fontFamily: PTypo.sans,
-        fontSize: 14,
-        fontWeight: FontWeight.w800,
-        letterSpacing: -0.14,
-        color: color,
-        fontFeatures: const [FontFeature.tabularFigures()],
-      );
+    fontFamily: PTypo.sans,
+    fontSize: 14,
+    fontWeight: FontWeight.w800,
+    letterSpacing: -0.14,
+    color: color,
+    fontFeatures: const [FontFeature.tabularFigures()],
+  );
 }
 
 /// "YYYY.M.D 오전/오후 H:MM" — as-of 라벨 (ko 관례, en은 24h).
@@ -692,8 +728,7 @@ class _StripDay extends StatelessWidget {
                 isToday ? l.dateToday : dow,
                 style: PTypo.caption.copyWith(
                   fontSize: 11.5,
-                  fontWeight:
-                      isToday ? PFontWeight.bold : PFontWeight.semi,
+                  fontWeight: isToday ? PFontWeight.bold : PFontWeight.semi,
                   color: isToday ? t.fgBrand : t.fgTertiary,
                 ),
               ),
@@ -703,7 +738,9 @@ class _StripDay extends StatelessWidget {
                 height: 34,
                 decoration: selected
                     ? BoxDecoration(
-                        color: t.bgBrandSolid, shape: BoxShape.circle)
+                        color: t.bgBrandSolid,
+                        shape: BoxShape.circle,
+                      )
                     : null,
                 alignment: Alignment.center,
                 child: Text(
@@ -711,8 +748,7 @@ class _StripDay extends StatelessWidget {
                   style: TextStyle(
                     fontFamily: PTypo.sans,
                     fontSize: 15,
-                    fontWeight:
-                        selected ? FontWeight.w800 : PFontWeight.semi,
+                    fontWeight: selected ? FontWeight.w800 : PFontWeight.semi,
                     color: selected ? t.fgOnBrand : t.fgPrimary,
                     fontFeatures: const [FontFeature.tabularFigures()],
                   ),
@@ -737,10 +773,7 @@ class _CardIco extends StatelessWidget {
     return Container(
       width: 26,
       height: 26,
-      decoration: BoxDecoration(
-        color: t.bgMuted,
-        borderRadius: PRadius.brSm,
-      ),
+      decoration: BoxDecoration(color: t.bgMuted, borderRadius: PRadius.brSm),
       alignment: Alignment.center,
       child: Icon(icon, size: 15, color: t.fgSecondary),
     );
@@ -836,9 +869,8 @@ class _AnalysisBar extends StatelessWidget {
       for (final p in kTodoPrios)
         (
           color: p.color(context),
-          value: done
-                  .where((x) => (x.priority ?? 'MEDIUM') == p.code)
-                  .length *
+          value:
+              done.where((x) => (x.priority ?? 'MEDIUM') == p.code).length *
               weight(p.code),
         ),
     ];
@@ -898,11 +930,7 @@ class _AnalysisBar extends StatelessWidget {
 
 /// 못다 켠 별 행 (design .frp-missed__row) — 코너 우선순위 + 제목 + 가중치.
 class _MissedRow extends StatelessWidget {
-  const _MissedRow({
-    required this.todo,
-    required this.weight,
-    required this.t,
-  });
+  const _MissedRow({required this.todo, required this.weight, required this.t});
   final Todo todo;
   final int Function(String?) weight;
   final PorestTokens t;

@@ -11,7 +11,15 @@ import 'package:porest_desk_app/shared/widgets/p_tooltip.dart';
 ///
 /// variants: primary / secondary / outline / ghost(중립) / accent(brand 강조) / danger
 /// size: sm / md / lg / iconLg(모바일 크롬 헤더 icon-only 전용 — 36×36 원형, glyph 20px)
-enum PButtonVariant { primary, secondary, dangerSoft, outline, ghost, accent, danger }
+enum PButtonVariant {
+  primary,
+  secondary,
+  dangerSoft,
+  outline,
+  ghost,
+  accent,
+  danger,
+}
 
 enum PButtonSize { sm, md, lg, iconLg }
 
@@ -34,10 +42,14 @@ class PButton extends StatelessWidget {
     this.iconColor,
     this.dangerous = false,
     this.flush,
-  })  : assert(label != null || icon != null,
-            'PButton requires either a label or an icon'),
-        assert(size != PButtonSize.iconLg || label == null,
-            'iconLg는 icon-only 전용 (모바일 크롬 헤더)');
+  }) : assert(
+         label != null || icon != null,
+         'PButton requires either a label or an icon',
+       ),
+       assert(
+         size != PButtonSize.iconLg || label == null,
+         'iconLg는 icon-only 전용 (모바일 크롬 헤더)',
+       );
 
   /// icon-only 생성자 — front `<Button size="icon" variant="ghost">` 대응.
   /// 가로 = 높이 (정사각), padding 작게.
@@ -51,14 +63,15 @@ class PButton extends StatelessWidget {
     this.tooltip,
     this.iconColor,
     this.dangerous = false,
-  })  : label = null,
-        fullWidth = false,
-        trailingIcon = null,
-        flush = null;
+  }) : label = null,
+       fullWidth = false,
+       trailingIcon = null,
+       flush = null;
 
   final String? label;
   final VoidCallback? onPressed;
   final IconData? icon;
+
   /// 라벨 우측 아이콘 (chevron / external-link 등) — spec button.md ⓓ trailing icon.
   final IconData? trailingIcon;
   final PButtonVariant variant;
@@ -66,13 +79,16 @@ class PButton extends StatelessWidget {
   final bool loading;
   final bool fullWidth;
   final String? tooltip;
+
   /// icon-only ghost 버튼에서 아이콘 색만 override (예: trash danger).
   /// label 모드에서도 icon 만 분리 색 적용.
   final Color? iconColor;
+
   /// ghost variant 에 위험(파괴적) 액션 색을 입힌다 — fg/icon → statusDangerFg.
   /// dialog footer 의 "삭제" 같이 filled `danger` 보다 절제된 표현이 필요한 곳.
   /// 다른 variant 와 함께 쓰면 무시.
   final bool dangerous;
+
   /// 컨테이너 edge flush — 해당 방향 좌/우 padding 제거 (ghost 버튼 광학 정렬).
   /// label 모드에만 의미 있음 (icon-only/iconLg 는 padding 0 이라 무관).
   final PButtonFlush? flush;
@@ -83,11 +99,11 @@ class PButton extends StatelessWidget {
   // lg: h=48, padY=12 padX=16, font=title-sm(16), radius=md(8), icon=18
   // iconLg: 36×36, radius=full, glyph=20 — 모바일 크롬 헤더 icon-only (v97)
   double _height() => switch (size) {
-        PButtonSize.sm => 32,
-        PButtonSize.md => 40,
-        PButtonSize.lg => 48,
-        PButtonSize.iconLg => 36,
-      };
+    PButtonSize.sm => 32,
+    PButtonSize.md => 40,
+    PButtonSize.lg => 48,
+    PButtonSize.iconLg => 36,
+  };
 
   EdgeInsetsGeometry _padding() {
     final (double h, double v) = switch (size) {
@@ -107,52 +123,52 @@ class PButton extends StatelessWidget {
   }
 
   TextStyle _textStyle(PorestTokens t) => switch (size) {
-        PButtonSize.sm => TextStyle(
-              fontFamily: PTypo.sans,
-              fontSize: PFontSize.caption,
-              fontWeight: PFontWeight.medium,
-              height: 1.0,
-            ),
-        PButtonSize.md => TextStyle(
-              fontFamily: PTypo.sans,
-              // button.md Sizes 표의 md = 15px. 표는 라벨을 body-lg 라 적었지만
-              // 토큰 표(DESIGN.md)에서 15px 은 body-md 다 — px 를 따른다.
-              fontSize: PFontSize.bodyMd,
-              fontWeight: PFontWeight.medium,
-              height: 1.0,
-            ),
-        PButtonSize.lg => TextStyle(
-              fontFamily: PTypo.sans,
-              fontSize: PFontSize.titleSm,
-              fontWeight: PFontWeight.medium,
-              height: 1.0,
-            ),
-        // icon-only 전용 (label 금지 assert) — 도달 불가, md와 동일값.
-        PButtonSize.iconLg => TextStyle(
-              fontFamily: PTypo.sans,
-              fontSize: PFontSize.bodyMd,
-              fontWeight: PFontWeight.medium,
-              height: 1.0,
-            ),
-      };
+    PButtonSize.sm => TextStyle(
+      fontFamily: PTypo.sans,
+      fontSize: PFontSize.caption,
+      fontWeight: PFontWeight.medium,
+      height: 1.0,
+    ),
+    PButtonSize.md => TextStyle(
+      fontFamily: PTypo.sans,
+      // button.md Sizes 표의 md = 15px. 표는 라벨을 body-lg 라 적었지만
+      // 토큰 표(DESIGN.md)에서 15px 은 body-md 다 — px 를 따른다.
+      fontSize: PFontSize.bodyMd,
+      fontWeight: PFontWeight.medium,
+      height: 1.0,
+    ),
+    PButtonSize.lg => TextStyle(
+      fontFamily: PTypo.sans,
+      fontSize: PFontSize.titleSm,
+      fontWeight: PFontWeight.medium,
+      height: 1.0,
+    ),
+    // icon-only 전용 (label 금지 assert) — 도달 불가, md와 동일값.
+    PButtonSize.iconLg => TextStyle(
+      fontFamily: PTypo.sans,
+      fontSize: PFontSize.bodyMd,
+      fontWeight: PFontWeight.medium,
+      height: 1.0,
+    ),
+  };
 
   double _iconSize() => switch (size) {
-        PButtonSize.sm => 14,
-        PButtonSize.md => 16,
-        PButtonSize.lg => 18,
-        PButtonSize.iconLg => 20,
-      };
+    PButtonSize.sm => 14,
+    PButtonSize.md => 16,
+    PButtonSize.lg => 18,
+    PButtonSize.iconLg => 20,
+  };
 
   // specs/components/button.md Sizes: sm·md = radius sm(4), lg = radius md(8),
   // icon 계열은 예외. "container 는 radius-sm(4px) 고정 / Toss 톤 절제" 가 근거다.
   // DESIGN.desk.md 표에는 md 가 radius md(8) 로 적혀 있는데 그쪽이 오래된 사본이다
   // (spec 2026-08-19 / DESIGN.desk.md 2026-05-12).
   BorderRadius _radius() => switch (size) {
-        PButtonSize.sm => PRadius.brSm,
-        PButtonSize.md => PRadius.brSm,
-        PButtonSize.lg => PRadius.brMd,
-        PButtonSize.iconLg => PRadius.brFull,
-      };
+    PButtonSize.sm => PRadius.brSm,
+    PButtonSize.md => PRadius.brSm,
+    PButtonSize.lg => PRadius.brMd,
+    PButtonSize.iconLg => PRadius.brFull,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -196,8 +212,8 @@ class PButton extends StatelessWidget {
         fg = dangerous
             ? t.statusDangerFg
             : (iconOnly && size != PButtonSize.iconLg
-                ? t.fgSecondary
-                : t.fgPrimary);
+                  ? t.fgSecondary
+                  : t.fgPrimary);
         border = BorderSide.none;
         break;
       case PButtonVariant.accent:
@@ -225,10 +241,7 @@ class PButton extends StatelessWidget {
       // bg.withValues(alpha)는 transparent(ghost/accent/outline)에서 RGB 0,0,0이
       // 남아 50% 검정으로 깔리고, 글자색은 안 흐려져 disabled 구분이 안 되던 버그.
       color: bg,
-      shape: RoundedRectangleBorder(
-        borderRadius: radius,
-        side: border,
-      ),
+      shape: RoundedRectangleBorder(borderRadius: radius, side: border),
       child: InkWell(
         onTap: disabled ? null : onPressed,
         borderRadius: radius,
@@ -296,13 +309,16 @@ class PField extends StatelessWidget {
       children: [
         Row(
           children: [
-            Text(label,
-                style: PTypo.caption.copyWith(
-                    color: t.fgSecondary, fontWeight: PFontWeight.semi)),
+            Text(
+              label,
+              style: PTypo.caption.copyWith(
+                color: t.fgSecondary,
+                fontWeight: PFontWeight.semi,
+              ),
+            ),
             if (required) ...[
               const SizedBox(width: 2),
-              Text('*',
-                  style: PTypo.caption.copyWith(color: t.statusDanger)),
+              Text('*', style: PTypo.caption.copyWith(color: t.statusDanger)),
             ],
           ],
         ),
@@ -310,12 +326,13 @@ class PField extends StatelessWidget {
         child,
         if (errorText != null) ...[
           const SizedBox(height: 2),
-          Text(errorText!,
-              style: PTypo.caption.copyWith(color: t.statusDanger)),
+          Text(
+            errorText!,
+            style: PTypo.caption.copyWith(color: t.statusDanger),
+          ),
         ] else if (hint != null) ...[
           const SizedBox(height: 2),
-          Text(hint!,
-              style: PTypo.caption.copyWith(color: t.fgTertiary)),
+          Text(hint!, style: PTypo.caption.copyWith(color: t.fgTertiary)),
         ],
       ],
     );

@@ -72,7 +72,9 @@ class _CalendarLabelsScreenState extends ConsumerState<CalendarLabelsScreen> {
         },
         child: ListView(
           padding: const EdgeInsets.symmetric(
-              horizontal: PSpace.x24, vertical: PSpace.x24),
+            horizontal: PSpace.x24,
+            vertical: PSpace.x24,
+          ),
           children: [
             // 안내 카드
             _IntroCard(tokens: t),
@@ -102,16 +104,22 @@ class _CalendarLabelsScreenState extends ConsumerState<CalendarLabelsScreen> {
                     Container(
                       decoration: i > 0
                           ? BoxDecoration(
-                              border:
-                                  Border(top: BorderSide(color: t.borderSubtle)),
+                              border: Border(
+                                top: BorderSide(color: t.borderSubtle),
+                              ),
                             )
                           : null,
                       padding: const EdgeInsets.symmetric(
-                          horizontal: PSpace.x8, vertical: 14),
+                        horizontal: PSpace.x8,
+                        vertical: 14,
+                      ),
                       child: const Row(
                         children: [
                           PSkeleton(
-                              width: 32, height: 32, borderRadius: PRadius.brMd),
+                            width: 32,
+                            height: 32,
+                            borderRadius: PRadius.brMd,
+                          ),
                           SizedBox(width: 14),
                           Expanded(
                             child: Column(
@@ -124,7 +132,10 @@ class _CalendarLabelsScreenState extends ConsumerState<CalendarLabelsScreen> {
                             ),
                           ),
                           PSkeleton(
-                              width: 32, height: 32, borderRadius: PRadius.brMd),
+                            width: 32,
+                            height: 32,
+                            borderRadius: PRadius.brMd,
+                          ),
                           SizedBox(width: PSpace.x4),
                           PSkeleton(width: 15, height: 15),
                         ],
@@ -134,8 +145,10 @@ class _CalendarLabelsScreenState extends ConsumerState<CalendarLabelsScreen> {
               ),
               error: (e, _) => Padding(
                 padding: const EdgeInsets.symmetric(vertical: PSpace.x16),
-                child: Text('${l.calLabelLoadError}\n$e',
-                    style: PTypo.bodySm.copyWith(color: t.statusDanger)),
+                child: Text(
+                  '${l.calLabelLoadError}\n$e',
+                  style: PTypo.bodySm.copyWith(color: t.statusDanger),
+                ),
               ),
               data: (labels) {
                 return Column(
@@ -146,11 +159,13 @@ class _CalendarLabelsScreenState extends ConsumerState<CalendarLabelsScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(l.calAllLabelsCount(labels.length),
-                            style: PTypo.bodySm.copyWith(
-                              color: t.fgPrimary,
-                              fontWeight: PFontWeight.bold,
-                            )),
+                        Text(
+                          l.calAllLabelsCount(labels.length),
+                          style: PTypo.bodySm.copyWith(
+                            color: t.fgPrimary,
+                            fontWeight: PFontWeight.bold,
+                          ),
+                        ),
                         PButton(
                           label: l.calNewLabel,
                           icon: LucideIcons.plus,
@@ -170,42 +185,42 @@ class _CalendarLabelsScreenState extends ConsumerState<CalendarLabelsScreen> {
                     else
                       // 카드 다이어트 — 리스트 플랫.
                       Column(
-                          children: [
-                            for (int i = 0; i < labels.length; i++)
-                              // 밀면 수정·삭제. 행의 🗑·> 를 걷었으므로 탭(편집)이
-                              // 비제스처 경로다(spec swipe-actions.md · WCAG 2.1.1).
-                              PSwipeActions(
-                                key: ValueKey('cal-label-${labels[i].rowId}'),
-                                groupTag: 'cal-label-list',
-                                actions: [
-                                  PSwipeAction(
-                                    label: l.actionEdit,
-                                    icon: LucideIcons.pencil,
-                                    kind: PSwipeKind.primary,
-                                    onSelect: () => _showLabelEditor(
-                                        context, ref, labels[i]),
-                                  ),
-                                  PSwipeAction(
-                                    label: l.actionDelete,
-                                    icon: LucideIcons.trash2,
-                                    kind: PSwipeKind.destructive,
-                                    // _confirmDelete 가 자체 확인을 띄운다 —
-                                    // 여기서 또 주면 확인이 두 번 뜬다.
-                                    onSelect: () => _confirmDelete(
-                                        context, ref, labels[i]),
-                                  ),
-                                ],
-                                child: _LabelRow(
-                                  label: labels[i],
-                                  tokens: t,
-                                  // web 정합 — divider 는 행 풀폭 borderTop(첫 행 제외).
-                                  showDivider: i > 0,
-                                  onTap: () => _showLabelEditor(
-                                      context, ref, labels[i]),
+                        children: [
+                          for (int i = 0; i < labels.length; i++)
+                            // 밀면 수정·삭제. 행의 🗑·> 를 걷었으므로 탭(편집)이
+                            // 비제스처 경로다(spec swipe-actions.md · WCAG 2.1.1).
+                            PSwipeActions(
+                              key: ValueKey('cal-label-${labels[i].rowId}'),
+                              groupTag: 'cal-label-list',
+                              actions: [
+                                PSwipeAction(
+                                  label: l.actionEdit,
+                                  icon: LucideIcons.pencil,
+                                  kind: PSwipeKind.primary,
+                                  onSelect: () =>
+                                      _showLabelEditor(context, ref, labels[i]),
                                 ),
+                                PSwipeAction(
+                                  label: l.actionDelete,
+                                  icon: LucideIcons.trash2,
+                                  kind: PSwipeKind.destructive,
+                                  // _confirmDelete 가 자체 확인을 띄운다 —
+                                  // 여기서 또 주면 확인이 두 번 뜬다.
+                                  onSelect: () =>
+                                      _confirmDelete(context, ref, labels[i]),
+                                ),
+                              ],
+                              child: _LabelRow(
+                                label: labels[i],
+                                tokens: t,
+                                // web 정합 — divider 는 행 풀폭 borderTop(첫 행 제외).
+                                showDivider: i > 0,
+                                onTap: () =>
+                                    _showLabelEditor(context, ref, labels[i]),
                               ),
-                          ],
-                        ),
+                            ),
+                        ],
+                      ),
                   ],
                 );
               },
@@ -247,14 +262,18 @@ class _IntroCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(l.calLabelsTitle,
-                    style: PTypo.bodySm.copyWith(
-                      color: t.fgPrimary,
-                      fontWeight: PFontWeight.bold,
-                    )),
+                Text(
+                  l.calLabelsTitle,
+                  style: PTypo.bodySm.copyWith(
+                    color: t.fgPrimary,
+                    fontWeight: PFontWeight.bold,
+                  ),
+                ),
                 const SizedBox(height: 2),
-                Text(l.calLabelsIntro,
-                    style: PTypo.caption.copyWith(color: t.fgSecondary)),
+                Text(
+                  l.calLabelsIntro,
+                  style: PTypo.caption.copyWith(color: t.fgSecondary),
+                ),
               ],
             ),
           ),
@@ -289,49 +308,54 @@ class _LabelRow extends StatelessWidget {
             )
           : null,
       child: InkWell(
-      onTap: onTap,
-      child: Padding(
-        // web 정합 — 행 padding 14px 8px(사용자 결정).
-        padding: const EdgeInsets.symmetric(
-            horizontal: 0, vertical: 14),
-        child: Row(
-          children: [
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: softBg(context, color),
-                borderRadius: PRadius.brMd,
+        onTap: onTap,
+        child: Padding(
+          // web 정합 — 행 padding 14px 8px(사용자 결정).
+          padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 14),
+          child: Row(
+            children: [
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: softBg(context, color),
+                  borderRadius: PRadius.brMd,
+                ),
+                alignment: Alignment.center,
+                // web 정합 — 색 원 대신 라벨색 tag 아이콘(16).
+                child: Icon(LucideIcons.tag, size: 16, color: color),
               ),
-              alignment: Alignment.center,
-              // web 정합 — 색 원 대신 라벨색 tag 아이콘(16).
-              child: Icon(LucideIcons.tag, size: 16, color: color),
-            ),
-            // web 정합 — 아이콘↔텍스트 gap 14.
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(label.labelName,
+              // web 정합 — 아이콘↔텍스트 gap 14.
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      label.labelName,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: PTypo.body.copyWith(
                         color: t.fgPrimary,
                         fontWeight: PFontWeight.semi,
-                      )),
-                  const SizedBox(height: 2),
-                  // 사용 중 일정 수 — 할일 태그 행 정합.
-                  Text(l.calLabelUsage(label.usageCount),
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    // 사용 중 일정 수 — 할일 태그 행 정합.
+                    Text(
+                      l.calLabelUsage(label.usageCount),
                       style: PTypo.caption.copyWith(
-                          color: t.fgTertiary, fontSize: 12.5)),
-                ],
+                        color: t.fgTertiary,
+                        fontSize: 12.5,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            // 🗑·> 를 두지 않는다 — 밀면 수정·삭제, 탭하면 편집(사용자 결정).
-          ],
+              // 🗑·> 를 두지 않는다 — 밀면 수정·삭제, 탭하면 편집(사용자 결정).
+            ],
+          ),
         ),
-      ),
       ),
     );
   }
@@ -360,7 +384,10 @@ void _showLabelEditor(
         await repo.createLabel(labelName: name, color: selectedColor);
       } else {
         await repo.updateLabel(
-            id: existing.rowId, labelName: name, color: selectedColor);
+          id: existing.rowId,
+          labelName: name,
+          color: selectedColor,
+        );
       }
       ref.invalidate(eventLabelsProvider);
       if (!context.mounted) return;
@@ -423,82 +450,92 @@ class _LabelEditorBodyState extends State<_LabelEditorBody> {
     final swatch = solidSwatchColor(context, _color, fallback: t.fgBrand);
     final preview = widget.nameController.text.trim();
     return Padding(
-      padding:
-          const EdgeInsets.fromLTRB(PSpace.xl, 0, PSpace.xl, PSpace.x16),
+      padding: const EdgeInsets.fromLTRB(PSpace.xl, 0, PSpace.xl, PSpace.x16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-        // 미리보기
-        Container(
-          padding: const EdgeInsets.all(PSpace.x16),
-          decoration: BoxDecoration(
-            color: softBg(context, swatch),
-            borderRadius: PRadius.brMd,
-          ),
-          child: Row(
-            children: [
-              // 웹 정합 — 40 radius-md 타일 + tag 아이콘 (원형 아님).
-              Container(
-                width: 40,
-                height: 40,
-                decoration:
-                    BoxDecoration(color: swatch, borderRadius: PRadius.brMd),
-                alignment: Alignment.center,
-                child: Icon(LucideIcons.tag, size: 18, color: t.fgOnBrand),
-              ),
-              const SizedBox(width: PSpace.x12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(l.calPreview,
+          // 미리보기
+          Container(
+            padding: const EdgeInsets.all(PSpace.x16),
+            decoration: BoxDecoration(
+              color: softBg(context, swatch),
+              borderRadius: PRadius.brMd,
+            ),
+            child: Row(
+              children: [
+                // 웹 정합 — 40 radius-md 타일 + tag 아이콘 (원형 아님).
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: swatch,
+                    borderRadius: PRadius.brMd,
+                  ),
+                  alignment: Alignment.center,
+                  child: Icon(LucideIcons.tag, size: 18, color: t.fgOnBrand),
+                ),
+                const SizedBox(width: PSpace.x12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l.calPreview,
                         // 웹 badge(11)/600 정합 — 색은 중립(tertiary) 유지.
                         style: PTypo.micro.copyWith(
-                            color: t.fgTertiary,
-                            fontWeight: PFontWeight.semi,
-                            letterSpacing: 0.22)),
-                    const SizedBox(height: 2),
-                    Text(preview.isEmpty ? l.calNewLabel : preview,
+                          color: t.fgTertiary,
+                          fontWeight: PFontWeight.semi,
+                          letterSpacing: 0.22,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        preview.isEmpty ? l.calNewLabel : preview,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         // 웹 body-lg(16)/700 정합 — 색은 중립(primary) 유지.
                         style: PTypo.bodyLg.copyWith(
                           color: t.fgPrimary,
                           fontWeight: PFontWeight.bold,
-                        )),
-                  ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-        const SizedBox(height: PSpace.x16),
+          const SizedBox(height: PSpace.x16),
 
-        // 이름
-        Text(l.calFieldName,
-            style: PTypo.caption.copyWith(color: t.fgSecondary)),
-        const SizedBox(height: PSpace.x4),
-        PTextInput(
-          controller: widget.nameController,
-          placeholder: l.calLabelNamePlaceholder,
-          onChanged: (v) {
-            widget.controller.setCanSubmit(v.trim().isNotEmpty);
-            setState(() {});
-          },
-        ),
-        const SizedBox(height: PSpace.x16),
+          // 이름
+          Text(
+            l.calFieldName,
+            style: PTypo.caption.copyWith(color: t.fgSecondary),
+          ),
+          const SizedBox(height: PSpace.x4),
+          PTextInput(
+            controller: widget.nameController,
+            placeholder: l.calLabelNamePlaceholder,
+            onChanged: (v) {
+              widget.controller.setCanSubmit(v.trim().isNotEmpty);
+              setState(() {});
+            },
+          ),
+          const SizedBox(height: PSpace.x16),
 
-        // 색상
-        Text(l.calFieldColor,
-            style: PTypo.caption.copyWith(color: t.fgSecondary)),
-        const SizedBox(height: PSpace.x8),
-        PColorPicker(
-          selected: _color,
-          onChanged: (hex) {
-            setState(() => _color = hex);
-            widget.onColorChanged(hex);
-          },
-        ),
+          // 색상
+          Text(
+            l.calFieldColor,
+            style: PTypo.caption.copyWith(color: t.fgSecondary),
+          ),
+          const SizedBox(height: PSpace.x8),
+          PColorPicker(
+            selected: _color,
+            onChanged: (hex) {
+              setState(() => _color = hex);
+              widget.onColorChanged(hex);
+            },
+          ),
         ],
       ),
     );

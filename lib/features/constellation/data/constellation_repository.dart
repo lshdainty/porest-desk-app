@@ -45,7 +45,9 @@ class ConstellationRepository {
   /// 별자리 도감. GET /constellations/collection.
   Future<ConstellationCollectionData> collection() async {
     try {
-      final res = await _dio.get<Map<String, dynamic>>('/constellations/collection');
+      final res = await _dio.get<Map<String, dynamic>>(
+        '/constellations/collection',
+      );
       return _unwrap(res, ConstellationCollectionData.fromJson);
     } on DioException catch (e) {
       throw ApiException.fromDio(e);

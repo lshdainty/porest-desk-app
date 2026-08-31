@@ -18,10 +18,12 @@ const _notes = '''
 ''';
 
 Future<void> _pump(WidgetTester tester, String notes) async {
-  await tester.pumpWidget(MaterialApp(
-    theme: PorestTheme.light(),
-    home: Scaffold(body: PReleaseNotes(notes: notes)),
-  ));
+  await tester.pumpWidget(
+    MaterialApp(
+      theme: PorestTheme.light(),
+      home: Scaffold(body: PReleaseNotes(notes: notes)),
+    ),
+  );
 }
 
 TextStyle _styleOf(WidgetTester tester, String text) =>

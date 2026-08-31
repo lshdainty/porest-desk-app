@@ -36,8 +36,6 @@ import 'package:porest_desk_app/features/asset/application/asset_providers.dart'
 import 'package:porest_desk_app/features/asset/domain/asset_transfer.dart';
 import 'package:porest_desk_app/shared/widgets/p_tab_bar.dart';
 
-
-
 /// 가계부 화면 — 백엔드 `/expenses` 직접 호출.
 class ExpenseScreen extends ConsumerStatefulWidget {
   const ExpenseScreen({
@@ -114,8 +112,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
     final collapseH = _compact
         ? 0.0
         : (_collapseKey.currentContext?.size?.height ?? 0.0);
-    final canStay =
-        _scrollCtrl.position.maxScrollExtent - collapseH > 72;
+    final canStay = _scrollCtrl.position.maxScrollExtent - collapseH > 72;
     final next = _compact ? st > 24 : st > 72 && canStay;
     if (next != _compact) {
       setState(() {
@@ -215,7 +212,20 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
 
   /// 월 라벨 — ko "7월" / en "Jul" (monthnav·prevbtn·empty 공용, web txmMonthLabel 정합).
   static String _monthLabel(DateTime m) => localeIsEn()
-      ? const ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][m.month - 1]
+      ? const [
+          'Jan',
+          'Feb',
+          'Mar',
+          'Apr',
+          'May',
+          'Jun',
+          'Jul',
+          'Aug',
+          'Sep',
+          'Oct',
+          'Nov',
+          'Dec',
+        ][m.month - 1]
       : '${m.month}월';
 
   void _goMonth(int dir) {
@@ -230,8 +240,11 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
     });
     _lockFor(800);
     if (_scrollCtrl.hasClients) {
-      _scrollCtrl.animateTo(0,
-          duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
+      _scrollCtrl.animateTo(
+        0,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
     }
   }
 
@@ -240,8 +253,11 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final ctx = _dayKeys[ds]?.currentContext;
       if (ctx == null) return;
-      Scrollable.ensureVisible(ctx,
-          duration: const Duration(milliseconds: 300), alignment: 0.02);
+      Scrollable.ensureVisible(
+        ctx,
+        duration: const Duration(milliseconds: 300),
+        alignment: 0.02,
+      );
     });
   }
 
@@ -253,10 +269,12 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
     final expensesAsync = ref.watch(monthExpensesProvider(_key));
     // 이체는 asset_transfer 별도 테이블이라 거래 목록에 섞여 오지 않는다.
     // 같은 달 범위로 따로 받아 화면 단에서만 합친다(통계·예산 같은 지출 전용 경로 보호).
-    final transfersAsync = ref.watch(assetTransfersProvider((
-      startDate: _ymdOf(DateTime(_month.year, _month.month, 1)),
-      endDate: _ymdOf(DateTime(_month.year, _month.month + 1, 0)),
-    )));
+    final transfersAsync = ref.watch(
+      assetTransfersProvider((
+        startDate: _ymdOf(DateTime(_month.year, _month.month, 1)),
+        endDate: _ymdOf(DateTime(_month.year, _month.month + 1, 0)),
+      )),
+    );
     // 인사이트(지난달 대비) — 지난달 거래도 함께 구독(family 캐시).
     final prevAsync = ref.watch(monthExpensesProvider(_prevKey));
 
@@ -271,400 +289,479 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
         ),
       ),
       data: (raw) {
-              final selectedCats = _advFilter.categoryIds;
-              final cats = categoriesAsync.value;
-              final Set<int>? allowedCats = selectedCats.isEmpty
-                  ? null
-                  : {
-                      ...selectedCats,
-                      if (cats != null)
-                        for (final c in cats)
-                          if (c.parentRowId != null &&
-                              selectedCats.contains(c.parentRowId))
-                            c.rowId,
-                    };
-              final (pStart, pEnd) = _periodRange(_advFilter);
-              final filtered =
-                  raw
-                      .where((e) {
-                        // 기간 필터(클라) — 월 데이터와의 교집합만 표시.
-                        final d = e.expenseDateOnly ?? '';
-                        if (pStart != null && d.compareTo(pStart) < 0) {
-                          return false;
-                        }
-                        if (pEnd != null && d.compareTo(pEnd) > 0) {
-                          return false;
-                        }
-                        if (_assetIdFilter != null &&
-                            e.assetRowId != _assetIdFilter) {
-                          return false;
-                        }
-                        if (allowedCats != null &&
-                            !(allowedCats.contains(e.categoryRowId) ||
-                                e.splitCategoryRowIds.any(allowedCats.contains))) {
-                          return false;
-                        }
-                        if (_advFilter.assetIds.isNotEmpty &&
-                            !_advFilter.assetIds.contains(e.assetRowId)) {
-                          return false;
-                        }
-                        if (_advFilter.types.length < 2 &&
-                            !_advFilter.types.contains(e.expenseType)) {
-                          return false;
-                        }
-                        if (_advFilter.min != null &&
-                            e.amount < _advFilter.min!) {
-                          return false;
-                        }
-                        if (_advFilter.max != null &&
-                            e.amount > _advFilter.max!) {
-                          return false;
-                        }
-                        return true;
-                      })
-                      .toList()
-                    ..sort(
-                      (a, b) =>
-                          (b.expenseDate ?? '').compareTo(a.expenseDate ?? ''),
-                    );
-
-              // 환불은 지출 상계, 아직 안 온 건 제외 — 서버 월 요약과 같은 규칙.
-              final monthIncome = incomeSum(raw);
-              final monthExpense = expenseSum(raw);
-
-              // 일별 합계 — 캘린더 셀 밑 금액 (필터 적용분 기준).
-              final byDay = <String, ({int out, int inn})>{};
-              for (final e in countableTx(filtered)) {
-                final d = e.expenseDateOnly ?? '';
-                final cur = byDay[d] ?? (out: 0, inn: 0);
-                // 환불은 그날 지출에서 빠진다 — 파랑 '+' 로 그리면 월 헤더와 어긋난다.
-                byDay[d] = isRefundTx(e)
-                    ? (out: cur.out - e.amount.abs(), inn: cur.inn)
-                    : e.expenseType == 'EXPENSE'
-                        ? (out: cur.out + e.amount.abs(), inn: cur.inn)
-                        : (out: cur.out, inn: cur.inn + e.amount.abs());
+        final selectedCats = _advFilter.categoryIds;
+        final cats = categoriesAsync.value;
+        final Set<int>? allowedCats = selectedCats.isEmpty
+            ? null
+            : {
+                ...selectedCats,
+                if (cats != null)
+                  for (final c in cats)
+                    if (c.parentRowId != null &&
+                        selectedCats.contains(c.parentRowId))
+                      c.rowId,
+              };
+        final (pStart, pEnd) = _periodRange(_advFilter);
+        final filtered =
+            raw.where((e) {
+              // 기간 필터(클라) — 월 데이터와의 교집합만 표시.
+              final d = e.expenseDateOnly ?? '';
+              if (pStart != null && d.compareTo(pStart) < 0) {
+                return false;
               }
-
-              final groups = <String, List<Expense>>{};
-              for (final e in filtered) {
-                final d = e.expenseDateOnly ?? '';
-                groups.putIfAbsent(d, () => []).add(e);
+              if (pEnd != null && d.compareTo(pEnd) > 0) {
+                return false;
               }
-
-              // 이체 필터 — 이체에 개념이 없는 필터(카테고리·유형)가 걸리면 대상에서 뺀다.
-              // 자산 필터는 보내는 쪽·받는 쪽 둘 다 매칭(한 건이 자산 두 개에 걸침).
-              final transferGroups = <String, List<AssetTransfer>>{};
-              final typeFiltered = _advFilter.types.length == 1;
-              if (!typeFiltered && _advFilter.categoryIds.isEmpty) {
-                for (final tr in (transfersAsync.value ?? const <AssetTransfer>[])) {
-                  if (_advFilter.assetIds.isNotEmpty &&
-                      !_advFilter.assetIds.contains(tr.fromAssetRowId) &&
-                      !_advFilter.assetIds.contains(tr.toAssetRowId)) {
-                    continue;
-                  }
-                  if (_advFilter.min != null && tr.amount < _advFilter.min!) continue;
-                  if (_advFilter.max != null && tr.amount > _advFilter.max!) continue;
-                  // transferDate 가 DATETIME 이라 그룹 키는 날짜 부분만 쓴다.
-                  final raw = tr.transferDate ?? '';
-                  if (raw.length < 10) continue;
-                  final d = raw.substring(0, 10);
-                  transferGroups.putIfAbsent(d, () => []).add(tr);
-                }
+              if (_assetIdFilter != null && e.assetRowId != _assetIdFilter) {
+                return false;
               }
-
-              // 이체만 있는 날도 그룹이 나와야 한다.
-              final groupKeys = <String>{...groups.keys, ...transferGroups.keys}.toList()
-                ..sort((a, b) => b.compareTo(a));
-              _dayKeys.removeWhere(
-                  (k, _) => !groups.containsKey(k) && !transferGroups.containsKey(k));
-              for (final k in groupKeys) {
-                _dayKeys.putIfAbsent(k, () => GlobalKey());
+              if (allowedCats != null &&
+                  !(allowedCats.contains(e.categoryRowId) ||
+                      e.splitCategoryRowIds.any(allowedCats.contains))) {
+                return false;
               }
+              if (_advFilter.assetIds.isNotEmpty &&
+                  !_advFilter.assetIds.contains(e.assetRowId)) {
+                return false;
+              }
+              if (_advFilter.types.length < 2 &&
+                  !_advFilter.types.contains(e.expenseType)) {
+                return false;
+              }
+              if (_advFilter.min != null && e.amount < _advFilter.min!) {
+                return false;
+              }
+              if (_advFilter.max != null && e.amount > _advFilter.max!) {
+                return false;
+              }
+              return true;
+            }).toList()..sort(
+              (a, b) => (b.expenseDate ?? '').compareTo(a.expenseDate ?? ''),
+            );
 
-              final advCount =
-                  _advFilter.categoryIds.length +
-                  _advFilter.assetIds.length +
-                  // web filterActiveCount 정합 — 기본(custom) 외 기간 선택도 카운트.
-                  (_advFilter.period != FilterPeriod.custom ? 1 : 0) +
-                  (pStart != null && _advFilter.period == FilterPeriod.custom ? 1 : 0) +
-                  (_advFilter.types.length < 2 ? 1 : 0) +
-                  (_advFilter.min != null ? 1 : 0) +
-                  (_advFilter.max != null ? 1 : 0);
+        // 환불은 지출 상계, 아직 안 온 건 제외 — 서버 월 요약과 같은 규칙.
+        final monthIncome = incomeSum(raw);
+        final monthExpense = expenseSum(raw);
 
-              // 필터 활성 시 — 월선택/총액/캘린더/divider 숨기고 온전히 리스트만(사용자 결정).
-              final filterActive = advCount > 0 || _assetIdFilter != null;
+        // 일별 합계 — 캘린더 셀 밑 금액 (필터 적용분 기준).
+        final byDay = <String, ({int out, int inn})>{};
+        for (final e in countableTx(filtered)) {
+          final d = e.expenseDateOnly ?? '';
+          final cur = byDay[d] ?? (out: 0, inn: 0);
+          // 환불은 그날 지출에서 빠진다 — 파랑 '+' 로 그리면 월 헤더와 어긋난다.
+          byDay[d] = isRefundTx(e)
+              ? (out: cur.out - e.amount.abs(), inn: cur.inn)
+              : e.expenseType == 'EXPENSE'
+              ? (out: cur.out + e.amount.abs(), inn: cur.inn)
+              : (out: cur.out, inn: cur.inn + e.amount.abs());
+        }
 
-              final pin = Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 10),
-                  _TxmMonthNav(
-                    label: _monthLabel(_month),
-                    showMonth: !filterActive,
-                    onPrev: () => _goMonth(-1),
-                    onNext: () => _goMonth(1),
-                    filterActive: advCount > 0,
-                    filterCount: advCount,
-                    onOpenFilter: _openFilter,
-                    onAddTx: () => showAddTxSheet(context),
-                    tokens: t,
-                  ),
-                  if (filterActive)
-                    _FilterChipsRow(
-                      filter: _advFilter,
-                      assetId: _assetIdFilter,
-                      onClearAsset: _clearAssetFilter,
-                      onChange: (f) => setState(() => _advFilter = f),
-                      categories: categoriesAsync.value ?? const [],
-                      tokens: t,
-                    ),
-                  // 총액 + 인사이트 + [소비 요약] — 스크롤 시 접힘. 필터 활성 시 숨김.
-                  if (!filterActive)
-                  ClipRect(
-                    key: _collapseKey,
-                    child: AnimatedSize(
-                      duration: const Duration(milliseconds: 220),
-                      curve: Curves.easeOut,
-                      alignment: Alignment.topCenter,
-                      child: _compact
-                          ? const SizedBox(width: double.infinity)
-                          : Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(PSpace.x24, 8, PSpace.x24, 0),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                krwSigned(monthExpense,
-                                    ref.watch(maskFlagsProvider('ledger.monthSummary')).of(MaskKind.expense),
-                                    unit: true),
-                                style: TextStyle(
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.w800,
-                                  letterSpacing: -0.56,
-                                  height: 1.15,
-                                  color: t.fgPrimary,
-                                  fontFeatures: const [FontFeature.tabularFigures()],
-                                ),
-                              ),
-                              Builder(builder: (_) {
-                                final ins = _insight(
-                                  l, t, raw, monthExpense,
-                                  prevAsync.value, categoriesAsync.value,
-                                );
-                                if (ins == null) return const SizedBox.shrink();
-                                return Padding(
-                                  padding: const EdgeInsets.only(top: 7),
-                                  child: ins,
-                                );
-                              }),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: PSpace.x12),
-                        _TxmSumBtn(
-                          on: _sumOpen,
-                          label: l.txmSpendSummary,
-                          // 월 전체 캘린더와 동시 열면 고정 pin이 화면을
-                          // 초과(overflow) — 상호 배타로 접는다.
-                          onTap: () => setState(() {
-                            _sumOpen = !_sumOpen;
-                            if (_sumOpen) _expanded = false;
-                          }),
-                          tokens: t,
-                        ),
-                      ],
-                    ),
-                  ),
-                  if (_sumOpen)
-                    Padding(
-                      // 하단 28 은 그림자 자리다 — 이 Padding 은 위쪽 ClipRect 안이라
-                      // 0 이면 raised 의 shadow-lg 가 카드 바닥선에서 칼같이 잘린다.
-                      // 28 = dy 8 + blur 24 + spread −4 (그림자가 아래로 퍼지는 거리).
-                      padding: const EdgeInsets.fromLTRB(
-                          PSpace.x24, 14, PSpace.x24, PSpace.x28),
-                      child: PCard(
-                        variant: PCardVariant.raised,
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                        child: Column(
+        final groups = <String, List<Expense>>{};
+        for (final e in filtered) {
+          final d = e.expenseDateOnly ?? '';
+          groups.putIfAbsent(d, () => []).add(e);
+        }
+
+        // 이체 필터 — 이체에 개념이 없는 필터(카테고리·유형)가 걸리면 대상에서 뺀다.
+        // 자산 필터는 보내는 쪽·받는 쪽 둘 다 매칭(한 건이 자산 두 개에 걸침).
+        final transferGroups = <String, List<AssetTransfer>>{};
+        final typeFiltered = _advFilter.types.length == 1;
+        if (!typeFiltered && _advFilter.categoryIds.isEmpty) {
+          for (final tr in (transfersAsync.value ?? const <AssetTransfer>[])) {
+            if (_advFilter.assetIds.isNotEmpty &&
+                !_advFilter.assetIds.contains(tr.fromAssetRowId) &&
+                !_advFilter.assetIds.contains(tr.toAssetRowId)) {
+              continue;
+            }
+            if (_advFilter.min != null && tr.amount < _advFilter.min!) continue;
+            if (_advFilter.max != null && tr.amount > _advFilter.max!) continue;
+            // transferDate 가 DATETIME 이라 그룹 키는 날짜 부분만 쓴다.
+            final raw = tr.transferDate ?? '';
+            if (raw.length < 10) continue;
+            final d = raw.substring(0, 10);
+            transferGroups.putIfAbsent(d, () => []).add(tr);
+          }
+        }
+
+        // 이체만 있는 날도 그룹이 나와야 한다.
+        final groupKeys = <String>{
+          ...groups.keys,
+          ...transferGroups.keys,
+        }.toList()..sort((a, b) => b.compareTo(a));
+        _dayKeys.removeWhere(
+          (k, _) => !groups.containsKey(k) && !transferGroups.containsKey(k),
+        );
+        for (final k in groupKeys) {
+          _dayKeys.putIfAbsent(k, () => GlobalKey());
+        }
+
+        final advCount =
+            _advFilter.categoryIds.length +
+            _advFilter.assetIds.length +
+            // web filterActiveCount 정합 — 기본(custom) 외 기간 선택도 카운트.
+            (_advFilter.period != FilterPeriod.custom ? 1 : 0) +
+            (pStart != null && _advFilter.period == FilterPeriod.custom
+                ? 1
+                : 0) +
+            (_advFilter.types.length < 2 ? 1 : 0) +
+            (_advFilter.min != null ? 1 : 0) +
+            (_advFilter.max != null ? 1 : 0);
+
+        // 필터 활성 시 — 월선택/총액/캘린더/divider 숨기고 온전히 리스트만(사용자 결정).
+        final filterActive = advCount > 0 || _assetIdFilter != null;
+
+        final pin = Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 10),
+            _TxmMonthNav(
+              label: _monthLabel(_month),
+              showMonth: !filterActive,
+              onPrev: () => _goMonth(-1),
+              onNext: () => _goMonth(1),
+              filterActive: advCount > 0,
+              filterCount: advCount,
+              onOpenFilter: _openFilter,
+              onAddTx: () => showAddTxSheet(context),
+              tokens: t,
+            ),
+            if (filterActive)
+              _FilterChipsRow(
+                filter: _advFilter,
+                assetId: _assetIdFilter,
+                onClearAsset: _clearAssetFilter,
+                onChange: (f) => setState(() => _advFilter = f),
+                categories: categoriesAsync.value ?? const [],
+                tokens: t,
+              ),
+            // 총액 + 인사이트 + [소비 요약] — 스크롤 시 접힘. 필터 활성 시 숨김.
+            if (!filterActive)
+              ClipRect(
+                key: _collapseKey,
+                child: AnimatedSize(
+                  duration: const Duration(milliseconds: 220),
+                  curve: Curves.easeOut,
+                  alignment: Alignment.topCenter,
+                  child: _compact
+                      ? const SizedBox(width: double.infinity)
+                      : Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _TxmSummaryRow(
-                              label: l.expSummaryIncome,
-                              value: krwSigned(monthIncome,
-                                  ref.watch(maskFlagsProvider('ledger.monthSummary')).of(MaskKind.income),
-                                  sign: '+', unit: true),
-                              valueColor: t.fgBrand,
-                              tokens: t,
-                            ),
-                            Divider(height: 1, thickness: 1, color: t.borderSubtle),
-                            _TxmSummaryRow(
-                              label: l.expSummaryExpense,
-                              value: krwSigned(monthExpense,
-                                  ref.watch(maskFlagsProvider('ledger.monthSummary')).of(MaskKind.expense),
-                                  sign: '−', unit: true),
-                              valueColor: t.fgExpense,
-                              tokens: t,
-                            ),
-                            Divider(height: 1, thickness: 1, color: t.borderSubtle),
-                            _TxmSummaryRow(
-                              label: l.expTotal,
-                              value: krwSigned(
-                                (monthIncome - monthExpense).abs(),
-                                ref.watch(maskFlagsProvider('ledger.monthSummary')).of(MaskKind.net),
-                                sign: monthIncome - monthExpense >= 0 ? '+' : '−',
-                                unit: true,
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(
+                                PSpace.x24,
+                                8,
+                                PSpace.x24,
+                                0,
                               ),
-                              valueColor: t.fgPrimary,
-                              emphasize: true,
-                              tokens: t,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                              ],
-                            ),
-                    ),
-                  ),
-                  // 캘린더 — 필터 적용 시 숨김(리스트만, 사용자 결정·web 정합).
-                  if (!filterActive) ...[
-                  _TxmCalendar(
-                    month: _month,
-                    selected: _selected,
-                    expanded: _expanded,
-                    byDay: byDay,
-                    flags: ref.watch(maskFlagsProvider('ledger.calendar')),
-                    onSelect: (ds) {
-                      setState(() => _selected = ds);
-                      if (byDay.containsKey(ds)) _scrollToDay(ds);
-                    },
-                    onToggleExpand: () => setState(() {
-                      _expanded = !_expanded;
-                      if (_expanded) _sumOpen = false;
-                    }),
-                    tokens: t,
-                  ),
-                  ],
-                  if (!filterActive)
-                    Container(height: 1, color: t.borderDefault),
-                ],
-              );
-
-              final listChildren = <Widget>[
-                        if (groupKeys.isEmpty)
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(PSpace.x24, 56, PSpace.x24, 20),
-                            child: Center(
-                              child: Column(
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Icon(LucideIcons.receiptText, size: 36, color: t.fgTertiary),
-                                  const SizedBox(height: 12),
-                                  Text(
-                                    l.txmEmptyMonth(_monthLabel(_month)),
-                                    style: PTypo.bodySm.copyWith(
-                                      color: t.fgPrimary,
-                                      fontWeight: PFontWeight.bold,
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          krwSigned(
+                                            monthExpense,
+                                            ref
+                                                .watch(
+                                                  maskFlagsProvider(
+                                                    'ledger.monthSummary',
+                                                  ),
+                                                )
+                                                .of(MaskKind.expense),
+                                            unit: true,
+                                          ),
+                                          style: TextStyle(
+                                            fontSize: 28,
+                                            fontWeight: FontWeight.w800,
+                                            letterSpacing: -0.56,
+                                            height: 1.15,
+                                            color: t.fgPrimary,
+                                            fontFeatures: const [
+                                              FontFeature.tabularFigures(),
+                                            ],
+                                          ),
+                                        ),
+                                        Builder(
+                                          builder: (_) {
+                                            final ins = _insight(
+                                              l,
+                                              t,
+                                              raw,
+                                              monthExpense,
+                                              prevAsync.value,
+                                              categoriesAsync.value,
+                                            );
+                                            if (ins == null) {
+                                              return const SizedBox.shrink();
+                                            }
+                                            return Padding(
+                                              padding: const EdgeInsets.only(
+                                                top: 7,
+                                              ),
+                                              child: ins,
+                                            );
+                                          },
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    l.txmEmptyMonthDesc,
-                                    textAlign: TextAlign.center,
-                                    style: PTypo.bodySm.copyWith(color: t.fgTertiary),
+                                  const SizedBox(width: PSpace.x12),
+                                  _TxmSumBtn(
+                                    on: _sumOpen,
+                                    label: l.txmSpendSummary,
+                                    // 월 전체 캘린더와 동시 열면 고정 pin이 화면을
+                                    // 초과(overflow) — 상호 배타로 접는다.
+                                    onTap: () => setState(() {
+                                      _sumOpen = !_sumOpen;
+                                      if (_sumOpen) _expanded = false;
+                                    }),
+                                    tokens: t,
                                   ),
                                 ],
                               ),
                             ),
-                          )
-                        else
-                          for (final key in groupKeys)
-                            KeyedSubtree(
-                              key: _dayKeys[key],
-                              child: _DayGroup(
-                                date: parseIsoDate(key),
-                                items: groups[key] ?? const [],
-                                transfers: transferGroups[key] ?? const [],
-                                categoriesAsync: categoriesAsync,
-                                flags: ref.watch(maskFlagsProvider('ledger.txList')),
-                                rowKeys: _rowKeys,
-                                focusTxId: widget.focusTxId,
+                            if (_sumOpen)
+                              Padding(
+                                // 하단 28 은 그림자 자리다 — 이 Padding 은 위쪽 ClipRect 안이라
+                                // 0 이면 raised 의 shadow-lg 가 카드 바닥선에서 칼같이 잘린다.
+                                // 28 = dy 8 + blur 24 + spread −4 (그림자가 아래로 퍼지는 거리).
+                                padding: const EdgeInsets.fromLTRB(
+                                  PSpace.x24,
+                                  14,
+                                  PSpace.x24,
+                                  PSpace.x28,
+                                ),
+                                child: PCard(
+                                  variant: PCardVariant.raised,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 4,
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      _TxmSummaryRow(
+                                        label: l.expSummaryIncome,
+                                        value: krwSigned(
+                                          monthIncome,
+                                          ref
+                                              .watch(
+                                                maskFlagsProvider(
+                                                  'ledger.monthSummary',
+                                                ),
+                                              )
+                                              .of(MaskKind.income),
+                                          sign: '+',
+                                          unit: true,
+                                        ),
+                                        valueColor: t.fgBrand,
+                                        tokens: t,
+                                      ),
+                                      Divider(
+                                        height: 1,
+                                        thickness: 1,
+                                        color: t.borderSubtle,
+                                      ),
+                                      _TxmSummaryRow(
+                                        label: l.expSummaryExpense,
+                                        value: krwSigned(
+                                          monthExpense,
+                                          ref
+                                              .watch(
+                                                maskFlagsProvider(
+                                                  'ledger.monthSummary',
+                                                ),
+                                              )
+                                              .of(MaskKind.expense),
+                                          sign: '−',
+                                          unit: true,
+                                        ),
+                                        valueColor: t.fgExpense,
+                                        tokens: t,
+                                      ),
+                                      Divider(
+                                        height: 1,
+                                        thickness: 1,
+                                        color: t.borderSubtle,
+                                      ),
+                                      _TxmSummaryRow(
+                                        label: l.expTotal,
+                                        value: krwSigned(
+                                          (monthIncome - monthExpense).abs(),
+                                          ref
+                                              .watch(
+                                                maskFlagsProvider(
+                                                  'ledger.monthSummary',
+                                                ),
+                                              )
+                                              .of(MaskKind.net),
+                                          sign: monthIncome - monthExpense >= 0
+                                              ? '+'
+                                              : '−',
+                                          unit: true,
+                                        ),
+                                        valueColor: t.fgPrimary,
+                                        emphasize: true,
+                                        tokens: t,
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
-                            ),
-                  // 이전 달 이용 내역 보기 — 필터 활성 시 숨김(사용자 결정).
-                  if (!filterActive)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 28),
-                    child: Material(
-                      // design .txm-prevbtn bg-sunken 다크(#2D3346)=web 정합 — 앱 bgMuted 사용
-                      // (앱 bgSunken 은 다크에서 페이지색이라 버튼이 사라짐).
-                      color: t.bgMuted,
-                      borderRadius: const BorderRadius.all(Radius.circular(14)),
-                      child: InkWell(
-                        onTap: () => _goMonth(-1),
-                        borderRadius: const BorderRadius.all(Radius.circular(14)),
-                        child: SizedBox(
-                          height: 52,
-                          child: Center(
-                            child: Text(
-                              l.txmPrevMonthBtn(_monthLabel(
-                                DateTime(_month.year, _month.month - 1, 1),
-                              )),
-                              style: TextStyle(
-                                fontSize: PFontSize.bodyMd,
-                                color: t.fgPrimary,
-                                fontWeight: PFontWeight.semi,
-                              ),
-                            ),
+                          ],
+                        ),
+                ),
+              ),
+            // 캘린더 — 필터 적용 시 숨김(리스트만, 사용자 결정·web 정합).
+            if (!filterActive) ...[
+              _TxmCalendar(
+                month: _month,
+                selected: _selected,
+                expanded: _expanded,
+                byDay: byDay,
+                flags: ref.watch(maskFlagsProvider('ledger.calendar')),
+                onSelect: (ds) {
+                  setState(() => _selected = ds);
+                  if (byDay.containsKey(ds)) _scrollToDay(ds);
+                },
+                onToggleExpand: () => setState(() {
+                  _expanded = !_expanded;
+                  if (_expanded) _sumOpen = false;
+                }),
+                tokens: t,
+              ),
+            ],
+            if (!filterActive) Container(height: 1, color: t.borderDefault),
+          ],
+        );
+
+        final listChildren = <Widget>[
+          if (groupKeys.isEmpty)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                PSpace.x24,
+                56,
+                PSpace.x24,
+                20,
+              ),
+              child: Center(
+                child: Column(
+                  children: [
+                    Icon(
+                      LucideIcons.receiptText,
+                      size: 36,
+                      color: t.fgTertiary,
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      l.txmEmptyMonth(_monthLabel(_month)),
+                      style: PTypo.bodySm.copyWith(
+                        color: t.fgPrimary,
+                        fontWeight: PFontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      l.txmEmptyMonthDesc,
+                      textAlign: TextAlign.center,
+                      style: PTypo.bodySm.copyWith(color: t.fgTertiary),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          else
+            for (final key in groupKeys)
+              KeyedSubtree(
+                key: _dayKeys[key],
+                child: _DayGroup(
+                  date: parseIsoDate(key),
+                  items: groups[key] ?? const [],
+                  transfers: transferGroups[key] ?? const [],
+                  categoriesAsync: categoriesAsync,
+                  flags: ref.watch(maskFlagsProvider('ledger.txList')),
+                  rowKeys: _rowKeys,
+                  focusTxId: widget.focusTxId,
+                ),
+              ),
+          // 이전 달 이용 내역 보기 — 필터 활성 시 숨김(사용자 결정).
+          if (!filterActive)
+            Padding(
+              padding: const EdgeInsets.only(top: 28),
+              child: Material(
+                // design .txm-prevbtn bg-sunken 다크(#2D3346)=web 정합 — 앱 bgMuted 사용
+                // (앱 bgSunken 은 다크에서 페이지색이라 버튼이 사라짐).
+                color: t.bgMuted,
+                borderRadius: const BorderRadius.all(Radius.circular(14)),
+                child: InkWell(
+                  onTap: () => _goMonth(-1),
+                  borderRadius: const BorderRadius.all(Radius.circular(14)),
+                  child: SizedBox(
+                    height: 52,
+                    child: Center(
+                      child: Text(
+                        l.txmPrevMonthBtn(
+                          _monthLabel(
+                            DateTime(_month.year, _month.month - 1, 1),
                           ),
+                        ),
+                        style: TextStyle(
+                          fontSize: PFontSize.bodyMd,
+                          color: t.fgPrimary,
+                          fontWeight: PFontWeight.semi,
                         ),
                       ),
                     ),
                   ),
-              ];
+                ),
+              ),
+            ),
+        ];
 
-              final content = Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  pin,
-                  Expanded(
-                    child: RefreshIndicator(
-                      color: t.bgBrand,
-                      onRefresh: () async {
-                        ref.invalidate(monthExpensesProvider(_key));
-                        await ref.read(monthExpensesProvider(_key).future);
-                      },
-                      child: ListView(
-                        key: _listKey,
-                        controller: _scrollCtrl,
-                        // 하단 — 플로팅 탭바 보상.
-                        padding: EdgeInsets.fromLTRB(PSpace.x24, 0,
-                            PSpace.x24, pTabBarBottomInset(context)),
-                        children: listChildren,
-                      ),
-                    ),
+        final content = Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            pin,
+            Expanded(
+              child: RefreshIndicator(
+                color: t.bgBrand,
+                onRefresh: () async {
+                  ref.invalidate(monthExpensesProvider(_key));
+                  await ref.read(monthExpensesProvider(_key).future);
+                },
+                child: ListView(
+                  key: _listKey,
+                  controller: _scrollCtrl,
+                  // 하단 — 플로팅 탭바 보상.
+                  padding: EdgeInsets.fromLTRB(
+                    PSpace.x24,
+                    0,
+                    PSpace.x24,
+                    pTabBarBottomInset(context),
                   ),
-                ],
-              );
-              if (widget.focusTxId != null && !_scrolledToFocus) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  if (!mounted) return;
-                  final ctx = _rowKeys[widget.focusTxId!]?.currentContext;
-                  if (ctx == null) return;
-                  Scrollable.ensureVisible(
-                    ctx,
-                    duration: const Duration(milliseconds: 300),
-                    alignment: 0.2,
-                  );
-                  _scrolledToFocus = true;
-                });
-              }
-              return content;
+                  children: listChildren,
+                ),
+              ),
+            ),
+          ],
+        );
+        if (widget.focusTxId != null && !_scrolledToFocus) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+            final ctx = _rowKeys[widget.focusTxId!]?.currentContext;
+            if (ctx == null) return;
+            Scrollable.ensureVisible(
+              ctx,
+              duration: const Duration(milliseconds: 300),
+              alignment: 0.2,
+            );
+            _scrolledToFocus = true;
+          });
+        }
+        return content;
       },
     );
   }
@@ -694,7 +791,9 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
           children: [
             TextSpan(text: less ? l.txmInsightLessPre : l.txmInsightMorePre),
             TextSpan(
-              text: less ? l.txmInsightLessHl(amount) : l.txmInsightMoreHl(amount),
+              text: less
+                  ? l.txmInsightLessHl(amount)
+                  : l.txmInsightMoreHl(amount),
               style: TextStyle(
                 fontWeight: PFontWeight.bold,
                 color: less ? t.fgBrand : t.fgExpense,
@@ -716,8 +815,13 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
       }
     }
     if (byCat.isEmpty) return null;
-    final topId = (byCat.entries.toList()..sort((a, b) => b.value.compareTo(a.value))).first.key;
-    final topName = topId == null ? null : categories?.byRowId(topId)?.categoryName;
+    final topId =
+        (byCat.entries.toList()..sort((a, b) => b.value.compareTo(a.value)))
+            .first
+            .key;
+    final topName = topId == null
+        ? null
+        : categories?.byRowId(topId)?.categoryName;
     if (topName == null) return null;
     return Text.rich(
       TextSpan(
@@ -758,8 +862,13 @@ class _TxmMonthNav extends StatelessWidget {
   final VoidCallback onAddTx;
   final PorestTokens tokens;
 
-  Widget _btn(IconData icon, VoidCallback onTap,
-      {Color? bg, Color? fg, Widget? badge}) {
+  Widget _btn(
+    IconData icon,
+    VoidCallback onTap, {
+    Color? bg,
+    Color? fg,
+    Widget? badge,
+  }) {
     return Material(
       color: bg ?? Colors.transparent,
       borderRadius: const BorderRadius.all(Radius.circular(10)),
@@ -925,6 +1034,7 @@ class _TxmCalendar extends StatelessWidget {
   final String? selected;
   final bool expanded;
   final Map<String, ({int out, int inn})> byDay;
+
   /// 화면 카드 + 종류 카드 — 금액마다 자기 종류로 판정한다.
   final MaskFlags flags;
   final ValueChanged<String> onSelect;
@@ -955,9 +1065,13 @@ class _TxmCalendar extends StatelessWidget {
     for (var i = 0; i < cells.length; i += 7) {
       weeks.add(cells.sublist(i, i + 7));
     }
-    var selWeek = weeks.indexWhere((w) => w.any((c) => c != null && c.ds == selected));
+    var selWeek = weeks.indexWhere(
+      (w) => w.any((c) => c != null && c.ds == selected),
+    );
     if (selWeek < 0) {
-      selWeek = weeks.indexWhere((w) => w.any((c) => c != null && c.ds == todayStr));
+      selWeek = weeks.indexWhere(
+        (w) => w.any((c) => c != null && c.ds == todayStr),
+      );
     }
     if (selWeek < 0) selWeek = 0;
 
@@ -988,7 +1102,10 @@ class _TxmCalendar extends StatelessWidget {
                   alignment: Alignment.center,
                   decoration: isSel
                       // 채움은 다크에서도 primary 고정(bgBrandSolid) — 캘린더 선택일.
-                      ? BoxDecoration(color: t.bgBrandSolid, shape: BoxShape.circle)
+                      ? BoxDecoration(
+                          color: t.bgBrandSolid,
+                          shape: BoxShape.circle,
+                        )
                       : null,
                   child: Opacity(
                     opacity: !isSel && future ? 0.55 : 1,
@@ -1013,14 +1130,28 @@ class _TxmCalendar extends StatelessWidget {
                         rows: [
                           PChartTooltipRowData(
                             color: t.fgExpense,
-                            label: AppLocalizations.of(context).expSummaryExpense,
-                            amount: krwSigned(data.out, flags.of(MaskKind.expense), sign: '−', unit: true),
+                            label: AppLocalizations.of(
+                              context,
+                            ).expSummaryExpense,
+                            amount: krwSigned(
+                              data.out,
+                              flags.of(MaskKind.expense),
+                              sign: '−',
+                              unit: true,
+                            ),
                             amountColor: t.fgExpense,
                           ),
                           PChartTooltipRowData(
                             color: t.fgBrand,
-                            label: AppLocalizations.of(context).expSummaryIncome,
-                            amount: krwSigned(data.inn, flags.of(MaskKind.income), sign: '+', unit: true),
+                            label: AppLocalizations.of(
+                              context,
+                            ).expSummaryIncome,
+                            amount: krwSigned(
+                              data.inn,
+                              flags.of(MaskKind.income),
+                              sign: '+',
+                              unit: true,
+                            ),
                             amountColor: t.fgBrand,
                           ),
                         ],
@@ -1037,10 +1168,14 @@ class _TxmCalendar extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               fontSize: 10,
-                              fontWeight: isSel ? PFontWeight.bold : PFontWeight.semi,
+                              fontWeight: isSel
+                                  ? PFontWeight.bold
+                                  : PFontWeight.semi,
                               letterSpacing: -0.2,
                               color: t.fgExpense,
-                              fontFeatures: const [FontFeature.tabularFigures()],
+                              fontFeatures: const [
+                                FontFeature.tabularFigures(),
+                              ],
                             ),
                           ),
                         if (data.inn > 0)
@@ -1050,10 +1185,14 @@ class _TxmCalendar extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               fontSize: 10,
-                              fontWeight: isSel ? PFontWeight.bold : PFontWeight.semi,
+                              fontWeight: isSel
+                                  ? PFontWeight.bold
+                                  : PFontWeight.semi,
                               letterSpacing: -0.2,
                               color: t.fgBrand,
-                              fontFeatures: const [FontFeature.tabularFigures()],
+                              fontFeatures: const [
+                                FontFeature.tabularFigures(),
+                              ],
                             ),
                           ),
                       ],
@@ -1087,8 +1226,8 @@ class _TxmCalendar extends StatelessWidget {
                         color: i == 0
                             ? t.fgExpense
                             : i == 6
-                                ? t.fgBrand
-                                : t.fgPrimary,
+                            ? t.fgBrand
+                            : t.fgPrimary,
                       ),
                     ),
                   ),
@@ -1097,10 +1236,11 @@ class _TxmCalendar extends StatelessWidget {
           ),
           for (final w in expanded ? weeks : [weeks[selWeek]])
             Row(
-                // 금액 줄 수가 달라도 날짜 숫자 y 고정 — Row 기본 center 가
-                // 낮은 셀을 세로 중앙으로 밀던 문제(토스 정렬 정합).
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [for (var i = 0; i < 7; i++) cell(w[i], i)]),
+              // 금액 줄 수가 달라도 날짜 숫자 y 고정 — Row 기본 center 가
+              // 낮은 셀을 세로 중앙으로 밀던 문제(토스 정렬 정합).
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [for (var i = 0; i < 7; i++) cell(w[i], i)],
+            ),
           InkWell(
             onTap: onToggleExpand,
             child: Padding(
@@ -1132,10 +1272,12 @@ class _DayGroup extends ConsumerWidget {
   });
   final DateTime date;
   final List<Expense> items;
+
   /// 그날의 이체. 지출/수입 합계에는 넣지 않고 행만 뒤에 붙인다
   /// (이체는 자산 간 이동이라 순자산 증감이 0 — 합계에 넣으면 월 통계가 부풀어 오른다).
   final List<AssetTransfer> transfers;
   final AsyncValue<dynamic> categoriesAsync;
+
   /// 화면 카드 + 종류 카드 — 금액마다 자기 종류로 판정한다.
   final MaskFlags flags;
   final Map<int, GlobalKey>? rowKeys;
@@ -1145,12 +1287,19 @@ class _DayGroup extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
-    final ds = '${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+    final ds =
+        '${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
     final now = DateTime.now();
-    final todayStr = '${now.year.toString().padLeft(4, '0')}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+    final todayStr =
+        '${now.year.toString().padLeft(4, '0')}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
     final yest = now.subtract(const Duration(days: 1));
-    final yesterdayStr = '${yest.year.toString().padLeft(4, '0')}-${yest.month.toString().padLeft(2, '0')}-${yest.day.toString().padLeft(2, '0')}';
-    final rel = ds == todayStr ? l.txmToday : ds == yesterdayStr ? l.txmYesterday : null;
+    final yesterdayStr =
+        '${yest.year.toString().padLeft(4, '0')}-${yest.month.toString().padLeft(2, '0')}-${yest.day.toString().padLeft(2, '0')}';
+    final rel = ds == todayStr
+        ? l.txmToday
+        : ds == yesterdayStr
+        ? l.txmYesterday
+        : null;
     final label = formatDay(date);
     // 월 헤더와 같은 규칙 — 환불 상계 + 예정 제외.
     final dayExpense = expenseSum(items);
@@ -1166,42 +1315,52 @@ class _DayGroup extends ConsumerWidget {
         children: [
           // txm dayhead — "yy. m. d(요일) · 오늘/어제" + 일 합계 (design .txm-dayhead).
           Row(
-              crossAxisAlignment: CrossAxisAlignment.baseline,
-              textBaseline: TextBaseline.alphabetic,
-              children: [
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              Text(
+                '${date.year % 100}. ${date.month}. ${date.day}(${label.dow})',
+                style: PTypo.bodySm.copyWith(
+                  color: t.fgSecondary,
+                  fontWeight: PFontWeight.semi,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
+              ),
+              if (rel != null)
                 Text(
-                  '${date.year % 100}. ${date.month}. ${date.day}(${label.dow})',
-                  style: PTypo.bodySm.copyWith(
-                    color: t.fgSecondary,
+                  ' · $rel',
+                  style: PTypo.bodySm.copyWith(color: t.fgTertiary),
+                ),
+              const Spacer(),
+              if (dayExpense > 0)
+                Text(
+                  krwSigned(
+                    dayExpense,
+                    flags.of(MaskKind.expense),
+                    sign: '−',
+                    unit: true,
+                  ),
+                  style: PTypo.caption.copyWith(
+                    color: t.fgExpense,
                     fontWeight: PFontWeight.semi,
-                    fontFeatures: const [FontFeature.tabularFigures()],
                   ),
                 ),
-                if (rel != null)
-                  Text(
-                    ' · $rel',
-                    style: PTypo.bodySm.copyWith(color: t.fgTertiary),
+              if (dayIncome > 0) ...[
+                if (dayExpense > 0) const SizedBox(width: PSpace.x8),
+                Text(
+                  krwSigned(
+                    dayIncome,
+                    flags.of(MaskKind.income),
+                    sign: '+',
+                    unit: true,
                   ),
-                const Spacer(),
-                if (dayExpense > 0)
-                  Text(
-                    krwSigned(dayExpense, flags.of(MaskKind.expense), sign: '−', unit: true),
-                    style: PTypo.caption.copyWith(
-                      color: t.fgExpense,
-                      fontWeight: PFontWeight.semi,
-                    ),
+                  style: PTypo.caption.copyWith(
+                    color: t.fgIncome,
+                    fontWeight: PFontWeight.semi,
                   ),
-                if (dayIncome > 0) ...[
-                  if (dayExpense > 0) const SizedBox(width: PSpace.x8),
-                  Text(
-                    krwSigned(dayIncome, flags.of(MaskKind.income), sign: '+', unit: true),
-                    style: PTypo.caption.copyWith(
-                      color: t.fgIncome,
-                      fontWeight: PFontWeight.semi,
-                    ),
-                  ),
-                ],
+                ),
               ],
+            ],
           ),
           const SizedBox(height: 6),
           // 행 리스트 — 카드/구분선 없이 행 리듬만.
@@ -1245,8 +1404,10 @@ class _DayGroup extends ConsumerWidget {
                               label: l.actionDelete,
                               icon: LucideIcons.trash2,
                               kind: PSwipeKind.destructive,
-                              confirmTitle: expenseActions
-                                  .deleteConfirmTitle(context, e),
+                              confirmTitle: expenseActions.deleteConfirmTitle(
+                                context,
+                                e,
+                              ),
                               confirmMessage: expenseActions
                                   .deleteConfirmMessage(context, e),
                               onSelect: () =>
@@ -1307,17 +1468,16 @@ class _FilterChipsRow extends ConsumerWidget {
     Set<int>? assetIds,
     bool clearMin = false,
     bool clearMax = false,
-  }) =>
-      ExpenseFilter(
-        period: period ?? f.period,
-        startDate: clearDates ? null : f.startDate,
-        endDate: clearDates ? null : f.endDate,
-        types: types ?? f.types,
-        categoryIds: categoryIds ?? f.categoryIds,
-        assetIds: assetIds ?? f.assetIds,
-        min: clearMin ? null : f.min,
-        max: clearMax ? null : f.max,
-      );
+  }) => ExpenseFilter(
+    period: period ?? f.period,
+    startDate: clearDates ? null : f.startDate,
+    endDate: clearDates ? null : f.endDate,
+    types: types ?? f.types,
+    categoryIds: categoryIds ?? f.categoryIds,
+    assetIds: assetIds ?? f.assetIds,
+    min: clearMin ? null : f.min,
+    max: clearMax ? null : f.max,
+  );
 
   Widget _chip(PorestTokens t, String label, VoidCallback onRemove) {
     return Container(
@@ -1358,11 +1518,13 @@ class _FilterChipsRow extends ConsumerWidget {
     if (assetId != null) {
       final all = ref.watch(assetsProvider).value;
       final name = all?.byRowId(assetId!)?.assetName;
-      chips.add(_chip(
-        t,
-        name == null ? l.expFiltering : l.expFilteringBy(name),
-        onClearAsset,
-      ));
+      chips.add(
+        _chip(
+          t,
+          name == null ? l.expFiltering : l.expFilteringBy(name),
+          onClearAsset,
+        ),
+      );
     }
     if (f.period != FilterPeriod.custom) {
       final label = switch (f.period) {
@@ -1370,44 +1532,73 @@ class _FilterChipsRow extends ConsumerWidget {
         FilterPeriod.month => l.expThisMonth,
         _ => l.expPeriod3Month,
       };
-      chips.add(_chip(t, label,
-          () => onChange(_rebuild(f, period: FilterPeriod.custom, clearDates: true))));
+      chips.add(
+        _chip(
+          t,
+          label,
+          () => onChange(
+            _rebuild(f, period: FilterPeriod.custom, clearDates: true),
+          ),
+        ),
+      );
     } else if ((f.startDate ?? '').isNotEmpty && (f.endDate ?? '').isNotEmpty) {
-      String md(String d) => '${int.parse(d.substring(5, 7))}.${int.parse(d.substring(8, 10))}';
-      chips.add(_chip(t, '${md(f.startDate!)}~${md(f.endDate!)}',
-          () => onChange(_rebuild(f, clearDates: true))));
+      String md(String d) =>
+          '${int.parse(d.substring(5, 7))}.${int.parse(d.substring(8, 10))}';
+      chips.add(
+        _chip(
+          t,
+          '${md(f.startDate!)}~${md(f.endDate!)}',
+          () => onChange(_rebuild(f, clearDates: true)),
+        ),
+      );
     }
     if (f.types.length < 2) {
-      chips.add(_chip(
-        t,
-        f.types.contains('EXPENSE') ? l.expFilterExpense : l.expFilterIncome,
-        () => onChange(_rebuild(f, types: const {'EXPENSE', 'INCOME'})),
-      ));
+      chips.add(
+        _chip(
+          t,
+          f.types.contains('EXPENSE') ? l.expFilterExpense : l.expFilterIncome,
+          () => onChange(_rebuild(f, types: const {'EXPENSE', 'INCOME'})),
+        ),
+      );
     }
     for (final id in f.categoryIds) {
       final name = categories.byRowId(id)?.categoryName ?? '$id';
-      chips.add(_chip(t, name, () {
-        final next = Set<int>.from(f.categoryIds)..remove(id);
-        onChange(_rebuild(f, categoryIds: next));
-      }));
+      chips.add(
+        _chip(t, name, () {
+          final next = Set<int>.from(f.categoryIds)..remove(id);
+          onChange(_rebuild(f, categoryIds: next));
+        }),
+      );
     }
     if (f.assetIds.isNotEmpty) {
       final all = ref.watch(assetsProvider).value;
       for (final id in f.assetIds) {
         final name = all?.byRowId(id)?.assetName ?? '$id';
-        chips.add(_chip(t, name, () {
-          final next = Set<int>.from(f.assetIds)..remove(id);
-          onChange(_rebuild(f, assetIds: next));
-        }));
+        chips.add(
+          _chip(t, name, () {
+            final next = Set<int>.from(f.assetIds)..remove(id);
+            onChange(_rebuild(f, assetIds: next));
+          }),
+        );
       }
     }
     if (f.min != null) {
-      chips.add(_chip(t, l.expChipMin(krwSigned(f.min!, false, unit: true)),
-          () => onChange(_rebuild(f, clearMin: true))));
+      chips.add(
+        _chip(
+          t,
+          l.expChipMin(krwSigned(f.min!, false, unit: true)),
+          () => onChange(_rebuild(f, clearMin: true)),
+        ),
+      );
     }
     if (f.max != null) {
-      chips.add(_chip(t, l.expChipMax(krwSigned(f.max!, false, unit: true)),
-          () => onChange(_rebuild(f, clearMax: true))));
+      chips.add(
+        _chip(
+          t,
+          l.expChipMax(krwSigned(f.max!, false, unit: true)),
+          () => onChange(_rebuild(f, clearMax: true)),
+        ),
+      );
     }
     if (chips.isEmpty) return const SizedBox.shrink();
     return SingleChildScrollView(
@@ -1499,8 +1690,8 @@ class _TxmSkeleton extends StatelessWidget {
                             color: i == 0
                                 ? chartRedOf(context)
                                 : i == 6
-                                    ? t.fgBrand
-                                    : t.fgTertiary,
+                                ? t.fgBrand
+                                : t.fgTertiary,
                           ),
                         ),
                       ),
@@ -1595,38 +1786,38 @@ class _ExpenseDayGroupSkeleton extends StatelessWidget {
         ),
         // 행 placeholder — 카드 다이어트: 카드/구분선 없이 행 리듬(12/10)만.
         Column(
-            children: [
-              for (int i = 0; i < rows; i++) ...[
-                const Padding(
-                  // 실제 ExpenseRow 와 같은 여백 — 스켈레톤이 다르면 데이터가 오는
-                  // 순간 행이 좌우로 튄다.
-                  padding: EdgeInsets.fromLTRB(0, PSpace.x12, 0, PSpace.x12),
-                  child: Row(
-                    children: [
-                      // ExpenseRow icon tile 정합 — 40px → tile(40)=12=brLg.
-                      PSkeleton(
-                        width: 40,
-                        height: 40,
-                        borderRadius: PRadius.brLg,
+          children: [
+            for (int i = 0; i < rows; i++) ...[
+              const Padding(
+                // 실제 ExpenseRow 와 같은 여백 — 스켈레톤이 다르면 데이터가 오는
+                // 순간 행이 좌우로 튄다.
+                padding: EdgeInsets.fromLTRB(0, PSpace.x12, 0, PSpace.x12),
+                child: Row(
+                  children: [
+                    // ExpenseRow icon tile 정합 — 40px → tile(40)=12=brLg.
+                    PSkeleton(
+                      width: 40,
+                      height: 40,
+                      borderRadius: PRadius.brLg,
+                    ),
+                    SizedBox(width: PSpace.x12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          PSkeleton.line(width: 120, height: 14),
+                          SizedBox(height: 2),
+                          PSkeleton.line(width: 80, height: 11),
+                        ],
                       ),
-                      SizedBox(width: PSpace.x12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            PSkeleton.line(width: 120, height: 14),
-                            SizedBox(height: 2),
-                            PSkeleton.line(width: 80, height: 11),
-                          ],
-                        ),
-                      ),
-                      SizedBox(width: PSpace.x8),
-                      PSkeleton.line(width: 80, height: 14),
-                    ],
-                  ),
+                    ),
+                    SizedBox(width: PSpace.x8),
+                    PSkeleton.line(width: 80, height: 14),
+                  ],
                 ),
-              ],
+              ),
             ],
+          ],
         ),
       ],
     );
@@ -1661,4 +1852,3 @@ class _ErrorBox extends StatelessWidget {
     );
   }
 }
-

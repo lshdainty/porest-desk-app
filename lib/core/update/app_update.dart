@@ -204,8 +204,9 @@ class SkippedBuildNotifier extends Notifier<int?> {
   }
 }
 
-final skippedBuildProvider =
-    NotifierProvider<SkippedBuildNotifier, int?>(SkippedBuildNotifier.new);
+final skippedBuildProvider = NotifierProvider<SkippedBuildNotifier, int?>(
+  SkippedBuildNotifier.new,
+);
 
 /// 서버가 알려 주는 최신 릴리스 — 지금 버전과 비교하기 전의 날것.
 final _latestReleaseProvider = FutureProvider<AppRelease?>((ref) async {

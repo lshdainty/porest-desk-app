@@ -9,7 +9,11 @@ class TodoRepository {
   TodoRepository(this._dio);
   final Dio _dio;
 
-  Future<List<Todo>> list({String? status, String? priority, String? type}) async {
+  Future<List<Todo>> list({
+    String? status,
+    String? priority,
+    String? type,
+  }) async {
     try {
       final res = await _dio.get<Map<String, dynamic>>(
         '/todos',
@@ -140,7 +144,9 @@ class TodoRepository {
   /// 서브태스크 목록. GET /todo/{id}/subtasks.
   Future<List<Todo>> getSubtasks(int parentId) async {
     try {
-      final res = await _dio.get<Map<String, dynamic>>('/todo/$parentId/subtasks');
+      final res = await _dio.get<Map<String, dynamic>>(
+        '/todo/$parentId/subtasks',
+      );
       return _unwrapList(res, 'todos', Todo.fromJson);
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
@@ -150,10 +156,7 @@ class TodoRepository {
   /// 태그 일괄 변경. PATCH /todo/{id}/tags.
   Future<void> updateTags(int id, List<int> tagIds) async {
     try {
-      await _dio.patch<dynamic>(
-        '/todo/$id/tags',
-        data: {'tagIds': tagIds},
-      );
+      await _dio.patch<dynamic>('/todo/$id/tags', data: {'tagIds': tagIds});
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }

@@ -30,10 +30,7 @@ class EventCommentRepository {
     try {
       final res = await _dio.post<Map<String, dynamic>>(
         '/calendar/event/$eventId/comment',
-        data: {
-          'content': content,
-          'parentRowId': ?parentRowId,
-        },
+        data: {'content': content, 'parentRowId': ?parentRowId},
       );
       return _unwrap(res, EventComment.fromJson);
     } on DioException catch (e) {

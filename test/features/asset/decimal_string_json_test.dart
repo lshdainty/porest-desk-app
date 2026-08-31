@@ -53,7 +53,10 @@ void main() {
 
     test('아주 작은 수량도 지수 표기가 되지 않는다', () {
       // 1e-8 로 표기되면 서버로 되돌려 보낼 때 BigDecimal 파싱이 깨진다.
-      final h = AssetHolding.fromJson(const {'rowId': 1, 'quantity': 0.00000001});
+      final h = AssetHolding.fromJson(const {
+        'rowId': 1,
+        'quantity': 0.00000001,
+      });
 
       expect(h.quantity, '0.00000001');
       expect(h.quantity, isNot(contains('e')));

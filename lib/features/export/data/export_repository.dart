@@ -11,12 +11,17 @@ import 'package:porest_desk_app/core/network/interceptors/error_toast_intercepto
 
 /// 종별 건수 (체크박스 배지).
 class ExportTypeCount {
-  const ExportTypeCount({required this.type, required this.displayName, required this.count});
+  const ExportTypeCount({
+    required this.type,
+    required this.displayName,
+    required this.count,
+  });
   final String type;
   final String displayName;
   final int count;
 
-  factory ExportTypeCount.fromJson(Map<String, dynamic> json) => ExportTypeCount(
+  factory ExportTypeCount.fromJson(Map<String, dynamic> json) =>
+      ExportTypeCount(
         type: json['type'] as String? ?? '',
         displayName: json['displayName'] as String? ?? '',
         count: (json['count'] as num?)?.toInt() ?? 0,
@@ -38,10 +43,13 @@ class ExportPreviewTable {
   final List<List<String>> rows;
   final int totalCount;
 
-  factory ExportPreviewTable.fromJson(Map<String, dynamic> json) => ExportPreviewTable(
+  factory ExportPreviewTable.fromJson(Map<String, dynamic> json) =>
+      ExportPreviewTable(
         type: json['type'] as String? ?? '',
         displayName: json['displayName'] as String? ?? '',
-        headers: ((json['headers'] as List?) ?? []).map((e) => e.toString()).toList(),
+        headers: ((json['headers'] as List?) ?? [])
+            .map((e) => e.toString())
+            .toList(),
         rows: ((json['rows'] as List?) ?? [])
             .map((r) => ((r as List?) ?? []).map((e) => e.toString()).toList())
             .toList(),
@@ -57,14 +65,21 @@ class ExportRepository {
   Future<List<ExportTypeCount>> counts(Map<String, dynamic> body) async {
     try {
       // 화면 진입 시 건수 미리보기 — best-effort 라 실패해도 조용히 넘긴다.
-      final res = await _dio.post<Map<String, dynamic>>('/export/counts',
-          data: body, options: Options(extra: {kSilentErrorToast: true}));
+      final res = await _dio.post<Map<String, dynamic>>(
+        '/export/counts',
+        data: body,
+        options: Options(extra: {kSilentErrorToast: true}),
+      );
       final api = ApiResponse<Map<String, dynamic>>.fromJson(
         res.data!,
         (o) => (o as Map).cast<String, dynamic>(),
       );
       final list = (api.data?['counts'] as List?) ?? [];
-      return list.map((e) => ExportTypeCount.fromJson((e as Map).cast<String, dynamic>())).toList();
+      return list
+          .map(
+            (e) => ExportTypeCount.fromJson((e as Map).cast<String, dynamic>()),
+          )
+          .toList();
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }
@@ -72,13 +87,21 @@ class ExportRepository {
 
   Future<List<ExportPreviewTable>> preview(Map<String, dynamic> body) async {
     try {
-      final res = await _dio.post<Map<String, dynamic>>('/export/preview', data: body);
+      final res = await _dio.post<Map<String, dynamic>>(
+        '/export/preview',
+        data: body,
+      );
       final api = ApiResponse<Map<String, dynamic>>.fromJson(
         res.data!,
         (o) => (o as Map).cast<String, dynamic>(),
       );
       final list = (api.data?['tables'] as List?) ?? [];
-      return list.map((e) => ExportPreviewTable.fromJson((e as Map).cast<String, dynamic>())).toList();
+      return list
+          .map(
+            (e) =>
+                ExportPreviewTable.fromJson((e as Map).cast<String, dynamic>()),
+          )
+          .toList();
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }

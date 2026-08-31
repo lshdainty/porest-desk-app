@@ -107,7 +107,9 @@ class _CardScreenState extends ConsumerState<CardScreen> {
           preferredSize: const Size.fromHeight(140),
           child: Padding(
             padding: const EdgeInsets.symmetric(
-            horizontal: PSpace.x24, vertical: PSpace.x24),
+              horizontal: PSpace.x24,
+              vertical: PSpace.x24,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -128,8 +130,14 @@ class _CardScreenState extends ConsumerState<CardScreen> {
                         size: PTabsSize.sm,
                         items: [
                           PTabItem(value: null, label: l.expFilterAll),
-                          PTabItem(value: 'CREDIT', label: l.assetCardShortCredit),
-                          PTabItem(value: 'CHECK', label: l.assetCardShortCheck),
+                          PTabItem(
+                            value: 'CREDIT',
+                            label: l.assetCardShortCredit,
+                          ),
+                          PTabItem(
+                            value: 'CHECK',
+                            label: l.assetCardShortCheck,
+                          ),
                         ],
                       ),
                       const SizedBox(width: 14),
@@ -140,9 +148,18 @@ class _CardScreenState extends ConsumerState<CardScreen> {
                         size: PTabsSize.sm,
                         items: [
                           PTabItem(value: null, label: l.cardBenefitTypeAll),
-                          PTabItem(value: 'DISCOUNT', label: l.cardBenefitTypeDiscount),
-                          PTabItem(value: 'POINT', label: l.cardBenefitTypePoint),
-                          PTabItem(value: 'CASHBACK', label: l.cardBenefitTypeCashback),
+                          PTabItem(
+                            value: 'DISCOUNT',
+                            label: l.cardBenefitTypeDiscount,
+                          ),
+                          PTabItem(
+                            value: 'POINT',
+                            label: l.cardBenefitTypePoint,
+                          ),
+                          PTabItem(
+                            value: 'CASHBACK',
+                            label: l.cardBenefitTypeCashback,
+                          ),
                         ],
                       ),
                     ],
@@ -157,18 +174,22 @@ class _CardScreenState extends ConsumerState<CardScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
-                            _includeDiscontinued
-                                ? LucideIcons.checkSquare
-                                : LucideIcons.square,
-                            size: 14,
-                            color: _includeDiscontinued
-                                ? t.fgBrand
-                                : t.fgTertiary),
+                          _includeDiscontinued
+                              ? LucideIcons.checkSquare
+                              : LucideIcons.square,
+                          size: 14,
+                          color: _includeDiscontinued
+                              ? t.fgBrand
+                              : t.fgTertiary,
+                        ),
                         const SizedBox(width: 6),
-                        Text(l.cardIncludeDiscontinued,
-                            style: PTypo.caption.copyWith(
-                                color: t.fgSecondary,
-                                fontWeight: PFontWeight.medium)),
+                        Text(
+                          l.cardIncludeDiscontinued,
+                          style: PTypo.caption.copyWith(
+                            color: t.fgSecondary,
+                            fontWeight: PFontWeight.medium,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -187,7 +208,11 @@ class _CardScreenState extends ConsumerState<CardScreen> {
         child: pageAsync.when(
           loading: () => ListView(
             padding: const EdgeInsets.fromLTRB(
-                PSpace.x24, PSpace.x12, PSpace.x24, PSpace.x40),
+              PSpace.x24,
+              PSpace.x12,
+              PSpace.x24,
+              PSpace.x40,
+            ),
             children: [
               // '총 N건' 카운트 자리
               Padding(
@@ -202,29 +227,36 @@ class _CardScreenState extends ConsumerState<CardScreen> {
           ),
           error: (e, _) => Padding(
             padding: const EdgeInsets.all(PSpace.x16),
-            child: Text('${l.cardLoadError}\n$e',
-                style: PTypo.bodySm.copyWith(color: t.statusDanger)),
+            child: Text(
+              '${l.cardLoadError}\n$e',
+              style: PTypo.bodySm.copyWith(color: t.statusDanger),
+            ),
           ),
           data: (page) {
             final cards = page.content;
             if (cards.isEmpty) {
-              return ListView(children: [
-                PEmptyState(
-                  icon: LucideIcons.creditCard,
-                  message: l.cardEmpty,
-                ),
-              ]);
+              return ListView(
+                children: [
+                  PEmptyState(
+                    icon: LucideIcons.creditCard,
+                    message: l.cardEmpty,
+                  ),
+                ],
+              );
             }
             return ListView(
               padding: const EdgeInsets.fromLTRB(
-                  PSpace.x24, PSpace.x12, PSpace.x24, PSpace.x40),
+                PSpace.x24,
+                PSpace.x12,
+                PSpace.x24,
+                PSpace.x40,
+              ),
               children: [
                 Padding(
                   padding: const EdgeInsets.only(bottom: PSpace.x8),
                   child: Text(
                     l.cardTotalCount(page.totalElements),
-                    style:
-                        PTypo.caption.copyWith(color: t.fgTertiary),
+                    style: PTypo.caption.copyWith(color: t.fgTertiary),
                   ),
                 ),
                 for (int i = 0; i < cards.length; i++) ...[
@@ -237,29 +269,27 @@ class _CardScreenState extends ConsumerState<CardScreen> {
                   onPrev: page.first
                       ? null
                       : () => setState(() {
-                            _searchKey = (
-                              keyword: _searchKey.keyword,
-                              cardType: _searchKey.cardType,
-                              benefitType: _searchKey.benefitType,
-                              includeDiscontinued:
-                                  _searchKey.includeDiscontinued,
-                              page: _searchKey.page - 1,
-                              size: _searchKey.size,
-                            );
-                          }),
+                          _searchKey = (
+                            keyword: _searchKey.keyword,
+                            cardType: _searchKey.cardType,
+                            benefitType: _searchKey.benefitType,
+                            includeDiscontinued: _searchKey.includeDiscontinued,
+                            page: _searchKey.page - 1,
+                            size: _searchKey.size,
+                          );
+                        }),
                   onNext: page.last
                       ? null
                       : () => setState(() {
-                            _searchKey = (
-                              keyword: _searchKey.keyword,
-                              cardType: _searchKey.cardType,
-                              benefitType: _searchKey.benefitType,
-                              includeDiscontinued:
-                                  _searchKey.includeDiscontinued,
-                              page: _searchKey.page + 1,
-                              size: _searchKey.size,
-                            );
-                          }),
+                          _searchKey = (
+                            keyword: _searchKey.keyword,
+                            cardType: _searchKey.cardType,
+                            benefitType: _searchKey.benefitType,
+                            includeDiscontinued: _searchKey.includeDiscontinued,
+                            page: _searchKey.page + 1,
+                            size: _searchKey.size,
+                          );
+                        }),
                   tokens: t,
                 ),
               ],
@@ -288,21 +318,17 @@ class _Paginator extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        PButton.icon(
-          icon: LucideIcons.chevronLeft,
-          onPressed: onPrev,
-        ),
+        PButton.icon(icon: LucideIcons.chevronLeft, onPressed: onPrev),
         const SizedBox(width: 8),
         Text(
           '${(page.number as int) + 1} / ${page.totalPages == 0 ? 1 : page.totalPages}',
           style: PTypo.bodySm.copyWith(
-              color: tokens.fgPrimary, fontWeight: PFontWeight.semi),
+            color: tokens.fgPrimary,
+            fontWeight: PFontWeight.semi,
+          ),
         ),
         const SizedBox(width: 8),
-        PButton.icon(
-          icon: LucideIcons.chevronRight,
-          onPressed: onNext,
-        ),
+        PButton.icon(icon: LucideIcons.chevronRight, onPressed: onNext),
       ],
     );
   }
@@ -333,14 +359,16 @@ class _CardRowSkeleton extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: const [
                 FractionallySizedBox(
-                    alignment: Alignment.centerLeft,
-                    widthFactor: 0.6,
-                    child: PSkeleton.line(height: 14)),
+                  alignment: Alignment.centerLeft,
+                  widthFactor: 0.6,
+                  child: PSkeleton.line(height: 14),
+                ),
                 SizedBox(height: 6),
                 FractionallySizedBox(
-                    alignment: Alignment.centerLeft,
-                    widthFactor: 0.85,
-                    child: PSkeleton.line(height: 12)),
+                  alignment: Alignment.centerLeft,
+                  widthFactor: 0.85,
+                  child: PSkeleton.line(height: 12),
+                ),
               ],
             ),
           ),
@@ -379,17 +407,26 @@ class _CardRow extends StatelessWidget {
                   width: 56,
                   height: 36,
                   child: card.imgUrl != null
-                      ? Image.network(card.imgUrl!,
+                      ? Image.network(
+                          card.imgUrl!,
                           fit: BoxFit.cover,
                           errorBuilder: (_, _, _) => Container(
-                              color: tokens.bgMuted,
-                              child: Icon(LucideIcons.creditCard,
-                                  size: 18, color: tokens.fgTertiary)))
+                            color: tokens.bgMuted,
+                            child: Icon(
+                              LucideIcons.creditCard,
+                              size: 18,
+                              color: tokens.fgTertiary,
+                            ),
+                          ),
+                        )
                       : Container(
                           color: tokens.bgMuted,
                           alignment: Alignment.center,
-                          child: Icon(LucideIcons.creditCard,
-                              size: 18, color: tokens.fgTertiary),
+                          child: Icon(
+                            LucideIcons.creditCard,
+                            size: 18,
+                            color: tokens.fgTertiary,
+                          ),
                         ),
                 ),
               ),
@@ -398,24 +435,28 @@ class _CardRow extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(card.cardName,
-                        style: PTypo.bodySm.copyWith(
-                            color: tokens.fgPrimary,
-                            fontWeight: PFontWeight.bold),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis),
+                    Text(
+                      card.cardName,
+                      style: PTypo.bodySm.copyWith(
+                        color: tokens.fgPrimary,
+                        fontWeight: PFontWeight.bold,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                     const SizedBox(height: 2),
                     Text(
                       [
                         card.company?.name,
-                        card.cardType == 'CREDIT' ? l.assetCardShortCredit : l.assetCardShortCheck,
+                        card.cardType == 'CREDIT'
+                            ? l.assetCardShortCredit
+                            : l.assetCardShortCheck,
                         // 예전엔 label 이 있을 때만 보여줘서, 금액만 아는 카드는 연회비가
                         // 통째로 빠져 보였다. 이제 정보가 있으면(=fee != null) 항상 보여준다.
                         if (card.annualFee != null)
                           l.cardAnnualFeeValue(cardFeeValue(l, card.annualFee)),
                       ].whereType<String>().join(' · '),
-                      style:
-                          PTypo.caption.copyWith(color: tokens.fgTertiary),
+                      style: PTypo.caption.copyWith(color: tokens.fgTertiary),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -423,17 +464,26 @@ class _CardRow extends StatelessWidget {
                       const SizedBox(height: 2),
                       Text(
                         l.cardPerfMonthly(
-                            krwSigned(card.performance!.requiredAmount!, false, unit: true)),
+                          krwSigned(
+                            card.performance!.requiredAmount!,
+                            false,
+                            unit: true,
+                          ),
+                        ),
                         style: PTypo.caption.copyWith(
-                            color: tokens.fgSecondary,
-                            fontWeight: PFontWeight.semi),
+                          color: tokens.fgSecondary,
+                          fontWeight: PFontWeight.semi,
+                        ),
                       ),
                     ],
                   ],
                 ),
               ),
-              Icon(LucideIcons.chevronRight,
-                  size: 16, color: tokens.fgTertiary),
+              Icon(
+                LucideIcons.chevronRight,
+                size: 16,
+                color: tokens.fgTertiary,
+              ),
             ],
           ),
         ),

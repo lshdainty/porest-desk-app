@@ -144,7 +144,9 @@ class _HideAmountsScreenState extends ConsumerState<HideAmountsScreen> {
           actions: [
             // 37장을 하나씩 누르게 두지 않는다 — 지금 탭 기준으로 한 번에 켜고 끈다.
             PButton(
-              label: allOnThisTab ? l.hideAmountsClearAll : l.hideAmountsSelectAll,
+              label: allOnThisTab
+                  ? l.hideAmountsClearAll
+                  : l.hideAmountsSelectAll,
               variant: PButtonVariant.ghost,
               size: PButtonSize.sm,
               onPressed: () => setState(() {
@@ -165,14 +167,21 @@ class _HideAmountsScreenState extends ConsumerState<HideAmountsScreen> {
             // 보여야 할 스위치가 탭 하나를 골라야 보이는 자리로 숨는다.
             Padding(
               padding: const EdgeInsets.fromLTRB(
-                  PSpace.x20, PSpace.x12, PSpace.x20, 0),
+                PSpace.x20,
+                PSpace.x12,
+                PSpace.x20,
+                0,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(l.hideAmountsKindLabel,
-                      style: PTypo.labelMd.copyWith(
-                          color: t.fgSecondary,
-                          fontWeight: PFontWeight.semi)),
+                  Text(
+                    l.hideAmountsKindLabel,
+                    style: PTypo.labelMd.copyWith(
+                      color: t.fgSecondary,
+                      fontWeight: PFontWeight.semi,
+                    ),
+                  ),
                   const SizedBox(height: PSpace.x8),
                   Row(
                     children: [
@@ -194,9 +203,13 @@ class _HideAmountsScreenState extends ConsumerState<HideAmountsScreen> {
                     ],
                   ),
                   const SizedBox(height: PSpace.x8),
-                  Text(l.hideAmountsKindNote,
-                      style: PTypo.caption
-                          .copyWith(color: t.fgTertiary, height: 1.55)),
+                  Text(
+                    l.hideAmountsKindNote,
+                    style: PTypo.caption.copyWith(
+                      color: t.fgTertiary,
+                      height: 1.55,
+                    ),
+                  ),
                   const SizedBox(height: PSpace.x12),
                   Divider(height: 1, thickness: 1, color: t.borderSubtle),
                 ],
@@ -217,8 +230,7 @@ class _HideAmountsScreenState extends ConsumerState<HideAmountsScreen> {
                   size: PTabsSize.sm,
                   items: [
                     _tabItem(l, null, draft),
-                    for (final page in _tabs.skip(1))
-                      _tabItem(l, page!, draft),
+                    for (final page in _tabs.skip(1)) _tabItem(l, page!, draft),
                   ],
                   onChanged: _goTab,
                 ),
@@ -228,10 +240,18 @@ class _HideAmountsScreenState extends ConsumerState<HideAmountsScreen> {
             // 안내 문구는 탭마다 같으므로 페이지 밖에 고정한다.
             Padding(
               padding: const EdgeInsets.fromLTRB(
-                  PSpace.x20, PSpace.x4, PSpace.x20, PSpace.x16),
-              child: Text(l.hideAmountsSectionDesc,
-                  style:
-                      PTypo.caption.copyWith(color: t.fgTertiary, height: 1.55)),
+                PSpace.x20,
+                PSpace.x4,
+                PSpace.x20,
+                PSpace.x16,
+              ),
+              child: Text(
+                l.hideAmountsSectionDesc,
+                style: PTypo.caption.copyWith(
+                  color: t.fgTertiary,
+                  height: 1.55,
+                ),
+              ),
             ),
             Expanded(
               child: PageView.builder(
@@ -253,7 +273,11 @@ class _HideAmountsScreenState extends ConsumerState<HideAmountsScreen> {
               top: false,
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(
-                    PSpace.x20, PSpace.x12, PSpace.x20, PSpace.x12),
+                  PSpace.x20,
+                  PSpace.x12,
+                  PSpace.x20,
+                  PSpace.x12,
+                ),
                 child: PButton(
                   label: l.actionSave,
                   size: PButtonSize.lg,
@@ -296,8 +320,7 @@ class _CardGrid extends StatelessWidget {
     // 2열 — 라벨이 길어 3열은 말줄임이 잦다.
     return GridView.count(
       crossAxisCount: 2,
-      padding: const EdgeInsets.fromLTRB(
-          PSpace.x20, 0, PSpace.x20, PSpace.x24),
+      padding: const EdgeInsets.fromLTRB(PSpace.x20, 0, PSpace.x20, PSpace.x24),
       mainAxisSpacing: PSpace.x8,
       crossAxisSpacing: PSpace.x8,
       childAspectRatio: 3.2,
@@ -316,57 +339,57 @@ class _CardGrid extends StatelessWidget {
 }
 
 String _pageLabel(AppLocalizations l, HidePage page) => switch (page) {
-      HidePage.kind => l.hideAmountsKindLabel,
-      HidePage.home => l.hideAmountsPageHome,
-      HidePage.asset => l.hideAmountsPageAsset,
-      HidePage.ledger => l.hideAmountsPageLedger,
-      HidePage.stats => l.hideAmountsPageStats,
-      HidePage.budget => l.hideAmountsPageBudget,
-      HidePage.stocks => l.hideAmountsPageStocks,
-      HidePage.dutchpay => l.hideAmountsPageDutchpay,
-      HidePage.etc => l.hideAmountsPageEtc,
-    };
+  HidePage.kind => l.hideAmountsKindLabel,
+  HidePage.home => l.hideAmountsPageHome,
+  HidePage.asset => l.hideAmountsPageAsset,
+  HidePage.ledger => l.hideAmountsPageLedger,
+  HidePage.stats => l.hideAmountsPageStats,
+  HidePage.budget => l.hideAmountsPageBudget,
+  HidePage.stocks => l.hideAmountsPageStocks,
+  HidePage.dutchpay => l.hideAmountsPageDutchpay,
+  HidePage.etc => l.hideAmountsPageEtc,
+};
 
 String _cardLabel(AppLocalizations l, String card) => switch (card) {
-      'kind.expense' => l.hideCardKindExpense,
-      'kind.income' => l.hideCardKindIncome,
-      'kind.transfer' => l.hideCardKindTransfer,
-      'home.netWorth' => l.hideCardHomeNetWorth,
-      'home.monthExpense' => l.hideCardHomeMonthExpense,
-      'home.categoryDonut' => l.hideCardHomeCategoryDonut,
-      'home.budget' => l.hideCardHomeBudget,
-      'home.todaySpend' => l.hideCardHomeTodaySpend,
-      'home.upcoming' => l.hideCardHomeUpcoming,
-      'asset.netWorth' => l.hideCardAssetNetWorth,
-      'asset.composition' => l.hideCardAssetComposition,
-      'asset.accounts' => l.hideCardAssetAccounts,
-      'asset.investments' => l.hideCardAssetInvestments,
-      'asset.cards' => l.hideCardAssetCards,
-      'asset.loans' => l.hideCardAssetLoans,
-      'asset.savingGoals' => l.hideCardAssetSavingGoals,
-      'asset.upcoming' => l.hideCardAssetUpcoming,
-      'asset.detail' => l.hideCardAssetDetail,
-      'asset.manage' => l.hideCardAssetManage,
-      'ledger.monthSummary' => l.hideCardLedgerMonthSummary,
-      'ledger.calendar' => l.hideCardLedgerCalendar,
-      'ledger.txList' => l.hideCardLedgerTxList,
-      'ledger.txDetail' => l.hideCardLedgerTxDetail,
-      'stats.category' => l.hideCardStatsCategory,
-      'stats.trend' => l.hideCardStatsTrend,
-      'stats.compare' => l.hideCardStatsCompare,
-      'budget.header' => l.hideCardBudgetHeader,
-      'budget.pace' => l.hideCardBudgetPace,
-      'budget.status' => l.hideCardBudgetStatus,
-      'budget.categories' => l.hideCardBudgetCategories,
-      'budget.compliance' => l.hideCardBudgetCompliance,
-      'budget.manage' => l.hideCardBudgetManage,
-      'stocks.summary' => l.hideCardStocksSummary,
-      'stocks.holdings' => l.hideCardStocksHoldings,
-      'stocks.detail' => l.hideCardStocksDetail,
-      'dutchpay.summary' => l.hideCardDutchpaySummary,
-      'dutchpay.sessions' => l.hideCardDutchpaySessions,
-      'etc.search' => l.hideCardEtcSearch,
-      'etc.recurring' => l.hideCardEtcRecurring,
-      'etc.preset' => l.hideCardEtcPreset,
-      _ => card,
-    };
+  'kind.expense' => l.hideCardKindExpense,
+  'kind.income' => l.hideCardKindIncome,
+  'kind.transfer' => l.hideCardKindTransfer,
+  'home.netWorth' => l.hideCardHomeNetWorth,
+  'home.monthExpense' => l.hideCardHomeMonthExpense,
+  'home.categoryDonut' => l.hideCardHomeCategoryDonut,
+  'home.budget' => l.hideCardHomeBudget,
+  'home.todaySpend' => l.hideCardHomeTodaySpend,
+  'home.upcoming' => l.hideCardHomeUpcoming,
+  'asset.netWorth' => l.hideCardAssetNetWorth,
+  'asset.composition' => l.hideCardAssetComposition,
+  'asset.accounts' => l.hideCardAssetAccounts,
+  'asset.investments' => l.hideCardAssetInvestments,
+  'asset.cards' => l.hideCardAssetCards,
+  'asset.loans' => l.hideCardAssetLoans,
+  'asset.savingGoals' => l.hideCardAssetSavingGoals,
+  'asset.upcoming' => l.hideCardAssetUpcoming,
+  'asset.detail' => l.hideCardAssetDetail,
+  'asset.manage' => l.hideCardAssetManage,
+  'ledger.monthSummary' => l.hideCardLedgerMonthSummary,
+  'ledger.calendar' => l.hideCardLedgerCalendar,
+  'ledger.txList' => l.hideCardLedgerTxList,
+  'ledger.txDetail' => l.hideCardLedgerTxDetail,
+  'stats.category' => l.hideCardStatsCategory,
+  'stats.trend' => l.hideCardStatsTrend,
+  'stats.compare' => l.hideCardStatsCompare,
+  'budget.header' => l.hideCardBudgetHeader,
+  'budget.pace' => l.hideCardBudgetPace,
+  'budget.status' => l.hideCardBudgetStatus,
+  'budget.categories' => l.hideCardBudgetCategories,
+  'budget.compliance' => l.hideCardBudgetCompliance,
+  'budget.manage' => l.hideCardBudgetManage,
+  'stocks.summary' => l.hideCardStocksSummary,
+  'stocks.holdings' => l.hideCardStocksHoldings,
+  'stocks.detail' => l.hideCardStocksDetail,
+  'dutchpay.summary' => l.hideCardDutchpaySummary,
+  'dutchpay.sessions' => l.hideCardDutchpaySessions,
+  'etc.search' => l.hideCardEtcSearch,
+  'etc.recurring' => l.hideCardEtcRecurring,
+  'etc.preset' => l.hideCardEtcPreset,
+  _ => card,
+};

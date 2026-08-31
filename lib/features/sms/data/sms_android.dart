@@ -4,7 +4,11 @@ import 'package:flutter/services.dart';
 
 /// 아직 기록하지 않은 수신 문자 한 건.
 class SmsInboxEntry {
-  const SmsInboxEntry({required this.id, required this.text, required this.receivedAt});
+  const SmsInboxEntry({
+    required this.id,
+    required this.text,
+    required this.receivedAt,
+  });
 
   final int id;
   final String text;
@@ -110,7 +114,10 @@ class SmsAndroid {
   }
 
   /// 채널이 없는 빌드에서도 앱은 그대로 돌아야 한다 — 기능만 조용히 빠진다.
-  static Future<T?> _invoke<T>(String method, [Map<String, dynamic>? args]) async {
+  static Future<T?> _invoke<T>(
+    String method, [
+    Map<String, dynamic>? args,
+  ]) async {
     try {
       return await _channel.invokeMethod<T>(method, args);
     } on MissingPluginException {

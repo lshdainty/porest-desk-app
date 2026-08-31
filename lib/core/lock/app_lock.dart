@@ -47,7 +47,10 @@ class AppLockAuth {
           // iOS 시스템 버튼은 시스템 언어를 따르고 취소만 앱이 넘긴다.
           IOSAuthMessages(cancelButton: cancelLabel),
           // Android BiometricPrompt 의 제목·취소는 앱 문자열이다 — 안 넘기면 영어가 뜬다.
-          AndroidAuthMessages(signInTitle: signInTitle, cancelButton: cancelLabel),
+          AndroidAuthMessages(
+            signInTitle: signInTitle,
+            cancelButton: cancelLabel,
+          ),
         ],
         // 인증 도중 앱이 백그라운드로 밀리면(전화 수신 등) 실패로 끝내지 말고
         // 복귀 시 프롬프트를 다시 띄운다.
@@ -76,8 +79,9 @@ final appLockEnabledProvider = Provider<bool>((ref) {
 });
 
 /// 지금 잠겨 있는가 — [AppLockGate] 가 이 값으로 잠금 화면을 덮는다.
-final appLockedProvider =
-    NotifierProvider<AppLockedNotifier, bool>(AppLockedNotifier.new);
+final appLockedProvider = NotifierProvider<AppLockedNotifier, bool>(
+  AppLockedNotifier.new,
+);
 
 class AppLockedNotifier extends Notifier<bool> {
   @override

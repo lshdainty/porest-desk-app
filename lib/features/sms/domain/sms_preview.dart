@@ -19,18 +19,40 @@ class SmsPreview {
 
   /// 금액 앞에 붙으면 결제액이 아닌 말들 — 서버 파서와 같은 뜻.
   static const List<String> _amountNoise = [
-    '누적', '잔액', '한도', '합계', '사용가능', '가용', '잔여', '총', '출금가능',
+    '누적',
+    '잔액',
+    '한도',
+    '합계',
+    '사용가능',
+    '가용',
+    '잔여',
+    '총',
+    '출금가능',
   ];
 
   /// 가맹점 자리로 볼 수 없는 말이 들어간 줄 — 카드사·상태·시각 줄.
   static const List<String> _nonMerchantMarkers = [
-    '승인', '취소', '결제', '일시불', '할부', '체크', '신용',
-    '누적', '잔액', '한도', '사용', '출금', '입금',
+    '승인',
+    '취소',
+    '결제',
+    '일시불',
+    '할부',
+    '체크',
+    '신용',
+    '누적',
+    '잔액',
+    '한도',
+    '사용',
+    '출금',
+    '입금',
   ];
 
   /// 원문을 훑어 목록용 미리보기를 만든다.
   static SmsPreview of(String text) {
-    final normalized = text.replaceAll('[Web발신]', '').replaceAll('[web발신]', '').trim();
+    final normalized = text
+        .replaceAll('[Web발신]', '')
+        .replaceAll('[web발신]', '')
+        .trim();
     final lines = normalized
         .split(RegExp(r'\R'))
         .map((l) => l.trim())

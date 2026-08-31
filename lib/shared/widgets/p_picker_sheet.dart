@@ -42,10 +42,7 @@ Widget _themed(BuildContext context, Widget picker) {
   );
 }
 
-Widget _footer(
-  BuildContext ctx, {
-  required VoidCallback onConfirm,
-}) {
+Widget _footer(BuildContext ctx, {required VoidCallback onConfirm}) {
   final l = AppLocalizations.of(ctx);
   // 취소·확인은 폭을 반씩 나눠 갖는다 — PSheetFooter 와 같은 규칙.
   return Row(

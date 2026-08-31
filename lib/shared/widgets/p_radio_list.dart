@@ -55,11 +55,11 @@ class PRadioList<T> extends StatelessWidget {
   final PRadioListSize size;
 
   (double padX, double padY, double pillSize, double gap, double checkSize)
-      get _metrics => switch (size) {
-            PRadioListSize.sm => (12, 10, 28, 10, 14),
-            PRadioListSize.md => (8, 14, 32, 12, 16),
-            PRadioListSize.lg => (20, 16, 40, 14, 18),
-          };
+  get _metrics => switch (size) {
+    PRadioListSize.sm => (12, 10, 28, 10, 14),
+    PRadioListSize.md => (8, 14, 32, 12, 16),
+    PRadioListSize.lg => (20, 16, 40, 14, 18),
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -100,7 +100,11 @@ class PRadioList<T> extends StatelessWidget {
                     borderRadius: PRadius.brMd,
                   ),
                   child: item.pillIcon != null
-                      ? Icon(item.pillIcon, size: pillSize * 0.5, color: t.fgPrimary)
+                      ? Icon(
+                          item.pillIcon,
+                          size: pillSize * 0.5,
+                          color: t.fgPrimary,
+                        )
                       : Text(
                           item.pillText!,
                           style: TextStyle(

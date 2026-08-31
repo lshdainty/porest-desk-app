@@ -18,17 +18,11 @@ class MemoFolderRepository {
     }
   }
 
-  Future<MemoFolder> create({
-    required String folderName,
-    int? parentId,
-  }) async {
+  Future<MemoFolder> create({required String folderName, int? parentId}) async {
     try {
       final res = await _dio.post<Map<String, dynamic>>(
         '/memo/folder',
-        data: {
-          'folderName': folderName,
-          'parentId': ?parentId,
-        },
+        data: {'folderName': folderName, 'parentId': ?parentId},
       );
       return _unwrap(res, MemoFolder.fromJson);
     } on DioException catch (e) {

@@ -22,31 +22,33 @@ const _conn = BrokerConnection(
 );
 
 Widget _app() => ProviderScope(
-      child: MaterialApp(
-        theme: PorestTheme.dark(),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        locale: const Locale('ko'),
-        home: const Scaffold(
-          body: SingleChildScrollView(
-            child: BrokerConnectCard(
-              connection: _conn,
-              showPrimaryAction: false,
-            ),
-          ),
-        ),
+  child: MaterialApp(
+    theme: PorestTheme.dark(),
+    localizationsDelegates: AppLocalizations.localizationsDelegates,
+    supportedLocales: AppLocalizations.supportedLocales,
+    locale: const Locale('ko'),
+    home: const Scaffold(
+      body: SingleChildScrollView(
+        child: BrokerConnectCard(connection: _conn, showPrimaryAction: false),
       ),
-    );
+    ),
+  ),
+);
 
 /// 서버가 준 라벨이 그대로 placeholder 라 그걸로 칸을 집는다.
 EditableText _fieldFor(WidgetTester tester, String label) {
   final field = tester
       .widgetList<TextField>(find.byType(TextField))
-      .firstWhere((f) => f.decoration?.hintText == label,
-          orElse: () => throw StateError('"$label" 입력칸을 못 찾았다'));
-  return tester.widgetList<EditableText>(find.byType(EditableText)).firstWhere(
-      (e) => e.controller == field.controller,
-      orElse: () => throw StateError('"$label" 의 EditableText 를 못 찾았다'));
+      .firstWhere(
+        (f) => f.decoration?.hintText == label,
+        orElse: () => throw StateError('"$label" 입력칸을 못 찾았다'),
+      );
+  return tester
+      .widgetList<EditableText>(find.byType(EditableText))
+      .firstWhere(
+        (e) => e.controller == field.controller,
+        orElse: () => throw StateError('"$label" 의 EditableText 를 못 찾았다'),
+      );
 }
 
 void main() {
@@ -60,8 +62,11 @@ void main() {
       // 가리는 것만으론 부족하다 — 키보드 사전에 남으면 다른 앱에서 예측으로 뜬다.
       expect(e.autocorrect, isFalse, reason: '$label autocorrect');
       expect(e.enableSuggestions, isFalse, reason: '$label enableSuggestions');
-      expect(e.enableIMEPersonalizedLearning, isFalse,
-          reason: '$label IME 개인화 학습');
+      expect(
+        e.enableIMEPersonalizedLearning,
+        isFalse,
+        reason: '$label IME 개인화 학습',
+      );
     }
   });
 
@@ -92,8 +97,11 @@ void main() {
 
     final key = _fieldFor(tester, 'App Key');
     expect(key.obscureText, isFalse, reason: '토글이 안 먹었다');
-    expect(key.enableIMEPersonalizedLearning, isFalse,
-        reason: '벗겨 본 동안이 오히려 학습이 열리는 구멍이다');
+    expect(
+      key.enableIMEPersonalizedLearning,
+      isFalse,
+      reason: '벗겨 본 동안이 오히려 학습이 열리는 구멍이다',
+    );
     expect(key.autocorrect, isFalse);
     expect(key.enableSuggestions, isFalse);
 
@@ -110,5 +118,6 @@ void main() {
 Finder _finderFor(WidgetTester tester, String label) {
   final target = _fieldFor(tester, label);
   return find.byWidgetPredicate(
-      (w) => w is EditableText && w.controller == target.controller);
+    (w) => w is EditableText && w.controller == target.controller,
+  );
 }

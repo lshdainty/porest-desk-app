@@ -31,6 +31,7 @@ abstract class DutchPayParticipant with _$DutchPayParticipant {
     int? userRowId,
     String? participantName,
     @Default(0) int amount,
+
     /// 이 사람이 결제했는가. 한 정산에 한 명 — 나머지는 그 사람에게 갚을 참여자다.
     @Default(false) bool isPayer,
     @Default(false) bool isPaid,

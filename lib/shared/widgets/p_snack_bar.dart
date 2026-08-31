@@ -32,6 +32,7 @@ void showPSnackBar(
   PSnackSeverity severity = PSnackSeverity.neutral,
   Duration duration = const Duration(seconds: 4),
   SnackBarAction? action,
+
   /// 직접 넘기는 messenger — 전역 키로 띄울 때 쓴다. ScaffoldMessenger.of 는
   /// 자기 자신의 context 에서는 못 찾으므로(위로만 탐색) 그 경우 필수다.
   ScaffoldMessengerState? messenger,
@@ -77,29 +78,29 @@ void showPSnackBar(
         child: ConstrainedBox(
           constraints: const BoxConstraints(minHeight: 52 - PSpace.x12 * 2),
           child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            if (icon != null) ...[
-              Icon(icon, size: 20, color: iconColor),
-              const SizedBox(width: PSpace.x12),
-            ],
-            Expanded(
-              child: Text(
-                message,
-                // 이 메시지는 스펙의 title 자리다 — title-sm(16/600).
-                // 웹도 sonner title 에 text-title-sm + font-semibold 를 준다.
-                // 예전 bodySm(13/500)은 앱 토큰 이름이 스케일과 어긋나 한 단계
-                // 작은 값(spec 의 label-sm)을 쓰고 있던 것이다.
-                style: TextStyle(
-                  fontFamily: PTypo.sans,
-                  fontSize: PFontSize.titleSm,
-                  fontWeight: PFontWeight.semi,
-                  height: 1.4,
-                  color: t.fgPrimary,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              if (icon != null) ...[
+                Icon(icon, size: 20, color: iconColor),
+                const SizedBox(width: PSpace.x12),
+              ],
+              Expanded(
+                child: Text(
+                  message,
+                  // 이 메시지는 스펙의 title 자리다 — title-sm(16/600).
+                  // 웹도 sonner title 에 text-title-sm + font-semibold 를 준다.
+                  // 예전 bodySm(13/500)은 앱 토큰 이름이 스케일과 어긋나 한 단계
+                  // 작은 값(spec 의 label-sm)을 쓰고 있던 것이다.
+                  style: TextStyle(
+                    fontFamily: PTypo.sans,
+                    fontSize: PFontSize.titleSm,
+                    fontWeight: PFontWeight.semi,
+                    height: 1.4,
+                    color: t.fgPrimary,
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
           ),
         ),
       ),

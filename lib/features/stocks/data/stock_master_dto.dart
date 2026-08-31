@@ -29,13 +29,13 @@ class StockMasterItem {
   final String? nameEn;
 
   factory StockMasterItem.fromJson(Map<String, dynamic> j) => StockMasterItem(
-        countryCode: (j['countryCode'] as String?) ?? '',
-        marketCode: (j['marketCode'] as String?) ?? '',
-        symbol: (j['symbol'] as String?) ?? '',
-        nameKr: (j['nameKr'] as String?) ?? '',
-        securityType: (j['securityType'] as String?) ?? '',
-        currency: (j['currency'] as String?) ?? '',
-        standardCode: j['standardCode'] as String?,
-        nameEn: j['nameEn'] as String?,
-      );
+    countryCode: (j['countryCode'] as String?) ?? '',
+    marketCode: (j['marketCode'] as String?) ?? '',
+    symbol: (j['symbol'] as String?) ?? '',
+    nameKr: (j['nameKr'] as String?) ?? '',
+    securityType: (j['securityType'] as String?) ?? '',
+    currency: (j['currency'] as String?) ?? '',
+    standardCode: j['standardCode'] as String?,
+    nameEn: j['nameEn'] as String?,
+  );
 }

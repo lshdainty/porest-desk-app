@@ -21,9 +21,9 @@ class LivePrices {
   const LivePrices._(this._quotes, this._rates, this._prevCloses);
 
   const LivePrices.empty()
-      : _quotes = const {},
-        _rates = const {},
-        _prevCloses = const {};
+    : _quotes = const {},
+      _rates = const {},
+      _prevCloses = const {};
 
   final Map<String, BrokerQuote> _quotes;
   final Map<String, double> _rates;
@@ -59,8 +59,10 @@ class LivePrices {
 ///
 /// 게이트(프로 + 증권사 연결)는 호출부가 이미 확인한 것으로 본다 — 심볼이 비어 있으면
 /// 어차피 조회가 없다.
-final livePricesProvider =
-    FutureProvider.family<LivePrices, String>((ref, symbolsCsv) async {
+final livePricesProvider = FutureProvider.family<LivePrices, String>((
+  ref,
+  symbolsCsv,
+) async {
   final symbols = symbolsCsv.split(',').where((s) => s.isNotEmpty).toList();
   if (symbols.isEmpty) return const LivePrices.empty();
 

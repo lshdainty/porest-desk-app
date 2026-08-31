@@ -1,0 +1,8 @@
+# git blame 에서 건너뛸 커밋 — 서식만 바꾼 대규모 커밋.
+#
+# 로컬에도 적용하려면 한 번만:
+#   git config blame.ignoreRevsFile .git-blame-ignore-revs
+# (GitHub 웹 blame 은 이 파일을 자동으로 읽는다)
+
+# style: dart format 전면 적용 (277 파일, 공백만 — 토큰 대조로 확인)
+23e39df167a341b02d54cd1b9e791be0d36c8fa8

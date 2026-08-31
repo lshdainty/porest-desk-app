@@ -1,4 +1,3 @@
-
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -45,9 +44,11 @@ class DashboardScreen extends ConsumerStatefulWidget {
 }
 
 class _DashboardScreenState extends ConsumerState<DashboardScreen> {
-  late final DateTime _month =
-      DateTime(DateTime.now().year, DateTime.now().month, 1);
-
+  late final DateTime _month = DateTime(
+    DateTime.now().year,
+    DateTime.now().month,
+    1,
+  );
 
   String get _ymdStart =>
       '${_month.year.toString().padLeft(4, '0')}-${_month.month.toString().padLeft(2, '0')}-01';
@@ -71,29 +72,36 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   Widget build(BuildContext context) {
     final t = context.tokens;
 
-
     final monthKey = (year: _month.year, month: _month.month);
-    final summaryAsync =
-        ref.watch(assetSummaryProvider((year: _month.year, month: _month.month)));
+    final summaryAsync = ref.watch(
+      assetSummaryProvider((year: _month.year, month: _month.month)),
+    );
     final expensesAsync = ref.watch(monthExpensesProvider(monthKey));
     final categoriesAsync = ref.watch(categoriesProvider);
     final dashboardAsync = ref.watch(dashboardSummaryProvider);
-    final summaryRangeAsync = ref.watch(rangeSummaryProvider(
-        (startDate: _ymdStart, endDate: _ymdEnd)));
+    final summaryRangeAsync = ref.watch(
+      rangeSummaryProvider((startDate: _ymdStart, endDate: _ymdEnd)),
+    );
     final prevRange = _prevMonthRange();
-    final prevSummaryAsync = ref.watch(rangeSummaryProvider(
-        (startDate: prevRange.start, endDate: prevRange.end)));
+    final prevSummaryAsync = ref.watch(
+      rangeSummaryProvider((
+        startDate: prevRange.start,
+        endDate: prevRange.end,
+      )),
+    );
     final budgetsAsync = ref.watch(monthBudgetsProvider(monthKey));
 
     return RefreshIndicator(
       color: t.bgBrand,
       onRefresh: () async {
         ref.invalidate(
-            assetSummaryProvider((year: _month.year, month: _month.month)));
+          assetSummaryProvider((year: _month.year, month: _month.month)),
+        );
         ref.invalidate(monthExpensesProvider(monthKey));
         ref.invalidate(dashboardSummaryProvider);
-        ref.invalidate(rangeSummaryProvider(
-            (startDate: _ymdStart, endDate: _ymdEnd)));
+        ref.invalidate(
+          rangeSummaryProvider((startDate: _ymdStart, endDate: _ymdEnd)),
+        );
         ref.invalidate(monthBudgetsProvider(monthKey));
       },
       // 카드 다이어트 — design HomeMobile: padding 20/20/24 + 섹션 gap 36.
@@ -101,7 +109,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       child: ListView(
         // 하단 — 플로팅 탭바 보상(pTabBarBottomInset).
         padding: EdgeInsets.fromLTRB(
-            PSpace.x24, PSpace.x20, PSpace.x24, pTabBarBottomInset(context)),
+          PSpace.x24,
+          PSpace.x20,
+          PSpace.x24,
+          pTabBarBottomInset(context),
+        ),
         children: [
           // 개발 서버를 보는 빌드에만 붙인다.
           //
@@ -122,10 +134,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           // 여기서 읽지 않는다 — 누르기 전까지는 OS 붙여넣기 배너도 뜨지 않는다.
           const SmsClipboardBanner(),
           _BalanceHero(
-              summaryAsync: summaryAsync,
-              masked: ref.watch(hideCardProvider('home.netWorth')),
-              // 헤더 eye 버튼과 동일 — 숨김 해제 시 unlock 다이얼로그.
-              onToggleMask: () => context.push('/settings/hide-amounts')),
+            summaryAsync: summaryAsync,
+            masked: ref.watch(hideCardProvider('home.netWorth')),
+            // 헤더 eye 버튼과 동일 — 숨김 해제 시 unlock 다이얼로그.
+            onToggleMask: () => context.push('/settings/hide-amounts'),
+          ),
           const SizedBox(height: PSpace.x32),
           _MonthExpenseCard(
             month: _month,
@@ -190,17 +203,24 @@ class _WidgetHead extends StatelessWidget {
         children: [
           Icon(icon, size: 16, color: t.fgSecondary),
           const SizedBox(width: 7),
-          Text(title,
-              style: PTypo.body.copyWith(
-                  fontSize: PFontSize.bodyMd,
-                  color: t.fgPrimary,
-                  fontWeight: PFontWeight.bold)),
+          Text(
+            title,
+            style: PTypo.body.copyWith(
+              fontSize: PFontSize.bodyMd,
+              color: t.fgPrimary,
+              fontWeight: PFontWeight.bold,
+            ),
+          ),
           if (badge != null) ...[const SizedBox(width: 6), badge!],
           const Spacer(),
           GestureDetector(
             // 셸 브랜치 라우트는 go 로 전환(push 금지 — web 정합).
             onTap: onAll,
-            child: Icon(LucideIcons.chevronRight, size: 16, color: t.fgTertiary),
+            child: Icon(
+              LucideIcons.chevronRight,
+              size: 16,
+              color: t.fgTertiary,
+            ),
           ),
         ],
       ),
@@ -235,15 +255,16 @@ class _WidgetRow extends StatelessWidget {
             leading,
             const SizedBox(width: 12),
             Expanded(
-              child: Text(title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: PTypo.body.copyWith(
-                    color: t.fgPrimary,
-                    fontWeight: PFontWeight.medium,
-                    decoration:
-                        strike ? TextDecoration.lineThrough : null,
-                  )),
+              child: Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: PTypo.body.copyWith(
+                  color: t.fgPrimary,
+                  fontWeight: PFontWeight.medium,
+                  decoration: strike ? TextDecoration.lineThrough : null,
+                ),
+              ),
             ),
             const SizedBox(width: 8),
             trailing,
@@ -284,7 +305,11 @@ class _WidgetSkeleton extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 10),
               child: Row(
                 children: [
-                  PSkeleton(width: 18, height: 18, borderRadius: BorderRadius.circular(9)),
+                  PSkeleton(
+                    width: 18,
+                    height: 18,
+                    borderRadius: BorderRadius.circular(9),
+                  ),
                   const SizedBox(width: 12),
                   PSkeleton.line(width: i == 0 ? 120 : 96),
                   const Spacer(),
@@ -339,17 +364,21 @@ class _HomeUpcomingWidget extends StatelessWidget {
                 width: 8,
                 height: 8,
                 decoration: BoxDecoration(
-                    color: resolveChartColor(context, e.color,
-                        fallback: t.fgBrand),
-                    shape: BoxShape.circle),
+                  color: resolveChartColor(
+                    context,
+                    e.color,
+                    fallback: t.fgBrand,
+                  ),
+                  shape: BoxShape.circle,
+                ),
               ),
               title: e.title,
               trailing: Text(
                 e.daysUntil == 0
                     ? l.dashTodayLabel
                     : (e.daysUntil == 1
-                        ? l.dashTomorrowLabel
-                        : l.dashDaysLeft(e.daysUntil)),
+                          ? l.dashTomorrowLabel
+                          : l.dashDaysLeft(e.daysUntil)),
                 style: TextStyle(
                   fontSize: 12.5,
                   fontWeight: PFontWeight.bold,
@@ -406,15 +435,19 @@ class _HomeTodosWidget extends StatelessWidget {
           for (final tdo in todos)
             () {
               final done = tdo.status == 'COMPLETED';
-              final isOver = !done &&
+              final isOver =
+                  !done &&
                   tdo.dueDate != null &&
                   tdo.dueDate!.substring(0, 10).compareTo(todayStr) < 0;
               return _WidgetRow(
                 onTap: () => context.go('/todos'),
                 strike: done,
                 leading: done
-                    ? Icon(LucideIcons.checkCircle,
-                        size: 18, color: t.statusSuccess)
+                    ? Icon(
+                        LucideIcons.checkCircle,
+                        size: 18,
+                        color: t.statusSuccess,
+                      )
                     : Container(
                         width: 18,
                         height: 18,
@@ -487,8 +520,11 @@ class _BalanceHero extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Icon(LucideIcons.wallet,
-                      size: 13, color: t.fgOnBrand.withValues(alpha: 0.72)),
+                  Icon(
+                    LucideIcons.wallet,
+                    size: 13,
+                    color: t.fgOnBrand.withValues(alpha: 0.72),
+                  ),
                   const SizedBox(width: 8),
                   Text(
                     l.assetNetWorth,
@@ -514,7 +550,8 @@ class _BalanceHero extends StatelessWidget {
                           color: t.fgOnBrand.withValues(alpha: 0.12),
                           shape: BoxShape.circle,
                           border: Border.all(
-                              color: t.fgOnBrand.withValues(alpha: 0.15)),
+                            color: t.fgOnBrand.withValues(alpha: 0.15),
+                          ),
                         ),
                         child: Icon(
                           masked ? LucideIcons.eyeOff : LucideIcons.eye,
@@ -602,8 +639,7 @@ class _BalanceHero extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 18),
                 decoration: BoxDecoration(
                   border: Border(
-                    top: BorderSide(
-                        color: t.fgOnBrand.withValues(alpha: 0.14)),
+                    top: BorderSide(color: t.fgOnBrand.withValues(alpha: 0.14)),
                   ),
                 ),
                 child: IntrinsicHeight(
@@ -625,7 +661,12 @@ class _BalanceHero extends StatelessWidget {
                           padding: const EdgeInsets.only(left: 16),
                           child: _HeroSplitCol(
                             label: l.dashLiabilities,
-                            value: krwSigned(totalDebt, masked, sign: '-', mask: '••••'),
+                            value: krwSigned(
+                              totalDebt,
+                              masked,
+                              sign: '-',
+                              mask: '••••',
+                            ),
                             loading: loading,
                           ),
                         ),
@@ -666,7 +707,11 @@ class _BalanceHero extends StatelessWidget {
 }
 
 /// hero gradient 위 흰 반투명 skeleton 박스 (PSkeleton bgMuted 색이 gradient 위 부적합).
-Widget _heroSkelBar(PorestTokens t, {required double width, required double height}) {
+Widget _heroSkelBar(
+  PorestTokens t, {
+  required double width,
+  required double height,
+}) {
   return Container(
     width: width,
     height: height,
@@ -736,6 +781,7 @@ class _MonthExpenseCard extends StatelessWidget {
   final AsyncValue<List<Expense>> expensesAsync;
   final RangeSummary? currentSummary;
   final RangeSummary? prevSummary;
+
   /// 수입·지출이 각자 종류를 갖는다. 하루평균은 `지출/일수` 라 지출 파생이다.
   final MaskFlags flags;
 
@@ -744,11 +790,13 @@ class _MonthExpenseCard extends StatelessWidget {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
     final list = expensesAsync.value ?? const <Expense>[];
-    final income = currentSummary?.totalIncome ??
+    final income =
+        currentSummary?.totalIncome ??
         list
             .where((e) => e.expenseType == 'INCOME')
             .fold<int>(0, (s, e) => s + e.amount);
-    final expense = currentSummary?.totalExpense ??
+    final expense =
+        currentSummary?.totalExpense ??
         list
             .where((e) => e.expenseType == 'EXPENSE')
             .fold<int>(0, (s, e) => s + e.amount);
@@ -756,8 +804,7 @@ class _MonthExpenseCard extends StatelessWidget {
     final hasError = expensesAsync.hasError && !expensesAsync.hasValue;
 
     final today = DateTime.now();
-    final isCurMonth =
-        today.year == month.year && today.month == month.month;
+    final isCurMonth = today.year == month.year && today.month == month.month;
     final daysInMonth = DateTime(month.year, month.month + 1, 0).day;
     final dayOfMonth = isCurMonth ? today.day : daysInMonth;
     final dailyAvg = expense ~/ (dayOfMonth < 1 ? 1 : dayOfMonth);
@@ -783,14 +830,22 @@ class _MonthExpenseCard extends StatelessWidget {
                 Expanded(
                   child: _IncomeExpenseCol(
                     label: l.expTypeIncome,
-                    value: krwSigned(income, flags.of(MaskKind.income), sign: '+'),
+                    value: krwSigned(
+                      income,
+                      flags.of(MaskKind.income),
+                      sign: '+',
+                    ),
                     color: t.fgIncome,
                   ),
                 ),
                 Expanded(
                   child: _IncomeExpenseCol(
                     label: l.expTypeExpense,
-                    value: krwSigned(expense, flags.of(MaskKind.expense), sign: '-'),
+                    value: krwSigned(
+                      expense,
+                      flags.of(MaskKind.expense),
+                      sign: '-',
+                    ),
                     color: t.fgExpense,
                   ),
                 ),
@@ -800,44 +855,41 @@ class _MonthExpenseCard extends StatelessWidget {
           const PDivider(),
           const SizedBox(height: 14),
           RichText(
-                  text: TextSpan(
-                    style: PTypo.caption.copyWith(
-                        color: t.fgSecondary, height: 1.5),
-                    children: [
-                      TextSpan(text: l.dashDailyAvgPrefix),
-                      TextSpan(
-                        text: krwMasked(dailyAvg, flags.of(MaskKind.expense)),
-                        style: TextStyle(
-                          color: t.fgPrimary,
-                          fontWeight: PFontWeight.bold,
-                          fontFeatures: const [FontFeature.tabularFigures()],
-                        ),
-                      ),
-                      TextSpan(
-                          text: flags.of(MaskKind.expense)
-                              ? l.dashSpentMasked
-                              : l.dashSpentUnit),
-                      if (prevExpense > 0) ...[
-                        TextSpan(text: l.dashVsPrevPrefix),
-                        TextSpan(
-                          text:
-                              '${savingsPct.abs().toStringAsFixed(0)}%',
-                          style: TextStyle(
-                            color:
-                                saving ? t.fgBrandStrong : t.fgExpense,
-                            fontWeight: PFontWeight.bold,
-                          ),
-                        ),
-                        TextSpan(
-                            text: saving
-                                ? l.dashSaving
-                                : (savingsPct < 0
-                                    ? l.dashSpentMore
-                                    : l.dashSame)),
-                      ],
-                    ],
+            text: TextSpan(
+              style: PTypo.caption.copyWith(color: t.fgSecondary, height: 1.5),
+              children: [
+                TextSpan(text: l.dashDailyAvgPrefix),
+                TextSpan(
+                  text: krwMasked(dailyAvg, flags.of(MaskKind.expense)),
+                  style: TextStyle(
+                    color: t.fgPrimary,
+                    fontWeight: PFontWeight.bold,
+                    fontFeatures: const [FontFeature.tabularFigures()],
                   ),
                 ),
+                TextSpan(
+                  text: flags.of(MaskKind.expense)
+                      ? l.dashSpentMasked
+                      : l.dashSpentUnit,
+                ),
+                if (prevExpense > 0) ...[
+                  TextSpan(text: l.dashVsPrevPrefix),
+                  TextSpan(
+                    text: '${savingsPct.abs().toStringAsFixed(0)}%',
+                    style: TextStyle(
+                      color: saving ? t.fgBrandStrong : t.fgExpense,
+                      fontWeight: PFontWeight.bold,
+                    ),
+                  ),
+                  TextSpan(
+                    text: saving
+                        ? l.dashSaving
+                        : (savingsPct < 0 ? l.dashSpentMore : l.dashSame),
+                  ),
+                ],
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -845,8 +897,11 @@ class _MonthExpenseCard extends StatelessWidget {
 }
 
 class _IncomeExpenseCol extends StatelessWidget {
-  const _IncomeExpenseCol(
-      {required this.label, required this.value, required this.color});
+  const _IncomeExpenseCol({
+    required this.label,
+    required this.value,
+    required this.color,
+  });
   final String label;
   final String value;
   final Color color;
@@ -857,18 +912,24 @@ class _IncomeExpenseCol extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label,
-            style: TextStyle(
-                color: t.fgTertiary,
-                fontSize: PFontSize.micro,
-                fontWeight: PFontWeight.medium)),
+        Text(
+          label,
+          style: TextStyle(
+            color: t.fgTertiary,
+            fontSize: PFontSize.micro,
+            fontWeight: PFontWeight.medium,
+          ),
+        ),
         const SizedBox(height: 2),
-        Text(value,
-            style: TextStyle(
-                color: color,
-                fontSize: PFontSize.h4,
-                fontWeight: PFontWeight.bold,
-                fontFeatures: const [FontFeature.tabularFigures()])),
+        Text(
+          value,
+          style: TextStyle(
+            color: color,
+            fontSize: PFontSize.h4,
+            fontWeight: PFontWeight.bold,
+            fontFeatures: const [FontFeature.tabularFigures()],
+          ),
+        ),
       ],
     );
   }
@@ -910,7 +971,8 @@ class _CategoryDonutCard extends StatelessWidget {
     final l = AppLocalizations.of(context);
     // 부모 카테고리로 롤업: 부모가 있으면 부모 ID/이름으로, 없으면 자기 자신.
     final rolled = <int, ({String name, int total})>{};
-    for (final c in (summary?.categoryBreakdown ?? const <CategoryBreakdown>[])) {
+    for (final c
+        in (summary?.categoryBreakdown ?? const <CategoryBreakdown>[])) {
       if (c.expenseType != 'EXPENSE') continue;
       final id = c.parentCategoryRowId ?? c.categoryRowId;
       final name = c.parentCategoryName ?? (c.categoryName ?? '-');
@@ -921,12 +983,17 @@ class _CategoryDonutCard extends StatelessWidget {
         total: (cur?.total ?? 0) + c.totalAmount,
       );
     }
-    final topSegs = rolled.entries.map((e) => (
-          rowId: e.key,
-          name: e.value.name,
-          totalAmount: e.value.total,
-        )).toList()
-      ..sort((a, b) => b.totalAmount.compareTo(a.totalAmount));
+    final topSegs =
+        rolled.entries
+            .map(
+              (e) => (
+                rowId: e.key,
+                name: e.value.name,
+                totalAmount: e.value.total,
+              ),
+            )
+            .toList()
+          ..sort((a, b) => b.totalAmount.compareTo(a.totalAmount));
     final total = topSegs.fold<int>(0, (s, c) => s + c.totalAmount);
 
     // 카드 다이어트 — design HomeMobile 카테고리: 헤드 + 도넛·범례 (inset 10).
@@ -974,9 +1041,12 @@ class _CategoryDonutCard extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 12),
               child: Center(
                 child: Text(
-                    l.dashNoCategoryData,
-                    style: TextStyle(
-                        color: t.fgTertiary, fontSize: PFontSize.caption)),
+                  l.dashNoCategoryData,
+                  style: TextStyle(
+                    color: t.fgTertiary,
+                    fontSize: PFontSize.caption,
+                  ),
+                ),
               ),
             )
           else
@@ -998,7 +1068,11 @@ class _CategoryDonutCard extends StatelessWidget {
                             for (var i = 0; i < topSegs.length; i++)
                               PieChartSectionData(
                                 value: topSegs[i].totalAmount.toDouble(),
-                                color: _segmentColor(context, topSegs[i].rowId, i),
+                                color: _segmentColor(
+                                  context,
+                                  topSegs[i].rowId,
+                                  i,
+                                ),
                                 radius: 18,
                                 showTitle: false,
                               ),
@@ -1008,10 +1082,13 @@ class _CategoryDonutCard extends StatelessWidget {
                       Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text(l.expTypeExpense,
-                              style: TextStyle(
-                                  color: t.fgTertiary,
-                                  fontSize: PFontSize.micro)),
+                          Text(
+                            l.expTypeExpense,
+                            style: TextStyle(
+                              color: t.fgTertiary,
+                              fontSize: PFontSize.micro,
+                            ),
+                          ),
                           const SizedBox(height: 2),
                           Text(
                             // 도넛 안이라 폭이 좁다. 전체 자릿수를 쓰면 원 밖으로
@@ -1019,12 +1096,13 @@ class _CategoryDonutCard extends StatelessWidget {
                             // 차트 축과 같은 축약을 쓴다(1.02억).
                             masked ? '••••' : formatChartAxis(total.toDouble()),
                             style: TextStyle(
-                                color: t.fgPrimary,
-                                fontSize: PFontSize.caption,
-                                fontWeight: PFontWeight.bold,
-                                fontFeatures: const [
-                                  FontFeature.tabularFigures()
-                                ]),
+                              color: t.fgPrimary,
+                              fontSize: PFontSize.caption,
+                              fontWeight: PFontWeight.bold,
+                              fontFeatures: const [
+                                FontFeature.tabularFigures(),
+                              ],
+                            ),
                           ),
                         ],
                       ),
@@ -1045,7 +1123,11 @@ class _CategoryDonutCard extends StatelessWidget {
                                 width: 8,
                                 height: 8,
                                 decoration: BoxDecoration(
-                                  color: _segmentColor(context, topSegs[i].rowId, i),
+                                  color: _segmentColor(
+                                    context,
+                                    topSegs[i].rowId,
+                                    i,
+                                  ),
                                   shape: BoxShape.circle,
                                 ),
                               ),
@@ -1054,20 +1136,25 @@ class _CategoryDonutCard extends StatelessWidget {
                                 child: Text(
                                   topSegs[i].name,
                                   style: TextStyle(
-                                      color: t.fgSecondary,
-                                      fontSize: PFontSize.caption),
+                                    color: t.fgSecondary,
+                                    fontSize: PFontSize.caption,
+                                  ),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                               Text(
-                                krwMasked(topSegs[i].totalAmount, masked, mask: '••••'),
+                                krwMasked(
+                                  topSegs[i].totalAmount,
+                                  masked,
+                                  mask: '••••',
+                                ),
                                 style: TextStyle(
                                   color: t.fgPrimary,
                                   fontSize: PFontSize.caption,
                                   fontWeight: PFontWeight.semi,
                                   fontFeatures: const [
-                                    FontFeature.tabularFigures()
+                                    FontFeature.tabularFigures(),
                                   ],
                                 ),
                               ),
@@ -1114,13 +1201,19 @@ class _BudgetCard extends StatelessWidget {
       if (c.expenseType != 'EXPENSE') continue;
       final cid = c.categoryRowId;
       if (cid != null) {
-        spentByCat.update(cid, (v) => v + c.totalAmount,
-            ifAbsent: () => c.totalAmount);
+        spentByCat.update(
+          cid,
+          (v) => v + c.totalAmount,
+          ifAbsent: () => c.totalAmount,
+        );
       }
       final pid = c.parentCategoryRowId;
       if (pid != null) {
-        spentByCat.update(pid, (v) => v + c.totalAmount,
-            ifAbsent: () => c.totalAmount);
+        spentByCat.update(
+          pid,
+          (v) => v + c.totalAmount,
+          ifAbsent: () => c.totalAmount,
+        );
       }
     }
     final totalEx = summary?.totalExpense ?? 0;
@@ -1139,64 +1232,61 @@ class _BudgetCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (budgetsAsync.isLoading && items.isEmpty)
-                  // 예산 카드 placeholder — _BudgetRow 1:1: 행 상하 14 / 40 icon + name + amount / 8px pill.
-                  Column(
-                    children: [
-                      for (var i = 0; i < 3; i++)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Row(
-                                children: [
-                                  PSkeleton(
-                                    width: 40,
-                                    height: 40,
-                                    borderRadius: PRadius.tile(40),
-                                  ),
-                                  const SizedBox(width: 14),
-                                  const Expanded(
-                                    child: PSkeleton.line(width: 80, height: 14),
-                                  ),
-                                  const SizedBox(width: 6),
-                                  const PSkeleton.line(width: 110, height: 16),
-                                ],
-                              ),
-                              const SizedBox(height: 10),
-                              PSkeleton(
-                                height: 8,
-                                borderRadius: PRadius.brFull,
-                              ),
-                            ],
-                          ),
-                        ),
-                    ],
-                  )
-                else if (items.isEmpty)
+            // 예산 카드 placeholder — _BudgetRow 1:1: 행 상하 14 / 40 icon + name + amount / 8px pill.
+            Column(
+              children: [
+                for (var i = 0; i < 3; i++)
                   Padding(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: PSpace.x12),
-                    child: Center(
-                      child: Text(
-                          l.dashNoBudget,
-                          style: PTypo.caption.copyWith(color: t.fgTertiary)),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Row(
+                          children: [
+                            PSkeleton(
+                              width: 40,
+                              height: 40,
+                              borderRadius: PRadius.tile(40),
+                            ),
+                            const SizedBox(width: 14),
+                            const Expanded(
+                              child: PSkeleton.line(width: 80, height: 14),
+                            ),
+                            const SizedBox(width: 6),
+                            const PSkeleton.line(width: 110, height: 16),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        PSkeleton(height: 8, borderRadius: PRadius.brFull),
+                      ],
                     ),
-                  )
-                else
-                  for (var i = 0; i < items.length; i++)
-                    _BudgetRow(
-                      budget: items[i],
-                      category: items[i].categoryRowId == null
-                          ? null
-                          : categories.byRowId(items[i].categoryRowId!),
-                      spent: items[i].categoryRowId == null
-                          ? totalEx
-                          : (spentByCat[items[i].categoryRowId!] ?? 0),
-                      masked: masked,
-                      tokens: t,
-                      warnThreshold: warnThreshold,
-                    ),
+                  ),
+              ],
+            )
+          else if (items.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: PSpace.x12),
+              child: Center(
+                child: Text(
+                  l.dashNoBudget,
+                  style: PTypo.caption.copyWith(color: t.fgTertiary),
+                ),
+              ),
+            )
+          else
+            for (var i = 0; i < items.length; i++)
+              _BudgetRow(
+                budget: items[i],
+                category: items[i].categoryRowId == null
+                    ? null
+                    : categories.byRowId(items[i].categoryRowId!),
+                spent: items[i].categoryRowId == null
+                    ? totalEx
+                    : (spentByCat[items[i].categoryRowId!] ?? 0),
+                masked: masked,
+                tokens: t,
+                warnThreshold: warnThreshold,
+              ),
         ],
       ),
     );
@@ -1232,11 +1322,16 @@ class _BudgetRow extends StatelessWidget {
     final stateColor = over
         ? tokens.statusDangerFg
         : warn
-            ? tokens.statusWarningFg
-            : tokens.statusInfoFg;
-    final fg = resolveChartColor(context, category?.color, fallback: tokens.fgBrand);
+        ? tokens.statusWarningFg
+        : tokens.statusInfoFg;
+    final fg = resolveChartColor(
+      context,
+      category?.color,
+      fallback: tokens.fgBrand,
+    );
     final bg = softBg(context, fg);
-    final name = category?.categoryName ??
+    final name =
+        category?.categoryName ??
         budget.categoryName ??
         (budget.categoryRowId == null ? l.expFilterAll : l.expCategory);
 
@@ -1245,83 +1340,88 @@ class _BudgetRow extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 14),
       child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              alignment: Alignment.center,
-              decoration:
-                  BoxDecoration(color: bg, borderRadius: PRadius.tile(40)),
-              child: Icon(lucideByName(category?.icon),
-                  size: 18, color: fg),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Text(name,
-                  style: TextStyle(
-                      color: tokens.fgPrimary,
-                      fontSize: PFontSize.bodySm,
-                      fontWeight: PFontWeight.semi,
-                      letterSpacing: -0.13),
-                  overflow: TextOverflow.ellipsis),
-            ),
-            const SizedBox(width: 6),
-            RichText(
-              text: TextSpan(
-                style: TextStyle(
-                  fontSize: PFontSize.bodyLg,
-                  fontWeight: PFontWeight.bold,
-                  color: over ? tokens.fgExpense : tokens.fgPrimary,
-                  fontFeatures: const [FontFeature.tabularFigures()],
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: bg,
+                  borderRadius: PRadius.tile(40),
                 ),
+                child: Icon(lucideByName(category?.icon), size: 18, color: fg),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Text(
+                  name,
+                  style: TextStyle(
+                    color: tokens.fgPrimary,
+                    fontSize: PFontSize.bodySm,
+                    fontWeight: PFontWeight.semi,
+                    letterSpacing: -0.13,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: 6),
+              RichText(
+                text: TextSpan(
+                  style: TextStyle(
+                    fontSize: PFontSize.bodyLg,
+                    fontWeight: PFontWeight.bold,
+                    color: over ? tokens.fgExpense : tokens.fgPrimary,
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
+                  children: [
+                    TextSpan(text: krwMasked(spent, masked, mask: '••••')),
+                    TextSpan(
+                      text:
+                          ' / ${krwMasked(budget.budgetAmount, masked, mask: '••••')}',
+                      style: TextStyle(
+                        color: tokens.fgTertiary,
+                        fontWeight: PFontWeight.medium,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          // 웹 .budget-bar(8px pill) 정합 — Flutter 3.41 M3 LinearProgressIndicator 는
+          // track gap/stop indicator 가 붙어 디자인보다 두껍게 렌더돼 커스텀 pill 로 대체.
+          ClipRRect(
+            borderRadius: BorderRadius.circular(999),
+            child: SizedBox(
+              height: 8,
+              width: double.infinity,
+              child: Stack(
                 children: [
-                  TextSpan(text: krwMasked(spent, masked, mask: '••••')),
-                  TextSpan(
-                    text: ' / ${krwMasked(budget.budgetAmount, masked, mask: '••••')}',
-                    style: TextStyle(
-                      color: tokens.fgTertiary,
-                      fontWeight: PFontWeight.medium,
+                  Positioned.fill(child: ColoredBox(color: tokens.bgTrack)),
+                  // heightFactor:1 필수 — Stack 안 FractionallySizedBox 는 heightFactor 없으면
+                  // 높이가 0이라 fill(색)이 렌더되지 않음(track 만 보이던 버그).
+                  // fill 자체 borderRadius — 100% 미만일 때 fill 오른쪽 끝도 둥글게(웹 .budget-bar__fill
+                  // border-radius:inherit 정합). track ClipRRect 만으론 bar 양끝만 클립돼 각졌음.
+                  FractionallySizedBox(
+                    alignment: Alignment.centerLeft,
+                    widthFactor: (p / 100).clamp(0, 1).toDouble(),
+                    heightFactor: 1,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: stateColor,
+                        borderRadius: BorderRadius.circular(999),
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
-          ],
-        ),
-        const SizedBox(height: 10),
-        // 웹 .budget-bar(8px pill) 정합 — Flutter 3.41 M3 LinearProgressIndicator 는
-        // track gap/stop indicator 가 붙어 디자인보다 두껍게 렌더돼 커스텀 pill 로 대체.
-        ClipRRect(
-          borderRadius: BorderRadius.circular(999),
-          child: SizedBox(
-            height: 8,
-            width: double.infinity,
-            child: Stack(
-              children: [
-                Positioned.fill(child: ColoredBox(color: tokens.bgTrack)),
-                // heightFactor:1 필수 — Stack 안 FractionallySizedBox 는 heightFactor 없으면
-                // 높이가 0이라 fill(색)이 렌더되지 않음(track 만 보이던 버그).
-                // fill 자체 borderRadius — 100% 미만일 때 fill 오른쪽 끝도 둥글게(웹 .budget-bar__fill
-                // border-radius:inherit 정합). track ClipRRect 만으론 bar 양끝만 클립돼 각졌음.
-                FractionallySizedBox(
-                  alignment: Alignment.centerLeft,
-                  widthFactor: (p / 100).clamp(0, 1).toDouble(),
-                  heightFactor: 1,
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: stateColor,
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                  ),
-                ),
-              ],
-            ),
           ),
-        ),
-      ],
+        ],
       ),
     );
   }
@@ -1353,11 +1453,12 @@ class _TodaySpendCard extends StatelessWidget {
         '${today.day.toString().padLeft(2, '0')}';
     // 오늘 거래만
     final todayTx = [...list]
-      ..removeWhere((e) =>
-          e.expenseDate == null ||
-          e.expenseDate!.substring(0, 10) != todayStr)
-      ..sort((a, b) =>
-          (b.expenseDate ?? '').compareTo(a.expenseDate ?? ''));
+      ..removeWhere(
+        (e) =>
+            e.expenseDate == null ||
+            e.expenseDate!.substring(0, 10) != todayStr,
+      )
+      ..sort((a, b) => (b.expenseDate ?? '').compareTo(a.expenseDate ?? ''));
     final todayTotal = todayTx
         .where((e) => e.expenseType == 'EXPENSE')
         .fold<int>(0, (s, e) => s + e.amount);
@@ -1368,7 +1469,13 @@ class _TodaySpendCard extends StatelessWidget {
       headGap: 6,
       titleSuffix: todayTotal > 0
           ? Text(
-              krwSigned(todayTotal, masked, sign: '-', unit: true, mask: '••••'),
+              krwSigned(
+                todayTotal,
+                masked,
+                sign: '-',
+                unit: true,
+                mask: '••••',
+              ),
               style: PTypo.caption.copyWith(
                 color: t.fgExpense,
                 fontWeight: PFontWeight.bold,
@@ -1389,10 +1496,9 @@ class _TodaySpendCard extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: PSpace.x12),
               child: Center(
                 child: Text(
-                    expensesAsync.hasError
-                        ? l.dashTxError
-                        : l.dashNoTodaySpend,
-                    style: PTypo.caption.copyWith(color: t.fgTertiary)),
+                  expensesAsync.hasError ? l.dashTxError : l.dashNoTodaySpend,
+                  style: PTypo.caption.copyWith(color: t.fgTertiary),
+                ),
               ),
             )
           else
@@ -1404,8 +1510,7 @@ class _TodaySpendCard extends StatelessWidget {
                     _findCategory(categories, e.categoryRowId)?.color
                         as String?,
                 categoryIconOverride:
-                    _findCategory(categories, e.categoryRowId)?.icon
-                        as String?,
+                    _findCategory(categories, e.categoryRowId)?.icon as String?,
                 onTap: () {
                   final dateStr = e.expenseDate?.substring(0, 7);
                   if (dateStr != null && dateStr.length == 7) {
@@ -1430,4 +1535,3 @@ class _TodaySpendCard extends StatelessWidget {
     return null;
   }
 }
-

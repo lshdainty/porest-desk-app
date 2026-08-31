@@ -64,17 +64,17 @@ enum _CardType { credit, check }
 
 extension on _CardType {
   String label(AppLocalizations l) => switch (this) {
-        _CardType.credit => l.assetTypeCreditCard,
-        _CardType.check => l.assetTypeCheckCard,
-      };
+    _CardType.credit => l.assetTypeCreditCard,
+    _CardType.check => l.assetTypeCheckCard,
+  };
   String get apiCode => switch (this) {
-        _CardType.credit => 'CREDIT',
-        _CardType.check => 'CHECK',
-      };
+    _CardType.credit => 'CREDIT',
+    _CardType.check => 'CHECK',
+  };
   String get assetType => switch (this) {
-        _CardType.credit => 'CREDIT_CARD',
-        _CardType.check => 'CHECK_CARD',
-      };
+    _CardType.credit => 'CREDIT_CARD',
+    _CardType.check => 'CHECK_CARD',
+  };
 }
 
 class _CardAddBody extends ConsumerStatefulWidget {
@@ -107,21 +107,22 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
   bool get _isEdit => widget.edit != null;
 
   /// 편집은 상품을 다시 고르지 않아도 별칭·금액만 바꿔 저장할 수 있어야 한다.
-  bool get _canSubmit =>
-      !_submitting && (_isEdit || _selected != null);
+  bool get _canSubmit => !_submitting && (_isEdit || _selected != null);
 
   @override
   void initState() {
     super.initState();
     final e = widget.edit;
-    _cardType =
-        e?.assetType == 'CHECK_CARD' ? _CardType.check : _CardType.credit;
+    _cardType = e?.assetType == 'CHECK_CARD'
+        ? _CardType.check
+        : _CardType.credit;
     _keywordCtrl = TextEditingController()..addListener(_onChanged);
     _nicknameCtrl = TextEditingController(text: e?.assetName ?? '')
       ..addListener(_onChanged);
     _balanceCtrl = TextEditingController(text: (e?.balance ?? 0).toString());
-    _creditLimitCtrl =
-        TextEditingController(text: e?.creditLimit?.toString() ?? '');
+    _creditLimitCtrl = TextEditingController(
+      text: e?.creditLimit?.toString() ?? '',
+    );
     _paymentDay = e?.paymentDay;
     _paymentAssetRowId = e?.paymentAssetRowId;
     _includeInTotal = e == null ? true : e.isIncludedInTotal == 'Y';
@@ -255,203 +256,230 @@ class _CardAddBodyState extends ConsumerState<_CardAddBody> {
 
     return ListView(
       controller: widget.scrollController,
-      padding: const EdgeInsets.fromLTRB(
-          PSpace.xl, 0, PSpace.xl, PSpace.x16),
+      padding: const EdgeInsets.fromLTRB(PSpace.xl, 0, PSpace.xl, PSpace.x16),
       children: [
-                _PreviewTile(
-                  selected: _selected,
-                  cardType: _cardType,
-                  nickname: _nicknameCtrl.text.trim(),
-                ),
-                const SizedBox(height: PSpace.x20),
+        _PreviewTile(
+          selected: _selected,
+          cardType: _cardType,
+          nickname: _nicknameCtrl.text.trim(),
+        ),
+        const SizedBox(height: PSpace.x20),
 
-                // 카드 종류 ──────────────────────────
-                Text(l.assetCardType,
-                    style: PTypo.caption.copyWith(
-                        color: t.fgPrimary, fontWeight: PFontWeight.medium)),
-                const SizedBox(height: PSpace.x8),
-                PTabs<_CardType>(
-                  items: [
-                    for (final c in _CardType.values)
-                      PTabItem(value: c, label: c.label(l)),
-                  ],
-                  value: _cardType,
-                  onChanged: (v) => setState(() {
-                    _cardType = v;
-                    // 신규만 선택 초기화. 편집은 종류를 잘못 눌렀다고 해서
-                    // 연결된 상품까지 잃으면 곤란하다(web 동일).
-                    if (!_isEdit) _selected = null;
-                  }),
-                  variant: PTabsVariant.container,
-                  size: PTabsSize.sm,
-                  expand: true,
-                ),
-                const SizedBox(height: PSpace.x20),
+        // 카드 종류 ──────────────────────────
+        Text(
+          l.assetCardType,
+          style: PTypo.caption.copyWith(
+            color: t.fgPrimary,
+            fontWeight: PFontWeight.medium,
+          ),
+        ),
+        const SizedBox(height: PSpace.x8),
+        PTabs<_CardType>(
+          items: [
+            for (final c in _CardType.values)
+              PTabItem(value: c, label: c.label(l)),
+          ],
+          value: _cardType,
+          onChanged: (v) => setState(() {
+            _cardType = v;
+            // 신규만 선택 초기화. 편집은 종류를 잘못 눌렀다고 해서
+            // 연결된 상품까지 잃으면 곤란하다(web 동일).
+            if (!_isEdit) _selected = null;
+          }),
+          variant: PTabsVariant.container,
+          size: PTabsSize.sm,
+          expand: true,
+        ),
+        const SizedBox(height: PSpace.x20),
 
-                // 카드 상품 ──────────────────────────
-                Row(
+        // 카드 상품 ──────────────────────────
+        Row(
+          children: [
+            Text(
+              l.assetCardProduct,
+              style: PTypo.caption.copyWith(
+                color: t.fgPrimary,
+                fontWeight: PFontWeight.medium,
+              ),
+            ),
+            const Spacer(),
+            // web: '단종 포함 [switch]   총 N건' — 한 row 에 끝까지 정렬.
+            InkWell(
+              onTap: () =>
+                  setState(() => _includeDiscontinued = !_includeDiscontinued),
+              borderRadius: PRadius.brSm,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 2),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(l.assetCardProduct,
-                        style: PTypo.caption.copyWith(
-                            color: t.fgPrimary,
-                            fontWeight: PFontWeight.medium)),
-                    const Spacer(),
-                    // web: '단종 포함 [switch]   총 N건' — 한 row 에 끝까지 정렬.
-                    InkWell(
-                      onTap: () => setState(
-                          () => _includeDiscontinued = !_includeDiscontinued),
-                      borderRadius: PRadius.brSm,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 2),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(l.assetIncludeDiscontinued,
-                                style: PTypo.caption
-                                    .copyWith(color: t.fgTertiary)),
-                            const SizedBox(width: 6),
-                            // PSwitch(44×24) 를 60%로 축소 — toolbar dense 화면.
-                            SizedBox(
-                              width: 36,
-                              height: 22,
-                              child: FittedBox(
-                                fit: BoxFit.contain,
-                                child: PSwitch(
-                                  value: _includeDiscontinued,
-                                  onChanged: (v) => setState(
-                                      () => _includeDiscontinued = v),
-                                ),
-                              ),
-                            ),
-                          ],
+                    Text(
+                      l.assetIncludeDiscontinued,
+                      style: PTypo.caption.copyWith(color: t.fgTertiary),
+                    ),
+                    const SizedBox(width: 6),
+                    // PSwitch(44×24) 를 60%로 축소 — toolbar dense 화면.
+                    SizedBox(
+                      width: 36,
+                      height: 22,
+                      child: FittedBox(
+                        fit: BoxFit.contain,
+                        child: PSwitch(
+                          value: _includeDiscontinued,
+                          onChanged: (v) =>
+                              setState(() => _includeDiscontinued = v),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    Text(
-                      pageAsync.value != null
-                          ? l.assetTotalItems(pageAsync.value!.totalElements)
-                          : l.assetTotalLoading,
-                      style: PTypo.micro.copyWith(color: t.fgTertiary),
-                    ),
                   ],
                 ),
-                const SizedBox(height: PSpace.x8),
-                PSearchField(
-                  hint: l.assetCardSearchHint,
-                  controller: _keywordCtrl,
-                ),
-                const SizedBox(height: PSpace.x8),
-                _CatalogList(
-                  async: pageAsync.whenData((p) => p.content),
-                  selectedId: _selected?.rowId,
-                  onPick: (c) => setState(() => _selected = c),
-                ),
-                const SizedBox(height: PSpace.x20),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              pageAsync.value != null
+                  ? l.assetTotalItems(pageAsync.value!.totalElements)
+                  : l.assetTotalLoading,
+              style: PTypo.micro.copyWith(color: t.fgTertiary),
+            ),
+          ],
+        ),
+        const SizedBox(height: PSpace.x8),
+        PSearchField(hint: l.assetCardSearchHint, controller: _keywordCtrl),
+        const SizedBox(height: PSpace.x8),
+        _CatalogList(
+          async: pageAsync.whenData((p) => p.content),
+          selectedId: _selected?.rowId,
+          onPick: (c) => setState(() => _selected = c),
+        ),
+        const SizedBox(height: PSpace.x20),
 
-                // 별칭 (선택) ────────────────────────
-                Text(l.assetNicknameOptional,
-                    style: PTypo.caption.copyWith(
-                        color: t.fgPrimary, fontWeight: PFontWeight.medium)),
-                const SizedBox(height: PSpace.x8),
-                PTextInput(
-                  controller: _nicknameCtrl,
-                  placeholder:
-                      _selected?.cardName ?? l.assetCardNicknamePlaceholder,
-                ),
-                // 신용카드 — design 신판 순서: 신용한도 → 결제일 → 현재 사용액 → 결제 계좌(연동 유지)
-                if (isCredit) ...[
-                  const SizedBox(height: PSpace.x20),
-                  // 신용한도 (원)
-                  Text(l.assetCreditLimitLabel,
-                      style: PTypo.caption.copyWith(
-                          color: t.fgPrimary, fontWeight: PFontWeight.medium)),
-                  const SizedBox(height: PSpace.x8),
-                  PTextInput(
-                    controller: _creditLimitCtrl,
-                    keyboardType: TextInputType.number,
-                    placeholder: l.assetCreditLimitPlaceholder,
-                  ),
-                  const SizedBox(height: 6),
-                  Text(l.assetCreditLimitHint,
-                      style: PTypo.micro.copyWith(color: t.fgTertiary)),
-                  const SizedBox(height: PSpace.x20),
-                  // 결제일 (1~31)
-                  Text(l.assetPaymentDayLabel,
-                      style: PTypo.caption.copyWith(
-                          color: t.fgPrimary, fontWeight: PFontWeight.medium)),
-                  const SizedBox(height: PSpace.x8),
-                  PSelect<int>(
-                    value: _paymentDay,
-                    placeholder: l.assetPaymentDaySelect,
-                    title: l.assetPaymentDay,
-                    items: [
-                      for (var d = 1; d <= 31; d++)
-                        PSelectItem(value: d, label: l.dayN(d)),
-                    ],
-                    onChanged: (v) => setState(() => _paymentDay = v),
-                  ),
-                ],
-                // 현재 사용액 (원) ───────────────────
-                // 체크카드는 잔액 개념이 없다 — 긁는 즉시 연결 계좌에서 빠지므로
-                // 카드가 들고 있을 금액이 없다. 신용카드만 결제일까지 사용액을 든다.
-                if (isCredit) ...[
-                  const SizedBox(height: PSpace.x20),
-                  Text(l.assetCurrentUsage,
-                      style: PTypo.caption.copyWith(
-                          color: t.fgPrimary, fontWeight: PFontWeight.medium)),
-                  const SizedBox(height: PSpace.x8),
-                  PTextInput(
-                    controller: _balanceCtrl,
-                    keyboardType: const TextInputType.numberWithOptions(
-                        signed: true),
-                    placeholder: '0',
-                  ),
-                  const SizedBox(height: 6),
-                  Text(l.assetCurrentUsageHint,
-                      style: PTypo.micro.copyWith(color: t.fgTertiary)),
-                ],
+        // 별칭 (선택) ────────────────────────
+        Text(
+          l.assetNicknameOptional,
+          style: PTypo.caption.copyWith(
+            color: t.fgPrimary,
+            fontWeight: PFontWeight.medium,
+          ),
+        ),
+        const SizedBox(height: PSpace.x8),
+        PTextInput(
+          controller: _nicknameCtrl,
+          placeholder: _selected?.cardName ?? l.assetCardNicknamePlaceholder,
+        ),
+        // 신용카드 — design 신판 순서: 신용한도 → 결제일 → 현재 사용액 → 결제 계좌(연동 유지)
+        if (isCredit) ...[
+          const SizedBox(height: PSpace.x20),
+          // 신용한도 (원)
+          Text(
+            l.assetCreditLimitLabel,
+            style: PTypo.caption.copyWith(
+              color: t.fgPrimary,
+              fontWeight: PFontWeight.medium,
+            ),
+          ),
+          const SizedBox(height: PSpace.x8),
+          PTextInput(
+            controller: _creditLimitCtrl,
+            keyboardType: TextInputType.number,
+            placeholder: l.assetCreditLimitPlaceholder,
+          ),
+          const SizedBox(height: 6),
+          Text(
+            l.assetCreditLimitHint,
+            style: PTypo.micro.copyWith(color: t.fgTertiary),
+          ),
+          const SizedBox(height: PSpace.x20),
+          // 결제일 (1~31)
+          Text(
+            l.assetPaymentDayLabel,
+            style: PTypo.caption.copyWith(
+              color: t.fgPrimary,
+              fontWeight: PFontWeight.medium,
+            ),
+          ),
+          const SizedBox(height: PSpace.x8),
+          PSelect<int>(
+            value: _paymentDay,
+            placeholder: l.assetPaymentDaySelect,
+            title: l.assetPaymentDay,
+            items: [
+              for (var d = 1; d <= 31; d++)
+                PSelectItem(value: d, label: l.dayN(d)),
+            ],
+            onChanged: (v) => setState(() => _paymentDay = v),
+          ),
+        ],
+        // 현재 사용액 (원) ───────────────────
+        // 체크카드는 잔액 개념이 없다 — 긁는 즉시 연결 계좌에서 빠지므로
+        // 카드가 들고 있을 금액이 없다. 신용카드만 결제일까지 사용액을 든다.
+        if (isCredit) ...[
+          const SizedBox(height: PSpace.x20),
+          Text(
+            l.assetCurrentUsage,
+            style: PTypo.caption.copyWith(
+              color: t.fgPrimary,
+              fontWeight: PFontWeight.medium,
+            ),
+          ),
+          const SizedBox(height: PSpace.x8),
+          PTextInput(
+            controller: _balanceCtrl,
+            keyboardType: const TextInputType.numberWithOptions(signed: true),
+            placeholder: '0',
+          ),
+          const SizedBox(height: 6),
+          Text(
+            l.assetCurrentUsageHint,
+            style: PTypo.micro.copyWith(color: t.fgTertiary),
+          ),
+        ],
 
-                // 계좌 연결 — 신용카드는 결제일에 여기서 한 번에 빠지고,
-                // 체크카드는 긁는 즉시 빠진다. 의미가 달라 라벨을 나눈다.
-                const SizedBox(height: PSpace.x20),
-                Text(isCredit ? l.assetPaymentAccountLabel : l.assetLinkedAccountLabel,
-                    style: PTypo.caption.copyWith(
-                        color: t.fgPrimary, fontWeight: PFontWeight.medium)),
-                const SizedBox(height: PSpace.x8),
-                PSelect<int>(
-                  value: _paymentAssetRowId,
-                  placeholder: bankAccounts.isEmpty
-                      ? l.assetNoBankAccounts
-                      : (isCredit
-                          ? l.assetPaymentAccountSelect
-                          : l.assetLinkedAccountSelect),
-                  title: isCredit ? l.assetPaymentAccount : l.assetLinkedAccount,
-                  enabled: bankAccounts.isNotEmpty,
-                  items: [
-                    for (final a in bankAccounts)
-                      PSelectItem(
-                        value: a.rowId,
-                        label: a.institution != null &&
-                                a.institution!.isNotEmpty
-                            ? '${a.assetName} · ${a.institution}'
-                            : a.assetName,
-                      ),
-                  ],
-                  onChanged: (v) => setState(() => _paymentAssetRowId = v),
-                ),
-                const SizedBox(height: 6),
-                Text(isCredit ? l.assetPaymentAccountHint : l.assetLinkedAccountHint,
-                    style: PTypo.micro.copyWith(color: t.fgTertiary)),
+        // 계좌 연결 — 신용카드는 결제일에 여기서 한 번에 빠지고,
+        // 체크카드는 긁는 즉시 빠진다. 의미가 달라 라벨을 나눈다.
+        const SizedBox(height: PSpace.x20),
+        Text(
+          isCredit ? l.assetPaymentAccountLabel : l.assetLinkedAccountLabel,
+          style: PTypo.caption.copyWith(
+            color: t.fgPrimary,
+            fontWeight: PFontWeight.medium,
+          ),
+        ),
+        const SizedBox(height: PSpace.x8),
+        PSelect<int>(
+          value: _paymentAssetRowId,
+          placeholder: bankAccounts.isEmpty
+              ? l.assetNoBankAccounts
+              : (isCredit
+                    ? l.assetPaymentAccountSelect
+                    : l.assetLinkedAccountSelect),
+          title: isCredit ? l.assetPaymentAccount : l.assetLinkedAccount,
+          enabled: bankAccounts.isNotEmpty,
+          items: [
+            for (final a in bankAccounts)
+              PSelectItem(
+                value: a.rowId,
+                label: a.institution != null && a.institution!.isNotEmpty
+                    ? '${a.assetName} · ${a.institution}'
+                    : a.assetName,
+              ),
+          ],
+          onChanged: (v) => setState(() => _paymentAssetRowId = v),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          isCredit ? l.assetPaymentAccountHint : l.assetLinkedAccountHint,
+          style: PTypo.micro.copyWith(color: t.fgTertiary),
+        ),
 
-                // 전체 자산 합계 포함 토글 ──────────────
-                const SizedBox(height: PSpace.x20),
-                IncludeInTotalCard(
-                  value: _includeInTotal,
-                  onChanged: (v) => setState(() => _includeInTotal = v),
-                ),
-              ],
-            );
+        // 전체 자산 합계 포함 토글 ──────────────
+        const SizedBox(height: PSpace.x20),
+        IncludeInTotalCard(
+          value: _includeInTotal,
+          onChanged: (v) => setState(() => _includeInTotal = v),
+        ),
+      ],
+    );
   }
 }
 
@@ -472,8 +500,9 @@ class _PreviewTile extends StatelessWidget {
     final l = AppLocalizations.of(context);
     final company = selected?.company?.name;
     final brand = company != null ? getBrandColor([company]) : null;
-    final preview =
-        nickname.isEmpty ? (selected?.cardName ?? l.assetNewCard) : nickname;
+    final preview = nickname.isEmpty
+        ? (selected?.cardName ?? l.assetNewCard)
+        : nickname;
     final subtitle = [
       if (company != null && company.isNotEmpty) company,
       cardType.label(l),
@@ -502,18 +531,22 @@ class _PreviewTile extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(preview,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: PTypo.body.copyWith(
-                    color: t.fgPrimary,
-                    fontWeight: PFontWeight.semi,
-                  )),
+              Text(
+                preview,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: PTypo.body.copyWith(
+                  color: t.fgPrimary,
+                  fontWeight: PFontWeight.semi,
+                ),
+              ),
               const SizedBox(height: 2),
-              Text(subtitle,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: PTypo.caption.copyWith(color: t.fgTertiary)),
+              Text(
+                subtitle,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: PTypo.caption.copyWith(color: t.fgTertiary),
+              ),
             ],
           ),
         ),
@@ -531,8 +564,11 @@ class _PlaceholderBox extends StatelessWidget {
     return Container(
       color: brand?.bg ?? tokens.bgSunken,
       alignment: Alignment.center,
-      child: Icon(LucideIcons.creditCard,
-          size: 18, color: brand?.fg ?? tokens.fgPrimary),
+      child: Icon(
+        LucideIcons.creditCard,
+        size: 18,
+        color: brand?.fg ?? tokens.fgPrimary,
+      ),
     );
   }
 }
@@ -570,8 +606,10 @@ class _CatalogList extends StatelessWidget {
         error: (_, _) => Padding(
           padding: const EdgeInsets.symmetric(vertical: 24),
           child: Center(
-            child: Text(l.assetCatalogLoadError,
-                style: PTypo.caption.copyWith(color: t.fgTertiary)),
+            child: Text(
+              l.assetCatalogLoadError,
+              style: PTypo.caption.copyWith(color: t.fgTertiary),
+            ),
           ),
         ),
         data: (items) {
@@ -579,8 +617,10 @@ class _CatalogList extends StatelessWidget {
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 24),
               child: Center(
-                child: Text(l.assetNoSearchResults,
-                    style: PTypo.caption.copyWith(color: t.fgTertiary)),
+                child: Text(
+                  l.assetNoSearchResults,
+                  style: PTypo.caption.copyWith(color: t.fgTertiary),
+                ),
               ),
             );
           }
@@ -589,8 +629,7 @@ class _CatalogList extends StatelessWidget {
             child: ListView.separated(
               padding: EdgeInsets.zero,
               itemCount: items.length,
-              separatorBuilder: (_, _) =>
-                  PDivider(),
+              separatorBuilder: (_, _) => PDivider(),
               itemBuilder: (_, i) {
                 final c = items[i];
                 final active = c.rowId == selectedId;
@@ -655,8 +694,11 @@ class _CatalogRow extends StatelessWidget {
                       ? Image.network(
                           item.imgUrl!,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, _, _) =>
-                              _RowPlaceholder(brand: brand, name: company ?? item.cardName, tokens: t),
+                          errorBuilder: (_, _, _) => _RowPlaceholder(
+                            brand: brand,
+                            name: company ?? item.cardName,
+                            tokens: t,
+                          ),
                         )
                       : _RowPlaceholder(
                           brand: brand,
@@ -679,9 +721,7 @@ class _CatalogRow extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: PTypo.bodySm.copyWith(
-                              color: active
-                                  ? t.fgBrandStrong
-                                  : t.fgPrimary,
+                              color: active ? t.fgBrandStrong : t.fgPrimary,
                               fontWeight: active
                                   ? PFontWeight.semi
                                   : PFontWeight.medium,
@@ -692,7 +732,9 @@ class _CatalogRow extends StatelessWidget {
                           const SizedBox(width: 6),
                           Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 6, vertical: 1),
+                              horizontal: 6,
+                              vertical: 1,
+                            ),
                             decoration: BoxDecoration(
                               color: t.bgDisabled,
                               borderRadius: PRadius.brXs,

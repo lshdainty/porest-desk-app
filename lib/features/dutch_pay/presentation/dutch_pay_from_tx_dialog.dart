@@ -163,7 +163,8 @@ class _BodyState extends ConsumerState<_Body> {
   }
 
   int _perPerson(int total, int n) => n <= 0 ? 0 : total ~/ n;
-  int _remainderEqual(int total, int n) => n <= 0 ? 0 : total - _perPerson(total, n) * n;
+  int _remainderEqual(int total, int n) =>
+      n <= 0 ? 0 : total - _perPerson(total, n) * n;
 
   /// 비율 입력의 소수 자릿수 상한. 이보다 잘게 쓰는 경우는 없고, 가중치가 커져 넘치는 것도 막는다.
   static const int _ratioMaxDecimals = 6;
@@ -199,11 +200,7 @@ class _BodyState extends ConsumerState<_Body> {
     return v < 0 ? 0 : v;
   }
 
-  int _computeAmount(
-    List<_Participant> participants,
-    int idx,
-    _Participant p,
-  ) {
+  int _computeAmount(List<_Participant> participants, int idx, _Participant p) {
     final n = participants.length;
     if (_split == _Split.equal) {
       final each = _perPerson(_totalAbs, n);
@@ -218,14 +215,18 @@ class _BodyState extends ConsumerState<_Body> {
       // 각자 독립적으로 반올림하면 합계가 총액과 어긋난다(1:1:1 로 10,000원 → 9,999원).
       final base = (_totalAbs * weights[idx]) ~/ totalWeight;
       if (idx != 0) return base;
-      final assigned =
-          weights.fold<int>(0, (s, w) => s + (_totalAbs * w) ~/ totalWeight);
+      final assigned = weights.fold<int>(
+        0,
+        (s, w) => s + (_totalAbs * w) ~/ totalWeight,
+      );
       return base + (_totalAbs - assigned);
     }
     // CUSTOM
     if (p.isMe) {
       final othersTotal = _others.fold<int>(
-          0, (s, q) => s + (int.tryParse(q.customAmount) ?? 0));
+        0,
+        (s, q) => s + (int.tryParse(q.customAmount) ?? 0),
+      );
       final remain = _totalAbs - othersTotal;
       return remain < 0 ? 0 : remain;
     }
@@ -234,7 +235,9 @@ class _BodyState extends ConsumerState<_Body> {
 
   TextEditingController _amountCtrlFor(_Participant p) {
     final c = _amountCtrls.putIfAbsent(
-        p.uid, () => TextEditingController(text: p.customAmount));
+      p.uid,
+      () => TextEditingController(text: p.customAmount),
+    );
     if (c.text != p.customAmount) {
       c.value = TextEditingValue(
         text: p.customAmount,
@@ -246,7 +249,9 @@ class _BodyState extends ConsumerState<_Body> {
 
   TextEditingController _ratioCtrlFor(_Participant p) {
     final c = _ratioCtrls.putIfAbsent(
-        p.uid, () => TextEditingController(text: p.ratio));
+      p.uid,
+      () => TextEditingController(text: p.ratio),
+    );
     if (c.text != p.ratio) {
       c.value = TextEditingValue(
         text: p.ratio,
@@ -260,15 +265,18 @@ class _BodyState extends ConsumerState<_Body> {
     final name = _manualNameCtrl.text.trim();
     if (name.isEmpty) return;
     setState(() {
-      _others.add(_Participant(
-        uid: _newUid(),
-        userRowId: null,
-        name: name,
-        isMe: false,
-        customAmount: _perPerson(
-                _totalAbs, _includeMyself ? _others.length + 2 : _others.length + 1)
-            .toString(),
-      ));
+      _others.add(
+        _Participant(
+          uid: _newUid(),
+          userRowId: null,
+          name: name,
+          isMe: false,
+          customAmount: _perPerson(
+            _totalAbs,
+            _includeMyself ? _others.length + 2 : _others.length + 1,
+          ).toString(),
+        ),
+      );
       _manualNameCtrl.clear();
     });
   }
@@ -337,7 +345,7 @@ class _BodyState extends ConsumerState<_Body> {
     final participants = _composeParticipants(meRowId, meName);
     final amounts = [
       for (var i = 0; i < participants.length; i++)
-        _computeAmount(participants, i, participants[i])
+        _computeAmount(participants, i, participants[i]),
     ];
     final sum = amounts.fold<int>(0, (s, a) => s + a);
     final remainder = _totalAbs - sum;
@@ -355,233 +363,237 @@ class _BodyState extends ConsumerState<_Body> {
 
     return ListView(
       controller: widget.scrollController,
-      padding: const EdgeInsets.fromLTRB(
-          PSpace.xl, 0, PSpace.xl, PSpace.x16),
+      padding: const EdgeInsets.fromLTRB(PSpace.xl, 0, PSpace.xl, PSpace.x16),
       children: [
-                // 기준 거래 — 플랫 행 (설명은 sub 통합)
-                PDetailSourceTx(
-                  icon: Container(
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      color: softBg(context, fg),
-                      borderRadius: PRadius.tile(32),
+        // 기준 거래 — 플랫 행 (설명은 sub 통합)
+        PDetailSourceTx(
+          icon: Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: softBg(context, fg),
+              borderRadius: PRadius.tile(32),
+            ),
+            alignment: Alignment.center,
+            child: Icon(iconData, size: 16, color: fg),
+          ),
+          title: _defaultTitle,
+          sub: '$_expenseDateTime · ${l.dutchSourceSub}',
+          amount: RichText(
+            text: TextSpan(
+              children: [
+                TextSpan(
+                  text: krw(_totalAbs),
+                  style: PTypo.bodyLg.copyWith(
+                    color: t.fgPrimary,
+                    fontWeight: PFontWeight.bold,
+                  ),
+                ),
+                TextSpan(
+                  text: wonUnit(),
+                  style: PTypo.body.copyWith(
+                    color: t.fgPrimary,
+                    fontWeight: PFontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        // 분배 방식
+        _Section(
+          title: l.dutchSplitMethod,
+          child: Row(
+            children: [
+              Expanded(
+                child: _SplitCard(
+                  icon: LucideIcons.divide,
+                  title: l.dutchSplitEqualTitle,
+                  subtitle: l.dutchSplitEqualSub,
+                  selected: _split == _Split.equal,
+                  onTap: () => setState(() => _split = _Split.equal),
+                  tokens: t,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _SplitCard(
+                  icon: LucideIcons.percent,
+                  title: l.dutchSplitRatioTitle,
+                  subtitle: l.dutchSplitRatioSub,
+                  selected: _split == _Split.ratio,
+                  onTap: () => setState(() => _split = _Split.ratio),
+                  tokens: t,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _SplitCard(
+                  icon: LucideIcons.listOrdered,
+                  title: l.dutchSplitCustomTitle,
+                  subtitle: l.dutchSplitCustomSub,
+                  selected: _split == _Split.custom,
+                  onTap: () => setState(() => _split = _Split.custom),
+                  tokens: t,
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // 나도 포함 — 플랫 행
+        InkWell(
+          borderRadius: PRadius.brMd,
+          onTap: () => setState(() => _includeMyself = !_includeMyself),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 11),
+            child: Row(
+              children: [
+                Container(
+                  width: 17,
+                  height: 17,
+                  decoration: BoxDecoration(
+                    color: _includeMyself ? t.bgBrandSolid : Colors.transparent,
+                    border: Border.all(
+                      color: _includeMyself ? t.bgBrandSolid : t.borderDefault,
+                      width: 2,
                     ),
-                    alignment: Alignment.center,
-                    child: Icon(iconData, size: 16, color: fg),
+                    borderRadius: PRadius.brSm,
                   ),
-                  title: _defaultTitle,
-                  sub: '$_expenseDateTime · ${l.dutchSourceSub}',
-                  amount: RichText(
-                    text: TextSpan(children: [
-                      TextSpan(
-                        text: krw(_totalAbs),
-                        style: PTypo.bodyLg.copyWith(
-                            color: t.fgPrimary,
-                            fontWeight: PFontWeight.bold),
-                      ),
-                      TextSpan(
-                        text: wonUnit(),
-                        style: PTypo.body.copyWith(
-                            color: t.fgPrimary,
-                            fontWeight: PFontWeight.bold),
-                      ),
-                    ]),
-                  ),
+                  alignment: Alignment.center,
+                  child: _includeMyself
+                      ? const Icon(
+                          LucideIcons.check,
+                          size: 12,
+                          color: Colors.white,
+                        )
+                      : null,
                 ),
-
-                // 분배 방식
-                _Section(
-                  title: l.dutchSplitMethod,
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: _SplitCard(
-                          icon: LucideIcons.divide,
-                          title: l.dutchSplitEqualTitle,
-                          subtitle: l.dutchSplitEqualSub,
-                          selected: _split == _Split.equal,
-                          onTap: () => setState(() => _split = _Split.equal),
-                          tokens: t,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: _SplitCard(
-                          icon: LucideIcons.percent,
-                          title: l.dutchSplitRatioTitle,
-                          subtitle: l.dutchSplitRatioSub,
-                          selected: _split == _Split.ratio,
-                          onTap: () => setState(() => _split = _Split.ratio),
-                          tokens: t,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: _SplitCard(
-                          icon: LucideIcons.listOrdered,
-                          title: l.dutchSplitCustomTitle,
-                          subtitle: l.dutchSplitCustomSub,
-                          selected: _split == _Split.custom,
-                          onTap: () =>
-                              setState(() => _split = _Split.custom),
-                          tokens: t,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // 나도 포함 — 플랫 행
-                InkWell(
-                  borderRadius: PRadius.brMd,
-                  onTap: () => setState(() => _includeMyself = !_includeMyself),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 2, vertical: 11),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 17,
-                          height: 17,
-                          decoration: BoxDecoration(
-                            color: _includeMyself
-                                ? t.bgBrandSolid
-                                : Colors.transparent,
-                            border: Border.all(
-                              color: _includeMyself
-                                  ? t.bgBrandSolid
-                                  : t.borderDefault,
-                              width: 2,
-                            ),
-                            borderRadius: PRadius.brSm,
-                          ),
-                          alignment: Alignment.center,
-                          child: _includeMyself
-                              ? const Icon(LucideIcons.check,
-                                  size: 12, color: Colors.white)
-                              : null,
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(l.dutchIncludeMyself,
-                              style: PTypo.body.copyWith(
-                                  color: t.fgPrimary,
-                                  fontWeight: PFontWeight.semi)),
-                        ),
-                        Text(
-                            _includeMyself
-                                ? l.dutchIncludeMyselfDesc
-                                : l.dutchIncludeMyselfOffDesc,
-                            style: PTypo.caption
-                                .copyWith(color: t.fgTertiary)),
-                      ],
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    l.dutchIncludeMyself,
+                    style: PTypo.body.copyWith(
+                      color: t.fgPrimary,
+                      fontWeight: PFontWeight.semi,
                     ),
                   ),
                 ),
-                const SizedBox(height: 10),
-
-                // 참여자 헤더
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Row(
-                    children: [
-                      Text(l.dutchParticipant,
-                          style: PTypo.caption.copyWith(
-                              color: t.fgSecondary,
-                              fontWeight: PFontWeight.bold)),
-                      const SizedBox(width: 6),
-                      Text('(${l.dutchNPeople(participants.length)})',
-                          style: PTypo.caption
-                              .copyWith(color: t.fgTertiary)),
-                    ],
-                  ),
+                Text(
+                  _includeMyself
+                      ? l.dutchIncludeMyselfDesc
+                      : l.dutchIncludeMyselfOffDesc,
+                  style: PTypo.caption.copyWith(color: t.fgTertiary),
                 ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
 
-                // Participants list
-                for (var i = 0; i < participants.length; i++) ...[
-                  _ParticipantRow(
-                    participant: participants[i],
-                    index: i,
-                    includeMyself: _includeMyself,
-                    splitMethod: _split,
-                    amount: amounts[i],
-                    amountCtrl: _split == _Split.custom && !participants[i].isMe
-                        ? _amountCtrlFor(participants[i])
-                        : null,
-                    ratioCtrl: _split == _Split.ratio && !participants[i].isMe
-                        ? _ratioCtrlFor(participants[i])
-                        : null,
-                    onRemove: participants[i].isMe
-                        ? null
-                        : () => setState(() {
-                              _others.removeWhere(
-                                  (q) => q.uid == participants[i].uid);
-                              _amountCtrls.remove(participants[i].uid)
-                                  ?.dispose();
-                              _ratioCtrls.remove(participants[i].uid)
-                                  ?.dispose();
-                            }),
-                    onCustomChanged: (v) {
-                      final cleaned = v.replaceAll(RegExp(r'[^0-9]'), '');
-                      setState(() {
-                        for (final o in _others) {
-                          if (o.uid == participants[i].uid) {
-                            o.customAmount = cleaned;
-                          }
-                        }
-                      });
-                    },
-                    onRatioChanged: (v) {
-                      final cleaned = v.replaceAll(RegExp(r'[^0-9.]'), '');
-                      setState(() {
-                        for (final o in _others) {
-                          if (o.uid == participants[i].uid) o.ratio = cleaned;
-                        }
-                      });
-                    },
-                    tokens: t,
-                  ),
-                ],
-
-                const SizedBox(height: 12),
-
-                // 추가 input
-                Row(
-                  children: [
-                    Expanded(
-                      child: PTextInput(
-                        controller: _manualNameCtrl,
-                        textInputAction: TextInputAction.done,
-                        onSubmitted: (_) => _addManual(),
-                        placeholder: l.dutchAddNamePlaceholder,
-                        enabled: !_submitting,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    PButton(
-                      label: l.dutchAdd,
-                      icon: LucideIcons.userPlus,
-                      variant: PButtonVariant.outline,
-                      size: PButtonSize.sm,
-                      onPressed: _submitting ? null : _addManual,
-                    ),
-                  ],
+        // 참여자 헤더
+        Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: Row(
+            children: [
+              Text(
+                l.dutchParticipant,
+                style: PTypo.caption.copyWith(
+                  color: t.fgSecondary,
+                  fontWeight: PFontWeight.bold,
                 ),
+              ),
+              const SizedBox(width: 6),
+              Text(
+                '(${l.dutchNPeople(participants.length)})',
+                style: PTypo.caption.copyWith(color: t.fgTertiary),
+              ),
+            ],
+          ),
+        ),
 
-                const SizedBox(height: 16),
+        // Participants list
+        for (var i = 0; i < participants.length; i++) ...[
+          _ParticipantRow(
+            participant: participants[i],
+            index: i,
+            includeMyself: _includeMyself,
+            splitMethod: _split,
+            amount: amounts[i],
+            amountCtrl: _split == _Split.custom && !participants[i].isMe
+                ? _amountCtrlFor(participants[i])
+                : null,
+            ratioCtrl: _split == _Split.ratio && !participants[i].isMe
+                ? _ratioCtrlFor(participants[i])
+                : null,
+            onRemove: participants[i].isMe
+                ? null
+                : () => setState(() {
+                    _others.removeWhere((q) => q.uid == participants[i].uid);
+                    _amountCtrls.remove(participants[i].uid)?.dispose();
+                    _ratioCtrls.remove(participants[i].uid)?.dispose();
+                  }),
+            onCustomChanged: (v) {
+              final cleaned = v.replaceAll(RegExp(r'[^0-9]'), '');
+              setState(() {
+                for (final o in _others) {
+                  if (o.uid == participants[i].uid) {
+                    o.customAmount = cleaned;
+                  }
+                }
+              });
+            },
+            onRatioChanged: (v) {
+              final cleaned = v.replaceAll(RegExp(r'[^0-9.]'), '');
+              setState(() {
+                for (final o in _others) {
+                  if (o.uid == participants[i].uid) o.ratio = cleaned;
+                }
+              });
+            },
+            tokens: t,
+          ),
+        ],
 
-                // 요청 메시지
-                _Section(
-                  title: l.dutchRequestMsgLabel,
-                  child: PTextInput(
-                    controller: _msgCtrl,
-                    maxLines: 3,
-                    minLines: 3,
-                    placeholder: l.dutchRequestMsgPlaceholder,
-                    enabled: !_submitting,
-                  ),
-                ),
+        const SizedBox(height: 12),
+
+        // 추가 input
+        Row(
+          children: [
+            Expanded(
+              child: PTextInput(
+                controller: _manualNameCtrl,
+                textInputAction: TextInputAction.done,
+                onSubmitted: (_) => _addManual(),
+                placeholder: l.dutchAddNamePlaceholder,
+                enabled: !_submitting,
+              ),
+            ),
+            const SizedBox(width: 8),
+            PButton(
+              label: l.dutchAdd,
+              icon: LucideIcons.userPlus,
+              variant: PButtonVariant.outline,
+              size: PButtonSize.sm,
+              onPressed: _submitting ? null : _addManual,
+            ),
+          ],
+        ),
+
+        const SizedBox(height: 16),
+
+        // 요청 메시지
+        _Section(
+          title: l.dutchRequestMsgLabel,
+          child: PTextInput(
+            controller: _msgCtrl,
+            maxLines: 3,
+            minLines: 3,
+            placeholder: l.dutchRequestMsgPlaceholder,
+            enabled: !_submitting,
+          ),
+        ),
 
         if (!matched && participants.isNotEmpty)
           Padding(
@@ -617,18 +629,21 @@ class _DutchPayFooter extends StatelessWidget {
           children: [
             Expanded(
               child: RichText(
-                text: TextSpan(children: [
-                  TextSpan(
-                    text: '${l.dutchPerPersonLabel} ',
-                    style: PTypo.bodySm.copyWith(color: t.fgSecondary),
-                  ),
-                  TextSpan(
-                    text: krwSigned(perPerson, false, unit: true),
-                    style: PTypo.bodySm.copyWith(
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: '${l.dutchPerPersonLabel} ',
+                      style: PTypo.bodySm.copyWith(color: t.fgSecondary),
+                    ),
+                    TextSpan(
+                      text: krwSigned(perPerson, false, unit: true),
+                      style: PTypo.bodySm.copyWith(
                         color: t.fgPrimary,
-                        fontWeight: PFontWeight.bold),
-                  ),
-                ]),
+                        fontWeight: PFontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
             PButton(
@@ -666,9 +681,13 @@ class _Section extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title,
-              style: PTypo.caption.copyWith(
-                  color: t.fgSecondary, fontWeight: PFontWeight.bold)),
+          Text(
+            title,
+            style: PTypo.caption.copyWith(
+              color: t.fgSecondary,
+              fontWeight: PFontWeight.bold,
+            ),
+          ),
           const SizedBox(height: 8),
           child,
         ],
@@ -711,27 +730,30 @@ class _SplitCard extends StatelessWidget {
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(icon,
-                    size: 14,
-                    color: selected
-                        ? tokens.fgBrandStrong
-                        : tokens.fgPrimary),
+                Icon(
+                  icon,
+                  size: 14,
+                  color: selected ? tokens.fgBrandStrong : tokens.fgPrimary,
+                ),
                 const SizedBox(width: 6),
                 Flexible(
-                  child: Text(title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: PTypo.bodySm.copyWith(
-                          color: selected
-                              ? tokens.fgBrandStrong
-                              : tokens.fgPrimary,
-                          fontWeight: PFontWeight.bold)),
+                  child: Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: PTypo.bodySm.copyWith(
+                      color: selected ? tokens.fgBrandStrong : tokens.fgPrimary,
+                      fontWeight: PFontWeight.bold,
+                    ),
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 4),
-            Text(subtitle,
-                style: PTypo.caption.copyWith(color: tokens.fgTertiary)),
+            Text(
+              subtitle,
+              style: PTypo.caption.copyWith(color: tokens.fgTertiary),
+            ),
           ],
         ),
       ),
@@ -771,12 +793,15 @@ class _ParticipantRow extends StatelessWidget {
     final palette = participant.isMe
         ? tokens.fgBrand
         : parseColor(
-            _participantPaletteOklch[
-                (index - (includeMyself ? 1 : 0) + _participantPaletteOklch.length) %
-                    _participantPaletteOklch.length],
-            fallback: tokens.fgBrand);
-    final firstChar =
-        participant.name.isEmpty ? '?' : participant.name.characters.first;
+            _participantPaletteOklch[(index -
+                    (includeMyself ? 1 : 0) +
+                    _participantPaletteOklch.length) %
+                _participantPaletteOklch.length],
+            fallback: tokens.fgBrand,
+          );
+    final firstChar = participant.name.isEmpty
+        ? '?'
+        : participant.name.characters.first;
     // design participant row — 플랫(카드 박스 없음), 아바타 36.
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
@@ -790,21 +815,28 @@ class _ParticipantRow extends StatelessWidget {
               shape: BoxShape.circle,
             ),
             alignment: Alignment.center,
-            child: Text(firstChar,
-                style: PTypo.bodySm.copyWith(
-                    color: palette, fontWeight: PFontWeight.bold)),
+            child: Text(
+              firstChar,
+              style: PTypo.bodySm.copyWith(
+                color: palette,
+                fontWeight: PFontWeight.bold,
+              ),
+            ),
           ),
           const SizedBox(width: 11),
           Expanded(
             child: Row(
               children: [
                 Flexible(
-                  child: Text(participant.name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: PTypo.body.copyWith(
-                          color: tokens.fgPrimary,
-                          fontWeight: PFontWeight.semi)),
+                  child: Text(
+                    participant.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: PTypo.body.copyWith(
+                      color: tokens.fgPrimary,
+                      fontWeight: PFontWeight.semi,
+                    ),
+                  ),
                 ),
                 if (participant.isMe) ...[
                   const SizedBox(width: 6),
@@ -826,20 +858,24 @@ class _ParticipantRow extends StatelessWidget {
               ),
             ),
           ] else if (splitMethod == _Split.custom && participant.isMe) ...[
-            Text(krwSigned(amount, false, unit: true),
-                style: PTypo.bodySm.copyWith(
-                    color: tokens.fgPrimary,
-                    fontWeight: PFontWeight.bold)),
+            Text(
+              krwSigned(amount, false, unit: true),
+              style: PTypo.bodySm.copyWith(
+                color: tokens.fgPrimary,
+                fontWeight: PFontWeight.bold,
+              ),
+            ),
           ] else if (splitMethod == _Split.ratio) ...[
             if (!participant.isMe) ...[
               SizedBox(
                 width: 76,
                 child: PTextInput(
                   controller: ratioCtrl,
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
                   inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))
+                    FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
                   ],
                   textAlign: TextAlign.right,
                   placeholder: '1',
@@ -851,17 +887,23 @@ class _ParticipantRow extends StatelessWidget {
             ],
             SizedBox(
               width: 80,
-              child: Text(krwSigned(amount, false, unit: true),
-                  textAlign: TextAlign.right,
-                  style: PTypo.bodySm.copyWith(
-                      color: tokens.fgPrimary,
-                      fontWeight: PFontWeight.bold)),
+              child: Text(
+                krwSigned(amount, false, unit: true),
+                textAlign: TextAlign.right,
+                style: PTypo.bodySm.copyWith(
+                  color: tokens.fgPrimary,
+                  fontWeight: PFontWeight.bold,
+                ),
+              ),
             ),
           ] else ...[
-            Text(krwSigned(amount, false, unit: true),
-                style: PTypo.bodySm.copyWith(
-                    color: tokens.fgPrimary,
-                    fontWeight: PFontWeight.bold)),
+            Text(
+              krwSigned(amount, false, unit: true),
+              style: PTypo.bodySm.copyWith(
+                color: tokens.fgPrimary,
+                fontWeight: PFontWeight.bold,
+              ),
+            ),
           ],
           if (onRemove != null)
             PButton.icon(
@@ -877,4 +919,3 @@ class _ParticipantRow extends StatelessWidget {
     );
   }
 }
-

@@ -93,7 +93,12 @@ class _BrokerConnectCardState extends ConsumerState<BrokerConnectCard> {
         children: [
           _header(t, c),
           Padding(
-            padding: const EdgeInsets.fromLTRB(PSpace.x16, 0, PSpace.x16, PSpace.x16),
+            padding: const EdgeInsets.fromLTRB(
+              PSpace.x16,
+              0,
+              PSpace.x16,
+              PSpace.x16,
+            ),
             child: c.connected ? _connectedBody(t, c) : _formBody(t, c),
           ),
         ],
@@ -104,14 +109,22 @@ class _BrokerConnectCardState extends ConsumerState<BrokerConnectCard> {
   Widget _header(PorestTokens t, BrokerConnection c) {
     final l = AppLocalizations.of(context);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(PSpace.x16, PSpace.x16, PSpace.x16, 14),
+      padding: const EdgeInsets.fromLTRB(
+        PSpace.x16,
+        PSpace.x16,
+        PSpace.x16,
+        14,
+      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             width: 40,
             height: 40,
-            decoration: BoxDecoration(color: t.bgBrandSubtle, borderRadius: PRadius.brMd),
+            decoration: BoxDecoration(
+              color: t.bgBrandSubtle,
+              borderRadius: PRadius.brMd,
+            ),
             alignment: Alignment.center,
             child: Icon(LucideIcons.link, size: 18, color: t.fgBrand),
           ),
@@ -133,7 +146,10 @@ class _BrokerConnectCardState extends ConsumerState<BrokerConnectCard> {
                 const SizedBox(height: 3),
                 Text(
                   l.subBrokerConnectDesc,
-                  style: PTypo.caption.copyWith(color: t.fgSecondary, height: 1.5),
+                  style: PTypo.caption.copyWith(
+                    color: t.fgSecondary,
+                    height: 1.5,
+                  ),
                 ),
               ],
             ),
@@ -158,7 +174,8 @@ class _BrokerConnectCardState extends ConsumerState<BrokerConnectCard> {
     // 예전처럼 잘라 쓴다 — 형식이 달라졌다고 라벨을 통째로 잃는 것보단 낫다.
     final sub = verifiedAt != null && verifiedAt.length >= 10
         ? l.subBrokerLastVerified(
-            localDateKey(verifiedAt) ?? verifiedAt.substring(0, 10))
+            localDateKey(verifiedAt) ?? verifiedAt.substring(0, 10),
+          )
         : l.subBrokerCollecting;
 
     return Column(
@@ -166,7 +183,10 @@ class _BrokerConnectCardState extends ConsumerState<BrokerConnectCard> {
       children: [
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-          decoration: BoxDecoration(color: t.bgSunken, borderRadius: PRadius.brMd),
+          decoration: BoxDecoration(
+            color: t.bgSunken,
+            borderRadius: PRadius.brMd,
+          ),
           child: Row(
             children: [
               Icon(LucideIcons.circleCheck, size: 18, color: t.statusSuccessFg),
@@ -197,10 +217,10 @@ class _BrokerConnectCardState extends ConsumerState<BrokerConnectCard> {
                 onPressed: _busy
                     ? null
                     : () => _run(
-                          (repo) => repo.disconnectBrokerCredential(c.broker),
-                          l.subBrokerDisconnected(c.displayName),
-                          l.subDisconnectFailed,
-                        ),
+                        (repo) => repo.disconnectBrokerCredential(c.broker),
+                        l.subBrokerDisconnected(c.displayName),
+                        l.subDisconnectFailed,
+                      ),
               ),
             ],
           ),
@@ -215,10 +235,10 @@ class _BrokerConnectCardState extends ConsumerState<BrokerConnectCard> {
             onPressed: _busy
                 ? null
                 : () => _run(
-                      (repo) => repo.setPrimaryBroker(c.broker),
-                      l.subBrokerPrimaryChanged(c.displayName),
-                      l.subBrokerPrimaryFailed,
-                    ),
+                    (repo) => repo.setPrimaryBroker(c.broker),
+                    l.subBrokerPrimaryChanged(c.displayName),
+                    l.subBrokerPrimaryFailed,
+                  ),
           ),
           const SizedBox(height: PSpace.x8),
           Text(
@@ -275,7 +295,8 @@ class _BrokerConnectCardState extends ConsumerState<BrokerConnectCard> {
                   final secret = _secretCtrl.text.trim();
                   if (key.isEmpty || secret.isEmpty) return;
                   _run(
-                    (repo) => repo.registerBrokerCredential(c.broker, key, secret),
+                    (repo) =>
+                        repo.registerBrokerCredential(c.broker, key, secret),
                     l.subBrokerConnected(c.displayName),
                     l.subBrokerInvalidCred,
                   );
@@ -291,11 +312,11 @@ class _BrokerConnectCardState extends ConsumerState<BrokerConnectCard> {
   }
 
   TextStyle _fieldLabel(PorestTokens t) => TextStyle(
-        fontFamily: PTypo.sans,
-        fontSize: PFontSize.caption,
-        fontWeight: PFontWeight.semi,
-        color: t.fgSecondary,
-      );
+    fontFamily: PTypo.sans,
+    fontSize: PFontSize.caption,
+    fontWeight: PFontWeight.semi,
+    color: t.fgSecondary,
+  );
 }
 
 /// 입력칸 오른쪽 눈 아이콘 — 가린 값을 잠깐 보여 준다.

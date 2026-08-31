@@ -10,7 +10,9 @@ void main() {
   group('looksLikePaymentSms', () {
     test('카드사 결제 문자는 통과한다', () {
       expect(
-        looksLikePaymentSms('[Web발신]\nKB국민카드1234승인\n5,500원 일시불\n08/13 13:22\n스타벅스강남'),
+        looksLikePaymentSms(
+          '[Web발신]\nKB국민카드1234승인\n5,500원 일시불\n08/13 13:22\n스타벅스강남',
+        ),
         isTrue,
       );
       expect(
@@ -20,7 +22,10 @@ void main() {
     });
 
     test('취소 문자도 통과한다 — 막는 건 서버가 판단한다', () {
-      expect(looksLikePaymentSms('KB국민카드1234승인취소 5,500원 08/13 14:00 스타벅스'), isTrue);
+      expect(
+        looksLikePaymentSms('KB국민카드1234승인취소 5,500원 08/13 14:00 스타벅스'),
+        isTrue,
+      );
     });
 
     test('결제와 무관한 텍스트는 서버로 보내지 않는다', () {

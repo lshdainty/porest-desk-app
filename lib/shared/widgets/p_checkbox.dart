@@ -55,24 +55,24 @@ class PCheckbox extends StatelessWidget {
   final String? semanticLabel;
 
   double get _boxSize => switch (size) {
-        PCheckboxSize.sm => 16,
-        PCheckboxSize.md => 18,
-        PCheckboxSize.lg => 20,
-      };
+    PCheckboxSize.sm => 16,
+    PCheckboxSize.md => 18,
+    PCheckboxSize.lg => 20,
+  };
 
   double get _iconSize => switch (size) {
-        PCheckboxSize.sm => 10,
-        PCheckboxSize.md => 12,
-        PCheckboxSize.lg => 14,
-      };
+    PCheckboxSize.sm => 10,
+    PCheckboxSize.md => 12,
+    PCheckboxSize.lg => 14,
+  };
 
   double get _dashHeight => 2;
 
   double get _dashWidth => switch (size) {
-        PCheckboxSize.sm => 8,
-        PCheckboxSize.md => 10,
-        PCheckboxSize.lg => 12,
-      };
+    PCheckboxSize.sm => 8,
+    PCheckboxSize.md => 10,
+    PCheckboxSize.lg => 12,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -83,7 +83,10 @@ class PCheckbox extends StatelessWidget {
     final filled = checked || indeterminate;
 
     final (Color bg, Color border) = switch ((disabled, error, filled)) {
-      (true, _, true) => (t.bgBrandSolid.withValues(alpha: 0.5), t.bgBrandSolid.withValues(alpha: 0.5)),
+      (true, _, true) => (
+        t.bgBrandSolid.withValues(alpha: 0.5),
+        t.bgBrandSolid.withValues(alpha: 0.5),
+      ),
       (true, _, false) => (t.bgMuted, t.borderDefault),
       (_, true, _) => (t.bgSurface, t.statusDanger),
       // 채움·테두리는 다크에서도 primary 고정(bgBrandSolid) — web checkbox bg-primary 정합.
@@ -109,11 +112,13 @@ class PCheckbox extends StatelessWidget {
                 color: t.fgOnBrand.withValues(alpha: disabled ? 0.5 : 1),
               )
             : (checked
-                ? Icon(Icons.check_rounded,
-                    size: _iconSize,
-                    weight: 700,
-                    color: t.fgOnBrand.withValues(alpha: disabled ? 0.5 : 1))
-                : const SizedBox.shrink()),
+                  ? Icon(
+                      Icons.check_rounded,
+                      size: _iconSize,
+                      weight: 700,
+                      color: t.fgOnBrand.withValues(alpha: disabled ? 0.5 : 1),
+                    )
+                  : const SizedBox.shrink()),
       ),
     );
 
@@ -131,18 +136,17 @@ class PCheckbox extends StatelessWidget {
               : () => onChanged!(indeterminate ? false : !checked),
           child: dense
               ? control
-              : SizedBox(
-                  width: 44,
-                  height: 44,
-                  child: Center(child: control),
-                ),
+              : SizedBox(width: 44, height: 44, child: Center(child: control)),
         ),
       );
       return helperText == null
           ? control
           : Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [control, _HelperText(helperText!, error: error)],
+              children: [
+                control,
+                _HelperText(helperText!, error: error),
+              ],
             );
     }
 

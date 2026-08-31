@@ -32,11 +32,11 @@ class BrokerQuote {
   final double? previousClose;
 
   factory BrokerQuote.fromJson(Map<String, dynamic> j) => BrokerQuote(
-        symbol: (j['symbol'] as String?) ?? '',
-        price: (j['price'] as num?)?.toDouble() ?? 0,
-        currency: (j['currency'] as String?) ?? 'KRW',
-        previousClose: (j['previousClose'] as num?)?.toDouble(),
-      );
+    symbol: (j['symbol'] as String?) ?? '',
+    price: (j['price'] as num?)?.toDouble() ?? 0,
+    currency: (j['currency'] as String?) ?? 'KRW',
+    previousClose: (j['previousClose'] as num?)?.toDouble(),
+  );
 }
 
 class SecuritiesRepository {
@@ -53,21 +53,31 @@ class SecuritiesRepository {
   Future<List<BrokerQuote>> getPrices(List<String> symbols) async {
     if (symbols.isEmpty) return const [];
     try {
-      final res = await _dio.get<dynamic>('/securities/prices',
-          queryParameters: {'symbols': symbols.join(',')});
+      final res = await _dio.get<dynamic>(
+        '/securities/prices',
+        queryParameters: {'symbols': symbols.join(',')},
+      );
       final p = _payload(res);
       if (p is! List) return const [];
-      return p.whereType<Map<String, dynamic>>().map(BrokerQuote.fromJson).toList();
+      return p
+          .whereType<Map<String, dynamic>>()
+          .map(BrokerQuote.fromJson)
+          .toList();
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }
   }
 
   /// 원화 환산 환율. 못 구하면 null — 나무는 해당 통화 보유 종목이 있어야 환율이 나온다.
-  Future<double?> getExchangeRate({String base = 'USD', String quote = 'KRW'}) async {
+  Future<double?> getExchangeRate({
+    String base = 'USD',
+    String quote = 'KRW',
+  }) async {
     try {
-      final res = await _dio.get<dynamic>('/securities/exchange-rate',
-          queryParameters: {'base': base, 'quote': quote});
+      final res = await _dio.get<dynamic>(
+        '/securities/exchange-rate',
+        queryParameters: {'base': base, 'quote': quote},
+      );
       final p = _payload(res);
       if (p is! Map<String, dynamic>) return null;
       return (p['rate'] as num?)?.toDouble();

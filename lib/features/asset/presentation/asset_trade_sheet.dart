@@ -29,6 +29,7 @@ import 'package:porest_desk_app/shared/widgets/p_text_input.dart';
 void showAssetTradeSheet(
   BuildContext context, {
   required Asset asset,
+
   /// 어떤 종목인지 정해진 채로 들어온다 — 여기서 다시 고르게 하면 편집과 역할이 겹친다.
   required AssetHolding holding,
   String defaultType = 'BUY',
@@ -45,10 +46,8 @@ void showAssetTradeSheet(
       scrollController: scrollCtrl,
       controller: controller,
     ),
-    footerBuilder: (ctx) => PSheetFooter(
-      controller: controller,
-      submitLabel: l.actionSave,
-    ),
+    footerBuilder: (ctx) =>
+        PSheetFooter(controller: controller, submitLabel: l.actionSave),
   ).whenComplete(controller.dispose);
 }
 
@@ -78,6 +77,7 @@ class _TradeBodyState extends ConsumerState<_TradeBody> {
 
   late String _type;
   bool _submitting = false;
+
   /// 결제 계좌 — null 이면 증권계좌 예수금에서. 예수금을 따로 관리하지 않으면 통장을 고른다.
   int? _settlementAssetRowId;
 
@@ -89,8 +89,7 @@ class _TradeBodyState extends ConsumerState<_TradeBody> {
 
   /// 종목 식별자 — 연동은 토스 종목코드, 미연동은 항목명.
   /// 보유 목록은 편집할 때마다 통째로 재생성돼서 rowId 로는 거래를 묶을 수 없다.
-  String get _holdingKey =>
-      (_h.linked ? _h.tossSymbol : _h.holdingName) ?? '';
+  String get _holdingKey => (_h.linked ? _h.tossSymbol : _h.holdingName) ?? '';
 
   /// 티커가 아니라 이름으로 보여 준다 — 편집 화면과 같아야 헷갈리지 않는다.
   String get _holdingName =>
@@ -129,8 +128,14 @@ class _TradeBodyState extends ConsumerState<_TradeBody> {
   }
 
   Future<void> _fetchPreview() async {
-    final asked = (_type, _holdingKey, _qtyCtrl.text.trim(), _amount, _fee,
-        _settlementAssetRowId);
+    final asked = (
+      _type,
+      _holdingKey,
+      _qtyCtrl.text.trim(),
+      _amount,
+      _fee,
+      _settlementAssetRowId,
+    );
     try {
       final repo = await ref.read(assetRepositoryProvider.future);
       final p = await repo.previewTrade(
@@ -146,8 +151,14 @@ class _TradeBodyState extends ConsumerState<_TradeBody> {
         settlementAssetRowId: _settlementAssetRowId,
       );
       // 물어본 사이에 입력이 또 바뀌었으면 낡은 답이다 — 버린다.
-      final now = (_type, _holdingKey, _qtyCtrl.text.trim(), _amount, _fee,
-          _settlementAssetRowId);
+      final now = (
+        _type,
+        _holdingKey,
+        _qtyCtrl.text.trim(),
+        _amount,
+        _fee,
+        _settlementAssetRowId,
+      );
       if (!mounted || asked != now) return;
       setState(() => _preview = p);
     } catch (_) {
@@ -209,7 +220,9 @@ class _TradeBodyState extends ConsumerState<_TradeBody> {
         amount: _amount,
         fee: _fee,
         tradeDate: DateTime.now().toIso8601String().substring(0, 19),
-        description: _memoCtrl.text.trim().isEmpty ? null : _memoCtrl.text.trim(),
+        description: _memoCtrl.text.trim().isEmpty
+            ? null
+            : _memoCtrl.text.trim(),
         settlementAssetRowId: _settlementAssetRowId,
       );
       // 예수금·보유·실현손익이 한꺼번에 바뀐다 — 자산과 거래 목록을 모두 새로 받는다.
@@ -233,12 +246,15 @@ class _TradeBodyState extends ConsumerState<_TradeBody> {
     final l = AppLocalizations.of(context);
     final realized = _realizedPreview;
     // 결제 계좌 후보 — 이 증권계좌 자신과 카드는 뺀다.
-    final settlementOptions = (ref.watch(assetsProvider).value ?? const <Asset>[])
-        .where((a) =>
-            a.rowId != widget.asset.rowId &&
-            a.assetType != 'CREDIT_CARD' &&
-            a.assetType != 'CHECK_CARD')
-        .toList(growable: false);
+    final settlementOptions =
+        (ref.watch(assetsProvider).value ?? const <Asset>[])
+            .where(
+              (a) =>
+                  a.rowId != widget.asset.rowId &&
+                  a.assetType != 'CREDIT_CARD' &&
+                  a.assetType != 'CHECK_CARD',
+            )
+            .toList(growable: false);
 
     return ListView(
       controller: widget.scrollController,
@@ -274,16 +290,22 @@ class _TradeBodyState extends ConsumerState<_TradeBody> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(_holdingName,
-                  style: PTypo.bodySm.copyWith(
-                      color: t.fgPrimary, fontWeight: PFontWeight.bold)),
+              Text(
+                _holdingName,
+                style: PTypo.bodySm.copyWith(
+                  color: t.fgPrimary,
+                  fontWeight: PFontWeight.bold,
+                ),
+              ),
               const SizedBox(height: 2),
               Text(
                 l.tradeHeldSummary(
                   _h.quantity?.toString() ?? '0',
                   _h.avgPrice != null
                       ? krwSigned(
-                          double.tryParse(_h.avgPrice!)?.round() ?? 0, false)
+                          double.tryParse(_h.avgPrice!)?.round() ?? 0,
+                          false,
+                        )
                       : '—',
                 ),
                 style: PTypo.micro.copyWith(color: t.fgTertiary),
@@ -310,8 +332,10 @@ class _TradeBodyState extends ConsumerState<_TradeBody> {
           placeholder: '0',
         ),
         const SizedBox(height: 6),
-        Text(l.tradeAmountHelp,
-            style: PTypo.micro.copyWith(color: t.fgTertiary)),
+        Text(
+          l.tradeAmountHelp,
+          style: PTypo.micro.copyWith(color: t.fgTertiary),
+        ),
         const SizedBox(height: PSpace.x20),
 
         PSectionLabel(l.tradeFee),
@@ -347,17 +371,16 @@ class _TradeBodyState extends ConsumerState<_TradeBody> {
             }),
           ),
           const SizedBox(height: 6),
-          Text(_viaCash ? l.tradeSettlementCashHelp : l.tradeSettlementAccountHelp,
-              style: PTypo.micro.copyWith(color: t.fgTertiary)),
+          Text(
+            _viaCash ? l.tradeSettlementCashHelp : l.tradeSettlementAccountHelp,
+            style: PTypo.micro.copyWith(color: t.fgTertiary),
+          ),
           const SizedBox(height: PSpace.x20),
         ],
 
         PSectionLabel(l.tradeMemo),
         const SizedBox(height: PSpace.x4),
-        PTextInput(
-          controller: _memoCtrl,
-          placeholder: l.tradeMemoPlaceholder,
-        ),
+        PTextInput(controller: _memoCtrl, placeholder: l.tradeMemoPlaceholder),
         const SizedBox(height: PSpace.x20),
 
         // 저장하고 놀라지 않게 예수금과 손익을 먼저 보여 준다.
@@ -373,16 +396,22 @@ class _TradeBodyState extends ConsumerState<_TradeBody> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(_viaCash ? l.tradeCashAfter : l.tradeSettlementDelta,
-                      style: PTypo.bodySm.copyWith(color: t.fgSecondary)),
+                  Text(
+                    _viaCash ? l.tradeCashAfter : l.tradeSettlementDelta,
+                    style: PTypo.bodySm.copyWith(color: t.fgSecondary),
+                  ),
                   Text(
                     // 서버가 아직 답하기 전에는 자리만 잡아 둔다 — 틀린 값을 잠깐 보여 주느니 낫다.
                     (_cashAfter == null || _cashDelta == null)
                         ? '—'
                         : _viaCash
-                            ? krwSigned(_cashAfter!, false, unit: true)
-                            : krwSigned(_cashDelta!.abs(), false,
-                                sign: _cashDelta! >= 0 ? '+' : '-', unit: true),
+                        ? krwSigned(_cashAfter!, false, unit: true)
+                        : krwSigned(
+                            _cashDelta!.abs(),
+                            false,
+                            sign: _cashDelta! >= 0 ? '+' : '-',
+                            unit: true,
+                          ),
                     style: PTypo.money.copyWith(
                       color: _viaCash && (_cashAfter ?? 0) < 0
                           ? t.statusDanger
@@ -397,11 +426,17 @@ class _TradeBodyState extends ConsumerState<_TradeBody> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(l.tradeRealizedPreview,
-                        style: PTypo.bodySm.copyWith(color: t.fgSecondary)),
                     Text(
-                      krwSigned(realized.abs(), false,
-                          sign: realized >= 0 ? '+' : '-', unit: true),
+                      l.tradeRealizedPreview,
+                      style: PTypo.bodySm.copyWith(color: t.fgSecondary),
+                    ),
+                    Text(
+                      krwSigned(
+                        realized.abs(),
+                        false,
+                        sign: realized >= 0 ? '+' : '-',
+                        unit: true,
+                      ),
                       style: PTypo.money.copyWith(
                         color: realized >= 0 ? t.fgIncome : t.fgExpense,
                         fontWeight: PFontWeight.bold,
@@ -414,19 +449,25 @@ class _TradeBodyState extends ConsumerState<_TradeBody> {
               if (_fundingAmount > 0) ...[
                 const SizedBox(height: 6),
                 Text(
-                  l.tradeFundingNotice(krwSigned(_fundingAmount, false, unit: true)),
+                  l.tradeFundingNotice(
+                    krwSigned(_fundingAmount, false, unit: true),
+                  ),
                   style: PTypo.micro.copyWith(color: t.fgTertiary),
                 ),
               ],
               if (!_isSell && _viaCash && (_cashAfter ?? 0) < 0) ...[
                 const SizedBox(height: 6),
-                Text(l.tradeInsufficientCash,
-                    style: PTypo.micro.copyWith(color: t.statusDanger)),
+                Text(
+                  l.tradeInsufficientCash,
+                  style: PTypo.micro.copyWith(color: t.statusDanger),
+                ),
               ],
               if (_isSell && _qty > _heldQty) ...[
                 const SizedBox(height: 6),
-                Text(l.tradeInsufficientQty,
-                    style: PTypo.micro.copyWith(color: t.statusDanger)),
+                Text(
+                  l.tradeInsufficientQty,
+                  style: PTypo.micro.copyWith(color: t.statusDanger),
+                ),
               ],
             ],
           ),

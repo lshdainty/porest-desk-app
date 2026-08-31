@@ -66,6 +66,7 @@ String _ymd(DateTime d) =>
 
 class _StatsScreenState extends ConsumerState<StatsScreen> {
   int _tabIndex = 0;
+
   /// 좌우로 넘기면 탭이 따라 움직인다. 칩을 눌러도 같은 컨트롤러로 페이지를 옮긴다.
   /// (설정 '금액 가리기' 화면과 같은 패턴)
   final _pages = PageController();
@@ -75,11 +76,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
 
   void _goTab(int i) {
     setState(() => _tabIndex = i);
-    _pages.animateToPage(
-      i,
-      duration: PMotion.base,
-      curve: PMotion.standard,
-    );
+    _pages.animateToPage(i, duration: PMotion.base, curve: PMotion.standard);
   }
 
   @override
@@ -159,6 +156,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
       _SegMode.custom => l.statsCustomPeriod,
     };
   }
+
   String get _periodPrev {
     final l = AppLocalizations.of(context);
     return switch (_segMode) {
@@ -168,6 +166,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
       _SegMode.custom => l.statsPrevPeriod,
     };
   }
+
   String get _avgLabel {
     final l = AppLocalizations.of(context);
     return _useDailyAvg ? l.statsDailyAvg : l.statsMonthlyAvg;
@@ -274,7 +273,10 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
                     expand: true,
                     items: [
                       PTabItem(value: _SegMode.month, label: l.statsSegMonth),
-                      PTabItem(value: _SegMode.quarter, label: l.statsSegQuarter),
+                      PTabItem(
+                        value: _SegMode.quarter,
+                        label: l.statsSegQuarter,
+                      ),
                       PTabItem(value: _SegMode.year, label: l.statsSegYear),
                       PTabItem(value: _SegMode.custom, label: l.statsSegCustom),
                     ],
@@ -486,9 +488,15 @@ class _CategoryTab extends ConsumerWidget {
             masked: ref.watch(hideCardProvider('stats.category')),
           ),
           const SizedBox(height: PSpace.x32),
-          _TopMerchantsCard(async: merchantAsync, masked: ref.watch(hideCardProvider('stats.category'))),
+          _TopMerchantsCard(
+            async: merchantAsync,
+            masked: ref.watch(hideCardProvider('stats.category')),
+          ),
           const SizedBox(height: PSpace.x32),
-          _HeatmapCard(async: heatmapAsync, masked: ref.watch(hideCardProvider('stats.category'))),
+          _HeatmapCard(
+            async: heatmapAsync,
+            masked: ref.watch(hideCardProvider('stats.category')),
+          ),
           const SizedBox(height: PSpace.x32),
           _HighlightsGrid(
             state: state,
@@ -748,8 +756,10 @@ class _EmptyBox extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 28),
       child: Center(
-        child: Text(text ?? l.statsNoData,
-            style: PTypo.caption.copyWith(color: t.fgTertiary)),
+        child: Text(
+          text ?? l.statsNoData,
+          style: PTypo.caption.copyWith(color: t.fgTertiary),
+        ),
       ),
     );
   }
@@ -896,27 +906,27 @@ class _HeatmapSkeleton extends StatelessWidget {
     // 실제 히트맵: 헤더(56 spacer + 7 요일) + 6행(56 라벨열 + 7 셀 AspectRatio1
     // padding all2 radius brSm, 행간 4) + 범례행.
     Widget cellRow() => Row(
-          spacing: 6,
-          children: [
-            // 라벨열(56) — 실제는 label+sub 2줄
-            const SizedBox(
-              width: 56,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  PSkeleton.line(width: 28, height: 13),
-                  SizedBox(height: 2),
-                  PSkeleton.line(width: 40, height: 12),
-                ],
-              ),
-            ),
-            for (var c = 0; c < _heatCols.length; c++)
-              const Expanded(
-                child: AspectRatio(aspectRatio: 1, child: PSkeleton()),
-              ),
-          ],
-        );
+      spacing: 6,
+      children: [
+        // 라벨열(56) — 실제는 label+sub 2줄
+        const SizedBox(
+          width: 56,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              PSkeleton.line(width: 28, height: 13),
+              SizedBox(height: 2),
+              PSkeleton.line(width: 40, height: 12),
+            ],
+          ),
+        ),
+        for (var c = 0; c < _heatCols.length; c++)
+          const Expanded(
+            child: AspectRatio(aspectRatio: 1, child: PSkeleton()),
+          ),
+      ],
+    );
     return Column(
       children: [
         // 헤더 행 — 56 코너 + 7 요일 라벨
@@ -1149,7 +1159,8 @@ class _DonutCardState extends ConsumerState<_DonutCard> {
     for (final c in bd) {
       final groupId = c.parentCategoryRowId ?? c.categoryRowId;
       if (groupId == null) continue;
-      final groupName = c.parentCategoryName ?? c.categoryName ?? l.statsUnassigned;
+      final groupName =
+          c.parentCategoryName ?? c.categoryName ?? l.statsUnassigned;
       var row = map[groupId];
       if (row == null) {
         final cat = cats
@@ -1399,8 +1410,11 @@ class _DonutLegendRow extends StatelessWidget {
             SizedBox(
               width: 13,
               child: clickable
-                  ? Icon(LucideIcons.chevronRight,
-                      size: 13, color: t.fgTertiary)
+                  ? Icon(
+                      LucideIcons.chevronRight,
+                      size: 13,
+                      color: t.fgTertiary,
+                    )
                   : null,
             ),
           ],
@@ -1647,7 +1661,9 @@ class _HeatmapCard extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.only(bottom: 4),
                       child: Text(
-                        weekdayLabels(mondayFirst: true)[_heatCols.indexOf(col)],
+                        weekdayLabels(mondayFirst: true)[_heatCols.indexOf(
+                          col,
+                        )],
                         textAlign: TextAlign.center,
                         style: PTypo.caption.copyWith(
                           color: t.fgTertiary,
@@ -1722,8 +1738,10 @@ class _HeatmapCard extends StatelessWidget {
             const SizedBox(height: 14),
             Row(
               children: [
-                Text(l.statsLegendLow,
-                    style: PTypo.caption.copyWith(color: t.fgTertiary)),
+                Text(
+                  l.statsLegendLow,
+                  style: PTypo.caption.copyWith(color: t.fgTertiary),
+                ),
                 const SizedBox(width: 8),
                 for (var i = 1; i <= 5; i++) ...[
                   Container(
@@ -1739,8 +1757,10 @@ class _HeatmapCard extends StatelessWidget {
                   const SizedBox(width: 3),
                 ],
                 const SizedBox(width: 4),
-                Text(l.statsLegendHigh,
-                    style: PTypo.caption.copyWith(color: t.fgTertiary)),
+                Text(
+                  l.statsLegendHigh,
+                  style: PTypo.caption.copyWith(color: t.fgTertiary),
+                ),
                 const Spacer(),
                 Text(
                   masked
@@ -1826,8 +1846,10 @@ class _HighlightsGrid extends StatelessWidget {
       topCatMeta?.color as String?,
       fallback: t.fgBrand,
     );
-    final catIcon =
-        lucideByName(topCatMeta?.icon as String?, fallback: LucideIcons.tag);
+    final catIcon = lucideByName(
+      topCatMeta?.icon as String?,
+      fallback: LucideIcons.tag,
+    );
 
     // 가맹점 Top
     final merchants =
@@ -1909,8 +1931,9 @@ class _HighlightsGrid extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
         );
       } else {
-        avgSub =
-            prevRangeAsync.isLoading ? l.statsMomCalculating : l.statsMomUnavailable;
+        avgSub = prevRangeAsync.isLoading
+            ? l.statsMomCalculating
+            : l.statsMomUnavailable;
       }
     }
 
@@ -2315,7 +2338,9 @@ class _TrendBigCardState extends ConsumerState<_TrendBigCard> {
                               child: Text(
                                 _fmtTick(v),
                                 style: PTypo.micro.copyWith(
-                                  color: useDualAxis ? t.statusInfoFg : t.fgTertiary,
+                                  color: useDualAxis
+                                      ? t.statusInfoFg
+                                      : t.fgTertiary,
                                   fontSize: PFontSize.micro,
                                 ),
                               ),
@@ -2438,12 +2463,20 @@ class _TrendBigCardState extends ConsumerState<_TrendBigCard> {
                           PChartTooltipRowData(
                             color: t.statusInfoFg,
                             label: l.expTypeIncome,
-                            amount: krwSigned(data[_touchedIdx!].income, false, unit: true),
+                            amount: krwSigned(
+                              data[_touchedIdx!].income,
+                              false,
+                              unit: true,
+                            ),
                           ),
                           PChartTooltipRowData(
                             color: t.fgExpense,
                             label: l.expTypeExpense,
-                            amount: krwSigned(data[_touchedIdx!].expense, false, unit: true),
+                            amount: krwSigned(
+                              data[_touchedIdx!].expense,
+                              false,
+                              unit: true,
+                            ),
                           ),
                         ],
                       ),
@@ -2519,18 +2552,33 @@ class _SavingsRateCard extends StatelessWidget {
     final isSingle = s._segMode == _SegMode.month;
 
     // web StatsScreen TrendStats 정합 — 저축률 도넛 게이지 + 구성 스택바 + 평균 3행.
-    final saveRate =
-        avgIn > 0 ? (avgSave / avgIn * 100).clamp(0.0, 100.0) : 0.0;
-    final spendRate =
-        avgIn > 0 ? (avgOut / avgIn * 100).clamp(0.0, 100.0) : 0.0;
+    final saveRate = avgIn > 0
+        ? (avgSave / avgIn * 100).clamp(0.0, 100.0)
+        : 0.0;
+    final spendRate = avgIn > 0
+        ? (avgOut / avgIn * 100).clamp(0.0, 100.0)
+        : 0.0;
 
     // 평균 수입/지출/저축 3행 — (라벨, 금액, dot 색, 비율%|null).
     final rows = <(String, int, Color, double?)>[
-      (isSingle ? l.expTypeIncome : l.statsAvgIncome, avgIn, t.fgTertiary, null),
-      (isSingle ? l.expTypeExpense : l.statsAvgExpense, avgOut, t.fgExpense,
-          spendRate),
-      (isSingle ? l.statsNetSavings : l.statsAvgSavings, avgSave, t.fgBrand,
-          saveRate),
+      (
+        isSingle ? l.expTypeIncome : l.statsAvgIncome,
+        avgIn,
+        t.fgTertiary,
+        null,
+      ),
+      (
+        isSingle ? l.expTypeExpense : l.statsAvgExpense,
+        avgOut,
+        t.fgExpense,
+        spendRate,
+      ),
+      (
+        isSingle ? l.statsNetSavings : l.statsAvgSavings,
+        avgSave,
+        t.fgBrand,
+        saveRate,
+      ),
     ];
 
     return _Card(
@@ -2633,7 +2681,10 @@ class _SavingsRateCard extends StatelessWidget {
                 Container(
                   width: 8,
                   height: 8,
-                  decoration: BoxDecoration(color: r.$3, shape: BoxShape.circle),
+                  decoration: BoxDecoration(
+                    color: r.$3,
+                    shape: BoxShape.circle,
+                  ),
                 ),
                 const SizedBox(width: 8),
                 Text(
@@ -2872,7 +2923,9 @@ class _CatTrendCardState extends ConsumerState<_CatTrendCard> {
                                   if (r.parts[i] > 0)
                                     PChartTooltipRowData(
                                       color: _donutColor(context, i, colors[i]),
-                                      label: top[i].categoryName ?? l.statsUnassigned,
+                                      label:
+                                          top[i].categoryName ??
+                                          l.statsUnassigned,
                                       amount: krwSigned(
                                         r.parts[i],
                                         false,
@@ -2931,29 +2984,29 @@ class _CatTrendBar extends StatelessWidget {
           // 통짜 바 — 외곽(최상단·최하단)만 round(ClipRRect), 세그먼트는 사이 간격
           // 없이 붙어 색상 경계만으로 구분. 순저축 단일 바와 동일한 통짜 톤.
           child: ClipRRect(
-              borderRadius: PRadius.brSm,
-              // TOP1이 아래에 오도록 column-reverse (디자인 정합)
-              child: Column(
-                // 세그먼트(ColoredBox, child 없음)가 가로(24)를 채우도록 stretch.
-                // 기본 center 면 교차축이 0 이 돼 바가 아예 안 보였음.
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                verticalDirection: VerticalDirection.up,
-                children: [
-                  for (var vi = 0; vi < visible.length; vi++)
-                    Expanded(
-                      flex: row.parts[visible[vi]],
-                      child: ColoredBox(
-                        color: _donutColor(
-                          context,
-                          visible[vi],
-                          colors[visible[vi]],
-                        ),
+            borderRadius: PRadius.brSm,
+            // TOP1이 아래에 오도록 column-reverse (디자인 정합)
+            child: Column(
+              // 세그먼트(ColoredBox, child 없음)가 가로(24)를 채우도록 stretch.
+              // 기본 center 면 교차축이 0 이 돼 바가 아예 안 보였음.
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              verticalDirection: VerticalDirection.up,
+              children: [
+                for (var vi = 0; vi < visible.length; vi++)
+                  Expanded(
+                    flex: row.parts[visible[vi]],
+                    child: ColoredBox(
+                      color: _donutColor(
+                        context,
+                        visible[vi],
+                        colors[visible[vi]],
                       ),
                     ),
-                ],
-              ),
+                  ),
+              ],
             ),
           ),
+        ),
         const SizedBox(height: 6),
         Text(
           row.label,
@@ -3010,7 +3063,9 @@ class _SavingsBarsCardState extends ConsumerState<_SavingsBarsCard> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _CardHeader(
-            title: _CardTitle(useDaily ? l.statsDailyNetSavings : l.statsMonthlyNetSavings),
+            title: _CardTitle(
+              useDaily ? l.statsDailyNetSavings : l.statsMonthlyNetSavings,
+            ),
             trailing: Text(
               l.statsIncomeMinusExpense,
               style: PTypo.caption.copyWith(color: t.fgTertiary),
@@ -3174,7 +3229,12 @@ class _SavingsBarsCardState extends ConsumerState<_SavingsBarsCard> {
                               PChartTooltipRowData(
                                 color: v >= 0 ? t.statusInfoFg : t.fgExpense,
                                 label: l.statsNetSavings,
-                                amount: krwSigned(v.abs(), false, sign: sign, unit: true),
+                                amount: krwSigned(
+                                  v.abs(),
+                                  false,
+                                  sign: sign,
+                                  unit: true,
+                                ),
                               ),
                             ],
                           );
@@ -3248,9 +3308,7 @@ class _CompareSummaryGrid extends StatelessWidget {
                     decoration: BoxDecoration(
                       // web CompareSummary 막대: 이번=fg-brand, 지난=surface-input(bgTrack)+border.
                       color: muted ? t.bgTrack : t.fgBrand,
-                      border: muted
-                          ? Border.all(color: t.borderDefault)
-                          : null,
+                      border: muted ? Border.all(color: t.borderDefault) : null,
                       borderRadius: BorderRadius.circular(999),
                     ),
                   ),
@@ -3387,11 +3445,12 @@ class _CompareMetricsCard extends StatelessWidget {
     if (nowEnd.isAfter(today)) nowEnd = today;
     final nowDays = (dOnly(nowEnd).difference(dOnly(state._from)).inDays + 1)
         .clamp(1, 100000);
-    final prevDays = (dOnly(state._prevRange.to)
-                .difference(dOnly(state._prevRange.from))
-                .inDays +
-            1)
-        .clamp(1, 100000);
+    final prevDays =
+        (dOnly(
+                  state._prevRange.to,
+                ).difference(dOnly(state._prevRange.from)).inDays +
+                1)
+            .clamp(1, 100000);
 
     final rows = <({String label, int now, int prev, bool count})>[
       // 반올림도 web(Math.round) 정합 — `~/`(내림)는 web과 1원 차이 발생.
@@ -3451,7 +3510,9 @@ class _CompareMetricsCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
-                          d == 0 ? '—' : '${up ? '▲' : '▼'} ${fmt(d.abs(), m.count)}',
+                          d == 0
+                              ? '—'
+                              : '${up ? '▲' : '▼'} ${fmt(d.abs(), m.count)}',
                           style: PTypo.caption.copyWith(
                             color: d == 0 ? t.fgTertiary : c,
                             fontWeight: PFontWeight.bold,
@@ -3531,13 +3592,14 @@ class _CompareWeekdayCardState extends State<_CompareWeekdayCard> {
   Widget build(BuildContext context) {
     final t = context.tokens;
     final l = AppLocalizations.of(context);
-    final now = _CompareWeekdayCard._byWeekday(widget.nowExpAsync.value ?? const []);
-    final prev = _CompareWeekdayCard._byWeekday(widget.prevExpAsync.value ?? const []);
+    final now = _CompareWeekdayCard._byWeekday(
+      widget.nowExpAsync.value ?? const [],
+    );
+    final prev = _CompareWeekdayCard._byWeekday(
+      widget.prevExpAsync.value ?? const [],
+    );
     final labels = weekdayLabels(mondayFirst: true);
-    final maxV = [
-      ...now,
-      ...prev,
-    ].fold<int>(1, (m, v) => v > m ? v : m);
+    final maxV = [...now, ...prev].fold<int>(1, (m, v) => v > m ? v : m);
     const chartH = 120.0;
 
     // 인사이트 — 감소폭 최대 요일 우선, 없으면 증가폭 최대.
@@ -3594,7 +3656,10 @@ class _CompareWeekdayCardState extends State<_CompareWeekdayCard> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 // 범례 라벨도 기간 모드별 동적 — web periodNow/periodPrev 정합.
-                _WeekdayLegend(color: t.fgBrand, label: widget.state._periodNow),
+                _WeekdayLegend(
+                  color: t.fgBrand,
+                  label: widget.state._periodNow,
+                ),
                 const SizedBox(width: 12),
                 _WeekdayLegend(
                   color: t.bgTrack,
@@ -3633,12 +3698,18 @@ class _CompareWeekdayCardState extends State<_CompareWeekdayCard> {
                                   SizedBox(
                                     height: chartH,
                                     child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
                                       children: [
                                         bar(now[i], t.fgBrand),
                                         const SizedBox(width: 3),
-                                        bar(prev[i], t.bgTrack, border: t.borderDefault),
+                                        bar(
+                                          prev[i],
+                                          t.bgTrack,
+                                          border: t.borderDefault,
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -3672,13 +3743,21 @@ class _CompareWeekdayCardState extends State<_CompareWeekdayCard> {
                         PChartTooltipRowData(
                           color: t.fgBrand,
                           label: widget.state._periodNow,
-                          amount: krwSigned(now[_touchedIdx!], widget.masked, unit: true),
+                          amount: krwSigned(
+                            now[_touchedIdx!],
+                            widget.masked,
+                            unit: true,
+                          ),
                         ),
                         PChartTooltipRowData(
                           color: t.bgTrack,
                           borderColor: t.borderDefault,
                           label: widget.state._periodPrev,
-                          amount: krwSigned(prev[_touchedIdx!], widget.masked, unit: true),
+                          amount: krwSigned(
+                            prev[_touchedIdx!],
+                            widget.masked,
+                            unit: true,
+                          ),
                         ),
                       ],
                     ),
@@ -3737,10 +3816,7 @@ class _WeekdayLegend extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 5),
-        Text(
-          label,
-          style: PTypo.micro.copyWith(color: t.fgTertiary),
-        ),
+        Text(label, style: PTypo.micro.copyWith(color: t.fgTertiary)),
       ],
     );
   }
@@ -3782,7 +3858,8 @@ class _CompareCategoryCard extends StatelessWidget {
         final id = c.parentCategoryRowId ?? c.categoryRowId;
         if (id == null) continue;
         final cur = byId[id];
-        final name = c.parentCategoryName ?? c.categoryName ?? l.statsUnassigned;
+        final name =
+            c.parentCategoryName ?? c.categoryName ?? l.statsUnassigned;
         final cat = catBy(id);
         var rec =
             cur ??

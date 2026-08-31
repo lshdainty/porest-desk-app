@@ -427,9 +427,7 @@ class _ToggleRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.tokens;
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        vertical: PSpace.x12,
-      ),
+      padding: const EdgeInsets.symmetric(vertical: PSpace.x12),
       child: Row(
         children: [
           _ToneIcon(icon: icon, tone: tone, enabled: enabled),
@@ -485,81 +483,81 @@ class _ThresholdCard extends StatelessWidget {
     final l = AppLocalizations.of(context);
     // 카드 다이어트 — 플랫 섹션.
     return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  l.notiThresholdTitle,
-                  style: PTypo.bodyLg.copyWith(
-                    color: t.fgPrimary,
-                    fontWeight: PFontWeight.bold,
-                  ),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                l.notiThresholdTitle,
+                style: PTypo.bodyLg.copyWith(
+                  color: t.fgPrimary,
+                  fontWeight: PFontWeight.bold,
                 ),
               ),
-              // web 정합 — '현재 N%' (caption tertiary + brand strong).
-              Text.rich(
-                TextSpan(
-                  style: PTypo.caption.copyWith(color: t.fgTertiary),
-                  children: [
-                    TextSpan(text: l.notiThresholdCurrent),
-                    TextSpan(
-                      text: '$value%',
-                      style: TextStyle(
-                        color: t.fgBrandStrong,
-                        fontWeight: PFontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 2),
-          Text.rich(
-            TextSpan(
-              style: PTypo.caption.copyWith(color: t.fgTertiary),
-              children: [
-                TextSpan(text: l.notiThresholdDesc1),
-                TextSpan(
-                  text: l.notiThresholdWarning,
-                  style: TextStyle(
-                    color: t.statusWarningFg,
-                    fontWeight: PFontWeight.bold,
-                  ),
-                ),
-                TextSpan(text: l.notiThresholdDesc2),
-                TextSpan(
-                  text: l.notiThresholdOver,
-                  style: TextStyle(
-                    color: t.statusDangerFg,
-                    fontWeight: PFontWeight.bold,
-                  ),
-                ),
-                TextSpan(text: l.notiThresholdDesc3),
-              ],
             ),
-          ),
-          const SizedBox(height: PSpace.x8),
-          PSlider(
-            value: value.toDouble().clamp(50, 100),
-            min: 50,
-            max: 100,
-            // web step=5 정합 — 71% 같은 1단위 값 방지.
-            divisions: 10,
-            semanticLabel: '$value%',
-            onChanged: (v) => onChanged(v.round()),
-          ),
-          // web 정합 — 50~100 을 10단위 눈금으로 상세 표시 (text-badge/fg-tertiary).
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            // web 정합 — '현재 N%' (caption tertiary + brand strong).
+            Text.rich(
+              TextSpan(
+                style: PTypo.caption.copyWith(color: t.fgTertiary),
+                children: [
+                  TextSpan(text: l.notiThresholdCurrent),
+                  TextSpan(
+                    text: '$value%',
+                    style: TextStyle(
+                      color: t.fgBrandStrong,
+                      fontWeight: PFontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 2),
+        Text.rich(
+          TextSpan(
+            style: PTypo.caption.copyWith(color: t.fgTertiary),
             children: [
-              for (final tick in const [50, 60, 70, 80, 90, 100])
-                Text('$tick', style: PTypo.micro.copyWith(color: t.fgTertiary)),
+              TextSpan(text: l.notiThresholdDesc1),
+              TextSpan(
+                text: l.notiThresholdWarning,
+                style: TextStyle(
+                  color: t.statusWarningFg,
+                  fontWeight: PFontWeight.bold,
+                ),
+              ),
+              TextSpan(text: l.notiThresholdDesc2),
+              TextSpan(
+                text: l.notiThresholdOver,
+                style: TextStyle(
+                  color: t.statusDangerFg,
+                  fontWeight: PFontWeight.bold,
+                ),
+              ),
+              TextSpan(text: l.notiThresholdDesc3),
             ],
           ),
-        ],
+        ),
+        const SizedBox(height: PSpace.x8),
+        PSlider(
+          value: value.toDouble().clamp(50, 100),
+          min: 50,
+          max: 100,
+          // web step=5 정합 — 71% 같은 1단위 값 방지.
+          divisions: 10,
+          semanticLabel: '$value%',
+          onChanged: (v) => onChanged(v.round()),
+        ),
+        // web 정합 — 50~100 을 10단위 눈금으로 상세 표시 (text-badge/fg-tertiary).
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            for (final tick in const [50, 60, 70, 80, 90, 100])
+              Text('$tick', style: PTypo.micro.copyWith(color: t.fgTertiary)),
+          ],
+        ),
+      ],
     );
   }
 }
@@ -593,9 +591,7 @@ class _QuietHoursCard extends StatelessWidget {
       child: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(
-              vertical: PSpace.x12,
-            ),
+            padding: const EdgeInsets.symmetric(vertical: PSpace.x12),
             child: Row(
               children: [
                 const _ToneIcon(icon: LucideIcons.moon, tone: _Tone.info),
@@ -767,12 +763,18 @@ class _SoundCard extends StatelessWidget {
                       if (v != null) onSoundChanged(v);
                     },
                     items: [
-                      PSelectItem(value: NotificationSound.chime, label: l.notiSoundChime),
+                      PSelectItem(
+                        value: NotificationSound.chime,
+                        label: l.notiSoundChime,
+                      ),
                       PSelectItem(
                         value: NotificationSound.defaultSound,
                         label: l.notiSoundDefault,
                       ),
-                      PSelectItem(value: NotificationSound.none, label: l.notiSoundNone),
+                      PSelectItem(
+                        value: NotificationSound.none,
+                        label: l.notiSoundNone,
+                      ),
                     ],
                   ),
                 ),
@@ -853,9 +855,7 @@ class _EmailCard extends StatelessWidget {
       child: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(
-              vertical: PSpace.x12,
-            ),
+            padding: const EdgeInsets.symmetric(vertical: PSpace.x12),
             child: Row(
               children: [
                 const _ToneIcon(icon: LucideIcons.mail, tone: _Tone.info),
@@ -914,8 +914,14 @@ class _EmailCard extends StatelessWidget {
                     size: PTabsSize.sm,
                     expand: true,
                     items: [
-                      PTabItem(value: EmailFrequency.daily, label: l.notiEmailDaily),
-                      PTabItem(value: EmailFrequency.weekly, label: l.notiEmailWeekly),
+                      PTabItem(
+                        value: EmailFrequency.daily,
+                        label: l.notiEmailDaily,
+                      ),
+                      PTabItem(
+                        value: EmailFrequency.weekly,
+                        label: l.notiEmailWeekly,
+                      ),
                       PTabItem(
                         value: EmailFrequency.monthly,
                         label: l.notiEmailMonthly,
@@ -1013,56 +1019,50 @@ class _SkeletonSectionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     // 카드 다이어트 — 플랫 스켈레톤 셸.
     return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 헤더 — 제목(bodyLg) + 소제목(caption).
-          Padding(
-            padding: const EdgeInsets.fromLTRB(0, 0, 0, PSpace.sm),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // 헤더 — 제목(bodyLg) + 소제목(caption).
+        Padding(
+          padding: const EdgeInsets.fromLTRB(0, 0, 0, PSpace.sm),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const PSkeleton.line(width: 80, height: 16),
+              if (showSubtitle) ...const [
+                SizedBox(height: 4),
+                PSkeleton.line(width: 180, height: 12),
+              ],
+            ],
+          ),
+        ),
+        // 토글 행 — 아이콘(36) + 제목/설명 2줄 + 스위치, 사이 PDivider.
+        for (int i = 0; i < rows; i++) ...[
+          if (i > 0) const PDivider(),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: PSpace.x12),
+            child: Row(
               children: [
-                const PSkeleton.line(width: 80, height: 16),
-                if (showSubtitle) ...const [
-                  SizedBox(height: 4),
-                  PSkeleton.line(width: 180, height: 12),
-                ],
+                PSkeleton(width: 36, height: 36, borderRadius: PRadius.brMd),
+                SizedBox(width: PSpace.x12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      PSkeleton.line(width: 88, height: 14),
+                      SizedBox(height: 4),
+                      PSkeleton.line(width: 150, height: 12),
+                    ],
+                  ),
+                ),
+                SizedBox(width: PSpace.x12),
+                PSkeleton(width: 44, height: 24, borderRadius: PRadius.brFull),
               ],
             ),
           ),
-          // 토글 행 — 아이콘(36) + 제목/설명 2줄 + 스위치, 사이 PDivider.
-          for (int i = 0; i < rows; i++) ...[
-            if (i > 0) const PDivider(),
-            const Padding(
-              padding: EdgeInsets.symmetric(
-                vertical: PSpace.x12,
-              ),
-              child: Row(
-                children: [
-                  PSkeleton(width: 36, height: 36, borderRadius: PRadius.brMd),
-                  SizedBox(width: PSpace.x12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        PSkeleton.line(width: 88, height: 14),
-                        SizedBox(height: 4),
-                        PSkeleton.line(width: 150, height: 12),
-                      ],
-                    ),
-                  ),
-                  SizedBox(width: PSpace.x12),
-                  PSkeleton(
-                    width: 44,
-                    height: 24,
-                    borderRadius: PRadius.brFull,
-                  ),
-                ],
-              ),
-            ),
-          ],
-          const SizedBox(height: 4),
         ],
+        const SizedBox(height: 4),
+      ],
     );
   }
 }
@@ -1075,23 +1075,27 @@ class _SkeletonThresholdCard extends StatelessWidget {
   Widget build(BuildContext context) {
     // 카드 다이어트 — 플랫 스켈레톤.
     return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
-          Row(
-            children: [
-              PSkeleton.line(width: 112, height: 16),
-              Spacer(),
-              PSkeleton.line(width: 48, height: 12),
-            ],
-          ),
-          SizedBox(height: 6),
-          PSkeleton.line(width: double.infinity, height: 12),
-          SizedBox(height: 4),
-          PSkeleton.line(width: 220, height: 12),
-          SizedBox(height: PSpace.x8),
-          // 슬라이더 트랙 자리.
-          PSkeleton(width: double.infinity, height: 4, borderRadius: PRadius.brFull),
-        ],
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: const [
+        Row(
+          children: [
+            PSkeleton.line(width: 112, height: 16),
+            Spacer(),
+            PSkeleton.line(width: 48, height: 12),
+          ],
+        ),
+        SizedBox(height: 6),
+        PSkeleton.line(width: double.infinity, height: 12),
+        SizedBox(height: 4),
+        PSkeleton.line(width: 220, height: 12),
+        SizedBox(height: PSpace.x8),
+        // 슬라이더 트랙 자리.
+        PSkeleton(
+          width: double.infinity,
+          height: 4,
+          borderRadius: PRadius.brFull,
+        ),
+      ],
     );
   }
 }

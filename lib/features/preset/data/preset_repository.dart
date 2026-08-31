@@ -110,8 +110,10 @@ class PresetRepository {
   Future<void> touch(int id) async {
     try {
       // 사용 기록 갱신은 best-effort — 실패해도 사용자에게 알릴 일이 아니다.
-      await _dio.post<dynamic>('/expense-template/$id/touch',
-          options: Options(extra: {kSilentErrorToast: true}));
+      await _dio.post<dynamic>(
+        '/expense-template/$id/touch',
+        options: Options(extra: {kSilentErrorToast: true}),
+      );
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }

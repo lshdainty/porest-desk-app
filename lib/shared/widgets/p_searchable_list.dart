@@ -77,12 +77,19 @@ class _PSearchableListState<T> extends State<PSearchableList<T>> {
   final _ctrl = TextEditingController();
   String _query = '';
 
-  (double padX, double padY, double thumbW, double thumbH, double gap, double maxH)
-      get _metrics => switch (widget.size) {
-            PSearchableListSize.sm => (12, 8, 32, 20, 10, 200),
-            PSearchableListSize.md => (12, 10, 44, 28, 12, 260),
-            PSearchableListSize.lg => (16, 14, 56, 36, 14, 320),
-          };
+  (
+    double padX,
+    double padY,
+    double thumbW,
+    double thumbH,
+    double gap,
+    double maxH,
+  )
+  get _metrics => switch (widget.size) {
+    PSearchableListSize.sm => (12, 8, 32, 20, 10, 200),
+    PSearchableListSize.md => (12, 10, 44, 28, 12, 260),
+    PSearchableListSize.lg => (16, 14, 56, 36, 14, 320),
+  };
 
   @override
   void dispose() {
@@ -123,16 +130,25 @@ class _PSearchableListState<T> extends State<PSearchableList<T>> {
             child: widget.loading
                 ? _loadingSkeleton(thumbW, thumbH, padX, padY, gap)
                 : (filtered.isEmpty
-                    ? _empty(t, widget.emptyText ?? l.searchResultsEmpty)
-                    : ListView.separated(
-                        shrinkWrap: true,
-                        padding: EdgeInsets.zero,
-                        itemCount: filtered.length,
-                        separatorBuilder: (context, idx) => Divider(
-                            height: 1, thickness: 1, color: t.borderSubtle),
-                        itemBuilder: (context, idx) =>
-                            _row(filtered[idx], padX, padY, thumbW, thumbH, gap),
-                      )),
+                      ? _empty(t, widget.emptyText ?? l.searchResultsEmpty)
+                      : ListView.separated(
+                          shrinkWrap: true,
+                          padding: EdgeInsets.zero,
+                          itemCount: filtered.length,
+                          separatorBuilder: (context, idx) => Divider(
+                            height: 1,
+                            thickness: 1,
+                            color: t.borderSubtle,
+                          ),
+                          itemBuilder: (context, idx) => _row(
+                            filtered[idx],
+                            padX,
+                            padY,
+                            thumbW,
+                            thumbH,
+                            gap,
+                          ),
+                        )),
           ),
         ),
       ],
@@ -219,21 +235,26 @@ class _PSearchableListState<T> extends State<PSearchableList<T>> {
   }
 
   Widget _empty(PorestTokens t, String emptyText) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 24),
-        child: Center(
-          child: Text(
-            emptyText,
-            style: TextStyle(
-              fontFamily: PTypo.sans,
-              fontSize: PFontSize.caption,
-              color: t.fgTertiary,
-            ),
-          ),
+    padding: const EdgeInsets.symmetric(vertical: 24),
+    child: Center(
+      child: Text(
+        emptyText,
+        style: TextStyle(
+          fontFamily: PTypo.sans,
+          fontSize: PFontSize.caption,
+          color: t.fgTertiary,
         ),
-      );
+      ),
+    ),
+  );
 
   Widget _loadingSkeleton(
-      double thumbW, double thumbH, double padX, double padY, double gap) {
+    double thumbW,
+    double thumbH,
+    double padX,
+    double padY,
+    double gap,
+  ) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: List.generate(4, (i) {

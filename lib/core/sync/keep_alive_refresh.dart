@@ -48,7 +48,6 @@ void invalidateAfterExpenseChange(WidgetRef ref) {
   // 사라져 지금은 아무도 읽지 않는다(별도 정리 예정).
 }
 
-
 /// keepAlive(앱 세션 캐시) provider 일괄 무효화.
 ///
 /// 이 provider 들은 `ref.keepAlive()` 로 앱 세션 내내 캐시되어 자동 refetch 되지

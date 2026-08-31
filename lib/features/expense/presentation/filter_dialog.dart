@@ -63,21 +63,22 @@ class ExpenseFilter {
     Set<int>? assetIds,
     int? min,
     int? max,
-  }) =>
-      ExpenseFilter(
-        period: period ?? this.period,
-        startDate: startDate ?? this.startDate,
-        endDate: endDate ?? this.endDate,
-        types: types ?? this.types,
-        categoryIds: categoryIds ?? this.categoryIds,
-        assetIds: assetIds ?? this.assetIds,
-        min: min ?? this.min,
-        max: max ?? this.max,
-      );
+  }) => ExpenseFilter(
+    period: period ?? this.period,
+    startDate: startDate ?? this.startDate,
+    endDate: endDate ?? this.endDate,
+    types: types ?? this.types,
+    categoryIds: categoryIds ?? this.categoryIds,
+    assetIds: assetIds ?? this.assetIds,
+    min: min ?? this.min,
+    max: max ?? this.max,
+  );
 }
 
 Future<ExpenseFilter?> showFilterDialog(
-    BuildContext context, ExpenseFilter current) async {
+  BuildContext context,
+  ExpenseFilter current,
+) async {
   final controller = PSheetController();
   final formKey = GlobalKey<_FilterBodyState>();
   final l = AppLocalizations.of(context);
@@ -154,13 +155,16 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
     _types = {...widget.initial.types};
     _categoryIds = {...widget.initial.categoryIds};
     _assetIds = {...widget.initial.assetIds};
-    _minCtrl =
-        TextEditingController(text: widget.initial.min?.toString() ?? '');
-    _maxCtrl =
-        TextEditingController(text: widget.initial.max?.toString() ?? '');
+    _minCtrl = TextEditingController(
+      text: widget.initial.min?.toString() ?? '',
+    );
+    _maxCtrl = TextEditingController(
+      text: widget.initial.max?.toString() ?? '',
+    );
     widget.controller.onSubmit = () async => _apply();
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) => widget.controller.setCanSubmit(!_customInvalid));
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => widget.controller.setCanSubmit(!_customInvalid),
+    );
   }
 
   @override
@@ -190,16 +194,18 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
   }
 
   void _apply() {
-    Navigator.of(context).pop(ExpenseFilter(
-      period: _period,
-      startDate: _period == FilterPeriod.custom ? _startDate : null,
-      endDate: _period == FilterPeriod.custom ? _endDate : null,
-      types: _types,
-      categoryIds: _categoryIds,
-      assetIds: _assetIds,
-      min: int.tryParse(_minCtrl.text),
-      max: int.tryParse(_maxCtrl.text),
-    ));
+    Navigator.of(context).pop(
+      ExpenseFilter(
+        period: _period,
+        startDate: _period == FilterPeriod.custom ? _startDate : null,
+        endDate: _period == FilterPeriod.custom ? _endDate : null,
+        types: _types,
+        categoryIds: _categoryIds,
+        assetIds: _assetIds,
+        min: int.tryParse(_minCtrl.text),
+        max: int.tryParse(_maxCtrl.text),
+      ),
+    );
   }
 
   @override
@@ -210,8 +216,7 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
     });
     return ListView(
       controller: widget.scrollController,
-      padding: const EdgeInsets.fromLTRB(
-          PSpace.xl, 0, PSpace.xl, PSpace.x16),
+      padding: const EdgeInsets.fromLTRB(PSpace.xl, 0, PSpace.xl, PSpace.x16),
       children: [
         _periodSection(t),
         const SizedBox(height: PSpace.x16),
@@ -231,14 +236,22 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
         children: [
-          Text(text,
-              style: PTypo.bodySm.copyWith(
-                  color: t.fgSecondary, fontWeight: PFontWeight.semi)),
+          Text(
+            text,
+            style: PTypo.bodySm.copyWith(
+              color: t.fgSecondary,
+              fontWeight: PFontWeight.semi,
+            ),
+          ),
           if (badge != null && badge.isNotEmpty) ...[
             const SizedBox(width: 4),
-            Text(badge,
-                style: PTypo.bodySm.copyWith(
-                    color: t.fgBrandStrong, fontWeight: PFontWeight.semi)),
+            Text(
+              badge,
+              style: PTypo.bodySm.copyWith(
+                color: t.fgBrandStrong,
+                fontWeight: PFontWeight.semi,
+              ),
+            ),
           ],
         ],
       ),
@@ -275,8 +288,10 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
                       : null,
                   onChanged: (d) {
                     if (d != null) {
-                      setState(() => _startDate =
-                          '${d.year}-${_pad(d.month)}-${_pad(d.day)}');
+                      setState(
+                        () => _startDate =
+                            '${d.year}-${_pad(d.month)}-${_pad(d.day)}',
+                      );
                     }
                   },
                   firstDate: DateTime(2000),
@@ -294,8 +309,10 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
                       : null,
                   onChanged: (d) {
                     if (d != null) {
-                      setState(() => _endDate =
-                          '${d.year}-${_pad(d.month)}-${_pad(d.day)}');
+                      setState(
+                        () => _endDate =
+                            '${d.year}-${_pad(d.month)}-${_pad(d.day)}',
+                      );
                     }
                   },
                   firstDate: DateTime(2000),
@@ -308,9 +325,10 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
           if (_customInvalid)
             Padding(
               padding: const EdgeInsets.only(top: 6),
-              child: Text(l.expDateRangeError,
-                  style:
-                      PTypo.caption.copyWith(color: t.statusDangerFg)),
+              child: Text(
+                l.expDateRangeError,
+                style: PTypo.caption.copyWith(color: t.statusDangerFg),
+              ),
             ),
         ],
       ],
@@ -319,12 +337,12 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
 
   Widget _typeSection(PorestTokens t) {
     void toggle(String code) => setState(() {
-          if (_types.contains(code)) {
-            _types.remove(code);
-          } else {
-            _types.add(code);
-          }
-        });
+      if (_types.contains(code)) {
+        _types.remove(code);
+      } else {
+        _types.add(code);
+      }
+    });
     final l = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -364,9 +382,13 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _label(l.expCategory, t,
-            badge:
-                _categoryIds.isEmpty ? null : '· ${l.expNSelected(_categoryIds.length)}'),
+        _label(
+          l.expCategory,
+          t,
+          badge: _categoryIds.isEmpty
+              ? null
+              : '· ${l.expNSelected(_categoryIds.length)}',
+        ),
         LayoutBuilder(
           builder: (context, constraints) {
             const gap = 6.0;
@@ -382,8 +404,11 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
                     width: cellWidth,
                     child: PCategoryTile(
                       name: c.categoryName,
-                      color: resolveChartColor(context, c.color,
-                          fallback: t.fgBrand),
+                      color: resolveChartColor(
+                        context,
+                        c.color,
+                        fallback: t.fgBrand,
+                      ),
                       icon: lucideByName(c.icon, fallback: LucideIcons.tag),
                       active: _categoryIds.contains(c.rowId),
                       onTap: () => setState(() {
@@ -410,8 +435,13 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _label(l.expAccountCard, t,
-            badge: _assetIds.isEmpty ? null : '· ${l.expNSelected(_assetIds.length)}'),
+        _label(
+          l.expAccountCard,
+          t,
+          badge: _assetIds.isEmpty
+              ? null
+              : '· ${l.expNSelected(_assetIds.length)}',
+        ),
         // 다중선택 필터 칩 — spec toggle.md: outline PToggle + radius-md(둥근 사각형). pill 아님.
         Wrap(
           spacing: 6,
@@ -446,18 +476,22 @@ class _FilterBodyState extends ConsumerState<_FilterBody> {
         Row(
           children: [
             Expanded(
-                child: PTextInput(
-                    controller: _minCtrl,
-                    placeholder: l.expMinAmount,
-                    numbersOnly: true)),
+              child: PTextInput(
+                controller: _minCtrl,
+                placeholder: l.expMinAmount,
+                numbersOnly: true,
+              ),
+            ),
             const SizedBox(width: 8),
             Text('~', style: PTypo.body.copyWith(color: t.fgTertiary)),
             const SizedBox(width: 8),
             Expanded(
-                child: PTextInput(
-                    controller: _maxCtrl,
-                    placeholder: l.expMaxAmount,
-                    numbersOnly: true)),
+              child: PTextInput(
+                controller: _maxCtrl,
+                placeholder: l.expMaxAmount,
+                numbersOnly: true,
+              ),
+            ),
           ],
         ),
       ],

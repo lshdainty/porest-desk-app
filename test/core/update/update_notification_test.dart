@@ -21,12 +21,11 @@ Future<bool> _run({
   AppRelease? latest = _newer,
   int installed = 100,
   List<AppRelease>? shown,
-}) =>
-    checkAndNotifyUpdate(
-      fetch: () async => latest,
-      currentBuild: () async => installed,
-      show: (r) async => shown?.add(r),
-    );
+}) => checkAndNotifyUpdate(
+  fetch: () async => latest,
+  currentBuild: () async => installed,
+  show: (r) async => shown?.add(r),
+);
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

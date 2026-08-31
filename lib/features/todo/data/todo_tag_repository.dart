@@ -17,17 +17,11 @@ class TodoTagRepository {
     }
   }
 
-  Future<TodoTag> create({
-    required String tagName,
-    String? color,
-  }) async {
+  Future<TodoTag> create({required String tagName, String? color}) async {
     try {
       final res = await _dio.post<Map<String, dynamic>>(
         '/todo-tag',
-        data: {
-          'tagName': tagName,
-          'color': ?color,
-        },
+        data: {'tagName': tagName, 'color': ?color},
       );
       return _unwrap(res, TodoTag.fromJson);
     } on DioException catch (e) {
@@ -43,10 +37,7 @@ class TodoTagRepository {
     try {
       final res = await _dio.put<Map<String, dynamic>>(
         '/todo-tag/$id',
-        data: {
-          'tagName': tagName,
-          'color': ?color,
-        },
+        data: {'tagName': tagName, 'color': ?color},
       );
       return _unwrap(res, TodoTag.fromJson);
     } on DioException catch (e) {

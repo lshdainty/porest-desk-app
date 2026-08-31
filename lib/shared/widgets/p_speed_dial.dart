@@ -44,17 +44,19 @@ class _PSpeedDialChildBuilt extends StatelessWidget {
         children: [
           if (child.label != null) ...[
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
                 color: tokens.bgSurface,
                 borderRadius: PRadius.brSm,
                 border: Border.all(color: tokens.borderSubtle),
               ),
-              child: Text(child.label!,
-                  style: PTypo.caption.copyWith(
-                      color: tokens.fgPrimary,
-                      fontWeight: PFontWeight.semi)),
+              child: Text(
+                child.label!,
+                style: PTypo.caption.copyWith(
+                  color: tokens.fgPrimary,
+                  fontWeight: PFontWeight.semi,
+                ),
+              ),
             ),
             const SizedBox(width: 8),
           ],
@@ -77,8 +79,10 @@ class _PSpeedDialChildBuilt extends StatelessWidget {
 
 class _PSpeedDialState extends State<PSpeedDial>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _ctrl =
-      AnimationController(vsync: this, duration: const Duration(milliseconds: 200));
+  late final AnimationController _ctrl = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 200),
+  );
   bool _open = false;
 
   void _toggle() {

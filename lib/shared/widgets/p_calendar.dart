@@ -26,12 +26,12 @@ class PCalendar extends StatefulWidget {
     this.firstDay,
     this.lastDay,
     this.initialMonth,
-  })  : mode = PCalendarMode.single,
-        singleSelected = selected,
-        rangeStart = null,
-        rangeEnd = null,
-        onSingleChanged = onChanged,
-        onRangeChanged = null;
+  }) : mode = PCalendarMode.single,
+       singleSelected = selected,
+       rangeStart = null,
+       rangeEnd = null,
+       onSingleChanged = onChanged,
+       onRangeChanged = null;
 
   const PCalendar.range({
     super.key,
@@ -41,12 +41,12 @@ class PCalendar extends StatefulWidget {
     this.firstDay,
     this.lastDay,
     this.initialMonth,
-  })  : mode = PCalendarMode.range,
-        singleSelected = null,
-        rangeStart = start,
-        rangeEnd = end,
-        onSingleChanged = null,
-        onRangeChanged = onChanged;
+  }) : mode = PCalendarMode.range,
+       singleSelected = null,
+       rangeStart = start,
+       rangeEnd = end,
+       onSingleChanged = null,
+       onRangeChanged = onChanged;
 
   final PCalendarMode mode;
   final DateTime? singleSelected;
@@ -68,15 +68,18 @@ class _PCalendarState extends State<PCalendar> {
   @override
   void initState() {
     super.initState();
-    final init = widget.initialMonth ??
+    final init =
+        widget.initialMonth ??
         widget.singleSelected ??
         widget.rangeStart ??
         DateTime.now();
     _month = DateTime(init.year, init.month);
   }
 
-  void _prev() => setState(() => _month = DateTime(_month.year, _month.month - 1));
-  void _next() => setState(() => _month = DateTime(_month.year, _month.month + 1));
+  void _prev() =>
+      setState(() => _month = DateTime(_month.year, _month.month - 1));
+  void _next() =>
+      setState(() => _month = DateTime(_month.year, _month.month + 1));
 
   /// select 로 고를 년도. 범위를 안 주면 보고 있는 월 기준 ±10년 — 화살표로는
   /// 못 갈 거리를 덮되 목록이 수백 줄로 늘어지지 않는 폭이다.
@@ -123,13 +126,23 @@ class _PCalendarState extends State<PCalendar> {
 
   bool _disabled(DateTime d) {
     if (widget.firstDay != null &&
-        d.isBefore(DateTime(widget.firstDay!.year, widget.firstDay!.month,
-            widget.firstDay!.day))) {
+        d.isBefore(
+          DateTime(
+            widget.firstDay!.year,
+            widget.firstDay!.month,
+            widget.firstDay!.day,
+          ),
+        )) {
       return true;
     }
     if (widget.lastDay != null &&
-        d.isAfter(DateTime(widget.lastDay!.year, widget.lastDay!.month,
-            widget.lastDay!.day))) {
+        d.isAfter(
+          DateTime(
+            widget.lastDay!.year,
+            widget.lastDay!.month,
+            widget.lastDay!.day,
+          ),
+        )) {
       return true;
     }
     return false;
@@ -190,7 +203,9 @@ class _PCalendarState extends State<PCalendar> {
                           items: [
                             for (final y in _years)
                               PSelectItem(
-                                  value: y, label: yearOnly(DateTime(y))),
+                                value: y,
+                                label: yearOnly(DateTime(y)),
+                              ),
                           ],
                           onChanged: (y) => _jump(year: y),
                         ),
@@ -252,15 +267,21 @@ class _PCalendarState extends State<PCalendar> {
                         date: gridStart.add(Duration(days: week * 7 + dow)),
                         month: _month,
                         isToday: _sameDay(
-                            gridStart.add(Duration(days: week * 7 + dow)), now),
+                          gridStart.add(Duration(days: week * 7 + dow)),
+                          now,
+                        ),
                         isSelected: _isSelected(
-                            gridStart.add(Duration(days: week * 7 + dow))),
+                          gridStart.add(Duration(days: week * 7 + dow)),
+                        ),
                         rangePosition: _rangePosition(
-                            gridStart.add(Duration(days: week * 7 + dow))),
+                          gridStart.add(Duration(days: week * 7 + dow)),
+                        ),
                         disabled: _disabled(
-                            gridStart.add(Duration(days: week * 7 + dow))),
+                          gridStart.add(Duration(days: week * 7 + dow)),
+                        ),
                         onTap: () => _onTap(
-                            gridStart.add(Duration(days: week * 7 + dow))),
+                          gridStart.add(Duration(days: week * 7 + dow)),
+                        ),
                       ),
                     ),
                 ],
@@ -273,7 +294,8 @@ class _PCalendarState extends State<PCalendar> {
 
   bool _isSelected(DateTime d) {
     if (widget.mode == PCalendarMode.single) {
-      return widget.singleSelected != null && _sameDay(widget.singleSelected!, d);
+      return widget.singleSelected != null &&
+          _sameDay(widget.singleSelected!, d);
     }
     return (widget.rangeStart != null && _sameDay(widget.rangeStart!, d)) ||
         (widget.rangeEnd != null && _sameDay(widget.rangeEnd!, d));
@@ -328,9 +350,13 @@ class _DayCell extends StatelessWidget {
       cellBg = t.bgBrandSubtle;
       cellRadius = rangePosition == _RangePosition.start
           ? const BorderRadius.only(
-              topLeft: Radius.circular(999), bottomLeft: Radius.circular(999))
+              topLeft: Radius.circular(999),
+              bottomLeft: Radius.circular(999),
+            )
           : const BorderRadius.only(
-              topRight: Radius.circular(999), bottomRight: Radius.circular(999));
+              topRight: Radius.circular(999),
+              bottomRight: Radius.circular(999),
+            );
     }
 
     // button-level 시각 (selected = primary 원, today = outline only).

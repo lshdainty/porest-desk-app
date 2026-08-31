@@ -35,14 +35,13 @@ class FileAttachmentSection extends ConsumerStatefulWidget {
       _FileAttachmentSectionState();
 }
 
-class _FileAttachmentSectionState
-    extends ConsumerState<FileAttachmentSection> {
+class _FileAttachmentSectionState extends ConsumerState<FileAttachmentSection> {
   bool _busy = false;
 
   FileRefKey get _key => (
-        referenceType: widget.referenceType,
-        referenceRowId: widget.referenceRowId,
-      );
+    referenceType: widget.referenceType,
+    referenceRowId: widget.referenceRowId,
+  );
 
   Future<void> _pickImage() async {
     if (_busy) return;
@@ -82,7 +81,11 @@ class _FileAttachmentSectionState
       );
       ref.invalidate(filesByReferenceProvider(_key));
       if (!mounted) return;
-      showPSnackBar(context, l.fileUploadComplete(name), severity: PSnackSeverity.success);
+      showPSnackBar(
+        context,
+        l.fileUploadComplete(name),
+        severity: PSnackSeverity.success,
+      );
     } on ApiException {
       if (!mounted) return;
     } finally {
@@ -131,9 +134,13 @@ class _FileAttachmentSectionState
           children: [
             Icon(LucideIcons.paperclip, size: 14, color: t.fgSecondary),
             const SizedBox(width: 6),
-            Text(l.fileAttachTitle,
-                style: PTypo.caption.copyWith(
-                    color: t.fgPrimary, fontWeight: PFontWeight.bold)),
+            Text(
+              l.fileAttachTitle,
+              style: PTypo.caption.copyWith(
+                color: t.fgPrimary,
+                fontWeight: PFontWeight.bold,
+              ),
+            ),
             const Spacer(),
             PButton.icon(
               icon: LucideIcons.image,
@@ -161,15 +168,18 @@ class _FileAttachmentSectionState
             padding: EdgeInsets.symmetric(vertical: 8),
             child: Center(child: PCircularProgressIndicator()),
           ),
-          error: (e, _) => Text(l.fileLoadError,
-              style: PTypo.caption.copyWith(color: t.statusDanger)),
+          error: (e, _) => Text(
+            l.fileLoadError,
+            style: PTypo.caption.copyWith(color: t.statusDanger),
+          ),
           data: (files) {
             if (files.isEmpty) {
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4),
-                child: Text(l.fileEmpty,
-                    style:
-                        PTypo.caption.copyWith(color: t.fgTertiary)),
+                child: Text(
+                  l.fileEmpty,
+                  style: PTypo.caption.copyWith(color: t.fgTertiary),
+                ),
               );
             }
             return Column(
@@ -178,7 +188,9 @@ class _FileAttachmentSectionState
                   Container(
                     margin: const EdgeInsets.only(bottom: 4),
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 8),
+                      horizontal: 10,
+                      vertical: 8,
+                    ),
                     decoration: BoxDecoration(
                       color: t.bgSurface,
                       borderRadius: PRadius.brSm,
@@ -187,27 +199,31 @@ class _FileAttachmentSectionState
                     child: Row(
                       children: [
                         Icon(
-                            f.isImage
-                                ? LucideIcons.image
-                                : LucideIcons.fileText,
-                            size: 14,
-                            color: t.fgSecondary),
+                          f.isImage ? LucideIcons.image : LucideIcons.fileText,
+                          size: 14,
+                          color: t.fgSecondary,
+                        ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Column(
-                            crossAxisAlignment:
-                                CrossAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(f.originalName,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: PTypo.caption.copyWith(
-                                      color: t.fgPrimary,
-                                      fontWeight: PFontWeight.semi)),
+                              Text(
+                                f.originalName,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: PTypo.caption.copyWith(
+                                  color: t.fgPrimary,
+                                  fontWeight: PFontWeight.semi,
+                                ),
+                              ),
                               if ((f.fileSize ?? 0) > 0)
-                                Text(_humanSize(f.fileSize),
-                                    style: PTypo.micro.copyWith(
-                                        color: t.fgTertiary)),
+                                Text(
+                                  _humanSize(f.fileSize),
+                                  style: PTypo.micro.copyWith(
+                                    color: t.fgTertiary,
+                                  ),
+                                ),
                             ],
                           ),
                         ),

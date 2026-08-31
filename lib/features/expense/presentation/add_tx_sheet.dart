@@ -51,11 +51,14 @@ void showAddTxSheet(
   BuildContext context, {
   String? defaultDate,
   Expense? edit,
+
   /// 환불 모드 — 이 지출의 환불을 기록한다.
   /// 수입으로 들어가되 원거래에 묶여 통계에서 지출을 상계한다(수입으로 부풀지 않는다).
   Expense? refundOf,
+
   /// 이체 편집 모드 — 서버가 이자 지출·잔액 이력을 되돌렸다 다시 만든다(rowId 유지).
   AssetTransfer? editTransfer,
+
   /// 결제 문자 초안 — 파싱 결과로 폼을 채우고, 저장은 문자 전용 경로로 보낸다
   /// (카드 연결 기억·취소 문자 차단이 그 경로에 있다).
   SmsDraft? smsDraft,
@@ -139,7 +142,10 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
       date = parseIsoDate(tr!.transferDate!.substring(0, 10));
       final m = RegExp(r'[T ](\d{2}):(\d{2})').firstMatch(tr.transferDate!);
       if (m != null) {
-        time = TimeOfDay(hour: int.parse(m.group(1)!), minute: int.parse(m.group(2)!));
+        time = TimeOfDay(
+          hour: int.parse(m.group(1)!),
+          minute: int.parse(m.group(2)!),
+        );
       }
     } else if (e?.expenseDate != null) {
       date = parseIsoDate(e!.expenseDate!.substring(0, 10));
@@ -157,7 +163,10 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
       date = parseIsoDate(raw.substring(0, 10));
       final m = RegExp(r'[T ](\d{2}):(\d{2})').firstMatch(raw);
       if (m != null) {
-        time = TimeOfDay(hour: int.parse(m.group(1)!), minute: int.parse(m.group(2)!));
+        time = TimeOfDay(
+          hour: int.parse(m.group(1)!),
+          minute: int.parse(m.group(2)!),
+        );
       }
     } else if (widget.defaultDate != null) {
       date = parseIsoDate(widget.defaultDate!);
@@ -170,18 +179,25 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
     // 결제 문자 초안 — 카드 결제라 유형·결제수단은 고정이고, 나머지는 파싱 값을 채운다.
     final sms = widget.smsDraft?.parsed;
     _input = _TxInputController(
-      type: tr != null ? 'TRANSFER' : (r != null ? 'INCOME' : (e?.expenseType ?? 'EXPENSE')),
+      type: tr != null
+          ? 'TRANSFER'
+          : (r != null ? 'INCOME' : (e?.expenseType ?? 'EXPENSE')),
       amount: tr != null
           ? tr.amount.toString()
           : e != null
-              ? e.amount.toString()
-              : (r != null ? r.amount.toString() : (sms?.amount?.toString() ?? '')),
+          ? e.amount.toString()
+          : (r != null ? r.amount.toString() : (sms?.amount?.toString() ?? '')),
       memo: tr?.description ?? e?.description ?? '',
       merchant: e?.merchant ?? r?.merchant ?? sms?.merchant ?? '',
-      paymentMethod: e?.paymentMethod ?? r?.paymentMethod ?? (sms != null ? 'CARD' : ''),
+      paymentMethod:
+          e?.paymentMethod ?? r?.paymentMethod ?? (sms != null ? 'CARD' : ''),
       categoryRowId: e?.categoryRowId ?? r?.categoryRowId ?? sms?.categoryRowId,
       // 이체는 출금 자산이 assetRowId, 입금 자산이 toAssetRowId 다.
-      assetRowId: tr?.fromAssetRowId ?? e?.assetRowId ?? r?.assetRowId ?? sms?.assetRowId,
+      assetRowId:
+          tr?.fromAssetRowId ??
+          e?.assetRowId ??
+          r?.assetRowId ??
+          sms?.assetRowId,
       date: date,
       time: time,
     );
@@ -293,10 +309,13 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
     final merchant = _input.merchantOrNull;
     final payment = _input.paymentMethodOrNull;
     // 할부는 신용카드 지출에만 — 그 밖의 조합에선 값을 흘리지 않는다.
-    final installment = _input.installmentMonths > 1 ? _input.installmentMonths : null;
+    final installment = _input.installmentMonths > 1
+        ? _input.installmentMonths
+        : null;
     // 환불 모드에서만 원거래를 묶는다 — 이 연결이 통계 상계를 만든다.
-    final refundOf =
-        (widget.refundOf != null && _input.type == 'INCOME') ? widget.refundOf!.rowId : null;
+    final refundOf = (widget.refundOf != null && _input.type == 'INCOME')
+        ? widget.refundOf!.rowId
+        : null;
     // 원 통화는 셋이 함께여야 의미가 있다 — 서버도 반쪽이면 전부 비운다.
     final origAmount = _input.origAmountOrNull;
     final origCurrency = origAmount != null ? _input.currency : null;
@@ -526,9 +545,13 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(l.expSplitMismatch,
-                    style: PTypo.bodySm.copyWith(
-                        color: t.fgPrimary, fontWeight: PFontWeight.bold)),
+                Text(
+                  l.expSplitMismatch,
+                  style: PTypo.bodySm.copyWith(
+                    color: t.fgPrimary,
+                    fontWeight: PFontWeight.bold,
+                  ),
+                ),
                 const SizedBox(height: 3),
                 Text(
                   l.expSplitDiff(
@@ -537,7 +560,9 @@ class _AddTxBodyState extends ConsumerState<_AddTxBody> {
                     '${diff > 0 ? '+' : '-'}${krw(diff.abs())}',
                   ),
                   style: PTypo.caption.copyWith(
-                      color: t.fgSecondary, height: PLineHeight.normal),
+                    color: t.fgSecondary,
+                    height: PLineHeight.normal,
+                  ),
                 ),
                 const SizedBox(height: PSpace.x8),
                 PButton(
@@ -623,7 +648,10 @@ class _PresetSection extends StatelessWidget {
               ),
               if (appliedId != null) ...[
                 const SizedBox(width: 6),
-                PBadge(label: l.expPresetApplied, variant: PBadgeVariant.softBrand),
+                PBadge(
+                  label: l.expPresetApplied,
+                  variant: PBadgeVariant.softBrand,
+                ),
               ],
               const Spacer(),
               GestureDetector(
@@ -1021,7 +1049,21 @@ const Map<String, List<String>?> _txPaymentAssetTypes = {
 };
 
 /// 카드사 공통 할부 개월 — 2~12, 18, 24.
-const List<int> _installmentMonths = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 18, 24];
+const List<int> _installmentMonths = [
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8,
+  9,
+  10,
+  11,
+  12,
+  18,
+  24,
+];
 
 /// 해외 결제는 $5.50 을 보고 입력하지 원화 환산액을 모른다 — 원 통화 × 환율로 금액을 채운다.
 ///
@@ -1037,25 +1079,29 @@ String _trimNum(double? v) {
 }
 
 VoidCallback _syncKrwFromForeign(_TxInputController c) => () {
-      final a = c.origAmountOrNull;
-      final r = c.fxRateOrNull;
-      if (a == null || r == null || a <= 0 || r <= 0) return;
-      c.amountCtrl.text = (a * r).round().toString();
-    };
+  final a = c.origAmountOrNull;
+  final r = c.fxRateOrNull;
+  if (a == null || r == null || a <= 0 || r <= 0) return;
+  c.amountCtrl.text = (a * r).round().toString();
+};
 
 /// 이자 입력을 보일지 — 대출 상환일 때만.
 ///
 /// 원금은 부채가 줄어드는 자산 이동이지만 이자는 은행으로 아예 나가는 비용이라,
 /// 입금 대상이 대출 자산일 때만 의미가 있다.
 bool _showInterest(_TxInputController c, List<Asset>? assets) {
-  if (c.type != 'TRANSFER' || c.toAssetRowId == null || assets == null) return false;
+  if (c.type != 'TRANSFER' || c.toAssetRowId == null || assets == null) {
+    return false;
+  }
   final to = assets.where((a) => a.rowId == c.toAssetRowId).firstOrNull;
   return to?.assetType == 'LOAN';
 }
 
 /// 할부 입력을 보일지 — 신용카드 지출일 때만.
 bool _showInstallment(_TxInputController c, List<Asset>? assets) {
-  if (c.type != 'EXPENSE' || c.assetRowId == null || assets == null) return false;
+  if (c.type != 'EXPENSE' || c.assetRowId == null || assets == null) {
+    return false;
+  }
   final picked = assets.where((a) => a.rowId == c.assetRowId).firstOrNull;
   return picked?.assetType == 'CREDIT_CARD';
 }
@@ -1084,7 +1130,6 @@ bool _allowTxAsset(Asset a, String paymentMethod, String type) {
 List<Asset> _transferAssets(List<Asset> assets) => assets
     .where((a) => a.assetType != 'CHECK_CARD' && a.assetType != 'CREDIT_CARD')
     .toList(growable: false);
-
 
 /// 거래 입력 상태 (지출/수입/이체).
 class _TxInputController {
@@ -1160,8 +1205,9 @@ class _TxInputController {
 
   /// 외화 결제인가 — 이체는 두 자산 사이의 이동이라 통화가 자산에 달려 있어 제외.
   bool get isForeignTx => type != 'TRANSFER' && isForeignCurrency(currency);
-  double? get origAmountOrNull =>
-      isForeignTx ? double.tryParse(origAmountCtrl.text.replaceAll(',', '')) : null;
+  double? get origAmountOrNull => isForeignTx
+      ? double.tryParse(origAmountCtrl.text.replaceAll(',', ''))
+      : null;
   double? get fxRateOrNull =>
       isForeignTx ? double.tryParse(fxRateCtrl.text.replaceAll(',', '')) : null;
 
@@ -1281,14 +1327,11 @@ class _TxInputForm extends ConsumerWidget {
         // 왜 못 고치는지 알려 준다 — 잠긴 칸만 보여 주면 고장으로 보인다.
         if (c.isAutoGenerated) ...[
           const SizedBox(height: PSpace.x4),
-          Text(
-            switch (c.autoSource) {
-              'TRADE_REALIZED' => l.expAutoSourceTradeRealized,
-              'TRANSFER_INTEREST' => l.expAutoSourceTransferInterest,
-              _ => l.expAutoSourceDefault,
-            },
-            style: PTypo.micro.copyWith(color: t.fgTertiary),
-          ),
+          Text(switch (c.autoSource) {
+            'TRADE_REALIZED' => l.expAutoSourceTradeRealized,
+            'TRANSFER_INTEREST' => l.expAutoSourceTransferInterest,
+            _ => l.expAutoSourceDefault,
+          }, style: PTypo.micro.copyWith(color: t.fgTertiary)),
         ],
         const SizedBox(height: PSpace.x16),
 
@@ -1403,7 +1446,13 @@ class _TxInputForm extends ConsumerWidget {
                       items: [
                         _SelectOption<int>(
                           selectedParentId,
-                          l.expTopCategorySuffix(topCategories.firstWhere((cat) => cat.rowId == selectedParentId).categoryName),
+                          l.expTopCategorySuffix(
+                            topCategories
+                                .firstWhere(
+                                  (cat) => cat.rowId == selectedParentId,
+                                )
+                                .categoryName,
+                          ),
                         ),
                         for (final child in childrenByParent[selectedParentId]!)
                           _SelectOption<int>(
@@ -1427,12 +1476,16 @@ class _TxInputForm extends ConsumerWidget {
           const SizedBox(height: PSpace.x4),
           PTextInput(
             controller: c.merchantCtrl,
-            placeholder: c.type == 'INCOME' ? l.expIncomeSourcePlaceholder : l.expPayeePlaceholder,
+            placeholder: c.type == 'INCOME'
+                ? l.expIncomeSourcePlaceholder
+                : l.expPayeePlaceholder,
           ),
           const SizedBox(height: PSpace.x12),
 
           // 결제 수단 (Select)
-          PSectionLabel(c.type == 'INCOME' ? l.expIncomeMethod : l.expPaymentMethod),
+          PSectionLabel(
+            c.type == 'INCOME' ? l.expIncomeMethod : l.expPaymentMethod,
+          ),
           const SizedBox(height: PSpace.x4),
           _SelectField<String>(
             // ''(선택 안 함)도 유효 default — null 변환 금지(웹 정합: '선택 안 함' selected).
@@ -1460,7 +1513,9 @@ class _TxInputForm extends ConsumerWidget {
           const SizedBox(height: PSpace.x12),
 
           // 계좌·카드 (Select, payment method 로 필터)
-          PSectionLabel(c.type == 'INCOME' ? l.expDepositAccount : l.expAccountCard),
+          PSectionLabel(
+            c.type == 'INCOME' ? l.expDepositAccount : l.expAccountCard,
+          ),
           const SizedBox(height: PSpace.x4),
           assetsAsync.when(
             loading: () => const Padding(
@@ -1520,7 +1575,9 @@ class _TxInputForm extends ConsumerWidget {
                         l.smsRememberCard,
                         style: TextStyle(
                           fontSize: PFontSize.caption,
-                          color: c.assetRowId == null ? t.fgTertiary : t.fgSecondary,
+                          color: c.assetRowId == null
+                              ? t.fgTertiary
+                              : t.fgSecondary,
                         ),
                       ),
                     ),
@@ -1571,7 +1628,10 @@ class _TxInputForm extends ConsumerWidget {
                   hint: kDefaultCurrency,
                   items: [
                     for (final cur in kCurrencies)
-                      _SelectOption<String>(cur.code, '${cur.symbol} ${cur.code}'),
+                      _SelectOption<String>(
+                        cur.code,
+                        '${cur.symbol} ${cur.code}',
+                      ),
                   ],
                   onChanged: (v) => _set(() {
                     c.currency = v ?? kDefaultCurrency;
@@ -1588,7 +1648,9 @@ class _TxInputForm extends ConsumerWidget {
                 Expanded(
                   child: PTextInput(
                     controller: c.origAmountCtrl,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
                     placeholder: l.expOriginalAmount,
                     onChanged: (_) => _set(_syncKrwFromForeign(c)),
                   ),
@@ -1597,7 +1659,9 @@ class _TxInputForm extends ConsumerWidget {
                 Expanded(
                   child: PTextInput(
                     controller: c.fxRateCtrl,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
                     placeholder: l.expExchangeRate,
                     onChanged: (_) => _set(_syncKrwFromForeign(c)),
                   ),
@@ -1612,7 +1676,10 @@ class _TxInputForm extends ConsumerWidget {
             Text(
               l.expFxHint(
                 formatOriginalAmount(
-                    c.origAmountOrNull!, c.currency, Localizations.localeOf(context).toString()),
+                  c.origAmountOrNull!,
+                  c.currency,
+                  Localizations.localeOf(context).toString(),
+                ),
                 krw((c.origAmountOrNull! * c.fxRateOrNull!).round()),
               ),
               style: PTypo.caption.copyWith(color: t.fgTertiary),
@@ -1651,8 +1718,9 @@ class _TxInputForm extends ConsumerWidget {
               value: c.toAssetRowId,
               hint: l.expSelect,
               items: [
-                for (final a in _transferAssets(assets)
-                    .where((a) => a.rowId != c.assetRowId))
+                for (final a in _transferAssets(
+                  assets,
+                ).where((a) => a.rowId != c.assetRowId))
                   _SelectOption<int>(
                     a.rowId,
                     a.institution != null
@@ -1692,20 +1760,22 @@ class _TxInputForm extends ConsumerWidget {
               onChanged: (_) => _set(() {}),
             ),
             const SizedBox(height: PSpace.x4),
-            Builder(builder: (_) {
-              final interest =
-                  int.tryParse(c.interestCtrl.text.replaceAll(',', '')) ?? 0;
-              final amount = c.amountInt;
-              return Text(
-                (interest > 0 && amount > 0)
-                    ? l.expInterestSplit(
-                        krw(amount - interest < 0 ? 0 : amount - interest),
-                        krw(interest),
-                      )
-                    : l.expInterestHint,
-                style: PTypo.caption.copyWith(color: t.fgTertiary),
-              );
-            }),
+            Builder(
+              builder: (_) {
+                final interest =
+                    int.tryParse(c.interestCtrl.text.replaceAll(',', '')) ?? 0;
+                final amount = c.amountInt;
+                return Text(
+                  (interest > 0 && amount > 0)
+                      ? l.expInterestSplit(
+                          krw(amount - interest < 0 ? 0 : amount - interest),
+                          krw(interest),
+                        )
+                      : l.expInterestHint,
+                  style: PTypo.caption.copyWith(color: t.fgTertiary),
+                );
+              },
+            ),
             const SizedBox(height: PSpace.x12),
           ],
         ],
@@ -1716,31 +1786,31 @@ class _TxInputForm extends ConsumerWidget {
         PSectionLabel(l.expDateTime),
         const SizedBox(height: PSpace.x4),
         Row(
-                children: [
-                  Expanded(
-                    child: PDateInput(
-                      value: c.date,
-                      enabled: !c.isAutoGenerated,
-                      onChanged: (d) {
-                        if (d != null) _set(() => c.date = d);
-                      },
-                      firstDate: DateTime(2020),
-                      lastDate: DateTime(2030, 12, 31),
-                    ),
-                  ),
-                  const SizedBox(width: PSpace.x8),
-                  SizedBox(
-                    width: 116,
-                    child: PTimeInput(
-                      value: c.time,
-                      enabled: !c.isAutoGenerated,
-                      onChanged: (tm) {
-                        if (tm != null) _set(() => c.time = tm);
-                      },
-                    ),
-                  ),
-                ],
+          children: [
+            Expanded(
+              child: PDateInput(
+                value: c.date,
+                enabled: !c.isAutoGenerated,
+                onChanged: (d) {
+                  if (d != null) _set(() => c.date = d);
+                },
+                firstDate: DateTime(2020),
+                lastDate: DateTime(2030, 12, 31),
               ),
+            ),
+            const SizedBox(width: PSpace.x8),
+            SizedBox(
+              width: 116,
+              child: PTimeInput(
+                value: c.time,
+                enabled: !c.isAutoGenerated,
+                onChanged: (tm) {
+                  if (tm != null) _set(() => c.time = tm);
+                },
+              ),
+            ),
+          ],
+        ),
         const SizedBox(height: PSpace.x16),
 
         PSectionLabel(l.expDescription),

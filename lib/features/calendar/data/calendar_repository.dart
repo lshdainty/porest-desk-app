@@ -19,10 +19,7 @@ class CalendarRepository {
     try {
       final res = await _dio.get<Map<String, dynamic>>(
         '/calendar/events',
-        queryParameters: {
-          'startDate': startDate,
-          'endDate': endDate,
-        },
+        queryParameters: {'startDate': startDate, 'endDate': endDate},
       );
       return _unwrapList(res, 'events', CalendarEvent.fromJson);
     } on DioException catch (e) {
@@ -143,10 +140,7 @@ class CalendarRepository {
     try {
       final res = await _dio.post<Map<String, dynamic>>(
         '/calendar/label',
-        data: {
-          'labelName': labelName,
-          'color': ?color,
-        },
+        data: {'labelName': labelName, 'color': ?color},
       );
       return _unwrap(res, EventLabel.fromJson);
     } on DioException catch (e) {
@@ -163,10 +157,7 @@ class CalendarRepository {
     try {
       final res = await _dio.put<Map<String, dynamic>>(
         '/calendar/label/$id',
-        data: {
-          'labelName': labelName,
-          'color': ?color,
-        },
+        data: {'labelName': labelName, 'color': ?color},
       );
       return _unwrap(res, EventLabel.fromJson);
     } on DioException catch (e) {
@@ -194,10 +185,7 @@ class CalendarRepository {
     try {
       final res = await _dio.get<Map<String, dynamic>>(
         '/calendar/aggregate',
-        queryParameters: {
-          'startDate': startDate,
-          'endDate': endDate,
-        },
+        queryParameters: {'startDate': startDate, 'endDate': endDate},
       );
       return _unwrap(res, CalendarAggregate.fromJson);
     } on DioException catch (e) {

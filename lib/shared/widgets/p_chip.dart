@@ -90,8 +90,10 @@ class PChip extends StatelessWidget {
                 Container(
                   width: 8,
                   height: 8,
-                  decoration:
-                      BoxDecoration(color: dotColor, shape: BoxShape.circle),
+                  decoration: BoxDecoration(
+                    color: dotColor,
+                    shape: BoxShape.circle,
+                  ),
                 ),
                 const SizedBox(width: 6),
               ] else if (icon != null) ...[
@@ -108,8 +110,9 @@ class PChip extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: _textStyle().copyWith(
                       color: fg,
-                      fontWeight:
-                          selected ? PFontWeight.semi : PFontWeight.medium,
+                      fontWeight: selected
+                          ? PFontWeight.semi
+                          : PFontWeight.medium,
                     ),
                   ),
                 )
@@ -118,14 +121,12 @@ class PChip extends StatelessWidget {
                   label,
                   style: _textStyle().copyWith(
                     color: fg,
-                    fontWeight:
-                        selected ? PFontWeight.semi : PFontWeight.medium,
+                    fontWeight: selected
+                        ? PFontWeight.semi
+                        : PFontWeight.medium,
                   ),
                 ),
-              if (trailing != null) ...[
-                const SizedBox(width: 4),
-                trailing!,
-              ],
+              if (trailing != null) ...[const SizedBox(width: 4), trailing!],
             ],
           ),
         ),

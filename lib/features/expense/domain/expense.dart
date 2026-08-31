@@ -21,16 +21,22 @@ abstract class Expense with _$Expense {
     String? expenseDate, // ISO LocalDateTime ('YYYY-MM-DDTHH:mm:ss')
     String? merchant,
     String? paymentMethod,
+
     /// 할부 개월 (null = 일시불). 신용카드 결제에만 의미.
     int? installmentMonths,
+
     /// 환불 원거래 행 아이디 (null = 환불 아님). 수입이면서 이 값이 있으면 지출 상계로 집계.
     int? refundOfExpenseRowId,
+
     /// 원 통화 금액 (해외 결제). null 이면 원화 결제 — amount 가 곧 결제액이다.
     double? originalAmount,
+
     /// 원 통화 (ISO 4217, 예: USD).
     String? originalCurrency,
+
     /// 적용 환율 (원 통화 1단위당 원화). amount ≈ originalAmount × exchangeRate.
     double? exchangeRate,
+
     /// 이 거래에 달린 환불 건수·합계. 지우면 함께 사라지므로 화면이 미리 알린다.
     @Default(0) int refundCount,
     @Default(0) int refundedAmount,
@@ -49,7 +55,8 @@ abstract class Expense with _$Expense {
     String? modifyAt,
   }) = _Expense;
 
-  factory Expense.fromJson(Map<String, dynamic> json) => _$ExpenseFromJson(json);
+  factory Expense.fromJson(Map<String, dynamic> json) =>
+      _$ExpenseFromJson(json);
 }
 
 extension ExpenseX on Expense {

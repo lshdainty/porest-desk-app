@@ -38,42 +38,41 @@ Future<void> _swipeOpen(WidgetTester tester, String label) async {
 
 /// 실제 반복 거래 행 높이(패딩 12×2 + 내용 ~38).
 Widget _hostTight(List<PSwipeAction> actions) => MaterialApp(
-      theme: PorestTheme.light(),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      locale: const Locale('ko'),
-      home: Scaffold(
-        body: SlidableAutoCloseBehavior(
-          child: ListView(
-            children: [
-              PSwipeActions(
-                actions: actions,
-                child: const SizedBox(
-                  height: 62,
-                  child: Center(child: Text('행')),
-                ),
-              ),
-            ],
+  theme: PorestTheme.light(),
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
+  supportedLocales: AppLocalizations.supportedLocales,
+  locale: const Locale('ko'),
+  home: Scaffold(
+    body: SlidableAutoCloseBehavior(
+      child: ListView(
+        children: [
+          PSwipeActions(
+            actions: actions,
+            child: const SizedBox(height: 62, child: Center(child: Text('행'))),
           ),
-        ),
+        ],
       ),
-    );
+    ),
+  ),
+);
 
 void main() {
   testWidgets('액션 3개 — 라벨이 줄바꿈되지 않는다', (tester) async {
     // 반복 거래에 '일시정지'(4글자)를 넣었더니 48px 슬롯 안에서 줄바꿈돼 트레이가
     // 세로로 넘쳤다(BOTTOM OVERFLOWED, 실측). 액션을 빼는 대신 라벨을 두 글자로
     // 줄였다 — 위젯 문서가 "한글 두 글자 권장" 이라고 이미 적어 둔 그대로다.
-    await tester.pumpWidget(_hostTight([
-      PSwipeAction(label: '정지', kind: PSwipeKind.neutral, onSelect: () {}),
-      PSwipeAction(label: '수정', kind: PSwipeKind.primary, onSelect: () {}),
-      PSwipeAction(
-        label: '삭제',
-        kind: PSwipeKind.destructive,
-        confirmMessage: '지울까요?',
-        onSelect: () {},
-      ),
-    ]));
+    await tester.pumpWidget(
+      _hostTight([
+        PSwipeAction(label: '정지', kind: PSwipeKind.neutral, onSelect: () {}),
+        PSwipeAction(label: '수정', kind: PSwipeKind.primary, onSelect: () {}),
+        PSwipeAction(
+          label: '삭제',
+          kind: PSwipeKind.destructive,
+          confirmMessage: '지울까요?',
+          onSelect: () {},
+        ),
+      ]),
+    );
 
     await _swipeOpen(tester, '행');
 
@@ -88,9 +87,11 @@ void main() {
   });
 
   testWidgets('밀면 액션이 드러난다', (tester) async {
-    await tester.pumpWidget(_host([
-      PSwipeAction(label: '편집', kind: PSwipeKind.primary, onSelect: () {}),
-    ]));
+    await tester.pumpWidget(
+      _host([
+        PSwipeAction(label: '편집', kind: PSwipeKind.primary, onSelect: () {}),
+      ]),
+    );
 
     expect(find.text('편집'), findsNothing); // 접혀 있을 땐 안 보인다
     await _swipeOpen(tester, '행');
@@ -99,9 +100,15 @@ void main() {
 
   testWidgets('확인 문구가 없는 액션은 바로 실행된다', (tester) async {
     var ran = false;
-    await tester.pumpWidget(_host([
-      PSwipeAction(label: '편집', kind: PSwipeKind.primary, onSelect: () => ran = true),
-    ]));
+    await tester.pumpWidget(
+      _host([
+        PSwipeAction(
+          label: '편집',
+          kind: PSwipeKind.primary,
+          onSelect: () => ran = true,
+        ),
+      ]),
+    );
 
     await _swipeOpen(tester, '행');
     await tester.tap(find.text('편집'));
@@ -112,14 +119,16 @@ void main() {
 
   testWidgets('삭제는 확인을 받는다 — 누르는 즉시 실행되지 않는다', (tester) async {
     var deleted = false;
-    await tester.pumpWidget(_host([
-      PSwipeAction(
-        label: '삭제',
-        kind: PSwipeKind.destructive,
-        confirmMessage: '정말 지울까요?',
-        onSelect: () => deleted = true,
-      ),
-    ]));
+    await tester.pumpWidget(
+      _host([
+        PSwipeAction(
+          label: '삭제',
+          kind: PSwipeKind.destructive,
+          confirmMessage: '정말 지울까요?',
+          onSelect: () => deleted = true,
+        ),
+      ]),
+    );
 
     await _swipeOpen(tester, '행');
     await tester.tap(find.text('삭제'));
@@ -132,14 +141,16 @@ void main() {
 
   testWidgets('확인을 취소하면 실행되지 않는다', (tester) async {
     var deleted = false;
-    await tester.pumpWidget(_host([
-      PSwipeAction(
-        label: '삭제',
-        kind: PSwipeKind.destructive,
-        confirmMessage: '정말 지울까요?',
-        onSelect: () => deleted = true,
-      ),
-    ]));
+    await tester.pumpWidget(
+      _host([
+        PSwipeAction(
+          label: '삭제',
+          kind: PSwipeKind.destructive,
+          confirmMessage: '정말 지울까요?',
+          onSelect: () => deleted = true,
+        ),
+      ]),
+    );
 
     await _swipeOpen(tester, '행');
     await tester.tap(find.text('삭제'));
@@ -152,23 +163,27 @@ void main() {
 
   testWidgets('확인하면 실행된다', (tester) async {
     var deleted = false;
-    await tester.pumpWidget(_host([
-      PSwipeAction(
-        label: '삭제',
-        kind: PSwipeKind.destructive,
-        confirmMessage: '정말 지울까요?',
-        onSelect: () => deleted = true,
-      ),
-    ]));
+    await tester.pumpWidget(
+      _host([
+        PSwipeAction(
+          label: '삭제',
+          kind: PSwipeKind.destructive,
+          confirmMessage: '정말 지울까요?',
+          onSelect: () => deleted = true,
+        ),
+      ]),
+    );
 
     await _swipeOpen(tester, '행');
     await tester.tap(find.text('삭제'));
     await tester.pumpAndSettle();
     // 확인 버튼 라벨은 액션 이름이라 트레이의 '삭제' 와 같다 — 다이얼로그 안의 것을 고른다.
-    await tester.tap(find.descendant(
-      of: find.byType(AlertDialog),
-      matching: find.widgetWithText(PButton, '삭제'),
-    ));
+    await tester.tap(
+      find.descendant(
+        of: find.byType(AlertDialog),
+        matching: find.widgetWithText(PButton, '삭제'),
+      ),
+    );
     await tester.pumpAndSettle();
 
     expect(deleted, isTrue);
@@ -176,14 +191,16 @@ void main() {
 
   testWidgets('끝까지 밀어도 실행되지 않는다 — 되돌리기가 없다', (tester) async {
     var deleted = false;
-    await tester.pumpWidget(_host([
-      PSwipeAction(
-        label: '삭제',
-        kind: PSwipeKind.destructive,
-        confirmMessage: '정말 지울까요?',
-        onSelect: () => deleted = true,
-      ),
-    ]));
+    await tester.pumpWidget(
+      _host([
+        PSwipeAction(
+          label: '삭제',
+          kind: PSwipeKind.destructive,
+          confirmMessage: '정말 지울까요?',
+          onSelect: () => deleted = true,
+        ),
+      ]),
+    );
 
     // 화면 밖까지 크게 민다 — DismissiblePane 을 썼다면 여기서 지워진다
     await tester.drag(find.text('행'), const Offset(-2000, 0));
@@ -194,16 +211,18 @@ void main() {
   });
 
   testWidgets('enabled=false 면 감싸지 않고 행을 그대로 통과시킨다', (tester) async {
-    await tester.pumpWidget(MaterialApp(
-      theme: PorestTheme.light(),
-      home: Scaffold(
-        body: PSwipeActions(
-          enabled: false,
-          actions: [PSwipeAction(label: '삭제', onSelect: () {})],
-          child: const Text('행'),
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: PorestTheme.light(),
+        home: Scaffold(
+          body: PSwipeActions(
+            enabled: false,
+            actions: [PSwipeAction(label: '삭제', onSelect: () {})],
+            child: const Text('행'),
+          ),
         ),
       ),
-    ));
+    );
 
     // 데스크톱·태블릿에서 래핑 자체를 걷어내는 경로
     expect(find.byType(Slidable), findsNothing);
@@ -211,12 +230,14 @@ void main() {
   });
 
   testWidgets('액션이 없으면 감싸지 않는다', (tester) async {
-    await tester.pumpWidget(MaterialApp(
-      theme: PorestTheme.light(),
-      home: const Scaffold(
-        body: PSwipeActions(actions: [], child: Text('행')),
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: PorestTheme.light(),
+        home: const Scaffold(
+          body: PSwipeActions(actions: [], child: Text('행')),
+        ),
       ),
-    ));
+    );
 
     expect(find.byType(Slidable), findsNothing);
   });
@@ -224,33 +245,38 @@ void main() {
   testWidgets('한 번에 한 행만 열린다 — 다른 행을 밀면 먼저 열린 행이 닫힌다', (tester) async {
     // 이 보장은 SlidableAutoCloseBehavior 조상에 기댄다. 앱은 루트에 한 번 두는데,
     // 없으면 행이 여러 개 열린 채로 남는다(실제로 가계부에서 그렇게 나갔다).
-    await tester.pumpWidget(MaterialApp(
-      theme: PorestTheme.light(),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      locale: const Locale('ko'),
-      home: Scaffold(
-        body: SlidableAutoCloseBehavior(
-          child: ListView(
-            children: [
-              for (final name in ['첫째', '둘째'])
-                PSwipeActions(
-                  key: ValueKey(name),
-                  groupTag: 'same-list',
-                  actions: [
-                    PSwipeAction(
-                      label: '삭제$name',
-                      kind: PSwipeKind.destructive,
-                      onSelect: () {},
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: PorestTheme.light(),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('ko'),
+        home: Scaffold(
+          body: SlidableAutoCloseBehavior(
+            child: ListView(
+              children: [
+                for (final name in ['첫째', '둘째'])
+                  PSwipeActions(
+                    key: ValueKey(name),
+                    groupTag: 'same-list',
+                    actions: [
+                      PSwipeAction(
+                        label: '삭제$name',
+                        kind: PSwipeKind.destructive,
+                        onSelect: () {},
+                      ),
+                    ],
+                    child: SizedBox(
+                      height: 64,
+                      child: Center(child: Text(name)),
                     ),
-                  ],
-                  child: SizedBox(height: 64, child: Center(child: Text(name))),
-                ),
-            ],
+                  ),
+              ],
+            ),
           ),
         ),
       ),
-    ));
+    );
 
     await _swipeOpen(tester, '첫째');
     expect(find.text('삭제첫째'), findsOneWidget);

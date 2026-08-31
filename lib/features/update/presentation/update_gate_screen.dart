@@ -103,7 +103,9 @@ class UpdateGateScreen extends ConsumerWidget {
 
     // 기억시킨 뒤 라우터가 다시 평가하면 shouldGate 가 거짓이 되어 저절로 풀린다.
     // pop 이 아니라 go 인 이유: 게이트는 리다이렉트로 들어와 돌아갈 스택이 없을 수 있다.
-    await ref.read(skippedBuildProvider.notifier).skip(status.latest!.buildNumber);
+    await ref
+        .read(skippedBuildProvider.notifier)
+        .skip(status.latest!.buildNumber);
     if (context.mounted) context.go('/home');
   }
 
@@ -160,8 +162,10 @@ class _Header extends StatelessWidget {
         Container(
           width: 48,
           height: 48,
-          decoration:
-              BoxDecoration(color: t.bgBrandSubtle, shape: BoxShape.circle),
+          decoration: BoxDecoration(
+            color: t.bgBrandSubtle,
+            shape: BoxShape.circle,
+          ),
           alignment: Alignment.center,
           child: Icon(LucideIcons.download, size: 24, color: t.fgBrand),
         ),
@@ -173,7 +177,9 @@ class _Header extends StatelessWidget {
               Text(
                 l.updateGateTitle(release.version),
                 style: PTypo.bodyLg.copyWith(
-                    color: t.fgPrimary, fontWeight: PFontWeight.bold),
+                  color: t.fgPrimary,
+                  fontWeight: PFontWeight.bold,
+                ),
               ),
               const SizedBox(height: PSpace.x4),
               Text(
@@ -209,8 +215,10 @@ class _ForcedNotice extends StatelessWidget {
           Expanded(
             child: Text(
               l.updateRequiredDesc,
-              style:
-                  PTypo.bodySm.copyWith(color: t.statusWarningFg, height: 1.6),
+              style: PTypo.bodySm.copyWith(
+                color: t.statusWarningFg,
+                height: 1.6,
+              ),
             ),
           ),
         ],
@@ -235,16 +243,20 @@ class _Changes extends StatelessWidget {
       children: [
         Text(
           l.updateSheetChanges,
-          style: PTypo.bodySm
-              .copyWith(color: t.fgPrimary, fontWeight: PFontWeight.bold),
+          style: PTypo.bodySm.copyWith(
+            color: t.fgPrimary,
+            fontWeight: PFontWeight.bold,
+          ),
         ),
         const SizedBox(height: PSpace.x12),
         Expanded(
           child: Container(
             width: double.infinity,
             padding: const EdgeInsets.all(PSpace.x16),
-            decoration:
-                BoxDecoration(color: t.bgMuted, borderRadius: PRadius.brLg),
+            decoration: BoxDecoration(
+              color: t.bgMuted,
+              borderRadius: PRadius.brLg,
+            ),
             child: ListView(
               padding: EdgeInsets.zero,
               children: [PReleaseNotes(notes: notes)],
@@ -335,14 +347,16 @@ class _Actions extends ConsumerWidget {
       return;
     }
 
-    final ok =
-        await ref.read(apkInstallerProvider.notifier).downloadAndOpen(release);
+    final ok = await ref
+        .read(apkInstallerProvider.notifier)
+        .downloadAndOpen(release);
     if (ok || !context.mounted) return;
 
     // 앱 안에서 못 받았으면 브라우저에 넘긴다. 거기서는 받아지는 경우가 있다.
     final l = AppLocalizations.of(context);
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(l.updateSheetFailed)));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(l.updateSheetFailed)));
     await openReleaseExternally(release);
   }
 }

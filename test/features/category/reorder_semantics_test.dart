@@ -43,8 +43,9 @@ void main() {
           body: StatefulBuilder(
             builder: (context, setState) => ReorderableListView.builder(
               itemCount: items.length,
-              onReorderItem: (oldIndex, newIndex) =>
-                  setState(() => items = applyReorder(items, oldIndex, newIndex)),
+              onReorderItem: (oldIndex, newIndex) => setState(
+                () => items = applyReorder(items, oldIndex, newIndex),
+              ),
               itemBuilder: (_, i) => SizedBox(
                 key: ValueKey(items[i]),
                 height: rowHeight,
@@ -56,8 +57,9 @@ void main() {
       ),
     );
 
-    final gesture =
-        await tester.startGesture(tester.getCenter(find.text(initial[from])));
+    final gesture = await tester.startGesture(
+      tester.getCenter(find.text(initial[from])),
+    );
     // 기본 드래그 핸들은 롱프레스로 잡힌다 — 인식 시간(500ms)을 넉넉히 넘긴다.
     await tester.pump(const Duration(seconds: 1));
 

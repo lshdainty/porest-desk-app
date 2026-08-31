@@ -39,7 +39,10 @@ class HideCardsRepository {
   /// 통째로 교체. 부분 갱신이 아니다.
   Future<void> put(Set<String> cards) async {
     try {
-      await _dio.put<void>('/users/me/hide-cards', data: {'hideCards': cards.toList()});
+      await _dio.put<void>(
+        '/users/me/hide-cards',
+        data: {'hideCards': cards.toList()},
+      );
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
     }
@@ -48,6 +51,8 @@ class HideCardsRepository {
 
 /// 테스트에서 갈아 끼울 수 있게 provider 로 뺀다 — 동기화 규칙(null/빈 목록·주인 대조)이
 /// 틀리면 가려 뒀던 금액이 드러나므로 눈이 아니라 테스트로 걸어야 한다.
-final hideCardsRepositoryProvider = FutureProvider<HideCardsRepository>((ref) async {
+final hideCardsRepositoryProvider = FutureProvider<HideCardsRepository>((
+  ref,
+) async {
   return HideCardsRepository(await ref.watch(dioProvider.future));
 });

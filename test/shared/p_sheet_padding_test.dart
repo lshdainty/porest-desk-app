@@ -18,29 +18,35 @@ void main() {
     tester.view.devicePixelRatio = 3.0;
     addTearDown(tester.view.reset);
 
-    await tester.pumpWidget(MaterialApp(
-      theme: PorestTheme.light(),
-      home: Builder(
-        builder: (ctx) => Scaffold(
-          body: Center(
-            child: ElevatedButton(
-              onPressed: () => showPSheet<void>(
-                ctx,
-                title: '기간 선택',
-                shrinkWrap: true,
-                contentBuilder: (_, _) => const Padding(
-                  // 호출처가 물리는 표준 본문 여백 — 헤더와 같은 24.
-                  padding: EdgeInsets.fromLTRB(
-                      PSpace.xl, 0, PSpace.xl, PSpace.x16),
-                  child: Text('본문'),
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: PorestTheme.light(),
+        home: Builder(
+          builder: (ctx) => Scaffold(
+            body: Center(
+              child: ElevatedButton(
+                onPressed: () => showPSheet<void>(
+                  ctx,
+                  title: '기간 선택',
+                  shrinkWrap: true,
+                  contentBuilder: (_, _) => const Padding(
+                    // 호출처가 물리는 표준 본문 여백 — 헤더와 같은 24.
+                    padding: EdgeInsets.fromLTRB(
+                      PSpace.xl,
+                      0,
+                      PSpace.xl,
+                      PSpace.x16,
+                    ),
+                    child: Text('본문'),
+                  ),
                 ),
+                child: const Text('열기'),
               ),
-              child: const Text('열기'),
             ),
           ),
         ),
       ),
-    ));
+    );
     await tester.tap(find.text('열기'));
     await tester.pumpAndSettle();
 

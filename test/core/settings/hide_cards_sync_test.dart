@@ -26,9 +26,9 @@ class _FakeRepo implements HideCardsRepository {
 }
 
 ProviderContainer _container(_FakeRepo repo) {
-  final container = ProviderContainer(overrides: [
-    hideCardsRepositoryProvider.overrideWith((ref) async => repo),
-  ]);
+  final container = ProviderContainer(
+    overrides: [hideCardsRepositoryProvider.overrideWith((ref) async => repo)],
+  );
   addTearDown(container.dispose);
   return container;
 }
@@ -80,7 +80,10 @@ void main() {
 
     await c.read(settingsProvider.notifier).syncHideCardsFromServer(me);
 
-    expect(c.read(settingsProvider).value!.hideCards, {'ledger.txList', 'kind.expense'});
+    expect(c.read(settingsProvider).value!.hideCards, {
+      'ledger.txList',
+      'kind.expense',
+    });
   });
 
   test('모르는 카드 키는 버린다 — 남겨 두면 영영 못 지우는 유령이 된다', () async {

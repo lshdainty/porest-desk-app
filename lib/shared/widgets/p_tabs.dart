@@ -21,7 +21,12 @@ enum PTabsVariant { container, underline, pills }
 enum PTabsSize { defaultSize, sm }
 
 class PTabItem<T> {
-  const PTabItem({required this.value, required this.label, this.icon, this.disabled = false});
+  const PTabItem({
+    required this.value,
+    required this.label,
+    this.icon,
+    this.disabled = false,
+  });
   final T value;
   final String label;
   final IconData? icon;
@@ -69,20 +74,20 @@ class PTabs<T> extends StatelessWidget {
     final sm = size == PTabsSize.sm;
     final children = [
       for (final it in items)
-        _trigger(t, it,
-            padX: sm ? 8 : 12,
-            padY: 4,
-            radius: PRadius.brXs,
-            fontSize: sm ? PFontSize.bodySm : PFontSize.body,
-            height: sm ? 28 : 32),
+        _trigger(
+          t,
+          it,
+          padX: sm ? 8 : 12,
+          padY: 4,
+          radius: PRadius.brXs,
+          fontSize: sm ? PFontSize.bodySm : PFontSize.body,
+          height: sm ? 28 : 32,
+        ),
     ];
     return Container(
       height: sm ? 32 : 40,
       padding: EdgeInsets.all(sm ? 2 : 4),
-      decoration: BoxDecoration(
-        color: t.bgMuted,
-        borderRadius: PRadius.brSm,
-      ),
+      decoration: BoxDecoration(color: t.bgMuted, borderRadius: PRadius.brSm),
       child: expand
           ? Row(children: [for (final c in children) Expanded(child: c)])
           : Row(mainAxisSize: MainAxisSize.min, children: children),
@@ -109,12 +114,15 @@ class PTabs<T> extends StatelessWidget {
     final sm = size == PTabsSize.sm;
     final children = [
       for (final it in items)
-        _trigger(t, it,
-            padX: sm ? 8 : 12,
-            padY: sm ? 4 : 8,
-            radius: PRadius.brMd,
-            fontSize: sm ? PFontSize.bodySm : PFontSize.body,
-            height: sm ? 28 : null),
+        _trigger(
+          t,
+          it,
+          padX: sm ? 8 : 12,
+          padY: sm ? 4 : 8,
+          radius: PRadius.brMd,
+          fontSize: sm ? PFontSize.bodySm : PFontSize.body,
+          height: sm ? 28 : null,
+        ),
     ];
     return Row(
       mainAxisSize: expand ? MainAxisSize.max : MainAxisSize.min,
@@ -171,10 +179,7 @@ class PTabs<T> extends StatelessWidget {
         // active fill = bgBrandSolid — 채움(fill)은 다크에서도 primary 고정(web --bg-brand 정합).
         // bgBrand 는 다크에서 cobalt400(light)이라 fill 엔 부적합 — 대비 필요한 fg/border(underline) 만 light.
         bgColor = active ? t.bgBrandSolid : Colors.transparent;
-        decoration = BoxDecoration(
-          color: bgColor,
-          borderRadius: radius,
-        );
+        decoration = BoxDecoration(color: bgColor, borderRadius: radius);
         weight = active ? PFontWeight.semi : PFontWeight.medium;
         break;
     }
@@ -250,7 +255,9 @@ class PTabsView<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final gap = contentTopGap ?? switch (variant) {
+    final gap =
+        contentTopGap ??
+        switch (variant) {
           PTabsVariant.container => PSpace.x8,
           PTabsVariant.pills => PSpace.x12,
           PTabsVariant.underline => PSpace.x16,

@@ -11,14 +11,12 @@ class AuthInterceptor extends Interceptor {
   AuthInterceptor({required this.onUnauthorized});
   final void Function() onUnauthorized;
 
-  static const _skipPaths = <String>{
-    '/auth/check',
-    '/auth/logout',
-  };
+  static const _skipPaths = <String>{'/auth/check', '/auth/logout'};
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    if (err.response?.statusCode == 401 && !_isSkipped(err.requestOptions.path)) {
+    if (err.response?.statusCode == 401 &&
+        !_isSkipped(err.requestOptions.path)) {
       onUnauthorized();
     }
     handler.next(err);

@@ -19,12 +19,28 @@ void main() {
 
   test('웹 카테고리에서 쓰는 kebab 이름이 해석된다', () {
     const webNames = [
-      'utensils', 'coffee', 'bus', 'shopping-bag', 'home', 'heart-pulse',
-      'ticket', 'receipt-text', 'book-open', 'piggy-bank', 'arrow-down-to-line',
-      'hand-coins', 'paw-print', 'building-2', 'trending-up',
+      'utensils',
+      'coffee',
+      'bus',
+      'shopping-bag',
+      'home',
+      'heart-pulse',
+      'ticket',
+      'receipt-text',
+      'book-open',
+      'piggy-bank',
+      'arrow-down-to-line',
+      'hand-coins',
+      'paw-print',
+      'building-2',
+      'trending-up',
     ];
     for (final n in webNames) {
-      expect(lucideByName(n), isNot(LucideIcons.tag), reason: '$n 이 fallback 으로 샘');
+      expect(
+        lucideByName(n),
+        isNot(LucideIcons.tag),
+        reason: '$n 이 fallback 으로 샘',
+      );
     }
   });
 

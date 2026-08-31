@@ -65,8 +65,9 @@ class PExpenseRow extends StatelessWidget {
     final fg = resolveChartColor(context, colorStr, fallback: t.fgBrand);
     final bg = softBg(context, fg);
     final iconData = lucideByName(
-        categoryIconOverride ?? expense.categoryIcon,
-        fallback: LucideIcons.tag);
+      categoryIconOverride ?? expense.categoryIcon,
+      fallback: LucideIcons.tag,
+    );
     final time = _timeLabel(expense.expenseDate);
     final subParts = [
       expense.categoryName,
@@ -76,14 +77,16 @@ class PExpenseRow extends StatelessWidget {
 
     // design app.css `.tx-flat .tx-row`: 12px 10px + radius 10 — 플랫 리스트 행 리듬.
     final row = Padding(
-      padding: const EdgeInsets.symmetric(
-          vertical: PSpace.x12, horizontal: 10),
+      padding: const EdgeInsets.symmetric(vertical: PSpace.x12, horizontal: 10),
       child: Row(
         children: [
           Container(
             width: 40,
             height: 40,
-            decoration: BoxDecoration(color: bg, borderRadius: PRadius.tile(40)),
+            decoration: BoxDecoration(
+              color: bg,
+              borderRadius: PRadius.tile(40),
+            ),
             alignment: Alignment.center,
             child: Icon(iconData, size: 18, color: fg),
           ),
@@ -119,8 +122,12 @@ class PExpenseRow extends StatelessWidget {
           const SizedBox(width: PSpace.x8),
           right ??
               Text(
-                krwSigned(expense.amount, masked,
-                    sign: isIncome ? '+' : '-', unit: true),
+                krwSigned(
+                  expense.amount,
+                  masked,
+                  sign: isIncome ? '+' : '-',
+                  unit: true,
+                ),
                 style: PTypo.body.copyWith(
                   color: isIncome ? t.fgIncome : t.fgExpense,
                   fontWeight: PFontWeight.bold,

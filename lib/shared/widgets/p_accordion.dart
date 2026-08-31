@@ -181,8 +181,11 @@ class _AccordionRow extends StatelessWidget {
                         duration: PMotion.base,
                         curve: PMotion.standard,
                         turns: open ? 0.5 : 0,
-                        child: Icon(LucideIcons.chevronDown,
-                            size: 16, color: t.fgSecondary),
+                        child: Icon(
+                          LucideIcons.chevronDown,
+                          size: 16,
+                          color: t.fgSecondary,
+                        ),
                       ),
                     ],
                   ),
@@ -207,8 +210,9 @@ class _AccordionRow extends StatelessWidget {
                 child: item.content,
               ),
             ),
-            crossFadeState:
-                open ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+            crossFadeState: open
+                ? CrossFadeState.showSecond
+                : CrossFadeState.showFirst,
           ),
         ],
       ),

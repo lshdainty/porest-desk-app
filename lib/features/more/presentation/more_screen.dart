@@ -33,40 +33,140 @@ class _NavGroup {
 List<_NavGroup> _buildGroups(BuildContext ctx, {required bool hasSecurities}) {
   final l = AppLocalizations.of(ctx);
   return [
-    _NavGroup(label: l.moreGroupMoney, items: [
-      _NavItem(label: l.navExpense, desc: l.moreDescExpense, onTap: (c) => c.go('/expense')),
-      _NavItem(label: l.navAsset, desc: l.moreDescAsset, onTap: (c) => c.go('/assets')),
-      // 증권 메뉴는 구독(SECURITIES) 보유 시에만 노출
-      if (hasSecurities)
-        _NavItem(label: l.moreItemStocks, desc: l.moreDescStocks, onTap: (c) => c.push('/stocks')),
-      _NavItem(label: l.navBudget, desc: l.moreDescBudget, onTap: (c) => c.go('/budget')),
-      _NavItem(label: l.navSavingGoals, desc: l.moreDescSavingGoal, onTap: (c) => c.push('/saving-goals')),
-      _NavItem(label: l.moreItemStats, desc: l.moreDescStats, onTap: (c) => c.go('/stats')),
-      _NavItem(label: l.navRecurring, desc: l.moreDescRecurring, onTap: (c) => c.push('/recurring')),
-      _NavItem(label: l.moreItemSmsPaste, desc: l.moreDescSmsPaste, onTap: (c) => c.push('/sms-paste')),
-      // 문자 수신은 안드로이드만 된다 — iOS 는 OS 가 문자 접근을 막아 클립보드로 받는다.
-      if (SmsAndroid.isSupported)
-        _NavItem(label: l.moreItemSmsInbox, desc: l.moreDescSmsInbox, onTap: (c) => c.push('/sms-inbox')),
-      _NavItem(label: l.moreItemAccountCard, desc: l.moreDescAccountCard, onTap: (c) => c.push('/account-card-manage')),
-    ]),
-    _NavGroup(label: l.moreGroupDaily, items: [
-      _NavItem(label: l.navCalendar, desc: l.moreDescCalendar, onTap: (c) => c.go('/calendar')),
-      _NavItem(label: l.navTodo, desc: l.moreDescTodo, onTap: (c) => c.push('/todos')),
-      _NavItem(label: l.navMemo, desc: l.moreDescMemo, onTap: (c) => c.push('/memos')),
-      _NavItem(label: l.navDutchPay, desc: l.moreDescDutchPay, onTap: (c) => c.push('/dutch-pay')),
-      _NavItem(label: l.moreItemCardBenefits, desc: l.moreDescCardBenefits, onTap: (c) => c.push('/card-benefits')),
-    ]),
-    _NavGroup(label: l.moreGroupPersonal, items: [
-      _NavItem(label: l.navCategories, desc: l.moreDescCategories, onTap: (c) => c.push('/categories')),
-      _NavItem(label: l.navPresets, desc: l.moreDescPresets, onTap: (c) => c.push('/presets')),
-      _NavItem(label: l.moreItemDisplay, desc: l.moreDescDisplay, onTap: (c) => c.push('/settings')),
-    ]),
-    _NavGroup(label: l.moreGroupSystem, items: [
-      _NavItem(label: l.navSettings, desc: l.moreDescSettings, onTap: (c) => c.push('/settings')),
-      _NavItem(label: l.notiSettings, desc: l.moreDescNotifications, onTap: (c) => c.push('/settings/notifications')),
-      _NavItem(label: l.exportTitle, desc: l.moreDescExport, onTap: (c) => c.push('/settings/export-data')),
-      _NavItem(label: l.moreItemAccount, desc: l.moreDescAccount, onTap: (c) => c.push('/account')),
-    ]),
+    _NavGroup(
+      label: l.moreGroupMoney,
+      items: [
+        _NavItem(
+          label: l.navExpense,
+          desc: l.moreDescExpense,
+          onTap: (c) => c.go('/expense'),
+        ),
+        _NavItem(
+          label: l.navAsset,
+          desc: l.moreDescAsset,
+          onTap: (c) => c.go('/assets'),
+        ),
+        // 증권 메뉴는 구독(SECURITIES) 보유 시에만 노출
+        if (hasSecurities)
+          _NavItem(
+            label: l.moreItemStocks,
+            desc: l.moreDescStocks,
+            onTap: (c) => c.push('/stocks'),
+          ),
+        _NavItem(
+          label: l.navBudget,
+          desc: l.moreDescBudget,
+          onTap: (c) => c.go('/budget'),
+        ),
+        _NavItem(
+          label: l.navSavingGoals,
+          desc: l.moreDescSavingGoal,
+          onTap: (c) => c.push('/saving-goals'),
+        ),
+        _NavItem(
+          label: l.moreItemStats,
+          desc: l.moreDescStats,
+          onTap: (c) => c.go('/stats'),
+        ),
+        _NavItem(
+          label: l.navRecurring,
+          desc: l.moreDescRecurring,
+          onTap: (c) => c.push('/recurring'),
+        ),
+        _NavItem(
+          label: l.moreItemSmsPaste,
+          desc: l.moreDescSmsPaste,
+          onTap: (c) => c.push('/sms-paste'),
+        ),
+        // 문자 수신은 안드로이드만 된다 — iOS 는 OS 가 문자 접근을 막아 클립보드로 받는다.
+        if (SmsAndroid.isSupported)
+          _NavItem(
+            label: l.moreItemSmsInbox,
+            desc: l.moreDescSmsInbox,
+            onTap: (c) => c.push('/sms-inbox'),
+          ),
+        _NavItem(
+          label: l.moreItemAccountCard,
+          desc: l.moreDescAccountCard,
+          onTap: (c) => c.push('/account-card-manage'),
+        ),
+      ],
+    ),
+    _NavGroup(
+      label: l.moreGroupDaily,
+      items: [
+        _NavItem(
+          label: l.navCalendar,
+          desc: l.moreDescCalendar,
+          onTap: (c) => c.go('/calendar'),
+        ),
+        _NavItem(
+          label: l.navTodo,
+          desc: l.moreDescTodo,
+          onTap: (c) => c.push('/todos'),
+        ),
+        _NavItem(
+          label: l.navMemo,
+          desc: l.moreDescMemo,
+          onTap: (c) => c.push('/memos'),
+        ),
+        _NavItem(
+          label: l.navDutchPay,
+          desc: l.moreDescDutchPay,
+          onTap: (c) => c.push('/dutch-pay'),
+        ),
+        _NavItem(
+          label: l.moreItemCardBenefits,
+          desc: l.moreDescCardBenefits,
+          onTap: (c) => c.push('/card-benefits'),
+        ),
+      ],
+    ),
+    _NavGroup(
+      label: l.moreGroupPersonal,
+      items: [
+        _NavItem(
+          label: l.navCategories,
+          desc: l.moreDescCategories,
+          onTap: (c) => c.push('/categories'),
+        ),
+        _NavItem(
+          label: l.navPresets,
+          desc: l.moreDescPresets,
+          onTap: (c) => c.push('/presets'),
+        ),
+        _NavItem(
+          label: l.moreItemDisplay,
+          desc: l.moreDescDisplay,
+          onTap: (c) => c.push('/settings'),
+        ),
+      ],
+    ),
+    _NavGroup(
+      label: l.moreGroupSystem,
+      items: [
+        _NavItem(
+          label: l.navSettings,
+          desc: l.moreDescSettings,
+          onTap: (c) => c.push('/settings'),
+        ),
+        _NavItem(
+          label: l.notiSettings,
+          desc: l.moreDescNotifications,
+          onTap: (c) => c.push('/settings/notifications'),
+        ),
+        _NavItem(
+          label: l.exportTitle,
+          desc: l.moreDescExport,
+          onTap: (c) => c.push('/settings/export-data'),
+        ),
+        _NavItem(
+          label: l.moreItemAccount,
+          desc: l.moreDescAccount,
+          onTap: (c) => c.push('/account'),
+        ),
+      ],
+    ),
   ];
 }
 
@@ -105,9 +205,11 @@ class _MoreScreenState extends ConsumerState<MoreScreen> {
     final visible = isSearching
         ? [
             for (final g in groups)
-              if (g.items.any((i) =>
-                  i.label.toLowerCase().contains(q) ||
-                  i.desc.toLowerCase().contains(q)))
+              if (g.items.any(
+                (i) =>
+                    i.label.toLowerCase().contains(q) ||
+                    i.desc.toLowerCase().contains(q),
+              ))
                 _NavGroup(
                   label: g.label,
                   items: [
@@ -125,7 +227,11 @@ class _MoreScreenState extends ConsumerState<MoreScreen> {
         // 검색 인풋 — 리스트 스크롤과 무관하게 상단 고정.
         Padding(
           padding: const EdgeInsets.fromLTRB(
-              PSpace.x24, PSpace.x4, PSpace.x24, PSpace.x8),
+            PSpace.x24,
+            PSpace.x4,
+            PSpace.x24,
+            PSpace.x8,
+          ),
           child: PSearchField(
             hint: l.moreSearchHint,
             controller: _ctrl,
@@ -137,65 +243,72 @@ class _MoreScreenState extends ConsumerState<MoreScreen> {
           child: ListView(
             // 하단 — 플로팅 탭바 보상.
             padding: EdgeInsets.fromLTRB(
-                PSpace.x24, 0, PSpace.x24, pTabBarBottomInset(context)),
+              PSpace.x24,
+              0,
+              PSpace.x24,
+              pTabBarBottomInset(context),
+            ),
             children: [
-
-        if (isSearching && visible.isEmpty)
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 60),
-              child: Text(l.moreSearchEmpty,
-                  style: TextStyle(
-                      fontFamily: PTypo.sans,
-                      fontSize: PFontSize.body,
-                      color: t.fgTertiary)),
-            ),
-          )
-        else
-          for (int gi = 0; gi < visible.length; gi++) ...[
-            // 그룹 사이 헤어라인 — design .flat-div (margin 14px 20px)
-            if (gi > 0)
-              Container(
-                height: 1,
-                margin: const EdgeInsets.symmetric(
-                    vertical: 14),
-                color: t.borderSubtle,
-              ),
-            // 그룹 라벨 — design 16/700, padding '14px 20px 2px'
-            Padding(
-              padding: const EdgeInsets.only(top: 14, bottom: 2),
-              child: Text(
-                visible[gi].label,
-                style: TextStyle(
-                  fontFamily: PTypo.sans,
-                  fontSize: 16,
-                  fontWeight: PFontWeight.bold,
-                  letterSpacing: -0.16,
-                  color: t.fgPrimary,
-                ),
-              ),
-            ),
-            // 2열 텍스트 링크 그리드 — design padding '6px 20px 4px', columnGap 16
-            Padding(
-              padding: const EdgeInsets.only(top: 6, bottom: 4),
-              child: Column(
-                children: [
-                  for (int r = 0; r < visible[gi].items.length; r += 2)
-                    Row(
+              if (isSearching && visible.isEmpty)
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 60),
+                    child: Text(
+                      l.moreSearchEmpty,
+                      style: TextStyle(
+                        fontFamily: PTypo.sans,
+                        fontSize: PFontSize.body,
+                        color: t.fgTertiary,
+                      ),
+                    ),
+                  ),
+                )
+              else
+                for (int gi = 0; gi < visible.length; gi++) ...[
+                  // 그룹 사이 헤어라인 — design .flat-div (margin 14px 20px)
+                  if (gi > 0)
+                    Container(
+                      height: 1,
+                      margin: const EdgeInsets.symmetric(vertical: 14),
+                      color: t.borderSubtle,
+                    ),
+                  // 그룹 라벨 — design 16/700, padding '14px 20px 2px'
+                  Padding(
+                    padding: const EdgeInsets.only(top: 14, bottom: 2),
+                    child: Text(
+                      visible[gi].label,
+                      style: TextStyle(
+                        fontFamily: PTypo.sans,
+                        fontSize: 16,
+                        fontWeight: PFontWeight.bold,
+                        letterSpacing: -0.16,
+                        color: t.fgPrimary,
+                      ),
+                    ),
+                  ),
+                  // 2열 텍스트 링크 그리드 — design padding '6px 20px 4px', columnGap 16
+                  Padding(
+                    padding: const EdgeInsets.only(top: 6, bottom: 4),
+                    child: Column(
                       children: [
-                        Expanded(child: _TextLink(item: visible[gi].items[r])),
-                        const SizedBox(width: PSpace.x16),
-                        Expanded(
-                          child: r + 1 < visible[gi].items.length
-                              ? _TextLink(item: visible[gi].items[r + 1])
-                              : const SizedBox.shrink(),
-                        ),
+                        for (int r = 0; r < visible[gi].items.length; r += 2)
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _TextLink(item: visible[gi].items[r]),
+                              ),
+                              const SizedBox(width: PSpace.x16),
+                              Expanded(
+                                child: r + 1 < visible[gi].items.length
+                                    ? _TextLink(item: visible[gi].items[r + 1])
+                                    : const SizedBox.shrink(),
+                              ),
+                            ],
+                          ),
                       ],
                     ),
+                  ),
                 ],
-              ),
-            ),
-          ],
             ],
           ),
         ),

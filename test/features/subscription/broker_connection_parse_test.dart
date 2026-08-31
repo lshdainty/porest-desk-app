@@ -61,7 +61,10 @@ void main() {
     });
 
     test('라벨이 비어 오면 일반 명칭으로 폴백한다 — 빈 칸을 보여주지 않는다', () {
-      final c = BrokerConnection.fromJson(const {'broker': 'NEW', 'connected': false});
+      final c = BrokerConnection.fromJson(const {
+        'broker': 'NEW',
+        'connected': false,
+      });
 
       expect(c.keyLabel, 'API Key');
       expect(c.secretLabel, 'API Secret');

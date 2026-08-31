@@ -13,16 +13,16 @@ import 'package:porest_desk_app/app/theme/typography.dart';
 /// - POREST 커스텀 위젯 → `context.tokens.bgCanvas` 류
 abstract final class PorestTheme {
   static ThemeData light() => _build(
-        brightness: Brightness.light,
-        tokens: PorestTokens.light,
-        seed: PorestPalette.cobalt500,
-      );
+    brightness: Brightness.light,
+    tokens: PorestTokens.light,
+    seed: PorestPalette.cobalt500,
+  );
 
   static ThemeData dark() => _build(
-        brightness: Brightness.dark,
-        tokens: PorestTokens.dark,
-        seed: PorestPalette.cobalt400,
-      );
+    brightness: Brightness.dark,
+    tokens: PorestTokens.dark,
+    seed: PorestPalette.cobalt400,
+  );
 
   static ThemeData _build({
     required Brightness brightness,
@@ -81,7 +81,9 @@ abstract final class PorestTheme {
         backgroundColor: tokens.bgSurface,
         surfaceTintColor: Colors.transparent,
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(PRadius.xl2)),
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(PRadius.xl2),
+          ),
         ),
         modalBackgroundColor: tokens.bgSurface,
         modalBarrierColor: Colors.black54,
@@ -104,7 +106,9 @@ abstract final class PorestTheme {
         fillColor: tokens.bgMuted,
         hintStyle: PTypo.bodyLg.copyWith(color: tokens.fgPlaceholder),
         contentPadding: const EdgeInsets.symmetric(
-            horizontal: PSpace.md, vertical: PSpace.sm),
+          horizontal: PSpace.md,
+          vertical: PSpace.sm,
+        ),
         border: OutlineInputBorder(
           borderRadius: PRadius.brSm,
           borderSide: BorderSide(color: tokens.borderDefault),
@@ -133,7 +137,9 @@ abstract final class PorestTheme {
           disabledForegroundColor: tokens.fgDisabled,
           shape: RoundedRectangleBorder(borderRadius: PRadius.brSm),
           padding: const EdgeInsets.symmetric(
-              horizontal: PSpace.md, vertical: PSpace.sm),
+            horizontal: PSpace.md,
+            vertical: PSpace.sm,
+          ),
           minimumSize: const Size(0, 40),
           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           textStyle: TextStyle(
@@ -149,7 +155,9 @@ abstract final class PorestTheme {
           foregroundColor: tokens.fgBrand,
           shape: RoundedRectangleBorder(borderRadius: PRadius.brSm),
           padding: const EdgeInsets.symmetric(
-              horizontal: PSpace.md, vertical: PSpace.sm),
+            horizontal: PSpace.md,
+            vertical: PSpace.sm,
+          ),
           minimumSize: const Size(0, 40),
           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           textStyle: TextStyle(
@@ -166,7 +174,9 @@ abstract final class PorestTheme {
           side: BorderSide(color: tokens.borderDefault),
           shape: RoundedRectangleBorder(borderRadius: PRadius.brSm),
           padding: const EdgeInsets.symmetric(
-              horizontal: PSpace.md, vertical: PSpace.sm),
+            horizontal: PSpace.md,
+            vertical: PSpace.sm,
+          ),
           minimumSize: const Size(0, 40),
           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           textStyle: TextStyle(

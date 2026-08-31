@@ -42,11 +42,11 @@ class _FakeAuth extends AppLockAuth {
 class _FakeAuthUser extends AuthNotifier {
   @override
   Future<User?> build() async => const User(
-        rowId: 1,
-        userId: 'tester',
-        userName: 'Tester',
-        userEmail: 'tester@example.com',
-      );
+    rowId: 1,
+    userId: 'tester',
+    userName: 'Tester',
+    userEmail: 'tester@example.com',
+  );
 }
 
 void main() {
@@ -69,8 +69,9 @@ void main() {
       routes: [
         GoRoute(path: '/account', builder: (_, _) => const AccountScreen()),
         GoRoute(
-            path: '/settings/hide-amounts',
-            builder: (_, _) => const HideAmountsScreen()),
+          path: '/settings/hide-amounts',
+          builder: (_, _) => const HideAmountsScreen(),
+        ),
       ],
     );
     addTearDown(router.dispose);
@@ -95,7 +96,10 @@ void main() {
   group('계정 > 보안', () {
     testWidgets('앱 잠금·금액 가리기 행이 보안 섹션에 있다', (tester) async {
       SharedPreferences.setMockInitialValues({});
-      final container = await pumpAccount(tester, auth: _FakeAuth(AppLockAuthResult.success));
+      final container = await pumpAccount(
+        tester,
+        auth: _FakeAuth(AppLockAuthResult.success),
+      );
       await container.read(settingsProvider.future);
       await tester.pump();
 
@@ -127,7 +131,10 @@ void main() {
 
     testWidgets('금액 가리기 행을 누르면 전용 화면으로 간다', (tester) async {
       SharedPreferences.setMockInitialValues({});
-      final container = await pumpAccount(tester, auth: _FakeAuth(AppLockAuthResult.success));
+      final container = await pumpAccount(
+        tester,
+        auth: _FakeAuth(AppLockAuthResult.success),
+      );
       await container.read(settingsProvider.future);
       await tester.pump();
 
@@ -145,7 +152,9 @@ void main() {
     testWidgets('개인정보 보호 섹션이 빠지고 테마·언어만 남는다', (tester) async {
       SharedPreferences.setMockInitialValues({});
       final container = ProviderContainer(
-        overrides: [prefsProvider.overrideWith((_) => SharedPreferences.getInstance())],
+        overrides: [
+          prefsProvider.overrideWith((_) => SharedPreferences.getInstance()),
+        ],
       );
       addTearDown(container.dispose);
 

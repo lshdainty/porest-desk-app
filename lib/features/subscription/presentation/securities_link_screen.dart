@@ -43,7 +43,10 @@ class SecuritiesLinkScreen extends ConsumerWidget {
       body: connectionsAsync.when(
         loading: () => const _LoadingList(),
         error: (_, _) => Center(
-          child: PEmptyState(icon: LucideIcons.unplug, message: l.securitiesLoadError),
+          child: PEmptyState(
+            icon: LucideIcons.unplug,
+            message: l.securitiesLoadError,
+          ),
         ),
         data: (connections) => _List(connections: connections),
       ),
@@ -64,7 +67,12 @@ class _List extends StatelessWidget {
     final connectedCount = connections.where((c) => c.connected).length;
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(PSpace.x24, PSpace.x16, PSpace.x24, PSpace.x24),
+      padding: const EdgeInsets.fromLTRB(
+        PSpace.x24,
+        PSpace.x16,
+        PSpace.x24,
+        PSpace.x24,
+      ),
       children: [
         Text(
           l.settingsSecuritiesLinkDesc,
@@ -72,7 +80,10 @@ class _List extends StatelessWidget {
         ),
         const SizedBox(height: PSpace.x16),
         for (final c in connections) ...[
-          BrokerConnectCard(connection: c, showPrimaryAction: connectedCount > 1),
+          BrokerConnectCard(
+            connection: c,
+            showPrimaryAction: connectedCount > 1,
+          ),
           const SizedBox(height: PSpace.x12),
         ],
       ],
@@ -86,7 +97,12 @@ class _LoadingList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(PSpace.x24, PSpace.x16, PSpace.x24, PSpace.x24),
+      padding: const EdgeInsets.fromLTRB(
+        PSpace.x24,
+        PSpace.x16,
+        PSpace.x24,
+        PSpace.x24,
+      ),
       children: const [
         PSkeleton(height: 180),
         SizedBox(height: PSpace.x12),

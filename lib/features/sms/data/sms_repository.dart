@@ -20,7 +20,8 @@ class SmsAssetCandidate {
   final String? institution;
   final String? assetType;
 
-  factory SmsAssetCandidate.fromJson(Map<String, dynamic> j) => SmsAssetCandidate(
+  factory SmsAssetCandidate.fromJson(Map<String, dynamic> j) =>
+      SmsAssetCandidate(
         rowId: (j['rowId'] as num?)?.toInt() ?? 0,
         assetName: j['assetName'] as String? ?? '',
         institution: j['institution'] as String?,
@@ -83,38 +84,43 @@ class SmsParseResult {
   bool get isLowConfidence => confidence == 'LOW';
 
   factory SmsParseResult.fromJson(Map<String, dynamic> j) => SmsParseResult(
-        matched: j['matched'] as bool? ?? false,
-        confidence: j['confidence'] as String? ?? 'LOW',
-        cancel: j['cancel'] as bool? ?? false,
-        amount: (j['amount'] as num?)?.toInt(),
-        merchant: j['merchant'] as String?,
-        expenseDate: j['expenseDate'] as String?,
-        installmentMonths: (j['installmentMonths'] as num?)?.toInt(),
-        cardHint: j['cardHint'] as String?,
-        issuerName: j['issuerName'] as String?,
-        cardLast4: j['cardLast4'] as String?,
-        assetRowId: (j['assetRowId'] as num?)?.toInt(),
-        assetRemembered: j['assetRemembered'] as bool? ?? false,
-        assetCandidates: ((j['assetCandidates'] as List?) ?? const [])
-            .map((e) => SmsAssetCandidate.fromJson((e as Map).cast<String, dynamic>()))
-            .toList(),
-        categoryRowId: (j['categoryRowId'] as num?)?.toInt(),
-        categoryName: j['categoryName'] as String?,
-        originalAmount: j['originalAmount'] as num?,
-        originalCurrency: j['originalCurrency'] as String?,
-      );
+    matched: j['matched'] as bool? ?? false,
+    confidence: j['confidence'] as String? ?? 'LOW',
+    cancel: j['cancel'] as bool? ?? false,
+    amount: (j['amount'] as num?)?.toInt(),
+    merchant: j['merchant'] as String?,
+    expenseDate: j['expenseDate'] as String?,
+    installmentMonths: (j['installmentMonths'] as num?)?.toInt(),
+    cardHint: j['cardHint'] as String?,
+    issuerName: j['issuerName'] as String?,
+    cardLast4: j['cardLast4'] as String?,
+    assetRowId: (j['assetRowId'] as num?)?.toInt(),
+    assetRemembered: j['assetRemembered'] as bool? ?? false,
+    assetCandidates: ((j['assetCandidates'] as List?) ?? const [])
+        .map(
+          (e) => SmsAssetCandidate.fromJson((e as Map).cast<String, dynamic>()),
+        )
+        .toList(),
+    categoryRowId: (j['categoryRowId'] as num?)?.toInt(),
+    categoryName: j['categoryName'] as String?,
+    originalAmount: j['originalAmount'] as num?,
+    originalCurrency: j['originalCurrency'] as String?,
+  );
 }
 
 /// 저장 결과.
 class SmsCommitResult {
-  const SmsCommitResult({required this.expenseRowId, required this.cardRemembered});
+  const SmsCommitResult({
+    required this.expenseRowId,
+    required this.cardRemembered,
+  });
   final int? expenseRowId;
   final bool cardRemembered;
 
   factory SmsCommitResult.fromJson(Map<String, dynamic> j) => SmsCommitResult(
-        expenseRowId: (j['expenseRowId'] as num?)?.toInt(),
-        cardRemembered: j['cardRemembered'] as bool? ?? false,
-      );
+    expenseRowId: (j['expenseRowId'] as num?)?.toInt(),
+    cardRemembered: j['cardRemembered'] as bool? ?? false,
+  );
 }
 
 /// 기억해 둔 카드 연결 한 건.
@@ -131,11 +137,11 @@ class SmsCardMapping {
   final String? assetName;
 
   factory SmsCardMapping.fromJson(Map<String, dynamic> j) => SmsCardMapping(
-        rowId: (j['rowId'] as num?)?.toInt() ?? 0,
-        cardHint: j['cardHint'] as String? ?? '',
-        assetRowId: (j['assetRowId'] as num?)?.toInt() ?? 0,
-        assetName: j['assetName'] as String?,
-      );
+    rowId: (j['rowId'] as num?)?.toInt() ?? 0,
+    cardHint: j['cardHint'] as String? ?? '',
+    assetRowId: (j['assetRowId'] as num?)?.toInt() ?? 0,
+    assetName: j['assetName'] as String?,
+  );
 }
 
 // ─── 리포지토리 ────────────────────────────────────────────────
@@ -219,7 +225,9 @@ class SmsRepository {
       );
       final list = (api.data?['mappings'] as List?) ?? const [];
       return list
-          .map((e) => SmsCardMapping.fromJson((e as Map).cast<String, dynamic>()))
+          .map(
+            (e) => SmsCardMapping.fromJson((e as Map).cast<String, dynamic>()),
+          )
           .toList();
     } on DioException catch (e) {
       throw ApiException.fromDio(e);

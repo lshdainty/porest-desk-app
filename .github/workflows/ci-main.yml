@@ -41,6 +41,14 @@ jobs:
           channel: stable
           cache: true
       - run: flutter pub get
+
+      # 서식은 dart format 기본값(page width 80 · tall style)이 정한다 —
+      # analysis_options.yaml 에 formatter 설정을 두지 않는다(gofmt 처럼 정답 하나).
+      # 여기서 막지 않으면 다시 손포맷으로 흩어져 diff 에 잡음이 섞인다.
+      # 로컬에서 고치는 법: dart format lib test
+      - name: Format
+        run: dart format --set-exit-if-changed lib test
+
       - name: Analyze
         run: flutter analyze lib/
 

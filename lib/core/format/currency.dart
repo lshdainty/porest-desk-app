@@ -58,7 +58,9 @@ String formatOriginalAmount(double amount, String code, String locale) {
 /// 서버는 순자산·요약을 이미 환산해서 준다. raw balance 를 그대로 더하면
 /// USD 1,000 이 1,000원으로 잡혀 서버 값과 어긋난다.
 int balanceInKrw(int balance, String? currency, double? exchangeRate) {
-  if (!isForeignCurrency(currency) || exchangeRate == null || exchangeRate <= 0) {
+  if (!isForeignCurrency(currency) ||
+      exchangeRate == null ||
+      exchangeRate <= 0) {
     return balance;
   }
   return (balance * exchangeRate).round();

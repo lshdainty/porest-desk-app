@@ -35,8 +35,7 @@ class _FakeSecureStorage implements FlutterSecureStorage {
     WebOptions? webOptions,
     MacOsOptions? mOptions,
     WindowsOptions? wOptions,
-  }) async =>
-      map[key];
+  }) async => map[key];
 
   @override
   Future<void> delete({
@@ -76,9 +75,9 @@ void main() {
   });
 
   Uri callback({String? code, String? state}) => Uri.parse(
-        'porestdesk://oauth/callback'
-        '?${code != null ? 'code=$code&' : ''}${state != null ? 'state=$state' : ''}',
-      );
+    'porestdesk://oauth/callback'
+    '?${code != null ? 'code=$code&' : ''}${state != null ? 'state=$state' : ''}',
+  );
 
   group('정상 콜백', () {
     test('state 일치 → 보관한 verifier 로 교환하고 흐름을 소비한다', () async {
@@ -105,12 +104,17 @@ void main() {
     test('state 불일치 → 교환하지 않고, 진행 중 흐름은 남긴다', () async {
       await store.savePending(verifier: 'v1', state: 's1');
 
-      final result = await handler.handle(callback(code: 'evil', state: 'wrong'));
+      final result = await handler.handle(
+        callback(code: 'evil', state: 'wrong'),
+      );
 
       expect(result, OAuthCallbackResult.stateMismatch);
       expect(exchanged, isEmpty);
-      expect(await store.restorePending(), isNotNull,
-          reason: '위조 콜백이 진짜 흐름을 지우면 안 된다');
+      expect(
+        await store.restorePending(),
+        isNotNull,
+        reason: '위조 콜백이 진짜 흐름을 지우면 안 된다',
+      );
     });
 
     test('진행 중 흐름이 없으면(중복 배달) 무시한다', () async {
@@ -130,7 +134,9 @@ void main() {
     });
 
     test('콜백 스킴이 아니면 손대지 않는다', () async {
-      final result = await handler.handle(Uri.parse('https://desk.porest.cloud/x'));
+      final result = await handler.handle(
+        Uri.parse('https://desk.porest.cloud/x'),
+      );
 
       expect(result, OAuthCallbackResult.notCallback);
     });

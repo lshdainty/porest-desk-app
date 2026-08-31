@@ -48,14 +48,13 @@ const _kDefaultEventColor = '#2c70bf';
 
 enum _RecurrenceOption { none, daily, weekly, monthly, yearly }
 
-String _recurrenceLabel(AppLocalizations l, _RecurrenceOption r) =>
-    switch (r) {
-      _RecurrenceOption.none => l.calRecurrenceNone,
-      _RecurrenceOption.daily => l.calRepeatDaily,
-      _RecurrenceOption.weekly => l.calRepeatWeekly,
-      _RecurrenceOption.monthly => l.calRepeatMonthly,
-      _RecurrenceOption.yearly => l.calRepeatYearly,
-    };
+String _recurrenceLabel(AppLocalizations l, _RecurrenceOption r) => switch (r) {
+  _RecurrenceOption.none => l.calRecurrenceNone,
+  _RecurrenceOption.daily => l.calRepeatDaily,
+  _RecurrenceOption.weekly => l.calRepeatWeekly,
+  _RecurrenceOption.monthly => l.calRepeatMonthly,
+  _RecurrenceOption.yearly => l.calRepeatYearly,
+};
 
 _RecurrenceOption _rruleToRecurrence(String? rrule) {
   if (rrule == null || rrule.isEmpty) return _RecurrenceOption.none;
@@ -129,14 +128,15 @@ class _BodyState extends ConsumerState<_Body> {
       // 생성 모드: 캘린더 로드 후 기본 캘린더 선택(저장 반영). 웹 EventForm useEffect 패턴.
       ref.read(userCalendarListProvider.future).then((cals) {
         if (!mounted || _userCalendarRowId != null || cals.isEmpty) return;
-        final def =
-            cals.firstWhere((c) => c.isDefault, orElse: () => cals.first);
+        final def = cals.firstWhere(
+          (c) => c.isDefault,
+          orElse: () => cals.first,
+        );
         setState(() => _userCalendarRowId = def.rowId);
       });
     }
     widget.controller.onSubmit = _submit;
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) => _syncController());
+    WidgetsBinding.instance.addPostFrameCallback((_) => _syncController());
   }
 
   @override
@@ -147,8 +147,7 @@ class _BodyState extends ConsumerState<_Body> {
     super.dispose();
   }
 
-  bool get _canSubmit =>
-      !_submitting && _titleCtrl.text.trim().isNotEmpty;
+  bool get _canSubmit => !_submitting && _titleCtrl.text.trim().isNotEmpty;
 
   void _syncController() {
     widget.controller.setCanSubmit(_canSubmit);
@@ -168,8 +167,9 @@ class _BodyState extends ConsumerState<_Body> {
         await repo.updateEvent(
           id: widget.edit!.rowId,
           title: _titleCtrl.text.trim(),
-          description:
-              _descCtrl.text.trim().isEmpty ? null : _descCtrl.text.trim(),
+          description: _descCtrl.text.trim().isEmpty
+              ? null
+              : _descCtrl.text.trim(),
           color: _color,
           calendarRowId: _userCalendarRowId,
           startDate: _iso(_start),
@@ -183,8 +183,9 @@ class _BodyState extends ConsumerState<_Body> {
       } else {
         await repo.createEvent(
           title: _titleCtrl.text.trim(),
-          description:
-              _descCtrl.text.trim().isEmpty ? null : _descCtrl.text.trim(),
+          description: _descCtrl.text.trim().isEmpty
+              ? null
+              : _descCtrl.text.trim(),
           color: _color,
           calendarRowId: _userCalendarRowId,
           startDate: _iso(_start),
@@ -200,8 +201,9 @@ class _BodyState extends ConsumerState<_Body> {
       if (_isEdit) {
         final orig = widget.edit!.start;
         if (orig.year != _start.year || orig.month != _start.month) {
-          ref.invalidate(monthEventsProvider(
-              (year: orig.year, month: orig.month)));
+          ref.invalidate(
+            monthEventsProvider((year: orig.year, month: orig.month)),
+          );
         }
       }
       if (!mounted) return;
@@ -234,8 +236,13 @@ class _BodyState extends ConsumerState<_Body> {
     if (picked == null) return;
     setState(() {
       final cur = isStart ? _start : _end;
-      final next =
-          DateTime(cur.year, cur.month, cur.day, picked.hour, picked.minute);
+      final next = DateTime(
+        cur.year,
+        cur.month,
+        cur.day,
+        picked.hour,
+        picked.minute,
+      );
       if (isStart) {
         _start = next;
         if (_end.isBefore(_start)) _end = _start.add(const Duration(hours: 1));
@@ -263,259 +270,294 @@ class _BodyState extends ConsumerState<_Body> {
     return ListView(
       controller: widget.scrollController,
       padding: const EdgeInsets.fromLTRB(
-          PSpace.xl, PSpace.x8, PSpace.xl, PSpace.x16),
+        PSpace.xl,
+        PSpace.x8,
+        PSpace.xl,
+        PSpace.x16,
+      ),
       children: [
-          PSectionLabel(l.calFieldTitle, variant: PSectionLabelVariant.header),
-          const SizedBox(height: PSpace.x8),
-          PTextInput(
-            controller: _titleCtrl,
-            placeholder: l.calTitlePlaceholder,
-            onChanged: (_) {
-              setState(() {});
-              _syncController();
+        PSectionLabel(l.calFieldTitle, variant: PSectionLabelVariant.header),
+        const SizedBox(height: PSpace.x8),
+        PTextInput(
+          controller: _titleCtrl,
+          placeholder: l.calTitlePlaceholder,
+          onChanged: (_) {
+            setState(() {});
+            _syncController();
+          },
+        ),
+        const SizedBox(height: PSpace.x16),
+
+        PSectionLabel(
+          l.calFieldDescription,
+          variant: PSectionLabelVariant.header,
+        ),
+        const SizedBox(height: PSpace.x8),
+        PTextInput(
+          controller: _descCtrl,
+          maxLines: 3,
+          placeholder: l.calDescriptionPlaceholder,
+        ),
+        const SizedBox(height: PSpace.x16),
+
+        // 캘린더
+        PSectionLabel(l.calFieldCalendar, variant: PSectionLabelVariant.header),
+        const SizedBox(height: PSpace.x8),
+        calendarsAsync.when(
+          loading: () => const Padding(
+            padding: EdgeInsets.symmetric(vertical: PSpace.x8),
+            child: Center(
+              child: SizedBox(
+                height: PSpace.x16,
+                width: PSpace.x16,
+                child: PCircularProgressIndicator(strokeWidth: 2),
+              ),
+            ),
+          ),
+          error: (_, _) => Text(
+            l.calCalendarLoadError,
+            style: PTypo.caption.copyWith(color: t.statusDanger),
+          ),
+          data: (cals) => PSelect<int>(
+            value: selectedCalendar?.rowId,
+            placeholder: l.calSelectCalendar,
+            onChanged: (v) {
+              if (v != null) setState(() => _userCalendarRowId = v);
             },
-          ),
-          const SizedBox(height: PSpace.x16),
-
-          PSectionLabel(l.calFieldDescription,
-              variant: PSectionLabelVariant.header),
-          const SizedBox(height: PSpace.x8),
-          PTextInput(
-            controller: _descCtrl,
-            maxLines: 3,
-            placeholder: l.calDescriptionPlaceholder,
-          ),
-          const SizedBox(height: PSpace.x16),
-
-          // 캘린더
-          PSectionLabel(l.calFieldCalendar,
-              variant: PSectionLabelVariant.header),
-          const SizedBox(height: PSpace.x8),
-          calendarsAsync.when(
-            loading: () => const Padding(
-              padding: EdgeInsets.symmetric(vertical: PSpace.x8),
-              child:
-                  Center(child: SizedBox(height: PSpace.x16, width: PSpace.x16, child: PCircularProgressIndicator(strokeWidth: 2))),
-            ),
-            error: (_, _) => Text(l.calCalendarLoadError,
-                style: PTypo.caption.copyWith(color: t.statusDanger)),
-            data: (cals) => PSelect<int>(
-              value: selectedCalendar?.rowId,
-              placeholder: l.calSelectCalendar,
-              onChanged: (v) {
-                if (v != null) setState(() => _userCalendarRowId = v);
-              },
-              items: [
-                for (final c in cals)
-                  PSelectItem<int>(
-                    value: c.rowId,
-                    label: c.calendarName,
-                    leading: _labelDot(
-                        solidSwatchColor(context, c.color, fallback: t.fgBrand)),
+            items: [
+              for (final c in cals)
+                PSelectItem<int>(
+                  value: c.rowId,
+                  label: c.calendarName,
+                  leading: _labelDot(
+                    solidSwatchColor(context, c.color, fallback: t.fgBrand),
                   ),
-              ],
-            ),
-          ),
-          const SizedBox(height: PSpace.x16),
-
-          // 라벨
-          PSectionLabel(l.calFieldLabel,
-              variant: PSectionLabelVariant.header, icon: LucideIcons.tag),
-          const SizedBox(height: PSpace.x8),
-          // web EventForm 정합 — chip 나열 대신 Select ('라벨이 없습니다' + 색 점)
-          labelsAsync.when(
-            loading: () => const SizedBox(
-                height: PSpace.x32,
-                child: Center(child: PCircularProgressIndicator())),
-            error: (_, _) => Text(l.calLabelLoadError,
-                style: PTypo.caption.copyWith(color: t.statusDanger)),
-            data: (labels) => PSelect<int>(
-              value: _labelRowId ?? 0,
-              onChanged: (v) =>
-                  setState(() => _labelRowId = v == 0 ? null : v),
-              items: [
-                PSelectItem(
-                  value: 0,
-                  label: l.calNoLabel,
-                  leading: _labelDot(t.fgTertiary.withValues(alpha: 0.3)),
                 ),
-                for (final l in labels)
-                  PSelectItem(
-                    value: l.rowId,
-                    label: l.labelName,
-                    leading: _labelDot(solidSwatchColor(context, l.color,
-                        fallback: t.fgBrand)),
+            ],
+          ),
+        ),
+        const SizedBox(height: PSpace.x16),
+
+        // 라벨
+        PSectionLabel(
+          l.calFieldLabel,
+          variant: PSectionLabelVariant.header,
+          icon: LucideIcons.tag,
+        ),
+        const SizedBox(height: PSpace.x8),
+        // web EventForm 정합 — chip 나열 대신 Select ('라벨이 없습니다' + 색 점)
+        labelsAsync.when(
+          loading: () => const SizedBox(
+            height: PSpace.x32,
+            child: Center(child: PCircularProgressIndicator()),
+          ),
+          error: (_, _) => Text(
+            l.calLabelLoadError,
+            style: PTypo.caption.copyWith(color: t.statusDanger),
+          ),
+          data: (labels) => PSelect<int>(
+            value: _labelRowId ?? 0,
+            onChanged: (v) => setState(() => _labelRowId = v == 0 ? null : v),
+            items: [
+              PSelectItem(
+                value: 0,
+                label: l.calNoLabel,
+                leading: _labelDot(t.fgTertiary.withValues(alpha: 0.3)),
+              ),
+              for (final l in labels)
+                PSelectItem(
+                  value: l.rowId,
+                  label: l.labelName,
+                  leading: _labelDot(
+                    solidSwatchColor(context, l.color, fallback: t.fgBrand),
                   ),
-              ],
+                ),
+            ],
+          ),
+        ),
+        const SizedBox(height: PSpace.x16),
+
+        // 색상
+        PSectionLabel(l.calFieldColor, variant: PSectionLabelVariant.header),
+        const SizedBox(height: PSpace.x8),
+        PColorPicker(
+          selected: _color,
+          onChanged: (hex) => setState(() => _color = hex),
+        ),
+        const SizedBox(height: PSpace.x16),
+
+        // 종일 — web 정합: [토글][라벨] 좌측 정렬
+        Row(
+          children: [
+            PSwitch(
+              value: _allDay,
+              onChanged: (v) => setState(() => _allDay = v),
+              semanticLabel: l.calAllDay,
             ),
+            const SizedBox(width: PSpace.x8),
+            Text(l.calAllDay, style: PTypo.bodySm.copyWith(color: t.fgPrimary)),
+          ],
+        ),
+        const SizedBox(height: PSpace.x12),
+
+        // 시작/종료 — 종일 ON: 시작·종료 가로 2칸(웹 grid-cols-2 정합),
+        // 종일 OFF: 세로 stack + 각 행 [날짜][시간].
+        if (_allDay) ...[
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    PSectionLabel(
+                      l.calFieldStartDate,
+                      variant: PSectionLabelVariant.header,
+                    ),
+                    const SizedBox(height: PSpace.x8),
+                    PDateInput(
+                      value: _start,
+                      onChanged: (d) => _onPickDate(true, d),
+                      firstDate: DateTime(2020),
+                      lastDate: DateTime(2030),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: PSpace.x12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    PSectionLabel(
+                      l.calFieldEndDate,
+                      variant: PSectionLabelVariant.header,
+                    ),
+                    const SizedBox(height: PSpace.x8),
+                    PDateInput(
+                      value: _end,
+                      onChanged: (d) => _onPickDate(false, d),
+                      firstDate: DateTime(2020),
+                      lastDate: DateTime(2030),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: PSpace.x16),
-
-          // 색상
-          PSectionLabel(l.calFieldColor, variant: PSectionLabelVariant.header),
+        ] else ...[
+          PSectionLabel(
+            l.calFieldStartDate,
+            variant: PSectionLabelVariant.header,
+          ),
           const SizedBox(height: PSpace.x8),
-          PColorPicker(
-            selected: _color,
-            onChanged: (hex) => setState(() => _color = hex),
-          ),
-          const SizedBox(height: PSpace.x16),
-
-          // 종일 — web 정합: [토글][라벨] 좌측 정렬
           Row(
             children: [
-              PSwitch(
-                value: _allDay,
-                onChanged: (v) => setState(() => _allDay = v),
-                semanticLabel: l.calAllDay,
+              Expanded(
+                child: PDateInput(
+                  value: _start,
+                  onChanged: (d) => _onPickDate(true, d),
+                  firstDate: DateTime(2020),
+                  lastDate: DateTime(2030),
+                ),
               ),
               const SizedBox(width: PSpace.x8),
-              Text(l.calAllDay,
-                  style: PTypo.bodySm.copyWith(color: t.fgPrimary)),
+              SizedBox(
+                width: PSpace.x80 + PSpace.x20,
+                child: PTimeInput(
+                  value: TimeOfDay.fromDateTime(_start),
+                  onChanged: (tm) => _onPickTime(true, tm),
+                ),
+              ),
             ],
           ),
           const SizedBox(height: PSpace.x12),
+          PSectionLabel(
+            l.calFieldEndDate,
+            variant: PSectionLabelVariant.header,
+          ),
+          const SizedBox(height: PSpace.x8),
+          Row(
+            children: [
+              Expanded(
+                child: PDateInput(
+                  value: _end,
+                  onChanged: (d) => _onPickDate(false, d),
+                  firstDate: DateTime(2020),
+                  lastDate: DateTime(2030),
+                ),
+              ),
+              const SizedBox(width: PSpace.x8),
+              SizedBox(
+                width: PSpace.x80 + PSpace.x20,
+                child: PTimeInput(
+                  value: TimeOfDay.fromDateTime(_end),
+                  onChanged: (tm) => _onPickTime(false, tm),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: PSpace.x16),
+        ],
 
-          // 시작/종료 — 종일 ON: 시작·종료 가로 2칸(웹 grid-cols-2 정합),
-          // 종일 OFF: 세로 stack + 각 행 [날짜][시간].
-          if (_allDay) ...[
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      PSectionLabel(l.calFieldStartDate,
-                          variant: PSectionLabelVariant.header),
-                      const SizedBox(height: PSpace.x8),
-                      PDateInput(
-                        value: _start,
-                        onChanged: (d) => _onPickDate(true, d),
-                        firstDate: DateTime(2020),
-                        lastDate: DateTime(2030),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: PSpace.x12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      PSectionLabel(l.calFieldEndDate,
-                          variant: PSectionLabelVariant.header),
-                      const SizedBox(height: PSpace.x8),
-                      PDateInput(
-                        value: _end,
-                        onChanged: (d) => _onPickDate(false, d),
-                        firstDate: DateTime(2020),
-                        lastDate: DateTime(2030),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: PSpace.x16),
-          ] else ...[
-            PSectionLabel(l.calFieldStartDate,
-                variant: PSectionLabelVariant.header),
-            const SizedBox(height: PSpace.x8),
-            Row(
-              children: [
-                Expanded(
-                  child: PDateInput(
-                    value: _start,
-                    onChanged: (d) => _onPickDate(true, d),
-                    firstDate: DateTime(2020),
-                    lastDate: DateTime(2030),
-                  ),
-                ),
-                const SizedBox(width: PSpace.x8),
-                SizedBox(
-                  width: PSpace.x80 + PSpace.x20,
-                  child: PTimeInput(
-                    value: TimeOfDay.fromDateTime(_start),
-                    onChanged: (tm) => _onPickTime(true, tm),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: PSpace.x12),
-            PSectionLabel(l.calFieldEndDate,
-                variant: PSectionLabelVariant.header),
-            const SizedBox(height: PSpace.x8),
-            Row(
-              children: [
-                Expanded(
-                  child: PDateInput(
-                    value: _end,
-                    onChanged: (d) => _onPickDate(false, d),
-                    firstDate: DateTime(2020),
-                    lastDate: DateTime(2030),
-                  ),
-                ),
-                const SizedBox(width: PSpace.x8),
-                SizedBox(
-                  width: PSpace.x80 + PSpace.x20,
-                  child: PTimeInput(
-                    value: TimeOfDay.fromDateTime(_end),
-                    onChanged: (tm) => _onPickTime(false, tm),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: PSpace.x16),
+        // 장소
+        PSectionLabel(
+          l.calLocation,
+          variant: PSectionLabelVariant.header,
+          icon: LucideIcons.mapPin,
+        ),
+        const SizedBox(height: PSpace.x8),
+        PTextInput(
+          controller: _locationCtrl,
+          placeholder: l.calLocationPlaceholder,
+        ),
+        const SizedBox(height: PSpace.x16),
+
+        // 반복
+        PSectionLabel(
+          l.calRepeat,
+          variant: PSectionLabelVariant.header,
+          icon: LucideIcons.repeat,
+        ),
+        const SizedBox(height: PSpace.x8),
+        Wrap(
+          spacing: PSpace.x4,
+          runSpacing: PSpace.x4,
+          children: [
+            for (final r in _RecurrenceOption.values)
+              PToggle(
+                label: _recurrenceLabel(l, r),
+                pressed: _recurrence == r,
+                size: PToggleSize.sm,
+                onChanged: (_) => setState(() => _recurrence = r),
+              ),
           ],
+        ),
+        const SizedBox(height: PSpace.x16),
 
-          // 장소
-          PSectionLabel(l.calLocation,
-              variant: PSectionLabelVariant.header, icon: LucideIcons.mapPin),
-          const SizedBox(height: PSpace.x8),
-          PTextInput(
-            controller: _locationCtrl,
-            placeholder: l.calLocationPlaceholder,
-          ),
-          const SizedBox(height: PSpace.x16),
-
-          // 반복
-          PSectionLabel(l.calRepeat,
-              variant: PSectionLabelVariant.header, icon: LucideIcons.repeat),
-          const SizedBox(height: PSpace.x8),
-          Wrap(
-            spacing: PSpace.x4,
-            runSpacing: PSpace.x4,
-            children: [
-              for (final r in _RecurrenceOption.values)
-                PToggle(
-                  label: _recurrenceLabel(l, r),
-                  pressed: _recurrence == r,
-                  size: PToggleSize.sm,
-                  onChanged: (_) => setState(() => _recurrence = r),
-                ),
-            ],
-          ),
-          const SizedBox(height: PSpace.x16),
-
-          // 알림
-          PSectionLabel(l.calFieldReminder,
-              variant: PSectionLabelVariant.header, icon: LucideIcons.bell),
-          const SizedBox(height: PSpace.x8),
-          Wrap(
-            spacing: PSpace.x4,
-            runSpacing: PSpace.x4,
-            children: [
-              for (final m in _reminderOptions)
-                PToggle(
-                  label: _reminderLabel(l, m),
-                  pressed: _reminders.contains(m),
-                  size: PToggleSize.sm,
-                  onChanged: (_) => setState(() {
-                    if (!_reminders.add(m)) _reminders.remove(m);
-                  }),
-                ),
-            ],
-          ),
+        // 알림
+        PSectionLabel(
+          l.calFieldReminder,
+          variant: PSectionLabelVariant.header,
+          icon: LucideIcons.bell,
+        ),
+        const SizedBox(height: PSpace.x8),
+        Wrap(
+          spacing: PSpace.x4,
+          runSpacing: PSpace.x4,
+          children: [
+            for (final m in _reminderOptions)
+              PToggle(
+                label: _reminderLabel(l, m),
+                pressed: _reminders.contains(m),
+                size: PToggleSize.sm,
+                onChanged: (_) => setState(() {
+                  if (!_reminders.add(m)) _reminders.remove(m);
+                }),
+              ),
+          ],
+        ),
       ],
     );
   }
@@ -523,7 +565,7 @@ class _BodyState extends ConsumerState<_Body> {
 
 /// 라벨 select 항목 좌측 색 점 — web `h-3 w-3 rounded-full` 정합.
 Widget _labelDot(Color color) => Container(
-      width: 12,
-      height: 12,
-      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-    );
+  width: 12,
+  height: 12,
+  decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+);
