@@ -15,6 +15,9 @@ abstract final class PrefsKeys {
   /// 예전 단일 스위치(bool). 한 번 읽어 카드 전체로 펼치고 지운다.
   static const hideAmounts = 'pd-hide';       // bool (legacy)
   static const hideCards = 'pd-hide-cards';   // List<String>
+  /// 로컬 hideCards 캐시의 **주인**(userId). 서버 동기화가 붙으면서 필요해졌다 —
+  /// 기기를 넘겨받거나 계정을 갈아탄 경우 남의 가림 설정을 내 계정으로 올리면 안 된다.
+  static const hideCardsOwner = 'pd-hide-cards-user'; // String
   static const locale = 'pd-locale';          // 'ko' | 'en' | null(=system)
   /// 앱 전용(웹에 대응 개념 없음) — 생체인증 앱 잠금 on/off.
   static const appLock = 'pd-app-lock';       // bool

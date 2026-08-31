@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -51,6 +53,11 @@ class _PorestDeskAppState extends ConsumerState<PorestDeskApp>
           // 알림을 눌러 앱을 처음 켠 경우도 여기로 온다(콜드 스타트).
           // 로그인 전에 열면 라우터가 로그인 화면으로 되돌리므로 이 시점에 연다.
           _openPendingSms();
+          // 금액 가리기를 계정 설정과 맞춘다. 여기서 하는 이유는 로그인 경로가 둘
+          // (앱 시작 시 무음 재인증 · 인가코드 교환)인데 둘 다 이 리스너로 모이기 때문이다.
+          unawaited(
+            ref.read(settingsProvider.notifier).syncHideCardsFromServer(user.userId),
+          );
         } else {
           svc.stop();
         }
