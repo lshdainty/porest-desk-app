@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -5,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:porest_desk_app/core/settings/hide_amounts_cards.dart';
 import 'package:porest_desk_app/core/storage/prefs_provider.dart';
+import 'package:porest_desk_app/core/settings/hide_cards_repository.dart';
 import 'package:porest_desk_app/core/settings/user_locale.dart';
 
 /// 사용자 표시 설정 모음.
@@ -153,9 +156,67 @@ class SettingsNotifier extends AsyncNotifier<AppSettings> {
   Future<void> revealAllCards() => _writeHideCards(<String>{});
 
   Future<void> _writeHideCards(Set<String> next) async {
+    await _writeHideCardsLocal(next);
+    _push(next);
+  }
+
+  /// 로컬에만 반영한다. 서버에서 받아온 값을 되쏘지 않으려고 갈라 뒀다.
+  Future<void> _writeHideCardsLocal(Set<String> next) async {
     final prefs = await ref.read(prefsProvider.future);
     await prefs.setStringList(PrefsKeys.hideCards, next.toList());
     state = AsyncData(_current.copyWith(hideCards: next));
+  }
+
+  /// 서버로 올린다 — 실패해도 로컬은 되돌리지 않는다.
+  ///
+  /// 사용자는 이미 화면이 바뀐 걸 봤다. 거기서 되돌리면 "저장했는데 안 됐다" 가 아니라
+  /// "저장했는데 원래대로 튀었다" 가 되어 더 헷갈린다. 실패는 전역 인터셉터가 서버
+  /// 메시지로 띄우고(비-GET), 다음 저장이 서버를 따라잡는다.
+  void _push(Set<String> next) => unawaited(_pushNow(next));
+
+  Future<void> _pushNow(Set<String> next) async {
+    try {
+      final repo = await ref.read(hideCardsRepositoryProvider.future);
+      await repo.put(next);
+    } catch (_) {
+      /* 전역 인터셉터가 이미 사용자에게 알린다 */
+    }
+  }
+
+  /// 로그인 직후 서버와 맞춘다.
+  ///
+  /// **서버가 `null` 이면 내려받지 않고 로컬을 올린다.** `null` 은 "아직 한 번도 안 올림"
+  /// 이라 그걸 빈 목록으로 받아 덮으면, 이 기능이 나가는 순간 **가려 뒀던 금액이 통째로
+  /// 드러난다.** 사용자가 실제로 다 푼 상태는 `[]` 로 따로 온다.
+  ///
+  /// 다른 사용자가 쓰던 기기면 로컬을 올리지 않는다 — 남의 가림 설정이 내 계정에 붙는다.
+  Future<void> syncHideCardsFromServer(String userId) async {
+    final prefs = await ref.read(prefsProvider.future);
+    final mine = prefs.getString(PrefsKeys.hideCardsOwner) == userId;
+
+    List<String>? server;
+    try {
+      final repo = await ref.read(hideCardsRepositoryProvider.future);
+      server = await repo.fetch();
+    } catch (_) {
+      // 못 받아왔으면 로컬 그대로 둔다 — 여기서 비우면 금액이 드러난다.
+      return;
+    }
+
+    await prefs.setString(PrefsKeys.hideCardsOwner, userId);
+
+    if (server == null) {
+      // 첫 동기화는 **업로드**다. 단, 남의 기기 캐시는 올리지 않는다.
+      final local = mine ? _current.hideCards : <String>{};
+      if (!mine) await _writeHideCardsLocal(local);
+      // 여기서는 기다린다 — 부팅 중 한 번뿐이고, 동기화가 끝났는지 호출부가 알 수 있어야 한다.
+      await _pushNow(local);
+      return;
+    }
+
+    // 서버에서 받은 값은 되쏘지 않는다 — 부르자마자 PUT 이 나가는 왕복이 생긴다.
+    // 모르는 카드 키는 버린다(로컬 규칙과 같다).
+    await _writeHideCardsLocal(server.where(kHideCards.containsKey).toSet());
   }
 
   /// [locale] = `null` 이면 시스템 로케일을 따른다.
