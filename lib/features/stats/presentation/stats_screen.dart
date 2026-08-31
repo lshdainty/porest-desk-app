@@ -258,8 +258,9 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
             }
 
             return Padding(
+              // 좌우는 시트 헤더·푸터와 같은 24 — 20 이면 본문이 제목보다 4 왼쪽에 선다.
               padding: const EdgeInsets.symmetric(
-                horizontal: PSpace.x20,
+                horizontal: PSpace.xl,
                 vertical: PSpace.x12,
               ),
               child: Column(
